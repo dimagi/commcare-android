@@ -60,11 +60,11 @@ public class ScanCczTask extends CommCareTask<Void, File, File, ExecuteRecoveryM
     }
 
     // Unzip profile and parses id and version from it
-    private Pair<String, Integer> getProfileIdAndVersionFromCcz(File f) throws IOException, UnfullfilledRequirementsException, XmlPullParserException, InvalidStructureException {
+    private Pair<String, Integer> getProfileIdAndVersionFromCcz(File cczFile) throws IOException, UnfullfilledRequirementsException, XmlPullParserException, InvalidStructureException {
         InputStream profileStream = null;
         ZipFile zipFile = null;
         try {
-            zipFile = new ZipFile(f);
+            zipFile = new ZipFile(cczFile);
             profileStream = zipFile.getInputStream(zipFile.getEntry(PROFILE_FILE_NAME));
             return getProfileParser(profileStream).parse();
         } finally {

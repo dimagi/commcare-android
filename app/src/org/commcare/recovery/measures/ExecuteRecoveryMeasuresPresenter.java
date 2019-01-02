@@ -84,7 +84,7 @@ public class ExecuteRecoveryMeasuresPresenter implements BasePresenterContract, 
     @Override
     public void start() {
         if (cczSelectionEnabled) {
-            enableCczSelection();
+            setCczSelectionVisibility(true);
         }
 
         if (mLastExecutionStatus == STATUS_FAILED) {
@@ -99,7 +99,7 @@ public class ExecuteRecoveryMeasuresPresenter implements BasePresenterContract, 
     }
 
     // recursively executes measures one after another
-    void executePendingMeasures() {
+    private void executePendingMeasures() {
         mActivity.enableLoadingIndicator();
         mCurrentMeasure = getNextMeasureToExecute();
         if (mCurrentMeasure != null) {
@@ -376,32 +376,7 @@ public class ExecuteRecoveryMeasuresPresenter implements BasePresenterContract, 
         mActivity.showReinstall();
     }
 
-    public void onCCZScanComplete() {
-        mActivity.hideReinstall();
-        if (mAppArchivePath != null) {
-            unZipCcz(mAppArchivePath);
-        } else {
-            // no ccz found, allow user to manually locate ccz or retry
-            updateStatus(StringUtils.getStringRobust(mActivity, R.string.recovery_measure_no_ccz_found));
-            enableCczSelection();
-            mActivity.enableRetry();
-            mActivity.disableLoadingIndicator();
-        }
-    }
-
-    private void enableCczSelection() {
-        cczSelectionEnabled = true;
-        mActivity.enableCczSelection();
-    }
-
-
-    public void onCczScanFailed(Exception e) {
-        updateStatus(StringUtils.getStringRobust(mActivity, R.string.recovery_measure_ccz_scan_failed));
-        onAsyncExecutionFailure(e.getMessage());
-        mActivity.enableCczSelection();
-    }
-
-    public void unZipCcz(String filePath) {
+    private void unZipCcz(String filePath) {
         // Clear any targetPath that might have got set earlier
         if (mTargetPath != null) {
             new File(mTargetPath).delete();
@@ -411,24 +386,9 @@ public class ExecuteRecoveryMeasuresPresenter implements BasePresenterContract, 
         unzipTask.connect(mActivity);
         unzipTask.executeParallel(new String[]{filePath, mTargetPath});
         mActivity.enableLoadingIndicator();
+        setCczSelectionVisibility(false);
     }
 
-    public void onUnzipSuccessful() {
-        ArchiveFileRoot afr = CommCareApplication.instance().getArchiveFileRoot();
-        String mGUID = afr.addArchiveFile(mTargetPath);
-        String ref = "jr://archive/" + mGUID + "/profile.ccpr";
-        doOfflineAppInstall(ref);
-    }
-
-    public void updateUnZipProgress(String update) {
-        mActivity.updateStatus(StringUtils.getStringRobust(mActivity, R.string.recovery_measure_unzip_progress, update));
-    }
-
-    public void onUnzipFailure(Exception e) {
-        updateStatus(StringUtils.getStringRobust(mActivity, R.string.recovery_measure_unzip_error));
-        onAsyncExecutionFailure(e.getMessage());
-        mActivity.enableCczSelection();
-    }
 
     public void selectCczFromFileSystem() {
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
@@ -448,6 +408,74 @@ public class ExecuteRecoveryMeasuresPresenter implements BasePresenterContract, 
         } else {
             updateStatus(StringUtils.getStringRobust(mActivity, R.string.recovery_measure_invalid_ccz_path));
         }
+    }
+
+    public void reinstallFromScannedCcz() {
+        unZipCcz(mAppArchivePath);
+    }
+
+    public void retry() {
+        clearState();
+        executePendingMeasures();
+    }
+
+    private void clearState() {
+        mAppArchivePath = null;
+        mCurrentMeasure = null;
+        mLastDisplayStatus = null;
+        mLastExecutionStatus = -1;
+        cczSelectionEnabled = false;
+    }
+
+    public void launchAppManager() {
+        Intent i = new Intent(mActivity, AppManagerActivity.class);
+        i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        mActivity.startActivity(i);
+    }
+
+    // CCZ Scan callbacks
+    public void onCCZScanComplete() {
+        mActivity.hideReinstall();
+        if (mAppArchivePath != null) {
+            unZipCcz(mAppArchivePath);
+        } else {
+            // no ccz found, allow user to manually locate ccz or retry
+            updateStatus(StringUtils.getStringRobust(mActivity, R.string.recovery_measure_no_ccz_found));
+            setCczSelectionVisibility(true);
+            mActivity.enableRetry();
+            mActivity.disableLoadingIndicator();
+        }
+    }
+
+    private void setCczSelectionVisibility(boolean isEnable) {
+        cczSelectionEnabled = isEnable;
+        mActivity.setCczSelectionVisibility(isEnable);
+    }
+
+
+    public void onCczScanFailed(Exception e) {
+        updateStatus(StringUtils.getStringRobust(mActivity, R.string.recovery_measure_ccz_scan_failed));
+        onAsyncExecutionFailure(e.getMessage());
+        setCczSelectionVisibility(true);
+    }
+
+
+    // UnZip Callbacks
+    public void onUnzipSuccessful() {
+        ArchiveFileRoot afr = CommCareApplication.instance().getArchiveFileRoot();
+        String mGUID = afr.addArchiveFile(mTargetPath);
+        String ref = "jr://archive/" + mGUID + "/profile.ccpr";
+        doOfflineAppInstall(ref);
+    }
+
+    public void updateUnZipProgress(String update) {
+        mActivity.updateStatus(StringUtils.getStringRobust(mActivity, R.string.recovery_measure_unzip_progress, update));
+    }
+
+    public void onUnzipFailure(Exception e) {
+        updateStatus(StringUtils.getStringRobust(mActivity, R.string.recovery_measure_unzip_error));
+        onAsyncExecutionFailure(e.getMessage());
+        setCczSelectionVisibility(true);
     }
 
     // Update Task Listeners
@@ -479,29 +507,6 @@ public class ExecuteRecoveryMeasuresPresenter implements BasePresenterContract, 
     @Override
     public void handleTaskCancellation() {
         onAsyncExecutionFailure(StringUtils.getStringRobust(mActivity, R.string.recovery_measure_update_cancelled));
-    }
-
-    public void reinstallFromScannedCcz() {
-        unZipCcz(mAppArchivePath);
-    }
-
-    public void retry() {
-        clearState();
-        executePendingMeasures();
-    }
-
-    private void clearState() {
-        mAppArchivePath = null;
-        mCurrentMeasure = null;
-        mLastDisplayStatus = null;
-        mLastExecutionStatus = -1;
-        cczSelectionEnabled = false;
-    }
-
-    public void launchAppManager() {
-        Intent i = new Intent(mActivity, AppManagerActivity.class);
-        i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        mActivity.startActivity(i);
     }
 
     static class sResourceEngineTask extends ResourceEngineTask<ExecuteRecoveryMeasuresActivity> {

@@ -10,7 +10,6 @@ import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import org.commcare.activities.AppManagerActivity;
 import org.commcare.activities.CommCareActivity;
 import org.commcare.activities.InstallArchiveActivity;
 import org.commcare.dalvik.R;
@@ -81,10 +80,7 @@ public class ExecuteRecoveryMeasuresActivity extends CommCareActivity<ExecuteRec
             mPresenter.reinstallFromScannedCcz();
         });
 
-        selectCczBt.setOnClickListener(v -> {
-            resetLayout();
-            mPresenter.selectCczFromFileSystem();
-        });
+        selectCczBt.setOnClickListener(v -> mPresenter.selectCczFromFileSystem());
     }
 
     private void resetLayout() {
@@ -249,7 +245,7 @@ public class ExecuteRecoveryMeasuresActivity extends CommCareActivity<ExecuteRec
         reinstallBt.setVisibility(View.GONE);
     }
 
-    public void enableCczSelection() {
-        selectCczBt.setVisibility(View.VISIBLE);
+    public void setCczSelectionVisibility(boolean visible) {
+        selectCczBt.setVisibility(visible ? View.VISIBLE : View.GONE);
     }
 }
