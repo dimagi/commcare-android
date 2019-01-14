@@ -465,6 +465,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             entityLoader.executeParallel(selectDatum.getNodeset());
             return true;
         }
+
         return false;
     }
 

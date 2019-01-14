@@ -93,7 +93,7 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Integer, String, Fo
     @Override
     protected FECWrapper doTaskBackground(Integer... formDefId) {
         FormDef fd = null;
-
+        long start = System.currentTimeMillis();
         FormDefRecord formDefRecord = FormDefRecord.getFormDef(
                 CommCareApplication.instance().getAppStorage(FormDefRecord.class),
                 formDefId[0]);
@@ -140,6 +140,7 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Integer, String, Fo
         AndroidFormController formController = new AndroidFormController(fec, mReadOnly);
 
         data = new FECWrapper(formController);
+        Logger.log("profiling", "Form Loading End " + (System.currentTimeMillis() - start));
         return data;
     }
 
@@ -176,6 +177,7 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Integer, String, Fo
     }
 
     private FormEntryController initFormDef(FormDef formDef) {
+        long start = System.currentTimeMillis();
         setupAndroidPlatformImplementations(formDef);
 
         // create FormEntryController from formdef
@@ -222,7 +224,7 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Integer, String, Fo
         if (mReadOnly) {
             formDef.getInstance().getRoot().setEnabled(false);
         }
-
+        Logger.log("profiling", "initFormDef " + (System.currentTimeMillis() - start));
         return fec;
     }
 

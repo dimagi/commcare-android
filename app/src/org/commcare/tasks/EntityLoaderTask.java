@@ -1,5 +1,6 @@
 package org.commcare.tasks;
 
+import android.util.Log;
 import android.util.Pair;
 
 import org.commcare.activities.EntitySelectActivity;
@@ -49,8 +50,10 @@ public class EntityLoaderTask
     @Override
     protected Pair<List<Entity<TreeReference>>, List<TreeReference>> doInBackground(TreeReference... nodeset) {
         try {
+            long current = System.currentTimeMillis();
             List<TreeReference> references = factory.expandReferenceList(nodeset[0]);
-
+            long t = System.currentTimeMillis();
+            Log.d("profiling","loadEntities - 1 " + (t - current));
             List<Entity<TreeReference>> full = new ArrayList<>();
             focusTargetIndex = -1;
             int indexInFullList = 0;
@@ -67,10 +70,15 @@ public class EntityLoaderTask
                     }
                     indexInFullList++;
                 }
+                Log.d("profiling","loadEntities - Entity Loaded " + indexInFullList);
             }
+            long t1 = System.currentTimeMillis();
+            Log.d("profiling","loadEntities - 2 " + (t1-t));
+            Log.d("profiling","size" + references.size());
 
             factory.prepareEntities(full);
             factory.printAndClearTraces("build");
+            Log.d("profiling","loadEntities " + (System.currentTimeMillis() - current));
             return new Pair<>(full, references);
         } catch (XPathException xe) {
             XPathErrorLogger.INSTANCE.logErrorToCurrentApp(xe);

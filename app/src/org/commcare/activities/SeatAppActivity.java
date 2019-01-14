@@ -31,7 +31,7 @@ public class SeatAppActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.screen_seat_app);
         TextView tv = findViewById(R.id.text);
-        tv.setText(Localization.get("seating.app"));
+        tv.setText(Localization.get("   seating.app"));
 
         inProgress = savedInstanceState != null &&
                 savedInstanceState.getBoolean(KEY_IN_PROGRESS, false);
