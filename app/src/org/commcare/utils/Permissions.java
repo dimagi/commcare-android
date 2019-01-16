@@ -87,7 +87,6 @@ public class Permissions {
      * @return Permissions needed for _normal_ CommCare functionality
      */
     public static String[] getAppPermissions() {
-        // leaving out READ_SMS, which is only needed for sms installs
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
             // exclude READ_EXTERNAL_STORAGE which isn't compat. w/ API < 16
             return new String[]{Manifest.permission.READ_PHONE_STATE,
