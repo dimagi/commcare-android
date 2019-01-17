@@ -59,7 +59,7 @@
 
     <integer-array name="commcare_version">
         <item>2</item>
-        <item>44</item>
+        <item>45</item>
     </integer-array>
 
     <string name="app_version_string">version.id.long</string>
@@ -363,6 +363,24 @@
     <string name="incorrect_time_dialog_correct_time" cc:translatable="true">Correct Time</string>
     <string name="incorrect_time_dialog_cancel" cc:translatable="true">Cancel</string>
 
+    <!--Recovery Activity-->
+    <string name="recovery_mode_title">CommCare Recovery Mode</string>
+    <string name="recovery_mode_detail">CommCare has entered recovery mode due to a problem with your app. We are trying to recover your app. Please wait...</string>
+    <string name="recovery_resource_progress">Recovered %1$s out of %2$s resources</string>
+    <string name="recovery_error_poor_connection">Recovery failed due to bad internet. Please make sure that you have a stable internet connection and try again</string>
+    <string name="recovery_error_unknown">Recovery failed due to an unknown reason. Please try again or reinstall your app by going to App Manager</string>
+    <string name="recovery_success">App recovery has been successful. Please press back to resume your work</string>
+    <string name="recovery_forms_send_progress">Submitting form(s) to the server...</string>
+    <string name="recovery_forms_send_session_expired">Log-in expired during send</string>
+    <string name="recovery_forms_send_successful">Send successful. All %s forms were submitted</string>
+    <string name="recovery_forms_send_failure">There were errors submitting the forms.</string>
+    <string name="recovery_forms_send_parital_success">There were errors submitting the forms. Only %s were submitted. Please try again later</string>
+    <string name="recovery_forms_send_network_error">Forms submissing failed due to poor network</string>
+    <string name="recovery_forms_send_error">Error while sending forms</string>
+    <string name="recovery_forms_state_unavailable">Forms are not available. Make sure your phone storage is available</string>
+    <string name="recovery_network_unavailable">No network connection. Please check your internet and try again.</string>
+    <string name="recovery_app_manager">Go to App Manager</string>
+  
     <string name="notification_channel_errors_title">Errors</string>
     <string name="notification_channel_errors_description">Notifications for error messages when something breaks say on installing a CommCare app or while syncing forms with server</string>
     <string name="notification_channel_user_session_title">User Session</string>

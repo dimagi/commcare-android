@@ -92,7 +92,7 @@ class DPIManager(object):
 
         # Premult alpha resizing, to avoid halo effect
         # http://stackoverflow.com/questions/9142825/transparent-png-resizing-with-python-image-library-and-the-halo-effect
-        premult = numpy.fromstring(src_img.tostring(), dtype=numpy.uint8)
+        premult = numpy.fromstring(src_img.tobytes(), dtype=numpy.uint8)
         alphaLayer = premult[3::4] / 255.0
         premult[::4] *= alphaLayer
         premult[1::4] *= alphaLayer

@@ -69,13 +69,13 @@ public class SelectInstallModeFragment extends Fragment implements NsdServiceLis
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.select_install_mode_fragment, container, false);
 
-        TextView setupMsg = (TextView)view.findViewById(R.id.str_setup_message);
+        TextView setupMsg = view.findViewById(R.id.str_setup_message);
         setupMsg.setText(Localization.get("install.barcode.top"));
 
-        TextView setupMsg2 = (TextView)view.findViewById(R.id.str_setup_message_2);
+        TextView setupMsg2 = view.findViewById(R.id.str_setup_message_2);
         setupMsg2.setText(Localization.get("install.barcode.bottom"));
 
-        SquareButtonWithText scanBarcodeButton = (SquareButtonWithText)view.findViewById(R.id.btn_fetch_uri);
+        SquareButtonWithText scanBarcodeButton = view.findViewById(R.id.btn_fetch_uri);
         final View barcodeButtonContainer = view.findViewById(R.id.btn_fetch_uri_container);
         scanBarcodeButton.setOnClickListener(v -> {
             try {
@@ -84,7 +84,7 @@ public class SelectInstallModeFragment extends Fragment implements NsdServiceLis
                     ((CommCareSetupActivity)currentActivity).clearErrorMessage();
                 }
                 Intent intent = new IntentIntegrator(getActivity())
-                        .setDesiredBarcodeFormats(IntentIntegrator.QR_CODE_TYPES)
+                        .setDesiredBarcodeFormats(IntentIntegrator.QR_CODE)
                         .createScanIntent();
                 currentActivity.startActivityForResult(intent, CommCareSetupActivity.BARCODE_CAPTURE);
             } catch (ActivityNotFoundException e) {
@@ -93,7 +93,7 @@ public class SelectInstallModeFragment extends Fragment implements NsdServiceLis
             }
         });
 
-        SquareButtonWithText enterURLButton = (SquareButtonWithText)view.findViewById(R.id.enter_app_location);
+        SquareButtonWithText enterURLButton = view.findViewById(R.id.enter_app_location);
         enterURLButton.setOnClickListener(v -> {
             SetupEnterURLFragment enterUrl = new SetupEnterURLFragment();
             Activity currentActivity = getActivity();
@@ -110,7 +110,7 @@ public class SelectInstallModeFragment extends Fragment implements NsdServiceLis
             ft.commit();
         });
 
-        SquareButtonWithText installFromLocal = (SquareButtonWithText)view.findViewById(R.id.btn_fetch_hub);
+        SquareButtonWithText installFromLocal = view.findViewById(R.id.btn_fetch_hub);
         installFromLocal.setOnClickListener(v -> {
             Activity currentActivity = getActivity();
             if (currentActivity instanceof CommCareSetupActivity) {
@@ -118,7 +118,7 @@ public class SelectInstallModeFragment extends Fragment implements NsdServiceLis
             }
         });
 
-        mErrorMessageView = (TextView)view.findViewById(R.id.install_error_text);
+        mErrorMessageView = view.findViewById(R.id.install_error_text);
 
         mViewErrorContainer = view.findViewById(R.id.btn_view_errors_container);
 

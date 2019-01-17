@@ -101,6 +101,9 @@ public class FormAndDataSyncer {
                             case RECORD_FAILURE:
                                 receiver.handleFormSendResult(Localization.get("sync.fail.individual"), false);
                                 break;
+                            case ACTIONABLE_FAILURE:
+                                receiver.handleFormSendResult(result.getErrorMessage(), false);
+                                break;
                             case FAILURE:
                             default:
                                 receiver.handleFormSendResult(Localization.get("sync.fail.unknown"), false);
@@ -165,7 +168,7 @@ public class FormAndDataSyncer {
 
     public void performOtaRestore(LoginActivity context, String username, String password) {
         syncData(context, false, false, ServerUrls.getDataServerKey(),
-                username, password,null);
+                username, password, null);
     }
 
     public <I extends CommCareActivity & PullTaskResultReceiver> void performCustomRestoreFromFile(

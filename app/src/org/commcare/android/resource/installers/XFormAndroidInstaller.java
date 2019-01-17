@@ -70,6 +70,7 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
     public boolean initialize(AndroidCommCarePlatform platform, boolean isUpgrade) throws
             IOException, InvalidReferenceException, InvalidStructureException,
             XmlPullParserException, UnfullfilledRequirementsException {
+        super.initialize(platform, isUpgrade);
         platform.registerXmlns(namespace, formDefId);
         return true;
     }

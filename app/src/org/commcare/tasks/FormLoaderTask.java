@@ -16,14 +16,20 @@ import org.commcare.logging.XPathErrorLogger;
 import org.commcare.logic.AndroidFormController;
 import org.commcare.logic.FileReferenceFactory;
 import org.commcare.models.encryption.EncryptionIO;
+import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.tasks.templates.CommCareTask;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.FileUtil;
 import org.commcare.utils.GlobalConstants;
+import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.instance.InstanceInitializationFactory;
 import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.model.instance.TreeReference;
+import org.javarosa.core.model.trace.EvaluationTraceReporter;
+import org.javarosa.core.model.trace.TraceSerialization;
+import org.javarosa.core.model.trace.ReducingTraceReporter;
+import org.javarosa.core.model.utils.InstrumentationUtils;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.reference.RootTranslator;
 import org.javarosa.core.services.Logger;
@@ -58,6 +64,9 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Integer, String, Fo
     private final SecretKeySpec mSymetricKey;
     private final boolean mReadOnly;
     private final boolean recordEntrySession;
+
+    private EvaluationTraceReporter traceReporterForFullForm;
+    private final boolean profilingEnabledForFormLoad = false;
 
     private final R activity;
     private final String formRecordPath;
@@ -148,6 +157,9 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Integer, String, Fo
         if (fd == null) {
             throw new RuntimeException("Error reading XForm file: FormDef is null");
         }
+        if (DeveloperPreferences.useExpressionCachingInForms()) {
+            fd.enableExpressionCaching();
+        }
         return fd;
     }
 
@@ -183,6 +195,16 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Integer, String, Fo
             importData(formRecordPath, fec);
         }
 
+        EvaluationTraceReporter reporter = null;
+        if (profilingOnFullForm()) {
+            reporter = this.traceReporterForFullForm;
+        } else if (profilingEnabledForFormLoad) {
+            reporter = new ReducingTraceReporter(true);
+        }
+        if (reporter != null) {
+            formDef.getEvaluationContext().setDebugModeOn(reporter);
+        }
+
         try {
             formDef.initialize(isNewFormInstance, iif, getSystemLocale(), mReadOnly);
         } catch (XPathException e) {
@@ -192,9 +214,15 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Integer, String, Fo
             throw new UserCausedRuntimeException(e.getMessage(), e);
         }
 
+        if (!profilingOnFullForm() && profilingEnabledForFormLoad) {
+            InstrumentationUtils.printAndClearTraces(reporter, "FORM LOAD TRACE:", TraceSerialization.TraceInfoType.CACHE_INFO_ONLY);
+            InstrumentationUtils.printExpressionsThatUsedCaching(reporter, "FORM LOAD CACHE USAGE:");
+        }
+
         if (mReadOnly) {
             formDef.getInstance().getRoot().setEnabled(false);
         }
+
         return fec;
     }
 
@@ -267,20 +295,23 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Integer, String, Fo
      * Read serialized {@link FormDef} from file and recreate as object.
      */
     private static FormDef deserializeFormDef(Context context, File formDefFile) {
-        FileInputStream fis;
+        FileInputStream fis = null;
+        DataInputStream dis = null;
         FormDef fd;
         try {
             // create new form def
-            fd = new FormDef();
+            fd = new FormDef(DeveloperPreferences.useExpressionCachingInForms());
             fis = new FileInputStream(formDefFile);
-            DataInputStream dis = new DataInputStream(new BufferedInputStream(fis));
+            dis = new DataInputStream(new BufferedInputStream(fis));
 
             // read serialized formdef into new formdef
             fd.readExternal(dis, CommCareApplication.instance().getPrototypeFactory(context));
-            dis.close();
         } catch (Throwable e) {
             e.printStackTrace();
             fd = null;
+        } finally {
+            StreamsUtil.closeStream(fis);
+            StreamsUtil.closeStream(dis);
         }
 
         return fd;
@@ -336,7 +367,14 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Integer, String, Fo
      */
     public void setupAndroidPlatformImplementations(FormDef formDef) {
         formDef.setSendCalloutHandler(new AndroidXFormHttpRequester());
+    }
 
+    public void setProfilingOnFullForm(EvaluationTraceReporter reporter) {
+        this.traceReporterForFullForm = reporter;
+    }
+
+    private boolean profilingOnFullForm() {
+        return traceReporterForFullForm != null;
     }
 
     protected static class FECWrapper {

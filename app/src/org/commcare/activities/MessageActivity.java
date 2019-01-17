@@ -57,10 +57,10 @@ public class MessageActivity extends ListActivity {
                     messageView = LayoutInflater.from(MessageActivity.this).inflate(R.layout.layout_note_msg, parent, false);
                 }
                 NotificationMessage msg = this.getItem(position);
-                TextView title = (TextView)messageView.findViewById(R.id.layout_note_msg_title);
-                TextView body = (TextView)messageView.findViewById(R.id.layout_note_msg_body);
-                TextView date = (TextView)messageView.findViewById(R.id.layout_note_msg_date);
-                TextView action = (TextView)messageView.findViewById(R.id.layout_note_msg_action);
+                TextView title = messageView.findViewById(R.id.layout_note_msg_title);
+                TextView body = messageView.findViewById(R.id.layout_note_msg_body);
+                TextView date = messageView.findViewById(R.id.layout_note_msg_date);
+                TextView action = messageView.findViewById(R.id.layout_note_msg_action);
                 title.setText(msg.getTitle());
                 body.setText(msg.getDetails());
                 date.setText(DateUtils.formatSameDayTime(msg.getDate().getTime(), System.currentTimeMillis(), DateFormat.DEFAULT, DateFormat.DEFAULT));

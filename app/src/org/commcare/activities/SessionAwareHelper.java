@@ -32,7 +32,11 @@ public class SessionAwareHelper {
                 SessionActivityRegistration.handleOrListenForSessionExpiration(a) ||
                         redirectedInOnCreate;
         if (!redirectedToLogin) {
-            sessionAware.onResumeSessionSafe();
+            try {
+                sessionAware.onResumeSessionSafe();
+            } catch (SessionUnavailableException e) {
+                SessionActivityRegistration.redirectToLogin(a);
+            }
         }
     }
 

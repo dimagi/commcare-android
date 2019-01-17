@@ -23,7 +23,7 @@ public class AndroidResourceTable extends ResourceTable {
     private HashSet<String> resourcesInTable;
 
     public AndroidResourceTable(SqlStorage<Resource> storage, InstallerFactory factory) {
-        super((IStorageUtilityIndexed)storage, factory);
+        super(storage, factory);
         this.sqlStorage = storage;
     }
 

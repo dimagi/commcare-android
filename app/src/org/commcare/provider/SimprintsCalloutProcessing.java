@@ -50,7 +50,7 @@ public class SimprintsCalloutProcessing {
     }
 
     public static OrderedHashtable<String, String> getConfidenceMatchesFromCalloutResponse(Intent intent) {
-        List<Identification> idReadings = (List)intent.getParcelableArrayListExtra(Constants.SIMPRINTS_IDENTIFICATIONS);
+        List<Identification> idReadings = intent.getParcelableArrayListExtra(Constants.SIMPRINTS_IDENTIFICATIONS);
 
         Collections.sort(idReadings);
 

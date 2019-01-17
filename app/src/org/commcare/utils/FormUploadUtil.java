@@ -10,14 +10,16 @@ import org.commcare.network.CommcareRequestGenerator;
 import org.commcare.network.EncryptedFileBody;
 import org.commcare.tasks.DataSubmissionListener;
 import org.commcare.util.LogTypes;
-import org.commcare.xml.CommCareElementParser;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.io.StreamsUtil.InputIOException;
 import org.javarosa.core.model.User;
 import org.javarosa.core.services.Logger;
+import org.javarosa.core.services.locale.Localization;
 import org.javarosa.xml.ElementParser;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -204,6 +206,8 @@ public class FormUploadUtil {
             return FormUploadResult.FULL_SUCCESS;
         } else if (responseCode == 401) {
             return FormUploadResult.AUTH_FAILURE;
+        } else if (responseCode == 406) {
+            return processActionableFaiure(response);
         } else if (responseCode == 422) {
             return handleProcessingFailure(response.errorBody().byteStream());
         } else {
@@ -211,10 +215,26 @@ public class FormUploadUtil {
         }
     }
 
+    private static FormUploadResult processActionableFaiure(Response<ResponseBody> response) {
+        String message;
+        try {
+            JSONObject errorKeyAndDefault = new JSONObject(response.errorBody().string());
+            message = Localization.getWithDefault(
+                    errorKeyAndDefault.getString("error"),
+                    errorKeyAndDefault.getString("default_response"));
+        } catch (JSONException | IOException e) {
+            message = "Unknown issue";
+        }
+
+        FormUploadResult result = FormUploadResult.ACTIONABLE_FAILURE;
+        result.setErrorMessage(message);
+        return result;
+    }
+
     private static FormUploadResult handleProcessingFailure(InputStream responseStream) {
         FormUploadResult result = FormUploadResult.PROCESSING_FAILURE;
         try {
-            result.setProcessingFailureReason(parseProcessingFailureResponse(responseStream));
+            result.setErrorMessage(parseProcessingFailureResponse(responseStream));
         } catch (IOException | InvalidStructureException | XmlPullParserException |
                 UnfullfilledRequirementsException e) {
             // If we can't parse out the failure reason then we won't quarantine this form, because

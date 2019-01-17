@@ -53,12 +53,12 @@ public class FormNavigationUI {
             return;
         }
 
-        ProgressBar progressBar = (ProgressBar)activity.findViewById(R.id.nav_prog_bar);
+        ProgressBar progressBar = activity.findViewById(R.id.nav_prog_bar);
 
-        ImageButton nextButton = (ImageButton)activity.findViewById(R.id.nav_btn_next);
-        ImageButton prevButton = (ImageButton)activity.findViewById(R.id.nav_btn_prev);
+        ImageButton nextButton = activity.findViewById(R.id.nav_btn_next);
+        ImageButton prevButton = activity.findViewById(R.id.nav_btn_prev);
 
-        ClippingFrame finishButton = (ClippingFrame)activity.
+        ClippingFrame finishButton = activity.
                 findViewById(R.id.nav_btn_finish);
 
         if (!details.relevantBeforeCurrentScreen) {
@@ -241,7 +241,7 @@ public class FormNavigationUI {
             }
         }
 
-        final ViewGroup parent = (ViewGroup)activity.findViewById(R.id.form_entry_label_layout);
+        final ViewGroup parent = activity.findViewById(R.id.form_entry_label_layout);
         parent.removeAllViews();
 
         int pixels = (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 8, activity.getResources().getDisplayMetrics());
