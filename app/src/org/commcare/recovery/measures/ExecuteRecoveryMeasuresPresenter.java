@@ -136,12 +136,12 @@ public class ExecuteRecoveryMeasuresPresenter implements BasePresenterContract, 
         try {
             switch (mCurrentMeasure.getType()) {
                 case MEASURE_TYPE_APP_REINSTALL_AND_UPDATE:
-//                    if (AppUtils.notOnLatestAppVersion()) {
-//                        showInstallMethodChooser();
-//                        return STATUS_WAITING;
-//                    } else {
-//                        return STATUS_EXECUTED;
-//                    }
+                    if (AppUtils.notOnLatestAppVersion()) {
+                        showInstallMethodChooser();
+                        return STATUS_WAITING;
+                    } else {
+                        return STATUS_EXECUTED;
+                    }
                 case MEASURE_TYPE_APP_OFFLINE_REINSTALL_AND_UPDATE:
                     if (AppUtils.notOnLatestAppVersion()) {
                         initateAutoCczScan();
