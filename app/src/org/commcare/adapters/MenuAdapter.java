@@ -160,8 +160,6 @@ public class MenuAdapter extends BaseAdapter {
         setupImageView(menuViewHolder.iconView, menuDisplayable, getImageViewDimenResource());
         setupBadgeView(menuViewHolder.badgeView, menuDisplayable, i);
 
-        LayoutDirectionUtilCompat.mirrorView(menuViewHolder.iconView);
-
         menuListItem.setTag(menuViewHolder);
         return menuListItem;
     }

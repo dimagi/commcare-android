@@ -129,12 +129,6 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
             activity.triggerUserFormComplete();
         });
 
-        if (LocalePreferences.isLocaleRTL()) {
-            LayoutDirectionUtilCompat.mirrorView(finishButton.findViewById(R.id.nav_image_finish), true);
-            LayoutDirectionUtilCompat.mirrorView(nextButton, true);
-            LayoutDirectionUtilCompat.mirrorView(prevButton, true);
-        }
-
         multiIntentDispatchButton.setOnClickListener(v -> activity.fireCompoundIntentDispatch());
 
 

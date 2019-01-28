@@ -283,9 +283,6 @@ public class EntityListAdapter extends AndroidSortableEntityAdapter implements L
                 getAction(position),
                 commCareActivity);
 
-        // Update action view's images direction
-        LayoutDirectionUtilCompat.mirrorView(actionCardView.findViewById(R.id.launch_action));
-        LayoutDirectionUtilCompat.mirrorView(actionCardView.findViewById(R.id.icon));
         return actionCardView;
     }
 

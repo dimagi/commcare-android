@@ -9,6 +9,7 @@
         style="@style/GridViewContentWithBadge" >
 
         <ImageView
+            android:rotationY="@integer/locale_mirror_flip"
             android:id="@+id/row_img"
             android:layout_width="@dimen/menu_grid_icon_size"
             android:layout_height="@dimen/menu_grid_icon_size" />
