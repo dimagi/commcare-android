@@ -37,6 +37,7 @@ import org.commcare.preferences.DevSessionRestorer;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.preferences.LocalePreferences;
+import org.commcare.preferences.MainConfigurablePreferences;
 import org.commcare.preferences.PrefValues;
 import org.commcare.session.CommCareSession;
 import org.commcare.session.SessionFrame;
@@ -392,6 +393,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
             } else {
                 String selectedLocale = localeCodes[position];
                 Localization.setLocale(selectedLocale);
+                MainConfigurablePreferences.setCurrentLocale(selectedLocale);
             }
             // rebuild home buttons in case language changed;
             if (uiController != null) {

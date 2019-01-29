@@ -224,4 +224,10 @@ public class MainConfigurablePreferences
             return path;
         }
     }
+
+    public static void setCurrentLocale(String currentLocale) {
+        SharedPreferences prefs = CommCareApplication.instance().getCurrentApp().getAppPreferences();
+        prefs.edit().putString(PREFS_LOCALE_KEY, currentLocale).apply();
+    }
+
 }
