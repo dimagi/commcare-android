@@ -30,7 +30,6 @@ import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.preferences.LocalePreferences;
 import org.commcare.utils.BlockingActionsManager;
 import org.commcare.utils.CompoundIntentList;
-import org.commcare.utils.LayoutDirectionUtilCompat;
 import org.commcare.utils.StringUtils;
 import org.commcare.views.QuestionsView;
 import org.commcare.views.UserfacingErrorHandling;
