@@ -14,7 +14,8 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:id="@+id/drawer_icon"
-            android:layout_marginRight="@dimen/standard_spacer_double"/>
+            android:layout_marginRight="@dimen/standard_spacer_double"
+            android:layout_marginEnd="@dimen/standard_spacer_double" />
 
         <TextView
             android:id="@+id/drawer_text"
@@ -30,6 +31,7 @@
         android:textSize="@dimen/font_size_small"
         android:textColor="@color/grey_dark"
         android:visibility="gone"
-        android:layout_marginLeft="@dimen/standard_spacer"/>
+        android:layout_marginLeft="@dimen/standard_spacer"
+        android:layout_marginStart="@dimen/standard_spacer" />
 
 </LinearLayout>

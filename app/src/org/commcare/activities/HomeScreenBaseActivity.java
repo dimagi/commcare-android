@@ -36,6 +36,7 @@ import org.commcare.preferences.AdvancedActionsPreferences;
 import org.commcare.preferences.DevSessionRestorer;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.preferences.HiddenPreferences;
+import org.commcare.preferences.LocalePreferences;
 import org.commcare.preferences.MainConfigurablePreferences;
 import org.commcare.preferences.PrefValues;
 import org.commcare.session.CommCareSession;
@@ -67,7 +68,6 @@ import org.commcare.views.dialogs.DialogChoiceItem;
 import org.commcare.views.dialogs.DialogCreationHelpers;
 import org.commcare.views.dialogs.PaneledChoiceDialog;
 import org.commcare.views.dialogs.StandardAlertDialog;
-import org.commcare.views.notifications.NotificationMessageFactory;
 import org.javarosa.core.model.User;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
@@ -392,8 +392,8 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                 Localization.setLocale("default");
             } else {
                 String selectedLocale = localeCodes[position];
-                MainConfigurablePreferences.setCurrentLocale(selectedLocale);
                 Localization.setLocale(selectedLocale);
+                MainConfigurablePreferences.setCurrentLocale(selectedLocale);
             }
             // rebuild home buttons in case language changed;
             if (uiController != null) {

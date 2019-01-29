@@ -8,6 +8,7 @@
           android:scrollHorizontally="false"
           android:textCursorDrawable="@drawable/color_cursor"
           android:background="@drawable/edit_text_modern"
-    >
+    android:paddingEnd="8dp"
+    android:paddingStart="8dp">
 
 </EditText>

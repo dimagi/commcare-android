@@ -11,14 +11,16 @@
         android:text="AM Doses"
         android:layout_width="fill_parent"
         android:layout_marginLeft="10px"
-        android:id="@+id/text_time"></TextView>
+        android:id="@+id/text_time"
+        android:layout_marginStart="10px"></TextView>
 
     <View
         android:id="@+id/View01"
         android:background="@drawable/dots_dose_border"
         android:layout_width="fill_parent"
         android:layout_marginLeft="10px"
-        android:layout_height="2px"></View>
+        android:layout_height="2px"
+        android:layout_marginStart="10px"></View>
 
     <TextView
         android:id="@+id/TextView02"
@@ -36,7 +38,9 @@
         android:layout_marginBottom="4px"
         android:layout_marginLeft="4px"
         android:layout_marginRight="4px"
-        android:layout_marginTop="4px">
+        android:layout_marginTop="4px"
+        android:layout_marginStart="4px"
+        android:layout_marginEnd="4px">
 
         <TableRow
             android:id="@+id/TableRow02"
@@ -50,7 +54,8 @@
                 android:textOn="All"
                 android:textOff="All"
                 android:layout_marginRight="2px"
-                android:layout_marginBottom="2px"></ToggleButton>
+                android:layout_marginBottom="2px"
+                android:layout_marginEnd="2px"></ToggleButton>
 
             <ToggleButton
                 android:layout_width="wrap_content"
@@ -59,7 +64,8 @@
                 android:textOff="Some"
                 android:textOn="Some"
                 android:layout_marginBottom="2px"
-                android:layout_marginLeft="2px"></ToggleButton>
+                android:layout_marginLeft="2px"
+                android:layout_marginStart="2px"></ToggleButton>
         </TableRow>
 
         <TableRow
@@ -74,7 +80,8 @@
                 android:textOff="None"
                 android:textOn="None"
                 android:layout_marginRight="2px"
-                android:layout_marginTop="2px"></ToggleButton>
+                android:layout_marginTop="2px"
+                android:layout_marginEnd="2px"></ToggleButton>
 
             <ToggleButton
                 android:layout_width="wrap_content"
@@ -83,7 +90,8 @@
                 android:textOn="Unknown"
                 android:layout_marginTop="2px"
                 android:layout_marginLeft="2px"
-                android:id="@+id/radio_unchecked"></ToggleButton>
+                android:id="@+id/radio_unchecked"
+                android:layout_marginStart="2px"></ToggleButton>
         </TableRow>
     </TableLayout>
 

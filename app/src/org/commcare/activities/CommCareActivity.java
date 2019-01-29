@@ -32,6 +32,7 @@ import org.commcare.fragments.ContainerFragment;
 import org.commcare.fragments.TaskConnectorFragment;
 import org.commcare.interfaces.WithUIController;
 import org.commcare.logic.DetailCalloutListenerDefaultImpl;
+import org.commcare.preferences.LocalePreferences;
 import org.commcare.session.SessionFrame;
 import org.commcare.session.SessionInstanceBuilder;
 import org.commcare.suite.model.CalloutData;
@@ -58,7 +59,6 @@ import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.NoLocalizedTextException;
 
-import io.reactivex.Observable;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 
@@ -117,6 +117,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     private int dialogId = -1;
     private ContainerFragment<Bundle> managedUiState;
     private boolean isMainScreenBlocked;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -734,10 +735,17 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     @Override
     public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
         if (isHorizontalSwipe(this, e1, e2) && !isMainScreenBlocked) {
-            if (velocityX <= 0) {
+            if (LocalePreferences.isLocaleRTL()) {
+                if (velocityX <= 0) {
+                    return onBackwardSwipe();
+                }
                 return onForwardSwipe();
+            } else {
+                if (velocityX <= 0) {
+                    return onForwardSwipe();
+                }
+                return onBackwardSwipe();
             }
-            return onBackwardSwipe();
         }
 
         return false;

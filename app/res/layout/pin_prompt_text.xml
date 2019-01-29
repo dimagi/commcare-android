@@ -7,4 +7,6 @@
     android:layout_marginRight="@dimen/standard_spacer_large"
     android:layout_marginTop="@dimen/standard_spacer_large"
     android:layout_marginBottom="@dimen/standard_spacer"
-    android:textSize="@dimen/font_size_xlarge"/>
+    android:textSize="@dimen/font_size_xlarge"
+    android:layout_marginEnd="@dimen/standard_spacer_large"
+    android:layout_marginStart="@dimen/standard_spacer_large" />
