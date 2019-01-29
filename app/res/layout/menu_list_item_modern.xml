@@ -12,7 +12,6 @@
         style="@style/ListContentWithBadge">
 
         <ImageView
-            android:rotationY="@integer/locale_mirror_flip"
             android:id="@+id/row_img"
             android:layout_height="@dimen/list_icon_size"
             android:layout_width="match_parent"

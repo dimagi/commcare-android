@@ -17,7 +17,6 @@ import org.commcare.dalvik.R;
 import org.commcare.logging.XPathErrorLogger;
 import org.commcare.models.AndroidSessionWrapper;
 import org.commcare.preferences.DeveloperPreferences;
-import org.commcare.preferences.LocalePreferences;
 import org.commcare.suite.model.EntityDatum;
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.Menu;
@@ -28,7 +27,6 @@ import org.commcare.suite.model.Text;
 import org.commcare.util.CommCarePlatform;
 import org.commcare.util.LogTypes;
 import org.commcare.util.LoggerInterface;
-import org.commcare.utils.LayoutDirectionUtilCompat;
 import org.commcare.utils.MediaUtil;
 import org.commcare.views.UserfacingErrorHandling;
 import org.commcare.views.media.AudioPlaybackButton;
@@ -46,7 +44,6 @@ import java.io.File;
 import java.util.Set;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.schedulers.Schedulers;
 
 /**

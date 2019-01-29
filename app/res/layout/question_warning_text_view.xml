@@ -7,8 +7,8 @@
              android:layout_marginLeft="@dimen/question_widget_side_inv"
              android:layout_marginRight="@dimen/question_widget_side_inv"
              android:background="@color/cc_attention_negative_color"
-    android:layout_marginEnd="@dimen/question_widget_side_inv"
-    android:layout_marginStart="@dimen/question_widget_side_inv">
+             android:layout_marginEnd="@dimen/question_widget_side_inv"
+             android:layout_marginStart="@dimen/question_widget_side_inv">
 
     <LinearLayout
         style="@style/DefaultHorizontalPadding"
