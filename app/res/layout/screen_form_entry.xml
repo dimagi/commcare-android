@@ -32,7 +32,9 @@
         android:text="6"
         android:textColor="@color/white"
         android:textStyle="bold"
-        android:visibility="invisible"/>
+        android:visibility="invisible"
+        android:layout_marginEnd="@dimen/badge_offset_side"
+        android:layout_alignParentEnd="true" />
 
     <ImageView
         android:id="@+id/nav_badge_border_drawer"
@@ -42,7 +44,8 @@
         android:layout_alignTop="@id/nav_badge"
         android:scaleType="matrix"
         android:src="@drawable/badge_border"
-        android:visibility="invisible">
+        android:visibility="invisible"
+        android:layout_alignStart="@id/nav_badge">
 
     </ImageView>
 
@@ -56,9 +59,12 @@
         android:paddingLeft="@dimen/content_start"
         android:paddingRight="@dimen/content_start"
         android:layout_marginTop="@dimen/badge_overlap_offset"
-        android:gravity="center_vertical">
+        android:gravity="center_vertical"
+        android:paddingStart="@dimen/content_start"
+        android:paddingEnd="@dimen/content_start">
 
         <ImageButton
+            android:rotationY="@integer/locale_mirror_flip"
             android:id="@+id/nav_btn_prev"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -68,7 +74,10 @@
             android:minWidth="@dimen/new_progressbar_button_minwidth"
             android:paddingLeft="@dimen/content_start"
             android:paddingRight="@dimen/new_progressbar_button_padding"
-            android:src="@drawable/icon_chevron_left_brand"/>
+            android:src="@drawable/icon_chevron_left_brand"
+            android:paddingStart="@dimen/content_start"
+            android:layout_alignParentStart="true"
+            android:paddingEnd="@dimen/new_progressbar_button_padding" />
 
         <ProgressBar
             android:id="@+id/nav_prog_bar"
@@ -88,9 +97,14 @@
             android:paddingBottom="@dimen/content_start"
             android:paddingTop="@dimen/content_start"
             android:progress="0"
-            android:progressDrawable="@drawable/progressbar_modern"/>
+            android:progressDrawable="@drawable/progressbar_modern"
+            android:layout_marginStart="@dimen/content_start"
+            android:layout_marginEnd="@dimen/content_start"
+            android:layout_toStartOf="@+id/nav_btn_next"
+            android:layout_toEndOf="@id/nav_btn_prev" />
 
         <ImageButton
+            android:rotationY="@integer/locale_mirror_flip"
             android:id="@+id/nav_btn_next"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -100,7 +114,10 @@
             android:minWidth="@dimen/new_progressbar_button_minwidth"
             android:paddingLeft="@dimen/new_progressbar_button_padding"
             android:paddingRight="@dimen/content_start"
-            android:src="@drawable/icon_chevron_right_brand"/>
+            android:src="@drawable/icon_chevron_right_brand"
+            android:paddingEnd="@dimen/content_start"
+            android:paddingStart="@dimen/new_progressbar_button_padding"
+            android:layout_alignParentEnd="true" />
 
         <org.commcare.views.ClippingFrame
             android:id="@+id/nav_btn_finish"
@@ -115,7 +132,8 @@
             app:clip_start_x="0.42"
             android:clickable="true"
             android:focusable="true"
-            >
+            android:layout_toEndOf="@+id/nav_btn_prev"
+            android:layout_alignParentEnd="true">
             <RelativeLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content">
@@ -131,7 +149,8 @@
                     android:textColor="@color/white"
                     android:gravity="center"
                     android:clickable="false"
-                    />
+                    android:layout_toStartOf="@+id/nav_image_finish"
+                    android:layout_alignParentStart="true" />
 
 
                 <ImageView
@@ -141,7 +160,9 @@
                     android:layout_alignParentRight="true"
                     android:paddingRight="@dimen/content_start"
                     android:minHeight="@dimen/new_progressbar_button_minheight"
-                    android:src="@drawable/icon_chevron_right_finish"/>
+                    android:src="@drawable/icon_chevron_right_finish"
+                    android:layout_alignParentEnd="true"
+                    android:paddingEnd="@dimen/content_start" />
 
 
             </RelativeLayout>
@@ -164,7 +185,9 @@
             android:paddingLeft="@dimen/content_min_margin"
             android:paddingRight="@dimen/content_min_margin"
             android:text="Header Text"
-            android:visibility="gone"/>
+            android:visibility="gone"
+            android:paddingEnd="@dimen/content_min_margin"
+            android:paddingStart="@dimen/content_min_margin" />
     </FrameLayout>
 
     <FrameLayout

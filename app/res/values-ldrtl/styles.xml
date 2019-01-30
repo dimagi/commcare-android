@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="ScreenPinnedButton" parent="ScreenPinnedButtonBase">
+        <item name="android:drawableEnd">@drawable/icon_chevron_left_attnpos</item>
+    </style>
+
+    <style name="ScreenPinnedButtonNeutral" parent="ScreenPinnedButtonNeutralBase">
+        <item name="android:drawableEnd">@drawable/icon_chevron_left_brand</item>
+    </style>
+</resources>

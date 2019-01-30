@@ -22,7 +22,9 @@
             android:layout_weight="7"
             android:layout_marginLeft="@dimen/standard_spacer_large"
             android:layout_marginRight="@dimen/standard_spacer_large"
-            android:layout_marginBottom="@dimen/standard_spacer_large">
+            android:layout_marginBottom="@dimen/standard_spacer_large"
+            android:layout_marginStart="@dimen/standard_spacer_large"
+            android:layout_marginEnd="@dimen/standard_spacer_large">
 
             <RelativeLayout
                 android:orientation="vertical"
@@ -65,7 +67,9 @@
                     android:background="@android:color/transparent"
                     android:textSize="@dimen/font_size_dp_medium"
                     android:textColor="@color/dialog_button_color"
-                    android:visibility="gone">
+                    android:visibility="gone"
+                android:layout_alignParentEnd="true"
+                android:layout_marginEnd="@dimen/standard_spacer">
             </Button>
 
             <Button xmlns:android="http://schemas.android.com/apk/res/android"
@@ -77,7 +81,8 @@
                     android:background="@android:color/transparent"
                     android:textSize="@dimen/font_size_dp_medium"
                     android:textColor="@color/dialog_button_color"
-                    android:visibility="gone">
+                    android:visibility="gone"
+                android:layout_toStartOf="@id/positive_button">
             </Button>
 
             <Button xmlns:android="http://schemas.android.com/apk/res/android"
@@ -91,7 +96,10 @@
                     android:background="@android:color/transparent"
                     android:textSize="@dimen/font_size_dp_medium"
                     android:textColor="@color/dialog_button_color"
-                    android:visibility="gone">
+                    android:visibility="gone"
+                android:layout_marginStart="@dimen/standard_spacer"
+                android:layout_marginEnd="@dimen/standard_spacer"
+                android:layout_toStartOf="@id/neutral_button">
             </Button>
         </RelativeLayout>
     </LinearLayout>

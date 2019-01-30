@@ -9,7 +9,11 @@
     android:layout_marginLeft="0px"
     android:paddingBottom="10px"
     android:background="@drawable/dots_rect_back"
-    android:paddingRight="1px">
+    android:paddingRight="1px"
+    android:paddingEnd="1px"
+    android:layout_marginEnd="15px"
+    android:layout_marginStart="0px"
+    android:paddingStart="5px">
 
     <TextView
         android:layout_width="wrap_content"
@@ -29,7 +33,9 @@
         android:scaleType="center"
         android:layout_alignBottom="@+id/text_dow"
         android:layout_alignTop="@+id/text_dow"
-        android:layout_alignParentRight="true"></ImageView>
+        android:layout_alignParentRight="true"
+        android:layout_toEndOf="@+id/text_dow"
+        android:layout_alignParentEnd="true"></ImageView>
 
     <TextView
         android:layout_width="wrap_content"

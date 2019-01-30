@@ -40,5 +40,4 @@ public class ChangeLocaleUtil {
         String[] rawDefaultRemoved = getLocaleCodes();
         return translateLocales(rawDefaultRemoved);
     }
-
 }

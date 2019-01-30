@@ -2,12 +2,12 @@ package org.commcare.activities.components;
 
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.location.LocationManager;
 import android.view.View;
 
 import org.commcare.activities.FormEntryActivity;
 import org.commcare.dalvik.R;
+import org.commcare.preferences.LocalePreferences;
 import org.commcare.utils.ChangeLocaleUtil;
 import org.commcare.utils.GeoUtils;
 import org.commcare.utils.StringUtils;
@@ -31,7 +31,7 @@ public class FormEntryDialogs {
         View.OnClickListener stayInFormListener = v -> activity.dismissAlertDialog();
         DialogChoiceItem stayInFormItem = new DialogChoiceItem(
                 StringUtils.getStringRobust(activity, R.string.do_not_exit),
-                R.drawable.ic_blue_forward,
+                LocalePreferences.isLocaleRTL() ? R.drawable.ic_blue_backward : R.drawable.ic_blue_forward,
                 stayInFormListener);
 
         View.OnClickListener exitFormListener = v -> {

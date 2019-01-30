@@ -13,6 +13,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import org.commcare.dalvik.R;
+import org.commcare.preferences.LocalePreferences;
 
 /**
  * An implementation of CommCareAlertDialog for use in any instance in which the user is being
@@ -71,7 +72,10 @@ public class PaneledChoiceDialog extends CommCareAlertDialog {
         if (item.iconResId != -1) {
             Drawable icon = ContextCompat.getDrawable(context, item.iconResId);
             if (iconToLeft) {
-                choicePanel.setCompoundDrawablesWithIntrinsicBounds(icon, null, null, null);
+                if (LocalePreferences.isLocaleRTL())
+                    choicePanel.setCompoundDrawablesWithIntrinsicBounds(null, null, icon, null);
+                else
+                    choicePanel.setCompoundDrawablesWithIntrinsicBounds(icon, null, null, null);
             } else {
                 choicePanel.setCompoundDrawablesWithIntrinsicBounds(null, icon, null, null);
             }

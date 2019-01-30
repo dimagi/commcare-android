@@ -37,7 +37,9 @@
             android:paddingLeft="10dp"
             android:paddingRight="10dp"
             android:paddingTop="30dp"
-            android:paddingBottom="30dp"/>
+            android:paddingBottom="30dp"
+            android:paddingStart="10dp"
+            android:paddingEnd="10dp" />
 
     </FrameLayout>
 

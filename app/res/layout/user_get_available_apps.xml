@@ -57,7 +57,9 @@
                         android:imeOptions="actionNext"
                         android:inputType="text"
                         android:nextFocusDown="@+id/edit_password"
-                        android:textSize="@dimen/text_medium"/>
+                        android:textSize="@dimen/text_medium"
+                        android:layout_marginEnd="@dimen/standard_spacer_large"
+                        android:layout_marginStart="@dimen/standard_spacer_large" />
 
                     <EditText
                         android:id="@+id/edit_domain"
@@ -69,7 +71,9 @@
                         android:imeOptions="actionNext"
                         android:inputType="text"
                         android:nextFocusDown="@+id/edit_password"
-                        android:textSize="@dimen/text_medium"/>
+                        android:textSize="@dimen/text_medium"
+                        android:layout_marginEnd="@dimen/standard_spacer_large"
+                        android:layout_marginStart="@dimen/standard_spacer_large" />
 
                 </LinearLayout>
 
@@ -90,7 +94,9 @@
                         android:imeOptions="actionNext"
                         android:inputType="text"
                         android:nextFocusDown="@+id/edit_password"
-                        android:textSize="@dimen/text_medium"/>
+                        android:textSize="@dimen/text_medium"
+                        android:layout_marginStart="@dimen/standard_spacer_large"
+                        android:layout_marginEnd="@dimen/standard_spacer_large" />
 
                 </LinearLayout>
 
@@ -103,7 +109,9 @@
                     android:hint="Password"
                     android:imeOptions="actionDone"
                     android:nextFocusUp="@+id/edit_username"
-                    android:inputType="textPassword"/>
+                    android:inputType="textPassword"
+                    android:layout_marginStart="@dimen/standard_spacer_large"
+                    android:layout_marginEnd="@dimen/standard_spacer_large" />
 
                 <Button
                     android:id="@+id/get_apps_button"

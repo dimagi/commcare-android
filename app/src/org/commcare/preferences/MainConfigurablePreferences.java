@@ -1,6 +1,5 @@
 package org.commcare.preferences;
 
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
@@ -42,6 +41,7 @@ public class MainConfigurablePreferences
     private static final int REQUEST_DEVELOPER_PREFERENCES = 1;
 
     private final static Map<String, String> keyToTitleMap = new HashMap<>();
+
     static {
         keyToTitleMap.put(DEVELOPER_SETTINGS, "settings.developer.options");
         keyToTitleMap.put(DISABLE_ANALYTICS, "home.menu.disable.analytics");
@@ -116,7 +116,7 @@ public class MainConfigurablePreferences
 
     private void startDeveloperOptions() {
         Intent intent = new Intent(getActivity(), SessionAwarePreferenceActivity.class);
-        intent.putExtra(CommCarePreferenceActivity.EXTRA_PREF_TYPE,CommCarePreferenceActivity.PREF_TYPE_DEVELOPER);
+        intent.putExtra(CommCarePreferenceActivity.EXTRA_PREF_TYPE, CommCarePreferenceActivity.PREF_TYPE_DEVELOPER);
         startActivityForResult(intent, REQUEST_DEVELOPER_PREFERENCES);
     }
 
@@ -143,8 +143,7 @@ public class MainConfigurablePreferences
             if (resultCode == DeveloperPreferences.RESULT_SYNC_CUSTOM) {
                 getActivity().setResult(DeveloperPreferences.RESULT_SYNC_CUSTOM);
                 getActivity().finish();
-            }
-            else if (resultCode == DeveloperPreferences.RESULT_DEV_OPTIONS_DISABLED) {
+            } else if (resultCode == DeveloperPreferences.RESULT_DEV_OPTIONS_DISABLED) {
                 configureDevPreferencesButton();
             }
         }
@@ -226,9 +225,9 @@ public class MainConfigurablePreferences
         }
     }
 
-    public static void setCurrentLocale(String locale) {
+    public static void setCurrentLocale(String currentLocale) {
         SharedPreferences prefs = CommCareApplication.instance().getCurrentApp().getAppPreferences();
-        prefs.edit().putString(PREFS_LOCALE_KEY, locale).apply();
+        prefs.edit().putString(PREFS_LOCALE_KEY, currentLocale).apply();
     }
 
 }
