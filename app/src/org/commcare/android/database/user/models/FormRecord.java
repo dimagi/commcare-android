@@ -277,7 +277,7 @@ public class FormRecord extends Persisted implements EncryptedModel {
 
     @Override
     public String toString() {
-        return String.format("Form Record[%s][Status: %s]\n[Form: %s]\n[Last Modified: %s]", this.recordId, this.status, this.xmlns, this.lastModified.toString());
+        return String.format("Form Record[%s][InstanceId: %s]\n[Status: %s]\n[Form: %s]\n[Last Modified: %s]", this.recordId, this.getInstanceID(), this.status, this.xmlns, this.lastModified.toString());
     }
 
     public void setFormNumberForSubmissionOrdering(int num) {
