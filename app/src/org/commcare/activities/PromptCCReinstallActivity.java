@@ -3,8 +3,12 @@ package org.commcare.activities;
 import android.view.View;
 
 import org.commcare.AppUtils;
+import org.commcare.dalvik.R;
 import org.commcare.recovery.measures.CommCareReinstallPrompt;
+import org.commcare.utils.StringUtils;
+import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.services.locale.Localization;
+import org.javarosa.core.util.NoLocalizedTextException;
 
 public class PromptCCReinstallActivity extends PromptActivity {
 
@@ -21,12 +25,9 @@ public class PromptCCReinstallActivity extends PromptActivity {
 
     @Override
     void setUpTypeSpecificUIComponents() {
-        promptTitle.setText(
-                Localization.get("apk.reinstall.needed.title", getCurrentClientName()));
-
+        promptTitle.setText(StringUtils.getStringRobust(this, R.string.reinstall_prompt_title, getCurrentClientName()));
         actionButton.setText(Localization.get("apk.reinstall.action"));
         actionButton.setOnClickListener(v -> launchCurrentAppOnPlayStore());
-
         imageCue.setVisibility(View.GONE);
     }
 

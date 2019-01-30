@@ -413,5 +413,6 @@
     <string name="recovery_measure_unzip_error" cc:translatable="true">An error occurred while installing the app from CCZ file. Please retry or locate CCZ file manually by clicking \"Select CCZ\" button below.</string>
     <string name="recovery_measure_update_cancelled" cc:translatable="true">Update cancelled</string>
     <string name="recovery_measure_unzip_progress" cc:translatable="true">Processing CCZ File.. %1$s</string>
+    <string name="reinstall_prompt_title" cc:translatable="true">Reinstall of %1$s is Required</string>
 
 </resources>

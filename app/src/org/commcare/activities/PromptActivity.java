@@ -119,7 +119,7 @@ public abstract class PromptActivity extends CommCareActivity {
     protected void launchCurrentAppOnPlayStore() {
         String appPackageName = getPackageName();
         if (BuildConfig.DEBUG) {
-            appPackageName = appPackageName.replace(".debug", "");
+            appPackageName = "org.commcare.dalvik";
         }
         try {
             startActivityForResult(new Intent(Intent.ACTION_VIEW,
