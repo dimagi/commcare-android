@@ -119,7 +119,7 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
             return;
         }
 
-        if (FileUtil.isValidFileLocation(location)) {
+        if (!FileUtil.isValidFileLocation(location)) {
             txtInteractiveMessages.setText(Localization.get("archive.install.state.invalid.path"));
             this.transplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
             btnInstallArchive.setEnabled(false);
