@@ -286,14 +286,14 @@ public class HiddenPreferences {
     }
 
     public static void setLastKnownCczLocation(String cczPath) {
-        CommCareApplication.instance().getCurrentApp().getAppPreferences()
+                PreferenceManager.getDefaultSharedPreferences(CommCareApplication.instance())
                 .edit()
                 .putString(LAST_KNOWN_CCZ_LOCATION, cczPath).apply();
     }
 
     @Nullable
     public static String getLastKnownCczLocation() {
-        return CommCareApplication.instance().getCurrentApp().getAppPreferences()
+        return PreferenceManager.getDefaultSharedPreferences(CommCareApplication.instance())
                 .getString(LAST_KNOWN_CCZ_LOCATION, null);
     }
 }
