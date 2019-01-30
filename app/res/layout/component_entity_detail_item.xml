@@ -48,7 +48,6 @@
             android:layout_marginRight="12dp"
             android:drawableLeft="@drawable/sym_action_call"
             android:drawablePadding="@dimen/content_min_margin"
-            android:inputType="phone"
             android:text="555-555-5555"
             android:typeface="monospace"
             android:visibility="gone"
