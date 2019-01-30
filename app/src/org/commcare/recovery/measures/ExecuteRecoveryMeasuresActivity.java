@@ -17,6 +17,7 @@ import org.commcare.engine.resource.AppInstallStatus;
 import org.commcare.resources.model.InvalidResourceException;
 import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.tasks.ResourceEngineListener;
+import org.commcare.tasks.UnZipTaskListener;
 import org.commcare.utils.StringUtils;
 import org.commcare.views.ManagedUi;
 import org.commcare.views.UiElement;
@@ -32,7 +33,7 @@ import static org.commcare.recovery.measures.ExecuteRecoveryMeasuresPresenter.RE
  */
 
 @ManagedUi(R.layout.execute_recovery_measures)
-public class ExecuteRecoveryMeasuresActivity extends CommCareActivity<ExecuteRecoveryMeasuresActivity> implements ResourceEngineListener {
+public class ExecuteRecoveryMeasuresActivity extends CommCareActivity<ExecuteRecoveryMeasuresActivity> implements ResourceEngineListener, UnZipTaskListener {
 
     protected static final int PROMPT_APK_UPDATE = 1;
     protected static final int PROMPT_APK_REINSTALL = 2;
@@ -225,18 +226,6 @@ public class ExecuteRecoveryMeasuresActivity extends CommCareActivity<ExecuteRec
         mPresenter.onCczScanFailed(e);
     }
 
-    public void onUnzipSuccessful() {
-        mPresenter.onUnzipSuccessful();
-    }
-
-    public void updateUnZipProgress(String update) {
-        mPresenter.updateUnZipProgress(update);
-    }
-
-    public void onUnzipFailure(Exception e) {
-        mPresenter.onUnzipFailure(e);
-    }
-
     public void showReinstall() {
         reinstallBt.setVisibility(View.VISIBLE);
     }
@@ -247,5 +236,20 @@ public class ExecuteRecoveryMeasuresActivity extends CommCareActivity<ExecuteRec
 
     public void setCczSelectionVisibility(boolean visible) {
         selectCczBt.setVisibility(visible ? View.VISIBLE : View.GONE);
+    }
+
+    @Override
+    public void OnUnzipSuccessful(Integer result) {
+        mPresenter.onUnzipSuccessful();
+    }
+
+    @Override
+    public void OnUnzipFailure(String cause) {
+        mPresenter.onUnzipFailure(cause);
+    }
+
+    @Override
+    public void updateUnzipProgress(String update, int taskId) {
+        mPresenter.updateUnZipProgress(update);
     }
 }

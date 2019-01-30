@@ -42,10 +42,12 @@ import org.commcare.services.WiFiDirectBroadcastReceiver;
 import org.commcare.tasks.FormRecordToFileTask;
 import org.commcare.tasks.FormTransferTask;
 import org.commcare.tasks.SendTask;
+import org.commcare.tasks.UnZipTaskListener;
 import org.commcare.tasks.UnzipTask;
 import org.commcare.tasks.WipeTask;
 import org.commcare.tasks.ZipTask;
 import org.commcare.tasks.templates.CommCareTask;
+import org.commcare.tasks.templates.CommCareTaskConnector;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.FileUtil;
 import org.commcare.utils.FormUploadResult;
@@ -71,7 +73,7 @@ import java.util.Vector;
 @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
 public class CommCareWiFiDirectActivity
         extends SessionAwareCommCareActivity<CommCareWiFiDirectActivity>
-        implements DeviceActionListener, FileServerListener, WifiDirectManagerListener, WithUIController {
+        implements DeviceActionListener, FileServerListener, WifiDirectManagerListener, WithUIController, UnZipTaskListener {
 
     private static final String TAG = LogTypes.TYPE_WIFI_DIRECT;
 
@@ -457,36 +459,37 @@ public class CommCareWiFiDirectActivity
 
     private void unzipFiles(String fn) {
         Logger.log(TAG, "Unzipping files in Wi-fi direct");
-        UnzipTask<CommCareWiFiDirectActivity> mUnzipTask = new UnzipTask<CommCareWiFiDirectActivity>() {
-            @Override
-            protected void deliverResult(CommCareWiFiDirectActivity receiver, Integer result) {
-                Log.d(TAG, "delivering unzip result");
-                if (result > 0) {
-                    receiver.onUnzipSuccessful(result);
-                } else {
-                    //assume that we've already set the error message, but make it look scary
-                    receiver.transplantStyle(myStatusText, R.layout.template_text_notification_problem);
-                }
-            }
-
-            @Override
-            protected void deliverUpdate(CommCareWiFiDirectActivity receiver, String... update) {
-                Log.d(TAG, "delivering unzip upate");
-                receiver.updateProgress(update[0], CommCareTask.GENERIC_TASK_ID);
-                receiver.myStatusText.setText(update[0]);
-            }
-
-            @Override
-            protected void deliverError(CommCareWiFiDirectActivity receiver, Exception e) {
-                Log.d(TAG, "unzip deliver error: " + e.getMessage());
-                receiver.myStatusText.setText(Localization.get("mult.install.error", new String[]{e.getMessage()}));
-                receiver.transplantStyle(myStatusText, R.layout.template_text_notification_problem);
-            }
-        };
-
-        mUnzipTask.connect(CommCareWiFiDirectActivity.this);
+        UnzipTask mUnzipTask = new UnzipTask();
+        mUnzipTask.connect(((CommCareTaskConnector)this));
         Logger.log(TAG, "executing task with: " + fn + " , " + toBeSubmittedDirectory);
         mUnzipTask.execute(fn, toBeSubmittedDirectory);
+    }
+
+    @Override
+    public void OnUnzipSuccessful(Integer result) {
+        if (result > 0) {
+            Logger.log(TAG, "Successfully unzipped " + result.toString() + " files.");
+            myStatusText.setText(localize("wifi.direct.receive.successful", result.toString()));
+            if (!FileUtil.deleteFileOrDir(new File(receiveDirectory))) {
+                Log.d(TAG, "source zip not succesfully deleted");
+            }
+            updateStatusText();
+        } else {
+            //assume that we've already set the error message, but make it look scary
+            transplantStyle(myStatusText, R.layout.template_text_notification_problem);
+        }
+    }
+
+    @Override
+    public void OnUnzipFailure(String cause) {
+        myStatusText.setText(Localization.get("mult.install.error", new String[]{cause}));
+        transplantStyle(myStatusText, R.layout.template_text_notification_problem);
+    }
+
+    @Override
+    public void updateUnzipProgress(String update, int taskId) {
+        updateProgress(update, taskId);
+        myStatusText.setText(update);
     }
 
     /* if successful, broadcasts WIFI_P2P_Peers_CHANGED_ACTION intent with list of peers
@@ -602,26 +605,26 @@ public class CommCareWiFiDirectActivity
         // We've received transferred forms. Move them into the to be zipped directory.
         File[] originFiles = receiveFolder.listFiles();
         File[] destinationFiles = new File[originFiles.length];
-        for(int i=0; i< originFiles.length; i++){
+        for (int i = 0; i < originFiles.length; i++) {
             destinationFiles[i] = new File(toBeTransferredDirectory, originFiles[i].getName());
         }
         try {
             Log.d(TAG, "We have " + originFiles.length + " toBeSubmitted files to transfer");
-            for (int i=0; i< originFiles.length; i++) {
+            for (int i = 0; i < originFiles.length; i++) {
                 FileUtil.copyFileDeep(originFiles[i], destinationFiles[i]);
                 Log.d(TAG, "Transferred " + originFiles[i] + " to " + destinationFiles[i]);
             }
-        } catch(IOException e){
+        } catch (IOException e) {
             // if we catch an error, delete all the new files we've copied over
             for (File destinationFile : destinationFiles) {
-                if(destinationFile.exists()){
+                if (destinationFile.exists()) {
                     FileUtil.deleteFileOrDir(destinationFile);
                 }
             }
         }
         // Delete all the to be submitted files, we have them copied for transfer.
         for (File originFile : originFiles) {
-            if(originFile.exists()){
+            if (originFile.exists()) {
                 FileUtil.deleteFileOrDir(originFile);
             }
         }
@@ -636,15 +639,6 @@ public class CommCareWiFiDirectActivity
     private void onZipError() {
         FileUtil.deleteFileOrDir(new File(toBeTransferredDirectory));
         Log.d(CommCareWiFiDirectActivity.TAG, "Zip unsuccessful");
-    }
-
-    private void onUnzipSuccessful(Integer result) {
-        Logger.log(TAG, "Successfully unzipped " + result.toString() + " files.");
-        myStatusText.setText(localize("wifi.direct.receive.successful", result.toString()));
-        if (!FileUtil.deleteFileOrDir(new File(receiveDirectory))) {
-            Log.d(TAG, "source zip not succesfully deleted");
-        }
-        updateStatusText();
     }
 
 
@@ -666,7 +660,7 @@ public class CommCareWiFiDirectActivity
         zipFiles();
     }
 
-    private void moveFormRecordsToFiles(){
+    private void moveFormRecordsToFiles() {
         Logger.log(TAG, "Getting records from storage");
         FormRecordToFileTask formRecordToFileTask = new FormRecordToFileTask(this, toBeTransferredDirectory) {
             @Override
@@ -798,7 +792,7 @@ public class CommCareWiFiDirectActivity
         if (mState.equals(wdState.send)) {
             stateHeaderText.setText(localize("wifi.direct.status.transfer.header"));
             formCountText.setText(localize("wifi.direct.status.transfer.count",
-                    new String[] {"" + numUnsyncedForms, "" + numUnsubmittedForms}));
+                    new String[]{"" + numUnsyncedForms, "" + numUnsubmittedForms}));
             stateStatusText.setText(localize("wifi.direct.status.transfer.message"));
         } else if (mState.equals(wdState.receive)) {
             stateHeaderText.setText(localize("wifi.direct.status.receive.header"));

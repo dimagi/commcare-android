@@ -22,10 +22,10 @@ import java.util.zip.ZipInputStream;
 /**
  * @author ctsims
  */
-public abstract class UnzipTask<R> extends CommCareTask<String, String, Integer, R> {
+public class UnzipTask extends CommCareTask<String, String, Integer, UnZipTaskListener> {
     public static final int UNZIP_TASK_ID = 7212435;
 
-    protected UnzipTask() {
+    public UnzipTask() {
         this.taskId = UNZIP_TASK_ID;
         TAG = UnzipTask.class.getSimpleName();
     }
@@ -43,6 +43,25 @@ public abstract class UnzipTask<R> extends CommCareTask<String, String, Integer,
 
         Logger.log(TAG, "Unzipping archive '" + params[0] + "' to  '" + params[1] + "'");
         return unZipFromStream(zis, params[1]);
+    }
+
+    @Override
+    protected void deliverResult(UnZipTaskListener unZipTaskListener, Integer result) {
+        if (result > 0) {
+            unZipTaskListener.OnUnzipSuccessful(result);
+        } else {
+            unZipTaskListener.OnUnzipFailure("");
+        }
+    }
+
+    @Override
+    protected void deliverUpdate(UnZipTaskListener unZipTaskListener, String... update) {
+        unZipTaskListener.updateUnzipProgress(update[0], UNZIP_TASK_ID);
+    }
+
+    @Override
+    protected void deliverError(UnZipTaskListener unZipTaskListener, Exception e) {
+        unZipTaskListener.OnUnzipFailure(e.getMessage());
     }
 
     private InputStream getInputStreamForFile(String filePathOrUri) throws FileNotFoundException {

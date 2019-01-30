@@ -28,15 +28,15 @@ import org.commcare.tasks.ResourceEngineTask;
 import org.commcare.tasks.ResultAndError;
 import org.commcare.tasks.TaskListener;
 import org.commcare.tasks.TaskListenerRegistrationException;
-import org.commcare.tasks.UnzipTask;
 import org.commcare.tasks.UpdateTask;
 import org.commcare.util.LogTypes;
+import org.commcare.utils.CczUtils;
 import org.commcare.utils.FileUtil;
 import org.commcare.utils.StringUtils;
+import org.commcare.utils.ZipUtils;
 import org.commcare.views.dialogs.StandardAlertDialog;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
-import org.javarosa.core.util.PropertyUtils;
 
 import java.io.File;
 import java.util.List;
@@ -377,14 +377,8 @@ public class ExecuteRecoveryMeasuresPresenter implements BasePresenterContract, 
     }
 
     private void unZipCcz(String filePath) {
-        // Clear any targetPath that might have got set earlier
-        if (mTargetPath != null) {
-            new File(mTargetPath).delete();
-        }
-        mTargetPath = CommCareApplication.instance().getAndroidFsTemp() + PropertyUtils.genUUID();
-        UnzipTask unzipTask = new sUnzipTask();
-        unzipTask.connect(mActivity);
-        unzipTask.executeParallel(new String[]{filePath, mTargetPath});
+        mTargetPath = CczUtils.getCczTargetPath();
+        ZipUtils.UnzipFile(mActivity, filePath, mTargetPath);
         mActivity.enableLoadingIndicator();
         setCczSelectionVisibility(false);
     }
@@ -472,9 +466,9 @@ public class ExecuteRecoveryMeasuresPresenter implements BasePresenterContract, 
         mActivity.updateStatus(StringUtils.getStringRobust(mActivity, R.string.recovery_measure_unzip_progress, update));
     }
 
-    public void onUnzipFailure(Exception e) {
+    public void onUnzipFailure(String cause) {
         updateStatus(StringUtils.getStringRobust(mActivity, R.string.recovery_measure_unzip_error));
-        onAsyncExecutionFailure(e.getMessage());
+        onAsyncExecutionFailure(cause);
         setCczSelectionVisibility(true);
     }
 
@@ -529,25 +523,6 @@ public class ExecuteRecoveryMeasuresPresenter implements BasePresenterContract, 
         protected void deliverError(ExecuteRecoveryMeasuresActivity receiver,
                                     Exception e) {
             receiver.failUnknown(AppInstallStatus.UnknownFailure);
-        }
-    }
-
-    static class sUnzipTask extends UnzipTask<ExecuteRecoveryMeasuresActivity> {
-        @Override
-        protected void deliverResult(ExecuteRecoveryMeasuresActivity receiver, Integer result) {
-            if (result > 0) {
-                receiver.onUnzipSuccessful();
-            }
-        }
-
-        @Override
-        protected void deliverUpdate(ExecuteRecoveryMeasuresActivity receiver, String... update) {
-            receiver.updateUnZipProgress(update[0]);
-        }
-
-        @Override
-        protected void deliverError(ExecuteRecoveryMeasuresActivity receiver, Exception e) {
-            receiver.onUnzipFailure(e);
         }
     }
 }

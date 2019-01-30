@@ -25,21 +25,22 @@ public class ScanCczTask extends CommCareTask<Void, File, File, ExecuteRecoveryM
 
     private static final String CCZ_EXTENSION = ".ccz";
     private static final String PROFILE_FILE_NAME = "profile.ccpr";
+    private static final int MAX_SCAN_DEPTH = 10;
 
     private File latestProfileFile = null;
 
     @Override
     protected File doTaskBackground(Void... voids) {
-        locateAppCcz(getPathsToScan());
+        locateAppCcz(getPathsToScan(), 0);
         return latestProfileFile;
     }
 
     @Nullable
-    private void locateAppCcz(File[] files) {
+    private void locateAppCcz(File[] files, int depth) {
         int latestVersion = -1;
         for (File f : files) {
-            if (f.isDirectory()) {
-                locateAppCcz(f.listFiles());
+            if (f.isDirectory() && depth <= MAX_SCAN_DEPTH) {
+                locateAppCcz(f.listFiles(), depth + 1);
             } else if (f.isFile() && f.getName().endsWith(CCZ_EXTENSION)) {
                 try {
                     Pair<String, Integer> profileIdAndVersion = getProfileIdAndVersionFromCcz(f);
@@ -90,7 +91,7 @@ public class ScanCczTask extends CommCareTask<Void, File, File, ExecuteRecoveryM
     private File[] getPathsToScan() {
         String lastKnownCczLocation = HiddenPreferences.getLastKnownCczLocation();
         ArrayList<File> filePathsToScan = new ArrayList<>(3);
-        if(!StringUtils.isEmpty(lastKnownCczLocation)){
+        if (!StringUtils.isEmpty(lastKnownCczLocation)) {
             filePathsToScan.add(new File(lastKnownCczLocation));
         }
         filePathsToScan.add(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS));
@@ -100,7 +101,7 @@ public class ScanCczTask extends CommCareTask<Void, File, File, ExecuteRecoveryM
 
     @Override
     protected void deliverResult(ExecuteRecoveryMeasuresActivity activity, File archive) {
-       activity.onCczScanComplete();
+        activity.onCczScanComplete();
     }
 
     @Override
