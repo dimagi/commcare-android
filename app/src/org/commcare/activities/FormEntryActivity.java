@@ -914,6 +914,12 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                     } else {
                         UserfacingErrorHandling.createErrorDialog(receiver, StringUtils.getStringRobust(receiver, R.string.parse_error), FormEntryConstants.EXIT);
                     }
+
+                    if (intent.hasExtra(KEY_FORM_RECORD_ID)) {
+                        // log the form record id for which form load has failed
+                        FormRecord formRecord = FormRecord.getFormRecord(formRecordStorage, intent.getIntExtra(KEY_FORM_RECORD_ID, -1));
+                        Logger.log(LogTypes.TYPE_FORM_ENTRY, "Form load failed for form with id " + formRecord.getInstanceID());
+                    }
                 }
             };
             if (fullFormProfilingEnabled) {

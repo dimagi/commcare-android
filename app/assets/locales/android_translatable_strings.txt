@@ -105,6 +105,7 @@ sync.success.synced=Sync Successful! Your information is up to date.
 sync.fail.unsent=Having issues communicating with the server to send forms. Will try again later.
 sync.fail.timeout=CommCare didn't receive a response from the remote service in time, it may be busy! Please wait a while and try your request again later.
 sync.fail.auth.loggedin=Password has changed. Please log in with updated credentials
+sync.fail.empty.url=Sync url is not set. Please contact technical support.
 sync.fail.bad.data=Server provided improperly formatted data, please try again or contact your supervisor.
 sync.fail.bad.local=Your information was fetched, but a problem occurred with the log in. Please try again.
 sync.fail.bad.network=Couldn't contact server. Please make sure an internet connection is available or try again later.
@@ -465,6 +466,9 @@ refresh.build.settings.error=No refresh occurred. In order to use this utility, 
 
 login.attempt.fail.auth.title=Invalid Username or Password
 login.attempt.fail.auth.detail=Your username or password was not recognized, please type them again and retry.
+
+login.attempt.fail.empty.url.title=Url not set
+login.attempt.fail.empty.url.detail=Sync url is empty. Please contact technical support.
 
 login.attempt.fail.pin.title=Invalid PIN
 login.attempt.fail.pin.detail=Please enter the 4 digit PIN number that you chose, or select "Forgot PIN?" in the options menu to login with your password instead.

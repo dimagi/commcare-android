@@ -610,6 +610,9 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         }
 
         switch (result) {
+            case EMPTY_URL:
+                raiseLoginMessage(StockMessages.Empty_Url, true);
+                break;
             case AUTH_FAILED:
                 raiseLoginMessage(StockMessages.Auth_BadCredentials, false);
                 break;
