@@ -276,6 +276,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         if (requestCode == SEAT_APP_ACTIVITY && resultCode == RESULT_OK) {
             uiController.refreshForNewApp();
+            invalidateOptionsMenu();
             usernameBeforeRotation = passwordOrPinBeforeRotation = null;
         }
 
