@@ -61,6 +61,9 @@ public class ArchivedFormRemoteRestore {
             protected void deliverResult(FormRecordListActivity receiver, ResultAndError<PullTaskResult> statusAndErrorMessage) {
                 PullTaskResult status = statusAndErrorMessage.data;
                 switch (status) {
+                    case EMPTY_URL:
+                        Toast.makeText(receiver, "Server url is not set", Toast.LENGTH_LONG).show();
+                        break;
                     case DOWNLOAD_SUCCESS:
                         downloadForms(activity, platform);
                         break;
