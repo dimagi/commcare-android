@@ -1050,7 +1050,7 @@ public class CommCareApplication extends MultiDexApplication {
                 Logger.registerLogger(new AndroidLogger(app.getUserStorage(AndroidLogEntry.STORAGE_KEY,
                         AndroidLogEntry.class)));
             } else {
-                Logger.clear();
+                Logger.detachLogger();
             }
             ForceCloseLogger.registerStorage(app.getUserStorage(ForceCloseLogEntry.STORAGE_KEY,
                     ForceCloseLogEntry.class));
@@ -1061,7 +1061,7 @@ public class CommCareApplication extends MultiDexApplication {
                 Logger.registerLogger(new AndroidLogger(
                         app.getGlobalStorage(AndroidLogEntry.STORAGE_KEY, AndroidLogEntry.class)));
             } else {
-                Logger.clear();
+                Logger.detachLogger();
             }
             ForceCloseLogger.registerStorage(
                     app.getGlobalStorage(ForceCloseLogEntry.STORAGE_KEY, ForceCloseLogEntry.class));
