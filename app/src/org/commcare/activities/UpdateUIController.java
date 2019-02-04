@@ -220,9 +220,9 @@ class UpdateUIController implements CommCareActivityUIController {
     }
 
     private void refreshStatusText() {
-        CommCareApplication app = CommCareApplication.instance();
+        CommCareApplication commCareApplication = CommCareApplication.instance();
 
-        int version = app.getCommCarePlatform().getCurrentProfile().getVersion();
+        int version = commCareApplication.getCurrentApp().getAppRecord().getVersionNumber();
 
         currentVersionText.setText(Localization.get("install.current.version",
                 new String[]{Integer.toString(version)}));
