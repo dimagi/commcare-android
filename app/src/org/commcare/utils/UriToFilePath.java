@@ -54,7 +54,7 @@ public class UriToFilePath {
                 Uri contentUri;
                 try {
                     contentUri = ContentUris.withAppendedId(
-                            Uri.parse("content://downloads/public_downloads"), Long.valueOf(id));
+                            Uri.parse(Environment.DIRECTORY_DOWNLOADS), Long.valueOf(id));
                 } catch (NumberFormatException e) {
                     // id is an actual Path instead of a row id, hence use the original uri as it is.
                     contentUri = uri;
