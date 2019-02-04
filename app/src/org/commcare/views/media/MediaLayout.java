@@ -185,41 +185,47 @@ public class MediaLayout extends RelativeLayout {
         // Add the audioButton and videoButton (if applicable) and view
         // (containing text) to the relative layout.
         if (audioButton != null) {
-            audioParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
-            textParams.addRule(RelativeLayout.LEFT_OF, audioButton.getId());
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
                 audioParams.addRule(RelativeLayout.ALIGN_PARENT_END);
                 textParams.addRule(RelativeLayout.START_OF, audioButton.getId());
+            } else {
+                audioParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+                textParams.addRule(RelativeLayout.LEFT_OF, audioButton.getId());
             }
             questionTextPane.addView(audioButton, audioParams);
 
             if (videoButton != null) {
-                videoParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
                 videoParams.addRule(RelativeLayout.BELOW, audioButton.getId());
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
                     videoParams.addRule(RelativeLayout.ALIGN_PARENT_END);
+                } else {
+                    videoParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
                 }
                 questionTextPane.addView(videoButton, videoParams);
             }
         } else if (videoButton != null) {
-            videoParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
-            textParams.addRule(RelativeLayout.LEFT_OF, videoButton.getId());
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
                 videoParams.addRule(RelativeLayout.ALIGN_PARENT_END);
                 textParams.addRule(RelativeLayout.START_OF, videoButton.getId());
+            } else {
+                videoParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+                textParams.addRule(RelativeLayout.LEFT_OF, videoButton.getId());
             }
             questionTextPane.addView(videoButton, videoParams);
         } else {
             //Audio and Video are both null, let text bleed to right
-            textParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
                 textParams.addRule(RelativeLayout.ALIGN_PARENT_END);
+            } else {
+                textParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
             }
         }
         if (viewText.getVisibility() != GONE) {
-            textParams.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
                 textParams.addRule(RelativeLayout.ALIGN_PARENT_START);
+            } else {
+                textParams.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
+            }
             questionTextPane.addView(viewText, textParams);
         }
     }
@@ -312,11 +318,19 @@ public class MediaLayout extends RelativeLayout {
             if (viewText.getVisibility() == GONE) {
                 this.addView(questionTextPane, questionTextPaneParams);
                 if (audioButton != null) {
-                    mediaPaneParams.addRule(RelativeLayout.LEFT_OF, audioButton.getId());
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+                        mediaPaneParams.addRule(RelativeLayout.START_OF, audioButton.getId());
+                    } else {
+                        mediaPaneParams.addRule(RelativeLayout.LEFT_OF, audioButton.getId());
+                    }
                     questionTextPane.addView(mediaPane, mediaPaneParams);
                 }
                 if (videoButton != null) {
-                    mediaPaneParams.addRule(RelativeLayout.LEFT_OF, videoButton.getId());
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+                        mediaPaneParams.addRule(RelativeLayout.START_OF, videoButton.getId());
+                    } else {
+                        mediaPaneParams.addRule(RelativeLayout.LEFT_OF, videoButton.getId());
+                    }
                     questionTextPane.addView(mediaPane, mediaPaneParams);
                 }
             } else {

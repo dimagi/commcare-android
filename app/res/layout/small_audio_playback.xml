@@ -1,26 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="vertical">
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="55dp"
+    android:layout_height="55dp">
 
     <ImageButton
         android:id="@+id/play_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
+        android:layout_gravity="center"
         android:background="@null"
-        android:src="@drawable/audio_playback_selector"/>
+        android:src="@drawable/audio_playback_selector" />
 
     <ProgressBar
         android:id="@+id/circular_progress_bar"
         style="?android:attr/progressBarStyleHorizontal"
         android:layout_width="55dp"
         android:layout_height="55dp"
-        android:layout_centerInParent="true"
         android:max="500"
         android:progress="0"
         android:progressDrawable="@drawable/circular_progress"/>
 
-</RelativeLayout>
+</FrameLayout>
