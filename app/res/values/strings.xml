@@ -364,6 +364,7 @@
     <string name="incorrect_time_dialog_cancel" cc:translatable="true">Cancel</string>
 
     <!--Recovery Activity-->
+<<<<<<< HEAD
     <string name="recovery_mode_title" cc:translatable="true">CommCare Recovery Mode</string>
     <string name="recovery_mode_detail" cc:translatable="true">CommCare has entered recovery mode due to a problem with your app. We are trying to recover your app. Please wait...</string>
     <string name="recovery_resource_progress" cc:translatable="true">Recovered %1$s out of %2$s resources</string>
@@ -414,5 +415,7 @@
     <string name="recovery_measure_update_cancelled" cc:translatable="true">Update cancelled</string>
     <string name="recovery_measure_unzip_progress" cc:translatable="true">Processing CCZ File.. %1$s</string>
     <string name="reinstall_prompt_title" cc:translatable="true">Reinstall of %1$s is Required</string>
+
+    <string name="install_error_file_not_found">No file found for resource %1$s</string>
 
 </resources>

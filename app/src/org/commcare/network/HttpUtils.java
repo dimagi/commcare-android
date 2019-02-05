@@ -9,10 +9,17 @@ import org.commcare.utils.CredentialUtil;
 import org.commcare.utils.SessionUnavailableException;
 import org.commcare.utils.StringUtils;
 import org.javarosa.core.model.User;
+import org.javarosa.core.services.locale.Localization;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
 
 import javax.annotation.Nullable;
 
 import okhttp3.Credentials;
+import okhttp3.ResponseBody;
+import retrofit2.Response;
 
 /**
  * @author Phillip Mates (pmates@dimagi.com)
@@ -64,5 +71,20 @@ public class HttpUtils {
         } else {
             return Credentials.basic(username, buildAppPassword(password));
         }
+    }
+
+    public static String parseUserVisibleError(Response<ResponseBody> response) {
+        String message;
+        String responseStr = null;
+        try {
+            responseStr = response.errorBody().string();
+            JSONObject errorKeyAndDefault = new JSONObject(responseStr);
+            message = Localization.getWithDefault(
+                    errorKeyAndDefault.getString("error"),
+                    errorKeyAndDefault.getString("default_response"));
+        } catch (JSONException | IOException e) {
+            message = responseStr != null ? responseStr : "Unknown issue";
+        }
+        return message;
     }
 }

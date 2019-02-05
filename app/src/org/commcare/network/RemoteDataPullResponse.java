@@ -115,8 +115,8 @@ public class RemoteDataPullResponse {
         return response.body().byteStream();
     }
 
-    public String getErrorBody() throws IOException {
-        return response.errorBody().string();
+    public Response<ResponseBody> getResponse() {
+        return response;
     }
 
     public String getRetryHeader() {

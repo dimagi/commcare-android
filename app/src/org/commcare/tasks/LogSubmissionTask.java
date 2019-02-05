@@ -40,6 +40,7 @@ import javax.crypto.spec.SecretKeySpec;
 import okhttp3.MultipartBody;
 import okhttp3.ResponseBody;
 import retrofit2.Response;
+
 /**
  * @author ctsims
  */
@@ -103,35 +104,39 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
 
     @Override
     protected LogSubmitOutcomes doInBackground(Void... params) {
-        try {
-            SqlStorage<DeviceReportRecord> storage =
-                    CommCareApplication.instance().getUserStorage(DeviceReportRecord.class);
+        if (HiddenPreferences.isLoggingEnabled()) {
+            try {
+                SqlStorage<DeviceReportRecord> storage =
+                        CommCareApplication.instance().getUserStorage(DeviceReportRecord.class);
 
-            if (serializeCurrentLogs && !serializeLogs(storage)) {
+                if (serializeCurrentLogs && !serializeLogs(storage)) {
+                    return LogSubmitOutcomes.Error;
+                }
+
+                // See how many we have pending to submit
+                int numberOfLogsToSubmit = storage.getNumRecords();
+                if (numberOfLogsToSubmit == 0) {
+                    return LogSubmitOutcomes.Submitted;
+                }
+
+                // Signal to the listener that we're ready to submit
+                this.beginSubmissionProcess(numberOfLogsToSubmit);
+
+                ArrayList<Integer> submittedSuccesfullyIds = new ArrayList<>();
+                ArrayList<DeviceReportRecord> submittedSuccesfully = new ArrayList<>();
+                submitReports(storage, submittedSuccesfullyIds, submittedSuccesfully);
+
+                if (!removeLocalReports(storage, submittedSuccesfullyIds, submittedSuccesfully)) {
+                    return LogSubmitOutcomes.Serialized;
+                }
+
+                return checkSubmissionResult(numberOfLogsToSubmit, submittedSuccesfully);
+            } catch (SessionUnavailableException e) {
+                // The user database closed on us
                 return LogSubmitOutcomes.Error;
             }
-
-            // See how many we have pending to submit
-            int numberOfLogsToSubmit = storage.getNumRecords();
-            if (numberOfLogsToSubmit == 0) {
-                return LogSubmitOutcomes.Submitted;
-            }
-
-            // Signal to the listener that we're ready to submit
-            this.beginSubmissionProcess(numberOfLogsToSubmit);
-
-            ArrayList<Integer> submittedSuccesfullyIds = new ArrayList<>();
-            ArrayList<DeviceReportRecord> submittedSuccesfully = new ArrayList<>();
-            submitReports(storage, submittedSuccesfullyIds, submittedSuccesfully);
-
-            if (!removeLocalReports(storage, submittedSuccesfullyIds, submittedSuccesfully)) {
-                return LogSubmitOutcomes.Serialized;
-            }
-
-            return checkSubmissionResult(numberOfLogsToSubmit, submittedSuccesfully);
-        } catch (SessionUnavailableException e) {
-            // The user database closed on us
-            return LogSubmitOutcomes.Error;
+        } else {
+            return LogSubmitOutcomes.Submitted;
         }
     }
 

@@ -6,6 +6,7 @@ import android.support.v4.util.Pair;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
+import org.apache.commons.lang3.StringUtils;
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.app.models.FormDefRecord;
 import org.commcare.android.database.app.models.UserKeyRecord;
@@ -24,9 +25,10 @@ import org.commcare.models.database.user.models.EntityStorageCache;
 import org.commcare.models.encryption.ByteEncrypter;
 import org.commcare.modern.models.RecordTooLargeException;
 import org.commcare.network.DataPullRequester;
+import org.commcare.network.HttpUtils;
 import org.commcare.network.RemoteDataPullResponse;
-import org.commcare.preferences.ServerUrls;
 import org.commcare.preferences.HiddenPreferences;
+import org.commcare.preferences.ServerUrls;
 import org.commcare.resources.model.CommCareOTARestoreListener;
 import org.commcare.services.CommCareSessionService;
 import org.commcare.tasks.templates.CommCareTask;
@@ -142,6 +144,10 @@ public abstract class DataPullTask<R>
     }
 
     private ResultAndError<PullTaskResult> doTaskBackgroundHelper() {
+        if (StringUtils.isEmpty(server)) {
+            return new ResultAndError<>(PullTaskResult.EMPTY_URL, Localization.get("sync.fail.empty.url"));
+        }
+
         publishProgress(PROGRESS_STARTED);
         recordSyncAttempt();
         Logger.log(LogTypes.TYPE_USER, "Starting Sync");
@@ -307,17 +313,8 @@ public abstract class DataPullTask<R>
         }
     }
 
-    private ResultAndError<PullTaskResult> processErrorResponseWithMessage(RemoteDataPullResponse pullResponse) throws IOException {
-        String message;
-        try {
-            JSONObject errorKeyAndDefault = new JSONObject(pullResponse.getErrorBody());
-            message = Localization.getWithDefault(
-                    errorKeyAndDefault.getString("error"),
-                    errorKeyAndDefault.getString("default_response"));
-        } catch (JSONException e) {
-            message = "Unknown issue";
-        }
-        return new ResultAndError<>(PullTaskResult.ACTIONABLE_FAILURE, message);
+    private ResultAndError<PullTaskResult> processErrorResponseWithMessage(RemoteDataPullResponse pullResponse) {
+        return new ResultAndError<>(PullTaskResult.ACTIONABLE_FAILURE, HttpUtils.parseUserVisibleError(pullResponse.getResponse()));
     }
 
     private ResultAndError<PullTaskResult> handleAuthFailed() {
@@ -653,6 +650,7 @@ public abstract class DataPullTask<R>
     public enum PullTaskResult {
         DOWNLOAD_SUCCESS(null),
         RETRY_NEEDED(null),
+        EMPTY_URL(AnalyticsParamValue.SYNC_FAIL_EMPTY_URL),
         AUTH_FAILED(AnalyticsParamValue.SYNC_FAIL_AUTH),
         BAD_DATA(AnalyticsParamValue.SYNC_FAIL_BAD_DATA),
         BAD_DATA_REQUIRES_INTERVENTION(AnalyticsParamValue.SYNC_FAIL_BAD_DATA),
