@@ -126,4 +126,7 @@
     <!-- Should be font medium SP x 4, roughly -->
     <dimen name="rectangle_button_height">60sp</dimen>
 
+    <!-- Audio button -->
+    <dimen name="audio_button_size">55dp</dimen>
+
 </resources>
