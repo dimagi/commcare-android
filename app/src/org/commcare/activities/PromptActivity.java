@@ -21,7 +21,6 @@ import org.javarosa.core.services.locale.Localization;
  *
  * Created by amstone326 on 4/19/17.
  */
-@ManagedUi(R.layout.prompt_view)
 public abstract class PromptActivity extends CommCareActivity {
 
     protected static final int DO_AN_UPDATE = 1;
@@ -30,22 +29,19 @@ public abstract class PromptActivity extends CommCareActivity {
 
     protected PromptItem toPrompt;
 
-    @UiElement(value = R.id.prompt_title)
     protected TextView promptTitle;
-    @UiElement(value = R.id.action_button)
     protected Button actionButton;
-    @UiElement(value = R.id.do_later_button)
     protected Button doLaterButton;
-    @UiElement(value = R.id.image_cue)
     protected ImageView imageCue;
-    @UiElement(value = R.id.instructions)
     protected TextView instructions;
-    @UiElement(value = R.id.help_text)
     protected TextView helpText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.prompt_view);
+        initViews();
+
         refreshPromptIfNull();
         if (savedInstanceState == null &&
                 !getIntent().getBooleanExtra(FROM_RECOVERY_MEASURE, false)) {
@@ -55,6 +51,15 @@ public abstract class PromptActivity extends CommCareActivity {
         setupUI();
     }
 
+    private void initViews() {
+        promptTitle = findViewById(R.id.prompt_title);
+        actionButton = findViewById(R.id.action_button);
+        doLaterButton = findViewById(R.id.do_later_button);
+        imageCue = findViewById(R.id.image_cue);
+        instructions = findViewById(R.id.instructions);
+        helpText = findViewById(R.id.help_text);
+    }
+
     private void refreshPromptIfNull() {
         if (toPrompt == null) {
             refreshPromptObject();
@@ -62,7 +67,8 @@ public abstract class PromptActivity extends CommCareActivity {
     }
 
     private void setupUI() {
-        if (getInstructionsStringKey() != null) {
+
+         if (getInstructionsStringKey() != null) {
             instructions.setText(Localization.get(getInstructionsStringKey()));
         }
 
@@ -131,7 +137,7 @@ public abstract class PromptActivity extends CommCareActivity {
     }
 
     protected String getCurrentClientName() {
-        return getString(R.string.app_name);
+        return getString(R.string.application_name);
     }
 
     protected boolean inForceMode() {
