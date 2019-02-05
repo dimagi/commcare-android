@@ -44,6 +44,8 @@ import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import retrofit2.Response;
 
+import static org.commcare.network.HttpUtils.parseUserVisibleError;
+
 public class FormUploadUtil {
     private static final String TAG = FormUploadUtil.class.getSimpleName();
 
@@ -216,16 +218,7 @@ public class FormUploadUtil {
     }
 
     private static FormUploadResult processActionableFaiure(Response<ResponseBody> response) {
-        String message;
-        try {
-            JSONObject errorKeyAndDefault = new JSONObject(response.errorBody().string());
-            message = Localization.getWithDefault(
-                    errorKeyAndDefault.getString("error"),
-                    errorKeyAndDefault.getString("default_response"));
-        } catch (JSONException | IOException e) {
-            message = "Unknown issue";
-        }
-
+        String message = parseUserVisibleError(response);
         FormUploadResult result = FormUploadResult.ACTIONABLE_FAILURE;
         result.setErrorMessage(message);
         return result;

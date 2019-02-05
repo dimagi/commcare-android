@@ -25,6 +25,7 @@ import org.commcare.models.database.user.models.EntityStorageCache;
 import org.commcare.models.encryption.ByteEncrypter;
 import org.commcare.modern.models.RecordTooLargeException;
 import org.commcare.network.DataPullRequester;
+import org.commcare.network.HttpUtils;
 import org.commcare.network.RemoteDataPullResponse;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.preferences.ServerUrls;
@@ -312,17 +313,8 @@ public abstract class DataPullTask<R>
         }
     }
 
-    private ResultAndError<PullTaskResult> processErrorResponseWithMessage(RemoteDataPullResponse pullResponse) throws IOException {
-        String message;
-        try {
-            JSONObject errorKeyAndDefault = new JSONObject(pullResponse.getErrorBody());
-            message = Localization.getWithDefault(
-                    errorKeyAndDefault.getString("error"),
-                    errorKeyAndDefault.getString("default_response"));
-        } catch (JSONException e) {
-            message = "Unknown issue";
-        }
-        return new ResultAndError<>(PullTaskResult.ACTIONABLE_FAILURE, message);
+    private ResultAndError<PullTaskResult> processErrorResponseWithMessage(RemoteDataPullResponse pullResponse) {
+        return new ResultAndError<>(PullTaskResult.ACTIONABLE_FAILURE, HttpUtils.parseUserVisibleError(pullResponse.getResponse()));
     }
 
     private ResultAndError<PullTaskResult> handleAuthFailed() {

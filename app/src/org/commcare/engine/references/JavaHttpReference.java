@@ -2,6 +2,7 @@ package org.commcare.engine.references;
 
 import org.commcare.interfaces.CommcareRequestEndpoints;
 import org.commcare.network.CommcareRequestGenerator;
+import org.commcare.network.HttpUtils;
 import org.javarosa.core.reference.Reference;
 import org.javarosa.core.services.locale.Localization;
 
@@ -43,6 +44,9 @@ public class JavaHttpReference implements Reference {
         if (response.isSuccessful()) {
             return response.body().byteStream();
         } else {
+            if (response.code() == 406) {
+                throw new IOException(HttpUtils.parseUserVisibleError(response));
+            }
             throw new IOException(Localization.get("install.fail.error", Integer.toString(response.code())));
         }
     }
