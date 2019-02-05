@@ -2,7 +2,9 @@ package org.commcare.android.resource.installers;
 
 import android.support.v4.util.Pair;
 
+import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
+import org.commcare.dalvik.R;
 import org.commcare.engine.resource.installers.LocalStorageUnavailableException;
 import org.commcare.resources.model.MissingMediaException;
 import org.commcare.resources.model.Resource;
@@ -15,11 +17,13 @@ import org.commcare.util.CommCarePlatform;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.AndroidCommCarePlatform;
 import org.commcare.utils.FileUtil;
+import org.commcare.utils.StringUtils;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.Reference;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.Logger;
+import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
@@ -87,7 +91,8 @@ abstract class FileSystemInstaller implements ResourceInstaller<AndroidCommCareP
                 inputFileStream = ref.getStream();
             } catch (FileNotFoundException e) {
                 // Means the reference wasn't valid so let it keep iterating through options.
-                return false;
+                throw new UnresolvedResourceException(r,
+                        StringUtils.getStringRobust(CommCareApplication.instance(), R.string.install_error_file_not_found, r.getDescriptor()), true);
             }
 
             File tempFile = new File(CommCareApplication.instance().getTempFilePath());
