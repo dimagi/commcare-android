@@ -364,7 +364,6 @@
     <string name="incorrect_time_dialog_cancel" cc:translatable="true">Cancel</string>
 
     <!--Recovery Activity-->
-<<<<<<< HEAD
     <string name="recovery_mode_title" cc:translatable="true">CommCare Recovery Mode</string>
     <string name="recovery_mode_detail" cc:translatable="true">CommCare has entered recovery mode due to a problem with your app. We are trying to recover your app. Please wait...</string>
     <string name="recovery_resource_progress" cc:translatable="true">Recovered %1$s out of %2$s resources</string>
