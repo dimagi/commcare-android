@@ -78,13 +78,15 @@ public class HttpUtils {
 
     public static String parseUserVisibleError(Response<ResponseBody> response) {
         String message;
+        String responseStr = null;
         try {
-            JSONObject errorKeyAndDefault = new JSONObject(response.errorBody().string());
+            responseStr = response.errorBody().string();
+            JSONObject errorKeyAndDefault = new JSONObject(responseStr);
             message = Localization.getWithDefault(
                     errorKeyAndDefault.getString("error"),
                     errorKeyAndDefault.getString("default_response"));
         } catch (JSONException | IOException e) {
-            message = "Unknown issue";
+            message = responseStr != null ? responseStr : "Unknown issue";
         }
         return message;
     }
