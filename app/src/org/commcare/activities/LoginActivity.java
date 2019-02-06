@@ -604,6 +604,11 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     }
 
     @Override
+    public boolean isBackEnabled() {
+        return false;
+    }
+
+    @Override
     public void handlePullTaskResult(ResultAndError<DataPullTask.PullTaskResult> resultAndErrorMessage,
                                      boolean userTriggeredSync, boolean formsToSend,
                                      boolean usingRemoteKeyManagement) {
