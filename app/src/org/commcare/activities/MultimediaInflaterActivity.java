@@ -5,6 +5,7 @@ import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
+import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
@@ -12,7 +13,6 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.apache.commons.lang3.StringUtils;
 import org.commcare.dalvik.R;
 import org.commcare.tasks.MultimediaInflaterTask;
 import org.commcare.tasks.UnZipTaskListener;
@@ -247,10 +247,10 @@ public class MultimediaInflaterActivity extends CommCareActivity<MultimediaInfla
 
     @Override
     public void OnUnzipFailure(String cause) {
-        if (!StringUtils.isEmpty(cause)) {
+        if (!TextUtils.isEmpty(cause)) {
             txtInteractiveMessages.setText(Localization.get("mult.install.error", new String[]{cause}));
-            transplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
         }
+        transplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
     }
 
     @Override

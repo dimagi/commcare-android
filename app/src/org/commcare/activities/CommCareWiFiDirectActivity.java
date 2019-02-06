@@ -17,6 +17,7 @@ import android.net.wifi.p2p.WifiP2pManager.PeerListListener;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
+import android.text.TextUtils;
 import android.util.Log;
 import android.util.Pair;
 import android.widget.TextView;
@@ -482,7 +483,9 @@ public class CommCareWiFiDirectActivity
 
     @Override
     public void OnUnzipFailure(String cause) {
-        myStatusText.setText(Localization.get("mult.install.error", new String[]{cause}));
+        if (!TextUtils.isEmpty(cause)) {
+            myStatusText.setText(Localization.get("mult.install.error", new String[]{cause}));
+        }
         transplantStyle(myStatusText, R.layout.template_text_notification_problem);
     }
 
