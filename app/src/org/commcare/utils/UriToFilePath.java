@@ -33,7 +33,7 @@ public class UriToFilePath {
      *
      * @param context The context.
      * @param uri     The Uri to query.
-     * @return Filepath string extracted from the Uri argument. Returns null if
+     * @return Filepath string extracted from the Uri argument. Returns the original uri if
      * filepath couldn't be succesfully extracted.
      */
     @SuppressLint("NewApi")
