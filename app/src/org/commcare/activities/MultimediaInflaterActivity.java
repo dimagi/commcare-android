@@ -3,24 +3,22 @@ package org.commcare.activities;
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.text.TextUtils;
 import android.util.Log;
-import android.view.View;
-import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.commcare.CommCareApplication;
 import org.commcare.dalvik.R;
 import org.commcare.tasks.MultimediaInflaterTask;
+import org.commcare.tasks.UnZipTaskListener;
 import org.commcare.tasks.templates.CommCareTask;
+import org.commcare.tasks.templates.CommCareTaskConnector;
 import org.commcare.utils.FileUtil;
-import org.commcare.utils.UriToFilePath;
 import org.commcare.views.ManagedUi;
 import org.commcare.views.UiElement;
 import org.commcare.views.dialogs.CustomProgressDialog;
@@ -34,7 +32,7 @@ import java.util.ArrayList;
  */
 
 @ManagedUi(R.layout.screen_multimedia_inflater)
-public class MultimediaInflaterActivity extends CommCareActivity<MultimediaInflaterActivity> {
+public class MultimediaInflaterActivity extends CommCareActivity<MultimediaInflaterActivity> implements UnZipTaskListener  {
 
     private static final String TAG = MultimediaInflaterActivity.class.getSimpleName();
 
@@ -80,35 +78,8 @@ public class MultimediaInflaterActivity extends CommCareActivity<MultimediaInfla
         });
 
         btnInstallMultimedia.setOnClickListener(v -> {
-            MultimediaInflaterTask<MultimediaInflaterActivity> task = new MultimediaInflaterTask<MultimediaInflaterActivity>() {
-
-                @Override
-                protected void deliverResult(MultimediaInflaterActivity receiver, Integer result) {
-                    if (result > 0) {
-                        receiver.done = true;
-                        receiver.evalState();
-                        receiver.setResult(Activity.RESULT_OK);
-                        receiver.finish();
-                    } else {
-                        //assume that we've already set the error message, but make it look scary
-                        receiver.transplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
-                    }
-                }
-
-                @Override
-                protected void deliverUpdate(MultimediaInflaterActivity receiver, String... update) {
-                    receiver.updateProgress(update[0], CommCareTask.GENERIC_TASK_ID);
-                    receiver.txtInteractiveMessages.setText(update[0]);
-                }
-
-                @Override
-                protected void deliverError(MultimediaInflaterActivity receiver, Exception e) {
-                    receiver.txtInteractiveMessages.setText(Localization.get("mult.install.error", new String[]{e.getMessage()}));
-                    receiver.transplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
-                }
-            };
-
-            task.connect(MultimediaInflaterActivity.this);
+            MultimediaInflaterTask<MultimediaInflaterActivity> task = new MultimediaInflaterTask();
+            task.connect(((CommCareTaskConnector)this));
             task.executeParallel(editFileLocation.getText().toString(), destination);
         });
 
@@ -259,5 +230,32 @@ public class MultimediaInflaterActivity extends CommCareActivity<MultimediaInfla
         Log.w(TAG, "taskId passed to generateProgressDialog does not match "
                 + "any valid possibilities in MultiMediaInflaterActivity");
         return null;
+    }
+
+    @Override
+    public void OnUnzipSuccessful(Integer result) {
+        if(result > 0) {
+            done = true;
+            evalState();
+            setResult(Activity.RESULT_OK);
+            finish();
+        }else {
+            //assume that we've already set the error message, but make it look scary
+            transplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
+        }
+    }
+
+    @Override
+    public void OnUnzipFailure(String cause) {
+        if (!TextUtils.isEmpty(cause)) {
+            txtInteractiveMessages.setText(Localization.get("mult.install.error", new String[]{cause}));
+        }
+        transplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
+    }
+
+    @Override
+    public void updateUnzipProgress(String update, int taskId) {
+        updateProgress(update, taskId);
+        txtInteractiveMessages.setText(update);
     }
 }

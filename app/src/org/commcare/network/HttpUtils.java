@@ -1,6 +1,7 @@
 package org.commcare.network;
 
 import org.commcare.CommCareApplication;
+import org.commcare.core.network.AuthInfo;
 import org.commcare.modern.util.Pair;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.preferences.HiddenPreferences;
@@ -25,20 +26,16 @@ import retrofit2.Response;
  */
 public class HttpUtils {
 
-    public static String getCredential(@Nullable Pair<String, String> usernameAndPasswordToAuthWith) {
-        String credential;
-        if (usernameAndPasswordToAuthWith == null) {
+    public static String getCredential(AuthInfo authInfo) {
+        if (authInfo instanceof AuthInfo.ProvidedAuth) {
+            return getCredential(buildDomainUser(authInfo.username), authInfo.password);
+        } else if (authInfo instanceof AuthInfo.CurrentAuth) {
             // use the logged in user
             User user = getUser();
-            credential = getCredential(
-                    buildDomainUser(user.getUsername()),
-                    user.getCachedPwd());
+            return getCredential(buildDomainUser(user.getUsername()), user.getCachedPwd());
         } else {
-            credential = getCredential(
-                    buildDomainUser(usernameAndPasswordToAuthWith.first),
-                    usernameAndPasswordToAuthWith.second);
+            throw new IllegalArgumentException("Cannot get credential with NoAuth authInfo arg");
         }
-        return credential;
     }
 
     private static User getUser() {

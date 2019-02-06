@@ -15,6 +15,7 @@ import org.commcare.modern.database.TableBuilder;
 import org.commcare.models.database.DbUtil;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.modern.database.DatabaseIndexingUtils;
+import org.commcare.recovery.measures.RecoveryMeasure;
 import org.commcare.resources.model.Resource;
 import org.javarosa.core.model.instance.FormInstance;
 
@@ -37,6 +38,7 @@ public class DatabaseAppOpenHelper extends SQLiteOpenHelper {
      * V.9 - Adds FormRecord and Instance Record tables, XFormAndroidInstaller: contentUri -> formDefId
      * V.10 - No Change, Added because of incomplete resource table migration for v8 to v9
      * V.11 - No Change, Corrects FormDef references if corrupt (because of an earlier bug)
+     * V.12 - Add RecoveryMeasure table
      */
     private static final int DB_VERSION_APP = 11;
 
@@ -94,6 +96,8 @@ public class DatabaseAppOpenHelper extends SQLiteOpenHelper {
             database.execSQL(indexOnTableWithPGUIDCommand("temp_upgrade_index_id", AndroidResourceManager.TEMP_UPGRADE_TABLE_KEY));
 
             DbUtil.createNumbersTable(database);
+
+            database.execSQL(new TableBuilder(RecoveryMeasure.class).getTableCreateString());
 
             database.setTransactionSuccessful();
         } finally {

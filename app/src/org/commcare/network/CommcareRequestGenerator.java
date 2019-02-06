@@ -5,6 +5,7 @@ import android.net.Uri;
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.cases.util.CaseDBUtils;
+import org.commcare.core.network.AuthInfo;
 import org.commcare.core.network.HTTPMethod;
 import org.commcare.core.network.ModernHttpRequester;
 import org.commcare.interfaces.CommcareRequestEndpoints;
@@ -124,7 +125,7 @@ public class CommcareRequestGenerator implements CommcareRequestEndpoints {
                 baseUri,
                 params,
                 getHeaders(syncToken),
-                new Pair(username, password),
+                new AuthInfo.ProvidedAuth(username, password),
                 null);
 
         return requester.makeRequest();
@@ -156,7 +157,7 @@ public class CommcareRequestGenerator implements CommcareRequestEndpoints {
                 baseUri,
                 params,
                 new HashMap(),
-                new Pair(username, password),
+                new AuthInfo.ProvidedAuth(username, password),
                 null);
 
         return requester.makeRequest();
@@ -200,7 +201,7 @@ public class CommcareRequestGenerator implements CommcareRequestEndpoints {
             params.put(SUBMIT_MODE, SUBMIT_MODE_DEMO);
         }
 
-       requester = CommCareApplication.instance().buildHttpRequester(
+        requester = CommCareApplication.instance().buildHttpRequester(
                 CommCareApplication.instance(),
                 url,
                 params,
@@ -208,9 +209,9 @@ public class CommcareRequestGenerator implements CommcareRequestEndpoints {
                 null,
                 parts,
                 HTTPMethod.MULTIPART_POST,
-                new Pair(username, password),
+                new AuthInfo.ProvidedAuth(username, password),
                 null,
-               false);
+                false);
 
         return requester.makeRequest();
     }
@@ -228,7 +229,7 @@ public class CommcareRequestGenerator implements CommcareRequestEndpoints {
                 uri,
                 httpParams,
                 getHeaders(""),
-                new Pair(username, password),
+                new AuthInfo.ProvidedAuth(username, password),
                 null);
 
         Response<ResponseBody> response = requester.makeRequest();

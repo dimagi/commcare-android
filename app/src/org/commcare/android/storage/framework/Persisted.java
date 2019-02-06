@@ -72,6 +72,9 @@ public class Persisted implements Persistable, IMetaData {
                     //Primitive Integers
                     f.setInt(o, ExtUtil.readInt(in));
                     return;
+                } else if (type.equals(Long.TYPE)) {
+                  f.setLong(o, ExtUtil.readLong(in));
+                  return;
                 } else if (type.equals(Date.class)) {
                     f.set(o, ExtUtil.readDate(in));
                     return;
@@ -121,6 +124,9 @@ public class Persisted implements Persistable, IMetaData {
                     return;
                 } else if (type.equals(Integer.TYPE)) {
                     ExtUtil.writeNumeric(out, f.getInt(o));
+                    return;
+                } else if (type.equals(Long.TYPE)) {
+                    ExtUtil.writeNumeric(out, f.getLong(o));
                     return;
                 } else if (type.equals(Date.class)) {
                     ExtUtil.writeDate(out, (Date)f.get(o));

@@ -27,9 +27,9 @@ public class DataChangeLoggerTest {
     public void getLogs_shouldContainLoggedMessages() {
         assertTrue(DataChangeLogger.getLogs().contains(new DataChangeLog.CommCareInstall().getMessage()));
 
-        DataChangeLog clearUserDataLog = new DataChangeLog.ClearUserData();
-        DataChangeLogger.log(clearUserDataLog);
-        assertTrue(DataChangeLogger.getLogs().contains(clearUserDataLog.getMessage()));
+        DataChangeLog wipeUserSandboxLog = new DataChangeLog.WipeUserSandbox();
+        DataChangeLogger.log(wipeUserSandboxLog);
+        assertTrue(DataChangeLogger.getLogs().contains(wipeUserSandboxLog.getMessage()));
 
         DataChangeLog dbUpdate = new DataChangeLog.DbUpgradeComplete("User", 3, 4);
         DataChangeLogger.log(dbUpdate);

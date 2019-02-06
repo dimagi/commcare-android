@@ -26,7 +26,7 @@ public class SingleAppInstallation {
         CommCareApp app = CommCareSetupActivity.getCommCareApp();
 
         ResourceEngineTask<CommCareSetupActivity> task =
-                new ResourceEngineTask<CommCareSetupActivity>(app, dialogId, false, Resource.RESOURCE_AUTHORITY_LOCAL) {
+                new ResourceEngineTask<CommCareSetupActivity>(app, dialogId, false, Resource.RESOURCE_AUTHORITY_LOCAL, false) {
                     @Override
                     protected void deliverResult(CommCareSetupActivity receiver,
                                                  AppInstallStatus result) {

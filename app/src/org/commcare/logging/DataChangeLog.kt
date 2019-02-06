@@ -11,5 +11,5 @@ sealed class DataChangeLog(val message: String) {
     class CommCareAppUpdated : DataChangeLog("App updated")
     class DbUpgradeStart(dbName: String, oldVersion: Int, newVersion: Int) : DataChangeLog("Starting ${dbName} DB upgrade from ${oldVersion} to ${newVersion}")
     class DbUpgradeComplete(dbName: String, oldVersion: Int, newVersion: Int) : DataChangeLog("Completed ${dbName} DB upgrade from ${oldVersion} to ${newVersion}")
-    class ClearUserData : DataChangeLog("Clearing user data")
+    class WipeUserSandbox : DataChangeLog("Wiping user sandbox")
 }

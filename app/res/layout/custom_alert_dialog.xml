@@ -62,11 +62,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="@dimen/min_button_height"
                     android:padding="@dimen/standard_spacer"
-
                     android:layout_alignParentRight="true"
-
                     android:layout_marginRight="@dimen/standard_spacer"
-
                     android:background="@android:color/transparent"
                     android:textSize="@dimen/font_size_dp_medium"
                     android:textColor="@color/dialog_button_color"
@@ -80,9 +77,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="@dimen/min_button_height"
                     android:padding="@dimen/standard_spacer"
-
                     android:layout_toLeftOf="@id/positive_button"
-
                     android:background="@android:color/transparent"
                     android:textSize="@dimen/font_size_dp_medium"
                     android:textColor="@color/dialog_button_color"
@@ -95,12 +90,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="@dimen/min_button_height"
                     android:padding="@dimen/standard_spacer"
-
                     android:layout_toLeftOf="@id/neutral_button"
-
                     android:layout_marginRight="@dimen/standard_spacer"
                     android:layout_marginLeft="@dimen/standard_spacer"
-
                     android:background="@android:color/transparent"
                     android:textSize="@dimen/font_size_dp_medium"
                     android:textColor="@color/dialog_button_color"
@@ -109,9 +101,6 @@
                 android:layout_marginEnd="@dimen/standard_spacer"
                 android:layout_toStartOf="@id/neutral_button">
             </Button>
-
         </RelativeLayout>
-
     </LinearLayout>
-
 </LinearLayout>

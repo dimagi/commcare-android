@@ -5,9 +5,13 @@ import android.support.annotation.NonNull;
 import org.commcare.CommCareApplication;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.android.database.user.models.FormRecord;
+import org.commcare.preferences.HiddenPreferences;
+import org.commcare.recovery.measures.RecoveryMeasure;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Vector;
 
 /**
@@ -35,7 +39,7 @@ public class StorageUtils {
         return ids;
     }
 
-    public static Vector<FormRecord> getUnsentOrUnprocessedFormRecordsForCurrentApp(
+    private static Vector<FormRecord> getUnsentOrUnprocessedFormRecordsForCurrentApp(
             SqlStorage<FormRecord> storage) {
 
         String currentAppId =
@@ -124,5 +128,4 @@ public class StorageUtils {
         }
         return maxSubmissionNumber + 1;
     }
-
 }

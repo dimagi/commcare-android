@@ -38,6 +38,8 @@ import org.commcare.android.logging.ForceCloseLogEntry;
 import org.commcare.android.logging.ForceCloseLogger;
 import org.commcare.android.logging.ReportingUtils;
 import org.commcare.core.interfaces.HttpResponseProcessor;
+import org.commcare.core.network.AuthInfo;
+import org.commcare.core.network.CommCareNetworkService;
 import org.commcare.core.network.CommCareNetworkServiceGenerator;
 import org.commcare.core.network.HTTPMethod;
 import org.commcare.core.network.ModernHttpRequester;
@@ -85,6 +87,8 @@ import org.commcare.session.CommCareSession;
 import org.commcare.tasks.DataSubmissionListener;
 import org.commcare.tasks.LogSubmissionTask;
 import org.commcare.tasks.PurgeStaleArchivedFormsTask;
+import org.commcare.tasks.TaskListener;
+import org.commcare.tasks.TaskListenerRegistrationException;
 import org.commcare.tasks.UpdateTask;
 import org.commcare.tasks.templates.ManagedAsyncTask;
 import org.commcare.util.LogTypes;
@@ -505,78 +509,6 @@ public class CommCareApplication extends MultiDexApplication {
             this.currentApp.teardownSandbox();
             this.currentApp = null;
         }
-    }
-
-    /**
-     * Completes a full uninstall of the CC app that the given ApplicationRecord represents.
-     * This method should be idempotent and should be capable of completing an uninstall
-     * regardless of previous failures
-     */
-    public void uninstall(ApplicationRecord record) {
-        CommCareApp app = new CommCareApp(record);
-
-        // 1) If the app we are uninstalling is the currently-seated app, tear down its sandbox
-        if (isSeated(record)) {
-            getCurrentApp().teardownSandbox();
-            unseat(record);
-        }
-
-        // 2) Set record's status to delete requested, so we know if we have left it in a bad
-        // state later
-        record.setStatus(ApplicationRecord.STATUS_DELETE_REQUESTED);
-        getGlobalStorage(ApplicationRecord.class).write(record);
-
-        // 3) Delete the directory containing all of this app's resources
-        if (!FileUtil.deleteFileOrDir(app.storageRoot())) {
-            Logger.log(LogTypes.TYPE_RESOURCES, "App storage root was unable to be " +
-                    "deleted during app uninstall. Aborting uninstall process for now.");
-            return;
-        }
-
-        // 4) Delete all the user databases associated with this app
-        SqlStorage<UserKeyRecord> userDatabase = app.getStorage(UserKeyRecord.class);
-        for (UserKeyRecord user : userDatabase) {
-            File f = getDatabasePath(DatabaseUserOpenHelper.getDbName(user.getUuid()));
-            if (!FileUtil.deleteFileOrDir(f)) {
-                Logger.log(LogTypes.TYPE_RESOURCES, "A user database was unable to be " +
-                        "deleted during app uninstall. Aborting uninstall process for now.");
-                // If we failed to delete a file, it is likely because there is an open pointer
-                // to that db still in use, so stop the uninstall for now, and rely on it to
-                // complete the next time the app starts up
-                return;
-            }
-        }
-
-        // 5) Delete the forms database for this app
-        File formsDb = getDatabasePath(ProviderUtils.getProviderDbName(
-                ProviderUtils.ProviderType.FORMS,
-                app.getAppRecord().getApplicationId()));
-        if (!FileUtil.deleteFileOrDir(formsDb)) {
-            Logger.log(LogTypes.TYPE_RESOURCES, "The app's forms database was unable to be " +
-                    "deleted during app uninstall. Aborting uninstall process for now.");
-            return;
-        }
-
-        // 6) Delete the instances database for this app
-        File instancesDb = getDatabasePath(ProviderUtils.getProviderDbName(
-                ProviderUtils.ProviderType.INSTANCES,
-                app.getAppRecord().getApplicationId()));
-        if (!FileUtil.deleteFileOrDir(instancesDb)) {
-            Logger.log(LogTypes.TYPE_RESOURCES, "The app's instances database was unable to" +
-                    " be deleted during app uninstall. Aborting uninstall process for now.");
-            return;
-        }
-
-        // 7) Delete the app database
-        File f = getDatabasePath(DatabaseAppOpenHelper.getDbName(app.getAppRecord().getApplicationId()));
-        if (!FileUtil.deleteFileOrDir(f)) {
-            Logger.log(LogTypes.TYPE_RESOURCES, "The app database was unable to be deleted" +
-                    "during app uninstall. Aborting uninstall process for now.");
-            return;
-        }
-
-        // 8) Delete the ApplicationRecord
-        getGlobalStorage(ApplicationRecord.class).remove(record.getID());
     }
 
     private int initGlobalDb() {
@@ -1113,27 +1045,39 @@ public class CommCareApplication extends MultiDexApplication {
         return app.noficationManager;
     }
 
-    public ModernHttpRequester buildHttpRequester(Context context, String url, Map<String, String> params,
-                                                  HashMap headers, RequestBody requestBody, List<MultipartBody.Part> parts,
-                                                  HTTPMethod method, @Nullable Pair<String, String> usernameAndPasswordToAuthWith,
+
+    public ModernHttpRequester createGetRequester(Context context, String url, Map<String, String> params,
+                                                  HashMap headers, AuthInfo authInfo,
+                                                  @Nullable HttpResponseProcessor responseProcessor) {
+        return buildHttpRequester(context, url, params, headers, null, null,
+                HTTPMethod.GET, authInfo, responseProcessor, true);
+    }
+
+    public ModernHttpRequester buildHttpRequester(Context context, String url,
+                                                  Map<String, String> params,
+                                                  HashMap headers, RequestBody requestBody,
+                                                  List<MultipartBody.Part> parts,
+                                                  HTTPMethod method,
+                                                  AuthInfo authInfo,
                                                   @Nullable HttpResponseProcessor responseProcessor, boolean retry) {
+
+        CommCareNetworkService networkService;
+        if (authInfo instanceof AuthInfo.NoAuth) {
+            networkService = CommCareNetworkServiceGenerator.createNoAuthCommCareNetworkService();
+        } else {
+            networkService = CommCareNetworkServiceGenerator.createCommCareNetworkService(
+                    HttpUtils.getCredential(authInfo),
+                    DeveloperPreferences.isEnforceSecureEndpointEnabled(), retry);
+        }
+
         return new ModernHttpRequester(new AndroidCacheDirSetup(context),
                 url,
                 params,
                 headers,
                 requestBody,
                 parts,
-                CommCareNetworkServiceGenerator.createCommCareNetworkService(
-                        HttpUtils.getCredential(usernameAndPasswordToAuthWith),
-                        DeveloperPreferences.isEnforceSecureEndpointEnabled(),
-                        retry),
+                networkService,
                 method,
                 responseProcessor);
-    }
-
-    public ModernHttpRequester createGetRequester(Context context, String url, Map<String, String> params,
-                                                  HashMap headers, @Nullable Pair<String, String> usernameAndPasswordToAuthWith,
-                                                  @Nullable HttpResponseProcessor responseProcessor) {
-        return buildHttpRequester(context, url, params, headers, null, null, HTTPMethod.GET, usernameAndPasswordToAuthWith, responseProcessor, true);
     }
 }

@@ -13,6 +13,7 @@ import android.widget.Toast;
 
 import org.commcare.CommCareApplication;
 import org.commcare.core.interfaces.HttpResponseProcessor;
+import org.commcare.core.network.AuthInfo;
 import org.commcare.core.network.AuthenticationInterceptor;
 import org.commcare.dalvik.R;
 import org.commcare.models.AndroidSessionWrapper;
@@ -82,7 +83,6 @@ public class QueryRequestActivity
             finish();
         } else {
             loadStateFromSavedInstance(savedInstanceState);
-
             setupUI();
         }
     }
@@ -172,7 +172,7 @@ public class QueryRequestActivity
                 remoteQuerySessionManager.getBaseUrl().toString(),
                 new HashMap(remoteQuerySessionManager.getRawQueryParams()),
                 new HashMap(),
-                null);
+                new AuthInfo.CurrentAuth());
         httpTask.connect((CommCareTaskConnector)this);
         httpTask.executeParallel();
     }

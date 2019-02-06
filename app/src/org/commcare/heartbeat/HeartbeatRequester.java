@@ -1,28 +1,21 @@
 package org.commcare.heartbeat;
 
-import android.os.Handler;
-import android.os.Looper;
 import android.util.Log;
 
-import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.activities.DriftHelper;
 import org.commcare.android.logging.ReportingUtils;
-import org.commcare.core.interfaces.HttpResponseProcessor;
-import org.commcare.core.network.AuthenticationInterceptor;
-import org.commcare.core.network.ModernHttpRequester;
+import org.commcare.core.network.AuthInfo;
+import org.commcare.network.GetAndParseActor;
 import org.commcare.preferences.ServerUrls;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.SessionUnavailableException;
 import org.commcare.utils.StorageUtils;
 import org.commcare.utils.SyncDetailCalculations;
-import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.services.Logger;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
@@ -36,85 +29,27 @@ import java.util.TimeZone;
  *
  * Created by amstone326 on 5/5/17.
  */
-public class HeartbeatRequester {
+public class HeartbeatRequester extends GetAndParseActor {
 
+    private static final String NAME = "heartbeat";
     private static final String TAG = HeartbeatRequester.class.getSimpleName();
+    private static final String CURRENT_DRIFT = "current_drift";
+    private static final String MAX_DRIFT_SINCE_LAST_HEARTBEAT = "max_drift_since_last_heartbeat";
 
-    private static final String APP_ID = "app_id";
+    // Request Params
     private static final String DEVICE_ID = "device_id";
     private static final String APP_VERSION = "app_version";
     private static final String CC_VERSION = "cc_version";
     private static final String QUARANTINED_FORMS_PARAM = "num_quarantined_forms";
     private static final String UNSENT_FORMS_PARAM = "num_unsent_forms";
     private static final String LAST_SYNC_TIME_PARAM = "last_sync_time";
-    private static final String CURRENT_DRIFT = "current_drift";
-    private static final String MAX_DRIFT_SINCE_LAST_HEARTBEAT = "max_drift_since_last_heartbeat";
 
-    private final HttpResponseProcessor responseProcessor = new HttpResponseProcessor() {
-
-        @Override
-        public void processSuccess(int responseCode, InputStream responseData) {
-            try {
-                String responseAsString = new String(StreamsUtil.inputStreamToByteArray(responseData));
-                JSONObject jsonResponse = new JSONObject(responseAsString);
-                passResponseToUiThread(jsonResponse);
-                DriftHelper.clearMaxDriftSinceLastHeartbeat();
-            } catch (JSONException e) {
-                Logger.log(LogTypes.TYPE_ERROR_SERVER_COMMS,
-                        "Heartbeat response was not properly-formed JSON: " + e.getMessage());
-            } catch (IOException e) {
-                Logger.log(LogTypes.TYPE_ERROR_SERVER_COMMS,
-                        "IO error while processing heartbeat response: " + e.getMessage());
-            }
-        }
-
-        @Override
-        public void processClientError(int responseCode) {
-            processErrorResponse(responseCode);
-        }
-
-        @Override
-        public void processServerError(int responseCode) {
-            processErrorResponse(responseCode);
-        }
-
-        @Override
-        public void processOther(int responseCode) {
-            processErrorResponse(responseCode);
-        }
-
-        @Override
-        public void handleIOException(IOException exception) {
-            if (exception instanceof AuthenticationInterceptor.PlainTextPasswordException) {
-                Logger.log(LogTypes.TYPE_ERROR_CONFIG_STRUCTURE, "Encountered PlainTextPasswordException while sending heartbeat request: Sending password over HTTP");
-            } else {
-                Logger.log(LogTypes.TYPE_ERROR_SERVER_COMMS,
-                        "Encountered IOException while getting response stream for heartbeat response: "
-                                + exception.getMessage());
-            }
-        }
-
-        private void processErrorResponse(int responseCode) {
-            Logger.log(LogTypes.TYPE_ERROR_SERVER_COMMS,
-                    "Received error response from heartbeat request: " + responseCode);
-        }
-    };
-
-    protected void requestHeartbeat() {
-        String urlString = CommCareApplication.instance().getCurrentApp().getAppPreferences()
-                .getString(ServerUrls.PREFS_HEARTBEAT_URL_KEY, null);
-        Log.i(TAG, "Requesting heartbeat from " + urlString);
-        ModernHttpRequester requester = CommCareApplication.instance().createGetRequester(
-                CommCareApplication.instance(),
-                urlString,
-                getParamsForHeartbeatRequest(),
-                new HashMap(),
-                null,
-                responseProcessor);
-        requester.makeRequestAndProcess();
+    public HeartbeatRequester() {
+        super(NAME, TAG, ServerUrls.PREFS_HEARTBEAT_URL_KEY);
     }
 
-    private static HashMap<String, String> getParamsForHeartbeatRequest() {
+    @Override
+    public HashMap<String, String> getRequestParams() {
         HashMap<String, String> params = new HashMap<>();
         params.put(APP_ID, CommCareApplication.instance().getCurrentApp().getUniqueId());
         params.put(DEVICE_ID, CommCareApplication.instance().getPhoneId());
@@ -128,6 +63,11 @@ public class HeartbeatRequester {
         return params;
     }
 
+    @Override
+    public AuthInfo getAuth() {
+        return new AuthInfo.CurrentAuth();
+    }
+
     private static String getISO8601FormattedLastSyncTime() {
         long lastSyncTime = SyncDetailCalculations.getLastSyncTime();
         if (lastSyncTime == 0) {
@@ -139,12 +79,8 @@ public class HeartbeatRequester {
         }
     }
 
-    protected static void passResponseToUiThread(final JSONObject responseAsJson) {
-        // will run on UI thread
-        new Handler(Looper.getMainLooper()).post(() -> parseHeartbeatResponse(responseAsJson));
-    }
-
-    protected static void parseHeartbeatResponse(JSONObject responseAsJson) {
+    @Override
+    public void parseResponse(JSONObject responseAsJson) {
         if (checkForAppIdMatch(responseAsJson)) {
             // We only want to register this response if the current app is still the
             // same as the one that sent the request originally
@@ -158,25 +94,7 @@ public class HeartbeatRequester {
             attemptApkUpdateParse(responseAsJson);
             attemptCczUpdateParse(responseAsJson);
         }
-    }
-
-    private static boolean checkForAppIdMatch(JSONObject responseAsJson) {
-        try {
-            if (responseAsJson.has("app_id")) {
-                CommCareApp currentApp = CommCareApplication.instance().getCurrentApp();
-                if (currentApp != null) {
-                    String appIdOfResponse = responseAsJson.getString("app_id");
-                    String currentAppId = currentApp.getAppRecord().getUniqueId();
-                    return appIdOfResponse.equals(currentAppId);
-                }
-            }
-            Logger.log(LogTypes.TYPE_ERROR_SERVER_COMMS,
-                    "Heartbeat response did not have required app_id param");
-        } catch (JSONException e) {
-            Logger.log(LogTypes.TYPE_ERROR_SERVER_COMMS,
-                    "App id in heartbeat response was not formatted properly: " + e.getMessage());
-        }
-        return false;
+        DriftHelper.clearMaxDriftSinceLastHeartbeat();
     }
 
     private static void attemptApkUpdateParse(JSONObject responseAsJson) {
@@ -189,7 +107,7 @@ public class HeartbeatRequester {
         } catch (JSONException e) {
             Logger.log(LogTypes.TYPE_ERROR_SERVER_COMMS,
                     "Latest apk version object in heartbeat response was not " +
-                            "formatted properly: " + e.getMessage());
+                            "properly formatted: " + e.getMessage());
         }
     }
 

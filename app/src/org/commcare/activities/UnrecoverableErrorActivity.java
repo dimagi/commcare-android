@@ -4,7 +4,7 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 
-import org.commcare.utils.LifecycleUtils;
+import org.commcare.utils.CommCareLifecycleUtils;
 import org.commcare.views.dialogs.AlertDialogFragment;
 import org.commcare.views.dialogs.StandardAlertDialog;
 import org.javarosa.core.services.locale.Localization;
@@ -41,7 +41,7 @@ public class UnrecoverableErrorActivity extends FragmentActivity {
         StandardAlertDialog d = new StandardAlertDialog(this, title, message);
         DialogInterface.OnClickListener buttonListener = (dialog, i) -> {
             if (restart) {
-                LifecycleUtils.restartCommCare(UnrecoverableErrorActivity.this, true);
+                CommCareLifecycleUtils.restartCommCare(UnrecoverableErrorActivity.this, true);
             } else {
                 finish();
             }

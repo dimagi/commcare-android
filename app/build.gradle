@@ -18,6 +18,7 @@ apply plugin: 'io.fabric'
 repositories {
     google()
     mavenCentral()
+    google()
     jcenter()
     // for local aar inclusion
     flatDir {

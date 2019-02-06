@@ -23,6 +23,7 @@ import org.commcare.models.database.SqlStorage;
 import org.commcare.models.database.migration.FixtureSerializationMigration;
 import org.commcare.modern.database.TableBuilder;
 import org.commcare.provider.FormsProviderAPI;
+import org.commcare.recovery.measures.RecoveryMeasure;
 import org.commcare.resources.model.Resource;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.GlobalConstants;
@@ -58,11 +59,13 @@ class AppDatabaseUpgrader {
                 oldVersion = 2;
             }
         }
+
         if (oldVersion == 2) {
             if (upgradeTwoThree(db)) {
                 oldVersion = 3;
             }
         }
+
         if (oldVersion == 3) {
             if (upgradeThreeFour(db)) {
                 oldVersion = 4;
@@ -108,6 +111,12 @@ class AppDatabaseUpgrader {
         if (oldVersion == 10) {
             if (upgradeTenEleven(db)) {
                 oldVersion = 11;
+            }
+        }
+
+        if (oldVersion == 11) {
+            if (upgradeElevenTwelve(db)) {
+                oldVersion = 12;
             }
         }
 
@@ -311,6 +320,17 @@ class AppDatabaseUpgrader {
             db.endTransaction();
         }
         return true;
+    }
+
+    private boolean upgradeElevenTwelve(SQLiteDatabase db) {
+        db.beginTransaction();
+        try {
+            db.execSQL(new TableBuilder(RecoveryMeasure.class).getTableCreateString());
+            db.setTransactionSuccessful();
+            return true;
+        } finally {
+            db.endTransaction();
+        }
     }
 
     // migrate formProvider entries to db

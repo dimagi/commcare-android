@@ -88,6 +88,10 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
 
             Profile p = parser.parse();
 
+            if (recovery) {
+                validateRecovery(platform, p);
+            }
+
             if (!upgrade) {
                 initProperties(p);
                 if (!recovery) {
@@ -113,6 +117,15 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
         }
 
         return false;
+    }
+
+    // Makes sure we are recovering from profile belonging to the same app
+    private void validateRecovery(AndroidCommCarePlatform platform, Profile p) throws UnfullfilledRequirementsException {
+        if (!platform.getApp().getAppRecord().getUniqueId().contentEquals(p.getUniqueId())) {
+            throw new UnfullfilledRequirementsException(
+                    "Trying to recover using ccz for a different CommCare App",
+                    UnfullfilledRequirementsException.RequirementType.REINSTALL_FROM_INVALID_CCZ);
+        }
     }
 
     private void checkAppTarget() throws UnfullfilledRequirementsException {
@@ -165,7 +178,6 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
         InputStream profileStream = null;
         try {
             Reference local = ReferenceManager.instance().DeriveReference(localLocation);
-
             profileStream = local.getStream();
             //Create a parser with no side effects
             ProfileParser parser = new ProfileParser(profileStream, null, new DummyResourceTable(), null, Resource.RESOURCE_STATUS_INSTALLED, false);

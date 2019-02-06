@@ -60,7 +60,7 @@ public class ResourceRecoveryTask
         setTableListeners(global);
         boolean success;
         try {
-            success = global.recoverResources(platform, getProfileReference());
+            success = global.recoverResources(platform, ResourceInstallUtils.getProfileReference());
         } catch (InstallCancelledException | UnresolvedResourceException | UnfullfilledRequirementsException e) {
             throw new RuntimeException(e);
         } finally {
@@ -115,15 +115,6 @@ public class ResourceRecoveryTask
         } else {
             recoveryActivity.onRecoveryFailure(e.getMessage());
         }
-    }
-
-    /**
-     * @return CommCare App Profile url without query params
-     */
-    private String getProfileReference() {
-        String profileRef = ResourceInstallUtils.getDefaultProfileRef();
-        return profileRef.split("\\?")[0];
-
     }
 
     private void setTableListeners(ResourceTable table) {

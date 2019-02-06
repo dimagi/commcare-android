@@ -9,7 +9,8 @@ import org.commcare.activities.UnrecoverableErrorActivity;
 /**
  * Utils for exiting and restarting the app
  */
-public class LifecycleUtils {
+public class CommCareLifecycleUtils {
+
     public static void triggerHandledAppExit(Activity c, String message, String title) {
         triggerHandledAppExit(c, message, title, true, false);
     }

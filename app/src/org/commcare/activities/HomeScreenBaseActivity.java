@@ -39,6 +39,7 @@ import org.commcare.preferences.HiddenPreferences;
 import org.commcare.preferences.LocalePreferences;
 import org.commcare.preferences.MainConfigurablePreferences;
 import org.commcare.preferences.PrefValues;
+import org.commcare.recovery.measures.RecoveryMeasuresHelper;
 import org.commcare.session.CommCareSession;
 import org.commcare.session.SessionFrame;
 import org.commcare.session.SessionNavigationResponder;
@@ -1126,16 +1127,27 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
      * @return true if we kicked off any processes
      */
     private boolean checkForPendingAppHealthActions() {
-        boolean result = false;
-        if (CommCareApplication.instance().isSyncPending(false)) {
+        boolean kickedOff = false;
+
+        if (RecoveryMeasuresHelper.recoveryMeasuresPending()) {
+            finishWithExecutionIntent();
+            kickedOff = true;
+        } else if (CommCareApplication.instance().isSyncPending(false)) {
             triggerSync(true);
-            result = true;
+            kickedOff = true;
         } else if (UpdatePromptHelper.promptForUpdateIfNeeded(this)) {
-            result = true;
+            kickedOff = true;
         }
 
         CommCareApplication.instance().getSession().setAppHealthChecksCompleted();
-        return result;
+        return kickedOff;
+    }
+
+    private void finishWithExecutionIntent() {
+        Intent i = new Intent();
+        i.putExtra(DispatchActivity.EXECUTE_RECOVERY_MEASURES, true);
+        setResult(RESULT_OK, i);
+        finish();
     }
 
     private void createAskUseOldDialog(final AndroidSessionWrapper state, final SessionStateDescriptor existing) {
