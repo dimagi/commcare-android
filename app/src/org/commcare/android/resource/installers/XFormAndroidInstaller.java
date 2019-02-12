@@ -91,21 +91,20 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
         }
 
         Vector<Integer> existingforms = FormDefRecord.getFormDefIdsByJrFormId(platform.getFormDefStorage(), formDef.getMainInstance().schema);
-        if (existingforms != null && existingforms.size() > 0) {
-            //we already have one form. Hopefully this is during an upgrade...
-            if (!upgrade) {
-                //Hm, error out?
-                Logger.log(LogTypes.SOFT_ASSERT, "Form with schema " + formDef.getMainInstance().schema + " already present during the install");
-            }
 
-            //So we know there's another form here. We should wait until it's time for
-            //the upgrade and replace the pointer to here.
-            formDefId = existingforms.get(0);
+        if (upgrade) {
+            // We already have a resource with same resource id
+            if (existingforms != null && existingforms.size() > 0) {
+                formDefId = existingforms.get(0);
+            } else {
+                Logger.log(LogTypes.SOFT_ASSERT, "Form with schema " + formDef.getMainInstance().schema + " not present during the update");
+            }
 
             if (existingforms.size() > 1) {
                 Logger.log(LogTypes.SOFT_ASSERT, "More than one Form with schema " + formDef.getMainInstance().schema + "present during the install");
             }
         } else {
+            // It's either a fresh install or form id has changed from last version. Create a new record.
             FormDefRecord formDefRecord = new FormDefRecord("NAME", formDef.getMainInstance().schema, local.getLocalURI(), GlobalConstants.MEDIA_REF);
             formDefId = formDefRecord.save(platform.getFormDefStorage());
         }
