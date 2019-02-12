@@ -97,7 +97,7 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
             if (existingforms != null && existingforms.size() > 0) {
                 formDefId = existingforms.get(0);
             } else {
-                Logger.log(LogTypes.SOFT_ASSERT, "Form with schema " + formDef.getMainInstance().schema + " not present during the update");
+                throw new UnresolvedResourceException(r, "Form with schema " + formDef.getMainInstance().schema + " not present during the update");
             }
 
             if (existingforms.size() > 1) {
