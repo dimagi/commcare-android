@@ -761,6 +761,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             saveAnswersForCurrentScreen(FormEntryConstants.DO_NOT_EVALUATE_CONSTRAINTS);
         }
         uiController.refreshView();
+        invalidateOptionsMenu();
     }
 
     @Override
