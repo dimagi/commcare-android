@@ -446,7 +446,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     public boolean onCreateOptionsMenu(Menu menu) {
         if (CommCareApplication.instance().isConsumerApp()) {
             // Do not show options menu at all if this is a consumer app
-            return super.onPrepareOptionsMenu(menu);
+            return super.onCreateOptionsMenu(menu);
         }
 
         super.onCreateOptionsMenu(menu);
