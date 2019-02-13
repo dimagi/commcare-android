@@ -91,7 +91,8 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
         }
 
         Vector<Integer> existingforms = FormDefRecord.getFormDefIdsByJrFormId(platform.getFormDefStorage(), formDef.getMainInstance().schema);
-        if (existingforms != null && existingforms.size() > 0) {
+        boolean formAlreadyExists = existingforms != null && existingforms.size() > 0;
+        if (formAlreadyExists) {
             //we already have one form. Hopefully this is during an upgrade...
             if (!upgrade) {
                 //Hm, error out?
@@ -110,7 +111,7 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
             formDefId = formDefRecord.save(platform.getFormDefStorage());
         }
 
-        return upgrade ? Resource.RESOURCE_STATUS_UPGRADE : Resource.RESOURCE_STATUS_INSTALLED;
+        return formAlreadyExists ? Resource.RESOURCE_STATUS_UPGRADE : Resource.RESOURCE_STATUS_INSTALLED;
     }
 
     public static void registerAndroidLevelFormParsers() {
