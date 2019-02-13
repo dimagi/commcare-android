@@ -40,7 +40,7 @@ public class DatabaseAppOpenHelper extends SQLiteOpenHelper {
      * V.11 - No Change, Corrects FormDef references if corrupt (because of an earlier bug)
      * V.12 - Add RecoveryMeasure table
      */
-    private static final int DB_VERSION_APP = 11;
+    private static final int DB_VERSION_APP = 12;
 
     private static final String DB_LOCATOR_PREF_APP = "database_app_";
 
