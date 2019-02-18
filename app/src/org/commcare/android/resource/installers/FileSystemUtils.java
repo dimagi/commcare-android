@@ -31,6 +31,10 @@ public class FileSystemUtils {
         File newFile = new File(ReferenceManager.instance().DeriveReference(newLocation).getLocalURI());
         File oldFile = new File(ReferenceManager.instance().DeriveReference(oldLocation).getLocalURI());
 
+        if (oldFile.getAbsolutePath().contentEquals(newFile.getAbsolutePath())) {
+            return true;
+        }
+
         if (!oldFile.exists()) {
             //Nothing should be allowed to exist in the new location except for the incoming file
             //due to the staging rules. If there's a file there, it's this one.
