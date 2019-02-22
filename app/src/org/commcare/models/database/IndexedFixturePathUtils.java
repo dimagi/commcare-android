@@ -97,6 +97,11 @@ public class IndexedFixturePathUtils {
         db.execSQL(IndexedFixturePathsConstants.INDEXED_FIXTURE_INDEXING_STMT);
     }
 
+    public static void createStorageBackedFixtureIndexTableV15(SQLiteDatabase db) {
+        db.execSQL(IndexedFixturePathsConstants.INDEXED_FIXTURE_PATHS_TABLE_STMT_V15);
+        db.execSQL(IndexedFixturePathsConstants.INDEXED_FIXTURE_INDEXING_STMT);
+    }
+
     public static void buildFixtureIndices(SQLiteDatabase database,
                                            String tableName,
                                            Set<String> indices) {

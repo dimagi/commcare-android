@@ -17,6 +17,7 @@ import org.commcare.cases.model.Case;
 import org.commcare.cases.model.StorageIndexedTreeElementModel;
 import org.commcare.logging.XPathErrorEntry;
 import org.commcare.models.database.user.models.AndroidCaseIndexTablePreV21;
+import org.commcare.modern.database.IndexedFixturePathsConstants;
 import org.commcare.modern.database.TableBuilder;
 import org.commcare.models.database.ConcreteAndroidDbHelper;
 import org.commcare.models.database.DbUtil;
@@ -205,6 +206,12 @@ class UserDatabaseUpgrader {
                 }
             } else {
                 oldVersion = 25;
+            }
+        }
+
+        if (oldVersion == 25) {
+            if(upgradeTwentyFiveTwentySix(db)){
+                oldVersion = 26;
             }
         }
     }
@@ -466,7 +473,7 @@ class UserDatabaseUpgrader {
     private boolean upgradeFourteenFifteen(SQLiteDatabase db) {
         db.beginTransaction();
         try {
-            IndexedFixturePathUtils.createStorageBackedFixtureIndexTable(db);
+            IndexedFixturePathUtils.createStorageBackedFixtureIndexTableV15(db);
             db.setTransactionSuccessful();
             return true;
         } finally {
@@ -700,6 +707,21 @@ class UserDatabaseUpgrader {
                     formRecordStorage.remove(incompleteRecord);
                 }
             }
+            db.setTransactionSuccessful();
+            return true;
+        } finally {
+            db.endTransaction();
+        }
+    }
+
+    private boolean upgradeTwentyFiveTwentySix(SQLiteDatabase db) {
+        db.beginTransaction();
+        try {
+            db.execSQL(DbUtil.addColumnToTable(
+                    IndexedFixturePathsConstants.INDEXED_FIXTURE_PATHS_TABLE,
+                    IndexedFixturePathsConstants.INDEXED_FIXTURE_PATHS_COL_LAST_SYNC,
+                    "TEXT"));
+
             db.setTransactionSuccessful();
             return true;
         } finally {
