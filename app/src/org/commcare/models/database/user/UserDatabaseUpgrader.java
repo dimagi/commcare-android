@@ -17,7 +17,6 @@ import org.commcare.cases.model.Case;
 import org.commcare.cases.model.StorageIndexedTreeElementModel;
 import org.commcare.logging.XPathErrorEntry;
 import org.commcare.models.database.user.models.AndroidCaseIndexTablePreV21;
-import org.commcare.modern.database.IndexedFixturePathsConstants;
 import org.commcare.modern.database.TableBuilder;
 import org.commcare.models.database.ConcreteAndroidDbHelper;
 import org.commcare.models.database.DbUtil;
@@ -41,6 +40,9 @@ import org.javarosa.core.services.storage.Persistable;
 import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.Vector;
+
+import static org.commcare.models.database.IndexedFixturePathUtils.INDEXED_FIXTURE_PATHS_COL_LAST_SYNC;
+import static org.commcare.models.database.IndexedFixturePathUtils.INDEXED_FIXTURE_PATHS_TABLE;
 
 /**
  * @author ctsims
@@ -718,8 +720,8 @@ class UserDatabaseUpgrader {
         db.beginTransaction();
         try {
             db.execSQL(DbUtil.addColumnToTable(
-                    IndexedFixturePathsConstants.INDEXED_FIXTURE_PATHS_TABLE,
-                    IndexedFixturePathsConstants.INDEXED_FIXTURE_PATHS_COL_LAST_SYNC,
+                    INDEXED_FIXTURE_PATHS_TABLE,
+                    INDEXED_FIXTURE_PATHS_COL_LAST_SYNC,
                     "TEXT"));
 
             db.setTransactionSuccessful();
