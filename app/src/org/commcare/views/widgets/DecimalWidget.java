@@ -68,8 +68,8 @@ public class DecimalWidget extends StringWidget {
         if (d != null) {
             Double dAnswer = (Double)getCurrentAnswer().getValue();
             String dString = nf.format(dAnswer);
-            d = Double.parseDouble(dString.replace(',', '.'));
-            mAnswer.setText(d.toString());
+            dString = dString.replace(',', '.');
+            mAnswer.setText(dString);
         }
 
         // disable if read only
