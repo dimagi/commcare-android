@@ -830,6 +830,10 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         adapter.registerDataSetObserver(this.mListStateObserver);
         containerFragment.setData(adapter);
 
+        if (entitySelectSearchUI != null) {
+            entitySelectSearchUI.restoreSearchString();
+        }
+
         // Pre-select entity if one was provided in original intent
         if (!resuming && !mNoDetailMode && inAwesomeMode && this.getIntent().hasExtra(EXTRA_ENTITY_KEY)) {
             TreeReference entity = selectDatum.getEntityFromID(evalContext(),

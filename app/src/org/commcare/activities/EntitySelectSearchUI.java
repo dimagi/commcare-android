@@ -94,6 +94,7 @@ class EntitySelectSearchUI implements TextWatcher {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
                 searchMenuItem.expandActionView();
             }
+            filterString = lastQueryString;
             searchView.setQuery(lastQueryString, false);
             if (activity.getAdapter() != null) {
                 activity.getAdapter().filterByString(lastQueryString);
