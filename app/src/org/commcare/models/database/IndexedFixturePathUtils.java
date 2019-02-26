@@ -47,7 +47,7 @@ public class IndexedFixturePathUtils {
     public static IndexedFixtureIndex lookupIndexedFixturePaths(SQLiteDatabase db,
                                                                 String fixtureName) {
         Cursor c = db.query(INDEXED_FIXTURE_PATHS_TABLE,
-                new String[]{INDEXED_FIXTURE_PATHS_COL_BASE, INDEXED_FIXTURE_PATHS_COL_CHILD},
+                new String[]{INDEXED_FIXTURE_PATHS_COL_BASE, INDEXED_FIXTURE_PATHS_COL_CHILD, INDEXED_FIXTURE_PATHS_COL_LAST_SYNC},
                 INDEXED_FIXTURE_PATHS_COL_NAME + "=?", new String[]{fixtureName}, null, null, null);
         try {
             if (c.getCount() == 0) {
