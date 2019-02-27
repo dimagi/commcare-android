@@ -13,6 +13,7 @@ import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.activities.AppManagerActivity;
 import org.commcare.activities.CommCareSetupActivity;
+import org.commcare.activities.InstallArchiveActivity;
 import org.commcare.activities.PromptActivity;
 import org.commcare.activities.PromptApkUpdateActivity;
 import org.commcare.activities.PromptCCReinstallActivity;
@@ -256,9 +257,9 @@ public class ExecuteRecoveryMeasuresPresenter implements BasePresenterContract, 
 
     private void onAsyncExecutionFailure(String reason) {
         mLastExecutionStatus = STATUS_FAILED;
-        Logger.log(LogTypes.TYPE_MAINTENANCE, String.format(
-                "%s failed with %s for recovery measure %s", mCurrentMeasure.getType(), reason, mCurrentMeasure.getSequenceNumber()));
         if (mActivity != null) {
+            Logger.log(LogTypes.TYPE_MAINTENANCE, String.format(
+                    "%s failed with %s for recovery measure %s", mCurrentMeasure.getType(), reason, mCurrentMeasure.getSequenceNumber()));
             mActivity.disableLoadingIndicator();
             mActivity.enableRetry();
         }
@@ -295,7 +296,7 @@ public class ExecuteRecoveryMeasuresPresenter implements BasePresenterContract, 
     }
 
     private void showOfflineInstallActivity() {
-        Intent i = new Intent(mActivity, ExecuteRecoveryMeasuresActivity.class);
+        Intent i = new Intent(mActivity, InstallArchiveActivity.class);
         mActivity.startActivityForResult(i, OFFLINE_INSTALL_REQUEST);
     }
 
@@ -502,6 +503,11 @@ public class ExecuteRecoveryMeasuresPresenter implements BasePresenterContract, 
     public void handleTaskCancellation() {
         onAsyncExecutionFailure(StringUtils.getStringRobust(mActivity, R.string.recovery_measure_update_cancelled));
     }
+
+    public void OnOfflineInstallCancelled() {
+        onAsyncExecutionFailure(StringUtils.getStringRobust(mActivity, R.string.recovery_measure_offline_install_cancelled));
+    }
+
 
     static class sResourceEngineTask extends ResourceEngineTask<ExecuteRecoveryMeasuresActivity> {
         sResourceEngineTask(CommCareApp currentApp, int taskId, boolean shouldSleep, int authority, boolean reinstall) {
