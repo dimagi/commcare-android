@@ -14,8 +14,6 @@ import org.commcare.activities.CommCareActivity;
 import org.commcare.activities.InstallArchiveActivity;
 import org.commcare.dalvik.R;
 import org.commcare.engine.resource.AppInstallStatus;
-import org.commcare.logging.DataChangeLog;
-import org.commcare.logging.DataChangeLogger;
 import org.commcare.resources.model.InvalidResourceException;
 import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.tasks.ResourceEngineListener;
