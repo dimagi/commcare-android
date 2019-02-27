@@ -1,6 +1,8 @@
 package org.commcare.android.util;
 
+import org.commcare.CommCareApplication;
 import org.commcare.engine.resource.AppInstallStatus;
+import org.commcare.preferences.HiddenPreferences;
 import org.commcare.tasks.InstallStagedUpdateTask;
 import org.commcare.tasks.ResultAndError;
 import org.commcare.tasks.TaskListener;
