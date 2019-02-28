@@ -254,4 +254,14 @@ public class ExecuteRecoveryMeasuresActivity extends CommCareActivity<ExecuteRec
     public void updateUnzipProgress(String update, int taskId) {
         mPresenter.updateUnZipProgress(update);
     }
+
+    public void handleInstallUpdateResult(AppInstallStatus appInstallStatus) {
+        if (appInstallStatus == AppInstallStatus.Installed) {
+            mPresenter.OnUpdateInstalled();
+        }
+    }
+
+    public void handleInstallUpdateFailure(Exception e) {
+        mPresenter.OnUpdateInstallFailed(e);
+    }
 }

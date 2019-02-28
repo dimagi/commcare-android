@@ -17,6 +17,7 @@ import org.commcare.activities.InstallArchiveActivity;
 import org.commcare.activities.PromptActivity;
 import org.commcare.activities.PromptApkUpdateActivity;
 import org.commcare.activities.PromptCCReinstallActivity;
+import org.commcare.activities.UpdateActivity;
 import org.commcare.dalvik.R;
 import org.commcare.engine.references.ArchiveFileRoot;
 import org.commcare.engine.resource.AppInstallStatus;
@@ -25,6 +26,7 @@ import org.commcare.interfaces.BasePresenterContract;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.resources.model.Resource;
+import org.commcare.tasks.InstallStagedUpdateTask;
 import org.commcare.tasks.ResourceEngineTask;
 import org.commcare.tasks.ResultAndError;
 import org.commcare.tasks.TaskListener;
@@ -55,6 +57,7 @@ import static org.commcare.recovery.measures.RecoveryMeasure.STATUS_WAITING;
 
 public class ExecuteRecoveryMeasuresPresenter implements BasePresenterContract, TaskListener<Integer, ResultAndError<AppInstallStatus>> {
 
+
     private final ExecuteRecoveryMeasuresActivity mActivity;
     private RecoveryMeasure mCurrentMeasure;
     private UpdateTask updateTask;
@@ -67,6 +70,8 @@ public class ExecuteRecoveryMeasuresPresenter implements BasePresenterContract, 
     private boolean cczSelectionEnabled;
 
     private static final int REINSTALL_TASK_ID = 1;
+    private static final int INSTALL_UPGRADE_TASK_ID = 11;
+
     static final int OFFLINE_INSTALL_REQUEST = 1001;
     static final int REQUEST_CCZ = 2001;
 
@@ -467,6 +472,20 @@ public class ExecuteRecoveryMeasuresPresenter implements BasePresenterContract, 
         setCczSelectionVisibility(true);
     }
 
+    private void installPendingUpdate() {
+        InstallStagedUpdateTask<ExecuteRecoveryMeasuresActivity> task = new sInstallUpdateTask(INSTALL_UPGRADE_TASK_ID);
+        task.connect(mActivity);
+        task.executeParallel();
+    }
+
+    public void OnUpdateInstalled() {
+        UpdateActivity.OnSuccessfulUpdate(true, false);
+        onAsyncExecutionSuccess();
+    }
+
+    public void OnUpdateInstallFailed(Exception e) {
+        onAsyncExecutionFailure(e.getMessage());
+    }
 
     // UnZip Callbacks
     public void onUnzipSuccessful() {
@@ -504,8 +523,7 @@ public class ExecuteRecoveryMeasuresPresenter implements BasePresenterContract, 
     public void handleTaskCompletion(ResultAndError<AppInstallStatus> appInstallStatusResultAndError) {
         AppInstallStatus result = appInstallStatusResultAndError.data;
         if (result == AppInstallStatus.UpdateStaged || result == AppInstallStatus.UpToDate) {
-            onAsyncExecutionSuccess();
-            updateStatus("");
+            installPendingUpdate();
         } else {
             updateStatus(StringUtils.getStringRobust(mActivity, R.string.recovery_measure_known_error, appInstallStatusResultAndError.errorMessage));
             onAsyncExecutionFailure(appInstallStatusResultAndError.data.name());
@@ -517,8 +535,31 @@ public class ExecuteRecoveryMeasuresPresenter implements BasePresenterContract, 
         onAsyncExecutionFailure(StringUtils.getStringRobust(mActivity, R.string.recovery_measure_update_cancelled));
     }
 
+
     public void OnOfflineInstallCancelled() {
         onAsyncExecutionFailure(StringUtils.getStringRobust(mActivity, R.string.recovery_measure_offline_install_cancelled));
+    }
+
+
+    static class sInstallUpdateTask extends InstallStagedUpdateTask<ExecuteRecoveryMeasuresActivity> {
+
+        public sInstallUpdateTask(int taskId) {
+            super(taskId);
+        }
+
+        @Override
+        protected void deliverResult(ExecuteRecoveryMeasuresActivity activity, AppInstallStatus appInstallStatus) {
+            activity.handleInstallUpdateResult(appInstallStatus);
+        }
+
+        @Override
+        protected void deliverUpdate(ExecuteRecoveryMeasuresActivity activity, int[]... update) {
+        }
+
+        @Override
+        protected void deliverError(ExecuteRecoveryMeasuresActivity activity, Exception e) {
+            activity.handleInstallUpdateFailure(e);
+        }
     }
 
 
