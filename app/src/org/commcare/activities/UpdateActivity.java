@@ -375,8 +375,8 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
                     protected void deliverResult(UpdateActivity receiver,
                                                  AppInstallStatus result) {
                         if (result == AppInstallStatus.Installed) {
-                            reportAppUpdate();
-                            receiver.logoutOnSuccessfulUpdate();
+                            OnSuccessfulUpdate(true, !isLocalUpdate && !BuildConfig.DEBUG);
+                            receiver.returnResult();
                         } else {
                             if (proceedAutomatically) {
                                 finishWithResult(RefreshToLatestBuildActivity.UPDATE_ERROR);
@@ -439,19 +439,25 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
         DataChangeLogger.log(new DataChangeLog.CommCareAppUpdated());
     }
 
-    private void logoutOnSuccessfulUpdate() {
-        final String upgradeFinishedText =
-                Localization.get("updates.install.finished");
-        HiddenPreferences.setPostUpdateSyncNeeded(!isLocalUpdate && !BuildConfig.DEBUG);
-        HiddenPreferences.setShowXformUpdateInfo(true);
-        CommCareApplication.instance().expireUserSession();
+    private void returnResult() {
         if (proceedAutomatically) {
             finishWithResult(RefreshToLatestBuildActivity.UPDATE_SUCCESS);
         } else {
+            final String upgradeFinishedText = Localization.get("updates.install.finished");
             Toast.makeText(this, upgradeFinishedText, Toast.LENGTH_LONG).show();
             setResult(RESULT_OK);
             this.finish();
         }
+    }
+
+    // Helper function for common operations to do after an app update
+    public static void OnSuccessfulUpdate(boolean logout, boolean syncPostUpdate){
+        reportAppUpdate();
+        HiddenPreferences.setShowXformUpdateInfo(true);
+        if(logout) {
+            CommCareApplication.instance().expireUserSession();
+        }
+        HiddenPreferences.setPostUpdateSyncNeeded(syncPostUpdate);
     }
 
     @Override
