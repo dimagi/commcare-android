@@ -404,7 +404,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
      * TODO: This is a bit too close to comfort to the other custom iterator. It's possible we should just
      * have a method to query for all metadata?
      *
-     * @param includeData True to return an iterator with all records. False to return only the index.
+     * @param includeData       True to return an iterator with all records. False to return only the index.
      * @param metaDataToInclude A set of metadata keys that should be included in the request,
      *                          independently of any other data.
      */
@@ -418,7 +418,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
     private String[] scrubMetadataNames(String[] metaDataNames) {
         String[] scrubbedNames = new String[metaDataNames.length];
 
-        for(int i = 0 ; i < metaDataNames.length; ++i ){
+        for (int i = 0; i < metaDataNames.length; ++i) {
             scrubbedNames[i] = TableBuilder.scrubName(metaDataNames[i]);
         }
         return scrubbedNames;
@@ -433,7 +433,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
             projection[firstIndex] = DatabaseHelper.DATA_COL;
             firstIndex++;
         }
-        for (int i = 0; i < columnNamesToInclude.length ; ++i) {
+        for (int i = 0; i < columnNamesToInclude.length; ++i) {
             projection[i + firstIndex] = columnNamesToInclude[i];
         }
         return projection;
@@ -505,6 +505,20 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
     public static void wipeTableWithoutCommit(SQLiteDatabase db, String table) {
         db.delete(table, null, null);
     }
+
+    @Override
+    public boolean exists() {
+        Cursor cursor = helper.getHandle().rawQuery("select DISTINCT tbl_name from sqlite_master where tbl_name = '" + table + "'", null);
+        if (cursor != null) {
+            if (cursor.getCount() > 0) {
+                cursor.close();
+                return true;
+            }
+            cursor.close();
+        }
+        return false;
+    }
+
 
     public static void wipeTable(SQLiteDatabase db, String table) {
         db.beginTransaction();
@@ -636,7 +650,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
                     c.moveToFirst();
                     int index = c.getColumnIndexOrThrow(DatabaseHelper.DATA_COL);
                     while (!c.isAfterLast()) {
-                        if(Thread.interrupted()) {
+                        if (Thread.interrupted()) {
                             throw new RequestAbandonedException();
                         }
                         byte[] data = c.getBlob(index);
@@ -654,7 +668,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
     @Override
     public void bulkReadMetadata(LinkedHashSet cuedCases, String[] metaDataIds, HashMap metadataMap) {
         List<Pair<String, String[]>> whereParamList = TableBuilder.sqlList(cuedCases);
-        String [] scrubbedNames = scrubMetadataNames(metaDataIds);
+        String[] scrubbedNames = scrubMetadataNames(metaDataIds);
         String[] projection = getProjectedFieldsWithId(false, scrubbedNames);
 
         for (Pair<String, String[]> querySet : whereParamList) {
@@ -685,7 +699,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
     private String[] readMetaDataFromCursor(Cursor c, String[] columnNames) {
         String[] results = new String[columnNames.length];
         int i = 0;
-        for(String columnName : columnNames) {
+        for (String columnName : columnNames) {
             results[i] = c.getString(c.getColumnIndexOrThrow(columnName));
             i++;
         }
