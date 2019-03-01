@@ -506,9 +506,21 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
         db.delete(table, null, null);
     }
 
-    @Override
-    public boolean exists() {
-        Cursor cursor = helper.getHandle().rawQuery("select DISTINCT tbl_name from sqlite_master where tbl_name = '" + table + "'", null);
+
+    public static void wipeTable(SQLiteDatabase db, String table) {
+        db.beginTransaction();
+        try {
+            if (isTableExist(db, table)) {
+                db.delete(table, null, null);
+            }
+            db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
+        }
+    }
+
+    private static boolean isTableExist(SQLiteDatabase db, String table) {
+        Cursor cursor = db.rawQuery("select DISTINCT tbl_name from sqlite_master where tbl_name = '" + table + "'", null);
         if (cursor != null) {
             if (cursor.getCount() > 0) {
                 cursor.close();
@@ -517,17 +529,6 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
             cursor.close();
         }
         return false;
-    }
-
-
-    public static void wipeTable(SQLiteDatabase db, String table) {
-        db.beginTransaction();
-        try {
-            db.delete(table, null, null);
-            db.setTransactionSuccessful();
-        } finally {
-            db.endTransaction();
-        }
     }
 
     public Vector<Integer> removeAll(Vector<Integer> toRemove) {
