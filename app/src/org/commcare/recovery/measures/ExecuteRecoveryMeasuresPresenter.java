@@ -327,7 +327,8 @@ public class ExecuteRecoveryMeasuresPresenter implements BasePresenterContract, 
     }
 
     public void onAppReinstallSuccess() {
-        if (mCurrentMeasure.getType().contentEquals(MEASURE_TYPE_APP_REINSTALL_AND_UPDATE)) {
+        if (mCurrentMeasure.getType().contentEquals(MEASURE_TYPE_APP_REINSTALL_AND_UPDATE)
+                || mCurrentMeasure.getType().contentEquals(MEASURE_TYPE_APP_OFFLINE_REINSTALL_AND_UPDATE)) {
             executeAutoUpdate();
         } else {
             onAsyncExecutionSuccess();
