@@ -191,9 +191,7 @@ public class ResourceInstallUtils {
 
     public static void logInstallError(Exception e, String logMessage) {
         e.printStackTrace();
-
-        Logger.log(LogTypes.TYPE_ERROR_WORKFLOW,
-                logMessage + e.getMessage());
+        Logger.exception(logMessage, e);
     }
 
     /**

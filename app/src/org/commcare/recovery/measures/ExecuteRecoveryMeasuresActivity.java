@@ -125,6 +125,8 @@ public class ExecuteRecoveryMeasuresActivity extends CommCareActivity<ExecuteRec
             case OFFLINE_INSTALL_REQUEST:
                 if (resultCode == Activity.RESULT_OK) {
                     mPresenter.doOfflineAppInstall(intent.getStringExtra(InstallArchiveActivity.ARCHIVE_JR_REFERENCE));
+                } else {
+                    mPresenter.OnOfflineInstallCancelled();
                 }
                 break;
             case REQUEST_CCZ:
