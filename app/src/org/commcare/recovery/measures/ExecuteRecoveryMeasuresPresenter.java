@@ -523,7 +523,9 @@ public class ExecuteRecoveryMeasuresPresenter implements BasePresenterContract, 
     @Override
     public void handleTaskCompletion(ResultAndError<AppInstallStatus> appInstallStatusResultAndError) {
         AppInstallStatus result = appInstallStatusResultAndError.data;
-        if (result == AppInstallStatus.UpdateStaged || result == AppInstallStatus.UpToDate) {
+        if (result == AppInstallStatus.UpToDate) {
+            onAsyncExecutionSuccess();
+        } else if (result == AppInstallStatus.UpdateStaged) {
             installPendingUpdate();
         } else {
             updateStatus(StringUtils.getStringRobust(mActivity, R.string.recovery_measure_known_error, appInstallStatusResultAndError.errorMessage));
