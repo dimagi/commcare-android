@@ -524,6 +524,7 @@ public class ExecuteRecoveryMeasuresPresenter implements BasePresenterContract, 
     public void handleTaskCompletion(ResultAndError<AppInstallStatus> appInstallStatusResultAndError) {
         AppInstallStatus result = appInstallStatusResultAndError.data;
         if (result == AppInstallStatus.UpToDate) {
+            UpdateActivity.OnSuccessfulUpdate(true, false);
             onAsyncExecutionSuccess();
         } else if (result == AppInstallStatus.UpdateStaged) {
             installPendingUpdate();
