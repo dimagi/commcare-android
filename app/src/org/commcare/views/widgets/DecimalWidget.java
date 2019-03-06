@@ -29,6 +29,7 @@ import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.form.api.FormEntryPrompt;
 
 import java.text.NumberFormat;
+import java.util.Locale;
 
 /**
  * A widget that restricts values to floating point numbers.
@@ -60,15 +61,15 @@ public class DecimalWidget extends StringWidget {
             d = (Double)getCurrentAnswer().getValue();
         }
 
-        NumberFormat nf = NumberFormat.getNumberInstance();
+        NumberFormat nf = NumberFormat.getNumberInstance(Locale.ENGLISH);
         nf.setMaximumFractionDigits(15);
         nf.setMaximumIntegerDigits(15);
         nf.setGroupingUsed(false);
         if (d != null) {
             Double dAnswer = (Double)getCurrentAnswer().getValue();
             String dString = nf.format(dAnswer);
-            d = Double.parseDouble(dString.replace(',', '.'));
-            mAnswer.setText(d.toString());
+            dString = dString.replace(',', '.');
+            mAnswer.setText(dString);
         }
 
         // disable if read only

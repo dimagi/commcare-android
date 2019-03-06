@@ -323,20 +323,27 @@ public class CommCareApp implements AppFilePathBuilder {
         EvaluationContext ec =
                 CommCareApplication.instance().getCurrentSessionWrapper().getEvaluationContext(Menu.TRAINING_MENU_ROOT);
         for (Suite s : platform.getInstalledSuites()) {
-            if (visibleMenusInTrainingRoot(s, ec) || visibleEntriesInTrainingRoot(s, ec)) {
+            if (visibleMenusInTrainingRoot(s) || visibleEntriesInTrainingRoot(s, ec)) {
                 return true;
             }
         }
         return false;
     }
 
-    private static boolean visibleMenusInTrainingRoot(Suite s, EvaluationContext ec) {
+    private static boolean visibleMenusInTrainingRoot(Suite s) {
         List<Menu> trainingMenus = s.getMenusWithRoot(Menu.TRAINING_MENU_ROOT);
         if (trainingMenus != null) {
             for (Menu m : trainingMenus) {
                 try {
-                    if (m.getMenuRelevance() == null ||
-                            FunctionUtils.toBoolean(m.getMenuRelevance().eval(ec))) {
+                    if (m.getMenuRelevance() == null){
+                        return true;
+                    }
+
+                    EvaluationContext menuEvalContext = CommCareApplication.instance()
+                            .getCurrentSessionWrapper()
+                            .getEvaluationContext(m.getCommandID());
+
+                    if (FunctionUtils.toBoolean(m.getMenuRelevance().eval(menuEvalContext))) {
                         return true;
                     }
                 } catch (XPathSyntaxException e) {
