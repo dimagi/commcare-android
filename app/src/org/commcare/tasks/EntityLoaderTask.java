@@ -70,7 +70,6 @@ public class EntityLoaderTask
                     }
                     indexInFullList++;
                 }
-                Log.d("profiling","loadEntities - Entity Loaded " + indexInFullList);
             }
             long t1 = System.currentTimeMillis();
             Log.d("profiling","loadEntities - 2 " + (t1-t));
