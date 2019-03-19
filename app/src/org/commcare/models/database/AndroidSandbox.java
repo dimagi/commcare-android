@@ -13,6 +13,7 @@ import org.commcare.utils.SessionUnavailableException;
 import org.javarosa.core.model.IndexedFixtureIndex;
 import org.javarosa.core.model.User;
 import org.javarosa.core.model.instance.FormInstance;
+import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 
 import java.util.Set;
@@ -69,9 +70,9 @@ public class AndroidSandbox extends UserSandbox {
     }
 
     @Override
-    public void setIndexedFixturePathBases(String fixtureName, String baseName, String childName, String lastSync) {
+    public void setIndexedFixturePathBases(String fixtureName, String baseName, String childName, TreeElement attrs) {
         SQLiteDatabase db = app.getUserDbHandle();
-        IndexedFixturePathUtils.insertIndexedFixturePathBases(db, fixtureName, baseName, childName, lastSync);
+        IndexedFixturePathUtils.insertIndexedFixturePathBases(db, fixtureName, baseName, childName, attrs);
     }
 
     @Override

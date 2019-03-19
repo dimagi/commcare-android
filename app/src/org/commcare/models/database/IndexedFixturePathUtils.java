@@ -2,13 +2,18 @@ package org.commcare.models.database;
 
 import android.content.ContentValues;
 
+import org.commcare.CommCareApplication;
 import org.commcare.modern.database.DatabaseIndexingUtils;
+import org.commcare.modern.database.TableBuilder;
 import org.commcare.modern.util.Pair;
+import org.commcare.utils.SerializationUtil;
 import org.javarosa.core.model.IndexedFixtureIndex;
+import org.javarosa.core.model.instance.TreeElement;
 
 import net.sqlcipher.Cursor;
 import net.sqlcipher.database.SQLiteDatabase;
 
+import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -23,7 +28,7 @@ public class IndexedFixturePathUtils {
     public final static String INDEXED_FIXTURE_PATHS_COL_NAME = "name";
     public final static String INDEXED_FIXTURE_PATHS_COL_BASE = "base";
     public final static String INDEXED_FIXTURE_PATHS_COL_CHILD = "child";
-    public final static String INDEXED_FIXTURE_PATHS_COL_LAST_SYNC = "last_sync";
+    public final static String INDEXED_FIXTURE_PATHS_COL_ATTRIBUTES = "attributes";
 
     public final static String INDEXED_FIXTURE_PATHS_TABLE_STMT =
             "CREATE TABLE IF NOT EXISTS " +
@@ -31,7 +36,7 @@ public class IndexedFixturePathUtils {
                     " (" + INDEXED_FIXTURE_PATHS_COL_NAME + " UNIQUE" +
                     ", " + INDEXED_FIXTURE_PATHS_COL_BASE +
                     ", " + INDEXED_FIXTURE_PATHS_COL_CHILD +
-                    ", " + INDEXED_FIXTURE_PATHS_COL_LAST_SYNC + ");";
+                    ", " + INDEXED_FIXTURE_PATHS_COL_ATTRIBUTES + ");";
 
     public final static String INDEXED_FIXTURE_INDEXING_STMT =
             DatabaseIndexingUtils.indexOnTableCommand("fixture_name_index",
@@ -47,17 +52,22 @@ public class IndexedFixturePathUtils {
     public static IndexedFixtureIndex lookupIndexedFixturePaths(SQLiteDatabase db,
                                                                 String fixtureName) {
         Cursor c = db.query(INDEXED_FIXTURE_PATHS_TABLE,
-                new String[]{INDEXED_FIXTURE_PATHS_COL_BASE, INDEXED_FIXTURE_PATHS_COL_CHILD, INDEXED_FIXTURE_PATHS_COL_LAST_SYNC},
+                new String[]{INDEXED_FIXTURE_PATHS_COL_BASE, INDEXED_FIXTURE_PATHS_COL_CHILD, INDEXED_FIXTURE_PATHS_COL_ATTRIBUTES},
                 INDEXED_FIXTURE_PATHS_COL_NAME + "=?", new String[]{fixtureName}, null, null, null);
         try {
             if (c.getCount() == 0) {
                 return null;
             } else {
                 c.moveToFirst();
+                TreeElement attrsHolder = null;
+                byte[] attrsBlob = c.getBlob(c.getColumnIndexOrThrow(INDEXED_FIXTURE_PATHS_COL_ATTRIBUTES));
+                if (attrsBlob != null) {
+                    attrsHolder = SerializationUtil.deserialize(attrsBlob, TreeElement.class);
+                }
                 return new IndexedFixtureIndex(fixtureName,
                         c.getString(c.getColumnIndexOrThrow(INDEXED_FIXTURE_PATHS_COL_BASE)),
                         c.getString(c.getColumnIndexOrThrow(INDEXED_FIXTURE_PATHS_COL_CHILD)),
-                        c.getString(c.getColumnIndexOrThrow(INDEXED_FIXTURE_PATHS_COL_LAST_SYNC)));
+                        attrsHolder);
             }
         } finally {
             c.close();
@@ -94,12 +104,12 @@ public class IndexedFixturePathUtils {
     }
 
     public static void insertIndexedFixturePathBases(SQLiteDatabase db, String fixtureName,
-                                                     String baseName, String childName, String lastSync) {
+                                                     String baseName, String childName, TreeElement attrs) {
         ContentValues contentValues = new ContentValues();
         contentValues.put(INDEXED_FIXTURE_PATHS_COL_BASE, baseName);
         contentValues.put(INDEXED_FIXTURE_PATHS_COL_CHILD, childName);
         contentValues.put(INDEXED_FIXTURE_PATHS_COL_NAME, fixtureName);
-        contentValues.put(INDEXED_FIXTURE_PATHS_COL_LAST_SYNC, lastSync);
+        contentValues.put(INDEXED_FIXTURE_PATHS_COL_ATTRIBUTES, SerializationUtil.serialize(attrs));
 
         db.beginTransaction();
         try {
