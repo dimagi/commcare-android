@@ -16,7 +16,7 @@ public class AndroidFormController extends FormController implements PendingCall
     private FormIndex mPendingCalloutFormIndex = null;
     private boolean wasPendingCalloutCancelled;
     private FormIndex formIndexToReturnTo = null;
-    private boolean formSaveComplete = false;
+    private boolean formCompleteAndSaved = false;
 
     public AndroidFormController(FormEntryController fec, boolean readOnly) {
         super(fec, readOnly);
@@ -64,11 +64,11 @@ public class AndroidFormController extends FormController implements PendingCall
         this.formIndexToReturnTo = null;
     }
 
-    public boolean isFormSaveComplete() {
-        return formSaveComplete;
+    public boolean isFormCompleteAndSaved() {
+        return formCompleteAndSaved;
     }
 
-    public void markFormSaveProcessComplete(boolean formSaveComplete) {
-        this.formSaveComplete = formSaveComplete;
+    public void markCompleteFormAsSaved() {
+        this.formCompleteAndSaved = true;
     }
 }
