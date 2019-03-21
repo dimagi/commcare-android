@@ -33,13 +33,13 @@ public class UriToFilePath {
      *
      * @param context The context.
      * @param uri     The Uri to query.
-     * @return Filepath string extracted from the Uri argument. Returns null if
+     * @return Filepath string extracted from the Uri argument. Returns the original uri if
      * filepath couldn't be succesfully extracted.
      */
     @SuppressLint("NewApi")
     public static String getPathFromUri(final Context context, final Uri uri) throws NoDataColumnForUriException {
         final boolean isKitKat = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;
-
+        String filePath = null;
         if (isKitKat && DocumentsContract.isDocumentUri(context, uri)) {
             if (isExternalStorageDocument(uri)) {
                 final String docId = DocumentsContract.getDocumentId(uri);
@@ -47,7 +47,7 @@ public class UriToFilePath {
                 final String type = split[0];
 
                 if ("primary".equalsIgnoreCase(type)) {
-                    return Environment.getExternalStorageDirectory() + "/" + split[1];
+                    filePath =  Environment.getExternalStorageDirectory() + "/" + split[1];
                 }
             } else if (isDownloadsDocument(uri)) {
                 final String id = DocumentsContract.getDocumentId(uri);
@@ -60,7 +60,7 @@ public class UriToFilePath {
                     contentUri = uri;
                 }
 
-                return getDataColumn(context, contentUri, null, null);
+                filePath = getDataColumn(context, contentUri, null, null);
             } else if (isMediaDocument(uri)) {
                 final String docId = DocumentsContract.getDocumentId(uri);
                 final String[] split = docId.split(":");
@@ -80,19 +80,22 @@ public class UriToFilePath {
                         split[1]
                 };
 
-                return getDataColumn(context, contentUri, selection, selectionArgs);
+                filePath = getDataColumn(context, contentUri, selection, selectionArgs);
             }
         } else if ("content".equalsIgnoreCase(uri.getScheme())) {
             // Return the remote address
             if (isGooglePhotosUri(uri)) {
                 return uri.getLastPathSegment();
             }
-            return getDataColumn(context, uri, null, null);
+            filePath =  getDataColumn(context, uri, null, null);
         } else if ("file".equalsIgnoreCase(uri.getScheme())) {
-            return uri.getPath();
+            filePath = uri.getPath();
         }
 
-        return null;
+        if(filePath == null){
+            filePath = uri.toString();
+        }
+        return filePath;
     }
 
     /**

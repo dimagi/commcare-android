@@ -40,6 +40,7 @@ import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.util.SizeBoundUniqueVector;
 import org.javarosa.core.util.UnregisteredLocaleException;
+import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.expr.FunctionUtils;
 import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.parser.XPathSyntaxException;
@@ -346,7 +347,7 @@ public class CommCareApp implements AppFilePathBuilder {
                     if (FunctionUtils.toBoolean(m.getMenuRelevance().eval(menuEvalContext))) {
                         return true;
                     }
-                } catch (XPathSyntaxException e) {
+                } catch (XPathSyntaxException | XPathException e) {
                     // Now is the wrong time to show the user an error about this since they
                     // haven't actually navigated to the menu. To be safe, just assume that this
                     // menu is visible, and then if they navigate to it they'll see the XPath error there
@@ -374,7 +375,7 @@ public class CommCareApp implements AppFilePathBuilder {
                 if (relevancyCondition == null || FunctionUtils.toBoolean(relevancyCondition.eval(ec))) {
                     return true;
                 }
-            } catch (XPathSyntaxException e) {
+            } catch (XPathSyntaxException | XPathException e) {
                 // Now is the wrong time to show the user an error about this since they
                 // haven't actually navigated to the menu. To be safe, just assume that this
                 // entry is visible, and then if they navigate to it they'll see the XPath error there
