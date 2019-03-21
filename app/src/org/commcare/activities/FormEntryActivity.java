@@ -734,7 +734,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         }
 
         // A form save has already been triggered, ignore subsequent form saves
-        if (FormEntryActivity.mFormController.isFormSaveComplete()) {
+        if (FormEntryActivity.mFormController.isFormCompleteAndSaved()) {
             return;
         }
 
