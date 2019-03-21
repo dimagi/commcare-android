@@ -123,7 +123,10 @@ public class SaveToDiskTask extends
             return new ResultAndError<>(SaveStatus.SAVE_ERROR, cleanedMessage);
         }
 
-        FormEntryActivity.mFormController.markFormSaveProcessComplete(true);
+        if (mMarkCompleted) {
+            FormEntryActivity.mFormController.markCompleteFormAsSaved();
+        }
+
         if (exitAfterSave) {
             FormRecord saved = CommCareApplication.instance().getCurrentSessionWrapper().getFormRecord();
             Logger.log(LogTypes.TYPE_FORM_ENTRY,
