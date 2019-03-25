@@ -3,14 +3,14 @@ package org.commcare.models.database;
 import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.CommCareApplication;
+import org.commcare.android.database.user.models.ACase;
 import org.commcare.cases.ledger.Ledger;
 import org.commcare.cases.model.Case;
 import org.commcare.cases.model.StorageIndexedTreeElementModel;
 import org.commcare.core.interfaces.UserSandbox;
-import org.commcare.android.database.user.models.ACase;
 import org.commcare.models.database.user.DatabaseUserOpenHelper;
 import org.commcare.utils.SessionUnavailableException;
-import org.javarosa.core.model.IndexedFixtureIndex;
+import org.javarosa.core.model.IndexedFixtureIdentifier;
 import org.javarosa.core.model.User;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.TreeElement;
@@ -64,7 +64,7 @@ public class AndroidSandbox extends UserSandbox {
     }
 
     @Override
-    public IndexedFixtureIndex getIndexedFixturePathBases(String fixtureName) {
+    public IndexedFixtureIdentifier getIndexedFixtureIdentifier(String fixtureName) {
         SQLiteDatabase db = app.getUserDbHandle();
         return IndexedFixturePathUtils.lookupIndexedFixturePaths(db, fixtureName);
     }

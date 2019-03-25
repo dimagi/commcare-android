@@ -2,55 +2,35 @@ package org.commcare.models.database;
 
 import android.content.ContentValues;
 
-import org.commcare.CommCareApplication;
 import org.commcare.modern.database.DatabaseIndexingUtils;
-import org.commcare.modern.database.TableBuilder;
-import org.commcare.modern.util.Pair;
 import org.commcare.utils.SerializationUtil;
-import org.javarosa.core.model.IndexedFixtureIndex;
+import org.javarosa.core.model.IndexedFixtureIdentifier;
 import org.javarosa.core.model.instance.TreeElement;
 
 import net.sqlcipher.Cursor;
 import net.sqlcipher.database.SQLiteDatabase;
 
-import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import static org.commcare.modern.database.IndexedFixturePathsConstants.INDEXED_FIXTURE_INDEXING_STMT;
+import static org.commcare.modern.database.IndexedFixturePathsConstants.INDEXED_FIXTURE_PATHS_COL_ATTRIBUTES;
+import static org.commcare.modern.database.IndexedFixturePathsConstants.INDEXED_FIXTURE_PATHS_COL_BASE;
+import static org.commcare.modern.database.IndexedFixturePathsConstants.INDEXED_FIXTURE_PATHS_COL_CHILD;
+import static org.commcare.modern.database.IndexedFixturePathsConstants.INDEXED_FIXTURE_PATHS_COL_NAME;
+import static org.commcare.modern.database.IndexedFixturePathsConstants.INDEXED_FIXTURE_PATHS_TABLE;
+import static org.commcare.modern.database.IndexedFixturePathsConstants.INDEXED_FIXTURE_PATHS_TABLE_STMT;
+import static org.commcare.modern.database.IndexedFixturePathsConstants.INDEXED_FIXTURE_PATHS_TABLE_STMT_V15;
 
 /**
  * @author Phillip Mates (pmates@dimagi.com)
  */
 public class IndexedFixturePathUtils {
 
-    public final static String INDEXED_FIXTURE_PATHS_TABLE = "IndexedFixtureIndex";
-    public final static String INDEXED_FIXTURE_PATHS_COL_NAME = "name";
-    public final static String INDEXED_FIXTURE_PATHS_COL_BASE = "base";
-    public final static String INDEXED_FIXTURE_PATHS_COL_CHILD = "child";
-    public final static String INDEXED_FIXTURE_PATHS_COL_ATTRIBUTES = "attributes";
-
-    public final static String INDEXED_FIXTURE_PATHS_TABLE_STMT =
-            "CREATE TABLE IF NOT EXISTS " +
-                    INDEXED_FIXTURE_PATHS_TABLE +
-                    " (" + INDEXED_FIXTURE_PATHS_COL_NAME + " UNIQUE" +
-                    ", " + INDEXED_FIXTURE_PATHS_COL_BASE +
-                    ", " + INDEXED_FIXTURE_PATHS_COL_CHILD +
-                    ", " + INDEXED_FIXTURE_PATHS_COL_ATTRIBUTES + ");";
-
-    public final static String INDEXED_FIXTURE_INDEXING_STMT =
-            DatabaseIndexingUtils.indexOnTableCommand("fixture_name_index",
-                    INDEXED_FIXTURE_PATHS_TABLE, INDEXED_FIXTURE_PATHS_COL_NAME);
-
-    public final static String INDEXED_FIXTURE_PATHS_TABLE_STMT_V15 =
-            "CREATE TABLE IF NOT EXISTS " +
-                    INDEXED_FIXTURE_PATHS_TABLE +
-                    " (" + INDEXED_FIXTURE_PATHS_COL_NAME + " UNIQUE" +
-                    ", " + INDEXED_FIXTURE_PATHS_COL_BASE +
-                    ", " + INDEXED_FIXTURE_PATHS_COL_CHILD + ");";
-
-    public static IndexedFixtureIndex lookupIndexedFixturePaths(SQLiteDatabase db,
-                                                                String fixtureName) {
+    public static IndexedFixtureIdentifier lookupIndexedFixturePaths(SQLiteDatabase db,
+                                                                     String fixtureName) {
         Cursor c = db.query(INDEXED_FIXTURE_PATHS_TABLE,
                 new String[]{INDEXED_FIXTURE_PATHS_COL_BASE, INDEXED_FIXTURE_PATHS_COL_CHILD, INDEXED_FIXTURE_PATHS_COL_ATTRIBUTES},
                 INDEXED_FIXTURE_PATHS_COL_NAME + "=?", new String[]{fixtureName}, null, null, null);
@@ -64,7 +44,7 @@ public class IndexedFixturePathUtils {
                 if (attrsBlob != null) {
                     attrsHolder = SerializationUtil.deserialize(attrsBlob, TreeElement.class);
                 }
-                return new IndexedFixtureIndex(fixtureName,
+                return new IndexedFixtureIdentifier(fixtureName,
                         c.getString(c.getColumnIndexOrThrow(INDEXED_FIXTURE_PATHS_COL_BASE)),
                         c.getString(c.getColumnIndexOrThrow(INDEXED_FIXTURE_PATHS_COL_CHILD)),
                         attrsHolder);

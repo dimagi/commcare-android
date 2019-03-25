@@ -41,8 +41,8 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.Vector;
 
-import static org.commcare.models.database.IndexedFixturePathUtils.INDEXED_FIXTURE_PATHS_COL_ATTRIBUTES;
-import static org.commcare.models.database.IndexedFixturePathUtils.INDEXED_FIXTURE_PATHS_TABLE;
+import static org.commcare.modern.database.IndexedFixturePathsConstants.INDEXED_FIXTURE_PATHS_COL_ATTRIBUTES;
+import static org.commcare.modern.database.IndexedFixturePathsConstants.INDEXED_FIXTURE_PATHS_TABLE;
 
 /**
  * @author ctsims
@@ -722,7 +722,7 @@ class UserDatabaseUpgrader {
             db.execSQL(DbUtil.addColumnToTable(
                     INDEXED_FIXTURE_PATHS_TABLE,
                     INDEXED_FIXTURE_PATHS_COL_ATTRIBUTES,
-                    "TEXT"));
+                    "BLOB"));
 
             db.setTransactionSuccessful();
             return true;
