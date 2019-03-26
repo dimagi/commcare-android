@@ -199,6 +199,7 @@
     <string name="delete_no" cc:translatable="true">Do Not Delete</string>
     <string name="delete_yes" cc:translatable="true">Delete Forms</string>
     <string name="discard_answer" cc:translatable="true">REMOVE RESPONSE</string>
+    <string name="discard_image" cc:translatable="true">Remove Image</string>
     <string name="download" cc:translatable="true">Get Selected</string>
     <string name="download_forms_result" cc:translatable="true">Download Result</string>
     <string name="downloading_data" cc:translatable="true">Connecting to Server</string>
