@@ -44,7 +44,7 @@ public class IndexedFixturePathUtils {
                 if (attrsBlob != null) {
                     attrsHolder = SerializationUtil.deserialize(attrsBlob, TreeElement.class);
                 }
-                return new IndexedFixtureIdentifier(fixtureName,
+                return new IndexedFixtureIdentifier(
                         c.getString(c.getColumnIndexOrThrow(INDEXED_FIXTURE_PATHS_COL_BASE)),
                         c.getString(c.getColumnIndexOrThrow(INDEXED_FIXTURE_PATHS_COL_CHILD)),
                         attrsHolder);
