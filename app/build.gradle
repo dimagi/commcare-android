@@ -36,7 +36,7 @@ configurations {
 dependencies {
 
     testImplementation 'junit:junit:4.12'
-    testImplementation ('org.robolectric:robolectric:3.2.2')
+    testImplementation('org.robolectric:robolectric:3.2.2')
     testImplementation 'org.robolectric:shadows-multidex:3.2.2'
     testImplementation 'org.robolectric:shadows-core:3.2.2'
     testImplementation 'org.json:json:20140107'
@@ -48,7 +48,7 @@ dependencies {
     }
 
     // this syntax doesn't work for compiling .aar files, so those have to be loaded manually
-    implementation fileTree(include: '*.jar',exclude: 'regexp-me.jar', dir: 'libs')
+    implementation fileTree(include: '*.jar', exclude: 'regexp-me.jar', dir: 'libs')
     implementation(name: 'htmlspanner-custom', ext: 'aar')
     implementation(name: 'android-zebra-interface-1.1', ext: 'aar')
     implementation 'com.simprints:LibSimprints:1.0.12'
@@ -63,7 +63,7 @@ dependencies {
     implementation 'com.google.android.gms:play-services-maps:16.0.0'
     implementation 'joda-time:joda-time:2.9.4'
     implementation 'net.zetetic:android-database-sqlcipher:3.5.9@aar'
-    implementation ('org.apache.james:apache-mime4j:0.7.2') {
+    implementation('org.apache.james:apache-mime4j:0.7.2') {
         exclude module: 'commons-io'
     }
     implementation('org.apache.httpcomponents:httpmime:4.3.6')
@@ -83,7 +83,8 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 
     // Markdown
-    implementation 'com.github.budsmile:bypass-android:1.0.5' //Needed for Ice Cream Sandwich (14&15)
+    implementation 'com.github.budsmile:bypass-android:1.0.5'
+    //Needed for Ice Cream Sandwich (14&15)
     implementation 'ru.noties:markwon:1.0.4'
     implementation 'ru.noties:markwon-image-loader:1.0.4'
     implementation 'ru.noties:markwon-view:1.0.4'
@@ -260,6 +261,10 @@ android {
         buildConfigField "String", "ENTITY_SELECT_AD_UNIT_ID", "\"\""
         buildConfigField "String", "MENU_LIST_AD_UNIT_ID", "\"\""
         buildConfigField "String", "MENU_GRID_AD_UNIT_ID", "\"\""
+
+        //setup action bar app name
+        buildConfigField "String", "APPLICATION_NAME", "\" CommCare\""
+        resValue "string", "title_bar_name", " CommCare"
     }
 
     compileOptions {
@@ -343,6 +348,9 @@ android {
 
             // set the app name
             resValue "string", "application_name", " CommCare LTS"
+            //setup action bar app name
+            buildConfigField "String", "APPLICATION_NAME", "\" CommCare LTS\""
+            resValue "string", "title_bar_name", " CommCare LTS"
         }
 
         qabeta {
@@ -366,6 +374,9 @@ android {
 
             // set the app name
             resValue "string", "application_name", " ${ccVersion} QA CommCare"
+            //setup action bar app name
+            buildConfigField "String", "APPLICATION_NAME", "\" ${ccVersion} QA CommCare\""
+            resValue "string", "title_bar_name", " ${ccVersion} QA CommCare"
         }
 
         standalone {
@@ -394,6 +405,9 @@ android {
             buildConfigField "String", "ENTITY_SELECT_AD_UNIT_ID", "\"${entitySelectAdUnitId}\""
             buildConfigField "String", "MENU_LIST_AD_UNIT_ID", "\"${menuListAdUnitId}\""
             buildConfigField "String", "MENU_GRID_AD_UNIT_ID", "\"${menuGridAdUnitId}\""
+            //setup action bar app name
+            buildConfigField "String", "APPLICATION_NAME", "\"${appDisplayName}\""
+            resValue "string", "title_bar_name", appDisplayName
         }
     }
 
@@ -419,6 +433,10 @@ android {
             // disable crashlytics
             buildConfigField "boolean", "USE_CRASHLYTICS", "false"
             ext.enableCrashlytics = false
+
+            //setup action bar app name
+            buildConfigField "String", "APPLICATION_NAME", "\" CommCare Debug\""
+            resValue "string", "title_bar_name", " CommCare Debug"
         }
 
         release {
