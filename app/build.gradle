@@ -83,8 +83,7 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 
     // Markdown
-    implementation 'com.github.budsmile:bypass-android:1.0.5'
-    //Needed for Ice Cream Sandwich (14&15)
+    implementation 'com.github.budsmile:bypass-android:1.0.5'//Needed for Ice Cream Sandwich (14&15)
     implementation 'ru.noties:markwon:1.0.4'
     implementation 'ru.noties:markwon-image-loader:1.0.4'
     implementation 'ru.noties:markwon-view:1.0.4'
@@ -231,7 +230,9 @@ android {
         multiDexEnabled true
         applicationId "org.commcare.dalvik"
         project.ext.COMMCARE_APP_ID = applicationId
-        resValue "string", "application_name", "CommCare"
+        // set the app name
+        def applicationName = "CommCare"
+        resValue "string", "application_name", applicationName
         def odkProviderStr = "org.commcare.android.provider.odk"
         manifestPlaceholders = [
                 odkProvider         : odkProviderStr,
@@ -263,8 +264,8 @@ android {
         buildConfigField "String", "MENU_GRID_AD_UNIT_ID", "\"\""
 
         //setup action bar app name
-        buildConfigField "String", "APPLICATION_NAME", "\" CommCare\""
-        resValue "string", "title_bar_name", " CommCare"
+        buildConfigField "String", "APPLICATION_NAME", "\" ${applicationName}\""
+        resValue "string", "title_bar_name", " ${applicationName}"
     }
 
     compileOptions {
@@ -347,10 +348,11 @@ android {
             buildConfigField "String", "ODK_AUTHORITY", "\"${odkProviderStr}\""
 
             // set the app name
-            resValue "string", "application_name", " CommCare LTS"
+            def applicationName = "CommCare LTS"
+            resValue "string", "application_name", applicationName
             //setup action bar app name
-            buildConfigField "String", "APPLICATION_NAME", "\" CommCare LTS\""
-            resValue "string", "title_bar_name", " CommCare LTS"
+            buildConfigField "String", "APPLICATION_NAME", "\" ${applicationName}\""
+            resValue "string", "title_bar_name", " ${applicationName}"
         }
 
         qabeta {
@@ -373,10 +375,11 @@ android {
             buildConfigField "String", "ODK_AUTHORITY", "\"${odkProviderStr}\""
 
             // set the app name
-            resValue "string", "application_name", " ${ccVersion} QA CommCare"
+            def applicationName = "${ccVersion} QA CommCare"
+            resValue "string", "application_name", applicationName
             //setup action bar app name
-            buildConfigField "String", "APPLICATION_NAME", "\" ${ccVersion} QA CommCare\""
-            resValue "string", "title_bar_name", " ${ccVersion} QA CommCare"
+            buildConfigField "String", "APPLICATION_NAME", "\" ${applicationName}\""
+            resValue "string", "title_bar_name", " ${applicationName}"
         }
 
         standalone {
@@ -406,8 +409,8 @@ android {
             buildConfigField "String", "MENU_LIST_AD_UNIT_ID", "\"${menuListAdUnitId}\""
             buildConfigField "String", "MENU_GRID_AD_UNIT_ID", "\"${menuGridAdUnitId}\""
             //setup action bar app name
-            buildConfigField "String", "APPLICATION_NAME", "\"${appDisplayName}\""
-            resValue "string", "title_bar_name", appDisplayName
+            buildConfigField "String", "APPLICATION_NAME", "\" ${appDisplayName}\""
+            resValue "string", "title_bar_name", " ${appDisplayName}"
         }
     }
 
@@ -416,7 +419,8 @@ android {
             applicationIdSuffix ".debug"
             def applicationId = "org.commcare.dalvik.debug"
             project.ext.COMMCARE_APP_ID = applicationId
-            resValue "string", "application_name", "CommCare Debug"
+            def applicationName = "CommCare Debug"
+            resValue "string", "application_name", applicationName
             def odkProviderStr = "org.commcare.dalvik.debug.provider.odk"
             manifestPlaceholders = [odkProvider: odkProviderStr]
 
@@ -435,8 +439,8 @@ android {
             ext.enableCrashlytics = false
 
             //setup action bar app name
-            buildConfigField "String", "APPLICATION_NAME", "\" CommCare Debug\""
-            resValue "string", "title_bar_name", " CommCare Debug"
+            buildConfigField "String", "APPLICATION_NAME", "\" ${applicationName}\""
+            resValue "string", "title_bar_name", " ${applicationName}"
         }
 
         release {
