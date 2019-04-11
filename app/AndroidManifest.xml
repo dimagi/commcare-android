@@ -103,11 +103,11 @@
 
         <provider
             android:name="org.commcare.provider.FormsProvider"
-            android:exported="true"
+            android:exported="false"
             android:authorities="${odkProvider}.forms"/>
         <provider
             android:name="org.commcare.provider.InstanceProvider"
-            android:exported="true"
+            android:exported="false"
             android:authorities="${odkProvider}.instances"/>
         <provider
             android:name="org.commcare.provider.CaseDataContentProvider"
