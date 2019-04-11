@@ -101,7 +101,7 @@ public class StorageUtils {
         return recordArray;
     }
 
-    private static void sortRecordsBySubmissionOrderingNumber(Vector<FormRecord> records) {
+    public static void sortRecordsBySubmissionOrderingNumber(Vector<FormRecord> records) {
         Collections.sort(records, (form1, form2) -> {
             int form1OrderingNum = form1.getSubmissionOrderingNumber();
             int form2OrderingNum = form2.getSubmissionOrderingNumber();
@@ -109,6 +109,20 @@ public class StorageUtils {
                 return -1;
             }
             if (form1OrderingNum > form2OrderingNum) {
+                return 1;
+            }
+            return 0;
+        });
+    }
+
+    public static void sortRecordsByLastModifiedTimeDescending(Vector<FormRecord> records) {
+        Collections.sort(records, (form1, form2) -> {
+            long form1LastModified = form1.lastModified().getTime();
+            long form2LastModified = form2.lastModified().getTime();
+            if (form1LastModified > form2LastModified) {
+                return -1;
+            }
+            if (form1LastModified < form2LastModified) {
                 return 1;
             }
             return 0;
