@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:cc="http://strings_namespace">
+    <string name="title_bar_name">@string/application_name</string>
 
     <!-- string name="default_app_server">http://build.dimagi.com/commcare/pact/profile.xml</string -->
     <string name="default_app_server">jr://asset/testing/profile.ccpr</string>

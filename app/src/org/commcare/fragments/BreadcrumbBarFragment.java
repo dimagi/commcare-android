@@ -399,13 +399,13 @@ public class BreadcrumbBarFragment extends Fragment {
 
     private static String defaultTitle(String currentTitle, Activity activity) {
         if (activity instanceof CommCareSetupActivity) {
-            return BuildConfig.APPLICATION_NAME;
+            return activity.getString(R.string.application_name);
         }
         if (currentTitle == null || "".equals(currentTitle)) {
             currentTitle = CommCareActivity.getTopLevelTitleName(activity);
         }
         if (currentTitle == null || "".equals(currentTitle)) {
-            currentTitle = BuildConfig.APPLICATION_NAME;
+            currentTitle = activity.getString(R.string.application_name);
         }
         if (activity instanceof FormRecordListActivity) {
             currentTitle = currentTitle + " - " + ((FormRecordListActivity)activity).getActivityTitle();

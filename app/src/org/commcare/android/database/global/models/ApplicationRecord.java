@@ -1,7 +1,9 @@
 package org.commcare.android.database.global.models;
 
+import org.commcare.CommCareApplication;
 import org.commcare.android.storage.framework.Persisted;
 import org.commcare.dalvik.BuildConfig;
+import org.commcare.dalvik.R;
 import org.commcare.models.framework.Persisting;
 import org.commcare.modern.database.Table;
 import org.commcare.modern.models.MetaField;
@@ -171,7 +173,7 @@ public class ApplicationRecord extends Persisted {
             try {
                 displayName = Localization.get("app.display.name");
             } catch (NoLocalizedTextException e) {
-                displayName = BuildConfig.APPLICATION_NAME;
+                displayName = CommCareApplication.instance().getString(R.string.application_name);
             }
         }
         this.versionNumber = p.getVersion();

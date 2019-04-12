@@ -262,10 +262,6 @@ android {
         buildConfigField "String", "ENTITY_SELECT_AD_UNIT_ID", "\"\""
         buildConfigField "String", "MENU_LIST_AD_UNIT_ID", "\"\""
         buildConfigField "String", "MENU_GRID_AD_UNIT_ID", "\"\""
-
-        //setup action bar app name
-        buildConfigField "String", "APPLICATION_NAME", "\" ${applicationName}\""
-        resValue "string", "title_bar_name", " ${applicationName}"
     }
 
     compileOptions {
@@ -350,9 +346,6 @@ android {
             // set the app name
             def applicationName = "CommCare LTS"
             resValue "string", "application_name", applicationName
-            //setup action bar app name
-            buildConfigField "String", "APPLICATION_NAME", "\" ${applicationName}\""
-            resValue "string", "title_bar_name", " ${applicationName}"
         }
 
         qabeta {
@@ -377,9 +370,6 @@ android {
             // set the app name
             def applicationName = "${ccVersion} QA CommCare"
             resValue "string", "application_name", applicationName
-            //setup action bar app name
-            buildConfigField "String", "APPLICATION_NAME", "\" ${applicationName}\""
-            resValue "string", "title_bar_name", " ${applicationName}"
         }
 
         standalone {
@@ -408,9 +398,6 @@ android {
             buildConfigField "String", "ENTITY_SELECT_AD_UNIT_ID", "\"${entitySelectAdUnitId}\""
             buildConfigField "String", "MENU_LIST_AD_UNIT_ID", "\"${menuListAdUnitId}\""
             buildConfigField "String", "MENU_GRID_AD_UNIT_ID", "\"${menuGridAdUnitId}\""
-            //setup action bar app name
-            buildConfigField "String", "APPLICATION_NAME", "\" ${appDisplayName}\""
-            resValue "string", "title_bar_name", " ${appDisplayName}"
         }
     }
 
@@ -437,10 +424,6 @@ android {
             // disable crashlytics
             buildConfigField "boolean", "USE_CRASHLYTICS", "false"
             ext.enableCrashlytics = false
-
-            //setup action bar app name
-            buildConfigField "String", "APPLICATION_NAME", "\" ${applicationName}\""
-            resValue "string", "title_bar_name", " ${applicationName}"
         }
 
         release {
