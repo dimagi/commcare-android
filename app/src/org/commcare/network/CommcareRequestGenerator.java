@@ -192,13 +192,19 @@ public class CommcareRequestGenerator implements CommcareRequestEndpoints {
 
         HashMap<String, String> params = new HashMap<>();
 
-        //If we're going to try to post with no credentials, we need to be explicit about the fact that we're not ready
-        if (username == null || password == null) {
-            params.put(AUTH_REQUEST_TYPE, AUTH_REQUEST_TYPE_NO_AUTH);
-        }
+        AuthInfo authInfo;
 
         if (User.TYPE_DEMO.equals(userType)) {
             params.put(SUBMIT_MODE, SUBMIT_MODE_DEMO);
+            authInfo = new AuthInfo.NoAuth();
+        } else {
+            authInfo = new AuthInfo.ProvidedAuth(username, password);
+        }
+
+
+        //If we're going to try to post with no credentials, we need to be explicit about the fact that we're not ready
+        if (username == null || password == null || authInfo instanceof AuthInfo.NoAuth) {
+            params.put(AUTH_REQUEST_TYPE, AUTH_REQUEST_TYPE_NO_AUTH);
         }
 
         requester = CommCareApplication.instance().buildHttpRequester(
@@ -209,7 +215,7 @@ public class CommcareRequestGenerator implements CommcareRequestEndpoints {
                 null,
                 parts,
                 HTTPMethod.MULTIPART_POST,
-                new AuthInfo.ProvidedAuth(username, password),
+                authInfo,
                 null,
                 false);
 
