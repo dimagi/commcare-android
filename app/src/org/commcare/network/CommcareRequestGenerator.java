@@ -199,6 +199,7 @@ public class CommcareRequestGenerator implements CommcareRequestEndpoints {
 
         if (User.TYPE_DEMO.equals(userType)) {
             params.put(SUBMIT_MODE, SUBMIT_MODE_DEMO);
+            params.put(AUTH_REQUEST_TYPE, AUTH_REQUEST_TYPE_NO_AUTH);
         }
 
         requester = CommCareApplication.instance().buildHttpRequester(
