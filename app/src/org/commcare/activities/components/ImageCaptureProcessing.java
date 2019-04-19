@@ -48,7 +48,7 @@ public class ImageCaptureProcessing {
         // Turning off scaling for now, since current code never actually ends up using the
         // final scaled image. We might wanna turn that later on again sometime so leaving the scaling
         // code as it is
-        shouldScale = false;
+//        shouldScale = false;
 
         if (shouldScale) {
             ImageWidget currentWidget = (ImageWidget)formEntryActivity.getPendingWidget();

@@ -39,15 +39,10 @@ public class IndexedFixturePathUtils {
                 return null;
             } else {
                 c.moveToFirst();
-                TreeElement attrsHolder = null;
-                byte[] attrsBlob = c.getBlob(c.getColumnIndexOrThrow(INDEXED_FIXTURE_PATHS_COL_ATTRIBUTES));
-                if (attrsBlob != null) {
-                    attrsHolder = SerializationUtil.deserialize(attrsBlob, TreeElement.class);
-                }
                 return new IndexedFixtureIdentifier(
                         c.getString(c.getColumnIndexOrThrow(INDEXED_FIXTURE_PATHS_COL_BASE)),
                         c.getString(c.getColumnIndexOrThrow(INDEXED_FIXTURE_PATHS_COL_CHILD)),
-                        attrsHolder);
+                        c.getBlob(c.getColumnIndexOrThrow(INDEXED_FIXTURE_PATHS_COL_ATTRIBUTES)));
             }
         } finally {
             c.close();
