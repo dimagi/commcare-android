@@ -12,7 +12,6 @@ import org.commcare.engine.cases.AndroidLedgerInstanceTreeElement;
 import org.commcare.models.database.AndroidSandbox;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.session.CommCareSession;
-import org.javarosa.core.model.User;
 import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.ExternalDataInstance;
 
@@ -60,20 +59,15 @@ public class AndroidInstanceInitializer extends CommCareInstanceInitializer {
 
     @Override
     protected AbstractTreeElement setupFixtureData(ExternalDataInstance instance) {
-        String ref = instance.getReference();
-        String userId = "";
-        User u = mSandbox.getLoggedInUser();
+        AbstractTreeElement indexedFixture = AndroidIndexedFixtureInstanceTreeElement.get(
+                mSandbox,
+                getRefId(instance.getReference()),
+                instance.getBase());
 
-        if (u != null) {
-            userId = u.getUniqueId();
-        }
-
-        AbstractTreeElement indexedFixture =
-                AndroidIndexedFixtureInstanceTreeElement.get(mSandbox, getRefId(ref), instance.getBase());
         if (indexedFixture != null) {
             return indexedFixture;
         } else {
-            return loadFixtureRoot(instance, ref, userId);
+            return loadFixtureRoot(instance, instance.getReference());
         }
     }
 

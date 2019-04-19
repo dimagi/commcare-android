@@ -10,6 +10,11 @@ import org.javarosa.core.model.instance.InstanceBase;
 import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 
+/**
+ * The root element for an indexed fixture data instance
+ * with support for attributes lookup
+ */
+
 public class AndroidIndexedFixtureInstanceTreeElement extends IndexedFixtureInstanceTreeElement {
 
     private TreeElement attributes;
@@ -35,38 +40,38 @@ public class AndroidIndexedFixtureInstanceTreeElement extends IndexedFixtureInst
 
     @Override
     public int getAttributeCount() {
-        return getAttributes().getAttributeCount();
+        return getDeserializedAttributes().getAttributeCount();
     }
 
     @Override
     public String getAttributeNamespace(int index) {
-        return getAttributes().getAttributeNamespace(index);
+        return getDeserializedAttributes().getAttributeNamespace(index);
     }
 
     @Override
     public String getAttributeName(int index) {
-        return getAttributes().getAttributeName(index);
+        return getDeserializedAttributes().getAttributeName(index);
     }
 
     @Override
     public String getAttributeValue(int index) {
-        return getAttributes().getAttributeValue(index);
+        return getDeserializedAttributes().getAttributeValue(index);
     }
 
     @Override
     public AbstractTreeElement getAttribute(String namespace, String name) {
-        TreeElement attr = getAttributes().getAttribute(namespace, name);
+        TreeElement attr = getDeserializedAttributes().getAttribute(namespace, name);
         attr.setParent(this);
         return attr;
     }
 
     @Override
     public String getAttributeValue(String namespace, String name) {
-        return getAttributes().getAttributeValue(namespace, name);
+        return getDeserializedAttributes().getAttributeValue(namespace, name);
     }
 
-    private TreeElement getAttributes() {
-        if(attributes == null){
+    private TreeElement getDeserializedAttributes() {
+        if (attributes == null) {
             attributes = SerializationUtil.deserialize(attrHolder, TreeElement.class);
         }
         return attributes;

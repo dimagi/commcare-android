@@ -2,13 +2,13 @@ package org.commcare.models.database;
 
 import android.content.ContentValues;
 
+import net.sqlcipher.Cursor;
+import net.sqlcipher.database.SQLiteDatabase;
+
 import org.commcare.modern.database.DatabaseIndexingUtils;
 import org.commcare.utils.SerializationUtil;
 import org.javarosa.core.model.IndexedFixtureIdentifier;
 import org.javarosa.core.model.instance.TreeElement;
-
-import net.sqlcipher.Cursor;
-import net.sqlcipher.database.SQLiteDatabase;
 
 import java.util.ArrayList;
 import java.util.HashSet;
