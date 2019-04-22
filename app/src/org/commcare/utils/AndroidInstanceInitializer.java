@@ -13,6 +13,7 @@ import org.commcare.engine.cases.AndroidLedgerInstanceTreeElement;
 import org.commcare.models.database.AndroidSandbox;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.session.CommCareSession;
+import org.commcare.util.CommCarePlatform;
 import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.ExternalDataInstance;
 
@@ -26,15 +27,15 @@ public class AndroidInstanceInitializer extends CommCareInstanceInitializer {
      * isn't present.
      */
     public AndroidInstanceInitializer() {
-        super(null);
+        this(null, null, null);
     }
 
     public AndroidInstanceInitializer(CommCareSession session) {
-        super(session, new AndroidSandbox(CommCareApplication.instance()), CommCareApplication.instance().getCommCarePlatform());
+        this(session, new AndroidSandbox(CommCareApplication.instance()), CommCareApplication.instance().getCommCarePlatform());
     }
 
-    public AndroidInstanceInitializer(UserSandbox sandbox) {
-        super(sandbox);
+    public AndroidInstanceInitializer(CommCareSession session, UserSandbox sandbox, CommCarePlatform platform) {
+        super(session, sandbox, platform);
     }
 
     @Override

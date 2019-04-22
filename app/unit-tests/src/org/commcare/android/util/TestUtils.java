@@ -332,7 +332,7 @@ public class TestUtils {
     /**
      * Create an evaluation context with an abstract instance available.
      */
-    public static EvaluationContext buildContextWithInstance(UserSandbox sandbox, String instanceId, String instanceRef){
+    public static EvaluationContext buildContextWithInstance(UserSandbox sandbox, String instanceId, String instanceRef) {
         Hashtable<String, String> instanceRefToId = new Hashtable<>();
         instanceRefToId.put(instanceRef, instanceId);
         return buildContextWithInstances(sandbox, instanceRefToId);
@@ -342,8 +342,8 @@ public class TestUtils {
      * Create an evaluation context with an abstract instances available.
      */
     private static EvaluationContext buildContextWithInstances(UserSandbox sandbox,
-                                                              Hashtable<String, String> instanceRefToId) {
-        InstanceInitializationFactory iif = new AndroidInstanceInitializer(sandbox);
+                                                               Hashtable<String, String> instanceRefToId) {
+        InstanceInitializationFactory iif = new AndroidInstanceInitializer(null, sandbox, null);
 
         Hashtable<String, DataInstance> instances = new Hashtable<>();
         for (String instanceRef : instanceRefToId.keySet()) {
