@@ -5,6 +5,7 @@ import org.commcare.CommCareApplication;
 import org.commcare.activities.DriftHelper;
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.cases.ledger.Ledger;
+import org.commcare.core.interfaces.UserSandbox;
 import org.commcare.core.process.CommCareInstanceInitializer;
 import org.commcare.engine.cases.AndroidCaseInstanceTreeElement;
 import org.commcare.engine.cases.AndroidIndexedFixtureInstanceTreeElement;
@@ -30,6 +31,10 @@ public class AndroidInstanceInitializer extends CommCareInstanceInitializer {
 
     public AndroidInstanceInitializer(CommCareSession session) {
         super(session, new AndroidSandbox(CommCareApplication.instance()), CommCareApplication.instance().getCommCarePlatform());
+    }
+
+    public AndroidInstanceInitializer(UserSandbox sandbox) {
+        super(sandbox);
     }
 
     @Override

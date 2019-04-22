@@ -341,9 +341,9 @@ public class TestUtils {
     /**
      * Create an evaluation context with an abstract instances available.
      */
-    public static EvaluationContext buildContextWithInstances(UserSandbox sandbox,
+    private static EvaluationContext buildContextWithInstances(UserSandbox sandbox,
                                                               Hashtable<String, String> instanceRefToId) {
-        InstanceInitializationFactory iif = buildTestInstanceInitializer();
+        InstanceInitializationFactory iif = new AndroidInstanceInitializer(sandbox);
 
         Hashtable<String, DataInstance> instances = new Hashtable<>();
         for (String instanceRef : instanceRefToId.keySet()) {
