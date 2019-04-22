@@ -59,7 +59,7 @@
 
     <integer-array name="commcare_version">
         <item>2</item>
-        <item>45</item>
+        <item>46</item>
     </integer-array>
 
     <string name="app_version_string">version.id.long</string>
@@ -400,14 +400,11 @@
     <string name="recovery_measure_app_update_progress" cc:translatable="true">Updating %1$s out of %2$s resources</string>
     <string name="recovery_measure_known_error" cc:translatable="true">An error occurred during recovery. Error details - \n %1$s</string>
     <string name="recovery_measure_ccz_scan_in_progress" cc:translatable="true">Scanning your phone for ccz files</string>
-    <string name="recovery_measure_ccz_found_scan_in_progress" cc:translatable="true">We found a CCZ file for the app on your phone.We are still scanning your device to see if there is a newer CCZ file present.
-        You can wait for the scan to complete or click reinstall below to immediately reinstal the app</string>
+    <string name="recovery_measure_ccz_found_scan_in_progress" cc:translatable="true">We found a CCZ file for the app on your phone. We are still scanning your device to see if there is a newer CCZ file present. You can wait for the scan to complete or click reinstall below to immediately reinstall the app</string>
     <string name="recovery_measure_reinstall" cc:translatable="true">Reinstall</string>
-    <string name="recovery_measure_no_ccz_found" cc:translatable="true">No CCZ file found for your app. You can manually locate CCZ file by clicking \"Select CCZ\" button below.
-        In case you can not find CCZ file on your phone, please contact your help desk.</string>
+    <string name="recovery_measure_no_ccz_found" cc:translatable="true">No CCZ file found for your app. You can manually locate CCZ file by clicking \"Select CCZ\" button below. In case you can not find CCZ file on your phone, please contact your help desk.</string>
     <string name="recovery_measure_select_ccz" cc:translatable="true">Select CCZ</string>
-    <string name="recovery_measure_select_ccz_no_file_browser" cc:translatable="true">You need a file manager to access the files on this device.
-        You have not installed a file manager, please go to the Google Play Store and download a file manager, then return to this screen.</string>
+    <string name="recovery_measure_select_ccz_no_file_browser" cc:translatable="true">You need a file manager to access the files on this device. You have not installed a file manager, please go to the Google Play Store and download a file manager, then return to this screen.</string>
     <string name="recovery_measure_invalid_ccz_path" cc:translatable="true">Unable to process the CCZ file you selected. Please retry</string>
     <string name="recovery_measure_ccz_scan_failed" cc:translatable="true">An error occurred while loacting CCZ file on your phone. Please retry or locate CCZ file manually by clicking \"Select CCZ\" button below.</string>
     <string name="recovery_measure_unzip_error" cc:translatable="true">An error occurred while installing the app from CCZ file. Please retry or locate CCZ file manually by clicking \"Select CCZ\" button below.</string>
