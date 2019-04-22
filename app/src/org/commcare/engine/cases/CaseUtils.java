@@ -25,10 +25,13 @@ import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.util.DAG;
+import org.javarosa.core.util.MD5;
 import org.javarosa.model.xform.XPathReference;
 
 import java.util.HashMap;
 import java.util.Vector;
+
+import static org.commcare.cases.util.CaseDBUtils.xordata;
 
 /**
  * Utilities for performing complex operations on the case database.
@@ -36,6 +39,37 @@ import java.util.Vector;
  * Created by ctsims on 2/25/2016.
  */
 public class CaseUtils {
+
+    public static String computeCaseDbHash(SqlStorage<?> storage) {
+        long timeStart = System.currentTimeMillis();
+
+        byte[] data = new byte[MD5.length];
+        for (int i = 0; i < data.length; ++i) {
+            data[i] = 0;
+        }
+        boolean casesExist = false;
+        long count = 0;
+
+        for (SqlStorageIterator i = storage.iterate(false, new String[]{Case.INDEX_CASE_ID}); i.hasMore(); ) {
+            byte[] current = MD5.hash(i.peekIncludedMetadata(Case.INDEX_CASE_ID).getBytes());
+            data = xordata(data, current);
+            casesExist = true;
+            count++;
+            i.nextID();
+        }
+
+        //In the base case (with no cases), the case hash is empty
+        if (!casesExist) {
+            return "";
+        }
+
+        long timeEnd = System.currentTimeMillis();
+        Logger.log(LogTypes.TYPE_MAINTENANCE, String.format(
+                "Hashed %d Cases records in %dms",
+                count, timeEnd-timeStart));
+
+        return MD5.toHex(data);
+    }
     /**
      * Perform a case purge against the logged in user with the logged in app in local storage.
      *
