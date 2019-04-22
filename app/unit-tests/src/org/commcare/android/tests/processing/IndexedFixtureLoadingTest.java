@@ -50,7 +50,7 @@ public class IndexedFixtureLoadingTest {
                         11.0));
 
         assertTrue(CaseTestUtils.xpathEvalAndCompare(evalContext,
-                "instance('products')/products/@last_sync",
+                "instance('commtrack:products')/products/@last_sync",
                 "2018-07-27T12:56:10.835570+00:00"));
 
         // check that the '@id' attribute and the 'id' element are treated differently
