@@ -9,6 +9,7 @@ import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.InstanceBase;
 import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
+import org.javarosa.core.util.externalizable.DeserializationException;
 
 /**
  * The root element for an indexed fixture data instance
@@ -40,39 +41,46 @@ public class AndroidIndexedFixtureInstanceTreeElement extends IndexedFixtureInst
 
     @Override
     public int getAttributeCount() {
-        return getDeserializedAttributes().getAttributeCount();
+        return loadAttributes().getAttributeCount();
     }
 
     @Override
     public String getAttributeNamespace(int index) {
-        return getDeserializedAttributes().getAttributeNamespace(index);
+        return loadAttributes().getAttributeNamespace(index);
     }
 
     @Override
     public String getAttributeName(int index) {
-        return getDeserializedAttributes().getAttributeName(index);
+        return loadAttributes().getAttributeName(index);
     }
 
     @Override
     public String getAttributeValue(int index) {
-        return getDeserializedAttributes().getAttributeValue(index);
+        return loadAttributes().getAttributeValue(index);
     }
 
     @Override
     public AbstractTreeElement getAttribute(String namespace, String name) {
-        TreeElement attr = getDeserializedAttributes().getAttribute(namespace, name);
+        TreeElement attr = loadAttributes().getAttribute(namespace, name);
         attr.setParent(this);
         return attr;
     }
 
     @Override
     public String getAttributeValue(String namespace, String name) {
-        return getDeserializedAttributes().getAttributeValue(namespace, name);
+        return loadAttributes().getAttributeValue(namespace, name);
     }
 
-    private TreeElement getDeserializedAttributes() {
+    private synchronized TreeElement loadAttributes() {
         if (attributes == null) {
-            attributes = SerializationUtil.deserialize(attrHolder, TreeElement.class);
+            try {
+                attributes = SerializationUtil.deserialize(attrHolder, TreeElement.class);
+            } catch (Exception e) {
+                if (e.getCause() instanceof DeserializationException) {
+                    String newMessage = "Deserialization failed for indexed fixture root atrribute wrapper: " + e.getMessage();
+                    throw new RuntimeException(newMessage);
+                }
+            }
         }
         return attributes;
     }
