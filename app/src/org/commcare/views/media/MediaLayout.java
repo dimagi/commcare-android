@@ -21,6 +21,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.VideoView;
 
+import com.bumptech.glide.Glide;
+
 import org.commcare.dalvik.R;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.preferences.HiddenPreferences;
@@ -59,6 +61,8 @@ public class MediaLayout extends RelativeLayout {
 
     @IdRes
     private static final int MISSING_IMAGE_ID = 234873453;
+
+    private static final String IMAGE_GIF_EXTENSION = ".gif";
 
     private TextView viewText;
     private AudioPlaybackButton audioButton;
@@ -283,7 +287,15 @@ public class MediaLayout extends RelativeLayout {
                         mImageView.setScaleType(ImageView.ScaleType.CENTER);
                     }
                     mImageView.setPadding(10, 10, 10, 10);
-                    mImageView.setImageBitmap(b);
+                    if (imageFilename.toLowerCase().endsWith(IMAGE_GIF_EXTENSION)) {
+                        Glide.with(mImageView).asGif()
+                                .override(b.getWidth(), b.getHeight())
+                                .load(imageFilename)
+                                .into(mImageView);
+                        b.recycle();
+                    } else {
+                        mImageView.setImageBitmap(b);
+                    }
                     mImageView.setId(IMAGE_VIEW_ID);
                     mediaPane = mImageView;
                 }
