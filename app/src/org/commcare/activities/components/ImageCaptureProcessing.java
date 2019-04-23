@@ -141,7 +141,7 @@ public class ImageCaptureProcessing {
         File originalImage = ImageWidget.getTempFileForImageCapture();
         try {
             File unscaledFinalImage = moveAndScaleImage(originalImage, isImage, instanceFolder, activity);
-            activity.saveImageWidgetAnswer(buildImageFileContentValues(unscaledFinalImage));
+            activity.saveImageWidgetAnswer(unscaledFinalImage.getAbsolutePath());
             return true;
         } catch (IOException e) {
             e.printStackTrace();
@@ -213,7 +213,7 @@ public class ImageCaptureProcessing {
         if (originalImage.exists()) {
             try {
                 File unscaledFinalImage = moveAndScaleImage(originalImage, true, instanceFolder, activity);
-                activity.saveImageWidgetAnswer(buildImageFileContentValues(unscaledFinalImage));
+                activity.saveImageWidgetAnswer(unscaledFinalImage.getAbsolutePath());
             } catch (IOException e) {
                 e.printStackTrace();
                 Toast.makeText(activity, Localization.get("image.selection.not.saved"), Toast.LENGTH_LONG).show();
@@ -227,17 +227,6 @@ public class ImageCaptureProcessing {
 
     private static void showInvalidImageMessage(FormEntryActivity activity) {
         Toast.makeText(activity, Localization.get("invalid.image.selection"), Toast.LENGTH_LONG).show();
-    }
-
-    private static ContentValues buildImageFileContentValues(File unscaledFinalImage) {
-        // Add the new image to the Media content provider so that the viewing is fast in Android 2.0+
-        ContentValues values = new ContentValues(6);
-        values.put(Media.TITLE, unscaledFinalImage.getName());
-        values.put(Media.DISPLAY_NAME, unscaledFinalImage.getName());
-        values.put(Media.DATE_TAKEN, System.currentTimeMillis());
-        values.put(Media.MIME_TYPE, "image/jpeg");
-        values.put(Media.DATA, unscaledFinalImage.getAbsolutePath());
-        return values;
     }
 
     public static void processImageFromBroadcast(FormEntryActivity activity, String instanceFolder) {
