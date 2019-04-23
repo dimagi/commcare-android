@@ -418,7 +418,11 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
                             break group_skip;
                         case FormEntryController.EVENT_END_OF_FORM:
                             // auto-advance questions might advance past the last form quesion
-                            refreshCurrentView();
+                            if (questionsView != null) {
+                                refreshCurrentView();
+                            } else {
+                                activity.triggerUserFormComplete();
+                            }
                             break group_skip;
                         case FormEntryController.EVENT_PROMPT_NEW_REPEAT:
                             createRepeatDialog();
@@ -603,7 +607,7 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
             if (index.equals(q.getFormId())) {
 
                 if (q.getAnswer() instanceof InvalidData) {
-                    constraintText = ((InvalidData) q.getAnswer()).getErrorMessage();
+                    constraintText = ((InvalidData)q.getAnswer()).getErrorMessage();
                 }
 
                 q.notifyInvalid(constraintText, requestFocus);
