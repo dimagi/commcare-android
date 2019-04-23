@@ -1,13 +1,7 @@
 package org.commcare.activities.components;
 
-import android.content.ContentResolver;
-import android.content.ContentUris;
-import android.content.ContentValues;
 import android.content.Intent;
-import android.database.Cursor;
 import android.net.Uri;
-import android.provider.MediaStore;
-import android.provider.MediaStore.Images.Media;
 import android.widget.Toast;
 
 import org.commcare.activities.FormEntryActivity;
@@ -66,12 +60,10 @@ public class ImageCaptureProcessing {
 
             try {
                 FileUtil.copyFile(originalImage, finalFile);
-                originalImage.delete();
             } catch (Exception e) {
                 throw new IOException("Failed to rename " + originalImage.getAbsolutePath() +
                         " to " + finalFile.getAbsolutePath());
             }
-            deleteFileFromMediaStore(formEntryActivity.getContentResolver(), originalImage);
             return finalFile;
         } else {
             // Otherwise, relocate the original image to a raw/ folder, so that we still have access
@@ -84,39 +76,11 @@ public class ImageCaptureProcessing {
             File rawImageFile = new File(rawDirPath + "/" + imageFilename);
             try {
                 FileUtil.copyFile(originalImage, rawImageFile);
-                originalImage.delete();
             } catch (Exception e) {
                 throw new IOException("Failed to rename " + originalImage.getAbsolutePath() +
                         " to " + rawImageFile.getAbsolutePath());
             }
-            deleteFileFromMediaStore(formEntryActivity.getContentResolver(), originalImage);
             return rawImageFile;
-        }
-    }
-
-    public static void deleteFileFromMediaStore(final ContentResolver contentResolver, final File file) {
-        // Set up the projection (we only need the ID)
-        String[] projection = {MediaStore.Images.Media._ID};
-
-        // Match on the file path
-        String selection = MediaStore.Images.Media.DATA + " = ?";
-        String[] selectionArgs = new String[]{file.getAbsolutePath()};
-
-        // Query for the ID of the media matching the file path
-        Uri queryUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
-        Cursor cursor = null;
-        try {
-            cursor = contentResolver.query(queryUri, projection, selection, selectionArgs, null);
-            if (cursor != null && cursor.moveToFirst()) {
-                // We found the ID. Deleting the item via the content provider will also remove the file
-                long id = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Images.Media._ID));
-                Uri deleteUri = ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id);
-                contentResolver.delete(deleteUri, null, null);
-            }
-        } finally {
-            if (cursor != null) {
-                cursor.close();
-            }
         }
     }
 
