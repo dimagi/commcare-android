@@ -271,12 +271,6 @@ public class ImageWidget extends QuestionWidget {
         }
         // clean up variables
         mBinaryName = null;
-
-        //TODO: possibly switch back to this implementation, but causes NullPointerException right now
-        /*
-        int del = MediaUtils.deleteImageFileFromMediaProvider(mInstanceFolder + File.separator + mBinaryName);
-        Log.i(t, "Deleted " + del + " rows from media content provider");
-        mBinaryName = null;*/
     }
 
     @Override
