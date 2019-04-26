@@ -418,9 +418,8 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
                             break group_skip;
                         case FormEntryController.EVENT_END_OF_FORM:
                             // auto-advance questions might advance past the last form quesion
-                            // In specail case when questionsView is null (there is no question),
-                            // if there is hidden value it should be saved.
-                            // To avoid exit dialog without saving option, shown from refreshCurrentView(),
+                            // In special case when questionsView is null (there is no question),
+                            // to avoid exit dialog without saving option, shown from refreshCurrentView(),
                             // save and exit method called.
                             if (questionsView != null) {
                                 refreshCurrentView();
