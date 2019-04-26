@@ -12,6 +12,12 @@ import org.commcare.views.dialogs.CommCareAlertDialog;
 import org.commcare.views.dialogs.DialogCreationHelpers;
 import org.javarosa.core.services.locale.Localization;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * Acquire Android permissions needed by CommCare.
  *
@@ -87,37 +93,26 @@ public class Permissions {
      * @return Permissions needed for _normal_ CommCare functionality
      */
     public static String[] getAppPermissions() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
-            // exclude READ_EXTERNAL_STORAGE which isn't compat. w/ API < 16
-            return new String[]{Manifest.permission.READ_PHONE_STATE,
-                    Manifest.permission.CALL_PHONE,
-                    Manifest.permission.ACCESS_FINE_LOCATION,
-                    Manifest.permission.ACCESS_COARSE_LOCATION,
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                    Manifest.permission.RECORD_AUDIO
-            };
-        } else {
-            return new String[]{Manifest.permission.READ_PHONE_STATE,
-                    Manifest.permission.CALL_PHONE,
-                    Manifest.permission.ACCESS_FINE_LOCATION,
-                    Manifest.permission.ACCESS_COARSE_LOCATION,
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                    Manifest.permission.READ_EXTERNAL_STORAGE,
-                    Manifest.permission.RECORD_AUDIO
-            };
-        }
+        ArrayList<String> neededPermissions = new ArrayList<>();
+        Collections.addAll(neededPermissions, getRequiredPerms());
+        neededPermissions.add(Manifest.permission.READ_PHONE_STATE);
+        neededPermissions.add(Manifest.permission.CALL_PHONE);
+        neededPermissions.add(Manifest.permission.ACCESS_FINE_LOCATION);
+        neededPermissions.add(Manifest.permission.ACCESS_COARSE_LOCATION);
+        neededPermissions.add(Manifest.permission.RECORD_AUDIO);
+        return neededPermissions.toArray(new String[neededPermissions.size()]);
     }
 
     /**
      * @return Minimal set of permissions needed for CommCare to function
      */
     public static String[] getRequiredPerms() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
+        ArrayList<String> requiredPermissions = new ArrayList<>();
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
             // exclude READ_EXTERNAL_STORAGE which isn't compat. w/ API < 16
-            return new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE};
-        } else {
-            return new String[]{Manifest.permission.READ_EXTERNAL_STORAGE,
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE};
+            requiredPermissions.add(Manifest.permission.READ_EXTERNAL_STORAGE);
         }
+        requiredPermissions.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        return requiredPermissions.toArray(new String[requiredPermissions.size()]);
     }
 }
