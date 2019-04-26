@@ -5,7 +5,10 @@ import android.annotation.TargetApi;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
 import android.net.wifi.p2p.WifiP2pManager;
 import android.os.Build;
 import android.util.Log;
@@ -24,6 +27,7 @@ public class WiFiDirectBroadcastReceiver extends BroadcastReceiver {
     private static final String TAG = WiFiDirectBroadcastReceiver.class.getSimpleName();
     private final WifiP2pManager manager;
     private final WiFiDirectManagementFragment activity;
+    private ConnectivityManager connectivityManager;
 
     /**
      * @param manager  WifiP2pManager system service
@@ -34,6 +38,9 @@ public class WiFiDirectBroadcastReceiver extends BroadcastReceiver {
         super();
         this.manager = manager;
         this.activity = activity;
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.O_MR1) {
+            connectivityManager = (ConnectivityManager)activity.getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        }
     }
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
@@ -76,10 +83,20 @@ public class WiFiDirectBroadcastReceiver extends BroadcastReceiver {
                 return;
             }
 
-            NetworkInfo networkInfo = intent
-                    .getParcelableExtra(WifiP2pManager.EXTRA_NETWORK_INFO);
+            NetworkInfo networkInfo;
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
+                networkInfo = intent
+                        .getParcelableExtra(WifiP2pManager.EXTRA_NETWORK_INFO);
+            } else {
+                //EXTRA_NETWORK_INFO is removed from Android API 28
+                networkInfo = connectivityManager.getActiveNetworkInfo();
+            }
 
-            activity.onP2PConnectionChanged(networkInfo.isConnected());
+            if (networkInfo != null) {
+                activity.onP2PConnectionChanged(networkInfo.isConnected());
+            } else {
+                activity.onP2PConnectionChanged(false);
+            }
 
         } else if (WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION.equals(action)) {
             Log.d(TAG, "in last else with device: " + intent.getParcelableExtra(
