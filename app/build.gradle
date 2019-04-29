@@ -36,7 +36,7 @@ configurations {
 dependencies {
 
     testImplementation 'junit:junit:4.12'
-    testImplementation ('org.robolectric:robolectric:3.2.2')
+    testImplementation('org.robolectric:robolectric:3.2.2')
     testImplementation 'org.robolectric:shadows-multidex:3.2.2'
     testImplementation 'org.robolectric:shadows-core:3.2.2'
     testImplementation 'org.json:json:20140107'
@@ -48,7 +48,7 @@ dependencies {
     }
 
     // this syntax doesn't work for compiling .aar files, so those have to be loaded manually
-    implementation fileTree(include: '*.jar',exclude: 'regexp-me.jar', dir: 'libs')
+    implementation fileTree(include: '*.jar', exclude: 'regexp-me.jar', dir: 'libs')
     implementation(name: 'htmlspanner-custom', ext: 'aar')
     implementation(name: 'android-zebra-interface-1.1', ext: 'aar')
     implementation 'com.simprints:LibSimprints:1.0.12'
@@ -63,7 +63,7 @@ dependencies {
     implementation 'com.google.android.gms:play-services-maps:16.0.0'
     implementation 'joda-time:joda-time:2.9.4'
     implementation 'net.zetetic:android-database-sqlcipher:3.5.9@aar'
-    implementation ('org.apache.james:apache-mime4j:0.7.2') {
+    implementation('org.apache.james:apache-mime4j:0.7.2') {
         exclude module: 'commons-io'
     }
     implementation('org.apache.httpcomponents:httpmime:4.3.6')
@@ -87,7 +87,7 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 
     // Markdown
-    implementation 'com.github.budsmile:bypass-android:1.0.5' //Needed for Ice Cream Sandwich (14&15)
+    implementation 'com.github.budsmile:bypass-android:1.0.5'//Needed for Ice Cream Sandwich (14&15)
     implementation 'ru.noties:markwon:1.0.4'
     implementation 'ru.noties:markwon-image-loader:1.0.4'
     implementation 'ru.noties:markwon-view:1.0.4'
@@ -234,7 +234,9 @@ android {
         multiDexEnabled true
         applicationId "org.commcare.dalvik"
         project.ext.COMMCARE_APP_ID = applicationId
-        resValue "string", "application_name", "CommCare"
+        // set the app name
+        def applicationName = "CommCare"
+        resValue "string", "application_name", applicationName
         def odkProviderStr = "org.commcare.android.provider.odk"
         manifestPlaceholders = [
                 odkProvider         : odkProviderStr,
@@ -346,7 +348,8 @@ android {
             buildConfigField "String", "ODK_AUTHORITY", "\"${odkProviderStr}\""
 
             // set the app name
-            resValue "string", "application_name", " CommCare LTS"
+            def applicationName = "CommCare LTS"
+            resValue "string", "application_name", applicationName
         }
 
         qabeta {
@@ -369,7 +372,8 @@ android {
             buildConfigField "String", "ODK_AUTHORITY", "\"${odkProviderStr}\""
 
             // set the app name
-            resValue "string", "application_name", " ${ccVersion} QA CommCare"
+            def applicationName = "${ccVersion} QA CommCare"
+            resValue "string", "application_name", applicationName
         }
 
         standalone {
@@ -406,7 +410,8 @@ android {
             applicationIdSuffix ".debug"
             def applicationId = "org.commcare.dalvik.debug"
             project.ext.COMMCARE_APP_ID = applicationId
-            resValue "string", "application_name", "CommCare Debug"
+            def applicationName = "CommCare Debug"
+            resValue "string", "application_name", applicationName
             def odkProviderStr = "org.commcare.dalvik.debug.provider.odk"
             manifestPlaceholders = [odkProvider: odkProviderStr]
 
