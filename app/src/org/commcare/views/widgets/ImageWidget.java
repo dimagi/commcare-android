@@ -288,12 +288,6 @@ public class ImageWidget extends QuestionWidget {
 
         removeView(mImageView);
         mDiscardButton.setVisibility(View.GONE);
-
-        //TODO: possibly switch back to this implementation, but causes NullPointerException right now
-        /*
-        int del = MediaUtils.deleteImageFileFromMediaProvider(mInstanceFolder + File.separator + mBinaryName);
-        Log.i(t, "Deleted " + del + " rows from media content provider");
-        mBinaryName = null;*/
     }
 
     @Override
@@ -317,17 +311,15 @@ public class ImageWidget extends QuestionWidget {
     }
 
     @Override
-    public void setBinaryData(Object binaryuri) {
+    public void setBinaryData(Object binaryPath) {
         // you are replacing an answer. delete the previous image using the
         // content provider.
         if (mBinaryName != null) {
             deleteMedia();
         }
-        String binaryPath = UrlUtils.getPathFromUri((Uri)binaryuri, getContext());
 
-        File f = new File(binaryPath);
+        File f = new File(binaryPath.toString());
         mBinaryName = f.getName();
-        Log.i(t, "Setting current answer to " + f.getName());
     }
 
     @Override
