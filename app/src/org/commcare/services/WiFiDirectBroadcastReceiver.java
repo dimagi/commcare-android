@@ -38,15 +38,17 @@ public class WiFiDirectBroadcastReceiver extends BroadcastReceiver {
         super();
         this.manager = manager;
         this.activity = activity;
-        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.O_MR1) {
-            connectivityManager = (ConnectivityManager)activity.getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
-        }
     }
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     @Override
     public void onReceive(Context context, Intent intent) {
         Log.d(TAG, "in on receive ");
+        
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.O_MR1) {
+            connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        }
+        
         String action = intent.getAction();
 
         Logger.log(LogTypes.TYPE_WIFI_DIRECT, "onReceive of WifiDirectBroadCastReceiver with action: " + action);
@@ -72,9 +74,7 @@ public class WiFiDirectBroadcastReceiver extends BroadcastReceiver {
             // asynchronous call and the calling activity is notified with a
             // callback on PeerListListener.onPeersAvailable()
             if (manager != null) {
-
                 activity.onPeersChanged();
-
             }
             Log.d(TAG, "P2P peers changed2");
         } else if (WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION.equals(action)) {
@@ -101,11 +101,7 @@ public class WiFiDirectBroadcastReceiver extends BroadcastReceiver {
         } else if (WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION.equals(action)) {
             Log.d(TAG, "in last else with device: " + intent.getParcelableExtra(
                     WifiP2pManager.EXTRA_WIFI_P2P_DEVICE).toString());
-
-
             activity.onThisDeviceChanged(intent);
-
-
         }
     }
 }
