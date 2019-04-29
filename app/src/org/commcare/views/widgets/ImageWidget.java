@@ -58,6 +58,7 @@ public class ImageWidget extends QuestionWidget {
 
     private final Button mCaptureButton;
     private final Button mChooseButton;
+    private final Button mDiscardButton;
     private ImageView mImageView;
 
     private String mBinaryName;
@@ -148,10 +149,22 @@ public class ImageWidget extends QuestionWidget {
             }
         });
 
+        // setup discard button
+        mDiscardButton = new Button(getContext());
+        WidgetUtils.setupButton(mDiscardButton,
+                StringUtils.getStringSpannableRobust(getContext(), R.string.discard_image),
+                mAnswerFontSize,
+                !mPrompt.isReadOnly());
+        mDiscardButton.setOnClickListener(v -> {
+            deleteMedia();
+        });
+        mDiscardButton.setVisibility(View.GONE);
+
         // finish complex layout
         //
         addView(mCaptureButton);
         addView(mChooseButton);
+        addView(mDiscardButton);
 
         String acq = mPrompt.getAppearanceHint();
         if (QuestionWidget.ACQUIREFIELD.equalsIgnoreCase(acq)) {
@@ -234,6 +247,7 @@ public class ImageWidget extends QuestionWidget {
             });
 
             addView(mImageView);
+            mDiscardButton.setVisibility(View.VISIBLE);
         }
     }
 
@@ -271,6 +285,9 @@ public class ImageWidget extends QuestionWidget {
         }
         // clean up variables
         mBinaryName = null;
+
+        removeView(mImageView);
+        mDiscardButton.setVisibility(View.GONE);
     }
 
     @Override

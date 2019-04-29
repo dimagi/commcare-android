@@ -38,6 +38,7 @@
     <string name="delete_no">No Borrar</string>
     <string name="delete_yes">Borrar los Formularios</string>
     <string name="discard_answer">Borrar respuesta</string>
+    <string name="discard_image">Borrar imagen</string>
     <string name="download">Obtener los Seleccionados</string>
     <string name="download_forms_result">Resultado de la Baja</string>
     <string name="downloading_data">Conectandose al Servidor</string>

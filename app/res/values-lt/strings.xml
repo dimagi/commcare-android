@@ -39,6 +39,7 @@
     <string name="delete_no">Neištrinti</string>
     <string name="delete_yes">Ištrinti formas</string>
     <string name="discard_answer">Pašalinti atsakymą</string>
+    <string name="discard_image">Pašalinti vaizdą</string>
     <string name="download">Atsiųsti parinktas</string>
     <string name="download_forms_result">Atsiuntimo rezultatas</string>
     <string name="downloading_data">Jungiamasi prie serverio</string>
