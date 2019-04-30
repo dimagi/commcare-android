@@ -1002,12 +1002,13 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
      * Call when the user is ready to save and return the current form as complete
      */
     protected void triggerUserFormComplete() {
-
-        if (mFormController.isFormReadOnly()) {
-            finishReturnInstance(false);
-        } else {
-            int formRecordId = getIntent().getIntExtra(KEY_FORM_RECORD_ID, -1);
-            saveCompletedFormToDisk(instanceState.getDefaultFormTitle(formRecordId));
+        if(!isFinishing()) {
+            if (mFormController.isFormReadOnly()) {
+                finishReturnInstance(false);
+            } else {
+                int formRecordId = getIntent().getIntExtra(KEY_FORM_RECORD_ID, -1);
+                saveCompletedFormToDisk(instanceState.getDefaultFormTitle(formRecordId));
+            }
         }
     }
 
