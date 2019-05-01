@@ -186,14 +186,19 @@ public class MenuAdapter extends BaseAdapter {
     }
 
     private void setupTextView(TextView textView, MenuDisplayable menuDisplayable) {
-        String mQuestionText = menuDisplayable.getDisplayText();
+        try {
+            String mQuestionText = menuDisplayable.getDisplayText(
+                    asw.getEvaluationContextWithAccumulatedInstances(menuDisplayable.getCommandID(), menuDisplayable.getRawText()));
 
-        //Final change, remove any numeric context requests. J2ME uses these to
-        //help with numeric navigation.
-        if (mQuestionText != null) {
-            mQuestionText = Localizer.processArguments(mQuestionText, new String[]{""}).trim();
+            //Final change, remove any numeric context requests. J2ME uses these to
+            //help with numeric navigation.
+            if (mQuestionText != null) {
+                mQuestionText = Localizer.processArguments(mQuestionText, new String[]{""}).trim();
+            }
+            textView.setText(mQuestionText);
+        } catch (XPathException e) {
+            UserfacingErrorHandling.createErrorDialog(context, e.getLocalizedMessage(), true);
         }
-        textView.setText(mQuestionText);
     }
 
     private void setupImageView(ImageView mIconView, MenuDisplayable menuDisplayable, int boundingDimensionResource) {
@@ -218,7 +223,7 @@ public class MenuAdapter extends BaseAdapter {
             updateBadgeView(badgeView, badgeCache.get(position));
         } else {
             Text badgeTextObject = menuDisplayable.getRawBadgeTextObject();
-            if(badgeTextObject != null) {
+            if (badgeTextObject != null) {
                 Set<String> instancesNeededByBadgeCalculation =
                         (new InstanceNameAccumulatingAnalyzer()).accumulate(badgeTextObject);
                 context.attachDisposableToLifeCycle(

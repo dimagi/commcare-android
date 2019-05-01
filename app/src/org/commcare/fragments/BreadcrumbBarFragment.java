@@ -373,9 +373,12 @@ public class BreadcrumbBarFragment extends Fragment {
         String[] stepTitles;
         try {
             stepTitles = session.getHeaderTitles();
-        } catch (NoLocalizedTextException e) {
+        } catch (NoLocalizedTextException | XPathException e) {
             // localization resources may not be installed while in the middle
             // of an update, so default to a generic title
+
+            // Also Catch XPathExceptions here since we don't want to show the xpath error on app startup
+            // and the errors here will be visible to the user when they go to the respective menu
             return null;
         }
 
