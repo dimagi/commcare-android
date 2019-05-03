@@ -201,15 +201,14 @@ public class SignatureWidget extends QuestionWidget {
 
 
     @Override
-    public void setBinaryData(Object binaryURI) {
+    public void setBinaryData(Object binaryPath) {
         // you are replacing an answer. delete the previous image using the
         // content provider.
         if (mBinaryName != null) {
             deleteMedia();
         }
 
-        String binaryPath = UrlUtils.getPathFromUri((Uri)binaryURI, getContext());
-        File f = new File(binaryPath);
+        File f = new File(binaryPath.toString());
         mBinaryName = f.getName();
         Log.i(t, "Setting current answer to " + f.getName());
     }
