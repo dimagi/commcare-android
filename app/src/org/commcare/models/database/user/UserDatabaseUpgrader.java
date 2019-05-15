@@ -41,6 +41,9 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.Vector;
 
+import static org.commcare.modern.database.IndexedFixturePathsConstants.INDEXED_FIXTURE_PATHS_COL_ATTRIBUTES;
+import static org.commcare.modern.database.IndexedFixturePathsConstants.INDEXED_FIXTURE_PATHS_TABLE;
+
 /**
  * @author ctsims
  */
@@ -205,6 +208,12 @@ class UserDatabaseUpgrader {
                 }
             } else {
                 oldVersion = 25;
+            }
+        }
+
+        if (oldVersion == 25) {
+            if(upgradeTwentyFiveTwentySix(db)){
+                oldVersion = 26;
             }
         }
     }
@@ -466,7 +475,7 @@ class UserDatabaseUpgrader {
     private boolean upgradeFourteenFifteen(SQLiteDatabase db) {
         db.beginTransaction();
         try {
-            IndexedFixturePathUtils.createStorageBackedFixtureIndexTable(db);
+            IndexedFixturePathUtils.createStorageBackedFixtureIndexTableV15(db);
             db.setTransactionSuccessful();
             return true;
         } finally {
@@ -700,6 +709,21 @@ class UserDatabaseUpgrader {
                     formRecordStorage.remove(incompleteRecord);
                 }
             }
+            db.setTransactionSuccessful();
+            return true;
+        } finally {
+            db.endTransaction();
+        }
+    }
+
+    private boolean upgradeTwentyFiveTwentySix(SQLiteDatabase db) {
+        db.beginTransaction();
+        try {
+            db.execSQL(DbUtil.addColumnToTable(
+                    INDEXED_FIXTURE_PATHS_TABLE,
+                    INDEXED_FIXTURE_PATHS_COL_ATTRIBUTES,
+                    "BLOB"));
+
             db.setTransactionSuccessful();
             return true;
         } finally {

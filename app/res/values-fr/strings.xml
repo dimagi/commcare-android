@@ -38,6 +38,7 @@ License.
     <string name="delete_no">Ne pas supprimer</string>
     <string name="delete_yes">Supprimer ces formulaires</string>
     <string name="discard_answer">Enlever la réponse</string>
+    <string name="discard_image">Enlever la image</string>
     <string name="download">Obtenez celle sélectionnée</string>
     <string name="download_forms_result">Resultat du téléchargement</string>
     <string name="downloading_data">Connection au serveur...</string>

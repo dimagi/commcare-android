@@ -8,6 +8,7 @@ import org.commcare.cases.util.CaseDBUtils;
 import org.commcare.core.network.AuthInfo;
 import org.commcare.core.network.HTTPMethod;
 import org.commcare.core.network.ModernHttpRequester;
+import org.commcare.engine.cases.CaseUtils;
 import org.commcare.interfaces.CommcareRequestEndpoints;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.modern.util.Pair;
@@ -183,7 +184,8 @@ public class CommcareRequestGenerator implements CommcareRequestEndpoints {
             // For integration tests, use fake hash to trigger 412 recovery on this sync
             return fakeHash;
         } else {
-            return CaseDBUtils.computeCaseDbHash(CommCareApplication.instance().getUserStorage(ACase.STORAGE_KEY, ACase.class));
+            return CaseUtils.computeCaseDbHash(
+                    CommCareApplication.instance().getUserStorage(ACase.STORAGE_KEY, ACase.class));
         }
     }
 

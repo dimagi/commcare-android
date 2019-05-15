@@ -347,12 +347,8 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         }
     }
 
-    public void saveImageWidgetAnswer(ContentValues values) {
-        Uri imageURI =
-                getContentResolver().insert(Images.Media.EXTERNAL_CONTENT_URI, values);
-        Log.i(TAG, "Inserting image returned uri = " + imageURI);
-
-        uiController.questionsView.setBinaryData(imageURI, mFormController);
+    public void saveImageWidgetAnswer(String imagePath) {
+        uiController.questionsView.setBinaryData(imagePath, mFormController);
         saveAnswersForCurrentScreen(FormEntryConstants.DO_NOT_EVALUATE_CONSTRAINTS);
         uiController.refreshView();
     }
@@ -1006,12 +1002,13 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
      * Call when the user is ready to save and return the current form as complete
      */
     protected void triggerUserFormComplete() {
-
-        if (mFormController.isFormReadOnly()) {
-            finishReturnInstance(false);
-        } else {
-            int formRecordId = getIntent().getIntExtra(KEY_FORM_RECORD_ID, -1);
-            saveCompletedFormToDisk(instanceState.getDefaultFormTitle(formRecordId));
+        if(!isFinishing()) {
+            if (mFormController.isFormReadOnly()) {
+                finishReturnInstance(false);
+            } else {
+                int formRecordId = getIntent().getIntExtra(KEY_FORM_RECORD_ID, -1);
+                saveCompletedFormToDisk(instanceState.getDefaultFormTitle(formRecordId));
+            }
         }
     }
 
