@@ -183,6 +183,14 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
     }
 
     @Override
+    public boolean uninstall(Resource r, AndroidCommCarePlatform platform) throws UnresolvedResourceException {
+        if (formDefId != -1) {
+            platform.getFormDefStorage().remove(formDefId);
+        }
+        return super.uninstall(r, platform);
+    }
+
+    @Override
     public boolean verifyInstallation(Resource r,
                                       Vector<MissingMediaException> problems,
                                       CommCarePlatform platform) {
