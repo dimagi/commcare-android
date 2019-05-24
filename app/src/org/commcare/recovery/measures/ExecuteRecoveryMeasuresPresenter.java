@@ -13,9 +13,11 @@ import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.activities.AppManagerActivity;
 import org.commcare.activities.CommCareSetupActivity;
+import org.commcare.activities.InstallArchiveActivity;
 import org.commcare.activities.PromptActivity;
 import org.commcare.activities.PromptApkUpdateActivity;
 import org.commcare.activities.PromptCCReinstallActivity;
+import org.commcare.activities.UpdateActivity;
 import org.commcare.dalvik.R;
 import org.commcare.engine.references.ArchiveFileRoot;
 import org.commcare.engine.resource.AppInstallStatus;
@@ -24,6 +26,7 @@ import org.commcare.interfaces.BasePresenterContract;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.resources.model.Resource;
+import org.commcare.tasks.InstallStagedUpdateTask;
 import org.commcare.tasks.ResourceEngineTask;
 import org.commcare.tasks.ResultAndError;
 import org.commcare.tasks.TaskListener;
@@ -54,6 +57,7 @@ import static org.commcare.recovery.measures.RecoveryMeasure.STATUS_WAITING;
 
 public class ExecuteRecoveryMeasuresPresenter implements BasePresenterContract, TaskListener<Integer, ResultAndError<AppInstallStatus>> {
 
+
     private final ExecuteRecoveryMeasuresActivity mActivity;
     private RecoveryMeasure mCurrentMeasure;
     private UpdateTask updateTask;
@@ -66,6 +70,8 @@ public class ExecuteRecoveryMeasuresPresenter implements BasePresenterContract, 
     private boolean cczSelectionEnabled;
 
     private static final int REINSTALL_TASK_ID = 1;
+    private static final int INSTALL_UPGRADE_TASK_ID = 11;
+
     static final int OFFLINE_INSTALL_REQUEST = 1001;
     static final int REQUEST_CCZ = 2001;
 
@@ -83,18 +89,22 @@ public class ExecuteRecoveryMeasuresPresenter implements BasePresenterContract, 
 
     @Override
     public void start() {
-        if (cczSelectionEnabled) {
-            setCczSelectionVisibility(true);
-        }
+        try {
+            if (cczSelectionEnabled) {
+                setCczSelectionVisibility(true);
+            }
 
-        if (mLastExecutionStatus == STATUS_FAILED) {
-            mActivity.enableRetry();
-            updateStatus(mLastDisplayStatus);
-        } else if (!(connectToUpdateTask() || mActivity.aTaskInProgress()) && mLastExecutionStatus != STATUS_WAITING) {
-            // If update task in progress, connect to it and do nothing
-            // or if any other task in progress, do nothing and let activity connect to it through stateholder as usual.
-            // Otherwise if we are not waiting on a measure,  execute any pending measures.
-            executePendingMeasures();
+            if (mLastExecutionStatus == STATUS_FAILED) {
+                mActivity.enableRetry();
+                updateStatus(mLastDisplayStatus);
+            } else if (!(connectToUpdateTask() || mActivity.aTaskInProgress())) {
+                // If update task in progress, connect to it and do nothing
+                // or if any other task in progress, do nothing and let activity connect to it through stateholder as usual.
+                // Otherwise execute any pending measures.
+                executePendingMeasures();
+            }
+        } catch (Exception e) {
+            handleException(e);
         }
     }
 
@@ -133,53 +143,54 @@ public class ExecuteRecoveryMeasuresPresenter implements BasePresenterContract, 
             return STATUS_FAILED;
         }
 
-        try {
-            switch (mCurrentMeasure.getType()) {
-                case MEASURE_TYPE_APP_REINSTALL_AND_UPDATE:
-                    if (AppUtils.notOnLatestAppVersion()) {
-                        showInstallMethodChooser();
-                        return STATUS_WAITING;
-                    } else {
-                        return STATUS_EXECUTED;
-                    }
-                case MEASURE_TYPE_APP_OFFLINE_REINSTALL_AND_UPDATE:
-                    if (AppUtils.notOnLatestAppVersion()) {
-                        initateAutoCczScan();
-                        return STATUS_WAITING;
-                    } else {
-                        return STATUS_EXECUTED;
-                    }
-                case MEASURE_TYPE_APP_UPDATE:
-                    if (AppUtils.notOnLatestAppVersion()) {
-                        executeAutoUpdate();
-                        return STATUS_WAITING;
-                    } else {
-                        return STATUS_EXECUTED;
-                    }
-                case MEASURE_TYPE_CC_REINSTALL:
-                    if (AppUtils.notOnLatestCCVersion()) {
-                        launchActivity(PromptCCReinstallActivity.class, ExecuteRecoveryMeasuresActivity.PROMPT_APK_REINSTALL);
-                        return STATUS_WAITING;
-                    } else {
-                        return STATUS_EXECUTED;
-                    }
-                case MEASURE_TYPE_CC_UPDATE:
-                    if (AppUtils.notOnLatestCCVersion()) {
-                        launchActivity(PromptApkUpdateActivity.class, ExecuteRecoveryMeasuresActivity.PROMPT_APK_UPDATE);
-                        return STATUS_WAITING;
-                    } else {
-                        return STATUS_EXECUTED;
-                    }
-                default:
-                    // A type that we do not recognize, mark it as executed so that it gets ignored
+
+        switch (mCurrentMeasure.getType()) {
+            case MEASURE_TYPE_APP_REINSTALL_AND_UPDATE:
+                if (AppUtils.notOnLatestAppVersion()) {
+                    showInstallMethodChooser();
+                    return STATUS_WAITING;
+                } else {
                     return STATUS_EXECUTED;
-            }
-        } catch (Exception e) {
-            // If anything goes wrong in the recovery measure execution, just count that as a failure
-            updateStatus(StringUtils.getStringRobust(mActivity, R.string.recovery_measure_faiure));
-            Logger.exception(String.format("Encountered exception while executing recovery measure of type %s", mCurrentMeasure.getType()), e);
+                }
+            case MEASURE_TYPE_APP_OFFLINE_REINSTALL_AND_UPDATE:
+                if (AppUtils.notOnLatestAppVersion()) {
+                    initateAutoCczScan();
+                    return STATUS_WAITING;
+                } else {
+                    return STATUS_EXECUTED;
+                }
+            case MEASURE_TYPE_APP_UPDATE:
+                if (AppUtils.notOnLatestAppVersion()) {
+                    executeAutoUpdate();
+                    return STATUS_WAITING;
+                } else {
+                    return STATUS_EXECUTED;
+                }
+            case MEASURE_TYPE_CC_REINSTALL:
+                if (AppUtils.notOnLatestCCVersion()) {
+                    launchActivity(PromptCCReinstallActivity.class, ExecuteRecoveryMeasuresActivity.PROMPT_APK_REINSTALL);
+                    return STATUS_WAITING;
+                } else {
+                    return STATUS_EXECUTED;
+                }
+            case MEASURE_TYPE_CC_UPDATE:
+                if (AppUtils.notOnLatestCCVersion()) {
+                    launchActivity(PromptApkUpdateActivity.class, ExecuteRecoveryMeasuresActivity.PROMPT_APK_UPDATE);
+                    return STATUS_WAITING;
+                } else {
+                    return STATUS_EXECUTED;
+                }
+            default:
+                // A type that we do not recognize, mark it as executed so that it gets ignored
+                return STATUS_EXECUTED;
         }
-        return STATUS_FAILED;
+    }
+
+    private void handleException(Exception e) {
+        // If anything goes wrong in the recovery measure execution, just count that as a failure
+        updateStatus(StringUtils.getStringRobust(mActivity, R.string.recovery_measure_faiure));
+        Logger.exception(String.format("Encountered exception while executing recovery measure of type %s",
+                mCurrentMeasure != null ? mCurrentMeasure.getType() : "unknown"), e);
     }
 
     private void initateAutoCczScan() {
@@ -248,19 +259,27 @@ public class ExecuteRecoveryMeasuresPresenter implements BasePresenterContract, 
     }
 
     private void onAsyncExecutionSuccess() {
-        mLastExecutionStatus = STATUS_EXECUTED;
-        markMeasureAsExecuted();
-        // so that we pick back up with the next measure, if there are any more
-        executePendingMeasures();
+        try {
+            mLastExecutionStatus = STATUS_EXECUTED;
+            markMeasureAsExecuted();
+            // so that we pick back up with the next measure, if there are any more
+            executePendingMeasures();
+        } catch (Exception e) {
+            handleException(e);
+        }
     }
 
     private void onAsyncExecutionFailure(String reason) {
-        mLastExecutionStatus = STATUS_FAILED;
-        Logger.log(LogTypes.TYPE_MAINTENANCE, String.format(
-                "%s failed with %s for recovery measure %s", mCurrentMeasure.getType(), reason, mCurrentMeasure.getSequenceNumber()));
-        if (mActivity != null) {
-            mActivity.disableLoadingIndicator();
-            mActivity.enableRetry();
+        try {
+            mLastExecutionStatus = STATUS_FAILED;
+            Logger.log(LogTypes.TYPE_MAINTENANCE, String.format(
+                    "%s failed with %s for recovery measure %s", mCurrentMeasure.getType(), reason, mCurrentMeasure.getSequenceNumber()));
+            if (mActivity != null) {
+                mActivity.disableLoadingIndicator();
+                mActivity.enableRetry();
+            }
+        } catch (Exception e) {
+            handleException(e);
         }
     }
 
@@ -295,7 +314,7 @@ public class ExecuteRecoveryMeasuresPresenter implements BasePresenterContract, 
     }
 
     private void showOfflineInstallActivity() {
-        Intent i = new Intent(mActivity, ExecuteRecoveryMeasuresActivity.class);
+        Intent i = new Intent(mActivity, InstallArchiveActivity.class);
         mActivity.startActivityForResult(i, OFFLINE_INSTALL_REQUEST);
     }
 
@@ -308,7 +327,8 @@ public class ExecuteRecoveryMeasuresPresenter implements BasePresenterContract, 
     }
 
     public void onAppReinstallSuccess() {
-        if (mCurrentMeasure.getType().contentEquals(MEASURE_TYPE_APP_REINSTALL_AND_UPDATE)) {
+        if (mCurrentMeasure.getType().contentEquals(MEASURE_TYPE_APP_REINSTALL_AND_UPDATE)
+                || mCurrentMeasure.getType().contentEquals(MEASURE_TYPE_APP_OFFLINE_REINSTALL_AND_UPDATE)) {
             executeAutoUpdate();
         } else {
             onAsyncExecutionSuccess();
@@ -453,6 +473,20 @@ public class ExecuteRecoveryMeasuresPresenter implements BasePresenterContract, 
         setCczSelectionVisibility(true);
     }
 
+    private void installPendingUpdate() {
+        InstallStagedUpdateTask<ExecuteRecoveryMeasuresActivity> task = new sInstallUpdateTask(INSTALL_UPGRADE_TASK_ID);
+        task.connect(mActivity);
+        task.executeParallel();
+    }
+
+    public void OnUpdateInstalled() {
+        UpdateActivity.OnSuccessfulUpdate(true, false);
+        onAsyncExecutionSuccess();
+    }
+
+    public void OnUpdateInstallFailed(Exception e) {
+        onAsyncExecutionFailure(e.getMessage());
+    }
 
     // UnZip Callbacks
     public void onUnzipSuccessful() {
@@ -489,9 +523,11 @@ public class ExecuteRecoveryMeasuresPresenter implements BasePresenterContract, 
     @Override
     public void handleTaskCompletion(ResultAndError<AppInstallStatus> appInstallStatusResultAndError) {
         AppInstallStatus result = appInstallStatusResultAndError.data;
-        if (result == AppInstallStatus.UpdateStaged || result == AppInstallStatus.UpToDate) {
+        if (result == AppInstallStatus.UpToDate) {
+            UpdateActivity.OnSuccessfulUpdate(true, false);
             onAsyncExecutionSuccess();
-            updateStatus("");
+        } else if (result == AppInstallStatus.UpdateStaged) {
+            installPendingUpdate();
         } else {
             updateStatus(StringUtils.getStringRobust(mActivity, R.string.recovery_measure_known_error, appInstallStatusResultAndError.errorMessage));
             onAsyncExecutionFailure(appInstallStatusResultAndError.data.name());
@@ -502,6 +538,34 @@ public class ExecuteRecoveryMeasuresPresenter implements BasePresenterContract, 
     public void handleTaskCancellation() {
         onAsyncExecutionFailure(StringUtils.getStringRobust(mActivity, R.string.recovery_measure_update_cancelled));
     }
+
+
+    public void OnOfflineInstallCancelled() {
+        onAsyncExecutionFailure(StringUtils.getStringRobust(mActivity, R.string.recovery_measure_offline_install_cancelled));
+    }
+
+
+    static class sInstallUpdateTask extends InstallStagedUpdateTask<ExecuteRecoveryMeasuresActivity> {
+
+        public sInstallUpdateTask(int taskId) {
+            super(taskId);
+        }
+
+        @Override
+        protected void deliverResult(ExecuteRecoveryMeasuresActivity activity, AppInstallStatus appInstallStatus) {
+            activity.handleInstallUpdateResult(appInstallStatus);
+        }
+
+        @Override
+        protected void deliverUpdate(ExecuteRecoveryMeasuresActivity activity, int[]... update) {
+        }
+
+        @Override
+        protected void deliverError(ExecuteRecoveryMeasuresActivity activity, Exception e) {
+            activity.handleInstallUpdateFailure(e);
+        }
+    }
+
 
     static class sResourceEngineTask extends ResourceEngineTask<ExecuteRecoveryMeasuresActivity> {
         sResourceEngineTask(CommCareApp currentApp, int taskId, boolean shouldSleep, int authority, boolean reinstall) {

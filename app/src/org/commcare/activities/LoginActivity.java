@@ -551,7 +551,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                             Toast.makeText(receiver,
                                     Localization.get("login.update.install.success"),
                                     Toast.LENGTH_LONG).show();
-                            DataChangeLogger.log(new DataChangeLog.CommCareAppUpdated());
+                            UpdateActivity.OnSuccessfulUpdate(false, false);
                         } else {
                             CommCareApplication.notificationManager().reportNotificationMessage(NotificationMessageFactory.message(result));
                         }

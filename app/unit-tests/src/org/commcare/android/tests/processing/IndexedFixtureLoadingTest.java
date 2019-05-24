@@ -4,6 +4,7 @@ import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.CommCareTestApplication;
 import org.commcare.android.CommCareTestRunner;
+import org.commcare.android.util.TestUtils;
 import org.commcare.models.database.AndroidSandbox;
 import org.commcare.models.database.IndexedFixturePathUtils;
 import org.commcare.models.database.StoreFixturesOnFilesystemTests;
@@ -41,12 +42,16 @@ public class IndexedFixtureLoadingTest {
                         "indexed_fixture_restore.xml");
 
         EvaluationContext evalContext =
-                MockDataUtils.buildContextWithInstance(sandbox, "commtrack:products",
+                TestUtils.buildContextWithInstance(sandbox, "commtrack:products",
                         "jr://fixture/commtrack:products");
 
         assertTrue(CaseTestUtils.xpathEvalAndCompare(evalContext,
                         "count(instance('commtrack:products')/products/product)",
                         11.0));
+
+        assertTrue(CaseTestUtils.xpathEvalAndCompare(evalContext,
+                "instance('commtrack:products')/products/@last_sync",
+                "2018-07-27T12:56:10.835570+00:00"));
 
         // check that the '@id' attribute and the 'id' element are treated differently
         assertTrue(CaseTestUtils.xpathEvalAndCompare(evalContext,

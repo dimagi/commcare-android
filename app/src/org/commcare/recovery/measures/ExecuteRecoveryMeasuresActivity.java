@@ -125,6 +125,8 @@ public class ExecuteRecoveryMeasuresActivity extends CommCareActivity<ExecuteRec
             case OFFLINE_INSTALL_REQUEST:
                 if (resultCode == Activity.RESULT_OK) {
                     mPresenter.doOfflineAppInstall(intent.getStringExtra(InstallArchiveActivity.ARCHIVE_JR_REFERENCE));
+                } else {
+                    mPresenter.OnOfflineInstallCancelled();
                 }
                 break;
             case REQUEST_CCZ:
@@ -251,5 +253,15 @@ public class ExecuteRecoveryMeasuresActivity extends CommCareActivity<ExecuteRec
     @Override
     public void updateUnzipProgress(String update, int taskId) {
         mPresenter.updateUnZipProgress(update);
+    }
+
+    public void handleInstallUpdateResult(AppInstallStatus appInstallStatus) {
+        if (appInstallStatus == AppInstallStatus.Installed) {
+            mPresenter.OnUpdateInstalled();
+        }
+    }
+
+    public void handleInstallUpdateFailure(Exception e) {
+        mPresenter.OnUpdateInstallFailed(e);
     }
 }

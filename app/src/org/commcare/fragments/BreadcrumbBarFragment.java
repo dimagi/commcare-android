@@ -27,6 +27,7 @@ import org.commcare.activities.CommCareSetupActivity;
 import org.commcare.activities.FormRecordListActivity;
 import org.commcare.cases.entity.Entity;
 import org.commcare.cases.entity.NodeEntityFactory;
+import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.models.AndroidSessionWrapper;
 import org.commcare.preferences.DeveloperPreferences;
@@ -372,9 +373,12 @@ public class BreadcrumbBarFragment extends Fragment {
         String[] stepTitles;
         try {
             stepTitles = session.getHeaderTitles();
-        } catch (NoLocalizedTextException e) {
+        } catch (NoLocalizedTextException | XPathException e) {
             // localization resources may not be installed while in the middle
             // of an update, so default to a generic title
+
+            // Also Catch XPathExceptions here since we don't want to show the xpath error on app startup
+            // and the errors here will be visible to the user when they go to the respective menu
             return null;
         }
 
@@ -398,13 +402,13 @@ public class BreadcrumbBarFragment extends Fragment {
 
     private static String defaultTitle(String currentTitle, Activity activity) {
         if (activity instanceof CommCareSetupActivity) {
-            return "CommCare";
+            return activity.getString(R.string.application_name);
         }
         if (currentTitle == null || "".equals(currentTitle)) {
             currentTitle = CommCareActivity.getTopLevelTitleName(activity);
         }
         if (currentTitle == null || "".equals(currentTitle)) {
-            currentTitle = "CommCare";
+            currentTitle = activity.getString(R.string.application_name);
         }
         if (activity instanceof FormRecordListActivity) {
             currentTitle = currentTitle + " - " + ((FormRecordListActivity)activity).getActivityTitle();

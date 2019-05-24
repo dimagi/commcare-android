@@ -347,12 +347,8 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         }
     }
 
-    public void saveImageWidgetAnswer(ContentValues values) {
-        Uri imageURI =
-                getContentResolver().insert(Images.Media.EXTERNAL_CONTENT_URI, values);
-        Log.i(TAG, "Inserting image returned uri = " + imageURI);
-
-        uiController.questionsView.setBinaryData(imageURI, mFormController);
+    public void saveImageWidgetAnswer(String imagePath) {
+        uiController.questionsView.setBinaryData(imagePath, mFormController);
         saveAnswersForCurrentScreen(FormEntryConstants.DO_NOT_EVALUATE_CONSTRAINTS);
         uiController.refreshView();
     }
@@ -442,6 +438,26 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         return wasAnswerSet;
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        if (CommCareApplication.instance().isConsumerApp()) {
+            // Do not show options menu at all if this is a consumer app
+            return super.onCreateOptionsMenu(menu);
+        }
+
+        super.onCreateOptionsMenu(menu);
+
+        menu.add(0, FormEntryConstants.MENU_SAVE, 0, StringUtils.getStringRobust(this, R.string.save_all_answers))
+                .setIcon(android.R.drawable.ic_menu_save);
+        menu.add(0, FormEntryConstants.MENU_HIERARCHY_VIEW, 0, StringUtils.getStringRobust(this, R.string.view_hierarchy))
+                .setIcon(R.drawable.ic_menu_goto);
+        menu.add(0, FormEntryConstants.MENU_LANGUAGES, 0, StringUtils.getStringRobust(this, R.string.change_language))
+                .setIcon(R.drawable.ic_menu_start_conversation);
+        menu.add(0, FormEntryConstants.MENU_PREFERENCES, 0, StringUtils.getStringRobust(this, R.string.form_entry_settings))
+                .setIcon(android.R.drawable.ic_menu_preferences);
+
+        return true;
+    }
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
@@ -449,29 +465,15 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             // Do not show options menu at all if this is a consumer app
             return super.onPrepareOptionsMenu(menu);
         }
+        super.onPrepareOptionsMenu(menu);
 
-        menu.removeItem(FormEntryConstants.MENU_LANGUAGES);
-        menu.removeItem(FormEntryConstants.MENU_HIERARCHY_VIEW);
-        menu.removeItem(FormEntryConstants.MENU_SAVE);
-        menu.removeItem(FormEntryConstants.MENU_PREFERENCES);
+        menu.findItem(FormEntryConstants.MENU_SAVE).setVisible(mIncompleteEnabled && !instanceIsReadOnly);
 
-        if (mIncompleteEnabled && !instanceIsReadOnly) {
-            menu.add(0, FormEntryConstants.MENU_SAVE, 0, StringUtils.getStringRobust(this, R.string.save_all_answers)).setIcon(
-                    android.R.drawable.ic_menu_save);
-        }
-        menu.add(0, FormEntryConstants.MENU_HIERARCHY_VIEW, 0, StringUtils.getStringRobust(this, R.string.view_hierarchy)).setIcon(
-                R.drawable.ic_menu_goto);
+        boolean hasMultipleLanguages = (!(mFormController == null ||
+                mFormController.getLanguages() == null || mFormController.getLanguages().length == 1));
+        menu.findItem(FormEntryConstants.MENU_LANGUAGES).setEnabled(hasMultipleLanguages);
 
-        boolean hasMultipleLanguages =
-                (!(mFormController == null || mFormController.getLanguages() == null || mFormController.getLanguages().length == 1));
-        menu.add(0, FormEntryConstants.MENU_LANGUAGES, 0, StringUtils.getStringRobust(this, R.string.change_language))
-                .setIcon(R.drawable.ic_menu_start_conversation)
-                .setEnabled(hasMultipleLanguages);
-
-        menu.add(0, FormEntryConstants.MENU_PREFERENCES, 0, StringUtils.getStringRobust(this, R.string.form_entry_settings)).setIcon(
-                android.R.drawable.ic_menu_preferences);
-
-        return super.onPrepareOptionsMenu(menu);
+        return true;
     }
 
     @Override
@@ -728,7 +730,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         }
 
         // A form save has already been triggered, ignore subsequent form saves
-        if (FormEntryActivity.mFormController.isFormSaveComplete()) {
+        if (FormEntryActivity.mFormController.isFormCompleteAndSaved()) {
             return;
         }
 
@@ -755,6 +757,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             saveAnswersForCurrentScreen(FormEntryConstants.DO_NOT_EVALUATE_CONSTRAINTS);
         }
         uiController.refreshView();
+        invalidateOptionsMenu();
     }
 
     @Override
@@ -999,12 +1002,13 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
      * Call when the user is ready to save and return the current form as complete
      */
     protected void triggerUserFormComplete() {
-
-        if (mFormController.isFormReadOnly()) {
-            finishReturnInstance(false);
-        } else {
-            int formRecordId = getIntent().getIntExtra(KEY_FORM_RECORD_ID, -1);
-            saveCompletedFormToDisk(instanceState.getDefaultFormTitle(formRecordId));
+        if(!isFinishing()) {
+            if (mFormController.isFormReadOnly()) {
+                finishReturnInstance(false);
+            } else {
+                int formRecordId = getIntent().getIntExtra(KEY_FORM_RECORD_ID, -1);
+                saveCompletedFormToDisk(instanceState.getDefaultFormTitle(formRecordId));
+            }
         }
     }
 

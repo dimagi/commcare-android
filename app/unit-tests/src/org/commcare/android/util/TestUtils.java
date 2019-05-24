@@ -7,6 +7,8 @@ import org.commcare.CommCareApplication;
 import org.commcare.CommCareTestApplication;
 import org.commcare.android.database.app.models.FormDefRecord;
 import org.commcare.cases.ledger.Ledger;
+import org.commcare.core.interfaces.UserSandbox;
+import org.commcare.core.process.CommCareInstanceInitializer;
 import org.commcare.data.xml.DataModelPullParser;
 import org.commcare.data.xml.TransactionParser;
 import org.commcare.data.xml.TransactionParserFactory;
@@ -35,6 +37,7 @@ import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.core.model.instance.ExternalDataInstance;
+import org.javarosa.core.model.instance.InstanceInitializationFactory;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
@@ -324,5 +327,31 @@ public class TestUtils {
         RuntimeException re = new RuntimeException(prefix + ": " + e.getMessage());
         re.initCause(e);
         throw re;
+    }
+
+    /**
+     * Create an evaluation context with an abstract instance available.
+     */
+    public static EvaluationContext buildContextWithInstance(UserSandbox sandbox, String instanceId, String instanceRef) {
+        Hashtable<String, String> instanceRefToId = new Hashtable<>();
+        instanceRefToId.put(instanceRef, instanceId);
+        return buildContextWithInstances(sandbox, instanceRefToId);
+    }
+
+    /**
+     * Create an evaluation context with an abstract instances available.
+     */
+    private static EvaluationContext buildContextWithInstances(UserSandbox sandbox,
+                                                               Hashtable<String, String> instanceRefToId) {
+        InstanceInitializationFactory iif = new AndroidInstanceInitializer(null, sandbox, null);
+
+        Hashtable<String, DataInstance> instances = new Hashtable<>();
+        for (String instanceRef : instanceRefToId.keySet()) {
+            String instanceId = instanceRefToId.get(instanceRef);
+            ExternalDataInstance edi = new ExternalDataInstance(instanceRef, instanceId);
+            instances.put(instanceId, edi.initialize(iif, instanceId));
+        }
+
+        return new EvaluationContext(null, instances);
     }
 }

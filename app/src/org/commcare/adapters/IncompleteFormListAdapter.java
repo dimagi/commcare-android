@@ -19,6 +19,7 @@ import org.commcare.suite.model.Text;
 import org.commcare.tasks.FormRecordLoadListener;
 import org.commcare.tasks.FormRecordLoaderTask;
 import org.commcare.utils.AndroidCommCarePlatform;
+import org.commcare.utils.StorageUtils;
 import org.commcare.views.IncompleteFormRecordView;
 
 import java.util.ArrayList;
@@ -27,6 +28,7 @@ import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Vector;
 
 /**
  * Responsible for delegating the loading of form lists and performing filtering over them.
@@ -158,27 +160,21 @@ public class IncompleteFormListAdapter extends BaseAdapter implements FormRecord
 
         records.clear();
         String currentAppId = CommCareApplication.instance().getCurrentApp().getAppRecord().getApplicationId();
+        Vector recordsVector = new Vector();
         // Grab all form records that satisfy ANY of the statuses in the filter, AND belong to the
         // currently seated app
         for (String status : filter.getStatus()) {
-            records.addAll(storage.getRecordsForValues(
+            recordsVector.addAll(storage.getRecordsForValues(
                     new String[]{FormRecord.META_STATUS, FormRecord.META_APP_ID},
                     new Object[]{status, currentAppId}));
         }
 
-        // Sort FormRecords by modification time, most recent first.
-        Collections.sort(records, (left, right) -> {
-            long leftModTime = left.lastModified().getTime();
-            long rightModTime = right.lastModified().getTime();
-
-            if (leftModTime > rightModTime) {
-                return -1;
-            } else if (leftModTime == rightModTime) {
-                return 0;
-            } else {
-                return 1;
-            }
-        });
+        if (filter.equals(FormRecordFilter.Pending)) {
+            StorageUtils.sortRecordsBySubmissionOrderingNumber(recordsVector);
+        } else {
+            StorageUtils.sortRecordsByLastModifiedTimeDescending(recordsVector);
+        }
+        records.addAll(recordsVector);
 
         searchCache.clear();
         current.clear();

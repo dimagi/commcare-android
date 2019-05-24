@@ -84,7 +84,7 @@ public class ArchivedFormRemoteRestore {
                         Toast.makeText(receiver, "The server took too long to generate a response. Please try again later, and ask your supervisor if the problem persists.", Toast.LENGTH_LONG).show();
                         break;
                     case SERVER_ERROR:
-                        Toast.makeText(receiver, "The server had an error processing your data. Please try again later, and contact technical support if the problem persists.", Toast.LENGTH_LONG).show();
+                        Toast.makeText(receiver, "The server had an error processing your data. Please try again later, and contact CommCare Support if the problem persists.", Toast.LENGTH_LONG).show();
                         break;
                     case UNREACHABLE_HOST:
                         Toast.makeText(receiver, "Couldn't contact server, please check your network connection and try again.", Toast.LENGTH_LONG).show();
