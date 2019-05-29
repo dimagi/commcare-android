@@ -26,6 +26,7 @@ repositories {
     }
     maven { url 'https://maven.fabric.io/public' }
     maven { url "https://jitpack.io" }
+    maven { url "http://dl.bintray.com/ona/kujaku" }
 }
 
 configurations {
@@ -91,6 +92,9 @@ dependencies {
     implementation 'ru.noties:markwon:1.0.4'
     implementation 'ru.noties:markwon-image-loader:1.0.4'
     implementation 'ru.noties:markwon-view:1.0.4'
+    implementation ('io.ona.kujaku:library:0.7.3'){
+        exclude module: 'xpp3'
+    }
 
 }
 
@@ -229,7 +233,7 @@ android {
     }
 
     defaultConfig {
-        minSdkVersion 14
+        minSdkVersion 16
         targetSdkVersion 27
         multiDexEnabled true
         applicationId "org.commcare.dalvik"
