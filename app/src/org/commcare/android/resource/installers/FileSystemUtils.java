@@ -1,6 +1,7 @@
 package org.commcare.android.resource.installers;
 
 import org.commcare.util.LogTypes;
+import org.commcare.utils.FileUtil;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.Logger;
@@ -54,6 +55,7 @@ public class FileSystemUtils {
             }
         }
 
+        FileUtil.ensureFilePathExists(newFile);
         boolean success = oldFile.renameTo(newFile);
 
         if (success && oldFile.exists()) {
