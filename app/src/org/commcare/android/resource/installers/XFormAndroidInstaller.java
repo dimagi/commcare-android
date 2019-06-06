@@ -90,24 +90,8 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
             throw new UnresolvedResourceException(r, "Invalid XForm, no namespace defined", true);
         }
 
-        Vector<Integer> existingforms = FormDefRecord.getFormDefIdsByJrFormId(platform.getFormDefStorage(), formDef.getMainInstance().schema);
-
-        if (upgrade) {
-            // We already have a resource with same resource id
-            if (existingforms != null && existingforms.size() > 0) {
-                formDefId = existingforms.get(0);
-            } else {
-                throw new UnresolvedResourceException(r, "Form with schema " + formDef.getMainInstance().schema + " not present during the update");
-            }
-
-            if (existingforms.size() > 1) {
-                Logger.log(LogTypes.SOFT_ASSERT, "More than one Form with schema " + formDef.getMainInstance().schema + "present during the install");
-            }
-        } else {
-            // It's either a fresh install or form id has changed from last version. Create a new record.
-            FormDefRecord formDefRecord = new FormDefRecord("NAME", formDef.getMainInstance().schema, local.getLocalURI(), GlobalConstants.MEDIA_REF);
-            formDefId = formDefRecord.save(platform.getFormDefStorage());
-        }
+        FormDefRecord formDefRecord = new FormDefRecord("NAME", formDef.getMainInstance().schema, local.getLocalURI(), GlobalConstants.MEDIA_REF, r.getVersion());
+        formDefId = formDefRecord.save(platform.getFormDefStorage());
 
         return upgrade ? Resource.RESOURCE_STATUS_UPGRADE : Resource.RESOURCE_STATUS_INSTALLED;
     }
@@ -122,6 +106,21 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
     public boolean upgrade(Resource r, AndroidCommCarePlatform platform) {
         boolean fileUpgrade = super.upgrade(r, platform);
         return fileUpgrade && updateFilePath(platform);
+    }
+
+    @Override
+    public boolean uninstall(Resource r, AndroidCommCarePlatform platform) throws UnresolvedResourceException {
+        if (formDefId != -1) {
+            FormDefRecord formDefRecord = platform.getFormDefStorage().read(formDefId);
+            if (formDefRecord.getResourceVersion() == r.getVersion()) {
+                // This form def record belongs to an old version which is not part of current version since
+                // otherwise it's resource version would have got bumped to the resource
+                // version of new resource in the update.
+                platform.getFormDefStorage().remove(formDefId);
+            }
+            return super.uninstall(r, platform);
+        }
+        return false;
     }
 
     /**
