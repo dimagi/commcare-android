@@ -24,7 +24,12 @@ import static org.commcare.android.database.app.models.FormDefRecord.META_JR_FOR
 import static org.commcare.android.database.app.models.FormDefRecord.META_MODEL_VERSION;
 import static org.commcare.android.database.app.models.FormDefRecord.META_UI_VERSION;
 
-// Model for Form Def Record pre App DB v13
+/**
+ * Represents the version of a FormDefRecord that exists on any devices running a pre-2.47
+ * version of CommCare, which was deprecated in app db version 13. This class is used to read a
+ * FormDefRecord that exists in such a database, in order to run a db upgrade.
+ *
+ */
 @Table(FormDefRecord.STORAGE_KEY)
 public class FormDefRecordV12  extends Persisted {
 
