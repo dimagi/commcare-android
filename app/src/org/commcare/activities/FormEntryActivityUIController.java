@@ -753,7 +753,7 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
                 shouldRemoveFromView.add(i);
             }
 
-            // Finally if we have not changes this widget last, make sure that
+            // Finally if this is not the last widget user changed, make sure that
             // this widget is not in focus since it results in some absurd form
             // jumping issues.
             if (i != indexOfLastChangedWidget) {
