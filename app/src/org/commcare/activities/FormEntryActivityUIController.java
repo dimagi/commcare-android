@@ -39,6 +39,7 @@ import org.commcare.views.dialogs.PaneledChoiceDialog;
 import org.commcare.views.media.AudioController;
 import org.commcare.views.widgets.IntentWidget;
 import org.commcare.views.widgets.QuestionWidget;
+import org.commcare.views.widgets.StringWidget;
 import org.javarosa.core.model.Constants;
 import org.javarosa.core.model.FormIndex;
 import org.javarosa.core.model.SelectChoice;
@@ -750,6 +751,13 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
                 // If there is no equivalent prompt in the list of new prompts, then this prompt is
                 // no longer relevant in the new view, so it should get removed
                 shouldRemoveFromView.add(i);
+            }
+
+            // Finally if we have not changes this widget last, make sure that
+            // this widget is not in focus since it results in some absurd form
+            // jumping issues.
+            if (i != indexOfLastChangedWidget) {
+                oldWidgets.get(i).clearFocus();
             }
         }
         // Remove "atomically" to not mess up iterations
