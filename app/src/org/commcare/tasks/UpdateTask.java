@@ -13,6 +13,7 @@ import org.commcare.engine.resource.installers.LocalStorageUnavailableException;
 import org.commcare.logging.DataChangeLog;
 import org.commcare.logging.DataChangeLogger;
 import org.commcare.resources.model.InstallCancelled;
+import org.commcare.resources.model.InstallCancelledException;
 import org.commcare.resources.model.InvalidResourceException;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
@@ -137,6 +138,10 @@ public class UpdateTask
             return new ResultAndError<>(AppInstallStatus.IncompatibleReqs, error);
         } catch (UnresolvedResourceException e) {
             return new ResultAndError<>(ResourceInstallUtils.processUnresolvedResource(e), e.getMessage());
+        } catch (InstallCancelledException e) {
+            // onPostExecute doesn't get invoked in case of task cancellation, so process the failure here
+            resourceManager.processUpdateFailure(AppInstallStatus.UnknownFailure, ctx, wasTriggeredByAutoUpdate);
+            return new ResultAndError<>(AppInstallStatus.UnknownFailure);
         } catch (Exception e) {
             ResourceInstallUtils.logInstallError(e,
                     "Unknown error ocurred during install|");
@@ -158,7 +163,7 @@ public class UpdateTask
     }
 
     private AppInstallStatus stageUpdate() throws UnfullfilledRequirementsException,
-            UnresolvedResourceException {
+            UnresolvedResourceException, InstallCancelledException {
         Resource profile = resourceManager.getMasterProfile();
         boolean appInstalled = (profile != null &&
                 profile.getStatus() == Resource.RESOURCE_STATUS_INSTALLED);

@@ -59,37 +59,30 @@ public class AndroidResourceManager extends ResourceManager {
      * Download the latest profile; if it is new, download and stage the entire
      * update.
      *
-     * @param profileRef Reference that resolves to the profile file used to
-     *                   seed the update
+     * @param profileRef       Reference that resolves to the profile file used to
+     *                         seed the update
      * @param profileAuthority The authority from which the app resources for the update are
      *                         coming (local vs. remote)
      * @return UpdateStaged upon update download, UpToDate if no new update,
      * otherwise an error status.
      */
     public AppInstallStatus checkAndPrepareUpgradeResources(String profileRef, int profileAuthority)
-            throws UnfullfilledRequirementsException, UnresolvedResourceException {
+            throws UnfullfilledRequirementsException, UnresolvedResourceException, InstallCancelledException {
         synchronized (platform) {
             this.profileRef = profileRef;
-            try {
-                instantiateLatestUpgradeProfile(profileAuthority);
+            instantiateLatestUpgradeProfile(profileAuthority);
 
-                if (isUpgradeTableStaged()) {
-                    return AppInstallStatus.UpdateStaged;
-                }
-
-                if (updateNotNewer(getMasterProfile())) {
-                    Logger.log(LogTypes.TYPE_RESOURCES, "App Resources up to Date");
-                    upgradeTable.clearUpgrade(platform);
-                    return AppInstallStatus.UpToDate;
-                }
-
-                prepareUpgradeResources();
-            } catch (InstallCancelledException e) {
-                // The user cancelled the upgrade check process. The calling task
-                // should have caught and handled the cancellation
-                return AppInstallStatus.UnknownFailure;
+            if (isUpgradeTableStaged()) {
+                return AppInstallStatus.UpdateStaged;
             }
 
+            if (updateNotNewer(getMasterProfile())) {
+                Logger.log(LogTypes.TYPE_RESOURCES, "App Resources up to Date");
+                upgradeTable.clearUpgrade(platform);
+                return AppInstallStatus.UpToDate;
+            }
+
+            prepareUpgradeResources();
             return AppInstallStatus.UpdateStaged;
         }
     }
