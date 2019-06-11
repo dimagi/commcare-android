@@ -316,4 +316,7 @@ public class UpdateTask
         return Pair.create(splitMessage[0].substring(2), splitMessage[1]);
     }
 
+    public void clearUpgrade() {
+        resourceManager.clearUpgrade();
+    }
 }

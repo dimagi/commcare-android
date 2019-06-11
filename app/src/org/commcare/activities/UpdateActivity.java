@@ -8,7 +8,6 @@ import android.support.v4.util.Pair;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.Toast;
 
 import org.commcare.CommCareApplication;
@@ -23,10 +22,10 @@ import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.WithUIController;
 import org.commcare.logging.DataChangeLog;
 import org.commcare.logging.DataChangeLogger;
-import org.commcare.preferences.PrefValues;
+import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.preferences.MainConfigurablePreferences;
-import org.commcare.preferences.DeveloperPreferences;
+import org.commcare.preferences.PrefValues;
 import org.commcare.tasks.InstallStagedUpdateTask;
 import org.commcare.tasks.ResultAndError;
 import org.commcare.tasks.TaskListener;
@@ -290,7 +289,6 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
     @Override
     public void handleTaskCancellation() {
         unregisterTask();
-
         uiController.idleUiState();
     }
 
@@ -300,6 +298,7 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
             initUpdateTaskProgressDisplay();
             if (isLocalUpdate) {
                 updateTask.setLocalAuthority();
+                updateTask.clearUpgrade();
             }
             updateTask.registerTaskListener(this);
         } catch (IllegalStateException e) {
@@ -451,10 +450,10 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
     }
 
     // Helper function for common operations to do after an app update
-    public static void OnSuccessfulUpdate(boolean logout, boolean syncPostUpdate){
+    public static void OnSuccessfulUpdate(boolean logout, boolean syncPostUpdate) {
         reportAppUpdate();
         HiddenPreferences.setShowXformUpdateInfo(true);
-        if(logout) {
+        if (logout) {
             CommCareApplication.instance().expireUserSession();
         }
         HiddenPreferences.setPostUpdateSyncNeeded(syncPostUpdate);
@@ -504,6 +503,7 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case MENU_UPDATE_FROM_CCZ:
+                stopUpdateCheck();
                 Intent i = new Intent(getApplicationContext(), InstallArchiveActivity.class);
                 i.putExtra(InstallArchiveActivity.FROM_UPDATE, true);
                 startActivityForResult(i, OFFLINE_UPDATE);
@@ -528,21 +528,21 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
 
         DialogChoiceItem latestStarredChoice = new DialogChoiceItem(
                 Localization.get("update.option.starred"), -1, v -> {
-                    MainConfigurablePreferences.setUpdateTarget(PrefValues.UPDATE_TARGET_STARRED);
-                    dialog.dismiss();
-                });
+            MainConfigurablePreferences.setUpdateTarget(PrefValues.UPDATE_TARGET_STARRED);
+            dialog.dismiss();
+        });
 
         DialogChoiceItem latestBuildChoice = new DialogChoiceItem(
                 Localization.get("update.option.build"), -1, v -> {
-                    MainConfigurablePreferences.setUpdateTarget(PrefValues.UPDATE_TARGET_BUILD);
-                    dialog.dismiss();
-                });
+            MainConfigurablePreferences.setUpdateTarget(PrefValues.UPDATE_TARGET_BUILD);
+            dialog.dismiss();
+        });
 
         DialogChoiceItem latestSavedChoice = new DialogChoiceItem(
                 Localization.get("update.option.saved"), -1, v -> {
-                    MainConfigurablePreferences.setUpdateTarget(PrefValues.UPDATE_TARGET_SAVED);
-                    dialog.dismiss();
-                });
+            MainConfigurablePreferences.setUpdateTarget(PrefValues.UPDATE_TARGET_SAVED);
+            dialog.dismiss();
+        });
 
         dialog.setChoiceItems(
                 new DialogChoiceItem[]{latestStarredChoice, latestBuildChoice, latestSavedChoice});
@@ -557,12 +557,19 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
                     offlineUpdateRef = intent.getStringExtra(InstallArchiveActivity.ARCHIVE_JR_REFERENCE);
                     if (offlineUpdateRef != null) {
                         isLocalUpdate = true;
+
+                        // Reset taskIsCancelling in case the updateTask instance has been cleared
+                        // meaning the last task instance got cancelled successfully
+                        if (updateTask == null) {
+                            taskIsCancelling = false;
+                        }
                         setupUpdateTask(false);
                     }
                 }
                 break;
         }
     }
+
 
     private void notifyLocalUpdatePathAvailable(MicroNode.AppManifest hubAppRecord) {
         this.hubAppRecord = hubAppRecord;
