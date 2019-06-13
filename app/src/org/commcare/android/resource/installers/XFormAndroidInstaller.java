@@ -113,12 +113,13 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
         if (formDefId != -1) {
             FormDefRecord formDefRecord = platform.getFormDefStorage().read(formDefId);
             if (formDefRecord.getResourceVersion() == r.getVersion()) {
-                // This form def record belongs to an old version which is not part of current version since
-                // otherwise it's resource version would have got bumped to the resource
-                // version of new resource in the update.
+//                // This form def record belongs to an old version which is not part of current version since
+//                // otherwise it's resource version would have got bumped to the resource
+//                // version of new resource in the update.
                 platform.getFormDefStorage().remove(formDefId);
+                return super.uninstall(r, platform);
             }
-            return super.uninstall(r, platform);
+            return true;
         }
         return false;
     }
