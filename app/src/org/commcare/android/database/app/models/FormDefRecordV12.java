@@ -17,13 +17,6 @@ import org.javarosa.core.services.Logger;
 import java.io.File;
 import java.io.IOException;
 
-import static org.commcare.android.database.app.models.FormDefRecord.META_DISPLAY_NAME;
-import static org.commcare.android.database.app.models.FormDefRecord.META_FORM_FILE_PATH;
-import static org.commcare.android.database.app.models.FormDefRecord.META_FORM_MEDIA_PATH;
-import static org.commcare.android.database.app.models.FormDefRecord.META_JR_FORM_ID;
-import static org.commcare.android.database.app.models.FormDefRecord.META_MODEL_VERSION;
-import static org.commcare.android.database.app.models.FormDefRecord.META_UI_VERSION;
-
 /**
  * Represents the version of a FormDefRecord that exists on any devices running a pre-2.47
  * version of CommCare, which was deprecated in app db version 13. This class is used to read a
@@ -32,6 +25,14 @@ import static org.commcare.android.database.app.models.FormDefRecord.META_UI_VER
  */
 @Table(FormDefRecord.STORAGE_KEY)
 public class FormDefRecordV12  extends Persisted {
+
+    private static final String META_DISPLAY_NAME = "displayName";
+    private static final String META_JR_FORM_ID = "jrFormId";
+    private static final String META_FORM_FILE_PATH = "formFilePath";
+    private static final String META_FORM_MEDIA_PATH = "formMediaPath";
+    private static final String META_MODEL_VERSION = "modelVersion";
+    private static final String META_UI_VERSION = "uiVersion";
+
 
     @Persisting(1)
     @MetaField(META_DISPLAY_NAME)
