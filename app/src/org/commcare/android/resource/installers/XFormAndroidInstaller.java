@@ -71,8 +71,31 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
             IOException, InvalidReferenceException, InvalidStructureException,
             XmlPullParserException, UnfullfilledRequirementsException {
         super.initialize(platform, isUpgrade);
-        platform.registerXmlns(namespace, formDefId);
+        if (isLatestFormRecord(platform)) {
+            platform.registerXmlns(namespace, formDefId);
+        }
         return true;
+    }
+
+    // Returns whether the associated formdefRecord is the one with highest form def resource version for our namespace
+    private boolean isLatestFormRecord(AndroidCommCarePlatform platform) {
+        if (formDefId != -1) {
+            Vector<Integer> formsForOurNamespace = FormDefRecord.getFormDefIdsByJrFormId(platform.getFormDefStorage(), namespace);
+            if (formsForOurNamespace.size() == 1) {
+                return true;
+            } else if (formsForOurNamespace.size() > 1) {
+                int maxFormResourceVersion = -1;
+                for (int i = 0; i < formsForOurNamespace.size(); i++) {
+                    FormDefRecord formDefRecordItem = platform.getFormDefStorage().read(formsForOurNamespace.get(i));
+                    if (formDefRecordItem.getResourceVersion() > maxFormResourceVersion) {
+                        maxFormResourceVersion = formDefRecordItem.getResourceVersion();
+                    }
+                }
+                FormDefRecord currentFormDefRecord = platform.getFormDefStorage().read(formDefId);
+                return maxFormResourceVersion == currentFormDefRecord.getResourceVersion();
+            }
+        }
+        return false;
     }
 
     @Override
