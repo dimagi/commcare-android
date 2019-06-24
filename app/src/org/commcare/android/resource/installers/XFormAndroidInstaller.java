@@ -80,22 +80,24 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
     // Returns whether the associated formdefRecord is the one with highest form def resource version for our namespace
     private boolean isLatestFormRecord(AndroidCommCarePlatform platform) {
         if (formDefId != -1) {
-            Vector<Integer> formsForOurNamespace = FormDefRecord.getFormDefIdsByJrFormId(platform.getFormDefStorage(), namespace);
-            if (formsForOurNamespace.size() == 1) {
-                return true;
-            } else if (formsForOurNamespace.size() > 1) {
-                int maxFormResourceVersion = -1;
-                for (int i = 0; i < formsForOurNamespace.size(); i++) {
-                    FormDefRecord formDefRecordItem = platform.getFormDefStorage().read(formsForOurNamespace.get(i));
-                    if (formDefRecordItem.getResourceVersion() > maxFormResourceVersion) {
-                        maxFormResourceVersion = formDefRecordItem.getResourceVersion();
-                    }
-                }
-                FormDefRecord currentFormDefRecord = platform.getFormDefStorage().read(formDefId);
-                return maxFormResourceVersion == currentFormDefRecord.getResourceVersion();
-            }
+            return getLatestFormDefId(platform) == formDefId;
         }
         return false;
+    }
+
+    // Returns the formId of the formDefRecord with highest form def resource version for our namespace
+    private int getLatestFormDefId(AndroidCommCarePlatform platform) {
+        Vector<Integer> formsForOurNamespace = FormDefRecord.getFormDefIdsByJrFormId(platform.getFormDefStorage(), namespace);
+        int maxFormResourceVersion = -1;
+        int latestFormId = -1;
+        for (int i = 0; i < formsForOurNamespace.size(); i++) {
+            FormDefRecord formDefRecordItem = platform.getFormDefStorage().read(formsForOurNamespace.get(i));
+            if (formDefRecordItem.getResourceVersion() >= maxFormResourceVersion) {
+                maxFormResourceVersion = formDefRecordItem.getResourceVersion();
+                latestFormId = formDefRecordItem.getID();
+            }
+        }
+        return latestFormId;
     }
 
     @Override
