@@ -317,6 +317,9 @@ public class FormStorageTest {
             // Added in 2.45
             , "org.commcare.recovery.measures.RecoveryMeasure"
             , "org.javarosa.xpath.expr.CacheableExprState"
+
+            // Added in 2.47
+            , "org.commcare.android.database.app.models.FormDefRecordV12"
     );
 
 

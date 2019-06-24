@@ -165,7 +165,7 @@ public class SaveToDiskTask extends
             if (recordName == null) {
                 FormDefRecord formDefRecord = FormDefRecord.getFormDef(
                         CommCareApplication.instance().getAppStorage(FormDefRecord.class), mFormDefId);
-                recordName = formDefRecord.getDisplayname();
+                recordName = formDefRecord.getDisplayName();
             }
         }
 
