@@ -408,10 +408,14 @@ public class MediaLayout extends RelativeLayout {
                 final MediaController ctrl = new MediaController(this.getContext());
 
                 VideoView videoView = new VideoView(this.getContext());
-                videoView.setOnPreparedListener(mediaPlayer -> ctrl.show());
                 videoView.setVideoPath(videoFilename);
-                videoView.setMediaController(ctrl);
-                ctrl.setAnchorView(videoView);
+
+                videoView.setOnPreparedListener(mediaPlayer -> {
+                    ctrl.show();
+                    videoView.setMediaController(ctrl);
+                    ctrl.setAnchorView(videoView);
+                });
+
 
                 //These surprisingly get re-jiggered as soon as the video is loaded, so we
                 //just want to give it the _max_ bounds, it'll pick the limiter and shrink
