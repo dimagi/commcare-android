@@ -52,7 +52,14 @@ public enum FormUploadResult {
      */
     PROGRESS_LOGGED_OUT(8),
 
-    PROGRESS_SDCARD_REMOVED(9);
+    PROGRESS_SDCARD_REMOVED(9),
+
+    /**
+     * The server can't couldn't handle the submission due to load, we
+     * shouldn't keep retrying it
+     */
+    RATE_LIMITED(10)
+    ;
 
     private final int orderVal;
     private String errorMessage;
