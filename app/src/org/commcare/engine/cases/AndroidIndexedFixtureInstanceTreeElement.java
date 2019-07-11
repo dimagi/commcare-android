@@ -80,6 +80,7 @@ public class AndroidIndexedFixtureInstanceTreeElement extends IndexedFixtureInst
                     String newMessage = "Deserialization failed for indexed fixture root atrribute wrapper: " + e.getMessage();
                     throw new RuntimeException(newMessage);
                 }
+                throw e;
             }
         }
         return attributes;
