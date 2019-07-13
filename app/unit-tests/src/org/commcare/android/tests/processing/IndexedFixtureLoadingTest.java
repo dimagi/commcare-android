@@ -70,7 +70,7 @@ public class IndexedFixtureLoadingTest {
                         "indexed_fixture_with_nested_children_restore.xml");
 
         EvaluationContext evalContext =
-                MockDataUtils.buildContextWithInstance(sandbox, "commtrack:products",
+                TestUtils.buildContextWithInstance(sandbox, "commtrack:products",
                         "jr://fixture/commtrack:products");
 
         assertTrue(CaseTestUtils.xpathEvalAndCompare(evalContext,
@@ -96,7 +96,7 @@ public class IndexedFixtureLoadingTest {
                         "indexed_fixture_with_index_over_nonhomo_entry.xml");
 
         EvaluationContext evalContext =
-                MockDataUtils.buildContextWithInstance(sandbox, "commtrack:products",
+                TestUtils.buildContextWithInstance(sandbox, "commtrack:products",
                         "jr://fixture/commtrack:products");
 
         assertTrue(CaseTestUtils.xpathEvalAndCompare(evalContext,
