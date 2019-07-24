@@ -400,42 +400,46 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         // keep track of whether we should auto advance
         boolean wasAnswerSet = false;
         boolean isQuick = false;
-
-        IntentWidget pendingIntentWidget = (IntentWidget)getPendingWidget();
-        if (pendingIntentWidget != null) {
-            if (!wasIntentCancelled) {
-                isQuick = "quick".equals(pendingIntentWidget.getAppearance());
-                TreeReference contextRef = null;
-                if (mFormController.getPendingCalloutFormIndex() != null) {
-                    contextRef = mFormController.getPendingCalloutFormIndex().getReference();
-                }
-                if (pendingIntentWidget instanceof BarcodeWidget) {
-                    String scanResult = response.getStringExtra("SCAN_RESULT");
-                    if (scanResult != null) {
-                        ((BarcodeWidget)pendingIntentWidget).processBarcodeResponse(contextRef, scanResult);
-                        wasAnswerSet = true;
+        try {
+            IntentWidget pendingIntentWidget = (IntentWidget)getPendingWidget();
+            if (pendingIntentWidget != null) {
+                if (!wasIntentCancelled) {
+                    isQuick = "quick".equals(pendingIntentWidget.getAppearance());
+                    TreeReference contextRef = null;
+                    if (mFormController.getPendingCalloutFormIndex() != null) {
+                        contextRef = mFormController.getPendingCalloutFormIndex().getReference();
                     }
-                } else {
-                    // Set our instance destination for binary data if needed
-                    String destination = instanceState.getInstanceFolder();
-                    wasAnswerSet = pendingIntentWidget.getIntentCallout()
-                            .processResponse(response, contextRef, new File(destination));
+                    if (pendingIntentWidget instanceof BarcodeWidget) {
+                        String scanResult = response.getStringExtra("SCAN_RESULT");
+                        if (scanResult != null) {
+                            ((BarcodeWidget)pendingIntentWidget).processBarcodeResponse(contextRef, scanResult);
+                            wasAnswerSet = true;
+                        }
+                    } else {
+                        // Set our instance destination for binary data if needed
+                        String destination = instanceState.getInstanceFolder();
+                        wasAnswerSet = pendingIntentWidget.getIntentCallout()
+                                .processResponse(response, contextRef, new File(destination));
+                    }
+                }
+
+                if (wasIntentCancelled) {
+                    mFormController.setPendingCalloutAsCancelled();
                 }
             }
 
-            if (wasIntentCancelled) {
-                mFormController.setPendingCalloutAsCancelled();
+            // auto advance if we got a good result and are in quick mode
+            if (wasAnswerSet && isQuick) {
+                uiController.showNextView();
+            } else {
+                uiController.refreshView();
             }
-        }
 
-        // auto advance if we got a good result and are in quick mode
-        if (wasAnswerSet && isQuick) {
-            uiController.showNextView();
-        } else {
-            uiController.refreshView();
+            return wasAnswerSet;
+        } catch (XPathException e) {
+            UserfacingErrorHandling.logErrorAndShowDialog(this, e, true);
+            return false;
         }
-
-        return wasAnswerSet;
     }
 
     @Override
@@ -707,7 +711,8 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
      * @param headless        Disables GUI warnings and lets answers that
      *                        violate constraints be saved.
      */
-    private void saveDataToDisk(boolean exit, boolean complete, String updatedSaveName, boolean headless) {
+    private void saveDataToDisk(boolean exit, boolean complete, String updatedSaveName,
+                                boolean headless) {
         if (!formHasLoaded()) {
             if (exit) {
                 showSaveErrorAndExit();
@@ -1002,7 +1007,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
      * Call when the user is ready to save and return the current form as complete
      */
     protected void triggerUserFormComplete() {
-        if(!isFinishing()) {
+        if (!isFinishing()) {
             if (mFormController.isFormReadOnly()) {
                 finishReturnInstance(false);
             } else {
