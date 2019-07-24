@@ -69,6 +69,7 @@ import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.OrderedHashtable;
+import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathTypeMismatchException;
 
 import java.util.ArrayList;
@@ -537,19 +538,23 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             if (HiddenPreferences.isEntityDetailLoggingEnabled()) {
                 Logger.log(EntityDetailActivity.class.getSimpleName(), selectDatum.getLongDetail());
             }
-            if (inAwesomeMode) {
-                displayReferenceAwesome(selection, itemPosition);
-                updateSelectedItem(selection, false);
-            } else {
-                Intent i = EntityDetailUtils.getDetailIntent(getApplicationContext(),
-                        selection, null, selectDatum, asw);
-                i.putExtra("entity_detail_index", itemPosition);
-                if (mNoDetailMode) {
-                    // Not actually launching detail intent because there's no confirm detail available
-                    returnWithResult(i);
+            try {
+                if (inAwesomeMode) {
+                    displayReferenceAwesome(selection, itemPosition);
+                    updateSelectedItem(selection, false);
                 } else {
-                    startActivityForResult(i, CONFIRM_SELECT);
+                    Intent i = EntityDetailUtils.getDetailIntent(getApplicationContext(),
+                            selection, null, selectDatum, asw);
+                    i.putExtra("entity_detail_index", itemPosition);
+                    if (mNoDetailMode) {
+                        // Not actually launching detail intent because there's no confirm detail available
+                        returnWithResult(i);
+                    } else {
+                        startActivityForResult(i, CONFIRM_SELECT);
+                    }
                 }
+            } catch (XPathException e) {
+                UserfacingErrorHandling.logErrorAndShowDialog(this, e, true);
             }
         }
     }
