@@ -60,22 +60,17 @@ public class FormEntryInstanceState {
         String formStatus = formRecord.getStatus();
         boolean isInstanceReadOnly =
                 !FormRecord.STATUS_UNSTARTED.equals(formStatus) &&
-                !FormRecord.STATUS_INCOMPLETE.equals(formStatus);
+                        !FormRecord.STATUS_INCOMPLETE.equals(formStatus);
 
-        Vector<FormDefRecord> formDefRecords =
-                FormDefRecord.getFormDefsByJrFormId(formDefRecordStorage, formRecord.getXmlns());
-        if (formDefRecords.size() == 1) {
-            FormDefRecord formDefRecord = formDefRecords.get(0);
-            instanceState.setFormDefPath(formDefRecord.getFilePath());
-            return new Pair<>(formDefRecord.getID(), isInstanceReadOnly);
-        } else if (formDefRecords.size() < 1) {
+        int formDefId = FormDefRecord.getLatestFormDefId(formDefRecordStorage, formRecord.getXmlns());
+        if (formDefId == -1) {
             String error = "No XForm definition defined for this form with namespace " + formRecord.getXmlns();
             Logger.log(LogTypes.SOFT_ASSERT, error);
             throw new FormEntryActivity.FormQueryException(error);
         } else {
-            String error = "More than one XForm definition present for this form with namespace " + formRecord.getXmlns();
-            Logger.log(LogTypes.SOFT_ASSERT, error);
-            throw new FormEntryActivity.FormQueryException(error);
+            FormDefRecord formDefRecord = FormDefRecord.getFormDef(formDefRecordStorage, formDefId);
+            instanceState.setFormDefPath(formDefRecord.getFilePath());
+            return new Pair<>(formDefRecord.getID(), isInstanceReadOnly);
         }
     }
 

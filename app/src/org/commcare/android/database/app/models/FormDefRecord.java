@@ -157,6 +157,21 @@ public class FormDefRecord extends Persisted {
         }
     }
 
+    // Returns the formId of the formDefRecord with highest form def resource version for our namespace
+    public static int getLatestFormDefId(SqlStorage<FormDefRecord> formDefStorage, String namespace) {
+        Vector<Integer> formsForOurNamespace = FormDefRecord.getFormDefIdsByJrFormId(formDefStorage, namespace);
+        int maxFormResourceVersion = -1;
+        int latestFormId = -1;
+        for (int i = 0; i < formsForOurNamespace.size(); i++) {
+            FormDefRecord formDefRecordItem = formDefStorage.read(formsForOurNamespace.get(i));
+            if (formDefRecordItem.getResourceVersion() >= maxFormResourceVersion) {
+                maxFormResourceVersion = formDefRecordItem.getResourceVersion();
+                latestFormId = formDefRecordItem.getID();
+            }
+        }
+        return latestFormId;
+    }
+
     public static FormDefRecord getFormDef(SqlStorage<FormDefRecord> formDefRecordStorage, int formId) {
         return formDefRecordStorage.read(formId);
     }
