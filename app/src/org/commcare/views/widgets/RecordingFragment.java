@@ -38,6 +38,8 @@ import java.io.IOException;
  */
 public class RecordingFragment extends android.support.v4.app.DialogFragment {
 
+    public static final String AUDIO_FILE_PATH_ARG_KEY = "audio_file_path";
+
     private String fileName;
     private static final String FILE_BASE =
             "/Android/data/org.commcare.dalvik/temp/Custom_Recording";
@@ -64,7 +66,15 @@ public class RecordingFragment extends android.support.v4.app.DialogFragment {
         prepareButtons();
         prepareText();
         setWindowSize();
-        fileName = Environment.getExternalStorageDirectory().getAbsolutePath() + FILE_BASE + listener.getFileUniqueIdentifier() + FILE_EXT;
+
+        Bundle args = getArguments();
+        if (args != null) {
+            fileName = args.getString(AUDIO_FILE_PATH_ARG_KEY);
+        }
+
+        if (fileName == null) {
+            initAudioFile();
+        }
 
         File f = new File(fileName);
         if (f.exists()) {
@@ -72,6 +82,10 @@ public class RecordingFragment extends android.support.v4.app.DialogFragment {
         }
 
         return layout;
+    }
+
+    private void initAudioFile() {
+        fileName = Environment.getExternalStorageDirectory().getAbsolutePath() + FILE_BASE + listener.getFileUniqueIdentifier() + FILE_EXT;
     }
 
     private void reloadSavedRecording() {
@@ -126,6 +140,9 @@ public class RecordingFragment extends android.support.v4.app.DialogFragment {
             resetAudioPlayer();
         }
 
+        // reset the file path
+        initAudioFile();
+
         toggleRecording.setBackgroundResource(R.drawable.record_start);
         toggleRecording.setOnClickListener(v -> startRecording());
         instruction.setText(Localization.get("before.recording"));
@@ -164,7 +181,7 @@ public class RecordingFragment extends android.support.v4.app.DialogFragment {
         try {
             recorder.prepare();
         } catch (IOException e) {
-            Log.d("Recorder", "Failed to prepare media recorder");
+            e.printStackTrace();
         }
     }
 
@@ -183,13 +200,13 @@ public class RecordingFragment extends android.support.v4.app.DialogFragment {
 
     private void saveRecording() {
         if (listener != null) {
-            listener.onRecordingCompletion();
+            listener.onRecordingCompletion(fileName);
         }
         dismiss();
     }
 
     public interface RecordingCompletionListener {
-        void onRecordingCompletion();
+        void onRecordingCompletion(String audioFile);
 
         String getFileUniqueIdentifier();
     }
@@ -214,10 +231,6 @@ public class RecordingFragment extends android.support.v4.app.DialogFragment {
                 //Do nothing because player wasn't recording
             }
         }
-    }
-
-    public String getFileName() {
-        return fileName;
     }
 
     private static void disableScreenRotation(Activity context) {
