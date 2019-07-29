@@ -4,14 +4,12 @@ import android.net.Uri;
 
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.user.models.ACase;
-import org.commcare.cases.util.CaseDBUtils;
 import org.commcare.core.network.AuthInfo;
 import org.commcare.core.network.HTTPMethod;
 import org.commcare.core.network.ModernHttpRequester;
 import org.commcare.engine.cases.CaseUtils;
 import org.commcare.interfaces.CommcareRequestEndpoints;
 import org.commcare.models.database.SqlStorage;
-import org.commcare.modern.util.Pair;
 import org.commcare.provider.DebugControlsReceiver;
 import org.javarosa.core.model.User;
 import org.javarosa.core.model.utils.DateUtils;
@@ -190,24 +188,22 @@ public class CommcareRequestGenerator implements CommcareRequestEndpoints {
     }
 
     @Override
-    public Response<ResponseBody> postMultipart(String url, List<MultipartBody.Part> parts) throws IOException {
-
-        HashMap<String, String> params = new HashMap<>();
+    public Response<ResponseBody> postMultipart(String url, List<MultipartBody.Part> parts, HashMap<String, String> queryParams) throws IOException {
 
         //If we're going to try to post with no credentials, we need to be explicit about the fact that we're not ready
         if (username == null || password == null) {
-            params.put(AUTH_REQUEST_TYPE, AUTH_REQUEST_TYPE_NO_AUTH);
+            queryParams.put(AUTH_REQUEST_TYPE, AUTH_REQUEST_TYPE_NO_AUTH);
         }
 
         if (User.TYPE_DEMO.equals(userType)) {
-            params.put(SUBMIT_MODE, SUBMIT_MODE_DEMO);
-            params.put(AUTH_REQUEST_TYPE, AUTH_REQUEST_TYPE_NO_AUTH);
+            queryParams.put(SUBMIT_MODE, SUBMIT_MODE_DEMO);
+            queryParams.put(AUTH_REQUEST_TYPE, AUTH_REQUEST_TYPE_NO_AUTH);
         }
 
         requester = CommCareApplication.instance().buildHttpRequester(
                 CommCareApplication.instance(),
                 url,
-                params,
+                queryParams,
                 getHeaders(getSyncToken(username)),
                 null,
                 parts,

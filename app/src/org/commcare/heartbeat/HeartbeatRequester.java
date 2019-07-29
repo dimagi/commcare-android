@@ -106,7 +106,7 @@ public class HeartbeatRequester extends GetAndParseActor {
         String username = CommCareApplication.instance().getSession().getLoggedInUser().getUsername();
         HiddenPreferences.setForceLogs(username, responseAsJson.optBoolean("force_logs", false));
         if (HiddenPreferences.shouldForceLogs(username)) {
-            CommCareUtil.triggerLogSubmission(CommCareApplication.instance());
+            CommCareUtil.triggerLogSubmission(CommCareApplication.instance(), true);
         }
     }
 

@@ -31,6 +31,7 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
 import javax.crypto.Cipher;
@@ -51,6 +52,9 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
     private static final long SUBMISSION_START = 32;
     private static final long SUBMISSION_NOTIFY = 64;
     private static final long SUBMISSION_DONE = 128;
+    private static final String QUERY_PARAM_FORCE_LOGS = "force_logs";
+    private static final String QUERY_PARAM_DEVICE_ID = "device_id";
+
 
     protected enum LogSubmitOutcomes implements MessageTag {
         /**
@@ -88,13 +92,16 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
     private boolean serializeCurrentLogs = false;
     private final DataSubmissionListener listener;
     private final String submissionUrl;
+    private final boolean forceLogs;
 
     public LogSubmissionTask(boolean serializeCurrentLogs,
                              DataSubmissionListener listener,
-                             String submissionUrl) {
+                             String submissionUrl,
+                             boolean forceLogs) {
         this.serializeCurrentLogs = serializeCurrentLogs;
         this.listener = listener;
         this.submissionUrl = submissionUrl;
+        this.forceLogs = forceLogs;
     }
 
     public static String getSubmissionUrl(SharedPreferences appPreferences) {
@@ -130,7 +137,14 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
                     return LogSubmitOutcomes.Serialized;
                 }
 
-                return checkSubmissionResult(numberOfLogsToSubmit, submittedSuccesfully);
+                LogSubmitOutcomes result = checkSubmissionResult(numberOfLogsToSubmit, submittedSuccesfully);
+
+                // Reset force_logs if the logs submission was successful
+                if (result == LogSubmitOutcomes.Submitted) {
+                    HiddenPreferences.setForceLogs(CommCareApplication.instance().getSession().getLoggedInUser().getUsername(), false);
+                }
+
+                return result;
             } catch (SessionUnavailableException e) {
                 // The user database closed on us
                 return LogSubmitOutcomes.Error;
@@ -223,7 +237,7 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
         int index = 0;
         for (DeviceReportRecord slr : storage) {
             try {
-                if (submitDeviceReportRecord(slr, submissionUrl, this, index)) {
+                if (submitDeviceReportRecord(slr, submissionUrl, this, index, forceLogs)) {
                     submittedSuccesfullyIds.add(slr.getID());
                     submittedSuccesfully.add(slr);
                 }
@@ -235,7 +249,7 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
     }
 
     private static boolean submitDeviceReportRecord(DeviceReportRecord slr, String submissionUrl,
-                                                    DataSubmissionListener listener, int index) {
+                                                    DataSubmissionListener listener, int index, boolean forceLogs) {
         //Get our file pointer
         File f = new File(slr.getFilePath());
 
@@ -265,9 +279,13 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
                 "text/xml",
                 new SecretKeySpec(slr.getKey(), "AES")));
 
+        HashMap<String, String> queryParams = new HashMap<>();
+        queryParams.put(QUERY_PARAM_FORCE_LOGS, String.valueOf(forceLogs));
+        queryParams.put(QUERY_PARAM_DEVICE_ID, CommCareApplication.instance().getPhoneId());
+
         Response<ResponseBody> response = null;
         try {
-            response = generator.postMultipart(submissionUrl, parts);
+            response = generator.postMultipart(submissionUrl, parts, queryParams);
         } catch (IOException e) {
             e.printStackTrace();
             return false;

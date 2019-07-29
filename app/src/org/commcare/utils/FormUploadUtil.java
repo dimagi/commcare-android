@@ -14,12 +14,9 @@ import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.io.StreamsUtil.InputIOException;
 import org.javarosa.core.model.User;
 import org.javarosa.core.services.Logger;
-import org.javarosa.core.services.locale.Localization;
 import org.javarosa.xml.ElementParser;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -167,7 +164,7 @@ public class FormUploadUtil {
         Response<ResponseBody> response;
 
         try {
-            response = generator.postMultipart(url, parts);
+            response = generator.postMultipart(url, parts, queryParams);
         } catch (InputIOException ioe) {
             // This implies that there was a problem with the _source_ of the
             // transmission, not the processing or receiving end.

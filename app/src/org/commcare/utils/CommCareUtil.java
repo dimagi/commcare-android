@@ -1,7 +1,6 @@
 package org.commcare.utils;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.widget.Toast;
 
@@ -81,22 +80,23 @@ public class CommCareUtil {
         return preds;
     }
 
-    public static void triggerLogSubmission(Context c) {
+    public static void triggerLogSubmission(Context c, boolean forceLogs) {
         String url = LogSubmissionTask.getSubmissionUrl(CommCareApplication.instance().getCurrentApp().getAppPreferences());
 
         if (url == null) {
             //This is mostly for dev purposes
             Toast.makeText(c, "Couldn't submit logs! Invalid submission URL...", Toast.LENGTH_LONG).show();
         } else {
-            executeLogSubmission(true, url);
+            executeLogSubmission(true, url, forceLogs);
         }
     }
 
-    public static void executeLogSubmission(boolean serializeCurrentLogs, String url) {
+    public static void executeLogSubmission(boolean serializeCurrentLogs, String url, boolean forceLogs) {
         LogSubmissionTask reportSubmitter =
                 new LogSubmissionTask(serializeCurrentLogs,
                         CommCareApplication.instance().getSession().getListenerForSubmissionNotification(R.string.submission_logs_title),
-                        url);
+                        url,
+                        forceLogs);
         // Execute on a true multithreaded chain, since this is an asynchronous process
         reportSubmitter.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }

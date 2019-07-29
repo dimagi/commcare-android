@@ -56,7 +56,7 @@ public class RecoveryActivity extends SessionAwareCommCareActivity<RecoveryActiv
         super.onCreateSessionSafe(savedInstanceState);
         if (savedInstanceState == null) {
             // launching activity, not just changing orientation
-            CommCareUtil.triggerLogSubmission(this);
+            CommCareUtil.triggerLogSubmission(this, true);
             sendForms();
         }
 
