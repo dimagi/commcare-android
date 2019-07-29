@@ -2,6 +2,7 @@ package org.commcare.utils;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.widget.Toast;
 
 import org.commcare.CommCareApplication;
@@ -87,11 +88,16 @@ public class CommCareUtil {
             //This is mostly for dev purposes
             Toast.makeText(c, "Couldn't submit logs! Invalid submission URL...", Toast.LENGTH_LONG).show();
         } else {
-            LogSubmissionTask reportSubmitter =
-                    new LogSubmissionTask(true,
-                            CommCareApplication.instance().getSession().getListenerForSubmissionNotification(R.string.submission_logs_title),
-                            url);
-            reportSubmitter.execute();
+            executeLogSubmission(true, url);
         }
+    }
+
+    public static void executeLogSubmission(boolean serializeCurrentLogs, String url) {
+        LogSubmissionTask reportSubmitter =
+                new LogSubmissionTask(serializeCurrentLogs,
+                        CommCareApplication.instance().getSession().getListenerForSubmissionNotification(R.string.submission_logs_title),
+                        url);
+        // Execute on a true multithreaded chain, since this is an asynchronous process
+        reportSubmitter.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
 }

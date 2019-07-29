@@ -95,6 +95,7 @@ import org.commcare.util.LogTypes;
 import org.commcare.utils.AndroidCacheDirSetup;
 import org.commcare.utils.AndroidCommCarePlatform;
 import org.commcare.utils.CommCareExceptionHandler;
+import org.commcare.utils.CommCareUtil;
 import org.commcare.utils.CrashUtil;
 import org.commcare.utils.FileUtil;
 import org.commcare.utils.GlobalConstants;
@@ -753,21 +754,10 @@ public class CommCareApplication extends MultiDexApplication {
             Logger.log(LogTypes.TYPE_ERROR_ASSERTION, "PostURL isn't set. This should never happen");
             return;
         }
-
-        DataSubmissionListener dataListener = getSession().getListenerForSubmissionNotification(R.string.submission_logs_title);
-
-        LogSubmissionTask task = new LogSubmissionTask(
-                force || PendingCalcs.isPending(settings.getLong(
-                        HiddenPreferences.LOG_LAST_DAILY_SUBMIT, 0), DateUtils.DAY_IN_MILLIS),
-                dataListener,
-                url);
-
-        // Execute on a true multithreaded chain, since this is an asynchronous process
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-        } else {
-            task.execute();
-        }
+        boolean logSubmissionPending = PendingCalcs.isPending(
+                settings.getLong(HiddenPreferences.LOG_LAST_DAILY_SUBMIT, 0),
+                DateUtils.DAY_IN_MILLIS);
+        CommCareUtil.executeLogSubmission(force || logSubmissionPending, url);
     }
 
     /**
@@ -1046,7 +1036,8 @@ public class CommCareApplication extends MultiDexApplication {
     }
 
 
-    public ModernHttpRequester createGetRequester(Context context, String url, Map<String, String> params,
+    public ModernHttpRequester createGetRequester(Context context, String
+            url, Map<String, String> params,
                                                   HashMap headers, AuthInfo authInfo,
                                                   @Nullable HttpResponseProcessor responseProcessor) {
         return buildHttpRequester(context, url, params, headers, null, null,
