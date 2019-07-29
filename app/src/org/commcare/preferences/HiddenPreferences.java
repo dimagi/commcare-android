@@ -1,6 +1,7 @@
 package org.commcare.preferences;
 
 import android.content.SharedPreferences;
+import android.preference.Preference;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 
@@ -36,6 +37,7 @@ public class HiddenPreferences {
     public final static String FIRST_COMMCARE_RUN = "first-commcare-run";
     public final static String LATEST_COMMCARE_VERSION = "latest-commcare-version";
     public final static String LATEST_APP_VERSION = "latest-app-version";
+    private final static String FORCE_LOGS = "force-logs";
 
     // Preferences whose values are only ever set by being sent down from HQ via the profile file
     public final static String AUTO_SYNC_FREQUENCY = "cc-autosync-freq";
@@ -59,6 +61,7 @@ public class HiddenPreferences {
     private static final String USER_DOMAIN_SUFFIX = "cc_user_domain";
     private final static String LOGS_ENABLED = "logenabled";
     private final static String LOGS_ENABLED_YES = "Enabled";
+
 
     // Boolean pref to determine whether user has already been through the update information form
     public final static String SHOW_XFORM_UPDATE_INFO = "show-xform-update-info";
@@ -286,7 +289,7 @@ public class HiddenPreferences {
     }
 
     public static void setLastKnownCczLocation(String cczPath) {
-                PreferenceManager.getDefaultSharedPreferences(CommCareApplication.instance())
+        PreferenceManager.getDefaultSharedPreferences(CommCareApplication.instance())
                 .edit()
                 .putString(LAST_KNOWN_CCZ_LOCATION, cczPath).apply();
     }
@@ -295,5 +298,18 @@ public class HiddenPreferences {
     public static String getLastKnownCczLocation() {
         return PreferenceManager.getDefaultSharedPreferences(CommCareApplication.instance())
                 .getString(LAST_KNOWN_CCZ_LOCATION, null);
+    }
+
+    public static void setForceLogs(String username, boolean forceLogs) {
+        PreferenceManager.getDefaultSharedPreferences(CommCareApplication.instance())
+                .edit()
+                .putBoolean(username + "_" + FORCE_LOGS, forceLogs)
+                .apply();
+
+    }
+
+    public static boolean shouldForceLogs(String username) {
+        return PreferenceManager.getDefaultSharedPreferences(CommCareApplication.instance())
+                .getBoolean(username + "_" + FORCE_LOGS, false);
     }
 }

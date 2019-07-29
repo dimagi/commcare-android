@@ -1,5 +1,7 @@
 package org.commcare.heartbeat;
 
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
 import org.commcare.CommCareApplication;
@@ -7,8 +9,10 @@ import org.commcare.activities.DriftHelper;
 import org.commcare.android.logging.ReportingUtils;
 import org.commcare.core.network.AuthInfo;
 import org.commcare.network.GetAndParseActor;
+import org.commcare.preferences.HiddenPreferences;
 import org.commcare.preferences.ServerUrls;
 import org.commcare.util.LogTypes;
+import org.commcare.utils.CommCareUtil;
 import org.commcare.utils.SessionUnavailableException;
 import org.commcare.utils.StorageUtils;
 import org.commcare.utils.SyncDetailCalculations;
@@ -93,8 +97,17 @@ public class HeartbeatRequester extends GetAndParseActor {
             Log.i(TAG, "Parsing heartbeat response");
             attemptApkUpdateParse(responseAsJson);
             attemptCczUpdateParse(responseAsJson);
+            checkForForceLogs(responseAsJson);
         }
         DriftHelper.clearMaxDriftSinceLastHeartbeat();
+    }
+
+    private void checkForForceLogs(JSONObject responseAsJson) {
+        String username = CommCareApplication.instance().getSession().getLoggedInUser().getUsername();
+        HiddenPreferences.setForceLogs(username, responseAsJson.optBoolean("force_logs", false));
+        if (HiddenPreferences.shouldForceLogs(username)) {
+            CommCareUtil.triggerLogSubmission(CommCareApplication.instance());
+        }
     }
 
     private static void attemptApkUpdateParse(JSONObject responseAsJson) {
