@@ -111,7 +111,7 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
 
     @Override
     protected LogSubmitOutcomes doInBackground(Void... params) {
-        if (HiddenPreferences.isLoggingEnabled()) {
+        if (HiddenPreferences.isLogSubmissionEnabled()) {
             try {
                 SqlStorage<DeviceReportRecord> storage =
                         CommCareApplication.instance().getUserStorage(DeviceReportRecord.class);
