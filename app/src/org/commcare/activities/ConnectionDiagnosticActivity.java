@@ -106,7 +106,7 @@ public class ConnectionDiagnosticActivity extends CommCareActivity<ConnectionDia
             String url = LogSubmissionTask.getSubmissionUrl(CommCareApplication.instance().getCurrentApp().getAppPreferences());
 
             if (url != null) {
-                CommCareUtil.executeLogSubmission(true, url);
+                CommCareUtil.executeLogSubmission(true, url, false);
                 ConnectionDiagnosticActivity.this.finish();
                 Toast.makeText(
                         CommCareApplication.instance(),

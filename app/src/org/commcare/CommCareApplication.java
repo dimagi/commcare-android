@@ -757,7 +757,7 @@ public class CommCareApplication extends MultiDexApplication {
         boolean logSubmissionPending = PendingCalcs.isPending(
                 settings.getLong(HiddenPreferences.LOG_LAST_DAILY_SUBMIT, 0),
                 DateUtils.DAY_IN_MILLIS);
-        CommCareUtil.executeLogSubmission(force || logSubmissionPending, url);
+        CommCareUtil.executeLogSubmission(force || logSubmissionPending, url, false);
     }
 
     /**
