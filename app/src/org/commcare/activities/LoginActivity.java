@@ -35,6 +35,7 @@ import org.commcare.logging.DataChangeLog;
 import org.commcare.logging.DataChangeLogger;
 import org.commcare.models.database.user.DemoUserBuilder;
 import org.commcare.preferences.DevSessionRestorer;
+import org.commcare.recovery.measures.RecoveryMeasuresHelper;
 import org.commcare.suite.model.OfflineUserRestore;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.InstallStagedUpdateTask;
@@ -42,7 +43,6 @@ import org.commcare.tasks.ManageKeyRecordTask;
 import org.commcare.tasks.PullTaskResultReceiver;
 import org.commcare.tasks.ResultAndError;
 
-import org.commcare.util.LogTypes;
 import org.commcare.utils.CrashUtil;
 import org.commcare.utils.ConsumerAppsUtil;
 import org.commcare.utils.Permissions;
@@ -263,7 +263,12 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
             return;
         }
 
-        if (CommCareApplication.instance().isConsumerApp()) {
+        if (RecoveryMeasuresHelper.recoveryMeasuresPending()) {
+            Intent i = new Intent();
+            i.putExtra(DispatchActivity.EXECUTE_RECOVERY_MEASURES, true);
+            setResult(RESULT_OK, i);
+            finish();
+        } else if (CommCareApplication.instance().isConsumerApp()) {
             uiController.setUsername(BuildConfig.CONSUMER_APP_USERNAME);
             uiController.setPasswordOrPin(BuildConfig.CONSUMER_APP_PASSWORD);
             localLoginOrPullAndLogin(false);
@@ -276,9 +281,9 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         if (requestCode == SEAT_APP_ACTIVITY && resultCode == RESULT_OK) {
             uiController.refreshForNewApp();
+            invalidateOptionsMenu();
             usernameBeforeRotation = passwordOrPinBeforeRotation = null;
         }
-
         super.onActivityResult(requestCode, resultCode, intent);
     }
 
@@ -546,7 +551,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                             Toast.makeText(receiver,
                                     Localization.get("login.update.install.success"),
                                     Toast.LENGTH_LONG).show();
-                            DataChangeLogger.log(new DataChangeLog.CommCareAppUpdated());
+                            UpdateActivity.OnSuccessfulUpdate(false, false);
                         } else {
                             CommCareApplication.notificationManager().reportNotificationMessage(NotificationMessageFactory.message(result));
                         }
@@ -599,6 +604,11 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     }
 
     @Override
+    public boolean isBackEnabled() {
+        return false;
+    }
+
+    @Override
     public void handlePullTaskResult(ResultAndError<DataPullTask.PullTaskResult> resultAndErrorMessage,
                                      boolean userTriggeredSync, boolean formsToSend,
                                      boolean usingRemoteKeyManagement) {
@@ -610,6 +620,9 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         }
 
         switch (result) {
+            case EMPTY_URL:
+                raiseLoginMessage(StockMessages.Empty_Url, true);
+                break;
             case AUTH_FAILED:
                 raiseLoginMessage(StockMessages.Auth_BadCredentials, false);
                 break;

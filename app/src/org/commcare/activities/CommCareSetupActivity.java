@@ -462,7 +462,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 
             ResourceEngineTask<CommCareSetupActivity> task =
                     new ResourceEngineTask<CommCareSetupActivity>(ccApp,
-                            DIALOG_INSTALL_PROGRESS, shouldSleep, determineAuthorityForInstall()) {
+                            DIALOG_INSTALL_PROGRESS, shouldSleep, determineAuthorityForInstall(), false) {
 
                         @Override
                         protected void deliverResult(CommCareSetupActivity receiver,
@@ -490,7 +490,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         }
     }
 
-    public static void handleAppInstallResult(ResourceEngineTask<CommCareSetupActivity> resourceEngineTask, CommCareSetupActivity receiver, AppInstallStatus result) {
+    public static void handleAppInstallResult(ResourceEngineTask resourceEngineTask, ResourceEngineListener receiver, AppInstallStatus result) {
         switch (result) {
             case Installed:
                 receiver.reportSuccess(true);
@@ -525,6 +525,9 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             case IncorrectTargetPackage:
                 receiver.failTargetMismatch();
                 break;
+            case ReinstallFromInvalidCcz:
+                receiver.failUnknown(AppInstallStatus.ReinstallFromInvalidCcz);
+                break;
             default:
                 receiver.failUnknown(AppInstallStatus.UnknownFailure);
                 break;
@@ -551,17 +554,22 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
         menu.add(0, MENU_ARCHIVE, 0, Localization.get("menu.archive")).setIcon(android.R.drawable.ic_menu_upload);
-        menu.add(0, MENU_SMS, 1, Localization.get("menu.sms")).setIcon(android.R.drawable.stat_notify_chat);
         menu.add(0, MENU_FROM_LIST, 2, Localization.get("menu.app.list.install"));
         return true;
     }
 
     /**
+     * UPDATE: 16/Jan/2019: This code path is no longer in use, since we have turned off sms install
+     * in response to Google play console policies for now. We are going to watch out for a while
+     * for any changes in policies in near future before completely removing the surrounding code
+     *
+     *
      * Scan SMS messages for texts with profile references.
      *
      * @param installTriggeredManually if scan was triggered manually, then
      *                                 install automatically if reference is found
      */
+
     private void performSMSInstall(boolean installTriggeredManually) {
         manualSMSInstall = installTriggeredManually;
         if (ContextCompat.checkSelfPermission(this,

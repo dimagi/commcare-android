@@ -2,13 +2,10 @@ package org.commcare.activities;
 
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
-import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
-import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
@@ -19,22 +16,22 @@ import android.widget.Toast;
 import org.commcare.CommCareApplication;
 import org.commcare.dalvik.R;
 import org.commcare.engine.references.ArchiveFileRoot;
+import org.commcare.preferences.HiddenPreferences;
+import org.commcare.tasks.UnZipTaskListener;
 import org.commcare.tasks.UnzipTask;
+import org.commcare.utils.CczUtils;
 import org.commcare.utils.FileUtil;
-import org.commcare.utils.UriToFilePath;
+import org.commcare.utils.ZipUtils;
 import org.commcare.views.ManagedUi;
 import org.commcare.views.UiElement;
 import org.commcare.views.dialogs.CustomProgressDialog;
 import org.javarosa.core.services.locale.Localization;
-import org.javarosa.core.util.PropertyUtils;
-
-import java.io.File;
 
 /**
  * @author wspride
  */
 @ManagedUi(R.layout.screen_multimedia_inflater)
-public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActivity> {
+public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActivity> implements UnZipTaskListener {
     private static final String TAG = InstallArchiveActivity.class.getSimpleName();
 
     private static final int REQUEST_FILE_LOCATION = 1;
@@ -82,7 +79,11 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
             }
         });
 
-        btnInstallArchive.setOnClickListener(v -> createArchive(editFileLocation.getText().toString()));
+        btnInstallArchive.setOnClickListener(v -> {
+            String archivePath = editFileLocation.getText().toString();
+            HiddenPreferences.setLastKnownCczLocation(archivePath);
+            ZipUtils.UnzipFile(this, archivePath, getTargetFolder());
+        });
 
         // avoid keyboard pop-up
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
@@ -92,52 +93,8 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
 
     private void processProvidedReference() {
         if (getIntent().hasExtra(ARCHIVE_FILEPATH)) {
-            createArchive(getIntent().getStringExtra(ARCHIVE_FILEPATH));
+            ZipUtils.UnzipFile(this, getIntent().getStringExtra(ARCHIVE_FILEPATH), getTargetFolder());
         }
-    }
-
-    private void createArchive(String filepath) {
-        UnzipTask<InstallArchiveActivity> mUnzipTask = new UnzipTask<InstallArchiveActivity>() {
-            @Override
-            protected void deliverResult(InstallArchiveActivity receiver, Integer result) {
-                if (result > 0) {
-                    receiver.onUnzipSuccessful();
-                } else {
-                    //assume that we've already set the error message, but make it look scary
-                    receiver.transplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
-                }
-            }
-
-            @Override
-            protected void deliverUpdate(InstallArchiveActivity receiver, String... update) {
-                receiver.updateProgress(update[0], UnzipTask.UNZIP_TASK_ID);
-                receiver.txtInteractiveMessages.setText(update[0]);
-            }
-
-            @Override
-            protected void deliverError(InstallArchiveActivity receiver, Exception e) {
-                receiver.txtInteractiveMessages.setText(Localization.get("archive.install.error", new String[]{e.getMessage()}));
-                receiver.transplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
-            }
-        };
-
-        String targetDirectory = getTargetFolder();
-        FileUtil.deleteFileOrDir(targetDirectory);
-
-        mUnzipTask.connect(this);
-        mUnzipTask.executeParallel(filepath, targetDirectory);
-    }
-
-    private void onUnzipSuccessful() {
-        ArchiveFileRoot afr = CommCareApplication.instance().getArchiveFileRoot();
-        String mGUID = afr.addArchiveFile(getTargetFolder());
-
-        String ref = "jr://archive/" + mGUID + "/profile.ccpr";
-
-        Intent i = new Intent(getIntent());
-        i.putExtra(InstallArchiveActivity.ARCHIVE_JR_REFERENCE, ref);
-        setResult(RESULT_OK, i);
-        finish();
     }
 
     @Override
@@ -162,7 +119,7 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
             return;
         }
 
-        if (!location.startsWith("content://") && !(new File(location)).exists()) {
+        if (!FileUtil.isValidFileLocation(location)) {
             txtInteractiveMessages.setText(Localization.get("archive.install.state.invalid.path"));
             this.transplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
             btnInstallArchive.setEnabled(false);
@@ -183,8 +140,7 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
         if (targetDirectory != null) {
             return targetDirectory;
         }
-
-        targetDirectory = CommCareApplication.instance().getAndroidFsTemp() + PropertyUtils.genUUID();
+        targetDirectory = CczUtils.getCczTargetPath();
         return targetDirectory;
     }
 
@@ -199,5 +155,38 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
                     + "any valid possibilities in InstallArchiveActivity");
             return null;
         }
+    }
+
+    // Unzip Callbacks
+    @Override
+    public void OnUnzipSuccessful(Integer result) {
+        if (result > 0) {
+            ArchiveFileRoot afr = CommCareApplication.instance().getArchiveFileRoot();
+            String mGUID = afr.addArchiveFile(getTargetFolder());
+
+            String ref = "jr://archive/" + mGUID + "/profile.ccpr";
+
+            Intent i = new Intent(getIntent());
+            i.putExtra(InstallArchiveActivity.ARCHIVE_JR_REFERENCE, ref);
+            setResult(RESULT_OK, i);
+            finish();
+        } else {
+            //assume that we've already set the error message during update, but make it look scary
+            transplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
+        }
+    }
+
+    @Override
+    public void OnUnzipFailure(String cause) {
+        if (!TextUtils.isEmpty(cause)) {
+            txtInteractiveMessages.setText(Localization.get("archive.install.error", new String[]{cause}));
+        }
+        transplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
+    }
+
+    @Override
+    public void updateUnzipProgress(String update, int taskId) {
+        updateProgress(update, UnzipTask.UNZIP_TASK_ID);
+        txtInteractiveMessages.setText(update);
     }
 }

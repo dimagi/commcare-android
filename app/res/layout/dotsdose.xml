@@ -9,7 +9,11 @@
     android:paddingBottom="10px"
     android:background="@drawable/dots_rect_back"
     android:paddingLeft="8px"
-    android:paddingRight="8px">
+    android:paddingRight="8px"
+    android:layout_marginEnd="15px"
+    android:paddingStart="8px"
+    android:paddingEnd="8px"
+    android:layout_marginStart="0px">
 
     <TextView
         android:layout_width="wrap_content"
@@ -38,7 +42,7 @@
                 android:id="@+id/TextView01"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="right"
+                android:layout_gravity="end"
                 android:text="X"
                 android:textStyle="bold"
                 android:textColor="@color/red"></TextView>

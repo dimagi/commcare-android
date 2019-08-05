@@ -20,7 +20,7 @@
         android:id="@+id/text_view"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
-        android:gravity="left|center"
+        android:gravity="start|center"
         android:padding="@dimen/standard_spacer"
         android:textSize="@dimen/font_size_large"
         app:text_size_small="@dimen/font_size_medium"

@@ -12,7 +12,8 @@
         android:layout_alignParentRight="true"
         android:src="@drawable/next_arrow"
         android:id="@+id/btn_doses_next"
-        android:clickable="true"></ImageView>
+        android:clickable="true"
+        android:layout_alignParentEnd="true"></ImageView>
 
     <ImageView
         android:layout_width="wrap_content"
@@ -20,7 +21,8 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
         android:src="@drawable/prev_arrow"
-        android:id="@+id/btn_doses_prev"></ImageView>
+        android:id="@+id/btn_doses_prev"
+        android:layout_alignParentStart="true"></ImageView>
 
     <TableLayout
         android:id="@+id/TableLayout01"

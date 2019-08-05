@@ -123,7 +123,10 @@ public class SaveToDiskTask extends
             return new ResultAndError<>(SaveStatus.SAVE_ERROR, cleanedMessage);
         }
 
-        FormEntryActivity.mFormController.markFormSaveProcessComplete(true);
+        if (mMarkCompleted) {
+            FormEntryActivity.mFormController.markCompleteFormAsSaved();
+        }
+
         if (exitAfterSave) {
             FormRecord saved = CommCareApplication.instance().getCurrentSessionWrapper().getFormRecord();
             Logger.log(LogTypes.TYPE_FORM_ENTRY,
@@ -162,7 +165,7 @@ public class SaveToDiskTask extends
             if (recordName == null) {
                 FormDefRecord formDefRecord = FormDefRecord.getFormDef(
                         CommCareApplication.instance().getAppStorage(FormDefRecord.class), mFormDefId);
-                recordName = formDefRecord.getDisplayname();
+                recordName = formDefRecord.getDisplayName();
             }
         }
 

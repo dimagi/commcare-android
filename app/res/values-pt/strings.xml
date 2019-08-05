@@ -38,7 +38,8 @@
     <string name="delete_file">Apagar Selecionados</string>
     <string name="delete_no">Não Apagar</string>
     <string name="delete_yes">Apagar Formulários</string>
-    <string name="discard_answer">Remove response</string>
+    <string name="discard_answer">Remover resposta</string>
+    <string name="discard_image">Remover imagem</string>
     <string name="download">Pegar Selecionados</string>
     <string name="download_forms_result">Download Resultado</string>
     <string name="downloading_data">Conectando com o Servidor</string>

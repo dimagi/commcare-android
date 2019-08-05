@@ -23,6 +23,7 @@ import android.widget.ToggleButton;
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.global.models.AppAvailableToInstall;
 import org.commcare.core.interfaces.HttpResponseProcessor;
+import org.commcare.core.network.AuthInfo;
 import org.commcare.core.network.AuthenticationInterceptor;
 import org.commcare.dalvik.R;
 import org.commcare.models.database.SqlStorage;
@@ -245,7 +246,8 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
             this.lastPasswordUsed = password;
             final View processingRequestView = findViewById(R.id.processing_request_view);
             ModernHttpTask task = new ModernHttpTask(this, urlToTry, new HashMap(),
-                    CommcareRequestGenerator.getHeaders(""), new Pair(username, password)) {
+                    CommcareRequestGenerator.getHeaders(""),
+                    new AuthInfo.ProvidedAuth(username, password)) {
 
                 @Override
                 protected void onPreExecute() {

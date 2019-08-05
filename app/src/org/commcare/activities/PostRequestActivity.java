@@ -7,6 +7,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import org.commcare.core.network.AuthInfo;
 import org.commcare.core.network.AuthenticationInterceptor;
 import org.commcare.core.network.HTTPMethod;
 import org.commcare.core.network.ModernHttpRequester;
@@ -109,7 +110,10 @@ public class PostRequestActivity
         try {
             if (!hasTaskLaunched && !inErrorState) {
                 RequestBody requestBody = ModernHttpRequester.getPostBody(params);
-                ModernHttpTask postTask = new ModernHttpTask(this, url.toString(), new HashMap(), getContentHeadersForXFormPost(requestBody), requestBody, HTTPMethod.POST, null);
+                ModernHttpTask postTask =
+                        new ModernHttpTask(this, url.toString(), new HashMap(),
+                                getContentHeadersForXFormPost(requestBody), requestBody,
+                                HTTPMethod.POST, new AuthInfo.CurrentAuth());
                 postTask.connect((CommCareTaskConnector)this);
                 postTask.executeParallel();
                 hasTaskLaunched = true;

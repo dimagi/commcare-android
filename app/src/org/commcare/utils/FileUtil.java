@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
+import android.support.annotation.Nullable;
 import android.support.v4.content.FileProvider;
 import android.util.Log;
 import android.util.Pair;
@@ -361,7 +362,7 @@ public class FileUtil {
         }
     }
 
-    public static Properties loadProperties(File file) throws IOException{
+    public static Properties loadProperties(File file) throws IOException {
         Properties prop = new Properties();
         InputStream input = null;
         try {
@@ -493,7 +494,7 @@ public class FileUtil {
     }
 
     public static void writeBitmapToDiskAndCleanupHandles(Bitmap bitmap, ImageType type,
-                                                          File location) throws IOException{
+                                                          File location) throws IOException {
         FileOutputStream out = null;
         try {
             out = new FileOutputStream(location);
@@ -582,9 +583,9 @@ public class FileUtil {
 
     /**
      * Makes a copy of file represented by inputStream to dstFile
+     *
      * @param inputStream inputStream for File that needs to be copied
-     * @param dstFile destination File where we need to copy the inputStream
-     * @throws IOException
+     * @param dstFile     destination File where we need to copy the inputStream
      */
     public static void copyFile(InputStream inputStream, File dstFile) throws IOException {
         if (inputStream == null) return;
@@ -606,31 +607,44 @@ public class FileUtil {
 
     /**
      * Tries to get a filePath from an intent returned from file provider and sets it to the given  <code>filePathEditText</code>
-     * @param context Context of the Activity File Provider returned to
-     * @param intent Intent returned from File Provider
+     *
+     * @param context          Context of the Activity File Provider returned to
+     * @param intent           Intent returned from File Provider
      * @param filePathEditText EditText where we need to show the file path
      */
     public static void updateFileLocationFromIntent(Context context, Intent intent, EditText filePathEditText) {
-        // Android versions 4.4 and up sometimes don't return absolute
-        // filepaths from the file chooser. So resolve the URI into a
-        // valid file path.
-        Uri uriPath = intent.getData();
-        if (uriPath == null) {
-            // issue getting the filepath uri from file browser callout
-            // result
+        String filePath = getFileLocationFromIntent(intent);
+        if (filePath == null) {
+            // issue getting the filepath uri from file browser callout result
             Toast.makeText(context,
                     Localization.get("file.invalid.path"),
                     Toast.LENGTH_SHORT).show();
         } else {
+            filePathEditText.setText(filePath);
+        }
+    }
+
+    // get a filePath from an intent returned from file provider
+    @Nullable
+    public static String getFileLocationFromIntent(Intent intent) {
+        // Android versions 4.4 and up sometimes don't return absolute
+        // filepaths from the file chooser. So resolve the URI into a
+        // valid file path.
+        Uri uriPath = intent.getData();
+        if (uriPath != null) {
             String filePath;
             try {
                 filePath = UriToFilePath.getPathFromUri(CommCareApplication.instance(), uriPath);
             } catch (UriToFilePath.NoDataColumnForUriException e) {
                 filePath = uriPath.toString();
             }
-            if (filePath != null) {
-                filePathEditText.setText(filePath);
-            }
+            return isValidFileLocation(filePath) ? filePath : null;
         }
+        return null;
+    }
+
+    // Retruns true if location is either a content Uri or a valid file path
+    public static boolean isValidFileLocation(String location) {
+        return location != null && (location.startsWith("content://") || new File(location).exists());
     }
 }

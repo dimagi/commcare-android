@@ -5,9 +5,9 @@ import android.content.Context;
 import org.commcare.CommCareApplication;
 import org.commcare.core.interfaces.HttpResponseProcessor;
 import org.commcare.core.interfaces.ResponseStreamAccessor;
+import org.commcare.core.network.AuthInfo;
 import org.commcare.core.network.HTTPMethod;
 import org.commcare.core.network.ModernHttpRequester;
-import org.commcare.modern.util.Pair;
 import org.commcare.tasks.templates.CommCareTask;
 
 import java.io.IOException;
@@ -39,15 +39,15 @@ public class ModernHttpTask
     // Use for GET request
     public ModernHttpTask(Context context, String url, HashMap<String, String> params,
                           HashMap<String, String> headers,
-                          @Nullable Pair<String, String> usernameAndPasswordToAuthWith) {
-        this(context, url, params, headers, null, HTTPMethod.GET, usernameAndPasswordToAuthWith);
+                          AuthInfo authInfo) {
+        this(context, url, params, headers, null, HTTPMethod.GET, authInfo);
     }
 
     public ModernHttpTask(Context context, String url, HashMap<String, String> params,
                           HashMap<String, String> headers,
                           @Nullable RequestBody requestBody,
                           HTTPMethod method,
-                          @Nullable Pair<String, String> usernameAndPasswordToAuthWith) {
+                          AuthInfo authInfo) {
         taskId = SIMPLE_HTTP_TASK_ID;
         requester = CommCareApplication.instance().buildHttpRequester(
                 context,
@@ -57,7 +57,7 @@ public class ModernHttpTask
                 requestBody,
                 null,
                 method,
-                usernameAndPasswordToAuthWith,
+                authInfo,
                 null,
                 method.equals(HTTPMethod.GET) ? true : false);
     }
@@ -66,7 +66,7 @@ public class ModernHttpTask
     protected Void doTaskBackground(Void... params) {
         try {
             mResponse = requester.makeRequest();
-            if(mResponse.isSuccessful()) {
+            if (mResponse.isSuccessful()) {
                 responseDataStream = requester.getResponseStream(mResponse);
             }
         } catch (IOException e) {

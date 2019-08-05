@@ -29,7 +29,7 @@ the License.
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:background="@color/cc_core_bg"
-        android:gravity="right"
+        android:gravity="end"
         android:weightSum="4"
         android:id="@+id/buttonholder">
 

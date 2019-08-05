@@ -191,9 +191,7 @@ public class ResourceInstallUtils {
 
     public static void logInstallError(Exception e, String logMessage) {
         e.printStackTrace();
-
-        Logger.log(LogTypes.TYPE_ERROR_WORKFLOW,
-                logMessage + e.getMessage());
+        Logger.exception(logMessage, e);
     }
 
     /**
@@ -253,5 +251,13 @@ public class ResourceInstallUtils {
             SharedPreferences prefs = app.getAppPreferences();
             return prefs.getString(DEFAULT_APP_SERVER_KEY, null);
         }
+    }
+
+    /**
+     * @return CommCare App Profile url without query params
+     */
+    public static String getProfileReference() {
+        String profileRef = getDefaultProfileRef();
+        return profileRef.split("\\?")[0];
     }
 }

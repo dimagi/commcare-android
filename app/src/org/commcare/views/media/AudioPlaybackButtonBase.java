@@ -5,8 +5,8 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
-import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import org.commcare.dalvik.R;
@@ -16,7 +16,7 @@ import java.io.IOException;
 /**
  * @author Phillip Mates (pmates@dimagi.com)
  */
-public abstract class AudioPlaybackButtonBase extends LinearLayout {
+public abstract class AudioPlaybackButtonBase extends FrameLayout {
 
     private final static String TAG = AudioPlaybackButtonBase.class.getSimpleName();
     /**
@@ -61,6 +61,7 @@ public abstract class AudioPlaybackButtonBase extends LinearLayout {
     protected void setupView(Context context) {
         LayoutInflater vi = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View view = vi.inflate(getLayout(), null);
+
         addView(view);
         setupButton();
     }

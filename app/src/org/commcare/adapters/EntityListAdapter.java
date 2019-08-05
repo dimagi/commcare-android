@@ -275,7 +275,7 @@ public class EntityListAdapter extends AndroidSortableEntityAdapter implements L
 
     private View getActionView(int position, FrameLayout actionCardView, ViewGroup parent) {
         if (actionCardView == null) {
-            actionCardView = (FrameLayout)LayoutInflater.from(parent.getContext()).inflate(R.layout.action_card, parent, false);
+            actionCardView = (FrameLayout) LayoutInflater.from(parent.getContext()).inflate(R.layout.action_card, parent, false);
         }
 
         EntityActionViewUtils.buildActionView(actionCardView,
@@ -287,7 +287,7 @@ public class EntityListAdapter extends AndroidSortableEntityAdapter implements L
 
     private LinearLayout getDividerView(LinearLayout convertView, ViewGroup parent) {
         if (convertView == null) {
-            return (LinearLayout)LayoutInflater.from(parent.getContext()).inflate(R.layout.line_separator, parent, false);
+            return (LinearLayout) LayoutInflater.from(parent.getContext()).inflate(R.layout.line_separator, parent, false);
         }
         convertView.setOnClickListener(null);
         convertView.setEnabled(false);

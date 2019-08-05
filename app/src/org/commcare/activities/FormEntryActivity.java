@@ -347,12 +347,8 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         }
     }
 
-    public void saveImageWidgetAnswer(ContentValues values) {
-        Uri imageURI =
-                getContentResolver().insert(Images.Media.EXTERNAL_CONTENT_URI, values);
-        Log.i(TAG, "Inserting image returned uri = " + imageURI);
-
-        uiController.questionsView.setBinaryData(imageURI, mFormController);
+    public void saveImageWidgetAnswer(String imagePath) {
+        uiController.questionsView.setBinaryData(imagePath, mFormController);
         saveAnswersForCurrentScreen(FormEntryConstants.DO_NOT_EVALUATE_CONSTRAINTS);
         uiController.refreshView();
     }
@@ -404,44 +400,68 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         // keep track of whether we should auto advance
         boolean wasAnswerSet = false;
         boolean isQuick = false;
-
-        IntentWidget pendingIntentWidget = (IntentWidget)getPendingWidget();
-        if (pendingIntentWidget != null) {
-            if (!wasIntentCancelled) {
-                isQuick = "quick".equals(pendingIntentWidget.getAppearance());
-                TreeReference contextRef = null;
-                if (mFormController.getPendingCalloutFormIndex() != null) {
-                    contextRef = mFormController.getPendingCalloutFormIndex().getReference();
-                }
-                if (pendingIntentWidget instanceof BarcodeWidget) {
-                    String scanResult = response.getStringExtra("SCAN_RESULT");
-                    if (scanResult != null) {
-                        ((BarcodeWidget)pendingIntentWidget).processBarcodeResponse(contextRef, scanResult);
-                        wasAnswerSet = true;
+        try {
+            IntentWidget pendingIntentWidget = (IntentWidget)getPendingWidget();
+            if (pendingIntentWidget != null) {
+                if (!wasIntentCancelled) {
+                    isQuick = "quick".equals(pendingIntentWidget.getAppearance());
+                    TreeReference contextRef = null;
+                    if (mFormController.getPendingCalloutFormIndex() != null) {
+                        contextRef = mFormController.getPendingCalloutFormIndex().getReference();
                     }
-                } else {
-                    // Set our instance destination for binary data if needed
-                    String destination = instanceState.getInstanceFolder();
-                    wasAnswerSet = pendingIntentWidget.getIntentCallout()
-                            .processResponse(response, contextRef, new File(destination));
+                    if (pendingIntentWidget instanceof BarcodeWidget) {
+                        String scanResult = response.getStringExtra("SCAN_RESULT");
+                        if (scanResult != null) {
+                            ((BarcodeWidget)pendingIntentWidget).processBarcodeResponse(contextRef, scanResult);
+                            wasAnswerSet = true;
+                        }
+                    } else {
+                        // Set our instance destination for binary data if needed
+                        String destination = instanceState.getInstanceFolder();
+                        wasAnswerSet = pendingIntentWidget.getIntentCallout()
+                                .processResponse(response, contextRef, new File(destination));
+                    }
+                }
+
+                if (wasIntentCancelled) {
+                    mFormController.setPendingCalloutAsCancelled();
                 }
             }
 
-            if (wasIntentCancelled) {
-                mFormController.setPendingCalloutAsCancelled();
+            // auto advance if we got a good result and are in quick mode
+            if (wasAnswerSet && isQuick) {
+                uiController.showNextView();
+            } else {
+                uiController.refreshView();
             }
-        }
 
-        // auto advance if we got a good result and are in quick mode
-        if (wasAnswerSet && isQuick) {
-            uiController.showNextView();
-        } else {
-            uiController.refreshView();
+            return wasAnswerSet;
+        } catch (XPathException e) {
+            UserfacingErrorHandling.logErrorAndShowDialog(this, e, true);
+            return false;
         }
-
-        return wasAnswerSet;
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        if (CommCareApplication.instance().isConsumerApp()) {
+            // Do not show options menu at all if this is a consumer app
+            return super.onCreateOptionsMenu(menu);
+        }
+
+        super.onCreateOptionsMenu(menu);
+
+        menu.add(0, FormEntryConstants.MENU_SAVE, 0, StringUtils.getStringRobust(this, R.string.save_all_answers))
+                .setIcon(android.R.drawable.ic_menu_save);
+        menu.add(0, FormEntryConstants.MENU_HIERARCHY_VIEW, 0, StringUtils.getStringRobust(this, R.string.view_hierarchy))
+                .setIcon(R.drawable.ic_menu_goto);
+        menu.add(0, FormEntryConstants.MENU_LANGUAGES, 0, StringUtils.getStringRobust(this, R.string.change_language))
+                .setIcon(R.drawable.ic_menu_start_conversation);
+        menu.add(0, FormEntryConstants.MENU_PREFERENCES, 0, StringUtils.getStringRobust(this, R.string.form_entry_settings))
+                .setIcon(android.R.drawable.ic_menu_preferences);
+
+        return true;
+    }
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
@@ -449,29 +469,15 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             // Do not show options menu at all if this is a consumer app
             return super.onPrepareOptionsMenu(menu);
         }
+        super.onPrepareOptionsMenu(menu);
 
-        menu.removeItem(FormEntryConstants.MENU_LANGUAGES);
-        menu.removeItem(FormEntryConstants.MENU_HIERARCHY_VIEW);
-        menu.removeItem(FormEntryConstants.MENU_SAVE);
-        menu.removeItem(FormEntryConstants.MENU_PREFERENCES);
+        menu.findItem(FormEntryConstants.MENU_SAVE).setVisible(mIncompleteEnabled && !instanceIsReadOnly);
 
-        if (mIncompleteEnabled && !instanceIsReadOnly) {
-            menu.add(0, FormEntryConstants.MENU_SAVE, 0, StringUtils.getStringRobust(this, R.string.save_all_answers)).setIcon(
-                    android.R.drawable.ic_menu_save);
-        }
-        menu.add(0, FormEntryConstants.MENU_HIERARCHY_VIEW, 0, StringUtils.getStringRobust(this, R.string.view_hierarchy)).setIcon(
-                R.drawable.ic_menu_goto);
+        boolean hasMultipleLanguages = (!(mFormController == null ||
+                mFormController.getLanguages() == null || mFormController.getLanguages().length == 1));
+        menu.findItem(FormEntryConstants.MENU_LANGUAGES).setEnabled(hasMultipleLanguages);
 
-        boolean hasMultipleLanguages =
-                (!(mFormController == null || mFormController.getLanguages() == null || mFormController.getLanguages().length == 1));
-        menu.add(0, FormEntryConstants.MENU_LANGUAGES, 0, StringUtils.getStringRobust(this, R.string.change_language))
-                .setIcon(R.drawable.ic_menu_start_conversation)
-                .setEnabled(hasMultipleLanguages);
-
-        menu.add(0, FormEntryConstants.MENU_PREFERENCES, 0, StringUtils.getStringRobust(this, R.string.form_entry_settings)).setIcon(
-                android.R.drawable.ic_menu_preferences);
-
-        return super.onPrepareOptionsMenu(menu);
+        return true;
     }
 
     @Override
@@ -705,7 +711,8 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
      * @param headless        Disables GUI warnings and lets answers that
      *                        violate constraints be saved.
      */
-    private void saveDataToDisk(boolean exit, boolean complete, String updatedSaveName, boolean headless) {
+    private void saveDataToDisk(boolean exit, boolean complete, String updatedSaveName,
+                                boolean headless) {
         if (!formHasLoaded()) {
             if (exit) {
                 showSaveErrorAndExit();
@@ -728,7 +735,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         }
 
         // A form save has already been triggered, ignore subsequent form saves
-        if (FormEntryActivity.mFormController.isFormSaveComplete()) {
+        if (FormEntryActivity.mFormController.isFormCompleteAndSaved()) {
             return;
         }
 
@@ -755,6 +762,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             saveAnswersForCurrentScreen(FormEntryConstants.DO_NOT_EVALUATE_CONSTRAINTS);
         }
         uiController.refreshView();
+        invalidateOptionsMenu();
     }
 
     @Override
@@ -914,6 +922,12 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                     } else {
                         UserfacingErrorHandling.createErrorDialog(receiver, StringUtils.getStringRobust(receiver, R.string.parse_error), FormEntryConstants.EXIT);
                     }
+
+                    if (intent.hasExtra(KEY_FORM_RECORD_ID)) {
+                        // log the form record id for which form load has failed
+                        FormRecord formRecord = FormRecord.getFormRecord(formRecordStorage, intent.getIntExtra(KEY_FORM_RECORD_ID, -1));
+                        Logger.log(LogTypes.TYPE_FORM_ENTRY, "Form load failed for form with id " + formRecord.getInstanceID());
+                    }
                 }
             };
             if (fullFormProfilingEnabled) {
@@ -993,12 +1007,13 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
      * Call when the user is ready to save and return the current form as complete
      */
     protected void triggerUserFormComplete() {
-
-        if (mFormController.isFormReadOnly()) {
-            finishReturnInstance(false);
-        } else {
-            int formRecordId = getIntent().getIntExtra(KEY_FORM_RECORD_ID, -1);
-            saveCompletedFormToDisk(instanceState.getDefaultFormTitle(formRecordId));
+        if (!isFinishing()) {
+            if (mFormController.isFormReadOnly()) {
+                finishReturnInstance(false);
+            } else {
+                int formRecordId = getIntent().getIntExtra(KEY_FORM_RECORD_ID, -1);
+                saveCompletedFormToDisk(instanceState.getDefaultFormTitle(formRecordId));
+            }
         }
     }
 

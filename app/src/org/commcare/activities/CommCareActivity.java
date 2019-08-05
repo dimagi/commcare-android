@@ -32,6 +32,7 @@ import org.commcare.fragments.ContainerFragment;
 import org.commcare.fragments.TaskConnectorFragment;
 import org.commcare.interfaces.WithUIController;
 import org.commcare.logic.DetailCalloutListenerDefaultImpl;
+import org.commcare.preferences.LocalePreferences;
 import org.commcare.session.SessionFrame;
 import org.commcare.session.SessionInstanceBuilder;
 import org.commcare.suite.model.CalloutData;
@@ -58,7 +59,6 @@ import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.NoLocalizedTextException;
 
-import io.reactivex.Observable;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 
@@ -69,7 +69,7 @@ import io.reactivex.disposables.Disposable;
  * @author ctsims
  */
 public abstract class CommCareActivity<R> extends FragmentActivity
-        implements CommCareTaskConnector<R>, DialogController, OnGestureListener, DetailCalloutListener{
+        implements CommCareTaskConnector<R>, DialogController, OnGestureListener, DetailCalloutListener {
 
     private static final String TAG = CommCareActivity.class.getSimpleName();
 
@@ -118,13 +118,14 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     private ContainerFragment<Bundle> managedUiState;
     private boolean isMainScreenBlocked;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         FragmentManager fm = this.getSupportFragmentManager();
 
-        stateHolder = (TaskConnectorFragment<R>) fm.findFragmentByTag("state");
+        stateHolder = (TaskConnectorFragment<R>)fm.findFragmentByTag("state");
 
         // stateHolder and its previous state aren't null if the activity is
         // being created due to an orientation change.
@@ -147,7 +148,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
             getActionBar().setDisplayShowCustomEnabled(true);
 
             // Add breadcrumb bar
-            BreadcrumbBarFragment bar = (BreadcrumbBarFragment) fm.findFragmentByTag("breadcrumbs");
+            BreadcrumbBarFragment bar = (BreadcrumbBarFragment)fm.findFragmentByTag("breadcrumbs");
 
             // If the state holder is null, create a new one for this activity
             if (bar == null) {
@@ -233,13 +234,13 @@ public abstract class CommCareActivity<R> extends FragmentActivity
      */
     protected void onMajorLayoutChange(Rect newRootViewDimensions) {
 
-   }
+    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-                if(!isFinishing()) {
+                if (!isFinishing()) {
                     this.onBackPressed();
                 }
                 return true;
@@ -386,7 +387,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
 
     @Override
     public R getReceiver() {
-        return (R) this;
+        return (R)this;
     }
 
     @Override
@@ -446,7 +447,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
 
     protected void transplantStyle(TextView target, int resource) {
         //get styles from here
-        TextView tv = (TextView) View.inflate(this, resource, null);
+        TextView tv = (TextView)View.inflate(this, resource, null);
         int[] padding = {target.getPaddingLeft(), target.getPaddingTop(), target.getPaddingRight(), target.getPaddingBottom()};
 
         target.setTextColor(tv.getTextColors().getDefaultColor());
@@ -596,7 +597,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
 
     @Override
     public CustomProgressDialog getCurrentProgressDialog() {
-        return (CustomProgressDialog) getSupportFragmentManager().
+        return (CustomProgressDialog)getSupportFragmentManager().
                 findFragmentByTag(KEY_PROGRESS_DIALOG_FRAG);
     }
 
@@ -620,7 +621,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
 
     @Override
     public AlertDialogFragment getCurrentAlertDialog() {
-        return (AlertDialogFragment) getSupportFragmentManager().
+        return (AlertDialogFragment)getSupportFragmentManager().
                 findFragmentByTag(KEY_ALERT_DIALOG_FRAG);
     }
 
@@ -663,6 +664,10 @@ public abstract class CommCareActivity<R> extends FragmentActivity
         return null;
     }
 
+    public boolean aTaskInProgress() {
+        return stateHolder != null && stateHolder.isCurrentTaskRunning();
+    }
+
     /**
      * Interface to perform additional setup code when adding an ActionBar
      */
@@ -675,7 +680,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
      * the alternative search widget is removed, and ActionBarInstantiator is run, if it exists.
      * Used in EntitySelectActivity and FormRecordListActivity.
      *
-     * @param activity          Current activity
+     * @param activity     Current activity
      * @param menu         Menu passed through onCreateOptionsMenu
      * @param instantiator Optional ActionBarInstantiator for additional setup code.
      */
@@ -687,7 +692,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
 
             MenuItem searchMenuItem = menu.findItem(org.commcare.dalvik.R.id.search_action_bar);
             SearchView searchView =
-                    (SearchView) searchMenuItem.getActionView();
+                    (SearchView)searchMenuItem.getActionView();
             MenuItem barcodeItem = menu.findItem(org.commcare.dalvik.R.id.barcode_scan_action_bar);
             if (searchView != null) {
                 int[] searchViewStyle =
@@ -734,10 +739,17 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     @Override
     public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
         if (isHorizontalSwipe(this, e1, e2) && !isMainScreenBlocked) {
-            if (velocityX <= 0) {
+            if (LocalePreferences.isLocaleRTL()) {
+                if (velocityX <= 0) {
+                    return onBackwardSwipe();
+                }
                 return onForwardSwipe();
+            } else {
+                if (velocityX <= 0) {
+                    return onForwardSwipe();
+                }
+                return onBackwardSwipe();
             }
-            return onBackwardSwipe();
         }
 
         return false;
@@ -766,7 +778,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
         FragmentManager fm = this.getSupportFragmentManager();
         BreadcrumbBarFragment bar = (BreadcrumbBarFragment)fm.findFragmentByTag("breadcrumbs");
         if (bar != null) {
-            if(bar.collapseTileIfExpanded(this)) {
+            if (bar.collapseTileIfExpanded(this)) {
                 return;
             }
         }
@@ -812,7 +824,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
 
         // for all screens a swipe is left/right of at least .25" and at an angle of no more than 30
         //degrees
-        int xPixelLimit = (int) (dm.xdpi * .25);
+        int xPixelLimit = (int)(dm.xdpi * .25);
 
         return xMov > xPixelLimit && angleOfMotion < 30;
     }
@@ -848,7 +860,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     public void refreshActionBar() {
         if (shouldShowBreadcrumbBar()) {
             FragmentManager fm = this.getSupportFragmentManager();
-            BreadcrumbBarFragment bar = (BreadcrumbBarFragment) fm.findFragmentByTag("breadcrumbs");
+            BreadcrumbBarFragment bar = (BreadcrumbBarFragment)fm.findFragmentByTag("breadcrumbs");
             bar.refresh(this);
         }
     }

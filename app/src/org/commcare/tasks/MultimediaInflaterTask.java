@@ -13,7 +13,7 @@ import java.util.Enumeration;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
-public abstract class MultimediaInflaterTask<R> extends UnzipTask<R> {
+public class MultimediaInflaterTask<R> extends UnzipTask {
 
     @Override
     protected String getInvalidZipFileErrorMessage() {

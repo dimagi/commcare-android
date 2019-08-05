@@ -16,7 +16,9 @@
             android:orientation="vertical"
             android:paddingBottom="@dimen/content_start"
             android:paddingLeft="@dimen/login_box_margins"
-            android:paddingRight="@dimen/login_box_margins">
+            android:paddingRight="@dimen/login_box_margins"
+            android:paddingStart="@dimen/login_box_margins"
+            android:paddingEnd="@dimen/login_box_margins">
 
             <TextView
                 android:id="@+id/error_message"
@@ -35,7 +37,9 @@
                 android:orientation="vertical"
                 android:paddingBottom="@dimen/content_start"
                 android:paddingLeft="@dimen/login_box_margins"
-                android:paddingRight="@dimen/login_box_margins"/>
+                android:paddingRight="@dimen/login_box_margins"
+                android:paddingStart="@dimen/login_box_margins"
+                android:paddingEnd="@dimen/login_box_margins" />
 
         </LinearLayout>
     </ScrollView>

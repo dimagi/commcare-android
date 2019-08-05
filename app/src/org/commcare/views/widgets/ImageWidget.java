@@ -58,6 +58,7 @@ public class ImageWidget extends QuestionWidget {
 
     private final Button mCaptureButton;
     private final Button mChooseButton;
+    private final Button mDiscardButton;
     private ImageView mImageView;
 
     private String mBinaryName;
@@ -148,10 +149,22 @@ public class ImageWidget extends QuestionWidget {
             }
         });
 
+        // setup discard button
+        mDiscardButton = new Button(getContext());
+        WidgetUtils.setupButton(mDiscardButton,
+                StringUtils.getStringSpannableRobust(getContext(), R.string.discard_image),
+                mAnswerFontSize,
+                !mPrompt.isReadOnly());
+        mDiscardButton.setOnClickListener(v -> {
+            deleteMedia();
+        });
+        mDiscardButton.setVisibility(View.GONE);
+
         // finish complex layout
         //
         addView(mCaptureButton);
         addView(mChooseButton);
+        addView(mDiscardButton);
 
         String acq = mPrompt.getAppearanceHint();
         if (QuestionWidget.ACQUIREFIELD.equalsIgnoreCase(acq)) {
@@ -234,6 +247,7 @@ public class ImageWidget extends QuestionWidget {
             });
 
             addView(mImageView);
+            mDiscardButton.setVisibility(View.VISIBLE);
         }
     }
 
@@ -272,11 +286,8 @@ public class ImageWidget extends QuestionWidget {
         // clean up variables
         mBinaryName = null;
 
-        //TODO: possibly switch back to this implementation, but causes NullPointerException right now
-        /*
-        int del = MediaUtils.deleteImageFileFromMediaProvider(mInstanceFolder + File.separator + mBinaryName);
-        Log.i(t, "Deleted " + del + " rows from media content provider");
-        mBinaryName = null;*/
+        removeView(mImageView);
+        mDiscardButton.setVisibility(View.GONE);
     }
 
     @Override
@@ -300,17 +311,15 @@ public class ImageWidget extends QuestionWidget {
     }
 
     @Override
-    public void setBinaryData(Object binaryuri) {
+    public void setBinaryData(Object binaryPath) {
         // you are replacing an answer. delete the previous image using the
         // content provider.
         if (mBinaryName != null) {
             deleteMedia();
         }
-        String binaryPath = UrlUtils.getPathFromUri((Uri)binaryuri, getContext());
 
-        File f = new File(binaryPath);
+        File f = new File(binaryPath.toString());
         mBinaryName = f.getName();
-        Log.i(t, "Setting current answer to " + f.getName());
     }
 
     @Override

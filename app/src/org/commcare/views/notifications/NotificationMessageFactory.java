@@ -21,6 +21,12 @@ public class NotificationMessageFactory {
 
     //TODO: Move these to an enum for the task that they represent the return state of
     public enum StockMessages implements MessageTag {
+
+        /**
+         * The server url was null or empty *
+         */
+        Empty_Url("login.attempt.fail.empty.url"),
+
         /**
          * The user's credentials weren't accepted on the server *
          */

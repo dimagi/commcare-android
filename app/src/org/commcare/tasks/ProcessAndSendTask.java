@@ -326,6 +326,9 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
                                 // A processing failure indicates that there there is no point in
                                 // trying that submission again immediately
                                 break;
+                            } else if (results[i] == FormUploadResult.RATE_LIMITED) {
+                                // Don't keep retrying, the server is rate limiting submissions
+                                break;
                             } else {
                                 attemptsMade++;
                             }
@@ -409,7 +412,7 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
                 (uploadResult == FormUploadResult.RECORD_FAILURE) ?
                         FormRecord.QuarantineReason_RECORD_ERROR :
                         FormRecord.QuarantineReason_SERVER_PROCESSING_ERROR;
-        record = processor.quarantineRecord(record, reasonType, uploadResult.getProcessingFailureReason());
+        record = processor.quarantineRecord(record, reasonType, uploadResult.getErrorMessage());
         logAndNotifyQuarantine(record);
         return record;
     }

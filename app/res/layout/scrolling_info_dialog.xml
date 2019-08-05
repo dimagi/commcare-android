@@ -15,7 +15,9 @@
         android:layout_height="wrap_content"
         android:layout_marginLeft="@dimen/standard_spacer_large"
         android:layout_marginRight="@dimen/standard_spacer_large"
-        android:layout_marginBottom="@dimen/standard_spacer_large">
+        android:layout_marginBottom="@dimen/standard_spacer_large"
+        android:layout_marginEnd="@dimen/standard_spacer_large"
+        android:layout_marginStart="@dimen/standard_spacer_large">
 
         <TextView
             android:id="@+id/dialog_text"

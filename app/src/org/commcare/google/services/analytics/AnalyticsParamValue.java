@@ -42,6 +42,7 @@ public class AnalyticsParamValue {
 
     public static final String SYNC_FAIL_NO_CONNECTION = "no_connection";
     public static final String SYNC_FAIL_AUTH = "auth_failure";
+    public static final String SYNC_FAIL_EMPTY_URL = "empty_url";
     public static final String SYNC_FAIL_BAD_DATA = "bad_data";
     public static final String SYNC_FAIL_SERVER_ERROR = "server_error";
     public static final String SYNC_FAIL_UNREACHABLE_HOST = "unreachable_host";

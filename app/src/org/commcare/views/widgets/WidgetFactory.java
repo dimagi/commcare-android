@@ -16,7 +16,6 @@ import org.javarosa.core.model.MultiWordFilterRule;
 import org.javarosa.core.model.QuestionDataExtension;
 import org.javarosa.core.model.StandardFilterRule;
 import org.javarosa.core.model.condition.EvaluationContext;
-import org.javarosa.core.services.locale.Localization;
 import org.javarosa.form.api.FormEntryPrompt;
 import org.javarosa.xform.util.CalendarUtils;
 

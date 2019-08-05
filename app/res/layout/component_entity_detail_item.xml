@@ -12,12 +12,13 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginLeft="8dp"
-        android:gravity="left|center_vertical"
+        android:gravity="start|center_vertical"
         android:text="Text"
         android:textStyle="bold"
         android:typeface="normal"
         android:layout_weight="4"
-        android:visibility="visible"/>
+        android:visibility="visible"
+        android:layout_marginStart="8dp" />
 
     <FrameLayout
         android:id="@+id/detail_value_pane"
@@ -30,60 +31,69 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_marginRight="8dp"
-            android:layout_gravity="right|center_vertical"
-            android:gravity="left|center_vertical"
+            android:layout_gravity="end|center_vertical"
+            android:gravity="start|center_vertical"
             android:padding="@dimen/content_min_margin"
             android:text="Value really big here so it must fit in more than one line"
             android:scrollHorizontally="false"
-            android:visibility="visible"/>
+            android:visibility="visible"
+            android:layout_marginEnd="8dp" />
 
         <Button
             android:id="@+id/detail_value_phone"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="left|center_vertical"
+            android:layout_gravity="start|center_vertical"
             android:layout_marginLeft="11dp"
             android:layout_marginRight="12dp"
             android:drawableLeft="@drawable/sym_action_call"
             android:drawablePadding="@dimen/content_min_margin"
-            android:inputType="phone"
             android:text="555-555-5555"
             android:typeface="monospace"
-            android:visibility="gone"/>
+            android:visibility="gone"
+            android:layout_marginEnd="12dp"
+            android:drawableStart="@drawable/sym_action_call"
+            android:layout_marginStart="11dp" />
 
         <ImageButton
             android:id="@+id/detail_video_button"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="left|center_vertical"
+            android:layout_gravity="start|center_vertical"
             android:src="@android:drawable/ic_media_play"
             android:layout_marginLeft="11dp"
             android:layout_marginRight="12dp"
-            android:visibility="gone"/>
+            android:visibility="gone"
+            android:layout_marginStart="11dp"
+            android:layout_marginEnd="12dp" />
 
         <ImageView
             android:id="@+id/detail_value_image"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_marginRight="8dp"
-            android:layout_gravity="right|center_vertical"
-            android:gravity="left|center_vertical"
+            android:layout_gravity="end|center_vertical"
+            android:gravity="start|center_vertical"
             android:padding="@dimen/content_min_margin"
             android:scaleType="fitCenter"
-            android:visibility="visible"/>
+            android:visibility="visible"
+            android:layout_marginEnd="8dp" />
 
         <LinearLayout
             android:id="@+id/callout_view"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_marginRight="8dp"
-            android:layout_gravity="left|center_vertical"
+            android:layout_gravity="start|center_vertical"
             android:orientation="vertical"
             android:paddingBottom="4dp"
             android:paddingLeft="11dp"
             android:paddingRight="4dp"
             android:paddingTop="4dp"
-            android:visibility="gone">
+            android:visibility="gone"
+            android:paddingEnd="4dp"
+            android:layout_marginEnd="8dp"
+            android:paddingStart="11dp">
 
             <ImageButton
                 android:id="@+id/callout_image_button"
@@ -105,8 +115,9 @@
                 android:id="@+id/callout_text"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:gravity="right"
-                android:paddingLeft="10dp"/>
+                android:gravity="end"
+                android:paddingLeft="10dp"
+                android:paddingStart="10dp" />
 
         </LinearLayout>
 
@@ -122,31 +133,36 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_marginRight="8dp"
-            android:layout_gravity="left|center_vertical"
+            android:layout_gravity="start|center_vertical"
             android:orientation="vertical"
             android:paddingBottom="4dp"
             android:paddingLeft="11dp"
             android:paddingRight="4dp"
             android:paddingTop="4dp"
-            android:visibility="gone">
+            android:visibility="gone"
+            android:layout_marginEnd="8dp"
+            android:paddingStart="11dp"
+            android:paddingEnd="4dp">
 
             <Button
                 android:id="@+id/detail_address_button"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="left"
+                android:layout_gravity="start"
                 android:drawableLeft="@drawable/sym_action_lookup"
                 android:drawablePadding="@dimen/content_min_margin"
-                android:text="Show Address"/>
+                android:text="Show Address"
+                android:drawableStart="@drawable/sym_action_lookup" />
 
             <TextView
                 android:id="@+id/detail_address_text"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:gravity="left"
+                android:gravity="start"
                 android:inputType="textMultiLine|textPostalAddress"
                 android:paddingLeft="10dp"
-                android:text="Sample Address"/>
+                android:text="Sample Address"
+                android:paddingStart="10dp" />
         </LinearLayout>
 
 
@@ -154,7 +170,8 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_marginRight="8dp"
-            android:weightSum="6">
+            android:weightSum="6"
+            android:layout_marginEnd="8dp">
 
             <TextView
                 android:id="@+id/entity_detail_spacer"
@@ -162,7 +179,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:background="@drawable/blue_tabbed_box"
-                android:gravity="top|left|center_vertical"
+                android:gravity="top|start|center_vertical"
                 android:textAppearance="@style/EntityItemText"
                 android:typeface="normal"
                 android:visibility="invisible"

@@ -5,9 +5,13 @@ import android.support.annotation.NonNull;
 import org.commcare.CommCareApplication;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.android.database.user.models.FormRecord;
+import org.commcare.preferences.HiddenPreferences;
+import org.commcare.recovery.measures.RecoveryMeasure;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Vector;
 
 /**
@@ -35,7 +39,7 @@ public class StorageUtils {
         return ids;
     }
 
-    public static Vector<FormRecord> getUnsentOrUnprocessedFormRecordsForCurrentApp(
+    private static Vector<FormRecord> getUnsentOrUnprocessedFormRecordsForCurrentApp(
             SqlStorage<FormRecord> storage) {
 
         String currentAppId =
@@ -97,7 +101,7 @@ public class StorageUtils {
         return recordArray;
     }
 
-    private static void sortRecordsBySubmissionOrderingNumber(Vector<FormRecord> records) {
+    public static void sortRecordsBySubmissionOrderingNumber(Vector<FormRecord> records) {
         Collections.sort(records, (form1, form2) -> {
             int form1OrderingNum = form1.getSubmissionOrderingNumber();
             int form2OrderingNum = form2.getSubmissionOrderingNumber();
@@ -105,6 +109,20 @@ public class StorageUtils {
                 return -1;
             }
             if (form1OrderingNum > form2OrderingNum) {
+                return 1;
+            }
+            return 0;
+        });
+    }
+
+    public static void sortRecordsByLastModifiedTimeDescending(Vector<FormRecord> records) {
+        Collections.sort(records, (form1, form2) -> {
+            long form1LastModified = form1.lastModified().getTime();
+            long form2LastModified = form2.lastModified().getTime();
+            if (form1LastModified > form2LastModified) {
+                return -1;
+            }
+            if (form1LastModified < form2LastModified) {
                 return 1;
             }
             return 0;
@@ -124,5 +142,4 @@ public class StorageUtils {
         }
         return maxSubmissionNumber + 1;
     }
-
 }

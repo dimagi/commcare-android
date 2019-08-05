@@ -28,7 +28,8 @@
                 android:layout_marginLeft="@dimen/content_min_margin"
                 android:layout_marginRight="@dimen/content_min_margin"
                 android:gravity="center_horizontal"
-                >
+                android:layout_marginStart="@dimen/content_min_margin"
+                android:layout_marginEnd="@dimen/content_min_margin">
 
                 <TextView
                     android:id="@+id/app_profile_txt_view"

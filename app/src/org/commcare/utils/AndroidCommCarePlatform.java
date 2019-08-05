@@ -128,4 +128,8 @@ public class AndroidCommCarePlatform extends CommCarePlatform {
     public String getUpdateInfoFormXmlns() {
         return mUpdateInfoFormXmlns;
     }
+
+    public CommCareApp getApp() {
+        return app;
+    }
 }

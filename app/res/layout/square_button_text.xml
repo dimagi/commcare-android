@@ -26,5 +26,6 @@
         android:paddingRight="@dimen/standard_spacer"
         android:textSize="@dimen/font_size_large"
         app:text_size_small="@dimen/font_size_medium"
-        />
+        android:paddingStart="@dimen/standard_spacer"
+        android:paddingEnd="@dimen/standard_spacer" />
 </RelativeLayout>

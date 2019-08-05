@@ -97,6 +97,9 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
         String syncModeParam = null;
 
         switch (result) {
+            case EMPTY_URL:
+                updateUiAfterDataPullOrSend(Localization.get("sync.fail.empty.url"), FAIL);
+                break;
             case AUTH_FAILED:
                 updateUiAfterDataPullOrSend(Localization.get("sync.fail.auth.loggedin"), FAIL);
                 break;

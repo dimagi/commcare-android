@@ -18,6 +18,7 @@ public class ServerUrls {
     public final static String PREFS_LOG_POST_URL_KEY = "log_receiver_url";
     private final static String PREFS_KEY_SERVER_KEY = "key_server";
     public final static String PREFS_HEARTBEAT_URL_KEY = "heartbeat-url";
+    public final static String PREFS_RECOVERY_MEASURES_URL_KEY = "recovery-measures-url";
     private final static String PREFS_SUPPORT_ADDRESS_KEY = "support-email-address";
 
     public static String getSupportEmailAddress() {

@@ -1,7 +1,5 @@
 package org.commcare.utils;
 
-import android.support.annotation.Nullable;
-
 /**
  * @author Phillip Mates (pmates@dimagi.com)
  */
@@ -45,26 +43,37 @@ public enum FormUploadResult {
     TRANSPORT_FAILURE(6),
 
     /**
+     * Server has some action directives for user to resolve this error
+     */
+    ACTIONABLE_FAILURE(7),
+
+    /**
      * The user session ended while trying to upload a form
      */
-    PROGRESS_LOGGED_OUT(7),
+    PROGRESS_LOGGED_OUT(8),
 
-    PROGRESS_SDCARD_REMOVED(8);
+    PROGRESS_SDCARD_REMOVED(9),
+
+    /**
+     * The server can't couldn't handle the submission due to load, we
+     * shouldn't keep retrying it
+     */
+    RATE_LIMITED(10)
+    ;
 
     private final int orderVal;
-    private String processingFailureReason;
+    private String errorMessage;
 
     FormUploadResult(int orderVal) {
         this.orderVal = orderVal;
     }
 
-    public void setProcessingFailureReason(String s) {
-        this.processingFailureReason = s;
+    public String getErrorMessage() {
+        return errorMessage;
     }
 
-    @Nullable
-    public String getProcessingFailureReason() {
-        return this.processingFailureReason;
+    public void setErrorMessage(String errorMessage) {
+        this.errorMessage = errorMessage;
     }
 
     public static FormUploadResult getWorstResult(FormUploadResult[] results) {

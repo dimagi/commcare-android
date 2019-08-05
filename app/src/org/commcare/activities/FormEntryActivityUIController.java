@@ -1,6 +1,5 @@
 package org.commcare.activities;
 
-import android.content.DialogInterface;
 import android.content.pm.ActivityInfo;
 import android.graphics.Rect;
 import android.os.Bundle;
@@ -10,13 +9,13 @@ import android.view.ContextThemeWrapper;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewGroup.LayoutParams;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.view.ViewGroup.LayoutParams;
 import android.widget.Toast;
 
 import org.commcare.activities.components.FormEntryConstants;
@@ -28,6 +27,7 @@ import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.interfaces.CommCareActivityUIController;
+import org.commcare.preferences.LocalePreferences;
 import org.commcare.utils.BlockingActionsManager;
 import org.commcare.utils.CompoundIntentList;
 import org.commcare.utils.StringUtils;
@@ -328,7 +328,7 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
                 AudioController.INSTANCE.releaseCurrentMediaEntity();
                 QuestionsView next = createView();
                 if (showSwipeAnimation) {
-                    showView(next, AnimationType.LEFT);
+                    showView(next, LocalePreferences.isLocaleRTL() ? AnimationType.RIGHT : AnimationType.LEFT);
                 } else {
                     showView(next, AnimationType.FADE, false);
                 }
@@ -411,14 +411,21 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
                         case FormEntryController.EVENT_QUESTION:
                             QuestionsView next = createView();
                             if (!resuming) {
-                                showView(next, AnimationType.RIGHT);
+                                showView(next, LocalePreferences.isLocaleRTL() ? AnimationType.LEFT : AnimationType.RIGHT);
                             } else {
                                 showView(next, AnimationType.FADE, false);
                             }
                             break group_skip;
                         case FormEntryController.EVENT_END_OF_FORM:
                             // auto-advance questions might advance past the last form quesion
-                            refreshCurrentView();
+                            // In special case when questionsView is null (there is no question),
+                            // to avoid exit dialog without saving option, shown from refreshCurrentView(),
+                            // save and exit method called.
+                            if (questionsView != null) {
+                                refreshCurrentView();
+                            } else {
+                                activity.triggerUserFormComplete();
+                            }
                             break group_skip;
                         case FormEntryController.EVENT_PROMPT_NEW_REPEAT:
                             createRepeatDialog();
@@ -432,7 +439,7 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
                                     && FormEntryActivity.mFormController.getQuestionPrompts().length != 0) {
                                 QuestionsView nextGroupView = createView();
                                 if (!resuming) {
-                                    showView(nextGroupView, AnimationType.RIGHT);
+                                    showView(nextGroupView, LocalePreferences.isLocaleRTL() ? AnimationType.LEFT : AnimationType.RIGHT);
                                 } else {
                                     showView(nextGroupView, AnimationType.FADE, false);
                                 }
@@ -511,7 +518,10 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
         if (backExitsForm) {
             backIconId = R.drawable.icon_exit;
         } else {
-            backIconId = R.drawable.icon_back;
+            if (LocalePreferences.isLocaleRTL())
+                backIconId = R.drawable.icon_next;
+            else
+                backIconId = R.drawable.icon_back;
         }
         DialogChoiceItem backItem = new DialogChoiceItem(backText, backIconId, backListener);
 
@@ -542,7 +552,10 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
         if (nextExitsForm) {
             skipIconId = R.drawable.icon_done;
         } else {
-            skipIconId = R.drawable.icon_next;
+            if (LocalePreferences.isLocaleRTL())
+                skipIconId = R.drawable.icon_back;
+            else
+                skipIconId = R.drawable.icon_next;
         }
         DialogChoiceItem skipItem = new DialogChoiceItem(skipText, skipIconId, skipListener);
 

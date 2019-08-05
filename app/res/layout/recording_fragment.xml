@@ -10,7 +10,9 @@
     android:gravity="center_horizontal"
     android:paddingTop="10dp"
     android:paddingLeft="10dp"
-    android:paddingRight="10dp">
+    android:paddingRight="10dp"
+    android:paddingEnd="10dp"
+    android:paddingStart="10dp">
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -23,14 +25,16 @@
             android:textColor="@color/grey"
             android:textSize="@dimen/text_large"
             android:layout_alignParentLeft="true"
-            android:layout_marginBottom="10dp"/>
+            android:layout_marginBottom="10dp"
+            android:layout_alignParentStart="true" />
 
         <ImageButton
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:id="@+id/discardrecording"
             android:background="@drawable/icon_close_darkwarm"
-            android:layout_alignParentRight="true"/>
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true" />
 
     </RelativeLayout>
 
@@ -38,7 +42,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/recording_instruction"
-        android:layout_gravity="left" />
+        android:layout_gravity="start" />
 
     <FrameLayout
         android:layout_width="match_parent"
@@ -88,19 +92,21 @@
             android:textColor="@color/white"
             android:text="Record Again"
             android:visibility="invisible"
-            android:layout_marginLeft="15dp"/>
+            android:layout_marginLeft="15dp"
+            android:layout_marginStart="15dp" />
 
         <Button
             android:layout_width="80dp"
             android:layout_height="wrap_content"
             android:id="@+id/saverecording"
-            android:layout_gravity="right"
+            android:layout_gravity="end"
             android:layout_marginBottom="10dp"
             android:enabled="false"
             android:background="@color/cc_attention_positive_color"
             android:textColor="@color/white"
             android:visibility="invisible"
-            android:layout_marginLeft="15dp" />
+            android:layout_marginLeft="15dp"
+            android:layout_marginStart="15dp" />
 
     </LinearLayout>
 

@@ -17,11 +17,14 @@ import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.FormEntry;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.StackOperation;
+import org.commcare.suite.model.Text;
 import org.commcare.util.CommCarePlatform;
 import org.commcare.utils.AndroidInstanceInitializer;
 import org.commcare.utils.CommCareUtil;
 import org.commcare.utils.CrashUtil;
 import org.javarosa.core.model.condition.EvaluationContext;
+import org.javarosa.xpath.analysis.InstanceNameAccumulatingAnalyzer;
+import org.javarosa.xpath.analysis.XPathAnalyzable;
 
 import java.util.Date;
 import java.util.Hashtable;
@@ -225,6 +228,13 @@ public class AndroidSessionWrapper implements SessionWrapperInterface {
     public EvaluationContext getRestrictedEvaluationContext(String commandId,
                                                             Set<String> instancesToInclude) {
         return session.getEvaluationContext(getIIF(), commandId, instancesToInclude);
+    }
+
+    @Override
+    public EvaluationContext getEvaluationContextWithAccumulatedInstances(String commandID, XPathAnalyzable xPathAnalyzable) {
+        Set<String> instancesNeededForTextCalculation =
+                (new InstanceNameAccumulatingAnalyzer()).accumulate(xPathAnalyzable);
+        return getRestrictedEvaluationContext(commandID, instancesNeededForTextCalculation);
     }
 
     /**

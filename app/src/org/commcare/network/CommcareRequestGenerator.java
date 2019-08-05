@@ -5,8 +5,10 @@ import android.net.Uri;
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.cases.util.CaseDBUtils;
+import org.commcare.core.network.AuthInfo;
 import org.commcare.core.network.HTTPMethod;
 import org.commcare.core.network.ModernHttpRequester;
+import org.commcare.engine.cases.CaseUtils;
 import org.commcare.interfaces.CommcareRequestEndpoints;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.modern.util.Pair;
@@ -124,7 +126,7 @@ public class CommcareRequestGenerator implements CommcareRequestEndpoints {
                 baseUri,
                 params,
                 getHeaders(syncToken),
-                new Pair(username, password),
+                new AuthInfo.ProvidedAuth(username, password),
                 null);
 
         return requester.makeRequest();
@@ -156,7 +158,7 @@ public class CommcareRequestGenerator implements CommcareRequestEndpoints {
                 baseUri,
                 params,
                 new HashMap(),
-                new Pair(username, password),
+                new AuthInfo.ProvidedAuth(username, password),
                 null);
 
         return requester.makeRequest();
@@ -182,7 +184,8 @@ public class CommcareRequestGenerator implements CommcareRequestEndpoints {
             // For integration tests, use fake hash to trigger 412 recovery on this sync
             return fakeHash;
         } else {
-            return CaseDBUtils.computeCaseDbHash(CommCareApplication.instance().getUserStorage(ACase.STORAGE_KEY, ACase.class));
+            return CaseUtils.computeCaseDbHash(
+                    CommCareApplication.instance().getUserStorage(ACase.STORAGE_KEY, ACase.class));
         }
     }
 
@@ -198,9 +201,10 @@ public class CommcareRequestGenerator implements CommcareRequestEndpoints {
 
         if (User.TYPE_DEMO.equals(userType)) {
             params.put(SUBMIT_MODE, SUBMIT_MODE_DEMO);
+            params.put(AUTH_REQUEST_TYPE, AUTH_REQUEST_TYPE_NO_AUTH);
         }
 
-       requester = CommCareApplication.instance().buildHttpRequester(
+        requester = CommCareApplication.instance().buildHttpRequester(
                 CommCareApplication.instance(),
                 url,
                 params,
@@ -208,9 +212,9 @@ public class CommcareRequestGenerator implements CommcareRequestEndpoints {
                 null,
                 parts,
                 HTTPMethod.MULTIPART_POST,
-                new Pair(username, password),
+                new AuthInfo.ProvidedAuth(username, password),
                 null,
-               false);
+                false);
 
         return requester.makeRequest();
     }
@@ -228,7 +232,7 @@ public class CommcareRequestGenerator implements CommcareRequestEndpoints {
                 uri,
                 httpParams,
                 getHeaders(""),
-                new Pair(username, password),
+                new AuthInfo.ProvidedAuth(username, password),
                 null);
 
         Response<ResponseBody> response = requester.makeRequest();

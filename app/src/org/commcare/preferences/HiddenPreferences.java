@@ -1,6 +1,8 @@
 package org.commcare.preferences;
 
 import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
+import android.support.annotation.Nullable;
 
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
@@ -29,8 +31,13 @@ public class HiddenPreferences {
     public final static String LAST_SYNC_ATTEMPT = "last-ota-restore";
     public final static String LOG_LAST_DAILY_SUBMIT = "log_prop_last_daily";
     public final static String ID_OF_INTERRUPTED_SSD = "interrupted-ssd-id";
+    private final static String LATEST_RECOVERY_MEASURE = "latest-recovery-measure-exectued";
+    public static final String LAST_SUCCESSFUL_CC_VERSION = "last_successful_commcare_version";
+    public final static String FIRST_COMMCARE_RUN = "first-commcare-run";
+    public final static String LATEST_COMMCARE_VERSION = "latest-commcare-version";
+    public final static String LATEST_APP_VERSION = "latest-app-version";
 
-    // Preferences that are only ever set by being sent down from HQ via the profile file
+    // Preferences whose values are only ever set by being sent down from HQ via the profile file
     public final static String AUTO_SYNC_FREQUENCY = "cc-autosync-freq";
     private final static String ENABLE_SAVED_FORMS = "cc-show-saved";
     private final static String ENABLE_INCOMPLETE_FORMS = "cc-show-incomplete";
@@ -50,16 +57,14 @@ public class HiddenPreferences {
     // Used to make it so that CommCare will not conduct a multimedia validation check
     public final static String MM_VALIDATED_FROM_HQ = "cc-content-valid";
     private static final String USER_DOMAIN_SUFFIX = "cc_user_domain";
-
     private final static String LOGS_ENABLED = "logenabled";
     private final static String LOGS_ENABLED_YES = "Enabled";
-    public static final String LAST_SUCCESSFUL_CC_VERSION = "last_successful_commcare_version";
-
-    // Boolean pref to determine first commcare run
-    public final static String FIRST_COMMCARE_RUN = "first-commcare-run";
 
     // Boolean pref to determine whether user has already been through the update information form
     public final static String SHOW_XFORM_UPDATE_INFO = "show-xform-update-info";
+
+    // last known filepath where ccz was installed from
+    private static final String LAST_KNOWN_CCZ_LOCATION = "last_known_ccz_location";
 
     /**
      * @return How many seconds should a user session remain open before expiring?
@@ -233,6 +238,21 @@ public class HiddenPreferences {
                 .putInt(ID_OF_INTERRUPTED_SSD + currentUserId, -1).apply();
     }
 
+    public static long getLatestRecoveryMeasureExecuted() {
+        return CommCareApplication.instance().getCurrentApp().getAppPreferences()
+                .getLong(LATEST_RECOVERY_MEASURE, -1);
+    }
+
+    public static void setLatestRecoveryMeasureExecuted(long latestSequenceNumber) {
+        System.out.println("Executed recovery measure # " + latestSequenceNumber);
+        // The measure we executed may have been an app uninstall, so it's possible this will be null
+        if (CommCareApplication.instance().getCurrentApp() != null) {
+            CommCareApplication.instance().getCurrentApp().getAppPreferences()
+                    .edit().putLong(LATEST_RECOVERY_MEASURE, latestSequenceNumber)
+                    .apply();
+        }
+    }
+
     public static void setShowXformUpdateInfo(boolean showXformUpdateInfo) {
         CommCareApplication.instance().getCurrentApp().getAppPreferences().edit()
                 .putBoolean(SHOW_XFORM_UPDATE_INFO, showXformUpdateInfo).apply();
@@ -241,5 +261,39 @@ public class HiddenPreferences {
     public static Boolean shouldShowXformUpdateInfo() {
         return CommCareApplication.instance().getCurrentApp()
                 .getAppPreferences().getBoolean(SHOW_XFORM_UPDATE_INFO, false);
+    }
+
+    public static void setLatestCommcareVersion(String ccVersion) {
+        PreferenceManager.getDefaultSharedPreferences(CommCareApplication.instance())
+                .edit()
+                .putString(LATEST_COMMCARE_VERSION, ccVersion).apply();
+    }
+
+    public static String getLatestCommcareVersion() {
+        return PreferenceManager.getDefaultSharedPreferences(CommCareApplication.instance())
+                .getString(LATEST_COMMCARE_VERSION, null);
+    }
+
+    public static void setLatestAppVersion(int appVersion) {
+        CommCareApplication.instance().getCurrentApp().getAppPreferences()
+                .edit()
+                .putInt(LATEST_APP_VERSION, appVersion).apply();
+    }
+
+    public static int getLatestAppVersion() {
+        return CommCareApplication.instance().getCurrentApp().getAppPreferences()
+                .getInt(LATEST_APP_VERSION, -1);
+    }
+
+    public static void setLastKnownCczLocation(String cczPath) {
+                PreferenceManager.getDefaultSharedPreferences(CommCareApplication.instance())
+                .edit()
+                .putString(LAST_KNOWN_CCZ_LOCATION, cczPath).apply();
+    }
+
+    @Nullable
+    public static String getLastKnownCczLocation() {
+        return PreferenceManager.getDefaultSharedPreferences(CommCareApplication.instance())
+                .getString(LAST_KNOWN_CCZ_LOCATION, null);
     }
 }

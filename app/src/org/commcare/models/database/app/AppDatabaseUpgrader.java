@@ -10,8 +10,10 @@ import net.sqlcipher.database.SQLiteDatabase;
 
 import org.apache.commons.lang3.StringUtils;
 import org.commcare.android.database.app.models.FormDefRecord;
+import org.commcare.android.database.app.models.FormDefRecordV12;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.app.models.UserKeyRecordV1;
+import org.commcare.android.database.user.models.ACase;
 import org.commcare.android.resource.installers.XFormAndroidInstaller;
 import org.commcare.android.resource.installers.XFormAndroidInstallerV1;
 import org.commcare.android.storage.framework.Persisted;
@@ -23,6 +25,7 @@ import org.commcare.models.database.SqlStorage;
 import org.commcare.models.database.migration.FixtureSerializationMigration;
 import org.commcare.modern.database.TableBuilder;
 import org.commcare.provider.FormsProviderAPI;
+import org.commcare.recovery.measures.RecoveryMeasure;
 import org.commcare.resources.model.Resource;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.GlobalConstants;
@@ -58,11 +61,13 @@ class AppDatabaseUpgrader {
                 oldVersion = 2;
             }
         }
+
         if (oldVersion == 2) {
             if (upgradeTwoThree(db)) {
                 oldVersion = 3;
             }
         }
+
         if (oldVersion == 3) {
             if (upgradeThreeFour(db)) {
                 oldVersion = 4;
@@ -111,9 +116,22 @@ class AppDatabaseUpgrader {
             }
         }
 
+        if (oldVersion == 11) {
+            if (upgradeElevenTwelve(db)) {
+                oldVersion = 12;
+            }
+        }
+
+        if (oldVersion == 12) {
+            if (upgradeTwelveThirteen(db)) {
+                oldVersion = 13;
+            }
+        }
+
         //NOTE: If metadata changes are made to the Resource model, they need to be
         //managed by changing the TwoThree updater to maintain that metadata.
     }
+
 
     private boolean upgradeOneTwo(SQLiteDatabase db) {
         db.beginTransaction();
@@ -288,11 +306,11 @@ class AppDatabaseUpgrader {
     private boolean upgradeTenEleven(SQLiteDatabase db) {
         db.beginTransaction();
         try {
-            SqlStorage<FormDefRecord> formDefRecordStorage = new SqlStorage<>(
+            SqlStorage<FormDefRecordV12> formDefRecordStorage = new SqlStorage<>(
                     FormDefRecord.STORAGE_KEY,
-                    FormDefRecord.class,
+                    FormDefRecordV12.class,
                     new ConcreteAndroidDbHelper(context, db));
-            for (FormDefRecord formDefRecord : formDefRecordStorage) {
+            for (FormDefRecordV12 formDefRecord : formDefRecordStorage) {
                 String filePath = formDefRecord.getFilePath();
                 File formFile = new File(filePath);
 
@@ -313,18 +331,60 @@ class AppDatabaseUpgrader {
         return true;
     }
 
+    private boolean upgradeElevenTwelve(SQLiteDatabase db) {
+        db.beginTransaction();
+        try {
+            db.execSQL(new TableBuilder(RecoveryMeasure.class).getTableCreateString());
+            db.setTransactionSuccessful();
+            return true;
+        } finally {
+            db.endTransaction();
+        }
+    }
+
+
+    private boolean upgradeTwelveThirteen(SQLiteDatabase db) {
+        db.beginTransaction();
+        try {
+            db.execSQL(DbUtil.addColumnToTable(
+                    FormDefRecord.STORAGE_KEY,
+                    FormDefRecord.META_RESOURCE_VERSION,
+                    "INTEGER"));
+
+            SqlStorage<FormDefRecordV12> oldFormDefRecordStorage = new SqlStorage<>(
+                    FormDefRecord.STORAGE_KEY,
+                    FormDefRecordV12.class,
+                    new ConcreteAndroidDbHelper(context, db));
+
+            SqlStorage<FormDefRecord> formDefRecordStorage = new SqlStorage<>(
+                    FormDefRecord.STORAGE_KEY,
+                    FormDefRecord.class,
+                    new ConcreteAndroidDbHelper(context, db));
+
+            for (FormDefRecordV12 oldFormDefRecord : oldFormDefRecordStorage) {
+                FormDefRecord formDefRecord = new FormDefRecord(oldFormDefRecord);
+                formDefRecordStorage.update(oldFormDefRecord.getID(), formDefRecord);
+            }
+
+            db.setTransactionSuccessful();
+            return true;
+        } finally {
+            db.endTransaction();
+        }
+    }
+
     // migrate formProvider entries to db
     private void migrateFormProvider(SQLiteDatabase db) {
         Cursor cursor = null;
         try {
             cursor = context.getContentResolver().query(FormsProviderAPI.FormsColumns.CONTENT_URI, null, null, null, null);
             if (cursor != null && cursor.getCount() > 0) {
-                SqlStorage<FormDefRecord> formDefRecordStorage = new SqlStorage<>(
+                SqlStorage<FormDefRecordV12> formDefRecordStorage = new SqlStorage<>(
                         FormDefRecord.STORAGE_KEY,
-                        FormDefRecord.class,
+                        FormDefRecordV12.class,
                         new ConcreteAndroidDbHelper(context, db));
                 while (cursor.moveToNext()) {
-                    FormDefRecord formDefRecord = new FormDefRecord(cursor);
+                    FormDefRecordV12 formDefRecord = new FormDefRecordV12(cursor);
                     formDefRecord.save(formDefRecordStorage);
                 }
             }

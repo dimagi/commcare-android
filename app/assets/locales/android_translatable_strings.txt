@@ -23,10 +23,15 @@ apk.update.available.title=New version of ${0} is Available
 apk.update.required.title=New version of ${0} is Required
 ccz.update.available.title=New version of the application is available
 ccz.update.required.title=New version of the application is required
-prompted.update.help.text=If you have any issues updating, please contact your Helpdesk
+update.prompt.help.text=If you have issues updating CommCare, please contact your Helpdesk
+reinstall.prompt.help.text=If you have issues reinstalling CommCare, please contact your Helpdesk
+ccz.update.prompt.help.text=If you have issues updating your app, please contact your Helpdesk
 update.later.button.text=I'll update later
 ccz.update.action=Update to the Latest App Version
 apk.update.action=Update ${0} via the Play Store
+
+apk.reinstall.action=Go to this app on the Play Store
+apk.reinstall.instructions=Follow the link to view this app on the Play Store, select "UNINSTALL", and then select "INSTALL"
 
 verify.retry=Retry
 verify.checking=Verifying media...
@@ -95,7 +100,7 @@ menu.enable.privileges=Mobile Privileges
 menu.privilege.claim.disable=Disable Privileges
 menu.data.change.logs=Data Change Logs
 
-install.fail.error=We encountered an ${0} error processing your request. Please try again later. If the problem persists, contact technical support.
+install.fail.error=We encountered an ${0} error processing your request. Please try again later. If the problem persists, contact CommCare Support.
 
 sync.success.sent.none=No forms sent to server!
 sync.success.sent.singular=1 form sent to server!
@@ -105,10 +110,11 @@ sync.success.synced=Sync Successful! Your information is up to date.
 sync.fail.unsent=Having issues communicating with the server to send forms. Will try again later.
 sync.fail.timeout=CommCare didn't receive a response from the remote service in time, it may be busy! Please wait a while and try your request again later.
 sync.fail.auth.loggedin=Password has changed. Please log in with updated credentials
+sync.fail.empty.url=Sync url is not set. Please contact CommCare Support.
 sync.fail.bad.data=Server provided improperly formatted data, please try again or contact your supervisor.
 sync.fail.bad.local=Your information was fetched, but a problem occurred with the log in. Please try again.
 sync.fail.bad.network=Couldn't contact server. Please make sure an internet connection is available or try again later.
-sync.fail.server.error=The server encountered an error processing your data. Please try again later. If the problem persists, contact technical support.
+sync.fail.server.error=The server encountered an error processing your data. Please try again later. If the problem persists, contact CommCare Support.
 sync.fail.unknown=An unexpected issue occurred during sync. Please try to sync again.
 sync.fail.unsent=Having issues communicating with the server to send forms. Will try again later.
 sync.fail.individual=1 or more forms failed to send due to individual problems. See quarantined forms for details.
@@ -132,12 +138,12 @@ sync.progress=Completed: ${0}/${1}
 sync.recover.needed=Updating phone data from server.
 sync.recover.started=Recovering local DB State. Please do not turn off the app!
 
-form.entry.segfault=There was an unrecoverable error during form entry! If the problem persists, seek technical support
+form.entry.segfault=There was an unrecoverable error during form entry! If the problem persists, seek CommCare Support
 form.entry.processing=Processing your Form
 form.entry.processing.title=Processing Form
 form.entry.complete.save.success=Form successfully completed
 form.entry.incomplete.save.success=Form saved as incomplete
-form.entry.save.error=Sorry, form save failed. Please contact technical support to look into the issue.
+form.entry.save.error=Sorry, form save failed. Please contact CommCare Support to look into the issue.
 form.entry.save.invalid.unicode=Could not save '${0}' text in form.
 form.entry.finish.button=FINISH
 form.entry.restart.after.expiration=You were logged out due to session expiration. The form you were in the middle of has been saved and resumed.
@@ -466,6 +472,9 @@ refresh.build.settings.error=No refresh occurred. In order to use this utility, 
 login.attempt.fail.auth.title=Invalid Username or Password
 login.attempt.fail.auth.detail=Your username or password was not recognized, please type them again and retry.
 
+login.attempt.fail.empty.url.title=Url not set
+login.attempt.fail.empty.url.detail=Sync url is empty. Please contact CommCare Support.
+
 login.attempt.fail.pin.title=Invalid PIN
 login.attempt.fail.pin.detail=Please enter the 4 digit PIN number that you chose, or select "Forgot PIN?" in the options menu to login with your password instead.
 
@@ -481,11 +490,11 @@ login.attempt.fail.changed.action=If you had unsent data or incomplete forms on 
 
 notification.credential.mismatch.title=Mismatching Login Credentials
 notification.credential.mismatch.detail=The server recognized your password, but the password it sent to the device does not match 
-notification.credential.mismatch.action=Contact technical support for assistance with your account
+notification.credential.mismatch.action=Contact CommCare Support for assistance with your account
 
 notification.restore.remote.error.title=Remote Server Error
 notification.restore.remote.error.detail=The server had a problem trying to generate your sync data.
-notification.restore.remote.error.action=Try to sync again immediately, and then in an hour or so. If the sync still doesn't succeed, contact technical support.
+notification.restore.remote.error.action=Try to sync again immediately, and then in an hour or so. If the sync still doesn't succeed, contact CommCare Support.
 
 notification.restore.nonetwork.title=Couldn't Reach Server. Please check your network connection
 notification.restore.nonetwork.detail=Couldn't reach the server due to bad network connectivity.
@@ -503,13 +512,13 @@ notification.restore.storagefull.action=Check the amount of space available on y
 
 notification.restore.unknown.title=Unknown Error during Restore
 notification.restore.unknown.detail=CommCare had trouble dealing with something that happened when you tried to log in 
-notification.restore.unknown.action=Try to log in again. If you receive this message again, force close the application from the Manage Applications menu on the phone. If the error persists, contact technical support.
+notification.restore.unknown.action=Try to log in again. If you receive this message again, force close the application from the Manage Applications menu on the phone. If the error persists, contact CommCare Support.
 
 notification.restore.baddata.title=Bad Server Response
 notification.restore.baddata.detail=CommCare had trouble processing the network response. Please try again.
 
 notification.restore.data.requires.intervention.title=Bad Server Response
-notification.restore.data.requires.intervention.detail=CommCare tried to sync invalid data from the server. This may have been caused by a misconfiguration in your app and must be fixed in order to log in. Please contact your supervisor or CommCare support.
+notification.restore.data.requires.intervention.detail=CommCare tried to sync invalid data from the server. This may have been caused by a misconfiguration in your app and must be fixed in order to log in. Please contact your supervisor or CommCare Support.
 notification.restore.data.requires.intervention.action=\nTechnical details:\n${0}
 
 notification.install.installed.title=App Succesfully Installed
@@ -541,6 +550,9 @@ notification.update.failed.general.detail=${0}
 notification.update.resource.init.fail.title=Resource initialization failed
 notification.update.resource.init.fail.detail=An app resource failed to initialize. This is usually because a file is missing or the database has been corrupted.
 notification.update.resource.init.fail.action=Fixing this will usually require reinstalling CommCare.
+
+notification.reinstall.invalid.ccz.title=Invalid CCZ File
+notification.reinstall.invalid.ccz.detail=CCZ file you selected belongs to a different app. Please select the right CCZ file to reinstall app.
 
 notification.install.badarchive.title=Archive must be in file system
 notification.install.badarchive.detail=Your .ccz archive file must be on your phone's file system
@@ -578,7 +590,7 @@ notification.logger.serialized.title=Device Logs Pending
 notification.logger.serialized.detail=CommCare had a problem communicating device logs to the server. Will try again later. 
 
 notification.logger.error.title=Error submitting logs!
-notification.logger.error.detail=CommCare ran into an error trying to submit your device logs to the server! Please contact technical support if this persists.
+notification.logger.error.detail=CommCare ran into an error trying to submit your device logs to the server! Please contact CommCare Support if this persists.
 
 notification.formentry.unretrievable.title=Form Entry Error - Data Lost
 notification.formentry.unretrievable.detail=CommCare couldn't retrieve the data that you just entered. Something went wrong with the app's internal communication.
@@ -633,7 +645,7 @@ notification.network.timeout.action=Wait a short period and try your request aga
 
 notification.server.error.title=Server Error
 notification.server.error.detail=The server had an error processing your data
-notification.server.error.action=Please try again later. If the problem persists, contact technical support.
+notification.server.error.action=Please try again later. If the problem persists, contact CommCare Support.
 
 crash.warning.button=Restart CommCare
 crash.warning.header=CommCare crashed and needs to restart.
@@ -664,6 +676,7 @@ archive.install.cancelled=Offline installation cancelled
 archive.install.bad=The selected CCZ file is not valid. Please choose a valid ccz file.
 archive.install.unzip=Unzipping
 archive.install.no.browser=You need a file manager to access the files on this device. You have not installed a file manager, please go to the Google Play Store and download a file manager, then return to this screen.
+archive.install.error=Unexpected error installing the CCZ! Please try again. Error Text: ${0}
 
 archive.update.prompt=Update your CommCare application from a .ccz file
 archive.update.button=Update App

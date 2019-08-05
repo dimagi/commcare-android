@@ -13,7 +13,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
@@ -23,6 +22,9 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.jakewharton.rxbinding2.widget.AdapterViewItemClickEvent;
+import com.jakewharton.rxbinding2.widget.RxAdapterView;
 
 import org.commcare.CommCareApplication;
 import org.commcare.activities.components.EntitySelectCalloutSetup;
@@ -48,10 +50,10 @@ import org.commcare.suite.model.DetailField;
 import org.commcare.suite.model.EntityDatum;
 import org.commcare.tasks.EntityLoaderListener;
 import org.commcare.tasks.EntityLoaderTask;
+import org.commcare.utils.AndroidHereFunctionHandler;
 import org.commcare.utils.AndroidInstanceInitializer;
 import org.commcare.utils.EntityDetailUtils;
 import org.commcare.utils.EntitySelectRefreshTimer;
-import org.commcare.utils.AndroidHereFunctionHandler;
 import org.commcare.utils.SerializationUtil;
 import org.commcare.views.EntityView;
 import org.commcare.views.TabbedDetailView;
@@ -67,16 +69,21 @@ import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.OrderedHashtable;
+import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathTypeMismatchException;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
+
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.functions.Consumer;
 
 /**
  * @author ctsims
  */
 public class EntitySelectActivity extends SaveSessionCommCareActivity
-        implements EntityLoaderListener, OnItemClickListener, HereFunctionHandlerListener {
+        implements EntityLoaderListener, HereFunctionHandlerListener {
     private CommCareSession session;
     private AndroidSessionWrapper asw;
 
@@ -98,6 +105,8 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     private static final int MENU_ACTION = Menu.FIRST + 3;
 
     private static final int MENU_ACTION_GROUP = Menu.FIRST + 1;
+
+    private static final int CLICK_DEBOUNCE_TIME = 500;
 
     private EntityListAdapter adapter;
     private LinearLayout header;
@@ -263,7 +272,11 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             gridView.setVisibility(View.GONE);
             EntitySelectViewSetup.setupDivider(this, listView, shortSelect.usesEntityTileView());
         }
-        visibleView.setOnItemClickListener(this);
+        RxAdapterView.itemClickEvents(visibleView)
+                .subscribeOn(AndroidSchedulers.mainThread())
+                .throttleFirst(CLICK_DEBOUNCE_TIME, TimeUnit.MILLISECONDS)
+                .subscribe((Consumer<AdapterViewItemClickEvent>)clickEvent ->
+                        onEntitySelected(clickEvent.position()));
 
         header = findViewById(R.id.entity_select_header);
         entitySelectSearchUI = new EntitySelectSearchUI(this);
@@ -520,26 +533,29 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         }
     }
 
-    @Override
-    public void onItemClick(AdapterView<?> listView, View view, int position, long id) {
-        if (adapter.getItemViewType(position) == EntityListAdapter.ENTITY_TYPE) {
-            TreeReference selection = adapter.getItem(position);
+    public void onEntitySelected(int itemPosition) {
+        if (adapter.getItemViewType(itemPosition) == EntityListAdapter.ENTITY_TYPE) {
+            TreeReference selection = adapter.getItem(itemPosition);
             if (HiddenPreferences.isEntityDetailLoggingEnabled()) {
                 Logger.log(EntityDetailActivity.class.getSimpleName(), selectDatum.getLongDetail());
             }
-            if (inAwesomeMode) {
-                displayReferenceAwesome(selection, position);
-                updateSelectedItem(selection, false);
-            } else {
-                Intent i = EntityDetailUtils.getDetailIntent(getApplicationContext(),
-                        selection, null, selectDatum, asw);
-                i.putExtra("entity_detail_index", position);
-                if (mNoDetailMode) {
-                    // Not actually launching detail intent because there's no confirm detail available
-                    returnWithResult(i);
+            try {
+                if (inAwesomeMode) {
+                    displayReferenceAwesome(selection, itemPosition);
+                    updateSelectedItem(selection, false);
                 } else {
-                    startActivityForResult(i, CONFIRM_SELECT);
+                    Intent i = EntityDetailUtils.getDetailIntent(getApplicationContext(),
+                            selection, null, selectDatum, asw);
+                    i.putExtra("entity_detail_index", itemPosition);
+                    if (mNoDetailMode) {
+                        // Not actually launching detail intent because there's no confirm detail available
+                        returnWithResult(i);
+                    } else {
+                        startActivityForResult(i, CONFIRM_SELECT);
+                    }
                 }
+            } catch (XPathException e) {
+                UserfacingErrorHandling.logErrorAndShowDialog(this, e, true);
             }
         }
     }
@@ -830,6 +846,10 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         visibleView.setAdapter(adapter);
         adapter.registerDataSetObserver(this.mListStateObserver);
         containerFragment.setData(adapter);
+
+        if (entitySelectSearchUI != null) {
+            entitySelectSearchUI.restoreSearchString();
+        }
 
         // Pre-select entity if one was provided in original intent
         if (!resuming && !mNoDetailMode && inAwesomeMode && this.getIntent().hasExtra(EXTRA_ENTITY_KEY)) {
