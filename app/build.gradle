@@ -448,6 +448,8 @@ android {
 
     testOptions {
         unitTests.all {
+            maxHeapSize = "1024m"
+
             // Needed for robolectric tests to work with kxml for some bizarre reason
             jvmArgs '-noverify'
             systemProperty 'robolectric.logging.enable', true
