@@ -448,7 +448,7 @@ android {
 
     testOptions {
         unitTests.all {
-            maxHeapSize = "1536m"
+            maxHeapSize = "2048m"
 
             // Needed for robolectric tests to work with kxml for some bizarre reason
             jvmArgs '-noverify'
