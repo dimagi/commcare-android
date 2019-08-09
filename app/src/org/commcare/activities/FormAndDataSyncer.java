@@ -47,7 +47,12 @@ public class FormAndDataSyncer {
                                                 boolean userTriggered) {
         SqlStorage<FormRecord> storage = CommCareApplication.instance().getUserStorage(FormRecord.class);
         FormRecord[] records = StorageUtils.getUnsentRecordsForCurrentApp(storage);
-        HiddenPreferences.updateLastUploadAttemptTime();
+
+        // We only want to update the last upload sync time when it's a blocking sync
+        if (syncAfterwards) {
+            HiddenPreferences.updateLastUploadSyncAttemptTime();
+        }
+
         if (records.length > 0) {
             processAndSendForms(activity, records, syncAfterwards, userTriggered);
             return true;
@@ -61,7 +66,7 @@ public class FormAndDataSyncer {
                                     FormRecord[] records,
                                     final boolean syncAfterwards,
                                     final boolean userTriggered) {
-        HiddenPreferences.updateLastUploadAttemptTime();
+        HiddenPreferences.updateLastUploadSyncAttemptTime();
         ProcessAndSendTask<SyncCapableCommCareActivity> processAndSendTask =
                 new ProcessAndSendTask<SyncCapableCommCareActivity>(activity, getFormPostURL(activity), syncAfterwards) {
 
