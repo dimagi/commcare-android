@@ -298,11 +298,11 @@ public class HiddenPreferences {
                 .getString(LAST_KNOWN_CCZ_LOCATION, null);
     }
 
-    public static void setLastUploadAttemptTime(long time) {
+    public static void updateLastUploadAttemptTime() {
         String userId = CommCareApplication.instance().getSession().getLoggedInUser().getUniqueId();
         CommCareApplication.instance().getCurrentApp().getAppPreferences()
                 .edit()
-                .putLong(userId + "_" + LAST_UPLOAD_SYNC_ATTEMPT, time)
+                .putLong(userId + "_" + LAST_UPLOAD_SYNC_ATTEMPT, new Date().getTime())
                 .apply();
     }
 

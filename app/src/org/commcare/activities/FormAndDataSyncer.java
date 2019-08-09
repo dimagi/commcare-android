@@ -13,6 +13,7 @@ import org.commcare.models.database.SqlStorage;
 import org.commcare.network.DataPullRequester;
 import org.commcare.network.LocalReferencePullResponseFactory;
 import org.commcare.network.mocks.LocalFilePullResponseFactory;
+import org.commcare.preferences.HiddenPreferences;
 import org.commcare.preferences.ServerUrls;
 import org.commcare.suite.model.OfflineUserRestore;
 import org.commcare.tasks.DataPullTask;
@@ -46,7 +47,7 @@ public class FormAndDataSyncer {
                                                 boolean userTriggered) {
         SqlStorage<FormRecord> storage = CommCareApplication.instance().getUserStorage(FormRecord.class);
         FormRecord[] records = StorageUtils.getUnsentRecordsForCurrentApp(storage);
-
+        HiddenPreferences.updateLastUploadAttemptTime();
         if (records.length > 0) {
             processAndSendForms(activity, records, syncAfterwards, userTriggered);
             return true;
@@ -60,7 +61,7 @@ public class FormAndDataSyncer {
                                     FormRecord[] records,
                                     final boolean syncAfterwards,
                                     final boolean userTriggered) {
-
+        HiddenPreferences.updateLastUploadAttemptTime();
         ProcessAndSendTask<SyncCapableCommCareActivity> processAndSendTask =
                 new ProcessAndSendTask<SyncCapableCommCareActivity>(activity, getFormPostURL(activity), syncAfterwards) {
 

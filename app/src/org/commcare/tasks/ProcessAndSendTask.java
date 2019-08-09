@@ -99,8 +99,6 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
     protected FormUploadResult doTaskBackground(FormRecord... records) {
         boolean wroteErrorToLogs = false;
         try {
-            HiddenPreferences.setLastUploadAttemptTime(new Date().getTime());
-
             results = new FormUploadResult[records.length];
             for (int i = 0; i < records.length; ++i) {
                 //Assume failure
