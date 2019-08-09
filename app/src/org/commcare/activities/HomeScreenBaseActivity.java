@@ -1082,10 +1082,9 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
 
     private void triggerSync(boolean triggeredByAutoSyncPending) {
         if (triggeredByAutoSyncPending) {
-            long lastSync = CommCareApplication.instance().getCurrentApp().getAppPreferences()
-                    .getLong(HiddenPreferences.LAST_SYNC_ATTEMPT, 0);
-            String footer = lastSync == 0 ? "never" :
-                    SimpleDateFormat.getDateTimeInstance().format(lastSync);
+            long lastUploadSyncAttempt = HiddenPreferences.getLastUploadSyncAttempt();
+            String footer = lastUploadSyncAttempt == 0 ? "never" :
+                    SimpleDateFormat.getDateTimeInstance().format(lastUploadSyncAttempt);
             Logger.log(LogTypes.TYPE_USER, "autosync triggered. Last Sync|" + footer);
         }
 

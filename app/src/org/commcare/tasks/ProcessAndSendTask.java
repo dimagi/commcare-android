@@ -10,6 +10,7 @@ import org.commcare.CommCareApplication;
 import org.commcare.activities.SyncCapableCommCareActivity;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.models.FormRecordProcessor;
+import org.commcare.preferences.HiddenPreferences;
 import org.commcare.suite.model.Profile;
 import org.commcare.tasks.templates.CommCareTask;
 import org.commcare.tasks.templates.CommCareTaskConnector;
@@ -34,6 +35,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
@@ -97,6 +99,8 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
     protected FormUploadResult doTaskBackground(FormRecord... records) {
         boolean wroteErrorToLogs = false;
         try {
+            HiddenPreferences.setLastUploadAttemptTime(new Date().getTime());
+
             results = new FormUploadResult[records.length];
             for (int i = 0; i < records.length; ++i) {
                 //Assume failure
