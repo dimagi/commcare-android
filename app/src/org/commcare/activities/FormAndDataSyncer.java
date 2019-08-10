@@ -62,11 +62,11 @@ public class FormAndDataSyncer {
     }
 
     @SuppressLint("NewApi")
-    public void processAndSendForms(final SyncCapableCommCareActivity activity,
+    private void processAndSendForms(final SyncCapableCommCareActivity activity,
                                     FormRecord[] records,
                                     final boolean syncAfterwards,
                                     final boolean userTriggered) {
-        HiddenPreferences.updateLastUploadSyncAttemptTime();
+
         ProcessAndSendTask<SyncCapableCommCareActivity> processAndSendTask =
                 new ProcessAndSendTask<SyncCapableCommCareActivity>(activity, getFormPostURL(activity), syncAfterwards) {
 
