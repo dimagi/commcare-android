@@ -149,7 +149,7 @@ public abstract class DataPullTask<R>
         }
 
         publishProgress(PROGRESS_STARTED);
-        recordSyncAttempt();
+        HiddenPreferences.setPostUpdateSyncNeeded(false);
         Logger.log(LogTypes.TYPE_USER, "Starting Sync");
         determineIfLoginNeeded();
 
@@ -456,13 +456,6 @@ public abstract class DataPullTask<R>
         if (requestor != null) {
             requestor.abortCurrentRequest();
         }
-    }
-
-    private static void recordSyncAttempt() {
-        //TODO: This should be per _user_, not per app
-        CommCareApplication.instance().getCurrentApp().getAppPreferences().edit()
-                .putLong(HiddenPreferences.LAST_SYNC_ATTEMPT, new Date().getTime()).apply();
-        HiddenPreferences.setPostUpdateSyncNeeded(false);
     }
 
     private static void recordSuccessfulSyncTime(String username) {

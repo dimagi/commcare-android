@@ -13,6 +13,7 @@ import org.commcare.models.database.SqlStorage;
 import org.commcare.network.DataPullRequester;
 import org.commcare.network.LocalReferencePullResponseFactory;
 import org.commcare.network.mocks.LocalFilePullResponseFactory;
+import org.commcare.preferences.HiddenPreferences;
 import org.commcare.preferences.ServerUrls;
 import org.commcare.suite.model.OfflineUserRestore;
 import org.commcare.tasks.DataPullTask;
@@ -47,6 +48,11 @@ public class FormAndDataSyncer {
         SqlStorage<FormRecord> storage = CommCareApplication.instance().getUserStorage(FormRecord.class);
         FormRecord[] records = StorageUtils.getUnsentRecordsForCurrentApp(storage);
 
+        // We only want to update the last upload sync time when it's a blocking sync
+        if (syncAfterwards) {
+            HiddenPreferences.updateLastUploadSyncAttemptTime();
+        }
+
         if (records.length > 0) {
             processAndSendForms(activity, records, syncAfterwards, userTriggered);
             return true;
@@ -56,7 +62,7 @@ public class FormAndDataSyncer {
     }
 
     @SuppressLint("NewApi")
-    public void processAndSendForms(final SyncCapableCommCareActivity activity,
+    private void processAndSendForms(final SyncCapableCommCareActivity activity,
                                     FormRecord[] records,
                                     final boolean syncAfterwards,
                                     final boolean userTriggered) {
