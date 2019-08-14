@@ -62,7 +62,7 @@ public class FormAndDataSyncer {
     }
 
     @SuppressLint("NewApi")
-    private void processAndSendForms(final SyncCapableCommCareActivity activity,
+    protected void processAndSendForms(final SyncCapableCommCareActivity activity,
                                     FormRecord[] records,
                                     final boolean syncAfterwards,
                                     final boolean userTriggered) {
