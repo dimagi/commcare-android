@@ -31,18 +31,26 @@ public class SyncDetailCalculations {
 
     public static void updateSubText(final StandardHomeActivity activity,
                                      SquareButtonViewHolder squareButtonViewHolder,
-                                     HomeCardDisplayData cardDisplayData) {
+                                     HomeCardDisplayData cardDisplayData, String notificationText) {
 
         int numUnsentForms = getNumUnsentForms();
         Pair<Long, String> lastSyncTimeAndMessage = getLastSyncTimeAndMessage();
 
-        if (numUnsentForms > 0) {
-            Spannable syncIndicator = (activity.localize("home.unsent.forms.indicator",
-                    new String[]{String.valueOf(numUnsentForms)}));
-            squareButtonViewHolder.subTextView.setText(syncIndicator);
+        Spannable syncIndicator = (activity.localize("home.unsent.forms.indicator",
+                new String[]{String.valueOf(numUnsentForms)}));
+
+        String syncStatus;
+
+        if (notificationText != null) {
+            syncStatus = notificationText + "\n\n" + syncIndicator;
+        } else if (numUnsentForms == 0) {
+            syncStatus = lastSyncTimeAndMessage.second + "\n\n" + syncIndicator;
         } else {
-            squareButtonViewHolder.subTextView.setText(lastSyncTimeAndMessage.second);
+            syncStatus = syncIndicator.toString();
         }
+
+        squareButtonViewHolder.subTextView.setText(syncStatus);
+
         setSyncSubtextColor(
                 squareButtonViewHolder.subTextView, numUnsentForms, lastSyncTimeAndMessage.first,
                 activity.getResources().getColor(cardDisplayData.subTextColor),
