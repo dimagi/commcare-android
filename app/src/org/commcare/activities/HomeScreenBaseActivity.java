@@ -59,6 +59,7 @@ import org.commcare.util.LogTypes;
 import org.commcare.utils.AndroidCommCarePlatform;
 import org.commcare.utils.AndroidInstanceInitializer;
 import org.commcare.utils.ChangeLocaleUtil;
+import org.commcare.utils.CommCareUtil;
 import org.commcare.utils.CrashUtil;
 import org.commcare.utils.EntityDetailUtils;
 import org.commcare.utils.GlobalConstants;
@@ -343,22 +344,22 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
 
         DialogChoiceItem createPinChoice = new DialogChoiceItem(
                 Localization.get("pin.dialog.yes"), -1, v -> {
-                    dismissAlertDialog();
-                    launchPinCreateScreen(loginMode);
-                });
+            dismissAlertDialog();
+            launchPinCreateScreen(loginMode);
+        });
 
         DialogChoiceItem nextTimeChoice = new DialogChoiceItem(
                 Localization.get("pin.dialog.not.now"), -1, v -> dismissAlertDialog());
 
         DialogChoiceItem notAgainChoice = new DialogChoiceItem(
                 Localization.get("pin.dialog.never"), -1, v -> {
-                    dismissAlertDialog();
-                    CommCareApplication.instance().getCurrentApp().getAppPreferences()
-                            .edit()
-                            .putBoolean(HiddenPreferences.HAS_DISMISSED_PIN_CREATION, true)
-                            .apply();
-                    showPinFutureAccessDialog();
-                });
+            dismissAlertDialog();
+            CommCareApplication.instance().getCurrentApp().getAppPreferences()
+                    .edit()
+                    .putBoolean(HiddenPreferences.HAS_DISMISSED_PIN_CREATION, true)
+                    .apply();
+            showPinFutureAccessDialog();
+        });
 
 
         dialog.setChoiceItems(new DialogChoiceItem[]{createPinChoice, nextTimeChoice, notAgainChoice});
@@ -1124,7 +1125,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
     }
 
     /**
-     * @return true if we kicked off any processes
+     * @return true if we kicked off any foreground processes
      */
     private boolean checkForPendingAppHealthActions() {
         boolean kickedOff = false;
@@ -1137,6 +1138,12 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
             kickedOff = true;
         } else if (UpdatePromptHelper.promptForUpdateIfNeeded(this)) {
             kickedOff = true;
+        }
+
+        // Trigger background log submission if required
+        String username = CommCareApplication.instance().getSession().getLoggedInUser().getUsername();
+        if (HiddenPreferences.shouldForceLogs(username)) {
+            CommCareUtil.triggerLogSubmission(CommCareApplication.instance(), true);
         }
 
         CommCareApplication.instance().getSession().setAppHealthChecksCompleted();
