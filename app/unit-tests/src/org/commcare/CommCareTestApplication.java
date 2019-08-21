@@ -10,7 +10,6 @@ import org.commcare.android.util.TestUtils;
 import org.commcare.core.encryption.CryptUtil;
 import org.commcare.core.interfaces.HttpResponseProcessor;
 import org.commcare.core.network.AuthInfo;
-import org.commcare.core.network.CommCareNetworkServiceGenerator;
 import org.commcare.core.network.HTTPMethod;
 import org.commcare.core.network.ModernHttpRequester;
 import org.commcare.dalvik.BuildConfig;
@@ -21,11 +20,8 @@ import org.commcare.models.database.AndroidPrototypeFactorySetup;
 import org.commcare.models.database.HybridFileBackedSqlStorage;
 import org.commcare.models.database.HybridFileBackedSqlStorageMock;
 import org.commcare.models.encryption.ByteEncrypter;
-import org.commcare.modern.util.Pair;
 import org.commcare.network.DataPullRequester;
-import org.commcare.network.HttpUtils;
 import org.commcare.network.LocalReferencePullResponseFactory;
-import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.services.CommCareSessionService;
 import org.commcare.utils.AndroidCacheDirSetup;
 import org.javarosa.core.model.User;
@@ -37,7 +33,7 @@ import org.junit.Assert;
 import org.robolectric.Robolectric;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.TestLifecycleApplication;
-import org.robolectric.util.ServiceController;
+import org.robolectric.android.controller.ServiceController;
 
 import java.io.File;
 import java.lang.reflect.Method;
@@ -46,8 +42,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-
-import javax.annotation.Nullable;
 
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
@@ -125,7 +119,7 @@ public class CommCareTestApplication extends CommCareApplication implements Test
      */
     private static void initFactoryClassList() {
         if (factoryClassNames.isEmpty()) {
-            String baseODK = BuildConfig.BUILD_DIR + "/intermediates/classes/commcare/debug/";
+            String baseODK = BuildConfig.BUILD_DIR + "/intermediates/javac/commcareDebug/compileCommcareDebugJavaWithJavac/classes/";
             String baseCC = BuildConfig.PROJECT_DIR + "/../../commcare-core/build/classes/java/main/";
             addExternalizableClassesFromDir(baseODK.replace("/", File.separator), factoryClassNames);
             addExternalizableClassesFromDir(baseCC.replace("/", File.separator), factoryClassNames);
@@ -196,7 +190,7 @@ public class CommCareTestApplication extends CommCareApplication implements Test
                 new Intent(RuntimeEnvironment.application, CommCareSessionService.class);
         ServiceController<CommCareSessionService> serviceController =
                 Robolectric.buildService(CommCareSessionService.class, startIntent);
-        serviceController.attach()
+        serviceController
                 .create()
                 .startCommand(0, 1);
         return serviceController.get();

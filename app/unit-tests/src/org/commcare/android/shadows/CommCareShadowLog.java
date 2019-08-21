@@ -33,80 +33,86 @@ public class CommCareShadowLog extends ShadowLog {
     }
 
     @Implementation
-    public static void e(String tag, String msg) {
-        e(tag, msg, null);
+    public static int e(String tag, String msg) {
+        return e(tag, msg, null);
     }
 
     @Implementation
-    public static void e(String tag, String msg, Throwable throwable) {
+    public static int e(String tag, String msg, Throwable throwable) {
         if (shouldShowTag(tag)) {
             ShadowLog.e(tag, msg, throwable);
         }
+        return 0;
     }
 
     @Implementation
-    public static void d(String tag, String msg) {
-        d(tag, msg, null);
+    public static int d(String tag, String msg) {
+        return d(tag, msg, null);
     }
 
     @Implementation
-    public static void d(String tag, String msg, Throwable throwable) {
+    public static int d(String tag, String msg, Throwable throwable) {
         if (shouldShowTag(tag)) {
             ShadowLog.d(tag, msg, throwable);
         }
+        return 0;
     }
 
     @Implementation
-    public static void i(String tag, String msg) {
-        i(tag, msg, null);
+    public static int i(String tag, String msg) {
+        return i(tag, msg, null);
     }
 
     @Implementation
-    public static void i(String tag, String msg, Throwable throwable) {
+    public static int i(String tag, String msg, Throwable throwable) {
         if (shouldShowTag(tag)) {
             ShadowLog.i(tag, msg, throwable);
         }
+        return 0;
     }
 
     @Implementation
-    public static void v(String tag, String msg) {
-        v(tag, msg, null);
+    public static int v(String tag, String msg) {
+        return v(tag, msg, null);
     }
 
     @Implementation
-    public static void v(String tag, String msg, Throwable throwable) {
+    public static int v(String tag, String msg, Throwable throwable) {
         if (shouldShowTag(tag)) {
             ShadowLog.v(tag, msg, throwable);
         }
+        return 0;
     }
 
     @Implementation
-    public static void w(String tag, String msg) {
-        w(tag, msg, null);
+    public static int w(String tag, String msg) {
+        return w(tag, msg, null);
     }
 
     @Implementation
-    public static void w(String tag, Throwable throwable) {
-        w(tag, null, throwable);
+    public static int w(String tag, Throwable throwable) {
+        return w(tag, null, throwable);
     }
 
 
     @Implementation
-    public static void w(String tag, String msg, Throwable throwable) {
+    public static int w(String tag, String msg, Throwable throwable) {
         if (shouldShowTag(tag)) {
             ShadowLog.w(tag, msg, throwable);
         }
+        return 0;
     }
 
     @Implementation
-    public static void wtf(String tag, String msg) {
-        wtf(tag, msg, null);
+    public static int wtf(String tag, String msg) {
+        return wtf(tag, msg, null);
     }
 
     @Implementation
-    public static void wtf(String tag, String msg, Throwable throwable) {
+    public static int wtf(String tag, String msg, Throwable throwable) {
         if (shouldShowTag(tag)) {
             ShadowLog.wtf(tag, msg, throwable);
         }
+        return 0;
     }
 }

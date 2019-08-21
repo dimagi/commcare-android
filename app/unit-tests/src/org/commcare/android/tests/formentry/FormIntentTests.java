@@ -60,7 +60,7 @@ public class FormIntentTests {
     private void navigateFormStructure(Intent formEntryIntent) {
         // launch form entry
         FormEntryActivity formEntryActivity =
-                Robolectric.buildActivity(FormEntryActivity.class).withIntent(formEntryIntent)
+                Robolectric.buildActivity(FormEntryActivity.class, formEntryIntent)
                         .create().start().resume().get();
 
         ImageButton nextButton = formEntryActivity.findViewById(R.id.nav_btn_next);
