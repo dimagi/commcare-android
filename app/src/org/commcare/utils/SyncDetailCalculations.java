@@ -14,6 +14,7 @@ import org.commcare.dalvik.R;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.modern.util.Pair;
+import org.commcare.preferences.HiddenPreferences;
 import org.javarosa.core.services.locale.Localization;
 
 import java.text.DateFormat;
@@ -44,7 +45,10 @@ public class SyncDetailCalculations {
         if (notificationText != null) {
             syncStatus = notificationText + "\n\n" + syncIndicator;
         } else if (numUnsentForms == 0) {
-            syncStatus = lastSyncTimeAndMessage.second + "\n\n" + syncIndicator;
+            syncStatus = lastSyncTimeAndMessage.second;
+            if (HiddenPreferences.shouldShowUnsentFormsWhenZero()) {
+                syncStatus += "\n\n" + syncIndicator;
+            }
         } else {
             syncStatus = syncIndicator.toString();
         }

@@ -67,6 +67,7 @@ public class HiddenPreferences {
     // last known filepath where ccz was installed from
     private static final String LAST_KNOWN_CCZ_LOCATION = "last_known_ccz_location";
 
+
     /**
      * @return How many seconds should a user session remain open before expiring?
      */
@@ -83,6 +84,9 @@ public class HiddenPreferences {
             return oneDayInSecs;
         }
     }
+
+    // Controls whether to show the number of unsent forms on Sync button when there are no unsent forms
+    private final static String SHOW_UNSENT_FORMS_WHEN_ZERO = "cc-show_unsent_forms_when_zero";
 
     /**
      * @return Accuracy needed for GPS auto-capture to stop polling during form entry
@@ -310,5 +314,10 @@ public class HiddenPreferences {
         String userId = CommCareApplication.instance().getSession().getLoggedInUser().getUniqueId();
         return CommCareApplication.instance().getCurrentApp().getAppPreferences()
                 .getLong(userId + "_" + LAST_UPLOAD_SYNC_ATTEMPT, 0);
+    }
+
+    public static boolean shouldShowUnsentFormsWhenZero() {
+        SharedPreferences properties = CommCareApplication.instance().getCurrentApp().getAppPreferences();
+        return properties.getString(SHOW_UNSENT_FORMS_WHEN_ZERO, PrefValues.NO).equals(PrefValues.YES);
     }
 }
