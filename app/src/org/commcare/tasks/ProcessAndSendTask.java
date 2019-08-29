@@ -317,6 +317,12 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
                         int attemptsMade = 0;
                         logSubmissionAttempt(record);
                         while (attemptsMade < SUBMISSION_ATTEMPTS) {
+
+                            if (isCancelled()) {
+                                Logger.log(LogTypes.TYPE_USER, "Cancelling submission due to a manual stop. " + (i - 1) + " forms succesfully sent.");
+                                throw new TaskCancelledException();
+                            }
+
                             results[i] = FormUploadUtil.sendInstance(i, folder,
                                     new SecretKeySpec(record.getAesKey(), "AES"), url, this, user);
                             if (results[i] == FormUploadResult.FULL_SUCCESS) {

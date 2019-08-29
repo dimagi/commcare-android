@@ -100,8 +100,7 @@ public class PendingCalcs {
             return false;
         }
 
-        long lastRestore = prefs.getLong(HiddenPreferences.LAST_SYNC_ATTEMPT, 0);
-        return PendingCalcs.isPending(lastRestore, period);
+        return PendingCalcs.isPending(HiddenPreferences.getLastUploadSyncAttempt(), period);
     }
 
 }
