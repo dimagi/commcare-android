@@ -29,9 +29,13 @@ import static org.junit.Assert.assertTrue;
  *
  * @author Phillip Mates (pmates@dimagi.com)
  */
-@Config(application = CommCareTestApplication.class)
+
+// Using sdk 19 to get past NsdManager because of a bug in robolectric that causes NsdManager
+// to get initialized with a null context resulting in a NPE
+@Config(application = CommCareTestApplication.class, sdk = 19)
 @RunWith(CommCareTestRunner.class)
 public class CommCareSetupActivityTest {
+
 
     /**
      * Test that trying to install an app with an invalid suite file results in
@@ -41,6 +45,7 @@ public class CommCareSetupActivityTest {
     @Test
     public void invalidAppInstall() {
         String invalidUpdateReference = "jr://resource/commcare-apps/update_tests/invalid_suite_update/profile.ccpr";
+
 
         // start the setup activity
         Intent setupIntent =
