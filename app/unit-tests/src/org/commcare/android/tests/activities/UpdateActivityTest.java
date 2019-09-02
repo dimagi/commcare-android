@@ -37,7 +37,7 @@ import static org.junit.Assert.assertNull;
 
 // Using sdk 19 to get past NsdManager because of a bug in robolectric that causes NsdManager
 // to get initialized with a null context resulting in a NPE
-@Config(application = CommCareTestApplication.class, sdk = 19)
+@Config(application = CommCareTestApplication.class, sdk = 18)
 @RunWith(CommCareTestRunner.class)
 public class UpdateActivityTest {
     @Before
