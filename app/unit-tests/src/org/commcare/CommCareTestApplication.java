@@ -2,6 +2,7 @@ package org.commcare;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.StrictMode;
 import android.util.Log;
 
 import org.commcare.android.database.app.models.UserKeyRecord;
@@ -71,6 +72,11 @@ public class CommCareTestApplication extends CommCareApplication implements Test
             asyncExceptions.add(ex);
             Assert.fail(ex.getMessage());
         });
+    }
+
+    @Override
+    protected void turnOnStrictMode() {
+        StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder().build());
     }
 
     @Override
