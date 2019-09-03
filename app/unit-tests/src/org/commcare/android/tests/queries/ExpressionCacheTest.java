@@ -1,6 +1,7 @@
 package org.commcare.android.tests.queries;
 
 import org.commcare.CommCareApplication;
+import org.commcare.CommCareTestApplication;
 import org.commcare.android.CommCareTestRunner;
 import org.commcare.android.util.TestUtils;
 import org.commcare.cases.instance.CaseChildElement;
@@ -23,7 +24,7 @@ import org.robolectric.annotation.Config;
  * Created by amstone326 on 2/2/18.
  */
 
-@Config(application = CommCareApplication.class)
+@Config(application = CommCareTestApplication.class)
 @RunWith(CommCareTestRunner.class)
 public class ExpressionCacheTest {
 

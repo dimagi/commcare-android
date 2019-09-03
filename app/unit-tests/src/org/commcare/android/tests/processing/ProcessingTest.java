@@ -1,6 +1,7 @@
 package org.commcare.android.tests.processing;
 
 import org.commcare.CommCareApplication;
+import org.commcare.CommCareTestApplication;
 import org.commcare.android.CommCareTestRunner;
 import org.commcare.android.util.TestUtils;
 import org.commcare.cases.model.Case;
@@ -17,7 +18,7 @@ import static junit.framework.Assert.assertEquals;
 /**
  * @author ctsims
  */
-@Config(application = CommCareApplication.class)
+@Config(application = CommCareTestApplication.class)
 @RunWith(CommCareTestRunner.class)
 public class ProcessingTest {
 
