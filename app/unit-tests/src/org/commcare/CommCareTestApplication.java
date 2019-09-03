@@ -76,7 +76,11 @@ public class CommCareTestApplication extends CommCareApplication implements Test
 
     @Override
     protected void turnOnStrictMode() {
-        StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder().build());
+        StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder()
+                .detectLeakedSqlLiteObjects()
+                .detectLeakedClosableObjects()
+                .penaltyLog()
+                .build());
     }
 
     @Override
