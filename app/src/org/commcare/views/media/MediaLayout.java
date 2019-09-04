@@ -7,7 +7,7 @@ import android.graphics.Bitmap;
 import android.graphics.Point;
 import android.net.Uri;
 import android.os.Build;
-import android.support.annotation.IdRes;
+import androidx.annotation.IdRes;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;

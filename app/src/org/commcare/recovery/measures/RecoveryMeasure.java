@@ -3,8 +3,8 @@ package org.commcare.recovery.measures;
 import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
-import android.support.annotation.IntDef;
-import android.support.annotation.StringDef;
+import androidx.annotation.IntDef;
+import androidx.annotation.StringDef;
 
 import org.commcare.AppUtils;
 import org.commcare.CommCareApplication;

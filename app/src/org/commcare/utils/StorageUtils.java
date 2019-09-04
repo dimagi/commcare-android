@@ -1,17 +1,12 @@
 package org.commcare.utils;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import org.commcare.CommCareApplication;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.android.database.user.models.FormRecord;
-import org.commcare.preferences.HiddenPreferences;
-import org.commcare.recovery.measures.RecoveryMeasure;
 
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
 import java.util.Vector;
 
 /**
