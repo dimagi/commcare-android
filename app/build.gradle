@@ -1,6 +1,8 @@
 import org.apache.tools.ant.filters.ReplaceTokens
 import com.android.builder.core.DefaultManifestParser
 
+import java.util.function.BooleanSupplier
+
 ////////////
 // README //
 ////////////
@@ -36,9 +38,8 @@ configurations {
 dependencies {
 
     testImplementation 'junit:junit:4.12'
-    testImplementation('org.robolectric:robolectric:3.2.2')
-    testImplementation 'org.robolectric:shadows-multidex:3.2.2'
-    testImplementation 'org.robolectric:shadows-core:3.2.2'
+    testImplementation 'org.robolectric:robolectric:4.3'
+    testImplementation 'org.robolectric:shadows-multidex:4.3'
     testImplementation 'org.json:json:20140107'
     testImplementation project(path: ':commcare-core', configuration: 'testsAsJar')
 
@@ -357,7 +358,12 @@ android {
             // next to play store version
 
             // grab commcare version from manifest
-            def manifestParser = new DefaultManifestParser(android.sourceSets.main.manifest.srcFile)
+            def manifestParser = new DefaultManifestParser(android.sourceSets.main.manifest.srcFile, new BooleanSupplier() {
+                @Override
+                boolean getAsBoolean() {
+                    return true
+                }
+            }, null)
             def ccVersion = manifestParser.getVersionName()
             // convert numbers to words to use in app id
             def ccVersionSafe = numbersToLetters(ccVersion)
@@ -453,6 +459,9 @@ android {
             systemProperty 'robolectric.logging.enable', true
             systemProperty 'robolectric.logging', 'stdout'
         }
+        unitTests {
+            includeAndroidResources = true
+        }
     }
 }
 
@@ -478,12 +487,14 @@ downloadCCApp {
 }
 
 // dynamic check at task execution time
-downloadCCApp << {
-    if (ccAppId.equals("")) {
-        throw new InvalidUserDataException("Please provide cc_app_id property (CommCare App ID) to be packaged with apk")
-    }
-    if (ccDomain.equals("")) {
-        throw new InvalidUserDataException("Please provide cc_domain property (CommCare App Domain) to be packaged with apk")
+downloadCCApp {
+    doLast {
+        if (ccAppId.equals("")) {
+            throw new InvalidUserDataException("Please provide cc_app_id property (CommCare App ID) to be packaged with apk")
+        }
+        if (ccDomain.equals("")) {
+            throw new InvalidUserDataException("Please provide cc_domain property (CommCare App Domain) to be packaged with apk")
+        }
     }
 }
 
@@ -506,12 +517,14 @@ downloadRestoreFile {
 }
 
 // dynamic check at task execution time
-downloadRestoreFile << {
-    if (consumerAppUsername.equals("")) {
-        throw new InvalidUserDataException("Please provide username for restore to be packaged with apk")
-    }
-    if (consumerAppPassword.equals("")) {
-        throw new InvalidUserDataException("Please provide password for restore to be packaged with apk")
+downloadRestoreFile {
+    doLast {
+        if (consumerAppUsername.equals("")) {
+            throw new InvalidUserDataException("Please provide username for restore to be packaged with apk")
+        }
+        if (consumerAppPassword.equals("")) {
+            throw new InvalidUserDataException("Please provide password for restore to be packaged with apk")
+        }
     }
 }
 

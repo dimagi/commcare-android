@@ -41,8 +41,8 @@ public class CaseLoadUtils {
         Assert.assertEquals(EntitySelectActivity.class.getName(), intentActivityName);
 
         // start the entity select activity
-        return Robolectric.buildActivity(EntitySelectActivity.class)
-                .withIntent(entitySelectIntent).setup().get();
+        return Robolectric.buildActivity(EntitySelectActivity.class, entitySelectIntent)
+                .setup().get();
     }
 
 }

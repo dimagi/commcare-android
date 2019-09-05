@@ -683,7 +683,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                 return;
             }
             Bundle appRestrictions = restrictionsManager.getApplicationRestrictions();
-            if (appRestrictions.containsKey("username") &&
+            if (appRestrictions!=null && appRestrictions.containsKey("username") &&
                     appRestrictions.containsKey("password")) {
                 uiController.setUsername(appRestrictions.getString("username"));
                 uiController.setPasswordOrPin(appRestrictions.getString("password"));

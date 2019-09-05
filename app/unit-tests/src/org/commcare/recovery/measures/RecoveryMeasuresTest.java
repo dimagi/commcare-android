@@ -18,9 +18,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.Robolectric;
 import org.robolectric.Shadows;
+import org.robolectric.android.controller.ActivityController;
 import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowActivity;
-import org.robolectric.util.ActivityController;
 
 import java.util.List;
 
@@ -147,7 +147,7 @@ public class RecoveryMeasuresTest {
 
         // launch home activty
         StandardHomeActivity homeActivity =
-                Robolectric.buildActivity(StandardHomeActivity.class).withIntent(homeActivityIntent)
+                Robolectric.buildActivity(StandardHomeActivity.class, homeActivityIntent)
                         .create().start().resume().get();
         ShadowActivity shadowHomeActivity = Shadows.shadowOf(homeActivity);
 
