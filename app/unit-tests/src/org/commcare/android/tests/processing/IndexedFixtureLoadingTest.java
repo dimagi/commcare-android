@@ -53,6 +53,10 @@ public class IndexedFixtureLoadingTest {
                 "instance('commtrack:products')/products/@last_sync",
                 "2018-07-27T12:56:10.835570+00:00"));
 
+        assertTrue(CaseTestUtils.xpathEvalAndCompare(evalContext,
+                "instance('commtrack:products')/products/@missing_attr",
+                ""));
+
         // check that the '@id' attribute and the 'id' element are treated differently
         assertTrue(CaseTestUtils.xpathEvalAndCompare(evalContext,
                 "instance('commtrack:products')/products/product[@id = 'f895be4959f9a8a66f57c340aac461b4']/name",
