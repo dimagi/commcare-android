@@ -1,6 +1,6 @@
 package org.commcare.logic;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import org.commcare.views.widgets.WidgetFactory;
 import org.javarosa.core.model.FormIndex;

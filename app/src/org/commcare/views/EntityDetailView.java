@@ -5,7 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Build;
-import android.support.annotation.IdRes;
+import androidx.annotation.IdRes;
 import android.text.method.LinkMovementMethod;
 import android.view.Display;
 import android.view.GestureDetector;
