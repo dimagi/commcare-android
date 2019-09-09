@@ -18,9 +18,11 @@ import android.os.Looper;
 import android.os.StrictMode;
 import android.preference.PreferenceManager;
 import android.provider.Settings.Secure;
+
 import androidx.annotation.NonNull;
 import androidx.multidex.MultiDexApplication;
 import androidx.core.content.ContextCompat;
+
 import android.telephony.TelephonyManager;
 import android.text.format.DateUtils;
 import android.util.Log;
@@ -81,6 +83,7 @@ import org.commcare.preferences.LocalePreferences;
 import org.commcare.services.CommCareSessionService;
 import org.commcare.session.CommCareSession;
 import org.commcare.tasks.DataSubmissionListener;
+import org.commcare.tasks.DeleteLogs;
 import org.commcare.tasks.LogSubmissionTask;
 import org.commcare.tasks.PurgeStaleArchivedFormsTask;
 import org.commcare.tasks.UpdateTask;
@@ -108,14 +111,20 @@ import org.javarosa.core.util.PropertyUtils;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 
 import java.io.File;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Nullable;
 import javax.crypto.SecretKey;
 
+import androidx.work.ExistingWorkPolicy;
+import androidx.work.OneTimeWorkRequest;
+import androidx.work.PeriodicWorkRequest;
+import androidx.work.WorkManager;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 
@@ -123,12 +132,15 @@ public class CommCareApplication extends MultiDexApplication {
 
     private static final String TAG = CommCareApplication.class.getSimpleName();
 
+    public static final long MILLISECONDS_IN_A_DAY = 24 * 60 * 60 * 1000;
+
     private static final int STATE_UNINSTALLED = 0;
     private static final int STATE_READY = 2;
     public static final int STATE_CORRUPTED = 4;
     public static final int STATE_LEGACY_DETECTED = 8;
     public static final int STATE_MIGRATION_FAILED = 16;
     public static final int STATE_MIGRATION_QUESTIONABLE = 32;
+    private static final String DELETE_LOGS_REQUEST = "delete-logs-request";
 
     private int dbState;
 
@@ -716,6 +728,12 @@ public class CommCareApplication extends MultiDexApplication {
                         if (EntityStorageCache.getEntityCacheWipedPref(user.getUniqueId()) < ReportingUtils.getAppVersion()) {
                             EntityStorageCache.wipeCacheForCurrentApp();
                         }
+
+                        if (shouldRunLogDeletion()) {
+                            OneTimeWorkRequest deleteLogsRequest = new OneTimeWorkRequest.Builder(DeleteLogs.class).build();
+                            WorkManager.getInstance(CommCareApplication.instance())
+                                    .enqueueUniqueWork(DELETE_LOGS_REQUEST, ExistingWorkPolicy.KEEP, deleteLogsRequest);
+                        }
                     }
 
                     TimedStatsTracker.registerStartSession();
@@ -739,6 +757,13 @@ public class CommCareApplication extends MultiDexApplication {
         startService(new Intent(this, CommCareSessionService.class));
         bindService(new Intent(this, CommCareSessionService.class), mConnection, Context.BIND_AUTO_CREATE);
         sessionServiceIsBinding = true;
+    }
+
+    // check if it's been a week since last run
+    private boolean shouldRunLogDeletion() {
+        long lastLogDeletionRun = HiddenPreferences.getLastLogDeletionTime();
+        long aWeekBeforeNow = new Date().getTime() - (MILLISECONDS_IN_A_DAY * 7L);
+        return new Date(lastLogDeletionRun).before(new Date(aWeekBeforeNow));
     }
 
     @SuppressLint("NewApi")

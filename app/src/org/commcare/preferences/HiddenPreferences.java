@@ -38,6 +38,7 @@ public class HiddenPreferences {
     public final static String FIRST_COMMCARE_RUN = "first-commcare-run";
     public final static String LATEST_COMMCARE_VERSION = "latest-commcare-version";
     public final static String LATEST_APP_VERSION = "latest-app-version";
+    private static final String LAST_LOG_DELETION_TIME = "last_log_deletion_time";
     private final static String FORCE_LOGS = "force-logs";
 
     // Preferences whose values are only ever set by being sent down from HQ via the profile file
@@ -350,4 +351,20 @@ public class HiddenPreferences {
         SharedPreferences properties = CommCareApplication.instance().getCurrentApp().getAppPreferences();
         return properties.getString(SHOW_UNSENT_FORMS_WHEN_ZERO, PrefValues.NO).equals(PrefValues.YES);
     }
+
+    public static void updateLastLogDeletionTime() {
+        String userId = CommCareApplication.instance().getSession().getLoggedInUser().getUniqueId();
+        CommCareApplication.instance().getCurrentApp().getAppPreferences()
+                .edit()
+                .putLong(userId + "_" + LAST_LOG_DELETION_TIME, new Date().getTime())
+                .apply();
+    }
+
+    public static long getLastLogDeletionTime() {
+        String userId = CommCareApplication.instance().getSession().getLoggedInUser().getUniqueId();
+        return CommCareApplication.instance().getCurrentApp().getAppPreferences()
+                .getLong(userId + "_" + LAST_LOG_DELETION_TIME, 0);
+    }
+
+
 }

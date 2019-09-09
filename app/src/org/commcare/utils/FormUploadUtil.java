@@ -29,6 +29,7 @@ import java.net.UnknownHostException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import javax.crypto.Cipher;
@@ -164,7 +165,7 @@ public class FormUploadUtil {
         Response<ResponseBody> response;
 
         try {
-            response = generator.postMultipart(url, parts, queryParams);
+            response = generator.postMultipart(url, parts, new HashMap<>());
         } catch (InputIOException ioe) {
             // This implies that there was a problem with the _source_ of the
             // transmission, not the processing or receiving end.
