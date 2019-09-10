@@ -1,13 +1,9 @@
 package org.commcare.views.widgets;
 
-import android.app.Activity;
-import android.content.DialogInterface;
 import android.content.Context;
-import android.content.pm.ActivityInfo;
-import android.content.res.Configuration;
 import android.graphics.Rect;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,13 +23,15 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.Map;
 
+import androidx.fragment.app.DialogFragment;
+
 /**
  * Created by Saumya on 5/29/2016.
  * DialogFragment for a popup calendar icon
  * Uses support library for compatibility with pre-honeycomb devices
  * Layout and logic inspired by Ahmed Al-Amir at https://www.toptal.com/android/android-customization-how-to-build-a-ui-component-that-does-what-you-want
  */
-public class CalendarFragment extends android.support.v4.app.DialogFragment {
+public class CalendarFragment extends DialogFragment {
 
     private GridView calendarGrid;
     private ImageButton cancel;

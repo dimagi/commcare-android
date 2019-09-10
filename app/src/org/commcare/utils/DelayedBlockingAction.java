@@ -1,6 +1,6 @@
 package org.commcare.utils;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 /**
  * A delayed blocking action will be executed at most one time after some fixed period of delay.

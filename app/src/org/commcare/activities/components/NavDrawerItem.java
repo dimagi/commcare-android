@@ -1,6 +1,6 @@
 package org.commcare.activities.components;
 
-import android.support.annotation.DrawableRes;
+import androidx.annotation.DrawableRes;
 
 /**
  * Represents a single item in the RootMenuHomeActivity's nav drawer

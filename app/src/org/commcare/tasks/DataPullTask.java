@@ -2,7 +2,7 @@ package org.commcare.tasks;
 
 import android.content.Context;
 import android.content.Intent;
-import android.support.v4.util.Pair;
+import androidx.core.util.Pair;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
@@ -45,8 +45,6 @@ import org.javarosa.core.util.PropertyUtils;
 import org.javarosa.xml.util.ActionableInvalidStructureException;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;

@@ -9,7 +9,7 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;
-import android.support.v4.content.ContextCompat;
+import androidx.core.content.ContextCompat;
 
 import org.commcare.activities.CommCareActivity;
 import org.commcare.dalvik.R;

@@ -2,12 +2,11 @@ package org.commcare.preferences;
 
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
-import android.support.annotation.NonNull;
-import android.support.v7.preference.ListPreference;
+import androidx.annotation.NonNull;
+import androidx.preference.ListPreference;
 
 import org.commcare.dalvik.R;
 import org.commcare.fragments.CommCarePreferenceFragment;
-import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 
 import java.util.Map;
 

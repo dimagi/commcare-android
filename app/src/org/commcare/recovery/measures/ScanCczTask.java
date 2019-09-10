@@ -1,7 +1,7 @@
 package org.commcare.recovery.measures;
 
 import android.os.Environment;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 
 import org.apache.commons.lang3.StringUtils;
 import org.commcare.CommCareApplication;
