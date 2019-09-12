@@ -10,6 +10,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import javax.annotation.Nullable;
+
+import okhttp3.Headers;
 import okhttp3.ResponseBody;
 import retrofit2.Response;
 
@@ -20,6 +23,9 @@ public class JavaHttpReference implements Reference {
 
     private final String uri;
     private CommcareRequestEndpoints generator;
+
+    @Nullable
+    private Headers responseHeaders;
 
     public JavaHttpReference(String uri, CommcareRequestGenerator generator) {
         this.uri = uri;
@@ -42,6 +48,7 @@ public class JavaHttpReference implements Reference {
     public InputStream getStream() throws IOException {
         Response<ResponseBody> response = generator.simpleGet(uri);
         if (response.isSuccessful()) {
+            responseHeaders = response.headers();
             return response.body().byteStream();
         } else {
             if (response.code() == 406) {
@@ -66,6 +73,10 @@ public class JavaHttpReference implements Reference {
         throw new IOException("Http references are read only!");
     }
 
+    @Nullable
+    public Headers getResponseHeaders() {
+        return responseHeaders;
+    }
 
     @Override
     public String getLocalURI() {

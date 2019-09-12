@@ -15,6 +15,7 @@ import static org.junit.Assert.fail;
  * @author Phillip Mates (pmates@dimagi.com)
  */
 public class UpdateUtils {
+
     public static void installUpdate(String appFolder,
                                      AppInstallStatus expectedUpdateStatus,
                                      AppInstallStatus expectedInstallStatus) {

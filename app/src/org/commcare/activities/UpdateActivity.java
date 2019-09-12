@@ -35,6 +35,7 @@ import org.commcare.util.LogTypes;
 import org.commcare.utils.ConnectivityStatus;
 import org.commcare.utils.ConsumerAppsUtil;
 import org.commcare.utils.SessionUnavailableException;
+import org.commcare.utils.SyncDetailCalculations;
 import org.commcare.views.dialogs.CustomProgressDialog;
 import org.commcare.views.dialogs.DialogChoiceItem;
 import org.commcare.views.dialogs.PaneledChoiceDialog;
@@ -367,6 +368,11 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
      * Block the user with a dialog while the update is finalized.
      */
     protected void launchUpdateInstallTask() {
+        if(isUpdateBlockedOnSync()){
+            // We wanna redirect to Home Screen and trigger an auto-sync
+            Intent intent =
+            return;
+        }
         InstallStagedUpdateTask<UpdateActivity> task =
                 new InstallStagedUpdateTask<UpdateActivity>(DIALOG_UPGRADE_INSTALL) {
 
@@ -402,6 +408,15 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
         task.executeParallel();
         isApplyingUpdate = true;
         uiController.applyingUpdateUiState();
+    }
+
+    public static boolean isUpdateBlockedOnSync() {
+        if (HiddenPreferences.preUpdateSyncNeeded()) {
+            long lastSyncTime = SyncDetailCalculations.getLastSyncTime();
+            long updateReleasedOnTime = HiddenPreferences.geReleasedOnTimeForOngoingAppDownload();
+            return lastSyncTime < updateReleasedOnTime;
+        }
+        return false;
     }
 
     @Override

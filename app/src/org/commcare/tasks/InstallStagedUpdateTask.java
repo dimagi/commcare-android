@@ -5,10 +5,12 @@ import org.commcare.CommCareApplication;
 import org.commcare.engine.resource.AndroidResourceManager;
 import org.commcare.engine.resource.AppInstallStatus;
 import org.commcare.engine.resource.ResourceInstallUtils;
+import org.commcare.preferences.HiddenPreferences;
 import org.commcare.resources.model.ResourceInitializationException;
 import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.tasks.templates.CommCareTask;
 import org.commcare.utils.AndroidCommCarePlatform;
+import org.commcare.utils.SyncDetailCalculations;
 
 /**
  * Blocks user while performing installation of staged update table.

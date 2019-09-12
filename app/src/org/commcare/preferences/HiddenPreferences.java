@@ -2,6 +2,7 @@ package org.commcare.preferences;
 
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+
 import androidx.annotation.Nullable;
 
 import org.commcare.CommCareApp;
@@ -27,6 +28,7 @@ public class HiddenPreferences {
     public final static String LAST_LOGGED_IN_USER = "last_logged_in_user";
     final static String LAST_PASSWORD = "last_password";
     public final static String POST_UPDATE_SYNC_NEEDED = "post-update-sync-needed";
+    public final static String PRE_UPDATE_SYNC_NEEDED = "pre-update-sync-needed";
     public final static String AUTO_UPDATE_IN_PROGRESS = "cc-trying-to-auto-update";
     public final static String LAST_UPDATE_ATTEMPT = "cc-last_up";
     public final static String LAST_UPLOAD_SYNC_ATTEMPT = "last-upload-sync";
@@ -58,8 +60,10 @@ public class HiddenPreferences {
     // Used to make it so that CommCare will not conduct a multimedia validation check
     public final static String MM_VALIDATED_FROM_HQ = "cc-content-valid";
     private static final String USER_DOMAIN_SUFFIX = "cc_user_domain";
+    private static final String RESTRICT_APP_UPDATES_BASED_ON_LAST_RESTORE_TIME = "cc-restrict-updates-based-on-last-restore-time";
     private final static String LOGS_ENABLED = "logenabled";
     private final static String LOGS_ENABLED_YES = "Enabled";
+    private final static String RELEASED_ON_TIME_FOR_ONGOING_APP_DOWNLOAD = "released-on-time-for-ongoing-app-download";
 
     // Boolean pref to determine whether user has already been through the update information form
     public final static String SHOW_XFORM_UPDATE_INFO = "show-xform-update-info";
@@ -320,4 +324,22 @@ public class HiddenPreferences {
         SharedPreferences properties = CommCareApplication.instance().getCurrentApp().getAppPreferences();
         return properties.getString(SHOW_UNSENT_FORMS_WHEN_ZERO, PrefValues.NO).equals(PrefValues.YES);
     }
+
+    public static boolean preUpdateSyncNeeded() {
+        SharedPreferences properties = CommCareApplication.instance().getCurrentApp().getAppPreferences();
+        return properties.getString(PRE_UPDATE_SYNC_NEEDED, PrefValues.NO).equals(PrefValues.YES);
+    }
+
+    public static void setReleasedOnTimeForOngoingAppDownload(long releasedOnTime) {
+        CommCareApplication.instance().getCurrentApp().getAppPreferences()
+                .edit()
+                .putLong(RELEASED_ON_TIME_FOR_ONGOING_APP_DOWNLOAD, releasedOnTime)
+                .apply();
+    }
+
+    public static long geReleasedOnTimeForOngoingAppDownload() {
+        return CommCareApplication.instance().getCurrentApp().getAppPreferences()
+                .getLong(RELEASED_ON_TIME_FOR_ONGOING_APP_DOWNLOAD, 0);
+    }
+
 }

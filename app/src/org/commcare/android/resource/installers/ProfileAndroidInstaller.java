@@ -8,6 +8,8 @@ import org.commcare.AppUtils;
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.global.models.ApplicationRecord;
+import org.commcare.engine.references.JavaHttpReference;
+import org.commcare.preferences.HiddenPreferences;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceLocation;
 import org.commcare.resources.model.ResourceTable;
@@ -30,6 +32,9 @@ import org.xmlpull.v1.XmlPullParserException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Date;
+
+import okhttp3.Headers;
 
 /**
  * @author ctsims
@@ -37,6 +42,7 @@ import java.util.ArrayList;
 public class ProfileAndroidInstaller extends FileSystemInstaller {
 
     private static final String KEY_TARGET_PACKAGE_ID = "target-package-id";
+    private static final String HEADER_RELEASED_ON = "released_on";
 
     @SuppressWarnings("unused")
     public ProfileAndroidInstaller() {
@@ -79,6 +85,7 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
             throws UnresolvedResourceException, UnfullfilledRequirementsException {
         //First, make sure all the file stuff is managed.
         super.install(r, location, ref, table, platform, upgrade, recovery);
+        storeReleasedTime(ref);
         InputStream inputStream = null;
         try {
             Reference local = ReferenceManager.instance().DeriveReference(localLocation);
@@ -117,6 +124,22 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
         }
 
         return false;
+    }
+
+    private void storeReleasedTime(Reference ref) {
+        long releasedOnTime = -1;
+        if (ref instanceof JavaHttpReference) {
+            Headers responseHeaders = ((JavaHttpReference)ref).getResponseHeaders();
+            if (responseHeaders != null) {
+                releasedOnTime = new Date(responseHeaders.get(HEADER_RELEASED_ON)).getTime();
+            }
+        }
+        // If we don't have the release time, guess it as current time
+        if (releasedOnTime == -1) {
+            releasedOnTime = new Date().getTime();
+        }
+
+        HiddenPreferences.setReleasedOnTimeForOngoingAppDownload(releasedOnTime);
     }
 
     // Makes sure we are recovering from profile belonging to the same app
