@@ -111,7 +111,7 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
 
     @Override
     protected LogSubmitOutcomes doInBackground(Void... params) {
-        if (HiddenPreferences.isLogSubmissionEnabled()) {
+        if (forceLogs || HiddenPreferences.isLogSubmissionEnabled()) {
             try {
                 SqlStorage<DeviceReportRecord> storage =
                         CommCareApplication.instance().getUserStorage(DeviceReportRecord.class);
@@ -281,7 +281,6 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
 
         HashMap<String, String> queryParams = new HashMap<>();
         queryParams.put(QUERY_PARAM_FORCE_LOGS, String.valueOf(forceLogs));
-        queryParams.put(QUERY_PARAM_DEVICE_ID, CommCareApplication.instance().getPhoneId());
 
         Response<ResponseBody> response = null;
         try {
