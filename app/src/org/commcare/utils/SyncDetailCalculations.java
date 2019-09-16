@@ -2,6 +2,7 @@ package org.commcare.utils;
 
 import android.content.SharedPreferences;
 import android.text.Spannable;
+import android.text.TextUtils;
 import android.text.format.DateUtils;
 import android.widget.TextView;
 
@@ -40,17 +41,20 @@ public class SyncDetailCalculations {
         Spannable syncIndicator = (activity.localize("home.unsent.forms.indicator",
                 new String[]{String.valueOf(numUnsentForms)}));
 
-        String syncStatus;
+        String syncStatus = "";
 
         if (notificationText != null) {
-            syncStatus = notificationText + "\n\n" + syncIndicator;
+            syncStatus = notificationText;
         } else if (numUnsentForms == 0) {
             syncStatus = lastSyncTimeAndMessage.second;
-            if (HiddenPreferences.shouldShowUnsentFormsWhenZero()) {
-                syncStatus += "\n\n" + syncIndicator;
+        }
+
+
+        if (numUnsentForms != 0 || HiddenPreferences.shouldShowUnsentFormsWhenZero()) {
+            if (!TextUtils.isEmpty(syncStatus)) {
+                syncStatus += "\n\n";
             }
-        } else {
-            syncStatus = syncIndicator.toString();
+            syncStatus += syncIndicator;
         }
 
         squareButtonViewHolder.subTextView.setText(syncStatus);
