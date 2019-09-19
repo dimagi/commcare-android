@@ -1,7 +1,7 @@
 package org.commcare.tasks;
 
 import android.content.Context;
-import android.support.v4.util.Pair;
+import androidx.core.util.Pair;
 
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;

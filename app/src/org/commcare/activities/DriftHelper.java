@@ -3,11 +3,10 @@ package org.commcare.activities;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.support.v7.preference.PreferenceManager;
+import androidx.preference.PreferenceManager;
 
 import org.commcare.CommCareApplication;
 import org.commcare.core.services.CommCarePreferenceManagerFactory;
-import org.commcare.core.services.ICommCarePreferenceManager;
 import org.commcare.dalvik.R;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.preferences.PrefValues;
