@@ -699,6 +699,12 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             tryToAddSearchActionToAppBar(this, menu, entitySelectSearchUI.getActionBarInstantiator());
             setupActionOptionsMenu(menu);
         }
+
+        MenuItem settingsItem = menu.findItem(R.id.menu_settings);
+        if (settingsItem != null) {
+            settingsItem.setTitle(Localization.get("select.menu.settings"));
+        }
+
         return true;
     }
 
