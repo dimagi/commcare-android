@@ -1,7 +1,5 @@
 package org.commcare.logging;
 
-import android.util.Log;
-
 import org.commcare.android.javarosa.AndroidLogEntry;
 import org.commcare.models.database.SqlStorage;
 import org.javarosa.core.log.LogEntry;
@@ -9,7 +7,6 @@ import org.javarosa.core.log.StreamLogSerializer;
 import org.javarosa.core.services.storage.EntityFilter;
 import org.javarosa.core.util.SortedIntSet;
 
-import java.util.Date;
 import java.util.Hashtable;
 
 /**

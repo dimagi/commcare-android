@@ -173,7 +173,7 @@ public class AdvancedActionsPreferences extends CommCarePreferenceFragment {
         forceSubmitButton.setOnPreferenceClickListener(preference -> {
             FirebaseAnalyticsUtil.reportAdvancedActionSelected(
                     AnalyticsParamValue.FORCE_LOG_SUBMISSION);
-            CommCareUtil.triggerLogSubmission(getActivity(), true);
+            CommCareUtil.triggerLogSubmission(getActivity(), false);
             return true;
         });
 

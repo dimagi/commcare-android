@@ -1059,8 +1059,7 @@ public class CommCareApplication extends MultiDexApplication {
     }
 
 
-    public ModernHttpRequester createGetRequester(Context context, String
-            url, Map<String, String> params,
+    public ModernHttpRequester createGetRequester(Context context, String url, Map<String, String> params,
                                                   HashMap headers, AuthInfo authInfo,
                                                   @Nullable HttpResponseProcessor responseProcessor) {
         return buildHttpRequester(context, url, params, headers, null, null,

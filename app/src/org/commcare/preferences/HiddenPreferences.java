@@ -1,9 +1,7 @@
 package org.commcare.preferences;
 
 import android.content.SharedPreferences;
-import android.preference.Preference;
 import android.preference.PreferenceManager;
-import androidx.annotation.Nullable;
 
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
@@ -12,6 +10,8 @@ import org.commcare.utils.GeoUtils;
 
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
+
+import androidx.annotation.Nullable;
 
 /**
  * Provides hooks for reading and writing all preferences that are not configurable by the user in
@@ -213,12 +213,11 @@ public class HiddenPreferences {
 
     public static boolean isLogSubmissionEnabled() {
         if (CommCareApplication.instance().getCurrentApp() == null) {
-            return true;
+            return false;
         }
 
         SharedPreferences properties = CommCareApplication.instance().getCurrentApp().getAppPreferences();
-        String logsEnabled = properties.getString(LOGS_ENABLED, LOGS_ENABLED_YES);
-        return !properties.contains(LOGS_ENABLED) || logsEnabled.equals(LOGS_ENABLED_YES);
+        return properties.getString(LOGS_ENABLED, LOGS_ENABLED_YES).contentEquals(LOGS_ENABLED_YES);
     }
 
     public static boolean isIncompleteFormsEnabled() {
@@ -320,17 +319,17 @@ public class HiddenPreferences {
     }
 
 
-    public static void setForceLogs(String username, boolean forceLogs) {
+    public static void setForceLogs(String userId, boolean forceLogs) {
         PreferenceManager.getDefaultSharedPreferences(CommCareApplication.instance())
                 .edit()
-                .putBoolean(username + "_" + FORCE_LOGS, forceLogs)
+                .putBoolean(userId + "_" + FORCE_LOGS, forceLogs)
                 .apply();
 
     }
 
-    public static boolean shouldForceLogs(String username) {
+    public static boolean shouldForceLogs(String userId) {
         return PreferenceManager.getDefaultSharedPreferences(CommCareApplication.instance())
-                .getBoolean(username + "_" + FORCE_LOGS, false);
+                .getBoolean(userId + "_" + FORCE_LOGS, false);
     }
 
     public static void updateLastUploadSyncAttemptTime() {

@@ -1139,8 +1139,8 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
         }
 
         // Trigger background log submission if required
-        String username = CommCareApplication.instance().getSession().getLoggedInUser().getUsername();
-        if (HiddenPreferences.shouldForceLogs(username)) {
+        String userId = CommCareApplication.instance().getSession().getLoggedInUser().getUniqueId();
+        if (HiddenPreferences.shouldForceLogs(userId)) {
             CommCareUtil.triggerLogSubmission(CommCareApplication.instance(), true);
         }
 

@@ -199,7 +199,7 @@ public class ResourceInstallUtils {
      * For instance, to point the reference to the latest app build instead of
      * the latest release.
      */
-        public static String addParamsToProfileReference(String profileRef) {
+    public static String addParamsToProfileReference(String profileRef) {
         URL profileUrl;
         try {
             profileUrl = new URL(profileRef);

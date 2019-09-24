@@ -1,7 +1,5 @@
 package org.commcare.heartbeat;
 
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
 import android.util.Log;
 
 import org.commcare.CommCareApplication;
@@ -103,9 +101,9 @@ public class HeartbeatRequester extends GetAndParseActor {
     }
 
     private void checkForForceLogs(JSONObject responseAsJson) {
-        String username = CommCareApplication.instance().getSession().getLoggedInUser().getUsername();
-        HiddenPreferences.setForceLogs(username, responseAsJson.optBoolean("force_logs", false));
-        if (HiddenPreferences.shouldForceLogs(username)) {
+        String userId = CommCareApplication.instance().getSession().getLoggedInUser().getUniqueId();
+        HiddenPreferences.setForceLogs(userId, responseAsJson.optBoolean("force_logs", false));
+        if (HiddenPreferences.shouldForceLogs(userId)) {
             CommCareUtil.triggerLogSubmission(CommCareApplication.instance(), true);
         }
     }
