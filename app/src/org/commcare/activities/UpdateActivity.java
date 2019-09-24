@@ -370,7 +370,8 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
     protected void launchUpdateInstallTask() {
         if(isUpdateBlockedOnSync()){
             // We wanna redirect to Home Screen and trigger an auto-sync
-            Intent intent =
+            Intent intent = new Intent(this, DispatchActivity.class);
+            startActivity(intent);
             return;
         }
         InstallStagedUpdateTask<UpdateActivity> task =
