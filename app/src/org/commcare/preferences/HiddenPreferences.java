@@ -206,9 +206,7 @@ public class HiddenPreferences {
         }
         SharedPreferences properties = CommCareApplication.instance().getCurrentApp().getAppPreferences();
         String logsEnabled = properties.getString(LOGS_ENABLED, LOGS_ENABLED_YES);
-        return !properties.contains(LOGS_ENABLED) ||
-                logsEnabled.equals(LOGS_ENABLED_YES) ||
-                logsEnabled.equals(LOGS_ENABLED_ON_DEMAND);
+        return logsEnabled.equals(LOGS_ENABLED_YES) || logsEnabled.equals(LOGS_ENABLED_ON_DEMAND);
     }
 
     public static boolean isLogSubmissionEnabled() {
@@ -322,28 +320,29 @@ public class HiddenPreferences {
     public static void setForceLogs(String userId, boolean forceLogs) {
         PreferenceManager.getDefaultSharedPreferences(CommCareApplication.instance())
                 .edit()
-                .putBoolean(userId + "_" + FORCE_LOGS, forceLogs)
+                .putBoolean(getUserSpecificKey(userId, FORCE_LOGS), forceLogs)
                 .apply();
 
     }
 
+
     public static boolean shouldForceLogs(String userId) {
         return PreferenceManager.getDefaultSharedPreferences(CommCareApplication.instance())
-                .getBoolean(userId + "_" + FORCE_LOGS, false);
+                .getBoolean(getUserSpecificKey(userId, FORCE_LOGS), false);
     }
 
     public static void updateLastUploadSyncAttemptTime() {
         String userId = CommCareApplication.instance().getSession().getLoggedInUser().getUniqueId();
         CommCareApplication.instance().getCurrentApp().getAppPreferences()
                 .edit()
-                .putLong(userId + "_" + LAST_UPLOAD_SYNC_ATTEMPT, new Date().getTime())
+                .putLong(getUserSpecificKey(userId, LAST_UPLOAD_SYNC_ATTEMPT), new Date().getTime())
                 .apply();
     }
 
     public static long getLastUploadSyncAttempt() {
         String userId = CommCareApplication.instance().getSession().getLoggedInUser().getUniqueId();
         return CommCareApplication.instance().getCurrentApp().getAppPreferences()
-                .getLong(userId + "_" + LAST_UPLOAD_SYNC_ATTEMPT, 0);
+                .getLong(getUserSpecificKey(userId, LAST_UPLOAD_SYNC_ATTEMPT), 0);
     }
 
     public static boolean shouldShowUnsentFormsWhenZero() {
@@ -355,15 +354,17 @@ public class HiddenPreferences {
         String userId = CommCareApplication.instance().getSession().getLoggedInUser().getUniqueId();
         CommCareApplication.instance().getCurrentApp().getAppPreferences()
                 .edit()
-                .putLong(userId + "_" + LAST_LOG_DELETION_TIME, new Date().getTime())
+                .putLong(getUserSpecificKey(userId, LAST_LOG_DELETION_TIME), new Date().getTime())
                 .apply();
     }
 
     public static long getLastLogDeletionTime() {
         String userId = CommCareApplication.instance().getSession().getLoggedInUser().getUniqueId();
         return CommCareApplication.instance().getCurrentApp().getAppPreferences()
-                .getLong(userId + "_" + LAST_LOG_DELETION_TIME, 0);
+                .getLong(getUserSpecificKey(userId, LAST_LOG_DELETION_TIME), 0);
     }
 
-
+    private static String getUserSpecificKey(String userId, String preferenceName) {
+        return userId + "_" + preferenceName;
+    }
 }

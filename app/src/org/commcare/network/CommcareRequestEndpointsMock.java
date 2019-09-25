@@ -88,4 +88,9 @@ public class CommcareRequestEndpointsMock implements CommcareRequestEndpoints {
     public void abortCurrentRequest() {
         throw new RuntimeException("Not yet mocked");
     }
+
+    @Override
+    public Response<ResponseBody> postLogs(String submissionUrl, List<MultipartBody.Part> parts, boolean forceLogs) throws IOException {
+        throw new RuntimeException("Not yet mocked");
+    }
 }

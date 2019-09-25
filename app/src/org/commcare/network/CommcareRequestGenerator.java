@@ -46,6 +46,7 @@ public class CommcareRequestGenerator implements CommcareRequestEndpoints {
 
     private static final String SUBMIT_MODE = "submit_mode";
     private static final String SUBMIT_MODE_DEMO = "demo";
+    private static final String QUERY_PARAM_FORCE_LOGS = "force_logs";
 
     private final String username;
     private final String password;
@@ -188,7 +189,9 @@ public class CommcareRequestGenerator implements CommcareRequestEndpoints {
     }
 
     @Override
-    public Response<ResponseBody> postMultipart(String url, List<MultipartBody.Part> parts, HashMap<String, String> queryParams) throws IOException {
+    public Response<ResponseBody> postMultipart(String url, List<MultipartBody.Part> parts, HashMap<String, String> params) throws IOException {
+
+        HashMap<String, String> queryParams = new HashMap<>(params);
 
         //If we're going to try to post with no credentials, we need to be explicit about the fact that we're not ready
         if (username == null || password == null) {
@@ -243,5 +246,12 @@ public class CommcareRequestGenerator implements CommcareRequestEndpoints {
         if (requester != null) {
             requester.cancelRequest();
         }
+    }
+
+    @Override
+    public Response<ResponseBody> postLogs(String submissionUrl, List<MultipartBody.Part> parts, boolean forceLogs) throws IOException {
+        HashMap<String, String> queryParams = new HashMap<>();
+        queryParams.put(QUERY_PARAM_FORCE_LOGS, String.valueOf(forceLogs));
+        return postMultipart(submissionUrl, parts, queryParams);
     }
 }

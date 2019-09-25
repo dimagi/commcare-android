@@ -132,8 +132,6 @@ public class CommCareApplication extends MultiDexApplication {
 
     private static final String TAG = CommCareApplication.class.getSimpleName();
 
-    public static final long MILLISECONDS_IN_A_DAY = 24 * 60 * 60 * 1000;
-
     private static final int STATE_UNINSTALLED = 0;
     private static final int STATE_READY = 2;
     public static final int STATE_CORRUPTED = 4;
@@ -762,7 +760,7 @@ public class CommCareApplication extends MultiDexApplication {
     // check if it's been a week since last run
     private boolean shouldRunLogDeletion() {
         long lastLogDeletionRun = HiddenPreferences.getLastLogDeletionTime();
-        long aWeekBeforeNow = new Date().getTime() - (MILLISECONDS_IN_A_DAY * 7L);
+        long aWeekBeforeNow = new Date().getTime() - (DateUtils.DAY_IN_MILLIS * 7L);
         return new Date(lastLogDeletionRun).before(new Date(aWeekBeforeNow));
     }
 

@@ -52,9 +52,6 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
     private static final long SUBMISSION_START = 32;
     private static final long SUBMISSION_NOTIFY = 64;
     private static final long SUBMISSION_DONE = 128;
-    private static final String QUERY_PARAM_FORCE_LOGS = "force_logs";
-    private static final String QUERY_PARAM_DEVICE_ID = "device_id";
-
 
     protected enum LogSubmitOutcomes implements MessageTag {
         /**
@@ -279,12 +276,10 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
                 "text/xml",
                 new SecretKeySpec(slr.getKey(), "AES")));
 
-        HashMap<String, String> queryParams = new HashMap<>();
-        queryParams.put(QUERY_PARAM_FORCE_LOGS, String.valueOf(forceLogs));
 
         Response<ResponseBody> response = null;
         try {
-            response = generator.postMultipart(submissionUrl, parts, queryParams);
+            response = generator.postLogs(submissionUrl, parts, forceLogs);
         } catch (IOException e) {
             e.printStackTrace();
             return false;
