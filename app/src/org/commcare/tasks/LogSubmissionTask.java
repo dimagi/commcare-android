@@ -108,14 +108,16 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
 
     @Override
     protected LogSubmitOutcomes doInBackground(Void... params) {
-        if (forceLogs || HiddenPreferences.isLogSubmissionEnabled()) {
-            try {
-                SqlStorage<DeviceReportRecord> storage =
-                        CommCareApplication.instance().getUserStorage(DeviceReportRecord.class);
 
-                if (serializeCurrentLogs && !serializeLogs(storage)) {
-                    return LogSubmitOutcomes.Error;
-                }
+        try {
+            SqlStorage<DeviceReportRecord> storage =
+                    CommCareApplication.instance().getUserStorage(DeviceReportRecord.class);
+
+            if (serializeCurrentLogs && !serializeLogs(storage)) {
+                return LogSubmitOutcomes.Error;
+            }
+
+            if (forceLogs || HiddenPreferences.isLogSubmissionEnabled()) {
 
                 // See how many we have pending to submit
                 int numberOfLogsToSubmit = storage.getNumRecords();
@@ -138,16 +140,16 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
 
                 // Reset force_logs if the logs submission was successful
                 if (result == LogSubmitOutcomes.Submitted) {
-                    HiddenPreferences.setForceLogs(CommCareApplication.instance().getSession().getLoggedInUser().getUsername(), false);
+                    HiddenPreferences.setForceLogs(CommCareApplication.instance().getSession().getLoggedInUser().getUniqueId(), false);
                 }
 
                 return result;
-            } catch (SessionUnavailableException e) {
-                // The user database closed on us
-                return LogSubmitOutcomes.Error;
+            } else {
+                return LogSubmitOutcomes.Submitted;
             }
-        } else {
-            return LogSubmitOutcomes.Submitted;
+        } catch (SessionUnavailableException e) {
+            // The user database closed on us
+            return LogSubmitOutcomes.Error;
         }
     }
 
