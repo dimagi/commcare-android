@@ -14,10 +14,6 @@ import org.javarosa.core.model.utils.DateUtils
 import java.io.File
 import java.util.Date
 import java.util.Vector
-import android.R.attr.path
-import java.nio.file.Files
-import java.nio.file.Paths
-import java.nio.file.attribute.BasicFileAttributes
 
 
 // A Worker class used for deleting any logs older than 3 months
