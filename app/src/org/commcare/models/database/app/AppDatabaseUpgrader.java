@@ -264,7 +264,7 @@ class AppDatabaseUpgrader {
             upgradeXFormAndroidInstallerV1(RECOVERY_RESOURCE_TABLE_NAME, db);
 
             // Create FormDef table
-            TableBuilder builder = new TableBuilder(FormDefRecord.class);
+            TableBuilder builder = new TableBuilder(FormDefRecordV12.class);
             db.execSQL(builder.getTableCreateString());
 
             migrateFormProvider(db);
