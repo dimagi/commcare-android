@@ -1,6 +1,6 @@
 package org.commcare.android.storage.framework;
 
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 
 import org.commcare.models.framework.Persisting;
 import org.commcare.modern.models.MetaField;

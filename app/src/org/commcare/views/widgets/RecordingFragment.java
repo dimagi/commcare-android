@@ -10,7 +10,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.SystemClock;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,11 +23,12 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import org.commcare.dalvik.R;
-import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.javarosa.core.services.locale.Localization;
 
 import java.io.File;
 import java.io.IOException;
+
+import androidx.fragment.app.DialogFragment;
 
 /**
  * A popup dialog fragment that handles recording_fragment and saving of audio
@@ -36,7 +36,7 @@ import java.io.IOException;
  *
  * @author Saumya Jain (sjain@dimagi.com)
  */
-public class RecordingFragment extends android.support.v4.app.DialogFragment {
+public class RecordingFragment extends DialogFragment {
 
     public static final String AUDIO_FILE_PATH_ARG_KEY = "audio_file_path";
 

@@ -5,7 +5,7 @@ import android.content.SharedPreferences;
 import android.graphics.Rect;
 import android.os.Build;
 import android.preference.PreferenceManager;
-import android.support.v4.widget.TextViewCompat;
+import androidx.core.widget.TextViewCompat;
 import android.util.TypedValue;
 import android.view.View;
 import android.widget.FrameLayout;

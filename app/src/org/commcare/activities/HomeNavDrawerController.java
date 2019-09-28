@@ -4,9 +4,8 @@ import android.annotation.TargetApi;
 import android.app.ActionBar;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v4.widget.DrawerLayout;
-import android.view.View;
-import android.widget.AdapterView;
+import androidx.drawerlayout.widget.DrawerLayout;
+
 import android.widget.ListView;
 
 import org.commcare.CommCareApplication;

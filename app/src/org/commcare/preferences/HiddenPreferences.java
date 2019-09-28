@@ -2,7 +2,7 @@ package org.commcare.preferences;
 
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;

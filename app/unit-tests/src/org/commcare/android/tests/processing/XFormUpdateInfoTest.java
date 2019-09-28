@@ -81,7 +81,7 @@ public class XFormUpdateInfoTest {
     private ShadowActivity navigateFormEntry(Intent formEntryIntent) {
         // launch form entry
         FormEntryActivity formEntryActivity =
-                Robolectric.buildActivity(FormEntryActivity.class).withIntent(formEntryIntent)
+                Robolectric.buildActivity(FormEntryActivity.class, formEntryIntent)
                         .create().start().resume().get();
         formEntryActivity.findViewById(R.id.nav_btn_finish).performClick();
 
