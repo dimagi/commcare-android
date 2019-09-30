@@ -14,8 +14,8 @@ import org.commcare.logging.XPathErrorEntry;
 import org.commcare.logging.XPathErrorSerializer;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.network.CommcareRequestGenerator;
-import org.commcare.preferences.ServerUrls;
 import org.commcare.preferences.HiddenPreferences;
+import org.commcare.preferences.ServerUrls;
 import org.commcare.tasks.LogSubmissionTask.LogSubmitOutcomes;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.FormUploadUtil;
@@ -31,7 +31,6 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 
 import javax.crypto.Cipher;
@@ -108,49 +107,55 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
 
     @Override
     protected LogSubmitOutcomes doInBackground(Void... params) {
-
         try {
-            SqlStorage<DeviceReportRecord> storage =
-                    CommCareApplication.instance().getUserStorage(DeviceReportRecord.class);
+            String logsEnabled = HiddenPreferences.getLogsEnabled();
 
-            if (serializeCurrentLogs && !serializeLogs(storage)) {
-                return LogSubmitOutcomes.Error;
-            }
+            // We want to serialize logs in on demand mode, but only submit to server when triggered using forcelogs
+            if (forceLogs
+                    || logsEnabled.contentEquals(HiddenPreferences.LOGS_ENABLED_YES)
+                    || logsEnabled.contentEquals(HiddenPreferences.LOGS_ENABLED_ON_DEMAND)) {
 
-            if (forceLogs || HiddenPreferences.isLogSubmissionEnabled()) {
+                SqlStorage<DeviceReportRecord> storage =
+                        CommCareApplication.instance().getUserStorage(DeviceReportRecord.class);
 
-                // See how many we have pending to submit
-                int numberOfLogsToSubmit = storage.getNumRecords();
-                if (numberOfLogsToSubmit == 0) {
-                    return LogSubmitOutcomes.Submitted;
+                if (serializeCurrentLogs && !serializeLogs(storage)) {
+                    return LogSubmitOutcomes.Error;
                 }
 
-                // Signal to the listener that we're ready to submit
-                this.beginSubmissionProcess(numberOfLogsToSubmit);
+                if (forceLogs || logsEnabled.contentEquals(HiddenPreferences.LOGS_ENABLED_YES)) {
 
-                ArrayList<Integer> submittedSuccesfullyIds = new ArrayList<>();
-                ArrayList<DeviceReportRecord> submittedSuccesfully = new ArrayList<>();
-                submitReports(storage, submittedSuccesfullyIds, submittedSuccesfully);
+                    // See how many we have pending to submit
+                    int numberOfLogsToSubmit = storage.getNumRecords();
+                    if (numberOfLogsToSubmit == 0) {
+                        return LogSubmitOutcomes.Submitted;
+                    }
 
-                if (!removeLocalReports(storage, submittedSuccesfullyIds, submittedSuccesfully)) {
-                    return LogSubmitOutcomes.Serialized;
+                    // Signal to the listener that we're ready to submit
+                    this.beginSubmissionProcess(numberOfLogsToSubmit);
+
+                    ArrayList<Integer> submittedSuccesfullyIds = new ArrayList<>();
+                    ArrayList<DeviceReportRecord> submittedSuccesfully = new ArrayList<>();
+                    submitReports(storage, submittedSuccesfullyIds, submittedSuccesfully);
+
+                    if (!removeLocalReports(storage, submittedSuccesfullyIds, submittedSuccesfully)) {
+                        return LogSubmitOutcomes.Serialized;
+                    }
+
+                    LogSubmitOutcomes result = checkSubmissionResult(numberOfLogsToSubmit, submittedSuccesfully);
+
+                    // Reset force_logs if the logs submission was successful
+                    if (result == LogSubmitOutcomes.Submitted) {
+                        HiddenPreferences.setForceLogs(CommCareApplication.instance().getSession().getLoggedInUser().getUniqueId(), false);
+                    }
+
+                    return result;
                 }
-
-                LogSubmitOutcomes result = checkSubmissionResult(numberOfLogsToSubmit, submittedSuccesfully);
-
-                // Reset force_logs if the logs submission was successful
-                if (result == LogSubmitOutcomes.Submitted) {
-                    HiddenPreferences.setForceLogs(CommCareApplication.instance().getSession().getLoggedInUser().getUniqueId(), false);
-                }
-
-                return result;
-            } else {
-                return LogSubmitOutcomes.Submitted;
             }
         } catch (SessionUnavailableException e) {
             // The user database closed on us
             return LogSubmitOutcomes.Error;
         }
+        return LogSubmitOutcomes.Submitted;
     }
 
     /**

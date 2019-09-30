@@ -62,8 +62,8 @@ public class HiddenPreferences {
     public final static String MM_VALIDATED_FROM_HQ = "cc-content-valid";
     private static final String USER_DOMAIN_SUFFIX = "cc_user_domain";
     private final static String LOGS_ENABLED = "logenabled";
-    private final static String LOGS_ENABLED_YES = "yes";
-    private final static String LOGS_ENABLED_ON_DEMAND = "on_demand";
+    public final static String LOGS_ENABLED_YES = "yes";
+    public final static String LOGS_ENABLED_ON_DEMAND = "on_demand";
 
 
     // Boolean pref to determine whether user has already been through the update information form
@@ -201,22 +201,14 @@ public class HiddenPreferences {
     }
 
     public static boolean isLoggingEnabled() {
-        if (CommCareApplication.instance().getCurrentApp() == null) {
-            return true;
-        }
-        SharedPreferences properties = CommCareApplication.instance().getCurrentApp().getAppPreferences();
-        String logsEnabled = properties.getString(LOGS_ENABLED, LOGS_ENABLED_YES);
+        String logsEnabled = getLogsEnabled();
         return logsEnabled.equals(LOGS_ENABLED_YES) || logsEnabled.equals(LOGS_ENABLED_ON_DEMAND);
     }
 
-    public static boolean isLogSubmissionEnabled() {
-        if (CommCareApplication.instance().getCurrentApp() == null) {
-            return false;
-        }
-
-        SharedPreferences properties = CommCareApplication.instance().getCurrentApp().getAppPreferences();
-        return properties.getString(LOGS_ENABLED, LOGS_ENABLED_YES).contentEquals(LOGS_ENABLED_YES);
+    public static String getLogsEnabled() {
+        return CommCareApplication.instance().getCurrentApp().getAppPreferences().getString(LOGS_ENABLED, LOGS_ENABLED_YES);
     }
+
 
     public static boolean isIncompleteFormsEnabled() {
         if (CommCareApplication.instance().isConsumerApp()) {
