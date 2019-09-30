@@ -63,6 +63,7 @@ public class HiddenPreferences {
     private static final String USER_DOMAIN_SUFFIX = "cc_user_domain";
     private final static String LOGS_ENABLED = "logenabled";
     public final static String LOGS_ENABLED_YES = "yes";
+    public final static String LOGS_ENABLED_NO = "no";
     public final static String LOGS_ENABLED_ON_DEMAND = "on_demand";
 
 
@@ -201,11 +202,19 @@ public class HiddenPreferences {
     }
 
     public static boolean isLoggingEnabled() {
+        if (CommCareApplication.instance().getCurrentApp() == null) {
+            return true;
+        }
+
         String logsEnabled = getLogsEnabled();
         return logsEnabled.equals(LOGS_ENABLED_YES) || logsEnabled.equals(LOGS_ENABLED_ON_DEMAND);
     }
 
     public static String getLogsEnabled() {
+        if (CommCareApplication.instance().getCurrentApp() == null) {
+            return LOGS_ENABLED_NO;
+        }
+
         return CommCareApplication.instance().getCurrentApp().getAppPreferences().getString(LOGS_ENABLED, LOGS_ENABLED_YES);
     }
 
