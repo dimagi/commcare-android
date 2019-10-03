@@ -35,8 +35,12 @@ class DeleteLogs(appContext: Context, workerParams: WorkerParameters)
         val reportsToDelete = Vector<Int>()
         for (deviceReportRecord in deviceReportRecordStorage) {
             val reportFile = File(deviceReportRecord.filePath)
-            if (reportFile.exists() && (reportFile.lastModified() < threeMonthsAgo.time)) {
-                reportFile.delete()
+            if (reportFile.exists()) {
+                if (reportFile.lastModified() < threeMonthsAgo.time) {
+                    reportFile.delete()
+                    reportsToDelete.addElement(deviceReportRecord.id)
+                }
+            } else {
                 reportsToDelete.addElement(deviceReportRecord.id)
             }
         }
