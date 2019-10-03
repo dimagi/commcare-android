@@ -87,14 +87,13 @@ public class CommCareUtil {
             //This is mostly for dev purposes
             Toast.makeText(c, "Couldn't submit logs! Invalid submission URL...", Toast.LENGTH_LONG).show();
         } else {
-            executeLogSubmission(true, url, forceLogs);
+            executeLogSubmission(url, forceLogs);
         }
     }
 
-    public static void executeLogSubmission(boolean serializeCurrentLogs, String url, boolean forceLogs) {
+    public static void executeLogSubmission(String url, boolean forceLogs) {
         LogSubmissionTask reportSubmitter =
-                new LogSubmissionTask(serializeCurrentLogs,
-                        CommCareApplication.instance().getSession().getListenerForSubmissionNotification(R.string.submission_logs_title),
+                new LogSubmissionTask(CommCareApplication.instance().getSession().getListenerForSubmissionNotification(R.string.submission_logs_title),
                         url,
                         forceLogs);
         // Execute on a true multithreaded chain, since this is an asynchronous process

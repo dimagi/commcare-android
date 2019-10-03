@@ -709,7 +709,7 @@ public class CommCareApplication extends MultiDexApplication {
                         }
                         syncPending = PendingCalcs.getPendingSyncStatus();
 
-                        doReportMaintenance(false);
+                        doReportMaintenance();
                         mBoundService.initHeartbeatLifecycle();
 
                         // Register that this user was the last to successfully log in if it's a real user
@@ -765,7 +765,7 @@ public class CommCareApplication extends MultiDexApplication {
     }
 
     @SuppressLint("NewApi")
-    private void doReportMaintenance(boolean force) {
+    private void doReportMaintenance() {
         // Create a new submission task no matter what. If nothing is pending, it'll see if there
         // are unsent reports and try to send them. Otherwise, it'll create the report
         SharedPreferences settings = CommCareApplication.instance().getCurrentApp().getAppPreferences();
@@ -775,10 +775,7 @@ public class CommCareApplication extends MultiDexApplication {
             Logger.log(LogTypes.TYPE_ERROR_ASSERTION, "PostURL isn't set. This should never happen");
             return;
         }
-        boolean logSubmissionPending = PendingCalcs.isPending(
-                settings.getLong(HiddenPreferences.LOG_LAST_DAILY_SUBMIT, 0),
-                DateUtils.DAY_IN_MILLIS);
-        CommCareUtil.executeLogSubmission(force || logSubmissionPending, url, false);
+        CommCareUtil.executeLogSubmission(url, false);
     }
 
     /**
@@ -916,7 +913,7 @@ public class CommCareApplication extends MultiDexApplication {
      * possible.
      */
     public void notifyLogsPending() {
-        doReportMaintenance(true);
+        doReportMaintenance();
     }
 
     public String getAndroidFsRoot() {

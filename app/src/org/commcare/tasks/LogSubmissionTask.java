@@ -85,16 +85,13 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
         }
     }
 
-    private boolean serializeCurrentLogs = false;
     private final DataSubmissionListener listener;
     private final String submissionUrl;
     private final boolean forceLogs;
 
-    public LogSubmissionTask(boolean serializeCurrentLogs,
-                             DataSubmissionListener listener,
+    public LogSubmissionTask(DataSubmissionListener listener,
                              String submissionUrl,
                              boolean forceLogs) {
-        this.serializeCurrentLogs = serializeCurrentLogs;
         this.listener = listener;
         this.submissionUrl = submissionUrl;
         this.forceLogs = forceLogs;
@@ -118,7 +115,7 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
                 SqlStorage<DeviceReportRecord> storage =
                         CommCareApplication.instance().getUserStorage(DeviceReportRecord.class);
 
-                if (serializeCurrentLogs && !serializeLogs(storage)) {
+                if (!serializeLogs(storage)) {
                     return LogSubmitOutcomes.Error;
                 }
 
