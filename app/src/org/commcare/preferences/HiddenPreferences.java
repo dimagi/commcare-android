@@ -331,6 +331,10 @@ public class HiddenPreferences {
     }
 
     public static void setReleasedOnTimeForOngoingAppDownload(long releasedOnTime) {
+        if (CommCareApplication.instance().getCurrentApp() == null) {
+            return;
+        }
+
         CommCareApplication.instance().getCurrentApp().getAppPreferences()
                 .edit()
                 .putLong(RELEASED_ON_TIME_FOR_ONGOING_APP_DOWNLOAD, releasedOnTime)
@@ -338,6 +342,10 @@ public class HiddenPreferences {
     }
 
     public static long geReleasedOnTimeForOngoingAppDownload() {
+        if (CommCareApplication.instance().getCurrentApp() == null) {
+            return 0;
+        }
+
         return CommCareApplication.instance().getCurrentApp().getAppPreferences()
                 .getLong(RELEASED_ON_TIME_FOR_ONGOING_APP_DOWNLOAD, 0);
     }
