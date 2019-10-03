@@ -8,6 +8,7 @@ import androidx.annotation.Nullable;
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.activities.GeoPointActivity;
+import org.commcare.utils.AndroidCommCarePlatform;
 import org.commcare.utils.GeoUtils;
 
 import java.util.Date;
@@ -330,12 +331,12 @@ public class HiddenPreferences {
         return properties.getString(PRE_UPDATE_SYNC_NEEDED, PrefValues.NO).equals(PrefValues.YES);
     }
 
-    public static void setReleasedOnTimeForOngoingAppDownload(long releasedOnTime) {
-        if (CommCareApplication.instance().getCurrentApp() == null) {
+    public static void setReleasedOnTimeForOngoingAppDownload(AndroidCommCarePlatform platform, long releasedOnTime) {
+        if (platform.getApp() == null) {
             return;
         }
 
-        CommCareApplication.instance().getCurrentApp().getAppPreferences()
+        platform.getApp().getAppPreferences()
                 .edit()
                 .putLong(RELEASED_ON_TIME_FOR_ONGOING_APP_DOWNLOAD, releasedOnTime)
                 .apply();

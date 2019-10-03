@@ -87,7 +87,7 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
             throws UnresolvedResourceException, UnfullfilledRequirementsException {
         //First, make sure all the file stuff is managed.
         super.install(r, location, ref, table, platform, upgrade, recovery);
-        storeReleasedTime(ref);
+        storeReleasedTime(platform, ref);
         InputStream inputStream = null;
         try {
             Reference local = ReferenceManager.instance().DeriveReference(localLocation);
@@ -128,7 +128,7 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
         return false;
     }
 
-    private void storeReleasedTime(Reference ref) {
+    private void storeReleasedTime(AndroidCommCarePlatform platform, Reference ref) {
         long releasedOnTime = -1;
         if (ref instanceof JavaHttpReference) {
             Headers responseHeaders = ((JavaHttpReference)ref).getResponseHeaders();
@@ -148,7 +148,7 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
             releasedOnTime = new Date().getTime();
         }
 
-        HiddenPreferences.setReleasedOnTimeForOngoingAppDownload(releasedOnTime);
+        HiddenPreferences.setReleasedOnTimeForOngoingAppDownload(platform, releasedOnTime);
     }
 
     // Makes sure we are recovering from profile belonging to the same app
