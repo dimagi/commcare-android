@@ -4,7 +4,9 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+
 import androidx.core.util.Pair;
+
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -16,6 +18,7 @@ import org.commcare.android.nsd.MicroNode;
 import org.commcare.android.nsd.NSDDiscoveryTools;
 import org.commcare.android.nsd.NsdServiceListener;
 import org.commcare.dalvik.BuildConfig;
+import org.commcare.dalvik.R;
 import org.commcare.engine.resource.AppInstallStatus;
 import org.commcare.engine.resource.ResourceInstallUtils;
 import org.commcare.interfaces.CommCareActivityUIController;
@@ -55,7 +58,7 @@ import org.javarosa.core.services.locale.Localization;
 public class UpdateActivity extends CommCareActivity<UpdateActivity>
         implements TaskListener<Integer, ResultAndError<AppInstallStatus>>, WithUIController, NsdServiceListener {
 
-    public static final String KEY_FROM_LATEST_BUILD_ACTIVITY = "from-test-latest-build-util";
+    public static final String KEY_PROCEED_AUTOMATICALLY = "proceed-automatically";
 
     // Options menu codes
     public static final int MENU_UPDATE_TARGET_OPTIONS = Menu.FIRST;
@@ -85,13 +88,15 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
 
     private MicroNode.AppManifest hubAppRecord;
 
+    public static boolean sBlockedUpdateWorkflowInProgress = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         uiController.setupUI();
 
-        if (getIntent().getBooleanExtra(KEY_FROM_LATEST_BUILD_ACTIVITY, false)) {
+        if (getIntent().getBooleanExtra(KEY_PROCEED_AUTOMATICALLY, false)) {
             proceedAutomatically = true;
         } else if (CommCareApplication.instance().isConsumerApp()) {
             proceedAutomatically = true;
@@ -101,7 +106,13 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
         loadSavedInstanceState(savedInstanceState);
 
         boolean isRotation = savedInstanceState != null;
-        setupUpdateTask(isRotation);
+
+        if (ResourceInstallUtils.isUpdateReadyToInstall() && sBlockedUpdateWorkflowInProgress) {
+            sBlockedUpdateWorkflowInProgress = false;
+            launchUpdateInstallTask();
+        } else {
+            setupUpdateTask(isRotation);
+        }
     }
 
     private void loadSavedInstanceState(Bundle savedInstanceState) {
@@ -368,8 +379,10 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
      * Block the user with a dialog while the update is finalized.
      */
     protected void launchUpdateInstallTask() {
-        if(isUpdateBlockedOnSync()){
-            // We wanna redirect to Home Screen and trigger an auto-sync
+        if (isUpdateBlockedOnSync()) {
+            Toast.makeText(this, getLocalizedString(R.string.update_blocked_on_sync_message), Toast.LENGTH_LONG).show();
+            sBlockedUpdateWorkflowInProgress = true;
+            // Delegate to Dispatch
             Intent intent = new Intent(this, DispatchActivity.class);
             startActivity(intent);
             return;
@@ -411,8 +424,9 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
         uiController.applyingUpdateUiState();
     }
 
+
     public static boolean isUpdateBlockedOnSync() {
-        if (HiddenPreferences.preUpdateSyncNeeded()) {
+        if (ResourceInstallUtils.isUpdateReadyToInstall() && HiddenPreferences.preUpdateSyncNeeded()) {
             long lastSyncTime = SyncDetailCalculations.getLastSyncTime();
             long updateReleasedOnTime = HiddenPreferences.geReleasedOnTimeForOngoingAppDownload();
             return lastSyncTime < updateReleasedOnTime;

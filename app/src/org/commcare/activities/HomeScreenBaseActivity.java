@@ -8,7 +8,9 @@ import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
+
 import androidx.preference.PreferenceManager;
+
 import android.util.Base64;
 import android.widget.AdapterView;
 import android.widget.Toast;
@@ -52,8 +54,10 @@ import org.commcare.suite.model.RemoteRequestEntry;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.StackFrameStep;
 import org.commcare.suite.model.Text;
+import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.FormLoaderTask;
 import org.commcare.tasks.FormRecordCleanupTask;
+import org.commcare.tasks.ResultAndError;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.AndroidCommCarePlatform;
 import org.commcare.utils.AndroidInstanceInitializer;
@@ -342,22 +346,22 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
 
         DialogChoiceItem createPinChoice = new DialogChoiceItem(
                 Localization.get("pin.dialog.yes"), -1, v -> {
-                    dismissAlertDialog();
-                    launchPinCreateScreen(loginMode);
-                });
+            dismissAlertDialog();
+            launchPinCreateScreen(loginMode);
+        });
 
         DialogChoiceItem nextTimeChoice = new DialogChoiceItem(
                 Localization.get("pin.dialog.not.now"), -1, v -> dismissAlertDialog());
 
         DialogChoiceItem notAgainChoice = new DialogChoiceItem(
                 Localization.get("pin.dialog.never"), -1, v -> {
-                    dismissAlertDialog();
-                    CommCareApplication.instance().getCurrentApp().getAppPreferences()
-                            .edit()
-                            .putBoolean(HiddenPreferences.HAS_DISMISSED_PIN_CREATION, true)
-                            .apply();
-                    showPinFutureAccessDialog();
-                });
+            dismissAlertDialog();
+            CommCareApplication.instance().getCurrentApp().getAppPreferences()
+                    .edit()
+                    .putBoolean(HiddenPreferences.HAS_DISMISSED_PIN_CREATION, true)
+                    .apply();
+            showPinFutureAccessDialog();
+        });
 
 
         dialog.setChoiceItems(new DialogChoiceItem[]{createPinChoice, nextTimeChoice, notAgainChoice});
@@ -953,8 +957,9 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
         return i;
     }
 
-    public void launchUpdateActivity() {
+    public void launchUpdateActivity(boolean autoProceedUpdateInstall) {
         Intent i = new Intent(getApplicationContext(), UpdateActivity.class);
+        i.putExtra(UpdateActivity.KEY_PROCEED_AUTOMATICALLY, autoProceedUpdateInstall);
         startActivity(i);
     }
 
@@ -1130,6 +1135,9 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
         if (RecoveryMeasuresHelper.recoveryMeasuresPending()) {
             finishWithExecutionIntent();
             kickedOff = true;
+        } else if (UpdateActivity.isUpdateBlockedOnSync()) {
+            triggerSync(false);
+            kickedOff = true;
         } else if (CommCareApplication.instance().isSyncPending(false)) {
             triggerSync(true);
             kickedOff = true;
@@ -1139,6 +1147,15 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
 
         CommCareApplication.instance().getSession().setAppHealthChecksCompleted();
         return kickedOff;
+    }
+
+    @Override
+    public void handlePullTaskResult(ResultAndError<DataPullTask.PullTaskResult> resultAndError, boolean userTriggeredSync, boolean formsToSend, boolean usingRemoteKeyManagement) {
+        super.handlePullTaskResult(resultAndError, userTriggeredSync, formsToSend, usingRemoteKeyManagement);
+        if (resultAndError.data == DataPullTask.PullTaskResult.DOWNLOAD_SUCCESS && UpdateActivity.sBlockedUpdateWorkflowInProgress) {
+            launchUpdateActivity(true);
+        }
+
     }
 
     private void finishWithExecutionIntent() {

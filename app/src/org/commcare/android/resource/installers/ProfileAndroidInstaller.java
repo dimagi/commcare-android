@@ -31,6 +31,9 @@ import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -42,7 +45,7 @@ import okhttp3.Headers;
 public class ProfileAndroidInstaller extends FileSystemInstaller {
 
     private static final String KEY_TARGET_PACKAGE_ID = "target-package-id";
-    private static final String HEADER_RELEASED_ON = "released_on";
+    private static final String HEADER_APP_RELEASED_ON = "x-commcarehq-appreleasedon";
 
     @SuppressWarnings("unused")
     public ProfileAndroidInstaller() {
@@ -131,7 +134,14 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
         if (ref instanceof JavaHttpReference) {
             Headers responseHeaders = ((JavaHttpReference)ref).getResponseHeaders();
             if (responseHeaders != null) {
-                releasedOnTime = new Date(responseHeaders.get(HEADER_RELEASED_ON)).getTime();
+                String releasedOnStr = responseHeaders.get(HEADER_APP_RELEASED_ON);
+                try {
+                    if (releasedOnStr != null) {
+                        releasedOnTime =  new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'").parse(releasedOnStr).getTime();
+                    }
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
             }
         }
         // If we don't have the release time, guess it as current time
