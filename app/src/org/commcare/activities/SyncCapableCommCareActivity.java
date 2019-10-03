@@ -2,11 +2,8 @@ package org.commcare.activities;
 
 import android.annotation.TargetApi;
 import android.content.Context;
-import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
-import androidx.annotation.AnimRes;
-import androidx.annotation.LayoutRes;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -27,6 +24,9 @@ import org.commcare.tasks.ResultAndError;
 import org.commcare.utils.SyncDetailCalculations;
 import org.commcare.views.dialogs.CustomProgressDialog;
 import org.javarosa.core.services.locale.Localization;
+
+import androidx.annotation.AnimRes;
+import androidx.annotation.LayoutRes;
 
 public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCareActivity<T>
         implements PullTaskResultReceiver {

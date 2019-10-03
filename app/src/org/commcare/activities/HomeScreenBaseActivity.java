@@ -8,9 +8,6 @@ import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
-
-import androidx.preference.PreferenceManager;
-
 import android.util.Base64;
 import android.widget.AdapterView;
 import android.widget.Toast;
@@ -83,6 +80,8 @@ import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.Vector;
+
+import androidx.preference.PreferenceManager;
 
 import static org.commcare.activities.DriftHelper.getCurrentDrift;
 import static org.commcare.activities.DriftHelper.getDriftDialog;
@@ -1136,7 +1135,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
             finishWithExecutionIntent();
             kickedOff = true;
         } else if (UpdateActivity.isUpdateBlockedOnSync()) {
-            triggerSync(false);
+            triggerSync(true);
             kickedOff = true;
         } else if (CommCareApplication.instance().isSyncPending(false)) {
             triggerSync(true);

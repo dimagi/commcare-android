@@ -4,9 +4,6 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-
-import androidx.core.util.Pair;
-
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -46,6 +43,8 @@ import org.commcare.views.notifications.NotificationMessage;
 import org.commcare.views.notifications.NotificationMessageFactory;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
+
+import androidx.core.util.Pair;
 
 /**
  * Allow user to manage app updating:
