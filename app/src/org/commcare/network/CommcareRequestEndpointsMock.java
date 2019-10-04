@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -70,7 +71,7 @@ public class CommcareRequestEndpointsMock implements CommcareRequestEndpoints {
     }
 
     @Override
-    public Response<ResponseBody> postMultipart(String url, List<MultipartBody.Part> parts) throws IOException {
+    public Response<ResponseBody> postMultipart(String url, List<MultipartBody.Part> parts, HashMap<String, String> queryParams) throws IOException {
         throw new RuntimeException("Not yet mocked");
     }
 
@@ -85,6 +86,11 @@ public class CommcareRequestEndpointsMock implements CommcareRequestEndpoints {
 
     @Override
     public void abortCurrentRequest() {
+        throw new RuntimeException("Not yet mocked");
+    }
+
+    @Override
+    public Response<ResponseBody> postLogs(String submissionUrl, List<MultipartBody.Part> parts, boolean forceLogs) throws IOException {
         throw new RuntimeException("Not yet mocked");
     }
 }

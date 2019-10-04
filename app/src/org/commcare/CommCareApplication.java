@@ -18,9 +18,11 @@ import android.os.Looper;
 import android.os.StrictMode;
 import android.preference.PreferenceManager;
 import android.provider.Settings.Secure;
+
 import androidx.annotation.NonNull;
 import androidx.multidex.MultiDexApplication;
 import androidx.core.content.ContextCompat;
+
 import android.telephony.TelephonyManager;
 import android.text.format.DateUtils;
 import android.util.Log;
@@ -81,6 +83,7 @@ import org.commcare.preferences.LocalePreferences;
 import org.commcare.services.CommCareSessionService;
 import org.commcare.session.CommCareSession;
 import org.commcare.tasks.DataSubmissionListener;
+import org.commcare.tasks.DeleteLogs;
 import org.commcare.tasks.LogSubmissionTask;
 import org.commcare.tasks.PurgeStaleArchivedFormsTask;
 import org.commcare.tasks.UpdateTask;
@@ -89,6 +92,7 @@ import org.commcare.util.LogTypes;
 import org.commcare.utils.AndroidCacheDirSetup;
 import org.commcare.utils.AndroidCommCarePlatform;
 import org.commcare.utils.CommCareExceptionHandler;
+import org.commcare.utils.CommCareUtil;
 import org.commcare.utils.CrashUtil;
 import org.commcare.utils.FileUtil;
 import org.commcare.utils.GlobalConstants;
@@ -107,14 +111,20 @@ import org.javarosa.core.util.PropertyUtils;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 
 import java.io.File;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Nullable;
 import javax.crypto.SecretKey;
 
+import androidx.work.ExistingWorkPolicy;
+import androidx.work.OneTimeWorkRequest;
+import androidx.work.PeriodicWorkRequest;
+import androidx.work.WorkManager;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 
@@ -128,6 +138,7 @@ public class CommCareApplication extends MultiDexApplication {
     public static final int STATE_LEGACY_DETECTED = 8;
     public static final int STATE_MIGRATION_FAILED = 16;
     public static final int STATE_MIGRATION_QUESTIONABLE = 32;
+    private static final String DELETE_LOGS_REQUEST = "delete-logs-request";
 
     private int dbState;
 
@@ -698,7 +709,7 @@ public class CommCareApplication extends MultiDexApplication {
                         }
                         syncPending = PendingCalcs.getPendingSyncStatus();
 
-                        doReportMaintenance(false);
+                        doReportMaintenance();
                         mBoundService.initHeartbeatLifecycle();
 
                         // Register that this user was the last to successfully log in if it's a real user
@@ -714,6 +725,12 @@ public class CommCareApplication extends MultiDexApplication {
 
                         if (EntityStorageCache.getEntityCacheWipedPref(user.getUniqueId()) < ReportingUtils.getAppVersion()) {
                             EntityStorageCache.wipeCacheForCurrentApp();
+                        }
+
+                        if (shouldRunLogDeletion()) {
+                            OneTimeWorkRequest deleteLogsRequest = new OneTimeWorkRequest.Builder(DeleteLogs.class).build();
+                            WorkManager.getInstance(CommCareApplication.instance())
+                                    .enqueueUniqueWork(DELETE_LOGS_REQUEST, ExistingWorkPolicy.KEEP, deleteLogsRequest);
                         }
                     }
 
@@ -740,8 +757,15 @@ public class CommCareApplication extends MultiDexApplication {
         sessionServiceIsBinding = true;
     }
 
+    // check if it's been a week since last run
+    private boolean shouldRunLogDeletion() {
+        long lastLogDeletionRun = HiddenPreferences.getLastLogDeletionTime();
+        long aWeekBeforeNow = new Date().getTime() - (DateUtils.DAY_IN_MILLIS * 7L);
+        return new Date(lastLogDeletionRun).before(new Date(aWeekBeforeNow));
+    }
+
     @SuppressLint("NewApi")
-    private void doReportMaintenance(boolean force) {
+    private void doReportMaintenance() {
         // Create a new submission task no matter what. If nothing is pending, it'll see if there
         // are unsent reports and try to send them. Otherwise, it'll create the report
         SharedPreferences settings = CommCareApplication.instance().getCurrentApp().getAppPreferences();
@@ -751,21 +775,7 @@ public class CommCareApplication extends MultiDexApplication {
             Logger.log(LogTypes.TYPE_ERROR_ASSERTION, "PostURL isn't set. This should never happen");
             return;
         }
-
-        DataSubmissionListener dataListener = getSession().getListenerForSubmissionNotification(R.string.submission_logs_title);
-
-        LogSubmissionTask task = new LogSubmissionTask(
-                force || PendingCalcs.isPending(settings.getLong(
-                        HiddenPreferences.LOG_LAST_DAILY_SUBMIT, 0), DateUtils.DAY_IN_MILLIS),
-                dataListener,
-                url);
-
-        // Execute on a true multithreaded chain, since this is an asynchronous process
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-        } else {
-            task.execute();
-        }
+        CommCareUtil.executeLogSubmission(url, false);
     }
 
     /**
@@ -903,7 +913,7 @@ public class CommCareApplication extends MultiDexApplication {
      * possible.
      */
     public void notifyLogsPending() {
-        doReportMaintenance(true);
+        doReportMaintenance();
     }
 
     public String getAndroidFsRoot() {
