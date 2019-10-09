@@ -73,7 +73,7 @@ public class CommCareExceptionHandler implements UncaughtExceptionHandler {
             Intent i = new Intent(ctx, CrashWarningActivity.class);
             i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            i.putExtra(WARNING_MESSAGE_KEY, ex.getMessage());
+            i.putExtra(WARNING_MESSAGE_KEY, getMessageForLocalizationException(ex));
             ctx.startActivity(i);
             return true;
         } else if (causedBySessionUnavailableException(ex)) {
@@ -81,6 +81,16 @@ public class CommCareExceptionHandler implements UncaughtExceptionHandler {
             return true;
         }
         return false;
+    }
+
+    private String getMessageForLocalizationException(Throwable ex) {
+        if (ex == null) {
+            return "";
+        } else if (ex instanceof NoLocalizedTextException) {
+            return ex.getMessage();
+        } else {
+            return getMessageForLocalizationException(ex.getCause());
+        }
     }
 
     private static boolean causedByLocalizationException(Throwable ex) {
