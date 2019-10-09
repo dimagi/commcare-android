@@ -2,17 +2,18 @@ package org.commcare.utils;
 
 import android.content.Context;
 import android.content.Intent;
-import android.widget.Toast;
 
 import org.commcare.CommCareApplication;
 import org.commcare.activities.CrashWarningActivity;
-import org.commcare.activities.SessionAwareCommCareActivity;
 import org.commcare.android.logging.ForceCloseLogger;
 import org.commcare.recovery.measures.ExecuteRecoveryMeasuresActivity;
 import org.commcare.recovery.measures.RecoveryMeasuresHelper;
 import org.javarosa.core.util.NoLocalizedTextException;
 
 import java.lang.Thread.UncaughtExceptionHandler;
+import java.util.Vector;
+
+import javax.annotation.Nullable;
 
 /**
  * Report unrecoverable exception to servers and shows user crash message
@@ -69,37 +70,52 @@ public class CommCareExceptionHandler implements UncaughtExceptionHandler {
      * they can fix.
      */
     private boolean warnUserAndExit(Throwable ex) {
-        if (causedByLocalizationException(ex)) {
+        Vector<Throwable> causes = getAllCausesForException(ex);
+        Throwable localizedException = getLocalizationException(causes);
+        if (localizedException != null) {
             Intent i = new Intent(ctx, CrashWarningActivity.class);
             i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            i.putExtra(WARNING_MESSAGE_KEY, getMessageForLocalizationException(ex));
+            i.putExtra(WARNING_MESSAGE_KEY, localizedException.getMessage());
             ctx.startActivity(i);
             return true;
-        } else if (causedBySessionUnavailableException(ex)) {
+        }
+
+        Throwable sessionUnavailableException = getSessionUnavailableException(causes);
+        if (sessionUnavailableException != null) {
             SessionActivityRegistration.redirectToLogin(ctx);
             return true;
         }
         return false;
     }
 
-    private String getMessageForLocalizationException(Throwable ex) {
-        if (ex == null) {
-            return "";
-        } else if (ex instanceof NoLocalizedTextException) {
-            return ex.getMessage();
-        } else {
-            return getMessageForLocalizationException(ex.getCause());
+    private Vector<Throwable> getAllCausesForException(Throwable ex) {
+        Throwable exception = new Throwable(ex);
+        Vector<Throwable> causes = new Vector<>();
+        while (exception != null) {
+            causes.add(exception);
+            exception = exception.getCause();
         }
+        return causes;
     }
 
-    private static boolean causedByLocalizationException(Throwable ex) {
-        return ex != null &&
-                (ex instanceof NoLocalizedTextException || causedByLocalizationException(ex.getCause()));
+    @Nullable
+    private static Throwable getLocalizationException(Vector<Throwable> causes) {
+        for (Throwable cause : causes) {
+            if (cause instanceof NoLocalizedTextException) {
+                return cause;
+            }
+        }
+        return null;
     }
 
-    private static boolean causedBySessionUnavailableException(Throwable ex) {
-        return ex != null &&
-                (ex instanceof SessionUnavailableException || causedBySessionUnavailableException(ex.getCause()));
+    @Nullable
+    private static Throwable getSessionUnavailableException(Vector<Throwable> causes) {
+        for (Throwable cause : causes) {
+            if (cause instanceof SessionUnavailableException) {
+                return cause;
+            }
+        }
+        return null;
     }
 }
