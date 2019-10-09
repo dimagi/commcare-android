@@ -139,7 +139,7 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
                         releasedOnTime =  new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'").parse(releasedOnStr).getTime();
                     }
                 } catch (ParseException e) {
-                    e.printStackTrace();
+                    Logger.exception("Error on parsing x-commcarehq-appreleasedon header " + releasedOnStr ,e);
                 }
             }
         }

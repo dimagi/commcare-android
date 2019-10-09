@@ -346,9 +346,11 @@ public class HiddenPreferences {
         if (CommCareApplication.instance().getCurrentApp() == null) {
             return 0;
         }
-
-        return CommCareApplication.instance().getCurrentApp().getAppPreferences()
+        long releasedOnTime = CommCareApplication.instance().getCurrentApp().getAppPreferences()
                 .getLong(RELEASED_ON_TIME_FOR_ONGOING_APP_DOWNLOAD, 0);
+        // Since phone date time can change, we wanna restrict the released on time to the current time
+        releasedOnTime = Math.min(releasedOnTime, new Date().getTime());
+        return releasedOnTime;
     }
 
 }
