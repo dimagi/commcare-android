@@ -7,6 +7,7 @@ import android.util.Log;
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.logging.analytics.UpdateStats;
+import org.commcare.preferences.HiddenPreferences;
 import org.commcare.resources.ResourceManager;
 import org.commcare.resources.model.InstallCancelled;
 import org.commcare.resources.model.InstallCancelledException;
@@ -20,8 +21,13 @@ import org.commcare.util.LogTypes;
 import org.commcare.utils.AndroidCommCarePlatform;
 import org.commcare.utils.AndroidResourceInstallerFactory;
 import org.commcare.utils.SessionUnavailableException;
+import org.javarosa.core.reference.ReleasedOnTimeSupportedReference;
+import org.javarosa.core.reference.Reference;
 import org.javarosa.core.services.Logger;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
+
+import java.text.ParseException;
+import java.util.Date;
 
 /**
  * Manages app installations and updates. Extends the ResourceManager with the
@@ -272,5 +278,11 @@ public class AndroidResourceManager extends ResourceManager {
         final long thirtySeconds = 30 * 1000;
         long exponentialDelay = thirtySeconds + (long)Math.pow(base, numberOfRestarts);
         return Math.min(exponentialDelay, MAX_UPDATE_RETRY_DELAY_IN_MS);
+    }
+
+    @Override
+    public void clearUpgrade() {
+        super.clearUpgrade();
+        HiddenPreferences.setReleasedOnTimeForOngoingAppDownload((AndroidCommCarePlatform)platform, 0);
     }
 }
