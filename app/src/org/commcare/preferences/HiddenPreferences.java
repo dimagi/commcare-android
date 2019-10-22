@@ -14,6 +14,8 @@ import org.commcare.utils.GeoUtils;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
+import androidx.annotation.Nullable;
+
 /**
  * Provides hooks for reading and writing all preferences that are not configurable by the user in
  * the mobile UI. There are 2 classes of settings that fall into this category:
@@ -40,6 +42,8 @@ public class HiddenPreferences {
     public final static String FIRST_COMMCARE_RUN = "first-commcare-run";
     public final static String LATEST_COMMCARE_VERSION = "latest-commcare-version";
     public final static String LATEST_APP_VERSION = "latest-app-version";
+    private static final String LAST_LOG_DELETION_TIME = "last_log_deletion_time";
+    private final static String FORCE_LOGS = "force-logs";
 
     // Preferences whose values are only ever set by being sent down from HQ via the profile file
     public final static String AUTO_SYNC_FREQUENCY = "cc-autosync-freq";
@@ -61,10 +65,12 @@ public class HiddenPreferences {
     // Used to make it so that CommCare will not conduct a multimedia validation check
     public final static String MM_VALIDATED_FROM_HQ = "cc-content-valid";
     private static final String USER_DOMAIN_SUFFIX = "cc_user_domain";
-    private static final String RESTRICT_APP_UPDATES_BASED_ON_LAST_RESTORE_TIME = "cc-restrict-updates-based-on-last-restore-time";
     private final static String LOGS_ENABLED = "logenabled";
-    private final static String LOGS_ENABLED_YES = "Enabled";
+    public final static String LOGS_ENABLED_YES = "yes";
+    public final static String LOGS_ENABLED_NO = "no";
+    public final static String LOGS_ENABLED_ON_DEMAND = "on_demand";
     private final static String RELEASED_ON_TIME_FOR_ONGOING_APP_DOWNLOAD = "released-on-time-for-ongoing-app-download";
+
 
     // Boolean pref to determine whether user has already been through the update information form
     public final static String SHOW_XFORM_UPDATE_INFO = "show-xform-update-info";
@@ -204,10 +210,19 @@ public class HiddenPreferences {
         if (CommCareApplication.instance().getCurrentApp() == null) {
             return true;
         }
-        SharedPreferences properties = CommCareApplication.instance().getCurrentApp().getAppPreferences();
-        return !properties.contains(LOGS_ENABLED) ||
-                properties.getString(LOGS_ENABLED, LOGS_ENABLED_YES).equals(LOGS_ENABLED_YES);
+
+        String logsEnabled = getLogsEnabled();
+        return logsEnabled.equals(LOGS_ENABLED_YES) || logsEnabled.equals(LOGS_ENABLED_ON_DEMAND);
     }
+
+    public static String getLogsEnabled() {
+        if (CommCareApplication.instance().getCurrentApp() == null) {
+            return LOGS_ENABLED_NO;
+        }
+
+        return CommCareApplication.instance().getCurrentApp().getAppPreferences().getString(LOGS_ENABLED, LOGS_ENABLED_YES);
+    }
+
 
     public static boolean isIncompleteFormsEnabled() {
         if (CommCareApplication.instance().isConsumerApp()) {
@@ -307,24 +322,40 @@ public class HiddenPreferences {
                 .getString(LAST_KNOWN_CCZ_LOCATION, null);
     }
 
+
+    public static void setForceLogs(String userId, boolean forceLogs) {
+        PreferenceManager.getDefaultSharedPreferences(CommCareApplication.instance())
+                .edit()
+                .putBoolean(getUserSpecificKey(userId, FORCE_LOGS), forceLogs)
+                .apply();
+
+    }
+
+
+    public static boolean shouldForceLogs(String userId) {
+        return PreferenceManager.getDefaultSharedPreferences(CommCareApplication.instance())
+                .getBoolean(getUserSpecificKey(userId, FORCE_LOGS), false);
+    }
+
     public static void updateLastUploadSyncAttemptTime() {
         String userId = CommCareApplication.instance().getSession().getLoggedInUser().getUniqueId();
         CommCareApplication.instance().getCurrentApp().getAppPreferences()
                 .edit()
-                .putLong(userId + "_" + LAST_UPLOAD_SYNC_ATTEMPT, new Date().getTime())
+                .putLong(getUserSpecificKey(userId, LAST_UPLOAD_SYNC_ATTEMPT), new Date().getTime())
                 .apply();
     }
 
     public static long getLastUploadSyncAttempt() {
         String userId = CommCareApplication.instance().getSession().getLoggedInUser().getUniqueId();
         return CommCareApplication.instance().getCurrentApp().getAppPreferences()
-                .getLong(userId + "_" + LAST_UPLOAD_SYNC_ATTEMPT, 0);
+                .getLong(getUserSpecificKey(userId, LAST_UPLOAD_SYNC_ATTEMPT), 0);
     }
 
     public static boolean shouldShowUnsentFormsWhenZero() {
         SharedPreferences properties = CommCareApplication.instance().getCurrentApp().getAppPreferences();
         return properties.getString(SHOW_UNSENT_FORMS_WHEN_ZERO, PrefValues.NO).equals(PrefValues.YES);
     }
+
 
     public static boolean preUpdateSyncNeeded() {
         SharedPreferences properties = CommCareApplication.instance().getCurrentApp().getAppPreferences();
@@ -351,6 +382,25 @@ public class HiddenPreferences {
         // Since phone date time can change, we wanna restrict the released on time to the current time
         releasedOnTime = Math.min(releasedOnTime, new Date().getTime());
         return releasedOnTime;
+    }
+
+
+    public static void updateLastLogDeletionTime() {
+        String userId = CommCareApplication.instance().getSession().getLoggedInUser().getUniqueId();
+        CommCareApplication.instance().getCurrentApp().getAppPreferences()
+                .edit()
+                .putLong(getUserSpecificKey(userId, LAST_LOG_DELETION_TIME), new Date().getTime())
+                .apply();
+    }
+
+    public static long getLastLogDeletionTime() {
+        String userId = CommCareApplication.instance().getSession().getLoggedInUser().getUniqueId();
+        return CommCareApplication.instance().getCurrentApp().getAppPreferences()
+                .getLong(getUserSpecificKey(userId, LAST_LOG_DELETION_TIME), 0);
+    }
+
+    private static String getUserSpecificKey(String userId, String preferenceName) {
+        return userId + "_" + preferenceName;
     }
 
 }

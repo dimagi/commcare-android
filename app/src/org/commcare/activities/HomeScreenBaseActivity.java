@@ -59,6 +59,7 @@ import org.commcare.util.LogTypes;
 import org.commcare.utils.AndroidCommCarePlatform;
 import org.commcare.utils.AndroidInstanceInitializer;
 import org.commcare.utils.ChangeLocaleUtil;
+import org.commcare.utils.CommCareUtil;
 import org.commcare.utils.CrashUtil;
 import org.commcare.utils.EntityDetailUtils;
 import org.commcare.utils.GlobalConstants;
@@ -1126,7 +1127,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
     }
 
     /**
-     * @return true if we kicked off any processes
+     * @return true if we kicked off any foreground processes
      */
     private boolean checkForPendingAppHealthActions() {
         boolean kickedOff = false;
@@ -1142,6 +1143,12 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
             kickedOff = true;
         } else if (UpdatePromptHelper.promptForUpdateIfNeeded(this)) {
             kickedOff = true;
+        }
+
+        // Trigger background log submission if required
+        String userId = CommCareApplication.instance().getSession().getLoggedInUser().getUniqueId();
+        if (HiddenPreferences.shouldForceLogs(userId)) {
+            CommCareUtil.triggerLogSubmission(CommCareApplication.instance(), true);
         }
 
         CommCareApplication.instance().getSession().setAppHealthChecksCompleted();

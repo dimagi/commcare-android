@@ -586,7 +586,7 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
             Pair<Boolean, String> integrity = this.formRecordProcessor.verifyFormRecordIntegrity(r);
             logIntegrityScanResult(r, integrity);
         }
-        CommCareUtil.triggerLogSubmission(this);
+        CommCareUtil.triggerLogSubmission(this, false);
     }
 
     private static void logIntegrityScanResult(FormRecord r, Pair<Boolean, String> integrityScanResult) {
