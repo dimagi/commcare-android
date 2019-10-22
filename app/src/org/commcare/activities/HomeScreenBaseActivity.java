@@ -1134,7 +1134,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
         if (RecoveryMeasuresHelper.recoveryMeasuresPending()) {
             finishWithExecutionIntent();
             kickedOff = true;
-        } else if (UpdateActivity.isUpdateBlockedOnSync()) {
+        } else if (UpdateActivity.isUpdateBlockedOnSync() && UpdateActivity.sBlockedUpdateWorkflowInProgress) {
             triggerSync(true);
             kickedOff = true;
         } else if (CommCareApplication.instance().isSyncPending(false)) {
@@ -1153,8 +1153,9 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
         super.handlePullTaskResult(resultAndError, userTriggeredSync, formsToSend, usingRemoteKeyManagement);
         if (resultAndError.data == DataPullTask.PullTaskResult.DOWNLOAD_SUCCESS && UpdateActivity.sBlockedUpdateWorkflowInProgress) {
             launchUpdateActivity(true);
+        } else {
+            UpdateActivity.sBlockedUpdateWorkflowInProgress = false;
         }
-
     }
 
     private void finishWithExecutionIntent() {
