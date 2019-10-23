@@ -9,6 +9,7 @@ import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.preferences.HiddenPreferences;
+import org.commcare.resources.model.InvalidResourceException;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceLocation;
 import org.commcare.resources.model.ResourceTable;
@@ -83,7 +84,12 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
             throws UnresolvedResourceException, UnfullfilledRequirementsException {
         //First, make sure all the file stuff is managed.
         super.install(r, location, ref, table, platform, upgrade, recovery);
-        storeReleasedTime(platform, ref);
+        try {
+            storeReleasedTime(platform, ref);
+        } catch (ParseException e) {
+            Logger.exception("Error on parsing x-commcarehq-appreleasedon header", e);
+            throw new InvalidResourceException(r.getDescriptor(), e.getMessage());
+        }
         InputStream inputStream = null;
         try {
             Reference local = ReferenceManager.instance().DeriveReference(localLocation);
@@ -124,17 +130,12 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
         return false;
     }
 
-    private void storeReleasedTime(AndroidCommCarePlatform platform, Reference ref) {
+    private void storeReleasedTime(AndroidCommCarePlatform platform, Reference ref) throws ParseException {
         long releasedOnTime = -1;
 
         if (ref instanceof ReleasedOnTimeSupportedReference) {
-            try {
-                releasedOnTime = ((ReleasedOnTimeSupportedReference)ref).getReleasedOnTime();
-            } catch (ParseException e) {
-                Logger.exception("Error on parsing x-commcarehq-appreleasedon header", e);
-            }
+            releasedOnTime = ((ReleasedOnTimeSupportedReference)ref).getReleasedOnTime();
         }
-
 
         // If we don't have the release time, guess it as current time
         if (releasedOnTime == -1) {
