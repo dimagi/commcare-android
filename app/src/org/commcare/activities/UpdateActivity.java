@@ -58,6 +58,7 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
         implements TaskListener<Integer, ResultAndError<AppInstallStatus>>, WithUIController, NsdServiceListener {
 
     public static final String KEY_PROCEED_AUTOMATICALLY = "proceed-automatically";
+    public static final String KEY_PRE_UPDATE_SYNC_SUCCEED = "pre-update-sync-succeed";
 
     // Options menu codes
     public static final int MENU_UPDATE_TARGET_OPTIONS = Menu.FIRST;
@@ -107,8 +108,10 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
         boolean isRotation = savedInstanceState != null;
 
         if (ResourceInstallUtils.isUpdateReadyToInstall() && sBlockedUpdateWorkflowInProgress) {
-            sBlockedUpdateWorkflowInProgress = false;
-            launchUpdateInstallTask();
+            if (getIntent().getBooleanExtra(KEY_PRE_UPDATE_SYNC_SUCCEED, false)) {
+                sBlockedUpdateWorkflowInProgress = false;
+                launchUpdateInstallTask();
+            }
         } else {
             setupUpdateTask(isRotation);
         }
@@ -430,7 +433,7 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
             long updateReleasedOnTime = HiddenPreferences.geReleasedOnTimeForOngoingAppDownload();
             return lastSyncTime < updateReleasedOnTime;
         }
-        return false;
+        return true;
     }
 
     @Override

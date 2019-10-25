@@ -1158,10 +1158,16 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
     @Override
     public void handlePullTaskResult(ResultAndError<DataPullTask.PullTaskResult> resultAndError, boolean userTriggeredSync, boolean formsToSend, boolean usingRemoteKeyManagement) {
         super.handlePullTaskResult(resultAndError, userTriggeredSync, formsToSend, usingRemoteKeyManagement);
-        if (resultAndError.data == DataPullTask.PullTaskResult.DOWNLOAD_SUCCESS && UpdateActivity.sBlockedUpdateWorkflowInProgress) {
-            launchUpdateActivity(true);
-        } else {
-            UpdateActivity.sBlockedUpdateWorkflowInProgress = false;
+            if (UpdateActivity.sBlockedUpdateWorkflowInProgress) {
+            Intent i = new Intent(getApplicationContext(), UpdateActivity.class);
+            i.putExtra(UpdateActivity.KEY_PROCEED_AUTOMATICALLY, true);
+
+            if (resultAndError.data == DataPullTask.PullTaskResult.DOWNLOAD_SUCCESS) {
+                i.putExtra(UpdateActivity.KEY_PRE_UPDATE_SYNC_SUCCEED, true);
+            } else {
+                i.putExtra(UpdateActivity.KEY_PRE_UPDATE_SYNC_SUCCEED, false);
+            }
+            startActivity(i);
         }
     }
 
