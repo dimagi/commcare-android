@@ -6,6 +6,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
+import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.preference.Preference;
@@ -50,6 +52,7 @@ public class AdvancedActionsPreferences extends CommCarePreferenceFragment {
     private final static String RECOVERY_MODE = "recovery-mode";
     private final static String CLEAR_USER_DATA = "clear-user-data";
     private final static String CLEAR_SAVED_SESSION = "clear-saved-session";
+    private final static String CLEAR_APP_RELEASE_TIME = "clear-app-release-time";
 
     private final static int WIFI_DIRECT_ACTIVITY = 1;
     private final static int DUMP_FORMS_ACTIVITY = 2;
@@ -75,6 +78,7 @@ public class AdvancedActionsPreferences extends CommCarePreferenceFragment {
         keyToTitleMap.put(FORCE_LOG_SUBMIT, "force.log.submit");
         keyToTitleMap.put(RECOVERY_MODE, "recovery.mode");
         keyToTitleMap.put(CLEAR_SAVED_SESSION, "menu.clear.saved.session");
+        keyToTitleMap.put(CLEAR_APP_RELEASE_TIME, "menu.clear.app.release.time");
     }
 
     @NonNull
@@ -99,6 +103,12 @@ public class AdvancedActionsPreferences extends CommCarePreferenceFragment {
         Preference reportProblemButton = findPreference(REPORT_PROBLEM);
         if (reportProblemButton != null && DeveloperPreferences.shouldHideReportIssue()) {
             getPreferenceScreen().removePreference(reportProblemButton);
+        }
+        if (!HiddenPreferences.preUpdateSyncNeeded()) {
+            Preference clearAppReleaseTimePref = findPreference(CLEAR_APP_RELEASE_TIME);
+            if (clearAppReleaseTimePref != null) {
+                getPreferenceScreen().removePreference(clearAppReleaseTimePref);
+            }
         }
     }
 
@@ -182,6 +192,15 @@ public class AdvancedActionsPreferences extends CommCarePreferenceFragment {
             FirebaseAnalyticsUtil.reportAdvancedActionSelected(
                     AnalyticsParamValue.RECOVERY_MODE);
             startRecoveryMode();
+            return true;
+        });
+
+        Preference clearAppReleaseTimePref = findPreference(CLEAR_APP_RELEASE_TIME);
+        clearAppReleaseTimePref.setOnPreferenceClickListener(preference -> {
+            FirebaseAnalyticsUtil.reportAdvancedActionSelected(
+                    AnalyticsParamValue.CLEAR_APP_RELEASE_TIME);
+            HiddenPreferences.setReleasedOnTimeForOngoingAppDownload(CommCareApplication.instance().getCommCarePlatform(), 0);
+            Toast.makeText(getActivity(),R.string.success, Toast.LENGTH_SHORT).show();
             return true;
         });
     }

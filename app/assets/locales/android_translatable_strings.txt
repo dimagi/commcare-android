@@ -96,7 +96,7 @@ home.developer.options.enabled=Developer Mode Enabled
 menu.save.session=Save Your Session
 menu.clear.saved.session=Clear Saved Session
 menu.print.detail=Print Case Detail
-
+menu.clear.app.release.time=Disable Mandatory Pre-Update Sync
 menu.enable.privileges=Mobile Privileges
 menu.privilege.claim.disable=Disable Privileges
 menu.data.change.logs=Data Change Logs

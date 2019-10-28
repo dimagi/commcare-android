@@ -92,6 +92,7 @@ public class AnalyticsParamValue {
     public static final String CONNECTION_TEST = "connection_test";
     public static final String CLEAR_USER_DATA = "clear_user_data";
     public static final String CLEAR_SAVED_SESSION = "clear_saved_session";
+    public static final String CLEAR_APP_RELEASE_TIME = "clear_app_release_time";
     public static final String FORCE_LOG_SUBMISSION = "force_log_submission";
     public static final String RECOVERY_MODE = "recovery_mode";
     public static final String ENABLE_PRIVILEGES = "enable_mobile_privileges";
