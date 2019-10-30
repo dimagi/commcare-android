@@ -647,6 +647,9 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
             case SERVER_ERROR:
                 raiseLoginMessage(StockMessages.Remote_ServerError, true);
                 break;
+            case RATE_LIMITED_SERVER_ERROR:
+                raiseLoginMessage(StockMessages.Remote_RateLimitedServerError, true);
+                break;
             case UNKNOWN_FAILURE:
                 raiseLoginMessageWithInfo(StockMessages.Restore_Unknown, resultAndErrorMessage.errorMessage, true);
                 break;
