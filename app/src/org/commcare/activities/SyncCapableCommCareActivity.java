@@ -118,6 +118,9 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
             case SERVER_ERROR:
                 updateUiAfterDataPullOrSend(Localization.get("sync.fail.server.error"), FAIL);
                 break;
+            case RATE_LIMITED_SERVER_ERROR:
+                updateUiAfterDataPullOrSend(Localization.get("sync.fail.rate.limited.server.error"), FAIL);
+                break;
             case UNREACHABLE_HOST:
                 updateUiAfterDataPullOrSend(Localization.get("sync.fail.bad.network"), FAIL);
                 break;

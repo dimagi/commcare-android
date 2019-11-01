@@ -86,6 +86,9 @@ public class ArchivedFormRemoteRestore {
                     case SERVER_ERROR:
                         Toast.makeText(receiver, "The server had an error processing your data. Please try again later, and contact CommCare Support if the problem persists.", Toast.LENGTH_LONG).show();
                         break;
+                    case RATE_LIMITED_SERVER_ERROR:
+                        Toast.makeText(receiver, "Our servers are unavailable at this time. Please try again later, and contact CommCare Support if the problem persists.", Toast.LENGTH_LONG).show();
+                        break;
                     case UNREACHABLE_HOST:
                         Toast.makeText(receiver, "Couldn't contact server, please check your network connection and try again.", Toast.LENGTH_LONG).show();
                         break;

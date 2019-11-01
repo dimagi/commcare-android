@@ -89,6 +89,12 @@ public class NotificationMessageFactory {
          */
         Remote_ServerError("notification.server.error"),
 
+
+        /**
+         * 503 error *
+         */
+        Remote_RateLimitedServerError("notification.rate.limited.server.error"),
+
         /**
          * Network timed out *
          */
