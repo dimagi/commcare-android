@@ -96,7 +96,7 @@ public class JavaHttpReference implements Reference, ReleasedOnTimeSupportedRefe
         if (responseHeaders != null) {
             String releasedOnStr = responseHeaders.get(HEADER_APP_RELEASED_ON);
             if (releasedOnStr != null) {
-                releasedOnTime = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSSSS").parse(releasedOnStr).getTime();
+                releasedOnTime = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ").parse(releasedOnStr).getTime();
             }
         }
         return releasedOnTime;

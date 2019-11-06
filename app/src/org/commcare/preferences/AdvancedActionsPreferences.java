@@ -52,7 +52,7 @@ public class AdvancedActionsPreferences extends CommCarePreferenceFragment {
     private final static String RECOVERY_MODE = "recovery-mode";
     private final static String CLEAR_USER_DATA = "clear-user-data";
     private final static String CLEAR_SAVED_SESSION = "clear-saved-session";
-    private final static String CLEAR_APP_RELEASE_TIME = "clear-app-release-time";
+    private final static String DISABLE_PRE_UPDATE_SYNC = "bypass-pre-update-sync";
 
     private final static int WIFI_DIRECT_ACTIVITY = 1;
     private final static int DUMP_FORMS_ACTIVITY = 2;
@@ -78,7 +78,7 @@ public class AdvancedActionsPreferences extends CommCarePreferenceFragment {
         keyToTitleMap.put(FORCE_LOG_SUBMIT, "force.log.submit");
         keyToTitleMap.put(RECOVERY_MODE, "recovery.mode");
         keyToTitleMap.put(CLEAR_SAVED_SESSION, "menu.clear.saved.session");
-        keyToTitleMap.put(CLEAR_APP_RELEASE_TIME, "menu.clear.app.release.time");
+        keyToTitleMap.put(DISABLE_PRE_UPDATE_SYNC, "menu.disable.pre.update.sync");
     }
 
     @NonNull
@@ -105,7 +105,7 @@ public class AdvancedActionsPreferences extends CommCarePreferenceFragment {
             getPreferenceScreen().removePreference(reportProblemButton);
         }
         if (!HiddenPreferences.preUpdateSyncNeeded()) {
-            Preference clearAppReleaseTimePref = findPreference(CLEAR_APP_RELEASE_TIME);
+            Preference clearAppReleaseTimePref = findPreference(DISABLE_PRE_UPDATE_SYNC);
             if (clearAppReleaseTimePref != null) {
                 getPreferenceScreen().removePreference(clearAppReleaseTimePref);
             }
@@ -195,11 +195,11 @@ public class AdvancedActionsPreferences extends CommCarePreferenceFragment {
             return true;
         });
 
-        Preference clearAppReleaseTimePref = findPreference(CLEAR_APP_RELEASE_TIME);
+        Preference clearAppReleaseTimePref = findPreference(DISABLE_PRE_UPDATE_SYNC);
         clearAppReleaseTimePref.setOnPreferenceClickListener(preference -> {
             FirebaseAnalyticsUtil.reportAdvancedActionSelected(
-                    AnalyticsParamValue.CLEAR_APP_RELEASE_TIME);
-            HiddenPreferences.setReleasedOnTimeForOngoingAppDownload(CommCareApplication.instance().getCommCarePlatform(), 0);
+                    AnalyticsParamValue.DISABLE_PRE_UPDATE_SYNC);
+            HiddenPreferences.enableBypassPreUpdateSync(true);
             Toast.makeText(getActivity(),R.string.success, Toast.LENGTH_SHORT).show();
             return true;
         });

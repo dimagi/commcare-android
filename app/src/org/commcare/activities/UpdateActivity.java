@@ -389,6 +389,7 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
             startActivity(intent);
             return;
         }
+        HiddenPreferences.enableBypassPreUpdateSync(false);
         InstallStagedUpdateTask<UpdateActivity> task =
                 new InstallStagedUpdateTask<UpdateActivity>(DIALOG_UPGRADE_INSTALL) {
 
@@ -428,6 +429,10 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
 
 
     public static boolean isUpdateBlockedOnSync() {
+        if (HiddenPreferences.shouldBypassPreUpdateSync()) {
+            return false;
+        }
+
         if (ResourceInstallUtils.isUpdateReadyToInstall() && HiddenPreferences.preUpdateSyncNeeded()) {
             long lastSyncTime = SyncDetailCalculations.getLastSyncTime();
             long updateReleasedOnTime = HiddenPreferences.geReleasedOnTimeForOngoingAppDownload();

@@ -78,6 +78,9 @@ public class HiddenPreferences {
     // last known filepath where ccz was installed from
     private static final String LAST_KNOWN_CCZ_LOCATION = "last_known_ccz_location";
 
+    // Internal pref to bypass PRE_UPDATE_SYNC_NEEDED using advanced settings
+    private static final String BYPASS_PRE_UPDATE_SYNC = "bypass_pre_update_sync";
+
 
     /**
      * @return How many seconds should a user session remain open before expiring?
@@ -403,4 +406,14 @@ public class HiddenPreferences {
         return userId + "_" + preferenceName;
     }
 
+    public static void enableBypassPreUpdateSync(boolean enable) {
+        CommCareApplication.instance().getCurrentApp().getAppPreferences()
+                .edit()
+                .putBoolean(BYPASS_PRE_UPDATE_SYNC, enable)
+                .apply();
+    }
+
+    public static boolean shouldBypassPreUpdateSync() {
+        return CommCareApplication.instance().getCurrentApp().getAppPreferences().getBoolean(BYPASS_PRE_UPDATE_SYNC, false);
+    }
 }
