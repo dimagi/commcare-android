@@ -109,9 +109,9 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
 
         if (ResourceInstallUtils.isUpdateReadyToInstall() && sBlockedUpdateWorkflowInProgress) {
             if (getIntent().getBooleanExtra(KEY_PRE_UPDATE_SYNC_SUCCEED, false)) {
-                sBlockedUpdateWorkflowInProgress = false;
                 launchUpdateInstallTask();
             }
+            sBlockedUpdateWorkflowInProgress = false;
         } else {
             setupUpdateTask(isRotation);
         }
