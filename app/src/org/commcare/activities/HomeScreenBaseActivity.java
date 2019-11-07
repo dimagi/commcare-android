@@ -234,7 +234,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
             return true;
         }
 
-        if (CommCareApplication.instance().isPostUpdateSyncNeeded()) {
+        if (CommCareApplication.instance().isPostUpdateSyncNeeded() || UpdateActivity.isUpdateBlockedOnSync()) {
             HiddenPreferences.setPostUpdateSyncNeeded(false);
             triggerSync(false);
             return true;

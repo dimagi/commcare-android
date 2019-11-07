@@ -382,6 +382,7 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
      */
     protected void launchUpdateInstallTask() {
         if (isUpdateBlockedOnSync()) {
+            Logger.log(LogTypes.TYPE_MAINTENANCE, "Update blocked because a sync is required to update");
             Toast.makeText(this, getLocalizedString(R.string.update_blocked_on_sync_message), Toast.LENGTH_LONG).show();
             sBlockedUpdateWorkflowInProgress = true;
             // Delegate to Dispatch
