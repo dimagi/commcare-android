@@ -11,6 +11,7 @@ import org.commcare.engine.cases.CaseUtils;
 import org.commcare.interfaces.CommcareRequestEndpoints;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.provider.DebugControlsReceiver;
+import org.commcare.suite.model.Profile;
 import org.javarosa.core.model.User;
 import org.javarosa.core.model.utils.DateUtils;
 
@@ -201,6 +202,11 @@ public class CommcareRequestGenerator implements CommcareRequestEndpoints {
         if (User.TYPE_DEMO.equals(userType)) {
             queryParams.put(SUBMIT_MODE, SUBMIT_MODE_DEMO);
             queryParams.put(AUTH_REQUEST_TYPE, AUTH_REQUEST_TYPE_NO_AUTH);
+        }
+
+        Profile profile = CommCareApplication.instance().getCommCarePlatform().getCurrentProfile();
+        if (profile != null) {
+            queryParams.put("build_profile_id", profile.getBuildProfileId());
         }
 
         requester = CommCareApplication.instance().buildHttpRequester(
