@@ -82,7 +82,7 @@ public abstract class CustomButtonWithText extends RelativeLayout {
         }
     }
 
-    private void setImage(Drawable backgroundImg) {
+    public void setImage(Drawable backgroundImg) {
         button.setImageDrawable(backgroundImg);
     }
 

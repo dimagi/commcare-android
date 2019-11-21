@@ -172,7 +172,7 @@ public class StandardHomeActivity
 
         switch (item.getItemId()) {
             case MENU_UPDATE:
-                launchUpdateActivity();
+                launchUpdateActivity(false);
                 return true;
             case MENU_SAVED_FORMS:
                 goToFormArchive(false);
