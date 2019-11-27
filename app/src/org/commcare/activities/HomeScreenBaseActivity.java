@@ -8,9 +8,6 @@ import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
-
-import androidx.preference.PreferenceManager;
-
 import android.util.Base64;
 import android.widget.AdapterView;
 import android.widget.Toast;
@@ -54,8 +51,10 @@ import org.commcare.suite.model.RemoteRequestEntry;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.StackFrameStep;
 import org.commcare.suite.model.Text;
+import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.FormLoaderTask;
 import org.commcare.tasks.FormRecordCleanupTask;
+import org.commcare.tasks.ResultAndError;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.AndroidCommCarePlatform;
 import org.commcare.utils.AndroidInstanceInitializer;
@@ -82,6 +81,8 @@ import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.Vector;
+
+import androidx.preference.PreferenceManager;
 
 import static org.commcare.activities.DriftHelper.getCurrentDrift;
 import static org.commcare.activities.DriftHelper.getDriftDialog;
@@ -233,7 +234,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
             return true;
         }
 
-        if (CommCareApplication.instance().isPostUpdateSyncNeeded()) {
+        if (CommCareApplication.instance().isPostUpdateSyncNeeded() || UpdateActivity.isUpdateBlockedOnSync()) {
             HiddenPreferences.setPostUpdateSyncNeeded(false);
             triggerSync(false);
             return true;
@@ -956,8 +957,9 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
         return i;
     }
 
-    public void launchUpdateActivity() {
+    public void launchUpdateActivity(boolean autoProceedUpdateInstall) {
         Intent i = new Intent(getApplicationContext(), UpdateActivity.class);
+        i.putExtra(UpdateActivity.KEY_PROCEED_AUTOMATICALLY, autoProceedUpdateInstall);
         startActivity(i);
     }
 
@@ -1135,6 +1137,9 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
         if (RecoveryMeasuresHelper.recoveryMeasuresPending()) {
             finishWithExecutionIntent();
             kickedOff = true;
+        } else if (UpdateActivity.isUpdateBlockedOnSync() && UpdateActivity.sBlockedUpdateWorkflowInProgress) {
+            triggerSync(true);
+            kickedOff = true;
         } else if (CommCareApplication.instance().isSyncPending(false)) {
             triggerSync(true);
             kickedOff = true;
@@ -1150,6 +1155,22 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
 
         CommCareApplication.instance().getSession().setAppHealthChecksCompleted();
         return kickedOff;
+    }
+
+    @Override
+    public void handlePullTaskResult(ResultAndError<DataPullTask.PullTaskResult> resultAndError, boolean userTriggeredSync, boolean formsToSend, boolean usingRemoteKeyManagement) {
+        super.handlePullTaskResult(resultAndError, userTriggeredSync, formsToSend, usingRemoteKeyManagement);
+            if (UpdateActivity.sBlockedUpdateWorkflowInProgress) {
+            Intent i = new Intent(getApplicationContext(), UpdateActivity.class);
+            i.putExtra(UpdateActivity.KEY_PROCEED_AUTOMATICALLY, true);
+
+            if (resultAndError.data == DataPullTask.PullTaskResult.DOWNLOAD_SUCCESS) {
+                i.putExtra(UpdateActivity.KEY_PRE_UPDATE_SYNC_SUCCEED, true);
+            } else {
+                i.putExtra(UpdateActivity.KEY_PRE_UPDATE_SYNC_SUCCEED, false);
+            }
+            startActivity(i);
+        }
     }
 
     private void finishWithExecutionIntent() {

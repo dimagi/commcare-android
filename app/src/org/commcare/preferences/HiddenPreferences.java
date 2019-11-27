@@ -3,9 +3,12 @@ package org.commcare.preferences;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
+import androidx.annotation.Nullable;
+
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.activities.GeoPointActivity;
+import org.commcare.utils.AndroidCommCarePlatform;
 import org.commcare.utils.GeoUtils;
 
 import java.util.Date;
@@ -28,6 +31,7 @@ public class HiddenPreferences {
     public final static String LAST_LOGGED_IN_USER = "last_logged_in_user";
     final static String LAST_PASSWORD = "last_password";
     public final static String POST_UPDATE_SYNC_NEEDED = "post-update-sync-needed";
+    public final static String PRE_UPDATE_SYNC_NEEDED = "pre-update-sync-needed";
     public final static String AUTO_UPDATE_IN_PROGRESS = "cc-trying-to-auto-update";
     public final static String LAST_UPDATE_ATTEMPT = "cc-last_up";
     public final static String LAST_UPLOAD_SYNC_ATTEMPT = "last-upload-sync";
@@ -65,6 +69,7 @@ public class HiddenPreferences {
     public final static String LOGS_ENABLED_YES = "yes";
     public final static String LOGS_ENABLED_NO = "no";
     public final static String LOGS_ENABLED_ON_DEMAND = "on_demand";
+    private final static String RELEASED_ON_TIME_FOR_ONGOING_APP_DOWNLOAD = "released-on-time-for-ongoing-app-download";
 
 
     // Boolean pref to determine whether user has already been through the update information form
@@ -72,6 +77,9 @@ public class HiddenPreferences {
 
     // last known filepath where ccz was installed from
     private static final String LAST_KNOWN_CCZ_LOCATION = "last_known_ccz_location";
+
+    // Internal pref to bypass PRE_UPDATE_SYNC_NEEDED using advanced settings
+    private static final String BYPASS_PRE_UPDATE_SYNC = "bypass_pre_update_sync";
 
 
     /**
@@ -351,6 +359,35 @@ public class HiddenPreferences {
         return properties.getString(SHOW_UNSENT_FORMS_WHEN_ZERO, PrefValues.NO).equals(PrefValues.YES);
     }
 
+
+    public static boolean preUpdateSyncNeeded() {
+        SharedPreferences properties = CommCareApplication.instance().getCurrentApp().getAppPreferences();
+        return properties.getString(PRE_UPDATE_SYNC_NEEDED, PrefValues.NO).equals(PrefValues.YES);
+    }
+
+    public static void setReleasedOnTimeForOngoingAppDownload(AndroidCommCarePlatform platform, long releasedOnTime) {
+        if (platform.getApp() == null) {
+            return;
+        }
+
+        platform.getApp().getAppPreferences()
+                .edit()
+                .putLong(RELEASED_ON_TIME_FOR_ONGOING_APP_DOWNLOAD, releasedOnTime)
+                .apply();
+    }
+
+    public static long geReleasedOnTimeForOngoingAppDownload() {
+        if (CommCareApplication.instance().getCurrentApp() == null) {
+            return 0;
+        }
+        long releasedOnTime = CommCareApplication.instance().getCurrentApp().getAppPreferences()
+                .getLong(RELEASED_ON_TIME_FOR_ONGOING_APP_DOWNLOAD, 0);
+        // Since phone date time can change, we wanna restrict the released on time to the current time
+        releasedOnTime = Math.min(releasedOnTime, new Date().getTime());
+        return releasedOnTime;
+    }
+
+
     public static void updateLastLogDeletionTime() {
         String userId = CommCareApplication.instance().getSession().getLoggedInUser().getUniqueId();
         CommCareApplication.instance().getCurrentApp().getAppPreferences()
@@ -367,5 +404,16 @@ public class HiddenPreferences {
 
     private static String getUserSpecificKey(String userId, String preferenceName) {
         return userId + "_" + preferenceName;
+    }
+
+    public static void enableBypassPreUpdateSync(boolean enable) {
+        CommCareApplication.instance().getCurrentApp().getAppPreferences()
+                .edit()
+                .putBoolean(BYPASS_PRE_UPDATE_SYNC, enable)
+                .apply();
+    }
+
+    public static boolean shouldBypassPreUpdateSync() {
+        return CommCareApplication.instance().getCurrentApp().getAppPreferences().getBoolean(BYPASS_PRE_UPDATE_SYNC, false);
     }
 }
