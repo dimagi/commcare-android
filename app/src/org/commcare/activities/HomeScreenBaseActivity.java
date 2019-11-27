@@ -1046,7 +1046,9 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
 
     private void formEntry(int formDefId, FormRecord r, String headerTitle,
                            boolean isRestartAfterSessionExpiration) {
-        Logger.log(LogTypes.TYPE_FORM_ENTRY, "Form Entry Starting|" + r.getFormNamespace());
+        Logger.log(LogTypes.TYPE_FORM_ENTRY, "Form Entry Starting|" +
+                (r.getInstanceID() == null ? "" : r.getInstanceID() + "|") +
+                r.getFormNamespace());
 
         //TODO: This is... just terrible. Specify where external instance data should come from
         FormLoaderTask.iif = new AndroidInstanceInitializer(CommCareApplication.instance().getCurrentSession());

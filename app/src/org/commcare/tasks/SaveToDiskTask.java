@@ -130,7 +130,7 @@ public class SaveToDiskTask extends
         if (exitAfterSave) {
             FormRecord saved = CommCareApplication.instance().getCurrentSessionWrapper().getFormRecord();
             Logger.log(LogTypes.TYPE_FORM_ENTRY,
-                    String.format("Form Entry Completed for record with id %s", saved.getInstanceID()));
+                    String.format("Form Entry Completed: Record with id %s was saved as %s", saved.getInstanceID(), mMarkCompleted ? "complete" : "incomplete"));
             return new ResultAndError<>(SaveStatus.SAVED_AND_EXIT);
         } else if (mMarkCompleted) {
             return new ResultAndError<>(SaveStatus.SAVED_COMPLETE);
