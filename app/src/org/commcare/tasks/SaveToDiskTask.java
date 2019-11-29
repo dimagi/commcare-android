@@ -127,16 +127,23 @@ public class SaveToDiskTask extends
             FormEntryActivity.mFormController.markCompleteFormAsSaved();
         }
 
+        logFormSave(exitAfterSave);
         if (exitAfterSave) {
-            FormRecord saved = CommCareApplication.instance().getCurrentSessionWrapper().getFormRecord();
-            Logger.log(LogTypes.TYPE_FORM_ENTRY,
-                    String.format("Form Entry Completed: Record with id %s was saved as %s", saved.getInstanceID(), mMarkCompleted ? "complete" : "incomplete"));
             return new ResultAndError<>(SaveStatus.SAVED_AND_EXIT);
         } else if (mMarkCompleted) {
             return new ResultAndError<>(SaveStatus.SAVED_COMPLETE);
         } else {
             return new ResultAndError<>(SaveStatus.SAVED_INCOMPLETE);
         }
+    }
+
+    private void logFormSave(boolean exit) {
+        FormRecord saved = CommCareApplication.instance().getCurrentSessionWrapper().getFormRecord();
+        String log = String.format("Form Entry Completed: Record with id %s was saved as %s", saved.getInstanceID(), mMarkCompleted ? "complete" : "incomplete");
+        if(exit){
+            log += " with user exiting";
+        }
+        Logger.log(LogTypes.TYPE_FORM_ENTRY, log);
     }
 
     /**
