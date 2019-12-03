@@ -803,11 +803,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
     private void clearSessionAndExit(AndroidSessionWrapper currentState, boolean shouldWarnUser) {
         currentState.reset();
         if (wasExternal) {
-            if (shouldWarnUser) {
-                setResult(RESULT_CANCELED);
-            } else {
-                setResult(RESULT_OK);
-            }
+            setResult(RESULT_CANCELED);
             this.finish();
         }
         refreshUI();
@@ -1160,7 +1156,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
     @Override
     public void handlePullTaskResult(ResultAndError<DataPullTask.PullTaskResult> resultAndError, boolean userTriggeredSync, boolean formsToSend, boolean usingRemoteKeyManagement) {
         super.handlePullTaskResult(resultAndError, userTriggeredSync, formsToSend, usingRemoteKeyManagement);
-            if (UpdateActivity.sBlockedUpdateWorkflowInProgress) {
+        if (UpdateActivity.sBlockedUpdateWorkflowInProgress) {
             Intent i = new Intent(getApplicationContext(), UpdateActivity.class);
             i.putExtra(UpdateActivity.KEY_PROCEED_AUTOMATICALLY, true);
 
