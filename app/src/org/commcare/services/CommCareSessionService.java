@@ -380,9 +380,6 @@ public class CommCareSessionService extends Service {
         synchronized (lock) {
             if (formSaver != null) {
                 formSaver.formSaveCallback(() -> {
-                    // Notify the key session that the form state has been saved (or at
-                    // least attempted to be saved) so CommCareSessionService can
-                    // continue closing down key pool and user database.
                     CommCareApplication.instance().expireUserSession();
                 });
             } else {

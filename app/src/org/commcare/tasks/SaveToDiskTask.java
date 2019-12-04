@@ -76,6 +76,8 @@ public class SaveToDiskTask extends
 
         if (headless) {
             this.taskId = -1;
+
+            //Don't block on the UI thread if there's no available screen to connect to
             this.setConnectionTimeout(0);
         } else {
             this.taskId = SAVING_TASK_ID;
