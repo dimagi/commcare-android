@@ -157,7 +157,6 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     // at the end of saving a form - like continuing a logout
     // or proceeding unblocked
     private Runnable customFormSaveCallback = null;
-    private boolean wasInterrupted = false;
 
     private FormEntryActivityUIController uiController;
     private SqlStorage<FormRecord> formRecordStorage;
@@ -855,9 +854,6 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
     @Override
     public void onResumeSessionSafe() {
-        if(wasInterrupted) {
-
-        }
         if (!hasFormLoadBeenTriggered) {
             loadForm();
         }
@@ -1096,7 +1092,6 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         if (customFormSaveCallback != null) {
             Runnable toCall = customFormSaveCallback;
             customFormSaveCallback = null;
-            wasInterrupted = true;
 
             toCall.run();
             returnAsInterrupted();
