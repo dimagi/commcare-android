@@ -439,7 +439,7 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
             long updateReleasedOnTime = HiddenPreferences.geReleasedOnTimeForOngoingAppDownload();
             return lastSyncTime < updateReleasedOnTime;
         }
-        return true;
+        return false;
     }
 
     @Override
