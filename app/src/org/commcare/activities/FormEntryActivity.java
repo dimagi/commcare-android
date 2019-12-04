@@ -153,10 +153,12 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
     private BroadcastReceiver mLocationServiceIssueReceiver;
 
-    // marked true if we are in the process of saving a form because the user
-    // database & key session are expiring. Being set causes savingComplete to
-    // broadcast a form saving intent.
-    private boolean savingFormOnKeySessionExpiration = false;
+    // This will be set if a unique action needs to be taken
+    // at the end of saving a form - like continuing a logout
+    // or proceeding unblocked
+    private Runnable customFormSaveCallback = null;
+    private boolean wasInterrupted = false;
+
     private FormEntryActivityUIController uiController;
     private SqlStorage<FormRecord> formRecordStorage;
 
@@ -220,9 +222,9 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     }
 
     @Override
-    public void formSaveCallback() {
+    public void formSaveCallback(Runnable listener) {
         // note that we have started saving the form
-        savingFormOnKeySessionExpiration = true;
+        customFormSaveCallback = listener;
 
         // Set flag that will allow us to restore this form when we log back in
         CommCareApplication.instance().getCurrentSessionWrapper().setCurrentStateAsInterrupted();
@@ -853,6 +855,9 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
     @Override
     public void onResumeSessionSafe() {
+        if(wasInterrupted) {
+
+        }
         if (!hasFormLoadBeenTriggered) {
             loadForm();
         }
@@ -1088,13 +1093,13 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     public void savingComplete(SaveToDiskTask.SaveStatus saveStatus, String errorMessage) {
         // Did we just save a form because the key session
         // (CommCareSessionService) is ending?
-        if (savingFormOnKeySessionExpiration) {
-            savingFormOnKeySessionExpiration = false;
+        if (customFormSaveCallback != null) {
+            Runnable toCall = customFormSaveCallback;
+            customFormSaveCallback = null;
+            wasInterrupted = true;
 
-            // Notify the key session that the form state has been saved (or at
-            // least attempted to be saved) so CommCareSessionService can
-            // continue closing down key pool and user database.
-            CommCareApplication.instance().expireUserSession();
+            toCall.run();
+            returnAsInterrupted();
         } else if (saveStatus != null) {
             String toastMessage = "";
             switch (saveStatus) {
@@ -1129,6 +1134,14 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             }
             uiController.refreshView();
         }
+    }
+
+    private void returnAsInterrupted() {
+        Intent formReturnIntent = new Intent();
+        formReturnIntent.putExtra(FormEntryConstants.WAS_INTERRUPTED, true);
+
+        setResult(RESULT_CANCELED, formReturnIntent);
+        finish();
     }
 
     /**

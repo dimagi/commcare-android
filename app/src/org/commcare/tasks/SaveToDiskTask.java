@@ -76,6 +76,7 @@ public class SaveToDiskTask extends
 
         if (headless) {
             this.taskId = -1;
+            this.setConnectionTimeout(0);
         } else {
             this.taskId = SAVING_TASK_ID;
         }
