@@ -566,25 +566,29 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             indexKeys.addAll(answers.keySet());
             Collections.sort(indexKeys, FormIndex::compareTo);
 
-            for (FormIndex index : indexKeys) {
-                // Within a group, you can only save for question events
-                if (mFormController.getEvent(index) == FormEntryController.EVENT_QUESTION) {
-                    int saveStatus = saveAnswer(answers.get(index),
-                            index, evaluateConstraints);
-                    if (evaluateConstraints &&
-                            ((saveStatus != FormEntryController.ANSWER_OK) &&
-                                    (failOnRequired ||
-                                            saveStatus != FormEntryController.ANSWER_REQUIRED_BUT_EMPTY))) {
-                        if (!headless) {
-                            uiController.showConstraintWarning(index, mFormController.getQuestionPrompt(index).getConstraintText(), saveStatus, success);
+            try {
+                for (FormIndex index : indexKeys) {
+                    // Within a group, you can only save for question events
+                    if (mFormController.getEvent(index) == FormEntryController.EVENT_QUESTION) {
+                        int saveStatus = saveAnswer(answers.get(index),
+                                index, evaluateConstraints);
+                        if (evaluateConstraints &&
+                                ((saveStatus != FormEntryController.ANSWER_OK) &&
+                                        (failOnRequired ||
+                                                saveStatus != FormEntryController.ANSWER_REQUIRED_BUT_EMPTY))) {
+                            if (!headless) {
+                                uiController.showConstraintWarning(index, mFormController.getQuestionPrompt(index).getConstraintText(), saveStatus, success);
+                            }
+                            success = false;
                         }
-                        success = false;
+                    } else {
+                        Log.w(TAG,
+                                "Attempted to save an index referencing something other than a question: "
+                                        + index.getReference());
                     }
-                } else {
-                    Log.w(TAG,
-                            "Attempted to save an index referencing something other than a question: "
-                                    + index.getReference());
                 }
+            } catch (XPathException e) {
+                UserfacingErrorHandling.createErrorDialog(this, e.getLocalizedMessage(), true);
             }
         }
         return success;
