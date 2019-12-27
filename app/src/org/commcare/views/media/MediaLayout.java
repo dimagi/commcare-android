@@ -23,6 +23,7 @@ import android.widget.VideoView;
 
 import com.bumptech.glide.Glide;
 
+import org.commcare.activities.FormEntryActivity;
 import org.commcare.dalvik.R;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.preferences.HiddenPreferences;
@@ -166,6 +167,7 @@ public class MediaLayout extends RelativeLayout {
                 i.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                 try {
                     getContext().startActivity(i);
+                    FormEntryActivity.mFormController.recordVideoPlaybackStart(videoFile);
                 } catch (ActivityNotFoundException e) {
                     Toast.makeText(getContext(),
                             getContext().getString(R.string.activity_not_found, "view video"),

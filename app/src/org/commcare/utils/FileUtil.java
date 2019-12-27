@@ -4,10 +4,13 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.Build;
+
 import androidx.annotation.Nullable;
 import androidx.core.content.FileProvider;
+
 import android.util.Log;
 import android.util.Pair;
 import android.widget.EditText;
@@ -646,5 +649,13 @@ public class FileUtil {
     // Retruns true if location is either a content Uri or a valid file path
     public static boolean isValidFileLocation(String location) {
         return location != null && (location.startsWith("content://") || new File(location).exists());
+    }
+
+    // returns the duration for a media file
+    public static long getDuration(File file) {
+        MediaMetadataRetriever mediaMetadataRetriever = new MediaMetadataRetriever();
+        mediaMetadataRetriever.setDataSource(file.getAbsolutePath());
+        String durationStr = mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
+        return Long.parseLong(durationStr);
     }
 }

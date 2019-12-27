@@ -2,42 +2,68 @@ package org.commcare.google.services.analytics;
 
 import android.os.Build;
 import android.os.Bundle;
+import android.text.TextUtils;
 
 import com.google.firebase.analytics.FirebaseAnalytics;
 
 import org.commcare.CommCareApplication;
 import org.commcare.android.logging.ReportingUtils;
+import org.commcare.preferences.HiddenPreferences;
 import org.commcare.preferences.MainConfigurablePreferences;
 import org.commcare.suite.model.OfflineUserRestore;
 import org.commcare.utils.EncryptionUtils;
+import org.commcare.utils.StringUtils;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.Date;
 
 /**
  * Created by amstone326 on 10/13/17.
  */
 public class FirebaseAnalyticsUtil {
 
-    public static void reportEvent(String eventName, String paramKey, String paramVal) {
+    private static final String VIDEO_USAGE_IMMEDIATE = "immediate";
+    private static final String VIDEO_USAGE_PARTIAL = "partial";
+    private static final String VIDEO_USAGE_MOST = "most";
+    private static final String VIDEO_USAGE_FULL = "full";
+    private static final String VIDEO_USAGE_OTHER = "other";
+
+    private static void reportEvent(String eventName, String paramKey, String paramVal) {
         reportEvent(eventName, new String[]{paramKey}, new String[]{paramVal});
     }
 
-    public static void reportEvent(String eventName, String[] paramKeys, String[] paramVals) {
+    private static void reportEvent(String eventName, String[] paramKeys, String[] paramVals) {
         if (analyticsDisabled() || versionIncompatible()) {
             return;
         }
+
+        FirebaseAnalytics analyticsInstance = CommCareApplication.instance().getAnalyticsInstance();
+        setUserProperties(analyticsInstance);
 
         Bundle b = new Bundle();
         for (int i = 0; i < paramKeys.length; i++) {
             b.putString(paramKeys[i], paramVals[i]);
         }
 
-        // All events get domain name and app id
-        b.putString(CCAnalyticsParam.CCHQ_DOMAIN, ReportingUtils.getDomain());
-        b.putString(CCAnalyticsParam.CC_APP_ID, ReportingUtils.getAppId());
+        analyticsInstance.logEvent(eventName, b);
+    }
 
-        CommCareApplication.instance().getAnalyticsInstance().logEvent(eventName, b);
+    private static void setUserProperties(FirebaseAnalytics analyticsInstance) {
+        String domain = ReportingUtils.getDomain();
+        if (!TextUtils.isEmpty(domain)) {
+            analyticsInstance.setUserProperty(CCAnalyticsParam.CCHQ_DOMAIN, domain);
+        }
+
+        String appId = ReportingUtils.getAppId();
+        if (!TextUtils.isEmpty(appId)) {
+            analyticsInstance.setUserProperty(CCAnalyticsParam.CC_APP_ID, appId);
+        }
+
+        String serverName = ReportingUtils.getServerName();
+        if (!TextUtils.isEmpty(serverName)) {
+            analyticsInstance.setUserProperty(CCAnalyticsParam.SERVER, serverName);
+        }
     }
 
     /**
@@ -112,8 +138,8 @@ public class FirebaseAnalyticsUtil {
     public static void reportFormNav(String direction, String method) {
         if (rateLimitReporting(.1)) {
             reportEvent(CCAnalyticsEvent.FORM_NAVIGATION,
-                    new String[]{ CCAnalyticsParam.DIRECTION, CCAnalyticsParam.METHOD },
-                    new String[]{ direction, method });
+                    new String[]{CCAnalyticsParam.DIRECTION, CCAnalyticsParam.METHOD},
+                    new String[]{direction, method});
         }
     }
 
@@ -153,14 +179,14 @@ public class FirebaseAnalyticsUtil {
 
     public static void reportSyncSuccess(String trigger, String syncMode) {
         reportEvent(CCAnalyticsEvent.SYNC_ATTEMPT,
-                new String[]{ CCAnalyticsParam.TRIGGER, CCAnalyticsParam.OUTCOME,
+                new String[]{CCAnalyticsParam.TRIGGER, CCAnalyticsParam.OUTCOME,
                         CCAnalyticsParam.MODE},
                 new String[]{trigger, AnalyticsParamValue.SYNC_SUCCESS, syncMode});
     }
 
     public static void reportSyncFailure(String trigger, String failureReason) {
         reportEvent(CCAnalyticsEvent.SYNC_ATTEMPT,
-                new String[]{ CCAnalyticsParam.TRIGGER, CCAnalyticsParam.OUTCOME,
+                new String[]{CCAnalyticsParam.TRIGGER, CCAnalyticsParam.OUTCOME,
                         CCAnalyticsParam.REASON},
                 new String[]{trigger, AnalyticsParamValue.SYNC_FAILURE, failureReason});
     }
@@ -170,7 +196,7 @@ public class FirebaseAnalyticsUtil {
                 FirebaseAnalytics.Param.ITEM_CATEGORY, feature);
     }
 
-    public static void reportFeatureUsage(String feature, String mode) {
+    private static void reportFeatureUsage(String feature, String mode) {
         reportEvent(CCAnalyticsEvent.FEATURE_USAGE,
                 new String[]{FirebaseAnalytics.Param.ITEM_CATEGORY, CCAnalyticsParam.MODE},
                 new String[]{feature, mode});
@@ -193,12 +219,12 @@ public class FirebaseAnalyticsUtil {
     public static void reportTimedSession(String sessionType, double timeInSeconds, double timeInMinutes) {
         if (rateLimitReporting(.25)) {
             reportEvent(CCAnalyticsEvent.TIMED_SESSION,
-                    new String[]{ CCAnalyticsParam.SESSION_TYPE,
+                    new String[]{CCAnalyticsParam.SESSION_TYPE,
                             CCAnalyticsParam.TIME_IN_SECONDS,
-                            CCAnalyticsParam.TIME_IN_MINUTES },
-                    new String[]{ sessionType,
+                            CCAnalyticsParam.TIME_IN_MINUTES},
+                    new String[]{sessionType,
                             "" + roundToOneDecimal(timeInSeconds),
-                            "" + roundToOneDecimal(timeInMinutes) });
+                            "" + roundToOneDecimal(timeInMinutes)});
         }
     }
 
@@ -210,7 +236,7 @@ public class FirebaseAnalyticsUtil {
         return !MainConfigurablePreferences.isAnalyticsEnabled();
     }
 
-    public static boolean versionIncompatible() {
+    private static boolean versionIncompatible() {
         // According to https://firebase.google.com/docs/android/setup,
         // Firebase should only be used on devices running Android 4.0 and above
         return Build.VERSION.SDK_INT < Build.VERSION_CODES.ICE_CREAM_SANDWICH;
@@ -218,5 +244,27 @@ public class FirebaseAnalyticsUtil {
 
     private static boolean rateLimitReporting(double percentOfEventsToReport) {
         return Math.random() < percentOfEventsToReport;
+    }
+
+    public static void logVideoPlayEvent(String videoName, long videoDuration, long videoStartTime) {
+        long timeSpend = new Date().getTime() - videoStartTime;
+        double timeSpendInFraction = timeSpend / videoDuration;
+
+        String videoUsage;
+        if (timeSpendInFraction < 0.25) {
+            videoUsage = VIDEO_USAGE_IMMEDIATE;
+        } else if (timeSpendInFraction < 0.5) {
+            videoUsage = VIDEO_USAGE_PARTIAL;
+        } else if (timeSpendInFraction < 0.75) {
+            videoUsage = VIDEO_USAGE_MOST;
+        } else if (timeSpendInFraction < 2) {
+            videoUsage = VIDEO_USAGE_FULL;
+        } else {
+            videoUsage = VIDEO_USAGE_OTHER;
+        }
+
+        reportEvent(CCAnalyticsEvent.VIEW_QUESTION_MEDIA,
+                new String[]{FirebaseAnalytics.Param.ITEM_ID, CCAnalyticsParam.USER_RETURNED},
+                new String[]{videoName, videoUsage});
     }
 }
