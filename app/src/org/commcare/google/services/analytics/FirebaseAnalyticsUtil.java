@@ -36,7 +36,7 @@ public class FirebaseAnalyticsUtil {
     // constants related to common commcare event
     private static final String STAGE_UPDATE_FAILURE = "stage_update_failure";
     private static final String UPDATE_RESET = "update_reset";
-    private static final String STORAGE_CORRUPT_ERROR = "storage_corrupt_error";
+    private static final String CORRUPT_APP_STATE = "corrupt_app_state";
 
     public static final String UPDATE_RESET_REASON_CORRUPT = "update_corrupt";
     public static final String UPDATE_RESET_REASON_TIMEOUT = "update_timeout";
@@ -262,7 +262,7 @@ public class FirebaseAnalyticsUtil {
         return Math.random() < percentOfEventsToReport;
     }
 
-    public static void logVideoPlayEvent(String videoName, long videoDuration, long videoStartTime) {
+    public static void reportVideoPlayEvent(String videoName, long videoDuration, long videoStartTime) {
         long timeSpend = new Date().getTime() - videoStartTime;
         double timeSpendInFraction = timeSpend / videoDuration;
 
@@ -294,5 +294,11 @@ public class FirebaseAnalyticsUtil {
         reportEvent(CCAnalyticsEvent.COMMON_COMMCARE_EVENT,
                 new String[]{FirebaseAnalytics.Param.ITEM_ID, CCAnalyticsParam.REASON},
                 new String[]{UPDATE_RESET, reason});
+    }
+
+    public static void reportCorruptAppState() {
+        reportEvent(CCAnalyticsEvent.COMMON_COMMCARE_EVENT,
+                new String[]{FirebaseAnalytics.Param.ITEM_ID},
+                new String[]{CORRUPT_APP_STATE});
     }
 }

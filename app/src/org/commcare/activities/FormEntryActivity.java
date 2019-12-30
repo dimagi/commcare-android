@@ -90,7 +90,6 @@ import org.javarosa.xpath.XPathTypeMismatchException;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -867,7 +866,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
     private void logVideoUsageIfAny() {
         if (mFormController!=null && mFormController.getVideoStartTime() != -1) {
-            FirebaseAnalyticsUtil.logVideoPlayEvent(mFormController.getVideoName(), mFormController.getVideoDuration(), mFormController.getVideoStartTime());
+            FirebaseAnalyticsUtil.reportVideoPlayEvent(mFormController.getVideoName(), mFormController.getVideoDuration(), mFormController.getVideoStartTime());
             mFormController.resetVideoPlaybackInfo();
         }
     }
