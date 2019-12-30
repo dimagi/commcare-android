@@ -23,30 +23,46 @@ import java.util.Date;
  */
 public class FirebaseAnalyticsUtil {
 
+
+
+    // constants related to video usage event
     private static final String VIDEO_USAGE_IMMEDIATE = "immediate";
     private static final String VIDEO_USAGE_PARTIAL = "partial";
     private static final String VIDEO_USAGE_MOST = "most";
     private static final String VIDEO_USAGE_FULL = "full";
     private static final String VIDEO_USAGE_OTHER = "other";
 
+
+    // constants related to common commcare event
+    private static final String STAGE_UPDATE_FAILURE = "stage_update_failure";
+    private static final String UPDATE_RESET = "update_reset";
+    private static final String STORAGE_CORRUPT_ERROR = "storage_corrupt_error";
+
+    public static final String UPDATE_RESET_REASON_CORRUPT = "update_corrupt";
+    public static final String UPDATE_RESET_REASON_TIMEOUT = "update_timeout";
+    public static final String UPDATE_RESET_REASON_OVERSHOOT_TRIALS = "update_overshoot_trials";
+    public static final String UPDATE_RESET_REASON_NEWER_VERSION_AVAILABLE = "update_newer_version_available";
+
     private static void reportEvent(String eventName, String paramKey, String paramVal) {
         reportEvent(eventName, new String[]{paramKey}, new String[]{paramVal});
     }
 
     private static void reportEvent(String eventName, String[] paramKeys, String[] paramVals) {
+        Bundle b = new Bundle();
+        for (int i = 0; i < paramKeys.length; i++) {
+            b.putString(paramKeys[i], paramVals[i]);
+        }
+        reportEvent(eventName, b);
+    }
+
+    private static void reportEvent(String eventName, Bundle params) {
         if (analyticsDisabled() || versionIncompatible()) {
             return;
         }
 
         FirebaseAnalytics analyticsInstance = CommCareApplication.instance().getAnalyticsInstance();
         setUserProperties(analyticsInstance);
-
-        Bundle b = new Bundle();
-        for (int i = 0; i < paramKeys.length; i++) {
-            b.putString(paramKeys[i], paramVals[i]);
-        }
-
-        analyticsInstance.logEvent(eventName, b);
+        analyticsInstance.logEvent(eventName, params);
     }
 
     private static void setUserProperties(FirebaseAnalytics analyticsInstance) {
@@ -266,5 +282,17 @@ public class FirebaseAnalyticsUtil {
         reportEvent(CCAnalyticsEvent.VIEW_QUESTION_MEDIA,
                 new String[]{FirebaseAnalytics.Param.ITEM_ID, CCAnalyticsParam.USER_RETURNED},
                 new String[]{videoName, videoUsage});
+    }
+
+    public static void reportStageUpdateAttemptFailure(String reason) {
+        reportEvent(CCAnalyticsEvent.COMMON_COMMCARE_EVENT,
+                new String[]{FirebaseAnalytics.Param.ITEM_ID, CCAnalyticsParam.REASON},
+                new String[]{STAGE_UPDATE_FAILURE, reason});
+    }
+
+    public static void reportUpdateReset(String reason) {
+        reportEvent(CCAnalyticsEvent.COMMON_COMMCARE_EVENT,
+                new String[]{FirebaseAnalytics.Param.ITEM_ID, CCAnalyticsParam.REASON},
+                new String[]{UPDATE_RESET, reason});
     }
 }

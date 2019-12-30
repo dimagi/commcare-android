@@ -90,9 +90,16 @@ public class UpdateStats implements InstallStatsLogger, Serializable {
      * many unsuccessful installs?
      */
     public boolean isUpgradeStale() {
+        return hasUpdateTrialsMaxedOut() || hasUpdateTimedOut();
+    }
+
+    private boolean hasUpdateTimedOut() {
         long currentTime = new Date().getTime();
-        return (restartCount > ATTEMPTS_UNTIL_UPDATE_STALE ||
-                (currentTime - startInstallTime) > TWO_WEEKS_IN_MS);
+        return (currentTime - startInstallTime) > TWO_WEEKS_IN_MS;
+    }
+
+    public boolean hasUpdateTrialsMaxedOut() {
+        return restartCount > ATTEMPTS_UNTIL_UPDATE_STALE;
     }
 
     @Override

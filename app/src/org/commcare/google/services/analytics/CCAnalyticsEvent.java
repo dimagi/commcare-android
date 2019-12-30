@@ -23,5 +23,6 @@ public class CCAnalyticsEvent {
     static final String TIMED_SESSION = "timed_session";
     static final String VIEW_ARCHIVED_FORMS_LIST = "view_archived_forms_list";
     static final String VIEW_QUESTION_MEDIA = "view_question_media";
+    static final String COMMON_COMMCARE_EVENT = "common_commcare_event";
 
 }
