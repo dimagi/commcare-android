@@ -25,6 +25,7 @@ import org.commcare.util.LogTypes;
 import org.commcare.utils.BlockingActionsManager;
 import org.commcare.utils.CompoundIntentList;
 import org.commcare.utils.MarkupUtil;
+import org.commcare.views.media.MediaLayout;
 import org.commcare.views.widgets.DateTimeWidget;
 import org.commcare.views.widgets.IntentWidget;
 import org.commcare.views.widgets.QuestionWidget;
@@ -422,6 +423,12 @@ public class QuestionsView extends ScrollView
     public void teardownView() {
         for (QuestionWidget widget : widgets) {
             widget.unsetListeners();
+            for (int i = 0; i < widget.getChildCount(); i++) {
+                View view = widget.getChildAt(i);
+                if (view instanceof MediaLayout) {
+                    ((MediaLayout) view).tearDown();
+                }
+            }
             widget.setOnCreateContextMenuListener(null);
         }
         wcListener = null;

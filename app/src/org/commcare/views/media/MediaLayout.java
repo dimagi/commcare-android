@@ -68,6 +68,7 @@ public class MediaLayout extends RelativeLayout {
     private AudioPlaybackButton audioButton;
     private ImageButton videoButton;
     private TextView missingImageText;
+    private MediaController ctrl;
 
     private MediaLayout(Context c) {
         super(c);
@@ -405,7 +406,7 @@ public class MediaLayout extends RelativeLayout {
                 //since clicking the video view to bring up controls has weird effects.
                 //since we shotgun grab the focus for the input widget.
 
-                final MediaController ctrl = new MediaController(this.getContext());
+                ctrl = new MediaController(this.getContext());
 
                 VideoView videoView = new VideoView(this.getContext());
                 videoView.setOnPreparedListener(mediaPlayer -> ctrl.show());
@@ -426,6 +427,12 @@ public class MediaLayout extends RelativeLayout {
             Log.e(TAG, "invalid video reference exception");
             ire.printStackTrace();
             return getMissingImageView("Invalid reference: " + ire.getReferenceString());
+        }
+    }
+
+    public void tearDown() {
+        if (ctrl != null) {
+            ctrl.setVisibility(GONE);
         }
     }
 
