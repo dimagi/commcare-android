@@ -34,8 +34,6 @@ public class AnalyticsParamValue {
     public static final String SYNC_TRIGGER_USER = "user_triggered_sync";
     public static final String SYNC_TRIGGER_AUTO = "auto_sync";
 
-    static final String SYNC_SUCCESS = "sync_success";
-    static final String SYNC_FAILURE = "sync_failure";
 
     public static final String SYNC_MODE_JUST_PULL_DATA = "sync_just_pull";
     public static final String SYNC_MODE_SEND_FORMS = "sync_pull_and_send";
@@ -105,5 +103,24 @@ public class AnalyticsParamValue {
     // Param values for timed sessions
     public static final String USER_SESSION = "user_session";
     public static final String FORM_ENTRY_SESSION = "form_entry_session";
+
+
+    // Param values for video usage event
+    public static final String VIDEO_USAGE_IMMEDIATE = "immediate";
+    public static final String VIDEO_USAGE_PARTIAL = "partial";
+    public static final String VIDEO_USAGE_MOST = "most";
+    public static final String VIDEO_USAGE_FULL = "full";
+    public static final String VIDEO_USAGE_OTHER = "other";
+
+
+    // Param values for common commcare event
+    public static final String STAGE_UPDATE_FAILURE = "stage_update_failure";
+    public static final String UPDATE_RESET = "update_reset";
+    public static final String CORRUPT_APP_STATE = "corrupt_app_state";
+
+    public static final String UPDATE_RESET_REASON_CORRUPT = "update_corrupt";
+    public static final String UPDATE_RESET_REASON_TIMEOUT = "update_timeout";
+    public static final String UPDATE_RESET_REASON_OVERSHOOT_TRIALS = "update_overshoot_trials";
+    public static final String UPDATE_RESET_REASON_NEWER_VERSION_AVAILABLE = "update_newer_version_available";
 
 }

@@ -95,7 +95,7 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
         }
 
         DataPullTask.PullTaskResult result = resultAndError.data;
-        String syncModeParam = null;
+
 
         switch (result) {
             case EMPTY_URL:
@@ -109,11 +109,6 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
                 updateUiAfterDataPullOrSend(Localization.get("sync.fail.bad.data"), FAIL);
                 break;
             case DOWNLOAD_SUCCESS:
-                if (formsToSend) {
-                    syncModeParam = AnalyticsParamValue.SYNC_MODE_SEND_FORMS;
-                } else {
-                    syncModeParam = AnalyticsParamValue.SYNC_MODE_JUST_PULL_DATA;
-                }
                 updateUiAfterDataPullOrSend(Localization.get("sync.success.synced"), SUCCESS);
                 break;
             case SERVER_ERROR:
@@ -142,10 +137,12 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
         String syncTriggerParam =
                 userTriggeredSync ? AnalyticsParamValue.SYNC_TRIGGER_USER : AnalyticsParamValue.SYNC_TRIGGER_AUTO;
 
+        String syncModeParam = formsToSend ? AnalyticsParamValue.SYNC_MODE_SEND_FORMS : AnalyticsParamValue.SYNC_MODE_JUST_PULL_DATA;
+
         if (result == DataPullTask.PullTaskResult.DOWNLOAD_SUCCESS) {
             FirebaseAnalyticsUtil.reportSyncSuccess(syncTriggerParam, syncModeParam);
         } else {
-            FirebaseAnalyticsUtil.reportSyncFailure(syncTriggerParam, result.analyticsFailureReasonParam);
+            FirebaseAnalyticsUtil.reportSyncFailure(syncTriggerParam, syncModeParam, result.analyticsFailureReasonParam);
         }
     }
 
@@ -256,7 +253,7 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
 
     private void computeSyncState(SyncIconTrigger trigger) {
         lastIconTrigger = trigger;
-        switch(trigger) {
+        switch (trigger) {
             case NO_ANIMATION:
                 if (SyncDetailCalculations.getNumUnsentForms() > 0) {
                     syncStateForIcon = SyncIconState.FORMS_PENDING;

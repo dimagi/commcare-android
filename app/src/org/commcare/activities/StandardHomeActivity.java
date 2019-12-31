@@ -95,6 +95,7 @@ public class StandardHomeActivity
             }
             FirebaseAnalyticsUtil.reportSyncFailure(
                     AnalyticsParamValue.SYNC_TRIGGER_USER,
+                    AnalyticsParamValue.SYNC_MODE_SEND_FORMS,
                     AnalyticsParamValue.SYNC_FAIL_NO_CONNECTION);
             return;
         }

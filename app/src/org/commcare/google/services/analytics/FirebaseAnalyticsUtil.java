@@ -8,40 +8,27 @@ import com.google.firebase.analytics.FirebaseAnalytics;
 
 import org.commcare.CommCareApplication;
 import org.commcare.android.logging.ReportingUtils;
-import org.commcare.preferences.HiddenPreferences;
 import org.commcare.preferences.MainConfigurablePreferences;
 import org.commcare.suite.model.OfflineUserRestore;
 import org.commcare.utils.EncryptionUtils;
-import org.commcare.utils.StringUtils;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Date;
 
+import static org.commcare.google.services.analytics.AnalyticsParamValue.CORRUPT_APP_STATE;
+import static org.commcare.google.services.analytics.AnalyticsParamValue.STAGE_UPDATE_FAILURE;
+import static org.commcare.google.services.analytics.AnalyticsParamValue.UPDATE_RESET;
+import static org.commcare.google.services.analytics.AnalyticsParamValue.VIDEO_USAGE_FULL;
+import static org.commcare.google.services.analytics.AnalyticsParamValue.VIDEO_USAGE_IMMEDIATE;
+import static org.commcare.google.services.analytics.AnalyticsParamValue.VIDEO_USAGE_MOST;
+import static org.commcare.google.services.analytics.AnalyticsParamValue.VIDEO_USAGE_OTHER;
+import static org.commcare.google.services.analytics.AnalyticsParamValue.VIDEO_USAGE_PARTIAL;
+
 /**
  * Created by amstone326 on 10/13/17.
  */
 public class FirebaseAnalyticsUtil {
-
-
-
-    // constants related to video usage event
-    private static final String VIDEO_USAGE_IMMEDIATE = "immediate";
-    private static final String VIDEO_USAGE_PARTIAL = "partial";
-    private static final String VIDEO_USAGE_MOST = "most";
-    private static final String VIDEO_USAGE_FULL = "full";
-    private static final String VIDEO_USAGE_OTHER = "other";
-
-
-    // constants related to common commcare event
-    private static final String STAGE_UPDATE_FAILURE = "stage_update_failure";
-    private static final String UPDATE_RESET = "update_reset";
-    private static final String CORRUPT_APP_STATE = "corrupt_app_state";
-
-    public static final String UPDATE_RESET_REASON_CORRUPT = "update_corrupt";
-    public static final String UPDATE_RESET_REASON_TIMEOUT = "update_timeout";
-    public static final String UPDATE_RESET_REASON_OVERSHOOT_TRIALS = "update_overshoot_trials";
-    public static final String UPDATE_RESET_REASON_NEWER_VERSION_AVAILABLE = "update_newer_version_available";
 
     private static void reportEvent(String eventName, String paramKey, String paramVal) {
         reportEvent(eventName, new String[]{paramKey}, new String[]{paramVal});
@@ -87,8 +74,8 @@ public class FirebaseAnalyticsUtil {
      */
     public static void reportOptionsMenuItemClick(Class location, String itemLabel) {
         reportEvent(CCAnalyticsEvent.SELECT_OPTIONS_MENU_ITEM,
-                new String[]{FirebaseAnalytics.Param.LOCATION, CCAnalyticsParam.OPTIONS_MENU_ITEM},
-                new String[]{location.getSimpleName(), itemLabel});
+                FirebaseAnalytics.Param.ITEM_NAME,
+                location.getSimpleName() + "_" + itemLabel);
     }
 
     /**
@@ -96,7 +83,7 @@ public class FirebaseAnalyticsUtil {
      */
     public static void reportEditPreferenceItem(String preferenceKey, String value) {
         reportEvent(CCAnalyticsEvent.EDIT_PREFERENCE_ITEM,
-                new String[]{FirebaseAnalytics.Param.ITEM_NAME, FirebaseAnalytics.Param.VALUE},
+                new String[]{FirebaseAnalytics.Param.ITEM_NAME, FirebaseAnalytics.Param.ITEM_VARIANT},
                 new String[]{preferenceKey, value});
     }
 
@@ -112,17 +99,17 @@ public class FirebaseAnalyticsUtil {
     public static void reportViewArchivedFormsList(boolean forIncomplete) {
         String formType = forIncomplete ? AnalyticsParamValue.INCOMPLETE : AnalyticsParamValue.SAVED;
         reportEvent(CCAnalyticsEvent.VIEW_ARCHIVED_FORMS_LIST,
-                CCAnalyticsParam.FORM_TYPE, formType);
+                FirebaseAnalytics.Param.ITEM_LIST, formType);
     }
 
     public static void reportOpenArchivedForm(String formType) {
         reportEvent(CCAnalyticsEvent.OPEN_ARCHIVED_FORM,
-                CCAnalyticsParam.FORM_TYPE, formType);
+                FirebaseAnalytics.Param.ITEM_NAME, formType);
     }
 
     public static void reportAppInstall(String installMethod) {
         reportEvent(CCAnalyticsEvent.APP_INSTALL,
-                CCAnalyticsParam.METHOD, installMethod);
+                FirebaseAnalytics.Param.METHOD, installMethod);
     }
 
     public static void reportAppManagerAction(String action) {
@@ -154,13 +141,13 @@ public class FirebaseAnalyticsUtil {
     public static void reportFormNav(String direction, String method) {
         if (rateLimitReporting(.1)) {
             reportEvent(CCAnalyticsEvent.FORM_NAVIGATION,
-                    new String[]{CCAnalyticsParam.DIRECTION, CCAnalyticsParam.METHOD},
+                    new String[]{CCAnalyticsParam.DIRECTION, FirebaseAnalytics.Param.METHOD},
                     new String[]{direction, method});
         }
     }
 
     public static void reportFormQuitAttempt(String method) {
-        reportEvent(CCAnalyticsEvent.FORM_EXIT_ATTEMPT, CCAnalyticsParam.METHOD, method);
+        reportEvent(CCAnalyticsEvent.FORM_EXIT_ATTEMPT, FirebaseAnalytics.Param.METHOD, method);
     }
 
     /**
@@ -188,23 +175,26 @@ public class FirebaseAnalyticsUtil {
         reportEvent(CCAnalyticsEvent.ENTITY_DETAIL_NAVIGATION,
                 new String[]{
                         CCAnalyticsParam.DIRECTION,
-                        CCAnalyticsParam.METHOD,
+                        FirebaseAnalytics.Param.METHOD,
                         CCAnalyticsParam.UI_STATE},
                 new String[]{direction, navMethod, detailUiState});
     }
 
     public static void reportSyncSuccess(String trigger, String syncMode) {
-        reportEvent(CCAnalyticsEvent.SYNC_ATTEMPT,
-                new String[]{CCAnalyticsParam.TRIGGER, CCAnalyticsParam.OUTCOME,
-                        CCAnalyticsParam.MODE},
-                new String[]{trigger, AnalyticsParamValue.SYNC_SUCCESS, syncMode});
+        Bundle b = new Bundle();
+        b.putString(FirebaseAnalytics.Param.SOURCE, trigger);
+        b.putLong(FirebaseAnalytics.Param.SUCCESS, 1);
+        b.putString(FirebaseAnalytics.Param.METHOD, syncMode);
+        reportEvent(CCAnalyticsEvent.SYNC_ATTEMPT, b);
     }
 
-    public static void reportSyncFailure(String trigger, String failureReason) {
-        reportEvent(CCAnalyticsEvent.SYNC_ATTEMPT,
-                new String[]{CCAnalyticsParam.TRIGGER, CCAnalyticsParam.OUTCOME,
-                        CCAnalyticsParam.REASON},
-                new String[]{trigger, AnalyticsParamValue.SYNC_FAILURE, failureReason});
+    public static void reportSyncFailure(String trigger, String syncMode, String failureReason) {
+        Bundle b = new Bundle();
+        b.putString(FirebaseAnalytics.Param.SOURCE, trigger);
+        b.putLong(FirebaseAnalytics.Param.SUCCESS, 0);
+        b.putString(FirebaseAnalytics.Param.METHOD, syncMode);
+        b.putString(CCAnalyticsParam.REASON, failureReason);
+        reportEvent(CCAnalyticsEvent.SYNC_ATTEMPT, b);
     }
 
     public static void reportFeatureUsage(String feature) {
@@ -234,13 +224,10 @@ public class FirebaseAnalyticsUtil {
 
     public static void reportTimedSession(String sessionType, double timeInSeconds, double timeInMinutes) {
         if (rateLimitReporting(.25)) {
-            reportEvent(CCAnalyticsEvent.TIMED_SESSION,
-                    new String[]{CCAnalyticsParam.SESSION_TYPE,
-                            CCAnalyticsParam.TIME_IN_SECONDS,
-                            CCAnalyticsParam.TIME_IN_MINUTES},
-                    new String[]{sessionType,
-                            "" + roundToOneDecimal(timeInSeconds),
-                            "" + roundToOneDecimal(timeInMinutes)});
+            Bundle bundle = new Bundle();
+            bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, sessionType);
+            bundle.putDouble(FirebaseAnalytics.Param.VALUE, timeInSeconds);
+            bundle.putDouble(CCAnalyticsParam.TIME_IN_MINUTES, timeInMinutes);
         }
     }
 

@@ -30,6 +30,11 @@ import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import java.text.ParseException;
 import java.util.Date;
 
+import static org.commcare.google.services.analytics.AnalyticsParamValue.UPDATE_RESET_REASON_CORRUPT;
+import static org.commcare.google.services.analytics.AnalyticsParamValue.UPDATE_RESET_REASON_NEWER_VERSION_AVAILABLE;
+import static org.commcare.google.services.analytics.AnalyticsParamValue.UPDATE_RESET_REASON_OVERSHOOT_TRIALS;
+import static org.commcare.google.services.analytics.AnalyticsParamValue.UPDATE_RESET_REASON_TIMEOUT;
+
 /**
  * Manages app installations and updates. Extends the ResourceManager with the
  * ability to stage but not apply updates.
@@ -110,7 +115,7 @@ public class AndroidResourceManager extends ResourceManager {
                     "failed too many times or started too long ago");
 
             FirebaseAnalyticsUtil.reportUpdateReset(updateStats.hasUpdateTrialsMaxedOut() ?
-                    FirebaseAnalyticsUtil.UPDATE_RESET_REASON_OVERSHOOT_TRIALS : FirebaseAnalyticsUtil.UPDATE_RESET_REASON_TIMEOUT);
+                    UPDATE_RESET_REASON_OVERSHOOT_TRIALS : UPDATE_RESET_REASON_TIMEOUT);
 
             upgradeTable.destroy();
             updateStats.resetStats(app);
@@ -144,7 +149,7 @@ public class AndroidResourceManager extends ResourceManager {
         if (tempProfile != null && tempProfile.isNewer(upgradeProfile)) {
             upgradeTable.destroy();
 
-            FirebaseAnalyticsUtil.reportUpdateReset(FirebaseAnalyticsUtil.UPDATE_RESET_REASON_NEWER_VERSION_AVAILABLE);
+            FirebaseAnalyticsUtil.reportUpdateReset(UPDATE_RESET_REASON_NEWER_VERSION_AVAILABLE);
 
             tempUpgradeTable.copyToTable(upgradeTable);
         }
@@ -214,7 +219,7 @@ public class AndroidResourceManager extends ResourceManager {
 
         if (!result.canReusePartialUpdateTable()) {
             clearUpgrade();
-            FirebaseAnalyticsUtil.reportUpdateReset(FirebaseAnalyticsUtil.UPDATE_RESET_REASON_CORRUPT);
+            FirebaseAnalyticsUtil.reportUpdateReset(UPDATE_RESET_REASON_CORRUPT);
         }
 
         retryUpdateOrGiveUp(ctx, isAutoUpdate);
@@ -227,7 +232,7 @@ public class AndroidResourceManager extends ResourceManager {
 
 
             FirebaseAnalyticsUtil.reportUpdateReset(updateStats.hasUpdateTrialsMaxedOut() ?
-                    FirebaseAnalyticsUtil.UPDATE_RESET_REASON_OVERSHOOT_TRIALS : FirebaseAnalyticsUtil.UPDATE_RESET_REASON_TIMEOUT);
+                    UPDATE_RESET_REASON_OVERSHOOT_TRIALS : UPDATE_RESET_REASON_TIMEOUT);
 
             UpdateStats.clearPersistedStats(app);
 
