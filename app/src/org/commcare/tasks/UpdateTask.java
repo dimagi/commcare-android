@@ -2,8 +2,6 @@ package org.commcare.tasks;
 
 import android.content.Context;
 
-import androidx.core.util.Pair;
-
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.dalvik.R;
@@ -11,7 +9,6 @@ import org.commcare.engine.resource.AndroidResourceManager;
 import org.commcare.engine.resource.AppInstallStatus;
 import org.commcare.engine.resource.ResourceInstallUtils;
 import org.commcare.engine.resource.installers.LocalStorageUnavailableException;
-import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.logging.DataChangeLog;
 import org.commcare.logging.DataChangeLogger;
 import org.commcare.resources.model.InstallCancelled;
@@ -29,6 +26,8 @@ import org.javarosa.core.services.locale.Localization;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
 
 import java.util.Vector;
+
+import androidx.core.util.Pair;
 
 /**
  * Stages an update for the seated app in the background. Does not perform

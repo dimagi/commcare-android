@@ -47,6 +47,7 @@ import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
+import org.commcare.google.services.analytics.FormAnalyticsHelper;
 import org.commcare.interfaces.AdvanceToNextListener;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.FormSaveCallback;
@@ -861,14 +862,18 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         registerFormEntryReceiver();
         restorePriorStates();
 
-        logVideoUsageIfAny();
+        reportVideoUsageIfAny();
     }
 
-    private void logVideoUsageIfAny() {
-        if (mFormController!=null && mFormController.getVideoStartTime() != -1) {
-            FirebaseAnalyticsUtil.reportVideoPlayEvent(mFormController.getVideoName(), mFormController.getVideoDuration(), mFormController.getVideoStartTime());
-            mFormController.resetVideoPlaybackInfo();
+    private void reportVideoUsageIfAny() {
+        if (mFormController != null) {
+            FormAnalyticsHelper formAnalyticsHelper = mFormController.getFormAnalyticsHelper();
+            if (formAnalyticsHelper.getVideoStartTime() != -1) {
+                FirebaseAnalyticsUtil.reportVideoPlayEvent(formAnalyticsHelper.getVideoName(), formAnalyticsHelper.getVideoDuration(), formAnalyticsHelper.getVideoStartTime());
+                formAnalyticsHelper.resetVideoPlaybackInfo();
+            }
         }
+
     }
 
     private void restorePriorStates() {

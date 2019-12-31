@@ -167,7 +167,7 @@ public class MediaLayout extends RelativeLayout {
                 i.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                 try {
                     getContext().startActivity(i);
-                    FormEntryActivity.mFormController.recordVideoPlaybackStart(videoFile);
+                    FormEntryActivity.mFormController.getFormAnalyticsHelper().recordVideoPlaybackStart(videoFile);
                 } catch (ActivityNotFoundException e) {
                     Toast.makeText(getContext(),
                             getContext().getString(R.string.activity_not_found, "view video"),

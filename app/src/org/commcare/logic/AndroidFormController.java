@@ -2,6 +2,7 @@ package org.commcare.logic;
 
 import androidx.annotation.NonNull;
 
+import org.commcare.google.services.analytics.FormAnalyticsHelper;
 import org.commcare.utils.FileUtil;
 import org.commcare.views.widgets.WidgetFactory;
 import org.javarosa.core.model.FormIndex;
@@ -22,12 +23,11 @@ public class AndroidFormController extends FormController implements PendingCall
     private FormIndex formIndexToReturnTo = null;
     private boolean formCompleteAndSaved = false;
 
-    private long mVideoStartTime = -1;
-    private String mVideoName = null;
-    private long mVideoDuration = -1;
+    private FormAnalyticsHelper formAnalyticsHelper;
 
     public AndroidFormController(FormEntryController fec, boolean readOnly) {
         super(fec, readOnly);
+        formAnalyticsHelper = new FormAnalyticsHelper();
     }
 
     @Override
@@ -80,27 +80,7 @@ public class AndroidFormController extends FormController implements PendingCall
         this.formCompleteAndSaved = true;
     }
 
-    public void recordVideoPlaybackStart(File videoFile) {
-        mVideoStartTime = new Date().getTime();
-        mVideoName = videoFile.getName();
-        mVideoDuration = FileUtil.getDuration(videoFile);
-    }
-
-    public long getVideoStartTime() {
-        return mVideoStartTime;
-    }
-
-    public String getVideoName() {
-        return mVideoName;
-    }
-
-    public long getVideoDuration() {
-        return mVideoDuration;
-    }
-
-    public void resetVideoPlaybackInfo() {
-        mVideoStartTime = -1;
-        mVideoName = null;
-        mVideoDuration = -1;
+    public FormAnalyticsHelper getFormAnalyticsHelper() {
+        return formAnalyticsHelper;
     }
 }

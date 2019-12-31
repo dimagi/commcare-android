@@ -254,13 +254,13 @@ public class FirebaseAnalyticsUtil {
         double timeSpendInFraction = timeSpend / videoDuration;
 
         String videoUsage;
-        if (timeSpendInFraction < 0.25) {
+        if (timeSpendInFraction <= 0.25) {
             videoUsage = VIDEO_USAGE_IMMEDIATE;
-        } else if (timeSpendInFraction < 0.5) {
+        } else if (timeSpendInFraction <= 0.5) {
             videoUsage = VIDEO_USAGE_PARTIAL;
-        } else if (timeSpendInFraction < 0.75) {
+        } else if (timeSpendInFraction <= 0.75) {
             videoUsage = VIDEO_USAGE_MOST;
-        } else if (timeSpendInFraction < 2) {
+        } else if (timeSpendInFraction <= 2) {
             videoUsage = VIDEO_USAGE_FULL;
         } else {
             videoUsage = VIDEO_USAGE_OTHER;
