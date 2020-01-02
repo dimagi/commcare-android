@@ -30,6 +30,9 @@ import static org.commcare.google.services.analytics.AnalyticsParamValue.VIDEO_U
  */
 public class FirebaseAnalyticsUtil {
 
+    // constant to approximate time taken by an user to go to the video playing app after clicking on the video
+    private static final long VIDEO_USAGE_ERROR_APPROXIMATION = 3;
+
     private static void reportEvent(String eventName, String paramKey, String paramVal) {
         reportEvent(eventName, new String[]{paramKey}, new String[]{paramVal});
     }
@@ -256,6 +259,7 @@ public class FirebaseAnalyticsUtil {
         } else {
 
             long timeSpend = new Date().getTime() - videoStartTime;
+            timeSpend = timeSpend + VIDEO_USAGE_ERROR_APPROXIMATION;
             double timeSpendInFraction = timeSpend / videoDuration;
 
             if (timeSpendInFraction <= 0.25) {
