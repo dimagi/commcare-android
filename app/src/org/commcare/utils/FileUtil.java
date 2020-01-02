@@ -651,11 +651,15 @@ public class FileUtil {
         return location != null && (location.startsWith("content://") || new File(location).exists());
     }
 
-    // returns the duration for a media file
+    // returns the duration for a media file otherwise -1 in case of an error
     public static long getDuration(File file) {
-        MediaMetadataRetriever mediaMetadataRetriever = new MediaMetadataRetriever();
-        mediaMetadataRetriever.setDataSource(file.getAbsolutePath());
-        String durationStr = mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
-        return Long.parseLong(durationStr);
+        try {
+            MediaMetadataRetriever mediaMetadataRetriever = new MediaMetadataRetriever();
+            mediaMetadataRetriever.setDataSource(file.getAbsolutePath());
+            String durationStr = mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
+            return Long.parseLong(durationStr);
+        } catch (Exception e) {
+            return -1;
+        }
     }
 }

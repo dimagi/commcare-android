@@ -7,7 +7,7 @@ import java.util.*
 class FormAnalyticsHelper {
 
     var videoStartTime: Long = -1
-    var videoName: String? = null
+    var videoName: String = ""
     var videoDuration: Long = -1
 
     fun recordVideoPlaybackStart(videoFile: File) {
@@ -18,7 +18,7 @@ class FormAnalyticsHelper {
 
     fun resetVideoPlaybackInfo() {
         videoStartTime = -1
-        videoName = null
+        videoName = ""
         videoDuration = -1
     }
 }

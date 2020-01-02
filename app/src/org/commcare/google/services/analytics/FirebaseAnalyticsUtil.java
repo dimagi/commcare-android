@@ -250,20 +250,25 @@ public class FirebaseAnalyticsUtil {
     }
 
     public static void reportVideoPlayEvent(String videoName, long videoDuration, long videoStartTime) {
-        long timeSpend = new Date().getTime() - videoStartTime;
-        double timeSpendInFraction = timeSpend / videoDuration;
-
         String videoUsage;
-        if (timeSpendInFraction <= 0.25) {
-            videoUsage = VIDEO_USAGE_IMMEDIATE;
-        } else if (timeSpendInFraction <= 0.5) {
-            videoUsage = VIDEO_USAGE_PARTIAL;
-        } else if (timeSpendInFraction <= 0.75) {
-            videoUsage = VIDEO_USAGE_MOST;
-        } else if (timeSpendInFraction <= 2) {
-            videoUsage = VIDEO_USAGE_FULL;
-        } else {
+        if (videoDuration == -1) {
             videoUsage = VIDEO_USAGE_OTHER;
+        } else {
+
+            long timeSpend = new Date().getTime() - videoStartTime;
+            double timeSpendInFraction = timeSpend / videoDuration;
+
+            if (timeSpendInFraction <= 0.25) {
+                videoUsage = VIDEO_USAGE_IMMEDIATE;
+            } else if (timeSpendInFraction <= 0.5) {
+                videoUsage = VIDEO_USAGE_PARTIAL;
+            } else if (timeSpendInFraction <= 0.75) {
+                videoUsage = VIDEO_USAGE_MOST;
+            } else if (timeSpendInFraction <= 2) {
+                videoUsage = VIDEO_USAGE_FULL;
+            } else {
+                videoUsage = VIDEO_USAGE_OTHER;
+            }
         }
 
         reportEvent(CCAnalyticsEvent.VIEW_QUESTION_MEDIA,
