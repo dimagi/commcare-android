@@ -21,6 +21,7 @@ import static org.commcare.google.services.analytics.AnalyticsParamValue.STAGE_U
 import static org.commcare.google.services.analytics.AnalyticsParamValue.UPDATE_RESET;
 import static org.commcare.google.services.analytics.AnalyticsParamValue.VIDEO_USAGE_FULL;
 import static org.commcare.google.services.analytics.AnalyticsParamValue.VIDEO_USAGE_IMMEDIATE;
+import static org.commcare.google.services.analytics.AnalyticsParamValue.VIDEO_USAGE_LENGTH_UNKNOWN;
 import static org.commcare.google.services.analytics.AnalyticsParamValue.VIDEO_USAGE_MOST;
 import static org.commcare.google.services.analytics.AnalyticsParamValue.VIDEO_USAGE_OTHER;
 import static org.commcare.google.services.analytics.AnalyticsParamValue.VIDEO_USAGE_PARTIAL;
@@ -255,7 +256,7 @@ public class FirebaseAnalyticsUtil {
     public static void reportVideoPlayEvent(String videoName, long videoDuration, long videoStartTime) {
         String videoUsage;
         if (videoDuration == -1) {
-            videoUsage = VIDEO_USAGE_OTHER;
+            videoUsage = VIDEO_USAGE_LENGTH_UNKNOWN;
         } else {
 
             long timeSpend = new Date().getTime() - videoStartTime;

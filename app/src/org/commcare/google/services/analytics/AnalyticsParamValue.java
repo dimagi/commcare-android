@@ -111,6 +111,7 @@ public class AnalyticsParamValue {
     public static final String VIDEO_USAGE_MOST = "most";
     public static final String VIDEO_USAGE_FULL = "full";
     public static final String VIDEO_USAGE_OTHER = "other";
+    public static final String VIDEO_USAGE_LENGTH_UNKNOWN = "length_unknown";
 
 
     // Param values for common commcare event
