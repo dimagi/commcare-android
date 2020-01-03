@@ -106,8 +106,7 @@ public class HomeScreenAdapter
         layoutParams.setFullSpan(true);
 
         boolean noCustomBanner =
-                !CustomBanner.useCustomBanner(context, screenHeight,
-                        screenWidth, headerHolder.headerImage);
+                !CustomBanner.useCustomBanner(context, screenHeight, screenWidth, headerHolder.headerImage, CustomBanner.Banner.HOME);
         if (noCustomBanner) {
             headerHolder.headerImage.setImageResource(R.drawable.commcare_logo);
         }
