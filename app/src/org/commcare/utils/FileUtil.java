@@ -659,6 +659,7 @@ public class FileUtil {
             String durationStr = mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
             return Long.parseLong(durationStr);
         } catch (Exception e) {
+            Logger.exception("Exception while trying to get duration of a media file", e);
             return -1;
         }
     }
