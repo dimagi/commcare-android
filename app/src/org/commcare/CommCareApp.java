@@ -259,7 +259,7 @@ public class CommCareApp implements AppFilePathBuilder {
             global.setMissingResources(missingResources);
         }
 
-        String failureReason = profile == null ? "profle being null" : "profile status value " + String.valueOf(profile.getStatus());
+        String failureReason = profile == null ? "profle being null" : "profile status value " + profile.getStatus();
         Logger.log(LogTypes.TYPE_RESOURCES, "Initializing application failed because of " + failureReason);
         return false;
     }

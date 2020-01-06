@@ -6,6 +6,7 @@ import android.util.Log;
 
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.logging.analytics.UpdateStats;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.resources.ResourceManager;
@@ -28,6 +29,11 @@ import org.javarosa.xml.util.UnfullfilledRequirementsException;
 
 import java.text.ParseException;
 import java.util.Date;
+
+import static org.commcare.google.services.analytics.AnalyticsParamValue.UPDATE_RESET_REASON_CORRUPT;
+import static org.commcare.google.services.analytics.AnalyticsParamValue.UPDATE_RESET_REASON_NEWER_VERSION_AVAILABLE;
+import static org.commcare.google.services.analytics.AnalyticsParamValue.UPDATE_RESET_REASON_OVERSHOOT_TRIALS;
+import static org.commcare.google.services.analytics.AnalyticsParamValue.UPDATE_RESET_REASON_TIMEOUT;
 
 /**
  * Manages app installations and updates. Extends the ResourceManager with the
@@ -107,6 +113,10 @@ public class AndroidResourceManager extends ResourceManager {
         if (updateStats.isUpgradeStale()) {
             Log.i(TAG, "Clearing upgrade table because resource downloads " +
                     "failed too many times or started too long ago");
+
+            FirebaseAnalyticsUtil.reportUpdateReset(updateStats.hasUpdateTrialsMaxedOut() ?
+                    UPDATE_RESET_REASON_OVERSHOOT_TRIALS : UPDATE_RESET_REASON_TIMEOUT);
+
             upgradeTable.destroy();
             updateStats.resetStats(app);
         }
@@ -138,6 +148,9 @@ public class AndroidResourceManager extends ResourceManager {
 
         if (tempProfile != null && tempProfile.isNewer(upgradeProfile)) {
             upgradeTable.destroy();
+
+            FirebaseAnalyticsUtil.reportUpdateReset(UPDATE_RESET_REASON_NEWER_VERSION_AVAILABLE);
+
             tempUpgradeTable.copyToTable(upgradeTable);
         }
 
@@ -202,9 +215,11 @@ public class AndroidResourceManager extends ResourceManager {
                                      Context ctx,
                                      boolean isAutoUpdate) {
         updateStats.registerUpdateException(new Exception(result.toString()));
+        FirebaseAnalyticsUtil.reportStageUpdateAttemptFailure(result.toString());
 
         if (!result.canReusePartialUpdateTable()) {
             clearUpgrade();
+            FirebaseAnalyticsUtil.reportUpdateReset(UPDATE_RESET_REASON_CORRUPT);
         }
 
         retryUpdateOrGiveUp(ctx, isAutoUpdate);
@@ -215,6 +230,10 @@ public class AndroidResourceManager extends ResourceManager {
             Logger.log(LogTypes.TYPE_RESOURCES,
                     "Update was stale, stopped trying to download update. Update Stats: " + updateStats.toString());
 
+
+            FirebaseAnalyticsUtil.reportUpdateReset(updateStats.hasUpdateTrialsMaxedOut() ?
+                    UPDATE_RESET_REASON_OVERSHOOT_TRIALS : UPDATE_RESET_REASON_TIMEOUT);
+
             UpdateStats.clearPersistedStats(app);
 
             if (isAutoUpdate) {
@@ -222,6 +241,7 @@ public class AndroidResourceManager extends ResourceManager {
             }
 
             clearUpgrade();
+
         } else {
             Logger.log(LogTypes.TYPE_RESOURCES, "Retrying auto-update");
             UpdateStats.saveStatsPersistently(app, updateStats);
