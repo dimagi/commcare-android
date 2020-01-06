@@ -63,6 +63,7 @@
         android:supportsRtl="true"
         android:label="@string/application_name"
         android:hardwareAccelerated="true"
+        android:usesCleartextTraffic="true"
         android:theme="@style/AppBaseTheme">
         <activity
             android:name="org.commcare.activities.DispatchActivity"
