@@ -19,12 +19,12 @@ import android.widget.MediaController;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.VideoView;
 
 import com.bumptech.glide.Glide;
 
 import org.commcare.activities.FormEntryActivity;
 import org.commcare.dalvik.R;
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.utils.FileUtil;
@@ -399,7 +399,7 @@ public class MediaLayout extends RelativeLayout {
 
             int[] maxBounds = getMaxCenterViewBounds();
 
-            File videoFile = new File(videoFilename);
+            final File videoFile = new File(videoFilename);
             if (!videoFile.exists()) {
                 return getMissingImageView("No video file found at: " + videoFilename);
             } else {
@@ -409,10 +409,16 @@ public class MediaLayout extends RelativeLayout {
 
                 final MediaController ctrl = new MediaController(this.getContext());
 
-                VideoView videoView = new VideoView(this.getContext());
+                CustomVideoView videoView = new CustomVideoView(this.getContext());
                 videoView.setOnPreparedListener(mediaPlayer -> ctrl.show());
                 videoView.setVideoPath(videoFilename);
                 videoView.setMediaController(ctrl);
+                videoView.setListener(new CustomVideoView.VideoDetachedListener() {
+                    @Override
+                    public void getPlayDuration(long duration) {
+                        FirebaseAnalyticsUtil.reportInlineVideoPlayEvent(videoFilename, FileUtil.getDuration(videoFile), duration);
+                    }
+                });
                 ctrl.setAnchorView(videoView);
 
                 //These surprisingly get re-jiggered as soon as the video is loaded, so we

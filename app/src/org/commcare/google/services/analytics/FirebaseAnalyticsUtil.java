@@ -41,6 +41,11 @@ public class FirebaseAnalyticsUtil {
     private static void reportEvent(String eventName, String[] paramKeys, String[] paramVals) {
         Bundle b = new Bundle();
         for (int i = 0; i < paramKeys.length; i++) {
+            // https://firebase.google.com/docs/reference/android/com/google/firebase/analytics/FirebaseAnalytics.Param
+            // Param values can only be up to 100 characters.
+            if (paramVals[i].length() > 100) {
+                paramVals[i] = paramVals[i].substring(0, 100);
+            }
             b.putString(paramKeys[i], paramVals[i]);
         }
         reportEvent(eventName, b);
@@ -253,29 +258,38 @@ public class FirebaseAnalyticsUtil {
         return Math.random() < percentOfEventsToReport;
     }
 
-    public static void reportVideoPlayEvent(String videoName, long videoDuration, long videoStartTime) {
-        String videoUsage;
-        if (videoDuration == -1) {
-            videoUsage = VIDEO_USAGE_LENGTH_UNKNOWN;
+    private static String getVideoUsage(long totalDuration, long playDuration) {
+        if (totalDuration == -1) {
+            return VIDEO_USAGE_LENGTH_UNKNOWN;
         } else {
-
-            long timeSpend = new Date().getTime() - videoStartTime;
-            timeSpend = timeSpend + VIDEO_USAGE_ERROR_APPROXIMATION;
-            double timeSpendInFraction = timeSpend / videoDuration;
+            double timeSpendInFraction = playDuration / totalDuration;
 
             if (timeSpendInFraction <= 0.25) {
-                videoUsage = VIDEO_USAGE_IMMEDIATE;
+                return VIDEO_USAGE_IMMEDIATE;
             } else if (timeSpendInFraction <= 0.5) {
-                videoUsage = VIDEO_USAGE_PARTIAL;
+                return VIDEO_USAGE_PARTIAL;
             } else if (timeSpendInFraction <= 0.75) {
-                videoUsage = VIDEO_USAGE_MOST;
+                return VIDEO_USAGE_MOST;
             } else if (timeSpendInFraction <= 2) {
-                videoUsage = VIDEO_USAGE_FULL;
+                return VIDEO_USAGE_FULL;
             } else {
-                videoUsage = VIDEO_USAGE_OTHER;
+                return VIDEO_USAGE_OTHER;
             }
         }
+    }
 
+    public static void reportVideoPlayEvent(String videoName, long videoDuration, long videoStartTime) {
+        long timeSpend = new Date().getTime() - videoStartTime;
+        timeSpend = timeSpend + VIDEO_USAGE_ERROR_APPROXIMATION;
+        String videoUsage = getVideoUsage(videoDuration, timeSpend);
+
+        reportEvent(CCAnalyticsEvent.VIEW_QUESTION_MEDIA,
+                new String[]{FirebaseAnalytics.Param.ITEM_ID, CCAnalyticsParam.USER_RETURNED},
+                new String[]{videoName, videoUsage});
+    }
+
+    public static void reportInlineVideoPlayEvent(String videoName, long totalDuration, long playDuration) {
+        String videoUsage = getVideoUsage(totalDuration, playDuration);
         reportEvent(CCAnalyticsEvent.VIEW_QUESTION_MEDIA,
                 new String[]{FirebaseAnalytics.Param.ITEM_ID, CCAnalyticsParam.USER_RETURNED},
                 new String[]{videoName, videoUsage});
