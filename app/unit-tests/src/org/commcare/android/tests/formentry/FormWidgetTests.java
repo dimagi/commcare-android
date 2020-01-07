@@ -48,7 +48,7 @@ public class FormWidgetTests {
      *
      * These tests reflect the common ways that "label" (trigger) question values are used
      * to ensure that future updates don't change these behaviors. If these tests fail,
-     * please seek guidance before changing system behavior.g
+     * please seek guidance before changing system behavior.
      */
     @Test
     public void testLabelQuestionWidgetBehavior() {
