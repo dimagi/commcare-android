@@ -118,7 +118,7 @@ public class TriggerWidget extends QuestionWidget {
     @Override
     public IAnswerData getAnswer() {
         if (!mInteractive) {
-            return new StringData("");
+            return new StringData(mOK);
         }
         String s = mStringAnswer.getText().toString();
         if (s == null || s.equals("")) {
