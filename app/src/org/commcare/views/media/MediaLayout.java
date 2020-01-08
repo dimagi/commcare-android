@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Point;
+import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Build;
 import androidx.annotation.IdRes;
@@ -12,7 +13,9 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.MediaController;
@@ -410,9 +413,23 @@ public class MediaLayout extends RelativeLayout {
                 final MediaController ctrl = new MediaController(this.getContext());
 
                 CommCareVideoView videoView = new CommCareVideoView(this.getContext());
-                videoView.setOnPreparedListener(mediaPlayer -> ctrl.show());
+                videoView.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+                    @Override
+                    public void onPrepared(MediaPlayer mediaPlayer) {
+                        //Since MediaController will create a default set of controls and put them in a window floating above your application(From AndroidDocs)
+                        //It would never follow the parent view's animation or scroll.
+                        //So, adding the MediaController to the view hierarchy here.
+                        //Side-effect: MediaController never hides now 😅.
+                        videoView.setMediaController(ctrl);
+                        ctrl.show();
+                        FrameLayout frameLayout = (FrameLayout) ctrl.getParent();
+                        ((ViewGroup) frameLayout.getParent()).removeView(frameLayout);
+                        RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
+                        params.addRule(ALIGN_BOTTOM, videoView.getId());
+                        ((RelativeLayout) videoView.getParent()).addView(frameLayout, params);
+                    }
+                });
                 videoView.setVideoPath(videoFilename);
-                videoView.setMediaController(ctrl);
                 videoView.setListener(new CommCareVideoView.VideoDetachedListener() {
                     @Override
                     public void onVideoDetached(long duration) {
