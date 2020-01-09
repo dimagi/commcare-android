@@ -6,17 +6,17 @@ import java.util.Date;
 
 /**
  * A custom VideoView which records the total video play duration
- * and send the update via {@link VideoDetachedListener#getPlayDuration(long) getPlayDuration}
+ * and send the update via {@link VideoDetachedListener#onVideoDetached(long) onVideoDetached}
  * @author $|-|!˅@M
  */
-public class CustomVideoView extends VideoView {
+public class CommCareVideoView extends VideoView {
 
     private VideoDetachedListener listener;
 
     private long duration;
     private long startTime;
 
-    public CustomVideoView(Context context) {
+    public CommCareVideoView(Context context) {
         super(context);
     }
 
@@ -39,11 +39,11 @@ public class CustomVideoView extends VideoView {
     @Override
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
-        listener.getPlayDuration(duration);
+        listener.onVideoDetached(duration);
     }
 
     public interface VideoDetachedListener {
-        void getPlayDuration(long duration);
+        void onVideoDetached(long duration);
     }
 
 }

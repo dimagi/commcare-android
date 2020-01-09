@@ -409,13 +409,13 @@ public class MediaLayout extends RelativeLayout {
 
                 final MediaController ctrl = new MediaController(this.getContext());
 
-                CustomVideoView videoView = new CustomVideoView(this.getContext());
+                CommCareVideoView videoView = new CommCareVideoView(this.getContext());
                 videoView.setOnPreparedListener(mediaPlayer -> ctrl.show());
                 videoView.setVideoPath(videoFilename);
                 videoView.setMediaController(ctrl);
-                videoView.setListener(new CustomVideoView.VideoDetachedListener() {
+                videoView.setListener(new CommCareVideoView.VideoDetachedListener() {
                     @Override
-                    public void getPlayDuration(long duration) {
+                    public void onVideoDetached(long duration) {
                         FirebaseAnalyticsUtil.reportInlineVideoPlayEvent(videoFilename, FileUtil.getDuration(videoFile), duration);
                     }
                 });
