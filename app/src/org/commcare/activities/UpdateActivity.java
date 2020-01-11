@@ -31,6 +31,7 @@ import org.commcare.tasks.ResultAndError;
 import org.commcare.tasks.TaskListener;
 import org.commcare.tasks.TaskListenerRegistrationException;
 import org.commcare.tasks.UpdateTask;
+import org.commcare.update.UpdateHelper;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.ConnectivityStatus;
 import org.commcare.utils.ConsumerAppsUtil;
@@ -274,9 +275,9 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
     private void reportFailureToNotifications(String errorMessage) {
         NotificationMessage notificationMessage = null;
 
-        if (UpdateTask.isCombinedErrorMessage(errorMessage)) {
+        if (UpdateHelper.isCombinedErrorMessage(errorMessage)) {
             Pair<String, String> resourceAndMessage =
-                    UpdateTask.splitCombinedErrorMessage(errorMessage);
+                    UpdateHelper.splitCombinedErrorMessage(errorMessage);
             notificationMessage =
                     NotificationMessageFactory.message(AppInstallStatus.InvalidResource,
                             new String[]{null, resourceAndMessage.first, resourceAndMessage.second});
@@ -308,7 +309,7 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
 
     protected void startUpdateCheck() {
         try {
-            updateTask = UpdateTask.getNewInstance();
+            updateTask = UpdateTask.getNewInstance(false);
             initUpdateTaskProgressDisplay();
             if (isLocalUpdate) {
                 updateTask.setLocalAuthority();

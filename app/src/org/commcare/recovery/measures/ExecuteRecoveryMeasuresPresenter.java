@@ -221,7 +221,7 @@ public class ExecuteRecoveryMeasuresPresenter implements BasePresenterContract, 
     private void executeAutoUpdate() {
         String ref = ResourceInstallUtils.getDefaultProfileRef();
         try {
-            updateTask = UpdateTask.getNewInstance();
+            updateTask = UpdateTask.getNewInstance(false);
             updateTask.registerTaskListener(this);
             updateTask.executeParallel(ref);
         } catch (IllegalStateException e) {

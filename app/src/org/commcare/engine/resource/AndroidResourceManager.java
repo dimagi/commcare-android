@@ -260,9 +260,8 @@ public class AndroidResourceManager extends ResourceManager {
         String ref = ResourceInstallUtils.getDefaultProfileRef();
         try {
             if (canUpdateRetryRun()) {
-                UpdateTask updateTask = UpdateTask.getNewInstance();
+                UpdateTask updateTask = UpdateTask.getNewInstance(true);
                 updateTask.startPinnedNotification(ctx);
-                updateTask.setAsAutoUpdate();
                 updateTask.executeParallel(ref);
             }
         } catch (IllegalStateException e) {

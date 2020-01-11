@@ -57,9 +57,9 @@ public class AutoUpdateTest {
         setAppsDefaultProfile(profileOfInvalidApp);
 
         // try to update to an app with syntax errors
-        UpdateTask updateTask = UpdateTask.getNewInstance();
+        UpdateTask updateTask = UpdateTask.getNewInstance(true);
         updateTask.startPinnedNotification(RuntimeEnvironment.application);
-        updateTask.setAsAutoUpdate();
+
         try {
             TaskListener<Integer, ResultAndError<AppInstallStatus>> listener =
                     logOutAndInOnCompletionListener(
