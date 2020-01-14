@@ -11,6 +11,7 @@ import org.commcare.engine.cases.CaseUtils;
 import org.commcare.interfaces.CommcareRequestEndpoints;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.provider.DebugControlsReceiver;
+import org.commcare.utils.SyncDetailCalculations;
 import org.javarosa.core.model.User;
 import org.javarosa.core.model.utils.DateUtils;
 
@@ -106,6 +107,11 @@ public class CommcareRequestGenerator implements CommcareRequestEndpoints {
             }
             if (digest != null) {
                 params.put("state", "ccsh:" + digest);
+            }
+
+            int getDaysSinceSync = SyncDetailCalculations.getDaysSinceLastSync();
+            if(getDaysSinceSync != -1) {
+                params.put("days_since_last_sync", Integer.toString(getDaysSinceSync));
             }
         }
 
