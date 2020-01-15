@@ -16,7 +16,12 @@ import org.commcare.models.database.SqlStorage;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.modern.util.Pair;
 import org.commcare.preferences.HiddenPreferences;
+import org.commcare.util.LogTypes;
+import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
+import org.joda.time.DateTime;
+import org.joda.time.Days;
+import org.joda.time.LocalDate;
 
 import java.text.DateFormat;
 import java.util.Date;
@@ -85,6 +90,31 @@ public class SyncDetailCalculations {
             syncTimeMessage = DateUtils.formatSameDayTime(lastSyncTime, new Date().getTime(), DateFormat.DEFAULT, DateFormat.DEFAULT);
         }
         return new Pair<>(lastSyncTime, Localization.get("home.sync.message.last", new String[]{syncTimeMessage.toString()}));
+    }
+
+
+    /**
+     * @return The number of days since the user has last synced, as calculated by the difference
+     * between the current date and the date of the last sync. -1 if the user hasn't ever synced
+     * or if the last date of sync is unavailable
+     */
+    public static int getDaysSinceLastSync() {
+        try {
+            long lastSync = getLastSyncTime();
+            if (lastSync == 0) {
+                return -1;
+            }
+            return getDaysBetweenJavaDatetimes(new Date(lastSync), new Date());
+        } catch(Exception e) {
+            e.printStackTrace();
+            Logger.log(LogTypes.SOFT_ASSERT,"Error Generating Days since last sync: " +
+                    e.getMessage());
+            return -1;
+        }
+    }
+
+    public static int getDaysBetweenJavaDatetimes(Date anchor, Date delta) {
+        return Days.daysBetween(new LocalDate(anchor), new LocalDate(delta)).getDays();
     }
 
     public static long getLastSyncTime() {
