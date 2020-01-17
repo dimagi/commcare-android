@@ -1,16 +1,11 @@
 package org.commcare.android.logging;
 
 import org.commcare.logging.AndroidLogPurger;
-import org.commcare.logging.AndroidLogSerializer;
 import org.commcare.logging.DeviceReportElement;
-import org.commcare.logging.DeviceReportWriter;
 import org.commcare.models.database.SqlStorage;
 import org.javarosa.core.log.LogEntry;
 import org.javarosa.core.log.StreamLogSerializer;
-import org.javarosa.core.model.utils.DateUtils;
-import org.xmlpull.v1.XmlSerializer;
-
-import java.io.IOException;
+import java.util.ArrayList;
 
 /**
  * Convert force close error logs to xml.
@@ -21,7 +16,8 @@ public class ForceCloseLogSerializer extends StreamLogSerializer implements Devi
 
     private ForceCloseLogEntry singleEntry;
     private SqlStorage<ForceCloseLogEntry> logStorage;
-    private XmlSerializer serializer;
+    private ArrayList<ForceCloseLogEntry> logEntries = new ArrayList<>();
+    private int index;
 
     public ForceCloseLogSerializer(ForceCloseLogEntry entry) {
         this.singleEntry = entry;
@@ -32,53 +28,28 @@ public class ForceCloseLogSerializer extends StreamLogSerializer implements Devi
         this.setPurger(new AndroidLogPurger<>(logStorage));
     }
 
-    @Override
-    public void writeToDeviceReport(XmlSerializer serializer) throws IOException {
-        this.serializer = serializer;
-
-        serializer.startTag(DeviceReportWriter.XMLNS, "force_close_subreport");
-        try {
-            if (singleEntry != null) {
-                serializeLog(singleEntry.getID(), singleEntry);
-            } else {
-                for (ForceCloseLogEntry entry : logStorage) {
-                    serializeLog(entry.getID(), entry);
-                }
+    private void fetchEntries() {
+        if (logEntries.isEmpty()) {
+            for (ForceCloseLogEntry entry: logStorage) {
+                addLog(entry.getID());
+                logEntries.add(entry);
             }
-        } finally {
-            serializer.endTag(DeviceReportWriter.XMLNS, "force_close_subreport");
         }
     }
 
     @Override
-    protected void serializeLog(LogEntry entry) throws IOException {
-        final ForceCloseLogEntry forceCloseEntry = (ForceCloseLogEntry)entry;
-        String dateString =
-                DateUtils.formatDateTime(forceCloseEntry.getTime(), DateUtils.FORMAT_ISO8601);
-
-        serializer.startTag(DeviceReportWriter.XMLNS, "force_close");
+    public LogEntry getLogEntry() {
         try {
-            serializer.attribute(null, "date", dateString);
-            AndroidLogSerializer.writeText("type",
-                    forceCloseEntry.getType(), serializer);
-            AndroidLogSerializer.writeText("msg",
-                    forceCloseEntry.getMessage(), serializer);
-            AndroidLogSerializer.writeText("app_build",
-                    forceCloseEntry.getAppBuildNumber() + "", serializer);
-            AndroidLogSerializer.writeText("android_version",
-                    forceCloseEntry.getAndroidVersion(), serializer);
-            AndroidLogSerializer.writeText("device_model",
-                    forceCloseEntry.getDeviceModel(), serializer);
-            AndroidLogSerializer.writeText("session_readable",
-                    forceCloseEntry.getReadableSession(), serializer);
-            AndroidLogSerializer.writeText("session_serialized",
-                    forceCloseEntry.getSerializedSessionString(), serializer);
-            AndroidLogSerializer.writeText("app_id", forceCloseEntry.getAppId(), serializer);
-            AndroidLogSerializer.writeText("user_id", forceCloseEntry.getUserId(), serializer);
+            if (singleEntry != null) {
+                addLog(singleEntry.getID());
+                return singleEntry;
+            }
+            fetchEntries();
+            if (index >= logEntries.size()) { return null; }
+            return logEntries.get(index++);
         } catch (Exception e) {
             e.printStackTrace();
-        } finally {
-            serializer.endTag(DeviceReportWriter.XMLNS, "force_close");
+            return null;
         }
     }
 

@@ -124,34 +124,34 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
                     return LogSubmitOutcomes.ERROR;
                 }
 
-                if (forceLogs || logsEnabled.contentEquals(HiddenPreferences.LOGS_ENABLED_YES)) {
-
-                    // See how many we have pending to submit
-                    int numberOfLogsToSubmit = storage.getNumRecords();
-                    if (numberOfLogsToSubmit == 0) {
-                        return LogSubmitOutcomes.SUBMITTED;
-                    }
-
-                    // Signal to the listener that we're ready to submit
-                    this.beginSubmissionProcess(numberOfLogsToSubmit);
-
-                    ArrayList<Integer> submittedSuccesfullyIds = new ArrayList<>();
-                    ArrayList<DeviceReportRecord> submittedSuccesfully = new ArrayList<>();
-                    submitReports(storage, submittedSuccesfullyIds, submittedSuccesfully);
-
-                    if (!removeLocalReports(storage, submittedSuccesfullyIds, submittedSuccesfully)) {
-                        return LogSubmitOutcomes.SERIALIZED;
-                    }
-
-                    LogSubmitOutcomes result = checkSubmissionResult(numberOfLogsToSubmit, submittedSuccesfully);
-
-                    // Reset force_logs if the logs submission was successful
-                    if (result == LogSubmitOutcomes.SUBMITTED) {
-                        HiddenPreferences.setForceLogs(CommCareApplication.instance().getSession().getLoggedInUser().getUniqueId(), false);
-                    }
-
-                    return result;
-                }
+//                if (forceLogs || logsEnabled.contentEquals(HiddenPreferences.LOGS_ENABLED_YES)) {
+//
+//                    // See how many we have pending to submit
+//                    int numberOfLogsToSubmit = storage.getNumRecords();
+//                    if (numberOfLogsToSubmit == 0) {
+//                        return LogSubmitOutcomes.Submitted;
+//                    }
+//
+//                    // Signal to the listener that we're ready to submit
+//                    this.beginSubmissionProcess(numberOfLogsToSubmit);
+//
+//                    ArrayList<Integer> submittedSuccesfullyIds = new ArrayList<>();
+//                    ArrayList<DeviceReportRecord> submittedSuccesfully = new ArrayList<>();
+//                    submitReports(storage, submittedSuccesfullyIds, submittedSuccesfully);
+//
+//                    if (!removeLocalReports(storage, submittedSuccesfullyIds, submittedSuccesfully)) {
+//                        return LogSubmitOutcomes.Serialized;
+//                    }
+//
+//                    LogSubmitOutcomes result = checkSubmissionResult(numberOfLogsToSubmit, submittedSuccesfully);
+//
+//                    // Reset force_logs if the logs submission was successful
+//                    if (result == LogSubmitOutcomes.Submitted) {
+//                        HiddenPreferences.setForceLogs(CommCareApplication.instance().getSession().getLoggedInUser().getUniqueId(), false);
+//                    }
+//
+//                    return result;
+//                }
             }
         } catch (SessionUnavailableException e) {
             // The user database closed on us
