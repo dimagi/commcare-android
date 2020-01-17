@@ -22,6 +22,8 @@ import org.javarosa.xml.util.UnfullfilledRequirementsException;
 
 import java.io.File;
 
+import androidx.work.WorkManager;
+
 /**
  * Created by amstone326 on 5/10/18.
  */
@@ -49,6 +51,9 @@ public class AppLifecycleUtils {
         // state later
         record.setStatus(ApplicationRecord.STATUS_DELETE_REQUESTED);
         ccInstance.getGlobalStorage(ApplicationRecord.class).write(record);
+
+        // cancel all Workmanager tasks for this app
+        WorkManager.getInstance(CommCareApplication.instance()).cancelAllWorkByTag(record.getUniqueId());
 
         // 3) Delete the directory containing all of this app's resources
         if (!FileUtil.deleteFileOrDir(app.storageRoot())) {

@@ -22,6 +22,7 @@ import org.commcare.tasks.ResultAndError;
 import org.commcare.tasks.UpdateTask;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.AndroidCommCarePlatform;
+import org.commcare.utils.PendingCalcs;
 import org.commcare.views.dialogs.PinnedNotificationWithProgress;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
@@ -30,6 +31,8 @@ import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import java.util.Vector;
 
 import androidx.core.util.Pair;
+
+import static org.commcare.CommCareApplication.areAutomatedActionsInvalid;
 
 public class UpdateHelper implements TableStateListener {
 
@@ -43,6 +46,7 @@ public class UpdateHelper implements TableStateListener {
     private int mCurrentProgress = 0;
     private int mMaxProgress = 0;
     private boolean isUpdateCancelledByUser = false;
+    private static final String UPDATE_REQUEST_NAME = "update_request";
 
     public UpdateHelper(boolean autoUpdate, UpdateProgressListener updateProgressListener, InstallCancelled installCancelled) {
 
@@ -186,7 +190,7 @@ public class UpdateHelper implements TableStateListener {
     }
 
 
-    public void updateNotification(Integer[] values) {
+    public void updateNotification(Integer... values) {
         if (mPinnedNotificationProgress != null) {
             mPinnedNotificationProgress.handleTaskUpdate(values);
         }
@@ -250,5 +254,23 @@ public class UpdateHelper implements TableStateListener {
 
     public void setUpdateCancelledByUser(boolean updateCancelledByUser) {
         isUpdateCancelledByUser = updateCancelledByUser;
+    }
+
+    public static String getUpdateRequestName(String appId) {
+        return UPDATE_REQUEST_NAME + "_" + appId;
+    }
+
+    /**
+     * @return True if we aren't a demo user and the time to check for an
+     * update has elapsed or we logged out while an auto-update was downlaoding
+     * or queued for retry.
+     */
+    public static boolean shouldAutoUpdate() {
+        return true;
+//        CommCareApp currentApp = CommCareApplication.instance().getCurrentApp();
+//
+//        return (!areAutomatedActionsInvalid() &&
+//                (ResourceInstallUtils.shouldAutoUpdateResume(currentApp) ||
+//                        PendingCalcs.isUpdatePending(currentApp.getAppPreferences())));
     }
 }

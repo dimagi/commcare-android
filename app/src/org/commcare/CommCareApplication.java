@@ -86,7 +86,9 @@ import org.commcare.tasks.DeleteLogs;
 import org.commcare.tasks.LogSubmissionTask;
 import org.commcare.tasks.PurgeStaleArchivedFormsTask;
 import org.commcare.tasks.UpdateTask;
+import org.commcare.tasks.UpdateWorker;
 import org.commcare.tasks.templates.ManagedAsyncTask;
+import org.commcare.update.UpdateHelper;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.AndroidCacheDirSetup;
 import org.commcare.utils.AndroidCommCarePlatform;
@@ -115,12 +117,18 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Nullable;
 import javax.crypto.SecretKey;
 
+import androidx.work.BackoffPolicy;
+import androidx.work.Constraints;
+import androidx.work.ExistingPeriodicWorkPolicy;
 import androidx.work.ExistingWorkPolicy;
+import androidx.work.NetworkType;
 import androidx.work.OneTimeWorkRequest;
+import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkManager;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
@@ -136,6 +144,7 @@ public class CommCareApplication extends MultiDexApplication {
     public static final int STATE_MIGRATION_FAILED = 16;
     public static final int STATE_MIGRATION_QUESTIONABLE = 32;
     private static final String DELETE_LOGS_REQUEST = "delete-logs-request";
+    private static final long BACKOFF_DELAY_FOR_UPDATE_RETRY = 5 * 60 * 1000L; // 5 mins
 
     private int dbState;
 
@@ -702,9 +711,11 @@ public class CommCareApplication extends MultiDexApplication {
                             CommCareApplication.this.sessionWrapper = new AndroidSessionWrapper(CommCareApplication.this.getCommCarePlatform());
                         }
 
-                        if (shouldAutoUpdate()) {
-                            startAutoUpdate();
-                        }
+//                        if (shouldAutoUpdate()) {
+//                            startAutoUpdate();
+//                        }
+                        scheduleAppUpdate();
+
                         syncPending = PendingCalcs.getPendingSyncStatus();
 
                         doReportMaintenance();
@@ -730,6 +741,7 @@ public class CommCareApplication extends MultiDexApplication {
                             WorkManager.getInstance(CommCareApplication.instance())
                                     .enqueueUniqueWork(DELETE_LOGS_REQUEST, ExistingWorkPolicy.KEEP, deleteLogsRequest);
                         }
+
                     }
 
                     TimedStatsTracker.registerStartSession();
@@ -755,6 +767,30 @@ public class CommCareApplication extends MultiDexApplication {
         sessionServiceIsBinding = true;
     }
 
+    // Hand off an app update task to the Android WorkManager
+    private void scheduleAppUpdate() {
+        Constraints constraints = new Constraints.Builder()
+                .setRequiredNetworkType(NetworkType.CONNECTED)
+                .setRequiresBatteryNotLow(true)
+                .build();
+
+        PeriodicWorkRequest updateRequest =
+                new PeriodicWorkRequest.Builder(UpdateWorker.class, 4, TimeUnit.HOURS)
+                        .addTag(getCurrentApp().getUniqueId())
+                        .setConstraints(constraints)
+                        .setBackoffCriteria(
+                                BackoffPolicy.EXPONENTIAL,
+                                BACKOFF_DELAY_FOR_UPDATE_RETRY,
+                                TimeUnit.MILLISECONDS)
+                        .build();
+
+        WorkManager.getInstance(this).enqueueUniquePeriodicWork(
+                UpdateHelper.getUpdateRequestName(getCurrentApp().getUniqueId()),
+                ExistingPeriodicWorkPolicy.KEEP,
+                updateRequest
+                );
+    }
+
     // check if it's been a week since last run
     private boolean shouldRunLogDeletion() {
         long lastLogDeletionRun = HiddenPreferences.getLastLogDeletionTime();
@@ -776,20 +812,7 @@ public class CommCareApplication extends MultiDexApplication {
         CommCareUtil.executeLogSubmission(url, false);
     }
 
-    /**
-     * @return True if we aren't a demo user and the time to check for an
-     * update has elapsed or we logged out while an auto-update was downlaoding
-     * or queued for retry.
-     */
-    private static boolean shouldAutoUpdate() {
-        CommCareApp currentApp = CommCareApplication.instance().getCurrentApp();
-
-        return (!areAutomatedActionsInvalid() &&
-                (ResourceInstallUtils.shouldAutoUpdateResume(currentApp) ||
-                        PendingCalcs.isUpdatePending(currentApp.getAppPreferences())));
-    }
-
-    public static void startAutoUpdate() {
+    private static void startAutoUpdate() {
         Logger.log(LogTypes.TYPE_MAINTENANCE, "Auto-Update Triggered");
 
         String ref = ResourceInstallUtils.getDefaultProfileRef();
@@ -808,7 +831,7 @@ public class CommCareApplication extends MultiDexApplication {
      * Whether automated stuff like auto-updates/syncing are valid and should
      * be triggered.
      */
-    private static boolean areAutomatedActionsInvalid() {
+    public static boolean areAutomatedActionsInvalid() {
         return isInDemoMode(true);
     }
 
