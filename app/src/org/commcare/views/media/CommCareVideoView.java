@@ -39,6 +39,10 @@ public class CommCareVideoView extends VideoView {
     @Override
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
+        // Do not log events if the video is never played.
+        if (duration == 0) {
+            return;
+        }
         listener.onVideoDetached(duration);
     }
 
