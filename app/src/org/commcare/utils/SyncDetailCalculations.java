@@ -6,6 +6,7 @@ import android.text.TextUtils;
 import android.text.format.DateUtils;
 import android.widget.TextView;
 
+import org.commcare.AppUtils;
 import org.commcare.CommCareApplication;
 import org.commcare.activities.StandardHomeActivity;
 import org.commcare.adapters.HomeCardDisplayData;
@@ -19,7 +20,6 @@ import org.commcare.preferences.HiddenPreferences;
 import org.commcare.util.LogTypes;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
-import org.joda.time.DateTime;
 import org.joda.time.Days;
 import org.joda.time.LocalDate;
 
@@ -118,8 +118,12 @@ public class SyncDetailCalculations {
     }
 
     public static long getLastSyncTime() {
+        return getLastSyncTime(AppUtils.getLoggedInUserName());
+    }
+
+    public static long getLastSyncTime(String username) {
         SharedPreferences prefs = CommCareApplication.instance().getCurrentApp().getAppPreferences();
-        return prefs.getLong(getLastSyncKey(ReportingUtils.getUser()), 0);
+        return prefs.getLong(getLastSyncKey(username), 0);
     }
 
     public static String getLastSyncKey(String username) {

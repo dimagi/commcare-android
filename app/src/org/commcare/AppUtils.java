@@ -97,7 +97,7 @@ public class AppUtils {
      * it shouldn't be used lightly.
      */
     public static void clearUserData() {
-        wipeSandboxForUser(CommCareApplication.instance().getSession().getLoggedInUser().getUsername());
+        wipeSandboxForUser(getLoggedInUserName());
         CommCareApplication.instance().getCurrentApp().getAppPreferences().edit()
                 .putString(HiddenPreferences.LAST_LOGGED_IN_USER, null).apply();
         CommCareApplication.instance().closeUserSession();
@@ -183,5 +183,9 @@ public class AppUtils {
     public static boolean notOnLatestCCVersion() {
         return new ApkVersion(ReportingUtils.getCommCareVersionString()).compareTo(
                 new ApkVersion(HiddenPreferences.getLatestCommcareVersion())) < 0;
+    }
+
+    public static String getLoggedInUserName() {
+        return CommCareApplication.instance().getSession().getLoggedInUser().getUsername();
     }
 }
