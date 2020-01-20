@@ -109,7 +109,7 @@ public class ResourceInstallUtils {
         } else {
             edit.putString(DEFAULT_APP_SERVER_KEY, profileRef);
         }
-        edit.commit();
+        edit.apply();
     }
 
     /**
@@ -155,7 +155,7 @@ public class ResourceInstallUtils {
         SharedPreferences prefs = app.getAppPreferences();
         SharedPreferences.Editor editor = prefs.edit();
         editor.putLong(HiddenPreferences.LAST_UPDATE_ATTEMPT, new Date().getTime());
-        editor.commit();
+        editor.apply();
     }
 
     /**
@@ -178,7 +178,7 @@ public class ResourceInstallUtils {
         SharedPreferences prefs = app.getAppPreferences();
         SharedPreferences.Editor editor = prefs.edit();
         editor.putBoolean(HiddenPreferences.AUTO_UPDATE_IN_PROGRESS, value);
-        editor.commit();
+        editor.apply();
     }
 
     /**
