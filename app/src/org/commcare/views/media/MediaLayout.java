@@ -18,7 +18,6 @@ import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.MediaController;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -410,7 +409,7 @@ public class MediaLayout extends RelativeLayout {
                 //since clicking the video view to bring up controls has weird effects.
                 //since we shotgun grab the focus for the input widget.
 
-                final MediaController ctrl = new MediaController(this.getContext());
+                final CommCareMediaController ctrl = new CommCareMediaController(this.getContext());
 
                 CommCareVideoView videoView = new CommCareVideoView(this.getContext());
                 videoView.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
@@ -419,14 +418,15 @@ public class MediaLayout extends RelativeLayout {
                         //Since MediaController will create a default set of controls and put them in a window floating above your application(From AndroidDocs)
                         //It would never follow the parent view's animation or scroll.
                         //So, adding the MediaController to the view hierarchy here.
-                        //Side-effect: MediaController never hides now 😅.
-                        videoView.setMediaController(ctrl);
-                        ctrl.show();
                         FrameLayout frameLayout = (FrameLayout) ctrl.getParent();
                         ((ViewGroup) frameLayout.getParent()).removeView(frameLayout);
                         RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
                         params.addRule(ALIGN_BOTTOM, videoView.getId());
                         ((RelativeLayout) videoView.getParent()).addView(frameLayout, params);
+
+                        ctrl.setAnchorView(videoView);
+                        videoView.setMediaController(ctrl);
+                        ctrl.show();
                     }
                 });
                 videoView.setVideoPath(videoFilename);
@@ -436,7 +436,6 @@ public class MediaLayout extends RelativeLayout {
                         FirebaseAnalyticsUtil.reportInlineVideoPlayEvent(videoFilename, FileUtil.getDuration(videoFile), duration);
                     }
                 });
-                ctrl.setAnchorView(videoView);
 
                 //These surprisingly get re-jiggered as soon as the video is loaded, so we
                 //just want to give it the _max_ bounds, it'll pick the limiter and shrink
