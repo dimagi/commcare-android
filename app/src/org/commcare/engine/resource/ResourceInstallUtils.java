@@ -158,37 +158,6 @@ public class ResourceInstallUtils {
         editor.apply();
     }
 
-    /**
-     * Record that an auto-update has started so that we can resume checking
-     * for updates if logged out before the check has completed.
-     */
-    public static void recordAutoUpdateStart(CommCareApp app) {
-        updateAutoUpdateInProgressPref(app, true);
-    }
-
-    /**
-     * Record that auto-updating has finished or been cancelled from too many
-     * retries. Used upon login to know whether to resume an auto-update check.
-     */
-    public static void recordAutoUpdateCompletion(CommCareApp app) {
-        updateAutoUpdateInProgressPref(app, false);
-    }
-
-    private static void updateAutoUpdateInProgressPref(CommCareApp app, boolean value) {
-        SharedPreferences prefs = app.getAppPreferences();
-        SharedPreferences.Editor editor = prefs.edit();
-        editor.putBoolean(HiddenPreferences.AUTO_UPDATE_IN_PROGRESS, value);
-        editor.apply();
-    }
-
-    /**
-     * @return True if an auto-update has been registered as in-progress.
-     */
-    public static boolean shouldAutoUpdateResume(CommCareApp app) {
-        SharedPreferences prefs = app.getAppPreferences();
-        return prefs.getBoolean(HiddenPreferences.AUTO_UPDATE_IN_PROGRESS, false);
-    }
-
     public static void logInstallError(Exception e, String logMessage) {
         e.printStackTrace();
         Logger.exception(logMessage, e);

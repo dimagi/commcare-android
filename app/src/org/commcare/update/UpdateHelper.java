@@ -19,7 +19,6 @@ import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.TableStateListener;
 import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.tasks.ResultAndError;
-import org.commcare.tasks.UpdateTask;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.AndroidCommCarePlatform;
 import org.commcare.utils.PendingCalcs;
@@ -92,9 +91,7 @@ public class UpdateHelper implements TableStateListener {
         } catch (UnresolvedResourceException e) {
             return new ResultAndError<>(ResourceInstallUtils.processUnresolvedResource(e), e.getMessage());
         } catch (InstallCancelledException e) {
-            // onPostExecute doesn't get invoked in case of task cancellation, so process the failure here
-            mResourceManager.processUpdateFailure(AppInstallStatus.UnknownFailure, mContext, isAutoUpdate);
-            return new ResultAndError<>(AppInstallStatus.UnknownFailure);
+            return new ResultAndError<>(AppInstallStatus.Cancelled);
         } catch (Exception e) {
             ResourceInstallUtils.logInstallError(e,
                     "Unknown error ocurred during install|");
@@ -104,13 +101,7 @@ public class UpdateHelper implements TableStateListener {
 
     private void setupUpdate(boolean autoUpdate, String profileRef) {
         ResourceInstallUtils.recordUpdateAttemptTime(mApp);
-
-        if (autoUpdate) {
-            ResourceInstallUtils.recordAutoUpdateStart(mApp);
-        }
-
         mResourceManager.incrementUpdateAttempts();
-
         Logger.log(LogTypes.TYPE_RESOURCES,
                 "Beginning install attempt for profile " + profileRef);
     }
@@ -156,9 +147,6 @@ public class UpdateHelper implements TableStateListener {
 
         if (!resultAndError.data.isUpdateInCompletedState()) {
             mResourceManager.processUpdateFailure(resultAndError.data, mContext, isAutoUpdate);
-        } else if (isAutoUpdate) {
-            // auto-update was successful or app was up-to-date.
-            ResourceInstallUtils.recordAutoUpdateCompletion(mApp);
         }
 
         if (mPinnedNotificationProgress != null) {
@@ -197,11 +185,6 @@ public class UpdateHelper implements TableStateListener {
     }
 
     public void OnUpdateCancelled() {
-        if (isUpdateCancelledByUser && isAutoUpdate) {
-            // task may have been cancelled by logout, in which case we want
-            // to keep trying to auto-update upon logging in again.
-            ResourceInstallUtils.recordAutoUpdateCompletion(mApp);
-        }
         isUpdateCancelledByUser = false;
 
         if (mPinnedNotificationProgress != null) {
@@ -266,11 +249,8 @@ public class UpdateHelper implements TableStateListener {
      * or queued for retry.
      */
     public static boolean shouldAutoUpdate() {
-        return true;
-//        CommCareApp currentApp = CommCareApplication.instance().getCurrentApp();
-//
-//        return (!areAutomatedActionsInvalid() &&
-//                (ResourceInstallUtils.shouldAutoUpdateResume(currentApp) ||
-//                        PendingCalcs.isUpdatePending(currentApp.getAppPreferences())));
+        CommCareApp currentApp = CommCareApplication.instance().getCurrentApp();
+        return (!areAutomatedActionsInvalid() &&
+                PendingCalcs.isUpdatePending(currentApp.getAppPreferences()));
     }
 }

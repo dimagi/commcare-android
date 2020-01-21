@@ -2,14 +2,10 @@ package org.commcare.tasks;
 
 import android.content.Context;
 
-import org.commcare.CommCareApp;
-import org.commcare.CommCareApplication;
-import org.commcare.engine.resource.AndroidResourceManager;
 import org.commcare.engine.resource.AppInstallStatus;
 import org.commcare.resources.model.InstallCancelled;
 import org.commcare.update.UpdateHelper;
 import org.commcare.update.UpdateProgressListener;
-import org.commcare.utils.AndroidCommCarePlatform;
 
 /**
  * Stages an update for the seated app in the background. Does not perform
@@ -58,7 +54,13 @@ public class UpdateTask extends SingletonTask<String, Integer, ResultAndError<Ap
 
     @Override
     protected final ResultAndError<AppInstallStatus> doInBackground(String... params) {
-        return mUpdateHelper.update(params[0]);
+        ResultAndError<AppInstallStatus> result = mUpdateHelper.update(params[0]);
+
+        // onPostExecute doesn't get invoked in case of task cancellation, so process the failure here
+        if(result.data == AppInstallStatus.Cancelled){
+            mUpdateHelper.OnUpdateComplete(result);
+        }
+        return result;
     }
 
     @Override

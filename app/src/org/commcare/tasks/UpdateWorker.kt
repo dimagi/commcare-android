@@ -20,6 +20,7 @@ class UpdateWorker(appContext: Context, workerParams: WorkerParameters)
         // skip if an update task is already running or no app is seated
         if (UpdateTask.getRunningInstance() == null &&
                 CommCareApplication.instance().getCurrentApp() != null &&
+                CommCareApplication.instance().getSession().isActive() &&
                 UpdateHelper.shouldAutoUpdate()) {
 
             updateHelper = UpdateHelper(true, this, this)

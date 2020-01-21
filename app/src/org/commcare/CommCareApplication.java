@@ -711,9 +711,6 @@ public class CommCareApplication extends MultiDexApplication {
                             CommCareApplication.this.sessionWrapper = new AndroidSessionWrapper(CommCareApplication.this.getCommCarePlatform());
                         }
 
-//                        if (shouldAutoUpdate()) {
-//                            startAutoUpdate();
-//                        }
                         scheduleAppUpdate();
 
                         syncPending = PendingCalcs.getPendingSyncStatus();
@@ -810,21 +807,6 @@ public class CommCareApplication extends MultiDexApplication {
             return;
         }
         CommCareUtil.executeLogSubmission(url, false);
-    }
-
-    private static void startAutoUpdate() {
-        Logger.log(LogTypes.TYPE_MAINTENANCE, "Auto-Update Triggered");
-
-        String ref = ResourceInstallUtils.getDefaultProfileRef();
-
-        try {
-            UpdateTask updateTask = UpdateTask.getNewInstance(true);
-            updateTask.startPinnedNotification(CommCareApplication.instance());
-            updateTask.executeParallel(ref);
-        } catch (IllegalStateException e) {
-            Log.w(TAG, "Trying trigger auto-update when it is already running. " +
-                    "Should only happen if the user triggered a manual update before this fired.");
-        }
     }
 
     /**

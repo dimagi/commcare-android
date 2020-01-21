@@ -1,7 +1,6 @@
 package org.commcare.engine.resource;
 
 import android.content.Context;
-import android.os.Handler;
 import android.util.Log;
 
 import org.commcare.CommCareApp;
@@ -16,19 +15,12 @@ import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.TableStateListener;
 import org.commcare.resources.model.UnresolvedResourceException;
-import org.commcare.tasks.UpdateTask;
 import org.commcare.util.CommCarePlatform;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.AndroidCommCarePlatform;
 import org.commcare.utils.AndroidResourceInstallerFactory;
-import org.commcare.utils.SessionUnavailableException;
-import org.javarosa.core.reference.ReleasedOnTimeSupportedReference;
-import org.javarosa.core.reference.Reference;
 import org.javarosa.core.services.Logger;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
-
-import java.text.ParseException;
-import java.util.Date;
 
 import static org.commcare.google.services.analytics.AnalyticsParamValue.UPDATE_RESET_REASON_CORRUPT;
 import static org.commcare.google.services.analytics.AnalyticsParamValue.UPDATE_RESET_REASON_NEWER_VERSION_AVAILABLE;
@@ -44,8 +36,6 @@ import static org.commcare.google.services.analytics.AnalyticsParamValue.UPDATE_
 public class AndroidResourceManager extends ResourceManager {
     private final static String TAG = AndroidResourceManager.class.getSimpleName();
     public final static String TEMP_UPGRADE_TABLE_KEY = "TEMP_UPGRADE_RESOURCE_TABLE";
-    // 60 minutes
-    private final static long MAX_UPDATE_RETRY_DELAY_IN_MS = 1000 * 60 * 60;
     private final CommCareApp app;
     private final UpdateStats updateStats;
     private final ResourceTable tempUpgradeTable;
@@ -222,81 +212,22 @@ public class AndroidResourceManager extends ResourceManager {
             FirebaseAnalyticsUtil.reportUpdateReset(UPDATE_RESET_REASON_CORRUPT);
         }
 
-        retryUpdateOrGiveUp(ctx, isAutoUpdate);
+        saveUpdateOrGiveUp();
     }
 
-    private void retryUpdateOrGiveUp(Context ctx, boolean isAutoUpdate) {
+    private void saveUpdateOrGiveUp() {
         if (updateStats.isUpgradeStale()) {
             Logger.log(LogTypes.TYPE_RESOURCES,
                     "Update was stale, stopped trying to download update. Update Stats: " + updateStats.toString());
-
 
             FirebaseAnalyticsUtil.reportUpdateReset(updateStats.hasUpdateTrialsMaxedOut() ?
                     UPDATE_RESET_REASON_OVERSHOOT_TRIALS : UPDATE_RESET_REASON_TIMEOUT);
 
             UpdateStats.clearPersistedStats(app);
-
-            if (isAutoUpdate) {
-                ResourceInstallUtils.recordAutoUpdateCompletion(app);
-            }
-
             clearUpgrade();
-
         } else {
-            Logger.log(LogTypes.TYPE_RESOURCES, "Retrying auto-update");
             UpdateStats.saveStatsPersistently(app, updateStats);
-            if (isAutoUpdate) {
-                scheduleUpdateTaskRetry(ctx, updateStats.getRestartCount());
-            }
         }
-    }
-
-    private void scheduleUpdateTaskRetry(final Context ctx, int numberOfRestarts) {
-        final Handler handler = new Handler();
-        handler.postDelayed(() -> launchRetryTask(ctx), exponentionalRetryDelay(numberOfRestarts));
-    }
-
-    private void launchRetryTask(Context ctx) {
-        String ref = ResourceInstallUtils.getDefaultProfileRef();
-        try {
-            if (canUpdateRetryRun()) {
-                UpdateTask updateTask = UpdateTask.getNewInstance(true);
-                updateTask.startPinnedNotification(ctx);
-                updateTask.executeParallel(ref);
-            }
-        } catch (IllegalStateException e) {
-            // The user may have started the update process in the meantime
-            Log.w(TAG, "Trying trigger an auto-update retry when it is already running");
-        }
-    }
-
-    /**
-     * @return Logged into an app that has begun the auto-update process
-     */
-    private static boolean canUpdateRetryRun() {
-        try {
-            CommCareApp currentApp = CommCareApplication.instance().getCurrentApp();
-            // NOTE PLM: Doesn't distinguish between two apps currently in the
-            // auto-update process.
-            return CommCareApplication.instance().getSession().isActive() &&
-                    ResourceInstallUtils.shouldAutoUpdateResume(currentApp);
-        } catch (SessionUnavailableException e) {
-            return false;
-        }
-    }
-
-    /**
-     * Retry delay that ranges between 30 seconds and 60 minutes.
-     * At 3 retries the delay is 35 seconds, at 5 retries it is at 30 minutes.
-     *
-     * @param numberOfRestarts used as the exponent for the delay calculation
-     * @return delay in MS, which grows exponentially over the number of restarts.
-     */
-    private long exponentionalRetryDelay(int numberOfRestarts) {
-        final Double base = 10 * (1.78);
-        final long thirtySeconds = 30 * 1000;
-        long exponentialDelay = thirtySeconds + (long)Math.pow(base, numberOfRestarts);
-        return Math.min(exponentialDelay, MAX_UPDATE_RETRY_DELAY_IN_MS);
     }
 
     @Override
