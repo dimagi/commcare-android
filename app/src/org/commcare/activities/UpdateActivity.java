@@ -429,14 +429,18 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
         uiController.applyingUpdateUiState();
     }
 
-
     public static boolean isUpdateBlockedOnSync() {
+        return isUpdateBlockedOnSync(ReportingUtils.getUser());
+    }
+
+    // Returns whether a sync is required in order to take an app update
+    public static boolean isUpdateBlockedOnSync(String username) {
         if (HiddenPreferences.shouldBypassPreUpdateSync()) {
             return false;
         }
 
         if (ResourceInstallUtils.isUpdateReadyToInstall() && HiddenPreferences.preUpdateSyncNeeded()) {
-            long lastSyncTime = SyncDetailCalculations.getLastSyncTime();
+            long lastSyncTime = SyncDetailCalculations.getLastSyncTime(username);
             long updateReleasedOnTime = HiddenPreferences.geReleasedOnTimeForOngoingAppDownload();
             return lastSyncTime < updateReleasedOnTime;
         }

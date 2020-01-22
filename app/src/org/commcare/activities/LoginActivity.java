@@ -187,7 +187,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
             DevSessionRestorer.tryAutoLoginPasswordSave(uiController.getEnteredPasswordOrPin(), false);
         }
 
-        if (ResourceInstallUtils.isUpdateReadyToInstall() && !UpdateActivity.isUpdateBlockedOnSync()) {
+        if (ResourceInstallUtils.isUpdateReadyToInstall() && !UpdateActivity.isUpdateBlockedOnSync(uiController.getEnteredUsername())) {
             // install update, which triggers login upon completion
             installPendingUpdate();
         } else {
