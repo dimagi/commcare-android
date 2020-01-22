@@ -2,6 +2,7 @@ package org.commcare.tasks
 
 import android.content.Context
 import androidx.work.CoroutineWorker
+import androidx.work.ForegroundInfo
 import androidx.work.WorkerParameters
 import org.commcare.CommCareApplication
 import org.commcare.engine.resource.AppInstallStatus
@@ -17,7 +18,7 @@ class UpdateWorker(appContext: Context, workerParams: WorkerParameters)
     private lateinit var updateHelper: UpdateHelper
 
     override suspend fun doWork(): Result {
-        // skip if an update task is already running or no app is seated
+        // skip if - An update task is already running | no app is seated | user session is not active
         if (UpdateTask.getRunningInstance() == null &&
                 CommCareApplication.instance().getCurrentApp() != null &&
                 CommCareApplication.instance().getSession().isActive() &&

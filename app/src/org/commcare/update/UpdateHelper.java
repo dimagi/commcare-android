@@ -26,6 +26,7 @@ import org.commcare.views.dialogs.PinnedNotificationWithProgress;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Vector;
 
@@ -44,7 +45,6 @@ public class UpdateHelper implements TableStateListener {
     private PinnedNotificationWithProgress mPinnedNotificationProgress = null;
     private int mCurrentProgress = 0;
     private int mMaxProgress = 0;
-    private boolean isUpdateCancelledByUser = false;
     private static final String UPDATE_REQUEST_NAME = "update_request";
 
     public UpdateHelper(boolean autoUpdate, UpdateProgressListener updateProgressListener, InstallCancelled installCancelled) {
@@ -185,7 +185,6 @@ public class UpdateHelper implements TableStateListener {
     }
 
     public void OnUpdateCancelled() {
-        isUpdateCancelledByUser = false;
 
         if (mPinnedNotificationProgress != null) {
             mPinnedNotificationProgress.handleTaskCancellation();
@@ -236,10 +235,10 @@ public class UpdateHelper implements TableStateListener {
     }
 
     public void setUpdateCancelledByUser(boolean updateCancelledByUser) {
-        isUpdateCancelledByUser = updateCancelledByUser;
     }
 
-    public static String getUpdateRequestName(String appId) {
+    public static String getUpdateRequestName() {
+        String appId = CommCareApplication.instance().getCurrentApp().getUniqueId();
         return UPDATE_REQUEST_NAME + "_" + appId;
     }
 
