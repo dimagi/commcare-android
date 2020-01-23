@@ -782,7 +782,7 @@ public class CommCareApplication extends MultiDexApplication {
                         .build();
 
         WorkManager.getInstance(this).enqueueUniquePeriodicWork(
-                UpdateHelper.getUpdateRequestName(getCurrentApp().getUniqueId()),
+                UpdateHelper.getUpdateRequestName(),
                 ExistingPeriodicWorkPolicy.KEEP,
                 updateRequest
                 );

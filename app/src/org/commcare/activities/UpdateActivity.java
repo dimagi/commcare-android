@@ -309,7 +309,7 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
 
     protected void startUpdateCheck() {
         try {
-            updateTask = UpdateTask.getNewInstance(false);
+            updateTask = UpdateTask.getNewInstance();
             initUpdateTaskProgressDisplay();
             if (isLocalUpdate) {
                 updateTask.setLocalAuthority();
@@ -365,7 +365,6 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
 
     public void stopUpdateCheck() {
         if (updateTask != null) {
-            updateTask.cancelWasUserTriggered();
             updateTask.cancel(true);
             taskIsCancelling = true;
             uiController.cancellingUiState();

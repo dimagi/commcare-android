@@ -27,7 +27,7 @@ public class UpdateUtils {
 
     public static UpdateTask stageUpdate(String profileRef,
                                          AppInstallStatus expectedInstallStatus) {
-        UpdateTask updateTask = UpdateTask.getNewInstance(false);
+        UpdateTask updateTask = UpdateTask.getNewInstance();
         try {
             updateTask.registerTaskListener(taskListenerFactory(new ResultAndError<>(expectedInstallStatus)));
         } catch (TaskListenerRegistrationException e) {

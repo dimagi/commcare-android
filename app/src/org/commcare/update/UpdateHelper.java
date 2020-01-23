@@ -26,7 +26,6 @@ import org.commcare.views.dialogs.PinnedNotificationWithProgress;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Vector;
 
@@ -38,7 +37,6 @@ public class UpdateHelper implements TableStateListener {
 
     private final AndroidResourceManager mResourceManager;
     private final CommCareApp mApp;
-    private final Context mContext;
     private final UpdateProgressListener mUpdateProgressListener;
     private boolean isAutoUpdate;
     private int mAuthority;
@@ -55,12 +53,11 @@ public class UpdateHelper implements TableStateListener {
         mResourceManager.setUpgradeListeners(this, installCancelled);
         isAutoUpdate = autoUpdate;
         mAuthority = Resource.RESOURCE_AUTHORITY_REMOTE;
-        mContext = CommCareApplication.instance();
         mUpdateProgressListener = updateProgressListener;
     }
 
     public ResultAndError<AppInstallStatus> update(String profileRef) {
-        setupUpdate(isAutoUpdate, profileRef);
+        setupUpdate(profileRef);
 
         try {
             return new ResultAndError<>(stageUpdate(profileRef));
@@ -99,11 +96,15 @@ public class UpdateHelper implements TableStateListener {
         }
     }
 
-    private void setupUpdate(boolean autoUpdate, String profileRef) {
+    private void setupUpdate(String profileRef) {
         ResourceInstallUtils.recordUpdateAttemptTime(mApp);
         mResourceManager.incrementUpdateAttempts();
         Logger.log(LogTypes.TYPE_RESOURCES,
                 "Beginning install attempt for profile " + profileRef);
+
+        if (isAutoUpdate) {
+            ResourceInstallUtils.recordAutoUpdateStart(mApp);
+        }
     }
 
 
@@ -146,11 +147,15 @@ public class UpdateHelper implements TableStateListener {
         }
 
         if (!resultAndError.data.isUpdateInCompletedState()) {
-            mResourceManager.processUpdateFailure(resultAndError.data, mContext, isAutoUpdate);
+            mResourceManager.processUpdateFailure(resultAndError.data);
         }
 
         if (mPinnedNotificationProgress != null) {
             mPinnedNotificationProgress.handleTaskCompletion(resultAndError);
+        }
+
+        if (isAutoUpdate) {
+            ResourceInstallUtils.recordAutoUpdateCompletion(mApp);
         }
     }
 
@@ -232,9 +237,6 @@ public class UpdateHelper implements TableStateListener {
 
     public int getMaxProgress() {
         return mMaxProgress;
-    }
-
-    public void setUpdateCancelledByUser(boolean updateCancelledByUser) {
     }
 
     public static String getUpdateRequestName() {

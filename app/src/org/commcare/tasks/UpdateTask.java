@@ -26,15 +26,15 @@ public class UpdateTask extends SingletonTask<String, Integer, ResultAndError<Ap
     private final UpdateHelper mUpdateHelper;
 
 
-    private UpdateTask(boolean autoUpdate) {
+    private UpdateTask() {
         TAG = UpdateTask.class.getSimpleName();
-        mUpdateHelper = new UpdateHelper(autoUpdate, this, this);
+        mUpdateHelper = new UpdateHelper(false, this, this);
     }
 
-    public static UpdateTask getNewInstance(boolean autoUpdate) {
+    public static UpdateTask getNewInstance() {
         synchronized (lock) {
             if (singletonRunningInstance == null) {
-                singletonRunningInstance = new UpdateTask(autoUpdate);
+                singletonRunningInstance = new UpdateTask();
                 return singletonRunningInstance;
             } else {
                 throw new IllegalStateException("An instance of " + TAG + " already exists.");
@@ -106,15 +106,6 @@ public class UpdateTask extends SingletonTask<String, Integer, ResultAndError<Ap
 
     public void setLocalAuthority() {
         mUpdateHelper.setLocalAuthority();
-    }
-
-    /**
-     * Record that task cancellation was triggered by user, not the app logging
-     * out. Useful for knowing if an auto-update should resume or not upon next
-     * login.
-     */
-    public void cancelWasUserTriggered() {
-        mUpdateHelper.setUpdateCancelledByUser(true);
     }
 
     public void clearUpgrade() {

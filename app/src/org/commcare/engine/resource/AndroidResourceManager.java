@@ -198,12 +198,8 @@ public class AndroidResourceManager extends ResourceManager {
      * and, if appropriate, schedule a update retry
      *
      * @param result       update attempt result
-     * @param ctx          Used for showing pinned notification of update task retry
-     * @param isAutoUpdate When set keep retrying update with delay and max retry count
      */
-    public void processUpdateFailure(AppInstallStatus result,
-                                     Context ctx,
-                                     boolean isAutoUpdate) {
+    public void processUpdateFailure(AppInstallStatus result) {
         updateStats.registerUpdateException(new Exception(result.toString()));
         FirebaseAnalyticsUtil.reportStageUpdateAttemptFailure(result.toString());
 
