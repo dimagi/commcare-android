@@ -10,6 +10,7 @@ import org.commcare.engine.resource.ResourceInstallUtils
 import org.commcare.resources.model.InstallCancelled
 import org.commcare.update.UpdateHelper
 import org.commcare.update.UpdateProgressListener
+import java.lang.Exception
 
 class UpdateWorker(appContext: Context, workerParams: WorkerParameters)
     : CoroutineWorker(appContext, workerParams), InstallCancelled, UpdateProgressListener {
@@ -18,21 +19,28 @@ class UpdateWorker(appContext: Context, workerParams: WorkerParameters)
     private lateinit var updateHelper: UpdateHelper
 
     override suspend fun doWork(): Result {
-        // skip if - An update task is already running | no app is seated | user session is not active
-        if (UpdateTask.getRunningInstance() == null &&
-                CommCareApplication.instance().getCurrentApp() != null &&
-                CommCareApplication.instance().getSession().isActive() &&
-                UpdateHelper.shouldAutoUpdate()) {
+        var updateResult = ResultAndError(AppInstallStatus.UnknownFailure)
+        try {
+            // skip if - An update task is already running | no app is seated | user session is not active
+            if (UpdateTask.getRunningInstance() == null &&
+                    CommCareApplication.instance().getCurrentApp() != null &&
+                    CommCareApplication.instance().getSession().isActive() &&
+                    UpdateHelper.shouldAutoUpdate()) {
 
-            updateHelper = UpdateHelper(true, this, this)
-            updateHelper.startPinnedNotification(CommCareApplication.instance())
-            val updateResult = updateHelper.update(ResourceInstallUtils.getDefaultProfileRef())
-            return handleUpdateResult(updateHelper, updateResult)
+                updateHelper = UpdateHelper(true, this, this)
+                updateHelper.startPinnedNotification(CommCareApplication.instance())
+                updateResult = updateHelper.update(ResourceInstallUtils.getDefaultProfileRef())
+            } else {
+                return Result.success()
+            }
+        } catch (e: Exception) {
+            updateResult = ResultAndError(AppInstallStatus.UnknownFailure, e.message)
+        } finally {
+            return handleUpdateResult(updateResult)
         }
-        return Result.success()
     }
 
-    private fun handleUpdateResult(updateHelper: UpdateHelper, updateResult: ResultAndError<AppInstallStatus>): Result {
+    private fun handleUpdateResult(updateResult: ResultAndError<AppInstallStatus>): Result {
         updateHelper.OnUpdateComplete(updateResult)
 
         return when (updateResult.data.isUpdateInCompletedState) {
