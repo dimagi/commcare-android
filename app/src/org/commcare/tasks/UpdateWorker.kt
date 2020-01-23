@@ -19,7 +19,7 @@ class UpdateWorker(appContext: Context, workerParams: WorkerParameters)
     private lateinit var updateHelper: UpdateHelper
 
     override suspend fun doWork(): Result {
-        var updateResult = ResultAndError(AppInstallStatus.UnknownFailure)
+        var updateResult: ResultAndError<AppInstallStatus>
         try {
             // skip if - An update task is already running | no app is seated | user session is not active
             if (UpdateTask.getRunningInstance() == null &&
@@ -35,9 +35,8 @@ class UpdateWorker(appContext: Context, workerParams: WorkerParameters)
             }
         } catch (e: Exception) {
             updateResult = ResultAndError(AppInstallStatus.UnknownFailure, e.message)
-        } finally {
-            return handleUpdateResult(updateResult)
         }
+        return handleUpdateResult(updateResult)
     }
 
     private fun handleUpdateResult(updateResult: ResultAndError<AppInstallStatus>): Result {
