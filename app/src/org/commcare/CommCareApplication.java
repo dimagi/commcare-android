@@ -410,20 +410,27 @@ public class CommCareApplication extends MultiDexApplication {
     }
 
     @NonNull
+    @Deprecated
     public String getPhoneId() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_DENIED) {
-            return "000000000000000";
-        }
-
-        TelephonyManager manager = (TelephonyManager)this.getSystemService(TELEPHONY_SERVICE);
-        String imei = manager.getDeviceId();
-        if (imei == null) {
-            imei = Secure.getString(getContentResolver(), Secure.ANDROID_ID);
-        }
-        if (imei == null) {
-            imei = "----";
-        }
-        return imei;
+        /**
+         * https://source.android.com/devices/tech/config/device-identifiers
+         * https://issuetracker.google.com/issues/129583175#comment10
+         * Starting from Android 10, apps cannot access non-resettable device ids unless they have special career permission.
+         * If we still try to access it, SecurityException is thrown.
+         */
+//        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_DENIED) {
+//            return "000000000000000";
+//        }
+//
+//        TelephonyManager manager = (TelephonyManager)this.getSystemService(TELEPHONY_SERVICE);
+//        String imei = manager.getDeviceId();
+//        if (imei == null) {
+//            imei = Secure.getString(getContentResolver(), Secure.ANDROID_ID);
+//        }
+//        if (imei == null) {
+//            imei = "----";
+//        }
+        return "----";
     }
 
     public void initializeDefaultLocalizerData() {
