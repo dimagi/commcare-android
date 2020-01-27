@@ -85,7 +85,7 @@ dependencies {
         exclude group: "com.android.support"
     }
 
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
 
     // Markdown
     implementation 'com.github.budsmile:bypass-android:1.0.5'//Needed for Ice Cream Sandwich (14&15)
@@ -275,6 +275,10 @@ android {
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    kotlinOptions {
+        jvmTarget = JavaVersion.VERSION_1_8.toString()
     }
 
     signingConfigs {

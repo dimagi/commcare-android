@@ -4,6 +4,9 @@ import android.content.Context
 import androidx.work.CoroutineWorker
 import androidx.work.ForegroundInfo
 import androidx.work.WorkerParameters
+import androidx.work.workDataOf
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
 import org.commcare.CommCareApplication
 import org.commcare.engine.resource.AppInstallStatus
 import org.commcare.engine.resource.ResourceInstallUtils
@@ -12,9 +15,13 @@ import org.commcare.update.UpdateHelper
 import org.commcare.update.UpdateProgressListener
 import java.lang.Exception
 
-class UpdateWorker(appContext: Context, workerParams: WorkerParameters)
+class UpdateWorker1(appContext: Context, workerParams: WorkerParameters)
     : CoroutineWorker(appContext, workerParams), InstallCancelled, UpdateProgressListener {
 
+    companion object {
+        const val Progress_Complete = "complete"
+        const val Progress_Total = "total"
+    }
 
     private lateinit var updateHelper: UpdateHelper
 
@@ -27,7 +34,7 @@ class UpdateWorker(appContext: Context, workerParams: WorkerParameters)
                     CommCareApplication.instance().getSession().isActive() &&
                     UpdateHelper.shouldAutoUpdate()) {
 
-                updateHelper = UpdateHelper(true, this, this)
+                updateHelper = UpdateHelper.getNewInstance(true, this, this)
                 updateHelper.startPinnedNotification(CommCareApplication.instance())
                 updateResult = updateHelper.update(ResourceInstallUtils.getDefaultProfileRef())
             } else {
@@ -51,6 +58,11 @@ class UpdateWorker(appContext: Context, workerParams: WorkerParameters)
 
     override fun publishUpdateProgress(complete: Int, total: Int) {
         updateHelper.updateNotification(complete, total)
+        setProgressAsync(workDataOf(Pair(Progress_Complete, complete), Pair(Progress_Total, total)))
+    }
+
+    override fun onUpdateComplete(resultAndError: ResultAndError<AppInstallStatus>?) {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
     override fun wasInstallCancelled(): Boolean {
