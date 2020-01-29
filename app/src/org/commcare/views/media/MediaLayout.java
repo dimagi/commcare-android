@@ -412,25 +412,22 @@ public class MediaLayout extends RelativeLayout {
                 final CommCareMediaController ctrl = new CommCareMediaController(this.getContext());
 
                 CommCareVideoView videoView = new CommCareVideoView(this.getContext());
-                videoView.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-                    @Override
-                    public void onPrepared(MediaPlayer mediaPlayer) {
-                        //Since MediaController will create a default set of controls and put them in a window floating above your application(From AndroidDocs)
-                        //It would never follow the parent view's animation or scroll.
-                        //So, adding the MediaController to the view hierarchy here.
-                        FrameLayout frameLayout = (FrameLayout) ctrl.getParent();
-                        ((ViewGroup) frameLayout.getParent()).removeView(frameLayout);
-                        RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-                        params.addRule(ALIGN_BOTTOM, videoView.getId());
-                        params.addRule(ALIGN_LEFT, videoView.getId());
-                        params.addRule(ALIGN_RIGHT, videoView.getId());
+                videoView.setOnPreparedListener(mediaPlayer -> {
+                    //Since MediaController will create a default set of controls and put them in a window floating above your application(From AndroidDocs)
+                    //It would never follow the parent view's animation or scroll.
+                    //So, adding the MediaController to the view hierarchy here.
+                    FrameLayout frameLayout = (FrameLayout) ctrl.getParent();
+                    ((ViewGroup) frameLayout.getParent()).removeView(frameLayout);
+                    LayoutParams params = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+                    params.addRule(ALIGN_BOTTOM, videoView.getId());
+                    params.addRule(ALIGN_LEFT, videoView.getId());
+                    params.addRule(ALIGN_RIGHT, videoView.getId());
 
-                        ((RelativeLayout) videoView.getParent()).addView(frameLayout, params);
+                    ((RelativeLayout) videoView.getParent()).addView(frameLayout, params);
 
-                        ctrl.setAnchorView(videoView);
-                        videoView.setMediaController(ctrl);
-                        ctrl.show();
-                    }
+                    ctrl.setAnchorView(videoView);
+                    videoView.setMediaController(ctrl);
+                    ctrl.show();
                 });
 
                 videoView.setVideoPath(videoFilename);
