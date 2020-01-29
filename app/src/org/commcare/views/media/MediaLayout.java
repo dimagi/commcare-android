@@ -420,8 +420,11 @@ public class MediaLayout extends RelativeLayout {
                         //So, adding the MediaController to the view hierarchy here.
                         FrameLayout frameLayout = (FrameLayout) ctrl.getParent();
                         ((ViewGroup) frameLayout.getParent()).removeView(frameLayout);
-                        RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
+                        RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
                         params.addRule(ALIGN_BOTTOM, videoView.getId());
+                        params.addRule(ALIGN_LEFT, videoView.getId());
+                        params.addRule(ALIGN_RIGHT, videoView.getId());
+
                         ((RelativeLayout) videoView.getParent()).addView(frameLayout, params);
 
                         ctrl.setAnchorView(videoView);
@@ -429,6 +432,7 @@ public class MediaLayout extends RelativeLayout {
                         ctrl.show();
                     }
                 });
+
                 videoView.setVideoPath(videoFilename);
                 videoView.setListener(new CommCareVideoView.VideoDetachedListener() {
                     @Override
