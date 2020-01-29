@@ -9,4 +9,5 @@
     <Preference android:key="recovery-mode"/>
     <Preference android:key="clear-user-data"/>
     <Preference android:key="clear-saved-session"/>
+    <Preference android:key="bypass-pre-update-sync"/>
 </PreferenceScreen>

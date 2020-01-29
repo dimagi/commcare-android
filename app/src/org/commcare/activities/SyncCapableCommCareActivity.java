@@ -4,8 +4,6 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.AnimRes;
-import android.support.annotation.LayoutRes;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -26,6 +24,9 @@ import org.commcare.tasks.ResultAndError;
 import org.commcare.utils.SyncDetailCalculations;
 import org.commcare.views.dialogs.CustomProgressDialog;
 import org.javarosa.core.services.locale.Localization;
+
+import androidx.annotation.AnimRes;
+import androidx.annotation.LayoutRes;
 
 public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCareActivity<T>
         implements PullTaskResultReceiver {
@@ -94,7 +95,7 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
         }
 
         DataPullTask.PullTaskResult result = resultAndError.data;
-        String syncModeParam = null;
+
 
         switch (result) {
             case EMPTY_URL:
@@ -108,15 +109,13 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
                 updateUiAfterDataPullOrSend(Localization.get("sync.fail.bad.data"), FAIL);
                 break;
             case DOWNLOAD_SUCCESS:
-                if (formsToSend) {
-                    syncModeParam = AnalyticsParamValue.SYNC_MODE_SEND_FORMS;
-                } else {
-                    syncModeParam = AnalyticsParamValue.SYNC_MODE_JUST_PULL_DATA;
-                }
                 updateUiAfterDataPullOrSend(Localization.get("sync.success.synced"), SUCCESS);
                 break;
             case SERVER_ERROR:
                 updateUiAfterDataPullOrSend(Localization.get("sync.fail.server.error"), FAIL);
+                break;
+            case RATE_LIMITED_SERVER_ERROR:
+                updateUiAfterDataPullOrSend(Localization.get("sync.fail.rate.limited.server.error"), FAIL);
                 break;
             case UNREACHABLE_HOST:
                 updateUiAfterDataPullOrSend(Localization.get("sync.fail.bad.network"), FAIL);
@@ -138,10 +137,12 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
         String syncTriggerParam =
                 userTriggeredSync ? AnalyticsParamValue.SYNC_TRIGGER_USER : AnalyticsParamValue.SYNC_TRIGGER_AUTO;
 
+        String syncModeParam = formsToSend ? AnalyticsParamValue.SYNC_MODE_SEND_FORMS : AnalyticsParamValue.SYNC_MODE_JUST_PULL_DATA;
+
         if (result == DataPullTask.PullTaskResult.DOWNLOAD_SUCCESS) {
             FirebaseAnalyticsUtil.reportSyncSuccess(syncTriggerParam, syncModeParam);
         } else {
-            FirebaseAnalyticsUtil.reportSyncFailure(syncTriggerParam, result.analyticsFailureReasonParam);
+            FirebaseAnalyticsUtil.reportSyncFailure(syncTriggerParam, syncModeParam, result.analyticsFailureReasonParam);
         }
     }
 
@@ -252,7 +253,7 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
 
     private void computeSyncState(SyncIconTrigger trigger) {
         lastIconTrigger = trigger;
-        switch(trigger) {
+        switch (trigger) {
             case NO_ANIMATION:
                 if (SyncDetailCalculations.getNumUnsentForms() > 0) {
                     syncStateForIcon = SyncIconState.FORMS_PENDING;

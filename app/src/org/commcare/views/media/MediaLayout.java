@@ -7,7 +7,7 @@ import android.graphics.Bitmap;
 import android.graphics.Point;
 import android.net.Uri;
 import android.os.Build;
-import android.support.annotation.IdRes;
+import androidx.annotation.IdRes;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
@@ -23,7 +23,9 @@ import android.widget.VideoView;
 
 import com.bumptech.glide.Glide;
 
+import org.commcare.activities.FormEntryActivity;
 import org.commcare.dalvik.R;
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.utils.FileUtil;
@@ -166,6 +168,7 @@ public class MediaLayout extends RelativeLayout {
                 i.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                 try {
                     getContext().startActivity(i);
+                    FormEntryActivity.mFormController.getFormAnalyticsHelper().recordVideoPlaybackStart(videoFile);
                 } catch (ActivityNotFoundException e) {
                     Toast.makeText(getContext(),
                             getContext().getString(R.string.activity_not_found, "view video"),
@@ -397,7 +400,7 @@ public class MediaLayout extends RelativeLayout {
 
             int[] maxBounds = getMaxCenterViewBounds();
 
-            File videoFile = new File(videoFilename);
+            final File videoFile = new File(videoFilename);
             if (!videoFile.exists()) {
                 return getMissingImageView("No video file found at: " + videoFilename);
             } else {
@@ -406,6 +409,7 @@ public class MediaLayout extends RelativeLayout {
                 //since we shotgun grab the focus for the input widget.
 
                 final MediaController ctrl = new MediaController(this.getContext());
+
 
                 VideoView videoView = new VideoView(this.getContext());
                 videoView.setVideoPath(videoFilename);

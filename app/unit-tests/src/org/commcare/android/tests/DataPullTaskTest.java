@@ -59,6 +59,13 @@ public class DataPullTaskTest {
     }
 
     @Test
+    public void dataPullRateLimitedServerErrorTest() {
+        installAndUseLocalKeys();
+        runDataPull(503, GOOD_RESTORE);
+        Assert.assertEquals(DataPullTask.PullTaskResult.RATE_LIMITED_SERVER_ERROR, dataPullResult.data);
+    }
+
+    @Test
     public void dataPullAuthFailedTest() {
         installAndUseLocalKeys();
         runDataPull(401, GOOD_RESTORE);

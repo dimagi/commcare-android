@@ -1,6 +1,8 @@
 import org.apache.tools.ant.filters.ReplaceTokens
 import com.android.builder.core.DefaultManifestParser
 
+import java.util.function.BooleanSupplier
+
 ////////////
 // README //
 ////////////
@@ -36,9 +38,8 @@ configurations {
 dependencies {
 
     testImplementation 'junit:junit:4.12'
-    testImplementation('org.robolectric:robolectric:3.2.2')
-    testImplementation 'org.robolectric:shadows-multidex:3.2.2'
-    testImplementation 'org.robolectric:shadows-core:3.2.2'
+    testImplementation 'org.robolectric:robolectric:4.3'
+    testImplementation 'org.robolectric:shadows-multidex:4.3'
     testImplementation 'org.json:json:20140107'
     testImplementation project(path: ':commcare-core', configuration: 'testsAsJar')
 
@@ -52,12 +53,12 @@ dependencies {
     implementation(name: 'htmlspanner-custom', ext: 'aar')
     implementation(name: 'android-zebra-interface-1.1', ext: 'aar')
     implementation 'com.simprints:LibSimprints:1.0.12'
-    implementation 'com.android.support:multidex:1.0.3'
-    implementation 'com.android.support:cardview-v7:28.0.0'
-    implementation 'com.android.support:recyclerview-v7:28.0.0'
-    implementation 'com.android.support:support-v4:28.0.0'
-    implementation 'com.android.support:preference-v14:28.0.0'
-    implementation 'com.android.support:gridlayout-v7:28.0.0'
+    implementation 'androidx.multidex:multidex:2.0.0'
+    implementation 'androidx.cardview:cardview:1.0.0'
+    implementation 'androidx.recyclerview:recyclerview:1.0.0'
+    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+    implementation 'androidx.legacy:legacy-preference-v14:1.0.0'
+    implementation 'androidx.gridlayout:gridlayout:1.0.0'
     implementation 'com.madgag.spongycastle:core:1.54.0.0'
     implementation 'com.madgag.spongycastle:prov:1.54.0.0'
     implementation 'com.google.android.gms:play-services-maps:16.0.0'
@@ -78,7 +79,7 @@ dependencies {
     implementation('com.crashlytics.sdk.android:crashlytics:2.6.8@aar') {
         transitive = true;
     }
-    implementation 'com.android.support:support-core-ui:28.0.0'
+    implementation 'androidx.legacy:legacy-support-core-ui:1.0.0'
     implementation 'com.duolingo.open:rtl-viewpager:1.0.3'
     implementation ("com.github.bumptech.glide:glide:4.9.0") {
         exclude group: "com.android.support"
@@ -91,6 +92,9 @@ dependencies {
     implementation 'ru.noties:markwon:1.0.4'
     implementation 'ru.noties:markwon-image-loader:1.0.4'
     implementation 'ru.noties:markwon-view:1.0.4'
+
+    implementation "androidx.work:work-runtime:2.2.0"
+    implementation "androidx.work:work-runtime-ktx:2.2.0"
 
 }
 
@@ -230,7 +234,7 @@ android {
 
     defaultConfig {
         minSdkVersion 14
-        targetSdkVersion 27
+        targetSdkVersion 28
         multiDexEnabled true
         applicationId "org.commcare.dalvik"
         project.ext.COMMCARE_APP_ID = applicationId
@@ -357,7 +361,12 @@ android {
             // next to play store version
 
             // grab commcare version from manifest
-            def manifestParser = new DefaultManifestParser(android.sourceSets.main.manifest.srcFile)
+            def manifestParser = new DefaultManifestParser(android.sourceSets.main.manifest.srcFile, new BooleanSupplier() {
+                @Override
+                boolean getAsBoolean() {
+                    return true
+                }
+            }, null)
             def ccVersion = manifestParser.getVersionName()
             // convert numbers to words to use in app id
             def ccVersionSafe = numbersToLetters(ccVersion)
@@ -453,6 +462,9 @@ android {
             systemProperty 'robolectric.logging.enable', true
             systemProperty 'robolectric.logging', 'stdout'
         }
+        unitTests {
+            includeAndroidResources = true
+        }
     }
 }
 
@@ -478,12 +490,14 @@ downloadCCApp {
 }
 
 // dynamic check at task execution time
-downloadCCApp << {
-    if (ccAppId.equals("")) {
-        throw new InvalidUserDataException("Please provide cc_app_id property (CommCare App ID) to be packaged with apk")
-    }
-    if (ccDomain.equals("")) {
-        throw new InvalidUserDataException("Please provide cc_domain property (CommCare App Domain) to be packaged with apk")
+downloadCCApp {
+    doLast {
+        if (ccAppId.equals("")) {
+            throw new InvalidUserDataException("Please provide cc_app_id property (CommCare App ID) to be packaged with apk")
+        }
+        if (ccDomain.equals("")) {
+            throw new InvalidUserDataException("Please provide cc_domain property (CommCare App Domain) to be packaged with apk")
+        }
     }
 }
 
@@ -506,12 +520,14 @@ downloadRestoreFile {
 }
 
 // dynamic check at task execution time
-downloadRestoreFile << {
-    if (consumerAppUsername.equals("")) {
-        throw new InvalidUserDataException("Please provide username for restore to be packaged with apk")
-    }
-    if (consumerAppPassword.equals("")) {
-        throw new InvalidUserDataException("Please provide password for restore to be packaged with apk")
+downloadRestoreFile {
+    doLast {
+        if (consumerAppUsername.equals("")) {
+            throw new InvalidUserDataException("Please provide username for restore to be packaged with apk")
+        }
+        if (consumerAppPassword.equals("")) {
+            throw new InvalidUserDataException("Please provide password for restore to be packaged with apk")
+        }
     }
 }
 

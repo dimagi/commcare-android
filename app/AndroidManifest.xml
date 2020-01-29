@@ -27,6 +27,8 @@
     <uses-permission android:name="android.permission.WAKE_LOCK"/>
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+
     <uses-feature
         android:name="android.hardware.telephony"
         android:required="false"/>
@@ -61,6 +63,7 @@
         android:supportsRtl="true"
         android:label="@string/application_name"
         android:hardwareAccelerated="true"
+        android:usesCleartextTraffic="true"
         android:theme="@style/AppBaseTheme">
         <activity
             android:name="org.commcare.activities.DispatchActivity"
@@ -123,7 +126,7 @@
             android:readPermission="${applicationId}.provider.cases.read"/>
 
         <provider
-            android:name="android.support.v4.content.FileProvider"
+            android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.external.files.provider"
             android:exported="false"
             android:grantUriPermissions="true">

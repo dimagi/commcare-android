@@ -6,9 +6,11 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v7.preference.Preference;
+import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.preference.Preference;
 
 import org.commcare.AppUtils;
 import org.commcare.CommCareApplication;
@@ -50,6 +52,7 @@ public class AdvancedActionsPreferences extends CommCarePreferenceFragment {
     private final static String RECOVERY_MODE = "recovery-mode";
     private final static String CLEAR_USER_DATA = "clear-user-data";
     private final static String CLEAR_SAVED_SESSION = "clear-saved-session";
+    private final static String DISABLE_PRE_UPDATE_SYNC = "bypass-pre-update-sync";
 
     private final static int WIFI_DIRECT_ACTIVITY = 1;
     private final static int DUMP_FORMS_ACTIVITY = 2;
@@ -75,6 +78,7 @@ public class AdvancedActionsPreferences extends CommCarePreferenceFragment {
         keyToTitleMap.put(FORCE_LOG_SUBMIT, "force.log.submit");
         keyToTitleMap.put(RECOVERY_MODE, "recovery.mode");
         keyToTitleMap.put(CLEAR_SAVED_SESSION, "menu.clear.saved.session");
+        keyToTitleMap.put(DISABLE_PRE_UPDATE_SYNC, "menu.disable.pre.update.sync");
     }
 
     @NonNull
@@ -99,6 +103,12 @@ public class AdvancedActionsPreferences extends CommCarePreferenceFragment {
         Preference reportProblemButton = findPreference(REPORT_PROBLEM);
         if (reportProblemButton != null && DeveloperPreferences.shouldHideReportIssue()) {
             getPreferenceScreen().removePreference(reportProblemButton);
+        }
+        if (!HiddenPreferences.preUpdateSyncNeeded()) {
+            Preference clearAppReleaseTimePref = findPreference(DISABLE_PRE_UPDATE_SYNC);
+            if (clearAppReleaseTimePref != null) {
+                getPreferenceScreen().removePreference(clearAppReleaseTimePref);
+            }
         }
     }
 
@@ -173,7 +183,7 @@ public class AdvancedActionsPreferences extends CommCarePreferenceFragment {
         forceSubmitButton.setOnPreferenceClickListener(preference -> {
             FirebaseAnalyticsUtil.reportAdvancedActionSelected(
                     AnalyticsParamValue.FORCE_LOG_SUBMISSION);
-            CommCareUtil.triggerLogSubmission(getActivity());
+            CommCareUtil.triggerLogSubmission(getActivity(), false);
             return true;
         });
 
@@ -182,6 +192,15 @@ public class AdvancedActionsPreferences extends CommCarePreferenceFragment {
             FirebaseAnalyticsUtil.reportAdvancedActionSelected(
                     AnalyticsParamValue.RECOVERY_MODE);
             startRecoveryMode();
+            return true;
+        });
+
+        Preference clearAppReleaseTimePref = findPreference(DISABLE_PRE_UPDATE_SYNC);
+        clearAppReleaseTimePref.setOnPreferenceClickListener(preference -> {
+            FirebaseAnalyticsUtil.reportAdvancedActionSelected(
+                    AnalyticsParamValue.DISABLE_PRE_UPDATE_SYNC);
+            HiddenPreferences.enableBypassPreUpdateSync(true);
+            Toast.makeText(getActivity(),R.string.success, Toast.LENGTH_SHORT).show();
             return true;
         });
     }

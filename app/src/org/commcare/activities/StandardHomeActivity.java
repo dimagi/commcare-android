@@ -95,6 +95,7 @@ public class StandardHomeActivity
             }
             FirebaseAnalyticsUtil.reportSyncFailure(
                     AnalyticsParamValue.SYNC_TRIGGER_USER,
+                    AnalyticsParamValue.SYNC_MODE_SEND_FORMS,
                     AnalyticsParamValue.SYNC_FAIL_NO_CONNECTION);
             return;
         }
@@ -172,7 +173,7 @@ public class StandardHomeActivity
 
         switch (item.getItemId()) {
             case MENU_UPDATE:
-                launchUpdateActivity();
+                launchUpdateActivity(false);
                 return true;
             case MENU_SAVED_FORMS:
                 goToFormArchive(false);

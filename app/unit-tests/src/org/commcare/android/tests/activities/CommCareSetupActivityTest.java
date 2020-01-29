@@ -29,9 +29,13 @@ import static org.junit.Assert.assertTrue;
  *
  * @author Phillip Mates (pmates@dimagi.com)
  */
-@Config(application = CommCareTestApplication.class)
+
+// Using sdk 19 to get past NsdManager because of a bug in robolectric that causes NsdManager
+// to get initialized with a null context resulting in a NPE
+@Config(application = CommCareTestApplication.class, sdk = 18)
 @RunWith(CommCareTestRunner.class)
 public class CommCareSetupActivityTest {
+
 
     /**
      * Test that trying to install an app with an invalid suite file results in
@@ -42,13 +46,14 @@ public class CommCareSetupActivityTest {
     public void invalidAppInstall() {
         String invalidUpdateReference = "jr://resource/commcare-apps/update_tests/invalid_suite_update/profile.ccpr";
 
+
         // start the setup activity
         Intent setupIntent =
                 new Intent(RuntimeEnvironment.application, CommCareSetupActivity.class);
 
         CommCareSetupActivity setupActivity =
-                Robolectric.buildActivity(CommCareSetupActivity.class)
-                        .withIntent(setupIntent).setup().get();
+                Robolectric.buildActivity(CommCareSetupActivity.class, setupIntent)
+                        .setup().get();
 
         // click the 'offline install' menu item
         ShadowActivity shadowActivity = Shadows.shadowOf(setupActivity);

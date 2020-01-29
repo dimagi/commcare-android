@@ -45,11 +45,7 @@ class UpdateUIController implements CommCareActivityUIController {
     private UIState currentUIState;
 
     public UpdateUIController(UpdateActivity updateActivity, boolean startedByAppManager) {
-        if (startedByAppManager) {
-            applyUpdateButtonTextKey = "updates.staged.version.app.manager";
-        } else {
-            applyUpdateButtonTextKey = "updates.staged.version";
-        }
+        applyUpdateButtonTextKey = startedByAppManager ? "updates.staged.version.app.manager" : "updates.staged.version";
         activity = updateActivity;
     }
 
@@ -79,7 +75,7 @@ class UpdateUIController implements CommCareActivityUIController {
             // don't load app info while changing said app info; that causes crashes
             refreshStatusText();
         }
-        if(!CommCareApplication.notificationManager().messagesForCommCareArePending()) {
+        if (!CommCareApplication.notificationManager().messagesForCommCareArePending()) {
             notificationsButtonContainer.setVisibility(View.GONE);
         }
     }
@@ -150,11 +146,16 @@ class UpdateUIController implements CommCareActivityUIController {
 
         updateProgressBar(100, 100);
 
-        int version = ResourceInstallUtils.upgradeTableVersion();
-        String versionMsg =
-                Localization.get(applyUpdateButtonTextKey,
-                        new String[]{Integer.toString(version)});
-        installUpdateButton.setText(versionMsg);
+        if (UpdateActivity.isUpdateBlockedOnSync()) {
+            installUpdateButton.setText(Localization.get("updates.staged.version.sync.required"));
+            installUpdateButton.setImage(activity.getResources().getDrawable(R.drawable.home_sync));
+        } else {
+            int version = ResourceInstallUtils.upgradeTableVersion();
+            String versionMsg =
+                    Localization.get(applyUpdateButtonTextKey,
+                            new String[]{Integer.toString(version)});
+            installUpdateButton.setText(versionMsg);
+        }
         updateProgressText("");
     }
 
@@ -200,7 +201,7 @@ class UpdateUIController implements CommCareActivityUIController {
     protected void updateProgressText(String msg) {
         progressText.setText(msg);
         progressText.setTextColor(Color.BLACK);
-        if(!msg.equals("")) {
+        if (!msg.equals("")) {
             notificationsButtonContainer.setVisibility(View.GONE);
         }
     }

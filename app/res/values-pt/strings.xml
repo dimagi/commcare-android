@@ -172,4 +172,7 @@
     <string name="no_gps_title">Location Data Disabled</string>
     <string name="no_gps_message">The location providers on this device are currently disabled. Do you want to change those settings?</string>
     <string name="change_settings">Change Settings</string>
+    <string name="uninstall_app">Desinstalar</string>
+    <string name="archive_app">Arquivar</string>
+    <string name="update_app">Actualizar</string>
 </resources>

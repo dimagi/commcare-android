@@ -76,6 +76,9 @@ public class SaveToDiskTask extends
 
         if (headless) {
             this.taskId = -1;
+
+            //Don't block on the UI thread if there's no available screen to connect to
+            this.setConnectionTimeout(0);
         } else {
             this.taskId = SAVING_TASK_ID;
         }
@@ -127,16 +130,23 @@ public class SaveToDiskTask extends
             FormEntryActivity.mFormController.markCompleteFormAsSaved();
         }
 
+        logFormSave(exitAfterSave);
         if (exitAfterSave) {
-            FormRecord saved = CommCareApplication.instance().getCurrentSessionWrapper().getFormRecord();
-            Logger.log(LogTypes.TYPE_FORM_ENTRY,
-                    String.format("Form Entry Completed for record with id %s", saved.getInstanceID()));
             return new ResultAndError<>(SaveStatus.SAVED_AND_EXIT);
         } else if (mMarkCompleted) {
             return new ResultAndError<>(SaveStatus.SAVED_COMPLETE);
         } else {
             return new ResultAndError<>(SaveStatus.SAVED_INCOMPLETE);
         }
+    }
+
+    private void logFormSave(boolean exit) {
+        FormRecord saved = CommCareApplication.instance().getCurrentSessionWrapper().getFormRecord();
+        String log = String.format("Form Entry Completed: Record with id %s was saved as %s", saved.getInstanceID(), mMarkCompleted ? "complete" : "incomplete");
+        if(exit){
+            log += " with user exiting";
+        }
+        Logger.log(LogTypes.TYPE_FORM_ENTRY, log);
     }
 
     /**

@@ -1,6 +1,6 @@
 package org.commcare.tasks;
 
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 
 import org.commcare.CommCareApplication;
 import org.commcare.activities.RecoveryActivity;

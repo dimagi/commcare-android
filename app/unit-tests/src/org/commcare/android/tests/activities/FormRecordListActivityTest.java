@@ -58,8 +58,8 @@ public class FormRecordListActivityTest {
         ShadowActivity homeActivityShadow = prepSavedFormsActivity(savedFormsIntent);
 
         FormRecordListActivity savedFormsActivity =
-                Robolectric.buildActivity(FormRecordListActivity.class)
-                        .withIntent(savedFormsIntent).create().start()
+                Robolectric.buildActivity(FormRecordListActivity.class, savedFormsIntent)
+                        .create().start()
                         .resume().get();
 
         // wait for saved forms to load
@@ -76,7 +76,7 @@ public class FormRecordListActivityTest {
         StandardHomeActivity homeActivity =
                 Robolectric.buildActivity(StandardHomeActivity.class).create().get();
         ShadowActivity homeActivityShadow = Shadows.shadowOf(homeActivity);
-        homeActivityShadow.startActivityForResult(savedFormsIntent,
+        homeActivity.startActivityForResult(savedFormsIntent,
                 StandardHomeActivity.GET_INCOMPLETE_FORM);
 
         // Call this to remove activity from stack, so we can access future activities...
@@ -107,8 +107,7 @@ public class FormRecordListActivityTest {
                 formRecordShadow.getResultIntent());
         ShadowActivity.IntentForResult formEntryIntent =
                 homeActivityShadow.getNextStartedActivityForResult();
-        Robolectric.buildActivity(FormEntryActivity.class)
-                        .withIntent(formEntryIntent.intent)
+        Robolectric.buildActivity(FormEntryActivity.class, formEntryIntent.intent)
                         .create().start().resume().get();
 
         Robolectric.flushBackgroundThreadScheduler();

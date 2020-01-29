@@ -214,8 +214,8 @@ public class IntentCallout implements Externalizable {
 
                 // Get our response value
                 String responseValue = response.getString(key);
-                if (key == null) {
-                    key = "";
+                if (responseValue == null) {
+                    responseValue = "";
                 }
 
                 for (TreeReference ref : responseToRefMap.get(key)) {

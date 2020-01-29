@@ -8,6 +8,7 @@ import org.commcare.android.javarosa.PollSensorAction;
 import org.commcare.engine.extensions.IntentExtensionParser;
 import org.commcare.engine.extensions.PollSensorExtensionParser;
 import org.commcare.engine.extensions.XFormExtensionUtils;
+import org.commcare.models.database.SqlStorage;
 import org.commcare.resources.model.MissingMediaException;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
@@ -41,6 +42,8 @@ import java.io.InputStreamReader;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
+
+import static org.commcare.android.database.app.models.FormDefRecord.getLatestFormDefId;
 
 /**
  * @author ctsims
@@ -80,24 +83,9 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
     // Returns whether the associated formdefRecord is the one with highest form def resource version for our namespace
     private boolean isLatestFormRecord(AndroidCommCarePlatform platform) {
         if (formDefId != -1) {
-            return getLatestFormDefId(platform) == formDefId;
+            return getLatestFormDefId(platform.getFormDefStorage(), namespace) == formDefId;
         }
         return false;
-    }
-
-    // Returns the formId of the formDefRecord with highest form def resource version for our namespace
-    private int getLatestFormDefId(AndroidCommCarePlatform platform) {
-        Vector<Integer> formsForOurNamespace = FormDefRecord.getFormDefIdsByJrFormId(platform.getFormDefStorage(), namespace);
-        int maxFormResourceVersion = -1;
-        int latestFormId = -1;
-        for (int i = 0; i < formsForOurNamespace.size(); i++) {
-            FormDefRecord formDefRecordItem = platform.getFormDefStorage().read(formsForOurNamespace.get(i));
-            if (formDefRecordItem.getResourceVersion() >= maxFormResourceVersion) {
-                maxFormResourceVersion = formDefRecordItem.getResourceVersion();
-                latestFormId = formDefRecordItem.getID();
-            }
-        }
-        return latestFormId;
     }
 
     @Override

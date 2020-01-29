@@ -39,39 +39,7 @@ public class AndroidIndexedFixtureInstanceTreeElement extends IndexedFixtureInst
         }
     }
 
-    @Override
-    public int getAttributeCount() {
-        return loadAttributes().getAttributeCount();
-    }
-
-    @Override
-    public String getAttributeNamespace(int index) {
-        return loadAttributes().getAttributeNamespace(index);
-    }
-
-    @Override
-    public String getAttributeName(int index) {
-        return loadAttributes().getAttributeName(index);
-    }
-
-    @Override
-    public String getAttributeValue(int index) {
-        return loadAttributes().getAttributeValue(index);
-    }
-
-    @Override
-    public AbstractTreeElement getAttribute(String namespace, String name) {
-        TreeElement attr = loadAttributes().getAttribute(namespace, name);
-        attr.setParent(this);
-        return attr;
-    }
-
-    @Override
-    public String getAttributeValue(String namespace, String name) {
-        return loadAttributes().getAttributeValue(namespace, name);
-    }
-
-    private synchronized TreeElement loadAttributes() {
+    protected synchronized TreeElement loadAttributes() {
         if (attributes == null) {
             try {
                 attributes = SerializationUtil.deserialize(attrHolder, TreeElement.class);
@@ -80,6 +48,7 @@ public class AndroidIndexedFixtureInstanceTreeElement extends IndexedFixtureInst
                     String newMessage = "Deserialization failed for indexed fixture root atrribute wrapper: " + e.getMessage();
                     throw new RuntimeException(newMessage);
                 }
+                throw e;
             }
         }
         return attributes;

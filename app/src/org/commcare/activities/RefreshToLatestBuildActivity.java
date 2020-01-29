@@ -117,7 +117,7 @@ public class RefreshToLatestBuildActivity extends CommCareActivity {
 
     private void attemptUpdate() {
         Intent i = new Intent(this, UpdateActivity.class);
-        i.putExtra(UpdateActivity.KEY_FROM_LATEST_BUILD_ACTIVITY, true);
+        i.putExtra(UpdateActivity.KEY_PROCEED_AUTOMATICALLY, true);
         startActivityForResult(i, PERFORM_UPDATE);
     }
 

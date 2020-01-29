@@ -9,9 +9,9 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.annotation.NonNull;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.util.Pair;
+import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
+import androidx.core.util.Pair;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -31,10 +31,9 @@ import org.commcare.interfaces.RuntimePermissionRequester;
 import org.commcare.interfaces.WithUIController;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
-import org.commcare.logging.DataChangeLog;
-import org.commcare.logging.DataChangeLogger;
 import org.commcare.models.database.user.DemoUserBuilder;
 import org.commcare.preferences.DevSessionRestorer;
+import org.commcare.preferences.HiddenPreferences;
 import org.commcare.recovery.measures.RecoveryMeasuresHelper;
 import org.commcare.suite.model.OfflineUserRestore;
 import org.commcare.tasks.DataPullTask;
@@ -188,7 +187,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
             DevSessionRestorer.tryAutoLoginPasswordSave(uiController.getEnteredPasswordOrPin(), false);
         }
 
-        if (ResourceInstallUtils.isUpdateReadyToInstall()) {
+        if (ResourceInstallUtils.isUpdateReadyToInstall() && !UpdateActivity.isUpdateBlockedOnSync(uiController.getEnteredUsername())) {
             // install update, which triggers login upon completion
             installPendingUpdate();
         } else {
@@ -649,6 +648,9 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
             case SERVER_ERROR:
                 raiseLoginMessage(StockMessages.Remote_ServerError, true);
                 break;
+            case RATE_LIMITED_SERVER_ERROR:
+                raiseLoginMessage(StockMessages.Remote_RateLimitedServerError, true);
+                break;
             case UNKNOWN_FAILURE:
                 raiseLoginMessageWithInfo(StockMessages.Restore_Unknown, resultAndErrorMessage.errorMessage, true);
                 break;
@@ -683,7 +685,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                 return;
             }
             Bundle appRestrictions = restrictionsManager.getApplicationRestrictions();
-            if (appRestrictions.containsKey("username") &&
+            if (appRestrictions!=null && appRestrictions.containsKey("username") &&
                     appRestrictions.containsKey("password")) {
                 uiController.setUsername(appRestrictions.getString("username"));
                 uiController.setPasswordOrPin(appRestrictions.getString("password"));
