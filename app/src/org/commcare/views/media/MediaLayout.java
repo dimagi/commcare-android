@@ -431,11 +431,12 @@ public class MediaLayout extends RelativeLayout {
                 });
 
                 videoView.setVideoPath(videoFilename);
-                videoView.setListener(new CommCareVideoView.VideoDetachedListener() {
-                    @Override
-                    public void onVideoDetached(long duration) {
-                        FirebaseAnalyticsUtil.reportInlineVideoPlayEvent(videoFilename, FileUtil.getDuration(videoFile), duration);
+                videoView.setListener(duration -> {
+                    // Do not log events if the video is never played.
+                    if (duration == 0) {
+                        return;
                     }
+                    FirebaseAnalyticsUtil.reportInlineVideoPlayEvent(videoFilename, FileUtil.getDuration(videoFile), duration);
                 });
 
                 //These surprisingly get re-jiggered as soon as the video is loaded, so we
