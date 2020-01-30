@@ -17,11 +17,6 @@ import android.os.Looper;
 import android.os.StrictMode;
 import android.preference.PreferenceManager;
 import android.provider.Settings.Secure;
-
-import androidx.annotation.NonNull;
-import androidx.multidex.MultiDexApplication;
-import androidx.core.content.ContextCompat;
-
 import android.telephony.TelephonyManager;
 import android.text.format.DateUtils;
 import android.util.Log;
@@ -50,7 +45,6 @@ import org.commcare.dalvik.R;
 import org.commcare.engine.references.ArchiveFileRoot;
 import org.commcare.engine.references.AssetFileRoot;
 import org.commcare.engine.references.JavaHttpRoot;
-import org.commcare.engine.resource.ResourceInstallUtils;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.heartbeat.HeartbeatRequester;
 import org.commcare.logging.AndroidLogger;
@@ -85,7 +79,6 @@ import org.commcare.session.CommCareSession;
 import org.commcare.tasks.DeleteLogs;
 import org.commcare.tasks.LogSubmissionTask;
 import org.commcare.tasks.PurgeStaleArchivedFormsTask;
-import org.commcare.tasks.UpdateTask;
 import org.commcare.tasks.UpdateWorker;
 import org.commcare.tasks.templates.ManagedAsyncTask;
 import org.commcare.update.UpdateHelper;
@@ -122,6 +115,9 @@ import java.util.concurrent.TimeUnit;
 import javax.annotation.Nullable;
 import javax.crypto.SecretKey;
 
+import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
+import androidx.multidex.MultiDexApplication;
 import androidx.work.BackoffPolicy;
 import androidx.work.Constraints;
 import androidx.work.ExistingPeriodicWorkPolicy;
@@ -145,6 +141,7 @@ public class CommCareApplication extends MultiDexApplication {
     public static final int STATE_MIGRATION_QUESTIONABLE = 32;
     private static final String DELETE_LOGS_REQUEST = "delete-logs-request";
     private static final long BACKOFF_DELAY_FOR_UPDATE_RETRY = 5 * 60 * 1000L; // 5 mins
+    private static final long PERIODICITY_FOR_UPDATE_IN_HOURS = 2;
 
     private int dbState;
 
@@ -772,8 +769,8 @@ public class CommCareApplication extends MultiDexApplication {
                 .build();
 
         PeriodicWorkRequest updateRequest =
-                new PeriodicWorkRequest.Builder(UpdateWorker.class, 4, TimeUnit.HOURS)
-                        .addTag(getCurrentApp().getUniqueId())
+                new PeriodicWorkRequest.Builder(UpdateWorker.class, PERIODICITY_FOR_UPDATE_IN_HOURS, TimeUnit.HOURS)
+                        .addTag(getCurrentApp().getAppRecord().getApplicationId())
                         .setConstraints(constraints)
                         .setBackoffCriteria(
                                 BackoffPolicy.EXPONENTIAL,
@@ -1090,4 +1087,5 @@ public class CommCareApplication extends MultiDexApplication {
                 method,
                 responseProcessor);
     }
+
 }

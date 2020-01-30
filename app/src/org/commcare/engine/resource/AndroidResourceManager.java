@@ -15,6 +15,7 @@ import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.TableStateListener;
 import org.commcare.resources.model.UnresolvedResourceException;
+import org.commcare.tasks.ResultAndError;
 import org.commcare.util.CommCarePlatform;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.AndroidCommCarePlatform;
@@ -191,6 +192,10 @@ public class AndroidResourceManager extends ResourceManager {
 
     public void recordUpdateInstallFailure(AppInstallStatus result) {
         updateStats.registerUpdateException(new Exception(result.toString()));
+    }
+
+    public void recordStageUpdateResult(ResultAndError<AppInstallStatus> resultAndError) {
+        updateStats.registerStagingUpdateResult(resultAndError);
     }
 
     /**

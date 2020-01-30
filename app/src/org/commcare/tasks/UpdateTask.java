@@ -28,7 +28,7 @@ public class UpdateTask extends SingletonTask<String, Integer, ResultAndError<Ap
 
     private UpdateTask() {
         TAG = UpdateTask.class.getSimpleName();
-        mUpdateHelper = new UpdateHelper(false, this, this);
+        mUpdateHelper = UpdateHelper.getNewInstance(false, this, this);
     }
 
     public static UpdateTask getNewInstance() {
@@ -73,18 +73,21 @@ public class UpdateTask extends SingletonTask<String, Integer, ResultAndError<Ap
     protected void onPostExecute(ResultAndError<AppInstallStatus> resultAndError) {
         super.onPostExecute(resultAndError);
         mUpdateHelper.OnUpdateComplete(resultAndError);
+        mUpdateHelper.clearInstance();
     }
 
     @Override
     protected void onCancelled(ResultAndError<AppInstallStatus> resultAndError) {
         super.onCancelled(resultAndError);
         mUpdateHelper.OnUpdateCancelled();
+        mUpdateHelper.clearInstance();
     }
 
     @Override
     public void clearTaskInstance() {
         synchronized (lock) {
             singletonRunningInstance = null;
+            mUpdateHelper.clearInstance();
         }
     }
 

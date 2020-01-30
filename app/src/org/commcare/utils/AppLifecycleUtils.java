@@ -53,7 +53,7 @@ public class AppLifecycleUtils {
         ccInstance.getGlobalStorage(ApplicationRecord.class).write(record);
 
         // cancel all Workmanager tasks for this app
-        WorkManager.getInstance(CommCareApplication.instance()).cancelAllWorkByTag(record.getUniqueId());
+        WorkManager.getInstance(CommCareApplication.instance()).cancelAllWorkByTag(record.getApplicationId());
 
         // 3) Delete the directory containing all of this app's resources
         if (!FileUtil.deleteFileOrDir(app.storageRoot())) {

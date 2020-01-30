@@ -1,7 +1,9 @@
 package org.commcare.logging.analytics;
 
 import org.commcare.CommCareApp;
+import org.commcare.engine.resource.AppInstallStatus;
 import org.commcare.resources.model.InstallStatsLogger;
+import org.commcare.tasks.ResultAndError;
 
 import java.io.PrintWriter;
 import java.io.Serializable;
@@ -24,12 +26,13 @@ public class UpdateStats implements InstallStatsLogger, Serializable {
     private final Hashtable<String, InstallAttempts<String>> resourceInstallStats;
     private long startInstallTime;
     private int restartCount = 0;
+    private ResultAndError<AppInstallStatus> lastStageUpdateResult;
 
     private UpdateStats() {
         startInstallTime = new Date().getTime();
         resourceInstallStats = new Hashtable<>();
         resourceInstallStats.put(TOP_LEVEL_STATS_KEY,
-                new InstallAttempts<String>(TOP_LEVEL_STATS_KEY));
+                new InstallAttempts<>(TOP_LEVEL_STATS_KEY));
     }
 
     /**
@@ -85,6 +88,14 @@ public class UpdateStats implements InstallStatsLogger, Serializable {
         recordResourceInstallFailure(TOP_LEVEL_STATS_KEY, e);
     }
 
+
+    /**
+     * Register result of a staging attempt
+     */
+    public void registerStagingUpdateResult(ResultAndError<AppInstallStatus> resultAndError) {
+        lastStageUpdateResult = resultAndError;
+    }
+
     /**
      * @return Should the update be considered stale due to elapse time or too
      * many unsuccessful installs?
@@ -133,6 +144,10 @@ public class UpdateStats implements InstallStatsLogger, Serializable {
         return sw.toString();
     }
 
+    public ResultAndError<AppInstallStatus> getLastStageUpdateResult() {
+        return lastStageUpdateResult;
+    }
+
     @Override
     public String toString() {
         StringBuilder statsStringBuilder = new StringBuilder();
@@ -156,7 +171,4 @@ public class UpdateStats implements InstallStatsLogger, Serializable {
         return statsStringBuilder.toString();
     }
 
-    public int getRestartCount() {
-        return restartCount;
-    }
 }

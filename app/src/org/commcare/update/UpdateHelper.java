@@ -30,14 +30,25 @@ import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import java.util.Vector;
 
 import androidx.core.util.Pair;
+import androidx.work.WorkManager;
 
 import static org.commcare.CommCareApplication.areAutomatedActionsInvalid;
 
+/**
+ * Used to stage an update for the seated app in the background. Does not perform
+ * actual update.
+ *
+ * Utilised By UpdateTask and UpdateWorker
+ */
 public class UpdateHelper implements TableStateListener {
+
+    private static final String TAG = UpdateHelper.class.getSimpleName();
+    private static UpdateHelper singletonRunningInstance = null;
+    private static final Object lock = new Object();
 
     private final AndroidResourceManager mResourceManager;
     private final CommCareApp mApp;
-    private final UpdateProgressListener mUpdateProgressListener;
+    private UpdateProgressListener mUpdateProgressListener;
     private boolean isAutoUpdate;
     private int mAuthority;
     private PinnedNotificationWithProgress mPinnedNotificationProgress = null;
@@ -45,8 +56,7 @@ public class UpdateHelper implements TableStateListener {
     private int mMaxProgress = 0;
     private static final String UPDATE_REQUEST_NAME = "update_request";
 
-    public UpdateHelper(boolean autoUpdate, UpdateProgressListener updateProgressListener, InstallCancelled installCancelled) {
-
+    private UpdateHelper(boolean autoUpdate, UpdateProgressListener updateProgressListener, InstallCancelled installCancelled) {
         mApp = CommCareApplication.instance().getCurrentApp();
         AndroidCommCarePlatform platform = mApp.getCommCarePlatform();
         mResourceManager = new AndroidResourceManager(platform);
@@ -56,6 +66,18 @@ public class UpdateHelper implements TableStateListener {
         mUpdateProgressListener = updateProgressListener;
     }
 
+    public static UpdateHelper getNewInstance(boolean autoUpdate, UpdateProgressListener updateProgressListener, InstallCancelled installCancelled) {
+        synchronized (lock) {
+            if (singletonRunningInstance == null) {
+                singletonRunningInstance = new UpdateHelper(autoUpdate, updateProgressListener, installCancelled);
+                return singletonRunningInstance;
+            } else {
+                throw new IllegalStateException("An instance of " + TAG + " already exists.");
+            }
+        }
+    }
+
+    // Main UpdateHelper function for staging updates
     public ResultAndError<AppInstallStatus> update(String profileRef) {
         setupUpdate(profileRef);
 
@@ -133,15 +155,12 @@ public class UpdateHelper implements TableStateListener {
         return "||" + head + "==" + tail;
     }
 
-    public void setLocalAuthority() {
-        mAuthority = Resource.RESOURCE_AUTHORITY_LOCAL;
-    }
 
-    public void clearUpgrade() {
-        mResourceManager.clearUpgrade();
-    }
-
+    // called on update completion
     public void OnUpdateComplete(ResultAndError<AppInstallStatus> resultAndError) {
+
+        mResourceManager.recordStageUpdateResult(resultAndError);
+
         if (resultAndError.data.equals(AppInstallStatus.UpdateStaged)) {
             DataChangeLogger.log(new DataChangeLog.CommCareAppUpdateStaged());
         }
@@ -160,46 +179,7 @@ public class UpdateHelper implements TableStateListener {
     }
 
 
-    /**
-     * Attaches pinned notification with a progress bar the task, which will
-     * report updates to and close down the notification.
-     *
-     * @param ctx For launching notification and localizing text.
-     */
-    public void startPinnedNotification(Context ctx) {
-        mPinnedNotificationProgress =
-                new PinnedNotificationWithProgress(ctx, "updates.pinned.download",
-                        "updates.pinned.progress", R.drawable.update_download_icon);
-    }
-
-
-    public static Pair<String, String> splitCombinedErrorMessage(String message) {
-        String[] splitMessage = message.split("==", 2);
-        return Pair.create(splitMessage[0].substring(2), splitMessage[1]);
-    }
-
-    public static boolean isCombinedErrorMessage(String message) {
-        return message != null && message.startsWith("||");
-    }
-
-
-    public void updateNotification(Integer... values) {
-        if (mPinnedNotificationProgress != null) {
-            mPinnedNotificationProgress.handleTaskUpdate(values);
-        }
-    }
-
-    public void OnUpdateCancelled() {
-
-        if (mPinnedNotificationProgress != null) {
-            mPinnedNotificationProgress.handleTaskCancellation();
-        }
-        cancelUpgrade();
-    }
-
-    /**
-     * Calculate and report the resource install progress a table has made.
-     */
+    // Calculate and report the resource install progress a table has made.
     @Override
     public void compoundResourceAdded(ResourceTable table) {
         Vector<Resource> resources = AndroidResourceManager.getResourceListFromProfile(table);
@@ -227,6 +207,48 @@ public class UpdateHelper implements TableStateListener {
     }
 
 
+    /**
+     * Attaches pinned notification with a progress bar the task, which will
+     * report updates to and close down the notification.
+     *
+     * @param ctx For launching notification and localizing text.
+     */
+    public void startPinnedNotification(Context ctx) {
+        mPinnedNotificationProgress =
+                new PinnedNotificationWithProgress(ctx, "updates.pinned.download",
+                        "updates.pinned.progress", R.drawable.update_download_icon);
+    }
+
+
+    public void updateNotification(Integer... values) {
+        if (mPinnedNotificationProgress != null) {
+            mPinnedNotificationProgress.handleTaskUpdate(values);
+        }
+    }
+
+    public void OnUpdateCancelled() {
+
+        if (mPinnedNotificationProgress != null) {
+            mPinnedNotificationProgress.handleTaskCancellation();
+        }
+        cancelUpgrade();
+    }
+
+    public void clearInstance() {
+        synchronized (lock) {
+            singletonRunningInstance = null;
+        }
+    }
+
+    public void setLocalAuthority() {
+        mAuthority = Resource.RESOURCE_AUTHORITY_LOCAL;
+    }
+
+    public void clearUpgrade() {
+        mResourceManager.clearUpgrade();
+    }
+
+
     private void cancelUpgrade() {
         mResourceManager.upgradeCancelled();
     }
@@ -239,6 +261,7 @@ public class UpdateHelper implements TableStateListener {
         return mMaxProgress;
     }
 
+    // Returns Unique request name for the UpdateWorker Request
     public static String getUpdateRequestName() {
         String appId = CommCareApplication.instance().getCurrentApp().getUniqueId();
         return UPDATE_REQUEST_NAME + "_" + appId;
@@ -254,4 +277,20 @@ public class UpdateHelper implements TableStateListener {
         return (!areAutomatedActionsInvalid() &&
                 PendingCalcs.isUpdatePending(currentApp.getAppPreferences()));
     }
+
+    // utility method to cancel the update worker
+    public static void cancelUpdateWorker() {
+        WorkManager.getInstance(CommCareApplication.instance())
+                .cancelUniqueWork(getUpdateRequestName());
+    }
+
+    public static Pair<String, String> splitCombinedErrorMessage(String message) {
+        String[] splitMessage = message.split("==", 2);
+        return Pair.create(splitMessage[0].substring(2), splitMessage[1]);
+    }
+
+    public static boolean isCombinedErrorMessage(String message) {
+        return message != null && message.startsWith("||");
+    }
+
 }
