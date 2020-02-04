@@ -18,7 +18,7 @@ import org.commcare.models.encryption.ByteEncrypter;
 import org.commcare.preferences.ServerUrls;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.ExternalManageKeyRecordTask;
-import org.commcare.tasks.ProcessAndSendTask;
+import org.commcare.sync.ProcessAndSendTask;
 import org.commcare.tasks.ResultAndError;
 import org.commcare.tasks.templates.CommCareTask;
 import org.commcare.tasks.templates.CommCareTaskConnector;

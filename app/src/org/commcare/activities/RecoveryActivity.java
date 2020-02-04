@@ -17,7 +17,7 @@ import org.commcare.android.logging.ForceCloseLogger;
 import org.commcare.dalvik.R;
 import org.commcare.preferences.ServerUrls;
 import org.commcare.resources.model.ResourceTable;
-import org.commcare.tasks.ProcessAndSendTask;
+import org.commcare.sync.ProcessAndSendTask;
 import org.commcare.tasks.ResourceRecoveryTask;
 import org.commcare.utils.AndroidCommCarePlatform;
 import org.commcare.utils.CommCareUtil;

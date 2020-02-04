@@ -1,4 +1,4 @@
-package org.commcare.tasks;
+package org.commcare.sync;
 
 import android.content.Context;
 import android.os.AsyncTask;
@@ -11,6 +11,9 @@ import org.commcare.activities.SyncCapableCommCareActivity;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.models.FormRecordProcessor;
 import org.commcare.suite.model.Profile;
+import org.commcare.tasks.DataSubmissionListener;
+import org.commcare.tasks.FormRecordCleanupTask;
+import org.commcare.tasks.FormSubmissionProgressBarListener;
 import org.commcare.tasks.templates.CommCareTask;
 import org.commcare.tasks.templates.CommCareTaskConnector;
 import org.commcare.util.LogTypes;

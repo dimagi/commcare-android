@@ -18,7 +18,7 @@ import org.commcare.preferences.ServerUrls;
 import org.commcare.suite.model.OfflineUserRestore;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.FormSubmissionProgressBarListener;
-import org.commcare.tasks.ProcessAndSendTask;
+import org.commcare.sync.ProcessAndSendTask;
 import org.commcare.tasks.PullTaskResultReceiver;
 import org.commcare.tasks.ResultAndError;
 import org.commcare.utils.FormUploadResult;

@@ -30,7 +30,7 @@ import org.commcare.models.database.user.UserSandboxUtils;
 import org.commcare.models.encryption.CipherPool;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.tasks.DataSubmissionListener;
-import org.commcare.tasks.ProcessAndSendTask;
+import org.commcare.sync.ProcessAndSendTask;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.SessionStateUninitException;
 import org.commcare.utils.SessionUnavailableException;
