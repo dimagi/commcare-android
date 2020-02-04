@@ -1,11 +1,11 @@
-package org.commcare.tasks;
+package org.commcare.update;
 
 import android.content.Context;
 
 import org.commcare.engine.resource.AppInstallStatus;
 import org.commcare.resources.model.InstallCancelled;
-import org.commcare.update.UpdateHelper;
-import org.commcare.update.UpdateProgressListener;
+import org.commcare.tasks.ResultAndError;
+import org.commcare.tasks.SingletonTask;
 
 /**
  * Stages an update for the seated app in the background. Does not perform

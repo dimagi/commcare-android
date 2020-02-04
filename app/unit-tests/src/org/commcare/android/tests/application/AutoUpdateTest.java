@@ -2,26 +2,14 @@ package org.commcare.android.tests.application;
 
 import android.text.format.DateUtils;
 
-import org.commcare.CommCareApp;
-import org.commcare.CommCareApplication;
 import org.commcare.CommCareTestApplication;
 import org.commcare.android.CommCareTestRunner;
-import org.commcare.android.util.TestAppInstaller;
-import org.commcare.engine.resource.AppInstallStatus;
-import org.commcare.engine.resource.ResourceInstallUtils;
 import org.commcare.preferences.PrefValues;
-import org.commcare.suite.model.Profile;
-import org.commcare.tasks.ResultAndError;
-import org.commcare.tasks.TaskListener;
-import org.commcare.tasks.TaskListenerRegistrationException;
-import org.commcare.tasks.UpdateTask;
 import org.commcare.utils.PendingCalcs;
 import org.joda.time.DateTime;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.Robolectric;
-import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 
 import java.util.Calendar;

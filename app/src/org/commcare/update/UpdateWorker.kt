@@ -1,4 +1,4 @@
-package org.commcare.tasks
+package org.commcare.update
 
 import android.content.Context
 import androidx.work.CoroutineWorker
@@ -11,8 +11,7 @@ import org.commcare.CommCareApplication
 import org.commcare.engine.resource.AppInstallStatus
 import org.commcare.engine.resource.ResourceInstallUtils
 import org.commcare.resources.model.InstallCancelled
-import org.commcare.update.UpdateHelper
-import org.commcare.update.UpdateProgressListener
+import org.commcare.tasks.ResultAndError
 
 /**
  * Used to stage an update for the seated app in the background. Does not perform

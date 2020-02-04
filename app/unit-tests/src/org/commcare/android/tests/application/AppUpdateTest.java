@@ -11,7 +11,7 @@ import org.commcare.engine.resource.AppInstallStatus;
 import org.commcare.models.database.AndroidSandbox;
 import org.commcare.suite.model.Profile;
 import org.commcare.tasks.InstallStagedUpdateTask;
-import org.commcare.tasks.UpdateTask;
+import org.commcare.update.UpdateTask;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.junit.Assert;

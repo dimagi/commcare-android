@@ -79,7 +79,7 @@ import org.commcare.session.CommCareSession;
 import org.commcare.tasks.DeleteLogs;
 import org.commcare.tasks.LogSubmissionTask;
 import org.commcare.tasks.PurgeStaleArchivedFormsTask;
-import org.commcare.tasks.UpdateWorker;
+import org.commcare.update.UpdateWorker;
 import org.commcare.tasks.templates.ManagedAsyncTask;
 import org.commcare.update.UpdateHelper;
 import org.commcare.util.LogTypes;

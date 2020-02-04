@@ -5,7 +5,7 @@ import org.commcare.tasks.InstallStagedUpdateTask;
 import org.commcare.tasks.ResultAndError;
 import org.commcare.tasks.TaskListener;
 import org.commcare.tasks.TaskListenerRegistrationException;
-import org.commcare.tasks.UpdateTask;
+import org.commcare.update.UpdateTask;
 import org.robolectric.Robolectric;
 
 import static junit.framework.TestCase.assertEquals;
