@@ -15,7 +15,7 @@ import android.os.Environment;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.StrictMode;
-import android.preference.PreferenceManager;
+import androidx.preference.PreferenceManager;
 import android.provider.Settings.Secure;
 
 import androidx.annotation.NonNull;

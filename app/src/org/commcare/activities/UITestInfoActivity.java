@@ -2,7 +2,7 @@ package org.commcare.activities;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
+import androidx.preference.PreferenceManager;
 import androidx.fragment.app.FragmentActivity;
 import android.widget.TextView;
 
