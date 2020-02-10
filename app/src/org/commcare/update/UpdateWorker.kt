@@ -80,7 +80,7 @@ class UpdateWorker(appContext: Context, workerParams: WorkerParameters)
 
         cleanUp()
 
-        return when (updateResult.data.isUpdateInCompletedState) {
+        return when (updateResult.data.shouldRetryUpdate()) {
             true -> Result.success()
             else -> Result.retry()
         }
