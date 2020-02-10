@@ -93,6 +93,7 @@ import org.commcare.utils.AndroidCommCarePlatform;
 import org.commcare.utils.CommCareExceptionHandler;
 import org.commcare.utils.CommCareUtil;
 import org.commcare.utils.CrashUtil;
+import org.commcare.utils.DeviceIdentifier;
 import org.commcare.utils.FileUtil;
 import org.commcare.utils.GlobalConstants;
 import org.commcare.utils.MultipleAppsUtil;
@@ -418,19 +419,7 @@ public class CommCareApplication extends MultiDexApplication {
          * Starting from Android 10, apps cannot access non-resettable device ids unless they have special career permission.
          * If we still try to access it, SecurityException is thrown.
          */
-//        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_DENIED) {
-//            return "000000000000000";
-//        }
-//
-//        TelephonyManager manager = (TelephonyManager)this.getSystemService(TELEPHONY_SERVICE);
-//        String imei = manager.getDeviceId();
-//        if (imei == null) {
-//            imei = Secure.getString(getContentResolver(), Secure.ANDROID_ID);
-//        }
-//        if (imei == null) {
-//            imei = "----";
-//        }
-        return "----";
+        return DeviceIdentifier.getDeviceIdentifier(this);
     }
 
     public void initializeDefaultLocalizerData() {
