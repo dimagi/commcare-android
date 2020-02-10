@@ -237,8 +237,8 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         String lastSeatedId = prefs.getString(KEY_LAST_APP, "");
         String currentSeatedId = CommCareApplication.instance().getCurrentApp().getUniqueId();
         if (!lastSeatedId.equals(currentSeatedId)) {
-            prefs.edit().putString(KEY_LAST_APP, currentSeatedId).commit();
             disableWorkForLastSeatedApp();
+            prefs.edit().putString(KEY_LAST_APP, currentSeatedId).commit();
             return true;
         }
         return false;

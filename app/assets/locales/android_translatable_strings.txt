@@ -544,7 +544,7 @@ notification.install.badcert.detail=The certificate you received from the server
 notification.install.badcert.action=This is often due to your phone's internal clock being incorrect.
 
 notification.install.cancel.title=Update Cancelled
-notification.install.cancel.detail=This update was aborted either by CommCare or you.
+notification.install.cancel.detail=An app update event was cancelled before it completed.
 notification.install.cancel.action=Please restart the update in order to update your app.
 
 notification.install.badreqs.title=Incompatible CommCare Version for Install

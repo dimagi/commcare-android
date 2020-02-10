@@ -52,9 +52,6 @@ public class AppLifecycleUtils {
         record.setStatus(ApplicationRecord.STATUS_DELETE_REQUESTED);
         ccInstance.getGlobalStorage(ApplicationRecord.class).write(record);
 
-        // cancel all Workmanager tasks for this app
-        WorkManager.getInstance(CommCareApplication.instance()).cancelAllWorkByTag(record.getApplicationId());
-
         // 3) Delete the directory containing all of this app's resources
         if (!FileUtil.deleteFileOrDir(app.storageRoot())) {
             Logger.log(LogTypes.TYPE_RESOURCES, "App storage root was unable to be " +

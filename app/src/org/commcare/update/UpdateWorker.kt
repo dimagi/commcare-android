@@ -54,7 +54,7 @@ class UpdateWorker(appContext: Context, workerParams: WorkerParameters)
     }
 
     private fun doUpdateWork(): Result {
-        var updateResult: ResultAndError<AppInstallStatus>
+        val updateResult: ResultAndError<AppInstallStatus>
 
         // skip if - An update task is already running | no app is seated | user session is not active
         if (UpdateTask.getRunningInstance() == null &&
