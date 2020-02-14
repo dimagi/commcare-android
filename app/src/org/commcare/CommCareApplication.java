@@ -411,7 +411,6 @@ public class CommCareApplication extends MultiDexApplication {
     }
 
     @NonNull
-    @Deprecated
     public String getPhoneId() {
         /**
          * https://source.android.com/devices/tech/config/device-identifiers
