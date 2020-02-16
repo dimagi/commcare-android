@@ -18,10 +18,12 @@ import org.commcare.tasks.MultimediaInflaterTask;
 import org.commcare.tasks.UnZipTaskListener;
 import org.commcare.tasks.templates.CommCareTask;
 import org.commcare.tasks.templates.CommCareTaskConnector;
+import org.commcare.util.LogTypes;
 import org.commcare.utils.FileUtil;
 import org.commcare.views.ManagedUi;
 import org.commcare.views.UiElement;
 import org.commcare.views.dialogs.CustomProgressDialog;
+import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 
 import java.io.File;
@@ -162,6 +164,7 @@ public class MultimediaInflaterActivity extends CommCareActivity<MultimediaInfla
 
         if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState()) ||
                 Environment.MEDIA_MOUNTED_READ_ONLY.equals(Environment.getExternalStorageState())) {
+            Logger.log(LogTypes.SOFT_ASSERT, "Access outside scoped storage in searching zip file");
             roots.add(Environment.getExternalStorageDirectory());
         }
 

@@ -8,7 +8,9 @@ import org.commcare.CommCareApplication;
 import org.commcare.modern.util.Pair;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.tasks.templates.CommCareTask;
+import org.commcare.util.LogTypes;
 import org.javarosa.core.io.StreamsUtil;
+import org.javarosa.core.services.Logger;
 import org.javarosa.xml.ElementParser;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
@@ -94,6 +96,7 @@ public class ScanCczTask extends CommCareTask<Void, File, File, ExecuteRecoveryM
         if (!StringUtils.isEmpty(lastKnownCczLocation)) {
             filePathsToScan.add(new File(lastKnownCczLocation));
         }
+        Logger.log(LogTypes.SOFT_ASSERT, "Access outside scoped storage in scanning cczs.");
         filePathsToScan.add(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS));
         filePathsToScan.add(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS));
         return filePathsToScan.toArray(new File[filePathsToScan.size()]);
