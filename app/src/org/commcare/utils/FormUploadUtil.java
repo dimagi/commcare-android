@@ -107,15 +107,10 @@ public class FormUploadUtil {
      */
     public static FormUploadResult sendInstance(int submissionNumber, File folder,
                                                 SecretKeySpec key, String url,
-                                                AsyncTask listener, User user)
+                                                DataSubmissionListener listener, User user)
             throws FileNotFoundException {
         boolean hasListener = false;
-        DataSubmissionListener myListener = null;
 
-        if (listener instanceof DataSubmissionListener) {
-            hasListener = true;
-            myListener = (DataSubmissionListener)listener;
-        }
 
         File[] files = folder.listFiles();
 
@@ -135,12 +130,12 @@ public class FormUploadUtil {
         long bytes = estimateUploadBytes(files);
 
         if (hasListener) {
-            myListener.startSubmission(submissionNumber, bytes);
+            listener.startSubmission(submissionNumber, bytes);
         }
 
         if (files.length == 0) {
             Log.e(TAG, "no files to upload");
-            listener.cancel(true);
+            // todo listener.cancel(true);
             throw new FileNotFoundException("Folder at path " + folder.getAbsolutePath() + " had no files.");
         }
 
