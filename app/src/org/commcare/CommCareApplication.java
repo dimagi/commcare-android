@@ -182,7 +182,7 @@ public class CommCareApplication extends MultiDexApplication {
         turnOnStrictMode();
 
         CommCareApplication.app = this;
-        CrashUtil.init(this);
+        CrashUtil.init();
         DataChangeLogger.init(this);
         logFirstCommCareRun();
         CommCarePreferenceManagerFactory.init(new AndroidPreferenceManager());

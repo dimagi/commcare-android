@@ -15,7 +15,7 @@ import java.util.function.BooleanSupplier
 
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
-apply plugin: 'io.fabric'
+apply plugin: 'com.google.firebase.crashlytics'
 
 repositories {
     google()
@@ -26,7 +26,6 @@ repositories {
     flatDir {
         dirs 'libs'
     }
-    maven { url 'https://maven.fabric.io/public' }
     maven { url "https://jitpack.io" }
 }
 
@@ -76,9 +75,7 @@ dependencies {
     implementation 'io.reactivex.rxjava2:rxandroid:2.0.1'
     implementation 'com.jakewharton.rxbinding2:rxbinding:2.0.0'
     implementation 'com.journeyapps:zxing-android-embedded:3.6.0'
-    implementation('com.crashlytics.sdk.android:crashlytics:2.6.8@aar') {
-        transitive = true;
-    }
+    implementation 'com.google.firebase:firebase-crashlytics:17.0.0-beta01'
     implementation 'androidx.legacy:legacy-support-core-ui:1.0.0'
     implementation 'com.duolingo.open:rtl-viewpager:1.0.3'
     implementation ("com.github.bumptech.glide:glide:4.9.0") {
