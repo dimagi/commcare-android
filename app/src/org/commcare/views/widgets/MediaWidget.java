@@ -235,12 +235,8 @@ public abstract class MediaWidget extends QuestionWidget {
             }
         }
 
-        try {
-            FileUtil.addMediaToGallery(getContext(), newMedia);
+        if (newMedia.exists()) {
             showToast("form.attachment.success");
-        } catch (Exception e) {
-            Log.e(TAG, "Inserting media file FAILED");
-            e.printStackTrace();
         }
 
         mBinaryName = newMedia.getName();
