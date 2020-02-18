@@ -21,13 +21,22 @@ import retrofit2.Response;
  *
  * @author srengesh
  */
-public abstract class ConnectionDiagnosticTask<R> extends CommCareTask<Void, String, ConnectionDiagnosticTask.Test, R> {
+public abstract class ConnectionDiagnosticTask<R> extends CommCareTask<Void, String, ConnectionDiagnosticTask.NetworkState, R> {
     private final Context c;
 
-    public enum Test {
-        isOnline,
-        googlePing,
-        commCarePing
+    /**
+     * Gives fine-grained network connection state.
+     * Most should use {@link org.commcare.utils.ConnectivityStatus#isNetworkAvailable(Context)} instead.
+     */
+    public enum NetworkState {
+        /** Network is available. */
+        CONNECTED,
+        /** Network is not available. */
+        DISCONNECTED,
+        /** Network is a captive portal. */
+        CAPTIVE_PORTAL,
+        /** Commcare api is blocked in the network. */
+        COMMCARE_BLOCKED
     }
 
     public static final int CONNECTION_ID = 12335800;
@@ -68,14 +77,14 @@ public abstract class ConnectionDiagnosticTask<R> extends CommCareTask<Void, Str
     }
 
     @Override
-    protected Test doTaskBackground(Void... params) {
-        Test out = null;
+    protected NetworkState doTaskBackground(Void... params) {
+        NetworkState out = NetworkState.CONNECTED;
         if (!isOnline(this.c)) {
-            out = Test.isOnline;
+            out = NetworkState.DISCONNECTED;
         } else if (!pingSuccess(googleURL)) {
-            out = Test.googlePing;
+            out = NetworkState.CAPTIVE_PORTAL;
         } else if (!pingCC(commcareURL)) {
-            out = Test.commCarePing;
+            out = NetworkState.COMMCARE_BLOCKED;
         }
         return out;
     }

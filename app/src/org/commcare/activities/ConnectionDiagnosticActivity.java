@@ -55,31 +55,32 @@ public class ConnectionDiagnosticActivity extends CommCareActivity<ConnectionDia
                         @Override
                         //<R> receiver, <C> result.
                         //<C> is the return from DoTaskBackground, of type ArrayList<Boolean>
-                        protected void deliverResult(ConnectionDiagnosticActivity receiver, Test failedTest) {
+                        protected void deliverResult(ConnectionDiagnosticActivity receiver, NetworkState failedTest) {
                             //user-caused connection issues
-                            if (failedTest == Test.isOnline ||
-                                    failedTest == Test.googlePing) {
-                                //get the appropriate display message based on what the problem is
-                                String displayMessage = failedTest == Test.isOnline ?
-                                        Localization.get("connection.task.internet.fail")
-                                        : Localization.get("connection.task.remote.ping.fail");
+                            switch (failedTest) {
+                                case CONNECTED:
+                                    receiver.txtInteractiveMessages.setText(Localization.get("connection.task.success"));
+                                    receiver.txtInteractiveMessages.setVisibility(View.VISIBLE);
+                                    receiver.settingsButton.setVisibility(View.INVISIBLE);
+                                    receiver.reportButton.setVisibility(View.INVISIBLE);
+                                    break;
+                                case COMMCARE_BLOCKED:
+                                    //unable to ping commcare -- report this to cchq
+                                    receiver.txtInteractiveMessages.setText(Localization.get("connection.task.commcare.html.fail"));
+                                    receiver.txtInteractiveMessages.setVisibility(View.VISIBLE);
+                                    receiver.reportButton.setVisibility(View.VISIBLE);
+                                    break;
+                                case DISCONNECTED:
+                                case CAPTIVE_PORTAL:
+                                    //get the appropriate display message based on what the problem is
+                                    String displayMessage = failedTest == NetworkState.DISCONNECTED ?
+                                            Localization.get("connection.task.internet.fail")
+                                            : Localization.get("connection.task.remote.ping.fail");
 
-                                receiver.txtInteractiveMessages.setText(displayMessage);
-                                receiver.txtInteractiveMessages.setVisibility(View.VISIBLE);
-
-                                receiver.settingsButton.setVisibility(View.VISIBLE);
-                            } else if (failedTest == Test.commCarePing) {
-                                //unable to ping commcare -- report this to cchq
-                                receiver.txtInteractiveMessages.setText(
-                                        Localization.get("connection.task.commcare.html.fail"));
-                                receiver.txtInteractiveMessages.setVisibility(View.VISIBLE);
-
-                                receiver.reportButton.setVisibility(View.VISIBLE);
-                            } else if (failedTest == null) {
-                                receiver.txtInteractiveMessages.setText(Localization.get("connection.task.success"));
-                                receiver.txtInteractiveMessages.setVisibility(View.VISIBLE);
-                                receiver.settingsButton.setVisibility(View.INVISIBLE);
-                                receiver.reportButton.setVisibility(View.INVISIBLE);
+                                    receiver.txtInteractiveMessages.setText(displayMessage);
+                                    receiver.txtInteractiveMessages.setVisibility(View.VISIBLE);
+                                    receiver.settingsButton.setVisibility(View.VISIBLE);
+                                    break;
                             }
                         }
 
