@@ -381,6 +381,15 @@ notification.sync.connections.title=No Connection
 notification.sync.connections.detail=No active data connections
 notification.sync.connections.action=You don't have any active data connections configured. Try connecting your phone to wifi or turning mobile data on.
 
+
+connection.captive_portal.title=Captive Portal Detected
+connection.captive_portal.detail=Cannot access internet
+connection.captive_portal.action=You are in a captive portal. Try authenticating into captive portal using browser or turning mobile data on.
+
+connection.commcare_blocked.title=CommCare APIs blocked
+connection.commcare_blocked.detail=Cannot access commcare
+connection.commcare_blocked.action=Commcare APIs are blocked. Try using a different wifi network or turning mobile data on.
+
 multiple.apps.unverified.title=Missing Multimedia for all Apps
 multiple.apps.unverified.message=All of your available apps are missing their associated multimedia resources. Please notify your supervisor so that he/she can fix this via the CommCare App Manager page.
 

@@ -17,6 +17,7 @@ import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.interfaces.UiLoadedListener;
+import org.commcare.tasks.ConnectionDiagnosticTask;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.ProcessAndSendTask;
 import org.commcare.tasks.PullTaskResultReceiver;
@@ -389,6 +390,12 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
                     dialog.addCancelButton();
                 }
                 isSyncUserLaunched = false;
+                break;
+            case ConnectionDiagnosticTask.CONNECTION_ID:
+                title = Localization.get("connection.test.run.title");
+                message = Localization.get("connection.test.now.running");
+                dialog = CustomProgressDialog.newInstance(title, message, taskId);
+                dialog.setCancelable();
                 break;
             default:
                 return null;

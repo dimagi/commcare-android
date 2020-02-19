@@ -125,6 +125,16 @@ public class NotificationMessageFactory {
         Sync_NoConnections("notification.sync.connections"),
 
         /**
+         * Restricted access to network by Captive Portal
+         */
+        Sync_CaptivePortal("connection.captive_portal"),
+
+        /**
+         * Commcare APIs are blocked for some reasons.
+         */
+        Sync_CommcareBlocked("connection.commcare_blocked"),
+
+        /**
          * One of your files on the SD was bad*
          */
         Send_MalformedFile("notification.send.malformed"),

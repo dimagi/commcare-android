@@ -39,6 +39,8 @@ public class AnalyticsParamValue {
     public static final String SYNC_MODE_SEND_FORMS = "sync_pull_and_send";
 
     public static final String SYNC_FAIL_NO_CONNECTION = "no_connection";
+    public static final String SYNC_FAIL_CAPTIVE_PORTAL = "captive_portal";
+    public static final String SYNC_FAIL_COMMCARE_BLOCKED = "commcare_blocked";
     public static final String SYNC_FAIL_AUTH = "auth_failure";
     public static final String SYNC_FAIL_EMPTY_URL = "empty_url";
     public static final String SYNC_FAIL_BAD_DATA = "bad_data";
