@@ -25,6 +25,8 @@ import org.javarosa.core.services.locale.Localization;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.commcare.CommCareNoficationManager.AIRPLANE_MODE_CATEGORY;
+
 /**
  * Normal CommCare home screen
  */
@@ -42,8 +44,6 @@ public class StandardHomeActivity
     public static final int MENU_ADVANCED = Menu.FIRST + 5;
     public static final int MENU_ABOUT = Menu.FIRST + 6;
     public static final int MENU_PIN = Menu.FIRST + 7;
-
-    private static final String AIRPLANE_MODE_CATEGORY = "airplane-mode";
 
     private StandardHomeActivityUIController uiController;
 

@@ -37,6 +37,8 @@ public class CommCareNoficationManager {
     public static final String NOTIFICATION_CHANNEL_USER_SESSION_ID = "notification-channel-user-session";
     public static final String NOTIFICATION_CHANNEL_SERVER_COMMUNICATIONS_ID = "notification-channel-server-communications";
 
+    public static final String AIRPLANE_MODE_CATEGORY = "airplane-mode";
+
     /**
      * Handler to receive notifications and show them the user using toast.
      */

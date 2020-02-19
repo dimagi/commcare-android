@@ -35,6 +35,8 @@ import org.javarosa.core.services.locale.Localization;
 import java.io.File;
 import java.util.Vector;
 
+import static org.commcare.CommCareNoficationManager.AIRPLANE_MODE_CATEGORY;
+
 /**
  * @author wspride
  */
@@ -55,8 +57,6 @@ public class CommCareFormDumpActivity extends SessionAwareCommCareActivity<CommC
 
     @UiElement(value = R.id.screen_bulk_form_messages, locale = "bulk.form.messages")
     TextView txtInteractiveMessages;
-
-    public static final String AIRPLANE_MODE_CATEGORY = "airplane-mode";
 
     private static boolean acknowledgedRisk = false;
 

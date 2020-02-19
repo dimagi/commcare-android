@@ -43,6 +43,7 @@ import org.commcare.preferences.GlobalPrivilegesManager;
 import org.commcare.resources.model.InvalidResourceException;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.UnresolvedResourceException;
+import org.commcare.tasks.ConnectionDiagnosticTask;
 import org.commcare.tasks.ResourceEngineListener;
 import org.commcare.tasks.ResourceEngineTask;
 import org.commcare.tasks.RetrieveParseVerifyMessageListener;
@@ -53,6 +54,7 @@ import org.commcare.utils.Permissions;
 import org.commcare.views.ManagedUi;
 import org.commcare.views.dialogs.CustomProgressDialog;
 import org.commcare.views.dialogs.DialogCreationHelpers;
+import org.commcare.views.notifications.MessageTag;
 import org.commcare.views.notifications.NotificationMessage;
 import org.commcare.views.notifications.NotificationMessageFactory;
 import org.javarosa.core.reference.InvalidReferenceException;
@@ -63,6 +65,8 @@ import org.javarosa.core.util.PropertyUtils;
 import java.io.IOException;
 import java.security.SignatureException;
 import java.util.List;
+
+import static org.commcare.CommCareNoficationManager.AIRPLANE_MODE_CATEGORY;
 
 /**
  * Responsible for identifying the state of the application (uninstalled,
@@ -490,6 +494,57 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         }
     }
 
+    private static class ConnectionDiagnosticTaskImpl extends ConnectionDiagnosticTask<CommCareSetupActivity> {
+
+        public ConnectionDiagnosticTaskImpl(Context c) {
+            super(c);
+        }
+
+        @Override
+        protected void deliverResult(CommCareSetupActivity receiver, NetworkState networkState) {
+            String toastMessage = null;
+            MessageTag notificationStockMessage = null;
+            String analyticsMessage = null;
+            switch (networkState) {
+                case CONNECTED:
+                    CommCareApplication.notificationManager().clearNotifications(AIRPLANE_MODE_CATEGORY);
+                    receiver.startResourceInstall();
+                    return;
+                case DISCONNECTED:
+                    toastMessage = Localization.get("notification.sync.connections.action");
+                    notificationStockMessage = NotificationMessageFactory.StockMessages.Sync_NoConnections;
+                    analyticsMessage = AnalyticsParamValue.SYNC_FAIL_NO_CONNECTION;
+                    break;
+                case CAPTIVE_PORTAL:
+                    toastMessage = Localization.get("connection.captive_portal.action");
+                    notificationStockMessage = NotificationMessageFactory.StockMessages.Sync_CaptivePortal;
+                    analyticsMessage = AnalyticsParamValue.SYNC_FAIL_CAPTIVE_PORTAL;
+                    break;
+                case COMMCARE_BLOCKED:
+                    toastMessage = Localization.get("connection.commcare_blocked.action");
+                    notificationStockMessage = NotificationMessageFactory.StockMessages.Sync_CommcareBlocked;
+                    analyticsMessage = AnalyticsParamValue.SYNC_FAIL_COMMCARE_BLOCKED;
+                    break;
+            }
+            Toast.makeText(receiver, toastMessage, Toast.LENGTH_LONG).show();
+            CommCareApplication.notificationManager().reportNotificationMessage(
+                    NotificationMessageFactory.message(
+                            notificationStockMessage,
+                            AIRPLANE_MODE_CATEGORY));
+            FirebaseAnalyticsUtil.reportAppInstallFailure(getAnalyticsParamForInstallMethod(receiver.lastInstallMode), analyticsMessage);
+        }
+
+        @Override
+        protected void deliverUpdate(CommCareSetupActivity commCareSetupActivity, String... update) {
+
+        }
+
+        @Override
+        protected void deliverError(CommCareSetupActivity commCareSetupActivity, Exception e) {
+
+        }
+    }
+
     public static void handleAppInstallResult(ResourceEngineTask resourceEngineTask, ResourceEngineListener receiver, AppInstallStatus result) {
         switch (result) {
             case Installed:
@@ -803,15 +858,23 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 
     @Override
     public CustomProgressDialog generateProgressDialog(int taskId) {
-        if (taskId != DIALOG_INSTALL_PROGRESS) {
-            Log.w(TAG, "taskId passed to generateProgressDialog does not match "
-                    + "any valid possibilities in CommCareSetupActivity");
-            return null;
-        }
-        if (isSingleAppBuild()) {
-            return ConsumerAppsUtil.getGenericConsumerAppsProgressDialog(taskId, true);
-        } else {
-            return generateNormalInstallDialog(taskId);
+        switch (taskId) {
+            case DIALOG_INSTALL_PROGRESS:
+                if (isSingleAppBuild()) {
+                    return ConsumerAppsUtil.getGenericConsumerAppsProgressDialog(taskId, true);
+                } else {
+                    return generateNormalInstallDialog(taskId);
+                }
+            case ConnectionDiagnosticTask.CONNECTION_ID:
+                String title = Localization.get("connection.test.run.title");
+                String message = Localization.get("connection.test.now.running");
+                CustomProgressDialog dialog = CustomProgressDialog.newInstance(title, message, taskId);
+                dialog.setCancelable();
+                return dialog;
+            default:
+                Log.w(TAG, "taskId passed to generateProgressDialog does not match "
+                        + "any valid possibilities in CommCareSetupActivity");
+                return null;
         }
     }
 
@@ -835,7 +898,9 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         if (lastInstallMode != INSTALL_MODE_OFFLINE && isNetworkNotConnected()) {
             failWithNotification(AppInstallStatus.NoConnection);
         } else {
-            startResourceInstall();
+            ConnectionDiagnosticTaskImpl task = new ConnectionDiagnosticTaskImpl(getApplicationContext());
+            task.connect(CommCareSetupActivity.this);
+            task.executeParallel();
         }
     }
 

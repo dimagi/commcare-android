@@ -121,6 +121,13 @@ public class FirebaseAnalyticsUtil {
                 FirebaseAnalytics.Param.METHOD, installMethod);
     }
 
+    public static void reportAppInstallFailure(String installMethod, String failureReason) {
+        Bundle b = new Bundle();
+        b.putString(FirebaseAnalytics.Param.METHOD, installMethod);
+        b.putString(CCAnalyticsParam.REASON, failureReason);
+        reportEvent(CCAnalyticsEvent.APP_INSTALL, b);
+    }
+
     public static void reportAppManagerAction(String action) {
         reportEvent(CCAnalyticsEvent.APP_MANAGER_ACTION,
                 CCAnalyticsParam.ACTION_TYPE, action);
