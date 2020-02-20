@@ -102,64 +102,30 @@ public class StandardHomeActivity
                     AnalyticsParamValue.SYNC_FAIL_NO_CONNECTION);
             return;
         } else {
-            ConnectionDiagnosticTaskImpl impl = new ConnectionDiagnosticTaskImpl(getApplicationContext());
-            impl.connect(StandardHomeActivity.this);
-            impl.executeParallel();
-        }
-    }
 
-    static class ConnectionDiagnosticTaskImpl extends ConnectionDiagnosticTask<StandardHomeActivity> {
-
-        public ConnectionDiagnosticTaskImpl(Context c) {
-            super(c);
-        }
-
-        @Override
-        protected void deliverResult(StandardHomeActivity receiver, NetworkState networkState) {
-            String localizedTextId = null;
-            MessageTag notificationStockMessage = null;
-            String analyticsMessage = null;
-            switch (networkState) {
-                case CONNECTED:
-                    // Network is available. Start syncing now.
+            ConnectionDiagnosticTask<StandardHomeActivity> task = new ConnectionDiagnosticTask(getApplicationContext());
+            task.setListener(new ConnectionDiagnosticTask.ConnectionDiagnosticListener<StandardHomeActivity>() {
+                @Override
+                public void connected(StandardHomeActivity receiver) {
                     CommCareApplication.notificationManager().clearNotifications(AIRPLANE_MODE_CATEGORY);
                     receiver.sendFormsOrSync(true);
-                    return;
-                case DISCONNECTED:
-                    localizedTextId = "notification.sync.connections.action";
-                    notificationStockMessage = NotificationMessageFactory.StockMessages.Sync_NoConnections;
-                    analyticsMessage = AnalyticsParamValue.SYNC_FAIL_NO_CONNECTION;
-                    break;
-                case CAPTIVE_PORTAL:
-                    localizedTextId = "connection.captive_portal.action";
-                    notificationStockMessage = NotificationMessageFactory.StockMessages.Sync_CaptivePortal;
-                    analyticsMessage = AnalyticsParamValue.SYNC_FAIL_CAPTIVE_PORTAL;
-                    break;
-                case COMMCARE_BLOCKED:
-                    localizedTextId = "connection.commcare_blocked.action";
-                    notificationStockMessage = NotificationMessageFactory.StockMessages.Sync_CommcareBlocked;
-                    analyticsMessage = AnalyticsParamValue.SYNC_FAIL_COMMCARE_BLOCKED;
-                    break;
-            }
-            receiver.handleSyncNotAttempted(Localization.get(localizedTextId));
-            CommCareApplication.notificationManager().reportNotificationMessage(
-                    NotificationMessageFactory.message(
-                            notificationStockMessage,
-                            AIRPLANE_MODE_CATEGORY));
-            FirebaseAnalyticsUtil.reportSyncFailure(
-                    AnalyticsParamValue.SYNC_TRIGGER_USER,
-                    AnalyticsParamValue.SYNC_MODE_SEND_FORMS,
-                    analyticsMessage);
-        }
+                }
 
-        @Override
-        protected void deliverUpdate(StandardHomeActivity standardHomeActivity, String... update) {
-
-        }
-
-        @Override
-        protected void deliverError(StandardHomeActivity standardHomeActivity, Exception e) {
-
+                @Override
+                public void failed(StandardHomeActivity receiver, String errorMessageId, MessageTag notificationTag, String analyticsMessage) {
+                    receiver.handleSyncNotAttempted(Localization.get(errorMessageId));
+                    CommCareApplication.notificationManager().reportNotificationMessage(
+                            NotificationMessageFactory.message(
+                                    notificationTag,
+                                    AIRPLANE_MODE_CATEGORY));
+                    FirebaseAnalyticsUtil.reportSyncFailure(
+                            AnalyticsParamValue.SYNC_TRIGGER_USER,
+                            AnalyticsParamValue.SYNC_MODE_SEND_FORMS,
+                            analyticsMessage);
+                }
+            });
+            task.connect(StandardHomeActivity.this);
+            task.executeParallel();
         }
     }
 

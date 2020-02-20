@@ -494,57 +494,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         }
     }
 
-    private static class ConnectionDiagnosticTaskImpl extends ConnectionDiagnosticTask<CommCareSetupActivity> {
-
-        public ConnectionDiagnosticTaskImpl(Context c) {
-            super(c);
-        }
-
-        @Override
-        protected void deliverResult(CommCareSetupActivity receiver, NetworkState networkState) {
-            String toastMessage = null;
-            MessageTag notificationStockMessage = null;
-            String analyticsMessage = null;
-            switch (networkState) {
-                case CONNECTED:
-                    CommCareApplication.notificationManager().clearNotifications(AIRPLANE_MODE_CATEGORY);
-                    receiver.startResourceInstall();
-                    return;
-                case DISCONNECTED:
-                    toastMessage = Localization.get("notification.sync.connections.action");
-                    notificationStockMessage = NotificationMessageFactory.StockMessages.Sync_NoConnections;
-                    analyticsMessage = AnalyticsParamValue.SYNC_FAIL_NO_CONNECTION;
-                    break;
-                case CAPTIVE_PORTAL:
-                    toastMessage = Localization.get("connection.captive_portal.action");
-                    notificationStockMessage = NotificationMessageFactory.StockMessages.Sync_CaptivePortal;
-                    analyticsMessage = AnalyticsParamValue.SYNC_FAIL_CAPTIVE_PORTAL;
-                    break;
-                case COMMCARE_BLOCKED:
-                    toastMessage = Localization.get("connection.commcare_blocked.action");
-                    notificationStockMessage = NotificationMessageFactory.StockMessages.Sync_CommcareBlocked;
-                    analyticsMessage = AnalyticsParamValue.SYNC_FAIL_COMMCARE_BLOCKED;
-                    break;
-            }
-            Toast.makeText(receiver, toastMessage, Toast.LENGTH_LONG).show();
-            CommCareApplication.notificationManager().reportNotificationMessage(
-                    NotificationMessageFactory.message(
-                            notificationStockMessage,
-                            AIRPLANE_MODE_CATEGORY));
-            FirebaseAnalyticsUtil.reportAppInstallFailure(getAnalyticsParamForInstallMethod(receiver.lastInstallMode), analyticsMessage);
-        }
-
-        @Override
-        protected void deliverUpdate(CommCareSetupActivity commCareSetupActivity, String... update) {
-
-        }
-
-        @Override
-        protected void deliverError(CommCareSetupActivity commCareSetupActivity, Exception e) {
-
-        }
-    }
-
     public static void handleAppInstallResult(ResourceEngineTask resourceEngineTask, ResourceEngineListener receiver, AppInstallStatus result) {
         switch (result) {
             case Installed:
@@ -898,7 +847,24 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         if (lastInstallMode != INSTALL_MODE_OFFLINE && isNetworkNotConnected()) {
             failWithNotification(AppInstallStatus.NoConnection);
         } else {
-            ConnectionDiagnosticTaskImpl task = new ConnectionDiagnosticTaskImpl(getApplicationContext());
+            ConnectionDiagnosticTask<CommCareSetupActivity> task = new ConnectionDiagnosticTask(getApplicationContext());
+            task.setListener(new ConnectionDiagnosticTask.ConnectionDiagnosticListener<CommCareSetupActivity>() {
+                @Override
+                public void connected(CommCareSetupActivity receiver) {
+                    CommCareApplication.notificationManager().clearNotifications(AIRPLANE_MODE_CATEGORY);
+                    receiver.startResourceInstall();
+                }
+
+                @Override
+                public void failed(CommCareSetupActivity receiver, String errorMessageId, MessageTag notificationTag, String analyticsMessage) {
+                    Toast.makeText(receiver, Localization.get(errorMessageId), Toast.LENGTH_LONG).show();
+                    CommCareApplication.notificationManager().reportNotificationMessage(
+                            NotificationMessageFactory.message(
+                                    notificationTag,
+                                    AIRPLANE_MODE_CATEGORY));
+                    FirebaseAnalyticsUtil.reportAppInstallFailure(getAnalyticsParamForInstallMethod(receiver.lastInstallMode), analyticsMessage);
+                }
+            });
             task.connect(CommCareSetupActivity.this);
             task.executeParallel();
         }

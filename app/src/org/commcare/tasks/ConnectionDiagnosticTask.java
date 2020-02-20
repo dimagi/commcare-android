@@ -7,7 +7,10 @@ import android.net.NetworkInfo;
 import org.commcare.android.logging.ForceCloseLogger;
 import org.commcare.core.network.CommCareNetworkService;
 import org.commcare.core.network.CommCareNetworkServiceGenerator;
+import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.tasks.templates.CommCareTask;
+import org.commcare.views.notifications.MessageTag;
+import org.commcare.views.notifications.NotificationMessageFactory;
 import org.javarosa.core.services.Logger;
 
 import java.io.IOException;
@@ -21,8 +24,10 @@ import retrofit2.Response;
  *
  * @author srengesh
  */
-public abstract class ConnectionDiagnosticTask<R> extends CommCareTask<Void, String, ConnectionDiagnosticTask.NetworkState, R> {
+public class ConnectionDiagnosticTask<R> extends CommCareTask<Void, String, ConnectionDiagnosticTask.NetworkState, R> {
     private final Context c;
+
+    private ConnectionDiagnosticListener listener;
 
     /**
      * Gives fine-grained network connection state.
@@ -74,6 +79,10 @@ public abstract class ConnectionDiagnosticTask<R> extends CommCareTask<Void, Str
         this.taskId = CONNECTION_ID;
 
         TAG = ConnectionDiagnosticTask.class.getSimpleName();
+    }
+
+    public void setListener(ConnectionDiagnosticListener<R> listener) {
+        this.listener = listener;
     }
 
     @Override
@@ -155,5 +164,48 @@ public abstract class ConnectionDiagnosticTask<R> extends CommCareTask<Void, Str
             Logger.log(CONNECTION_DIAGNOSTIC_REPORT, logCCUnexpectedResultMessage);
             return false;
         }
+    }
+
+    @Override
+    protected void deliverResult(R r, NetworkState networkState) {
+        String errorMessageId = null;
+        MessageTag notificationTag = null;
+        String analyticsMessage = null;
+        switch (networkState) {
+            case CONNECTED:
+                listener.connected(r);
+                return;
+            case DISCONNECTED:
+                errorMessageId = "notification.sync.connections.action";
+                notificationTag = NotificationMessageFactory.StockMessages.Sync_NoConnections;
+                analyticsMessage = AnalyticsParamValue.SYNC_FAIL_NO_CONNECTION;
+                break;
+            case CAPTIVE_PORTAL:
+                errorMessageId = "connection.captive_portal.action";
+                notificationTag = NotificationMessageFactory.StockMessages.Sync_CaptivePortal;
+                analyticsMessage = AnalyticsParamValue.SYNC_FAIL_CAPTIVE_PORTAL;
+                break;
+            case COMMCARE_BLOCKED:
+                errorMessageId = "connection.commcare_blocked.action";
+                notificationTag = NotificationMessageFactory.StockMessages.Sync_CommcareBlocked;
+                analyticsMessage = AnalyticsParamValue.SYNC_FAIL_COMMCARE_BLOCKED;
+                break;
+        }
+        listener.failed(r, errorMessageId, notificationTag, analyticsMessage);
+    }
+
+    @Override
+    protected void deliverUpdate(R r, String... update) {
+
+    }
+
+    @Override
+    protected void deliverError(R r, Exception e) {
+
+    }
+
+    public interface ConnectionDiagnosticListener<R> {
+        void connected(R r);
+        void failed(R r, String errorMessageId, MessageTag notificationTag, String analyticsMessage);
     }
 }
