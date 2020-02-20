@@ -74,14 +74,9 @@ public class RecoveryActivity extends SessionAwareCommCareActivity<RecoveryActiv
         loadingIndicator.setVisibility(View.VISIBLE);
         updateStatus(R.string.recovery_forms_send_progress);
 
-        FormRecord[] records = StorageUtils.getUnsentRecordsForCurrentApp(
-                CommCareApplication.instance().getUserStorage(FormRecord.class));
-        SharedPreferences settings = CommCareApplication.instance().getCurrentApp().getAppPreferences();
 
         ProcessAndSendTask<RecoveryActivity> mProcess =
-                new ProcessAndSendTask<RecoveryActivity>(RecoveryActivity.this,
-                        settings.getString(ServerUrls.PREFS_SUBMISSION_URL_KEY,
-                                RecoveryActivity.this.getString(R.string.PostURL)), true) {
+                new ProcessAndSendTask<RecoveryActivity>(RecoveryActivity.this, true) {
 
 
                     @Override
@@ -140,7 +135,7 @@ public class RecoveryActivity extends SessionAwareCommCareActivity<RecoveryActiv
 
         //Execute on a true multithreaded chain. We should probably replace all of our calls with this
         //but this is the big one for now.
-        mProcess.executeParallel(records);
+        mProcess.executeParallel();
     }
 
     @Override

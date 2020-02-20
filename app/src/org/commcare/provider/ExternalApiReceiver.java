@@ -106,57 +106,37 @@ public class ExternalApiReceiver extends BroadcastReceiver {
             String password = b.getString("password");
             tryLocalLogin(context, username, password);
         } else if ("sync".equals(b.getString("commcareaction"))) {
-            boolean formsToSend = checkAndStartUnsentTask(context);
-
-            if (!formsToSend) {
-                //No unsent forms, just sync
-                syncData(context);
-            }
+            checkAndStartUnsentTask(context);
         }
     }
 
-    private boolean checkAndStartUnsentTask(final Context context) {
-        SqlStorage<FormRecord> storage = CommCareApplication.instance().getUserStorage(FormRecord.class);
-        Vector<Integer> ids = StorageUtils.getUnsentOrUnprocessedFormIdsForCurrentApp(storage);
+    private void checkAndStartUnsentTask(final Context context) {
 
-        if (ids.size() > 0) {
-            FormRecord[] records = new FormRecord[ids.size()];
-            for (int i = 0; i < ids.size(); ++i) {
-                records[i] = storage.read(ids.elementAt(i));
+        ProcessAndSendTask<Object> mProcess = new ProcessAndSendTask<Object>(
+                context) {
+            @Override
+            protected void deliverResult(Object receiver, FormUploadResult result) {
+                if (result == FormUploadResult.FULL_SUCCESS) {
+                    //OK, all forms sent, sync time
+                    syncData(context);
+
+                } else {
+                    Toast.makeText(context, Localization.get("sync.fail.unsent"), Toast.LENGTH_LONG).show();
+                }
             }
-            SharedPreferences settings = CommCareApplication.instance().getCurrentApp().getAppPreferences();
-            ProcessAndSendTask<Object> mProcess = new ProcessAndSendTask<Object>(
-                    context,
-                    settings.getString(ServerUrls.PREFS_SUBMISSION_URL_KEY,
-                            context.getString(R.string.PostURL))) {
-                @Override
-                protected void deliverResult(Object receiver, FormUploadResult result) {
-                    if (result == FormUploadResult.FULL_SUCCESS) {
-                        //OK, all forms sent, sync time 
-                        syncData(context);
 
-                    } else {
-                        Toast.makeText(context, Localization.get("sync.fail.unsent"), Toast.LENGTH_LONG).show();
-                    }
-                }
+            @Override
+            protected void deliverUpdate(Object receiver, Long... update) {
+            }
 
-                @Override
-                protected void deliverUpdate(Object receiver, Long... update) {
-                }
+            @Override
+            protected void deliverError(Object receiver, Exception e) {
+            }
+        };
 
-                @Override
-                protected void deliverError(Object receiver, Exception e) {
-                }
-            };
-
-            mProcess.addSubmissionListener(CommCareApplication.instance().getSession().getListenerForSubmissionNotification());
-            mProcess.connect(dummyconnector);
-            mProcess.execute(records);
-            return true;
-        } else {
-            //Nothing.
-            return false;
-        }
+        mProcess.addSubmissionListener(CommCareApplication.instance().getSession().getListenerForSubmissionNotification());
+        mProcess.connect(dummyconnector);
+        mProcess.execute();
     }
 
     private void syncData(final Context context) {

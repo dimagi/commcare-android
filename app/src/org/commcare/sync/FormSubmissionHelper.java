@@ -1,13 +1,16 @@
 package org.commcare.sync;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
 import org.apache.commons.lang3.StringUtils;
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.user.models.FormRecord;
+import org.commcare.dalvik.R;
 import org.commcare.models.FormRecordProcessor;
+import org.commcare.preferences.ServerUrls;
 import org.commcare.suite.model.Profile;
 import org.commcare.tasks.DataSubmissionListener;
 import org.commcare.tasks.FormRecordCleanupTask;
@@ -16,6 +19,7 @@ import org.commcare.utils.FormUploadResult;
 import org.commcare.utils.FormUploadUtil;
 import org.commcare.utils.QuarantineUtil;
 import org.commcare.utils.SessionUnavailableException;
+import org.commcare.utils.StorageUtils;
 import org.commcare.views.notifications.NotificationMessage;
 import org.commcare.views.notifications.NotificationMessageFactory;
 import org.commcare.views.notifications.ProcessIssues;
@@ -58,15 +62,23 @@ public class FormSubmissionHelper implements DataSubmissionListener {
 
     private static final int SUBMISSION_ATTEMPTS = 2;
 
-    FormSubmissionHelper(Context c, String url,
-                         CancellationChecker cancellationChecker, FormSubmissionProgressListener formSubmissionProgressListener) {
-        mUrl = url;
+    FormSubmissionHelper(Context c,
+                         CancellationChecker cancellationChecker,
+                         FormSubmissionProgressListener formSubmissionProgressListener) {
         mProcessor = new FormRecordProcessor(c);
         mCancellationChecker = cancellationChecker;
         mFormSubmissionProgressListener = formSubmissionProgressListener;
+        mUrl = getFormPostURL(c);
     }
 
-    FormUploadResult uploadForms(FormRecord[] records) {
+    FormUploadResult uploadForms() {
+
+        FormRecord[] records = StorageUtils.getUnsentRecordsForCurrentApp(
+                CommCareApplication.instance().getUserStorage(FormRecord.class));
+
+        if(records.length == 0){
+            return FormUploadResult.FULL_SUCCESS;
+        }
 
         boolean wroteErrorToLogs = false;
         try {
@@ -494,6 +506,12 @@ public class FormSubmissionHelper implements DataSubmissionListener {
     void cleanUp() {
         mUrl = null;
         mResults = null;
+    }
+
+    private static String getFormPostURL(final Context context) {
+        SharedPreferences settings = CommCareApplication.instance().getCurrentApp().getAppPreferences();
+        return settings.getString(ServerUrls.PREFS_SUBMISSION_URL_KEY,
+                context.getString(R.string.PostURL));
     }
 
 

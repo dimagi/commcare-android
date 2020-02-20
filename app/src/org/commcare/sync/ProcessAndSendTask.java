@@ -53,7 +53,7 @@ import static org.commcare.sync.FormSubmissionHelper.SUBMISSION_SUCCESS;
 /**
  * @author ctsims
  */
-public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Long, FormUploadResult, R>
+public abstract class ProcessAndSendTask<R> extends CommCareTask<Void, Long, FormUploadResult, R>
         implements CancellationChecker, FormSubmissionProgressListener {
 
     private final FormSubmissionHelper mFormSubmissionHelper;
@@ -70,15 +70,15 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
     private List<DataSubmissionListener> formSubmissionListeners = new ArrayList<>();
 
 
-    protected ProcessAndSendTask(Context c, String url) {
-        this(c, url, true);
+    protected ProcessAndSendTask(Context c) {
+        this(c, true);
     }
 
     /**
      * @param inSyncMode blocks the user with a sync dialog
      */
-    public ProcessAndSendTask(Context c, String url, boolean inSyncMode) {
-        mFormSubmissionHelper = new FormSubmissionHelper(c, url, this, this);
+    protected ProcessAndSendTask(Context c, boolean inSyncMode) {
+        mFormSubmissionHelper = new FormSubmissionHelper(c, this, this);
 
         if (inSyncMode) {
             this.sendTaskId = SEND_PHASE_ID;
@@ -90,9 +90,10 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
     }
 
     @Override
-    protected FormUploadResult doTaskBackground(FormRecord... records) {
-        return mFormSubmissionHelper.uploadForms(records);
+    protected FormUploadResult doTaskBackground(Void... voids) {
+        return mFormSubmissionHelper.uploadForms();
     }
+
 
     @Override
     protected void onProgressUpdate(Long... values) {
