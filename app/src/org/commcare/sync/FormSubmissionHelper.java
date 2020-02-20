@@ -42,6 +42,8 @@ import javax.crypto.spec.SecretKeySpec;
 public class FormSubmissionHelper implements DataSubmissionListener {
 
     private static final String TAG = FormSubmissionHelper.class.getSimpleName();
+    private static final String FORM_SUBMISSION_REQUEST_NAME = "form_submission_request";
+
     private final FormRecordProcessor mProcessor;
     private final CancellationChecker mCancellationChecker;
     private final FormSubmissionProgressListener mFormSubmissionProgressListener;
@@ -512,6 +514,12 @@ public class FormSubmissionHelper implements DataSubmissionListener {
         SharedPreferences settings = CommCareApplication.instance().getCurrentApp().getAppPreferences();
         return settings.getString(ServerUrls.PREFS_SUBMISSION_URL_KEY,
                 context.getString(R.string.PostURL));
+    }
+
+    public static String getFormSubmissionRequestName() {
+        String appId = CommCareApplication.instance().getCurrentApp().getUniqueId();
+        String currentUserId = CommCareApplication.instance().getCurrentUserId();
+        return FORM_SUBMISSION_REQUEST_NAME + "_" + appId + "_" + currentUserId;
     }
 
 

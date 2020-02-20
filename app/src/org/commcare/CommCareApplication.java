@@ -76,6 +76,8 @@ import org.commcare.preferences.HiddenPreferences;
 import org.commcare.preferences.LocalePreferences;
 import org.commcare.services.CommCareSessionService;
 import org.commcare.session.CommCareSession;
+import org.commcare.sync.FormSubmissionHelper;
+import org.commcare.sync.FormSubmissionWorker;
 import org.commcare.tasks.DeleteLogs;
 import org.commcare.tasks.LogSubmissionTask;
 import org.commcare.tasks.PurgeStaleArchivedFormsTask;
@@ -141,7 +143,9 @@ public class CommCareApplication extends MultiDexApplication {
     public static final int STATE_MIGRATION_QUESTIONABLE = 32;
     private static final String DELETE_LOGS_REQUEST = "delete-logs-request";
     private static final long BACKOFF_DELAY_FOR_UPDATE_RETRY = 5 * 60 * 1000L; // 5 mins
+    private static final long BACKOFF_DELAY_FOR_FORM_SUBMISSION_RETRY = 5 * 60 * 1000L; // 5 mins
     private static final long PERIODICITY_FOR_UPDATE_IN_HOURS = 2;
+    private static final long PERIODICITY_FOR_FORM_SUBMISSION_IN_HOURS = 1;
 
     private int dbState;
 
@@ -329,6 +333,9 @@ public class CommCareApplication extends MultiDexApplication {
         synchronized (serviceLock) {
             // Cancel any running tasks before closing down the user database.
             ManagedAsyncTask.cancelTasks();
+
+            // Cancel form Submissions for this user
+            WorkManager.getInstance(this).cancelUniqueWork(FormSubmissionHelper.getFormSubmissionRequestName());
 
             releaseUserResourcesAndServices();
 
@@ -709,6 +716,7 @@ public class CommCareApplication extends MultiDexApplication {
                         }
 
                         scheduleAppUpdate();
+                        scheduleFormSubmissions();
 
                         syncPending = PendingCalcs.getPendingSyncStatus();
 
@@ -759,6 +767,29 @@ public class CommCareApplication extends MultiDexApplication {
         startService(new Intent(this, CommCareSessionService.class));
         bindService(new Intent(this, CommCareSessionService.class), mConnection, Context.BIND_AUTO_CREATE);
         sessionServiceIsBinding = true;
+    }
+
+    private void scheduleFormSubmissions() {
+        Constraints constraints = new Constraints.Builder()
+                .setRequiredNetworkType(NetworkType.CONNECTED)
+                .setRequiresBatteryNotLow(true)
+                .build();
+
+        PeriodicWorkRequest formSubmissionRequest =
+                new PeriodicWorkRequest.Builder(FormSubmissionWorker.class, PERIODICITY_FOR_FORM_SUBMISSION_IN_HOURS, TimeUnit.HOURS)
+                        .addTag(getCurrentApp().getAppRecord().getApplicationId())
+                        .setConstraints(constraints)
+                        .setBackoffCriteria(
+                                BackoffPolicy.EXPONENTIAL,
+                                BACKOFF_DELAY_FOR_FORM_SUBMISSION_RETRY,
+                                TimeUnit.MILLISECONDS)
+                        .build();
+
+        WorkManager.getInstance(this).enqueueUniquePeriodicWork(
+                FormSubmissionHelper.getFormSubmissionRequestName(),
+                ExistingPeriodicWorkPolicy.KEEP,
+                formSubmissionRequest
+        );
     }
 
     // Hand off an app update task to the Android WorkManager
