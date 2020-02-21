@@ -35,6 +35,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Queue;
 
 import javax.crypto.spec.SecretKeySpec;
@@ -60,7 +61,7 @@ public class FormSubmissionHelper implements DataSubmissionListener {
     static final long SUBMISSION_DONE = 128;
 
     static final long SUBMISSION_SUCCESS = 1;
-    private static final long SUBMISSION_FAIL = 0;
+    static final long SUBMISSION_FAIL = 0;
 
     private static final int SUBMISSION_ATTEMPTS = 2;
 
@@ -78,7 +79,7 @@ public class FormSubmissionHelper implements DataSubmissionListener {
         FormRecord[] records = StorageUtils.getUnsentRecordsForCurrentApp(
                 CommCareApplication.instance().getUserStorage(FormRecord.class));
 
-        if(records.length == 0){
+        if (records.length == 0) {
             return FormUploadResult.FULL_SUCCESS;
         }
 
@@ -520,6 +521,49 @@ public class FormSubmissionHelper implements DataSubmissionListener {
         String appId = CommCareApplication.instance().getCurrentApp().getUniqueId();
         String currentUserId = CommCareApplication.instance().getCurrentUserId();
         return FORM_SUBMISSION_REQUEST_NAME + "_" + appId + "_" + currentUserId;
+    }
+
+    // parses prpgress and calls the approproate methods for form submission listeners
+    void dispatchProgress(List<DataSubmissionListener> formSubmissionListeners, Long... values) {
+        if (values.length > 0) {
+            if (values[0] == SUBMISSION_BEGIN) {
+                dispatchBeginSubmissionProcessToListeners(formSubmissionListeners, values[1].intValue());
+            } else if (values[0] == SUBMISSION_START) {
+                int item = values[1].intValue();
+                long size = values[2];
+                dispatchStartSubmissionToListeners(formSubmissionListeners, item, size);
+            } else if (values[0] == SUBMISSION_NOTIFY) {
+                int item = values[1].intValue();
+                long progress = values[2];
+                dispatchNotifyProgressToListeners(formSubmissionListeners, item, progress);
+            } else if (values[0] == SUBMISSION_DONE) {
+                dispatchEndSubmissionProcessToListeners(formSubmissionListeners, values[1] == SUBMISSION_SUCCESS);
+            }
+        }
+    }
+
+    private void dispatchBeginSubmissionProcessToListeners(List<DataSubmissionListener> formSubmissionListeners, int totalItems) {
+        for (DataSubmissionListener listener : formSubmissionListeners) {
+            listener.beginSubmissionProcess(totalItems);
+        }
+    }
+
+    private void dispatchStartSubmissionToListeners(List<DataSubmissionListener> formSubmissionListeners, int itemNumber, long length) {
+        for (DataSubmissionListener listener : formSubmissionListeners) {
+            listener.startSubmission(itemNumber, length);
+        }
+    }
+
+    private void dispatchNotifyProgressToListeners(List<DataSubmissionListener> formSubmissionListeners, int itemNumber, long progress) {
+        for (DataSubmissionListener listener : formSubmissionListeners) {
+            listener.notifyProgress(itemNumber, progress);
+        }
+    }
+
+    private void dispatchEndSubmissionProcessToListeners(List<DataSubmissionListener> formSubmissionListeners, boolean success) {
+        for (DataSubmissionListener listener : formSubmissionListeners) {
+            listener.endSubmissionProcess(success);
+        }
     }
 
 

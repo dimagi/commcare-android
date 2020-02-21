@@ -46,6 +46,7 @@ import javax.crypto.spec.SecretKeySpec;
 import static org.commcare.sync.FormSubmissionHelper.PROGRESS_ALL_PROCESSED;
 import static org.commcare.sync.FormSubmissionHelper.SUBMISSION_BEGIN;
 import static org.commcare.sync.FormSubmissionHelper.SUBMISSION_DONE;
+import static org.commcare.sync.FormSubmissionHelper.SUBMISSION_FAIL;
 import static org.commcare.sync.FormSubmissionHelper.SUBMISSION_NOTIFY;
 import static org.commcare.sync.FormSubmissionHelper.SUBMISSION_START;
 import static org.commcare.sync.FormSubmissionHelper.SUBMISSION_SUCCESS;
@@ -100,49 +101,10 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<Void, Long, For
         if (values.length == 1 && values[0] == PROGRESS_ALL_PROCESSED) {
             this.transitionPhase(sendTaskId);
         }
-
         super.onProgressUpdate(values);
-
-        if (values.length > 0) {
-            if (values[0] == SUBMISSION_BEGIN) {
-                dispatchBeginSubmissionProcessToListeners(values[1].intValue());
-            } else if (values[0] == SUBMISSION_START) {
-                int item = values[1].intValue();
-                long size = values[2];
-                dispatchStartSubmissionToListeners(item, size);
-            } else if (values[0] == SUBMISSION_NOTIFY) {
-                int item = values[1].intValue();
-                long progress = values[2];
-                dispatchNotifyProgressToListeners(item, progress);
-            } else if (values[0] == SUBMISSION_DONE) {
-                dispatchEndSubmissionProcessToListeners(values[1] == SUBMISSION_SUCCESS);
-            }
-        }
+        mFormSubmissionHelper.dispatchProgress(formSubmissionListeners, values);
     }
 
-    private void dispatchBeginSubmissionProcessToListeners(int totalItems) {
-        for (DataSubmissionListener listener : formSubmissionListeners) {
-            listener.beginSubmissionProcess(totalItems);
-        }
-    }
-
-    private void dispatchStartSubmissionToListeners(int itemNumber, long length) {
-        for (DataSubmissionListener listener : formSubmissionListeners) {
-            listener.startSubmission(itemNumber, length);
-        }
-    }
-
-    private void dispatchNotifyProgressToListeners(int itemNumber, long progress) {
-        for (DataSubmissionListener listener : formSubmissionListeners) {
-            listener.notifyProgress(itemNumber, progress);
-        }
-    }
-
-    private void dispatchEndSubmissionProcessToListeners(boolean success) {
-        for (DataSubmissionListener listener : formSubmissionListeners) {
-            listener.endSubmissionProcess(success);
-        }
-    }
 
     public void addProgressBarSubmissionListener(FormSubmissionProgressBarListener listener) {
         this.progressBarListener = listener;
@@ -192,7 +154,7 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<Void, Long, For
     protected void onCancelled() {
         super.onCancelled();
 
-        dispatchEndSubmissionProcessToListeners(false);
+        mFormSubmissionHelper.dispatchProgress(formSubmissionListeners, SUBMISSION_DONE, SUBMISSION_FAIL);
 
         // If cancellation happened due to logout, notify user
         try {
