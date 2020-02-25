@@ -96,7 +96,6 @@ public class ScanCczTask extends CommCareTask<Void, File, File, ExecuteRecoveryM
         if (!StringUtils.isEmpty(lastKnownCczLocation)) {
             filePathsToScan.add(new File(lastKnownCczLocation));
         }
-        Logger.log(LogTypes.SOFT_ASSERT, "Access outside scoped storage in scanning cczs.");
         filePathsToScan.add(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS));
         filePathsToScan.add(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS));
         return filePathsToScan.toArray(new File[filePathsToScan.size()]);

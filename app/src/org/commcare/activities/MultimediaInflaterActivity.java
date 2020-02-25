@@ -164,7 +164,6 @@ public class MultimediaInflaterActivity extends CommCareActivity<MultimediaInfla
 
         if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState()) ||
                 Environment.MEDIA_MOUNTED_READ_ONLY.equals(Environment.getExternalStorageState())) {
-            Logger.log(LogTypes.SOFT_ASSERT, "Access outside scoped storage in searching zip file");
             roots.add(Environment.getExternalStorageDirectory());
         }
 
