@@ -1,7 +1,7 @@
 package org.commcare.preferences;
 
 import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
+import androidx.preference.PreferenceManager;
 
 import androidx.annotation.Nullable;
 
