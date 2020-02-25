@@ -78,7 +78,7 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
         if (platform.getFormDefId(namespace) == -1) {
             platform.registerXmlns(namespace, formDefId);
         } else {
-            // Only overwrite a form if the resourceVersion of the new form is higher
+            // Only overwrites the existing form if the resourceVersion of the new form is higher than the existing one
             FormDefRecord existingForm = FormDefRecord.getFormDef(platform.getFormDefStorage(), platform.getFormDefId(namespace));
             FormDefRecord newForm = FormDefRecord.getFormDef(platform.getFormDefStorage(), formDefId);
             if (newForm.getResourceVersion() > existingForm.getResourceVersion()) {
