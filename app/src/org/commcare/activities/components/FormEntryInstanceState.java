@@ -4,6 +4,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Pair;
 
+import org.commcare.CommCareApp;
+import org.commcare.CommCareApplication;
 import org.commcare.activities.FormEntryActivity;
 import org.commcare.android.database.app.models.FormDefRecord;
 import org.commcare.android.database.user.models.FormRecord;
@@ -62,7 +64,8 @@ public class FormEntryInstanceState {
                 !FormRecord.STATUS_UNSTARTED.equals(formStatus) &&
                         !FormRecord.STATUS_INCOMPLETE.equals(formStatus);
 
-        int formDefId = FormDefRecord.getLatestFormDefId(formDefRecordStorage, formRecord.getXmlns());
+        int appVersion = CommCareApplication.instance().getCurrentApp().getAppRecord().getVersionNumber();
+        int formDefId = FormDefRecord.getLatestFormDefId(appVersion, formDefRecordStorage, formRecord.getXmlns());
         if (formDefId == -1) {
             String error = "No XForm definition defined for this form with namespace " + formRecord.getXmlns();
             Logger.log(LogTypes.SOFT_ASSERT, error);

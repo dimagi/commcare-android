@@ -36,10 +36,10 @@ public class LocaleAndroidInstaller extends FileSystemInstaller {
 
 
     @Override
-    public boolean initialize(AndroidCommCarePlatform platform, boolean isUpgrade) throws
+    public boolean initialize(Resource r, AndroidCommCarePlatform platform, boolean isUpgrade) throws
             IOException, InvalidReferenceException, InvalidStructureException,
             XmlPullParserException, UnfullfilledRequirementsException {
-        super.initialize(platform, isUpgrade);
+        super.initialize(r, platform, isUpgrade);
         Localization.registerLanguageReference(locale, localLocation);
         return true;
     }

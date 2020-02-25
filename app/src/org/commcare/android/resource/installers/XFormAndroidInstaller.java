@@ -8,7 +8,6 @@ import org.commcare.android.javarosa.PollSensorAction;
 import org.commcare.engine.extensions.IntentExtensionParser;
 import org.commcare.engine.extensions.PollSensorExtensionParser;
 import org.commcare.engine.extensions.XFormExtensionUtils;
-import org.commcare.models.database.SqlStorage;
 import org.commcare.resources.model.MissingMediaException;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
@@ -70,20 +69,20 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
     }
 
     @Override
-    public boolean initialize(AndroidCommCarePlatform platform, boolean isUpgrade) throws
+    public boolean initialize(Resource r, AndroidCommCarePlatform platform, boolean isUpgrade) throws
             IOException, InvalidReferenceException, InvalidStructureException,
             XmlPullParserException, UnfullfilledRequirementsException {
-        super.initialize(platform, isUpgrade);
-        if (isLatestFormRecord(platform)) {
+        super.initialize(r, platform, isUpgrade);
+        if (isLatestFormRecord(r, platform)) {
             platform.registerXmlns(namespace, formDefId);
         }
         return true;
     }
 
     // Returns whether the associated formdefRecord is the one with highest form def resource version for our namespace
-    private boolean isLatestFormRecord(AndroidCommCarePlatform platform) {
+    private boolean isLatestFormRecord(Resource r, AndroidCommCarePlatform platform) {
         if (formDefId != -1) {
-            return getLatestFormDefId(platform.getFormDefStorage(), namespace) == formDefId;
+            return getLatestFormDefId(r.getVersion(), platform.getFormDefStorage(), namespace) == formDefId;
         }
         return false;
     }

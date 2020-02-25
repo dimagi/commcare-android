@@ -1,5 +1,6 @@
 package org.commcare.android.resource.installers;
 
+import org.commcare.resources.model.Resource;
 import org.commcare.utils.AndroidCommCarePlatform;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.xml.util.InvalidStructureException;
@@ -20,10 +21,10 @@ public class XFormUpdateInfoInstaller extends XFormAndroidInstaller {
     }
 
     @Override
-    public boolean initialize(AndroidCommCarePlatform platform, boolean isUpgrade) throws
+    public boolean initialize(Resource r, AndroidCommCarePlatform platform, boolean isUpgrade) throws
             IOException, InvalidReferenceException, InvalidStructureException,
             XmlPullParserException, UnfullfilledRequirementsException {
         platform.setUpdateInfoFormXmlns(namespace);
-        return super.initialize(platform, isUpgrade);
+        return super.initialize(r, platform, isUpgrade);
     }
 }

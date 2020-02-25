@@ -16,7 +16,6 @@ import org.commcare.util.LogTypes;
 import org.commcare.utils.AndroidCommCarePlatform;
 import org.commcare.utils.DummyResourceTable;
 import org.commcare.utils.FileUtil;
-import org.commcare.utils.StringUtils;
 import org.commcare.xml.AndroidSuiteParser;
 import org.commcare.xml.SuiteParser;
 import org.javarosa.core.io.StreamsUtil;
@@ -27,7 +26,6 @@ import org.javarosa.core.services.Logger;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.xpath.XPathException;
-import org.jsoup.helper.StringUtil;
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
@@ -52,7 +50,7 @@ public class SuiteAndroidInstaller extends FileSystemInstaller {
     }
 
     @Override
-    public boolean initialize(final AndroidCommCarePlatform platform, boolean isUpgrade) throws
+    public boolean initialize(Resource r, final AndroidCommCarePlatform platform, boolean isUpgrade) throws
             IOException, InvalidReferenceException, InvalidStructureException, XmlPullParserException,
             UnfullfilledRequirementsException {
         InputStream inputStream = null;

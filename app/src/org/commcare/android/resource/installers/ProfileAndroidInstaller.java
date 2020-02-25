@@ -49,7 +49,7 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
 
 
     @Override
-    public boolean initialize(AndroidCommCarePlatform platform, boolean isUpgrade) throws
+    public boolean initialize(Resource r, AndroidCommCarePlatform platform, boolean isUpgrade) throws
             IOException, InvalidReferenceException, InvalidStructureException,
             XmlPullParserException, UnfullfilledRequirementsException {
         InputStream inputStream = null;

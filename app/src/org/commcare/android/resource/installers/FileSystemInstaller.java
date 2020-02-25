@@ -2,7 +2,6 @@ package org.commcare.android.resource.installers;
 
 import android.support.v4.util.Pair;
 
-import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.dalvik.R;
 import org.commcare.engine.resource.installers.LocalStorageUnavailableException;
@@ -23,7 +22,6 @@ import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.Reference;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.Logger;
-import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
@@ -70,7 +68,7 @@ abstract class FileSystemInstaller implements ResourceInstaller<AndroidCommCareP
     }
 
     @Override
-    public boolean initialize(AndroidCommCarePlatform platform, boolean isUpgrade) throws
+    public boolean initialize(Resource r, AndroidCommCarePlatform platform, boolean isUpgrade) throws
             IOException, InvalidReferenceException, InvalidStructureException,
             XmlPullParserException, UnfullfilledRequirementsException {
         Reference ref = ReferenceManager.instance().DeriveReference(localLocation);

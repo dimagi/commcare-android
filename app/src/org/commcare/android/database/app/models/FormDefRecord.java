@@ -10,6 +10,7 @@ import org.commcare.models.framework.Persisting;
 import org.commcare.modern.database.Table;
 import org.commcare.modern.models.MetaField;
 import org.commcare.provider.FormsProviderAPI;
+import org.commcare.resources.model.Resource;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.FileUtil;
 import org.javarosa.core.services.Logger;
@@ -157,16 +158,27 @@ public class FormDefRecord extends Persisted {
         }
     }
 
-    // Returns the formId of the formDefRecord with highest form def resource version for our namespace
-    public static int getLatestFormDefId(SqlStorage<FormDefRecord> formDefStorage, String namespace) {
+
+    /**
+     *
+     * @param minResourceVersion min resource version beyond which form records will be discarded
+     * @param formDefStorage form storage
+     * @param namespace namespace of the desired form
+     * @return the formId of the formDefRecord with highest form def resource version for our namespace
+     */
+    public static int getLatestFormDefId(int minResourceVersion, SqlStorage<FormDefRecord> formDefStorage, String namespace) {
         Vector<Integer> formsForOurNamespace = FormDefRecord.getFormDefIdsByJrFormId(formDefStorage, namespace);
         int maxFormResourceVersion = -1;
         int latestFormId = -1;
         for (int i = 0; i < formsForOurNamespace.size(); i++) {
             FormDefRecord formDefRecordItem = formDefStorage.read(formsForOurNamespace.get(i));
-            if (formDefRecordItem.getResourceVersion() >= maxFormResourceVersion) {
-                maxFormResourceVersion = formDefRecordItem.getResourceVersion();
-                latestFormId = formDefRecordItem.getID();
+
+            // All the update records are going to have a version greater than the installed version, exclude them
+            if (formDefRecordItem.getResourceVersion() <= minResourceVersion) {
+                if (formDefRecordItem.getResourceVersion() >= maxFormResourceVersion) {
+                    maxFormResourceVersion = formDefRecordItem.getResourceVersion();
+                    latestFormId = formDefRecordItem.getID();
+                }
             }
         }
         return latestFormId;
