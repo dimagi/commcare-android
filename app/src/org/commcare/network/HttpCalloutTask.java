@@ -125,7 +125,7 @@ public abstract class HttpCalloutTask<R> extends CommCareTask<Object, String, Ht
         return doPostCalloutTask(calloutFailed);
     }
 
-    private boolean isCaptivePortal() throws IOException {
+    protected boolean isCaptivePortal() throws IOException {
         // CommCare has its own URL for detecting Captive Portals.
         // It must return an HTTP status code of 200 and a body containing "success".
         String captivePortalURL = "http://www.commcarehq.org/serverup.txt";

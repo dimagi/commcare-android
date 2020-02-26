@@ -3,6 +3,7 @@ package org.commcare.android;
 import android.app.Application;
 import android.os.Environment;
 
+import org.commcare.tasks.ConnectionDiagnosticTask;
 import org.jetbrains.annotations.NotNull;
 import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.InitializationError;
@@ -33,6 +34,7 @@ public class CommCareTestRunner extends RobolectricTestRunner {
         InstrumentationConfiguration.Builder builder = new InstrumentationConfiguration.Builder(super.createClassLoaderConfig(method));
         builder.addInstrumentedPackage("net.sqlcipher.database.SQLiteDatabase");
         builder.addInstrumentedPackage("org.commcare.models.encryption");
+        builder.addInstrumentedClass(ConnectionDiagnosticTask.class.getName());
         return builder.build();
     }
 

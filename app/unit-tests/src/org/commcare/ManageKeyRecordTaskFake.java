@@ -33,6 +33,11 @@ public class ManageKeyRecordTaskFake extends ManageKeyRecordTask<DataPullControl
     }
 
     @Override
+    protected boolean isCaptivePortal() throws IOException {
+        return false;
+    }
+
+    @Override
     protected Response<ResponseBody> doHttpRequest() throws IOException {
         InputStream is = System.class.getResourceAsStream(resourcePath);
         ResponseBody responseBody = new FakeResponseBody(is);

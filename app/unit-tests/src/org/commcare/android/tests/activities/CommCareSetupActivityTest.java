@@ -11,6 +11,7 @@ import org.commcare.CommCareTestApplication;
 import org.commcare.activities.CommCareSetupActivity;
 import org.commcare.activities.InstallArchiveActivity;
 import org.commcare.android.CommCareTestRunner;
+import org.commcare.android.mocks.CommcareDiagnosticTaskMock;
 import org.javarosa.core.services.locale.Localization;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -32,7 +33,7 @@ import static org.junit.Assert.assertTrue;
 
 // Using sdk 19 to get past NsdManager because of a bug in robolectric that causes NsdManager
 // to get initialized with a null context resulting in a NPE
-@Config(application = CommCareTestApplication.class, sdk = 18)
+@Config(application = CommCareTestApplication.class, sdk = 18, shadows = {CommcareDiagnosticTaskMock.class})
 @RunWith(CommCareTestRunner.class)
 public class CommCareSetupActivityTest {
 
