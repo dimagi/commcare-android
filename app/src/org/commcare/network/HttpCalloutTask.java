@@ -3,6 +3,8 @@ package org.commcare.network;
 import android.content.Context;
 
 import org.commcare.core.network.AuthenticationInterceptor;
+import org.commcare.core.network.CommCareNetworkService;
+import org.commcare.core.network.CommCareNetworkServiceGenerator;
 import org.commcare.core.network.ModernHttpRequester;
 import org.commcare.core.network.bitcache.BitCache;
 import org.commcare.core.network.bitcache.BitCacheFactory;
@@ -21,6 +23,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.UnknownHostException;
+import java.util.HashMap;
 
 import javax.net.ssl.SSLPeerUnverifiedException;
 
@@ -34,6 +37,7 @@ public abstract class HttpCalloutTask<R> extends CommCareTask<Object, String, Ht
 
     public enum HttpCalloutOutcomes {
         NetworkFailure,
+        CaptivePortal,
         BadResponse,
         AuthFailed,
         UnknownError,
@@ -71,16 +75,21 @@ public abstract class HttpCalloutTask<R> extends CommCareTask<Object, String, Ht
             HttpCalloutOutcomes outcome;
 
             try {
-                Response response = doHttpRequest();
-
-                int responseCode = response.code();
-
-                if (responseCode >= 200 && responseCode < 300) {
-                    outcome = doResponseSuccess(response);
-                } else if (responseCode == 401) {
-                    outcome = doResponseAuthFailed(response);
+                // Check captive portal first.
+                if (isCaptivePortal()) {
+                    outcome = HttpCalloutOutcomes.CaptivePortal;
                 } else {
-                    outcome = doResponseOther(response);
+                    Response response = doHttpRequest();
+
+                    int responseCode = response.code();
+
+                    if (responseCode >= 200 && responseCode < 300) {
+                        outcome = doResponseSuccess(response);
+                    } else if (responseCode == 401) {
+                        outcome = doResponseAuthFailed(response);
+                    } else {
+                        outcome = doResponseOther(response);
+                    }
                 }
             } catch (UnknownHostException e) {
                 outcome = HttpCalloutOutcomes.NetworkFailure;
@@ -114,6 +123,16 @@ public abstract class HttpCalloutTask<R> extends CommCareTask<Object, String, Ht
         // So either we didn't need our our HTTP callout or we succeeded. Either way, move on
         // to the next step
         return doPostCalloutTask(calloutFailed);
+    }
+
+    private boolean isCaptivePortal() throws IOException {
+        // CommCare has its own URL for detecting Captive Portals.
+        // It must return an HTTP status code of 200 and a body containing "success".
+        String captivePortalURL = "http://www.commcarehq.org/serverup.txt";
+        CommCareNetworkService commCareNetworkService = CommCareNetworkServiceGenerator.createNoAuthCommCareNetworkService();
+        Response<ResponseBody> response = commCareNetworkService.makeGetRequest(captivePortalURL, new HashMap<>(), new HashMap<>()).execute();
+        Logger.log(LogTypes.TYPE_USER, "CCHQ ping test. Response Code: " + response.code() + " and Response Body: " + response.body());
+        return response.code() != 200 || !"success".equals(response.body().string());
     }
 
     protected boolean processSuccessfulRequest() {
