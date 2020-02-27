@@ -195,4 +195,8 @@ public class FormDefRecord extends Persisted {
     public int getResourceVersion() {
         return mResourceVersion;
     }
+
+    public String getJrFormId() {
+        return mJrFormId;
+    }
 }

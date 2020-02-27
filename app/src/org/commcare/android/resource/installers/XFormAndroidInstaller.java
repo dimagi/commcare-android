@@ -131,6 +131,7 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
 //                // This form def record belongs to an old version which is not part of current version since
 //                // otherwise it's resource version would have got bumped to the resource
 //                // version of new resource in the update.
+                platform.deregisterForm(formDefRecord.getJrFormId(), formDefId);
                 platform.getFormDefStorage().remove(formDefId);
                 return super.uninstall(r, platform);
             }
