@@ -16,6 +16,7 @@ public class CrashUtil {
     private static final String APP_NAME = "app_name";
     private static final String DOMAIN = "domain";
     private static final String DEVICE_ID = "device_id";
+    private static final String NAME = "name";
 
     private static boolean crashlyticsEnabled = BuildConfig.USE_CRASHLYTICS;
 
@@ -45,6 +46,7 @@ public class CrashUtil {
     public static void registerUserData() {
         if (crashlyticsEnabled) {
             FirebaseCrashlytics.getInstance().setUserId(CommCareApplication.instance().getCurrentUserId());
+            FirebaseCrashlytics.getInstance().setCustomKey(NAME, ReportingUtils.getUser());
         }
     }
 
