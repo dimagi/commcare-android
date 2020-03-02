@@ -134,7 +134,7 @@ public class FormRecordProcessingTest {
     private ShadowActivity navigateFormEntry(Intent formEntryIntent) {
         // launch form entry
         FormEntryActivity formEntryActivity =
-                Robolectric.buildActivity(FormEntryActivity.class).withIntent(formEntryIntent)
+                Robolectric.buildActivity(FormEntryActivity.class, formEntryIntent)
                         .create().start().resume().get();
 
         // enter an answer for the question

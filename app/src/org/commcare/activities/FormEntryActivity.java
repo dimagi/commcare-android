@@ -5,7 +5,6 @@ import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.ActionBar;
 import android.content.BroadcastReceiver;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -15,8 +14,9 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.provider.MediaStore.Images;
-import android.support.v4.app.ActivityCompat;
+
+import androidx.core.app.ActivityCompat;
+
 import android.util.Log;
 import android.util.Pair;
 import android.view.ContextMenu;
@@ -47,6 +47,7 @@ import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
+import org.commcare.google.services.analytics.FormAnalyticsHelper;
 import org.commcare.interfaces.AdvanceToNextListener;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.FormSaveCallback;
@@ -154,10 +155,11 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
     private BroadcastReceiver mLocationServiceIssueReceiver;
 
-    // marked true if we are in the process of saving a form because the user
-    // database & key session are expiring. Being set causes savingComplete to
-    // broadcast a form saving intent.
-    private boolean savingFormOnKeySessionExpiration = false;
+    // This will be set if a unique action needs to be taken
+    // at the end of saving a form - like continuing a logout
+    // or proceeding unblocked
+    private Runnable customFormSaveCallback = null;
+
     private FormEntryActivityUIController uiController;
     private SqlStorage<FormRecord> formRecordStorage;
 
@@ -221,9 +223,9 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     }
 
     @Override
-    public void formSaveCallback() {
+    public void formSaveCallback(Runnable listener) {
         // note that we have started saving the form
-        savingFormOnKeySessionExpiration = true;
+        customFormSaveCallback = listener;
 
         // Set flag that will allow us to restore this form when we log back in
         CommCareApplication.instance().getCurrentSessionWrapper().setCurrentStateAsInterrupted();
@@ -400,42 +402,46 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         // keep track of whether we should auto advance
         boolean wasAnswerSet = false;
         boolean isQuick = false;
-
-        IntentWidget pendingIntentWidget = (IntentWidget)getPendingWidget();
-        if (pendingIntentWidget != null) {
-            if (!wasIntentCancelled) {
-                isQuick = "quick".equals(pendingIntentWidget.getAppearance());
-                TreeReference contextRef = null;
-                if (mFormController.getPendingCalloutFormIndex() != null) {
-                    contextRef = mFormController.getPendingCalloutFormIndex().getReference();
-                }
-                if (pendingIntentWidget instanceof BarcodeWidget) {
-                    String scanResult = response.getStringExtra("SCAN_RESULT");
-                    if (scanResult != null) {
-                        ((BarcodeWidget)pendingIntentWidget).processBarcodeResponse(contextRef, scanResult);
-                        wasAnswerSet = true;
+        try {
+            IntentWidget pendingIntentWidget = (IntentWidget)getPendingWidget();
+            if (pendingIntentWidget != null) {
+                if (!wasIntentCancelled) {
+                    isQuick = "quick".equals(pendingIntentWidget.getAppearance());
+                    TreeReference contextRef = null;
+                    if (mFormController.getPendingCalloutFormIndex() != null) {
+                        contextRef = mFormController.getPendingCalloutFormIndex().getReference();
                     }
-                } else {
-                    // Set our instance destination for binary data if needed
-                    String destination = instanceState.getInstanceFolder();
-                    wasAnswerSet = pendingIntentWidget.getIntentCallout()
-                            .processResponse(response, contextRef, new File(destination));
+                    if (pendingIntentWidget instanceof BarcodeWidget) {
+                        String scanResult = response.getStringExtra("SCAN_RESULT");
+                        if (scanResult != null) {
+                            ((BarcodeWidget)pendingIntentWidget).processBarcodeResponse(contextRef, scanResult);
+                            wasAnswerSet = true;
+                        }
+                    } else {
+                        // Set our instance destination for binary data if needed
+                        String destination = instanceState.getInstanceFolder();
+                        wasAnswerSet = pendingIntentWidget.getIntentCallout()
+                                .processResponse(response, contextRef, new File(destination));
+                    }
+                }
+
+                if (wasIntentCancelled) {
+                    mFormController.setPendingCalloutAsCancelled();
                 }
             }
 
-            if (wasIntentCancelled) {
-                mFormController.setPendingCalloutAsCancelled();
+            // auto advance if we got a good result and are in quick mode
+            if (wasAnswerSet && isQuick) {
+                uiController.showNextView();
+            } else {
+                uiController.refreshView();
             }
-        }
 
-        // auto advance if we got a good result and are in quick mode
-        if (wasAnswerSet && isQuick) {
-            uiController.showNextView();
-        } else {
-            uiController.refreshView();
+            return wasAnswerSet;
+        } catch (XPathException e) {
+            UserfacingErrorHandling.logErrorAndShowDialog(this, e, true);
+            return false;
         }
-
-        return wasAnswerSet;
     }
 
     @Override
@@ -563,25 +569,29 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             indexKeys.addAll(answers.keySet());
             Collections.sort(indexKeys, FormIndex::compareTo);
 
-            for (FormIndex index : indexKeys) {
-                // Within a group, you can only save for question events
-                if (mFormController.getEvent(index) == FormEntryController.EVENT_QUESTION) {
-                    int saveStatus = saveAnswer(answers.get(index),
-                            index, evaluateConstraints);
-                    if (evaluateConstraints &&
-                            ((saveStatus != FormEntryController.ANSWER_OK) &&
-                                    (failOnRequired ||
-                                            saveStatus != FormEntryController.ANSWER_REQUIRED_BUT_EMPTY))) {
-                        if (!headless) {
-                            uiController.showConstraintWarning(index, mFormController.getQuestionPrompt(index).getConstraintText(), saveStatus, success);
+            try {
+                for (FormIndex index : indexKeys) {
+                    // Within a group, you can only save for question events
+                    if (mFormController.getEvent(index) == FormEntryController.EVENT_QUESTION) {
+                        int saveStatus = saveAnswer(answers.get(index),
+                                index, evaluateConstraints);
+                        if (evaluateConstraints &&
+                                ((saveStatus != FormEntryController.ANSWER_OK) &&
+                                        (failOnRequired ||
+                                                saveStatus != FormEntryController.ANSWER_REQUIRED_BUT_EMPTY))) {
+                            if (!headless) {
+                                uiController.showConstraintWarning(index, mFormController.getQuestionPrompt(index).getConstraintText(), saveStatus, success);
+                            }
+                            success = false;
                         }
-                        success = false;
+                    } else {
+                        Log.w(TAG,
+                                "Attempted to save an index referencing something other than a question: "
+                                        + index.getReference());
                     }
-                } else {
-                    Log.w(TAG,
-                            "Attempted to save an index referencing something other than a question: "
-                                    + index.getReference());
                 }
+            } catch (XPathException e) {
+                UserfacingErrorHandling.createErrorDialog(this, e.getLocalizedMessage(), true);
             }
         }
         return success;
@@ -707,7 +717,8 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
      * @param headless        Disables GUI warnings and lets answers that
      *                        violate constraints be saved.
      */
-    private void saveDataToDisk(boolean exit, boolean complete, String updatedSaveName, boolean headless) {
+    private void saveDataToDisk(boolean exit, boolean complete, String updatedSaveName,
+                                boolean headless) {
         if (!formHasLoaded()) {
             if (exit) {
                 showSaveErrorAndExit();
@@ -855,6 +866,19 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
         registerFormEntryReceiver();
         restorePriorStates();
+
+        reportVideoUsageIfAny();
+    }
+
+    private void reportVideoUsageIfAny() {
+        if (mFormController != null) {
+            FormAnalyticsHelper formAnalyticsHelper = mFormController.getFormAnalyticsHelper();
+            if (formAnalyticsHelper.getVideoStartTime() != -1) {
+                FirebaseAnalyticsUtil.reportVideoPlayEvent(formAnalyticsHelper.getVideoName(), formAnalyticsHelper.getVideoDuration(), formAnalyticsHelper.getVideoStartTime());
+                formAnalyticsHelper.resetVideoPlaybackInfo();
+            }
+        }
+
     }
 
     private void restorePriorStates() {
@@ -1002,7 +1026,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
      * Call when the user is ready to save and return the current form as complete
      */
     protected void triggerUserFormComplete() {
-        if(!isFinishing()) {
+        if (!isFinishing()) {
             if (mFormController.isFormReadOnly()) {
                 finishReturnInstance(false);
             } else {
@@ -1084,13 +1108,12 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     public void savingComplete(SaveToDiskTask.SaveStatus saveStatus, String errorMessage) {
         // Did we just save a form because the key session
         // (CommCareSessionService) is ending?
-        if (savingFormOnKeySessionExpiration) {
-            savingFormOnKeySessionExpiration = false;
+        if (customFormSaveCallback != null) {
+            Runnable toCall = customFormSaveCallback;
+            customFormSaveCallback = null;
 
-            // Notify the key session that the form state has been saved (or at
-            // least attempted to be saved) so CommCareSessionService can
-            // continue closing down key pool and user database.
-            CommCareApplication.instance().expireUserSession();
+            toCall.run();
+            returnAsInterrupted();
         } else if (saveStatus != null) {
             String toastMessage = "";
             switch (saveStatus) {
@@ -1125,6 +1148,14 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             }
             uiController.refreshView();
         }
+    }
+
+    private void returnAsInterrupted() {
+        Intent formReturnIntent = new Intent();
+        formReturnIntent.putExtra(FormEntryConstants.WAS_INTERRUPTED, true);
+
+        setResult(RESULT_CANCELED, formReturnIntent);
+        finish();
     }
 
     /**

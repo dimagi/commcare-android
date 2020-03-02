@@ -9,12 +9,11 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 import android.util.Log;
 
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.user.models.FormRecord;
-import org.commcare.utils.StringUtils;
 
 import java.util.HashMap;
 

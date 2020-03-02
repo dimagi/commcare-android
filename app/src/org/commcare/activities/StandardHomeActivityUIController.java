@@ -2,8 +2,8 @@ package org.commcare.activities;
 
 import android.annotation.SuppressLint;
 import android.os.Build;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.StaggeredGridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 import android.view.ViewTreeObserver;
 
 import org.commcare.CommCareApp;

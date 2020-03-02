@@ -1,7 +1,7 @@
 package org.commcare;
 
 import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
+import androidx.preference.PreferenceManager;
 
 import org.commcare.core.services.ICommCarePreferenceManager;
 

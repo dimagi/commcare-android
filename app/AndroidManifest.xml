@@ -4,6 +4,8 @@
           package="org.commcare.dalvik"
           android:versionCode="106"
           android:versionName="2.47.6">
+          android:versionName="2.49">
+
 
     <uses-permission android:name="android.permission.NFC"/>
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
@@ -63,6 +65,8 @@
         android:supportsRtl="true"
         android:label="@string/application_name"
         android:hardwareAccelerated="true"
+        android:usesCleartextTraffic="true"
+        android:requestLegacyExternalStorage="true"
         android:theme="@style/AppBaseTheme">
         <activity
             android:name="org.commcare.activities.DispatchActivity"
@@ -125,7 +129,7 @@
             android:readPermission="${applicationId}.provider.cases.read"/>
 
         <provider
-            android:name="android.support.v4.content.FileProvider"
+            android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.external.files.provider"
             android:exported="false"
             android:grantUriPermissions="true">

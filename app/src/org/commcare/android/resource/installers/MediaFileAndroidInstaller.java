@@ -1,6 +1,6 @@
 package org.commcare.android.resource.installers;
 
-import android.support.v4.util.Pair;
+import androidx.core.util.Pair;
 
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceLocation;

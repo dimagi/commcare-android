@@ -5,8 +5,8 @@ package org.commcare.interfaces;
  */
 public interface FormSaveCallback {
     /**
-     * Starts a task to save the current form being editted. Is expected to
-     * eventually call CommCareApplication.expireUserSession
+     * Starts a task to save the current form being edited. Will be expected to call the provided
+     * listener when saving is complete and the current session state is no longer volatile
      */
-    void formSaveCallback();
+    void formSaveCallback(Runnable callback);
 }

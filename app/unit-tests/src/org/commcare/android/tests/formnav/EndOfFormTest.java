@@ -74,7 +74,7 @@ public class EndOfFormTest {
     private static ShadowActivity navigateFormEntry(Intent formEntryIntent) {
         // launch form entry
         FormEntryActivity formEntryActivity =
-                Robolectric.buildActivity(FormEntryActivity.class).withIntent(formEntryIntent)
+                Robolectric.buildActivity(FormEntryActivity.class, formEntryIntent)
                         .create().start().resume().get();
 
 

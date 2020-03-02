@@ -1,7 +1,7 @@
 package org.commcare.adapters;
 
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.StaggeredGridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -106,8 +106,7 @@ public class HomeScreenAdapter
         layoutParams.setFullSpan(true);
 
         boolean noCustomBanner =
-                !CustomBanner.useCustomBanner(context, screenHeight,
-                        screenWidth, headerHolder.headerImage);
+                !CustomBanner.useCustomBanner(context, screenHeight, screenWidth, headerHolder.headerImage, CustomBanner.Banner.HOME);
         if (noCustomBanner) {
             headerHolder.headerImage.setImageResource(R.drawable.commcare_logo);
         }

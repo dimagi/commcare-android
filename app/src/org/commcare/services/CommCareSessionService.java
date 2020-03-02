@@ -8,10 +8,10 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Binder;
 import android.os.IBinder;
-import android.preference.PreferenceManager;
-import android.support.v4.app.NotificationCompat;
+import androidx.preference.PreferenceManager;
 import android.text.format.DateFormat;
 import android.util.Log;
+import android.widget.Toast;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
@@ -50,6 +50,8 @@ import javax.crypto.Cipher;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
+
+import androidx.core.app.NotificationCompat;
 
 /**
  * The CommCare Session Service is a persistent service which maintains
@@ -371,14 +373,39 @@ public class CommCareSessionService extends Service {
         // maintenance timer will launch CommCareApplication.instance().expireUserSession
         logoutStartedAt = new Date().getTime();
 
+        // Note: Any other types of callbacks should be added to both this method
+        // and the non-close version
+
         // save form progress, if any
         synchronized (lock) {
             if (formSaver != null) {
-                formSaver.formSaveCallback();
+                formSaver.formSaveCallback(() -> {
+                    CommCareApplication.instance().expireUserSession();
+                });
             } else {
                 CommCareApplication.instance().expireUserSession();
             }
         }
+    }
+
+    /**
+     * Calls the provided runnable ensuring that if there is currently an active
+     * form session being executed that it is interrupted and stored
+     *
+     */
+    public void proceedWithSavedSessionIfNeeded(Runnable callback)  {
+        // save form progress, if any
+        synchronized (lock) {
+            if (formSaver != null) {
+                Toast.makeText(CommCareApplication.instance(),
+                        "Suspending existing form entry session...", Toast.LENGTH_LONG).show();
+                formSaver.formSaveCallback(callback);
+                formSaver = null;
+                return;
+            }
+        }
+        //No forms to be saved, just run the callback immediately
+        callback.run();
     }
 
     /**

@@ -6,7 +6,7 @@ import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.graphics.Rect;
 import android.graphics.Typeface;
-import android.preference.PreferenceManager;
+import androidx.preference.PreferenceManager;
 import android.text.Spannable;
 import android.text.TextPaint;
 import android.text.method.LinkMovementMethod;
@@ -27,6 +27,7 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.commcare.activities.CommCareActivity;
 import org.commcare.dalvik.R;
 import org.commcare.interfaces.WidgetChangedListener;
 import org.commcare.models.ODKStorage;
@@ -40,6 +41,7 @@ import org.commcare.utils.FormUploadUtil;
 import org.commcare.utils.MarkupUtil;
 import org.commcare.utils.StringUtils;
 import org.commcare.views.ShrinkingTextView;
+import org.commcare.views.UserfacingErrorHandling;
 import org.commcare.views.ViewUtil;
 import org.commcare.views.media.MediaLayout;
 import org.javarosa.core.model.FormIndex;
@@ -53,6 +55,8 @@ import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.form.api.FormEntryCaption;
 import org.javarosa.form.api.FormEntryPrompt;
+import org.javarosa.xpath.XPathException;
+import org.javarosa.xpath.XPathTypeMismatchException;
 
 import java.io.File;
 import java.util.Vector;
@@ -502,7 +506,11 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
             text.setText(forceMarkdown(markdownText));
             text.setMovementMethod(LinkMovementMethod.getInstance());
         } else {
-            text.setText(mPrompt.getHelpText());
+            try {
+                text.setText(mPrompt.getHelpText());
+            } catch (XPathException exception) {
+                UserfacingErrorHandling.createErrorDialog((CommCareActivity)getContext(), exception.getLocalizedMessage(), true);
+            }
         }
         text.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mQuestionFontSize);
         int padding = (int)getResources().getDimension(R.dimen.help_text_padding);
@@ -585,8 +593,12 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
      * Add a TextView containing the help text.
      */
     private void addHintText() {
-        String s = mPrompt.getHintText();
-
+        String s = null;
+        try {
+            s = mPrompt.getHintText();
+        } catch (XPathException e) {
+            UserfacingErrorHandling.createErrorDialog((CommCareActivity)getContext(), e.getLocalizedMessage(), true);
+        } 
         if (s != null && !s.equals("")) {
             mHintText = new ShrinkingTextView(getContext(), this.getMaxHintHeight());
             mHintText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mQuestionFontSize - 3);

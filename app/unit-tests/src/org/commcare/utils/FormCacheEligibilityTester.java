@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.ArrayList;
 
 import org.commcare.CommCareApplication;
+import org.commcare.CommCareTestApplication;
 import org.commcare.android.CommCareTestRunner;
 import org.commcare.android.util.TestUtils;
 import org.javarosa.core.model.condition.EvaluationContext;
@@ -40,7 +41,7 @@ import org.robolectric.annotation.Config;
  *      contents directly into the directory you just created.
  *   3. Run this test file, and observe the output to sys.out.
  */
-@Config(application = CommCareApplication.class)
+@Config(application = CommCareTestApplication.class)
 @RunWith(CommCareTestRunner.class)
 public class FormCacheEligibilityTester {
 

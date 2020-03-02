@@ -119,7 +119,7 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
         /**
          * Limbo forms
          **/
-        Limbo("form.record.filter.limbo", new String[]{FormRecord.STATUS_QUARANTINED });
+        Limbo("form.record.filter.limbo", new String[]{FormRecord.STATUS_QUARANTINED});
 
         FormRecordFilter(String message, String[] statuses) {
             this.message = message;
@@ -496,7 +496,7 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        boolean parent = super.onCreateOptionsMenu(menu);
+        super.onCreateOptionsMenu(menu);
         // this should be unnecessary...
         tryToAddSearchActionToAppBar(this, menu, (searchItem, searchView, barcodeItem) -> {
             FormRecordListActivity.this.searchItem = searchItem;
@@ -523,35 +523,42 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
                 }
             });
         });
-        if (!FormRecordFilter.Incomplete.equals(adapter.getFilter())) {
-            String source = DeveloperPreferences.getRemoteFormPayloadUrl();
 
-            //If there's nowhere to fetch forms from, we can't really go fetch them
-            if (!source.equals("")) {
-                menu.add(0, DOWNLOAD_FORMS_FROM_SERVER, 0, Localization.get("app.workflow.forms.fetch")).setIcon(android.R.drawable.ic_menu_rotate);
-            }
-            menu.add(0, MENU_SUBMIT_QUARANTINE_REPORT, MENU_SUBMIT_QUARANTINE_REPORT, Localization.get("app.workflow.forms.quarantine.report"));
+        String source = DeveloperPreferences.getRemoteFormPayloadUrl();
 
-            String fileSource = DeveloperPreferences.getLocalFormPayloadFilePath();
-            if(!fileSource.isEmpty()){
-                menu.add(0, DOWNLOAD_FORMS_FROM_FILE, 0, Localization.get("app.workflow.forms.fetch.file"));
-            }
-            return true;
+        //If there's nowhere to fetch forms from, we can't really go fetch them
+        if (!source.equals("")) {
+            menu.add(0, DOWNLOAD_FORMS_FROM_SERVER, 0, Localization.get("app.workflow.forms.fetch")).setIcon(android.R.drawable.ic_menu_rotate);
         }
-        return parent;
+        menu.add(0, MENU_SUBMIT_QUARANTINE_REPORT, MENU_SUBMIT_QUARANTINE_REPORT, Localization.get("app.workflow.forms.quarantine.report"));
+
+        String fileSource = DeveloperPreferences.getLocalFormPayloadFilePath();
+        if (!fileSource.isEmpty()) {
+            menu.add(0, DOWNLOAD_FORMS_FROM_FILE, 0, Localization.get("app.workflow.forms.fetch.file"));
+        }
+
+        return true;
     }
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
+
         MenuItem quarantine = menu.findItem(MENU_SUBMIT_QUARANTINE_REPORT);
         if (quarantine != null) {
-            if (FormRecordFilter.Limbo.equals(adapter.getFilter())) {
-                quarantine.setVisible(true);
-            } else {
-                quarantine.setVisible(false);
-            }
+            quarantine.setVisible(FormRecordFilter.Limbo.equals(adapter.getFilter()));
         }
+
+        MenuItem downloadFormsFromServer = menu.findItem(DOWNLOAD_FORMS_FROM_SERVER);
+        if (downloadFormsFromServer != null) {
+            downloadFormsFromServer.setVisible(!FormRecordFilter.Incomplete.equals(adapter.getFilter()));
+        }
+
+        MenuItem downloadFormsFromFile = menu.findItem(DOWNLOAD_FORMS_FROM_FILE);
+        if (downloadFormsFromFile != null) {
+            downloadFormsFromFile.setVisible(!FormRecordFilter.Incomplete.equals(adapter.getFilter()));
+        }
+
         return menu.hasVisibleItems();
     }
 
@@ -586,7 +593,7 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
             Pair<Boolean, String> integrity = this.formRecordProcessor.verifyFormRecordIntegrity(r);
             logIntegrityScanResult(r, integrity);
         }
-        CommCareUtil.triggerLogSubmission(this);
+        CommCareUtil.triggerLogSubmission(this, false);
     }
 
     private static void logIntegrityScanResult(FormRecord r, Pair<Boolean, String> integrityScanResult) {

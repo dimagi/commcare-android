@@ -1,7 +1,6 @@
 package org.commcare.tasks;
 
 import android.content.Context;
-import android.support.v4.util.Pair;
 
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
@@ -27,6 +26,8 @@ import org.javarosa.core.services.locale.Localization;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
 
 import java.util.Vector;
+
+import androidx.core.util.Pair;
 
 /**
  * Stages an update for the seated app in the background. Does not perform

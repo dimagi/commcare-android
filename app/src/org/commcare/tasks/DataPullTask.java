@@ -2,7 +2,7 @@ package org.commcare.tasks;
 
 import android.content.Context;
 import android.content.Intent;
-import android.support.v4.util.Pair;
+import androidx.core.util.Pair;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
@@ -45,8 +45,6 @@ import org.javarosa.core.util.PropertyUtils;
 import org.javarosa.xml.util.ActionableInvalidStructureException;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
@@ -308,6 +306,8 @@ public abstract class DataPullTask<R>
             return processErrorResponseWithMessage(pullResponse);
         } else if (responseCode == 500) {
             return handleServerError();
+        } else if (responseCode == 503) {
+            return handleRateLimitedError();
         } else {
             throw new UnknownSyncError();
         }
@@ -443,6 +443,12 @@ public abstract class DataPullTask<R>
         wipeLoginIfItOccurred();
         Logger.log(LogTypes.TYPE_USER, "500 Server Error during data pull|" + username);
         return new ResultAndError<>(PullTaskResult.SERVER_ERROR);
+    }
+
+    private ResultAndError<PullTaskResult> handleRateLimitedError() {
+        wipeLoginIfItOccurred();
+        Logger.log(LogTypes.TYPE_USER, "503 Server Error during data pull|" + username);
+        return new ResultAndError<>(PullTaskResult.RATE_LIMITED_SERVER_ERROR);
     }
 
     private void wipeLoginIfItOccurred() {
@@ -652,6 +658,7 @@ public abstract class DataPullTask<R>
         UNREACHABLE_HOST(AnalyticsParamValue.SYNC_FAIL_UNREACHABLE_HOST),
         CONNECTION_TIMEOUT(AnalyticsParamValue.SYNC_FAIL_CONNECTION_TIMEOUT),
         SERVER_ERROR(AnalyticsParamValue.SYNC_FAIL_SERVER_ERROR),
+        RATE_LIMITED_SERVER_ERROR(AnalyticsParamValue.SYNC_FAIL_RATE_LIMITED_SERVER_ERROR),
         STORAGE_FULL(AnalyticsParamValue.SYNC_FAIL_STORAGE_FULL),
         AUTH_OVER_HTTP(AnalyticsParamValue.SYNC_FAIL_AUTH_OVER_HTTP);
 

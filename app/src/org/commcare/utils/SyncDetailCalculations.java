@@ -2,9 +2,11 @@ package org.commcare.utils;
 
 import android.content.SharedPreferences;
 import android.text.Spannable;
+import android.text.TextUtils;
 import android.text.format.DateUtils;
 import android.widget.TextView;
 
+import org.commcare.AppUtils;
 import org.commcare.CommCareApplication;
 import org.commcare.activities.StandardHomeActivity;
 import org.commcare.adapters.HomeCardDisplayData;
@@ -18,7 +20,6 @@ import org.commcare.preferences.HiddenPreferences;
 import org.commcare.util.LogTypes;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
-import org.joda.time.DateTime;
 import org.joda.time.Days;
 import org.joda.time.LocalDate;
 
@@ -45,17 +46,20 @@ public class SyncDetailCalculations {
         Spannable syncIndicator = (activity.localize("home.unsent.forms.indicator",
                 new String[]{String.valueOf(numUnsentForms)}));
 
-        String syncStatus;
+        String syncStatus = "";
 
         if (notificationText != null) {
-            syncStatus = notificationText + "\n\n" + syncIndicator;
+            syncStatus = notificationText;
         } else if (numUnsentForms == 0) {
             syncStatus = lastSyncTimeAndMessage.second;
-            if (HiddenPreferences.shouldShowUnsentFormsWhenZero()) {
-                syncStatus += "\n\n" + syncIndicator;
+        }
+
+
+        if (numUnsentForms != 0 || HiddenPreferences.shouldShowUnsentFormsWhenZero()) {
+            if (!TextUtils.isEmpty(syncStatus)) {
+                syncStatus += "\n\n";
             }
-        } else {
-            syncStatus = syncIndicator.toString();
+            syncStatus += syncIndicator;
         }
 
         squareButtonViewHolder.subTextView.setText(syncStatus);
@@ -114,8 +118,12 @@ public class SyncDetailCalculations {
     }
 
     public static long getLastSyncTime() {
+        return getLastSyncTime(AppUtils.getLoggedInUserName());
+    }
+
+    public static long getLastSyncTime(String username) {
         SharedPreferences prefs = CommCareApplication.instance().getCurrentApp().getAppPreferences();
-        return prefs.getLong(getLastSyncKey(ReportingUtils.getUser()), 0);
+        return prefs.getLong(getLastSyncKey(username), 0);
     }
 
     public static String getLastSyncKey(String username) {

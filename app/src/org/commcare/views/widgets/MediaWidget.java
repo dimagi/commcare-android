@@ -1,11 +1,9 @@
 package org.commcare.views.widgets;
 
 import android.content.ActivityNotFoundException;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
-import android.provider.MediaStore;
 import android.util.Log;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
@@ -238,20 +236,7 @@ public abstract class MediaWidget extends QuestionWidget {
         }
 
         if (newMedia.exists()) {
-            // Add the copy to the content provider
-            ContentValues values = new ContentValues(6);
-            values.put(MediaStore.Audio.Media.TITLE, newMedia.getName());
-            values.put(MediaStore.Audio.Media.DISPLAY_NAME, newMedia.getName());
-            values.put(MediaStore.Audio.Media.DATE_ADDED, System.currentTimeMillis());
-            values.put(MediaStore.Audio.Media.DATA, newMedia.getAbsolutePath());
-
-            Uri mediaUri =
-                    getContext().getContentResolver().insert(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, values);
-            String mediaUriString = mediaUri == null ? "null" : mediaUri.toString();
-            Log.i(TAG, "Inserting media returned uri = " + mediaUriString);
             showToast("form.attachment.success");
-        } else {
-            Log.e(TAG, "Inserting media file FAILED");
         }
 
         mBinaryName = newMedia.getName();

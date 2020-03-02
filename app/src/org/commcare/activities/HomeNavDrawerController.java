@@ -4,9 +4,8 @@ import android.annotation.TargetApi;
 import android.app.ActionBar;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v4.widget.DrawerLayout;
-import android.view.View;
-import android.widget.AdapterView;
+import androidx.drawerlayout.widget.DrawerLayout;
+
 import android.widget.ListView;
 
 import org.commcare.CommCareApplication;
@@ -139,7 +138,7 @@ public class HomeNavDrawerController {
                     activity.goToFormArchive(false);
                     break;
                 case UPDATE_DRAWER_ITEM_ID:
-                    activity.launchUpdateActivity();
+                    activity.launchUpdateActivity(false);
                     break;
                 case ABOUT_CC_DRAWER_ITEM_ID:
                     activity.showAboutCommCareDialog();

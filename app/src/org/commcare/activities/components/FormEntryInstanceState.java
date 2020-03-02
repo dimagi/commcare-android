@@ -106,6 +106,7 @@ public class FormEntryInstanceState {
         if (intent.hasExtra(KEY_FORM_RECORD_DESTINATION)) {
             this.mFormRecordDestination = intent.getStringExtra(KEY_FORM_RECORD_DESTINATION);
         } else {
+            Logger.log(LogTypes.SOFT_ASSERT, "Access outside scoped storage in loading current form.");
             mFormRecordDestination = ODKStorage.FORM_RECORD_PATH;
         }
     }
