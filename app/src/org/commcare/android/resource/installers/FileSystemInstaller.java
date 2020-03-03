@@ -5,6 +5,7 @@ import androidx.core.util.Pair;
 import org.commcare.CommCareApplication;
 import org.commcare.dalvik.R;
 import org.commcare.engine.resource.installers.LocalStorageUnavailableException;
+import org.commcare.network.RateLimitedException;
 import org.commcare.resources.model.MissingMediaException;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceInstaller;
@@ -143,6 +144,8 @@ abstract class FileSystemInstaller implements ResourceInstaller<AndroidCommCareP
         } catch (IOException e) {
             e.printStackTrace();
             throw new UnreliableSourceException(r, e.getMessage());
+        } catch (RateLimitedException e) {
+            throw new UnresolvedResourceException(r, "Our servers are unavailable at this time. Please try again later", true);
         }
     }
 
