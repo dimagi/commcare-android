@@ -74,19 +74,21 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
             IOException, InvalidReferenceException, InvalidStructureException,
             XmlPullParserException, UnfullfilledRequirementsException {
         super.initialize(platform, isUpgrade);
-        if (isLatestFormRecord(platform)) {
+
+        if (platform.getFormDefId(namespace) == -1) {
             platform.registerXmlns(namespace, formDefId);
+        } else {
+            // Only overwrites the existing form if the resourceVersion of the new form is higher than the existing one
+            FormDefRecord existingForm = FormDefRecord.getFormDef(platform.getFormDefStorage(), platform.getFormDefId(namespace));
+            FormDefRecord newForm = FormDefRecord.getFormDef(platform.getFormDefStorage(), formDefId);
+            if (newForm.getResourceVersion() >= existingForm.getResourceVersion()) {
+                platform.registerXmlns(namespace, formDefId);
+            }
         }
+
         return true;
     }
 
-    // Returns whether the associated formdefRecord is the one with highest form def resource version for our namespace
-    private boolean isLatestFormRecord(AndroidCommCarePlatform platform) {
-        if (formDefId != -1) {
-            return getLatestFormDefId(platform.getFormDefStorage(), namespace) == formDefId;
-        }
-        return false;
-    }
 
     @Override
     protected int customInstall(Resource r, Reference local, boolean upgrade, AndroidCommCarePlatform platform) throws IOException, UnresolvedResourceException {
@@ -129,6 +131,7 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
 //                // This form def record belongs to an old version which is not part of current version since
 //                // otherwise it's resource version would have got bumped to the resource
 //                // version of new resource in the update.
+                platform.deregisterForm(formDefRecord.getJrFormId(), formDefId);
                 platform.getFormDefStorage().remove(formDefId);
                 return super.uninstall(r, platform);
             }
