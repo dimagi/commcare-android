@@ -509,7 +509,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                     }
                     break;
                 case MODEL_RESULT:
-                    if(intent.getBooleanExtra(FormEntryConstants.WAS_INTERRUPTED, false)) {
+                    if(intent != null && intent.getBooleanExtra(FormEntryConstants.WAS_INTERRUPTED, false)) {
                         tryRestoringFormFromSessionExpiration();
                         return;
                     }
