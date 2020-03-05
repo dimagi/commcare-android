@@ -1,6 +1,7 @@
 package org.commcare.utils;
 
 import android.annotation.SuppressLint;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -11,8 +12,10 @@ import android.os.Build;
 import androidx.annotation.Nullable;
 import androidx.core.content.FileProvider;
 
+import android.provider.MediaStore;
 import android.util.Log;
 import android.util.Pair;
+import android.webkit.MimeTypeMap;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -663,4 +666,52 @@ public class FileUtil {
             return -1;
         }
     }
+
+    private static String getMimeType(String filePath) {
+        String extension = MimeTypeMap.getFileExtensionFromUrl(filePath);
+        String mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
+        return mimeType;
+    }
+
+    /**
+
+     * @param file
+     * @return Boolean indicating whether the method successfully added te file to content provider.
+     */
+
+    /**
+     * This method will add the file to the content provider.
+     * NOTE:- Currently it only support Audio and Video.
+     * @param file The File that needs to be inserted to the ContentProvider.
+     * @throws UnsupportedMediaException is raised if file other than audio or video is sent to this method.
+     * @throws FileNotFoundException is raised if file doesn't exist.
+     */
+    public static void addMediaToGallery(Context context, File file) throws UnsupportedMediaException, FileNotFoundException{
+        if (!file.exists()) {
+            throw new FileNotFoundException("Couldn't find file");
+        }
+        String mimeType = getMimeType(file.getAbsolutePath());
+
+        if (mimeType.startsWith("video")) {
+            ContentValues values = new ContentValues(6);
+            values.put(MediaStore.Video.Media.TITLE, file.getName());
+            values.put(MediaStore.Video.Media.DISPLAY_NAME, file.getName());
+            values.put(MediaStore.Video.Media.DATE_ADDED, System.currentTimeMillis());
+            values.put(MediaStore.Video.Media.DATA, file.getAbsolutePath());
+            values.put(MediaStore.Video.Media.MIME_TYPE, mimeType);
+            Uri mediaUri = context.getContentResolver().insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, values);
+            Log.i("FileUtil", "Inserting video returned uri = " + (mediaUri == null ? "null" : mediaUri.toString()));
+        } else if (mimeType.startsWith("audio")) {
+            ContentValues values = new ContentValues(6);
+            values.put(MediaStore.Audio.Media.TITLE, file.getName());
+            values.put(MediaStore.Audio.Media.DISPLAY_NAME, file.getName());
+            values.put(MediaStore.Audio.Media.DATE_ADDED, System.currentTimeMillis());
+            values.put(MediaStore.Audio.Media.DATA, file.getAbsolutePath());
+            Uri mediaUri = context.getContentResolver().insert(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, values);
+            Log.i("FileUtil", "Inserting audio returned uri = " + (mediaUri == null ? "null" : mediaUri.toString()));
+        } else {
+            throw new UnsupportedMediaException("Doesn't support file with mimeType: " + mimeType);
+        }
+    }
+
 }

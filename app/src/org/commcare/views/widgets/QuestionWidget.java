@@ -6,7 +6,7 @@ import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.graphics.Rect;
 import android.graphics.Typeface;
-import android.preference.PreferenceManager;
+import androidx.preference.PreferenceManager;
 import android.text.Spannable;
 import android.text.TextPaint;
 import android.text.method.LinkMovementMethod;

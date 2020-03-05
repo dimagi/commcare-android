@@ -5,6 +5,8 @@ import android.content.Intent;
 import android.os.StrictMode;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.mocks.ModernHttpRequesterMock;
 import org.commcare.android.util.TestUtils;
@@ -269,5 +271,11 @@ public class CommCareTestApplication extends CommCareApplication implements Test
                 null,
                 method,
                 responseProcessor);
+    }
+
+    @NonNull
+    @Override
+    public String getPhoneId() {
+        return "000000000000000";
     }
 }

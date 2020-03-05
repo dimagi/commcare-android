@@ -15,7 +15,7 @@ import android.os.Environment;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.StrictMode;
-import android.preference.PreferenceManager;
+import androidx.preference.PreferenceManager;
 import android.provider.Settings.Secure;
 import android.telephony.TelephonyManager;
 import android.text.format.DateUtils;
@@ -90,6 +90,7 @@ import org.commcare.utils.AndroidCommCarePlatform;
 import org.commcare.utils.CommCareExceptionHandler;
 import org.commcare.utils.CommCareUtil;
 import org.commcare.utils.CrashUtil;
+import org.commcare.utils.DeviceIdentifier;
 import org.commcare.utils.FileUtil;
 import org.commcare.utils.GlobalConstants;
 import org.commcare.utils.MultipleAppsUtil;
@@ -424,19 +425,13 @@ public class CommCareApplication extends MultiDexApplication {
 
     @NonNull
     public String getPhoneId() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_DENIED) {
-            return "000000000000000";
-        }
-
-        TelephonyManager manager = (TelephonyManager)this.getSystemService(TELEPHONY_SERVICE);
-        String imei = manager.getDeviceId();
-        if (imei == null) {
-            imei = Secure.getString(getContentResolver(), Secure.ANDROID_ID);
-        }
-        if (imei == null) {
-            imei = "----";
-        }
-        return imei;
+        /**
+         * https://source.android.com/devices/tech/config/device-identifiers
+         * https://issuetracker.google.com/issues/129583175#comment10
+         * Starting from Android 10, apps cannot access non-resettable device ids unless they have special career permission.
+         * If we still try to access it, SecurityException is thrown.
+         */
+        return DeviceIdentifier.getDeviceIdentifier(this);
     }
 
     public void initializeDefaultLocalizerData() {
