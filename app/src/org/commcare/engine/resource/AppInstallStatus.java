@@ -67,6 +67,10 @@ public enum AppInstallStatus implements MessageTag {
         return (this == UpdateStaged || this == UpToDate);
     }
 
+    public boolean shouldRetryUpdate() {
+        return (this == MissingResources || this == MissingResourcesWithMessage || this == NoConnection);
+    }
+
     @Override
     public String getCategory() {
         return "install_update";

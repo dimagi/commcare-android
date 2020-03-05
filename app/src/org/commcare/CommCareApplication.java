@@ -520,6 +520,10 @@ public class CommCareApplication extends MultiDexApplication {
      * If the given record is the currently seated app, unseat it
      */
     public void unseat(ApplicationRecord record) {
+        // cancel all Workmanager tasks for the unseated record
+        WorkManager.getInstance(CommCareApplication.instance())
+                .cancelAllWorkByTag(record.getApplicationId());
+
         if (isSeated(record)) {
             this.currentApp.teardownSandbox();
             this.currentApp = null;
@@ -789,26 +793,28 @@ public class CommCareApplication extends MultiDexApplication {
 
     // Hand off an app update task to the Android WorkManager
     private void scheduleAppUpdate() {
-        Constraints constraints = new Constraints.Builder()
-                .setRequiredNetworkType(NetworkType.CONNECTED)
-                .setRequiresBatteryNotLow(true)
-                .build();
+        if(areAutomatedActionsInvalid()) {
+            Constraints constraints = new Constraints.Builder()
+                    .setRequiredNetworkType(NetworkType.CONNECTED)
+                    .setRequiresBatteryNotLow(true)
+                    .build();
 
-        PeriodicWorkRequest updateRequest =
-                new PeriodicWorkRequest.Builder(UpdateWorker.class, PERIODICITY_FOR_UPDATE_IN_HOURS, TimeUnit.HOURS)
-                        .addTag(getCurrentApp().getAppRecord().getApplicationId())
-                        .setConstraints(constraints)
-                        .setBackoffCriteria(
-                                BackoffPolicy.EXPONENTIAL,
-                                BACKOFF_DELAY_FOR_UPDATE_RETRY,
-                                TimeUnit.MILLISECONDS)
-                        .build();
+            PeriodicWorkRequest updateRequest =
+                    new PeriodicWorkRequest.Builder(UpdateWorker.class, PERIODICITY_FOR_UPDATE_IN_HOURS, TimeUnit.HOURS)
+                            .addTag(getCurrentApp().getAppRecord().getApplicationId())
+                            .setConstraints(constraints)
+                            .setBackoffCriteria(
+                                    BackoffPolicy.EXPONENTIAL,
+                                    BACKOFF_DELAY_FOR_UPDATE_RETRY,
+                                    TimeUnit.MILLISECONDS)
+                            .build();
 
-        WorkManager.getInstance(this).enqueueUniquePeriodicWork(
-                UpdateHelper.getUpdateRequestName(),
-                ExistingPeriodicWorkPolicy.KEEP,
-                updateRequest
-                );
+            WorkManager.getInstance(this).enqueueUniquePeriodicWork(
+                    UpdateHelper.getUpdateRequestName(),
+                    ExistingPeriodicWorkPolicy.KEEP,
+                    updateRequest
+            );
+        }
     }
 
     // check if it's been a week since last run
