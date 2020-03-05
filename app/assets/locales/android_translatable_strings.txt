@@ -451,6 +451,7 @@ pin.dialog.set.later.title=Setting A PIN Later
 pin.dialog.set.later.message=You can access the PIN create screen at any time from the home screen options menu.
 pin.continue.button=CONTINUE
 pin.confirm.button=CONFIRM
+pin.cancel.button=CANCEL
 pin.directive.new=Enter a 4-digit PIN
 pin.directive.reset=Enter a new 4-digit PIN
 pin.directive.confirm=Re-Enter the PIN you chose
