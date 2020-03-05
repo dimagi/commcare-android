@@ -38,18 +38,6 @@ public class FormRelevancyUpdating {
     }
 
     /**
-     * @return A list of answers for each widget in the list of old widgets, with the
-     * original order preserved
-     */
-    public static ArrayList<IAnswerData> getOldAnswersForEachWidget(ArrayList<QuestionWidget> oldWidgets) {
-        ArrayList<IAnswerData> answerList = new ArrayList<>();
-        for (QuestionWidget qw : oldWidgets) {
-            answerList.add(qw.getPrompt().getAnswerValue());
-        }
-        return answerList;
-    }
-
-    /**
      * @param newValidPrompts  All of the prompts that should be in the new view
      * @param oldPrompt        The prompt from the prior view for which we are seeking a match in the
      *                         list of new prompts
