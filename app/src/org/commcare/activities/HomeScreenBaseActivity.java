@@ -240,7 +240,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
             return true;
         }
 
-        if (!CommCareApplication.instance().isSyncPending(false)) {
+        if (!CommCareApplication.instance().isSyncPending()) {
             // Trigger off a regular unsent task processor, unless we're about to sync (which will
             // then handle this in a blocking fashion)
             checkAndStartUnsentFormsTask(false, false);
@@ -1140,7 +1140,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
         } else if (UpdateActivity.isUpdateBlockedOnSync() && UpdateActivity.sBlockedUpdateWorkflowInProgress) {
             triggerSync(true);
             kickedOff = true;
-        } else if (CommCareApplication.instance().isSyncPending(false)) {
+        } else if (CommCareApplication.instance().isSyncPending()) {
             triggerSync(true);
             kickedOff = true;
         } else if (UpdatePromptHelper.promptForUpdateIfNeeded(this)) {

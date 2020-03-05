@@ -700,7 +700,6 @@ public class CommCareApplication extends MultiDexApplication {
                         if (shouldAutoUpdate()) {
                             startAutoUpdate();
                         }
-                        syncPending = PendingCalcs.getPendingSyncStatus();
 
                         doReportMaintenance();
                         mBoundService.initHeartbeatLifecycle();
@@ -866,24 +865,12 @@ public class CommCareApplication extends MultiDexApplication {
         return getSession().getUserKeyRecord();
     }
 
-    private boolean syncPending = false;
-
-    public synchronized boolean isSyncPending(boolean clearFlag) {
+    public synchronized boolean isSyncPending() {
         if (areAutomatedActionsInvalid()) {
             return false;
         }
-        // We only set this to true occasionally, but in theory it could be set to false
-        // from other factors, so turn it off if it is.
-        if (!PendingCalcs.getPendingSyncStatus()) {
-            syncPending = false;
-        }
-        if (!syncPending) {
-            return false;
-        }
-        if (clearFlag) {
-            syncPending = false;
-        }
-        return true;
+
+        return PendingCalcs.getPendingSyncStatus();
     }
 
     public boolean isPostUpdateSyncNeeded() {
