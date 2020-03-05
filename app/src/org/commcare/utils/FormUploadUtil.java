@@ -32,6 +32,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import javax.annotation.Nullable;
 import javax.crypto.Cipher;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.SecretKeySpec;
@@ -106,11 +107,9 @@ public class FormUploadUtil {
      *                               file-system
      */
     public static FormUploadResult sendInstance(int submissionNumber, File folder,
-                                                SecretKeySpec key, String url,
-                                                DataSubmissionListener listener, User user)
+                                                @Nullable  SecretKeySpec key, String url,
+                                                @Nullable DataSubmissionListener listener, User user)
             throws FileNotFoundException {
-        boolean hasListener = false;
-
 
         File[] files = folder.listFiles();
 
@@ -129,13 +128,12 @@ public class FormUploadUtil {
         // If we're listening, figure out how much (roughly) we have to send
         long bytes = estimateUploadBytes(files);
 
-        if (hasListener) {
+        if (listener != null) {
             listener.startSubmission(submissionNumber, bytes);
         }
 
         if (files.length == 0) {
             Log.e(TAG, "no files to upload");
-            // todo listener.cancel(true);
             throw new FileNotFoundException("Folder at path " + folder.getAbsolutePath() + " had no files.");
         }
 
@@ -312,7 +310,7 @@ public class FormUploadUtil {
      *                               file-system
      */
     private static boolean buildMultipartEntity(List<MultipartBody.Part> parts,
-                                                SecretKeySpec key,
+                                                @Nullable SecretKeySpec key,
                                                 File[] files)
             throws FileNotFoundException {
 
