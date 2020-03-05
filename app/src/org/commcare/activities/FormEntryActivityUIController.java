@@ -43,6 +43,7 @@ import org.commcare.views.widgets.QuestionWidget;
 import org.javarosa.core.model.Constants;
 import org.javarosa.core.model.FormIndex;
 import org.javarosa.core.model.SelectChoice;
+import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.data.InvalidData;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
@@ -716,6 +717,8 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
                 FormRelevancyUpdating.getOldSelectChoicesForEachWidget(oldWidgets);
         ArrayList<String> oldQuestionTexts =
                 FormRelevancyUpdating.getOldQuestionTextsForEachWidget(oldWidgets);
+        ArrayList<IAnswerData> oldAnswers =
+                FormRelevancyUpdating.getOldAnswersForEachWidget(oldWidgets);
 
         activity.saveAnswersForCurrentScreen(FormEntryConstants.DO_NOT_EVALUATE_CONSTRAINTS);
 
@@ -739,9 +742,12 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
                 continue;
             }
 
-            //If there was change(in particular image-remove) in an image widget, then update the form
             if (oldWidgets.get(i) instanceof ImageWidget) {
-                activity.updateFormMediaToDisk();
+                // If there was change(in particular image-remove) in an image widget,
+                // only then update the form to disk.
+                if (oldAnswers.get(i) != null && oldWidgets.get(i).getAnswer() == null) {
+                    activity.onExternalAttachmentUpdated();
+                }
             }
 
             FormEntryPrompt oldPrompt = oldWidgets.get(i).getPrompt();

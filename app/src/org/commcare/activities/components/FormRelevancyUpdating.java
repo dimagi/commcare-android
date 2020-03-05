@@ -2,6 +2,7 @@ package org.commcare.activities.components;
 
 import org.commcare.views.widgets.QuestionWidget;
 import org.javarosa.core.model.SelectChoice;
+import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.form.api.FormEntryPrompt;
 
 import java.util.ArrayList;
@@ -34,6 +35,18 @@ public class FormRelevancyUpdating {
             questionTextList.add(qw.getPrompt().getQuestionText());
         }
         return questionTextList;
+    }
+
+    /**
+     * @return A list of answers for each widget in the list of old widgets, with the
+     * original order preserved
+     */
+    public static ArrayList<IAnswerData> getOldAnswersForEachWidget(ArrayList<QuestionWidget> oldWidgets) {
+        ArrayList<IAnswerData> answerList = new ArrayList<>();
+        for (QuestionWidget qw : oldWidgets) {
+            answerList.add(qw.getPrompt().getAnswerValue());
+        }
+        return answerList;
     }
 
     /**
