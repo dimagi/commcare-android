@@ -2,6 +2,7 @@ package org.commcare.activities.components;
 
 import org.commcare.views.widgets.QuestionWidget;
 import org.javarosa.core.model.SelectChoice;
+import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.form.api.FormEntryPrompt;
 
 import java.util.ArrayList;
