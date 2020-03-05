@@ -703,7 +703,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         saveDataToDisk(FormEntryConstants.EXIT, false, null, true);
     }
 
-    private void updateFormMediaToDisk() {
+    protected void updateFormMediaToDisk() {
         // Works only when we are editing a saved form.
         FormRecord formRecord = FormRecord.getFormRecord(formRecordStorage, FormEntryInstanceState.mFormRecordPath);
         if (formRecord == null) {
