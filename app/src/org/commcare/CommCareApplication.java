@@ -1,6 +1,5 @@
 package org.commcare;
 
-import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.ActivityManager;
 import android.content.ComponentName;
@@ -8,7 +7,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Environment;
@@ -16,8 +14,7 @@ import android.os.IBinder;
 import android.os.Looper;
 import android.os.StrictMode;
 import androidx.preference.PreferenceManager;
-import android.provider.Settings.Secure;
-import android.telephony.TelephonyManager;
+
 import android.text.format.DateUtils;
 import android.util.Log;
 
@@ -119,7 +116,6 @@ import javax.annotation.Nullable;
 import javax.crypto.SecretKey;
 
 import androidx.annotation.NonNull;
-import androidx.core.content.ContextCompat;
 import androidx.multidex.MultiDexApplication;
 import androidx.work.BackoffPolicy;
 import androidx.work.Constraints;
@@ -335,14 +331,18 @@ public class CommCareApplication extends MultiDexApplication {
             // Cancel any running tasks before closing down the user database.
             ManagedAsyncTask.cancelTasks();
 
-            // Cancel form Submissions for this user
-            WorkManager.getInstance(this).cancelUniqueWork(FormSubmissionHelper.getFormSubmissionRequestName());
+            cancelWorkManagerTasks();
 
             releaseUserResourcesAndServices();
 
             // Switch loggers back over to using global storage, now that we don't have a session
             setupLoggerStorage(false);
         }
+    }
+
+    protected void cancelWorkManagerTasks() {
+        // Cancel form Submissions for this user
+        WorkManager.getInstance(this).cancelUniqueWork(FormSubmissionHelper.getFormSubmissionRequestName());
     }
 
     /**
