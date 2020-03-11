@@ -27,7 +27,7 @@ class FormSubmissionWorker(appContext: Context, workerParams: WorkerParameters)
 
         return when (result) {
             FormUploadResult.FULL_SUCCESS -> Result.success()
-            FormUploadResult.TRANSPORT_FAILURE -> Result.retry()
+            FormUploadResult.TRANSPORT_FAILURE, FormUploadResult.RATE_LIMITED -> Result.retry()
             else -> Result.failure()
         }
     }
