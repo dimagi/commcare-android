@@ -13,6 +13,7 @@ import android.os.Environment;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.StrictMode;
+
 import androidx.preference.PreferenceManager;
 
 import android.text.format.DateUtils;
@@ -714,8 +715,10 @@ public class CommCareApplication extends MultiDexApplication {
                             CommCareApplication.this.sessionWrapper = new AndroidSessionWrapper(CommCareApplication.this.getCommCarePlatform());
                         }
 
-                        scheduleAppUpdate();
-                        scheduleFormSubmissions();
+                        if (!HiddenPreferences.shouldDisableBackgroundWork()) {
+                            scheduleAppUpdate();
+                            scheduleFormSubmissions();
+                        }
 
                         syncPending = PendingCalcs.getPendingSyncStatus();
 
@@ -793,7 +796,7 @@ public class CommCareApplication extends MultiDexApplication {
 
     // Hand off an app update task to the Android WorkManager
     private void scheduleAppUpdate() {
-        if(areAutomatedActionsInvalid()) {
+        if (areAutomatedActionsInvalid()) {
             Constraints constraints = new Constraints.Builder()
                     .setRequiredNetworkType(NetworkType.CONNECTED)
                     .setRequiresBatteryNotLow(true)

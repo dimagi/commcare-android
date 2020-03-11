@@ -14,8 +14,6 @@ import org.commcare.utils.GeoUtils;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
-import androidx.annotation.Nullable;
-
 /**
  * Provides hooks for reading and writing all preferences that are not configurable by the user in
  * the mobile UI. There are 2 classes of settings that fall into this category:
@@ -80,6 +78,7 @@ public class HiddenPreferences {
 
     // Internal pref to bypass PRE_UPDATE_SYNC_NEEDED using advanced settings
     private static final String BYPASS_PRE_UPDATE_SYNC = "bypass_pre_update_sync";
+    private static final String DISABLE_BACKGROUND_WORK = "disable-background-work";
 
 
     /**
@@ -415,5 +414,16 @@ public class HiddenPreferences {
 
     public static boolean shouldBypassPreUpdateSync() {
         return CommCareApplication.instance().getCurrentApp().getAppPreferences().getBoolean(BYPASS_PRE_UPDATE_SYNC, false);
+    }
+
+    public static void setDisableBackgroundWork(boolean disableBackgroundWork) {
+        CommCareApplication.instance().getCurrentApp().getAppPreferences()
+                .edit()
+                .putBoolean(DISABLE_BACKGROUND_WORK, disableBackgroundWork)
+                .apply();
+    }
+
+    public static boolean shouldDisableBackgroundWork() {
+        return CommCareApplication.instance().getCurrentApp().getAppPreferences().getBoolean(DISABLE_BACKGROUND_WORK, false);
     }
 }
