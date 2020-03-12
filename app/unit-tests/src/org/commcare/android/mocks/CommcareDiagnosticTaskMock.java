@@ -4,6 +4,7 @@ import android.content.Context;
 import android.util.Log;
 import org.commcare.android.shadows.ShadowAsyncTaskNoExecutor;
 import org.commcare.tasks.ConnectionDiagnosticTask;
+import org.commcare.utils.ConnectivityStatus;
 import org.robolectric.annotation.Implementation;
 import org.robolectric.annotation.Implements;
 
@@ -23,8 +24,8 @@ public class CommcareDiagnosticTaskMock extends ShadowAsyncTaskNoExecutor {
     }
 
     @Implementation
-    protected ConnectionDiagnosticTask.NetworkState doTaskBackground(Void... params) {
+    protected ConnectivityStatus.NetworkState doTaskBackground(Void... params) {
         Log.d(TAG, "faking connection diagnostic");
-        return ConnectionDiagnosticTask.NetworkState.CONNECTED;
+        return ConnectivityStatus.NetworkState.CONNECTED;
     }
 }

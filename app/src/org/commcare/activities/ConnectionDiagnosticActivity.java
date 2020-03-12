@@ -1,11 +1,9 @@
 package org.commcare.activities;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -13,9 +11,9 @@ import android.widget.Toast;
 import org.commcare.CommCareApplication;
 import org.commcare.dalvik.R;
 import org.commcare.tasks.ConnectionDiagnosticTask;
-import org.commcare.tasks.DataSubmissionListener;
 import org.commcare.tasks.LogSubmissionTask;
 import org.commcare.utils.CommCareUtil;
+import org.commcare.utils.ConnectivityStatus;
 import org.commcare.utils.MarkupUtil;
 import org.commcare.views.ManagedUi;
 import org.commcare.views.UiElement;
@@ -55,7 +53,7 @@ public class ConnectionDiagnosticActivity extends CommCareActivity<ConnectionDia
                         @Override
                         //<R> receiver, <C> result.
                         //<C> is the return from DoTaskBackground, of type ArrayList<Boolean>
-                        protected void deliverResult(ConnectionDiagnosticActivity receiver, NetworkState failedTest) {
+                        protected void deliverResult(ConnectionDiagnosticActivity receiver, ConnectivityStatus.NetworkState failedTest) {
                             //user-caused connection issues
                             switch (failedTest) {
                                 case CONNECTED:
@@ -64,7 +62,7 @@ public class ConnectionDiagnosticActivity extends CommCareActivity<ConnectionDia
                                     receiver.settingsButton.setVisibility(View.INVISIBLE);
                                     receiver.reportButton.setVisibility(View.INVISIBLE);
                                     break;
-                                case COMMCARE_BLOCKED:
+                                case COMMCARE_DOWN:
                                     //unable to ping commcare -- report this to cchq
                                     receiver.txtInteractiveMessages.setText(Localization.get("connection.task.commcare.html.fail"));
                                     receiver.txtInteractiveMessages.setVisibility(View.VISIBLE);
@@ -73,7 +71,7 @@ public class ConnectionDiagnosticActivity extends CommCareActivity<ConnectionDia
                                 case DISCONNECTED:
                                 case CAPTIVE_PORTAL:
                                     //get the appropriate display message based on what the problem is
-                                    String displayMessage = failedTest == NetworkState.DISCONNECTED ?
+                                    String displayMessage = failedTest == ConnectivityStatus.NetworkState.DISCONNECTED ?
                                             Localization.get("connection.task.internet.fail")
                                             : Localization.get("connection.task.remote.ping.fail");
 

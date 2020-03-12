@@ -130,9 +130,9 @@ public class NotificationMessageFactory {
         Sync_CaptivePortal("connection.captive_portal"),
 
         /**
-         * Commcare APIs are blocked for some reasons.
+         * Commcare servers are down for some reasons.
          */
-        Sync_CommcareBlocked("connection.commcare_blocked"),
+        Sync_CommcareDown("connection.commcare_down"),
 
         /**
          * One of your files on the SD was bad*

@@ -33,7 +33,6 @@ import org.commcare.fragments.InstallConfirmFragment;
 import org.commcare.fragments.InstallPermissionsFragment;
 import org.commcare.fragments.SelectInstallModeFragment;
 import org.commcare.fragments.SetupEnterURLFragment;
-import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.interfaces.RuntimePermissionRequester;
 import org.commcare.android.database.global.models.ApplicationRecord;
@@ -41,20 +40,19 @@ import org.commcare.logging.DataChangeLog;
 import org.commcare.logging.DataChangeLogger;
 import org.commcare.preferences.GlobalPrivilegesManager;
 import org.commcare.resources.model.InvalidResourceException;
-import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.tasks.ConnectionDiagnosticTask;
 import org.commcare.tasks.ResourceEngineListener;
 import org.commcare.tasks.ResourceEngineTask;
 import org.commcare.tasks.RetrieveParseVerifyMessageListener;
 import org.commcare.tasks.RetrieveParseVerifyMessageTask;
+import org.commcare.utils.AppInstallationUtil;
 import org.commcare.utils.ConsumerAppsUtil;
 import org.commcare.utils.MultipleAppsUtil;
 import org.commcare.utils.Permissions;
 import org.commcare.views.ManagedUi;
 import org.commcare.views.dialogs.CustomProgressDialog;
 import org.commcare.views.dialogs.DialogCreationHelpers;
-import org.commcare.views.notifications.MessageTag;
 import org.commcare.views.notifications.NotificationMessage;
 import org.commcare.views.notifications.NotificationMessageFactory;
 import org.javarosa.core.reference.InvalidReferenceException;
@@ -65,8 +63,6 @@ import org.javarosa.core.util.PropertyUtils;
 import java.io.IOException;
 import java.security.SignatureException;
 import java.util.List;
-
-import static org.commcare.CommCareNoficationManager.AIRPLANE_MODE_CATEGORY;
 
 /**
  * Responsible for identifying the state of the application (uninstalled,
@@ -123,7 +119,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     public static final int GET_APPS_FROM_HQ = 5;
 
     // dialog ID
-    private static final int DIALOG_INSTALL_PROGRESS = 4;
+    public static final int DIALOG_INSTALL_PROGRESS = 4;
 
     private boolean startAllowed = true;
     private String incomingRef;
@@ -140,13 +136,13 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
      */
     private boolean fromExternal;
 
-    private static final int INSTALL_MODE_BARCODE = 0;
-    private static final int INSTALL_MODE_URL = 1;
-    private static final int INSTALL_MODE_OFFLINE = 2;
-    private static final int INSTALL_MODE_SMS = 3;
-    private static final int INSTALL_MODE_FROM_LIST = 4;
-    private static final int INSTALL_MODE_MANAGED_CONFIGURATION = 5;
-    private int lastInstallMode;
+    public static final int INSTALL_MODE_BARCODE = 0;
+    public static final int INSTALL_MODE_URL = 1;
+    public static final int INSTALL_MODE_OFFLINE = 2;
+    public static final int INSTALL_MODE_SMS = 3;
+    public static final int INSTALL_MODE_FROM_LIST = 4;
+    public static final int INSTALL_MODE_MANAGED_CONFIGURATION = 5;
+    public int lastInstallMode;
 
     /**
      * Remember how the sms install was triggered in case orientation changes while asking for permissions
@@ -464,31 +460,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             // in keep trying mode.
             boolean shouldSleep = (lastDialog != null) && lastDialog.isChecked();
 
-            ResourceEngineTask<CommCareSetupActivity> task =
-                    new ResourceEngineTask<CommCareSetupActivity>(ccApp,
-                            DIALOG_INSTALL_PROGRESS, shouldSleep, determineAuthorityForInstall(), false) {
-
-                        @Override
-                        protected void deliverResult(CommCareSetupActivity receiver,
-                                                     AppInstallStatus result) {
-                            handleAppInstallResult(this, receiver, result);
-                        }
-
-                        @Override
-                        protected void deliverUpdate(CommCareSetupActivity receiver,
-                                                     int[]... update) {
-                            receiver.updateResourceProgress(update[0][0], update[0][1], update[0][2]);
-                        }
-
-                        @Override
-                        protected void deliverError(CommCareSetupActivity receiver,
-                                                    Exception e) {
-                            receiver.failUnknown(AppInstallStatus.UnknownFailure);
-                        }
-                    };
-
-            task.connect(this);
-            task.executeParallel(incomingRef);
+            AppInstallationUtil.startResourceInstall(getApplicationContext(), incomingRef, this, ccApp, shouldSleep, lastInstallMode);
         } else {
             Log.i(TAG, "During install: blocked a resource install press since a task was already running");
         }
@@ -536,14 +508,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                 receiver.failUnknown(AppInstallStatus.UnknownFailure);
                 break;
         }
-    }
-
-    private int determineAuthorityForInstall() {
-        // Note that this is an imperfect way to determine the resource authority; we should
-        // really be looking at the nature of the reference that is being used itself (i.e. is it
-        // a file reference or a URL)
-        return lastInstallMode == INSTALL_MODE_OFFLINE ?
-                Resource.RESOURCE_AUTHORITY_LOCAL : Resource.RESOURCE_AUTHORITY_REMOTE;
     }
 
     public static CommCareApp getCommCareApp() {
@@ -723,7 +687,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         CommCareApplication.notificationManager().clearNotifications("install_update");
 
         if (newAppInstalled) {
-            FirebaseAnalyticsUtil.reportAppInstall(getAnalyticsParamForInstallMethod(lastInstallMode));
+            FirebaseAnalyticsUtil.reportAppInstall(AppInstallationUtil.getAnalyticsParamForInstallMethod(lastInstallMode));
             DataChangeLogger.log(new DataChangeLog.CommCareAppInstall());
         } else {
             Toast.makeText(this, Localization.get("updates.success"), Toast.LENGTH_LONG).show();
@@ -847,26 +811,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         if (lastInstallMode != INSTALL_MODE_OFFLINE && isNetworkNotConnected()) {
             failWithNotification(AppInstallStatus.NoConnection);
         } else {
-            ConnectionDiagnosticTask<CommCareSetupActivity> task = new ConnectionDiagnosticTask(getApplicationContext());
-            task.setListener(new ConnectionDiagnosticTask.ConnectionDiagnosticListener<CommCareSetupActivity>() {
-                @Override
-                public void connected(CommCareSetupActivity receiver) {
-                    CommCareApplication.notificationManager().clearNotifications(AIRPLANE_MODE_CATEGORY);
-                    receiver.startResourceInstall();
-                }
-
-                @Override
-                public void failed(CommCareSetupActivity receiver, String errorMessageId, MessageTag notificationTag, String analyticsMessage) {
-                    Toast.makeText(receiver, Localization.get(errorMessageId), Toast.LENGTH_LONG).show();
-                    CommCareApplication.notificationManager().reportNotificationMessage(
-                            NotificationMessageFactory.message(
-                                    notificationTag,
-                                    AIRPLANE_MODE_CATEGORY));
-                    FirebaseAnalyticsUtil.reportAppInstallFailure(getAnalyticsParamForInstallMethod(receiver.lastInstallMode), analyticsMessage);
-                }
-            });
-            task.connect(CommCareSetupActivity.this);
-            task.executeParallel();
+            startResourceInstall();
         }
     }
 
@@ -981,25 +926,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             InstallPermissionsFragment permFragment =
                     (InstallPermissionsFragment)getSupportFragmentManager().findFragmentById(R.id.setup_fragment_container);
             permFragment.updateDeniedState();
-        }
-    }
-
-    private static String getAnalyticsParamForInstallMethod(int installModeCode) {
-        switch (installModeCode) {
-            case INSTALL_MODE_BARCODE:
-                return AnalyticsParamValue.BARCODE_INSTALL;
-            case INSTALL_MODE_OFFLINE:
-                return AnalyticsParamValue.OFFLINE_INSTALL;
-            case INSTALL_MODE_SMS:
-                return AnalyticsParamValue.SMS_INSTALL;
-            case INSTALL_MODE_URL:
-                return AnalyticsParamValue.URL_INSTALL;
-            case INSTALL_MODE_FROM_LIST:
-                return AnalyticsParamValue.FROM_LIST_INSTALL;
-            case INSTALL_MODE_MANAGED_CONFIGURATION:
-                return AnalyticsParamValue.MANAGED_CONFIG_INSTALL;
-            default:
-                return "";
         }
     }
 

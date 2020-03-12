@@ -5,44 +5,25 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 
 import org.commcare.android.logging.ForceCloseLogger;
-import org.commcare.core.network.CommCareNetworkService;
-import org.commcare.core.network.CommCareNetworkServiceGenerator;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.tasks.templates.CommCareTask;
+import org.commcare.utils.ConnectivityStatus;
+import org.commcare.utils.ConnectivityStatus.NetworkState;
 import org.commcare.views.notifications.MessageTag;
 import org.commcare.views.notifications.NotificationMessageFactory;
 import org.javarosa.core.services.Logger;
 
 import java.io.IOException;
-import java.util.HashMap;
-
-import okhttp3.ResponseBody;
-import retrofit2.Response;
 
 /**
  * Runs various tasks that diagnose problems that a user may be facing in connecting to commcare services.
  *
  * @author srengesh
  */
-public class ConnectionDiagnosticTask<R> extends CommCareTask<Void, String, ConnectionDiagnosticTask.NetworkState, R> {
+public class ConnectionDiagnosticTask<R> extends CommCareTask<Void, String, NetworkState, R> {
     private final Context c;
 
     private ConnectionDiagnosticListener listener;
-
-    /**
-     * Gives fine-grained network connection state.
-     * Most should use {@link org.commcare.utils.ConnectivityStatus#isNetworkAvailable(Context)} instead.
-     */
-    public enum NetworkState {
-        /** Network is available. */
-        CONNECTED,
-        /** Network is not available. */
-        DISCONNECTED,
-        /** Network is a captive portal. */
-        CAPTIVE_PORTAL,
-        /** Commcare api is blocked in the network. */
-        COMMCARE_BLOCKED
-    }
 
     public static final int CONNECTION_ID = 12335800;
 
@@ -54,8 +35,6 @@ public class ConnectionDiagnosticTask<R> extends CommCareTask<Void, String, Conn
 
     //strings used to in various diagnostics tests. Change these values if the URLs/HTML code is changed.
     private static final String googleURL = "www.google.com";
-    private static final String commcareURL = "http://www.commcarehq.org/serverup.txt";
-    private static final String commcareHTML = "success";
     private static final String pingPrefix = "ping -c 1 ";
 
 
@@ -69,10 +48,7 @@ public class ConnectionDiagnosticTask<R> extends CommCareTask<Void, String, Conn
     private static final String logGoogleSuccessMessage = "Google ping test: Success.";
     private static final String logGoogleUnexpectedResultMessage = "Google ping test: Unexpected HTML Result.";
 
-    private static final String logCCNetworkFailureMessage = "CCHQ ping test: Network failure with error code ";
     private static final String logCCIOErrorMessage = "CCHQ ping test: Local error.";
-    private static final String logCCUnexpectedResultMessage = "CCHQ ping test: Unexpected HTML result";
-    private static final String logCCSuccessMessage = "CCHQ ping test: Success.";
 
     public ConnectionDiagnosticTask(Context c) {
         this.c = c;
@@ -87,15 +63,10 @@ public class ConnectionDiagnosticTask<R> extends CommCareTask<Void, String, Conn
 
     @Override
     protected NetworkState doTaskBackground(Void... params) {
-        NetworkState out = NetworkState.CONNECTED;
-        if (!isOnline(this.c)) {
-            out = NetworkState.DISCONNECTED;
-        } else if (!pingSuccess(googleURL)) {
-            out = NetworkState.CAPTIVE_PORTAL;
-        } else if (!pingCC(commcareURL)) {
-            out = NetworkState.COMMCARE_BLOCKED;
+        if (!isOnline(this.c) || !pingSuccess(googleURL)) {
+            return NetworkState.DISCONNECTED;
         }
-        return out;
+        return pingCC();
     }
 
     //checks if the network is connected or not.
@@ -141,28 +112,14 @@ public class ConnectionDiagnosticTask<R> extends CommCareTask<Void, String, Conn
         return pingReturn == 0;
     }
 
-    private boolean pingCC(String url) {
-        CommCareNetworkService commCareNetworkService = CommCareNetworkServiceGenerator.createNoAuthCommCareNetworkService();
-        String htmlLine = "";
+    private NetworkState pingCC() {
         try {
-            Response<ResponseBody> response = commCareNetworkService.makeGetRequest(url, new HashMap<>(), new HashMap<>()).execute();
-            if (response.isSuccessful()) {
-                htmlLine = response.body().string();
-            } else {
-                Logger.log(CONNECTION_DIAGNOSTIC_REPORT, logCCNetworkFailureMessage + response.code());
-                return false;
-            }
+            NetworkState state = ConnectivityStatus.checkCaptivePortal();
+            Logger.log(CONNECTION_DIAGNOSTIC_REPORT, "Calling commcare for captive portal detection returned : " + state.name());
+            return state;
         } catch (IOException e) {
             Logger.log(CONNECTION_DIAGNOSTIC_REPORT, logCCIOErrorMessage + System.getProperty("line.separator") + "Stack trace: " + ForceCloseLogger.getStackTrace(e));
-            return false;
-        }
-
-        if (htmlLine.equals(commcareHTML)) {
-            Logger.log(CONNECTION_DIAGNOSTIC_REPORT, logCCSuccessMessage);
-            return true;
-        } else {
-            Logger.log(CONNECTION_DIAGNOSTIC_REPORT, logCCUnexpectedResultMessage);
-            return false;
+            return NetworkState.DISCONNECTED;
         }
     }
 
@@ -176,8 +133,13 @@ public class ConnectionDiagnosticTask<R> extends CommCareTask<Void, String, Conn
                 listener.connected(r);
                 return;
             case DISCONNECTED:
-                errorMessageId = "notification.sync.connections.action";
-                notificationTag = NotificationMessageFactory.StockMessages.Sync_NoConnections;
+                if (ConnectivityStatus.isAirplaneModeOn(c)) {
+                    errorMessageId = "notification.sync.airplane.action";
+                    notificationTag = NotificationMessageFactory.StockMessages.Sync_AirplaneMode;
+                } else {
+                    errorMessageId = "notification.sync.connections.action";
+                    notificationTag = NotificationMessageFactory.StockMessages.Sync_NoConnections;
+                }
                 analyticsMessage = AnalyticsParamValue.SYNC_FAIL_NO_CONNECTION;
                 break;
             case CAPTIVE_PORTAL:
@@ -185,10 +147,10 @@ public class ConnectionDiagnosticTask<R> extends CommCareTask<Void, String, Conn
                 notificationTag = NotificationMessageFactory.StockMessages.Sync_CaptivePortal;
                 analyticsMessage = AnalyticsParamValue.SYNC_FAIL_CAPTIVE_PORTAL;
                 break;
-            case COMMCARE_BLOCKED:
-                errorMessageId = "connection.commcare_blocked.action";
-                notificationTag = NotificationMessageFactory.StockMessages.Sync_CommcareBlocked;
-                analyticsMessage = AnalyticsParamValue.SYNC_FAIL_COMMCARE_BLOCKED;
+            case COMMCARE_DOWN:
+                errorMessageId = "connection.commcare_down.action";
+                notificationTag = NotificationMessageFactory.StockMessages.Sync_CommcareDown;
+                analyticsMessage = AnalyticsParamValue.SYNC_FAIL_COMMCARE_DOWN;
                 break;
         }
         listener.failed(r, errorMessageId, notificationTag, analyticsMessage);

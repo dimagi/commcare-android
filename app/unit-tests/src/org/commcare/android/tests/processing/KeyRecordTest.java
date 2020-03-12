@@ -9,6 +9,7 @@ import org.commcare.activities.LoginMode;
 import org.commcare.android.CommCareTestRunner;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.user.models.FormRecord;
+import org.commcare.android.mocks.ConnectivityStatusMock;
 import org.commcare.android.tests.activities.FormRecordListActivityTest;
 import org.commcare.android.util.SavedFormLoader;
 import org.commcare.android.util.TestAppInstaller;
@@ -28,14 +29,13 @@ import org.robolectric.annotation.Config;
 import java.util.Date;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 
 /**
  * Test various key record setup code paths
  *
  * @author Phillip Mates (pmates@dimagi.com)
  */
-@Config(application = CommCareTestApplication.class)
+@Config(application = CommCareTestApplication.class, shadows = {ConnectivityStatusMock.class})
 @RunWith(CommCareTestRunner.class)
 public class KeyRecordTest {
     private CommCareApp app;

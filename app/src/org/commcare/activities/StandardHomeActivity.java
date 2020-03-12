@@ -82,51 +82,29 @@ public class StandardHomeActivity
      * Triggered by a user manually clicking the sync button
      */
     void syncButtonPressed() {
-        if (!ConnectivityStatus.isNetworkAvailable(StandardHomeActivity.this)) {
-            if (ConnectivityStatus.isAirplaneModeOn(StandardHomeActivity.this)) {
-                handleSyncNotAttempted(Localization.get("notification.sync.airplane.action"));
-                CommCareApplication.notificationManager().reportNotificationMessage(
-                        NotificationMessageFactory.message(
-                                NotificationMessageFactory.StockMessages.Sync_AirplaneMode,
-                                AIRPLANE_MODE_CATEGORY));
-            } else {
-                handleSyncNotAttempted(Localization.get("notification.sync.connections.action"));
-                CommCareApplication.notificationManager().reportNotificationMessage(
-                        NotificationMessageFactory.message(
-                                NotificationMessageFactory.StockMessages.Sync_NoConnections,
-                                AIRPLANE_MODE_CATEGORY));
+        ConnectionDiagnosticTask<StandardHomeActivity> task = new ConnectionDiagnosticTask(getApplicationContext());
+        task.setListener(new ConnectionDiagnosticTask.ConnectionDiagnosticListener<StandardHomeActivity>() {
+            @Override
+            public void connected(StandardHomeActivity receiver) {
+                CommCareApplication.notificationManager().clearNotifications(AIRPLANE_MODE_CATEGORY);
+                receiver.sendFormsOrSync(true);
             }
-            FirebaseAnalyticsUtil.reportSyncFailure(
-                    AnalyticsParamValue.SYNC_TRIGGER_USER,
-                    AnalyticsParamValue.SYNC_MODE_SEND_FORMS,
-                    AnalyticsParamValue.SYNC_FAIL_NO_CONNECTION);
-            return;
-        } else {
 
-            ConnectionDiagnosticTask<StandardHomeActivity> task = new ConnectionDiagnosticTask(getApplicationContext());
-            task.setListener(new ConnectionDiagnosticTask.ConnectionDiagnosticListener<StandardHomeActivity>() {
-                @Override
-                public void connected(StandardHomeActivity receiver) {
-                    CommCareApplication.notificationManager().clearNotifications(AIRPLANE_MODE_CATEGORY);
-                    receiver.sendFormsOrSync(true);
-                }
-
-                @Override
-                public void failed(StandardHomeActivity receiver, String errorMessageId, MessageTag notificationTag, String analyticsMessage) {
-                    receiver.handleSyncNotAttempted(Localization.get(errorMessageId));
-                    CommCareApplication.notificationManager().reportNotificationMessage(
-                            NotificationMessageFactory.message(
-                                    notificationTag,
-                                    AIRPLANE_MODE_CATEGORY));
-                    FirebaseAnalyticsUtil.reportSyncFailure(
-                            AnalyticsParamValue.SYNC_TRIGGER_USER,
-                            AnalyticsParamValue.SYNC_MODE_SEND_FORMS,
-                            analyticsMessage);
-                }
-            });
-            task.connect(StandardHomeActivity.this);
-            task.executeParallel();
-        }
+            @Override
+            public void failed(StandardHomeActivity receiver, String errorMessageId, MessageTag notificationTag, String analyticsMessage) {
+                receiver.handleSyncNotAttempted(Localization.get(errorMessageId));
+                CommCareApplication.notificationManager().reportNotificationMessage(
+                        NotificationMessageFactory.message(
+                                notificationTag,
+                                AIRPLANE_MODE_CATEGORY));
+                FirebaseAnalyticsUtil.reportSyncFailure(
+                        AnalyticsParamValue.SYNC_TRIGGER_USER,
+                        AnalyticsParamValue.SYNC_MODE_SEND_FORMS,
+                        analyticsMessage);
+            }
+        });
+        task.connect(StandardHomeActivity.this);
+        task.executeParallel();
     }
 
     @Override
