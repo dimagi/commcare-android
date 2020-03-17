@@ -352,6 +352,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     public void saveImageWidgetAnswer(String imagePath) {
         uiController.questionsView.setBinaryData(imagePath, mFormController);
         saveAnswersForCurrentScreen(FormEntryConstants.DO_NOT_EVALUATE_CONSTRAINTS);
+        onExternalAttachmentUpdated();
         uiController.refreshView();
     }
 
@@ -370,6 +371,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             uiController.questionsView.setBinaryData(media, mFormController);
         }
         saveAnswersForCurrentScreen(FormEntryConstants.DO_NOT_EVALUATE_CONSTRAINTS);
+        onExternalAttachmentUpdated();
         uiController.refreshView();
     }
 
@@ -699,6 +701,21 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
     private void saveIncompleteFormToDisk() {
         saveDataToDisk(FormEntryConstants.EXIT, false, null, true);
+    }
+
+    /**
+     * Attempts to update the form in the disk when user changes the attachment.
+     * NOTE:- This fixes the mismatch in attachments while trying to update attachments in a saved form.
+     */
+    protected void onExternalAttachmentUpdated() {
+        FormRecord formRecord = FormRecord.getFormRecord(formRecordStorage, FormEntryInstanceState.mFormRecordPath);
+        if (formRecord == null) {
+            return;
+        }
+        String formStatus = formRecord.getStatus();
+        if (FormRecord.STATUS_INCOMPLETE.equals(formStatus)) {
+            saveDataToDisk(false, false, null, true);
+        }
     }
 
     private void showSaveErrorAndExit() {

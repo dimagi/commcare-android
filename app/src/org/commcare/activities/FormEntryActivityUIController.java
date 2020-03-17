@@ -37,6 +37,7 @@ import org.commcare.views.dialogs.DialogChoiceItem;
 import org.commcare.views.dialogs.HorizontalPaneledChoiceDialog;
 import org.commcare.views.dialogs.PaneledChoiceDialog;
 import org.commcare.views.media.AudioController;
+import org.commcare.views.widgets.ImageWidget;
 import org.commcare.views.widgets.IntentWidget;
 import org.commcare.views.widgets.QuestionWidget;
 import org.javarosa.core.model.Constants;
@@ -737,6 +738,13 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
                 shouldRemoveFromView.add(i);
                 continue;
             }
+
+            if (oldWidgets.get(i) instanceof ImageWidget) {
+                // If there was change(in particular image-remove) in an image widget,
+                // only then update the form to disk.
+                activity.onExternalAttachmentUpdated();
+            }
+
             FormEntryPrompt oldPrompt = oldWidgets.get(i).getPrompt();
             String priorQuestionTextForThisWidget = oldQuestionTexts.get(i);
             Vector<SelectChoice> priorSelectChoicesForThisWidget = oldSelectChoices.get(i);
