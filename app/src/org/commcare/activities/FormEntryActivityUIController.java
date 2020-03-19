@@ -392,7 +392,7 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
         }
 
         if (activity.currentPromptIsQuestion()) {
-            if (!activity.saveAnswersForCurrentScreen(FormEntryConstants.EVALUATE_CONSTRAINTS)) {
+            if (!activity.saveAnswersForCurrentScreen(!activity.mFormController.isFormReadOnly())) {
                 // A constraint was violated so a dialog should be showing.
                 return;
             }
