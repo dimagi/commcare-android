@@ -142,7 +142,6 @@ public class CommCareApplication extends MultiDexApplication {
     public static final int STATE_MIGRATION_QUESTIONABLE = 32;
     private static final String DELETE_LOGS_REQUEST = "delete-logs-request";
     private static final long BACKOFF_DELAY_FOR_UPDATE_RETRY = 5 * 60 * 1000L; // 5 mins
-    private static final long PERIODICITY_FOR_UPDATE_IN_HOURS = 2;
 
     private int dbState;
 
@@ -762,14 +761,15 @@ public class CommCareApplication extends MultiDexApplication {
 
     // Hand off an app update task to the Android WorkManager
     private void scheduleAppUpdate() {
-        if(areAutomatedActionsInvalid()) {
+        if(UpdateHelper.shouldAutoUpdate()) {
             Constraints constraints = new Constraints.Builder()
                     .setRequiredNetworkType(NetworkType.CONNECTED)
                     .setRequiresBatteryNotLow(true)
                     .build();
 
+
             PeriodicWorkRequest updateRequest =
-                    new PeriodicWorkRequest.Builder(UpdateWorker.class, PERIODICITY_FOR_UPDATE_IN_HOURS, TimeUnit.HOURS)
+                    new PeriodicWorkRequest.Builder(UpdateWorker.class, UpdateHelper.getAutoUpdatePeriodicity(), TimeUnit.HOURS)
                             .addTag(getCurrentApp().getAppRecord().getApplicationId())
                             .setConstraints(constraints)
                             .setBackoffCriteria(

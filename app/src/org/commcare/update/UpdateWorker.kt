@@ -59,8 +59,7 @@ class UpdateWorker(appContext: Context, workerParams: WorkerParameters)
         // skip if - An update task is already running | no app is seated | user session is not active
         if (UpdateTask.getRunningInstance() == null &&
                 CommCareApplication.instance().getCurrentApp() != null &&
-                CommCareApplication.instance().getSession().isActive() &&
-                UpdateHelper.shouldAutoUpdate()) {
+                CommCareApplication.instance().getSession().isActive()) {
 
             updateHelper.startPinnedNotification(CommCareApplication.instance())
             updateResult = updateHelper.update(ResourceInstallUtils.getDefaultProfileRef())
