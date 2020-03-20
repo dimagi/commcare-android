@@ -40,6 +40,11 @@ import java.util.Queue;
 
 import javax.crypto.spec.SecretKeySpec;
 
+/**
+ * Helper for uploading forms to the server and should be used by all upload Forms processes
+ *
+ * Currently utilised by ProcessAndSendTask and FormSubmissionWorker
+ */
 public class FormSubmissionHelper implements DataSubmissionListener {
 
     private static final String TAG = FormSubmissionHelper.class.getSimpleName();
@@ -65,6 +70,11 @@ public class FormSubmissionHelper implements DataSubmissionListener {
 
     private static final int SUBMISSION_ATTEMPTS = 2;
 
+    /**
+     * @param c                              Context
+     * @param cancellationChecker            Interface to check whether the process to upload forms was cancelled
+     * @param formSubmissionProgressListener Listener to be called to communicate form upload progress
+     */
     FormSubmissionHelper(Context c,
                          CancellationChecker cancellationChecker,
                          FormSubmissionProgressListener formSubmissionProgressListener) {
@@ -74,6 +84,14 @@ public class FormSubmissionHelper implements DataSubmissionListener {
         mUrl = getFormPostURL(c);
     }
 
+
+    /**
+     * Process and Uploads all unsent forms
+     * This method serves as the main api for this class and should be called
+     * by any instances of FormSubmissionHelper to initiate the upload for forms
+     *
+     * @return The result of the upload form process
+     */
     FormUploadResult uploadForms() {
 
         FormRecord[] records = StorageUtils.getUnsentRecordsForCurrentApp(
