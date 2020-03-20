@@ -1,6 +1,7 @@
 package org.commcare.update;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
@@ -11,6 +12,8 @@ import org.commcare.engine.resource.ResourceInstallUtils;
 import org.commcare.engine.resource.installers.LocalStorageUnavailableException;
 import org.commcare.logging.DataChangeLog;
 import org.commcare.logging.DataChangeLogger;
+import org.commcare.preferences.MainConfigurablePreferences;
+import org.commcare.preferences.PrefValues;
 import org.commcare.resources.model.InstallCancelled;
 import org.commcare.resources.model.InstallCancelledException;
 import org.commcare.resources.model.InvalidResourceException;
@@ -273,9 +276,36 @@ public class UpdateHelper implements TableStateListener {
      * or queued for retry.
      */
     public static boolean shouldAutoUpdate() {
-        CommCareApp currentApp = CommCareApplication.instance().getCurrentApp();
         return (!areAutomatedActionsInvalid() &&
-                PendingCalcs.isUpdatePending(currentApp.getAppPreferences()));
+                isAutoUpdateOn());
+    }
+
+    // Returns true if update frequency is not set to never
+    public static boolean isAutoUpdateOn() {
+        return !getAutoUpdateFrequency().equals(PrefValues.FREQUENCY_NEVER);
+    }
+
+    // Returns the update frequency set in app settings
+    private static String getAutoUpdateFrequency() {
+        SharedPreferences preferences = CommCareApplication.instance().getCurrentApp().getAppPreferences();
+        return preferences.getString(MainConfigurablePreferences.AUTO_UPDATE_FREQUENCY,
+                PrefValues.FREQUENCY_NEVER);
+    }
+
+    /**
+     * Returns periodicity for auto update worker in hours
+     * the calculation for # of hours is based on the assumption that we want
+     * to check thrice for an available update in the given time frame
+     */
+    public static int getAutoUpdatePeriodicity() {
+        String autoUpdateFreq = getAutoUpdateFrequency();
+        int checkEveryNHours;
+        if (PrefValues.FREQUENCY_DAILY.equals(autoUpdateFreq)) {
+            checkEveryNHours = 8; // 1/3th of a day
+        } else {
+            checkEveryNHours = 56; // 1/3th of a week
+        }
+        return checkEveryNHours;
     }
 
     // utility method to cancel the update worker
