@@ -100,6 +100,9 @@ public class FormAndDataSyncer {
                             case ACTIONABLE_FAILURE:
                                 receiver.handleFormSendResult(result.getErrorMessage(), false);
                                 break;
+                            case RATE_LIMITED:
+                                receiver.handleFormSendResult(Localization.get("sync.fail.rate.limited.server.error"), false);
+                                break;
                             case FAILURE:
                             default:
                                 receiver.handleFormSendResult(Localization.get("sync.fail.unknown"), false);
