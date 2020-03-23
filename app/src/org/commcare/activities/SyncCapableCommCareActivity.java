@@ -392,8 +392,8 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
                 isSyncUserLaunched = false;
                 break;
             case ConnectionDiagnosticTask.CONNECTION_ID:
-                title = Localization.get("connection.test.run.title");
-                message = Localization.get("connection.test.now.running");
+                title = Localization.get("connection.check.title");
+                message = Localization.get("connection.check.message");
                 dialog = CustomProgressDialog.newInstance(title, message, taskId);
                 dialog.setCancelable();
                 break;

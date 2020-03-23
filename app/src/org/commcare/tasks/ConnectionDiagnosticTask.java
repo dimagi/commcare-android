@@ -23,7 +23,7 @@ import java.io.IOException;
 public class ConnectionDiagnosticTask<R> extends CommCareTask<Void, String, NetworkState, R> {
     private final Context c;
 
-    private ConnectionDiagnosticListener listener;
+    private ConnectionDiagnosticListener<R> listener;
 
     public static final int CONNECTION_ID = 12335800;
 

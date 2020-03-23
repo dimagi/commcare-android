@@ -32,12 +32,12 @@ import static org.commcare.activities.CommCareSetupActivity.INSTALL_MODE_URL;
 public class AppInstallationUtil {
 
     public static void startResourceInstall(Context context, String reference,
-                                            CommCareTaskConnector connector, CommCareApp ccApp,
-                                            boolean shouldSleep, int lastInstallMode) {
+                                            CommCareTaskConnector<CommCareSetupActivity> connector,
+                                            CommCareApp ccApp, boolean shouldSleep, int lastInstallMode) {
         if (lastInstallMode == INSTALL_MODE_OFFLINE) {
             startResourceInstall(reference, connector, ccApp, shouldSleep, lastInstallMode);
         } else {
-            ConnectionDiagnosticTask<CommCareSetupActivity> task = new ConnectionDiagnosticTask(context);
+            ConnectionDiagnosticTask<CommCareSetupActivity> task = new ConnectionDiagnosticTask<>(context);
             task.setListener(new ConnectionDiagnosticTask.ConnectionDiagnosticListener<CommCareSetupActivity>() {
                 @Override
                 public void connected(CommCareSetupActivity receiver) {
@@ -82,7 +82,7 @@ public class AppInstallationUtil {
         }
     }
 
-    private static void startResourceInstall(String reference, CommCareTaskConnector connector,
+    private static void startResourceInstall(String reference, CommCareTaskConnector<CommCareSetupActivity> connector,
                                              CommCareApp ccApp, boolean shouldSleep,
                                              int lastInstallMode) {
         ResourceEngineTask<CommCareSetupActivity> task =

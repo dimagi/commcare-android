@@ -73,7 +73,7 @@ public class ConnectionDiagnosticActivity extends CommCareActivity<ConnectionDia
                                     //get the appropriate display message based on what the problem is
                                     String displayMessage = failedTest == ConnectivityStatus.NetworkState.DISCONNECTED ?
                                             Localization.get("connection.task.internet.fail")
-                                            : Localization.get("connection.task.remote.ping.fail");
+                                            : Localization.get("connection.captive_portal.action");
 
                                     receiver.txtInteractiveMessages.setText(displayMessage);
                                     receiver.txtInteractiveMessages.setVisibility(View.VISIBLE);

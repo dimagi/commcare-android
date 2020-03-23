@@ -779,8 +779,8 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                     return generateNormalInstallDialog(taskId);
                 }
             case ConnectionDiagnosticTask.CONNECTION_ID:
-                String title = Localization.get("connection.test.run.title");
-                String message = Localization.get("connection.test.now.running");
+                String title = Localization.get("connection.check.title");
+                String message = Localization.get("connection.check.message");
                 CustomProgressDialog dialog = CustomProgressDialog.newInstance(title, message, taskId);
                 dialog.setCancelable();
                 return dialog;
