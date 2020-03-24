@@ -285,7 +285,7 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
 
         // The answer is saved on a back swipe, but question constraints are ignored.
         if (activity.currentPromptIsQuestion()) {
-            activity.saveAnswersForCurrentScreen(FormEntryConstants.DO_NOT_EVALUATE_CONSTRAINTS);
+            activity.saveAnswersForCurrentScreen(false);
         }
 
         // Any info stored about the last changed widget is useless when we move to a new view
@@ -392,7 +392,7 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
         }
 
         if (activity.currentPromptIsQuestion()) {
-            if (!activity.saveAnswersForCurrentScreen(FormEntryConstants.EVALUATE_CONSTRAINTS)) {
+            if (!activity.saveAnswersForCurrentScreen(!activity.mFormController.isFormReadOnly())) {
                 // A constraint was violated so a dialog should be showing.
                 return;
             }
@@ -717,7 +717,7 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
         ArrayList<String> oldQuestionTexts =
                 FormRelevancyUpdating.getOldQuestionTextsForEachWidget(oldWidgets);
 
-        activity.saveAnswersForCurrentScreen(FormEntryConstants.DO_NOT_EVALUATE_CONSTRAINTS);
+        activity.saveAnswersForCurrentScreen(false);
 
         FormEntryPrompt[] newValidPrompts;
         try {
