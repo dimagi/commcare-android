@@ -327,7 +327,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 case FormEntryConstants.LOCATION_CAPTURE:
                     String sl = intent.getStringExtra(FormEntryConstants.LOCATION_RESULT);
                     uiController.questionsView.setBinaryData(sl, mFormController);
-                    saveAnswersForCurrentScreen(FormEntryConstants.DO_NOT_EVALUATE_CONSTRAINTS);
+                    saveAnswersForCurrentScreen(false);
                     break;
                 case FormEntryConstants.HIERARCHY_ACTIVITY:
                 case FormEntryConstants.HIERARCHY_ACTIVITY_FIRST_START:
@@ -351,7 +351,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
     public void saveImageWidgetAnswer(String imagePath) {
         uiController.questionsView.setBinaryData(imagePath, mFormController);
-        saveAnswersForCurrentScreen(FormEntryConstants.DO_NOT_EVALUATE_CONSTRAINTS);
+        saveAnswersForCurrentScreen(false);
         onExternalAttachmentUpdated();
         uiController.refreshView();
     }
@@ -370,7 +370,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         } else {
             uiController.questionsView.setBinaryData(media, mFormController);
         }
-        saveAnswersForCurrentScreen(FormEntryConstants.DO_NOT_EVALUATE_CONSTRAINTS);
+        saveAnswersForCurrentScreen(false);
         onExternalAttachmentUpdated();
         uiController.refreshView();
     }
@@ -500,7 +500,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 return true;
             case FormEntryConstants.MENU_HIERARCHY_VIEW:
                 if (currentPromptIsQuestion()) {
-                    saveAnswersForCurrentScreen(FormEntryConstants.DO_NOT_EVALUATE_CONSTRAINTS);
+                    saveAnswersForCurrentScreen(false);
                 }
                 Intent i = new Intent(this, FormHierarchyActivity.class);
                 startActivityForResult(i, FormEntryConstants.HIERARCHY_ACTIVITY);
@@ -648,7 +648,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
         // mFormEntryController is static so we don't need to pass it.
         if (mFormController != null && currentPromptIsQuestion() && uiController.questionsView != null) {
-            saveAnswersForCurrentScreen(FormEntryConstants.DO_NOT_EVALUATE_CONSTRAINTS);
+            saveAnswersForCurrentScreen(false);
         }
         return null;
     }
@@ -746,7 +746,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         // save current answer; if headless, don't evaluate the constraints
         // before doing so.
         boolean wasScreenSaved =
-                saveAnswersForCurrentScreen(FormEntryConstants.DO_NOT_EVALUATE_CONSTRAINTS, complete, headless);
+                saveAnswersForCurrentScreen(false, complete, headless);
         if (!wasScreenSaved) {
             return;
         }
@@ -782,7 +782,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         mFormController.setLanguage(languages[index]);
         dismissAlertDialog();
         if (currentPromptIsQuestion()) {
-            saveAnswersForCurrentScreen(FormEntryConstants.DO_NOT_EVALUATE_CONSTRAINTS);
+            saveAnswersForCurrentScreen(false);
         }
         uiController.refreshView();
         invalidateOptionsMenu();
@@ -819,7 +819,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         super.onPause();
 
         if (!isFinishing() && uiController.questionsView != null && currentPromptIsQuestion()) {
-            saveAnswersForCurrentScreen(FormEntryConstants.DO_NOT_EVALUATE_CONSTRAINTS);
+            saveAnswersForCurrentScreen(false);
         }
 
         if (mLocationServiceIssueReceiver != null) {
@@ -1151,7 +1151,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                     // an answer constraint was violated, so try to save the
                     // current question to trigger the constraint violation message
                     uiController.refreshView();
-                    saveAnswersForCurrentScreen(FormEntryConstants.EVALUATE_CONSTRAINTS);
+                    saveAnswersForCurrentScreen(true);
                     return;
                 case SAVE_ERROR:
                     if (!CommCareApplication.instance().isConsumerApp()) {
