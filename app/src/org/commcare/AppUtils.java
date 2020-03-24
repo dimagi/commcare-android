@@ -2,6 +2,7 @@ package org.commcare;
 
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.text.TextUtils;
 
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
@@ -164,6 +165,12 @@ public class AppUtils {
         if (p != null) {
             profileVersion = String.valueOf(p.getVersion());
         }
+
+        String appVersionTag = HiddenPreferences.getAppVersionTag();
+        if (!TextUtils.isEmpty(appVersionTag)) {
+            profileVersion += " (" + appVersionTag + ")";
+        }
+
         String buildDate = BuildConfig.BUILD_DATE;
         String buildNumber = BuildConfig.BUILD_NUMBER;
 
