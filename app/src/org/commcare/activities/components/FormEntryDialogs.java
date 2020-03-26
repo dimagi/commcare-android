@@ -103,7 +103,7 @@ public class FormEntryDialogs {
             switch (i) {
                 case DialogInterface.BUTTON_POSITIVE:
                     activity.clearAnswer(qw);
-                    activity.saveAnswersForCurrentScreen(FormEntryConstants.DO_NOT_EVALUATE_CONSTRAINTS);
+                    activity.saveAnswersForCurrentScreen(false);
                     break;
                 case DialogInterface.BUTTON_NEGATIVE:
                     break;

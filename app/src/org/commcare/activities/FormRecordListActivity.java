@@ -97,9 +97,9 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
     public enum FormRecordFilter {
 
         /**
-         * Processed and Pending
+         * Submitted and Pending
          **/
-        SubmittedAndPending("form.record.filter.subandpending", new String[]{FormRecord.STATUS_SAVED, FormRecord.STATUS_UNSENT}),
+        SubmittedAndPending("form.record.filter.subandpending", new String[]{FormRecord.STATUS_SAVED, FormRecord.STATUS_UNSENT, FormRecord.STATUS_COMPLETE}),
 
         /**
          * Submitted Only
@@ -109,7 +109,7 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
         /**
          * Pending Submission
          **/
-        Pending("form.record.filter.pending", new String[]{FormRecord.STATUS_UNSENT}),
+        Pending("form.record.filter.pending", new String[]{FormRecord.STATUS_UNSENT, FormRecord.STATUS_COMPLETE}),
 
         /**
          * Incomplete forms
@@ -135,6 +135,15 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
 
         public String[] getStatus() {
             return statuses;
+        }
+
+        public boolean containsStatus(String value) {
+            for (String status: statuses) {
+                if (status.equals(value)) {
+                    return true;
+                }
+            }
+            return false;
         }
     }
 
@@ -384,7 +393,7 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
 
         menu.add(Menu.NONE, OPEN_RECORD, OPEN_RECORD, Localization.get("app.workflow.forms.open"));
 
-        if (!FormRecord.STATUS_UNSENT.equals(value.getStatus())) {
+        if (!FormRecordFilter.Pending.containsStatus(value.getStatus())) {
             menu.add(Menu.NONE, DELETE_RECORD, DELETE_RECORD, Localization.get("app.workflow.forms.delete"));
         }
 
@@ -454,7 +463,7 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
         StandardAlertDialog dialog = StandardAlertDialog.getBasicAlertDialogWithIcon(this, title,
                 result.second, resId, null);
 
-        if (record.getStatus().equals(FormRecord.STATUS_UNSENT)) {
+        if (FormRecordFilter.Pending.containsStatus(record.getStatus())) {
             dialog.setNegativeButton(Localization.get("app.workflow.forms.quarantine"), (dialog1, which) -> {
                 manuallyQuarantineRecord(record);
                 dismissAlertDialog();

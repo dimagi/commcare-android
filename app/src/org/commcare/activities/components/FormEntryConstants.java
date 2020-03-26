@@ -6,8 +6,6 @@ public class FormEntryConstants {
     // Defines for FormEntryActivity
     public static final boolean EXIT = true;
     public static final boolean DO_NOT_EXIT = false;
-    public static final boolean EVALUATE_CONSTRAINTS = true;
-    public static final boolean DO_NOT_EVALUATE_CONSTRAINTS = false;
 
     // Request codes for returning data from specified intent.
     public static final int IMAGE_CAPTURE = 1;

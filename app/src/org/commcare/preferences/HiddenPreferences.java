@@ -1,6 +1,7 @@
 package org.commcare.preferences;
 
 import android.content.SharedPreferences;
+
 import androidx.preference.PreferenceManager;
 
 import androidx.annotation.Nullable;
@@ -58,6 +59,7 @@ public class HiddenPreferences {
     private final static String GPS_WIDGET_GOOD_ACCURACY = "cc-gps-widget-good-accuracy";
     private final static String GPS_WIDGET_ACCEPTABLE_ACCURACY = "cc-gps-widget-acceptable-accuracy";
     private final static String GPS_WIDGET_TIMEOUT_SECS = "cc-gps-widget-timeout-secs";
+    private static final String APP_VERSION_TAG = "cc-app-version-tag";
     private final static String LOG_ENTITY_DETAIL = "cc-log-entity-detail-enabled";
     public static final String DUMP_FOLDER_PATH = "dump-folder-path";
     private final static String RESIZING_METHOD = "cc-resize-images";
@@ -306,6 +308,11 @@ public class HiddenPreferences {
         CommCareApplication.instance().getCurrentApp().getAppPreferences()
                 .edit()
                 .putInt(LATEST_APP_VERSION, appVersion).apply();
+    }
+
+    public static String getAppVersionTag() {
+        return CommCareApplication.instance().getCurrentApp().getAppPreferences()
+                .getString(APP_VERSION_TAG, "");
     }
 
     public static int getLatestAppVersion() {
