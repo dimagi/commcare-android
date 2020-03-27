@@ -122,6 +122,10 @@ sync.fail.unknown=An unexpected issue occurred during sync. Please try to sync a
 sync.fail.unsent=Having issues communicating with the server to send forms. Will try again later.
 sync.fail.individual=1 or more forms failed to send due to individual problems. See quarantined forms for details.
 
+form.send.rate.limit.error.title=You've reached the Form Submission Limit!
+form.send.rate.limit.error.message=Not to worry, your forms have been recorded on this phone on this phone and will be submitted to the CommCare server when your rate limit expires.
+dialog.do.not.show.again=Do not show again
+
 auth.over.http=CommCare can't connect with authentication to an insecure (HTTP) server.
 
 sync.communicating.title=Communicating with Server

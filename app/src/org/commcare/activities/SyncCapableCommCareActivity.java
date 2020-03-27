@@ -23,6 +23,7 @@ import org.commcare.tasks.PullTaskResultReceiver;
 import org.commcare.tasks.ResultAndError;
 import org.commcare.utils.SyncDetailCalculations;
 import org.commcare.views.dialogs.CustomProgressDialog;
+import org.commcare.views.dialogs.StandardAlertDialog;
 import org.javarosa.core.services.locale.Localization;
 
 import androidx.annotation.AnimRes;
@@ -45,6 +46,7 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
     private SyncIconState syncStateForIcon;
     private SyncIconTrigger lastIconTrigger;
     private MenuItem currentSyncMenuItem;
+    private boolean showRateLimitDialog = true;
 
     private UiLoadedListener uiLoadedListener;
 
@@ -211,6 +213,24 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
             // Since we know that we just had connectivity, now is a great time to try this
             CommCareApplication.instance().getSession().initHeartbeatLifecycle();
         }
+    }
+
+    public void showRateLimitError() {
+        if (!showRateLimitDialog) {
+            handleFormSendResult(Localization.get("sync.fail.rate.limited.server.error"), false);
+            return;
+        }
+        String title = Localization.get("form.send.rate.limit.error.title");
+        String message = Localization.get("form.send.rate.limit.error.message");
+        StandardAlertDialog dialog = StandardAlertDialog.getBasicAlertDialog(this, title,
+                message, null);
+
+        dialog.setNegativeButton(Localization.get("dialog.do.not.show.again"), (dialog1, which) -> {
+            showRateLimitDialog = false;
+            dismissAlertDialog();
+        });
+
+        showAlertDialog(dialog);
     }
 
     abstract void updateUiAfterDataPullOrSend(String message, boolean success);

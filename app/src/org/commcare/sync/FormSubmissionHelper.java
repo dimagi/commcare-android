@@ -322,8 +322,7 @@ public class FormSubmissionHelper implements DataSubmissionListener {
                                 break;
                             } else if (mResults[i] == FormUploadResult.RATE_LIMITED) {
                                 // Don't keep retrying, the server is rate limiting submissions
-                                // Should we just stop submitting any form and display an error?
-                                return;
+                                break;
                             } else if (mResults[i] == FormUploadResult.CAPTIVE_PORTAL) {
                                 // User is behind a captive portal, no need to re-try.
                                 break;
