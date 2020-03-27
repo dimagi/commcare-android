@@ -323,7 +323,6 @@ public class FormSubmissionHelper implements DataSubmissionListener {
                             } else if (mResults[i] == FormUploadResult.RATE_LIMITED) {
                                 // Don't keep retrying, the server is rate limiting submissions
                                 // Should we just stop submitting any form and display an error?
-                                Logger.log(LogTypes.TYPE_FORM_SUBMISSION, "Failed to submit forms due to rate limit exception from server");
                                 return;
                             } else if (mResults[i] == FormUploadResult.CAPTIVE_PORTAL) {
                                 // User is behind a captive portal, no need to re-try.
