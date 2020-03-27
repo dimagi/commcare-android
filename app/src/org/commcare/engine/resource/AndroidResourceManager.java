@@ -9,6 +9,7 @@ import org.commcare.CommCareApplication;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.logging.analytics.UpdateStats;
 import org.commcare.preferences.HiddenPreferences;
+import org.commcare.preferences.PrefValues;
 import org.commcare.resources.ResourceManager;
 import org.commcare.resources.model.InstallCancelled;
 import org.commcare.resources.model.InstallCancelledException;
@@ -304,5 +305,6 @@ public class AndroidResourceManager extends ResourceManager {
     public void clearUpgrade() {
         super.clearUpgrade();
         HiddenPreferences.setReleasedOnTimeForOngoingAppDownload((AndroidCommCarePlatform)platform, 0);
+        HiddenPreferences.setPreUpdateSyncNeeded(PrefValues.NO);
     }
 }

@@ -109,7 +109,10 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
                     checkDuplicate(p);
                     checkAppTarget();
                 }
+            } else {
+                savePreUpdateSyncNeeded(p);
             }
+
 
             table.commitCompoundResource(r, upgrade ? Resource.RESOURCE_STATUS_UPGRADE : Resource.RESOURCE_STATUS_INSTALLED, p.getVersion());
             return true;
@@ -128,6 +131,14 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
         }
 
         return false;
+    }
+
+    private void savePreUpdateSyncNeeded(Profile profile) {
+        for (PropertySetter p : profile.getPropertySetters()) {
+            if (p.getKey().contentEquals(HiddenPreferences.PRE_UPDATE_SYNC_NEEDED)) {
+                HiddenPreferences.setPreUpdateSyncNeeded(p.getValue());
+            }
+        }
     }
 
     private void storeReleasedTime(AndroidCommCarePlatform platform, Reference ref) throws ParseException {
