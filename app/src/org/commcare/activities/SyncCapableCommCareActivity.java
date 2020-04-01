@@ -17,6 +17,7 @@ import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.interfaces.UiLoadedListener;
+import org.commcare.preferences.HiddenPreferences;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.sync.ProcessAndSendTask;
 import org.commcare.tasks.PullTaskResultReceiver;
@@ -46,7 +47,6 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
     private SyncIconState syncStateForIcon;
     private SyncIconTrigger lastIconTrigger;
     private MenuItem currentSyncMenuItem;
-    private boolean showRateLimitDialog = true;
 
     private UiLoadedListener uiLoadedListener;
 
@@ -216,7 +216,8 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
     }
 
     public void showRateLimitError(boolean userTriggered) {
-        if (!showRateLimitDialog || !userTriggered) {
+
+        if (HiddenPreferences.isRateLimitPopupDisabled() || !userTriggered) {
             handleFormSendResult(Localization.get("sync.fail.rate.limited.server.error"), false);
             return;
         }
@@ -226,7 +227,7 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
                 message, null);
 
         dialog.setNegativeButton(Localization.get("dialog.do.not.show.again"), (dialog1, which) -> {
-            showRateLimitDialog = false;
+            HiddenPreferences.disableRateLimitPopup(true);
             dismissAlertDialog();
         });
 
