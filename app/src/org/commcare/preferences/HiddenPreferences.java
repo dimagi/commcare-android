@@ -372,6 +372,13 @@ public class HiddenPreferences {
         return properties.getString(PRE_UPDATE_SYNC_NEEDED, PrefValues.NO).equals(PrefValues.YES);
     }
 
+    public static void setPreUpdateSyncNeeded(String value) {
+        CommCareApplication.instance().getCurrentApp().getAppPreferences()
+                .edit()
+                .putString(PRE_UPDATE_SYNC_NEEDED, value)
+                .apply();
+    }
+
     public static void setReleasedOnTimeForOngoingAppDownload(AndroidCommCarePlatform platform, long releasedOnTime) {
         if (platform.getApp() == null) {
             return;
