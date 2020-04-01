@@ -101,7 +101,7 @@ public class FormAndDataSyncer {
                                 receiver.handleFormSendResult(result.getErrorMessage(), false);
                                 break;
                             case RATE_LIMITED:
-                                receiver.showRateLimitError();
+                                receiver.showRateLimitError(userTriggered);
                                 break;
                             case FAILURE:
                             default:

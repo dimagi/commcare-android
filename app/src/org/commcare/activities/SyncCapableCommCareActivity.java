@@ -215,8 +215,8 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
         }
     }
 
-    public void showRateLimitError() {
-        if (!showRateLimitDialog) {
+    public void showRateLimitError(boolean userTriggered) {
+        if (!showRateLimitDialog || !userTriggered) {
             handleFormSendResult(Localization.get("sync.fail.rate.limited.server.error"), false);
             return;
         }
