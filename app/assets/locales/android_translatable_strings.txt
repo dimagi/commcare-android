@@ -101,6 +101,7 @@ menu.disable.pre.update.sync=Disable Mandatory Pre-Update Sync
 menu.enable.privileges=Mobile Privileges
 menu.privilege.claim.disable=Disable Privileges
 menu.data.change.logs=Data Change Logs
+menu.enable.rate.limit.popup=Enable Rate Limit Error Popup
 
 install.fail.error=We encountered an ${0} error processing your request. Please try again later. If the problem persists, contact CommCare Support.
 
