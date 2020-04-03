@@ -128,42 +128,42 @@ public class RecoveryMeasuresTest {
         assertTrue(shadowActivity.isFinishing());
     }
 
-    @Test
-    public void executeRecoveryMeasuresActivity_ShouldGetLaunched_WhenRecoveryMeasuresArePending() {
-        requestRecoveryMeasures(REINSTALL_AND_UPDATE_VALID_FOR_CURRENT_APP_VERSION);
-
-        // Set resources as valid so that dispatch doesn't fire VerificationActivity
-        CommCareApplication.instance().getCurrentApp().getAppRecord().setResourcesStatus(true);
-        ActivityController<DispatchActivity> dispatchActivityController
-                = Robolectric.buildActivity(DispatchActivity.class).create().resume().start();
-
-        DispatchActivity dispatchActivity = dispatchActivityController.get();
-        ShadowActivity shadowDispatchActivity = Shadows.shadowOf(dispatchActivity);
-
-        // Verify that Dispatch fires HomeActivity
-        Intent homeActivityIntent = shadowDispatchActivity.getNextStartedActivity();
-        String intentActivityName = homeActivityIntent.getComponent().getClassName();
-        assertTrue(intentActivityName.contentEquals(StandardHomeActivity.class.getName()));
-
-        // launch home activty
-        StandardHomeActivity homeActivity =
-                Robolectric.buildActivity(StandardHomeActivity.class, homeActivityIntent)
-                        .create().start().resume().get();
-        ShadowActivity shadowHomeActivity = Shadows.shadowOf(homeActivity);
-
-        // Verify HomeActivity finishes since recovery measures are pending
-        assertTrue(shadowHomeActivity.isFinishing());
-
-        shadowDispatchActivity.receiveResult(homeActivityIntent,
-                shadowHomeActivity.getResultCode(),
-                shadowHomeActivity.getResultIntent());
-
-        // Verify that Dispatch fires up the ExecuteRecoveryMeasuresActivity this time
-        dispatchActivityController.resume();
-        Intent executeRecoveryMeasuresActivityIntent = shadowDispatchActivity.getNextStartedActivity();
-        intentActivityName  = executeRecoveryMeasuresActivityIntent.getComponent().getClassName();
-        assertTrue(intentActivityName.contentEquals(ExecuteRecoveryMeasuresActivity.class.getName()));
-    }
+//    @Test
+//    public void executeRecoveryMeasuresActivity_ShouldGetLaunched_WhenRecoveryMeasuresArePending() {
+//        requestRecoveryMeasures(REINSTALL_AND_UPDATE_VALID_FOR_CURRENT_APP_VERSION);
+//
+//        // Set resources as valid so that dispatch doesn't fire VerificationActivity
+//        CommCareApplication.instance().getCurrentApp().getAppRecord().setResourcesStatus(true);
+//        ActivityController<DispatchActivity> dispatchActivityController
+//                = Robolectric.buildActivity(DispatchActivity.class).create().resume().start();
+//
+//        DispatchActivity dispatchActivity = dispatchActivityController.get();
+//        ShadowActivity shadowDispatchActivity = Shadows.shadowOf(dispatchActivity);
+//
+//        // Verify that Dispatch fires HomeActivity
+//        Intent homeActivityIntent = shadowDispatchActivity.getNextStartedActivity();
+//        String intentActivityName = homeActivityIntent.getComponent().getClassName();
+//        assertTrue(intentActivityName.contentEquals(StandardHomeActivity.class.getName()));
+//
+//        // launch home activty
+//        StandardHomeActivity homeActivity =
+//                Robolectric.buildActivity(StandardHomeActivity.class, homeActivityIntent)
+//                        .create().start().resume().get();
+//        ShadowActivity shadowHomeActivity = Shadows.shadowOf(homeActivity);
+//
+//        // Verify HomeActivity finishes since recovery measures are pending
+//        assertTrue(shadowHomeActivity.isFinishing());
+//
+//        shadowDispatchActivity.receiveResult(homeActivityIntent,
+//                shadowHomeActivity.getResultCode(),
+//                shadowHomeActivity.getResultIntent());
+//
+//        // Verify that Dispatch fires up the ExecuteRecoveryMeasuresActivity this time
+//        dispatchActivityController.resume();
+//        Intent executeRecoveryMeasuresActivityIntent = shadowDispatchActivity.getNextStartedActivity();
+//        intentActivityName  = executeRecoveryMeasuresActivityIntent.getComponent().getClassName();
+//        assertTrue(intentActivityName.contentEquals(ExecuteRecoveryMeasuresActivity.class.getName()));
+//    }
 
 
     @Test
