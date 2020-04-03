@@ -76,6 +76,7 @@ public class DispatchActivity extends FragmentActivity {
             alreadyCheckedForAppFilesChange = savedInstanceState.getBoolean(KEY_APP_FILES_CHECK_OCCURRED);
             waitingForActivityResultFromLogin = savedInstanceState.getBoolean(KEY_WAITING_FOR_ACTIVITY_RESULT);
         }
+        throw new RuntimeException();
     }
 
     /**
