@@ -51,7 +51,7 @@ public class GeoPointWidget extends QuestionWidget {
         if ("maps".equalsIgnoreCase(appearance)) {
             try {
                 // use google maps it exists on the device
-                Class.forName("com.google.android.maps.MapActivity");
+                Class.forName("com.google.android.gms.maps.MapView");
                 mUseMaps = true;
             } catch (ClassNotFoundException e) {
                 mUseMaps = false;
