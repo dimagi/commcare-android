@@ -10,21 +10,17 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;
 
-import androidx.annotation.IntDef;
-import androidx.annotation.StringDef;
-import androidx.core.content.ContextCompat;
-
 import org.commcare.activities.CommCareActivity;
 import org.commcare.dalvik.R;
 import org.commcare.views.dialogs.StandardAlertDialog;
 import org.javarosa.core.model.data.GeoPointData;
 import org.javarosa.core.model.data.UncastData;
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import androidx.core.content.ContextCompat;
 
 /**
  * Static functions for dealing with GPS data, specifically Location and LocationManager objects.
