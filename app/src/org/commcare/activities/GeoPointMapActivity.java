@@ -58,7 +58,6 @@ public class GeoPointMapActivity extends Activity
 
     private boolean isGPSOn = false;
     private boolean isNetworkOn = false;
-    private float lastLocationAccuracy = Float.MAX_VALUE;
 
     public static final String EXTRA_VIEW_ONLY = "extra-view-only";
 
@@ -152,9 +151,9 @@ public class GeoPointMapActivity extends Activity
     @Override
     public void onLocationChanged(Location location) {
         if (!inViewMode && !isManualSelectedLocation) {
-            this.location = location;
-            if (this.location != null && location.getAccuracy() < lastLocationAccuracy) {
-                lastLocationAccuracy = location.getAccuracy();
+            if (location != null &&
+                    (this.location == null || (location.getAccuracy() < this.location.getAccuracy()))) {
+                this.location = location;
                 drawMarker();
             }
         }
