@@ -15,7 +15,6 @@ import android.view.Window;
 import android.widget.Button;
 import android.widget.TextView;
 
-import com.fasterxml.jackson.databind.type.MapType;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -59,6 +58,7 @@ public class GeoPointMapActivity extends Activity
 
     private boolean isGPSOn = false;
     private boolean isNetworkOn = false;
+    private float lastLocationAccuracy = Float.MAX_VALUE;
 
     public static final String EXTRA_VIEW_ONLY = "extra-view-only";
 
@@ -153,8 +153,8 @@ public class GeoPointMapActivity extends Activity
     public void onLocationChanged(Location location) {
         if (!inViewMode && !isManualSelectedLocation) {
             this.location = location;
-            if (this.location != null) {
-
+            if (this.location != null && location.getAccuracy() < lastLocationAccuracy) {
+                lastLocationAccuracy = location.getAccuracy();
                 drawMarker();
             }
         }
