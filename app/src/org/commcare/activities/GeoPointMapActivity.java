@@ -115,7 +115,7 @@ public class GeoPointMapActivity extends Activity
             // map types are in between 1 to 4
             int mapType = (map.getMapType() % 4) + 1;
             map.setMapType(mapType);
-            HiddenPreferences.setMapsDefaultLayer(MapLayer.values()[mapType]);
+            HiddenPreferences.setMapsDefaultLayer(MapLayer.values()[mapType - 1]);
         }
     }
 
