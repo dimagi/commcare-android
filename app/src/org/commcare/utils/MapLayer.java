@@ -1,5 +1,9 @@
 package org.commcare.utils;
 
+/**
+ * Map types defined for GoogleMap object
+ * https://developers.google.com/android/reference/com/google/android/gms/maps/GoogleMap#setMapType(int)
+ */
 public enum MapLayer {
 
     NORMAL(1),
