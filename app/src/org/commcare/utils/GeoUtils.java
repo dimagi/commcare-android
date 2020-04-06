@@ -9,6 +9,9 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;
+
+import androidx.annotation.IntDef;
+import androidx.annotation.StringDef;
 import androidx.core.content.ContextCompat;
 
 import org.commcare.activities.CommCareActivity;
@@ -17,6 +20,8 @@ import org.commcare.views.dialogs.StandardAlertDialog;
 import org.javarosa.core.model.data.GeoPointData;
 import org.javarosa.core.model.data.UncastData;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -38,6 +43,7 @@ public class GeoUtils {
     public static final int AUTO_CAPTURE_MAX_WAIT_IN_MINUTES = 2;
 
     public static final String ACTION_CHECK_GPS_ENABLED = "org.commcare.utils.GeoUtils.check";
+
 
     /**
      * Format location in a string for user display.
