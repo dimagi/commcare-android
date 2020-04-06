@@ -9,18 +9,13 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
-
-import androidx.core.content.ContextCompat;
-
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
+import com.fasterxml.jackson.databind.type.MapType;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -33,16 +28,15 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 import org.commcare.activities.components.FormEntryConstants;
 import org.commcare.dalvik.R;
+import org.commcare.preferences.HiddenPreferences;
 import org.commcare.utils.GeoUtils;
+import org.commcare.utils.MapLayer;
 import org.commcare.views.widgets.GeoPointWidget;
 
 import java.text.DecimalFormat;
 import java.util.List;
 
-import static com.google.android.gms.maps.GoogleMap.MAP_TYPE_HYBRID;
-import static com.google.android.gms.maps.GoogleMap.MAP_TYPE_NORMAL;
-import static com.google.android.gms.maps.GoogleMap.MAP_TYPE_SATELLITE;
-import static com.google.android.gms.maps.GoogleMap.MAP_TYPE_TERRAIN;
+import androidx.core.content.ContextCompat;
 
 /**
  * Allows location to be chosen using a map instead of current gps coordinates
@@ -121,6 +115,7 @@ public class GeoPointMapActivity extends Activity
             // map types are in between 1 to 4
             int mapType = (map.getMapType() % 4) + 1;
             map.setMapType(mapType);
+            HiddenPreferences.setMapsDefaultLayer(MapLayer.values()[mapType]);
         }
     }
 
@@ -183,7 +178,7 @@ public class GeoPointMapActivity extends Activity
         }
         setupMapListeners();
 
-
+        map.setMapType(HiddenPreferences.getMapsDefaultLayer().getValue());
     }
 
     private void setupMapListeners() {
