@@ -180,7 +180,7 @@ public class GeoPointMapActivity extends Activity
     private void updateSelectedLocation(double longitude, double latitude, int accuracy) {
         location.setLongitude(longitude);
         location.setLatitude(latitude);
-        location.setAccuracy(10);
+        location.setAccuracy(accuracy);
     }
 
     private void drawMarker() {
