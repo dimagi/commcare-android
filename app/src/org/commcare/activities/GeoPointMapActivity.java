@@ -13,10 +13,13 @@ import android.os.Bundle;
 import androidx.core.content.ContextCompat;
 
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -35,6 +38,11 @@ import org.commcare.views.widgets.GeoPointWidget;
 
 import java.text.DecimalFormat;
 import java.util.List;
+
+import static com.google.android.gms.maps.GoogleMap.MAP_TYPE_HYBRID;
+import static com.google.android.gms.maps.GoogleMap.MAP_TYPE_NORMAL;
+import static com.google.android.gms.maps.GoogleMap.MAP_TYPE_SATELLITE;
+import static com.google.android.gms.maps.GoogleMap.MAP_TYPE_TERRAIN;
 
 /**
  * Allows location to be chosen using a map instead of current gps coordinates
@@ -60,10 +68,10 @@ public class GeoPointMapActivity extends Activity
 
     public static final String EXTRA_VIEW_ONLY = "extra-view-only";
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.geopoint_layout);
 
@@ -102,6 +110,18 @@ public class GeoPointMapActivity extends Activity
             acceptButton.setVisibility(View.GONE);
             showLocationButton.setVisibility(View.VISIBLE);
             findViewById(R.id.location_status).setVisibility(View.GONE);
+        }
+
+
+        findViewById(R.id.switch_layer).setOnClickListener(v -> changeMapLayer());
+    }
+
+    private void changeMapLayer() {
+        if (map != null) {
+            // map types are in between 1 to 4
+            int mapType = (map.getMapType() % 4) + 1;
+            Log.d("shubham", "" + mapType);
+            map.setMapType(mapType);
         }
     }
 
@@ -163,6 +183,8 @@ public class GeoPointMapActivity extends Activity
             drawMarker();
         }
         setupMapListeners();
+
+
     }
 
     private void setupMapListeners() {

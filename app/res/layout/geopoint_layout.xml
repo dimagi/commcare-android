@@ -63,4 +63,14 @@
             android:layout_height="fill_parent"
             android:clickable="true"/>
     </LinearLayout>
+
+    <ImageView
+        android:padding="@dimen/map_layer_padding"
+        android:layout_alignEnd="@id/location_buttons"
+        android:layout_alignRight="@id/location_buttons"
+        android:layout_alignBottom="@id/location_buttons"
+        android:id="@+id/switch_layer"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:src="@drawable/ic_layers" />
 </RelativeLayout>
