@@ -120,7 +120,6 @@ public class GeoPointMapActivity extends Activity
         if (map != null) {
             // map types are in between 1 to 4
             int mapType = (map.getMapType() % 4) + 1;
-            Log.d("shubham", "" + mapType);
             map.setMapType(mapType);
         }
     }
