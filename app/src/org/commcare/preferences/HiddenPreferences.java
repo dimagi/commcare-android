@@ -316,8 +316,9 @@ public class HiddenPreferences {
 
     public static MapLayer getMapsDefaultLayer() {
         try {
-            return MapLayer.valueOf(CommCareApplication.instance().getCurrentApp().getAppPreferences()
-                    .getString(MAPS_DEFAULT_LAYER, "normal"));
+            String mapType =  CommCareApplication.instance().getCurrentApp().getAppPreferences()
+                    .getString(MAPS_DEFAULT_LAYER, "normal");
+            return MapLayer.valueOf(mapType.toUpperCase());
         } catch (IllegalArgumentException e) {
             return MapLayer.NORMAL;
         }
