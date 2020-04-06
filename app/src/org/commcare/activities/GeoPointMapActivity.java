@@ -9,7 +9,9 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+
 import androidx.core.content.ContextCompat;
+
 import android.util.DisplayMetrics;
 import android.view.View;
 import android.view.Window;
@@ -56,6 +58,8 @@ public class GeoPointMapActivity extends Activity
     private boolean isGPSOn = false;
     private boolean isNetworkOn = false;
 
+    public static final String EXTRA_VIEW_ONLY = "extra-view-only";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -75,7 +79,10 @@ public class GeoPointMapActivity extends Activity
             double[] location = intent.getDoubleArrayExtra(GeoPointWidget.LOCATION);
             this.location.setLatitude(location[0]);
             this.location.setLongitude(location[1]);
-            inViewMode = true;
+            this.location.setAltitude(location[2]);
+            this.location.setAccuracy((float)location[3]);
+            isManualSelectedLocation = true;
+            inViewMode = intent.getBooleanExtra(EXTRA_VIEW_ONLY, false);
         }
     }
 
@@ -152,7 +159,7 @@ public class GeoPointMapActivity extends Activity
 
         MapsInitializer.initialize(this);
 
-        if (inViewMode) {
+        if (location.hasAccuracy()) {
             drawMarker();
         }
         setupMapListeners();
@@ -163,13 +170,17 @@ public class GeoPointMapActivity extends Activity
             map.setOnMapClickListener(
                     point -> {
                         isManualSelectedLocation = true;
-                        location.setLongitude(point.longitude);
-                        location.setLatitude(point.latitude);
-                        location.setAccuracy(10);
+                        updateSelectedLocation(point.longitude, point.latitude, 10);
                         drawMarker();
                     }
             );
         }
+    }
+
+    private void updateSelectedLocation(double longitude, double latitude, int accuracy) {
+        location.setLongitude(longitude);
+        location.setLatitude(latitude);
+        location.setAccuracy(10);
     }
 
     private void drawMarker() {
