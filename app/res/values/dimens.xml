@@ -112,7 +112,9 @@
 
     <dimen name="min_button_padding">20dp</dimen>
 
-    <dimen name="map_layer_padding">16dp</dimen>
+    <!--    Map layer Button-->
+    <dimen name="map_layer_padding">4dp</dimen>
+    <dimen name="map_layer_margin">16dp</dimen>
 
     <!--Custom Preferences Dialog-->
     <dimen name="pref_dialog_margin_top">48dp</dimen>

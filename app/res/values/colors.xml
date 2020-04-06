@@ -129,4 +129,5 @@
     <!-- Error Colors -->
     <color name="cc_error_bg_color">#EE5555</color>
     <color name="cc_error_text_color">#FFFFFF</color>
+    <color name="map_layer_button_color">#D3D3D3</color>
 </resources>
