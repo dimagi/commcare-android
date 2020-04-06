@@ -46,7 +46,7 @@ public class FormStorageTest {
     // but should be moved to the bottom with a comment as to what version it was migrated in
     private static final List<String> completeHistoryOfExternalizableClasses = Arrays.asList(
             // current class names:
-            "org.commcare.android.database.app.models.ResourceModelUpdater"
+            "org.commcare.android.database.app.models.ResourceV13"
             , "org.commcare.android.database.app.models.UserKeyRecord"
             , "org.commcare.android.database.app.models.UserKeyRecordV1"
             , "org.commcare.android.database.global.models.AndroidSharedKeyRecord"
@@ -310,7 +310,7 @@ public class FormStorageTest {
             // Added in 2.44
             , "org.commcare.android.database.user.models.FormRecordV4"
             , "org.commcare.android.database.app.models.FormDefRecord"
-            , "org.commcare.android.resource.installers.XFormAndroidInstallerV1"
+            , "org.commcare.android.resource.installers.XFormAndroidInstallerV8"
             , "org.commcare.android.resource.installers.XFormUpdateInfoInstaller"
             , "org.commcare.android.database.user.models.ACasePreV24Model"
 
