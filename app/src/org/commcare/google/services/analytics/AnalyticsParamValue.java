@@ -50,6 +50,7 @@ public class AnalyticsParamValue {
     public static final String SYNC_FAIL_STORAGE_FULL = "storage_full";
     public static final String SYNC_FAIL_ACTIONABLE = "actionable_failure";
     public static final String SYNC_FAIL_AUTH_OVER_HTTP = "auth_over_http";
+    public static final String SYNC_FAIL_CAPTIVE_PORTAL = "captive_portal";
 
     // Param values for feature usage
     public static final String FEATURE_SET_PIN = "set_pin";

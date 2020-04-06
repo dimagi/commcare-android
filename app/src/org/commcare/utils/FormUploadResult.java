@@ -58,7 +58,12 @@ public enum FormUploadResult {
      * The server can't couldn't handle the submission due to load, we
      * shouldn't keep retrying it
      */
-    RATE_LIMITED(10)
+    RATE_LIMITED(10),
+
+    /**
+     * User is behind a captive portal, no need to try re-submissions
+     */
+    CAPTIVE_PORTAL(11)
     ;
 
     private final int orderVal;
