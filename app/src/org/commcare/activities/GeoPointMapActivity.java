@@ -9,15 +9,13 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
-
-import androidx.core.content.ContextCompat;
-
 import android.util.DisplayMetrics;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.fasterxml.jackson.databind.type.MapType;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -30,11 +28,15 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 import org.commcare.activities.components.FormEntryConstants;
 import org.commcare.dalvik.R;
+import org.commcare.preferences.HiddenPreferences;
 import org.commcare.utils.GeoUtils;
+import org.commcare.utils.MapLayer;
 import org.commcare.views.widgets.GeoPointWidget;
 
 import java.text.DecimalFormat;
 import java.util.List;
+
+import androidx.core.content.ContextCompat;
 
 /**
  * Allows location to be chosen using a map instead of current gps coordinates
@@ -60,10 +62,10 @@ public class GeoPointMapActivity extends Activity
 
     public static final String EXTRA_VIEW_ONLY = "extra-view-only";
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.geopoint_layout);
 
@@ -102,6 +104,18 @@ public class GeoPointMapActivity extends Activity
             acceptButton.setVisibility(View.GONE);
             showLocationButton.setVisibility(View.VISIBLE);
             findViewById(R.id.location_status).setVisibility(View.GONE);
+        }
+
+
+        findViewById(R.id.switch_layer).setOnClickListener(v -> changeMapLayer());
+    }
+
+    private void changeMapLayer() {
+        if (map != null) {
+            // map types are in between 1 to 4
+            int mapType = (map.getMapType() % 4) + 1;
+            map.setMapType(mapType);
+            HiddenPreferences.setMapsDefaultLayer(MapLayer.values()[mapType - 1]);
         }
     }
 
@@ -163,6 +177,8 @@ public class GeoPointMapActivity extends Activity
             drawMarker();
         }
         setupMapListeners();
+
+        map.setMapType(HiddenPreferences.getMapsDefaultLayer().getValue());
     }
 
     private void setupMapListeners() {

@@ -2,20 +2,18 @@ package org.commcare.preferences;
 
 import android.content.SharedPreferences;
 
-import androidx.preference.PreferenceManager;
-
-import androidx.annotation.Nullable;
-
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.activities.GeoPointActivity;
 import org.commcare.utils.AndroidCommCarePlatform;
 import org.commcare.utils.GeoUtils;
+import org.commcare.utils.MapLayer;
 
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 import androidx.annotation.Nullable;
+import androidx.preference.PreferenceManager;
 
 /**
  * Provides hooks for reading and writing all preferences that are not configurable by the user in
@@ -47,6 +45,7 @@ public class HiddenPreferences {
     private final static String FORCE_LOGS = "force-logs";
 
     // Preferences whose values are only ever set by being sent down from HQ via the profile file
+    private final static String MAPS_DEFAULT_LAYER = "cc-maps-default-layer";
     public final static String AUTO_SYNC_FREQUENCY = "cc-autosync-freq";
     private final static String ENABLE_SAVED_FORMS = "cc-show-saved";
     private final static String ENABLE_INCOMPLETE_FORMS = "cc-show-incomplete";
@@ -313,6 +312,23 @@ public class HiddenPreferences {
     public static String getAppVersionTag() {
         return CommCareApplication.instance().getCurrentApp().getAppPreferences()
                 .getString(APP_VERSION_TAG, "");
+    }
+
+    public static MapLayer getMapsDefaultLayer() {
+        try {
+            String mapType =  CommCareApplication.instance().getCurrentApp().getAppPreferences()
+                    .getString(MAPS_DEFAULT_LAYER, "normal");
+            return MapLayer.valueOf(mapType.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            return MapLayer.NORMAL;
+        }
+    }
+
+    public static void setMapsDefaultLayer(MapLayer mapLayer) {
+        CommCareApplication.instance().getCurrentApp().getAppPreferences()
+                .edit()
+                .putString(MAPS_DEFAULT_LAYER, mapLayer.toString())
+                .apply();
     }
 
     public static int getLatestAppVersion() {
