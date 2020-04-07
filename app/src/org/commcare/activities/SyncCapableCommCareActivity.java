@@ -226,8 +226,11 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
         StandardAlertDialog dialog = StandardAlertDialog.getBasicAlertDialog(this, title,
                 message, null);
 
-        dialog.setNegativeButton(Localization.get("dialog.do.not.show.again"), (dialog1, which) -> {
+        dialog.setNegativeButton(Localization.get("dialog.button.do.not.show.again"), (dialog1, which) -> {
             HiddenPreferences.disableRateLimitPopup(true);
+            dismissAlertDialog();
+        });
+        dialog.setPositiveButton(Localization.get("dialog.button.close"), (dialog1, which) -> {
             dismissAlertDialog();
         });
 
