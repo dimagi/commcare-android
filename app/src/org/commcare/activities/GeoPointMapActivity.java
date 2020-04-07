@@ -15,7 +15,6 @@ import android.view.Window;
 import android.widget.Button;
 import android.widget.TextView;
 
-import com.fasterxml.jackson.databind.type.MapType;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -152,9 +151,9 @@ public class GeoPointMapActivity extends Activity
     @Override
     public void onLocationChanged(Location location) {
         if (!inViewMode && !isManualSelectedLocation) {
-            this.location = location;
-            if (this.location != null) {
-
+            if (location != null &&
+                    (this.location == null || (location.getAccuracy() < this.location.getAccuracy()))) {
+                this.location = location;
                 drawMarker();
             }
         }
