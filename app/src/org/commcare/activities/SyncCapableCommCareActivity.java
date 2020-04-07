@@ -218,7 +218,7 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
     public void showRateLimitError(boolean userTriggered) {
 
         if (HiddenPreferences.isRateLimitPopupDisabled() || !userTriggered) {
-            handleFormSendResult(Localization.get("sync.fail.rate.limited.server.error"), false);
+            handleFormSendResult(Localization.get("form.send.rate.limit.error.toast"), false);
             return;
         }
         String title = Localization.get("form.send.rate.limit.error.title");
@@ -226,11 +226,11 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
         StandardAlertDialog dialog = StandardAlertDialog.getBasicAlertDialog(this, title,
                 message, null);
 
-        dialog.setNegativeButton(Localization.get("dialog.button.do.not.show.again"), (dialog1, which) -> {
+        dialog.setNegativeButton(Localization.get("rate.limit.error.dialog.do.not.show"), (dialog1, which) -> {
             HiddenPreferences.disableRateLimitPopup(true);
             dismissAlertDialog();
         });
-        dialog.setPositiveButton(Localization.get("dialog.button.close"), (dialog1, which) -> {
+        dialog.setPositiveButton(Localization.get("rate.limit.error.dialog.close"), (dialog1, which) -> {
             dismissAlertDialog();
         });
 

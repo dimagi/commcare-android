@@ -120,7 +120,7 @@ public class RecoveryActivity extends SessionAwareCommCareActivity<RecoveryActiv
                                 receiver.updateStatus(Localization.get("auth.over.http"));
                                 break;
                             case RATE_LIMITED:
-                                receiver.updateStatus(Localization.get("sync.fail.rate.limited.server.error"));
+                                receiver.updateStatus(Localization.get("form.send.rate.limit.error.toast"));
                                 break;
                         }
                     }
