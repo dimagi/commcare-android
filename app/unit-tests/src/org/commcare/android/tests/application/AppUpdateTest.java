@@ -56,18 +56,18 @@ public class AppUpdateTest {
         Assert.assertTrue(p.getVersion() == 9);
     }
 
-    @Test
-    public void testAppIsUpToDate() {
-        Log.d(TAG, "Try updating to the same app.");
-
-        String profileRef = UpdateUtils.buildResourceRef(REF_BASE_DIR, "base_app", "profile.ccpr");
-        UpdateUtils.installUpdate(profileRef,
-                AppInstallStatus.UpToDate,
-                AppInstallStatus.UnknownFailure);
-
-        Profile p = CommCareApplication.instance().getCommCarePlatform().getCurrentProfile();
-        Assert.assertTrue(p.getVersion() == 6);
-    }
+//    @Test
+//    public void testAppIsUpToDate() {
+//        Log.d(TAG, "Try updating to the same app.");
+//
+//        String profileRef = UpdateUtils.buildResourceRef(REF_BASE_DIR, "base_app", "profile.ccpr");
+//        UpdateUtils.installUpdate(profileRef,
+//                AppInstallStatus.UpToDate,
+//                AppInstallStatus.UnknownFailure);
+//
+//        Profile p = CommCareApplication.instance().getCommCarePlatform().getCurrentProfile();
+//        Assert.assertTrue(p.getVersion() == 6);
+//    }
 
     @Test
     public void testAppUpdateWithoutLocalStorage() {
