@@ -42,15 +42,24 @@ public class MediaFileAndroidInstaller extends FileSystemInstaller {
     @Override
     public boolean install(Resource r, ResourceLocation location, Reference ref, ResourceTable table, AndroidCommCarePlatform platform, boolean upgrade, boolean recovery) throws UnresolvedResourceException, UnfullfilledRequirementsException {
 
-        // If we are in middle of update and media is marked as lazy,
+        // If it's a lazy media resource,
         // just add the resource to the table without actually installing it.
-        if(upgrade && r.isLazy()){
-            table.commit(r, Resource.RESOURCE_STATUS_UPGRADE);
+        if (r.isLazy()) {
+            table.commit(r, upgrade ? Resource.RESOURCE_STATUS_UPGRADE : Resource.RESOURCE_STATUS_INSTALLED);
             return true;
         }
 
 
         return super.install(r, location, ref, table, platform, upgrade, recovery);
+    }
+
+    @Override
+    public boolean upgrade(Resource r, AndroidCommCarePlatform platform) {
+        if (r.isLazy()) {
+            return true;
+        }
+
+        return super.upgrade(r, platform);
     }
 
     @Override
