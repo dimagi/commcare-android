@@ -186,7 +186,8 @@ public class CommCareApplication extends MultiDexApplication {
         CommCareApplication.app = this;
         CrashUtil.init(this);
         DataChangeLogger.init(this);
-        KujakuLibrary.init(this);
+
+        initKujaku();
 
         logFirstCommCareRun();
         CommCarePreferenceManagerFactory.init(new AndroidPreferenceManager());
@@ -228,6 +229,10 @@ public class CommCareApplication extends MultiDexApplication {
         }
 
         LocalePreferences.saveDeviceLocale(Locale.getDefault());
+    }
+
+    protected void initKujaku() {
+        KujakuLibrary.init(this);
     }
 
     protected void turnOnStrictMode() {

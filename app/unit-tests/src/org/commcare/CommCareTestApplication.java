@@ -77,6 +77,11 @@ public class CommCareTestApplication extends CommCareApplication implements Test
     }
 
     @Override
+    protected void initKujaku() {
+        // do nothing
+    }
+
+    @Override
     protected void turnOnStrictMode() {
         StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder()
                 .detectLeakedSqlLiteObjects()
