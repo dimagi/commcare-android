@@ -1,7 +1,6 @@
 package org.commcare.tasks;
 
 import android.content.Context;
-import android.support.v4.util.Pair;
 
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
@@ -13,6 +12,7 @@ import org.commcare.engine.resource.installers.LocalStorageUnavailableException;
 import org.commcare.logging.DataChangeLog;
 import org.commcare.logging.DataChangeLogger;
 import org.commcare.resources.model.InstallCancelled;
+import org.commcare.resources.model.InstallCancelledException;
 import org.commcare.resources.model.InvalidResourceException;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
@@ -26,6 +26,8 @@ import org.javarosa.core.services.locale.Localization;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
 
 import java.util.Vector;
+
+import androidx.core.util.Pair;
 
 /**
  * Stages an update for the seated app in the background. Does not perform
@@ -137,6 +139,10 @@ public class UpdateTask
             return new ResultAndError<>(AppInstallStatus.IncompatibleReqs, error);
         } catch (UnresolvedResourceException e) {
             return new ResultAndError<>(ResourceInstallUtils.processUnresolvedResource(e), e.getMessage());
+        } catch (InstallCancelledException e) {
+            // onPostExecute doesn't get invoked in case of task cancellation, so process the failure here
+            resourceManager.processUpdateFailure(AppInstallStatus.UnknownFailure, ctx, wasTriggeredByAutoUpdate);
+            return new ResultAndError<>(AppInstallStatus.UnknownFailure);
         } catch (Exception e) {
             ResourceInstallUtils.logInstallError(e,
                     "Unknown error ocurred during install|");
@@ -158,7 +164,7 @@ public class UpdateTask
     }
 
     private AppInstallStatus stageUpdate() throws UnfullfilledRequirementsException,
-            UnresolvedResourceException {
+            UnresolvedResourceException, InstallCancelledException {
         Resource profile = resourceManager.getMasterProfile();
         boolean appInstalled = (profile != null &&
                 profile.getStatus() == Resource.RESOURCE_STATUS_INSTALLED);
@@ -311,4 +317,7 @@ public class UpdateTask
         return Pair.create(splitMessage[0].substring(2), splitMessage[1]);
     }
 
+    public void clearUpgrade() {
+        resourceManager.clearUpgrade();
+    }
 }

@@ -20,6 +20,7 @@ import java.nio.charset.IllegalCharsetNameException;
 import java.nio.charset.UnsupportedCharsetException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
 import okhttp3.MediaType;
@@ -109,7 +110,7 @@ public class ForceCloseLogger {
         }
 
         try {
-            Response<ResponseBody> response = generator.postMultipart(submissionUri, parts);
+            Response<ResponseBody> response = generator.postMultipart(submissionUri, parts, new HashMap<>());
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
             if (response.body() != null) {
                 StreamsUtil.writeFromInputToOutput(response.body().byteStream(), bos);

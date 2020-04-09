@@ -44,7 +44,7 @@ public class CreatePinActivity extends SessionAwareCommCareActivity<CreatePinAct
     @UiElement(value = R.id.pin_prompt_text)
     private TextView promptText;
 
-    @UiElement(value = R.id.pin_cancel_button)
+    @UiElement(value = R.id.pin_cancel_button, locale = "pin.cancel.button")
     private Button cancelButton;
 
     @UiElement(value = R.id.pin_confirm_button)

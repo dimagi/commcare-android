@@ -14,12 +14,9 @@ import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.io.StreamsUtil.InputIOException;
 import org.javarosa.core.model.User;
 import org.javarosa.core.services.Logger;
-import org.javarosa.core.services.locale.Localization;
 import org.javarosa.xml.ElementParser;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -32,6 +29,7 @@ import java.net.UnknownHostException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import javax.crypto.Cipher;
@@ -167,7 +165,7 @@ public class FormUploadUtil {
         Response<ResponseBody> response;
 
         try {
-            response = generator.postMultipart(url, parts);
+            response = generator.postMultipart(url, parts, new HashMap<>());
         } catch (InputIOException ioe) {
             // This implies that there was a problem with the _source_ of the
             // transmission, not the processing or receiving end.
@@ -212,6 +210,8 @@ public class FormUploadUtil {
             return processActionableFaiure(response);
         } else if (responseCode == 422) {
             return handleProcessingFailure(response.errorBody().byteStream());
+        } else if (responseCode == 503) {
+            return FormUploadResult.RATE_LIMITED;
         } else {
             return FormUploadResult.FAILURE;
         }

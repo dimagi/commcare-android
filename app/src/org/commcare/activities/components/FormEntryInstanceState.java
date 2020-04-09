@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Pair;
 
+import org.commcare.CommCareApplication;
 import org.commcare.activities.FormEntryActivity;
 import org.commcare.android.database.app.models.FormDefRecord;
 import org.commcare.android.database.user.models.FormRecord;
@@ -60,22 +61,19 @@ public class FormEntryInstanceState {
         String formStatus = formRecord.getStatus();
         boolean isInstanceReadOnly =
                 !FormRecord.STATUS_UNSTARTED.equals(formStatus) &&
-                !FormRecord.STATUS_INCOMPLETE.equals(formStatus);
+                        !FormRecord.STATUS_INCOMPLETE.equals(formStatus);
 
-        Vector<FormDefRecord> formDefRecords =
-                FormDefRecord.getFormDefsByJrFormId(formDefRecordStorage, formRecord.getXmlns());
-        if (formDefRecords.size() == 1) {
-            FormDefRecord formDefRecord = formDefRecords.get(0);
-            instanceState.setFormDefPath(formDefRecord.getFilePath());
-            return new Pair<>(formDefRecord.getID(), isInstanceReadOnly);
-        } else if (formDefRecords.size() < 1) {
+        int formDefId = CommCareApplication.instance()
+                .getCommCarePlatform()
+                .getFormDefId(formRecord.getXmlns());
+        if (formDefId == -1) {
             String error = "No XForm definition defined for this form with namespace " + formRecord.getXmlns();
             Logger.log(LogTypes.SOFT_ASSERT, error);
             throw new FormEntryActivity.FormQueryException(error);
         } else {
-            String error = "More than one XForm definition present for this form with namespace " + formRecord.getXmlns();
-            Logger.log(LogTypes.SOFT_ASSERT, error);
-            throw new FormEntryActivity.FormQueryException(error);
+            FormDefRecord formDefRecord = FormDefRecord.getFormDef(formDefRecordStorage, formDefId);
+            instanceState.setFormDefPath(formDefRecord.getFilePath());
+            return new Pair<>(formDefRecord.getID(), isInstanceReadOnly);
         }
     }
 
@@ -108,6 +106,7 @@ public class FormEntryInstanceState {
         if (intent.hasExtra(KEY_FORM_RECORD_DESTINATION)) {
             this.mFormRecordDestination = intent.getStringExtra(KEY_FORM_RECORD_DESTINATION);
         } else {
+            Logger.log(LogTypes.SOFT_ASSERT, "Access outside scoped storage in loading current form.");
             mFormRecordDestination = ODKStorage.FORM_RECORD_PATH;
         }
     }

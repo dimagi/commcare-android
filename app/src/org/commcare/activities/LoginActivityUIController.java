@@ -2,12 +2,11 @@ package org.commcare.activities;
 
 import android.content.SharedPreferences;
 import android.content.res.Resources;
-import android.graphics.Bitmap;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.StateListDrawable;
 import android.os.Build;
-import android.preference.PreferenceManager;
+import androidx.preference.PreferenceManager;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
@@ -33,7 +32,6 @@ import org.commcare.models.database.SqlStorage;
 import org.commcare.preferences.DevSessionRestorer;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.preferences.LocalePreferences;
-import org.commcare.utils.MediaUtil;
 import org.commcare.utils.MultipleAppsUtil;
 import org.commcare.views.CustomBanner;
 import org.commcare.views.ManagedUi;
@@ -183,18 +181,8 @@ public class LoginActivityUIController implements CommCareActivityUIController {
                     } else if (height < hideBanner) {
                         banner.setVisibility(View.GONE);
                     } else {
-                        // Override default CommCare banner if requested
-                        String customBannerURI = prefs.getString(
-                                HiddenPreferences.BRAND_BANNER_LOGIN, "");
-                        if (!"".equals(customBannerURI)) {
-                            Bitmap bitmap = MediaUtil.inflateDisplayImage(activity, customBannerURI);
-                            if (bitmap != null) {
-                                ImageView bannerView =
-                                        banner.findViewById(R.id.main_top_banner);
-                                bannerView.setImageBitmap(bitmap);
-                            }
-                        }
                         banner.setVisibility(View.VISIBLE);
+                        updateBanner();
                     }
                 });
     }
@@ -492,7 +480,7 @@ public class LoginActivityUIController implements CommCareActivityUIController {
     private void updateBanner() {
         ImageView topBannerImageView =
                 banner.findViewById(R.id.main_top_banner);
-        if (!CustomBanner.useCustomBannerFitToActivity(activity, topBannerImageView)) {
+        if (!CustomBanner.useCustomBannerFitToActivity(activity, topBannerImageView, CustomBanner.Banner.LOGIN)) {
             topBannerImageView.setImageResource(R.drawable.commcare_logo);
         }
     }

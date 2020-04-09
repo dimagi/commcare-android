@@ -31,6 +31,7 @@ public class FormDefRecord extends Persisted {
     // these are null unless you enter something and aren't currently used
     public static final String META_MODEL_VERSION = "modelVersion";
     public static final String META_UI_VERSION = "uiVersion";
+    public static final String META_RESOURCE_VERSION = "resourceVersion";
 
     @Persisting(1)
     @MetaField(META_DISPLAY_NAME)
@@ -56,26 +57,33 @@ public class FormDefRecord extends Persisted {
     @MetaField(META_UI_VERSION)
     private int mUiVersion = -1;
 
+    // Corresponding resource version for this Form Record
+    @Persisting(value = 7, nullable = true)
+    @MetaField(META_RESOURCE_VERSION)
+    private int mResourceVersion = -1;
+
+
     //    Serialization Only!
     public FormDefRecord() {
     }
 
-    public FormDefRecord(String displayName, String jrFormId, String formFilePath, String formMediaPath) {
+    public FormDefRecord(String displayName, String jrFormId, String formFilePath, String formMediaPath, int resourceVersion) {
         checkFilePath(formFilePath);
         mDisplayName = displayName;
         mJrFormId = jrFormId;
         mFormFilePath = formFilePath;
         mFormMediaPath = formMediaPath;
+        mResourceVersion = resourceVersion;
     }
 
-    // Only for DB Migration
-    public FormDefRecord(Cursor cursor) {
-        mDisplayName = cursor.getString(cursor.getColumnIndex(FormsProviderAPI.FormsColumns.DISPLAY_NAME));
-        mJrFormId = cursor.getString(cursor.getColumnIndex(FormsProviderAPI.FormsColumns.JR_FORM_ID));
-        mModelVersion = cursor.getInt(cursor.getColumnIndex(FormsProviderAPI.FormsColumns.MODEL_VERSION));
-        mUiVersion = cursor.getInt(cursor.getColumnIndex(FormsProviderAPI.FormsColumns.UI_VERSION));
-        mFormMediaPath = cursor.getString(cursor.getColumnIndex(FormsProviderAPI.FormsColumns.FORM_MEDIA_PATH));
-        mFormFilePath = cursor.getString(cursor.getColumnIndex(FormsProviderAPI.FormsColumns.FORM_FILE_PATH));
+    // For migration from FormDefRecordV12
+    public FormDefRecord(FormDefRecordV12 oldFormDefRecord) {
+        mDisplayName = oldFormDefRecord.getDisplayName();
+        mJrFormId = oldFormDefRecord.getJrFormId();
+        mFormFilePath = oldFormDefRecord.getFilePath();
+        mFormMediaPath = oldFormDefRecord.getMediaPath();
+        mModelVersion = oldFormDefRecord.getModelVersion();
+        mUiVersion = oldFormDefRecord.getUiVersion();
     }
 
     public static Vector<Integer> getFormDefIdsByJrFormId(SqlStorage<FormDefRecord> formDefRecordStorage, String jrFormId) {
@@ -111,7 +119,7 @@ public class FormDefRecord extends Persisted {
         return recordId;
     }
 
-    private String getMediaPath(String formFilePath) {
+    private static String getMediaPath(String formFilePath) {
         String pathNoExtension = formFilePath.substring(0, formFilePath.lastIndexOf("."));
         return pathNoExtension + "-media";
     }
@@ -122,7 +130,7 @@ public class FormDefRecord extends Persisted {
     }
 
 
-    public void updateFilePath(SqlStorage<FormDefRecord> formDefRecordStorage, String newFilePath) {
+    private void updateFilePath(SqlStorage<FormDefRecord> formDefRecordStorage, String newFilePath) {
         checkFilePath(newFilePath);
         File newFormFile = new File(newFilePath);
         try {
@@ -143,10 +151,25 @@ public class FormDefRecord extends Persisted {
         formDefRecordStorage.write(this);
     }
 
-    private void checkFilePath(String formFilePath) {
+    private static void checkFilePath(String formFilePath) {
         if (StringUtils.isEmpty(formFilePath)) {
             throw new IllegalArgumentException("formFilePath can't by null or empty");
         }
+    }
+
+    // Returns the formId of the formDefRecord with highest form def resource version for our namespace
+    public static int getLatestFormDefId(SqlStorage<FormDefRecord> formDefStorage, String namespace) {
+        Vector<Integer> formsForOurNamespace = FormDefRecord.getFormDefIdsByJrFormId(formDefStorage, namespace);
+        int maxFormResourceVersion = -1;
+        int latestFormId = -1;
+        for (int i = 0; i < formsForOurNamespace.size(); i++) {
+            FormDefRecord formDefRecordItem = formDefStorage.read(formsForOurNamespace.get(i));
+            if (formDefRecordItem.getResourceVersion() >= maxFormResourceVersion) {
+                maxFormResourceVersion = formDefRecordItem.getResourceVersion();
+                latestFormId = formDefRecordItem.getID();
+            }
+        }
+        return latestFormId;
     }
 
     public static FormDefRecord getFormDef(SqlStorage<FormDefRecord> formDefRecordStorage, int formId) {
@@ -161,19 +184,19 @@ public class FormDefRecord extends Persisted {
         return mFormMediaPath;
     }
 
-    public String getJrFormId() {
-        return mJrFormId;
-    }
-
-    public String getDisplayname() {
+    public String getDisplayName() {
         return mDisplayName;
-    }
-
-    public Integer getModelVersion() {
-        return mModelVersion;
     }
 
     public Integer getUiVersion() {
         return mUiVersion;
+    }
+
+    public int getResourceVersion() {
+        return mResourceVersion;
+    }
+
+    public String getJrFormId() {
+        return mJrFormId;
     }
 }

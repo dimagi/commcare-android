@@ -6,8 +6,6 @@ public class FormEntryConstants {
     // Defines for FormEntryActivity
     public static final boolean EXIT = true;
     public static final boolean DO_NOT_EXIT = false;
-    public static final boolean EVALUATE_CONSTRAINTS = true;
-    public static final boolean DO_NOT_EVALUATE_CONSTRAINTS = false;
 
     // Request codes for returning data from specified intent.
     public static final int IMAGE_CAPTURE = 1;
@@ -40,4 +38,5 @@ public class FormEntryConstants {
      * whether to redirect to archive view or sync the form.
      */
     public static final String IS_ARCHIVED_FORM = "is-archive-form";
+    public static final String WAS_INTERRUPTED = "form-entry-interrupted";
 }

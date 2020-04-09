@@ -10,8 +10,10 @@ import net.sqlcipher.database.SQLiteDatabase;
 
 import org.apache.commons.lang3.StringUtils;
 import org.commcare.android.database.app.models.FormDefRecord;
+import org.commcare.android.database.app.models.FormDefRecordV12;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.app.models.UserKeyRecordV1;
+import org.commcare.android.database.user.models.ACase;
 import org.commcare.android.resource.installers.XFormAndroidInstaller;
 import org.commcare.android.resource.installers.XFormAndroidInstallerV1;
 import org.commcare.android.storage.framework.Persisted;
@@ -120,9 +122,16 @@ class AppDatabaseUpgrader {
             }
         }
 
+        if (oldVersion == 12) {
+            if (upgradeTwelveThirteen(db)) {
+                oldVersion = 13;
+            }
+        }
+
         //NOTE: If metadata changes are made to the Resource model, they need to be
         //managed by changing the TwoThree updater to maintain that metadata.
     }
+
 
     private boolean upgradeOneTwo(SQLiteDatabase db) {
         db.beginTransaction();
@@ -255,7 +264,7 @@ class AppDatabaseUpgrader {
             upgradeXFormAndroidInstallerV1(RECOVERY_RESOURCE_TABLE_NAME, db);
 
             // Create FormDef table
-            TableBuilder builder = new TableBuilder(FormDefRecord.class);
+            TableBuilder builder = new TableBuilder(FormDefRecordV12.class);
             db.execSQL(builder.getTableCreateString());
 
             migrateFormProvider(db);
@@ -297,11 +306,11 @@ class AppDatabaseUpgrader {
     private boolean upgradeTenEleven(SQLiteDatabase db) {
         db.beginTransaction();
         try {
-            SqlStorage<FormDefRecord> formDefRecordStorage = new SqlStorage<>(
+            SqlStorage<FormDefRecordV12> formDefRecordStorage = new SqlStorage<>(
                     FormDefRecord.STORAGE_KEY,
-                    FormDefRecord.class,
+                    FormDefRecordV12.class,
                     new ConcreteAndroidDbHelper(context, db));
-            for (FormDefRecord formDefRecord : formDefRecordStorage) {
+            for (FormDefRecordV12 formDefRecord : formDefRecordStorage) {
                 String filePath = formDefRecord.getFilePath();
                 File formFile = new File(filePath);
 
@@ -333,18 +342,49 @@ class AppDatabaseUpgrader {
         }
     }
 
+
+    private boolean upgradeTwelveThirteen(SQLiteDatabase db) {
+        db.beginTransaction();
+        try {
+            db.execSQL(DbUtil.addColumnToTable(
+                    FormDefRecord.STORAGE_KEY,
+                    FormDefRecord.META_RESOURCE_VERSION,
+                    "INTEGER"));
+
+            SqlStorage<FormDefRecordV12> oldFormDefRecordStorage = new SqlStorage<>(
+                    FormDefRecord.STORAGE_KEY,
+                    FormDefRecordV12.class,
+                    new ConcreteAndroidDbHelper(context, db));
+
+            SqlStorage<FormDefRecord> formDefRecordStorage = new SqlStorage<>(
+                    FormDefRecord.STORAGE_KEY,
+                    FormDefRecord.class,
+                    new ConcreteAndroidDbHelper(context, db));
+
+            for (FormDefRecordV12 oldFormDefRecord : oldFormDefRecordStorage) {
+                FormDefRecord formDefRecord = new FormDefRecord(oldFormDefRecord);
+                formDefRecordStorage.update(oldFormDefRecord.getID(), formDefRecord);
+            }
+
+            db.setTransactionSuccessful();
+            return true;
+        } finally {
+            db.endTransaction();
+        }
+    }
+
     // migrate formProvider entries to db
     private void migrateFormProvider(SQLiteDatabase db) {
         Cursor cursor = null;
         try {
             cursor = context.getContentResolver().query(FormsProviderAPI.FormsColumns.CONTENT_URI, null, null, null, null);
             if (cursor != null && cursor.getCount() > 0) {
-                SqlStorage<FormDefRecord> formDefRecordStorage = new SqlStorage<>(
+                SqlStorage<FormDefRecordV12> formDefRecordStorage = new SqlStorage<>(
                         FormDefRecord.STORAGE_KEY,
-                        FormDefRecord.class,
+                        FormDefRecordV12.class,
                         new ConcreteAndroidDbHelper(context, db));
                 while (cursor.moveToNext()) {
-                    FormDefRecord formDefRecord = new FormDefRecord(cursor);
+                    FormDefRecordV12 formDefRecord = new FormDefRecordV12(cursor);
                     formDefRecord.save(formDefRecordStorage);
                 }
             }

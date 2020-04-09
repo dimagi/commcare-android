@@ -59,7 +59,7 @@
 
     <integer-array name="commcare_version">
         <item>2</item>
-        <item>47</item>
+        <item>48</item>
     </integer-array>
 
     <string name="app_version_string">version.id.long</string>
@@ -414,6 +414,6 @@
     <string name="recovery_measure_unzip_progress" cc:translatable="true">Processing CCZ File.. %1$s</string>
     <string name="reinstall_prompt_title" cc:translatable="true">Reinstall of %1$s is Required</string>
 
-    <string name="install_error_file_not_found">No file found for resource %1$s</string>
-
+    <string name="install_error_file_not_found" cc:translatable="true">No file found for resource %1$s</string>
+    <string name="update_blocked_on_sync_message" cc:translatable="true">Sync is required to install this update. Auto initiating sync...</string>
 </resources>

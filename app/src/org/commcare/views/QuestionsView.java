@@ -5,7 +5,7 @@ import android.content.SharedPreferences;
 import android.graphics.Typeface;
 import android.os.Build;
 import android.os.Handler;
-import android.preference.PreferenceManager;
+import androidx.preference.PreferenceManager;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.util.TypedValue;
@@ -15,6 +15,7 @@ import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
+import org.commcare.activities.CommCareActivity;
 import org.commcare.activities.FormEntryActivity;
 import org.commcare.dalvik.R;
 import org.commcare.interfaces.WidgetChangedListener;
@@ -36,6 +37,7 @@ import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.services.Logger;
 import org.javarosa.form.api.FormEntryCaption;
 import org.javarosa.form.api.FormEntryPrompt;
+import org.javarosa.xpath.XPathException;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -304,19 +306,23 @@ public class QuestionsView extends ScrollView
     private String getHintText(FormEntryPrompt[] questionPrompts) {
         //Figure out if we share hint text between questions
         String hintText = null;
-        if (questionPrompts.length > 1) {
-            hintText = questionPrompts[0].getHintText();
-            for (FormEntryPrompt p : questionPrompts) {
-                //If something doesn't have hint text at all,
-                //bail
-                String curHintText = p.getHintText();
-                //Otherwise see if it matches
-                if (curHintText == null || !curHintText.equals(hintText)) {
-                    //If not, we can't do this trick
-                    hintText = null;
-                    break;
+        try {
+            if (questionPrompts.length > 1) {
+                hintText = questionPrompts[0].getHintText();
+                for (FormEntryPrompt p : questionPrompts) {
+                    //If something doesn't have hint text at all,
+                    //bail
+                    String curHintText = p.getHintText();
+                    //Otherwise see if it matches
+                    if (curHintText == null || !curHintText.equals(hintText)) {
+                        //If not, we can't do this trick
+                        hintText = null;
+                        break;
+                    }
                 }
             }
+        } catch (XPathException exception) {
+            UserfacingErrorHandling.createErrorDialog((CommCareActivity)getContext(), exception.getLocalizedMessage(), true);
         }
 
         return hintText;

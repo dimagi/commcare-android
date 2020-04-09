@@ -3,10 +3,9 @@ package org.commcare.utils;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Build;
-import android.support.annotation.NonNull;
-import android.support.v4.util.LruCache;
+import androidx.annotation.NonNull;
+import androidx.collection.LruCache;
 import android.text.Spannable;
-import android.util.Pair;
 
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.NoLocalizedTextException;

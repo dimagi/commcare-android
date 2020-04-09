@@ -2,14 +2,11 @@ package org.commcare.activities;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
-import android.support.v4.app.FragmentActivity;
+import androidx.preference.PreferenceManager;
+import androidx.fragment.app.FragmentActivity;
 import android.widget.TextView;
 
-import org.commcare.CommCareApplication;
-import org.commcare.android.javarosa.DeviceReportRecord;
 import org.commcare.dalvik.R;
-import org.commcare.models.database.SqlStorage;
 
 // Used for ui testing components which don't have UI components
 public class UITestInfoActivity extends FragmentActivity {

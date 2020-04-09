@@ -6,7 +6,10 @@ import android.util.Log;
 
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.logging.analytics.UpdateStats;
+import org.commcare.preferences.HiddenPreferences;
+import org.commcare.preferences.PrefValues;
 import org.commcare.resources.ResourceManager;
 import org.commcare.resources.model.InstallCancelled;
 import org.commcare.resources.model.InstallCancelledException;
@@ -20,8 +23,18 @@ import org.commcare.util.LogTypes;
 import org.commcare.utils.AndroidCommCarePlatform;
 import org.commcare.utils.AndroidResourceInstallerFactory;
 import org.commcare.utils.SessionUnavailableException;
+import org.javarosa.core.reference.ReleasedOnTimeSupportedReference;
+import org.javarosa.core.reference.Reference;
 import org.javarosa.core.services.Logger;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
+
+import java.text.ParseException;
+import java.util.Date;
+
+import static org.commcare.google.services.analytics.AnalyticsParamValue.UPDATE_RESET_REASON_CORRUPT;
+import static org.commcare.google.services.analytics.AnalyticsParamValue.UPDATE_RESET_REASON_NEWER_VERSION_AVAILABLE;
+import static org.commcare.google.services.analytics.AnalyticsParamValue.UPDATE_RESET_REASON_OVERSHOOT_TRIALS;
+import static org.commcare.google.services.analytics.AnalyticsParamValue.UPDATE_RESET_REASON_TIMEOUT;
 
 /**
  * Manages app installations and updates. Extends the ResourceManager with the
@@ -59,37 +72,30 @@ public class AndroidResourceManager extends ResourceManager {
      * Download the latest profile; if it is new, download and stage the entire
      * update.
      *
-     * @param profileRef Reference that resolves to the profile file used to
-     *                   seed the update
+     * @param profileRef       Reference that resolves to the profile file used to
+     *                         seed the update
      * @param profileAuthority The authority from which the app resources for the update are
      *                         coming (local vs. remote)
      * @return UpdateStaged upon update download, UpToDate if no new update,
      * otherwise an error status.
      */
     public AppInstallStatus checkAndPrepareUpgradeResources(String profileRef, int profileAuthority)
-            throws UnfullfilledRequirementsException, UnresolvedResourceException {
+            throws UnfullfilledRequirementsException, UnresolvedResourceException, InstallCancelledException {
         synchronized (platform) {
             this.profileRef = profileRef;
-            try {
-                instantiateLatestUpgradeProfile(profileAuthority);
+            instantiateLatestUpgradeProfile(profileAuthority);
 
-                if (isUpgradeTableStaged()) {
-                    return AppInstallStatus.UpdateStaged;
-                }
-
-                if (updateNotNewer(getMasterProfile())) {
-                    Logger.log(LogTypes.TYPE_RESOURCES, "App Resources up to Date");
-                    upgradeTable.clearUpgrade(platform);
-                    return AppInstallStatus.UpToDate;
-                }
-
-                prepareUpgradeResources();
-            } catch (InstallCancelledException e) {
-                // The user cancelled the upgrade check process. The calling task
-                // should have caught and handled the cancellation
-                return AppInstallStatus.UnknownFailure;
+            if (isUpgradeTableStaged()) {
+                return AppInstallStatus.UpdateStaged;
             }
 
+            if (updateNotNewer(getMasterProfile())) {
+                Logger.log(LogTypes.TYPE_RESOURCES, "App Resources up to Date");
+                clearUpgrade();
+                return AppInstallStatus.UpToDate;
+            }
+
+            prepareUpgradeResources();
             return AppInstallStatus.UpdateStaged;
         }
     }
@@ -108,6 +114,10 @@ public class AndroidResourceManager extends ResourceManager {
         if (updateStats.isUpgradeStale()) {
             Log.i(TAG, "Clearing upgrade table because resource downloads " +
                     "failed too many times or started too long ago");
+
+            FirebaseAnalyticsUtil.reportUpdateReset(updateStats.hasUpdateTrialsMaxedOut() ?
+                    UPDATE_RESET_REASON_OVERSHOOT_TRIALS : UPDATE_RESET_REASON_TIMEOUT);
+
             upgradeTable.destroy();
             updateStats.resetStats(app);
         }
@@ -139,6 +149,9 @@ public class AndroidResourceManager extends ResourceManager {
 
         if (tempProfile != null && tempProfile.isNewer(upgradeProfile)) {
             upgradeTable.destroy();
+
+            FirebaseAnalyticsUtil.reportUpdateReset(UPDATE_RESET_REASON_NEWER_VERSION_AVAILABLE);
+
             tempUpgradeTable.copyToTable(upgradeTable);
         }
 
@@ -203,9 +216,11 @@ public class AndroidResourceManager extends ResourceManager {
                                      Context ctx,
                                      boolean isAutoUpdate) {
         updateStats.registerUpdateException(new Exception(result.toString()));
+        FirebaseAnalyticsUtil.reportStageUpdateAttemptFailure(result.toString());
 
         if (!result.canReusePartialUpdateTable()) {
-            upgradeTable.clearUpgrade(platform);
+            clearUpgrade();
+            FirebaseAnalyticsUtil.reportUpdateReset(UPDATE_RESET_REASON_CORRUPT);
         }
 
         retryUpdateOrGiveUp(ctx, isAutoUpdate);
@@ -216,13 +231,18 @@ public class AndroidResourceManager extends ResourceManager {
             Logger.log(LogTypes.TYPE_RESOURCES,
                     "Update was stale, stopped trying to download update. Update Stats: " + updateStats.toString());
 
+
+            FirebaseAnalyticsUtil.reportUpdateReset(updateStats.hasUpdateTrialsMaxedOut() ?
+                    UPDATE_RESET_REASON_OVERSHOOT_TRIALS : UPDATE_RESET_REASON_TIMEOUT);
+
             UpdateStats.clearPersistedStats(app);
 
             if (isAutoUpdate) {
                 ResourceInstallUtils.recordAutoUpdateCompletion(app);
             }
 
-            upgradeTable.clearUpgrade(platform);
+            clearUpgrade();
+
         } else {
             Logger.log(LogTypes.TYPE_RESOURCES, "Retrying auto-update");
             UpdateStats.saveStatsPersistently(app, updateStats);
@@ -279,5 +299,12 @@ public class AndroidResourceManager extends ResourceManager {
         final long thirtySeconds = 30 * 1000;
         long exponentialDelay = thirtySeconds + (long)Math.pow(base, numberOfRestarts);
         return Math.min(exponentialDelay, MAX_UPDATE_RETRY_DELAY_IN_MS);
+    }
+
+    @Override
+    public void clearUpgrade() {
+        super.clearUpgrade();
+        HiddenPreferences.setReleasedOnTimeForOngoingAppDownload((AndroidCommCarePlatform)platform, 0);
+        HiddenPreferences.setPreUpdateSyncNeeded(PrefValues.NO);
     }
 }
