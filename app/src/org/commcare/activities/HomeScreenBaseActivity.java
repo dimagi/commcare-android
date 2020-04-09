@@ -503,7 +503,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                     }
                     break;
                 case MODEL_RESULT:
-                    if(intent.getBooleanExtra(FormEntryConstants.WAS_INTERRUPTED, false)) {
+                    if(intent != null && intent.getBooleanExtra(FormEntryConstants.WAS_INTERRUPTED, false)) {
                         tryRestoringFormFromSessionExpiration();
                         return;
                     }
@@ -1134,7 +1134,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
         } else if (UpdateActivity.isUpdateBlockedOnSync() && UpdateActivity.sBlockedUpdateWorkflowInProgress) {
             triggerSync(true);
             kickedOff = true;
-        } else if (CommCareApplication.instance().isSyncPending(false)) {
+        } else if (CommCareApplication.instance().isSyncPending()) {
             triggerSync(true);
             kickedOff = true;
         } else if (UpdatePromptHelper.promptForUpdateIfNeeded(this)) {

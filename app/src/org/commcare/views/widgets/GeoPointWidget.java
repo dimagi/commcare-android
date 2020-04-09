@@ -24,6 +24,8 @@ import org.javarosa.form.api.FormEntryPrompt;
 
 import java.text.DecimalFormat;
 
+import static org.commcare.activities.GeoPointMapActivity.EXTRA_VIEW_ONLY;
+
 /**
  * GeoPointWidget is the widget that allows the user to get GPS readings.
  *
@@ -51,7 +53,7 @@ public class GeoPointWidget extends QuestionWidget {
         if ("maps".equalsIgnoreCase(appearance)) {
             try {
                 // use google maps it exists on the device
-                Class.forName("com.google.android.maps.MapActivity");
+                Class.forName("com.google.android.gms.maps.MapView");
                 mUseMaps = true;
             } catch (ClassNotFoundException e) {
                 mUseMaps = false;
@@ -91,6 +93,9 @@ public class GeoPointWidget extends QuestionWidget {
             Intent i;
             if (mUseMaps) {
                 i = new Intent(getContext(), GeoPointMapActivity.class);
+                if (mStringAnswer.getText().length() != 0) {
+                    i.putExtra(LOCATION, parseLocation());
+                }
             } else {
                 i = new Intent(getContext(), GeoPointActivity.class);
             }
@@ -107,15 +112,9 @@ public class GeoPointWidget extends QuestionWidget {
 
         // launch appropriate map viewer
         mViewButton.setOnClickListener(v -> {
-            String s1 = mStringAnswer.getText().toString();
-            String[] sa = s1.split(" ");
-            double gp[] = new double[4];
-            gp[0] = Double.valueOf(sa[0]);
-            gp[1] = Double.valueOf(sa[1]);
-            gp[2] = Double.valueOf(sa[2]);
-            gp[3] = Double.valueOf(sa[3]);
             Intent i = new Intent(getContext(), GeoPointMapActivity.class);
-            i.putExtra(LOCATION, gp);
+            i.putExtra(LOCATION, parseLocation());
+            i.putExtra(EXTRA_VIEW_ONLY, true);
             getContext().startActivity(i);
         });
 
@@ -124,6 +123,17 @@ public class GeoPointWidget extends QuestionWidget {
             addView(mViewButton);
         }
         addView(mAnswerDisplay);
+    }
+
+    private double[] parseLocation() {
+        String s1 = mStringAnswer.getText().toString();
+        String[] sa = s1.split(" ");
+        double gp[] = new double[4];
+        gp[0] = Double.valueOf(sa[0]);
+        gp[1] = Double.valueOf(sa[1]);
+        gp[2] = Double.valueOf(sa[2]);
+        gp[3] = Double.valueOf(sa[3]);
+        return gp;
     }
 
     @Override

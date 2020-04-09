@@ -37,6 +37,7 @@ import org.commcare.views.dialogs.DialogChoiceItem;
 import org.commcare.views.dialogs.HorizontalPaneledChoiceDialog;
 import org.commcare.views.dialogs.PaneledChoiceDialog;
 import org.commcare.views.media.AudioController;
+import org.commcare.views.widgets.ImageWidget;
 import org.commcare.views.widgets.IntentWidget;
 import org.commcare.views.widgets.QuestionWidget;
 import org.javarosa.core.model.Constants;
@@ -284,7 +285,7 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
 
         // The answer is saved on a back swipe, but question constraints are ignored.
         if (activity.currentPromptIsQuestion()) {
-            activity.saveAnswersForCurrentScreen(FormEntryConstants.DO_NOT_EVALUATE_CONSTRAINTS);
+            activity.saveAnswersForCurrentScreen(false);
         }
 
         // Any info stored about the last changed widget is useless when we move to a new view
@@ -391,7 +392,7 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
         }
 
         if (activity.currentPromptIsQuestion()) {
-            if (!activity.saveAnswersForCurrentScreen(FormEntryConstants.EVALUATE_CONSTRAINTS)) {
+            if (!activity.saveAnswersForCurrentScreen(!activity.mFormController.isFormReadOnly())) {
                 // A constraint was violated so a dialog should be showing.
                 return;
             }
@@ -716,7 +717,7 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
         ArrayList<String> oldQuestionTexts =
                 FormRelevancyUpdating.getOldQuestionTextsForEachWidget(oldWidgets);
 
-        activity.saveAnswersForCurrentScreen(FormEntryConstants.DO_NOT_EVALUATE_CONSTRAINTS);
+        activity.saveAnswersForCurrentScreen(false);
 
         FormEntryPrompt[] newValidPrompts;
         try {
@@ -737,6 +738,13 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
                 shouldRemoveFromView.add(i);
                 continue;
             }
+
+            if (oldWidgets.get(i) instanceof ImageWidget) {
+                // If there was change(in particular image-remove) in an image widget,
+                // only then update the form to disk.
+                activity.onExternalAttachmentUpdated();
+            }
+
             FormEntryPrompt oldPrompt = oldWidgets.get(i).getPrompt();
             String priorQuestionTextForThisWidget = oldQuestionTexts.get(i);
             Vector<SelectChoice> priorSelectChoicesForThisWidget = oldSelectChoices.get(i);

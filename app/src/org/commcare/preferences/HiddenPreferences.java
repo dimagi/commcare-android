@@ -1,18 +1,20 @@
 package org.commcare.preferences;
 
 import android.content.SharedPreferences;
-import androidx.preference.PreferenceManager;
-
-import androidx.annotation.Nullable;
 
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.activities.GeoPointActivity;
 import org.commcare.utils.AndroidCommCarePlatform;
 import org.commcare.utils.GeoUtils;
+import org.commcare.utils.MapLayer;
 
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
+
+
+import androidx.annotation.Nullable;
+import androidx.preference.PreferenceManager;
 
 /**
  * Provides hooks for reading and writing all preferences that are not configurable by the user in
@@ -44,6 +46,7 @@ public class HiddenPreferences {
     private final static String FORCE_LOGS = "force-logs";
 
     // Preferences whose values are only ever set by being sent down from HQ via the profile file
+    private final static String MAPS_DEFAULT_LAYER = "cc-maps-default-layer";
     public final static String AUTO_SYNC_FREQUENCY = "cc-autosync-freq";
     private final static String ENABLE_SAVED_FORMS = "cc-show-saved";
     private final static String ENABLE_INCOMPLETE_FORMS = "cc-show-incomplete";
@@ -56,6 +59,7 @@ public class HiddenPreferences {
     private final static String GPS_WIDGET_GOOD_ACCURACY = "cc-gps-widget-good-accuracy";
     private final static String GPS_WIDGET_ACCEPTABLE_ACCURACY = "cc-gps-widget-acceptable-accuracy";
     private final static String GPS_WIDGET_TIMEOUT_SECS = "cc-gps-widget-timeout-secs";
+    private static final String APP_VERSION_TAG = "cc-app-version-tag";
     private final static String LOG_ENTITY_DETAIL = "cc-log-entity-detail-enabled";
     public static final String DUMP_FOLDER_PATH = "dump-folder-path";
     private final static String RESIZING_METHOD = "cc-resize-images";
@@ -307,6 +311,28 @@ public class HiddenPreferences {
                 .putInt(LATEST_APP_VERSION, appVersion).apply();
     }
 
+    public static String getAppVersionTag() {
+        return CommCareApplication.instance().getCurrentApp().getAppPreferences()
+                .getString(APP_VERSION_TAG, "");
+    }
+
+    public static MapLayer getMapsDefaultLayer() {
+        try {
+            String mapType =  CommCareApplication.instance().getCurrentApp().getAppPreferences()
+                    .getString(MAPS_DEFAULT_LAYER, "normal");
+            return MapLayer.valueOf(mapType.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            return MapLayer.NORMAL;
+        }
+    }
+
+    public static void setMapsDefaultLayer(MapLayer mapLayer) {
+        CommCareApplication.instance().getCurrentApp().getAppPreferences()
+                .edit()
+                .putString(MAPS_DEFAULT_LAYER, mapLayer.toString())
+                .apply();
+    }
+
     public static int getLatestAppVersion() {
         return CommCareApplication.instance().getCurrentApp().getAppPreferences()
                 .getInt(LATEST_APP_VERSION, -1);
@@ -362,6 +388,13 @@ public class HiddenPreferences {
     public static boolean preUpdateSyncNeeded() {
         SharedPreferences properties = CommCareApplication.instance().getCurrentApp().getAppPreferences();
         return properties.getString(PRE_UPDATE_SYNC_NEEDED, PrefValues.NO).equals(PrefValues.YES);
+    }
+
+    public static void setPreUpdateSyncNeeded(String value) {
+        CommCareApplication.instance().getCurrentApp().getAppPreferences()
+                .edit()
+                .putString(PRE_UPDATE_SYNC_NEEDED, value)
+                .apply();
     }
 
     public static void setReleasedOnTimeForOngoingAppDownload(AndroidCommCarePlatform platform, long releasedOnTime) {
