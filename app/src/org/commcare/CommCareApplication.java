@@ -123,6 +123,7 @@ import javax.crypto.SecretKey;
 import androidx.work.ExistingWorkPolicy;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkManager;
+import io.ona.kujaku.KujakuLibrary;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 
@@ -185,6 +186,8 @@ public class CommCareApplication extends MultiDexApplication {
         CommCareApplication.app = this;
         CrashUtil.init(this);
         DataChangeLogger.init(this);
+        KujakuLibrary.init(this);
+
         logFirstCommCareRun();
         CommCarePreferenceManagerFactory.init(new AndroidPreferenceManager());
 
