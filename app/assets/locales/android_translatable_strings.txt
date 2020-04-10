@@ -378,7 +378,7 @@ connection.task.unset.posturl=There has been an error on CommCare's end. Please 
 
 connection.captive_portal.title=No Internet Detected
 connection.captive_portal.detail=Cannot access internet
-connection.captive_portal.action=You are connected to a network that requires sign-in from a browser. Try authenticating using browser or switching to mobile data
+connection.captive_portal.action=The current network is not connected to the internet. You may need to log in from a web browser.
 
 notification.sync.connections.title=No Connection
 notification.sync.connections.detail=No active data connections

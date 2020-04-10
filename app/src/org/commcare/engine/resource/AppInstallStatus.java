@@ -41,6 +41,7 @@ public enum AppInstallStatus implements MessageTag {
      */
     UpdateFailedGeneral("notification.update.failed.general"),
     UpdateFailedResourceInit("notification.update.resource.init.fail"),
+    CaptivePortal("connection.captive_portal"),
 
     ReinstallFromInvalidCcz("notification.reinstall.invalid.ccz");
 
