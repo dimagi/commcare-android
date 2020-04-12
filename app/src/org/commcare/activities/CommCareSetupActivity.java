@@ -24,6 +24,9 @@ import android.widget.Toast;
 import org.commcare.AppUtils;
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
+import org.commcare.appupdate.AppUpdateControllerFactory;
+import org.commcare.appupdate.AppUpdateState;
+import org.commcare.appupdate.FlexibleAppUpdateController;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.engine.resource.AppInstallStatus;
@@ -53,6 +56,7 @@ import org.commcare.utils.Permissions;
 import org.commcare.views.ManagedUi;
 import org.commcare.views.dialogs.CustomProgressDialog;
 import org.commcare.views.dialogs.DialogCreationHelpers;
+import org.commcare.views.dialogs.StandardAlertDialog;
 import org.commcare.views.notifications.NotificationMessage;
 import org.commcare.views.notifications.NotificationMessageFactory;
 import org.javarosa.core.reference.InvalidReferenceException;
@@ -155,12 +159,16 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     private final InstallPermissionsFragment permFragment = new InstallPermissionsFragment();
     private ContainerFragment<CommCareApp> containerFragment;
 
+    private FlexibleAppUpdateController appUpdateController;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         fromManager = getIntent().getBooleanExtra(AppManagerActivity.KEY_LAUNCH_FROM_MANAGER, false);
 
+        appUpdateController = AppUpdateControllerFactory.create(this::handleAppUpdate, getApplicationContext());
+        appUpdateController.register();
         if (checkForMultipleAppsViolation()) {
             return;
         }
@@ -186,6 +194,51 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                 // for sms app install code
                 performSMSInstall(false);
             }
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        appUpdateController.unregister();
+        super.onDestroy();
+    }
+    private static final String APP_UPDATE_NOTIFICATION = "app_update_notification";
+
+    private void handleAppUpdate() {
+        AppUpdateState state = appUpdateController.getStatus();
+        switch (state) {
+            case UNAVAILABLE:
+                Toast.makeText(this, "Update not available", Toast.LENGTH_LONG).show();
+                break;
+            case AVAILABLE:
+                StandardAlertDialog alertDialog = StandardAlertDialog.getBasicAlertDialog(this,
+                        "Update Available", "Update your app", null);
+                alertDialog.setPositiveButton("Update", (dialog, which) -> {
+                    appUpdateController.startUpdate(CommCareSetupActivity.this);
+                    dismissAlertDialog();
+                });
+                alertDialog.setNegativeButton("Cancel", (dialog, which) -> {
+                    dismissAlertDialog();
+                });
+                break;
+            case DOWNLOADING:
+                NotificationMessage message = NotificationMessageFactory.message(
+                        NotificationMessageFactory.StockMessages.App_Update, APP_UPDATE_NOTIFICATION);
+                CommCareApplication.notificationManager().reportNotificationMessage(message);
+                break;
+            case DOWNLOADED:
+                CommCareApplication.notificationManager().clearNotifications(APP_UPDATE_NOTIFICATION);
+                StandardAlertDialog dialog = StandardAlertDialog.getBasicAlertDialog(this,
+                        "App updated", "New update is downloaded", null);
+                dialog.setPositiveButton("Restart your app", (dialog1, which) -> {
+                    appUpdateController.completeUpdate();
+                    dismissAlertDialog();
+                });
+                break;
+            case FAILED:
+                CommCareApplication.notificationManager().clearNotifications(APP_UPDATE_NOTIFICATION);
+                Toast.makeText(this, "App update failed", Toast.LENGTH_LONG).show();
+                break;
         }
     }
 
