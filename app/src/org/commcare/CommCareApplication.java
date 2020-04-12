@@ -1,6 +1,5 @@
 package org.commcare;
 
-import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.ActivityManager;
 import android.content.ComponentName;
@@ -8,21 +7,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Environment;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.StrictMode;
-import androidx.preference.PreferenceManager;
-import android.provider.Settings.Secure;
-
-import androidx.annotation.NonNull;
-import androidx.multidex.MultiDexApplication;
-import androidx.core.content.ContextCompat;
-
-import android.telephony.TelephonyManager;
 import android.text.format.DateUtils;
 import android.util.Log;
 
@@ -120,6 +110,9 @@ import java.util.Map;
 import javax.annotation.Nullable;
 import javax.crypto.SecretKey;
 
+import androidx.annotation.NonNull;
+import androidx.multidex.MultiDexApplication;
+import androidx.preference.PreferenceManager;
 import androidx.work.ExistingWorkPolicy;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkManager;
