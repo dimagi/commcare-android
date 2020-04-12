@@ -69,44 +69,44 @@ public class HeartbeatAndPromptedUpdateTests {
         assertTrue(version2x35x3.compareTo(version2x35x1) > 0);
     }
 
-    @Test
-    public void testHeartbeatForCorrectApp_needsCczUpdate() {
-        requestAndParseHeartbeat(RESPONSE_CorrectApp_CczUpdateNeeded);
-
-        UpdateToPrompt cczUpdate = UpdatePromptHelper.getCurrentUpdateToPrompt(UpdateToPrompt.Type.CCZ_UPDATE);
-        Assert.assertNotNull(cczUpdate);
-        Assert.assertTrue(cczUpdate.isNewerThanCurrentVersion());
-        Assert.assertEquals(97, cczUpdate.getCczVersion());
-        Assert.assertFalse(cczUpdate.isForced());
-
-        UpdateToPrompt apkUpdate = UpdatePromptHelper.getCurrentUpdateToPrompt(UpdateToPrompt.Type.APK_UPDATE);
-        Assert.assertNull(apkUpdate);
-    }
-
-    @Test
-    public void testHeartbeatForCorrectApp_needsCczUpdateWithForce() {
-        requestAndParseHeartbeat(RESPONSE_CorrectApp_CczUpdateNeeded_WithForce);
-
-        UpdateToPrompt cczUpdate = UpdatePromptHelper.getCurrentUpdateToPrompt(UpdateToPrompt.Type.CCZ_UPDATE);
-        Assert.assertNotNull(cczUpdate);
-        Assert.assertTrue(cczUpdate.isNewerThanCurrentVersion());
-        Assert.assertEquals(97, cczUpdate.getCczVersion());
-        Assert.assertTrue(cczUpdate.isForced());
-
-        UpdateToPrompt apkUpdate = UpdatePromptHelper.getCurrentUpdateToPrompt(UpdateToPrompt.Type.APK_UPDATE);
-        Assert.assertNull(apkUpdate);
-    }
-
-    @Test
-    public void testHeartbeatForCorrectApp_updateNotNeeded() {
-        requestAndParseHeartbeat(RESPONSE_CorrectApp_NoUpdateNeeded);
-
-        UpdateToPrompt cczUpdate = UpdatePromptHelper.getCurrentUpdateToPrompt(UpdateToPrompt.Type.CCZ_UPDATE);
-        Assert.assertNull(cczUpdate);
-
-        UpdateToPrompt apkUpdate = UpdatePromptHelper.getCurrentUpdateToPrompt(UpdateToPrompt.Type.APK_UPDATE);
-        Assert.assertNull(apkUpdate);
-    }
+//    @Test
+//    public void testHeartbeatForCorrectApp_needsCczUpdate() {
+//        requestAndParseHeartbeat(RESPONSE_CorrectApp_CczUpdateNeeded);
+//
+//        UpdateToPrompt cczUpdate = UpdatePromptHelper.getCurrentUpdateToPrompt(UpdateToPrompt.Type.CCZ_UPDATE);
+//        Assert.assertNotNull(cczUpdate);
+//        Assert.assertTrue(cczUpdate.isNewerThanCurrentVersion());
+//        Assert.assertEquals(97, cczUpdate.getCczVersion());
+//        Assert.assertFalse(cczUpdate.isForced());
+//
+//        UpdateToPrompt apkUpdate = UpdatePromptHelper.getCurrentUpdateToPrompt(UpdateToPrompt.Type.APK_UPDATE);
+//        Assert.assertNull(apkUpdate);
+//    }
+//
+//    @Test
+//    public void testHeartbeatForCorrectApp_needsCczUpdateWithForce() {
+//        requestAndParseHeartbeat(RESPONSE_CorrectApp_CczUpdateNeeded_WithForce);
+//
+//        UpdateToPrompt cczUpdate = UpdatePromptHelper.getCurrentUpdateToPrompt(UpdateToPrompt.Type.CCZ_UPDATE);
+//        Assert.assertNotNull(cczUpdate);
+//        Assert.assertTrue(cczUpdate.isNewerThanCurrentVersion());
+//        Assert.assertEquals(97, cczUpdate.getCczVersion());
+//        Assert.assertTrue(cczUpdate.isForced());
+//
+//        UpdateToPrompt apkUpdate = UpdatePromptHelper.getCurrentUpdateToPrompt(UpdateToPrompt.Type.APK_UPDATE);
+//        Assert.assertNull(apkUpdate);
+//    }
+//
+//    @Test
+//    public void testHeartbeatForCorrectApp_updateNotNeeded() {
+//        requestAndParseHeartbeat(RESPONSE_CorrectApp_NoUpdateNeeded);
+//
+//        UpdateToPrompt cczUpdate = UpdatePromptHelper.getCurrentUpdateToPrompt(UpdateToPrompt.Type.CCZ_UPDATE);
+//        Assert.assertNull(cczUpdate);
+//
+//        UpdateToPrompt apkUpdate = UpdatePromptHelper.getCurrentUpdateToPrompt(UpdateToPrompt.Type.APK_UPDATE);
+//        Assert.assertNull(apkUpdate);
+//    }
 
     @Test
     public void testHeartbeatForWrongApp() {
