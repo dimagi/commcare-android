@@ -29,8 +29,9 @@ import org.commcare.models.database.user.DatabaseUserOpenHelper;
 import org.commcare.models.database.user.UserSandboxUtils;
 import org.commcare.models.encryption.CipherPool;
 import org.commcare.preferences.HiddenPreferences;
+import org.commcare.sync.FormSubmissionHelper;
 import org.commcare.tasks.DataSubmissionListener;
-import org.commcare.tasks.ProcessAndSendTask;
+import org.commcare.sync.ProcessAndSendTask;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.SessionStateUninitException;
 import org.commcare.utils.SessionUnavailableException;
@@ -575,7 +576,7 @@ public class CommCareSessionService extends Service {
                         progressDetails = String.format("%1$,.1f", (progress / (1024.0 * 1024.0))) + "mb transmitted";
                     }
 
-                    int pending = ProcessAndSendTask.pending();
+                    int pending = FormSubmissionHelper.pending();
                     if (pending > 1) {
                         submissionNotification.setContentInfo(pending - 1 + " Pending");
                     }

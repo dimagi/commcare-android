@@ -26,6 +26,9 @@ public enum AppInstallStatus implements MessageTag {
      */
     UpToDate("notification.install.uptodate"),
 
+    // Update cancelled by user
+    Cancelled("notification.install.cancel"),
+
     // Error states shared by both app installation and updating:
     MissingResources("notification.install.missing"),
     MissingResourcesWithMessage("notification.install.missing.withmessage"),
@@ -35,6 +38,7 @@ public enum AppInstallStatus implements MessageTag {
     NoLocalStorage("notification.install.nolocal"),
     NoConnection("notification.install.no.connection"),
     BadCertificate("notification.install.badcert"),
+
 
     /**
      * A catch-all MessageTag to use for reporting app update failures to the notifications bar
@@ -61,6 +65,10 @@ public enum AppInstallStatus implements MessageTag {
 
     public boolean isUpdateInCompletedState() {
         return (this == UpdateStaged || this == UpToDate);
+    }
+
+    public boolean shouldRetryUpdate() {
+        return (this == MissingResources || this == MissingResourcesWithMessage || this == NoConnection);
     }
 
     @Override

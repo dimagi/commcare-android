@@ -18,7 +18,7 @@ import org.commcare.preferences.ServerUrls;
 import org.commcare.suite.model.OfflineUserRestore;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.FormSubmissionProgressBarListener;
-import org.commcare.tasks.ProcessAndSendTask;
+import org.commcare.sync.ProcessAndSendTask;
 import org.commcare.tasks.PullTaskResultReceiver;
 import org.commcare.tasks.ResultAndError;
 import org.commcare.utils.FormUploadResult;
@@ -36,39 +36,29 @@ import java.io.IOException;
  */
 public class FormAndDataSyncer {
 
-    public FormAndDataSyncer() {
+    protected FormAndDataSyncer() {
     }
 
-    /**
-     * @return Were forms sent to the server by this method invocation?
-     */
-    public boolean checkAndStartUnsentFormsTask(SyncCapableCommCareActivity activity,
-                                                final boolean syncAfterwards,
-                                                boolean userTriggered) {
-        SqlStorage<FormRecord> storage = CommCareApplication.instance().getUserStorage(FormRecord.class);
-        FormRecord[] records = StorageUtils.getUnsentRecordsForCurrentApp(storage);
+
+    void startUnsentFormsTask(SyncCapableCommCareActivity activity,
+                              final boolean syncAfterwards,
+                              boolean userTriggered) {
 
         // We only want to update the last upload sync time when it's a blocking sync
         if (syncAfterwards) {
             HiddenPreferences.updateLastUploadSyncAttemptTime();
         }
 
-        if (records.length > 0) {
-            processAndSendForms(activity, records, syncAfterwards, userTriggered);
-            return true;
-        } else {
-            return false;
-        }
+        processAndSendForms(activity, syncAfterwards, userTriggered);
     }
 
     @SuppressLint("NewApi")
     protected void processAndSendForms(final SyncCapableCommCareActivity activity,
-                                    FormRecord[] records,
-                                    final boolean syncAfterwards,
-                                    final boolean userTriggered) {
+                                     final boolean syncAfterwards,
+                                     final boolean userTriggered) {
 
         ProcessAndSendTask<SyncCapableCommCareActivity> processAndSendTask =
-                new ProcessAndSendTask<SyncCapableCommCareActivity>(activity, getFormPostURL(activity), syncAfterwards) {
+                new ProcessAndSendTask<SyncCapableCommCareActivity>(activity, syncAfterwards) {
 
                     @Override
                     protected void deliverResult(SyncCapableCommCareActivity receiver, FormUploadResult result) {
@@ -142,14 +132,9 @@ public class FormAndDataSyncer {
         }
 
         processAndSendTask.connect(activity);
-        processAndSendTask.executeParallel(records);
+        processAndSendTask.executeParallel();
     }
 
-    private static String getFormPostURL(final Context context) {
-        SharedPreferences settings = CommCareApplication.instance().getCurrentApp().getAppPreferences();
-        return settings.getString(ServerUrls.PREFS_SUBMISSION_URL_KEY,
-                context.getString(R.string.PostURL));
-    }
 
     public void syncDataForLoggedInUser(final SyncCapableCommCareActivity activity,
                                         final boolean formsToSend, final boolean userTriggeredSync) {

@@ -240,12 +240,6 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
             return true;
         }
 
-        if (!CommCareApplication.instance().isSyncPending()) {
-            // Trigger off a regular unsent task processor, unless we're about to sync (which will
-            // then handle this in a blocking fashion)
-            checkAndStartUnsentFormsTask(false, false);
-        }
-
         checkForPinLaunchConditions();
         checkForDrift();
         return false;
@@ -743,7 +737,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
 
             // The form is either ready for processing, or not, depending on how it was saved
             if (complete) {
-                checkAndStartUnsentFormsTask(false, false);
+                startUnsentFormsTask(false, false);
                 refreshUI();
 
                 if (wasExternal) {

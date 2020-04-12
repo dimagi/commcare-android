@@ -31,7 +31,7 @@ import org.commcare.tasks.ResourceEngineTask;
 import org.commcare.tasks.ResultAndError;
 import org.commcare.tasks.TaskListener;
 import org.commcare.tasks.TaskListenerRegistrationException;
-import org.commcare.tasks.UpdateTask;
+import org.commcare.update.UpdateTask;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.CczUtils;
 import org.commcare.utils.FileUtil;

@@ -22,6 +22,7 @@ import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.WithUIController;
 import org.commcare.logging.DataChangeLog;
 import org.commcare.logging.DataChangeLogger;
+import org.commcare.logging.analytics.UpdateStats;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.preferences.MainConfigurablePreferences;
@@ -30,7 +31,9 @@ import org.commcare.tasks.InstallStagedUpdateTask;
 import org.commcare.tasks.ResultAndError;
 import org.commcare.tasks.TaskListener;
 import org.commcare.tasks.TaskListenerRegistrationException;
-import org.commcare.tasks.UpdateTask;
+import org.commcare.update.UpdateTask;
+import org.commcare.update.UpdateWorker;
+import org.commcare.update.UpdateHelper;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.ConnectivityStatus;
 import org.commcare.utils.ConsumerAppsUtil;
@@ -45,6 +48,9 @@ import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 
 import androidx.core.util.Pair;
+import androidx.work.Data;
+import androidx.work.WorkInfo;
+import androidx.work.WorkManager;
 
 /**
  * Allow user to manage app updating:
@@ -107,6 +113,7 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
 
         boolean isRotation = savedInstanceState != null;
 
+
         if (ResourceInstallUtils.isUpdateReadyToInstall() && sBlockedUpdateWorkflowInProgress) {
             if (getIntent().getBooleanExtra(KEY_PRE_UPDATE_SYNC_SUCCEED, false)) {
                 launchUpdateInstallTask();
@@ -128,20 +135,59 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
     }
 
     private void setupUpdateTask(boolean isRotation) {
-        updateTask = UpdateTask.getRunningInstance();
+        if (isAutoUpdateInProgress()) {
+            connectToUpdateWorker();
+        } else {
+            updateTask = UpdateTask.getRunningInstance();
 
-        if (updateTask != null) {
-            try {
-                updateTask.registerTaskListener(this);
-            } catch (TaskListenerRegistrationException e) {
-                Log.e(TAG, "Attempting to register a TaskListener to an already " +
-                        "registered task.");
-                uiController.errorUiState();
+            if (updateTask != null) {
+                try {
+                    updateTask.registerTaskListener(this);
+                } catch (TaskListenerRegistrationException e) {
+                    Log.e(TAG, "Attempting to register a TaskListener to an already " +
+                            "registered task.");
+                    uiController.errorUiState();
+                }
+            } else if (!isRotation && !taskIsCancelling
+                    && (ConnectivityStatus.isNetworkAvailable(this) || offlineUpdateRef != null)) {
+                startUpdateCheck();
             }
-        } else if (!isRotation && !taskIsCancelling
-                && (ConnectivityStatus.isNetworkAvailable(this) || offlineUpdateRef != null)) {
-            startUpdateCheck();
         }
+    }
+
+    private static boolean isAutoUpdateInProgress() {
+        return ResourceInstallUtils.isAutoUpdateInProgress(CommCareApplication.instance().getCurrentApp());
+    }
+
+    // connect listeners to update worker
+    private void connectToUpdateWorker() {
+        WorkManager.getInstance(getApplicationContext())
+                .getWorkInfosForUniqueWorkLiveData(UpdateHelper.getUpdateRequestName())
+                .observe(this, listOfWorkInfo -> {
+
+                    if (listOfWorkInfo == null || listOfWorkInfo.isEmpty()) {
+                        return;
+                    }
+
+                    WorkInfo updateInfo = listOfWorkInfo.get(0);
+                    boolean running = updateInfo.getState() == WorkInfo.State.RUNNING;
+                    if (running) {
+                        Data data = updateInfo.getProgress();
+                        publishUpdateProgress(data.getInt(UpdateWorker.Progress_Complete, -1),
+                                data.getInt(UpdateWorker.Progress_Total, -1));
+                    } else {
+                        // Worker getting fired when not running imply completion of worker
+                        ResultAndError<AppInstallStatus> lastUpdateResult = getlastStageUpdateResult();
+                        if (lastUpdateResult != null) {
+                            handleTaskCompletion(getlastStageUpdateResult());
+                        }
+                    }
+                });
+    }
+
+    private ResultAndError<AppInstallStatus> getlastStageUpdateResult() {
+        UpdateStats updateStats = UpdateStats.loadUpdateStats(CommCareApplication.instance().getCurrentApp());
+        return updateStats.getLastStageUpdateResult();
     }
 
     @Override
@@ -155,13 +201,16 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
             return;
         }
 
-        setUiFromTask();
+        if (isAutoUpdateInProgress()) {
+            uiController.downloadingUiState();
+        } else {
+            setUiFromTask();
+        }
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-
         NSDDiscoveryTools.unregisterForNsdServices(this);
     }
 
@@ -206,7 +255,6 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
     @Override
     protected void onDestroy() {
         super.onDestroy();
-
         unregisterTask();
     }
 
@@ -235,12 +283,7 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
 
     @Override
     public void handleTaskUpdate(Integer... vals) {
-        int progress = vals[0];
-        int max = vals[1];
-        uiController.updateProgressBar(progress, max);
-        String msg = Localization.get("updates.found",
-                new String[]{"" + progress, "" + max});
-        uiController.updateProgressText(msg);
+        publishUpdateProgress(vals[0], vals[1]);
     }
 
     @Override
@@ -274,9 +317,9 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
     private void reportFailureToNotifications(String errorMessage) {
         NotificationMessage notificationMessage = null;
 
-        if (UpdateTask.isCombinedErrorMessage(errorMessage)) {
+        if (UpdateHelper.isCombinedErrorMessage(errorMessage)) {
             Pair<String, String> resourceAndMessage =
-                    UpdateTask.splitCombinedErrorMessage(errorMessage);
+                    UpdateHelper.splitCombinedErrorMessage(errorMessage);
             notificationMessage =
                     NotificationMessageFactory.message(AppInstallStatus.InvalidResource,
                             new String[]{null, resourceAndMessage.first, resourceAndMessage.second});
@@ -363,8 +406,12 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
     }
 
     public void stopUpdateCheck() {
+
+        if(isAutoUpdateInProgress()){
+            UpdateHelper.cancelUpdateWorker();
+        }
+
         if (updateTask != null) {
-            updateTask.cancelWasUserTriggered();
             updateTask.cancel(true);
             taskIsCancelling = true;
             uiController.cancellingUiState();
@@ -636,4 +683,13 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
         }
     }
 
+    private void publishUpdateProgress(int complete, int total) {
+        if (total != -1) {
+            uiController.updateProgressBar(complete, total);
+            String msg = Localization.get("updates.found",
+                    new String[]{"" + complete, "" + total});
+            uiController.updateProgressText(msg);
+            uiController.updateProgressBar(complete, total);
+        }
+    }
 }
