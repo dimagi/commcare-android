@@ -479,6 +479,10 @@ login.attempt.fail.auth.detail=Your username or password was not recognized, ple
 login.attempt.fail.empty.url.title=Url not set
 login.attempt.fail.empty.url.detail=Sync url is empty. Please contact CommCare Support.
 
+app.update.title=Updating App
+app.update.detail=App update in progress
+app.update.action=Your app is updating in the background.
+
 login.attempt.fail.pin.title=Invalid PIN
 login.attempt.fail.pin.detail=Please enter the 4 digit PIN number that you chose, or select "Forgot PIN?" in the options menu to login with your password instead.
 

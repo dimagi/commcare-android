@@ -1,12 +1,21 @@
 package org.commcare.activities;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.PersistableBundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import org.commcare.CommCareApplication;
+import org.commcare.appupdate.AppUpdateControllerFactory;
+import org.commcare.appupdate.AppUpdateState;
+import org.commcare.appupdate.FlexibleAppUpdateController;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.interfaces.CommCareActivityUIController;
@@ -16,6 +25,8 @@ import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.ResultAndError;
 import org.commcare.utils.ConnectivityStatus;
 import org.commcare.utils.SessionUnavailableException;
+import org.commcare.views.dialogs.StandardAlertDialog;
+import org.commcare.views.notifications.NotificationMessage;
 import org.commcare.views.notifications.NotificationMessageFactory;
 import org.javarosa.core.services.locale.Localization;
 
@@ -44,10 +55,28 @@ public class StandardHomeActivity
 
     private StandardHomeActivityUIController uiController;
 
+    private FlexibleAppUpdateController appUpdateController;
+    private static final String APP_UPDATE_NOTIFICATION = "app_update_notification";
+    private boolean mUpdateChecked;
+    private static final String APP_UPDATE_CHECKED = "app_update_checked";
+
     @Override
     public void onCreateSessionSafe(Bundle savedInstanceState) {
         super.onCreateSessionSafe(savedInstanceState);
         uiController.setupUI();
+        appUpdateController = AppUpdateControllerFactory.create(this::handleAppUpdate, getApplicationContext());
+        if (savedInstanceState != null) {
+            mUpdateChecked = savedInstanceState.getBoolean(APP_UPDATE_CHECKED, false);
+        }
+        if (!mUpdateChecked) {
+            appUpdateController.register();
+        }
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putBoolean(APP_UPDATE_CHECKED, mUpdateChecked);
     }
 
     void enterRootModule() {
@@ -246,5 +275,52 @@ public class StandardHomeActivity
     public void refreshUI() {
         uiController.refreshView();
     }
-    
+
+    @Override
+    protected void onDestroy() {
+        if (!mUpdateChecked) {
+            appUpdateController.unregister();
+        }
+        super.onDestroy();
+    }
+
+    private void handleAppUpdate() {
+        AppUpdateState state = appUpdateController.getStatus();
+        switch (state) {
+            case UNAVAILABLE:
+                // Update is unavailable. Maybe we should try it after app is next launched.
+                mUpdateChecked = true;
+                break;
+            case AVAILABLE:
+                StandardAlertDialog alertDialog = StandardAlertDialog.getBasicAlertDialog(this,
+                        "Update Available", "Update your app", null);
+                alertDialog.setPositiveButton("Update", (dialog, which) -> {
+                    appUpdateController.startUpdate(StandardHomeActivity.this);
+                    dismissAlertDialog();
+                });
+                alertDialog.setNegativeButton("Cancel", (dialog, which) -> {
+                    dismissAlertDialog();
+                });
+                break;
+            case DOWNLOADING:
+                NotificationMessage message = NotificationMessageFactory.message(
+                        NotificationMessageFactory.StockMessages.App_Update, APP_UPDATE_NOTIFICATION);
+                CommCareApplication.notificationManager().reportNotificationMessage(message);
+                break;
+            case DOWNLOADED:
+                mUpdateChecked = true;
+                CommCareApplication.notificationManager().clearNotifications(APP_UPDATE_NOTIFICATION);
+                StandardAlertDialog dialog = StandardAlertDialog.getBasicAlertDialog(this,
+                        "App updated", "New update is downloaded", null);
+                dialog.setPositiveButton("Restart your app", (dialog1, which) -> {
+                    appUpdateController.completeUpdate();
+                    dismissAlertDialog();
+                });
+                break;
+            case FAILED:
+                CommCareApplication.notificationManager().clearNotifications(APP_UPDATE_NOTIFICATION);
+                Toast.makeText(this, "App update failed", Toast.LENGTH_LONG).show();
+                break;
+        }
+    }
 }
