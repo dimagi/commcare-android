@@ -2,6 +2,7 @@ package org.commcare.logging;
 
 import org.commcare.android.javarosa.AndroidLogEntry;
 import org.commcare.models.database.SqlStorage;
+import org.commcare.utils.CrashUtil;
 import org.javarosa.core.api.ILogger;
 import org.javarosa.core.log.IFullLogSerializer;
 import org.javarosa.core.log.LogEntry;
@@ -31,6 +32,7 @@ public class AndroidLogger implements ILogger {
     @Override
     public void log(String type, String message, Date logDate) {
         storage.write(new AndroidLogEntry(type, message, logDate));
+        CrashUtil.log(message);
     }
 
     @Override
