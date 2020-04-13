@@ -7,10 +7,13 @@ import com.google.android.play.core.appupdate.AppUpdateInfo;
 import com.google.android.play.core.appupdate.AppUpdateManager;
 import com.google.android.play.core.install.InstallState;
 import com.google.android.play.core.install.model.AppUpdateType;
+import com.google.android.play.core.install.model.InstallErrorCode;
 import com.google.android.play.core.install.model.InstallStatus;
 import com.google.android.play.core.install.model.UpdateAvailability;
 
 import org.javarosa.core.services.Logger;
+
+import javax.annotation.Nullable;
 
 /**
  * @author $|-|!˅@M
@@ -29,6 +32,9 @@ public class CommcareFlexibleAppUpdateManager implements FlexibleAppUpdateContro
     private @InstallStatus int mInstallStatus;
     private AppUpdateState mAppUpdateState;
 
+    private int percentageDownloaded;
+    private @InstallErrorCode int mInstallErrorCode = InstallErrorCode.NO_ERROR;
+
     /**
      * callback {@link Runnable} to notify when update state changes.
      */
@@ -38,6 +44,7 @@ public class CommcareFlexibleAppUpdateManager implements FlexibleAppUpdateContro
         mAppUpdateState = null;
     }
 
+    //region AppUpdateController implementation
     @Override
     public void register() {
         mEnabled = true;
@@ -83,11 +90,32 @@ public class CommcareFlexibleAppUpdateManager implements FlexibleAppUpdateContro
                 });
     }
 
+    @Nullable
+    @Override
+    public Integer getProgress() {
+        if (mInstallStatus != InstallStatus.DOWNLOADING) {
+            return null;
+        }
+        return percentageDownloaded;
+    }
+
+    @Override
+    public int getErrorCode() {
+        return mInstallErrorCode;
+    }
+
+    //endregion
+
     @Override
     public void onStateUpdate(InstallState state) {
         Logger.log(TAG, "Install state updated with install status: " + state.installStatus()
                 + ", and error code: " + state.installErrorCode());
-
+        mInstallErrorCode = state.installErrorCode();
+        if (state.installStatus() == InstallStatus.DOWNLOADING) {
+            // TODO: Should be keep on publishing status for showing download percentage.
+            // From https://stackoverflow.com/a/10415638/6671572
+            percentageDownloaded = (int) (state.bytesDownloaded() * 100.0 / state.totalBytesToDownload() + 0.5) ;
+        }
         if (mInstallStatus != state.installStatus()) {
             mInstallStatus = state.installStatus();
             publishStatus();
