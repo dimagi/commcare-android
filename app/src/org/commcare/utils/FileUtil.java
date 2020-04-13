@@ -290,7 +290,8 @@ public class FileUtil {
 
             if (!mRef.doesBinaryExist()) {
                 String mLocalReference = mRef.getLocalURI();
-                problems.addElement(new MissingMediaException(r, "Missing external media: " + mLocalReference, mLocalReference));
+                problems.addElement(new MissingMediaException(r, "Missing external media: " + mLocalReference, mLocalReference,
+                        MissingMediaException.MissingMediaExceptionType.FILE_NOT_FOUND));
             }
 
         } catch (InvalidReferenceException ire) {

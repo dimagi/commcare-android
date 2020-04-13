@@ -8,7 +8,6 @@ import org.commcare.android.javarosa.PollSensorAction;
 import org.commcare.engine.extensions.IntentExtensionParser;
 import org.commcare.engine.extensions.PollSensorExtensionParser;
 import org.commcare.engine.extensions.XFormExtensionUtils;
-import org.commcare.models.database.SqlStorage;
 import org.commcare.resources.model.MissingMediaException;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
@@ -42,8 +41,6 @@ import java.io.InputStreamReader;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
-
-import static org.commcare.android.database.app.models.FormDefRecord.getLatestFormDefId;
 
 /**
  * @author ctsims
@@ -206,14 +203,23 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
         FormDef formDef;
         try {
             Reference local = ReferenceManager.instance().DeriveReference(localLocation);
+
+            if (!local.doesBinaryExist()) {
+                problems.add(new MissingMediaException(r, "File doesn't exist at: " + local.getLocalURI(), local.getLocalURI(),
+                        MissingMediaException.MissingMediaExceptionType.FILE_NOT_FOUND));
+            }
+
             formDef = new XFormParser(new InputStreamReader(local.getStream(), "UTF-8")).parse();
         } catch (Exception e) {
             // something weird/bad happened here. first make sure storage is available
             if (!CommCareApplication.instance().isStorageAvailable()) {
-                problems.addElement(new MissingMediaException(r, "Couldn't access your persisent storage. Please make sure your SD card is connected properly"));
+                problems.addElement(new MissingMediaException(r,
+                        "Couldn't access your persisent storage. Please make sure your SD card is connected properly",
+                        MissingMediaException.MissingMediaExceptionType.NONE));
             }
 
-            problems.addElement(new MissingMediaException(r, "Form did not properly save into persistent storage"));
+            problems.addElement(new MissingMediaException(r, "Form did not properly save into persistent storage",
+                    MissingMediaException.MissingMediaExceptionType.NONE));
             return true;
         }
         if (formDef == null) {
@@ -244,10 +250,12 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
                             String localName = ref.getLocalURI();
                             try {
                                 if (!ref.doesBinaryExist()) {
-                                    problems.addElement(new MissingMediaException(r, "Missing external media: " + localName, externalMedia));
+                                    problems.addElement(new MissingMediaException(r, "Missing external media: " + localName, externalMedia,
+                                            MissingMediaException.MissingMediaExceptionType.FILE_NOT_FOUND));
                                 }
                             } catch (IOException e) {
-                                problems.addElement(new MissingMediaException(r, "Problem reading external media: " + localName, externalMedia));
+                                problems.addElement(new MissingMediaException(r, "Problem reading external media: " + localName, externalMedia,
+                                        MissingMediaException.MissingMediaExceptionType.FILE_NOT_ACCESSIBLE));
                             }
                         } catch (InvalidReferenceException e) {
                             //So the problem is that this might be a valid entry that depends on context
