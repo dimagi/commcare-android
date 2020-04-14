@@ -13,11 +13,6 @@ import android.os.Environment;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.StrictMode;
-
-
-import androidx.preference.PreferenceManager;
-
-
 import android.text.format.DateUtils;
 import android.util.Log;
 
@@ -54,6 +49,7 @@ import org.commcare.logging.PreInitLogger;
 import org.commcare.logging.XPathErrorEntry;
 import org.commcare.logging.XPathErrorLogger;
 import org.commcare.logging.analytics.TimedStatsTracker;
+import org.commcare.mediadownload.MissingMediaDownloadHelper;
 import org.commcare.models.AndroidClassHasher;
 import org.commcare.models.AndroidSessionWrapper;
 import org.commcare.models.database.AndroidDbHelper;
@@ -81,9 +77,9 @@ import org.commcare.sync.FormSubmissionWorker;
 import org.commcare.tasks.DeleteLogs;
 import org.commcare.tasks.LogSubmissionTask;
 import org.commcare.tasks.PurgeStaleArchivedFormsTask;
-import org.commcare.update.UpdateWorker;
 import org.commcare.tasks.templates.ManagedAsyncTask;
 import org.commcare.update.UpdateHelper;
+import org.commcare.update.UpdateWorker;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.AndroidCacheDirSetup;
 import org.commcare.utils.AndroidCommCarePlatform;
@@ -120,13 +116,10 @@ import javax.crypto.SecretKey;
 
 import androidx.annotation.NonNull;
 import androidx.multidex.MultiDexApplication;
-
 import androidx.preference.PreferenceManager;
-
 import androidx.work.BackoffPolicy;
 import androidx.work.Constraints;
 import androidx.work.ExistingPeriodicWorkPolicy;
-
 import androidx.work.ExistingWorkPolicy;
 import androidx.work.NetworkType;
 import androidx.work.OneTimeWorkRequest;
@@ -726,6 +719,8 @@ public class CommCareApplication extends MultiDexApplication {
                             scheduleFormSubmissions();
                         }
 
+                        MissingMediaDownloadHelper.scheduleMissingMediaDownload();
+
                         doReportMaintenance();
                         mBoundService.initHeartbeatLifecycle();
 
@@ -744,11 +739,7 @@ public class CommCareApplication extends MultiDexApplication {
                             EntityStorageCache.wipeCacheForCurrentApp();
                         }
 
-                        if (shouldRunLogDeletion()) {
-                            OneTimeWorkRequest deleteLogsRequest = new OneTimeWorkRequest.Builder(DeleteLogs.class).build();
-                            WorkManager.getInstance(CommCareApplication.instance())
-                                    .enqueueUniqueWork(DELETE_LOGS_REQUEST, ExistingWorkPolicy.KEEP, deleteLogsRequest);
-                        }
+                        purgeLogs();
 
                     }
 
@@ -773,6 +764,14 @@ public class CommCareApplication extends MultiDexApplication {
         startService(new Intent(this, CommCareSessionService.class));
         bindService(new Intent(this, CommCareSessionService.class), mConnection, Context.BIND_AUTO_CREATE);
         sessionServiceIsBinding = true;
+    }
+
+    private void purgeLogs() {
+        if (shouldRunLogDeletion()) {
+            OneTimeWorkRequest deleteLogsRequest = new OneTimeWorkRequest.Builder(DeleteLogs.class).build();
+            WorkManager.getInstance(CommCareApplication.instance())
+                    .enqueueUniqueWork(DELETE_LOGS_REQUEST, ExistingWorkPolicy.KEEP, deleteLogsRequest);
+        }
     }
 
     private void scheduleFormSubmissions() {
@@ -800,7 +799,7 @@ public class CommCareApplication extends MultiDexApplication {
 
     // Hand off an app update task to the Android WorkManager
     private void scheduleAppUpdate() {
-        if(UpdateHelper.shouldAutoUpdate()) {
+        if (UpdateHelper.shouldAutoUpdate()) {
             Constraints constraints = new Constraints.Builder()
                     .setRequiredNetworkType(NetworkType.CONNECTED)
                     .setRequiresBatteryNotLow(true)

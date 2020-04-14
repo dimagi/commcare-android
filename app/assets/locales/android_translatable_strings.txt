@@ -20,6 +20,9 @@ updates.pinned.download=Downloading updates
 updates.pinned.progress=${0}/${1}
 install.current.version=Current version: ${0}
 
+media.pinned.download=Downloading application media
+media.pinned.progress=${0}/${1}
+
 apk.update.available.title=New version of ${0} is Available
 apk.update.required.title=New version of ${0} is Required
 ccz.update.available.title=New version of the application is available
