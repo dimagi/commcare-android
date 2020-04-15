@@ -45,6 +45,7 @@ public class HiddenPreferences {
     private final static String FORCE_LOGS = "force-logs";
 
     // Preferences whose values are only ever set by being sent down from HQ via the profile file
+    private final static String STAR_REQUIRED_QUESTIONS = "cc-star-required-questions";
     private final static String MAPS_DEFAULT_LAYER = "cc-maps-default-layer";
     public final static String AUTO_SYNC_FREQUENCY = "cc-autosync-freq";
     private final static String ENABLE_SAVED_FORMS = "cc-show-saved";
@@ -292,6 +293,11 @@ public class HiddenPreferences {
                 .getAppPreferences().getBoolean(SHOW_XFORM_UPDATE_INFO, false);
     }
 
+    public static Boolean shouldStarRequiredQuestions() {
+        return CommCareApplication.instance().getCurrentApp().getAppPreferences()
+                .getString(STAR_REQUIRED_QUESTIONS, PrefValues.NO).equals(PrefValues.YES);
+    }
+
     public static void setLatestCommcareVersion(String ccVersion) {
         PreferenceManager.getDefaultSharedPreferences(CommCareApplication.instance())
                 .edit()
@@ -316,7 +322,7 @@ public class HiddenPreferences {
 
     public static MapLayer getMapsDefaultLayer() {
         try {
-            String mapType =  CommCareApplication.instance().getCurrentApp().getAppPreferences()
+            String mapType = CommCareApplication.instance().getCurrentApp().getAppPreferences()
                     .getString(MAPS_DEFAULT_LAYER, "normal");
             return MapLayer.valueOf(mapType.toUpperCase());
         } catch (IllegalArgumentException e) {

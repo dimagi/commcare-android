@@ -4,12 +4,17 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.graphics.Rect;
 import android.graphics.Typeface;
+
 import androidx.preference.PreferenceManager;
+
 import android.text.Spannable;
+import android.text.SpannableStringBuilder;
 import android.text.TextPaint;
 import android.text.method.LinkMovementMethod;
+import android.text.style.ForegroundColorSpan;
 import android.text.style.URLSpan;
 import android.text.util.Linkify;
 import android.util.Log;
@@ -33,6 +38,7 @@ import org.commcare.interfaces.WidgetChangedListener;
 import org.commcare.models.ODKStorage;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.preferences.FormEntryPreferences;
+import org.commcare.preferences.HiddenPreferences;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.BlockingActionsManager;
 import org.commcare.utils.DelayedBlockingAction;
@@ -56,7 +62,6 @@ import org.javarosa.core.services.locale.Localization;
 import org.javarosa.form.api.FormEntryCaption;
 import org.javarosa.form.api.FormEntryPrompt;
 import org.javarosa.xpath.XPathException;
-import org.javarosa.xpath.XPathTypeMismatchException;
 
 import java.io.File;
 import java.util.Vector;
@@ -372,14 +377,32 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
     }
 
     public void setQuestionText(TextView textView, FormEntryPrompt prompt) {
+        textView.setText(getTextFromPrompt(prompt));
         if (prompt.getMarkdownText() != null) {
-            textView.setText(forceMarkdown(prompt.getMarkdownText()));
             textView.setMovementMethod(LinkMovementMethod.getInstance());
             // Wrap to the size of the parent view
             textView.setHorizontallyScrolling(false);
-        } else {
-            textView.setText(mPrompt.getLongText());
         }
+    }
+
+    private SpannableStringBuilder getTextFromPrompt(FormEntryPrompt prompt) {
+        SpannableStringBuilder builder = new SpannableStringBuilder();
+        if (prompt.getMarkdownText() != null) {
+            builder.append(forceMarkdown(prompt.getMarkdownText()));
+        } else {
+            builder.append(mPrompt.getLongText());
+        }
+
+        if (HiddenPreferences.shouldStarRequiredQuestions() && prompt.isRequired()) {
+            builder.append(" ");
+            int start = builder.length();
+            builder.append("*");
+            int end = builder.length();
+            builder.setSpan(new ForegroundColorSpan(Color.RED), start, end,
+                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        }
+
+        return builder;
     }
 
     public void setChoiceText(TextView choiceText, SelectChoice choice) {
@@ -598,7 +621,7 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
             s = mPrompt.getHintText();
         } catch (XPathException e) {
             UserfacingErrorHandling.createErrorDialog((CommCareActivity)getContext(), e.getLocalizedMessage(), true);
-        } 
+        }
         if (s != null && !s.equals("")) {
             mHintText = new ShrinkingTextView(getContext(), this.getMaxHintHeight());
             mHintText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mQuestionFontSize - 3);
