@@ -335,6 +335,9 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
                             } else if (results[i] == FormUploadResult.RATE_LIMITED) {
                                 // Don't keep retrying, the server is rate limiting submissions
                                 break;
+                            } else if (results[i] == FormUploadResult.CAPTIVE_PORTAL) {
+                                // User is behind a captive portal, no need to re-try.
+                                break;
                             } else {
                                 attemptsMade++;
                             }
