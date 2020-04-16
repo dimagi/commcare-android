@@ -7,9 +7,6 @@ import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Rect;
 import android.graphics.Typeface;
-
-import androidx.preference.PreferenceManager;
-
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.TextPaint;
@@ -65,6 +62,8 @@ import org.javarosa.xpath.XPathException;
 
 import java.io.File;
 import java.util.Vector;
+
+import androidx.preference.PreferenceManager;
 
 public abstract class QuestionWidget extends LinearLayout implements QuestionExtensionReceiver {
     private final static String TAG = QuestionWidget.class.getSimpleName();
@@ -393,7 +392,7 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
             builder.append(mPrompt.getLongText());
         }
 
-        if (HiddenPreferences.shouldStarRequiredQuestions() && prompt.isRequired()) {
+        if (HiddenPreferences.shouldLabelRequiredQuestionsWithAsterisk() && prompt.isRequired()) {
             builder.append(" ");
             int start = builder.length();
             builder.append("*");
