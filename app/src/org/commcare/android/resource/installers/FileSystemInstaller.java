@@ -85,6 +85,9 @@ abstract class FileSystemInstaller implements ResourceInstaller<AndroidCommCareP
                            AndroidCommCarePlatform platform, boolean upgrade, boolean recovery)
             throws UnresolvedResourceException, UnfullfilledRequirementsException {
         try {
+
+            Reference localReference = resolveEmptyLocalReference(r, location, upgrade);
+
             InputStream inputFileStream;
             try {
                 inputFileStream = ref.getStream();
@@ -94,36 +97,13 @@ abstract class FileSystemInstaller implements ResourceInstaller<AndroidCommCareP
                         StringUtils.getStringRobust(CommCareApplication.instance(), R.string.install_error_file_not_found, r.getDescriptor()), true);
             }
 
-            File tempFile = new File(CommCareApplication.instance().getTempFilePath());
-            Reference localReference;
-            OutputStream outputFileStream;
-            try {
-                Pair<String, String> fileNameAndExt = getResourceName(r, location);
-                String referenceRoot = upgrade ? upgradeDestination : localDestination;
-                localReference = getEmptyLocalReference(referenceRoot, fileNameAndExt.first, fileNameAndExt.second);
-
-                outputFileStream = new FileOutputStream(tempFile);
-
-                //Get the actual local file we'll be putting the data into
-                localLocation = localReference.getURI();
-            } catch (InvalidReferenceException ire) {
-                throw new LocalStorageUnavailableException("Couldn't create reference to declared location " + localLocation + " for file system installation", localLocation);
-            } catch (IOException ioe) {
-                throw new LocalStorageUnavailableException("Couldn't write to local reference " + localLocation + " for file system installation", localLocation);
-            }
-
-            StreamsUtil.writeFromInputToOutputNew(inputFileStream, outputFileStream);
-
-            renameFile(localReference.getLocalURI(), tempFile);
+            renameFile(localReference.getLocalURI(), writeToTempFile(inputFileStream));
 
             //TODO: Sketch - if this fails, we'll still have the file at that location.
             int status = customInstall(r, localReference, upgrade, platform);
 
             table.commit(r, status);
 
-            if (localLocation == null) {
-                throw new UnresolvedResourceException(r, "After install there is no local resource location");
-            }
             return true;
         } catch (SSLHandshakeException | SSLPeerUnverifiedException e) {
             // SSLHandshakeException is thrown by the CommcareRequestGenerator on
@@ -149,6 +129,13 @@ abstract class FileSystemInstaller implements ResourceInstaller<AndroidCommCareP
         }
     }
 
+    private File writeToTempFile(InputStream inputFileStream) throws IOException {
+        File tempFile = new File(CommCareApplication.instance().getTempFilePath());
+        OutputStream outputFileStream = new FileOutputStream(tempFile);
+        StreamsUtil.writeFromInputToOutputNew(inputFileStream, outputFileStream);
+        return tempFile;
+    }
+
     private void renameFile(String newFilename, File currentFile) throws LocalStorageUnavailableException {
         File destination = new File(newFilename);
         FileUtil.ensureFilePathExists(destination);
@@ -157,13 +144,34 @@ abstract class FileSystemInstaller implements ResourceInstaller<AndroidCommCareP
         }
     }
 
+    protected Reference resolveEmptyLocalReference(Resource r, ResourceLocation location, boolean upgrade)
+            throws UnresolvedResourceException, LocalStorageUnavailableException {
+        Reference localReference;
+        try {
+            Pair<String, String> fileNameAndExt = getResourceName(r, location);
+            String referenceRoot = upgrade ? upgradeDestination : localDestination;
+            localReference = getEmptyLocalReference(referenceRoot, fileNameAndExt.first, fileNameAndExt.second);
+            //Get the actual local file we'll be putting the data into
+            localLocation = localReference.getURI();
+        } catch (InvalidReferenceException ire) {
+            throw new LocalStorageUnavailableException("Couldn't create reference to declared location " + localLocation + " for file system installation", localLocation);
+        } catch (IOException ioe) {
+            throw new LocalStorageUnavailableException("Couldn't write to local reference " + localLocation + " for file system installation", localLocation);
+        }
+
+        if (localLocation == null) {
+            throw new UnresolvedResourceException(r, "After install there is no local resource location");
+        }
+        return localReference;
+    }
+
     private Reference getEmptyLocalReference(String root, String fileName, String extension)
             throws InvalidReferenceException, IOException {
         Reference r = ReferenceManager.instance().DeriveReference(root + "/" + fileName + extension);
         int count = 0;
         while (r.doesBinaryExist()) {
             count++;
-            r = ReferenceManager.instance().DeriveReference(root + "/" + fileName + String.valueOf(count) + extension);
+            r = ReferenceManager.instance().DeriveReference(root + "/" + fileName + count + extension);
         }
         return r;
     }
