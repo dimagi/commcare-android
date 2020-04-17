@@ -22,7 +22,7 @@ public class NotificationMessageFactory {
     //TODO: Move these to an enum for the task that they represent the return state of
     public enum StockMessages implements MessageTag {
 
-        App_Update("app.update"),
+        InApp_Update("in.app.update.downloading"),
 
         /**
          * The server url was null or empty *

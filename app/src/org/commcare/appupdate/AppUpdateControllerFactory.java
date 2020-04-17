@@ -1,6 +1,8 @@
 package org.commcare.appupdate;
 
 import android.content.Context;
+import android.os.Build;
+
 import com.google.android.play.core.appupdate.AppUpdateManagerFactory;
 
 /**
@@ -15,7 +17,11 @@ public class AppUpdateControllerFactory {
      * @return A new {@link FlexibleAppUpdateController} to use for in-app updates
      */
     public static FlexibleAppUpdateController create(Runnable callback, Context context) {
-        // TODO: Should we check in-app update is enabled and return a demo or full operational controller?
-        return new CommcareFlexibleAppUpdateManager(callback, AppUpdateManagerFactory.create(context));
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            // In-app updates works only with devices running Android 5.0 (API level 21) or higher
+            return new CommcareFlexibleAppUpdateManager(callback, AppUpdateManagerFactory.create(context));
+        } else {
+            return new DummyFlexibleAppUpdateManager();
+        }
     }
 }

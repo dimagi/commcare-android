@@ -11,6 +11,8 @@ import com.google.android.play.core.install.model.InstallErrorCode;
 import com.google.android.play.core.install.model.InstallStatus;
 import com.google.android.play.core.install.model.UpdateAvailability;
 
+import org.commcare.CommCareApplication;
+import org.commcare.preferences.HiddenPreferences;
 import org.javarosa.core.services.Logger;
 
 import javax.annotation.Nullable;
@@ -104,6 +106,12 @@ public class CommcareFlexibleAppUpdateManager implements FlexibleAppUpdateContro
         return mInstallErrorCode;
     }
 
+    @Override
+    public void skipVersion() {
+        int currentAvailableVersion = mAppUpdateInfo.availableVersionCode();
+        HiddenPreferences.skipCommCareVersionForUpdate(currentAvailableVersion);
+    }
+
     //endregion
 
     @Override
@@ -163,6 +171,9 @@ public class CommcareFlexibleAppUpdateManager implements FlexibleAppUpdateContro
      * Gets {@link AppUpdateState} using {@link #mUpdateAvailability} and {@link #mInstallStatus}
      */
     private AppUpdateState getAppUpdateState() {
+        if (mAppUpdateInfo.availableVersionCode() == HiddenPreferences.getSkippedCommCareUpdateVersion()) {
+            return AppUpdateState.UNAVAILABLE;
+        }
         AppUpdateState state = AppUpdateState.UNAVAILABLE;
         switch (mInstallStatus) {
             case InstallStatus.PENDING:
@@ -178,6 +189,10 @@ public class CommcareFlexibleAppUpdateManager implements FlexibleAppUpdateContro
         }
         if (state == AppUpdateState.UNAVAILABLE && mUpdateAvailability == UpdateAvailability.UPDATE_AVAILABLE) {
             state = AppUpdateState.AVAILABLE;
+        }
+
+        if (mInstallErrorCode != InstallErrorCode.NO_ERROR) {
+            state = AppUpdateState.FAILED;
         }
         return state;
     }

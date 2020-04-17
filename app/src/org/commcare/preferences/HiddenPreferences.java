@@ -43,6 +43,7 @@ public class HiddenPreferences {
     public final static String LATEST_APP_VERSION = "latest-app-version";
     private static final String LAST_LOG_DELETION_TIME = "last_log_deletion_time";
     private final static String FORCE_LOGS = "force-logs";
+    private final static String SKIP_COMMCARE_VERSION_FOR_UPDATE = "skip-commcare-version-for-update";
 
     // Preferences whose values are only ever set by being sent down from HQ via the profile file
     private final static String MAPS_DEFAULT_LAYER = "cc-maps-default-layer";
@@ -445,5 +446,16 @@ public class HiddenPreferences {
 
     public static boolean shouldBypassPreUpdateSync() {
         return CommCareApplication.instance().getCurrentApp().getAppPreferences().getBoolean(BYPASS_PRE_UPDATE_SYNC, false);
+    }
+
+    public static void skipCommCareVersionForUpdate(int version) {
+        CommCareApplication.instance().getCurrentApp().getAppPreferences()
+                .edit()
+                .putInt(SKIP_COMMCARE_VERSION_FOR_UPDATE, version)
+                .apply();
+    }
+
+    public static int getSkippedCommCareUpdateVersion() {
+        return CommCareApplication.instance().getCurrentApp().getAppPreferences().getInt(SKIP_COMMCARE_VERSION_FOR_UPDATE, -1);
     }
 }
