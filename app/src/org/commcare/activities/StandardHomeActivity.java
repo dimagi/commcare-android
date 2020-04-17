@@ -25,6 +25,7 @@ import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.ResultAndError;
 import org.commcare.utils.ConnectivityStatus;
 import org.commcare.utils.SessionUnavailableException;
+import org.commcare.views.dialogs.HorizontalPaneledChoiceDialog;
 import org.commcare.views.dialogs.StandardAlertDialog;
 import org.commcare.views.notifications.NotificationMessage;
 import org.commcare.views.notifications.NotificationMessageFactory;
@@ -57,26 +58,13 @@ public class StandardHomeActivity
 
     private FlexibleAppUpdateController appUpdateController;
     private static final String APP_UPDATE_NOTIFICATION = "app_update_notification";
-    private boolean mUpdateChecked;
-    private static final String APP_UPDATE_CHECKED = "app_update_checked";
 
     @Override
     public void onCreateSessionSafe(Bundle savedInstanceState) {
         super.onCreateSessionSafe(savedInstanceState);
         uiController.setupUI();
         appUpdateController = AppUpdateControllerFactory.create(this::handleAppUpdate, getApplicationContext());
-        if (savedInstanceState != null) {
-            mUpdateChecked = savedInstanceState.getBoolean(APP_UPDATE_CHECKED, false);
-        }
-        if (!mUpdateChecked) {
-            appUpdateController.register();
-        }
-    }
-
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putBoolean(APP_UPDATE_CHECKED, mUpdateChecked);
+        appUpdateController.register();
     }
 
     void enterRootModule() {
@@ -278,9 +266,7 @@ public class StandardHomeActivity
 
     @Override
     protected void onDestroy() {
-        if (!mUpdateChecked) {
-            appUpdateController.unregister();
-        }
+        appUpdateController.unregister();
         super.onDestroy();
     }
 
@@ -288,38 +274,48 @@ public class StandardHomeActivity
         AppUpdateState state = appUpdateController.getStatus();
         switch (state) {
             case UNAVAILABLE:
-                // Update is unavailable. Maybe we should try it after app is next launched.
-                mUpdateChecked = true;
                 break;
             case AVAILABLE:
                 StandardAlertDialog alertDialog = StandardAlertDialog.getBasicAlertDialog(this,
-                        "Update Available", "Update your app", null);
-                alertDialog.setPositiveButton("Update", (dialog, which) -> {
+                        Localization.get("in.app.update.available.title"),
+                        Localization.get("in.app.update.available.detail"),
+                        null);
+                alertDialog.setPositiveButton(Localization.get("in.app.update.dialog.update"), (dialog, which) -> {
                     appUpdateController.startUpdate(StandardHomeActivity.this);
                     dismissAlertDialog();
                 });
-                alertDialog.setNegativeButton("Cancel", (dialog, which) -> {
+                alertDialog.setNegativeButton(Localization.get("in.app.update.dialog.no.thanks"), (dialog, which) -> {
+                    appUpdateController.skipVersion();
                     dismissAlertDialog();
                 });
+                showAlertDialog(alertDialog);
                 break;
             case DOWNLOADING:
+                // TODO: Should we use appUpdateController's getProgress to show something here?
+                // Though native downloads app gives a notification regarding the current download in progress.
                 NotificationMessage message = NotificationMessageFactory.message(
-                        NotificationMessageFactory.StockMessages.App_Update, APP_UPDATE_NOTIFICATION);
+                        NotificationMessageFactory.StockMessages.InApp_Update, APP_UPDATE_NOTIFICATION);
                 CommCareApplication.notificationManager().reportNotificationMessage(message);
                 break;
             case DOWNLOADED:
-                mUpdateChecked = true;
                 CommCareApplication.notificationManager().clearNotifications(APP_UPDATE_NOTIFICATION);
                 StandardAlertDialog dialog = StandardAlertDialog.getBasicAlertDialog(this,
-                        "App updated", "New update is downloaded", null);
-                dialog.setPositiveButton("Restart your app", (dialog1, which) -> {
+                        Localization.get("in.app.update.installed.title"),
+                        Localization.get("in.app.update.installed.detail"),
+                        null);
+                dialog.setPositiveButton(Localization.get("in.app.update.dialog.restart"), (dialog1, which) -> {
                     appUpdateController.completeUpdate();
                     dismissAlertDialog();
                 });
+                dialog.setNegativeButton(Localization.get("in.app.update.dialog.cancel"), (dialog1, which) -> {
+                    dismissAlertDialog();
+                });
+                showAlertDialog(dialog);
                 break;
             case FAILED:
+                // TODO: We might wanna use appUpdateController's getErrorCode here.
                 CommCareApplication.notificationManager().clearNotifications(APP_UPDATE_NOTIFICATION);
-                Toast.makeText(this, "App update failed", Toast.LENGTH_LONG).show();
+                Toast.makeText(this, Localization.get("in.app.update.failed"), Toast.LENGTH_LONG).show();
                 break;
         }
     }

@@ -2,6 +2,8 @@ package org.commcare.appupdate;
 
 import android.app.Activity;
 
+import androidx.annotation.NonNull;
+
 import com.google.android.play.core.install.model.InstallErrorCode;
 
 import javax.annotation.Nullable;
@@ -21,6 +23,7 @@ public interface AppUpdateController {
     /**
      * @return the current state of installation process.
      */
+    @NonNull
     AppUpdateState getStatus();
 
     /**
@@ -43,4 +46,10 @@ public interface AppUpdateController {
      */
     @InstallErrorCode
     int getErrorCode();
+
+    /**
+     * Used to flag that user doesn't want to update to this version.
+     * The {@link AppUpdateController} shouldn't flag user with the `user skipped version` availability anymore.
+     */
+    void skipVersion();
 }
