@@ -2,10 +2,12 @@ package org.commcare.mediadownload
 
 import androidx.work.*
 import org.commcare.CommCareApplication
+import org.commcare.android.resource.installers.MediaFileAndroidInstaller
 import org.commcare.dalvik.R
 import org.commcare.engine.resource.ResourceInstallUtils
 import org.commcare.resources.model.*
 import org.commcare.views.dialogs.PinnedNotificationWithProgress
+import org.javarosa.core.util.SizeBoundUniqueVector
 import java.util.*
 import java.util.concurrent.TimeUnit
 
@@ -59,12 +61,13 @@ class MissingMediaDownloadHelper(private val installCancelled: InstallCancelled)
 
         global.verifyInstallation(problems, platform)
 
-        val missingResources = Vector<Resource>(problems.size)
-        for (problem in problems) {
-            if (problem.type == MissingMediaException.MissingMediaExceptionType.FILE_NOT_FOUND) {
-                missingResources.addElement(problem.resource)
-            }
-        }
+        val missingResources = SizeBoundUniqueVector<Resource>(problems.size)
+
+        problems.filter { problem ->
+            problem.type == MissingMediaException.MissingMediaExceptionType.FILE_NOT_FOUND
+                    && problem.resource.installer is MediaFileAndroidInstaller
+        }.map { problem -> missingResources.addElement(problem.resource) }
+
 
         global.setStateListener(this)
         startPinnedNotification()
@@ -74,6 +77,11 @@ class MissingMediaDownloadHelper(private val installCancelled: InstallCancelled)
         global.setInstallCancellationChecker(null)
         global.setStateListener(null)
         cancelNotification()
+    }
+
+
+    fun downloadMissingMediaResource(resource: Resource) {
+
     }
 
     override fun incrementProgress(complete: Int, total: Int) {
