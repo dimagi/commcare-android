@@ -44,6 +44,7 @@ public class HiddenPreferences {
     private static final String LAST_LOG_DELETION_TIME = "last_log_deletion_time";
     private final static String FORCE_LOGS = "force-logs";
     private final static String SKIP_COMMCARE_VERSION_FOR_UPDATE = "skip-commcare-version-for-update";
+    private final static String LAST_IN_APP_UPDATE_CHECK_TIME = "last_in_app_update_check_time";
 
     // Preferences whose values are only ever set by being sent down from HQ via the profile file
     private final static String LABEL_REQUIRED_QUESTIONS_WITH_ASTERISK = "cc-label-required-questions-with-asterisk";
@@ -463,5 +464,16 @@ public class HiddenPreferences {
 
     public static int getSkippedCommCareUpdateVersion() {
         return CommCareApplication.instance().getCurrentApp().getAppPreferences().getInt(SKIP_COMMCARE_VERSION_FOR_UPDATE, -1);
+    }
+
+    public static void setLastInAppUpdateCheckTime(long millis) {
+        CommCareApplication.instance().getCurrentApp().getAppPreferences()
+                .edit()
+                .putLong(LAST_IN_APP_UPDATE_CHECK_TIME, millis)
+                .apply();
+    }
+
+    public static long getLastInAppUpdateCheckTime() {
+        return CommCareApplication.instance().getCurrentApp().getAppPreferences().getLong(LAST_IN_APP_UPDATE_CHECK_TIME, -1);
     }
 }

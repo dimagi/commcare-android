@@ -21,6 +21,7 @@ import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.WithUIController;
 import org.commcare.preferences.DeveloperPreferences;
+import org.commcare.preferences.HiddenPreferences;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.ResultAndError;
 import org.commcare.utils.ConnectivityStatus;
@@ -274,6 +275,9 @@ public class StandardHomeActivity
         AppUpdateState state = appUpdateController.getStatus();
         switch (state) {
             case UNAVAILABLE:
+                if (ConnectivityStatus.isNetworkAvailable(this)) {
+                    HiddenPreferences.setLastInAppUpdateCheckTime(System.currentTimeMillis());
+                }
                 break;
             case AVAILABLE:
                 StandardAlertDialog alertDialog = StandardAlertDialog.getBasicAlertDialog(this,
