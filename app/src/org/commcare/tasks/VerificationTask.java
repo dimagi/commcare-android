@@ -10,34 +10,44 @@ import org.commcare.utils.AndroidCommCarePlatform;
 import org.javarosa.core.util.SizeBoundUniqueVector;
 import org.javarosa.core.util.SizeBoundVector;
 
+import java.util.Vector;
+
 /**
  * This task is responsible for validating app's installed media
  *
  * @author ctsims
  */
 public abstract class VerificationTask<Reciever>
-        extends CommCareTask<Void, int[], SizeBoundVector<MissingMediaException>, Reciever>
+        extends CommCareTask<Void, int[], SizeBoundUniqueVector<MissingMediaException>, Reciever>
         implements TableStateListener, InstallCancelled {
 
-    public VerificationTask(int taskId) {
+    protected VerificationTask(int taskId) {
         this.taskId = taskId;
     }
 
     @Override
-    protected SizeBoundVector<MissingMediaException> doTaskBackground(Void... params) {
+    protected SizeBoundUniqueVector<MissingMediaException> doTaskBackground(Void... params) {
         AndroidCommCarePlatform platform = CommCareApplication.instance().getCommCarePlatform();
 
         // This is replicated in the application in a few places.
         ResourceTable global = platform.getGlobalResourceTable();
-        SizeBoundUniqueVector<MissingMediaException> problems =
-                new SizeBoundUniqueVector<>(10);
+        Vector<MissingMediaException> problems = new Vector<>();
 
         setTableListeners(global);
         global.verifyInstallation(problems, platform);
         unsetTableListeners(global);
 
-        if (problems.size() > 0) {
-            return problems;
+
+        // skip lazy resources in verfication
+        SizeBoundUniqueVector<MissingMediaException> validProblems = new SizeBoundUniqueVector<>(problems.size());
+        for (MissingMediaException problem : problems) {
+            if (!problem.getResource().isLazy()) {
+                validProblems.add(problem);
+            }
+        }
+
+        if (validProblems.size() > 0) {
+            return validProblems;
         }
         return null;
     }
