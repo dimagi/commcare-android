@@ -3,6 +3,8 @@ package org.commcare.appupdate;
 import android.app.Activity;
 import android.content.IntentSender;
 
+import androidx.annotation.NonNull;
+
 import com.google.android.play.core.appupdate.AppUpdateInfo;
 import com.google.android.play.core.appupdate.AppUpdateManager;
 import com.google.android.play.core.install.InstallState;
@@ -26,7 +28,7 @@ public class CommcareFlexibleAppUpdateManager implements FlexibleAppUpdateContro
     private static final String TAG = CommcareFlexibleAppUpdateManager.class.getName();
 
     private final AppUpdateManager mAppUpdateManager;
-    private AppUpdateInfo mAppUpdateInfo;
+    private @Nullable AppUpdateInfo mAppUpdateInfo;
     private final Runnable mCallback;
     private boolean mEnabled;
 
@@ -74,6 +76,7 @@ public class CommcareFlexibleAppUpdateManager implements FlexibleAppUpdateContro
         }
     }
 
+    @NonNull
     @Override
     public AppUpdateState getStatus() {
         return mAppUpdateState;
@@ -108,6 +111,9 @@ public class CommcareFlexibleAppUpdateManager implements FlexibleAppUpdateContro
 
     @Override
     public void skipVersion() {
+        if (mAppUpdateInfo == null) {
+            return;
+        }
         int currentAvailableVersion = mAppUpdateInfo.availableVersionCode();
         HiddenPreferences.skipCommCareVersionForUpdate(currentAvailableVersion);
     }
@@ -171,7 +177,7 @@ public class CommcareFlexibleAppUpdateManager implements FlexibleAppUpdateContro
      * Gets {@link AppUpdateState} using {@link #mUpdateAvailability} and {@link #mInstallStatus}
      */
     private AppUpdateState getAppUpdateState() {
-        if (mAppUpdateInfo.availableVersionCode() == HiddenPreferences.getSkippedCommCareUpdateVersion()) {
+        if (mAppUpdateInfo != null && mAppUpdateInfo.availableVersionCode() == HiddenPreferences.getSkippedCommCareUpdateVersion()) {
             return AppUpdateState.UNAVAILABLE;
         }
         AppUpdateState state = AppUpdateState.UNAVAILABLE;
