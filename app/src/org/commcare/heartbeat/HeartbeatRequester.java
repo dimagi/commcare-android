@@ -105,7 +105,7 @@ public class HeartbeatRequester extends GetAndParseActor {
 
     private void checkForDisableBackgroundWork(JSONObject responseAsJson) {
         boolean disableBackgroundWork = responseAsJson.optBoolean("disable_background_work", false);
-        HiddenPreferences.setDisableBackgroundWork(disableBackgroundWork);
+        HiddenPreferences.setDisableBackgroundWorkTime(disableBackgroundWork);
         if (disableBackgroundWork) {
             WorkManager.getInstance(CommCareApplication.instance()).cancelAllWorkByTag(
                     CommCareApplication.instance().getCurrentApp().getUniqueId());
