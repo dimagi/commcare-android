@@ -323,6 +323,9 @@ public class FormSubmissionHelper implements DataSubmissionListener {
                             } else if (mResults[i] == FormUploadResult.RATE_LIMITED) {
                                 // Don't keep retrying, the server is rate limiting submissions
                                 break;
+                            } else if (mResults[i] == FormUploadResult.CAPTIVE_PORTAL) {
+                                // User is behind a captive portal, no need to re-try.
+                                break;
                             } else {
                                 attemptsMade++;
                             }
@@ -588,3 +591,4 @@ public class FormSubmissionHelper implements DataSubmissionListener {
     private static class TaskCancelledException extends Exception {
     }
 }
+

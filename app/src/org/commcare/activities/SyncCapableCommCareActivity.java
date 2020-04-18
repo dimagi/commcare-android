@@ -129,6 +129,9 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
             case AUTH_OVER_HTTP:
                 updateUiAfterDataPullOrSend(Localization.get("auth.over.http"), FAIL);
                 break;
+            case CAPTIVE_PORTAL:
+                updateUiAfterDataPullOrSend(Localization.get("connection.captive_portal.action"), FAIL);
+                break;
         }
 
         String syncTriggerParam =
