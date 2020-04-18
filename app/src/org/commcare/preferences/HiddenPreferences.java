@@ -12,7 +12,6 @@ import org.commcare.utils.MapLayer;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
-
 import androidx.annotation.Nullable;
 import androidx.preference.PreferenceManager;
 
@@ -83,7 +82,7 @@ public class HiddenPreferences {
 
     // Internal pref to bypass PRE_UPDATE_SYNC_NEEDED using advanced settings
     private static final String BYPASS_PRE_UPDATE_SYNC = "bypass_pre_update_sync";
-    private static final String DISABLE_BACKGROUND_WORK_TIME = "disable-background-work";
+    private static final String DISABLE_BACKGROUND_WORK_TIME = "disable-background-work-time";
 
 
     private static final long NO_OF_HOURS_TO_WAIT_TO_RESUME_BACKGROUND_WORK = 36;
