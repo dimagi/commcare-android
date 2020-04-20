@@ -12,9 +12,6 @@ import com.google.android.play.core.install.model.AppUpdateType;
 import com.google.android.play.core.install.model.InstallErrorCode;
 import com.google.android.play.core.install.model.InstallStatus;
 import com.google.android.play.core.install.model.UpdateAvailability;
-
-import org.commcare.CommCareApplication;
-import org.commcare.preferences.HiddenPreferences;
 import org.javarosa.core.services.Logger;
 
 import javax.annotation.Nullable;
@@ -24,7 +21,6 @@ import javax.annotation.Nullable;
  */
 public class CommcareFlexibleAppUpdateManager implements FlexibleAppUpdateController {
 
-    public static final int IN_APP_UPDATE_REQUEST_CODE = 1212;
     private static final String TAG = CommcareFlexibleAppUpdateManager.class.getName();
 
     private final AppUpdateManager mAppUpdateManager;
@@ -72,7 +68,9 @@ public class CommcareFlexibleAppUpdateManager implements FlexibleAppUpdateContro
             }
         } catch (IntentSender.SendIntentException exception) {
             mInstallStatus = InstallStatus.FAILED;
+            mInstallErrorCode = InstallErrorCode.ERROR_INTERNAL_ERROR;
             Logger.log(TAG, "startUpdate|failed with : " + exception.getMessage());
+            publishStatus();
         }
     }
 
@@ -87,7 +85,6 @@ public class CommcareFlexibleAppUpdateManager implements FlexibleAppUpdateContro
         mAppUpdateManager.completeUpdate()
                 .addOnSuccessListener(result -> {
                     Logger.log(TAG, "completeUpdate|was successful");
-                    publishStatus();
                 })
                 .addOnFailureListener(exception -> {
                     Logger.log(TAG, "completeUpdate|failed with : " + exception.getMessage());
@@ -109,15 +106,15 @@ public class CommcareFlexibleAppUpdateManager implements FlexibleAppUpdateContro
         return mInstallErrorCode;
     }
 
+    @Nullable
     @Override
-    public void skipVersion() {
-        if (mAppUpdateInfo == null) {
-            return;
+    public Integer availableVersionCode() {
+        if (mAppUpdateInfo == null || mUpdateAvailability == UpdateAvailability.UPDATE_NOT_AVAILABLE
+                || mUpdateAvailability == UpdateAvailability.UNKNOWN) {
+            return null;
         }
-        int currentAvailableVersion = mAppUpdateInfo.availableVersionCode();
-        HiddenPreferences.skipCommCareVersionForUpdate(currentAvailableVersion);
+        return mAppUpdateInfo.availableVersionCode();
     }
-
     //endregion
 
     @Override
@@ -143,8 +140,6 @@ public class CommcareFlexibleAppUpdateManager implements FlexibleAppUpdateContro
                     mAppUpdateInfo = info;
                     mUpdateAvailability = info.updateAvailability();
                     mInstallStatus = info.installStatus();
-                    Logger.log(TAG, "fetchAppUpdateInfo|success with UpdateAvailability : "
-                            + mUpdateAvailability + ", and InstallStatus : " + mInstallStatus);
                     publishStatus();
                 })
                 .addOnFailureListener(exception -> {
@@ -177,7 +172,7 @@ public class CommcareFlexibleAppUpdateManager implements FlexibleAppUpdateContro
      * Gets {@link AppUpdateState} using {@link #mUpdateAvailability} and {@link #mInstallStatus}
      */
     private AppUpdateState getAppUpdateState() {
-        if (mAppUpdateInfo != null && mAppUpdateInfo.availableVersionCode() == HiddenPreferences.getSkippedCommCareUpdateVersion()) {
+        if (mAppUpdateInfo != null) {
             return AppUpdateState.UNAVAILABLE;
         }
         AppUpdateState state = AppUpdateState.UNAVAILABLE;
@@ -195,10 +190,6 @@ public class CommcareFlexibleAppUpdateManager implements FlexibleAppUpdateContro
         }
         if (state == AppUpdateState.UNAVAILABLE && mUpdateAvailability == UpdateAvailability.UPDATE_AVAILABLE) {
             state = AppUpdateState.AVAILABLE;
-        }
-
-        if (mInstallErrorCode != InstallErrorCode.NO_ERROR) {
-            state = AppUpdateState.FAILED;
         }
         return state;
     }

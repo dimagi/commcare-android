@@ -29,6 +29,7 @@ public class AnalyticsParamValue {
     public static final String ITEM_SAVE_FORM = "save_form";
     public static final String ITEM_FORM_HIERARCHY = "form_hierarchy";
     public static final String ITEM_CHANGE_FORM_SETTINGS = "change_settings";
+    public static final String ITEM_UPDATE_CC_PLATFORM = "update_commcare_platform";
 
     // Param values for sync attempts
     public static final String SYNC_TRIGGER_USER = "user_triggered_sync";

@@ -1,34 +1,20 @@
 package org.commcare.activities;
 
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.PersistableBundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Toast;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-
 import org.commcare.CommCareApplication;
-import org.commcare.appupdate.AppUpdateControllerFactory;
-import org.commcare.appupdate.AppUpdateState;
-import org.commcare.appupdate.FlexibleAppUpdateController;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.WithUIController;
 import org.commcare.preferences.DeveloperPreferences;
-import org.commcare.preferences.HiddenPreferences;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.ResultAndError;
 import org.commcare.utils.ConnectivityStatus;
 import org.commcare.utils.SessionUnavailableException;
-import org.commcare.views.dialogs.HorizontalPaneledChoiceDialog;
-import org.commcare.views.dialogs.StandardAlertDialog;
-import org.commcare.views.notifications.NotificationMessage;
 import org.commcare.views.notifications.NotificationMessageFactory;
 import org.javarosa.core.services.locale.Localization;
 
@@ -52,20 +38,16 @@ public class StandardHomeActivity
     public static final int MENU_ADVANCED = Menu.FIRST + 5;
     public static final int MENU_ABOUT = Menu.FIRST + 6;
     public static final int MENU_PIN = Menu.FIRST + 7;
+    public static final int MENU_UPDATE_COMMCARE = Menu.FIRST + 8;
 
     private static final String AIRPLANE_MODE_CATEGORY = "airplane-mode";
 
     private StandardHomeActivityUIController uiController;
 
-    private FlexibleAppUpdateController appUpdateController;
-    private static final String APP_UPDATE_NOTIFICATION = "app_update_notification";
-
     @Override
     public void onCreateSessionSafe(Bundle savedInstanceState) {
         super.onCreateSessionSafe(savedInstanceState);
         uiController.setupUI();
-        appUpdateController = AppUpdateControllerFactory.create(this::handleAppUpdate, getApplicationContext());
-        appUpdateController.register();
     }
 
     void enterRootModule() {
@@ -144,6 +126,7 @@ public class StandardHomeActivity
         menu.add(0, MENU_PREFERENCES, 0, Localization.get("home.menu.settings")).setIcon(
                 android.R.drawable.ic_menu_preferences);
         menu.add(0, MENU_PIN, 0, Localization.get("home.menu.pin.set"));
+        menu.add(0, MENU_UPDATE_COMMCARE, 0, Localization.get("home.menu.update.commcare"));
         return true;
     }
 
@@ -160,6 +143,7 @@ public class StandardHomeActivity
         menu.findItem(MENU_PREFERENCES).setVisible(enableMenus);
         menu.findItem(MENU_ADVANCED).setVisible(enableMenus);
         menu.findItem(MENU_ABOUT).setVisible(enableMenus);
+        menu.findItem(MENU_UPDATE_COMMCARE).setVisible(enableMenus && showCommCareUpdateMenu);
         preparePinMenu(menu, enableMenus);
         return true;
     }
@@ -211,6 +195,9 @@ public class StandardHomeActivity
             case MENU_PIN:
                 launchPinAuthentication();
                 return true;
+            case MENU_UPDATE_COMMCARE:
+                startCommCareUpdate();
+                return true;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -229,6 +216,8 @@ public class StandardHomeActivity
                 AnalyticsParamValue.ITEM_ADVANCED_ACTIONS);
         menuIdToAnalyticsEvent.put(MENU_ABOUT,
                 AnalyticsParamValue.ITEM_ABOUT_CC);
+        menuIdToAnalyticsEvent.put(MENU_UPDATE_COMMCARE,
+                AnalyticsParamValue.ITEM_UPDATE_CC_PLATFORM);
         return menuIdToAnalyticsEvent;
     }
 
@@ -266,61 +255,7 @@ public class StandardHomeActivity
     }
 
     @Override
-    protected void onDestroy() {
-        appUpdateController.unregister();
-        super.onDestroy();
-    }
-
-    private void handleAppUpdate() {
-        AppUpdateState state = appUpdateController.getStatus();
-        switch (state) {
-            case UNAVAILABLE:
-                if (ConnectivityStatus.isNetworkAvailable(this)) {
-                    HiddenPreferences.setLastInAppUpdateCheckTime(System.currentTimeMillis());
-                }
-                break;
-            case AVAILABLE:
-                StandardAlertDialog alertDialog = StandardAlertDialog.getBasicAlertDialog(this,
-                        Localization.get("in.app.update.available.title"),
-                        Localization.get("in.app.update.available.detail"),
-                        null);
-                alertDialog.setPositiveButton(Localization.get("in.app.update.dialog.update"), (dialog, which) -> {
-                    appUpdateController.startUpdate(StandardHomeActivity.this);
-                    dismissAlertDialog();
-                });
-                alertDialog.setNegativeButton(Localization.get("in.app.update.dialog.no.thanks"), (dialog, which) -> {
-                    appUpdateController.skipVersion();
-                    dismissAlertDialog();
-                });
-                showAlertDialog(alertDialog);
-                break;
-            case DOWNLOADING:
-                // TODO: Should we use appUpdateController's getProgress to show something here?
-                // Though native downloads app gives a notification regarding the current download in progress.
-                NotificationMessage message = NotificationMessageFactory.message(
-                        NotificationMessageFactory.StockMessages.InApp_Update, APP_UPDATE_NOTIFICATION);
-                CommCareApplication.notificationManager().reportNotificationMessage(message);
-                break;
-            case DOWNLOADED:
-                CommCareApplication.notificationManager().clearNotifications(APP_UPDATE_NOTIFICATION);
-                StandardAlertDialog dialog = StandardAlertDialog.getBasicAlertDialog(this,
-                        Localization.get("in.app.update.installed.title"),
-                        Localization.get("in.app.update.installed.detail"),
-                        null);
-                dialog.setPositiveButton(Localization.get("in.app.update.dialog.restart"), (dialog1, which) -> {
-                    appUpdateController.completeUpdate();
-                    dismissAlertDialog();
-                });
-                dialog.setNegativeButton(Localization.get("in.app.update.dialog.cancel"), (dialog1, which) -> {
-                    dismissAlertDialog();
-                });
-                showAlertDialog(dialog);
-                break;
-            case FAILED:
-                // TODO: We might wanna use appUpdateController's getErrorCode here.
-                CommCareApplication.notificationManager().clearNotifications(APP_UPDATE_NOTIFICATION);
-                Toast.makeText(this, Localization.get("in.app.update.failed"), Toast.LENGTH_LONG).show();
-                break;
-        }
+    void refreshCCUpdateOption() {
+        invalidateOptionsMenu();
     }
 }

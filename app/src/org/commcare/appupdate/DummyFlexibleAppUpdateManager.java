@@ -55,8 +55,9 @@ public class DummyFlexibleAppUpdateManager implements FlexibleAppUpdateControlle
         return InstallErrorCode.NO_ERROR;
     }
 
+    @Nullable
     @Override
-    public void skipVersion() {
-
+    public Integer availableVersionCode() {
+        return null;
     }
 }
