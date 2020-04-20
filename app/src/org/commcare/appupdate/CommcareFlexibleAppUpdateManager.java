@@ -172,9 +172,6 @@ public class CommcareFlexibleAppUpdateManager implements FlexibleAppUpdateContro
      * Gets {@link AppUpdateState} using {@link #mUpdateAvailability} and {@link #mInstallStatus}
      */
     private AppUpdateState getAppUpdateState() {
-        if (mAppUpdateInfo != null) {
-            return AppUpdateState.UNAVAILABLE;
-        }
         AppUpdateState state = AppUpdateState.UNAVAILABLE;
         switch (mInstallStatus) {
             case InstallStatus.PENDING:
