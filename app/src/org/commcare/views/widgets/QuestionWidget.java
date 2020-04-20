@@ -388,6 +388,8 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
         SpannableStringBuilder builder = new SpannableStringBuilder();
         if (prompt.getMarkdownText() != null) {
             builder.append(forceMarkdown(prompt.getMarkdownText()));
+        } else if (mPrompt.getLongText() == null) {
+            return null;
         } else {
             builder.append(mPrompt.getLongText());
         }
