@@ -43,7 +43,6 @@ public class HiddenPreferences {
     public final static String LATEST_APP_VERSION = "latest-app-version";
     private static final String LAST_LOG_DELETION_TIME = "last_log_deletion_time";
     private final static String FORCE_LOGS = "force-logs";
-    private final static String SKIP_COMMCARE_VERSION_FOR_UPDATE = "skip-commcare-version-for-update";
     private final static String LAST_IN_APP_UPDATE_CHECK_TIME = "last_in_app_update_check_time";
 
     // Preferences whose values are only ever set by being sent down from HQ via the profile file
@@ -449,25 +448,25 @@ public class HiddenPreferences {
         return CommCareApplication.instance().getCurrentApp().getAppPreferences().getBoolean(BYPASS_PRE_UPDATE_SYNC, false);
     }
 
-    public static void skipCommCareVersionForUpdate(int version) {
-        CommCareApplication.instance().getCurrentApp().getAppPreferences()
-                .edit()
-                .putInt(SKIP_COMMCARE_VERSION_FOR_UPDATE, version)
-                .apply();
-    }
-
-    public static int getSkippedCommCareUpdateVersion() {
-        return CommCareApplication.instance().getCurrentApp().getAppPreferences().getInt(SKIP_COMMCARE_VERSION_FOR_UPDATE, -1);
-    }
-
     public static void setLastInAppUpdateCheckTime(long millis) {
-        CommCareApplication.instance().getCurrentApp().getAppPreferences()
+        PreferenceManager.getDefaultSharedPreferences(CommCareApplication.instance())
                 .edit()
                 .putLong(LAST_IN_APP_UPDATE_CHECK_TIME, millis)
                 .apply();
     }
 
     public static long getLastInAppUpdateCheckTime() {
-        return CommCareApplication.instance().getCurrentApp().getAppPreferences().getLong(LAST_IN_APP_UPDATE_CHECK_TIME, -1);
+        return PreferenceManager.getDefaultSharedPreferences(CommCareApplication.instance())
+                .getLong(LAST_IN_APP_UPDATE_CHECK_TIME, -1);
+    }
+
+    public static void cancelCommCareUpdate(String version) {
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(CommCareApplication.instance());
+        int count = sharedPreferences.getInt(version, 0);
+        sharedPreferences.edit().putInt(version, count + 1).apply();
+    }
+
+    public static int isCommCareUpdateCancelled(String version) {
+        return PreferenceManager.getDefaultSharedPreferences(CommCareApplication.instance()).getInt(version, 0);
     }
 }

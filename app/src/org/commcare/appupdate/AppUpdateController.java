@@ -14,6 +14,9 @@ import javax.annotation.Nullable;
  */
 public interface AppUpdateController {
 
+    /** Request code for launching in-app update flow. */
+    int IN_APP_UPDATE_REQUEST_CODE = 1212;
+
     /**
      * Starts an app update, if possible.
      * @param activity The {@link Activity} to use to interact with Google Play.
@@ -48,8 +51,8 @@ public interface AppUpdateController {
     int getErrorCode();
 
     /**
-     * Used to flag that user doesn't want to update to this version.
-     * The {@link AppUpdateController} shouldn't flag user with the `user skipped version` availability anymore.
+     * If an update is available or in progress, it returns the version code for that update. Otherwise returns null.
      */
-    void skipVersion();
+    @Nullable
+    Integer availableVersionCode();
 }
