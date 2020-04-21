@@ -14,6 +14,7 @@ import org.commcare.android.database.user.models.ACase;
 import org.commcare.cases.ledger.Ledger;
 import org.commcare.core.encryption.CryptUtil;
 import org.commcare.core.network.AuthenticationInterceptor;
+import org.commcare.core.network.CaptivePortalRedirectException;
 import org.commcare.core.network.bitcache.BitCache;
 import org.commcare.data.xml.DataModelPullParser;
 import org.commcare.engine.cases.CaseUtils;
@@ -265,6 +266,10 @@ public abstract class DataPullTask<R>
             e.printStackTrace();
             Logger.log(LogTypes.TYPE_ERROR_CONFIG_STRUCTURE, "Encountered PlainTextPasswordException during sync: Sending password over HTTP");
             responseError = PullTaskResult.AUTH_OVER_HTTP;
+        } catch (CaptivePortalRedirectException e) {
+            e.printStackTrace();
+            Logger.log(LogTypes.TYPE_WARNING_NETWORK, "Couldn't sync due to presense of captive portal");
+            responseError = PullTaskResult.CAPTIVE_PORTAL;
         } catch (IOException e) {
             e.printStackTrace();
             Logger.log(LogTypes.TYPE_WARNING_NETWORK, "Couldn't sync due to IO Error|" + e.getMessage());
@@ -660,6 +665,7 @@ public abstract class DataPullTask<R>
         SERVER_ERROR(AnalyticsParamValue.SYNC_FAIL_SERVER_ERROR),
         RATE_LIMITED_SERVER_ERROR(AnalyticsParamValue.SYNC_FAIL_RATE_LIMITED_SERVER_ERROR),
         STORAGE_FULL(AnalyticsParamValue.SYNC_FAIL_STORAGE_FULL),
+        CAPTIVE_PORTAL(AnalyticsParamValue.SYNC_FAIL_CAPTIVE_PORTAL),
         AUTH_OVER_HTTP(AnalyticsParamValue.SYNC_FAIL_AUTH_OVER_HTTP);
 
         public final String analyticsFailureReasonParam;

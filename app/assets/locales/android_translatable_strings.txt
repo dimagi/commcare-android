@@ -376,6 +376,9 @@ connection.task.success=No problems were detected.
 connection.task.report.commcare.popup=Your logs are being sent to CommCare!
 connection.task.unset.posturl=There has been an error on CommCare's end. Please report this problem to CommCare Support.
 
+connection.captive_portal.title=No Internet Detected
+connection.captive_portal.detail=Cannot access internet
+connection.captive_portal.action=The current network is not connected to the internet. You may need to log in from a web browser.
 
 notification.sync.connections.title=No Connection
 notification.sync.connections.detail=No active data connections
@@ -543,6 +546,10 @@ notification.install.missing.withmessage.action=Installation error: ${0}
 notification.install.badcert.title=Bad Certificate
 notification.install.badcert.detail=The certificate you received from the server was invalid. This can be casued by many things, but is often do to a mis-set clock on your phone.
 notification.install.badcert.action=This is often due to your phone's internal clock being incorrect.
+
+notification.install.cancel.title=Update Cancelled
+notification.install.cancel.detail=An app update event was cancelled before it completed.
+notification.install.cancel.action=Please restart the update in order to update your app.
 
 notification.install.badreqs.title=Incompatible CommCare Version for Install
 notification.install.badreqs.detail=${0}

@@ -173,7 +173,7 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
             DeviceReportWriter reporter;
             try {
                 //Create a report writer
-                reporter = new DeviceReportWriter(record);
+                    reporter = new DeviceReportWriter(record);
             } catch (IOException e) {
                 //TODO: Bad local file (almost certainly). Throw a better message!
                 e.printStackTrace();

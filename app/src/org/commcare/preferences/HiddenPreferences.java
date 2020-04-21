@@ -45,6 +45,7 @@ public class HiddenPreferences {
     private final static String FORCE_LOGS = "force-logs";
 
     // Preferences whose values are only ever set by being sent down from HQ via the profile file
+    private final static String LABEL_REQUIRED_QUESTIONS_WITH_ASTERISK = "cc-label-required-questions-with-asterisk";
     private final static String MAPS_DEFAULT_LAYER = "cc-maps-default-layer";
     public final static String AUTO_SYNC_FREQUENCY = "cc-autosync-freq";
     private final static String ENABLE_SAVED_FORMS = "cc-show-saved";
@@ -81,6 +82,10 @@ public class HiddenPreferences {
 
     // Internal pref to bypass PRE_UPDATE_SYNC_NEEDED using advanced settings
     private static final String BYPASS_PRE_UPDATE_SYNC = "bypass_pre_update_sync";
+    private static final String DISABLE_BACKGROUND_WORK_TIME = "disable-background-work-time";
+
+
+    private static final long NO_OF_HOURS_TO_WAIT_TO_RESUME_BACKGROUND_WORK = 36;
 
 
     /**
@@ -292,6 +297,11 @@ public class HiddenPreferences {
                 .getAppPreferences().getBoolean(SHOW_XFORM_UPDATE_INFO, false);
     }
 
+    public static Boolean shouldLabelRequiredQuestionsWithAsterisk() {
+        return CommCareApplication.instance().getCurrentApp().getAppPreferences()
+                .getString(LABEL_REQUIRED_QUESTIONS_WITH_ASTERISK, PrefValues.NO).equals(PrefValues.YES);
+    }
+
     public static void setLatestCommcareVersion(String ccVersion) {
         PreferenceManager.getDefaultSharedPreferences(CommCareApplication.instance())
                 .edit()
@@ -316,7 +326,7 @@ public class HiddenPreferences {
 
     public static MapLayer getMapsDefaultLayer() {
         try {
-            String mapType =  CommCareApplication.instance().getCurrentApp().getAppPreferences()
+            String mapType = CommCareApplication.instance().getCurrentApp().getAppPreferences()
                     .getString(MAPS_DEFAULT_LAYER, "normal");
             return MapLayer.valueOf(mapType.toUpperCase());
         } catch (IllegalArgumentException e) {
@@ -445,5 +455,24 @@ public class HiddenPreferences {
 
     public static boolean shouldBypassPreUpdateSync() {
         return CommCareApplication.instance().getCurrentApp().getAppPreferences().getBoolean(BYPASS_PRE_UPDATE_SYNC, false);
+    }
+
+    public static void setDisableBackgroundWorkTime(boolean disableBackgroundWork) {
+        long time = disableBackgroundWork ? -1 : new Date().getTime();
+        CommCareApplication.instance().getCurrentApp().getAppPreferences()
+                .edit()
+                .putLong(DISABLE_BACKGROUND_WORK_TIME, time)
+                .apply();
+    }
+
+
+    public static boolean shouldDisableBackgroundWork() {
+        long referenceTime = CommCareApplication.instance()
+                .getCurrentApp()
+                .getAppPreferences()
+                .getLong(DISABLE_BACKGROUND_WORK_TIME, -1);
+
+        return referenceTime != -1 &&
+                new Date().getTime() - referenceTime < TimeUnit.HOURS.toMillis(NO_OF_HOURS_TO_WAIT_TO_RESUME_BACKGROUND_WORK);
     }
 }

@@ -202,6 +202,10 @@ public abstract class ManageKeyRecordTask<R extends DataPullController> extends 
                 Logger.log(LogTypes.TYPE_USER, "ManageKeyRecordTask error|auth over http");
                 receiver.raiseLoginMessage(StockMessages.Auth_Over_HTTP, true);
                 break;
+            case CaptivePortal:
+                Logger.log(LogTypes.TYPE_USER, "ManageKeyRecordTask error|captive portal detected");
+                receiver.raiseLoginMessage(StockMessages.Sync_CaptivePortal, true);
+                break;
             default:
                 break;
         }

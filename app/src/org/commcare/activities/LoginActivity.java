@@ -8,10 +8,6 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
-import androidx.preference.PreferenceManager;
-import androidx.annotation.NonNull;
-import androidx.core.app.ActivityCompat;
-import androidx.core.util.Pair;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -22,6 +18,8 @@ import android.widget.Toast;
 
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
+import org.commcare.android.database.app.models.UserKeyRecord;
+import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.engine.resource.AppInstallStatus;
 import org.commcare.engine.resource.ResourceInstallUtils;
@@ -29,11 +27,8 @@ import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.RuntimePermissionRequester;
 import org.commcare.interfaces.WithUIController;
-import org.commcare.android.database.app.models.UserKeyRecord;
-import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.models.database.user.DemoUserBuilder;
 import org.commcare.preferences.DevSessionRestorer;
-import org.commcare.preferences.HiddenPreferences;
 import org.commcare.recovery.measures.RecoveryMeasuresHelper;
 import org.commcare.suite.model.OfflineUserRestore;
 import org.commcare.tasks.DataPullTask;
@@ -41,9 +36,8 @@ import org.commcare.tasks.InstallStagedUpdateTask;
 import org.commcare.tasks.ManageKeyRecordTask;
 import org.commcare.tasks.PullTaskResultReceiver;
 import org.commcare.tasks.ResultAndError;
-
-import org.commcare.utils.CrashUtil;
 import org.commcare.utils.ConsumerAppsUtil;
+import org.commcare.utils.CrashUtil;
 import org.commcare.utils.Permissions;
 import org.commcare.views.ViewUtil;
 import org.commcare.views.dialogs.CustomProgressDialog;
@@ -56,6 +50,12 @@ import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 
 import java.util.ArrayList;
+
+import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
+import androidx.core.util.Pair;
+import androidx.preference.PreferenceManager;
+import androidx.work.WorkManager;
 
 /**
  * @author ctsims
@@ -237,10 +237,21 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         String lastSeatedId = prefs.getString(KEY_LAST_APP, "");
         String currentSeatedId = CommCareApplication.instance().getCurrentApp().getUniqueId();
         if (!lastSeatedId.equals(currentSeatedId)) {
+            disableWorkForLastSeatedApp();
             prefs.edit().putString(KEY_LAST_APP, currentSeatedId).commit();
             return true;
         }
         return false;
+    }
+
+
+    // cancels all worker tasks for previously seated app
+    private static void disableWorkForLastSeatedApp() {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(CommCareApplication.instance());
+        String lastSeatedId = prefs.getString(KEY_LAST_APP, "");
+        if(!lastSeatedId.isEmpty()) {
+            WorkManager.getInstance(CommCareApplication.instance()).cancelAllWorkByTag(lastSeatedId);
+        }
     }
 
     private static boolean shouldFinish() {
@@ -285,6 +296,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         }
         super.onActivityResult(requestCode, resultCode, intent);
     }
+
 
     private void tryAutoLogin() {
         Pair<String, String> userAndPass =
@@ -659,6 +671,9 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                 break;
             case AUTH_OVER_HTTP:
                 raiseLoginMessage(StockMessages.Auth_Over_HTTP, true);
+                break;
+            case CAPTIVE_PORTAL:
+                raiseLoginMessage(StockMessages.Sync_CaptivePortal, true);
                 break;
         }
     }
