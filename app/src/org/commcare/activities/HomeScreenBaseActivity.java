@@ -156,6 +156,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
     private FlexibleAppUpdateController appUpdateController;
     private static final String APP_UPDATE_NOTIFICATION = "app_update_notification";
     protected boolean showCommCareUpdateMenu = false;
+    private static final int MAX_CC_UPDATE_CANCELLATION = 3;
 
     @Override
     public void onCreateSessionSafe(Bundle savedInstanceState) {
@@ -568,7 +569,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                 case IN_APP_UPDATE_REQUEST_CODE:
                     if (resultCode == RESULT_CANCELED && appUpdateController.availableVersionCode() != null) {
                         // An update was available for CommCare but user denied updating.
-                        HiddenPreferences.cancelCommCareUpdate(String.valueOf(appUpdateController.availableVersionCode()));
+                        HiddenPreferences.incrementCommCareUpdateCancellationCounter(String.valueOf(appUpdateController.availableVersionCode()));
                         // User might be busy right now, so let's just ask him tomorrow for the update.
                         HiddenPreferences.setLastInAppUpdateCheckTime(System.currentTimeMillis());
                     }
@@ -1324,7 +1325,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                 }
                 break;
             case AVAILABLE:
-                if (HiddenPreferences.isCommCareUpdateCancelled(String.valueOf(appUpdateController.availableVersionCode())) > 3) {
+                if (HiddenPreferences.getCommCareUpdateCancellationCounter(String.valueOf(appUpdateController.availableVersionCode())) > MAX_CC_UPDATE_CANCELLATION) {
                     showCommCareUpdateMenu = true;
                     refreshCCUpdateOption();
                     return;
@@ -1374,7 +1375,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                         errorReason = "in.app.update.error.internal.error";
                         break;
                 }
-                Logger.log("AppUpdate", errorReason);
+                Logger.log(LogTypes.TYPE_CC_UPDATE, errorReason);
                 CommCareApplication.notificationManager().clearNotifications(APP_UPDATE_NOTIFICATION);
                 Toast.makeText(this, Localization.get(errorReason), Toast.LENGTH_LONG).show();
                 break;
