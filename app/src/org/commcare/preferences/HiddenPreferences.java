@@ -44,6 +44,7 @@ public class HiddenPreferences {
     private static final String LAST_LOG_DELETION_TIME = "last_log_deletion_time";
     private final static String FORCE_LOGS = "force-logs";
     private final static String LAST_IN_APP_UPDATE_CHECK_TIME = "last_in_app_update_check_time";
+    private final static String COMMCARE_UPDATE_CANCELLATION_COUNTER = "cc_update_cancellation_counter";
 
     // Preferences whose values are only ever set by being sent down from HQ via the profile file
     private final static String MAPS_DEFAULT_LAYER = "cc-maps-default-layer";
@@ -460,13 +461,15 @@ public class HiddenPreferences {
                 .getLong(LAST_IN_APP_UPDATE_CHECK_TIME, -1);
     }
 
-    public static void cancelCommCareUpdate(String version) {
+    public static void incrementCommCareUpdateCancellationCounter(String version) {
+        String key = COMMCARE_UPDATE_CANCELLATION_COUNTER + "_" + version;
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(CommCareApplication.instance());
-        int count = sharedPreferences.getInt(version, 0);
-        sharedPreferences.edit().putInt(version, count + 1).apply();
+        int count = sharedPreferences.getInt(key, 0);
+        sharedPreferences.edit().putInt(key, count + 1).apply();
     }
 
-    public static int isCommCareUpdateCancelled(String version) {
-        return PreferenceManager.getDefaultSharedPreferences(CommCareApplication.instance()).getInt(version, 0);
+    public static int getCommCareUpdateCancellationCounter(String version) {
+        String key = COMMCARE_UPDATE_CANCELLATION_COUNTER + "_" + version;
+        return PreferenceManager.getDefaultSharedPreferences(CommCareApplication.instance()).getInt(key, 0);
     }
 }
