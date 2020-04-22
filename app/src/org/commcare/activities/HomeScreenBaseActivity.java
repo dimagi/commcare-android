@@ -1375,7 +1375,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                         errorReason = "in.app.update.error.internal.error";
                         break;
                 }
-                Logger.log(LogTypes.TYPE_CC_UPDATE, errorReason);
+                Logger.log(LogTypes.TYPE_CC_UPDATE, "CommCare In App Update failed because : " + errorReason);
                 CommCareApplication.notificationManager().clearNotifications(APP_UPDATE_NOTIFICATION);
                 Toast.makeText(this, Localization.get(errorReason), Toast.LENGTH_LONG).show();
                 break;

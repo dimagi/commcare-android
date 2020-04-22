@@ -108,7 +108,7 @@ public abstract class PromptActivity extends CommCareActivity {
 
     protected abstract boolean isUpdateComplete();
 
-    private void updateVisibilities() {
+    protected void updateVisibilities() {
         if (inForceMode()) {
             doLaterButton.setVisibility(View.GONE);
         } else {

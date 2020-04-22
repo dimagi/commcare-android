@@ -2,11 +2,9 @@ package org.commcare.appupdate;
 
 import android.content.Context;
 import android.os.Build;
-
 import com.google.android.play.core.appupdate.AppUpdateManagerFactory;
-
+import org.commcare.activities.CommCareActivity;
 import org.commcare.preferences.HiddenPreferences;
-
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -26,6 +24,18 @@ public class AppUpdateControllerFactory {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && isLastUpdateOverOneDay) {
             // In-app updates works only with devices running Android 5.0 (API level 21) or higher
             return new CommcareFlexibleAppUpdateManager(callback, AppUpdateManagerFactory.create(context));
+        } else {
+            return new DummyFlexibleAppUpdateManager();
+        }
+    }
+
+    /**
+     * Creates an instance of {@link AppUpdateController} used for starting Immediate App Update.
+     */
+    public static AppUpdateController createImmediateController(CommCareActivity activity) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            // In-app updates works only with devices running Android 5.0 (API level 21) or higher
+            return new CommcareImmediateAppUpdateManager(activity);
         } else {
             return new DummyFlexibleAppUpdateManager();
         }
