@@ -570,8 +570,8 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                     if (resultCode == RESULT_CANCELED && appUpdateController.availableVersionCode() != null) {
                         // An update was available for CommCare but user denied updating.
                         HiddenPreferences.incrementCommCareUpdateCancellationCounter(String.valueOf(appUpdateController.availableVersionCode()));
-                        // User might be busy right now, so let's just ask him tomorrow for the update.
-                        HiddenPreferences.setLastInAppUpdateCheckTime(System.currentTimeMillis());
+                        // User might be busy right now, so let's not ask him again in this session.
+                        CommCareApplication.instance().getSession().hideInAppUpdate();
                     }
                     return;
             }
@@ -1321,7 +1321,9 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
         switch (state) {
             case UNAVAILABLE:
                 if (ConnectivityStatus.isNetworkAvailable(this)) {
-                    HiddenPreferences.setLastInAppUpdateCheckTime(System.currentTimeMillis());
+                    // We just queried and found that no update is available.
+                    // Let's check again in next session.
+                    CommCareApplication.instance().getSession().hideInAppUpdate();
                 }
                 break;
             case AVAILABLE:
@@ -1337,6 +1339,11 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                 NotificationMessage message = NotificationMessageFactory.message(
                         NotificationMessageFactory.StockMessages.InApp_Update, APP_UPDATE_NOTIFICATION);
                 CommCareApplication.notificationManager().reportNotificationMessage(message);
+                if (showCommCareUpdateMenu) {
+                    // Once downloading is started, we shouldn't show the update menu anymore.
+                    showCommCareUpdateMenu = false;
+                    refreshCCUpdateOption();
+                }
                 break;
             case DOWNLOADED:
                 CommCareApplication.notificationManager().clearNotifications(APP_UPDATE_NOTIFICATION);
