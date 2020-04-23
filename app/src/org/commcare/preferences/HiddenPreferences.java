@@ -43,7 +43,6 @@ public class HiddenPreferences {
     public final static String LATEST_APP_VERSION = "latest-app-version";
     private static final String LAST_LOG_DELETION_TIME = "last_log_deletion_time";
     private final static String FORCE_LOGS = "force-logs";
-    private final static String LAST_IN_APP_UPDATE_CHECK_TIME = "last_in_app_update_check_time";
     private final static String COMMCARE_UPDATE_CANCELLATION_COUNTER = "cc_update_cancellation_counter";
 
     // Preferences whose values are only ever set by being sent down from HQ via the profile file
@@ -453,18 +452,6 @@ public class HiddenPreferences {
 
     public static boolean shouldBypassPreUpdateSync() {
         return CommCareApplication.instance().getCurrentApp().getAppPreferences().getBoolean(BYPASS_PRE_UPDATE_SYNC, false);
-    }
-
-    public static void setLastInAppUpdateCheckTime(long millis) {
-        PreferenceManager.getDefaultSharedPreferences(CommCareApplication.instance())
-                .edit()
-                .putLong(LAST_IN_APP_UPDATE_CHECK_TIME, millis)
-                .apply();
-    }
-
-    public static long getLastInAppUpdateCheckTime() {
-        return PreferenceManager.getDefaultSharedPreferences(CommCareApplication.instance())
-                .getLong(LAST_IN_APP_UPDATE_CHECK_TIME, -1);
     }
 
     public static void incrementCommCareUpdateCancellationCounter(String version) {

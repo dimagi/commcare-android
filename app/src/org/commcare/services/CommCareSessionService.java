@@ -117,6 +117,7 @@ public class CommCareSessionService extends Service {
 
     private boolean cczUpdatePromptWasShown;
     private boolean apkUpdatePromptWasShown;
+    private boolean showInAppUpdate = true;
 
     // Have the app health checks in HomeScreenBaseActivity#checkForPendingAppHealthActions() been
     // done at least once during this session?
@@ -669,5 +670,13 @@ public class CommCareSessionService extends Service {
 
     public boolean appHealthChecksCompleted() {
         return this.appHealthChecksCompleted;
+    }
+
+    public void hideInAppUpdate() {
+        this.showInAppUpdate = false;
+    }
+
+    public boolean shouldShowInAppUpdate() {
+        return this.showInAppUpdate;
     }
 }
