@@ -47,7 +47,7 @@
         android:required="false"/>
 
     <uses-sdk tools:overrideLibrary="com.dimagi.android.zebraprinttool, com.simprints.libsimprints,
-    ru.noties.markwon.il, ru.noties.markwon.view, ru.noties.markwon.renderer"/>
+    ru.noties.markwon.il, ru.noties.markwon.view, ru.noties.markwon.renderer, com.facebook.flipper, com.facebook.fbjni"/>
 
     <permission
         android:name="${applicationId}.provider.cases.read"

@@ -225,6 +225,7 @@ public class CommCareApplication extends MultiDexApplication {
         }
 
         LocalePreferences.saveDeviceLocale(Locale.getDefault());
+        FlipperHelper.create(this);
     }
 
     protected void turnOnStrictMode() {
