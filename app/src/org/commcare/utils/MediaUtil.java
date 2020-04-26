@@ -26,6 +26,8 @@ import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
+import androidx.annotation.Nullable;
+
 /**
  * @author ctsims
  */
@@ -48,6 +50,7 @@ public class MediaUtil {
      *                       serve as a max height. If passed in as -1, gets set to screen height
      * @return A bitmap if one could be created. Null if error occurs or the image is unavailable.
      */
+    @Nullable
     public static Bitmap inflateDisplayImage(Context context, String jrUri,
                                              int boundingWidth, int boundingHeight,
                                              boolean respectBoundsExactly) {
@@ -419,7 +422,7 @@ public class MediaUtil {
         int widthImposedByContainer = (int)Math.round(originalWidth * dominantScaleDownFactor);
         int heightImposedByContainer = (int)Math.round(originalHeight * dominantScaleDownFactor);
         return new Pair<>(widthImposedByContainer, heightImposedByContainer);
-        
+
     }
 
     /**

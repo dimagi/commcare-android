@@ -15,6 +15,7 @@ import java.util.function.BooleanSupplier
 
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
 apply plugin: 'io.fabric'
 
 repositories {
@@ -105,6 +106,7 @@ dependencies {
 ext {
     // Obtained from ~/.gradle/gradle.properties on build server (mobile agent), or your local
     // ~/.gradle/gradle.properties file, or loads default empty strings if neither is present
+    MAPBOX_SDK_API_KEY = project.properties['MAPBOX_SDK_API_KEY'] ?: ""
     ANALYTICS_TRACKING_ID_DEV = project.properties['ANALYTICS_TRACKING_ID_DEV'] ?: ""
     ANALYTICS_TRACKING_ID_LIVE = project.properties['ANALYTICS_TRACKING_ID_LIVE'] ?: ""
     GOOGLE_PLAY_MAPS_API_KEY = project.properties['GOOGLE_PLAY_MAPS_API_KEY'] ?: ""
@@ -268,6 +270,7 @@ android {
         buildConfigField "String", "TRUSTED_SOURCE_PUBLIC_KEY", "\"${project.ext.TRUSTED_SOURCE_PUBLIC_KEY}\""
         buildConfigField "String", "ANALYTICS_TRACKING_ID_LIVE", "\"${project.ext.ANALYTICS_TRACKING_ID_LIVE}\""
         buildConfigField "String", "ANALYTICS_TRACKING_ID_DEV", "\"${project.ext.ANALYTICS_TRACKING_ID_DEV}\""
+        buildConfigField "String", "MAPBOX_SDK_API_KEY", "\"${project.ext.MAPBOX_SDK_API_KEY}\""
 
         buildConfigField "String", "ADMOB_ID", "\"\""
         buildConfigField "String", "ENTITY_DETAIL_AD_UNIT_ID", "\"\""

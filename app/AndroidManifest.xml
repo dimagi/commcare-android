@@ -276,6 +276,11 @@
 
         <activity android:name="org.commcare.activities.EntityMapActivity">
         </activity>
+
+        <activity android:name="org.commcare.gis.EntityKujakuMapActivity"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar">
+        </activity>
+
         <activity android:name="org.commcare.activities.RefreshToLatestBuildActivity">
         </activity>
         <activity android:name="org.commcare.activities.MultipleAppsLimitWarningActivity">

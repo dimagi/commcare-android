@@ -1,12 +1,9 @@
-package org.commcare.activities;
+package org.commcare.gis;
 
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.core.content.ContextCompat;
-import android.util.Log;
 import android.util.Pair;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -19,35 +16,29 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import org.commcare.CommCareApplication;
+import org.commcare.activities.CommCareActivity;
+import org.commcare.activities.EntityDetailActivity;
 import org.commcare.cases.entity.Entity;
-import org.commcare.cases.entity.NodeEntityFactory;
 import org.commcare.dalvik.R;
-import org.commcare.session.CommCareSession;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.EntityDatum;
-import org.commcare.suite.model.SessionDatum;
-import org.commcare.utils.AndroidInstanceInitializer;
 import org.commcare.utils.SerializationUtil;
 import org.commcare.views.UserfacingErrorHandling;
-import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.data.GeoPointData;
-import org.javarosa.core.model.data.UncastData;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.xpath.XPathException;
 
 import java.util.HashMap;
 import java.util.Vector;
 
+import androidx.core.content.ContextCompat;
+
 /**
  * @author Forest Tong (ftong@dimagi.com)
  */
 public class EntityMapActivity extends CommCareActivity implements OnMapReadyCallback,
         GoogleMap.OnInfoWindowClickListener {
-    private static final String TAG = EntityMapActivity.class.getSimpleName();
     private static final int MAP_PADDING = 50;  // Number of pixels to pad bounding region of markers
-
-    private final CommCareSession session = CommCareApplication.instance().getCurrentSession();
-    private EntityDatum selectDatum;
 
     private final Vector<Pair<Entity<TreeReference>, LatLng>> entityLocations = new Vector<>();
     private final HashMap<Marker, TreeReference> markerReferences = new HashMap<>();
@@ -62,66 +53,34 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
         SupportMapFragment mapFragment = (SupportMapFragment)getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-        SessionDatum datum = session.getNeededDatum();
-        if (datum instanceof EntityDatum) {
-            selectDatum = (EntityDatum)datum;
 
-            Detail detail = session.getDetail(selectDatum.getShortDetail());
-            addEntityLocations(detail);
-            Log.d(TAG, "Loaded. " + entityLocations.size() + " addresses discovered, " + (
-                    detail.getHeaderForms().length - entityLocations.size()) + " could not be located");
+        try {
+            addEntityData();
+        } catch (XPathException xe) {
+            UserfacingErrorHandling.logErrorAndShowDialog(this, xe, true);
         }
     }
+
 
     /**
      * Gets entity locations, and adds corresponding pairs to the vector entityLocations.
      */
-    private void addEntityLocations(Detail detail) {
-        for (Entity<TreeReference> entity : getEntities(detail)) {
-            for (int i = 0; i < detail.getHeaderForms().length; ++i) {
-                if ("address".equals(detail.getTemplateForms()[i])) {
-                    String address = entity.getFieldString(i).trim();
-                    if (!"".equals(address)) {
-                        LatLng location = getLatLngFromAddress(address);
-                        if (location != null) {
-                            entityLocations.add(new Pair<>(entity, location));
-                        }
+    private void addEntityData() {
+
+        EntityDatum selectDatum = EntityMapUtils.getNeededEntityDatum();
+        if (selectDatum != null) {
+            Detail detail = CommCareApplication.instance().getCurrentSession()
+                    .getDetail(selectDatum.getShortDetail());
+            for (Entity<TreeReference> entity : EntityMapUtils.getEntities(detail, selectDatum.getNodeset())) {
+                for (int i = 0; i < detail.getHeaderForms().length; ++i) {
+                    GeoPointData data = EntityMapUtils.getEntityLocation(entity, detail, i);
+                    if (data != null) {
+                        entityLocations.add(
+                                new Pair<>(entity, new LatLng(data.getLatitude(), data.getLongitude())));
                     }
                 }
             }
         }
-    }
-
-    private Vector<Entity<TreeReference>> getEntities(Detail detail) {
-        EvaluationContext evaluationContext = session.getEvaluationContext(
-                new AndroidInstanceInitializer(session));
-        evaluationContext.addFunctionHandler(EntitySelectActivity.getHereFunctionHandler());
-
-        NodeEntityFactory factory = new NodeEntityFactory(detail, evaluationContext);
-        Vector<TreeReference> references = evaluationContext.expandReference(
-                selectDatum.getNodeset());
-
-        Vector<Entity<TreeReference>> entities = new Vector<>();
-        try {
-            for (TreeReference ref : references) {
-                entities.add(factory.getEntity(ref));
-            }
-        } catch (XPathException xe) {
-            UserfacingErrorHandling.logErrorAndShowDialog(this, xe, true);
-        }
-        return entities;
-    }
-
-    private LatLng getLatLngFromAddress(@NonNull String address) {
-        LatLng location = null;
-        try {
-            GeoPointData data = new GeoPointData().cast(new UncastData(address));
-            if (data != null) {
-                location = new LatLng(data.getLatitude(), data.getLongitude());
-            }
-        } catch (IllegalArgumentException ignored) {
-        }
-        return location;
     }
 
     @Override
