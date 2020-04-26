@@ -88,6 +88,7 @@ class EntityKujakuMapActivity : CommCareActivity<EntityKujakuMapActivity>() {
 
     private fun initMap() {
         mapView.showCurrentLocationBtn(true)
+        mapView.focusOnUserLocation(true)
         mapView.getMapAsync { mapBoxMap ->
             map = mapBoxMap
             jobs.add(GlobalScope.launch(Dispatchers.Default) {
