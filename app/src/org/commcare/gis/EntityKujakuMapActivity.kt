@@ -48,10 +48,13 @@ import org.javarosa.core.model.instance.TreeReference
 class EntityKujakuMapActivity : CommCareActivity<EntityKujakuMapActivity>() {
 
     companion object {
+
         const val DEFAULT_CASE_ICON = "default_case_icon"
         const val ENTITY_INFO_LAYER_ID = "entity_info_layer"
         const val GEOJSON_SOURCE_ID = "geojson-source"
         const val INFO_IMAGE_ID = "info-image"
+
+        const val MAX_ICON_SIZE = 60
 
 
         fun viewToBitmap(view: View): Bitmap {
@@ -142,17 +145,20 @@ class EntityKujakuMapActivity : CommCareActivity<EntityKujakuMapActivity>() {
     private fun buildStyle(): Style.Builder {
         val styleBuilder = Style.Builder().fromUri(Style.MAPBOX_STREETS)
                 .withImage(DEFAULT_CASE_ICON, AppCompatResources.getDrawable(this, R.drawable.ic_place)!!)
-        for (iconPath in iconset) {
-            val bitmap = MediaUtil.inflateDisplayImage(this, iconPath, 50, 50, false)
-            if (bitmap != null) {
-                styleBuilder.withImage(iconPath, bitmap)
-            }
-        }
-        setUpInfoWindow(styleBuilder)
+        iconset.map { iconset -> addIconToStyle(styleBuilder, iconset) }
+        setUpInfoWindowStyle(styleBuilder)
         return styleBuilder
     }
 
-    private fun setUpInfoWindow(styleBuilder: Style.Builder) {
+    private fun addIconToStyle(styleBuilder: Style.Builder, iconPath: String) {
+        val bitmap = MediaUtil.inflateDisplayImage(this, iconPath,
+                MAX_ICON_SIZE, MAX_ICON_SIZE, false)
+        if (bitmap != null) {
+            styleBuilder.withImage(iconPath, bitmap)
+        }
+    }
+
+    private fun setUpInfoWindowStyle(styleBuilder: Style.Builder) {
         source = GeoJsonSource(GEOJSON_SOURCE_ID)
         styleBuilder.withSource(source)
 
