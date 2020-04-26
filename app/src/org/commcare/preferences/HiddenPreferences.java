@@ -45,6 +45,7 @@ public class HiddenPreferences {
     private final static String FORCE_LOGS = "force-logs";
 
     // Preferences whose values are only ever set by being sent down from HQ via the profile file
+    private final static String USE_KUJAKU_MAP = "cc-use-kujaku-map";
     private final static String LABEL_REQUIRED_QUESTIONS_WITH_ASTERISK = "cc-label-required-questions-with-asterisk";
     private final static String MAPS_DEFAULT_LAYER = "cc-maps-default-layer";
     public final static String AUTO_SYNC_FREQUENCY = "cc-autosync-freq";
@@ -457,6 +458,11 @@ public class HiddenPreferences {
         return CommCareApplication.instance().getCurrentApp().getAppPreferences().getBoolean(BYPASS_PRE_UPDATE_SYNC, false);
     }
 
+    public static boolean shouldUseKujakuMap() {
+        return CommCareApplication.instance().getCurrentApp().getAppPreferences()
+                .getString(USE_KUJAKU_MAP, PrefValues.NO).equals(PrefValues.YES);
+    }
+
     public static void setDisableBackgroundWorkTime(boolean disableBackgroundWork) {
         long time = disableBackgroundWork ? -1 : new Date().getTime();
         CommCareApplication.instance().getCurrentApp().getAppPreferences()
@@ -464,7 +470,6 @@ public class HiddenPreferences {
                 .putLong(DISABLE_BACKGROUND_WORK_TIME, time)
                 .apply();
     }
-
 
     public static boolean shouldDisableBackgroundWork() {
         long referenceTime = CommCareApplication.instance()
