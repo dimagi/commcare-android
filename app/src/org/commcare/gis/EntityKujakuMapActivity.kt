@@ -4,7 +4,6 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Typeface
-import android.os.Bundle
 import android.text.Spannable
 import android.text.SpannableStringBuilder
 import android.text.TextUtils
@@ -16,10 +15,8 @@ import androidx.appcompat.content.res.AppCompatResources
 import com.google.gson.JsonObject
 import com.google.gson.JsonPrimitive
 import com.mapbox.geojson.Feature
-import com.mapbox.mapboxsdk.Mapbox
 import com.mapbox.mapboxsdk.annotations.BubbleLayout
 import com.mapbox.mapboxsdk.geometry.LatLng
-import com.mapbox.mapboxsdk.maps.MapboxMap
 import com.mapbox.mapboxsdk.maps.Style
 import com.mapbox.mapboxsdk.plugins.annotation.Symbol
 import com.mapbox.mapboxsdk.plugins.annotation.SymbolManager
@@ -28,13 +25,13 @@ import com.mapbox.mapboxsdk.style.layers.Property
 import com.mapbox.mapboxsdk.style.layers.PropertyFactory
 import com.mapbox.mapboxsdk.style.layers.SymbolLayer
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
-import io.ona.kujaku.KujakuLibrary
 import kotlinx.android.synthetic.main.activity_entity_kujaku_map.*
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.commcare.CommCareApplication
-import org.commcare.activities.CommCareActivity
 import org.commcare.cases.entity.Entity
-import org.commcare.dalvik.BuildConfig
 import org.commcare.dalvik.R
 import org.commcare.gis.EntityMapUtils.getEntities
 import org.commcare.gis.EntityMapUtils.getEntityLocation
@@ -45,7 +42,7 @@ import org.commcare.views.EntityView
 import org.javarosa.core.model.data.GeoPointData
 import org.javarosa.core.model.instance.TreeReference
 
-class EntityKujakuMapActivity : CommCareActivity<EntityKujakuMapActivity>() {
+class EntityKujakuMapActivity : BaseKujakuActivity() {
 
     companion object {
 
@@ -71,35 +68,21 @@ class EntityKujakuMapActivity : CommCareActivity<EntityKujakuMapActivity>() {
         }
     }
 
-    private val jobs = ArrayList<Job>()
+
     private lateinit var source: GeoJsonSource
-    private lateinit var map: MapboxMap
     private var iconset = java.util.HashSet<String>()
     private lateinit var mapEntities: java.util.ArrayList<MapEntity>
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        KujakuLibrary.init(this)
-        Mapbox.getInstance(this, BuildConfig.MAPBOX_SDK_API_KEY)
-        setContentView(R.layout.activity_entity_kujaku_map)
-        mapView.onCreate(savedInstanceState)
-        initMap()
-    }
 
-    private fun initMap() {
-        mapView.showCurrentLocationBtn(true)
-        mapView.focusOnUserLocation(true)
-        mapView.getMapAsync { mapBoxMap ->
-            map = mapBoxMap
-            jobs.add(GlobalScope.launch(Dispatchers.Default) {
-                initEntityData()
-                withContext(Dispatchers.Main) {
-                    map.setStyle(buildStyle()) { loadedStyle ->
-                        addDataToMap(loadedStyle)
-                    }
+    override fun onMapLoaded() {
+        jobs.add(GlobalScope.launch(Dispatchers.Default) {
+            initEntityData()
+            withContext(Dispatchers.Main) {
+                map.setStyle(buildStyle()) { loadedStyle ->
+                    addDataToMap(loadedStyle)
                 }
-            })
-        }
+            }
+        })
     }
 
     private fun initEntityData() {
@@ -240,44 +223,4 @@ class EntityKujakuMapActivity : CommCareActivity<EntityKujakuMapActivity>() {
         return viewToBitmap(bubbleLayout)
     }
 
-    override fun shouldShowBreadcrumbBar(): Boolean {
-        return false
-    }
-
-
-    override fun onResume() {
-        super.onResume()
-        mapView.onResume()
-    }
-
-    override fun onStart() {
-        super.onStart()
-        mapView.onStart()
-    }
-
-    override fun onStop() {
-        super.onStop()
-        mapView.onStop()
-    }
-
-    override fun onPause() {
-        super.onPause()
-        mapView.onPause()
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        mapView.onDestroy()
-        jobs.map { job -> job.cancel("Activity Destroyed") }
-    }
-
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        mapView.onSaveInstanceState(outState)
-    }
-
-    override fun onLowMemory() {
-        super.onLowMemory()
-        mapView.onLowMemory()
-    }
 }

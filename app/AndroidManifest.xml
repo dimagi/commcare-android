@@ -281,6 +281,10 @@
             android:theme="@style/Theme.AppCompat.Light.NoActionBar">
         </activity>
 
+        <activity android:name="org.commcare.gis.WalkingBoundaryActivity"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar">
+        </activity>
+
         <activity android:name="org.commcare.activities.RefreshToLatestBuildActivity">
         </activity>
         <activity android:name="org.commcare.activities.MultipleAppsLimitWarningActivity">
