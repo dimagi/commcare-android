@@ -320,6 +320,9 @@ public class FormStorageTest {
 
             // Added in 2.47
             , "org.commcare.android.database.app.models.FormDefRecordV12"
+
+            // Added in 2.49
+            , "org.javarosa.xpath.expr.XPathIndexOfFunc"
     );
 
 
