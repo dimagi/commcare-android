@@ -26,6 +26,7 @@ public abstract class PromptActivity extends CommCareActivity {
     protected static final int DO_AN_UPDATE = 1;
 
     public static String FROM_RECOVERY_MEASURE = "from-recovery-measure";
+    public static final String REQUIRED_VERSION = "required-version";
 
     protected PromptItem toPrompt;
 
@@ -44,7 +45,8 @@ public abstract class PromptActivity extends CommCareActivity {
 
         refreshPromptIfNull();
         if (savedInstanceState == null &&
-                !getIntent().getBooleanExtra(FROM_RECOVERY_MEASURE, false)) {
+                !getIntent().getBooleanExtra(FROM_RECOVERY_MEASURE, false) &&
+                getIntent().getStringExtra(REQUIRED_VERSION) == null) {
             // on initial activity load only
             toPrompt.incrementTimesSeen();
         }

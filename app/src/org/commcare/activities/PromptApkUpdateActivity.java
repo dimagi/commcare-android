@@ -16,9 +16,7 @@ import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.heartbeat.UpdatePromptHelper;
 import org.commcare.heartbeat.UpdateToPrompt;
-import org.commcare.preferences.HiddenPreferences;
 import org.commcare.util.LogTypes;
-import org.commcare.utils.ConnectivityStatus;
 import org.commcare.utils.SessionUnavailableException;
 import org.commcare.views.dialogs.StandardAlertDialog;
 import org.commcare.views.notifications.NotificationMessage;
@@ -35,6 +33,8 @@ public class PromptApkUpdateActivity extends PromptActivity {
     private FlexibleAppUpdateController flexibleAppUpdateController;
     private AppUpdateController immediateAppUpdateController;
     private static final String APP_UPDATE_NOTIFICATION = "APP_UPDATE_NOTIFICATION";
+
+    public static final String CUSTOM_PROMPT_TITLE = "custom-prompt-title";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -136,7 +136,10 @@ public class PromptApkUpdateActivity extends PromptActivity {
 
     @Override
     void refreshPromptObject() {
-        if (getIntent().getBooleanExtra(FROM_RECOVERY_MEASURE, false)) {
+        if (getIntent().getStringExtra(REQUIRED_VERSION) != null) {
+            String requiredVersion = getIntent().getStringExtra(REQUIRED_VERSION);
+            toPrompt = new UpdateToPrompt(requiredVersion, "true", UpdateToPrompt.Type.APK_UPDATE);
+        } else if (getIntent().getBooleanExtra(FROM_RECOVERY_MEASURE, false)) {
             toPrompt = UpdateToPrompt.DUMMY_APK_PROMPT_FOR_RECOVERY_MEASURE;
         } else {
             toPrompt = UpdatePromptHelper.getCurrentUpdateToPrompt(UpdateToPrompt.Type.APK_UPDATE);
@@ -150,9 +153,14 @@ public class PromptApkUpdateActivity extends PromptActivity {
 
     @Override
     protected void setUpTypeSpecificUIComponents() {
-        promptTitle.setText(
-                Localization.get(inForceMode() ? "apk.update.required.title" : "apk.update.available.title",
-                        getCurrentClientName()));
+        String customText = getIntent().getStringExtra(CUSTOM_PROMPT_TITLE);
+        if (customText != null) {
+            promptTitle.setText(customText);
+        } else {
+            promptTitle.setText(
+                    Localization.get(inForceMode() ? "apk.update.required.title" : "apk.update.available.title",
+                            getCurrentClientName()));
+        }
         doLaterButton.setText(Localization.get("update.later.button.text"));
 
         actionButton.setText(Localization.get("apk.update.action", getCurrentClientName()));
