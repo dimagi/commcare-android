@@ -281,8 +281,13 @@
             android:theme="@style/Theme.AppCompat.Light.NoActionBar">
         </activity>
 
-        <activity android:name="org.commcare.gis.WalkingBoundaryActivity"
+        <activity android:name="org.commcare.gis.DrawingBoundaryActivity"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar">
+            <intent-filter>
+                <action android:name="org.commcare.dalvik.action.DrawBoundary"/>
+
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
         </activity>
 
         <activity android:name="org.commcare.activities.RefreshToLatestBuildActivity">

@@ -9,6 +9,8 @@ import kotlinx.coroutines.*
 import org.commcare.activities.CommCareActivity
 import org.commcare.dalvik.BuildConfig
 import org.commcare.dalvik.R
+import org.commcare.interfaces.CommCareActivityUIController
+import org.commcare.interfaces.WithUIController
 
 abstract class BaseKujakuActivity : CommCareActivity<BaseKujakuActivity>() {
 
@@ -16,12 +18,22 @@ abstract class BaseKujakuActivity : CommCareActivity<BaseKujakuActivity>() {
     lateinit var map: MapboxMap
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
         KujakuLibrary.init(this)
         Mapbox.getInstance(this, BuildConfig.MAPBOX_SDK_API_KEY)
-        setContentView(R.layout.activity_entity_kujaku_map)
+        super.onCreate(savedInstanceState)
+
+        if (!usesUIController()) {
+            setContentView(getMapLayout())
+        } else {
+            (uiManager as CommCareActivityUIController).setupUI()
+        }
+
         mapView.onCreate(savedInstanceState)
         initMap()
+    }
+
+    open fun getMapLayout(): Int {
+        return -1
     }
 
     private fun initMap() {

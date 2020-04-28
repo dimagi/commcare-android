@@ -36,6 +36,7 @@ import org.commcare.dalvik.R;
 import org.commcare.fragments.ContainerFragment;
 import org.commcare.gis.EntityKujakuMapActivity;
 import org.commcare.gis.EntityMapActivity;
+import org.commcare.gis.DrawingBoundaryActivity;
 import org.commcare.google.services.ads.AdLocation;
 import org.commcare.google.services.ads.AdMobManager;
 import org.commcare.models.AndroidSessionWrapper;

@@ -877,7 +877,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
         isMainScreenBlocked = isBlocked;
     }
 
-    private boolean usesUIController() {
+    protected boolean usesUIController() {
         return this instanceof WithUIController;
     }
 

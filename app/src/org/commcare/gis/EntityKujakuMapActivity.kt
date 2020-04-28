@@ -74,6 +74,11 @@ class EntityKujakuMapActivity : BaseKujakuActivity() {
     private lateinit var mapEntities: java.util.ArrayList<MapEntity>
 
 
+    override fun getMapLayout(): Int {
+        return R.layout.activity_entity_kujaku_map
+    }
+
+
     override fun onMapLoaded() {
         jobs.add(GlobalScope.launch(Dispatchers.Default) {
             initEntityData()
