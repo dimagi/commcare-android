@@ -80,7 +80,7 @@ class MissingMediaDownloadHelper(private val installCancelled: InstallCancelled)
     }
 
 
-    fun downloadMissingMediaResource(resource: Resource) {
+    fun downloadMissingMediaResource(filePath: String) {
 
     }
 

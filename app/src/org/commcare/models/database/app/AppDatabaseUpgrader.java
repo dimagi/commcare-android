@@ -396,6 +396,13 @@ class AppDatabaseUpgrader {
     private void upgradeResourcesV13(SQLiteDatabase db, String tableName) {
         db.beginTransaction();
         try {
+
+            db.execSQL(DbUtil.addColumnToTable(
+                    tableName,
+                    Resource.META_INDEX_LAZY,
+                    "INTEGER",
+                    "0"));
+
             SqlStorage<ResourceV13> resourceStorage = new SqlStorage<>(
                     tableName,
                     ResourceV13.class,
