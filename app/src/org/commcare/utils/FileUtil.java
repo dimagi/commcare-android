@@ -8,10 +8,6 @@ import android.graphics.Bitmap;
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.Build;
-
-import androidx.annotation.Nullable;
-import androidx.core.content.FileProvider;
-
 import android.provider.MediaStore;
 import android.util.Log;
 import android.util.Pair;
@@ -50,6 +46,9 @@ import java.util.Vector;
 import javax.crypto.Cipher;
 import javax.crypto.CipherInputStream;
 import javax.crypto.CipherOutputStream;
+
+import androidx.annotation.Nullable;
+import androidx.core.content.FileProvider;
 
 /**
  * @author ctsims
@@ -284,18 +283,17 @@ public class FileUtil {
         return "file://" + fileLocation;
     }
 
-    public static void checkReferenceURI(Resource r, String URI, Vector<MissingMediaException> problems) throws IOException {
+    public static void checkReferenceURI(Resource r, String URI, Vector<MissingMediaException> problems) throws InvalidReferenceException {
+        Reference mRef = ReferenceManager.instance().DeriveReference(URI);
+        String mLocalReference = mRef.getLocalURI();
         try {
-            Reference mRef = ReferenceManager.instance().DeriveReference(URI);
-
             if (!mRef.doesBinaryExist()) {
-                String mLocalReference = mRef.getLocalURI();
-                problems.addElement(new MissingMediaException(r, "Missing external media: " + mLocalReference, mLocalReference,
+                problems.addElement(new MissingMediaException(r, "Missing external media: " + mLocalReference, URI,
                         MissingMediaException.MissingMediaExceptionType.FILE_NOT_FOUND));
             }
-
-        } catch (InvalidReferenceException ire) {
-            //do nothing for now
+        } catch (IOException e) {
+            problems.addElement(new MissingMediaException(r, "Problem reading external media: " + mLocalReference, URI,
+                    MissingMediaException.MissingMediaExceptionType.FILE_NOT_ACCESSIBLE));
         }
     }
 
@@ -472,7 +470,8 @@ public class FileUtil {
      * @return whether or not originalImage was scaled down according to maxDimen, and saved to
      * the location given by finalFilePath
      */
-    public static boolean scaleAndSaveImage(File originalImage, String finalFilePath, int maxDimen) {
+    public static boolean scaleAndSaveImage(File originalImage, String finalFilePath,
+                                            int maxDimen) {
         String extension = getExtension(originalImage.getAbsolutePath());
         ImageType type = ImageType.fromExtension(extension);
         if (type == null) {
@@ -619,7 +618,8 @@ public class FileUtil {
      * @param intent           Intent returned from File Provider
      * @param filePathEditText EditText where we need to show the file path
      */
-    public static void updateFileLocationFromIntent(Context context, Intent intent, EditText filePathEditText) {
+    public static void updateFileLocationFromIntent(Context context, Intent intent, EditText
+            filePathEditText) {
         String filePath = getFileLocationFromIntent(intent);
         if (filePath == null) {
             // issue getting the filepath uri from file browser callout result
@@ -675,7 +675,6 @@ public class FileUtil {
     }
 
     /**
-
      * @param file
      * @return Boolean indicating whether the method successfully added te file to content provider.
      */
@@ -683,11 +682,13 @@ public class FileUtil {
     /**
      * This method will add the file to the content provider.
      * NOTE:- Currently it only support Audio and Video.
+     *
      * @param file The File that needs to be inserted to the ContentProvider.
      * @throws UnsupportedMediaException is raised if file other than audio or video is sent to this method.
-     * @throws FileNotFoundException is raised if file doesn't exist.
+     * @throws FileNotFoundException     is raised if file doesn't exist.
      */
-    public static void addMediaToGallery(Context context, File file) throws UnsupportedMediaException, FileNotFoundException{
+    public static void addMediaToGallery(Context context, File file) throws
+            UnsupportedMediaException, FileNotFoundException {
         if (!file.exists()) {
             throw new FileNotFoundException("Couldn't find file");
         }

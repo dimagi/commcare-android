@@ -373,15 +373,7 @@ abstract class FileSystemInstaller implements ResourceInstaller<AndroidCommCareP
                                       CommCarePlatform platform) {
         try {
             Reference ref = ReferenceManager.instance().DeriveReference(localLocation);
-            if (!ref.doesBinaryExist()) {
-                issues.add(new MissingMediaException(r, "File doesn't exist at: " + ref.getLocalURI(), ref.getLocalURI(),
-                        MissingMediaException.MissingMediaExceptionType.FILE_NOT_FOUND));
-                return true;
-            }
-        } catch (IOException e) {
-            issues.add(new MissingMediaException(r, "Problem accessing file at: " + localLocation, localLocation,
-                    MissingMediaException.MissingMediaExceptionType.FILE_NOT_ACCESSIBLE));
-            return true;
+            FileUtil.checkReferenceURI(r, ref.getURI(), issues);
         } catch (InvalidReferenceException e) {
             issues.add(new MissingMediaException(r, "invalid reference: " + localLocation, localLocation,
                     MissingMediaException.MissingMediaExceptionType.INVALID_REFERENCE));

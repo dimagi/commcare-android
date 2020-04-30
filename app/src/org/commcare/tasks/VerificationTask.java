@@ -1,19 +1,22 @@
 package org.commcare.tasks;
 
 import org.commcare.CommCareApplication;
+import org.commcare.engine.resource.AndroidResourceUtils;
 import org.commcare.resources.model.InstallCancelled;
 import org.commcare.resources.model.MissingMediaException;
+import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.TableStateListener;
 import org.commcare.tasks.templates.CommCareTask;
 import org.commcare.utils.AndroidCommCarePlatform;
 import org.javarosa.core.util.SizeBoundUniqueVector;
-import org.javarosa.core.util.SizeBoundVector;
 
 import java.util.Vector;
 
 /**
- * This task is responsible for validating app's installed media
+ * This task is responsible for validating whether all the media references are valid references
+ * and the media referenced is present on the device. This task ignores the references to lazy resources in doing so
+ * as lazy media is downloaded post installation
  *
  * @author ctsims
  */
@@ -40,8 +43,9 @@ public abstract class VerificationTask<Reciever>
 
         // skip lazy resources in verfication
         SizeBoundUniqueVector<MissingMediaException> validProblems = new SizeBoundUniqueVector<>(problems.size());
+        Vector<Resource> lazyResources = global.getLazyResources();
         for (MissingMediaException problem : problems) {
-            if (!problem.getResource().isLazy()) {
+            if (!(problem.getResource().isLazy() || AndroidResourceUtils.ifUriBelongsToLazyResource(problem, lazyResources))) {
                 validProblems.add(problem);
             }
         }
