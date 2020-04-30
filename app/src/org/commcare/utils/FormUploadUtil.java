@@ -6,6 +6,7 @@ import android.util.Log;
 import android.webkit.MimeTypeMap;
 
 import org.commcare.core.network.AuthenticationInterceptor;
+import org.commcare.core.network.CaptivePortalRedirectException;
 import org.commcare.network.CommcareRequestGenerator;
 import org.commcare.network.EncryptedFileBody;
 import org.commcare.tasks.DataSubmissionListener;
@@ -176,6 +177,10 @@ public class FormUploadUtil {
             Logger.log(LogTypes.TYPE_ERROR_CONFIG_STRUCTURE,
                     "Encountered PlainTextPasswordException while submission: Sending password over HTTP");
             return FormUploadResult.AUTH_OVER_HTTP;
+        } catch (CaptivePortalRedirectException e) {
+            e.printStackTrace();
+            Logger.log(LogTypes.TYPE_WARNING_NETWORK, "Captive portal detected while form submission");
+            return FormUploadResult.CAPTIVE_PORTAL;
         } catch (IOException | IllegalStateException e) {
             Logger.exception("Error reading form during submission: " + e.getMessage(), e);
             return FormUploadResult.TRANSPORT_FAILURE;

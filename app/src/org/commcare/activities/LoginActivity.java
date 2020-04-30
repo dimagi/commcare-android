@@ -672,6 +672,9 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
             case AUTH_OVER_HTTP:
                 raiseLoginMessage(StockMessages.Auth_Over_HTTP, true);
                 break;
+            case CAPTIVE_PORTAL:
+                raiseLoginMessage(StockMessages.Sync_CaptivePortal, true);
+                break;
         }
     }
 
