@@ -463,7 +463,6 @@ public class HiddenPreferences {
         return CommCareApplication.instance().getCurrentApp().getAppPreferences().getBoolean(ALLOW_UPDATES_WITHOUT_MULTIMEDIA, false);
     }
 
-
     public static void setDisableBackgroundWorkTime(boolean disableBackgroundWork) {
         long time = disableBackgroundWork ? -1 : new Date().getTime();
         CommCareApplication.instance().getCurrentApp().getAppPreferences()
@@ -471,7 +470,6 @@ public class HiddenPreferences {
                 .putLong(DISABLE_BACKGROUND_WORK_TIME, time)
                 .apply();
     }
-
 
     public static boolean shouldDisableBackgroundWork() {
         long referenceTime = CommCareApplication.instance()
