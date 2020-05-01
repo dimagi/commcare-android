@@ -11,23 +11,32 @@ import java.util.*
 
 object AndroidResourceUtils {
 
-    // loops over all lazy resources and checks if one of them has the same relative local path as the file uri
+    // loops over all lazy resources and checks if one of them has the same local path as the file uri
     @JvmStatic
-    fun ifUriBelongsToLazyResource(problem: MissingMediaException, lazyResources: Vector<Resource>): Boolean {
+    fun ifUriBelongsToALazyResource(problem: MissingMediaException, lazyResources: Vector<Resource>): Boolean {
         for (lazyResource in lazyResources) {
-            if (lazyResource.installer is MediaFileAndroidInstaller) {
-                try {
-                    val resourceUri = (lazyResource.installer as MediaFileAndroidInstaller).localLocation
-                    val resourcePath = ReferenceManager.instance().DeriveReference(resourceUri).localURI
-                    val problemPath = ReferenceManager.instance().DeriveReference(problem.uri).localURI
-                    if (File(resourcePath).canonicalPath.contentEquals(File(problemPath).canonicalPath)) {
-                        return true
-                    }
-                } catch (e: InvalidReferenceException) {
-                    e.printStackTrace()
-                } catch (e: IOException) {
-                    e.printStackTrace()
+            if (matchFileUriToResource(lazyResource, problem.uri)) {
+                return true
+            }
+
+        }
+        return false
+    }
+
+    @JvmStatic
+    fun matchFileUriToResource(lazyResource: Resource, uri: String?): Boolean {
+        if (lazyResource.installer is MediaFileAndroidInstaller) {
+            try {
+                val resourceUri = (lazyResource.installer as MediaFileAndroidInstaller).localLocation
+                val resourcePath = ReferenceManager.instance().DeriveReference(resourceUri).localURI
+                val problemPath = ReferenceManager.instance().DeriveReference(uri).localURI
+                if (File(resourcePath).canonicalPath.contentEquals(File(problemPath).canonicalPath)) {
+                    return true
                 }
+            } catch (e: InvalidReferenceException) {
+                e.printStackTrace()
+            } catch (e: IOException) {
+                e.printStackTrace()
             }
         }
         return false

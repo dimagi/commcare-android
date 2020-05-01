@@ -416,4 +416,6 @@
 
     <string name="install_error_file_not_found" cc:translatable="true">No file found for resource %1$s</string>
     <string name="update_blocked_on_sync_message" cc:translatable="true">Sync is required to install this update. Auto initiating sync...</string>
+
+    <string name="media_download_failed" cc:translatable="true">An error occurred while downloading the requested media. Please try again</string>
 </resources>

@@ -719,7 +719,7 @@ public class CommCareApplication extends MultiDexApplication {
                             scheduleFormSubmissions();
                         }
 
-                        MissingMediaDownloadHelper.scheduleMissingMediaDownload();
+// todo                        MissingMediaDownloadHelper.scheduleMissingMediaDownload();
 
                         doReportMaintenance();
                         mBoundService.initHeartbeatLifecycle();

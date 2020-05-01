@@ -1,5 +1,7 @@
 package org.commcare.mediadownload
 
 interface MissingMediaDownloadListener {
-    fun OnMediaDownloaded()
+    fun onMediaDownloaded()
+
+    fun onError(cause: Throwable?)
 }

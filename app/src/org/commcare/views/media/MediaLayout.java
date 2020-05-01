@@ -8,7 +8,9 @@ import android.graphics.Point;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Build;
+
 import androidx.annotation.IdRes;
+
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
@@ -27,14 +29,18 @@ import com.bumptech.glide.Glide;
 import org.commcare.activities.FormEntryActivity;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
+import org.commcare.mediadownload.MissingMediaDownloadHelper;
+import org.commcare.mediadownload.MissingMediaDownloadListener;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.utils.FileUtil;
 import org.commcare.utils.MediaUtil;
 import org.commcare.utils.QRCodeEncoder;
+import org.commcare.utils.StringUtils;
 import org.commcare.views.ResizingImageView;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 
@@ -142,12 +148,14 @@ public class MediaLayout extends RelativeLayout {
     private void setupVideoButton(final String videoURI) {
         if (videoURI != null) {
             videoButton = new ImageButton(getContext());
-            videoButton.setImageResource(android.R.drawable.ic_media_play);
+
+            boolean mediaPresent = FileUtil.referenceFileExists(videoURI);
+            videoButton.setImageResource(mediaPresent ? android.R.drawable.ic_media_play : R.drawable.update_download_icon);
             videoButton.setOnClickListener(v -> {
+
                 String videoFilename = "";
                 try {
-                    videoFilename =
-                            ReferenceManager.instance().DeriveReference(videoURI).getLocalURI();
+                    videoFilename = ReferenceManager.instance().DeriveReference(videoURI).getLocalURI();
                 } catch (InvalidReferenceException e) {
                     Log.e(TAG, "Invalid reference exception");
                     e.printStackTrace();
@@ -155,29 +163,40 @@ public class MediaLayout extends RelativeLayout {
 
                 File videoFile = new File(videoFilename);
                 if (!videoFile.exists()) {
-                    // We should have a video clip, but the file doesn't exist.
-                    String errorMsg =
-                            getContext().getString(R.string.file_missing, videoFilename);
-                    Log.e(TAG, errorMsg);
-                    Toast.makeText(getContext(), errorMsg, Toast.LENGTH_LONG).show();
-                    return;
-                }
-
-                Intent i = new Intent("android.intent.action.VIEW");
-                Uri videoFileUri = FileUtil.getUriForExternalFile(getContext(), videoFile);
-                i.setDataAndType(videoFileUri, "video/*");
-                i.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                try {
-                    getContext().startActivity(i);
-                    FormEntryActivity.mFormController.getFormAnalyticsHelper().recordVideoPlaybackStart(videoFile);
-                } catch (ActivityNotFoundException e) {
-                    Toast.makeText(getContext(),
-                            getContext().getString(R.string.activity_not_found, "view video"),
-                            Toast.LENGTH_SHORT).show();
+                        downloadMissingMediaResource(videoButton, videoURI);
+                } else {
+                    Intent i = new Intent("android.intent.action.VIEW");
+                    Uri videoFileUri = FileUtil.getUriForExternalFile(getContext(), videoFile);
+                    i.setDataAndType(videoFileUri, "video/*");
+                    i.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                    try {
+                        getContext().startActivity(i);
+                        FormEntryActivity.mFormController.getFormAnalyticsHelper().recordVideoPlaybackStart(videoFile);
+                    } catch (ActivityNotFoundException e) {
+                        Toast.makeText(getContext(),
+                                getContext().getString(R.string.activity_not_found, "view video"),
+                                Toast.LENGTH_SHORT).show();
+                    }
                 }
             });
             videoButton.setId(VIDEO_BUTTON_ID);
         }
+    }
+
+    private void downloadMissingMediaResource(ImageButton videoButton, String videoURI) {
+        new MissingMediaDownloadHelper(null).requestMediaDownload(videoURI, new MissingMediaDownloadListener() {
+
+            @Override
+            public void onError(@Nullable Throwable cause) {
+                Toast.makeText(getContext(), StringUtils.getStringRobust(getContext(), R.string.media_download_failed), Toast.LENGTH_LONG).show();
+            }
+
+            @Override
+            public void onMediaDownloaded() {
+                boolean mediaPresent = FileUtil.referenceFileExists(videoURI);
+                videoButton.setImageResource(mediaPresent ? android.R.drawable.ic_media_play : R.drawable.update_download_icon);
+            }
+        });
     }
 
     private void addAudioVideoButtonsToView(RelativeLayout questionTextPane) {
@@ -370,7 +389,7 @@ public class MediaLayout extends RelativeLayout {
     @SuppressWarnings("deprecation")
     private int getScreenMinimumDimension() {
         Display display =
-                ((WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE))
+                ((WindowManager)getContext().getSystemService(Context.WINDOW_SERVICE))
                         .getDefaultDisplay();
 
         int width, height;
@@ -416,14 +435,14 @@ public class MediaLayout extends RelativeLayout {
                     //Since MediaController will create a default set of controls and put them in a window floating above your application(From AndroidDocs)
                     //It would never follow the parent view's animation or scroll.
                     //So, adding the MediaController to the view hierarchy here.
-                    FrameLayout frameLayout = (FrameLayout) ctrl.getParent();
-                    ((ViewGroup) frameLayout.getParent()).removeView(frameLayout);
+                    FrameLayout frameLayout = (FrameLayout)ctrl.getParent();
+                    ((ViewGroup)frameLayout.getParent()).removeView(frameLayout);
                     LayoutParams params = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
                     params.addRule(ALIGN_BOTTOM, videoView.getId());
                     params.addRule(ALIGN_LEFT, videoView.getId());
                     params.addRule(ALIGN_RIGHT, videoView.getId());
 
-                    ((RelativeLayout) videoView.getParent()).addView(frameLayout, params);
+                    ((RelativeLayout)videoView.getParent()).addView(frameLayout, params);
 
                     ctrl.setAnchorView(videoView);
                     videoView.setMediaController(ctrl);

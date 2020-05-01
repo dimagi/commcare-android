@@ -45,7 +45,7 @@ public abstract class VerificationTask<Reciever>
         SizeBoundUniqueVector<MissingMediaException> validProblems = new SizeBoundUniqueVector<>(problems.size());
         Vector<Resource> lazyResources = global.getLazyResources();
         for (MissingMediaException problem : problems) {
-            if (!(problem.getResource().isLazy() || AndroidResourceUtils.ifUriBelongsToLazyResource(problem, lazyResources))) {
+            if (!(problem.getResource().isLazy() || AndroidResourceUtils.ifUriBelongsToALazyResource(problem, lazyResources))) {
                 validProblems.add(problem);
             }
         }

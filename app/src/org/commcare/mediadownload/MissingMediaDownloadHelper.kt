@@ -1,18 +1,24 @@
 package org.commcare.mediadownload
 
 import androidx.work.*
+import kotlinx.coroutines.*
 import org.commcare.CommCareApplication
 import org.commcare.android.resource.installers.MediaFileAndroidInstaller
 import org.commcare.dalvik.R
+import org.commcare.engine.resource.AndroidResourceUtils
 import org.commcare.engine.resource.ResourceInstallUtils
 import org.commcare.resources.model.*
 import org.commcare.views.dialogs.PinnedNotificationWithProgress
+import org.javarosa.core.services.Logger
 import org.javarosa.core.util.SizeBoundUniqueVector
+import java.lang.IllegalArgumentException
 import java.util.*
 import java.util.concurrent.TimeUnit
+import kotlin.collections.ArrayList
 
-class MissingMediaDownloadHelper(private val installCancelled: InstallCancelled) : TableStateListener, InstallCancelled {
+class MissingMediaDownloadHelper(private val installCancelled: InstallCancelled?) : TableStateListener, InstallCancelled {
 
+    private val jobs = ArrayList<Job>()
     private lateinit var mPinnedNotificationProgress: PinnedNotificationWithProgress
 
     companion object {
@@ -53,36 +59,60 @@ class MissingMediaDownloadHelper(private val installCancelled: InstallCancelled)
 
     fun downloadAllMissingMedia() {
         val platform = CommCareApplication.instance().commCarePlatform
-
         val global = platform.globalResourceTable
-        val problems = Vector<MissingMediaException>()
 
         global.setInstallCancellationChecker(this)
 
+        val problems = Vector<MissingMediaException>()
         global.verifyInstallation(problems, platform)
 
-        val missingResources = SizeBoundUniqueVector<Resource>(problems.size)
+        val missingMediaResources = SizeBoundUniqueVector<Resource>(problems.size)
 
         problems.filter { problem ->
             problem.type == MissingMediaException.MissingMediaExceptionType.FILE_NOT_FOUND
                     && problem.resource.installer is MediaFileAndroidInstaller
-        }.map { problem -> missingResources.addElement(problem.resource) }
+        }.map { problem -> missingMediaResources.addElement(problem.resource) }
 
 
         global.setStateListener(this)
         startPinnedNotification()
 
-        global.recoverResources(platform, ResourceInstallUtils.getProfileReference(), missingResources)
+        global.recoverResources(platform, ResourceInstallUtils.getProfileReference(), missingMediaResources)
 
         global.setInstallCancellationChecker(null)
         global.setStateListener(null)
         cancelNotification()
     }
 
+    fun requestMediaDownload(videoURI: String, missingMediaDownloadListener: MissingMediaDownloadListener) {
+        jobs.add(GlobalScope.launch(Dispatchers.Default) {
+            try {
+                downloadMissingMediaResource(videoURI)
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main){
+                    missingMediaDownloadListener.onError(e)
+                }
+            }
 
-    fun downloadMissingMediaResource(filePath: String) {
-
+            withContext(Dispatchers.Main) {
+                missingMediaDownloadListener.onMediaDownloaded()
+            }
+        })
     }
+
+    private fun downloadMissingMediaResource(uri: String) {
+        if (uri.length > 1) {
+            throw IllegalArgumentException("bad uri")
+        }
+
+        val platform = CommCareApplication.instance().commCarePlatform
+        val global = platform.globalResourceTable
+        val lazyResources: Vector<Resource> = global.lazyResources!!
+
+        lazyResources.first { resource -> AndroidResourceUtils.matchFileUriToResource(resource, uri) }
+                .let { global.recoverResource(platform, ResourceInstallUtils.getProfileReference(), it) }
+    }
+
 
     override fun incrementProgress(complete: Int, total: Int) {
         updateNotification(complete, total)
@@ -97,7 +127,7 @@ class MissingMediaDownloadHelper(private val installCancelled: InstallCancelled)
     }
 
     override fun wasInstallCancelled(): Boolean {
-        return installCancelled.wasInstallCancelled()
+        return installCancelled != null && installCancelled.wasInstallCancelled()
     }
 
 
@@ -114,4 +144,5 @@ class MissingMediaDownloadHelper(private val installCancelled: InstallCancelled)
     private fun cancelNotification() {
         mPinnedNotificationProgress.handleTaskCancellation()
     }
+
 }
