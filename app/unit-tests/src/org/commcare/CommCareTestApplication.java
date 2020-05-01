@@ -249,6 +249,11 @@ public class CommCareTestApplication extends CommCareApplication implements Test
     }
 
     @Override
+    protected void cancelWorkManagerTasks() {
+        // do nothing
+    }
+
+    @Override
     public void beforeTest(Method method) {
 
     }

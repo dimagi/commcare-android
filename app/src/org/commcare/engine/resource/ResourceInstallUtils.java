@@ -109,7 +109,7 @@ public class ResourceInstallUtils {
         } else {
             edit.putString(DEFAULT_APP_SERVER_KEY, profileRef);
         }
-        edit.commit();
+        edit.apply();
     }
 
     /**
@@ -155,7 +155,7 @@ public class ResourceInstallUtils {
         SharedPreferences prefs = app.getAppPreferences();
         SharedPreferences.Editor editor = prefs.edit();
         editor.putLong(HiddenPreferences.LAST_UPDATE_ATTEMPT, new Date().getTime());
-        editor.commit();
+        editor.apply();
     }
 
     /**
@@ -184,7 +184,7 @@ public class ResourceInstallUtils {
     /**
      * @return True if an auto-update has been registered as in-progress.
      */
-    public static boolean shouldAutoUpdateResume(CommCareApp app) {
+    public static boolean isAutoUpdateInProgress(CommCareApp app) {
         SharedPreferences prefs = app.getAppPreferences();
         return prefs.getBoolean(HiddenPreferences.AUTO_UPDATE_IN_PROGRESS, false);
     }

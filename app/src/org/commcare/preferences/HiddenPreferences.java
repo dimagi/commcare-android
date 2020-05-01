@@ -83,6 +83,10 @@ public class HiddenPreferences {
 
     // Internal pref to bypass PRE_UPDATE_SYNC_NEEDED using advanced settings
     private static final String BYPASS_PRE_UPDATE_SYNC = "bypass_pre_update_sync";
+    private static final String DISABLE_BACKGROUND_WORK_TIME = "disable-background-work-time";
+
+
+    private static final long NO_OF_HOURS_TO_WAIT_TO_RESUME_BACKGROUND_WORK = 36;
 
 
     /**
@@ -452,6 +456,25 @@ public class HiddenPreferences {
 
     public static boolean shouldBypassPreUpdateSync() {
         return CommCareApplication.instance().getCurrentApp().getAppPreferences().getBoolean(BYPASS_PRE_UPDATE_SYNC, false);
+    }
+
+    public static void setDisableBackgroundWorkTime(boolean disableBackgroundWork) {
+        long time = disableBackgroundWork ? -1 : new Date().getTime();
+        CommCareApplication.instance().getCurrentApp().getAppPreferences()
+                .edit()
+                .putLong(DISABLE_BACKGROUND_WORK_TIME, time)
+                .apply();
+    }
+
+
+    public static boolean shouldDisableBackgroundWork() {
+        long referenceTime = CommCareApplication.instance()
+                .getCurrentApp()
+                .getAppPreferences()
+                .getLong(DISABLE_BACKGROUND_WORK_TIME, -1);
+
+        return referenceTime != -1 &&
+                new Date().getTime() - referenceTime < TimeUnit.HOURS.toMillis(NO_OF_HOURS_TO_WAIT_TO_RESUME_BACKGROUND_WORK);
     }
 
     public static void incrementCommCareUpdateCancellationCounter(String version) {

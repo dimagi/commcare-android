@@ -1,6 +1,5 @@
 package org.commcare;
 
-import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.ActivityManager;
 import android.content.ComponentName;
@@ -8,21 +7,15 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Environment;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.StrictMode;
+
 import androidx.preference.PreferenceManager;
-import android.provider.Settings.Secure;
 
-import androidx.annotation.NonNull;
-import androidx.multidex.MultiDexApplication;
-import androidx.core.content.ContextCompat;
-
-import android.telephony.TelephonyManager;
 import android.text.format.DateUtils;
 import android.util.Log;
 
@@ -50,7 +43,6 @@ import org.commcare.dalvik.R;
 import org.commcare.engine.references.ArchiveFileRoot;
 import org.commcare.engine.references.AssetFileRoot;
 import org.commcare.engine.references.JavaHttpRoot;
-import org.commcare.engine.resource.ResourceInstallUtils;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.heartbeat.HeartbeatRequester;
 import org.commcare.logging.AndroidLogger;
@@ -82,11 +74,14 @@ import org.commcare.preferences.HiddenPreferences;
 import org.commcare.preferences.LocalePreferences;
 import org.commcare.services.CommCareSessionService;
 import org.commcare.session.CommCareSession;
+import org.commcare.sync.FormSubmissionHelper;
+import org.commcare.sync.FormSubmissionWorker;
 import org.commcare.tasks.DeleteLogs;
 import org.commcare.tasks.LogSubmissionTask;
 import org.commcare.tasks.PurgeStaleArchivedFormsTask;
-import org.commcare.tasks.UpdateTask;
+import org.commcare.update.UpdateWorker;
 import org.commcare.tasks.templates.ManagedAsyncTask;
+import org.commcare.update.UpdateHelper;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.AndroidCacheDirSetup;
 import org.commcare.utils.AndroidCommCarePlatform;
@@ -116,12 +111,20 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Nullable;
 import javax.crypto.SecretKey;
 
+import androidx.annotation.NonNull;
+import androidx.multidex.MultiDexApplication;
+import androidx.work.BackoffPolicy;
+import androidx.work.Constraints;
+import androidx.work.ExistingPeriodicWorkPolicy;
 import androidx.work.ExistingWorkPolicy;
+import androidx.work.NetworkType;
 import androidx.work.OneTimeWorkRequest;
+import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkManager;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
@@ -137,6 +140,10 @@ public class CommCareApplication extends MultiDexApplication {
     public static final int STATE_MIGRATION_FAILED = 16;
     public static final int STATE_MIGRATION_QUESTIONABLE = 32;
     private static final String DELETE_LOGS_REQUEST = "delete-logs-request";
+    private static final long BACKOFF_DELAY_FOR_UPDATE_RETRY = 5 * 60 * 1000L; // 5 mins
+    private static final long BACKOFF_DELAY_FOR_FORM_SUBMISSION_RETRY = 5 * 60 * 1000L; // 5 mins
+    private static final long PERIODICITY_FOR_FORM_SUBMISSION_IN_HOURS = 1;
+
 
     private int dbState;
 
@@ -325,11 +332,18 @@ public class CommCareApplication extends MultiDexApplication {
             // Cancel any running tasks before closing down the user database.
             ManagedAsyncTask.cancelTasks();
 
+            cancelWorkManagerTasks();
+
             releaseUserResourcesAndServices();
 
             // Switch loggers back over to using global storage, now that we don't have a session
             setupLoggerStorage(false);
         }
+    }
+
+    protected void cancelWorkManagerTasks() {
+        // Cancel form Submissions for this user
+        WorkManager.getInstance(this).cancelUniqueWork(FormSubmissionHelper.getFormSubmissionRequestName());
     }
 
     /**
@@ -507,6 +521,10 @@ public class CommCareApplication extends MultiDexApplication {
      * If the given record is the currently seated app, unseat it
      */
     public void unseat(ApplicationRecord record) {
+        // cancel all Workmanager tasks for the unseated record
+        WorkManager.getInstance(CommCareApplication.instance())
+                .cancelAllWorkByTag(record.getApplicationId());
+
         if (isSeated(record)) {
             this.currentApp.teardownSandbox();
             this.currentApp = null;
@@ -697,8 +715,9 @@ public class CommCareApplication extends MultiDexApplication {
                             CommCareApplication.this.sessionWrapper = new AndroidSessionWrapper(CommCareApplication.this.getCommCarePlatform());
                         }
 
-                        if (shouldAutoUpdate()) {
-                            startAutoUpdate();
+                        if (!HiddenPreferences.shouldDisableBackgroundWork()) {
+                            scheduleAppUpdate();
+                            scheduleFormSubmissions();
                         }
 
                         doReportMaintenance();
@@ -724,6 +743,7 @@ public class CommCareApplication extends MultiDexApplication {
                             WorkManager.getInstance(CommCareApplication.instance())
                                     .enqueueUniqueWork(DELETE_LOGS_REQUEST, ExistingWorkPolicy.KEEP, deleteLogsRequest);
                         }
+
                     }
 
                     TimedStatsTracker.registerStartSession();
@@ -749,6 +769,56 @@ public class CommCareApplication extends MultiDexApplication {
         sessionServiceIsBinding = true;
     }
 
+    private void scheduleFormSubmissions() {
+        Constraints constraints = new Constraints.Builder()
+                .setRequiredNetworkType(NetworkType.CONNECTED)
+                .setRequiresBatteryNotLow(true)
+                .build();
+
+        PeriodicWorkRequest formSubmissionRequest =
+                new PeriodicWorkRequest.Builder(FormSubmissionWorker.class, PERIODICITY_FOR_FORM_SUBMISSION_IN_HOURS, TimeUnit.HOURS)
+                        .addTag(getCurrentApp().getAppRecord().getApplicationId())
+                        .setConstraints(constraints)
+                        .setBackoffCriteria(
+                                BackoffPolicy.EXPONENTIAL,
+                                BACKOFF_DELAY_FOR_FORM_SUBMISSION_RETRY,
+                                TimeUnit.MILLISECONDS)
+                        .build();
+
+        WorkManager.getInstance(this).enqueueUniquePeriodicWork(
+                FormSubmissionHelper.getFormSubmissionRequestName(),
+                ExistingPeriodicWorkPolicy.KEEP,
+                formSubmissionRequest
+        );
+    }
+
+    // Hand off an app update task to the Android WorkManager
+    private void scheduleAppUpdate() {
+        if(UpdateHelper.shouldAutoUpdate()) {
+            Constraints constraints = new Constraints.Builder()
+                    .setRequiredNetworkType(NetworkType.CONNECTED)
+                    .setRequiresBatteryNotLow(true)
+                    .build();
+
+
+            PeriodicWorkRequest updateRequest =
+                    new PeriodicWorkRequest.Builder(UpdateWorker.class, UpdateHelper.getAutoUpdatePeriodicity(), TimeUnit.HOURS)
+                            .addTag(getCurrentApp().getAppRecord().getApplicationId())
+                            .setConstraints(constraints)
+                            .setBackoffCriteria(
+                                    BackoffPolicy.EXPONENTIAL,
+                                    BACKOFF_DELAY_FOR_UPDATE_RETRY,
+                                    TimeUnit.MILLISECONDS)
+                            .build();
+
+            WorkManager.getInstance(this).enqueueUniquePeriodicWork(
+                    UpdateHelper.getUpdateRequestName(),
+                    ExistingPeriodicWorkPolicy.KEEP,
+                    updateRequest
+            );
+        }
+    }
+
     // check if it's been a week since last run
     private boolean shouldRunLogDeletion() {
         long lastLogDeletionRun = HiddenPreferences.getLastLogDeletionTime();
@@ -771,39 +841,10 @@ public class CommCareApplication extends MultiDexApplication {
     }
 
     /**
-     * @return True if we aren't a demo user and the time to check for an
-     * update has elapsed or we logged out while an auto-update was downlaoding
-     * or queued for retry.
-     */
-    private static boolean shouldAutoUpdate() {
-        CommCareApp currentApp = CommCareApplication.instance().getCurrentApp();
-
-        return (!areAutomatedActionsInvalid() &&
-                (ResourceInstallUtils.shouldAutoUpdateResume(currentApp) ||
-                        PendingCalcs.isUpdatePending(currentApp.getAppPreferences())));
-    }
-
-    private static void startAutoUpdate() {
-        Logger.log(LogTypes.TYPE_MAINTENANCE, "Auto-Update Triggered");
-
-        String ref = ResourceInstallUtils.getDefaultProfileRef();
-
-        try {
-            UpdateTask updateTask = UpdateTask.getNewInstance();
-            updateTask.startPinnedNotification(CommCareApplication.instance());
-            updateTask.setAsAutoUpdate();
-            updateTask.executeParallel(ref);
-        } catch (IllegalStateException e) {
-            Log.w(TAG, "Trying trigger auto-update when it is already running. " +
-                    "Should only happen if the user triggered a manual update before this fired.");
-        }
-    }
-
-    /**
      * Whether automated stuff like auto-updates/syncing are valid and should
      * be triggered.
      */
-    private static boolean areAutomatedActionsInvalid() {
+    public static boolean areAutomatedActionsInvalid() {
         return isInDemoMode(true);
     }
 
@@ -1068,4 +1109,5 @@ public class CommCareApplication extends MultiDexApplication {
                 method,
                 responseProcessor);
     }
+
 }
