@@ -8,6 +8,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import org.commcare.activities.FormRecordListActivity;
 import org.commcare.dalvik.R;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.suite.model.Text;
@@ -74,7 +75,7 @@ public class IncompleteFormRecordView extends LinearLayout {
         } else {
             mRightTextView.setText("Never");
         }
-        if (FormRecord.STATUS_UNSENT.equals(record.getStatus())) {
+        if (FormRecordListActivity.FormRecordFilter.Pending.containsStatus(record.getStatus())) {
             mUpperRight.setText(MarkupUtil.localizeStyleSpannable(getContext(), "form.record.unsent"));
             mUpperRight.setTextAppearance(getContext(), R.style.WarningTextStyle);
 

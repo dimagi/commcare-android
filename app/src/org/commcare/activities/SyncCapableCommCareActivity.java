@@ -18,7 +18,7 @@ import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.interfaces.UiLoadedListener;
 import org.commcare.tasks.DataPullTask;
-import org.commcare.tasks.ProcessAndSendTask;
+import org.commcare.sync.ProcessAndSendTask;
 import org.commcare.tasks.PullTaskResultReceiver;
 import org.commcare.tasks.ResultAndError;
 import org.commcare.utils.SyncDetailCalculations;
@@ -75,15 +75,12 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
      * triggered after they are submitted. If no forms are sent, triggers a sync explicitly.
      */
     protected void sendFormsOrSync(boolean userTriggeredSync) {
-        boolean formsSentToServer = checkAndStartUnsentFormsTask(true, userTriggeredSync);
-        if (!formsSentToServer) {
-            formAndDataSyncer.syncDataForLoggedInUser(this, false, userTriggeredSync);
-        }
+        startUnsentFormsTask(true, userTriggeredSync);
     }
 
-    protected boolean checkAndStartUnsentFormsTask(boolean syncAfterwards, boolean userTriggered) {
+    protected void startUnsentFormsTask(boolean syncAfterwards, boolean userTriggered) {
         isSyncUserLaunched = userTriggered;
-        return formAndDataSyncer.checkAndStartUnsentFormsTask(this, syncAfterwards, userTriggered);
+        formAndDataSyncer.startUnsentFormsTask(this, syncAfterwards, userTriggered);
     }
 
     @Override
@@ -131,6 +128,9 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
                 break;
             case AUTH_OVER_HTTP:
                 updateUiAfterDataPullOrSend(Localization.get("auth.over.http"), FAIL);
+                break;
+            case CAPTIVE_PORTAL:
+                updateUiAfterDataPullOrSend(Localization.get("connection.captive_portal.action"), FAIL);
                 break;
         }
 

@@ -92,6 +92,9 @@ public class ArchivedFormRemoteRestore {
                     case UNREACHABLE_HOST:
                         Toast.makeText(receiver, "Couldn't contact server, please check your network connection and try again.", Toast.LENGTH_LONG).show();
                         break;
+                    case CAPTIVE_PORTAL:
+                        Toast.makeText(receiver, Localization.get("connection.captive_portal.action"), Toast.LENGTH_LONG).show();
+                        break;
                 }
             }
 

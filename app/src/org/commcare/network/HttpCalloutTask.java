@@ -3,6 +3,7 @@ package org.commcare.network;
 import android.content.Context;
 
 import org.commcare.core.network.AuthenticationInterceptor;
+import org.commcare.core.network.CaptivePortalRedirectException;
 import org.commcare.core.network.ModernHttpRequester;
 import org.commcare.core.network.bitcache.BitCache;
 import org.commcare.core.network.bitcache.BitCacheFactory;
@@ -41,7 +42,8 @@ public abstract class HttpCalloutTask<R> extends CommCareTask<Object, String, Ht
         Success,
         NetworkFailureBadPassword,
         IncorrectPin,
-        AuthOverHttp
+        AuthOverHttp,
+        CaptivePortal
     }
 
     private final Context c;
@@ -90,6 +92,9 @@ public abstract class HttpCalloutTask<R> extends CommCareTask<Object, String, Ht
             } catch (AuthenticationInterceptor.PlainTextPasswordException e) {
                 e.printStackTrace();
                 outcome = HttpCalloutOutcomes.AuthOverHttp;
+            } catch (CaptivePortalRedirectException e){
+                e.printStackTrace();
+                outcome = HttpCalloutOutcomes.CaptivePortal;
             } catch (IOException e) {
                 //This is probably related to local files, actually
                 e.printStackTrace();

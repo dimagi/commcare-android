@@ -120,6 +120,11 @@ public class NotificationMessageFactory {
         Sync_AirplaneMode("notification.sync.airplane"),
 
         /**
+         * Restricted access to network by Captive Portal
+         */
+        Sync_CaptivePortal("connection.captive_portal"),
+
+        /**
          * No connections while trying to sync *
          */
         Sync_NoConnections("notification.sync.connections"),

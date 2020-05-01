@@ -23,6 +23,8 @@ import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.TimeZone;
 
+import androidx.work.WorkManager;
+
 /**
  * Responsible for making a heartbeat request to the server when signaled to do so by the current
  * session's HeartbeatLifecycleManager, and then parsing and handling the response. Currently,
@@ -96,8 +98,18 @@ public class HeartbeatRequester extends GetAndParseActor {
             attemptApkUpdateParse(responseAsJson);
             attemptCczUpdateParse(responseAsJson);
             checkForForceLogs(responseAsJson);
+            checkForDisableBackgroundWork(responseAsJson);
         }
         DriftHelper.clearMaxDriftSinceLastHeartbeat();
+    }
+
+    private void checkForDisableBackgroundWork(JSONObject responseAsJson) {
+        boolean disableBackgroundWork = responseAsJson.optBoolean("disable_background_work", false);
+        HiddenPreferences.setDisableBackgroundWorkTime(disableBackgroundWork);
+        if (disableBackgroundWork) {
+            WorkManager.getInstance(CommCareApplication.instance()).cancelAllWorkByTag(
+                    CommCareApplication.instance().getCurrentApp().getUniqueId());
+        }
     }
 
     private void checkForForceLogs(JSONObject responseAsJson) {

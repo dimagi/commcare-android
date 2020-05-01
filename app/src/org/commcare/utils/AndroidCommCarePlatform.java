@@ -50,9 +50,11 @@ public class AndroidCommCarePlatform extends CommCarePlatform {
 
     // remove the form from xmlnstable if the form with formDefId is registered agains xmlns
     public void deregisterForm(String xmlns, Integer formDefId) {
-        int existingFormId = xmlnstable.get(xmlns);
-        if (existingFormId == formDefId) {
-            xmlnstable.remove(xmlns);
+        if(xmlnstable.containsKey(xmlns)) {
+            int existingFormId = xmlnstable.get(xmlns);
+            if (existingFormId == formDefId) {
+                xmlnstable.remove(xmlns);
+            }
         }
     }
 

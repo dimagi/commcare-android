@@ -6,6 +6,7 @@ import android.util.Log;
 import android.webkit.MimeTypeMap;
 
 import org.commcare.core.network.AuthenticationInterceptor;
+import org.commcare.core.network.CaptivePortalRedirectException;
 import org.commcare.network.CommcareRequestGenerator;
 import org.commcare.network.EncryptedFileBody;
 import org.commcare.tasks.DataSubmissionListener;
@@ -32,6 +33,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import javax.annotation.Nullable;
 import javax.crypto.Cipher;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.SecretKeySpec;
@@ -106,16 +108,9 @@ public class FormUploadUtil {
      *                               file-system
      */
     public static FormUploadResult sendInstance(int submissionNumber, File folder,
-                                                SecretKeySpec key, String url,
-                                                AsyncTask listener, User user)
+                                                @Nullable  SecretKeySpec key, String url,
+                                                @Nullable DataSubmissionListener listener, User user)
             throws FileNotFoundException {
-        boolean hasListener = false;
-        DataSubmissionListener myListener = null;
-
-        if (listener instanceof DataSubmissionListener) {
-            hasListener = true;
-            myListener = (DataSubmissionListener)listener;
-        }
 
         File[] files = folder.listFiles();
 
@@ -134,13 +129,12 @@ public class FormUploadUtil {
         // If we're listening, figure out how much (roughly) we have to send
         long bytes = estimateUploadBytes(files);
 
-        if (hasListener) {
-            myListener.startSubmission(submissionNumber, bytes);
+        if (listener != null) {
+            listener.startSubmission(submissionNumber, bytes);
         }
 
         if (files.length == 0) {
             Log.e(TAG, "no files to upload");
-            listener.cancel(true);
             throw new FileNotFoundException("Folder at path " + folder.getAbsolutePath() + " had no files.");
         }
 
@@ -183,6 +177,10 @@ public class FormUploadUtil {
             Logger.log(LogTypes.TYPE_ERROR_CONFIG_STRUCTURE,
                     "Encountered PlainTextPasswordException while submission: Sending password over HTTP");
             return FormUploadResult.AUTH_OVER_HTTP;
+        } catch (CaptivePortalRedirectException e) {
+            e.printStackTrace();
+            Logger.log(LogTypes.TYPE_WARNING_NETWORK, "Captive portal detected while form submission");
+            return FormUploadResult.CAPTIVE_PORTAL;
         } catch (IOException | IllegalStateException e) {
             Logger.exception("Error reading form during submission: " + e.getMessage(), e);
             return FormUploadResult.TRANSPORT_FAILURE;
@@ -317,7 +315,7 @@ public class FormUploadUtil {
      *                               file-system
      */
     private static boolean buildMultipartEntity(List<MultipartBody.Part> parts,
-                                                SecretKeySpec key,
+                                                @Nullable SecretKeySpec key,
                                                 File[] files)
             throws FileNotFoundException {
 

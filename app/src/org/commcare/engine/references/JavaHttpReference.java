@@ -3,8 +3,10 @@ package org.commcare.engine.references;
 import org.commcare.interfaces.CommcareRequestEndpoints;
 import org.commcare.network.CommcareRequestGenerator;
 import org.commcare.network.HttpUtils;
+import org.commcare.network.RateLimitedException;
 import org.javarosa.core.reference.ReleasedOnTimeSupportedReference;
 import org.javarosa.core.reference.Reference;
+import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 
 import java.io.IOException;
@@ -58,6 +60,8 @@ public class JavaHttpReference implements Reference, ReleasedOnTimeSupportedRefe
         } else {
             if (response.code() == 406) {
                 throw new IOException(HttpUtils.parseUserVisibleError(response));
+            } else if (response.code() == 503) {
+                throw new RateLimitedException();
             }
             throw new IOException(Localization.get("install.fail.error", Integer.toString(response.code())));
         }

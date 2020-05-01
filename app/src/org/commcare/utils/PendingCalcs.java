@@ -57,16 +57,16 @@ public class PendingCalcs {
 
         long period = -1;
 
-        // Old flag, use a day by default
-        if ("true".equals(prefs.getString("cc-auto-update", "false"))) {
-            period = DateUtils.DAY_IN_MILLIS;
-        }
-
         // new flag, read what it is.
         String periodic = prefs.getString(HiddenPreferences.AUTO_SYNC_FREQUENCY, PrefValues.FREQUENCY_NEVER);
 
         if (!periodic.equals(PrefValues.FREQUENCY_NEVER)) {
             period = DateUtils.DAY_IN_MILLIS * (periodic.equals(PrefValues.FREQUENCY_DAILY) ? 1 : 7);
+        } else {
+            // Old flag, use a day by default
+            if ("true".equals(prefs.getString("cc-auto-update", "false"))) {
+                period = DateUtils.DAY_IN_MILLIS;
+            }
         }
 
         // If we didn't find a period, bail
