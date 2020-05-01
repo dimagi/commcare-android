@@ -96,6 +96,9 @@ dependencies {
     implementation "androidx.work:work-runtime:2.3.0"
     implementation "androidx.work:work-runtime-ktx:2.3.0"
 
+    implementation 'com.google.android.play:core:1.7.2'
+    implementation 'android.arch.lifecycle:common-java8:1.1.0'
+
 }
 
 ext {
@@ -428,9 +431,8 @@ android {
             def odkProviderStr = "org.commcare.dalvik.debug.provider.odk"
             manifestPlaceholders = [odkProvider: odkProviderStr]
 
-            minifyEnabled true
+            minifyEnabled false
             debuggable true
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard.cfg'
 
             // used in test suite to build the prototype factory; otherwise unneeded
             buildConfigField "String", "CC_AUTHORITY", "\"${applicationId}\""
