@@ -3,15 +3,14 @@ package org.commcare.mediadownload
 import androidx.work.*
 import kotlinx.coroutines.*
 import org.commcare.CommCareApplication
-import org.commcare.android.resource.installers.MediaFileAndroidInstaller
 import org.commcare.dalvik.R
 import org.commcare.engine.resource.AndroidResourceUtils
 import org.commcare.engine.resource.ResourceInstallUtils
+import org.commcare.preferences.HiddenPreferences
 import org.commcare.resources.model.*
 import org.commcare.views.dialogs.PinnedNotificationWithProgress
 import org.javarosa.core.services.Logger
 import org.javarosa.core.util.SizeBoundUniqueVector
-import java.lang.IllegalArgumentException
 import java.util.*
 import java.util.concurrent.TimeUnit
 import kotlin.collections.ArrayList
@@ -28,25 +27,27 @@ class MissingMediaDownloadHelper(private val installCancelled: InstallCancelled?
 
         @JvmStatic
         fun scheduleMissingMediaDownload() {
-            val constraints = Constraints.Builder()
-                    .setRequiredNetworkType(NetworkType.CONNECTED)
-                    .setRequiresBatteryNotLow(true)
-                    .build()
+            if (HiddenPreferences.shouldDownloadLazyMediaInBackground()) {
+                val constraints = Constraints.Builder()
+                        .setRequiredNetworkType(NetworkType.CONNECTED)
+                        .setRequiresBatteryNotLow(true)
+                        .build()
 
-            val downloadMissingMediaRequest = OneTimeWorkRequest.Builder(MissingMediaDownloadWorker::class.java)
-                    .addTag(CommCareApplication.instance().currentApp.appRecord.applicationId)
-                    .setConstraints(constraints)
-                    .setBackoffCriteria(
-                            BackoffPolicy.EXPONENTIAL,
-                            BACK_OFF_DELAY,
-                            TimeUnit.MILLISECONDS)
-                    .build()
+                val downloadMissingMediaRequest = OneTimeWorkRequest.Builder(MissingMediaDownloadWorker::class.java)
+                        .addTag(CommCareApplication.instance().currentApp.appRecord.applicationId)
+                        .setConstraints(constraints)
+                        .setBackoffCriteria(
+                                BackoffPolicy.EXPONENTIAL,
+                                BACK_OFF_DELAY,
+                                TimeUnit.MILLISECONDS)
+                        .build()
 
-            WorkManager.getInstance(CommCareApplication.instance())
-                    .enqueueUniqueWork(
-                            getMissingMediaDownloadRequestName(),
-                            ExistingWorkPolicy.KEEP,
-                            downloadMissingMediaRequest)
+                WorkManager.getInstance(CommCareApplication.instance())
+                        .enqueueUniqueWork(
+                                getMissingMediaDownloadRequestName(),
+                                ExistingWorkPolicy.KEEP,
+                                downloadMissingMediaRequest)
+            }
         }
 
         // Returns Unique request name for the UpdateWorker Request
@@ -68,11 +69,19 @@ class MissingMediaDownloadHelper(private val installCancelled: InstallCancelled?
 
         val missingMediaResources = SizeBoundUniqueVector<Resource>(problems.size)
 
-        problems.filter { problem ->
-            problem.type == MissingMediaException.MissingMediaExceptionType.FILE_NOT_FOUND
-                    && problem.resource.installer is MediaFileAndroidInstaller
-        }.map { problem -> missingMediaResources.addElement(problem.resource) }
+        val lazyResources = global.lazyResources
 
+
+        problems.filter { problem -> problem.type == MissingMediaException.MissingMediaExceptionType.FILE_NOT_FOUND }
+                .map { problem ->
+                    runCatching {
+                        missingMediaResources.add(getLazyResourceFromMediaUri(lazyResources, problem.uri))
+                    }.onFailure {
+                        Logger.exception(
+                                "Could not map to a lazy resource while downloading missing media for uri ${problem.uri}",
+                                java.lang.Exception(it))
+                    }
+                }
 
         global.setStateListener(this)
         startPinnedNotification()
@@ -85,32 +94,38 @@ class MissingMediaDownloadHelper(private val installCancelled: InstallCancelled?
     }
 
     fun requestMediaDownload(videoURI: String, missingMediaDownloadListener: MissingMediaDownloadListener) {
-        jobs.add(GlobalScope.launch(Dispatchers.Default) {
-            try {
-                downloadMissingMediaResource(videoURI)
-            } catch (e: Exception) {
-                withContext(Dispatchers.Main){
-                    missingMediaDownloadListener.onError(e)
-                }
-            }
+        jobs.add(
+                CoroutineScope(Dispatchers.Default).launch {
+                    try {
+                        downloadMissingMediaResource(videoURI)
+                    } catch (e: Exception) {
+                        withContext(Dispatchers.Main) {
+                            missingMediaDownloadListener.onError(e)
+                        }
+                    }
 
-            withContext(Dispatchers.Main) {
-                missingMediaDownloadListener.onMediaDownloaded()
-            }
-        })
+                    withContext(Dispatchers.Main) {
+                        missingMediaDownloadListener.onMediaDownloaded()
+                    }
+                }
+        )
     }
 
     private fun downloadMissingMediaResource(uri: String) {
-        if (uri.length > 1) {
-            throw IllegalArgumentException("bad uri")
-        }
-
         val platform = CommCareApplication.instance().commCarePlatform
         val global = platform.globalResourceTable
         val lazyResources: Vector<Resource> = global.lazyResources!!
 
-        lazyResources.first { resource -> AndroidResourceUtils.matchFileUriToResource(resource, uri) }
+        getLazyResourceFromMediaUri(lazyResources, uri)
                 .let { global.recoverResource(platform, ResourceInstallUtils.getProfileReference(), it) }
+    }
+
+    private fun getLazyResourceFromMediaUri(lazyResources: Vector<Resource>, uri: String): Resource {
+        return lazyResources.first { lazyResource -> AndroidResourceUtils.matchFileUriToResource(lazyResource, uri) }
+    }
+
+    fun cancelAllDownloads() {
+        jobs.map { job -> job.cancel() }
     }
 
 
