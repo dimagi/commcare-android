@@ -142,8 +142,7 @@ public class MediaLayout extends RelativeLayout {
 
         addAudioVideoButtonsToView(questionTextPane);
 
-        showImageAboveText = showImageAboveText ||
-                DeveloperPreferences.imageAboveTextEnabled();
+        showImageAboveText = showImageAboveText || DeveloperPreferences.imageAboveTextEnabled();
         addElementsToView(mediaPane, mediaPaneParams, questionTextPane, showImageAboveText);
     }
 
@@ -195,7 +194,7 @@ public class MediaLayout extends RelativeLayout {
             } else if (result instanceof MissingMediaDownloadResult.InProgress) {
                 showToast(R.string.media_download_in_progress);
             } else {
-                showToast(R.string.media_download_failed);
+                Toast.makeText(getContext(), result.getMessage(), Toast.LENGTH_LONG).show();
             }
         });
     }
@@ -340,11 +339,7 @@ public class MediaLayout extends RelativeLayout {
             if (errorMsg != null) {
                 // errorMsg is only set when an error has occured
                 Log.e(TAG, errorMsg);
-                missingImageText = new TextView(getContext());
-                missingImageText.setText(errorMsg);
-                missingImageText.setPadding(10, 10, 10, 10);
-                missingImageText.setId(MISSING_IMAGE_ID);
-                mediaPane = missingImageText;
+                mediaPane = getMissingImageView(errorMsg);
             }
         } catch (InvalidReferenceException e) {
             Log.e(TAG, "image invalid reference exception");
