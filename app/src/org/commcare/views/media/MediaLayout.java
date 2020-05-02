@@ -31,6 +31,7 @@ import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.mediadownload.MissingMediaDownloadHelper;
 import org.commcare.mediadownload.MissingMediaDownloadListener;
+import org.commcare.mediadownload.MissingMediaDownloadResult;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.utils.FileUtil;
@@ -40,6 +41,7 @@ import org.commcare.utils.StringUtils;
 import org.commcare.views.ResizingImageView;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
@@ -163,7 +165,7 @@ public class MediaLayout extends RelativeLayout {
 
                 File videoFile = new File(videoFilename);
                 if (!videoFile.exists()) {
-                        downloadMissingMediaResource(videoButton, videoURI);
+                    downloadMissingMediaResource(videoButton, videoURI);
                 } else {
                     Intent i = new Intent("android.intent.action.VIEW");
                     Uri videoFileUri = FileUtil.getUriForExternalFile(getContext(), videoFile);
@@ -184,19 +186,26 @@ public class MediaLayout extends RelativeLayout {
     }
 
     private void downloadMissingMediaResource(ImageButton videoButton, String videoURI) {
-        new MissingMediaDownloadHelper(null).requestMediaDownload(videoURI, new MissingMediaDownloadListener() {
-
-            @Override
-            public void onError(@Nullable Throwable cause) {
-                Toast.makeText(getContext(), StringUtils.getStringRobust(getContext(), R.string.media_download_failed), Toast.LENGTH_LONG).show();
-            }
-
-            @Override
-            public void onMediaDownloaded() {
+        showToast(R.string.media_download_started);
+        MissingMediaDownloadHelper.requestMediaDownload(videoURI, result -> {
+            if (result instanceof MissingMediaDownloadResult.Success) {
                 boolean mediaPresent = FileUtil.referenceFileExists(videoURI);
                 videoButton.setImageResource(mediaPresent ? android.R.drawable.ic_media_play : R.drawable.update_download_icon);
+                showToast(R.string.media_download_completed);
+            } else if (result instanceof MissingMediaDownloadResult.InProgress) {
+                showToast(R.string.media_download_in_progress);
+            } else {
+                showToast(R.string.media_download_failed);
             }
         });
+    }
+
+    private void showToast(int stringResource) {
+        Toast.makeText(getContext(),
+                StringUtils.getStringRobust(
+                        getContext(),
+                        stringResource),
+                Toast.LENGTH_LONG).show();
     }
 
     private void addAudioVideoButtonsToView(RelativeLayout questionTextPane) {

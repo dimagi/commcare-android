@@ -418,4 +418,7 @@
     <string name="update_blocked_on_sync_message" cc:translatable="true">Sync is required to install this update. Auto initiating sync...</string>
 
     <string name="media_download_failed" cc:translatable="true">An error occurred while downloading the requested media. Please try again</string>
+    <string name="media_download_in_progress" cc:translatable="true">Download in Progress, Please wait...</string>
+    <string name="media_download_started" cc:translatable="true">Download started</string>
+    <string name="media_download_completed" cc:translatable="true">Download completed</string>
 </resources>

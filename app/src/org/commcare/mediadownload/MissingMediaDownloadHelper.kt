@@ -8,6 +8,7 @@ import org.commcare.engine.resource.AndroidResourceUtils
 import org.commcare.engine.resource.ResourceInstallUtils
 import org.commcare.preferences.HiddenPreferences
 import org.commcare.resources.model.*
+import org.commcare.utils.AndroidCommCarePlatform
 import org.commcare.views.dialogs.PinnedNotificationWithProgress
 import org.javarosa.core.services.Logger
 import org.javarosa.core.util.SizeBoundUniqueVector
@@ -15,46 +16,49 @@ import java.util.*
 import java.util.concurrent.TimeUnit
 import kotlin.collections.ArrayList
 
-class MissingMediaDownloadHelper(private val installCancelled: InstallCancelled?) : TableStateListener, InstallCancelled {
+object MissingMediaDownloadHelper : TableStateListener, InstallCancelled {
+
+    var resourceInProgress: Resource? = null
+        private set
 
     private val jobs = ArrayList<Job>()
     private lateinit var mPinnedNotificationProgress: PinnedNotificationWithProgress
 
-    companion object {
 
-        private const val BACK_OFF_DELAY = 5 * 60 * 1000L // 5 mins
-        private const val REQUEST_NAME = "missing_media_download_request"
+    private const val BACK_OFF_DELAY = 5 * 60 * 1000L // 5 mins
+    private const val REQUEST_NAME = "missing_media_download_request"
 
-        @JvmStatic
-        fun scheduleMissingMediaDownload() {
-            if (HiddenPreferences.shouldDownloadLazyMediaInBackground()) {
-                val constraints = Constraints.Builder()
-                        .setRequiredNetworkType(NetworkType.CONNECTED)
-                        .setRequiresBatteryNotLow(true)
-                        .build()
+    var installCancelled: InstallCancelled? = null
 
-                val downloadMissingMediaRequest = OneTimeWorkRequest.Builder(MissingMediaDownloadWorker::class.java)
-                        .addTag(CommCareApplication.instance().currentApp.appRecord.applicationId)
-                        .setConstraints(constraints)
-                        .setBackoffCriteria(
-                                BackoffPolicy.EXPONENTIAL,
-                                BACK_OFF_DELAY,
-                                TimeUnit.MILLISECONDS)
-                        .build()
+    @JvmStatic
+    fun scheduleMissingMediaDownload() {
+        if (HiddenPreferences.shouldDownloadLazyMediaInBackground()) {
+            val constraints = Constraints.Builder()
+                    .setRequiredNetworkType(NetworkType.CONNECTED)
+                    .setRequiresBatteryNotLow(true)
+                    .build()
 
-                WorkManager.getInstance(CommCareApplication.instance())
-                        .enqueueUniqueWork(
-                                getMissingMediaDownloadRequestName(),
-                                ExistingWorkPolicy.KEEP,
-                                downloadMissingMediaRequest)
-            }
+            val downloadMissingMediaRequest = OneTimeWorkRequest.Builder(MissingMediaDownloadWorker::class.java)
+                    .addTag(CommCareApplication.instance().currentApp.appRecord.applicationId)
+                    .setConstraints(constraints)
+                    .setBackoffCriteria(
+                            BackoffPolicy.EXPONENTIAL,
+                            BACK_OFF_DELAY,
+                            TimeUnit.MILLISECONDS)
+                    .build()
+
+            WorkManager.getInstance(CommCareApplication.instance())
+                    .enqueueUniqueWork(
+                            getMissingMediaDownloadRequestName(),
+                            ExistingWorkPolicy.KEEP,
+                            downloadMissingMediaRequest)
         }
+    }
 
-        // Returns Unique request name for the UpdateWorker Request
-        private fun getMissingMediaDownloadRequestName(): String {
-            val appId = CommCareApplication.instance().currentApp.uniqueId
-            return REQUEST_NAME + "_" + appId
-        }
+    // Returns Unique request name for the UpdateWorker Request
+    private fun getMissingMediaDownloadRequestName(): String {
+        val appId = CommCareApplication.instance().currentApp.uniqueId
+        return REQUEST_NAME + "_" + appId
     }
 
 
@@ -68,9 +72,7 @@ class MissingMediaDownloadHelper(private val installCancelled: InstallCancelled?
         global.verifyInstallation(problems, platform)
 
         val missingMediaResources = SizeBoundUniqueVector<Resource>(problems.size)
-
         val lazyResources = global.lazyResources
-
 
         problems.filter { problem -> problem.type == MissingMediaException.MissingMediaExceptionType.FILE_NOT_FOUND }
                 .map { problem ->
@@ -83,41 +85,61 @@ class MissingMediaDownloadHelper(private val installCancelled: InstallCancelled?
                     }
                 }
 
-        global.setStateListener(this)
         startPinnedNotification()
 
-        global.recoverResources(platform, ResourceInstallUtils.getProfileReference(), missingMediaResources)
+        missingMediaResources.mapIndexed { index, resource ->
+            if (!wasInstallCancelled()) {
+                recoverResource(platform, resource)
+                incrementProgress(index + 1, missingMediaResources.size)
+            }
+        }
 
-        global.setInstallCancellationChecker(null)
-        global.setStateListener(null)
         cancelNotification()
+        global.setInstallCancellationChecker(null)
     }
 
+    @JvmStatic
     fun requestMediaDownload(videoURI: String, missingMediaDownloadListener: MissingMediaDownloadListener) {
         jobs.add(
                 CoroutineScope(Dispatchers.Default).launch {
+                    var result: MissingMediaDownloadResult = MissingMediaDownloadResult.Error("Unknown Error")
                     try {
-                        downloadMissingMediaResource(videoURI)
+                        result = downloadMissingMediaResource(videoURI)
                     } catch (e: Exception) {
                         withContext(Dispatchers.Main) {
-                            missingMediaDownloadListener.onError(e)
+                            missingMediaDownloadListener.onComplete(MissingMediaDownloadResult.Exception(e))
                         }
                     }
 
                     withContext(Dispatchers.Main) {
-                        missingMediaDownloadListener.onMediaDownloaded()
+                        missingMediaDownloadListener.onComplete(result)
                     }
                 }
         )
     }
 
-    private fun downloadMissingMediaResource(uri: String) {
+    private fun downloadMissingMediaResource(uri: String): MissingMediaDownloadResult {
         val platform = CommCareApplication.instance().commCarePlatform
         val global = platform.globalResourceTable
         val lazyResources: Vector<Resource> = global.lazyResources!!
 
-        getLazyResourceFromMediaUri(lazyResources, uri)
-                .let { global.recoverResource(platform, ResourceInstallUtils.getProfileReference(), it) }
+        getLazyResourceFromMediaUri(lazyResources, uri).let {
+
+            return if (resourceInProgress == null || it.resourceId != resourceInProgress!!.resourceId) {
+                recoverResource(platform, getLazyResourceFromMediaUri(lazyResources, uri))
+                MissingMediaDownloadResult.Success
+            } else {
+                MissingMediaDownloadResult.InProgress
+            }
+        }
+    }
+
+    @Synchronized
+    private fun recoverResource(platform: AndroidCommCarePlatform, it: Resource) {
+        resourceInProgress = it
+        platform.globalResourceTable.recoverResource(it, platform, ResourceInstallUtils.getProfileReference())
+        resourceInProgress = null
+
     }
 
     private fun getLazyResourceFromMediaUri(lazyResources: Vector<Resource>, uri: String): Resource {
@@ -142,7 +164,7 @@ class MissingMediaDownloadHelper(private val installCancelled: InstallCancelled?
     }
 
     override fun wasInstallCancelled(): Boolean {
-        return installCancelled != null && installCancelled.wasInstallCancelled()
+        return installCancelled != null && installCancelled!!.wasInstallCancelled()
     }
 
 

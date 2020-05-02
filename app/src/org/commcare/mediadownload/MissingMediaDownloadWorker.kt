@@ -9,11 +9,10 @@ class MissingMediaDownloadWorker(appContext: Context, workerParams: WorkerParame
     : CoroutineWorker(appContext, workerParams), InstallCancelled {
 
 
-    private lateinit var missingMediaDownloadHelper: MissingMediaDownloadHelper
 
     override suspend fun doWork(): Result {
-        missingMediaDownloadHelper = MissingMediaDownloadHelper(this)
-        missingMediaDownloadHelper.downloadAllMissingMedia()
+        MissingMediaDownloadHelper.installCancelled = this
+        MissingMediaDownloadHelper.downloadAllMissingMedia()
         return Result.success()
     }
 
