@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Point;
-import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Build;
 
@@ -14,6 +13,7 @@ import androidx.annotation.IdRes;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
@@ -30,7 +30,6 @@ import org.commcare.activities.FormEntryActivity;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.mediadownload.MissingMediaDownloadHelper;
-import org.commcare.mediadownload.MissingMediaDownloadListener;
 import org.commcare.mediadownload.MissingMediaDownloadResult;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.preferences.HiddenPreferences;
@@ -41,8 +40,6 @@ import org.commcare.utils.StringUtils;
 import org.commcare.views.ResizingImageView;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 
@@ -70,22 +67,19 @@ public class MediaLayout extends RelativeLayout {
     @IdRes
     private static final int IMAGE_VIEW_ID = 23423534;
 
-    @IdRes
-    private static final int MISSING_IMAGE_ID = 234873453;
-
     private static final String IMAGE_GIF_EXTENSION = ".gif";
 
     private TextView viewText;
     private AudioPlaybackButton audioButton;
     private ImageButton videoButton;
-    private TextView missingImageText;
+    private View missingMediaView;
 
     private MediaLayout(Context c) {
         super(c);
 
         viewText = null;
         audioButton = null;
-        missingImageText = null;
+        missingMediaView = null;
         videoButton = null;
     }
 
@@ -339,7 +333,7 @@ public class MediaLayout extends RelativeLayout {
             if (errorMsg != null) {
                 // errorMsg is only set when an error has occured
                 Log.e(TAG, errorMsg);
-                mediaPane = getMissingImageView(errorMsg);
+                mediaPane = getMissingMediaView(errorMsg);
             }
         } catch (InvalidReferenceException e) {
             Log.e(TAG, "image invalid reference exception");
@@ -426,7 +420,7 @@ public class MediaLayout extends RelativeLayout {
 
             final File videoFile = new File(videoFilename);
             if (!videoFile.exists()) {
-                return getMissingImageView("No video file found at: " + videoFilename);
+                return getMissingMediaView("Click the icon above to download question video");
             } else {
                 //NOTE: This has odd behavior when you have a text input on the screen
                 //since clicking the video view to bring up controls has weird effects.
@@ -474,16 +468,14 @@ public class MediaLayout extends RelativeLayout {
         } catch (InvalidReferenceException ire) {
             Log.e(TAG, "invalid video reference exception");
             ire.printStackTrace();
-            return getMissingImageView("Invalid reference: " + ire.getReferenceString());
+            return getMissingMediaView("Invalid reference: " + ire.getReferenceString());
         }
     }
 
-    private TextView getMissingImageView(String errorMessage) {
-        missingImageText = new TextView(getContext());
-        missingImageText.setText(errorMessage);
-        missingImageText.setPadding(10, 10, 10, 10);
-        missingImageText.setId(MISSING_IMAGE_ID);
-        return missingImageText;
+    private View getMissingMediaView(String errorMessage) {
+        missingMediaView = LayoutInflater.from(getContext()).inflate(R.layout.missing_media_view, this, false);
+        ((TextView)missingMediaView.findViewById(R.id.missing_media_tv)).setText(errorMessage);
+        return missingMediaView;
     }
 
     private boolean useResizingImageView() {
@@ -524,8 +516,8 @@ public class MediaLayout extends RelativeLayout {
     public void addDivider(ImageView v) {
         RelativeLayout.LayoutParams dividerParams =
                 new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-        if (missingImageText != null) {
-            dividerParams.addRule(RelativeLayout.BELOW, missingImageText.getId());
+        if (missingMediaView != null) {
+            dividerParams.addRule(RelativeLayout.BELOW, missingMediaView.getId());
         } else if (videoButton != null) {
             dividerParams.addRule(RelativeLayout.BELOW, videoButton.getId());
         } else if (audioButton != null) {
