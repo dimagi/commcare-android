@@ -101,6 +101,7 @@ menu.disable.pre.update.sync=Disable Mandatory Pre-Update Sync
 menu.enable.privileges=Mobile Privileges
 menu.privilege.claim.disable=Disable Privileges
 menu.data.change.logs=Data Change Logs
+menu.enable.rate.limit.popup=Enable Rate Limit Error Popup
 
 install.fail.error=We encountered an ${0} error processing your request. Please try again later. If the problem persists, contact CommCare Support.
 
@@ -121,6 +122,12 @@ sync.fail.rate.limited.server.error=Our servers are unavailable at this time. Pl
 sync.fail.unknown=An unexpected issue occurred during sync. Please try to sync again.
 sync.fail.unsent=Having issues communicating with the server to send forms. Will try again later.
 sync.fail.individual=1 or more forms failed to send due to individual problems. See quarantined forms for details.
+
+form.send.rate.limit.error.toast=Form submission rate limit reached. Your forms are being saved locally and will be submitted to the server later.
+form.send.rate.limit.error.title=You've reached your form submission rate limit
+form.send.rate.limit.error.message=Form submissions will be saved locally on your phone until rate limiting expires. Not to worry, all forms will be auto-synced to the server later. Contact your CommCare admin for more information.
+rate.limit.error.dialog.do.not.show=Don’t show again
+rate.limit.error.dialog.close=Close
 
 auth.over.http=CommCare can't connect with authentication to an insecure (HTTP) server.
 

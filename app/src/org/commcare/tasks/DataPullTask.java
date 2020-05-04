@@ -311,7 +311,7 @@ public abstract class DataPullTask<R>
             return processErrorResponseWithMessage(pullResponse);
         } else if (responseCode == 500) {
             return handleServerError();
-        } else if (responseCode == 503) {
+        } else if (responseCode == 503 || responseCode == 429) {
             return handleRateLimitedError();
         } else {
             throw new UnknownSyncError();
