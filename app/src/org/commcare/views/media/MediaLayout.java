@@ -1,5 +1,6 @@
 package org.commcare.views.media;
 
+import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
@@ -38,6 +39,7 @@ import org.commcare.utils.MediaUtil;
 import org.commcare.utils.QRCodeEncoder;
 import org.commcare.utils.StringUtils;
 import org.commcare.views.ResizingImageView;
+import org.commcare.views.ViewUtil;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
 
@@ -73,6 +75,11 @@ public class MediaLayout extends RelativeLayout {
     private AudioPlaybackButton audioButton;
     private ImageButton videoButton;
     private View missingMediaView;
+    private String mInlineVideoUri;
+    private String mImageURI;
+    private String mBigImageURI;
+    private String mQrCodeContent;
+    private RelativeLayout mediaPane;
 
     private MediaLayout(Context c) {
         super(c);
@@ -113,9 +120,10 @@ public class MediaLayout extends RelativeLayout {
                         boolean showImageAboveText,
                         int questionIndex) {
         viewText = text;
-
-        RelativeLayout.LayoutParams mediaPaneParams =
-                new RelativeLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
+        mInlineVideoUri = inlineVideoURI;
+        mImageURI = imageURI;
+        mBigImageURI = bigImageURI;
+        mQrCodeContent = qrCodeContent;
 
         RelativeLayout questionTextPane = new RelativeLayout(this.getContext());
         questionTextPane.setId(QUESTION_TEXT_PANE_ID);
@@ -125,19 +133,37 @@ public class MediaLayout extends RelativeLayout {
 
         // Now set up the center view -- it is either an image, a QR Code, an inline video, or
         // expanded audio
-        View mediaPane = null;
-        if (inlineVideoURI != null) {
-            mediaPane = getInlineVideoView(inlineVideoURI, mediaPaneParams);
-        } else if (qrCodeContent != null) {
-            mediaPane = setupQRView(qrCodeContent);
-        } else if (imageURI != null) {
-            mediaPane = setupImage(imageURI, bigImageURI);
-        }
+        mediaPane = new RelativeLayout(getContext());
+
+        LayoutParams mediaPaneParams = refreshMediaView();
 
         addAudioVideoButtonsToView(questionTextPane);
 
         showImageAboveText = showImageAboveText || DeveloperPreferences.imageAboveTextEnabled();
         addElementsToView(mediaPane, mediaPaneParams, questionTextPane, showImageAboveText);
+    }
+
+    private LayoutParams refreshMediaView() {
+        RelativeLayout.LayoutParams mediaPaneParams =
+                new RelativeLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
+
+        View mediaView = null;
+        if (mInlineVideoUri != null) {
+            mediaView = getInlineVideoView(mInlineVideoUri, mediaPaneParams);
+        } else if (mQrCodeContent != null) {
+            mediaView = setupQRView(mQrCodeContent);
+        } else if (mImageURI != null) {
+            mediaView = setupImage(mImageURI, mBigImageURI);
+        }
+
+        if (mediaView != null) {
+            RelativeLayout.LayoutParams mediaViewParams =
+                    new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+            mediaViewParams.addRule(CENTER_IN_PARENT, mediaView.getId());
+            mediaPane.addView(mediaView, mediaViewParams);
+        }
+
+        return mediaPaneParams;
     }
 
     private void setupVideoButton(final String videoURI) {
@@ -292,7 +318,6 @@ public class MediaLayout extends RelativeLayout {
     }
 
     private View setupImage(String imageURI, String bigImageURI) {
-        String errorMsg = null;
         View mediaPane = null;
         try {
             int[] maxBounds = getMaxCenterViewBounds();
@@ -327,13 +352,7 @@ public class MediaLayout extends RelativeLayout {
             } else {
                 // An error hasn't been logged. We should have an image, but the file doesn't
                 // exist.
-                errorMsg = getContext().getString(R.string.file_missing, imageFile);
-            }
-
-            if (errorMsg != null) {
-                // errorMsg is only set when an error has occured
-                Log.e(TAG, errorMsg);
-                mediaPane = getMissingMediaView(errorMsg);
+                mediaPane = getMissingMediaView(imageURI, getContext().getString(R.string.file_missing, imageFile));
             }
         } catch (InvalidReferenceException e) {
             Log.e(TAG, "image invalid reference exception");
@@ -420,14 +439,13 @@ public class MediaLayout extends RelativeLayout {
 
             final File videoFile = new File(videoFilename);
             if (!videoFile.exists()) {
-                return getMissingMediaView("Click the icon above to download question video");
+                return getMissingMediaView(inlineVideoURI, "Click the icon above to download question video");
             } else {
                 //NOTE: This has odd behavior when you have a text input on the screen
                 //since clicking the video view to bring up controls has weird effects.
                 //since we shotgun grab the focus for the input widget.
 
                 final CommCareMediaController ctrl = new CommCareMediaController(this.getContext());
-
                 CommCareVideoView videoView = new CommCareVideoView(this.getContext());
                 videoView.setOnPreparedListener(mediaPlayer -> {
                     //Since MediaController will create a default set of controls and put them in a window floating above your application(From AndroidDocs)
@@ -456,6 +474,8 @@ public class MediaLayout extends RelativeLayout {
                     FirebaseAnalyticsUtil.reportInlineVideoPlayEvent(videoFilename, FileUtil.getDuration(videoFile), duration);
                 });
 
+                videoView.setOnClickListener(v -> ViewUtil.hideVirtualKeyboard((Activity)getContext()));
+
                 //These surprisingly get re-jiggered as soon as the video is loaded, so we
                 //just want to give it the _max_ bounds, it'll pick the limiter and shrink
                 //itself when it's ready.
@@ -468,14 +488,48 @@ public class MediaLayout extends RelativeLayout {
         } catch (InvalidReferenceException ire) {
             Log.e(TAG, "invalid video reference exception");
             ire.printStackTrace();
-            return getMissingMediaView("Invalid reference: " + ire.getReferenceString());
+            return getMissingMediaView(inlineVideoURI, "Invalid reference: " + ire.getReferenceString());
         }
     }
 
-    private View getMissingMediaView(String errorMessage) {
+    private View getMissingMediaView(String mediaUri, String errorMessage) {
         missingMediaView = LayoutInflater.from(getContext()).inflate(R.layout.missing_media_view, this, false);
-        ((TextView)missingMediaView.findViewById(R.id.missing_media_tv)).setText(errorMessage);
+
+        TextView status = missingMediaView.findViewById(R.id.missing_media_tv);
+        status.setText(errorMessage);
+
+        View progressView = missingMediaView.findViewById(R.id.progress_bar);
+        View downloadIcon = missingMediaView.findViewById(R.id.download_media_icon);
+
+        downloadIcon.setOnClickListener(v -> {
+
+            progressView.setVisibility(VISIBLE);
+            downloadIcon.setVisibility(INVISIBLE);
+            downloadIcon.setEnabled(false);
+            status.setText(StringUtils.getStringRobust(getContext(), R.string.media_download_in_progress));
+
+            MissingMediaDownloadHelper.requestMediaDownload(mediaUri, result -> {
+                progressView.setVisibility(GONE);
+                if (result instanceof MissingMediaDownloadResult.Success) {
+                    showToast(R.string.media_download_completed);
+                    reAddMediaPane();
+                } else if (!(result instanceof MissingMediaDownloadResult.InProgress)) {
+                    downloadIcon.setVisibility(VISIBLE);
+                    downloadIcon.setEnabled(true);
+                    status.setText(StringUtils.getStringRobust(getContext(), R.string.media_download_failed));
+                }
+            });
+        });
         return missingMediaView;
+    }
+
+    // for some reason unless we re-add the mediaPane the layout doesn't refreshes itself
+    private void reAddMediaPane() {
+        int index = indexOfChild(mediaPane);
+        removeView(mediaPane);
+        mediaPane.removeAllViews();
+        LayoutParams mediaPaneParams = refreshMediaView();
+        addView(mediaPane, index, mediaPaneParams);
     }
 
     private boolean useResizingImageView() {
