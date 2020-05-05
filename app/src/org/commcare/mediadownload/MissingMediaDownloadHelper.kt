@@ -106,6 +106,7 @@ object MissingMediaDownloadHelper : TableStateListener, InstallCancelled {
                     try {
                         result = downloadMissingMediaResource(videoURI)
                     } catch (e: Exception) {
+                        Logger.exception(" An error occured while recovering a missing resource", e);
                         withContext(Dispatchers.Main) {
                             missingMediaDownloadListener.onComplete(MissingMediaDownloadResult.Exception(e))
                         }
