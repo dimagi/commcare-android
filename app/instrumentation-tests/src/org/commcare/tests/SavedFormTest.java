@@ -22,8 +22,8 @@ import org.commcare.CommCareApplication;
 import org.commcare.activities.DispatchActivity;
 import org.commcare.activities.FormEntryActivity;
 import org.commcare.dalvik.R;
-import org.commcare.utils.SessionUnavailableException;
 import org.commcare.utils.Utility;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -32,6 +32,7 @@ import java.io.OutputStream;
 
 import static androidx.test.espresso.Espresso.closeSoftKeyboard;
 import static androidx.test.espresso.Espresso.onView;
+import static androidx.test.espresso.Espresso.pressBackUnconditionally;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.typeText;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
@@ -99,13 +100,12 @@ public class SavedFormTest {
         if (CommCareApplication.instance().getCurrentApp() == null) {
             Utility.installApp("2zI4jeQ");
         }
-        try {
-            if (!CommCareApplication.instance().getSession().isActive()) {
-                Utility.login("check", "123");
-            }
-        } catch (SessionUnavailableException e) {
-            Utility.login("check", "123");
-        }
+        Utility.login("check", "123");
+    }
+
+    @After
+    public void logout() {
+        Utility.logout();
     }
 
     @Test
@@ -158,6 +158,8 @@ public class SavedFormTest {
         Utility.getSubViewInListItem(android.R.id.list, 1, R.id.hev_secondary_text)
                 .check(matches(isDisplayed()))
                 .check(matches(withText(endsWith(".jpg"))));
+        pressBackUnconditionally();
+        pressBackUnconditionally();
     }
 
     @Test
