@@ -2,8 +2,6 @@
 <resources>
     <style name="AppBaseTheme" parent="CommonTheme">
         <!-- API 24 theme customizations can go here. -->
-        <item name="android:listViewStyle">@style/fading_edge</item>
-        <item name="android:scrollViewStyle">@style/fading_edge</item>
         <item name="android:contextPopupMenuStyle">@style/ContextPopupMenuStyle</item>
     </style>
 

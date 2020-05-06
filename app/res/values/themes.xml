@@ -1,24 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <style name="AppBaseTheme" parent="android:Theme.Light">
-        <!-- API 11 theme customizations can go here. -->
+    <style name="CommonTheme" parent="android:Theme.Holo.Light">
         <item name="android:colorBackground">@color/cc_neutral_bg</item>
-        <item name="android:progressBarStyleHorizontal">@drawable/progressbar_modern</item>
-        <!-- item name="android:radioButtonStyle">@style/radio_button_modern</item -->
         <item name="detail_odd_row_color">@color/cc_neutral_bg</item>
         <item name="detail_even_row_color">@color/transparent</item>
         <item name="entity_view_header_background_color">@color/cc_brand_text</item>
         <item name="entity_view_header_text_color">@color/cc_core_bg</item>
+        <item name="searchbox_action_bar_color">@color/white</item>
         <item name="drawer_pulldown_text_color">@color/white</item>
         <item name="drawer_pulldown_even_row_color">@color/cc_brand_bg</item>
         <item name="drawer_pulldown_odd_row_color">@color/drawer_pulldown_odd_row_color</item>
+        <item name="android:actionBarStyle">@style/ActionBar</item>
+        <item name="android:actionOverflowButtonStyle">@style/OverflowButton</item>
+        <item name="android:textViewStyle">@style/AppTheme.Widget.TextView</item>
+        <item name="android:textSize">@dimen/text_medium</item>
         <item name="menu_tile_title_text_color">@color/cc_brand_bg</item>
         <item name="entity_select_title_text_color">@color/cc_light_warm_accent_text</item>
         <item name="filter_select_background_color">@color/cc_brand_text</item>
         <item name="filter_select_text_color">@color/cc_light_warm_accent_text</item>
-        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:listViewStyle">@style/fading_edge</item>
+        <item name="android:scrollViewStyle">@style/fading_edge</item>
     </style>
+
+    <style name="AppBaseTheme" parent="CommonTheme" />
 
     <style name="PreferenceTheme" parent="AppBaseTheme">
         <item name="alertDialogTheme">@style/Theme.AppCompat.Light.Dialog.Alert</item>
@@ -31,6 +36,35 @@
 
     <style name="radio_button_modern" parent="@android:style/Widget.CompoundButton.RadioButton">
         <item name="android:button">@drawable/radio_button_modern</item>
+    </style>
+
+    <style name="AppTheme.Widget.TextView" parent="android:Widget.Holo.Light.TextView">
+        <item name="android:textSize">@dimen/text_medium</item>
+    </style>
+
+    <style name="ActionBar" parent="android:Widget.Holo.Light.ActionBar">
+        <item name="android:background">@color/cc_brand_color</item>
+        <item name="android:titleTextStyle">@style/ActionBar.TitleTextStyle</item>
+        <item name="android:subtitleTextStyle">@style/ActionBarSubtitleTextStyle</item>
+        <item name="android:logo">@drawable/actionbar_modern_spacing</item>
+        <item name="android:actionButtonStyle">@style/ActionButtonStyle</item>
+    </style>
+
+    <style name="ActionBar.TitleTextStyle">
+        <item name="android:textColor">@color/white</item>
+        <item name="android:paddingLeft">8dp</item>
+    </style>
+
+    <style name="ActionBarSubtitleTextStyle">
+        <item name="android:textColor">@color/white</item>
+    </style>
+
+    <style name="ActionButtonStyle" parent="@android:style/Widget.Holo.Light.ActionButton">
+        <item name="android:minWidth">8dp</item>
+    </style>
+
+    <style name="OverflowButton" parent="android:Widget.Holo.Light.ActionButton.Overflow">
+        <item name="android:src">@drawable/ic_action_overflow</item>
     </style>
 
     <style name="Theme.LightSliding" parent="@android:style/Theme.Light">
@@ -47,22 +81,35 @@
     </style>
 
     <style name="WindowTitle.Custom.Menu" parent="android:Widget.TextView">
-        <item name="android:textAppearance">@style/TextAppearance.Custom.WindowTitle</item>
+        <item name="android:textAppearance">@style/TextAppearance.Custom.WindowTitle.Menu</item>
+        <item name="android:background">@drawable/title_neutral_tab</item>
+        <item name="android:paddingRight">@dimen/title_padding</item>
+        <item name="android:layout_marginLeft">@dimen/title_round_bleed</item>
+        <item name="android:paddingLeft">@dimen/title_paddingLeft</item>
     </style>
 
     <style name="WindowTitle.Custom.Case" parent="android:Widget.TextView">
-        <item name="android:textAppearance">@style/TextAppearance.Custom.WindowTitle</item>
+        <item name="android:textAppearance">@style/TextAppearance.Custom.WindowTitle.Case</item>
+        <item name="android:background">@drawable/title_case_tab</item>
+        <item name="android:paddingRight">@dimen/title_padding</item>
+        <item name="android:layout_marginLeft">@dimen/title_round_bleed</item>
+        <item name="android:paddingLeft">@dimen/title_paddingLeft</item>
     </style>
 
     <style name="ProgressDialog.MessageText" parent="@android:style/TextAppearance">
         <item name="android:textAppearance">@android:style/TextAppearance.DialogWindowTitle</item>
     </style>
 
-    <style name="TextAppearance.Custom.WindowTitle" parent="@android:style/TextAppearance.WindowTitle"/>
+    <style name="TextAppearance.Custom.WindowTitle" parent="@android:style/TextAppearance.Holo.Widget.ActionBar.Title"/>
 
-    <style name="Theme.Dialog.NoTitle" parent="@android:style/Theme.Dialog">
-        <item name="android:windowNoTitle">true</item>
+    <style name="TextAppearance.Custom.WindowTitle.Case" parent="TextAppearance.Custom.WindowTitle">
     </style>
 
+    <style name="TextAppearance.Custom.WindowTitle.Menu" parent="TextAppearance.Custom.WindowTitle">
+    </style>
+
+    <style name="Theme.Dialog.NoTitle" parent="@android:style/Theme.Holo.Light.Dialog">
+        <item name="android:windowNoTitle">true</item>
+    </style>
 
 </resources>
