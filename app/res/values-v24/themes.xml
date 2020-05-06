@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="AppBaseTheme" parent="CommonTheme">
+        <!-- API 24 theme customizations can go here. -->
+        <item name="android:listViewStyle">@style/fading_edge</item>
+        <item name="android:scrollViewStyle">@style/fading_edge</item>
+        <item name="android:contextPopupMenuStyle">@style/ContextPopupMenuStyle</item>
+    </style>
+
+    <style name="ContextPopupMenuStyle" parent="@android:style/Widget.Holo.Light.PopupMenu">
+        <item name="android:overlapAnchor">true</item>
+    </style>
+</resources>
