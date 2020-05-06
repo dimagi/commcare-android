@@ -21,6 +21,7 @@
         <item name="filter_select_text_color">@color/cc_light_warm_accent_text</item>
         <item name="android:listViewStyle">@style/fading_edge</item>
         <item name="android:scrollViewStyle">@style/fading_edge</item>
+        <item name="android:windowContentOverlay">@null</item>
     </style>
 
     <style name="AppBaseTheme" parent="CommonTheme" />
