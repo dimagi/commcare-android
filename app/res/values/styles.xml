@@ -122,7 +122,7 @@
         <item name="android:textColor">@color/red</item>
     </style>
 
-    <style name="DialogBaseTheme" parent="android:Theme.Dialog"/>
+    <style name="DialogBaseTheme" parent="android:Theme.Holo.Light.Dialog"/>
 
     <!-- Start Collect styles -->
 
