@@ -869,3 +869,4 @@ quarantine.reason.unknown=Reason for quarantine unknown
 drawing.boundary.map.start.tracking=Start
 drawing.boundary.map.stop.tracking=Stop
 drawing.boundary.map.ok.tracking=Done
+drawing.boundary.map.redo.tracking=Redo

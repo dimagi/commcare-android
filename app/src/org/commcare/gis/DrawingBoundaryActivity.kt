@@ -19,7 +19,6 @@ import org.commcare.dalvik.R
 import org.commcare.interfaces.CommCareActivityUIController
 import org.commcare.interfaces.WithUIController
 import org.javarosa.core.services.Logger
-import java.lang.Exception
 
 class DrawingBoundaryActivity : BaseKujakuActivity(), WithUIController, LocationListener {
 
@@ -42,6 +41,7 @@ class DrawingBoundaryActivity : BaseKujakuActivity(), WithUIController, Location
 
     }
 
+    private lateinit var loadedStyle: Style
     private lateinit var boundaryCoords: String
     private var polygon: Polygon? = null
     private var isManual: Boolean = false
@@ -99,13 +99,14 @@ class DrawingBoundaryActivity : BaseKujakuActivity(), WithUIController, Location
 
     override fun onMapLoaded() {
         map.setStyle(Style.MAPBOX_STREETS) { loadedStyle ->
-            onStyleLoaded(loadedStyle)
+            this.loadedStyle = loadedStyle
+            onStyleLoaded()
         }
     }
 
-    private fun onStyleLoaded(loadedStyle: Style) {
+    private fun onStyleLoaded() {
         mapView.isWarmGps = true
-        drawingManager = DrawingManager(mapView, map, loadedStyle, isManual)
+        drawingManager = DrawingManager(mapView, map, loadedStyle)
         map.addOnMapClickListener {
             polygon = drawingManager.currentPolygon
             uiController.refreshView()
@@ -115,7 +116,6 @@ class DrawingBoundaryActivity : BaseKujakuActivity(), WithUIController, Location
     }
 
     private fun setUiFromBoundaryCoords() {
-
         kotlin.runCatching {
             parseBoundaryCoords()
         }.onFailure {
@@ -148,8 +148,9 @@ class DrawingBoundaryActivity : BaseKujakuActivity(), WithUIController, Location
             if (mapView.locationClient != null) {
                 mapView.locationClient!!.addLocationListener(this)
             }
+        } else {
+            drawingManager.startDrawing(null)
         }
-        drawingManager.startDrawing(null)
     }
 
     fun stopTracking() {
@@ -162,6 +163,11 @@ class DrawingBoundaryActivity : BaseKujakuActivity(), WithUIController, Location
     fun finishTracking() {
         setResult()
         finish()
+    }
+
+    fun redoTracking() {
+        drawingManager.reset()
+        startTracking()
     }
 
     override fun onLocationChanged(location: Location?) {

@@ -59,6 +59,13 @@
             android:layout_width="0dp"
             android:visibility="gone" />
 
+        <Button
+            style="@style/MapButtonOrange"
+            android:id="@+id/redo_tracking_button"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:visibility="gone" />
 
         <Button
             style="@style/MapButtonGreen"
