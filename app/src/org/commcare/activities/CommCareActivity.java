@@ -24,6 +24,7 @@ import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.SearchView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.user.models.ACase;
@@ -927,6 +928,10 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     @Override
     public void performCallout(CalloutData callout, int id) {
         DetailCalloutListenerDefaultImpl.performCallout(this, callout, id);
+    }
+
+    protected void showToast(int stringResource) {
+        Toast.makeText(this, getLocalizedString(stringResource), Toast.LENGTH_LONG).show();
     }
 
     protected String getLocalizedString(int stringResource) {

@@ -15,9 +15,11 @@ import com.mapbox.mapboxsdk.maps.Style
 import io.ona.kujaku.manager.DrawingManager
 import kotlinx.android.synthetic.main.activity_entity_kujaku_map.*
 import org.commcare.android.javarosa.IntentCallout
+import org.commcare.dalvik.R
 import org.commcare.interfaces.CommCareActivityUIController
 import org.commcare.interfaces.WithUIController
-import java.util.*
+import org.javarosa.core.services.Logger
+import java.lang.Exception
 
 class DrawingBoundaryActivity : BaseKujakuActivity(), WithUIController, LocationListener {
 
@@ -40,6 +42,7 @@ class DrawingBoundaryActivity : BaseKujakuActivity(), WithUIController, Location
 
     }
 
+    private lateinit var boundaryCoords: String
     private var polygon: Polygon? = null
     private var isManual: Boolean = false
     private lateinit var drawingManager: DrawingManager
@@ -75,6 +78,7 @@ class DrawingBoundaryActivity : BaseKujakuActivity(), WithUIController, Location
             title = params.getString(EXTRA_KEY_TITLE, "")
             detail = params.getString(EXTRA_KEY_DETAIL, "")
             isManual = params.getString(EXTRA_KEY_MANUAL, "")!!.contentEquals("true")
+            boundaryCoords = params.getString(EXTRA_KEY_COORDINATES, "")
         }
     }
 
@@ -95,14 +99,46 @@ class DrawingBoundaryActivity : BaseKujakuActivity(), WithUIController, Location
 
     override fun onMapLoaded() {
         map.setStyle(Style.MAPBOX_STREETS) { loadedStyle ->
-            mapView.isWarmGps = true
-            drawingManager = DrawingManager(mapView, map, loadedStyle, isManual)
-            map.addOnMapClickListener {
-                polygon = drawingManager.currentPolygon
-                uiController.refreshView()
-                false
-            }
+            onStyleLoaded(loadedStyle)
         }
+    }
+
+    private fun onStyleLoaded(loadedStyle: Style) {
+        mapView.isWarmGps = true
+        drawingManager = DrawingManager(mapView, map, loadedStyle, isManual)
+        map.addOnMapClickListener {
+            polygon = drawingManager.currentPolygon
+            uiController.refreshView()
+            false
+        }
+        setUiFromBoundaryCoords()
+    }
+
+    private fun setUiFromBoundaryCoords() {
+
+        kotlin.runCatching {
+            parseBoundaryCoords()
+        }.onFailure {
+            showToast(R.string.parse_coordinates_failure)
+            setResult(Activity.RESULT_CANCELED)
+            Logger.exception("Exception while loading boundary coordinates ", Exception(it))
+            finish()
+        }.onSuccess { latlngs ->
+            latlngs.map { latlng -> drawingManager.drawCircle(latlng) }
+        }
+    }
+
+    private fun parseBoundaryCoords(): ArrayList<LatLng> {
+        val latLngs = ArrayList<LatLng>()
+        if (boundaryCoords.length > 0) {
+            val list = boundaryCoords.split("\n")
+            list.filter { coord -> coord != "" }
+                    .map { coord ->
+                        val latLngArray = coord.split(",")
+                        LatLng(latLngArray[0].toDouble(), latLngArray[1].toDouble())
+                    }.toCollection(latLngs)
+        }
+        return latLngs
     }
 
 
@@ -182,6 +218,6 @@ class DrawingBoundaryActivity : BaseKujakuActivity(), WithUIController, Location
     }
 
     fun getArea(): Double {
-        return if(polygon!=null) AreaCalculator(polygon!!).getArea() else 0.0
+        return if (polygon != null) AreaCalculator(polygon!!).getArea() else 0.0
     }
 }
