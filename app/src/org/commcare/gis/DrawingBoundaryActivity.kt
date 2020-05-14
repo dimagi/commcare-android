@@ -16,6 +16,7 @@ import io.ona.kujaku.manager.DrawingManager
 import kotlinx.android.synthetic.main.activity_entity_kujaku_map.*
 import org.commcare.android.javarosa.IntentCallout
 import org.commcare.dalvik.R
+import org.commcare.gis.EntityMapUtils.parseBoundaryCoords
 import org.commcare.interfaces.CommCareActivityUIController
 import org.commcare.interfaces.WithUIController
 import org.javarosa.core.services.Logger
@@ -117,7 +118,7 @@ class DrawingBoundaryActivity : BaseKujakuActivity(), WithUIController, Location
 
     private fun setUiFromBoundaryCoords() {
         kotlin.runCatching {
-            parseBoundaryCoords()
+            parseBoundaryCoords(boundaryCoords)
         }.onFailure {
             showToast(R.string.parse_coordinates_failure)
             setResult(Activity.RESULT_CANCELED)
@@ -126,19 +127,6 @@ class DrawingBoundaryActivity : BaseKujakuActivity(), WithUIController, Location
         }.onSuccess { latlngs ->
             latlngs.map { latlng -> drawingManager.drawCircle(latlng) }
         }
-    }
-
-    private fun parseBoundaryCoords(): ArrayList<LatLng> {
-        val latLngs = ArrayList<LatLng>()
-        if (boundaryCoords.length > 0) {
-            val list = boundaryCoords.split("\n")
-            list.filter { coord -> coord != "" }
-                    .map { coord ->
-                        val latLngArray = coord.split(",")
-                        LatLng(latLngArray[0].toDouble(), latLngArray[1].toDouble())
-                    }.toCollection(latLngs)
-        }
-        return latLngs
     }
 
 
@@ -156,11 +144,12 @@ class DrawingBoundaryActivity : BaseKujakuActivity(), WithUIController, Location
     fun stopTracking() {
         isRecording = false
         mapView.locationClient!!.removeLocationListener(this)
-        polygon = drawingManager.stopDrawingAndDisplayLayer()
+        polygon = drawingManager.currentPolygon
         uiController.refreshView()
     }
 
     fun finishTracking() {
+        polygon = drawingManager.stopDrawingAndDisplayLayer()
         setResult()
         finish()
     }
