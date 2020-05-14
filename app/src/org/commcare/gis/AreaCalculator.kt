@@ -21,26 +21,18 @@ class AreaCalculator(val polygon: Polygon) {
     }
 
     fun getPerimeter(): Double {
-        return if (latLngs.size > 3) {
-            SphericalUtil.computeLength(latLngs)
-        } else {
-            0.0
-        }
+        return SphericalUtil.computeLength(latLngs)
     }
 
     fun getArea(): Double {
-        return if (latLngs.size > 3) {
-            SphericalUtil.computeArea(latLngs)
-        } else {
-            0.0
-        }
+        return SphericalUtil.computeArea(latLngs)
     }
 
 
     override fun toString(): String {
         var result = ""
         for (latLng in latLngs) {
-            result += String.format("%1s,%2s \n",latLng.latitude,latLng.longitude)
+            result += String.format("%1s,%2s \n", latLng.latitude, latLng.longitude)
         }
 
         return result
