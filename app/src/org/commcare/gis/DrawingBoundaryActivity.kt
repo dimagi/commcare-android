@@ -155,7 +155,7 @@ class DrawingBoundaryActivity : BaseKujakuActivity(), WithUIController, Location
     }
 
     fun redoTracking() {
-        drawingManager.reset()
+        drawingManager.clearDrawing()
         startTracking()
     }
 
