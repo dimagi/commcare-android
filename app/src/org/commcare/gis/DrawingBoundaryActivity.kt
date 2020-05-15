@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.content.res.Configuration
+import android.graphics.Bitmap
 import android.location.Location
 import android.location.LocationListener
 import android.os.Build
@@ -11,17 +12,22 @@ import android.os.Bundle
 import android.widget.Toast
 import com.mapbox.geojson.Polygon
 import com.mapbox.mapboxsdk.geometry.LatLng
+import com.mapbox.mapboxsdk.maps.MapboxMap
 import com.mapbox.mapboxsdk.maps.Style
 import io.ona.kujaku.manager.DrawingManager
 import kotlinx.android.synthetic.main.activity_entity_kujaku_map.*
+import org.commcare.activities.components.FormEntryInstanceState
 import org.commcare.android.javarosa.IntentCallout
 import org.commcare.dalvik.R
 import org.commcare.gis.EntityMapUtils.parseBoundaryCoords
 import org.commcare.interfaces.CommCareActivityUIController
 import org.commcare.interfaces.WithUIController
+import org.commcare.utils.FileUtil
+import org.commcare.utils.ImageType
 import org.javarosa.core.services.Logger
+import java.io.File
 
-class DrawingBoundaryActivity : BaseKujakuActivity(), WithUIController, LocationListener {
+class DrawingBoundaryActivity : BaseKujakuActivity(), WithUIController, LocationListener, MapboxMap.SnapshotReadyCallback {
 
     companion object {
         // Incoming Intent Extras
@@ -42,6 +48,7 @@ class DrawingBoundaryActivity : BaseKujakuActivity(), WithUIController, Location
 
     }
 
+    private var mapSnapshotPath: String? = null
     private lateinit var loadedStyle: Style
     private lateinit var boundaryCoords: String
     private var polygon: Polygon? = null
@@ -78,7 +85,7 @@ class DrawingBoundaryActivity : BaseKujakuActivity(), WithUIController, Location
             isImageReturnRequired = params.getString(EXTRA_KEY_IMAGE, "false")!!.toBoolean()
             title = params.getString(EXTRA_KEY_TITLE, "")
             detail = params.getString(EXTRA_KEY_DETAIL, "")
-            isManual = params.getString(EXTRA_KEY_MANUAL, "")!!.contentEquals("true")
+            isManual = params.getString(EXTRA_KEY_MANUAL, "false")!!.toBoolean()
             boundaryCoords = params.getString(EXTRA_KEY_COORDINATES, "")
         }
     }
@@ -150,8 +157,11 @@ class DrawingBoundaryActivity : BaseKujakuActivity(), WithUIController, Location
 
     fun finishTracking() {
         polygon = drawingManager.stopDrawingAndDisplayLayer()
-        setResult()
-        finish()
+        if (isImageReturnRequired) {
+            map.snapshot(this)
+        } else {
+            returnResult()
+        }
     }
 
     fun redoTracking() {
@@ -175,33 +185,34 @@ class DrawingBoundaryActivity : BaseKujakuActivity(), WithUIController, Location
         }
     }
 
-    private fun setResult() {
+    private fun returnResult() {
         val result = Bundle()
 
         val areaCalculator = AreaCalculator(polygon!!)
         result.putString(EXTRA_KEY_PERIMETER, areaCalculator.getPerimeter().toString())
         result.putString(EXTRA_KEY_COORDINATES, areaCalculator.toString())
 
-//        if (isImageReturnRequired) {
-//            result.putString(EXTRA_KEY_IMAGE, mapSnapshotPath)
-//        }
+        if (isImageReturnRequired) {
+            result.putString(EXTRA_KEY_IMAGE, mapSnapshotPath)
+        }
 
         val data = Intent()
         data.putExtra(IntentCallout.INTENT_RESULT_EXTRAS_BUNDLE, result)
         data.putExtra(IntentCallout.INTENT_RESULT_VALUE, areaCalculator.getArea().toString())
         setResult(Activity.RESULT_OK, data)
+        finish()
     }
 
     override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {
-        TODO("Not yet implemented")
+        // deprecated, never called
     }
 
     override fun onProviderEnabled(provider: String?) {
-        TODO("Not yet implemented")
+        // connection set, nothing more to do here
     }
 
     override fun onProviderDisabled(provider: String?) {
-        TODO("Not yet implemented")
+        showToast(R.string.location_provider_disabled)
     }
 
     override fun initUIController() {
@@ -214,5 +225,12 @@ class DrawingBoundaryActivity : BaseKujakuActivity(), WithUIController, Location
 
     fun getArea(): Double {
         return if (polygon != null) AreaCalculator(polygon!!).getArea() else 0.0
+    }
+
+    override fun onSnapshotReady(snapshot: Bitmap) {
+        val imageFilename = System.currentTimeMillis().toString() + "." + "png"
+        mapSnapshotPath = FormEntryInstanceState.getInstanceFolder() + imageFilename
+        FileUtil.writeBitmapToDiskAndCleanupHandles(snapshot, ImageType.PNG, File(mapSnapshotPath!!))
+        returnResult()
     }
 }
