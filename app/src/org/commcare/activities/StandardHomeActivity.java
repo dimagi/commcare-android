@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-
 import org.commcare.CommCareApplication;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
@@ -39,6 +38,7 @@ public class StandardHomeActivity
     public static final int MENU_ADVANCED = Menu.FIRST + 5;
     public static final int MENU_ABOUT = Menu.FIRST + 6;
     public static final int MENU_PIN = Menu.FIRST + 7;
+    public static final int MENU_UPDATE_COMMCARE = Menu.FIRST + 8;
 
     private static final String AIRPLANE_MODE_CATEGORY = "airplane-mode";
 
@@ -126,6 +126,7 @@ public class StandardHomeActivity
         menu.add(0, MENU_PREFERENCES, 0, Localization.get("home.menu.settings")).setIcon(
                 android.R.drawable.ic_menu_preferences);
         menu.add(0, MENU_PIN, 0, Localization.get("home.menu.pin.set"));
+        menu.add(0, MENU_UPDATE_COMMCARE, 0, Localization.get("home.menu.update.commcare"));
         return true;
     }
 
@@ -142,6 +143,7 @@ public class StandardHomeActivity
         menu.findItem(MENU_PREFERENCES).setVisible(enableMenus);
         menu.findItem(MENU_ADVANCED).setVisible(enableMenus);
         menu.findItem(MENU_ABOUT).setVisible(enableMenus);
+        menu.findItem(MENU_UPDATE_COMMCARE).setVisible(enableMenus && showCommCareUpdateMenu);
         preparePinMenu(menu, enableMenus);
         return true;
     }
@@ -193,6 +195,9 @@ public class StandardHomeActivity
             case MENU_PIN:
                 launchPinAuthentication();
                 return true;
+            case MENU_UPDATE_COMMCARE:
+                startCommCareUpdate();
+                return true;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -211,6 +216,8 @@ public class StandardHomeActivity
                 AnalyticsParamValue.ITEM_ADVANCED_ACTIONS);
         menuIdToAnalyticsEvent.put(MENU_ABOUT,
                 AnalyticsParamValue.ITEM_ABOUT_CC);
+        menuIdToAnalyticsEvent.put(MENU_UPDATE_COMMCARE,
+                AnalyticsParamValue.ITEM_UPDATE_CC_PLATFORM);
         return menuIdToAnalyticsEvent;
     }
 
@@ -246,5 +253,9 @@ public class StandardHomeActivity
     public void refreshUI() {
         uiController.refreshView();
     }
-    
+
+    @Override
+    void refreshCCUpdateOption() {
+        invalidateOptionsMenu();
+    }
 }

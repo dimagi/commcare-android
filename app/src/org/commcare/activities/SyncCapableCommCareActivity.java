@@ -17,12 +17,14 @@ import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.interfaces.UiLoadedListener;
+import org.commcare.preferences.HiddenPreferences;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.sync.ProcessAndSendTask;
 import org.commcare.tasks.PullTaskResultReceiver;
 import org.commcare.tasks.ResultAndError;
 import org.commcare.utils.SyncDetailCalculations;
 import org.commcare.views.dialogs.CustomProgressDialog;
+import org.commcare.views.dialogs.StandardAlertDialog;
 import org.javarosa.core.services.locale.Localization;
 
 import androidx.annotation.AnimRes;
@@ -211,6 +213,28 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
             // Since we know that we just had connectivity, now is a great time to try this
             CommCareApplication.instance().getSession().initHeartbeatLifecycle();
         }
+    }
+
+    public void showRateLimitError(boolean userTriggered) {
+
+        if (HiddenPreferences.isRateLimitPopupDisabled() || !userTriggered) {
+            handleFormSendResult(Localization.get("form.send.rate.limit.error.toast"), false);
+            return;
+        }
+        String title = Localization.get("form.send.rate.limit.error.title");
+        String message = Localization.get("form.send.rate.limit.error.message");
+        StandardAlertDialog dialog = StandardAlertDialog.getBasicAlertDialog(this, title,
+                message, null);
+
+        dialog.setNegativeButton(Localization.get("rate.limit.error.dialog.do.not.show"), (dialog1, which) -> {
+            HiddenPreferences.disableRateLimitPopup(true);
+            dismissAlertDialog();
+        });
+        dialog.setPositiveButton(Localization.get("rate.limit.error.dialog.close"), (dialog1, which) -> {
+            dismissAlertDialog();
+        });
+
+        showAlertDialog(dialog);
     }
 
     abstract void updateUiAfterDataPullOrSend(String message, boolean success);

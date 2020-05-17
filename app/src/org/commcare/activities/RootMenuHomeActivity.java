@@ -86,6 +86,13 @@ public class RootMenuHomeActivity extends HomeScreenBaseActivity<RootMenuHomeAct
     }
 
     @Override
+    void refreshCCUpdateOption() {
+        if (usingNavDrawer()) {
+            navDrawerController.refreshItems();
+        }
+    }
+
+    @Override
     public boolean usesSubmissionProgressBar() {
         return true;
     }

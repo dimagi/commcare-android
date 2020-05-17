@@ -29,6 +29,7 @@ public class AnalyticsParamValue {
     public static final String ITEM_SAVE_FORM = "save_form";
     public static final String ITEM_FORM_HIERARCHY = "form_hierarchy";
     public static final String ITEM_CHANGE_FORM_SETTINGS = "change_settings";
+    public static final String ITEM_UPDATE_CC_PLATFORM = "update_commcare_platform";
 
     // Param values for sync attempts
     public static final String SYNC_TRIGGER_USER = "user_triggered_sync";
@@ -96,6 +97,7 @@ public class AnalyticsParamValue {
     public static final String FORCE_LOG_SUBMISSION = "force_log_submission";
     public static final String RECOVERY_MODE = "recovery_mode";
     public static final String ENABLE_PRIVILEGES = "enable_mobile_privileges";
+    public static final String ENABLE_RATE_LIMIT_POPUP = "enable_rate_limit_popup";
 
     // Param values for entity detail ui state
     static final String DETAIL_WITH_TABS = "detail_with_tabs";

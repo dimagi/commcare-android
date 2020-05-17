@@ -83,6 +83,7 @@ home.menu.advanced=Advanced
 home.menu.disable.analytics=Opt Out of Analytics
 home.menu.pin.set=Set My PIN
 home.menu.pin.change=Change My PIN
+home.menu.update.commcare=Update CommCare
 
 menu.update.from.ccz=Offline Update
 menu.update.from.hub=Update from Local Hub
@@ -100,6 +101,7 @@ menu.disable.pre.update.sync=Disable Mandatory Pre-Update Sync
 menu.enable.privileges=Mobile Privileges
 menu.privilege.claim.disable=Disable Privileges
 menu.data.change.logs=Data Change Logs
+menu.enable.rate.limit.popup=Enable Rate Limit Error Popup
 
 install.fail.error=We encountered an ${0} error processing your request. Please try again later. If the problem persists, contact CommCare Support.
 
@@ -120,6 +122,12 @@ sync.fail.rate.limited.server.error=Our servers are unavailable at this time. Pl
 sync.fail.unknown=An unexpected issue occurred during sync. Please try to sync again.
 sync.fail.unsent=Having issues communicating with the server to send forms. Will try again later.
 sync.fail.individual=1 or more forms failed to send due to individual problems. See quarantined forms for details.
+
+form.send.rate.limit.error.toast=Form submission rate limit reached. Your forms are being saved locally and will be submitted to the server later.
+form.send.rate.limit.error.title=You've reached your form submission rate limit
+form.send.rate.limit.error.message=Form submissions will be saved locally on your phone until rate limiting expires. Not to worry, all forms will be auto-synced to the server later. Contact your CommCare admin for more information.
+rate.limit.error.dialog.do.not.show=Don’t show again
+rate.limit.error.dialog.close=Close
 
 auth.over.http=CommCare can't connect with authentication to an insecure (HTTP) server.
 
@@ -870,3 +878,18 @@ drawing.boundary.map.start.tracking=Start
 drawing.boundary.map.stop.tracking=Stop
 drawing.boundary.map.ok.tracking=Done
 drawing.boundary.map.redo.tracking=Redo
+
+in.app.update.installed.title=Finish CommCare Update
+in.app.update.installed.detail=CommCare just downloaded an update. You need to restart CommCare to finish the installation.
+in.app.update.dialog.cancel=Cancel
+in.app.update.dialog.restart=Restart
+in.app.update.downloading.title=Downloading CommCare Update
+in.app.update.downloading.detail=CommCare update in progress
+in.app.update.downloading.action=CommCare is updating in the background. You can continue using CommCare while the download completes.
+in.app.update.error.not.allowed=Couldn't install CommCare update due to device state(low battery or low disk space).
+in.app.update.error.partially.allowed=Couldn't install CommCare update due to internal failure. Please update using PlayStore.
+in.app.update.error.unknown=Couldn't install CommCare update due to an unknown error. Please try later.
+in.app.update.error.playstore=Updating CommCare requires an official PlayStore app which is missing. Please install PlayStore.
+in.app.update.error.invalid.request=Couldn't install CommCare update due to internal failure. Please try later.
+in.app.update.error.internal.error=Couldn't install CommCare update due to internal error in PlayStore. Please try later.
+

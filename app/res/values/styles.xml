@@ -116,7 +116,22 @@
         <item name="android:textColor">@color/red</item>
     </style>
 
-    <style name="DialogBaseTheme" parent="android:Theme.Dialog" />
+    <style name="DialogBaseTheme" parent="android:Theme.Holo.Light.Dialog"/>
+
+    <!-- Start Collect styles -->
+
+    <dimen name="select_padding">15dp</dimen>
+    <dimen name="nav_border_depth">2dp</dimen>
+    <dimen name="badge_circum_outer">22dp</dimen>
+    <dimen name="badge_circum_border">20dp</dimen>
+    <dimen name="badge_offset">-17dp</dimen>
+    <!--              badge_circum_outer + badge_offset  + border_depth
+     -->
+    <dimen name="badge_overlap">7dp</dimen>
+    <dimen name="badge_offset_side">10dp</dimen>
+
+    <!-- This is the value that needs to be used to pull the lower view back up over the badge -->
+    <dimen name="badge_overlap_offset">-5dp</dimen>
 
     <style name="FloatingLabel" parent="@android:style/TextAppearance">
         <item name="android:background">@drawable/label_floating_good</item>
@@ -276,20 +291,5 @@
 
     <dimen name="grid_entity_padding">3dp</dimen>
 
-    <dimen name="select_padding">15dp</dimen>
-
-    <dimen name="nav_border_depth">2dp</dimen>
-
-    <dimen name="badge_circum_outer">22dp</dimen>
-
-    <dimen name="badge_circum_border">20dp</dimen>
-
-    <dimen name="badge_offset">-17dp</dimen>
-
-    <dimen name="badge_overlap">7dp</dimen>
-
-
-    <dimen name="badge_offset_side">10dp</dimen>
-    <dimen name="badge_overlap_offset">-5dp</dimen>
     <dimen name="map_button_min_width">120dp</dimen>
 </resources>

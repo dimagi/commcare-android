@@ -43,6 +43,8 @@ public class HiddenPreferences {
     public final static String LATEST_APP_VERSION = "latest-app-version";
     private static final String LAST_LOG_DELETION_TIME = "last_log_deletion_time";
     private final static String FORCE_LOGS = "force-logs";
+    private final static String COMMCARE_UPDATE_CANCELLATION_COUNTER = "cc_update_cancellation_counter";
+    private final static String DISABLE_RATE_LIMIT_POPUP = "disable-rate-limit-popup";
 
     // Preferences whose values are only ever set by being sent down from HQ via the profile file
     private final static String USE_KUJAKU_MAP = "cc-use-kujaku-map";
@@ -479,5 +481,28 @@ public class HiddenPreferences {
 
         return referenceTime != -1 &&
                 new Date().getTime() - referenceTime < TimeUnit.HOURS.toMillis(NO_OF_HOURS_TO_WAIT_TO_RESUME_BACKGROUND_WORK);
+    }
+
+    public static void incrementCommCareUpdateCancellationCounter(String version) {
+        String key = COMMCARE_UPDATE_CANCELLATION_COUNTER + "_" + version;
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(CommCareApplication.instance());
+        int count = sharedPreferences.getInt(key, 0);
+        sharedPreferences.edit().putInt(key, count + 1).apply();
+    }
+
+    public static int getCommCareUpdateCancellationCounter(String version) {
+        String key = COMMCARE_UPDATE_CANCELLATION_COUNTER + "_" + version;
+        return PreferenceManager.getDefaultSharedPreferences(CommCareApplication.instance()).getInt(key, 0);
+    }
+
+    public static boolean isRateLimitPopupDisabled() {
+        return CommCareApplication.instance().getCurrentApp().getAppPreferences().getBoolean(DISABLE_RATE_LIMIT_POPUP, false);
+    }
+
+    public static void disableRateLimitPopup(boolean disable) {
+        CommCareApplication.instance().getCurrentApp().getAppPreferences()
+                .edit()
+                .putBoolean(DISABLE_RATE_LIMIT_POPUP, disable)
+                .apply();
     }
 }
