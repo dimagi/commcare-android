@@ -77,7 +77,7 @@ object EntityMapUtils {
     fun parseBoundaryCoords(boundaryCoords: String): ArrayList<LatLng> {
         val latLngs = ArrayList<LatLng>()
         if (boundaryCoords.isNotEmpty()) {
-            val list = boundaryCoords.split("\\n")
+            val list = boundaryCoords.split("\n", "\\n")
             list.filter { coord -> coord != "" }
                     .map { coord ->
                         val latLngArray = coord.split(",")
