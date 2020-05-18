@@ -1,11 +1,14 @@
 package org.commcare.utils;
 
 import android.content.Context;
+import android.os.RemoteException;
 import androidx.annotation.IdRes;
 import androidx.test.espresso.DataInteraction;
 import androidx.test.platform.app.InstrumentationRegistry;
+import androidx.test.uiautomator.UiDevice;
 import org.commcare.dalvik.R;
 
+import static androidx.test.espresso.Espresso.closeSoftKeyboard;
 import static androidx.test.espresso.Espresso.onData;
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.Espresso.openActionBarOverflowOrOptionsMenu;
@@ -21,14 +24,22 @@ import static org.hamcrest.Matchers.startsWith;
  * @author $|-|!˅@M
  */
 public class Utility {
-    public static void installApp(String code) {
-        onView(withId(R.id.enter_app_location))
+    public static void installApp(String cczName) {
+        String location = "/storage/emulated/0/" + cczName;
+        openOptionsMenu();
+        onView(withText("Offline Install"))
                 .perform(click());
-        onView(withId(R.id.edit_profile_location))
-                .perform(typeText(code));
-        onView(withId(R.id.start_install))
-                .perform(click());
-        onView(withId(R.id.btn_start_install))
+        onView(withId(R.id.screen_multimedia_inflater_location))
+                .perform(typeText(location));
+        UiDevice device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation());
+        try {
+            device.setOrientationLeft();
+            device.setOrientationNatural();
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
+        closeSoftKeyboard();
+        onView(withId(R.id.screen_multimedia_inflater_install))
                 .perform(click());
     }
 
@@ -37,8 +48,10 @@ public class Utility {
                 .perform(clearText());
         onView(withId(R.id.edit_username))
                 .perform(typeText(userName));
+        closeSoftKeyboard();
         onView(withId(R.id.edit_password))
                 .perform(typeText(password));
+        closeSoftKeyboard();
         onView(withId(R.id.login_button))
                 .perform(click());
     }
