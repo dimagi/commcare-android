@@ -1143,10 +1143,12 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                     hasSaved = true;
                     break;
                 case SAVED_AND_EXIT:
-                    toastMessage = Localization.get("form.entry.complete.save.success");
                     hasSaved = true;
+                    if (!CommCareApplication.instance().isConsumerApp()) {
+                        Toast.makeText(this, Localization.get("form.entry.complete.save.success"), Toast.LENGTH_SHORT).show();
+                    }
                     finishReturnInstance();
-                    break;
+                    return;
                 case INVALID_ANSWER:
                     // an answer constraint was violated, so try to save the
                     // current question to trigger the constraint violation message
