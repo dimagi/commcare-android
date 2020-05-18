@@ -15,7 +15,7 @@ import com.mapbox.mapboxsdk.geometry.LatLng
 import com.mapbox.mapboxsdk.maps.MapboxMap
 import com.mapbox.mapboxsdk.maps.Style
 import io.ona.kujaku.manager.DrawingManager
-import kotlinx.android.synthetic.main.activity_entity_kujaku_map.*
+import kotlinx.android.synthetic.main.activity_entity_mapbox.*
 import org.commcare.activities.components.FormEntryInstanceState
 import org.commcare.android.javarosa.IntentCallout
 import org.commcare.dalvik.R
@@ -27,7 +27,7 @@ import org.commcare.utils.ImageType
 import org.javarosa.core.services.Logger
 import java.io.File
 
-class DrawingBoundaryActivity : BaseKujakuActivity(), WithUIController, LocationListener, MapboxMap.SnapshotReadyCallback {
+class DrawingBoundaryActivity : BaseMapboxActivity(), WithUIController, LocationListener, MapboxMap.SnapshotReadyCallback {
 
     companion object {
         // Incoming Intent Extras

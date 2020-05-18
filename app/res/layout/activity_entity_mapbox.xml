@@ -4,5 +4,5 @@
     android:id="@+id/mapView"
     android:layout_height="match_parent"
     android:layout_width="match_parent"
-    tools:context="org.commcare.gis.EntityKujakuMapActivity" />
+    tools:context="org.commcare.gis.EntityMapboxActivity" />
 

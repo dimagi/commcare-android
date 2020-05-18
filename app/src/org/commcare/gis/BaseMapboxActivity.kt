@@ -4,14 +4,14 @@ import android.os.Bundle
 import com.mapbox.mapboxsdk.Mapbox
 import com.mapbox.mapboxsdk.maps.MapboxMap
 import io.ona.kujaku.KujakuLibrary
-import kotlinx.android.synthetic.main.activity_entity_kujaku_map.*
+import kotlinx.android.synthetic.main.activity_entity_mapbox.*
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import org.commcare.activities.CommCareActivity
 import org.commcare.dalvik.BuildConfig
 import org.commcare.interfaces.CommCareActivityUIController
 
-abstract class BaseKujakuActivity : CommCareActivity<BaseKujakuActivity>() {
+abstract class BaseMapboxActivity : CommCareActivity<BaseMapboxActivity>() {
 
     val jobs = ArrayList<Job>()
     lateinit var map: MapboxMap

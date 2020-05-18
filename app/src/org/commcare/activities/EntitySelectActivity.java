@@ -34,9 +34,8 @@ import org.commcare.cases.entity.Entity;
 import org.commcare.cases.entity.NodeEntityFactory;
 import org.commcare.dalvik.R;
 import org.commcare.fragments.ContainerFragment;
-import org.commcare.gis.EntityKujakuMapActivity;
+import org.commcare.gis.EntityMapboxActivity;
 import org.commcare.gis.EntityMapActivity;
-import org.commcare.gis.DrawingBoundaryActivity;
 import org.commcare.google.services.ads.AdLocation;
 import org.commcare.google.services.ads.AdMobManager;
 import org.commcare.models.AndroidSessionWrapper;
@@ -751,7 +750,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
                 return true;
             case MENU_MAP:
                 Intent i = new Intent(this,
-                        HiddenPreferences.shouldUseKujakuMap() ? EntityKujakuMapActivity.class : EntityMapActivity.class);
+                        HiddenPreferences.shouldUseMapboxMap() ? EntityMapboxActivity.class : EntityMapActivity.class);
                 this.startActivityForResult(i, MAP_SELECT);
                 return true;
             // handling click on the barcode scanner's actionbar

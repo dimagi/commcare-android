@@ -27,7 +27,7 @@ import com.mapbox.mapboxsdk.style.layers.PropertyFactory
 import com.mapbox.mapboxsdk.style.layers.SymbolLayer
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
 import io.ona.kujaku.manager.AnnotationRepositoryManager
-import kotlinx.android.synthetic.main.activity_entity_kujaku_map.*
+import kotlinx.android.synthetic.main.activity_entity_mapbox.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -47,7 +47,7 @@ import org.javarosa.core.model.data.GeoPointData
 import org.javarosa.core.model.instance.TreeReference
 import org.javarosa.core.services.Logger
 
-class EntityKujakuMapActivity : BaseKujakuActivity() {
+class EntityMapboxActivity : BaseMapboxActivity() {
 
     companion object {
 
@@ -81,7 +81,7 @@ class EntityKujakuMapActivity : BaseKujakuActivity() {
 
 
     override fun getMapLayout(): Int {
-        return R.layout.activity_entity_kujaku_map
+        return R.layout.activity_entity_mapbox
     }
 
 

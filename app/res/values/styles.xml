@@ -144,8 +144,6 @@
         <item name="android:scrollbars">none</item>
     </style>
 
-    <!-- Start Collect styles -->
-
     <style name="ListContentWithoutBadge">
         <item name="android:layout_margin">@dimen/content_min_margin</item>
         <item name="android:colorBackground">@color/cc_core_bg</item>
@@ -179,8 +177,7 @@
         <item name="android:drawablePadding">8dp</item>
         <item name="android:textColor">@color/grey</item>
     </style>
-    <!--              badge_circum_outer + badge_offset  + border_depth
-     -->
+
     <style name="DefaultHorizontalPadding">
         <item name="android:paddingLeft">@dimen/content_start</item>
         <item name="android:paddingRight">@dimen/content_start</item>
@@ -190,7 +187,6 @@
         <item name="android:paddingBottom">@dimen/content_min_margin</item>
     </style>
 
-    <!-- This is the value that needs to be used to pull the lower view back up over the badge -->
     <style name="DefaultPadding">
         <item name="android:paddingLeft">@dimen/content_start</item>
         <item name="android:paddingRight">@dimen/content_start</item>

@@ -277,7 +277,7 @@
         <activity android:name="org.commcare.activities.EntityMapActivity">
         </activity>
 
-        <activity android:name="org.commcare.gis.EntityKujakuMapActivity"
+        <activity android:name="org.commcare.gis.EntityMapboxActivity"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar">
         </activity>
 
