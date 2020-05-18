@@ -47,6 +47,9 @@ import org.javarosa.core.model.data.GeoPointData
 import org.javarosa.core.model.instance.TreeReference
 import org.javarosa.core.services.Logger
 
+/**
+ * Mapbox based screen to show cases on a map
+ */
 class EntityMapboxActivity : BaseMapboxActivity() {
 
     companion object {

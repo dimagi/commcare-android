@@ -27,6 +27,9 @@ import org.commcare.utils.ImageType
 import org.javarosa.core.services.Logger
 import java.io.File
 
+/**
+ * Used to draw or walk a boundary on mapbox based map
+ */
 class DrawingBoundaryActivity : BaseMapboxActivity(), WithUIController, LocationListener, MapboxMap.SnapshotReadyCallback {
 
     companion object {

@@ -4,6 +4,9 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.SphericalUtil
 import com.mapbox.geojson.Polygon
 
+/**
+ * Utility class to calculate polygon sphrical properties like area and perimeter
+ */
 class AreaCalculator(val polygon: Polygon) {
 
     private var latLngs = ArrayList<LatLng>()

@@ -11,6 +11,9 @@ import org.commcare.activities.CommCareActivity
 import org.commcare.dalvik.BuildConfig
 import org.commcare.interfaces.CommCareActivityUIController
 
+/**
+ * Base class for Mapbox based map activites
+ */
 abstract class BaseMapboxActivity : CommCareActivity<BaseMapboxActivity>() {
 
     val jobs = ArrayList<Job>()
