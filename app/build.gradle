@@ -50,6 +50,9 @@ dependencies {
     androidTestImplementation 'androidx.test:rules:1.1.0'
     androidTestImplementation 'androidx.test.espresso:espresso-intents:3.1.0'
 
+    // Because espresso doesn't really have a good way to rotate the screen.
+    androidTestImplementation 'androidx.test.uiautomator:uiautomator:2.2.0'
+
     // release build type expects commcare jars to be in app/libs
     implementation(project(':commcare-core')) {
         exclude module: 'xpp3'
@@ -338,6 +341,7 @@ android {
         }
 
         androidTest {
+            setRoot('instrumentation-tests/')
             java.srcDirs = ['instrumentation-tests/src/']
             resources.srcDirs = ['instrumentation-tests/resources']
         }
