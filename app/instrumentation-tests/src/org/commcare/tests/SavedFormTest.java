@@ -98,7 +98,7 @@ public class SavedFormTest {
     @Before
     public void login() {
         if (CommCareApplication.instance().getCurrentApp() == null) {
-            Utility.installApp("2zI4jeQ");
+            Utility.installApp("testSavedForm.ccz");
         }
         Utility.login("check", "123");
     }
