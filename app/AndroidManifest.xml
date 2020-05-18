@@ -274,7 +274,7 @@
             android:windowSoftInputMode="adjustResize">
         </activity>
 
-        <activity android:name="org.commcare.activities.EntityMapActivity">
+        <activity android:name="org.commcare.gis.EntityMapActivity">
         </activity>
 
         <activity android:name="org.commcare.gis.EntityMapboxActivity"
