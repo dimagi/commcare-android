@@ -360,7 +360,14 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         // For audio/video capture/chooser, we get the URI from the content provider
         // then the widget copies the file and makes a new entry in the content provider.
         Uri media = intent.getData();
-        if (!FileUtil.isSupportedMultiMediaFile(media)) {
+        if (media == null) {
+            Logger.log(LogTypes.TYPE_ERROR_ASSERTION, "AUDIO_VIDEO_FETCH intent data returns null " + intent.toString());
+            Logger.log(LogTypes.TYPE_ERROR_ASSERTION, "Extras: " + (intent.getExtras() != null ? intent.getExtras().toString() : "null"));
+            uiController.questionsView.clearAnswer();
+            Toast.makeText(FormEntryActivity.this,
+                    Localization.get("form.attachment.notfound"),
+                    Toast.LENGTH_LONG).show();
+        } else if (!FileUtil.isSupportedMultiMediaFile(media)) {
             // don't let the user select a file that won't be included in the
             // upload to the server
             uiController.questionsView.clearAnswer();
