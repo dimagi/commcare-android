@@ -492,7 +492,7 @@ public class MediaLayout extends RelativeLayout {
         }
     }
 
-    private View getMissingMediaView(String mediaUri, String errorMessage, boolean download) {
+    private View getMissingMediaView(String mediaUri, String errorMessage, boolean allowDownload) {
         missingMediaView = LayoutInflater.from(getContext()).inflate(R.layout.missing_media_view, this, false);
 
         TextView status = missingMediaView.findViewById(R.id.missing_media_tv);
@@ -500,7 +500,7 @@ public class MediaLayout extends RelativeLayout {
 
         View progressView = missingMediaView.findViewById(R.id.progress_bar);
         View downloadIcon = missingMediaView.findViewById(R.id.download_media_icon);
-        downloadIcon.setVisibility(download ? View.VISIBLE : INVISIBLE);
+        downloadIcon.setVisibility(allowDownload ? View.VISIBLE : INVISIBLE);
 
         downloadIcon.setOnClickListener(v -> {
 
