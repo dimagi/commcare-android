@@ -20,7 +20,6 @@ import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.transport.payload.ByteArrayPayload;
-import org.javarosa.form.api.FormController;
 import org.javarosa.form.api.FormEntryController;
 import org.javarosa.model.xform.XFormSerializingVisitor;
 import org.javarosa.xform.util.XFormSerializer;
@@ -290,20 +289,24 @@ public class SaveToDiskTask extends
      * though, until all answers conform to their constraints/requirements.
      */
     private boolean hasInvalidAnswers(boolean markCompleted) {
-        FormController formController = FormEntryActivity.mFormController;
-        FormIndex currentFormIndex = FormIndex.createBeginningOfFormIndex();
+        FormIndex i = FormEntryActivity.mFormController.getFormIndex();
+        FormEntryActivity.mFormController.jumpToIndex(FormIndex.createBeginningOfFormIndex());
+
         int event;
-        while ((event = formController.getEvent(currentFormIndex)) != FormEntryController.EVENT_END_OF_FORM) {
+        while ((event =
+                FormEntryActivity.mFormController.stepToNextEvent(FormEntryController.STEP_INTO_GROUP)) != FormEntryController.EVENT_END_OF_FORM) {
             if (event == FormEntryController.EVENT_QUESTION) {
                 int saveStatus = formController.checkCurrentQuestionConstraint(currentFormIndex);
                 if (markCompleted &&
                         (saveStatus == FormEntryController.ANSWER_REQUIRED_BUT_EMPTY ||
                                 saveStatus == FormEntryController.ANSWER_CONSTRAINT_VIOLATED)) {
+
                     return true;
                 }
             }
-            currentFormIndex = formController.getNextFormIndex(currentFormIndex, FormEntryController.STEP_INTO_GROUP, true);
         }
+
+        FormEntryActivity.mFormController.jumpToIndex(i);
         return false;
     }
 
