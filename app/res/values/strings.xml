@@ -421,4 +421,7 @@
     <string name="media_download_in_progress" cc:translatable="true">Download in Progress, Please wait...</string>
     <string name="media_download_started" cc:translatable="true">Download started</string>
     <string name="media_download_completed" cc:translatable="true">Download completed</string>
+    <string name="video_download_prompt" cc:translatable="true">Video file is missing for this question, click the download button above to download</string>
+    <string name="image_download_prompt" cc:translatable="true">Image file is missing for this question, Click the download button above to download</string>
+    <string name="audio_download_prompt" cc:translatable="true">Audio file is missing for this question, click the download button above to download</string>
 </resources>

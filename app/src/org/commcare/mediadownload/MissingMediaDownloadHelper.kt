@@ -1,5 +1,8 @@
 package org.commcare.mediadownload
 
+import android.content.Context
+import android.widget.ImageButton
+import android.widget.Toast
 import androidx.work.*
 import kotlinx.coroutines.*
 import org.commcare.CommCareApplication
@@ -9,6 +12,8 @@ import org.commcare.engine.resource.ResourceInstallUtils
 import org.commcare.preferences.HiddenPreferences
 import org.commcare.resources.model.*
 import org.commcare.utils.AndroidCommCarePlatform
+import org.commcare.utils.AndroidUtil
+import org.commcare.utils.FileUtil
 import org.commcare.views.dialogs.PinnedNotificationWithProgress
 import org.javarosa.core.services.Logger
 import org.javarosa.core.util.SizeBoundUniqueVector
@@ -98,13 +103,16 @@ object MissingMediaDownloadHelper : TableStateListener, InstallCancelled {
         global.setInstallCancellationChecker(null)
     }
 
+    /**
+     * Downloads a resource with it's location represented by {@param mediaUri}
+     */
     @JvmStatic
-    fun requestMediaDownload(videoURI: String, missingMediaDownloadListener: MissingMediaDownloadListener) {
+    fun requestMediaDownload(mediaUri: String, missingMediaDownloadListener: MissingMediaDownloadListener) {
         jobs.add(
                 CoroutineScope(Dispatchers.Default).launch {
                     var result: MissingMediaDownloadResult = MissingMediaDownloadResult.Error("Unknown Error")
                     try {
-                        result = downloadMissingMediaResource(videoURI)
+                        result = downloadMissingMediaResource(mediaUri)
                     } catch (e: Exception) {
                         Logger.exception(" An error occured while recovering a missing resource", e);
                         withContext(Dispatchers.Main) {
@@ -125,7 +133,6 @@ object MissingMediaDownloadHelper : TableStateListener, InstallCancelled {
         val lazyResources: Vector<Resource> = global.lazyResources!!
 
         getLazyResourceFromMediaUri(lazyResources, uri).let {
-
             return if (resourceInProgress == null || it.resourceId != resourceInProgress!!.resourceId) {
                 recoverResource(platform, getLazyResourceFromMediaUri(lazyResources, uri))
                 MissingMediaDownloadResult.Success
