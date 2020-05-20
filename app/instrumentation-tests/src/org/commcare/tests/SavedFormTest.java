@@ -74,6 +74,11 @@ public class SavedFormTest {
     public void login() {
         if (CommCareApplication.instance().getCurrentApp() == null) {
             Utility.installApp("testSavedForm.ccz");
+        } else {
+            if (!"TestSavedForm".equals(CommCareApplication.instance().getCurrentApp().getAppRecord().getDisplayName())) {
+                Utility.uninstallCurrentApp();
+                Utility.installApp("testSavedForm.ccz");
+            }
         }
         Utility.login("check", "123");
     }
