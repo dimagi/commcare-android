@@ -30,8 +30,11 @@ import static androidx.test.espresso.Espresso.openActionBarOverflowOrOptionsMenu
 import static androidx.test.espresso.action.ViewActions.clearText;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.typeText;
+import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.intent.Intents.intending;
 import static androidx.test.espresso.intent.matcher.IntentMatchers.hasAction;
+import static androidx.test.espresso.matcher.RootMatchers.isDialog;
+import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.isRoot;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
@@ -61,6 +64,15 @@ public class Utility {
                 .perform(click());
     }
 
+    public static void uninstallCurrentApp() {
+        openOptionsMenu();
+        onView(withText("Go To App Manager")).perform(click());
+        clickListItem(R.id.apps_list_view, 0);
+        onView(withText("Uninstall")).perform(click());
+        onView(withText("OK")).inRoot(isDialog()).perform(click());
+        onView(withId(R.id.install_app_button)).perform(click());
+    }
+
     public static void login(String userName, String password) {
         onView(withId(R.id.edit_username))
                 .perform(clearText());
@@ -77,14 +89,8 @@ public class Utility {
     public static void openFirstForm() {
         onView(withText("Start"))
                 .perform(click());
-        onData(anything())
-                .inAdapterView(withId(R.id.screen_suite_menu_list))
-                .atPosition(0)
-                .perform(click());
-        onData(anything())
-                .inAdapterView(withId(R.id.screen_suite_menu_list))
-                .atPosition(1)
-                .perform(click());
+        clickListItem(R.id.screen_suite_menu_list, 0);
+        clickListItem(R.id.screen_suite_menu_list, 1);
     }
 
     public static void openOptionsMenu() {
