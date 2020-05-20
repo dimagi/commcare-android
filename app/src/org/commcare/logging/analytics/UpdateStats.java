@@ -21,7 +21,7 @@ public class UpdateStats implements InstallStatsLogger, Serializable {
     private static final String TOP_LEVEL_STATS_KEY = "top-level-update-exceptions";
     private static final String UPGRADE_STATS_KEY = "upgrade_table_stats";
     private static final long TWO_WEEKS_IN_MS = 1000 * 60 * 60 * 24 * 24;
-    private static final int ATTEMPTS_UNTIL_UPDATE_STALE = 5;
+    private static final int ATTEMPTS_UNTIL_UPDATE_STALE = 10;
 
     private final Hashtable<String, InstallAttempts<String>> resourceInstallStats;
     private long startInstallTime;
