@@ -130,6 +130,8 @@ ext {
     STANDALONE_APP_ID = ""
     LTS_APP_ID = ""
     COMMCARE_APP_ID = ""
+    HQ_API_USERNAME = project.properties['HQ_API_USERNAME'] ?: ""
+    HQ_API_PASSWORD = project.properties['HQ_API_PASSWORD'] ?: ""
 }
 
 afterEvaluate {
@@ -282,6 +284,9 @@ android {
         buildConfigField "String", "ENTITY_SELECT_AD_UNIT_ID", "\"\""
         buildConfigField "String", "MENU_LIST_AD_UNIT_ID", "\"\""
         buildConfigField "String", "MENU_GRID_AD_UNIT_ID", "\"\""
+
+        buildConfigField "String", "HQ_API_USERNAME", "\"${project.ext.HQ_API_USERNAME}\""
+        buildConfigField "String", "HQ_API_PASSWORD", "\"${project.ext.HQ_API_PASSWORD}\""
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
