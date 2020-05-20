@@ -103,6 +103,7 @@ import org.commcare.utils.PendingCalcs;
 import org.commcare.utils.SessionActivityRegistration;
 import org.commcare.utils.SessionStateUninitException;
 import org.commcare.utils.SessionUnavailableException;
+import org.conscrypt.Conscrypt;
 import org.javarosa.core.model.User;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.reference.RootTranslator;
@@ -113,6 +114,7 @@ import org.javarosa.core.util.PropertyUtils;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 
 import java.io.File;
+import java.security.Security;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -231,7 +233,15 @@ public class CommCareApplication extends MultiDexApplication {
         LocalePreferences.saveDeviceLocale(Locale.getDefault());
     }
 
+    public static boolean isRoboUnitTest() {
+        return "robolectric".equals(Build.FINGERPRINT);
+    }
+
     private void initTls12IfNeeded() {
+        if (Build.VERSION.SDK_INT >= 16 && Build.VERSION.SDK_INT < 20 && !isRoboUnitTest()) {
+            Security.insertProviderAt(Conscrypt.newProvider(), 1);
+        }
+
         if (Build.VERSION.SDK_INT >= 16 && Build.VERSION.SDK_INT < 22) {
             CommCareNetworkServiceGenerator.customizeRetrofitSetup(new ForceTLS12BuilderConfig());
         }
