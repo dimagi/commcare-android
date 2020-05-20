@@ -652,8 +652,8 @@ public abstract class DataPullTask<R>
     }
 
     public enum PullTaskResult {
-        DOWNLOAD_SUCCESS(null),
-        RETRY_NEEDED(null),
+        DOWNLOAD_SUCCESS(AnalyticsParamValue.SYNC_SUCCESS),
+        RETRY_NEEDED(AnalyticsParamValue.SYNC_FAIL_RETRY_NEEDED),
         EMPTY_URL(AnalyticsParamValue.SYNC_FAIL_EMPTY_URL),
         AUTH_FAILED(AnalyticsParamValue.SYNC_FAIL_AUTH),
         BAD_DATA(AnalyticsParamValue.SYNC_FAIL_BAD_DATA),

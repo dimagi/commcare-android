@@ -141,11 +141,10 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
 
         String syncModeParam = formsToSend ? AnalyticsParamValue.SYNC_MODE_SEND_FORMS : AnalyticsParamValue.SYNC_MODE_JUST_PULL_DATA;
 
-        if (result == DataPullTask.PullTaskResult.DOWNLOAD_SUCCESS) {
-            FirebaseAnalyticsUtil.reportSyncSuccess(syncTriggerParam, syncModeParam);
-        } else {
-            FirebaseAnalyticsUtil.reportSyncFailure(syncTriggerParam, syncModeParam, result.analyticsFailureReasonParam);
-        }
+        FirebaseAnalyticsUtil.reportSyncResult(result == DataPullTask.PullTaskResult.DOWNLOAD_SUCCESS,
+                syncTriggerParam,
+                syncModeParam,
+                result.analyticsFailureReasonParam);
     }
 
     @Override
