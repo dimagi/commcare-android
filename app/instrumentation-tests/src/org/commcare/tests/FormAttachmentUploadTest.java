@@ -65,6 +65,12 @@ public class FormAttachmentUploadTest {
     public void setup() {
         if (CommCareApplication.instance().getCurrentApp() == null) {
             Utility.installApp("integration_test_app.ccz");
+        } else {
+            // We already have an installed app. But need to make sure it's the one that we're expecting.
+            if (!"Integration Tests".equals(CommCareApplication.instance().getCurrentApp().getAppRecord().getDisplayName())) {
+                Utility.uninstallCurrentApp();
+                Utility.installApp("integration_test_app.ccz");
+            }
         }
         Utility.login("test", "123");
     }
