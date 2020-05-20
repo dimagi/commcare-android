@@ -35,6 +35,7 @@ object MissingMediaDownloadHelper : TableStateListener, InstallCancelled {
 
     var installCancelled: InstallCancelled? = null
 
+    // Schedules MissingMediaDownloadWorker
     @JvmStatic
     fun scheduleMissingMediaDownload() {
         if (HiddenPreferences.shouldDownloadLazyMediaInBackground()) {
@@ -67,6 +68,7 @@ object MissingMediaDownloadHelper : TableStateListener, InstallCancelled {
     }
 
 
+    // Verifies all application media and re-downloads any missing lazy resources
     fun downloadAllMissingMedia() {
         val platform = CommCareApplication.instance().commCarePlatform
         val global = platform.globalResourceTable
