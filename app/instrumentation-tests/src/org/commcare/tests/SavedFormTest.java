@@ -70,31 +70,6 @@ public class SavedFormTest {
             Manifest.permission.CAMERA
     );
 
-    private IntentCallback intentCallback = intent -> {
-        if (MediaStore.ACTION_IMAGE_CAPTURE.equals(intent.getAction())) {
-            Uri uri = intent.getExtras().getParcelable(MediaStore.EXTRA_OUTPUT);
-            Context context = InstrumentationRegistry.getInstrumentation().getTargetContext();
-            Bitmap icon = BitmapFactory.decodeResource(
-                    context.getResources(),
-                    R.mipmap.ic_launcher);
-            try (OutputStream outputStream = context.getContentResolver().openOutputStream(uri)) {
-                icon.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-    };
-
-    private void stubCamera() {
-        // Build a result to return from the Camera app
-        Intent resultData = new Intent();
-        Instrumentation.ActivityResult result = new Instrumentation.ActivityResult(Activity.RESULT_OK, resultData);
-
-        // Stub out the Camera. When an intent is sent to the Camera, this tells Espresso to respond
-        // with the ActivityResult we just created
-        intending(hasAction(MediaStore.ACTION_IMAGE_CAPTURE)).respondWith(result);
-    }
-
     @Before
     public void login() {
         if (CommCareApplication.instance().getCurrentApp() == null) {
@@ -115,11 +90,7 @@ public class SavedFormTest {
         onView(withId(R.id.nav_btn_next))
                 .perform(click());
 
-        stubCamera();
-        IntentMonitorRegistry.getInstance().addIntentCallback(intentCallback);
-        onView(withText(R.string.capture_image))
-                .perform(click());
-        IntentMonitorRegistry.getInstance().removeIntentCallback(intentCallback);
+        Utility.chooseImage();
 
         onView(isRoot()).perform(ViewActions.pressBack());
         onView(withText(R.string.keep_changes)).perform(click());
@@ -146,11 +117,7 @@ public class SavedFormTest {
         // Again add an image then exit without saving and confirm image is successfully added again.
         Utility.clickListItem(android.R.id.list, 1);
 
-        stubCamera();
-        IntentMonitorRegistry.getInstance().addIntentCallback(intentCallback);
-        onView(withText(R.string.capture_image))
-                .perform(click());
-        IntentMonitorRegistry.getInstance().removeIntentCallback(intentCallback);
+        Utility.chooseImage();
 
         onView(isRoot()).perform(ViewActions.pressBack());
         onView(withText(R.string.do_not_save)).perform(click());
