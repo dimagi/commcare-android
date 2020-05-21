@@ -240,12 +240,12 @@ public class CommCareApplication extends MultiDexApplication {
         LocalePreferences.saveDeviceLocale(Locale.getDefault());
     }
 
-    public static boolean isRoboUnitTest() {
-        return "robolectric".equals(Build.FINGERPRINT);
+    public boolean useConscryptSecurity() {
+        return Build.VERSION.SDK_INT >= 16 && Build.VERSION.SDK_INT < 20;
     }
 
     private void initTls12IfNeeded() {
-        if (Build.VERSION.SDK_INT >= 16 && Build.VERSION.SDK_INT < 20 && !isRoboUnitTest()) {
+        if (useConscryptSecurity()) {
             Security.insertProviderAt(Conscrypt.newProvider(), 1);
         }
 

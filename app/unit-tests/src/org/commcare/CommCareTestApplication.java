@@ -77,6 +77,12 @@ public class CommCareTestApplication extends CommCareApplication implements Test
     }
 
     @Override
+    public boolean useConscryptSecurity() {
+        return false;
+    }
+
+
+    @Override
     protected void turnOnStrictMode() {
         StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder()
                 .detectLeakedSqlLiteObjects()
