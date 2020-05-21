@@ -7,20 +7,17 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
-import android.os.RemoteException;
 import android.provider.MediaStore;
 import android.view.View;
-
 import androidx.annotation.IdRes;
 import androidx.test.espresso.DataInteraction;
 import androidx.test.espresso.UiController;
 import androidx.test.espresso.ViewAction;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.runner.intent.IntentMonitorRegistry;
-import androidx.test.uiautomator.UiDevice;
 import org.commcare.dalvik.R;
 import org.hamcrest.Matcher;
-
+import java.io.File;
 import java.io.OutputStream;
 
 import static androidx.test.espresso.Espresso.closeSoftKeyboard;
@@ -30,11 +27,9 @@ import static androidx.test.espresso.Espresso.openActionBarOverflowOrOptionsMenu
 import static androidx.test.espresso.action.ViewActions.clearText;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.typeText;
-import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.intent.Intents.intending;
 import static androidx.test.espresso.intent.matcher.IntentMatchers.hasAction;
 import static androidx.test.espresso.matcher.RootMatchers.isDialog;
-import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.isRoot;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
@@ -50,16 +45,8 @@ public class Utility {
         openOptionsMenu();
         onView(withText("Offline Install"))
                 .perform(click());
-        onView(withId(R.id.screen_multimedia_inflater_location))
-                .perform(typeText(location));
-        UiDevice device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation());
-        try {
-            device.setOrientationLeft();
-            device.setOrientationNatural();
-        } catch (RemoteException e) {
-            e.printStackTrace();
-        }
-        closeSoftKeyboard();
+        stubFileSelection(location);
+        onView(withId(R.id.screen_multimedia_inflater_filefetch)).perform(click());
         onView(withId(R.id.screen_multimedia_inflater_install))
                 .perform(click());
     }
@@ -121,37 +108,12 @@ public class Utility {
         onView(withText("Log out of CommCare")).perform(click());
     }
 
-    private static void stubCamera() {
-        // Build a result to return from the Camera app
-        Intent resultData = new Intent();
-        Instrumentation.ActivityResult result = new Instrumentation.ActivityResult(Activity.RESULT_OK, resultData);
-
-        // Stub out the Camera. When an intent is sent to the Camera, this tells Espresso to respond
-        // with the ActivityResult we just created
-        intending(hasAction(MediaStore.ACTION_IMAGE_CAPTURE)).respondWith(result);
-    }
-
     public static void chooseImage() {
         stubCamera();
         IntentMonitorRegistry.getInstance().addIntentCallback(Utility::onIntentSent);
         onView(withText(R.string.capture_image))
                 .perform(click());
         IntentMonitorRegistry.getInstance().removeIntentCallback(Utility::onIntentSent);
-    }
-
-    private static void onIntentSent(Intent intent) {
-        if (MediaStore.ACTION_IMAGE_CAPTURE.equals(intent.getAction())) {
-            Uri uri = intent.getExtras().getParcelable(MediaStore.EXTRA_OUTPUT);
-            Context context = InstrumentationRegistry.getInstrumentation().getTargetContext();
-            Bitmap icon = BitmapFactory.decodeResource(
-                    context.getResources(),
-                    R.mipmap.ic_launcher);
-            try (OutputStream outputStream = context.getContentResolver().openOutputStream(uri)) {
-                icon.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
     }
 
     /**
@@ -175,5 +137,38 @@ public class Utility {
                 uiController.loopMainThreadForAtLeast(millis);
             }
         };
+    }
+
+    private static void stubCamera() {
+        // Build a result to return from the Camera app
+        Intent resultData = new Intent();
+        Instrumentation.ActivityResult result = new Instrumentation.ActivityResult(Activity.RESULT_OK, resultData);
+
+        // Stub out the Camera. When an intent is sent to the Camera, this tells Espresso to respond
+        // with the ActivityResult we just created
+        intending(hasAction(MediaStore.ACTION_IMAGE_CAPTURE)).respondWith(result);
+    }
+
+    private static void stubFileSelection(String filePath) {
+        Intent resultData = new Intent();
+        Uri fileUri = Uri.fromFile(new File(filePath));
+        resultData.setData(fileUri);
+        Instrumentation.ActivityResult result = new Instrumentation.ActivityResult(Activity.RESULT_OK, resultData);
+        intending(hasAction(Intent.ACTION_GET_CONTENT)).respondWith(result);
+    }
+
+    private static void onIntentSent(Intent intent) {
+        if (MediaStore.ACTION_IMAGE_CAPTURE.equals(intent.getAction())) {
+            Uri uri = intent.getExtras().getParcelable(MediaStore.EXTRA_OUTPUT);
+            Context context = InstrumentationRegistry.getInstrumentation().getTargetContext();
+            Bitmap icon = BitmapFactory.decodeResource(
+                    context.getResources(),
+                    R.mipmap.ic_launcher);
+            try (OutputStream outputStream = context.getContentResolver().openOutputStream(uri)) {
+                icon.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 }
