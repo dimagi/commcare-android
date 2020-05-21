@@ -129,11 +129,15 @@ abstract class FileSystemInstaller implements ResourceInstaller<AndroidCommCareP
         }
     }
 
-    private File writeToTempFile(InputStream inputFileStream) throws IOException {
-        File tempFile = new File(CommCareApplication.instance().getTempFilePath());
-        OutputStream outputFileStream = new FileOutputStream(tempFile);
-        StreamsUtil.writeFromInputToOutputNew(inputFileStream, outputFileStream);
-        return tempFile;
+    private File writeToTempFile(InputStream inputFileStream) throws LocalStorageUnavailableException {
+        try {
+            File tempFile = new File(CommCareApplication.instance().getTempFilePath());
+            OutputStream outputFileStream = new FileOutputStream(tempFile);
+            StreamsUtil.writeFromInputToOutputNew(inputFileStream, outputFileStream);
+            return tempFile;
+        } catch (IOException e) {
+            throw new LocalStorageUnavailableException("Couldn't write to local reference " + localLocation + " for file system installation", localLocation);
+        }
     }
 
     private void renameFile(String newFilename, File currentFile) throws LocalStorageUnavailableException {
@@ -156,7 +160,7 @@ abstract class FileSystemInstaller implements ResourceInstaller<AndroidCommCareP
         } catch (InvalidReferenceException ire) {
             throw new LocalStorageUnavailableException("Couldn't create reference to declared location " + localLocation + " for file system installation", localLocation);
         } catch (IOException ioe) {
-            throw new LocalStorageUnavailableException("Couldn't write to local reference " + localLocation + " for file system installation", localLocation);
+            throw new LocalStorageUnavailableException("Couldn't get a local reference " + localLocation + " for file system installation", localLocation);
         }
 
         if (localLocation == null) {
