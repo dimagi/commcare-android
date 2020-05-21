@@ -18,6 +18,8 @@ import androidx.test.runner.intent.IntentMonitorRegistry;
 import org.commcare.dalvik.R;
 import org.hamcrest.Matcher;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 
 import static androidx.test.espresso.Espresso.closeSoftKeyboard;
@@ -41,7 +43,17 @@ import static org.hamcrest.Matchers.startsWith;
  */
 public class Utility {
     public static void installApp(String cczName) {
-        String location = "/storage/emulated/0/" + cczName;
+        String location = "/storage/emulated/0/" + cczName;;
+        File file = new File(location);
+        if (!file.exists()) {
+            Context context = InstrumentationRegistry.getInstrumentation().getTargetContext();
+            InputStream is = context.getClassLoader().getResourceAsStream("integration_test_app.ccz");
+            try {
+                FileUtil.copyFile(is, file);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
         openOptionsMenu();
         onView(withText("Offline Install"))
                 .perform(click());
