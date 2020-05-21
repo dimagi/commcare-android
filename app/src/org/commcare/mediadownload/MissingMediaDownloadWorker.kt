@@ -8,8 +8,6 @@ import org.commcare.resources.model.InstallCancelled
 class MissingMediaDownloadWorker(appContext: Context, workerParams: WorkerParameters)
     : CoroutineWorker(appContext, workerParams), InstallCancelled {
 
-
-
     override suspend fun doWork(): Result {
         MissingMediaDownloadHelper.installCancelled = this
         MissingMediaDownloadHelper.downloadAllMissingMedia()

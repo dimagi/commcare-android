@@ -21,6 +21,7 @@ import java.util.*
 import java.util.concurrent.TimeUnit
 import kotlin.collections.ArrayList
 
+// Contains helper functions to download lazy or missing media resources
 object MissingMediaDownloadHelper : TableStateListener, InstallCancelled {
 
     var resourceInProgress: Resource? = null

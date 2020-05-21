@@ -618,8 +618,7 @@ public class FileUtil {
      * @param intent           Intent returned from File Provider
      * @param filePathEditText EditText where we need to show the file path
      */
-    public static void updateFileLocationFromIntent(Context context, Intent intent, EditText
-            filePathEditText) {
+    public static void updateFileLocationFromIntent(Context context, Intent intent, EditText filePathEditText) {
         String filePath = getFileLocationFromIntent(intent);
         if (filePath == null) {
             // issue getting the filepath uri from file browser callout result

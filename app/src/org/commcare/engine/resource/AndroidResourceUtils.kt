@@ -11,23 +11,23 @@ import java.util.*
 
 object AndroidResourceUtils {
 
-    // loops over all lazy resources and checks if one of them has the same local path as the file uri
+    // loops over all lazy resources and checks if one of them has the same local path as {@param problem} URI
     @JvmStatic
     fun ifUriBelongsToALazyResource(problem: MissingMediaException, lazyResources: Vector<Resource>): Boolean {
         for (lazyResource in lazyResources) {
             if (matchFileUriToResource(lazyResource, problem.uri)) {
                 return true
             }
-
         }
         return false
     }
 
+    // checks if {@param resource} has same location as that represented by {@param uri}
     @JvmStatic
-    fun matchFileUriToResource(lazyResource: Resource, uri: String?): Boolean {
-        if (lazyResource.installer is MediaFileAndroidInstaller) {
+    fun matchFileUriToResource(resource: Resource, uri: String?): Boolean {
+        if (resource.installer is MediaFileAndroidInstaller) {
             try {
-                val resourceUri = (lazyResource.installer as MediaFileAndroidInstaller).localLocation
+                val resourceUri = (resource.installer as MediaFileAndroidInstaller).localLocation
                 val resourcePath = ReferenceManager.instance().DeriveReference(resourceUri).localURI
                 val problemPath = ReferenceManager.instance().DeriveReference(uri).localURI
                 if (File(resourcePath).canonicalPath.contentEquals(File(problemPath).canonicalPath)) {
