@@ -26,6 +26,7 @@ import java.util.concurrent.TimeUnit;
 
 import static androidx.test.espresso.Espresso.onData;
 import static androidx.test.espresso.Espresso.onView;
+import static androidx.test.espresso.Espresso.pressBackUnconditionally;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.matcher.ViewMatchers.isRoot;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
@@ -70,6 +71,8 @@ public class FormAttachmentUploadTest {
             if (!"Integration Tests".equals(CommCareApplication.instance().getCurrentApp().getAppRecord().getDisplayName())) {
                 Utility.uninstallCurrentApp();
                 Utility.installApp("integration_test_app.ccz");
+                // App installation doesn't take back to login screen. Is this an issue?
+                pressBackUnconditionally();
             }
         }
         Utility.login("test", "123");
