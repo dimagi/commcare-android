@@ -16,6 +16,8 @@ import androidx.test.espresso.ViewAction;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.runner.intent.IntentMonitorRegistry;
 import org.commcare.dalvik.R;
+import org.hamcrest.BaseMatcher;
+import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import java.io.File;
 import java.io.IOException;
@@ -28,6 +30,7 @@ import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.Espresso.openActionBarOverflowOrOptionsMenu;
 import static androidx.test.espresso.action.ViewActions.clearText;
 import static androidx.test.espresso.action.ViewActions.click;
+import static androidx.test.espresso.action.ViewActions.swipeUp;
 import static androidx.test.espresso.action.ViewActions.typeText;
 import static androidx.test.espresso.intent.Intents.intending;
 import static androidx.test.espresso.intent.matcher.IntentMatchers.hasAction;
@@ -117,7 +120,10 @@ public class Utility {
     }
 
     public static void logout() {
-        onView(withText("Log out of CommCare")).perform(click());
+        onView(withId(R.id.home_gridview_buttons))
+                .perform(swipeUp());
+        onView(withText("Log out of CommCare"))
+                .perform(click());
     }
 
     public static void chooseImage() {
@@ -150,6 +156,31 @@ public class Utility {
             }
         };
     }
+
+    /**
+     * In case a view contains more than 1 items of same type,
+     * use this to select the item at @param position.
+     * NOTE:- position is 1 based.
+     */
+    public static <T> Matcher<T> find(Matcher<T> matcher, int position) {
+        return new BaseMatcher<T>() {
+            int count = 0;
+            @Override
+            public boolean matches(Object item) {
+                if (matcher.matches(item)) {
+                    count++;
+                    return count == position;
+                }
+                return false;
+            }
+
+            @Override
+            public void describeTo(Description description) {
+                description.appendText("will return " + position + " matching item");
+            }
+        };
+    }
+
 
     private static void stubCamera() {
         // Build a result to return from the Camera app
