@@ -19,7 +19,6 @@ apply plugin: 'kotlin-android-extensions'
 apply plugin: 'io.fabric'
 
 repositories {
-    mavenLocal()
     google()
     mavenCentral()
     google()
@@ -95,7 +94,7 @@ dependencies {
     implementation 'ru.noties:markwon:1.0.4'
     implementation 'ru.noties:markwon-image-loader:1.0.4'
     implementation 'ru.noties:markwon-view:1.0.4'
-    implementation ('io.ona.kujaku:library:0.8.5'){
+    implementation ('io.ona.kujaku:library:0.8.7'){
         exclude module: 'xpp3'
     }
     implementation 'com.google.maps.android:android-maps-utils:0.3.4'
