@@ -47,7 +47,7 @@ public class Utility {
         File file = new File(location);
         if (!file.exists()) {
             Context context = InstrumentationRegistry.getInstrumentation().getTargetContext();
-            InputStream is = context.getClassLoader().getResourceAsStream("integration_test_app.ccz");
+            InputStream is = context.getClassLoader().getResourceAsStream(cczName);
             try {
                 FileUtil.copyFile(is, file);
             } catch (IOException e) {
