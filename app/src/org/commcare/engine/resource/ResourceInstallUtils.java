@@ -11,6 +11,7 @@ import org.commcare.preferences.MainConfigurablePreferences;
 import org.commcare.resources.ResourceManager;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
+import org.commcare.resources.model.UnreliableSourceException;
 import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.suite.model.Profile;
 import org.commcare.util.CommCarePlatform;
@@ -126,9 +127,13 @@ public class ResourceInstallUtils {
             return AppInstallStatus.BadCertificate;
         }
 
-        Logger.log(LogTypes.TYPE_WARNING_NETWORK,
-                "A resource couldn't be found, almost certainly due to the network|" +
-                        exception.getMessage());
+        if(exception instanceof UnreliableSourceException) {
+            Logger.log(LogTypes.TYPE_WARNING_NETWORK,
+                    "A resource couldn't be found, almost certainly due to the network|" +
+                            exception.getMessage());
+            return AppInstallStatus.NetworkFailure;
+        }
+
         if (exception.isMessageUseful()) {
             return AppInstallStatus.MissingResourcesWithMessage;
         } else {
