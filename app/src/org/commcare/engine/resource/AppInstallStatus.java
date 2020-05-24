@@ -35,6 +35,7 @@ public enum AppInstallStatus implements MessageTag {
     NoLocalStorage("notification.install.nolocal"),
     NoConnection("notification.install.no.connection"),
     NetworkFailure("notification.install.network.failure"),
+    RateLimited("notification.install.rate.limited"),
     BadCertificate("notification.install.badcert"),
 
     /**

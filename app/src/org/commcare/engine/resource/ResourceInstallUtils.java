@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.engine.resource.installers.SingleAppInstallation;
+import org.commcare.network.RateLimitedException;
 import org.commcare.preferences.ServerUrls;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.preferences.MainConfigurablePreferences;
@@ -132,6 +133,10 @@ public class ResourceInstallUtils {
                     "A resource couldn't be found, almost certainly due to the network|" +
                             exception.getMessage());
             return AppInstallStatus.NetworkFailure;
+        }
+
+        if(exception.getCause() instanceof RateLimitedException){
+            return AppInstallStatus.RateLimited;
         }
 
         if (exception.isMessageUseful()) {
