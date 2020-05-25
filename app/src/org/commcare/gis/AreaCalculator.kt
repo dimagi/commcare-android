@@ -1,8 +1,8 @@
 package org.commcare.gis
 
-import com.google.android.gms.maps.model.LatLng
-import com.google.maps.android.SphericalUtil
 import com.mapbox.geojson.Polygon
+import com.mapbox.mapboxsdk.geometry.LatLng
+import io.ona.kujaku.location.clients.SphericalUtil
 
 /**
  * Utility class to calculate polygon sphrical properties like area and perimeter
@@ -30,7 +30,6 @@ class AreaCalculator(val polygon: Polygon) {
     fun getArea(): Double {
         return SphericalUtil.computeArea(latLngs)
     }
-
 
     override fun toString(): String {
         var result = ""

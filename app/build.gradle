@@ -97,7 +97,6 @@ dependencies {
     implementation ('io.ona.kujaku:library:0.8.7'){
         exclude module: 'xpp3'
     }
-    implementation 'com.google.maps.android:android-maps-utils:0.3.4'
     implementation "androidx.work:work-runtime:2.3.0"
     implementation "androidx.work:work-runtime-ktx:2.3.0"
 
