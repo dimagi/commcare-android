@@ -2,6 +2,7 @@ package org.commcare.android.resource.installers;
 
 import org.commcare.AppUtils;
 import org.commcare.CommCareApplication;
+import org.commcare.resources.model.InvalidResourceException;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.suite.model.OfflineUserRestore;
@@ -37,29 +38,21 @@ public class OfflineUserRestoreAndroidInstaller extends FileSystemInstaller {
         return true;
     }
 
-    private OfflineUserRestore initDemoUserRestore() {
-        try {
-            return new OfflineUserRestore(localLocation);
-        } catch (UnfullfilledRequirementsException e) {
-            throw new RuntimeException(e.getMessage(), e);
-        } catch (IOException | InvalidStructureException | XmlPullParserException e) {
-            throw new RuntimeException("Demo user restore file was malformed, " +
-                    "the following error occurred during parsing: " + e.getMessage(), e);
-        } catch (InvalidReferenceException e) {
-            throw new RuntimeException(
-                    "Reference to demo user restore file was invalid: " + e.getMessage(), e);
-        }
+    private OfflineUserRestore initDemoUserRestore() throws UnfullfilledRequirementsException, InvalidStructureException, XmlPullParserException, IOException {
+        return new OfflineUserRestore(localLocation);
     }
 
     @Override
     protected int customInstall(Resource r, Reference local, boolean upgrade, AndroidCommCarePlatform platform)
-            throws IOException, UnresolvedResourceException {
+            throws UnresolvedResourceException {
 
         // To make sure that we won't fail on this later, after we have already committed to
         // the upgrade being good to go
         try {
             initDemoUserRestore();
-        } catch (RuntimeException e) {
+        } catch (XmlPullParserException | InvalidStructureException e) {
+            throw new InvalidResourceException(r.getDescriptor(), e.getMessage());
+        } catch (RuntimeException | UnfullfilledRequirementsException | IOException e) {
             throw new UnresolvedResourceException(r, e, e.getMessage(), true);
         }
 
