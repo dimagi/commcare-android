@@ -10,11 +10,15 @@ import android.location.LocationListener
 import android.os.Build
 import android.os.Bundle
 import android.widget.Toast
+import androidx.work.Operation
+import com.google.android.gms.common.api.ResultCallback
+import com.google.android.gms.location.LocationSettingsStatusCodes
 import com.mapbox.geojson.Polygon
 import com.mapbox.mapboxsdk.geometry.LatLng
 import com.mapbox.mapboxsdk.maps.MapboxMap
 import com.mapbox.mapboxsdk.maps.Style
 import io.ona.kujaku.manager.DrawingManager
+import io.ona.kujaku.utils.LocationSettingsHelper
 import kotlinx.android.synthetic.main.activity_entity_mapbox.*
 import org.commcare.activities.components.FormEntryInstanceState
 import org.commcare.android.javarosa.IntentCallout
@@ -139,13 +143,22 @@ class DrawingBoundaryActivity : BaseMapboxActivity(), WithUIController, Location
         }
     }
 
-
     fun startTracking() {
+        requestLocationServices()
+    }
+
+    private fun requestLocationServices() {
+        mapView.setWarmGps(true, null, null) {
+            mapView.focusOnUserLocation(true)
+            uiController.trackingUIState()
+            startTrackingInner()
+        }
+    }
+
+    private fun startTrackingInner() {
         isRecording = true
         if (!isManual) {
-            if (mapView.locationClient != null) {
-                mapView.locationClient!!.addLocationListener(this)
-            }
+            mapView.locationClient!!.addLocationListener(this)
         } else {
             drawingManager.startDrawing(null)
         }

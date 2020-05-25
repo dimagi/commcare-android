@@ -38,7 +38,6 @@ class DrawingBoundaryActivityUIController(private val drawingBoundaryActivity: D
 
     override fun setupUI() {
         startTrackingButton.setOnClickListener {
-            trackingUIState()
             drawingBoundaryActivity.startTracking()
         }
         stopTrackingButton.setOnClickListener {
@@ -62,7 +61,7 @@ class DrawingBoundaryActivityUIController(private val drawingBoundaryActivity: D
         redoTrackingButton.visibility = View.VISIBLE
     }
 
-    private fun trackingUIState() {
+    fun trackingUIState() {
         startTrackingButton.visibility = View.GONE
         stopTrackingButton.visibility = View.VISIBLE
         okTrackingButton.visibility = View.GONE
