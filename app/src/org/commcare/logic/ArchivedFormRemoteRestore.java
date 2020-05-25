@@ -70,6 +70,17 @@ public class ArchivedFormRemoteRestore {
                     case UNKNOWN_FAILURE:
                         Toast.makeText(receiver, "Failure retrieving or processing data, please try again later...", Toast.LENGTH_LONG).show();
                         break;
+                    case CANCELLED:
+                        Toast.makeText(receiver, Localization.get("sync.fail.cancelled"), Toast.LENGTH_LONG).show();
+                        break;
+                    case ENCRYPTION_FAILURE:
+                        Toast.makeText(receiver, Localization.get("sync.fail.encryption.failure"), Toast.LENGTH_LONG).show();
+                        break;
+                    case SESSION_EXPIRE:
+                        Toast.makeText(receiver, Localization.get("sync.fail.session.expire"), Toast.LENGTH_LONG).show();
+                        break;
+                    case RECOVERY_FAILURE:
+                        Toast.makeText(receiver, Localization.get("sync.fail.recovery.failure"), Toast.LENGTH_LONG).show();
                     case ACTIONABLE_FAILURE:
                         Toast.makeText(receiver, statusAndErrorMessage.errorMessage, Toast.LENGTH_LONG).show();
                         break;

@@ -49,6 +49,10 @@ public class AnalyticsParamValue {
     public static final String SYNC_FAIL_UNREACHABLE_HOST = "unreachable_host";
     public static final String SYNC_FAIL_CONNECTION_TIMEOUT = "connection_timeout";
     public static final String SYNC_FAIL_UNKNOWN = "unknown_failure";
+    public static final String SYNC_FAIL_CANCELLED = "cancelled";
+    public static final String SYNC_FAIL_ENCRYPTION = "encryption_failure";
+    public static final String SYNC_FAIL_SESSION_EXPIRE = "session_expire";
+    public static final String SYNC_FAIL_RECOVERY = "recovery_failure";
     public static final String SYNC_FAIL_STORAGE_FULL = "storage_full";
     public static final String SYNC_FAIL_ACTIONABLE = "actionable_failure";
     public static final String SYNC_FAIL_AUTH_OVER_HTTP = "auth_over_http";

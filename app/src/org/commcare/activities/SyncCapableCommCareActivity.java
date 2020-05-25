@@ -25,6 +25,7 @@ import org.commcare.tasks.ResultAndError;
 import org.commcare.utils.SyncDetailCalculations;
 import org.commcare.views.dialogs.CustomProgressDialog;
 import org.commcare.views.dialogs.StandardAlertDialog;
+import org.commcare.views.notifications.NotificationMessageFactory;
 import org.javarosa.core.services.locale.Localization;
 
 import androidx.annotation.AnimRes;
@@ -124,6 +125,18 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
                 break;
             case UNKNOWN_FAILURE:
                 updateUiAfterDataPullOrSend(Localization.get("sync.fail.unknown"), FAIL);
+                break;
+            case CANCELLED:
+                updateUiAfterDataPullOrSend(Localization.get("sync.fail.cancelled"), FAIL);
+                break;
+            case ENCRYPTION_FAILURE:
+                updateUiAfterDataPullOrSend(Localization.get("sync.fail.encryption.failure"), FAIL);
+                break;
+            case SESSION_EXPIRE:
+                updateUiAfterDataPullOrSend(Localization.get("sync.fail.session.expire"), FAIL);
+                break;
+            case RECOVERY_FAILURE:
+                updateUiAfterDataPullOrSend(Localization.get("sync.fail.recovery.failure"), FAIL);
                 break;
             case ACTIONABLE_FAILURE:
                 updateUiAfterDataPullOrSend(resultAndError.errorMessage, FAIL);
