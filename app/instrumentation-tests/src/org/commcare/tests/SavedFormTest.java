@@ -3,7 +3,6 @@ package org.commcare.tests;
 import androidx.test.espresso.action.ViewActions;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
-import org.commcare.CommCareApplication;
 import org.commcare.dalvik.R;
 import org.commcare.utils.Utility;
 import org.junit.After;
@@ -31,17 +30,12 @@ import static org.hamcrest.Matchers.not;
 @LargeTest
 public class SavedFormTest extends BaseTest {
 
+    private final String cczName = "testSavedForm.ccz";
+    private final String appName = "TestSavedForm";
+
     @Before
     public void login() {
-        if (CommCareApplication.instance().getCurrentApp() == null) {
-            Utility.installApp("testSavedForm.ccz");
-        } else {
-            if (!"TestSavedForm".equals(CommCareApplication.instance().getCurrentApp().getAppRecord().getDisplayName())) {
-                Utility.uninstallCurrentApp();
-                Utility.installApp("testSavedForm.ccz");
-                pressBackUnconditionally();
-            }
-        }
+        installApp(appName, cczName);
         Utility.login("check", "123");
     }
 

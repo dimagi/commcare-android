@@ -6,7 +6,6 @@ import androidx.test.espresso.action.Press;
 import androidx.test.espresso.action.Swipe;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
-import org.commcare.CommCareApplication;
 import org.commcare.activities.DrawActivity;
 import org.commcare.dalvik.R;
 import org.commcare.modern.util.Pair;
@@ -19,7 +18,6 @@ import java.util.concurrent.TimeUnit;
 
 import static androidx.test.espresso.Espresso.onData;
 import static androidx.test.espresso.Espresso.onView;
-import static androidx.test.espresso.Espresso.pressBackUnconditionally;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.matcher.ViewMatchers.isRoot;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
@@ -37,19 +35,12 @@ import static junit.framework.Assert.assertTrue;
 @LargeTest
 public class FormAttachmentUploadTest extends BaseTest {
 
+    private final String cczName = "integration_test_app.ccz";
+    private final String appName = "Integration Tests";
+
     @Before
     public void setup() {
-        if (CommCareApplication.instance().getCurrentApp() == null) {
-            Utility.installApp("integration_test_app.ccz");
-        } else {
-            // We already have an installed app. But need to make sure it's the one that we're expecting.
-            if (!"Integration Tests".equals(CommCareApplication.instance().getCurrentApp().getAppRecord().getDisplayName())) {
-                Utility.uninstallCurrentApp();
-                Utility.installApp("integration_test_app.ccz");
-                // App installation doesn't take back to login screen. Is this an issue?
-                pressBackUnconditionally();
-            }
-        }
+        installApp(appName, cczName);
         Utility.login("test", "123");
     }
 

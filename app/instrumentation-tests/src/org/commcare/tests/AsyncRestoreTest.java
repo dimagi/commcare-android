@@ -4,7 +4,6 @@ import android.content.Intent;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import org.commcare.AsyncRestoreHelperMock;
-import org.commcare.CommCareApplication;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.utils.HQApi;
 import org.commcare.utils.Utility;
@@ -13,7 +12,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import static androidx.test.espresso.Espresso.onView;
-import static androidx.test.espresso.Espresso.pressBackUnconditionally;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static androidx.test.platform.app.InstrumentationRegistry.getInstrumentation;
@@ -27,19 +25,8 @@ import static org.junit.Assert.assertTrue;
 @LargeTest
 public class AsyncRestoreTest extends BaseTest {
 
-    private void installApp() {
-        if (CommCareApplication.instance().getCurrentApp() == null) {
-            Utility.installApp("integration_test_app.ccz");
-        } else {
-            // We already have an installed app. But need to make sure it's the one that we're expecting.
-            if (!"Integration Tests".equals(CommCareApplication.instance().getCurrentApp().getAppRecord().getDisplayName())) {
-                Utility.uninstallCurrentApp();
-                Utility.installApp("integration_test_app.ccz");
-                // App installation doesn't take back to login screen. Is this an issue?
-                pressBackUnconditionally();
-            }
-        }
-    }
+    private final String cczName = "integration_test_app.ccz";
+    private final String appName = "Integration Tests";
 
     @After
     public void logout() {
@@ -56,7 +43,7 @@ public class AsyncRestoreTest extends BaseTest {
         HQApi.addUserInGroup(userId, groupId);
 
         // Install the app.
-        installApp();
+        installApp(appName, cczName);
 
         // Clear cache
         Intent intent = new Intent();
@@ -89,7 +76,7 @@ public class AsyncRestoreTest extends BaseTest {
         HQApi.removeUserFromGroup(userId, groupId);
 
         // Install the app.
-        installApp();
+        installApp(appName, cczName);
 
         // Clear cache
         Intent intent = new Intent();

@@ -7,11 +7,14 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.test.rule.ActivityTestRule;
 import androidx.test.rule.GrantPermissionRule;
-
+import org.commcare.CommCareApplication;
 import org.commcare.activities.DispatchActivity;
 import org.commcare.activities.FormEntryActivity;
+import org.commcare.utils.Utility;
 import org.junit.Rule;
 import org.junit.runner.RunWith;
+
+import static androidx.test.espresso.Espresso.pressBackUnconditionally;
 
 /**
  * @author $|-|!˅@M
@@ -37,5 +40,17 @@ public abstract class BaseTest {
             Manifest.permission.RECORD_AUDIO,
             Manifest.permission.CAMERA
     );
+
+    protected void installApp(String appName, String ccz) {
+        if (CommCareApplication.instance().getCurrentApp() == null) {
+            Utility.installApp(ccz);
+        } else if (!appName.equals(CommCareApplication.instance().getCurrentApp().getAppRecord().getDisplayName())) {
+            // We already have an installed app, But not the one we need for this test.
+            Utility.uninstallCurrentApp();
+            Utility.installApp(ccz);
+            // App installation doesn't take back to login screen. Is this an issue?
+            pressBackUnconditionally();
+        }
+    }
 
 }
