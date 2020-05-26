@@ -63,11 +63,11 @@ cd commcare-android
 # the apk can now be found in the build/outputs/apk/ directory
 ```
 
-## Tests
+## Unit Tests
 
 The commcare-android repository uses [Robolectric](http://robolectric.org/), which provides mocks, allowing you to run Android specific code on your local machine.
 
-### Run tests from the command-line
+### Run unit-tests from the command-line
 
 ```bash
 cd commcare-android
@@ -76,7 +76,7 @@ cd commcare-android
 
 and view the results from the output file generated.
 
-### Run tests from Android Studio
+### Run unit-tests from Android Studio
 
 Create a new Android Studio JUnit Build configuration using the following steps.
 
@@ -90,6 +90,51 @@ Create a new Android Studio JUnit Build configuration using the following steps.
 - Set _Use classpath of module_ to *app*
 - Click `OK` to finish creating the configuration.
 - Select the "commcare android test suite" under the configuration drop down to the left of the green play button.
+- Press the green play button to run the tests.
+
+## Instrumentation Tests
+
+The commcare-android repository uses [Espresso](https://developer.android.com/training/testing/espresso/) to write UI tests.
+You need to have two keys in your `gradle.properties` before being able to run any instrumentation tests. **But make sure you never commit these keys to github.**
+```
+HQ_API_USERNAME=<ASK_ANOTHER_DEV_FOR_KEY>
+HQ_API_PASSWORD=<ASK_ANOTHER_DEV_FOR_KEY>
+```
+
+### Run instrumentation-tests from the command-line
+
+```bash
+cd commcare-android
+./gradlew connectedCommcareDebugAndroidTest
+```
+
+It's also a common requirement to run a particular test, such as when you’re fixing a bug or developing a new test. You can achieve the same in command-line using: 
+
+```bash
+./gradlew connectedCommcareDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=<FULLY_QUALIFIED_NAME_OF_YOUR_TEST>
+```
+
+You can view the results from the output file generated.
+
+### Run instrumentation-tests from Android Studio
+
+Before running tests from Android-Studio make sure you've disabled animations in your device. Note, this is only required when you're running tests from Android Studio 
+```
+Go to Setting -> Developer Options, and under the Drawing section, switch all of the following options:
+
+Window animation scale -> off
+Transition animation scale -> off
+Animator duration scale -> off
+```
+
+Create a new Android Studio _Android Instrumented Test_ Build configuration using the following steps.
+
+- Click _Run -> Edit Configruations_ and create a new _Android Instrumented Test_ configuration by pressing the green plus button.
+- Set _Name_ to "commcare android instrumentation tests"
+- Set _Test kind_ to "All in Package"
+- set _Package_ to `org.commcare.tests`
+- Click `OK` to finish creating the configuration.
+- Select the "commcare android instrumentation tests" under the configuration drop down to the left of the green play button.
 - Press the green play button to run the tests.
 
 ### Code Style Settings
