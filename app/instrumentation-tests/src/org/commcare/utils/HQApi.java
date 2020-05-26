@@ -51,7 +51,7 @@ public class HQApi {
                 DateTime dateTime = DateTime.parseRfc3339(date);
                 return dateTime.getValue();
             } else {
-                Log.d(TAG, "Response was unsuccessful : " + response.body());
+                Log.d(TAG, "Response was unsuccessful : " + response.body().string());
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -86,7 +86,7 @@ public class HQApi {
                 }
                 return new Pair<>(dateTime.getValue(), attachmentCount);
             } else {
-                Log.d(TAG, "Response was unsuccessful : " + response.body());
+                Log.d(TAG, "Response was unsuccessful : " + response.body().string());
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -108,12 +108,12 @@ public class HQApi {
                     JSONObject currentCase = cases.getJSONObject(i);
                     String caseId = currentCase.getString("case_id");
                     String xml = getCaseCloseXml(caseId, userId);
-                    boolean isClosed = submitForm(xml).isSuccessful();
+                    boolean isClosed = submitForm(xml);
                     Log.d(TAG, "Case close response :: " + isClosed);
                 }
                 Log.d(TAG, "Closed all existing cases");
             } else {
-                Log.d(TAG, "Response was unsuccessful : " + response.body());
+                Log.d(TAG, "Response was unsuccessful : " + response.body().string());
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -153,7 +153,7 @@ public class HQApi {
         }
     }
 
-    private static boolean updateUser(String userId, String groupId) throws IOException {
+    private static boolean updateUser(String userId, String groupId) {
         String url = String.format(USER_URL, userId);
         String payload;
         if (groupId == null) {
@@ -164,8 +164,18 @@ public class HQApi {
         RequestBody requestBody = RequestBody.create(MediaType.parse("application/json"), payload);
 
         CommCareNetworkService networkService = createTestNetworkService();
-        Response<ResponseBody> response = networkService.makePutRequest(url, requestBody).execute();
-        return response.isSuccessful();
+        Response<ResponseBody> response = null;
+        try {
+            response = networkService.makePutRequest(url, requestBody).execute();
+            return response.isSuccessful();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (response != null) {
+                response.body().close();
+            }
+        }
+        return false;
     }
 
     private static boolean isUserPresentInGroup(String userId, String groupId) throws IOException, JSONException {
@@ -186,12 +196,23 @@ public class HQApi {
         return new JSONObject(response.body().string()).getJSONArray("groups");
     }
 
-    private static Response<ResponseBody> submitForm(String payload) throws IOException {
+    private static boolean submitForm(String payload) {
         RequestBody requestFile = RequestBody.create(MediaType.parse("text/xml"), payload);
         List<MultipartBody.Part> parts = new ArrayList<>();
         parts.add(MultipartBody.Part.createFormData("xml_submission_file", "case_close.xml", requestFile));
         CommCareNetworkService networkService = createTestNetworkService();
-        return networkService.makeMultipartPostRequest(FORM_UPLOAD_URL, new HashMap<>(), new HashMap<>(), parts).execute();
+        Response<ResponseBody> response = null;
+        try {
+            response = networkService.makeMultipartPostRequest(FORM_UPLOAD_URL, new HashMap<>(), new HashMap<>(), parts).execute();
+            return response.isSuccessful();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (response != null) {
+                response.body().close();
+            }
+        }
+        return false;
     }
 
     private static String getCaseCloseXml(String caseId, String userId) {
