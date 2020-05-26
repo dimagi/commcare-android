@@ -28,11 +28,6 @@ public class AsyncRestoreTest extends BaseTest {
     private final String cczName = "integration_test_app.ccz";
     private final String appName = "Integration Tests";
 
-    @After
-    public void logout() {
-        Utility.logout();
-    }
-
     @Test
     public void testRestoreOnLogin() {
         String userId = "13a0910ea963acbf9f4b59dcc9a0f9aa";
@@ -64,6 +59,8 @@ public class AsyncRestoreTest extends BaseTest {
         // Confirm Async Restore is done.
         assertTrue(AsyncRestoreHelperMock.isRetryCalled());
         assertTrue(AsyncRestoreHelperMock.isServerProgressReportingStarted());
+
+        Utility.logout();
     }
 
     @Test
@@ -105,6 +102,8 @@ public class AsyncRestoreTest extends BaseTest {
         // Confirm AsyncRestore happened after sync
         assertTrue(AsyncRestoreHelperMock.isRetryCalled());
         assertTrue(AsyncRestoreHelperMock.isServerProgressReportingStarted());
+
+        Utility.logout();
     }
 
 }
