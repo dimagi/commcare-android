@@ -50,6 +50,8 @@ public class AsyncRestoreTest extends BaseTest {
     public void testRestoreOnLogin() {
         String userId = "13a0910ea963acbf9f4b59dcc9a0f9aa";
         String groupId = "78185f2132bd8ba3af30b488f9974b41";
+        AsyncRestoreHelperMock.clear();
+
         // Make sure user is present in the group.
         HQApi.addUserInGroup(userId, groupId);
 
@@ -81,6 +83,7 @@ public class AsyncRestoreTest extends BaseTest {
     public void testRestoreOnSync() {
         String userId = "81f1645b41d85b539a7e407b035bfbf1";
         String groupId = "78185f2132bd8ba3af30b488f9974b41";
+        AsyncRestoreHelperMock.clear();
 
         // Make sure user is not present in the group.
         HQApi.removeUserFromGroup(userId, groupId);
