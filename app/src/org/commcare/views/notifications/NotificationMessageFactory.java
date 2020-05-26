@@ -107,6 +107,14 @@ public class NotificationMessageFactory {
          */
         Restore_Unknown("notification.restore.unknown"),
 
+        Cancelled("notification.restore.cancelled"),
+
+        Encryption_Error("notification.restore.encryption.error"),
+
+        Session_Expire("notification.restore.session.expire"),
+
+        Recovery_Error("notification.restore.recovery.error"),
+
         Auth_Over_HTTP("auth.over.http"),
 
         /**

@@ -120,6 +120,10 @@ sync.fail.bad.network=Couldn't contact server. Please make sure an internet conn
 sync.fail.server.error=The server encountered an error processing your data. Please try again later. If the problem persists, contact CommCare Support.
 sync.fail.rate.limited.server.error=Our servers are unavailable at this time. Please try again later.
 sync.fail.unknown=An unexpected issue occurred during sync. Please try to sync again.
+sync.fail.cancelled=Sync was cancelled. Please retry.
+sync.fail.encryption.failure=You were logged out during sync. Login again and retry sync.
+sync.fail.session.expire=Failed to set up data encryption. Login again and retry sync.
+sync.fail.recovery.failure=There was an error trying to recover from a bad local state. Please try again later. If the problem persists, contact help desk.
 sync.fail.unsent=Having issues communicating with the server to send forms. Will try again later.
 sync.fail.individual=1 or more forms failed to send due to individual problems. See quarantined forms for details.
 
@@ -528,6 +532,22 @@ notification.restore.storagefull.action=Check the amount of space available on y
 notification.restore.unknown.title=Unknown Error during Restore
 notification.restore.unknown.detail=CommCare had trouble dealing with something that happened when you tried to log in 
 notification.restore.unknown.action=Try to log in again. If you receive this message again, force close the application from the Manage Applications menu on the phone. If the error persists, contact CommCare Support.
+
+notification.restore.cancelled.title= Sync cancelled
+notification.restore.cancelled.detail=Sync was cancelled by user
+notification.restore.cancelled.action=Please try to sync again if required
+
+notification.restore.session.expire.title=Session expired
+notification.restore.session.expire.detail=You were logged out during sync
+notification.restore.session.expire.action=Please Login again and retry.
+
+notification.restore.encryption.error.title=Encryption error during Sync
+notification.restore.encryption.error.detail=Failed to set up data encryption
+notification.restore.encryption.error.action=Please Login again and retry. Contact help desk if you receive this message again.
+
+notification.restore.recovery.error.title=Sync Recovery Failed
+notification.restore.recovery.error.detail=There was an error trying to recover from a bad local state.
+notification.restore.recovery.error.action=Please retry and contact help desk if the error persists.
 
 notification.restore.baddata.title=Bad Server Response
 notification.restore.baddata.detail=CommCare had trouble processing the network response. Please try again.

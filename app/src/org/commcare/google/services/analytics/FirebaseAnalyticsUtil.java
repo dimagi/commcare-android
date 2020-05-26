@@ -189,18 +189,10 @@ public class FirebaseAnalyticsUtil {
                 new String[]{direction, navMethod, detailUiState});
     }
 
-    public static void reportSyncSuccess(String trigger, String syncMode) {
+    public static void reportSyncResult(boolean result, String trigger, String syncMode, String failureReason) {
         Bundle b = new Bundle();
         b.putString(FirebaseAnalytics.Param.SOURCE, trigger);
-        b.putLong(FirebaseAnalytics.Param.SUCCESS, 1);
-        b.putString(FirebaseAnalytics.Param.METHOD, syncMode);
-        reportEvent(CCAnalyticsEvent.SYNC_ATTEMPT, b);
-    }
-
-    public static void reportSyncFailure(String trigger, String syncMode, String failureReason) {
-        Bundle b = new Bundle();
-        b.putString(FirebaseAnalytics.Param.SOURCE, trigger);
-        b.putLong(FirebaseAnalytics.Param.SUCCESS, 0);
+        b.putLong(FirebaseAnalytics.Param.SUCCESS, result ? 1 : 0);
         b.putString(FirebaseAnalytics.Param.METHOD, syncMode);
         b.putString(CCAnalyticsParam.REASON, failureReason);
         reportEvent(CCAnalyticsEvent.SYNC_ATTEMPT, b);

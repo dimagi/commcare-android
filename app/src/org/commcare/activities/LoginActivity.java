@@ -249,7 +249,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     private static void disableWorkForLastSeatedApp() {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(CommCareApplication.instance());
         String lastSeatedId = prefs.getString(KEY_LAST_APP, "");
-        if(!lastSeatedId.isEmpty()) {
+        if (!lastSeatedId.isEmpty()) {
             WorkManager.getInstance(CommCareApplication.instance()).cancelAllWorkByTag(lastSeatedId);
         }
     }
@@ -666,6 +666,18 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
             case UNKNOWN_FAILURE:
                 raiseLoginMessageWithInfo(StockMessages.Restore_Unknown, resultAndErrorMessage.errorMessage, true);
                 break;
+            case CANCELLED:
+                raiseLoginMessage(StockMessages.Cancelled, true);
+                break;
+            case ENCRYPTION_FAILURE:
+                raiseLoginMessageWithInfo(StockMessages.Encryption_Error, resultAndErrorMessage.errorMessage, true);
+                break;
+            case SESSION_EXPIRE:
+                raiseLoginMessage(StockMessages.Session_Expire, true);
+                break;
+            case RECOVERY_FAILURE:
+                raiseLoginMessageWithInfo(StockMessages.Recovery_Error, resultAndErrorMessage.errorMessage, true);
+                break;
             case ACTIONABLE_FAILURE:
                 raiseLoginMessageWithInfo(StockMessages.Restore_Unknown, resultAndErrorMessage.errorMessage, true);
                 break;
@@ -700,7 +712,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                 return;
             }
             Bundle appRestrictions = restrictionsManager.getApplicationRestrictions();
-            if (appRestrictions!=null && appRestrictions.containsKey("username") &&
+            if (appRestrictions != null && appRestrictions.containsKey("username") &&
                     appRestrictions.containsKey("password")) {
                 uiController.setUsername(appRestrictions.getString("username"));
                 uiController.setPasswordOrPin(appRestrictions.getString("password"));
