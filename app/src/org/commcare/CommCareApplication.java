@@ -67,7 +67,9 @@ import org.commcare.modern.database.Table;
 import org.commcare.modern.util.PerformanceTuningUtil;
 import org.commcare.network.DataPullRequester;
 import org.commcare.network.DataPullResponseFactory;
+import org.commcare.network.ForceTLS12BuilderConfig;
 import org.commcare.network.HttpUtils;
+import org.commcare.network.Tls12SocketFactory;
 import org.commcare.preferences.DevSessionRestorer;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.preferences.HiddenPreferences;
@@ -96,6 +98,7 @@ import org.commcare.utils.PendingCalcs;
 import org.commcare.utils.SessionActivityRegistration;
 import org.commcare.utils.SessionStateUninitException;
 import org.commcare.utils.SessionUnavailableException;
+import org.conscrypt.Conscrypt;
 import org.javarosa.core.model.User;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.reference.RootTranslator;
@@ -106,6 +109,7 @@ import org.javarosa.core.util.PropertyUtils;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 
 import java.io.File;
+import java.security.Security;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -206,6 +210,8 @@ public class CommCareApplication extends MultiDexApplication {
         // improperly, so the second https request in a short time period will flop)
         System.setProperty("http.keepAlive", "false");
 
+        initTls12IfNeeded();
+
         Thread.setDefaultUncaughtExceptionHandler(new CommCareExceptionHandler(Thread.getDefaultUncaughtExceptionHandler(), this));
 
         SQLiteDatabase.loadLibs(this);
@@ -232,6 +238,20 @@ public class CommCareApplication extends MultiDexApplication {
         }
 
         LocalePreferences.saveDeviceLocale(Locale.getDefault());
+    }
+
+    public boolean useConscryptSecurity() {
+        return Build.VERSION.SDK_INT >= 16 && Build.VERSION.SDK_INT < 20;
+    }
+
+    private void initTls12IfNeeded() {
+        if (useConscryptSecurity()) {
+            Security.insertProviderAt(Conscrypt.newProvider(), 1);
+        }
+
+        if (Build.VERSION.SDK_INT >= 16 && Build.VERSION.SDK_INT < 22) {
+            CommCareNetworkServiceGenerator.customizeRetrofitSetup(new ForceTLS12BuilderConfig());
+        }
     }
 
     protected void turnOnStrictMode() {

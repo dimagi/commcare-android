@@ -99,6 +99,8 @@ dependencies {
     implementation 'com.google.android.play:core:1.7.2'
     implementation 'android.arch.lifecycle:common-java8:1.1.0'
 
+    //Robust TLS 1.2 ciphers on Android 9-19
+    implementation "org.conscrypt:conscrypt-android:2.4.0"
 }
 
 ext {
