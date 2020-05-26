@@ -36,4 +36,9 @@ public class AsyncRestoreHelperMock extends AsyncRestoreHelper {
     public static boolean isServerProgressReportingStarted() {
         return serverProgressReporting;
     }
+
+    public static void clear() {
+        retry = false;
+        serverProgressReporting = false;
+    }
 }
