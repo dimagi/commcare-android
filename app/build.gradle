@@ -221,6 +221,11 @@ android {
         disable "ResourceType"
     }
 
+    // Espresso requires us to disable animations on device.
+    testOptions {
+        animationsDisabled = true
+    }
+
     packagingOptions {
         exclude 'META-INF/LICENSE'
         exclude 'META-INF/LICENSE.txt'
