@@ -2,7 +2,6 @@ package org.commcare.tests;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
-import org.commcare.CommCareApplication;
 import org.commcare.dalvik.R;
 import org.commcare.utils.HQApi;
 import org.commcare.utils.Utility;
@@ -32,18 +31,12 @@ import static org.hamcrest.Matchers.endsWith;
 @LargeTest
 public class CaseClaimTest extends BaseTest {
 
+    private final String cczName = "case_claim.ccz";
+    private final String appName = "Case Search and Claim";
+
     @Before
-    public void login() {
-        // Delete all cases from HQ, before logging in.
-        if (CommCareApplication.instance().getCurrentApp() == null) {
-            Utility.installApp("case_claim.ccz");
-        } else {
-            if (!"Case Search and Claim".equalsIgnoreCase(CommCareApplication.instance().getCurrentApp().getAppRecord().getDisplayName())) {
-                Utility.uninstallCurrentApp();
-                Utility.installApp("case_claim.ccz");
-                pressBackUnconditionally();
-            }
-        }
+    public void setup() {
+        installApp(appName, cczName);
     }
 
     @Test
