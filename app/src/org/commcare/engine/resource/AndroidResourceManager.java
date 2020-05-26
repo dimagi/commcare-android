@@ -23,13 +23,8 @@ import org.commcare.util.LogTypes;
 import org.commcare.utils.AndroidCommCarePlatform;
 import org.commcare.utils.AndroidResourceInstallerFactory;
 import org.commcare.utils.SessionUnavailableException;
-import org.javarosa.core.reference.ReleasedOnTimeSupportedReference;
-import org.javarosa.core.reference.Reference;
 import org.javarosa.core.services.Logger;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
-
-import java.text.ParseException;
-import java.util.Date;
 
 import static org.commcare.google.services.analytics.AnalyticsParamValue.UPDATE_RESET_REASON_CORRUPT;
 import static org.commcare.google.services.analytics.AnalyticsParamValue.UPDATE_RESET_REASON_NEWER_VERSION_AVAILABLE;
@@ -215,7 +210,7 @@ public class AndroidResourceManager extends ResourceManager {
     public void processUpdateFailure(AppInstallStatus result,
                                      Context ctx,
                                      boolean isAutoUpdate) {
-        updateStats.registerUpdateException(new Exception(result.toString()));
+        updateStats.registerUpdateFailure(result);
         FirebaseAnalyticsUtil.reportStageUpdateAttemptFailure(result.toString());
 
         if (!result.canReusePartialUpdateTable()) {

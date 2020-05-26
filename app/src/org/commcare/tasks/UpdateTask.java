@@ -116,7 +116,7 @@ public class UpdateTask
         } catch (InvalidResourceException e) {
             ResourceInstallUtils.logInstallError(e,
                     "Structure error ocurred during install|");
-            return new ResultAndError<>(AppInstallStatus.UnknownFailure, buildCombinedErrorMessage(e.resourceName, e.getMessage()));
+            return new ResultAndError<>(AppInstallStatus.InvalidResource, buildCombinedErrorMessage(e.resourceName, e.getMessage()));
         } catch (LocalStorageUnavailableException e) {
             ResourceInstallUtils.logInstallError(e,
                     "Couldn't install file to local storage|");

@@ -1,6 +1,7 @@
 package org.commcare.logging.analytics;
 
 import org.commcare.CommCareApp;
+import org.commcare.engine.resource.AppInstallStatus;
 import org.commcare.resources.model.InstallStatsLogger;
 
 import java.io.PrintWriter;
@@ -24,6 +25,7 @@ public class UpdateStats implements InstallStatsLogger, Serializable {
     private final Hashtable<String, InstallAttempts<String>> resourceInstallStats;
     private long startInstallTime;
     private int restartCount = 0;
+    private int resetCounter = 0;
 
     private UpdateStats() {
         startInstallTime = new Date().getTime();
@@ -62,6 +64,7 @@ public class UpdateStats implements InstallStatsLogger, Serializable {
         startInstallTime = new Date().getTime();
         resourceInstallStats.clear();
         restartCount = 0;
+        resetCounter = 0;
     }
 
     /**
@@ -76,6 +79,16 @@ public class UpdateStats implements InstallStatsLogger, Serializable {
      */
     public void registerStagingAttempt() {
         restartCount++;
+    }
+
+    /**
+     * Register result for an app update attempt
+     */
+    public void registerUpdateFailure(AppInstallStatus result) {
+        if (result.causeUpdateReset()) {
+            resetCounter++;
+        }
+        registerUpdateException(new Exception(result.toString()));
     }
 
     /**
@@ -99,7 +112,7 @@ public class UpdateStats implements InstallStatsLogger, Serializable {
     }
 
     public boolean hasUpdateTrialsMaxedOut() {
-        return restartCount > ATTEMPTS_UNTIL_UPDATE_STALE;
+        return resetCounter > ATTEMPTS_UNTIL_UPDATE_STALE;
     }
 
     @Override
