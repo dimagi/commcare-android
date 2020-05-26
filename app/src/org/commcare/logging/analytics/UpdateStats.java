@@ -25,7 +25,7 @@ public class UpdateStats implements InstallStatsLogger, Serializable {
 
     private final Hashtable<String, InstallAttempts<String>> resourceInstallStats;
     private long startInstallTime;
-    private int restartCount = 0;
+    private int resetCounter = 0;
     private ResultAndError<AppInstallStatus> lastStageUpdateResult;
 
     private UpdateStats() {
@@ -64,7 +64,7 @@ public class UpdateStats implements InstallStatsLogger, Serializable {
         clearPersistedStats(app);
         startInstallTime = new Date().getTime();
         resourceInstallStats.clear();
-        restartCount = 0;
+        resetCounter = 0;
     }
 
     /**
@@ -74,11 +74,11 @@ public class UpdateStats implements InstallStatsLogger, Serializable {
         PrefStats.clearPersistedStats(app, UPGRADE_STATS_KEY);
     }
 
-    /**
-     * Register attempt to download resources into update table.
-     */
-    public void registerStagingAttempt() {
-        restartCount++;
+    public void registerUpdateFailure(AppInstallStatus result) {
+        if (result.causeUpdateReset()) {
+            resetCounter++;
+        }
+        registerUpdateException(new Exception(result.toString()));
     }
 
     /**
@@ -110,7 +110,7 @@ public class UpdateStats implements InstallStatsLogger, Serializable {
     }
 
     public boolean hasUpdateTrialsMaxedOut() {
-        return restartCount > ATTEMPTS_UNTIL_UPDATE_STALE;
+        return resetCounter > ATTEMPTS_UNTIL_UPDATE_STALE;
     }
 
     @Override
@@ -155,8 +155,8 @@ public class UpdateStats implements InstallStatsLogger, Serializable {
         statsStringBuilder.append("Update first started: ")
                 .append(new Date(startInstallTime).toString())
                 .append(".\n")
-                .append("Update restarted ")
-                .append(restartCount)
+                .append("Reset Count ")
+                .append(resetCounter)
                 .append(" times.\n")
                 .append("Failures logged to the update table: \n")
                 .append(resourceInstallStats.get(TOP_LEVEL_STATS_KEY).toString())

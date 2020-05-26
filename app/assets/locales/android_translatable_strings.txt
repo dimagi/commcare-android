@@ -602,6 +602,14 @@ notification.install.no.connection.title=No internet connection
 notification.install.no.connection.detail=Install failed because your device is not connected to Wi-Fi currently
 notification.install.no.connection.action=Go to your device settings to check the current status of your Wi-Fi connection. If a connection is unavailable at this time, you may try offline install.
 
+notification.install.network.failure.title=Bad internet connection
+notification.install.network.failure.detail=Install failed because of bad internet
+notification.install.network.failure.action=Your internet connection is not good at the moment. Please try again after some time.
+
+notification.install.rate.limited.title=Servers are busy
+notification.install.rate.limited.detail=Install failed because of servers being busy at the moment.
+notification.install.rate.limited.action=Our servers are unavailable at this time. Please try again later
+
 notification.logger.submitted.title=Device Logs Submitted
 notification.logger.submitted.detail=Your devices logs have been successfully submitted
 
