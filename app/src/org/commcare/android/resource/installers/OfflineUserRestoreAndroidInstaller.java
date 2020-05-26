@@ -38,7 +38,8 @@ public class OfflineUserRestoreAndroidInstaller extends FileSystemInstaller {
         return true;
     }
 
-    private OfflineUserRestore initDemoUserRestore() throws UnfullfilledRequirementsException, InvalidStructureException, XmlPullParserException, IOException {
+    private OfflineUserRestore initDemoUserRestore() throws UnfullfilledRequirementsException, InvalidStructureException,
+            XmlPullParserException, IOException, InvalidReferenceException {
         return new OfflineUserRestore(localLocation);
     }
 
@@ -52,7 +53,7 @@ public class OfflineUserRestoreAndroidInstaller extends FileSystemInstaller {
             initDemoUserRestore();
         } catch (XmlPullParserException | InvalidStructureException e) {
             throw new InvalidResourceException(r.getDescriptor(), e.getMessage());
-        } catch (RuntimeException | UnfullfilledRequirementsException | IOException e) {
+        } catch (RuntimeException | UnfullfilledRequirementsException | IOException | InvalidReferenceException e) {
             throw new UnresolvedResourceException(r, e, e.getMessage(), true);
         }
 
