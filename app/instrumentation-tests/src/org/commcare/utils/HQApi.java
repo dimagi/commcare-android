@@ -30,6 +30,7 @@ public class HQApi {
 
     private static final String TAG = HQApi.class.getSimpleName();
     private static final String FORM_UPLOAD_URL = "https://www.commcarehq.org/a/commcare-tests/receiver/";
+    private static final String USER_URL = "https://www.commcarehq.org/a/commcare-tests/api/v0.5/user/%s/";
     private static final String FORM_URL = "https://www.commcarehq.org/a/commcare-tests/api/v0.5/form/";
     private static final String CASE_URL = "https://www.commcarehq.org/a/commcare-tests/api/v0.5/case/";
     private static final String ATTACHMENT_BASE_URL = "https://www.commcarehq.org/a/commcare-tests/api/form/attachment/";
@@ -119,16 +120,74 @@ public class HQApi {
         }
     }
 
+    public static void addUserInGroup(String userId, String groupId) {
+        try {
+            boolean added = true;
+            if (!isUserInGroup(userId, groupId)) {
+                added = updateUser(userId, groupId);
+            }
+            Log.d(TAG, "User adding in group is successfull :: " + added);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (JSONException e) {
+            e.printStackTrace();
+            Log.d(TAG, "JSON parsing failed with exception : " + e.getMessage());
+        }
+    }
+
+    public static void removeUserFromGroup(String userId, String groupId) {
+        try {
+            boolean removed = true;
+            if (isUserInGroup(userId, groupId)) {
+                removed = updateUser(userId, null);
+            }
+            Log.d(TAG, "Is user present in group :: " + !removed);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (JSONException e) {
+            e.printStackTrace();
+            Log.d(TAG, "JSON parsing failed with exception : " + e.getMessage());
+        }
+    }
+
+    private static boolean updateUser(String userId, String groupId) throws IOException {
+        String url = String.format(USER_URL, userId);
+        String payload;
+        if (groupId == null) {
+            payload = "{\"groups\": []}";
+        } else {
+            payload = "{\"groups\": [\"" + groupId + "\"]}";
+        }
+        RequestBody requestBody = RequestBody.create(MediaType.parse("application/json"), payload);
+
+        CommCareNetworkService networkService = createTestNetworkService();
+        Response<ResponseBody> response = networkService.makePutRequest(url, requestBody).execute();
+        return response.isSuccessful();
+    }
+
+    private static boolean isUserInGroup(String userId, String groupId) throws IOException, JSONException {
+        JSONArray array = getUserGroups(userId);
+        for (int i = 0; i < array.length(); i++) {
+            String userGrp = array.getString(i);
+            if (groupId.equals(userGrp)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static JSONArray getUserGroups(String userId) throws IOException, JSONException {
+        String url = String.format(USER_URL, userId);
+        String param = "?format=json";
+        Response<ResponseBody> response = getRequest(url, param);
+        return new JSONObject(response.body().string()).getJSONArray("groups");
+    }
+
     private static Response<ResponseBody> submitForm(String payload) throws IOException {
         RequestBody requestFile = RequestBody.create(MediaType.parse("text/xml"), payload);
         List<MultipartBody.Part> parts = new ArrayList<>();
         parts.add(MultipartBody.Part.createFormData("xml_submission_file", "case_close.xml", requestFile));
-        AuthInfo authInfo = new AuthInfo.ProvidedAuth(BuildConfig.HQ_API_USERNAME, BuildConfig.HQ_API_PASSWORD);
-        CommCareNetworkService networkService =
-                CommCareNetworkServiceGenerator.createCommCareNetworkService(
-                        HttpUtils.getCredential(authInfo),
-                        true,
-                        true);
+        CommCareNetworkService networkService = createTestNetworkService();
         return networkService.makeMultipartPostRequest(FORM_UPLOAD_URL, new HashMap<>(), new HashMap<>(), parts).execute();
     }
 
@@ -160,12 +219,17 @@ public class HQApi {
         if (query != null) {
             url += query;
         }
+        CommCareNetworkService networkService = createTestNetworkService();
+        return networkService.makeGetRequest(url, new HashMap<>(), new HashMap<>()).execute();
+    }
+
+    private static CommCareNetworkService createTestNetworkService() {
         AuthInfo authInfo = new AuthInfo.ProvidedAuth(BuildConfig.HQ_API_USERNAME, BuildConfig.HQ_API_PASSWORD);
         CommCareNetworkService networkService =
                 CommCareNetworkServiceGenerator.createCommCareNetworkService(
                         HttpUtils.getCredential(authInfo),
                         true,
                         true);
-        return networkService.makeGetRequest(url, new HashMap<>(), new HashMap<>()).execute();
+        return networkService;
     }
 }
