@@ -29,11 +29,14 @@ import retrofit2.Response;
 public class HQApi {
 
     private static final String TAG = HQApi.class.getSimpleName();
-    private static final String FORM_UPLOAD_URL = "https://www.commcarehq.org/a/commcare-tests/receiver/";
-    private static final String USER_URL = "https://www.commcarehq.org/a/commcare-tests/api/v0.5/user/%s/";
-    private static final String FORM_URL = "https://www.commcarehq.org/a/commcare-tests/api/v0.5/form/";
-    private static final String CASE_URL = "https://www.commcarehq.org/a/commcare-tests/api/v0.5/case/";
-    private static final String ATTACHMENT_BASE_URL = "https://www.commcarehq.org/a/commcare-tests/api/form/attachment/";
+
+    private static final String BASE_URL = "https://www.commcarehq.org/a/commcare-tests/";
+
+    private static final String FORM_UPLOAD_URL = BASE_URL + "receiver/";
+    private static final String USER_URL = BASE_URL + "api/v0.5/user/%s/";
+    private static final String FORM_URL = BASE_URL + "api/v0.5/form/";
+    private static final String CASE_URL = BASE_URL + "api/v0.5/case/";
+    private static final String ATTACHMENT_BASE_URL = BASE_URL + "api/form/attachment/";
 
     public static Long getLatestFormTime() {
         try {
@@ -123,7 +126,7 @@ public class HQApi {
     public static void addUserInGroup(String userId, String groupId) {
         try {
             boolean added = true;
-            if (!isUserInGroup(userId, groupId)) {
+            if (!isUserPresentInGroup(userId, groupId)) {
                 added = updateUser(userId, groupId);
             }
             Log.d(TAG, "User adding in group is successfull :: " + added);
@@ -138,7 +141,7 @@ public class HQApi {
     public static void removeUserFromGroup(String userId, String groupId) {
         try {
             boolean removed = true;
-            if (isUserInGroup(userId, groupId)) {
+            if (isUserPresentInGroup(userId, groupId)) {
                 removed = updateUser(userId, null);
             }
             Log.d(TAG, "Is user present in group :: " + !removed);
@@ -165,7 +168,7 @@ public class HQApi {
         return response.isSuccessful();
     }
 
-    private static boolean isUserInGroup(String userId, String groupId) throws IOException, JSONException {
+    private static boolean isUserPresentInGroup(String userId, String groupId) throws IOException, JSONException {
         JSONArray array = getUserGroups(userId);
         for (int i = 0; i < array.length(); i++) {
             String userGrp = array.getString(i);

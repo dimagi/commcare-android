@@ -45,11 +45,15 @@ import static org.hamcrest.Matchers.startsWith;
  * @author $|-|!˅@M
  */
 public class Utility {
+
+    /**
+     * Installs the ccz by copying it into app-specific cache directory.
+     * @param cczName
+     */
     public static void installApp(String cczName) {
-        String location = "/storage/emulated/0/" + cczName;;
-        File file = new File(location);
+        Context context = InstrumentationRegistry.getInstrumentation().getTargetContext();
+        File file = new File(context.getExternalCacheDir(), cczName);
         if (!file.exists()) {
-            Context context = InstrumentationRegistry.getInstrumentation().getTargetContext();
             InputStream is = context.getClassLoader().getResourceAsStream(cczName);
             try {
                 FileUtil.copyFile(is, file);
@@ -60,7 +64,7 @@ public class Utility {
         openOptionsMenu();
         onView(withText("Offline Install"))
                 .perform(click());
-        stubFileSelection(location);
+        stubFileSelection(file.getAbsolutePath());
         onView(withId(R.id.screen_multimedia_inflater_filefetch)).perform(click());
         onView(withId(R.id.screen_multimedia_inflater_install))
                 .perform(click());
@@ -100,6 +104,11 @@ public class Utility {
         openActionBarOverflowOrOptionsMenu(context);
     }
 
+    /**
+     * Click the list item at a particular item position
+     * @param resId Resource reference to the list.
+     * @param position Position of the item to be clicked.
+     */
     public static void clickListItem(@IdRes int resId, int position) {
         onData(anything())
                 .inAdapterView(withId(resId))
@@ -107,6 +116,12 @@ public class Utility {
                 .perform(click());
     }
 
+    /**
+     * Returns a subview inside a particular list item.
+     * @param listId Resource reference to the list.
+     * @param position Position of the list item whose subview is needed.
+     * @param subviewId Resource reference to the subview.
+     */
     public static DataInteraction getSubViewInListItem(@IdRes int listId, int position, @IdRes int subviewId) {
         return onData(anything())
                 .inAdapterView(withId(listId))
@@ -114,6 +129,10 @@ public class Utility {
                 .onChildView(withId(subviewId));
     }
 
+    /**
+     * Opens first incomplete form in the app.
+     * Need to have incomplete-form-enabled custom parameter set.
+     */
     public static void openFirstIncompleteForm() {
         onView(withText(startsWith("Incomplete"))).perform(click());
         clickListItem(R.id.screen_entity_select_list, 0);
@@ -126,6 +145,9 @@ public class Utility {
                 .perform(click());
     }
 
+    /**
+     * Stubs the camera intent and uses R.mipmap.ic_launcher as the image to be returned by the camera.
+     */
     public static void chooseImage() {
         stubCamera();
         IntentMonitorRegistry.getInstance().addIntentCallback(Utility::onIntentSent);
@@ -181,7 +203,7 @@ public class Utility {
         };
     }
 
-
+    //region private helpers.
     private static void stubCamera() {
         // Build a result to return from the Camera app
         Intent resultData = new Intent();
@@ -214,4 +236,5 @@ public class Utility {
             }
         }
     }
+    //endregion
 }
