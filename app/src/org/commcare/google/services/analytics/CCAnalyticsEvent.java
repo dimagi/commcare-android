@@ -8,7 +8,7 @@ public class CCAnalyticsEvent {
 
     static final String ADVANCED_ACTION_SELECTED = "advanced_action_selected";
     static final String APP_MANAGER_ACTION = "app_manager_action";
-    static final String APP_INSTALL = "app_install";
+    static final String APP_INSTALL = "cc_app_install";
     static final String EDIT_PREFERENCE_ITEM = "edit_preference_item";
     static final String ENABLE_PRIVILEGE = "enable_privilege";
     static final String ENTITY_DETAIL_NAVIGATION = "entity_detail_navigation";
