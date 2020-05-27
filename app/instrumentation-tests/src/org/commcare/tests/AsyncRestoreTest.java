@@ -7,7 +7,6 @@ import org.commcare.AsyncRestoreHelperMock;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.utils.HQApi;
 import org.commcare.utils.Utility;
-import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
