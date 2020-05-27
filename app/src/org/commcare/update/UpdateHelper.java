@@ -89,7 +89,7 @@ public class UpdateHelper implements TableStateListener {
         } catch (InvalidResourceException e) {
             ResourceInstallUtils.logInstallError(e,
                     "Structure error ocurred during install|");
-            return new ResultAndError<>(AppInstallStatus.UnknownFailure, buildCombinedErrorMessage(e.resourceName, e.getMessage()));
+            return new ResultAndError<>(AppInstallStatus.InvalidResource, buildCombinedErrorMessage(e.resourceName, e.getMessage()));
         } catch (LocalStorageUnavailableException e) {
             ResourceInstallUtils.logInstallError(e,
                     "Couldn't install file to local storage|");
@@ -123,7 +123,6 @@ public class UpdateHelper implements TableStateListener {
 
     private void setupUpdate(String profileRef) {
         ResourceInstallUtils.recordUpdateAttemptTime(mApp);
-        mResourceManager.incrementUpdateAttempts();
         Logger.log(LogTypes.TYPE_RESOURCES,
                 "Beginning install attempt for profile " + profileRef);
 

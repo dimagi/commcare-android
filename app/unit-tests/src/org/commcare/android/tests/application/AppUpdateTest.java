@@ -92,7 +92,7 @@ public class AppUpdateTest {
 
         String profileRef = UpdateUtils.buildResourceRef(REF_BASE_DIR, "invalid_update", "profile.ccpr");
         UpdateUtils.installUpdate(profileRef,
-                AppInstallStatus.MissingResourcesWithMessage,
+                AppInstallStatus.InvalidResource,
                 AppInstallStatus.UnknownFailure);
 
         Profile p = CommCareApplication.instance().getCommCarePlatform().getCurrentProfile();
@@ -118,7 +118,7 @@ public class AppUpdateTest {
 
         String profileRef = UpdateUtils.buildResourceRef(REF_BASE_DIR, "valid_update_without_multimedia_present", "profile.ccpr");
         UpdateUtils.installUpdate(profileRef,
-                AppInstallStatus.MissingResources,
+                AppInstallStatus.MissingResourcesWithMessage,
                 AppInstallStatus.UnknownFailure);
 
         Profile p = CommCareApplication.instance().getCommCarePlatform().getCurrentProfile();
