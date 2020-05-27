@@ -5,7 +5,7 @@ import android.content.ActivityNotFoundException;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import android.util.Log;
 
 import org.commcare.AppUtils;
@@ -31,7 +31,7 @@ import org.commcare.tasks.ResourceEngineTask;
 import org.commcare.tasks.ResultAndError;
 import org.commcare.tasks.TaskListener;
 import org.commcare.tasks.TaskListenerRegistrationException;
-import org.commcare.tasks.UpdateTask;
+import org.commcare.update.UpdateTask;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.CczUtils;
 import org.commcare.utils.FileUtil;

@@ -5,25 +5,28 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Point;
+import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Build;
-import android.support.annotation.IdRes;
+import androidx.annotation.IdRes;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.MediaController;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.VideoView;
 
 import com.bumptech.glide.Glide;
 
+import org.commcare.activities.FormEntryActivity;
 import org.commcare.dalvik.R;
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.utils.FileUtil;
@@ -166,6 +169,7 @@ public class MediaLayout extends RelativeLayout {
                 i.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                 try {
                     getContext().startActivity(i);
+                    FormEntryActivity.mFormController.getFormAnalyticsHelper().recordVideoPlaybackStart(videoFile);
                 } catch (ActivityNotFoundException e) {
                     Toast.makeText(getContext(),
                             getContext().getString(R.string.activity_not_found, "view video"),
@@ -397,7 +401,7 @@ public class MediaLayout extends RelativeLayout {
 
             int[] maxBounds = getMaxCenterViewBounds();
 
-            File videoFile = new File(videoFilename);
+            final File videoFile = new File(videoFilename);
             if (!videoFile.exists()) {
                 return getMissingImageView("No video file found at: " + videoFilename);
             } else {
@@ -405,13 +409,35 @@ public class MediaLayout extends RelativeLayout {
                 //since clicking the video view to bring up controls has weird effects.
                 //since we shotgun grab the focus for the input widget.
 
-                final MediaController ctrl = new MediaController(this.getContext());
+                final CommCareMediaController ctrl = new CommCareMediaController(this.getContext());
 
-                VideoView videoView = new VideoView(this.getContext());
-                videoView.setOnPreparedListener(mediaPlayer -> ctrl.show());
+                CommCareVideoView videoView = new CommCareVideoView(this.getContext());
+                videoView.setOnPreparedListener(mediaPlayer -> {
+                    //Since MediaController will create a default set of controls and put them in a window floating above your application(From AndroidDocs)
+                    //It would never follow the parent view's animation or scroll.
+                    //So, adding the MediaController to the view hierarchy here.
+                    FrameLayout frameLayout = (FrameLayout) ctrl.getParent();
+                    ((ViewGroup) frameLayout.getParent()).removeView(frameLayout);
+                    LayoutParams params = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+                    params.addRule(ALIGN_BOTTOM, videoView.getId());
+                    params.addRule(ALIGN_LEFT, videoView.getId());
+                    params.addRule(ALIGN_RIGHT, videoView.getId());
+
+                    ((RelativeLayout) videoView.getParent()).addView(frameLayout, params);
+
+                    ctrl.setAnchorView(videoView);
+                    videoView.setMediaController(ctrl);
+                    ctrl.show();
+                });
+
                 videoView.setVideoPath(videoFilename);
-                videoView.setMediaController(ctrl);
-                ctrl.setAnchorView(videoView);
+                videoView.setListener(duration -> {
+                    // Do not log events if the video is never played.
+                    if (duration == 0) {
+                        return;
+                    }
+                    FirebaseAnalyticsUtil.reportInlineVideoPlayEvent(videoFilename, FileUtil.getDuration(videoFile), duration);
+                });
 
                 //These surprisingly get re-jiggered as soon as the video is loaded, so we
                 //just want to give it the _max_ bounds, it'll pick the limiter and shrink

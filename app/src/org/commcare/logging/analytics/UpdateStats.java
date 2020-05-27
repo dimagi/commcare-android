@@ -1,7 +1,9 @@
 package org.commcare.logging.analytics;
 
 import org.commcare.CommCareApp;
+import org.commcare.engine.resource.AppInstallStatus;
 import org.commcare.resources.model.InstallStatsLogger;
+import org.commcare.tasks.ResultAndError;
 
 import java.io.PrintWriter;
 import java.io.Serializable;
@@ -23,13 +25,14 @@ public class UpdateStats implements InstallStatsLogger, Serializable {
 
     private final Hashtable<String, InstallAttempts<String>> resourceInstallStats;
     private long startInstallTime;
-    private int restartCount = 0;
+    private int resetCounter = 0;
+    private ResultAndError<AppInstallStatus> lastStageUpdateResult;
 
     private UpdateStats() {
         startInstallTime = new Date().getTime();
         resourceInstallStats = new Hashtable<>();
         resourceInstallStats.put(TOP_LEVEL_STATS_KEY,
-                new InstallAttempts<String>(TOP_LEVEL_STATS_KEY));
+                new InstallAttempts<>(TOP_LEVEL_STATS_KEY));
     }
 
     /**
@@ -61,7 +64,7 @@ public class UpdateStats implements InstallStatsLogger, Serializable {
         clearPersistedStats(app);
         startInstallTime = new Date().getTime();
         resourceInstallStats.clear();
-        restartCount = 0;
+        resetCounter = 0;
     }
 
     /**
@@ -71,11 +74,11 @@ public class UpdateStats implements InstallStatsLogger, Serializable {
         PrefStats.clearPersistedStats(app, UPGRADE_STATS_KEY);
     }
 
-    /**
-     * Register attempt to download resources into update table.
-     */
-    public void registerStagingAttempt() {
-        restartCount++;
+    public void registerUpdateFailure(AppInstallStatus result) {
+        if (result.causeUpdateReset()) {
+            resetCounter++;
+        }
+        registerUpdateException(new Exception(result.toString()));
     }
 
     /**
@@ -85,14 +88,29 @@ public class UpdateStats implements InstallStatsLogger, Serializable {
         recordResourceInstallFailure(TOP_LEVEL_STATS_KEY, e);
     }
 
+
+    /**
+     * Register result of a staging attempt
+     */
+    public void registerStagingUpdateResult(ResultAndError<AppInstallStatus> resultAndError) {
+        lastStageUpdateResult = resultAndError;
+    }
+
     /**
      * @return Should the update be considered stale due to elapse time or too
      * many unsuccessful installs?
      */
     public boolean isUpgradeStale() {
+        return hasUpdateTrialsMaxedOut() || hasUpdateTimedOut();
+    }
+
+    private boolean hasUpdateTimedOut() {
         long currentTime = new Date().getTime();
-        return (restartCount > ATTEMPTS_UNTIL_UPDATE_STALE ||
-                (currentTime - startInstallTime) > TWO_WEEKS_IN_MS);
+        return (currentTime - startInstallTime) > TWO_WEEKS_IN_MS;
+    }
+
+    public boolean hasUpdateTrialsMaxedOut() {
+        return resetCounter > ATTEMPTS_UNTIL_UPDATE_STALE;
     }
 
     @Override
@@ -126,6 +144,10 @@ public class UpdateStats implements InstallStatsLogger, Serializable {
         return sw.toString();
     }
 
+    public ResultAndError<AppInstallStatus> getLastStageUpdateResult() {
+        return lastStageUpdateResult;
+    }
+
     @Override
     public String toString() {
         StringBuilder statsStringBuilder = new StringBuilder();
@@ -133,8 +155,8 @@ public class UpdateStats implements InstallStatsLogger, Serializable {
         statsStringBuilder.append("Update first started: ")
                 .append(new Date(startInstallTime).toString())
                 .append(".\n")
-                .append("Update restarted ")
-                .append(restartCount)
+                .append("Reset Count ")
+                .append(resetCounter)
                 .append(" times.\n")
                 .append("Failures logged to the update table: \n")
                 .append(resourceInstallStats.get(TOP_LEVEL_STATS_KEY).toString())
@@ -149,7 +171,4 @@ public class UpdateStats implements InstallStatsLogger, Serializable {
         return statsStringBuilder.toString();
     }
 
-    public int getRestartCount() {
-        return restartCount;
-    }
 }

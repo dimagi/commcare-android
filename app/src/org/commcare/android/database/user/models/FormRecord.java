@@ -1,7 +1,7 @@
 package org.commcare.android.database.user.models;
 
 import android.database.SQLException;
-import android.support.annotation.StringDef;
+import androidx.annotation.StringDef;
 
 import net.sqlcipher.database.SQLiteDatabase;
 

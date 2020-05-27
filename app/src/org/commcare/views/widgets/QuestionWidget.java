@@ -4,12 +4,14 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.graphics.Rect;
 import android.graphics.Typeface;
-import android.preference.PreferenceManager;
 import android.text.Spannable;
+import android.text.SpannableStringBuilder;
 import android.text.TextPaint;
 import android.text.method.LinkMovementMethod;
+import android.text.style.ForegroundColorSpan;
 import android.text.style.URLSpan;
 import android.text.util.Linkify;
 import android.util.Log;
@@ -27,11 +29,13 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.commcare.activities.CommCareActivity;
 import org.commcare.dalvik.R;
 import org.commcare.interfaces.WidgetChangedListener;
 import org.commcare.models.ODKStorage;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.preferences.FormEntryPreferences;
+import org.commcare.preferences.HiddenPreferences;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.BlockingActionsManager;
 import org.commcare.utils.DelayedBlockingAction;
@@ -40,6 +44,7 @@ import org.commcare.utils.FormUploadUtil;
 import org.commcare.utils.MarkupUtil;
 import org.commcare.utils.StringUtils;
 import org.commcare.views.ShrinkingTextView;
+import org.commcare.views.UserfacingErrorHandling;
 import org.commcare.views.ViewUtil;
 import org.commcare.views.media.MediaLayout;
 import org.javarosa.core.model.FormIndex;
@@ -53,9 +58,12 @@ import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.form.api.FormEntryCaption;
 import org.javarosa.form.api.FormEntryPrompt;
+import org.javarosa.xpath.XPathException;
 
 import java.io.File;
 import java.util.Vector;
+
+import androidx.preference.PreferenceManager;
 
 public abstract class QuestionWidget extends LinearLayout implements QuestionExtensionReceiver {
     private final static String TAG = QuestionWidget.class.getSimpleName();
@@ -368,14 +376,34 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
     }
 
     public void setQuestionText(TextView textView, FormEntryPrompt prompt) {
+        textView.setText(getTextFromPrompt(prompt));
         if (prompt.getMarkdownText() != null) {
-            textView.setText(forceMarkdown(prompt.getMarkdownText()));
             textView.setMovementMethod(LinkMovementMethod.getInstance());
             // Wrap to the size of the parent view
             textView.setHorizontallyScrolling(false);
-        } else {
-            textView.setText(mPrompt.getLongText());
         }
+    }
+
+    private SpannableStringBuilder getTextFromPrompt(FormEntryPrompt prompt) {
+        SpannableStringBuilder builder = new SpannableStringBuilder();
+        if (prompt.getMarkdownText() != null) {
+            builder.append(forceMarkdown(prompt.getMarkdownText()));
+        } else if (mPrompt.getLongText() == null) {
+            return null;
+        } else {
+            builder.append(mPrompt.getLongText());
+        }
+
+        if (HiddenPreferences.shouldLabelRequiredQuestionsWithAsterisk() && prompt.isRequired()) {
+            builder.append(" ");
+            int start = builder.length();
+            builder.append("*");
+            int end = builder.length();
+            builder.setSpan(new ForegroundColorSpan(Color.RED), start, end,
+                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        }
+
+        return builder;
     }
 
     public void setChoiceText(TextView choiceText, SelectChoice choice) {
@@ -502,7 +530,11 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
             text.setText(forceMarkdown(markdownText));
             text.setMovementMethod(LinkMovementMethod.getInstance());
         } else {
-            text.setText(mPrompt.getHelpText());
+            try {
+                text.setText(mPrompt.getHelpText());
+            } catch (XPathException exception) {
+                UserfacingErrorHandling.createErrorDialog((CommCareActivity)getContext(), exception.getLocalizedMessage(), true);
+            }
         }
         text.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mQuestionFontSize);
         int padding = (int)getResources().getDimension(R.dimen.help_text_padding);
@@ -585,8 +617,12 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
      * Add a TextView containing the help text.
      */
     private void addHintText() {
-        String s = mPrompt.getHintText();
-
+        String s = null;
+        try {
+            s = mPrompt.getHintText();
+        } catch (XPathException e) {
+            UserfacingErrorHandling.createErrorDialog((CommCareActivity)getContext(), e.getLocalizedMessage(), true);
+        }
         if (s != null && !s.equals("")) {
             mHintText = new ShrinkingTextView(getContext(), this.getMaxHintHeight());
             mHintText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mQuestionFontSize - 3);

@@ -1,7 +1,7 @@
 package org.commcare.provider;
 
 import android.content.Intent;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 import android.util.Base64;
 import android.util.Log;
 

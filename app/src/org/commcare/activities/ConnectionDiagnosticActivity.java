@@ -15,6 +15,7 @@ import org.commcare.dalvik.R;
 import org.commcare.tasks.ConnectionDiagnosticTask;
 import org.commcare.tasks.DataSubmissionListener;
 import org.commcare.tasks.LogSubmissionTask;
+import org.commcare.utils.CommCareUtil;
 import org.commcare.utils.MarkupUtil;
 import org.commcare.views.ManagedUi;
 import org.commcare.views.UiElement;
@@ -105,15 +106,7 @@ public class ConnectionDiagnosticActivity extends CommCareActivity<ConnectionDia
             String url = LogSubmissionTask.getSubmissionUrl(CommCareApplication.instance().getCurrentApp().getAppPreferences());
 
             if (url != null) {
-                DataSubmissionListener dataListener;
-
-                dataListener =
-                        CommCareApplication.instance().getSession().getListenerForSubmissionNotification(R.string.submission_logs_title);
-                LogSubmissionTask reportSubmitter =
-                        new LogSubmissionTask(
-                                true,
-                                dataListener, url);
-                reportSubmitter.execute();
+                CommCareUtil.executeLogSubmission(url, false);
                 ConnectionDiagnosticActivity.this.finish();
                 Toast.makeText(
                         CommCareApplication.instance(),

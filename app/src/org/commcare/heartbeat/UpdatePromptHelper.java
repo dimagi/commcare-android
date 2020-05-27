@@ -30,21 +30,21 @@ public class UpdatePromptHelper {
     public static boolean promptForUpdateIfNeeded(Activity context) {
         try {
             CommCareSessionService currentSession = CommCareApplication.instance().getSession();
-            if (!currentSession.apkUpdatePromptWasShown()) {
-                UpdateToPrompt apkUpdate = getCurrentUpdateToPrompt(UpdateToPrompt.Type.APK_UPDATE);
-                if (apkUpdate != null && apkUpdate.shouldShowOnThisLogin()) {
-                    Intent i = new Intent(context, PromptApkUpdateActivity.class);
-                    context.startActivity(i);
-                    return true;
-                }
+            UpdateToPrompt apkUpdate = getCurrentUpdateToPrompt(UpdateToPrompt.Type.APK_UPDATE);
+            if (apkUpdate != null &&
+                    ((apkUpdate.shouldShowOnThisLogin() && !currentSession.apkUpdatePromptWasShown()) ||
+                            apkUpdate.isForced())) {
+                Intent i = new Intent(context, PromptApkUpdateActivity.class);
+                context.startActivity(i);
+                return true;
             }
-            if (!currentSession.cczUpdatePromptWasShown()) {
-                UpdateToPrompt cczUpdate = getCurrentUpdateToPrompt(UpdateToPrompt.Type.CCZ_UPDATE);
-                if (cczUpdate != null && cczUpdate.shouldShowOnThisLogin()) {
-                    Intent i = new Intent(context, PromptCczUpdateActivity.class);
-                    context.startActivity(i);
-                    return true;
-                }
+            UpdateToPrompt cczUpdate = getCurrentUpdateToPrompt(UpdateToPrompt.Type.CCZ_UPDATE);
+            if (cczUpdate != null &&
+                    ((cczUpdate.shouldShowOnThisLogin() && !currentSession.cczUpdatePromptWasShown()) ||
+                            cczUpdate.isForced())) {
+                Intent i = new Intent(context, PromptCczUpdateActivity.class);
+                context.startActivity(i);
+                return true;
             }
         } catch (SessionUnavailableException e) {
             // Means we just performed an update and have therefore expired the session

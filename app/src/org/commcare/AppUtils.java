@@ -2,6 +2,7 @@ package org.commcare;
 
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.text.TextUtils;
 
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
@@ -97,7 +98,7 @@ public class AppUtils {
      * it shouldn't be used lightly.
      */
     public static void clearUserData() {
-        wipeSandboxForUser(CommCareApplication.instance().getSession().getLoggedInUser().getUsername());
+        wipeSandboxForUser(getLoggedInUserName());
         CommCareApplication.instance().getCurrentApp().getAppPreferences().edit()
                 .putString(HiddenPreferences.LAST_LOGGED_IN_USER, null).apply();
         CommCareApplication.instance().closeUserSession();
@@ -164,6 +165,12 @@ public class AppUtils {
         if (p != null) {
             profileVersion = String.valueOf(p.getVersion());
         }
+
+        String appVersionTag = HiddenPreferences.getAppVersionTag();
+        if (!TextUtils.isEmpty(appVersionTag)) {
+            profileVersion += " (" + appVersionTag + ")";
+        }
+
         String buildDate = BuildConfig.BUILD_DATE;
         String buildNumber = BuildConfig.BUILD_NUMBER;
 
@@ -183,5 +190,9 @@ public class AppUtils {
     public static boolean notOnLatestCCVersion() {
         return new ApkVersion(ReportingUtils.getCommCareVersionString()).compareTo(
                 new ApkVersion(HiddenPreferences.getLatestCommcareVersion())) < 0;
+    }
+
+    public static String getLoggedInUserName() {
+        return CommCareApplication.instance().getSession().getLoggedInUser().getUsername();
     }
 }

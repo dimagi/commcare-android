@@ -11,7 +11,7 @@ import org.commcare.engine.resource.AppInstallStatus;
 import org.commcare.models.database.AndroidSandbox;
 import org.commcare.suite.model.Profile;
 import org.commcare.tasks.InstallStagedUpdateTask;
-import org.commcare.tasks.UpdateTask;
+import org.commcare.update.UpdateTask;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.junit.Assert;
@@ -92,7 +92,7 @@ public class AppUpdateTest {
 
         String profileRef = UpdateUtils.buildResourceRef(REF_BASE_DIR, "invalid_update", "profile.ccpr");
         UpdateUtils.installUpdate(profileRef,
-                AppInstallStatus.MissingResourcesWithMessage,
+                AppInstallStatus.InvalidResource,
                 AppInstallStatus.UnknownFailure);
 
         Profile p = CommCareApplication.instance().getCommCarePlatform().getCurrentProfile();
@@ -118,7 +118,7 @@ public class AppUpdateTest {
 
         String profileRef = UpdateUtils.buildResourceRef(REF_BASE_DIR, "valid_update_without_multimedia_present", "profile.ccpr");
         UpdateUtils.installUpdate(profileRef,
-                AppInstallStatus.MissingResources,
+                AppInstallStatus.MissingResourcesWithMessage,
                 AppInstallStatus.UnknownFailure);
 
         Profile p = CommCareApplication.instance().getCommCarePlatform().getCurrentProfile();

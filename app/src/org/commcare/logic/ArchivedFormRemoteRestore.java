@@ -70,6 +70,17 @@ public class ArchivedFormRemoteRestore {
                     case UNKNOWN_FAILURE:
                         Toast.makeText(receiver, "Failure retrieving or processing data, please try again later...", Toast.LENGTH_LONG).show();
                         break;
+                    case CANCELLED:
+                        Toast.makeText(receiver, Localization.get("sync.fail.cancelled"), Toast.LENGTH_LONG).show();
+                        break;
+                    case ENCRYPTION_FAILURE:
+                        Toast.makeText(receiver, Localization.get("sync.fail.encryption.failure"), Toast.LENGTH_LONG).show();
+                        break;
+                    case SESSION_EXPIRE:
+                        Toast.makeText(receiver, Localization.get("sync.fail.session.expire"), Toast.LENGTH_LONG).show();
+                        break;
+                    case RECOVERY_FAILURE:
+                        Toast.makeText(receiver, Localization.get("sync.fail.recovery.failure"), Toast.LENGTH_LONG).show();
                     case ACTIONABLE_FAILURE:
                         Toast.makeText(receiver, statusAndErrorMessage.errorMessage, Toast.LENGTH_LONG).show();
                         break;
@@ -86,8 +97,14 @@ public class ArchivedFormRemoteRestore {
                     case SERVER_ERROR:
                         Toast.makeText(receiver, "The server had an error processing your data. Please try again later, and contact CommCare Support if the problem persists.", Toast.LENGTH_LONG).show();
                         break;
+                    case RATE_LIMITED_SERVER_ERROR:
+                        Toast.makeText(receiver, "Our servers are unavailable at this time. Please try again later, and contact CommCare Support if the problem persists.", Toast.LENGTH_LONG).show();
+                        break;
                     case UNREACHABLE_HOST:
                         Toast.makeText(receiver, "Couldn't contact server, please check your network connection and try again.", Toast.LENGTH_LONG).show();
+                        break;
+                    case CAPTIVE_PORTAL:
+                        Toast.makeText(receiver, Localization.get("connection.captive_portal.action"), Toast.LENGTH_LONG).show();
                         break;
                 }
             }

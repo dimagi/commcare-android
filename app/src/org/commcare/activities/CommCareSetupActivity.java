@@ -10,12 +10,12 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.PowerManager;
-import android.support.annotation.NonNull;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
-import android.support.v4.content.ContextCompat;
+import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
+import androidx.core.content.ContextCompat;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -528,6 +528,9 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             case ReinstallFromInvalidCcz:
                 receiver.failUnknown(AppInstallStatus.ReinstallFromInvalidCcz);
                 break;
+            case CaptivePortal:
+                receiver.failWithNotification(AppInstallStatus.CaptivePortal);
+                break;
             default:
                 receiver.failUnknown(AppInstallStatus.UnknownFailure);
                 break;
@@ -757,15 +760,10 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     @Override
     public void failBadReqs(String versionRequired, String versionAvailable, boolean majorIsProblem) {
         String versionMismatch = Localization.get("install.version.mismatch", new String[]{versionRequired, versionAvailable});
-
-        String error;
-        if (majorIsProblem) {
-            error = Localization.get("install.major.mismatch");
-        } else {
-            error = Localization.get("install.minor.mismatch");
-        }
-
-        fail(NotificationMessageFactory.message(AppInstallStatus.IncompatibleReqs, new String[]{null, versionMismatch, error}), true);
+        Intent intent = new Intent(this, PromptApkUpdateActivity.class);
+        intent.putExtra(PromptApkUpdateActivity.REQUIRED_VERSION, versionRequired);
+        intent.putExtra(PromptApkUpdateActivity.CUSTOM_PROMPT_TITLE, versionMismatch);
+        startActivity(intent);
     }
 
     @Override

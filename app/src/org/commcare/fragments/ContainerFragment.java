@@ -1,7 +1,7 @@
 package org.commcare.fragments;
 
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
+import androidx.fragment.app.Fragment;
 
 /**
  * A general container for persisting an object across activity lifetime

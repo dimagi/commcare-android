@@ -7,14 +7,13 @@ import android.content.res.Configuration;
 import android.database.DataSetObserver;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v4.app.FragmentManager;
+import androidx.fragment.app.FragmentManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.GridView;
@@ -701,6 +700,12 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             tryToAddSearchActionToAppBar(this, menu, entitySelectSearchUI.getActionBarInstantiator());
             setupActionOptionsMenu(menu);
         }
+
+        MenuItem settingsItem = menu.findItem(R.id.menu_settings);
+        if (settingsItem != null) {
+            settingsItem.setTitle(Localization.get("select.menu.settings"));
+        }
+
         return true;
     }
 

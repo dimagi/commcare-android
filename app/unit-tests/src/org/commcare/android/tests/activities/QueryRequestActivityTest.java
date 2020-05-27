@@ -26,9 +26,9 @@ import org.junit.runner.RunWith;
 import org.robolectric.Robolectric;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.Shadows;
+import org.robolectric.android.controller.ActivityController;
 import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowToast;
-import org.robolectric.util.ActivityController;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -55,8 +55,8 @@ public class QueryRequestActivityTest {
         Intent queryActivityIntent =
                 new Intent(RuntimeEnvironment.application, QueryRequestActivity.class);
         QueryRequestActivity queryRequestActivity =
-                Robolectric.buildActivity(QueryRequestActivity.class)
-                        .withIntent(queryActivityIntent).setup().get();
+                Robolectric.buildActivity(QueryRequestActivity.class, queryActivityIntent)
+                        .setup().get();
 
         assertEquals(Activity.RESULT_CANCELED,
                 Shadows.shadowOf(queryRequestActivity).getResultCode());
@@ -80,8 +80,8 @@ public class QueryRequestActivityTest {
         Intent queryActivityIntent =
                 new Intent(RuntimeEnvironment.application, QueryRequestActivity.class);
         QueryRequestActivity queryRequestActivity =
-                Robolectric.buildActivity(QueryRequestActivity.class)
-                        .withIntent(queryActivityIntent).setup().get();
+                Robolectric.buildActivity(QueryRequestActivity.class, queryActivityIntent)
+                        .setup().get();
 
         LinearLayout promptsLayout =
                 queryRequestActivity.findViewById(R.id.query_prompts);
@@ -116,8 +116,7 @@ public class QueryRequestActivityTest {
                 new Intent(RuntimeEnvironment.application, QueryRequestActivity.class);
 
         ActivityController<QueryRequestActivity> controller =
-                Robolectric.buildActivity(QueryRequestActivity.class)
-                        .withIntent(queryActivityIntent).setup();
+                Robolectric.buildActivity(QueryRequestActivity.class, queryActivityIntent).setup();
         QueryRequestActivity queryRequestActivity = controller.get();
 
         LinearLayout promptsLayout =
@@ -141,8 +140,8 @@ public class QueryRequestActivityTest {
         controller.saveInstanceState(savedInstanceState);
 
         // start new activity with serialized app state
-        queryRequestActivity = Robolectric.buildActivity(QueryRequestActivity.class)
-                .withIntent(queryActivityIntent).setup(savedInstanceState).get();
+        queryRequestActivity = Robolectric.buildActivity(QueryRequestActivity.class, queryActivityIntent)
+                .setup(savedInstanceState).get();
 
         // check that the error message is still there
         errorMessage = queryRequestActivity.findViewById(R.id.error_message);
@@ -162,8 +161,8 @@ public class QueryRequestActivityTest {
                 new Intent(RuntimeEnvironment.application, QueryRequestActivity.class);
 
         ActivityController<QueryRequestActivity> controller =
-                Robolectric.buildActivity(QueryRequestActivity.class)
-                        .withIntent(queryActivityIntent).create().start().resume();
+                Robolectric.buildActivity(QueryRequestActivity.class, queryActivityIntent)
+                        .create().start().resume();
         QueryRequestActivity queryRequestActivity = controller.get();
 
         LinearLayout promptsLayout =
@@ -176,8 +175,8 @@ public class QueryRequestActivityTest {
         controller.saveInstanceState(savedInstanceState);
 
         // start new activity with serialized app state
-        queryRequestActivity = Robolectric.buildActivity(QueryRequestActivity.class)
-                .withIntent(queryActivityIntent).setup(savedInstanceState).get();
+        queryRequestActivity = Robolectric.buildActivity(QueryRequestActivity.class, queryActivityIntent)
+                .setup(savedInstanceState).get();
 
         // check that the query prompts are filled out still
         promptsLayout = queryRequestActivity.findViewById(R.id.query_prompts);
@@ -207,8 +206,8 @@ public class QueryRequestActivityTest {
                 new Intent(RuntimeEnvironment.application, QueryRequestActivity.class);
 
         ActivityController<QueryRequestActivity> controller =
-                Robolectric.buildActivity(QueryRequestActivity.class)
-                        .withIntent(queryActivityIntent).setup();
+                Robolectric.buildActivity(QueryRequestActivity.class, queryActivityIntent)
+                        .setup();
         QueryRequestActivity queryRequestActivity = controller.get();
 
         LinearLayout promptsLayout =

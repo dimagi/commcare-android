@@ -1,9 +1,11 @@
 package org.commcare.tasks;
 
+import java.io.Serializable;
+
 /**
  * @author Phillip Mates (pmates@dimagi.com)
  */
-public class ResultAndError<Data> {
+public class ResultAndError<Data> implements Serializable {
     public final Data data;
     public final String errorMessage;
 

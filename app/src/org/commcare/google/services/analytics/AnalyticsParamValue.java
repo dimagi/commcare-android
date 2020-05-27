@@ -29,13 +29,12 @@ public class AnalyticsParamValue {
     public static final String ITEM_SAVE_FORM = "save_form";
     public static final String ITEM_FORM_HIERARCHY = "form_hierarchy";
     public static final String ITEM_CHANGE_FORM_SETTINGS = "change_settings";
+    public static final String ITEM_UPDATE_CC_PLATFORM = "update_commcare_platform";
 
     // Param values for sync attempts
     public static final String SYNC_TRIGGER_USER = "user_triggered_sync";
     public static final String SYNC_TRIGGER_AUTO = "auto_sync";
 
-    static final String SYNC_SUCCESS = "sync_success";
-    static final String SYNC_FAILURE = "sync_failure";
 
     public static final String SYNC_MODE_JUST_PULL_DATA = "sync_just_pull";
     public static final String SYNC_MODE_SEND_FORMS = "sync_pull_and_send";
@@ -43,14 +42,22 @@ public class AnalyticsParamValue {
     public static final String SYNC_FAIL_NO_CONNECTION = "no_connection";
     public static final String SYNC_FAIL_AUTH = "auth_failure";
     public static final String SYNC_FAIL_EMPTY_URL = "empty_url";
+    public static final String SYNC_FAIL_RETRY_NEEDED = "retry_needed";
     public static final String SYNC_FAIL_BAD_DATA = "bad_data";
     public static final String SYNC_FAIL_SERVER_ERROR = "server_error";
+    public static final String SYNC_FAIL_RATE_LIMITED_SERVER_ERROR = "rate_limited_server_error";
     public static final String SYNC_FAIL_UNREACHABLE_HOST = "unreachable_host";
     public static final String SYNC_FAIL_CONNECTION_TIMEOUT = "connection_timeout";
     public static final String SYNC_FAIL_UNKNOWN = "unknown_failure";
+    public static final String SYNC_FAIL_CANCELLED = "cancelled";
+    public static final String SYNC_FAIL_ENCRYPTION = "encryption_failure";
+    public static final String SYNC_FAIL_SESSION_EXPIRE = "session_expire";
+    public static final String SYNC_FAIL_RECOVERY = "recovery_failure";
     public static final String SYNC_FAIL_STORAGE_FULL = "storage_full";
     public static final String SYNC_FAIL_ACTIONABLE = "actionable_failure";
     public static final String SYNC_FAIL_AUTH_OVER_HTTP = "auth_over_http";
+    public static final String SYNC_FAIL_CAPTIVE_PORTAL = "captive_portal";
+    public static final String SYNC_SUCCESS = "success";
 
     // Param values for feature usage
     public static final String FEATURE_SET_PIN = "set_pin";
@@ -92,9 +99,11 @@ public class AnalyticsParamValue {
     public static final String CONNECTION_TEST = "connection_test";
     public static final String CLEAR_USER_DATA = "clear_user_data";
     public static final String CLEAR_SAVED_SESSION = "clear_saved_session";
+    public static final String DISABLE_PRE_UPDATE_SYNC = "disable_pre_update_sync";
     public static final String FORCE_LOG_SUBMISSION = "force_log_submission";
     public static final String RECOVERY_MODE = "recovery_mode";
     public static final String ENABLE_PRIVILEGES = "enable_mobile_privileges";
+    public static final String ENABLE_RATE_LIMIT_POPUP = "enable_rate_limit_popup";
 
     // Param values for entity detail ui state
     static final String DETAIL_WITH_TABS = "detail_with_tabs";
@@ -103,5 +112,25 @@ public class AnalyticsParamValue {
     // Param values for timed sessions
     public static final String USER_SESSION = "user_session";
     public static final String FORM_ENTRY_SESSION = "form_entry_session";
+
+
+    // Param values for video usage event
+    public static final String VIDEO_USAGE_IMMEDIATE = "immediate";
+    public static final String VIDEO_USAGE_PARTIAL = "partial";
+    public static final String VIDEO_USAGE_MOST = "most";
+    public static final String VIDEO_USAGE_FULL = "full";
+    public static final String VIDEO_USAGE_OTHER = "other";
+    public static final String VIDEO_USAGE_LENGTH_UNKNOWN = "length_unknown";
+
+
+    // Param values for common commcare event
+    public static final String STAGE_UPDATE_FAILURE = "stage_update_failure";
+    public static final String UPDATE_RESET = "update_reset";
+    public static final String CORRUPT_APP_STATE = "corrupt_app_state";
+
+    public static final String UPDATE_RESET_REASON_CORRUPT = "update_corrupt";
+    public static final String UPDATE_RESET_REASON_TIMEOUT = "update_timeout";
+    public static final String UPDATE_RESET_REASON_OVERSHOOT_TRIALS = "update_overshoot_trials";
+    public static final String UPDATE_RESET_REASON_NEWER_VERSION_AVAILABLE = "update_newer_version_available";
 
 }

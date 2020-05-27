@@ -240,6 +240,7 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Integer, String, Fo
             // This should get moved to the Application Class
             if (ReferenceManager.instance().getFactories().length == 0) {
                 // this is /sdcard/odk
+                Logger.log(LogTypes.SOFT_ASSERT, "Access outside scoped storage in form media setup.");
                 ReferenceManager.instance().addReferenceFactory(
                         new FileReferenceFactory(Environment.getExternalStorageDirectory() + "/odk"));
             }

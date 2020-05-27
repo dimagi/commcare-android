@@ -12,7 +12,7 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.support.v4.content.ContextCompat;
+import androidx.core.content.ContextCompat;
 
 import org.commcare.CommCareApplication;
 import org.commcare.preferences.HiddenPreferences;

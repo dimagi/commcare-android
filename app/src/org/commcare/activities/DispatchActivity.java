@@ -2,7 +2,6 @@ package org.commcare.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -20,6 +19,8 @@ import org.commcare.utils.CommCareLifecycleUtils;
 import org.commcare.utils.MultipleAppsUtil;
 import org.commcare.utils.SessionUnavailableException;
 import org.javarosa.core.services.locale.Localization;
+
+import androidx.fragment.app.FragmentActivity;
 
 /**
  * Dispatches install, login, and home screen activities.
@@ -318,13 +319,17 @@ public class DispatchActivity extends FragmentActivity {
     }
 
     private void handleExternalLaunch() {
-        String sessionRequest = this.getIntent().getStringExtra(SESSION_REQUEST);
-        SessionStateDescriptor ssd = new SessionStateDescriptor();
-        ssd.fromBundle(sessionRequest);
-        CommCareApplication.instance().getCurrentSessionWrapper().loadFromStateDescription(ssd);
-        Intent i = new Intent(this, StandardHomeActivity.class);
-        i.putExtra(WAS_EXTERNAL, true);
-        startActivityForResult(i, HOME_SCREEN);
+        //First off, make sure the incoming session is clear
+        CommCareApplication.instance().getSession().proceedWithSavedSessionIfNeeded(() -> {
+                    String sessionRequest = this.getIntent().getStringExtra(SESSION_REQUEST);
+                    SessionStateDescriptor ssd = new SessionStateDescriptor();
+                    ssd.fromBundle(sessionRequest);
+                    CommCareApplication.instance().getCurrentSessionWrapper().loadFromStateDescription(ssd);
+                    Intent i = new Intent(this, StandardHomeActivity.class);
+                    i.putExtra(WAS_EXTERNAL, true);
+                    startActivityForResult(i, HOME_SCREEN);
+        }
+        );
     }
 
     private void handleShortcutLaunch() {

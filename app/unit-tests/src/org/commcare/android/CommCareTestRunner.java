@@ -4,10 +4,13 @@ import android.app.Application;
 import android.os.Environment;
 
 import org.jetbrains.annotations.NotNull;
+import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.InitializationError;
 import org.robolectric.DefaultTestLifecycle;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.RuntimeEnvironment;
 import org.robolectric.TestLifecycle;
+import org.robolectric.TestLifecycleApplication;
 import org.robolectric.annotation.Config;
 import org.robolectric.internal.bytecode.InstrumentationConfiguration;
 import org.robolectric.manifest.AndroidManifest;
@@ -26,8 +29,8 @@ public class CommCareTestRunner extends RobolectricTestRunner {
     }
 
     @Override
-    public InstrumentationConfiguration createClassLoaderConfig(Config config) {
-        InstrumentationConfiguration.Builder builder = InstrumentationConfiguration.newBuilder().withConfig(config);
+    public InstrumentationConfiguration createClassLoaderConfig(final FrameworkMethod method) {
+        InstrumentationConfiguration.Builder builder = new InstrumentationConfiguration.Builder(super.createClassLoaderConfig(method));
         builder.addInstrumentedPackage("net.sqlcipher.database.SQLiteDatabase");
         builder.addInstrumentedPackage("org.commcare.models.encryption");
         return builder.build();
@@ -40,10 +43,12 @@ public class CommCareTestRunner extends RobolectricTestRunner {
     }
 
     public static class CommCareTestLifeCycle extends DefaultTestLifecycle {
-        @Override
-        public Application createApplication(Method method, AndroidManifest appManifest, Config config) {
-            ShadowEnvironment.setExternalStorageState(Environment.MEDIA_MOUNTED);
-            return super.createApplication(method, appManifest, config);
+
+        @Override public void prepareTest(final Object test) {
+            if (RuntimeEnvironment.application instanceof TestLifecycleApplication) {
+                ShadowEnvironment.setExternalStorageState(Environment.MEDIA_MOUNTED);
+                super.prepareTest(test);
+            }
         }
     }
 }

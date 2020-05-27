@@ -14,6 +14,7 @@ updates.install.finished=App update was successful
 updates.check.network_unavailable=No network connectivity
 updates.staged.version=Update to version ${0} & log out
 updates.staged.version.app.manager=Update to version ${0}
+updates.staged.version.sync.required=Sync to update
 updates.error=Error encountered during update download
 updates.pinned.download=Downloading updates
 updates.pinned.progress=${0}/${1}
@@ -82,6 +83,7 @@ home.menu.advanced=Advanced
 home.menu.disable.analytics=Opt Out of Analytics
 home.menu.pin.set=Set My PIN
 home.menu.pin.change=Change My PIN
+home.menu.update.commcare=Update CommCare
 
 menu.update.from.ccz=Offline Update
 menu.update.from.hub=Update from Local Hub
@@ -95,10 +97,11 @@ home.developer.options.enabled=Developer Mode Enabled
 menu.save.session=Save Your Session
 menu.clear.saved.session=Clear Saved Session
 menu.print.detail=Print Case Detail
-
+menu.disable.pre.update.sync=Disable Mandatory Pre-Update Sync
 menu.enable.privileges=Mobile Privileges
 menu.privilege.claim.disable=Disable Privileges
 menu.data.change.logs=Data Change Logs
+menu.enable.rate.limit.popup=Enable Rate Limit Error Popup
 
 install.fail.error=We encountered an ${0} error processing your request. Please try again later. If the problem persists, contact CommCare Support.
 
@@ -115,9 +118,20 @@ sync.fail.bad.data=Server provided improperly formatted data, please try again o
 sync.fail.bad.local=Your information was fetched, but a problem occurred with the log in. Please try again.
 sync.fail.bad.network=Couldn't contact server. Please make sure an internet connection is available or try again later.
 sync.fail.server.error=The server encountered an error processing your data. Please try again later. If the problem persists, contact CommCare Support.
+sync.fail.rate.limited.server.error=Our servers are unavailable at this time. Please try again later.
 sync.fail.unknown=An unexpected issue occurred during sync. Please try to sync again.
+sync.fail.cancelled=Sync was cancelled. Please retry.
+sync.fail.encryption.failure=You were logged out during sync. Login again and retry sync.
+sync.fail.session.expire=Failed to set up data encryption. Login again and retry sync.
+sync.fail.recovery.failure=There was an error trying to recover from a bad local state. Please try again later. If the problem persists, contact help desk.
 sync.fail.unsent=Having issues communicating with the server to send forms. Will try again later.
 sync.fail.individual=1 or more forms failed to send due to individual problems. See quarantined forms for details.
+
+form.send.rate.limit.error.toast=Form submission rate limit reached. Your forms are being saved locally and will be submitted to the server later.
+form.send.rate.limit.error.title=You've reached your form submission rate limit
+form.send.rate.limit.error.message=Form submissions will be saved locally on your phone until rate limiting expires. Not to worry, all forms will be auto-synced to the server later. Contact your CommCare admin for more information.
+rate.limit.error.dialog.do.not.show=Don’t show again
+rate.limit.error.dialog.close=Close
 
 auth.over.http=CommCare can't connect with authentication to an insecure (HTTP) server.
 
@@ -338,6 +352,7 @@ select.detail.bypass=Done
 select.address.show=Show Address
 select.menu.sort=Sort By...
 select.menu.map=View on Map
+select.menu.settings=Settings
 select.detail.title=Details
 select.list.title=Select
 select.detail.callout.title=Select phone number action
@@ -373,6 +388,9 @@ connection.task.success=No problems were detected.
 connection.task.report.commcare.popup=Your logs are being sent to CommCare!
 connection.task.unset.posturl=There has been an error on CommCare's end. Please report this problem to CommCare Support.
 
+connection.captive_portal.title=No Internet Detected
+connection.captive_portal.detail=Cannot access internet
+connection.captive_portal.action=The current network is not connected to the internet. You may need to log in from a web browser.
 
 notification.sync.connections.title=No Connection
 notification.sync.connections.detail=No active data connections
@@ -448,6 +466,7 @@ pin.dialog.set.later.title=Setting A PIN Later
 pin.dialog.set.later.message=You can access the PIN create screen at any time from the home screen options menu.
 pin.continue.button=CONTINUE
 pin.confirm.button=CONFIRM
+pin.cancel.button=CANCEL
 pin.directive.new=Enter a 4-digit PIN
 pin.directive.reset=Enter a new 4-digit PIN
 pin.directive.confirm=Re-Enter the PIN you chose
@@ -514,6 +533,22 @@ notification.restore.unknown.title=Unknown Error during Restore
 notification.restore.unknown.detail=CommCare had trouble dealing with something that happened when you tried to log in 
 notification.restore.unknown.action=Try to log in again. If you receive this message again, force close the application from the Manage Applications menu on the phone. If the error persists, contact CommCare Support.
 
+notification.restore.cancelled.title= Sync cancelled
+notification.restore.cancelled.detail=Sync was cancelled by user
+notification.restore.cancelled.action=Please try to sync again if required
+
+notification.restore.session.expire.title=Session expired
+notification.restore.session.expire.detail=You were logged out during sync
+notification.restore.session.expire.action=Please Login again and retry.
+
+notification.restore.encryption.error.title=Encryption error during Sync
+notification.restore.encryption.error.detail=Failed to set up data encryption
+notification.restore.encryption.error.action=Please Login again and retry. Contact help desk if you receive this message again.
+
+notification.restore.recovery.error.title=Sync Recovery Failed
+notification.restore.recovery.error.detail=There was an error trying to recover from a bad local state.
+notification.restore.recovery.error.action=Please retry and contact help desk if the error persists.
+
 notification.restore.baddata.title=Bad Server Response
 notification.restore.baddata.detail=CommCare had trouble processing the network response. Please try again.
 
@@ -539,6 +574,10 @@ notification.install.missing.withmessage.action=Installation error: ${0}
 notification.install.badcert.title=Bad Certificate
 notification.install.badcert.detail=The certificate you received from the server was invalid. This can be casued by many things, but is often do to a mis-set clock on your phone.
 notification.install.badcert.action=This is often due to your phone's internal clock being incorrect.
+
+notification.install.cancel.title=Update Cancelled
+notification.install.cancel.detail=An app update event was cancelled before it completed.
+notification.install.cancel.action=Please restart the update in order to update your app.
 
 notification.install.badreqs.title=Incompatible CommCare Version for Install
 notification.install.badreqs.detail=${0}
@@ -582,6 +621,14 @@ notification.install.updatestaged.detail=A newer version of the app is ready to 
 notification.install.no.connection.title=No internet connection
 notification.install.no.connection.detail=Install failed because your device is not connected to Wi-Fi currently
 notification.install.no.connection.action=Go to your device settings to check the current status of your Wi-Fi connection. If a connection is unavailable at this time, you may try offline install.
+
+notification.install.network.failure.title=Bad internet connection
+notification.install.network.failure.detail=Install failed because of bad internet
+notification.install.network.failure.action=Your internet connection is not good at the moment. Please try again after some time.
+
+notification.install.rate.limited.title=Servers are busy
+notification.install.rate.limited.detail=Install failed because of servers being busy at the moment.
+notification.install.rate.limited.action=Our servers are unavailable at this time. Please try again later
 
 notification.logger.submitted.title=Device Logs Submitted
 notification.logger.submitted.detail=Your devices logs have been successfully submitted
@@ -646,6 +693,10 @@ notification.network.timeout.action=Wait a short period and try your request aga
 notification.server.error.title=Server Error
 notification.server.error.detail=The server had an error processing your data
 notification.server.error.action=Please try again later. If the problem persists, contact CommCare Support.
+
+notification.rate.limited.server.error.title=Service Unavailable
+notification.rate.limited.server.error.detail=Our servers are unavailable at this time
+notification.rate.limited.server.error.action=Please try again later.
 
 crash.warning.button=Restart CommCare
 crash.warning.header=CommCare crashed and needs to restart.
@@ -850,3 +901,17 @@ quarantine.reason.record.error=There was an issue with the form record that prev
 quarantine.reason.manual=The form was manually quarantined by a user
 quarantine.reason.fnf=The file backing the form submission could not be found
 quarantine.reason.unknown=Reason for quarantine unknown
+
+in.app.update.installed.title=Finish CommCare Update
+in.app.update.installed.detail=CommCare just downloaded an update. You need to restart CommCare to finish the installation.
+in.app.update.dialog.cancel=Cancel
+in.app.update.dialog.restart=Restart
+in.app.update.downloading.title=Downloading CommCare Update
+in.app.update.downloading.detail=CommCare update in progress
+in.app.update.downloading.action=CommCare is updating in the background. You can continue using CommCare while the download completes.
+in.app.update.error.not.allowed=Couldn't install CommCare update due to device state(low battery or low disk space).
+in.app.update.error.partially.allowed=Couldn't install CommCare update due to internal failure. Please update using PlayStore.
+in.app.update.error.unknown=Couldn't install CommCare update due to an unknown error. Please try later.
+in.app.update.error.playstore=Updating CommCare requires an official PlayStore app which is missing. Please install PlayStore.
+in.app.update.error.invalid.request=Couldn't install CommCare update due to internal failure. Please try later.
+in.app.update.error.internal.error=Couldn't install CommCare update due to internal error in PlayStore. Please try later.

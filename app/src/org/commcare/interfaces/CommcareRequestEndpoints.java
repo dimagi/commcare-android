@@ -22,7 +22,7 @@ public interface CommcareRequestEndpoints {
 
     Response<ResponseBody> makeKeyFetchRequest(String baseUri, @Nullable Date lastRequest) throws IOException;
 
-    Response<ResponseBody> postMultipart(String url, List<MultipartBody.Part> parts) throws IOException;
+    Response<ResponseBody> postMultipart(String url, List<MultipartBody.Part> parts, HashMap<String, String> queryParams) throws IOException;
 
     Response<ResponseBody> simpleGet(String uri) throws IOException;
 
@@ -34,4 +34,7 @@ public interface CommcareRequestEndpoints {
     Response<ResponseBody> simpleGet(String uri, Map<String, String> httpParams) throws IOException;
 
     void abortCurrentRequest();
+
+    Response<ResponseBody> postLogs(String submissionUrl, List<MultipartBody.Part> parts, boolean forceLogs) throws IOException;
+
 }

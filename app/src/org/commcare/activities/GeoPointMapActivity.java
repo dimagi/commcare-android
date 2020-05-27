@@ -9,14 +9,13 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
-import android.support.v4.content.ContextCompat;
 import android.util.DisplayMetrics;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.fasterxml.jackson.databind.type.MapType;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -29,11 +28,15 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 import org.commcare.activities.components.FormEntryConstants;
 import org.commcare.dalvik.R;
+import org.commcare.preferences.HiddenPreferences;
 import org.commcare.utils.GeoUtils;
+import org.commcare.utils.MapLayer;
 import org.commcare.views.widgets.GeoPointWidget;
 
 import java.text.DecimalFormat;
 import java.util.List;
+
+import androidx.core.content.ContextCompat;
 
 /**
  * Allows location to be chosen using a map instead of current gps coordinates
@@ -57,10 +60,12 @@ public class GeoPointMapActivity extends Activity
     private boolean isGPSOn = false;
     private boolean isNetworkOn = false;
 
+    public static final String EXTRA_VIEW_ONLY = "extra-view-only";
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.geopoint_layout);
 
@@ -76,7 +81,10 @@ public class GeoPointMapActivity extends Activity
             double[] location = intent.getDoubleArrayExtra(GeoPointWidget.LOCATION);
             this.location.setLatitude(location[0]);
             this.location.setLongitude(location[1]);
-            inViewMode = true;
+            this.location.setAltitude(location[2]);
+            this.location.setAccuracy((float)location[3]);
+            isManualSelectedLocation = true;
+            inViewMode = intent.getBooleanExtra(EXTRA_VIEW_ONLY, false);
         }
     }
 
@@ -96,6 +104,18 @@ public class GeoPointMapActivity extends Activity
             acceptButton.setVisibility(View.GONE);
             showLocationButton.setVisibility(View.VISIBLE);
             findViewById(R.id.location_status).setVisibility(View.GONE);
+        }
+
+
+        findViewById(R.id.switch_layer).setOnClickListener(v -> changeMapLayer());
+    }
+
+    private void changeMapLayer() {
+        if (map != null) {
+            // map types are in between 1 to 4
+            int mapType = (map.getMapType() % 4) + 1;
+            map.setMapType(mapType);
+            HiddenPreferences.setMapsDefaultLayer(MapLayer.values()[mapType - 1]);
         }
     }
 
@@ -132,9 +152,9 @@ public class GeoPointMapActivity extends Activity
     @Override
     public void onLocationChanged(Location location) {
         if (!inViewMode && !isManualSelectedLocation) {
-            this.location = location;
-            if (this.location != null) {
-
+            if (location != null &&
+                    (this.location == null || (location.getAccuracy() < this.location.getAccuracy()))) {
+                this.location = location;
                 drawMarker();
             }
         }
@@ -153,10 +173,12 @@ public class GeoPointMapActivity extends Activity
 
         MapsInitializer.initialize(this);
 
-        if (inViewMode) {
+        if (location.hasAccuracy()) {
             drawMarker();
         }
         setupMapListeners();
+
+        map.setMapType(HiddenPreferences.getMapsDefaultLayer().getValue());
     }
 
     private void setupMapListeners() {
@@ -164,13 +186,17 @@ public class GeoPointMapActivity extends Activity
             map.setOnMapClickListener(
                     point -> {
                         isManualSelectedLocation = true;
-                        location.setLongitude(point.longitude);
-                        location.setLatitude(point.latitude);
-                        location.setAccuracy(10);
+                        updateSelectedLocation(point.longitude, point.latitude, 10);
                         drawMarker();
                     }
             );
         }
+    }
+
+    private void updateSelectedLocation(double longitude, double latitude, int accuracy) {
+        location.setLongitude(longitude);
+        location.setLatitude(latitude);
+        location.setAccuracy(accuracy);
     }
 
     private void drawMarker() {

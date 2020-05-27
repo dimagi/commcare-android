@@ -1,11 +1,11 @@
 package org.commcare.android.resource.installers;
 
-import android.support.v4.util.Pair;
+import androidx.core.util.Pair;
 
-import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.dalvik.R;
 import org.commcare.engine.resource.installers.LocalStorageUnavailableException;
+import org.commcare.network.RateLimitedException;
 import org.commcare.resources.model.MissingMediaException;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceInstaller;
@@ -23,7 +23,6 @@ import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.Reference;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.Logger;
-import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
@@ -113,7 +112,11 @@ abstract class FileSystemInstaller implements ResourceInstaller<AndroidCommCareP
                 throw new LocalStorageUnavailableException("Couldn't write to local reference " + localLocation + " for file system installation", localLocation);
             }
 
-            StreamsUtil.writeFromInputToOutputNew(inputFileStream, outputFileStream);
+            try {
+                StreamsUtil.writeFromInputToOutputNew(inputFileStream, outputFileStream);
+            } catch (StreamsUtil.OutputIOException e) {
+                throw new LocalStorageUnavailableException("Couldn't write incoming file to temp location for file system installation", tempFile.getAbsolutePath());
+            }
 
             renameFile(localReference.getLocalURI(), tempFile);
 
@@ -145,6 +148,10 @@ abstract class FileSystemInstaller implements ResourceInstaller<AndroidCommCareP
         } catch (IOException e) {
             e.printStackTrace();
             throw new UnreliableSourceException(r, e.getMessage());
+        } catch (RateLimitedException e) {
+            UnresolvedResourceException mURE = new UnresolvedResourceException(r, "Our servers are unavailable at this time. Please try again later", true);
+            mURE.initCause(e);
+            throw mURE;
         }
     }
 

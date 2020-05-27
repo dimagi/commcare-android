@@ -8,10 +8,10 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Binder;
 import android.os.IBinder;
-import android.preference.PreferenceManager;
-import android.support.v4.app.NotificationCompat;
+import androidx.preference.PreferenceManager;
 import android.text.format.DateFormat;
 import android.util.Log;
+import android.widget.Toast;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
@@ -29,8 +29,9 @@ import org.commcare.models.database.user.DatabaseUserOpenHelper;
 import org.commcare.models.database.user.UserSandboxUtils;
 import org.commcare.models.encryption.CipherPool;
 import org.commcare.preferences.HiddenPreferences;
+import org.commcare.sync.FormSubmissionHelper;
 import org.commcare.tasks.DataSubmissionListener;
-import org.commcare.tasks.ProcessAndSendTask;
+import org.commcare.sync.ProcessAndSendTask;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.SessionStateUninitException;
 import org.commcare.utils.SessionUnavailableException;
@@ -50,6 +51,8 @@ import javax.crypto.Cipher;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
+
+import androidx.core.app.NotificationCompat;
 
 /**
  * The CommCare Session Service is a persistent service which maintains
@@ -115,6 +118,7 @@ public class CommCareSessionService extends Service {
 
     private boolean cczUpdatePromptWasShown;
     private boolean apkUpdatePromptWasShown;
+    private boolean showInAppUpdate = true;
 
     // Have the app health checks in HomeScreenBaseActivity#checkForPendingAppHealthActions() been
     // done at least once during this session?
@@ -371,14 +375,39 @@ public class CommCareSessionService extends Service {
         // maintenance timer will launch CommCareApplication.instance().expireUserSession
         logoutStartedAt = new Date().getTime();
 
+        // Note: Any other types of callbacks should be added to both this method
+        // and the non-close version
+
         // save form progress, if any
         synchronized (lock) {
             if (formSaver != null) {
-                formSaver.formSaveCallback();
+                formSaver.formSaveCallback(() -> {
+                    CommCareApplication.instance().expireUserSession();
+                });
             } else {
                 CommCareApplication.instance().expireUserSession();
             }
         }
+    }
+
+    /**
+     * Calls the provided runnable ensuring that if there is currently an active
+     * form session being executed that it is interrupted and stored
+     *
+     */
+    public void proceedWithSavedSessionIfNeeded(Runnable callback)  {
+        // save form progress, if any
+        synchronized (lock) {
+            if (formSaver != null) {
+                Toast.makeText(CommCareApplication.instance(),
+                        "Suspending existing form entry session...", Toast.LENGTH_LONG).show();
+                formSaver.formSaveCallback(callback);
+                formSaver = null;
+                return;
+            }
+        }
+        //No forms to be saved, just run the callback immediately
+        callback.run();
     }
 
     /**
@@ -548,7 +577,7 @@ public class CommCareSessionService extends Service {
                         progressDetails = String.format("%1$,.1f", (progress / (1024.0 * 1024.0))) + "mb transmitted";
                     }
 
-                    int pending = ProcessAndSendTask.pending();
+                    int pending = FormSubmissionHelper.pending();
                     if (pending > 1) {
                         submissionNotification.setContentInfo(pending - 1 + " Pending");
                     }
@@ -642,5 +671,13 @@ public class CommCareSessionService extends Service {
 
     public boolean appHealthChecksCompleted() {
         return this.appHealthChecksCompleted;
+    }
+
+    public void hideInAppUpdate() {
+        this.showInAppUpdate = false;
+    }
+
+    public boolean shouldShowInAppUpdate() {
+        return this.showInAppUpdate;
     }
 }

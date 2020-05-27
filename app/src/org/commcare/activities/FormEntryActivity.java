@@ -5,7 +5,6 @@ import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.ActionBar;
 import android.content.BroadcastReceiver;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -15,8 +14,9 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.provider.MediaStore.Images;
-import android.support.v4.app.ActivityCompat;
+
+import androidx.core.app.ActivityCompat;
+
 import android.util.Log;
 import android.util.Pair;
 import android.view.ContextMenu;
@@ -47,6 +47,7 @@ import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
+import org.commcare.google.services.analytics.FormAnalyticsHelper;
 import org.commcare.interfaces.AdvanceToNextListener;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.FormSaveCallback;
@@ -154,10 +155,11 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
     private BroadcastReceiver mLocationServiceIssueReceiver;
 
-    // marked true if we are in the process of saving a form because the user
-    // database & key session are expiring. Being set causes savingComplete to
-    // broadcast a form saving intent.
-    private boolean savingFormOnKeySessionExpiration = false;
+    // This will be set if a unique action needs to be taken
+    // at the end of saving a form - like continuing a logout
+    // or proceeding unblocked
+    private Runnable customFormSaveCallback = null;
+
     private FormEntryActivityUIController uiController;
     private SqlStorage<FormRecord> formRecordStorage;
 
@@ -221,9 +223,9 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     }
 
     @Override
-    public void formSaveCallback() {
+    public void formSaveCallback(Runnable listener) {
         // note that we have started saving the form
-        savingFormOnKeySessionExpiration = true;
+        customFormSaveCallback = listener;
 
         // Set flag that will allow us to restore this form when we log back in
         CommCareApplication.instance().getCurrentSessionWrapper().setCurrentStateAsInterrupted();
@@ -325,7 +327,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 case FormEntryConstants.LOCATION_CAPTURE:
                     String sl = intent.getStringExtra(FormEntryConstants.LOCATION_RESULT);
                     uiController.questionsView.setBinaryData(sl, mFormController);
-                    saveAnswersForCurrentScreen(FormEntryConstants.DO_NOT_EVALUATE_CONSTRAINTS);
+                    saveAnswersForCurrentScreen(false);
                     break;
                 case FormEntryConstants.HIERARCHY_ACTIVITY:
                 case FormEntryConstants.HIERARCHY_ACTIVITY_FIRST_START:
@@ -349,7 +351,8 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
     public void saveImageWidgetAnswer(String imagePath) {
         uiController.questionsView.setBinaryData(imagePath, mFormController);
-        saveAnswersForCurrentScreen(FormEntryConstants.DO_NOT_EVALUATE_CONSTRAINTS);
+        saveAnswersForCurrentScreen(false);
+        onExternalAttachmentUpdated();
         uiController.refreshView();
     }
 
@@ -357,7 +360,14 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         // For audio/video capture/chooser, we get the URI from the content provider
         // then the widget copies the file and makes a new entry in the content provider.
         Uri media = intent.getData();
-        if (!FileUtil.isSupportedMultiMediaFile(media)) {
+        if (media == null) {
+            Logger.log(LogTypes.TYPE_ERROR_ASSERTION, "AUDIO_VIDEO_FETCH intent data returns null " + intent.toString());
+            Logger.log(LogTypes.TYPE_ERROR_ASSERTION, "Extras: " + (intent.getExtras() != null ? intent.getExtras().toString() : "null"));
+            uiController.questionsView.clearAnswer();
+            Toast.makeText(FormEntryActivity.this,
+                    Localization.get("form.attachment.notfound"),
+                    Toast.LENGTH_LONG).show();
+        } else if (!FileUtil.isSupportedMultiMediaFile(media)) {
             // don't let the user select a file that won't be included in the
             // upload to the server
             uiController.questionsView.clearAnswer();
@@ -367,7 +377,8 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         } else {
             uiController.questionsView.setBinaryData(media, mFormController);
         }
-        saveAnswersForCurrentScreen(FormEntryConstants.DO_NOT_EVALUATE_CONSTRAINTS);
+        saveAnswersForCurrentScreen(false);
+        onExternalAttachmentUpdated();
         uiController.refreshView();
     }
 
@@ -496,7 +507,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 return true;
             case FormEntryConstants.MENU_HIERARCHY_VIEW:
                 if (currentPromptIsQuestion()) {
-                    saveAnswersForCurrentScreen(FormEntryConstants.DO_NOT_EVALUATE_CONSTRAINTS);
+                    saveAnswersForCurrentScreen(false);
                 }
                 Intent i = new Intent(this, FormHierarchyActivity.class);
                 startActivityForResult(i, FormEntryConstants.HIERARCHY_ACTIVITY);
@@ -567,25 +578,29 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             indexKeys.addAll(answers.keySet());
             Collections.sort(indexKeys, FormIndex::compareTo);
 
-            for (FormIndex index : indexKeys) {
-                // Within a group, you can only save for question events
-                if (mFormController.getEvent(index) == FormEntryController.EVENT_QUESTION) {
-                    int saveStatus = saveAnswer(answers.get(index),
-                            index, evaluateConstraints);
-                    if (evaluateConstraints &&
-                            ((saveStatus != FormEntryController.ANSWER_OK) &&
-                                    (failOnRequired ||
-                                            saveStatus != FormEntryController.ANSWER_REQUIRED_BUT_EMPTY))) {
-                        if (!headless) {
-                            uiController.showConstraintWarning(index, mFormController.getQuestionPrompt(index).getConstraintText(), saveStatus, success);
+            try {
+                for (FormIndex index : indexKeys) {
+                    // Within a group, you can only save for question events
+                    if (mFormController.getEvent(index) == FormEntryController.EVENT_QUESTION) {
+                        int saveStatus = saveAnswer(answers.get(index),
+                                index, evaluateConstraints);
+                        if (evaluateConstraints &&
+                                ((saveStatus != FormEntryController.ANSWER_OK) &&
+                                        (failOnRequired ||
+                                                saveStatus != FormEntryController.ANSWER_REQUIRED_BUT_EMPTY))) {
+                            if (!headless) {
+                                uiController.showConstraintWarning(index, mFormController.getQuestionPrompt(index).getConstraintText(), saveStatus, success);
+                            }
+                            success = false;
                         }
-                        success = false;
+                    } else {
+                        Log.w(TAG,
+                                "Attempted to save an index referencing something other than a question: "
+                                        + index.getReference());
                     }
-                } else {
-                    Log.w(TAG,
-                            "Attempted to save an index referencing something other than a question: "
-                                    + index.getReference());
                 }
+            } catch (XPathException e) {
+                UserfacingErrorHandling.createErrorDialog(this, e.getLocalizedMessage(), true);
             }
         }
         return success;
@@ -640,7 +655,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
         // mFormEntryController is static so we don't need to pass it.
         if (mFormController != null && currentPromptIsQuestion() && uiController.questionsView != null) {
-            saveAnswersForCurrentScreen(FormEntryConstants.DO_NOT_EVALUATE_CONSTRAINTS);
+            saveAnswersForCurrentScreen(false);
         }
         return null;
     }
@@ -695,6 +710,21 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         saveDataToDisk(FormEntryConstants.EXIT, false, null, true);
     }
 
+    /**
+     * Attempts to update the form in the disk when user changes the attachment.
+     * NOTE:- This fixes the mismatch in attachments while trying to update attachments in a saved form.
+     */
+    protected void onExternalAttachmentUpdated() {
+        FormRecord formRecord = FormRecord.getFormRecord(formRecordStorage, FormEntryInstanceState.mFormRecordPath);
+        if (formRecord == null) {
+            return;
+        }
+        String formStatus = formRecord.getStatus();
+        if (FormRecord.STATUS_INCOMPLETE.equals(formStatus)) {
+            saveDataToDisk(false, false, null, true);
+        }
+    }
+
     private void showSaveErrorAndExit() {
         Toast.makeText(this, Localization.get("form.entry.save.error"), Toast.LENGTH_SHORT).show();
         hasSaved = false;
@@ -723,7 +753,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         // save current answer; if headless, don't evaluate the constraints
         // before doing so.
         boolean wasScreenSaved =
-                saveAnswersForCurrentScreen(FormEntryConstants.DO_NOT_EVALUATE_CONSTRAINTS, complete, headless);
+                saveAnswersForCurrentScreen(false, complete, headless);
         if (!wasScreenSaved) {
             return;
         }
@@ -759,7 +789,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         mFormController.setLanguage(languages[index]);
         dismissAlertDialog();
         if (currentPromptIsQuestion()) {
-            saveAnswersForCurrentScreen(FormEntryConstants.DO_NOT_EVALUATE_CONSTRAINTS);
+            saveAnswersForCurrentScreen(false);
         }
         uiController.refreshView();
         invalidateOptionsMenu();
@@ -796,7 +826,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         super.onPause();
 
         if (!isFinishing() && uiController.questionsView != null && currentPromptIsQuestion()) {
-            saveAnswersForCurrentScreen(FormEntryConstants.DO_NOT_EVALUATE_CONSTRAINTS);
+            saveAnswersForCurrentScreen(false);
         }
 
         if (mLocationServiceIssueReceiver != null) {
@@ -860,6 +890,19 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
         registerFormEntryReceiver();
         restorePriorStates();
+
+        reportVideoUsageIfAny();
+    }
+
+    private void reportVideoUsageIfAny() {
+        if (mFormController != null) {
+            FormAnalyticsHelper formAnalyticsHelper = mFormController.getFormAnalyticsHelper();
+            if (formAnalyticsHelper.getVideoStartTime() != -1) {
+                FirebaseAnalyticsUtil.reportVideoPlayEvent(formAnalyticsHelper.getVideoName(), formAnalyticsHelper.getVideoDuration(), formAnalyticsHelper.getVideoStartTime());
+                formAnalyticsHelper.resetVideoPlaybackInfo();
+            }
+        }
+
     }
 
     private void restorePriorStates() {
@@ -1089,13 +1132,12 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     public void savingComplete(SaveToDiskTask.SaveStatus saveStatus, String errorMessage) {
         // Did we just save a form because the key session
         // (CommCareSessionService) is ending?
-        if (savingFormOnKeySessionExpiration) {
-            savingFormOnKeySessionExpiration = false;
+        if (customFormSaveCallback != null) {
+            Runnable toCall = customFormSaveCallback;
+            customFormSaveCallback = null;
 
-            // Notify the key session that the form state has been saved (or at
-            // least attempted to be saved) so CommCareSessionService can
-            // continue closing down key pool and user database.
-            CommCareApplication.instance().expireUserSession();
+            toCall.run();
+            returnAsInterrupted();
         } else if (saveStatus != null) {
             String toastMessage = "";
             switch (saveStatus) {
@@ -1108,15 +1150,17 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                     hasSaved = true;
                     break;
                 case SAVED_AND_EXIT:
-                    toastMessage = Localization.get("form.entry.complete.save.success");
                     hasSaved = true;
+                    if (!CommCareApplication.instance().isConsumerApp()) {
+                        Toast.makeText(this, Localization.get("form.entry.complete.save.success"), Toast.LENGTH_SHORT).show();
+                    }
                     finishReturnInstance();
-                    break;
+                    return;
                 case INVALID_ANSWER:
                     // an answer constraint was violated, so try to save the
                     // current question to trigger the constraint violation message
                     uiController.refreshView();
-                    saveAnswersForCurrentScreen(FormEntryConstants.EVALUATE_CONSTRAINTS);
+                    saveAnswersForCurrentScreen(true);
                     return;
                 case SAVE_ERROR:
                     if (!CommCareApplication.instance().isConsumerApp()) {
@@ -1130,6 +1174,14 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             }
             uiController.refreshView();
         }
+    }
+
+    private void returnAsInterrupted() {
+        Intent formReturnIntent = new Intent();
+        formReturnIntent.putExtra(FormEntryConstants.WAS_INTERRUPTED, true);
+
+        setResult(RESULT_CANCELED, formReturnIntent);
+        finish();
     }
 
     /**

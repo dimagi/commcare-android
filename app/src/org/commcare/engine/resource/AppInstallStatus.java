@@ -26,6 +26,9 @@ public enum AppInstallStatus implements MessageTag {
      */
     UpToDate("notification.install.uptodate"),
 
+    // Update cancelled by user
+    Cancelled("notification.install.cancel"),
+
     // Error states shared by both app installation and updating:
     MissingResources("notification.install.missing"),
     MissingResourcesWithMessage("notification.install.missing.withmessage"),
@@ -34,13 +37,17 @@ public enum AppInstallStatus implements MessageTag {
     UnknownFailure("notification.install.unknown"),
     NoLocalStorage("notification.install.nolocal"),
     NoConnection("notification.install.no.connection"),
+    NetworkFailure("notification.install.network.failure"),
+    RateLimited("notification.install.rate.limited"),
     BadCertificate("notification.install.badcert"),
+
 
     /**
      * A catch-all MessageTag to use for reporting app update failures to the notifications bar
      */
     UpdateFailedGeneral("notification.update.failed.general"),
     UpdateFailedResourceInit("notification.update.resource.init.fail"),
+    CaptivePortal("connection.captive_portal"),
 
     ReinstallFromInvalidCcz("notification.reinstall.invalid.ccz");
 
@@ -63,8 +70,21 @@ public enum AppInstallStatus implements MessageTag {
         return (this == UpdateStaged || this == UpToDate);
     }
 
+    public boolean shouldRetryUpdate() {
+        return (this == MissingResources || this == MissingResourcesWithMessage || this == NoConnection);
+    }
+
     @Override
     public String getCategory() {
         return "install_update";
+    }
+
+    // whether to include in the counter for update reset
+    public boolean causeUpdateReset() {
+        return !(this == Cancelled ||
+                this == BadCertificate ||
+                this == NoConnection ||
+                this == RateLimited ||
+                this == NetworkFailure);
     }
 }

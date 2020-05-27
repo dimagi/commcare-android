@@ -157,6 +157,7 @@ public class ImageWidget extends QuestionWidget {
                 !mPrompt.isReadOnly());
         mDiscardButton.setOnClickListener(v -> {
             deleteMedia();
+            widgetEntryChanged();
         });
         mDiscardButton.setVisibility(View.GONE);
 

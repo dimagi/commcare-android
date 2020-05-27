@@ -3,9 +3,9 @@ package org.commcare.preferences;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
-import android.support.annotation.NonNull;
-import android.support.v7.preference.Preference;
-import android.support.v7.preference.PreferenceScreen;
+import androidx.annotation.NonNull;
+import androidx.preference.Preference;
+import androidx.preference.PreferenceScreen;
 
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;

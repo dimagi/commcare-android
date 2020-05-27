@@ -5,12 +5,14 @@ import android.content.SharedPreferences;
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.engine.resource.installers.SingleAppInstallation;
+import org.commcare.network.RateLimitedException;
 import org.commcare.preferences.ServerUrls;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.preferences.MainConfigurablePreferences;
 import org.commcare.resources.ResourceManager;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
+import org.commcare.resources.model.UnreliableSourceException;
 import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.suite.model.Profile;
 import org.commcare.util.CommCarePlatform;
@@ -109,7 +111,7 @@ public class ResourceInstallUtils {
         } else {
             edit.putString(DEFAULT_APP_SERVER_KEY, profileRef);
         }
-        edit.commit();
+        edit.apply();
     }
 
     /**
@@ -126,9 +128,16 @@ public class ResourceInstallUtils {
             return AppInstallStatus.BadCertificate;
         }
 
-        Logger.log(LogTypes.TYPE_WARNING_NETWORK,
-                "A resource couldn't be found, almost certainly due to the network|" +
-                        exception.getMessage());
+        if(exception instanceof UnreliableSourceException) {
+            Logger.log(LogTypes.TYPE_WARNING_NETWORK,
+                    "A resource couldn't be found, almost certainly due to the network|" +
+                            exception.getMessage());
+            return AppInstallStatus.NetworkFailure;
+        }
+
+        if(exception.getCause() instanceof RateLimitedException){
+            return AppInstallStatus.RateLimited;
+        }
         if (exception.isMessageUseful()) {
             return AppInstallStatus.MissingResourcesWithMessage;
         } else {
@@ -155,7 +164,7 @@ public class ResourceInstallUtils {
         SharedPreferences prefs = app.getAppPreferences();
         SharedPreferences.Editor editor = prefs.edit();
         editor.putLong(HiddenPreferences.LAST_UPDATE_ATTEMPT, new Date().getTime());
-        editor.commit();
+        editor.apply();
     }
 
     /**
@@ -184,7 +193,7 @@ public class ResourceInstallUtils {
     /**
      * @return True if an auto-update has been registered as in-progress.
      */
-    public static boolean shouldAutoUpdateResume(CommCareApp app) {
+    public static boolean isAutoUpdateInProgress(CommCareApp app) {
         SharedPreferences prefs = app.getAppPreferences();
         return prefs.getBoolean(HiddenPreferences.AUTO_UPDATE_IN_PROGRESS, false);
     }

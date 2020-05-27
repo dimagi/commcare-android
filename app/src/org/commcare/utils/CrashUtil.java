@@ -1,17 +1,9 @@
 package org.commcare.utils;
 
-import android.app.Application;
-import android.content.Context;
-import android.webkit.URLUtil;
-
-import com.crashlytics.android.Crashlytics;
-
 import org.commcare.CommCareApplication;
 import org.commcare.android.logging.ReportingUtils;
 import org.commcare.dalvik.BuildConfig;
-import org.jetbrains.annotations.NotNull;
-
-import io.fabric.sdk.android.Fabric;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 /**
  * Contains constants and methods used in Crashlytics reporting.
@@ -29,35 +21,36 @@ public class CrashUtil {
 
     public static void reportException(Throwable e) {
         if (crashlyticsEnabled) {
-            Crashlytics.logException(e);
+            FirebaseCrashlytics.getInstance().recordException(e);
         }
     }
 
-    public static void init(Context context) {
+    public static void init() {
         if (crashlyticsEnabled) {
-            Fabric.with(context, new Crashlytics());
-            Crashlytics.setString(DEVICE_ID, ReportingUtils.getDeviceId());
+            FirebaseCrashlytics crashlytics = FirebaseCrashlytics.getInstance();
+            crashlytics.setCrashlyticsCollectionEnabled(true);
+            crashlytics.setCustomKey(DEVICE_ID, ReportingUtils.getDeviceId());
         }
     }
 
     public static void registerAppData() {
         if (crashlyticsEnabled) {
-            Crashlytics.setString(DOMAIN, ReportingUtils.getDomain());
-            Crashlytics.setInt(APP_VERSION, ReportingUtils.getAppVersion());
-            Crashlytics.setString(APP_NAME, ReportingUtils.getAppName());
+            FirebaseCrashlytics crashlytics = FirebaseCrashlytics.getInstance();
+            crashlytics.setCustomKey(DOMAIN, ReportingUtils.getDomain());
+            crashlytics.setCustomKey(APP_VERSION, ReportingUtils.getAppVersion());
+            crashlytics.setCustomKey(APP_NAME, ReportingUtils.getAppName());
         }
     }
 
     public static void registerUserData() {
         if (crashlyticsEnabled) {
-            Crashlytics.setUserName(ReportingUtils.getUser());
-            Crashlytics.setUserIdentifier(CommCareApplication.instance().getCurrentUserId());
+            FirebaseCrashlytics.getInstance().setUserId(ReportingUtils.getUser());
         }
     }
 
     public static void log(String message) {
         if (crashlyticsEnabled) {
-            Crashlytics.log(message);
+            FirebaseCrashlytics.getInstance().log(message);
         }
     }
 }

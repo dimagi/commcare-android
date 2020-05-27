@@ -17,7 +17,7 @@ import org.commcare.android.logging.ForceCloseLogger;
 import org.commcare.dalvik.R;
 import org.commcare.preferences.ServerUrls;
 import org.commcare.resources.model.ResourceTable;
-import org.commcare.tasks.ProcessAndSendTask;
+import org.commcare.sync.ProcessAndSendTask;
 import org.commcare.tasks.ResourceRecoveryTask;
 import org.commcare.utils.AndroidCommCarePlatform;
 import org.commcare.utils.CommCareUtil;
@@ -56,7 +56,7 @@ public class RecoveryActivity extends SessionAwareCommCareActivity<RecoveryActiv
         super.onCreateSessionSafe(savedInstanceState);
         if (savedInstanceState == null) {
             // launching activity, not just changing orientation
-            CommCareUtil.triggerLogSubmission(this);
+            CommCareUtil.triggerLogSubmission(this, false);
             sendForms();
         }
 
@@ -74,14 +74,9 @@ public class RecoveryActivity extends SessionAwareCommCareActivity<RecoveryActiv
         loadingIndicator.setVisibility(View.VISIBLE);
         updateStatus(R.string.recovery_forms_send_progress);
 
-        FormRecord[] records = StorageUtils.getUnsentRecordsForCurrentApp(
-                CommCareApplication.instance().getUserStorage(FormRecord.class));
-        SharedPreferences settings = CommCareApplication.instance().getCurrentApp().getAppPreferences();
 
         ProcessAndSendTask<RecoveryActivity> mProcess =
-                new ProcessAndSendTask<RecoveryActivity>(RecoveryActivity.this,
-                        settings.getString(ServerUrls.PREFS_SUBMISSION_URL_KEY,
-                                RecoveryActivity.this.getString(R.string.PostURL)), true) {
+                new ProcessAndSendTask<RecoveryActivity>(RecoveryActivity.this, true) {
 
 
                     @Override
@@ -96,28 +91,37 @@ public class RecoveryActivity extends SessionAwareCommCareActivity<RecoveryActiv
 
                         int successfulSends = this.getSuccessfulSends();
 
-                        if (result == FormUploadResult.FULL_SUCCESS) {
-                            receiver.updateStatus(StringUtils.getStringRobust(
-                                    RecoveryActivity.this,
-                                    R.string.recovery_forms_send_successful,
-                                    String.valueOf(successfulSends)));
-                            receiver.attemptRecovery();
-                        } else if (result == FormUploadResult.FAILURE) {
-                            String failureMessage = successfulSends > 0 ?
-                                    StringUtils.getStringRobust(
-                                            RecoveryActivity.this,
-                                            R.string.recovery_forms_send_failure) :
-                                    StringUtils.getStringRobust(
-                                            RecoveryActivity.this,
-                                            R.string.recovery_forms_send_parital_success,
-                                            String.valueOf(successfulSends));
-                            receiver.updateStatus(failureMessage);
-                        } else if (result == FormUploadResult.TRANSPORT_FAILURE) {
-                            receiver.updateStatus(R.string.recovery_forms_send_network_error);
-                        } else if (result == FormUploadResult.RECORD_FAILURE) {
-                            receiver.updateStatus(Localization.get("sync.fail.individual"));
-                        } else if (result == FormUploadResult.AUTH_OVER_HTTP) {
-                            receiver.updateStatus(Localization.get("auth.over.http"));
+                        switch (result) {
+                            case FULL_SUCCESS:
+                                receiver.updateStatus(StringUtils.getStringRobust(
+                                        RecoveryActivity.this,
+                                        R.string.recovery_forms_send_successful,
+                                        String.valueOf(successfulSends)));
+                                receiver.attemptRecovery();
+                                break;
+                            case FAILURE:
+                                String failureMessage = successfulSends > 0 ?
+                                        StringUtils.getStringRobust(
+                                                RecoveryActivity.this,
+                                                R.string.recovery_forms_send_failure) :
+                                        StringUtils.getStringRobust(
+                                                RecoveryActivity.this,
+                                                R.string.recovery_forms_send_parital_success,
+                                                String.valueOf(successfulSends));
+                                receiver.updateStatus(failureMessage);
+                                break;
+                            case TRANSPORT_FAILURE:
+                                receiver.updateStatus(R.string.recovery_forms_send_network_error);
+                                break;
+                            case RECORD_FAILURE:
+                                receiver.updateStatus(Localization.get("sync.fail.individual"));
+                                break;
+                            case AUTH_OVER_HTTP:
+                                receiver.updateStatus(Localization.get("auth.over.http"));
+                                break;
+                            case RATE_LIMITED:
+                                receiver.updateStatus(Localization.get("form.send.rate.limit.error.toast"));
+                                break;
                         }
                     }
 
@@ -140,7 +144,7 @@ public class RecoveryActivity extends SessionAwareCommCareActivity<RecoveryActiv
 
         //Execute on a true multithreaded chain. We should probably replace all of our calls with this
         //but this is the big one for now.
-        mProcess.executeParallel(records);
+        mProcess.executeParallel();
     }
 
     @Override

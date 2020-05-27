@@ -8,6 +8,8 @@ import org.commcare.AppUtils;
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.global.models.ApplicationRecord;
+import org.commcare.preferences.HiddenPreferences;
+import org.commcare.resources.model.InvalidResourceException;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceLocation;
 import org.commcare.resources.model.ResourceTable;
@@ -20,6 +22,7 @@ import org.commcare.utils.DummyResourceTable;
 import org.commcare.xml.ProfileParser;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.reference.InvalidReferenceException;
+import org.javarosa.core.reference.ReleasedOnTimeSupportedReference;
 import org.javarosa.core.reference.Reference;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.Logger;
@@ -29,7 +32,9 @@ import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Date;
 
 /**
  * @author ctsims
@@ -79,6 +84,12 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
             throws UnresolvedResourceException, UnfullfilledRequirementsException {
         //First, make sure all the file stuff is managed.
         super.install(r, location, ref, table, platform, upgrade, recovery);
+        try {
+            storeReleasedTime(platform, ref);
+        } catch (ParseException e) {
+            Logger.exception("Error on parsing x-commcarehq-appreleasedon header", e);
+            throw new InvalidResourceException(r.getDescriptor(), e.getMessage());
+        }
         InputStream inputStream = null;
         try {
             Reference local = ReferenceManager.instance().DeriveReference(localLocation);
@@ -98,14 +109,17 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
                     checkDuplicate(p);
                     checkAppTarget();
                 }
+            } else {
+                savePreUpdateSyncNeeded(p);
             }
+
 
             table.commitCompoundResource(r, upgrade ? Resource.RESOURCE_STATUS_UPGRADE : Resource.RESOURCE_STATUS_INSTALLED, p.getVersion());
             return true;
         } catch (XmlPullParserException | InvalidReferenceException | IOException e) {
             e.printStackTrace();
         } catch (InvalidStructureException e) {
-            throw new UnresolvedResourceException(r, "Invalid content in the Profile Definition: " + e.getMessage(), true);
+            throw new InvalidResourceException(r.getDescriptor(), "Invalid content in the Profile Definition: " + e.getMessage());
         } finally {
             try {
                 if (inputStream != null) {
@@ -117,6 +131,29 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
         }
 
         return false;
+    }
+
+    private void savePreUpdateSyncNeeded(Profile profile) {
+        for (PropertySetter p : profile.getPropertySetters()) {
+            if (p.getKey().contentEquals(HiddenPreferences.PRE_UPDATE_SYNC_NEEDED)) {
+                HiddenPreferences.setPreUpdateSyncNeeded(p.getValue());
+            }
+        }
+    }
+
+    private void storeReleasedTime(AndroidCommCarePlatform platform, Reference ref) throws ParseException {
+        long releasedOnTime = -1;
+
+        if (ref instanceof ReleasedOnTimeSupportedReference) {
+            releasedOnTime = ((ReleasedOnTimeSupportedReference)ref).getReleasedOnTime();
+        }
+
+        // If we don't have the release time, guess it as current time
+        if (releasedOnTime == -1) {
+            releasedOnTime = new Date().getTime();
+        }
+
+        HiddenPreferences.setReleasedOnTimeForOngoingAppDownload(platform, releasedOnTime);
     }
 
     // Makes sure we are recovering from profile belonging to the same app

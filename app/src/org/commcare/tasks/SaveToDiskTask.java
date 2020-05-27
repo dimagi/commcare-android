@@ -20,6 +20,7 @@ import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.transport.payload.ByteArrayPayload;
+import org.javarosa.form.api.FormController;
 import org.javarosa.form.api.FormEntryController;
 import org.javarosa.model.xform.XFormSerializingVisitor;
 import org.javarosa.xform.util.XFormSerializer;
@@ -76,6 +77,9 @@ public class SaveToDiskTask extends
 
         if (headless) {
             this.taskId = -1;
+
+            //Don't block on the UI thread if there's no available screen to connect to
+            this.setConnectionTimeout(0);
         } else {
             this.taskId = SAVING_TASK_ID;
         }
@@ -127,16 +131,23 @@ public class SaveToDiskTask extends
             FormEntryActivity.mFormController.markCompleteFormAsSaved();
         }
 
+        logFormSave(exitAfterSave);
         if (exitAfterSave) {
-            FormRecord saved = CommCareApplication.instance().getCurrentSessionWrapper().getFormRecord();
-            Logger.log(LogTypes.TYPE_FORM_ENTRY,
-                    String.format("Form Entry Completed for record with id %s", saved.getInstanceID()));
             return new ResultAndError<>(SaveStatus.SAVED_AND_EXIT);
         } else if (mMarkCompleted) {
             return new ResultAndError<>(SaveStatus.SAVED_COMPLETE);
         } else {
             return new ResultAndError<>(SaveStatus.SAVED_INCOMPLETE);
         }
+    }
+
+    private void logFormSave(boolean exit) {
+        FormRecord saved = CommCareApplication.instance().getCurrentSessionWrapper().getFormRecord();
+        String log = String.format("Form Entry Completed: Record with id %s was saved as %s", saved.getInstanceID(), mMarkCompleted ? "complete" : "incomplete");
+        if(exit){
+            log += " with user exiting";
+        }
+        Logger.log(LogTypes.TYPE_FORM_ENTRY, log);
     }
 
     /**
@@ -279,25 +290,21 @@ public class SaveToDiskTask extends
      * though, until all answers conform to their constraints/requirements.
      */
     private boolean hasInvalidAnswers(boolean markCompleted) {
-        FormIndex i = FormEntryActivity.mFormController.getFormIndex();
-        FormEntryActivity.mFormController.jumpToIndex(FormIndex.createBeginningOfFormIndex());
-
+        FormController formController = FormEntryActivity.mFormController;
+        FormIndex currentFormIndex = FormIndex.createBeginningOfFormIndex();
         int event;
-        while ((event =
-                FormEntryActivity.mFormController.stepToNextEvent(FormEntryController.STEP_INTO_GROUP)) != FormEntryController.EVENT_END_OF_FORM) {
+        while ((event = formController.getEvent(currentFormIndex)) != FormEntryController.EVENT_END_OF_FORM) {
             if (event == FormEntryController.EVENT_QUESTION) {
                 int saveStatus =
                         FormEntryActivity.mFormController.checkCurrentQuestionConstraint();
                 if (markCompleted &&
                         (saveStatus == FormEntryController.ANSWER_REQUIRED_BUT_EMPTY ||
                                 saveStatus == FormEntryController.ANSWER_CONSTRAINT_VIOLATED)) {
-
                     return true;
                 }
             }
+            currentFormIndex = formController.getNextFormIndex(currentFormIndex, FormEntryController.STEP_INTO_GROUP, true);
         }
-
-        FormEntryActivity.mFormController.jumpToIndex(i);
         return false;
     }
 

@@ -15,7 +15,7 @@ import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.services.CommCareSessionService;
-import org.commcare.tasks.UpdateTask;
+import org.commcare.update.UpdateTask;
 import org.commcare.utils.AppLifecycleUtils;
 import org.commcare.utils.CommCareLifecycleUtils;
 import org.commcare.utils.MultipleAppsUtil;

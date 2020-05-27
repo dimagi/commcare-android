@@ -1,8 +1,12 @@
 package org.commcare.fragments;
 
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
+
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -25,6 +29,12 @@ import org.javarosa.core.services.locale.Localization;
  */
 public class InstallPermissionsFragment extends Fragment {
     private int attemptCount = 0;
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -52,5 +62,11 @@ public class InstallPermissionsFragment extends Fragment {
             deniedDetails.setText(Localization.get("install.perms.denied.message",
                     new String[]{attemptCount + ""}));
         }
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        menu.clear();
     }
 }

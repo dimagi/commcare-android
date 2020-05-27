@@ -114,12 +114,7 @@ public class HomeButtons {
 
     private static TextSetter getSyncButtonTextSetter(final StandardHomeActivity activity) {
         return (cardDisplayData, squareButtonViewHolder, context, notificationText) -> {
-            if (notificationText != null) {
-                squareButtonViewHolder.subTextView.setText(notificationText);
-                squareButtonViewHolder.subTextView.setTextColor(activity.getResources().getColor(cardDisplayData.subTextColor));
-            } else {
-                SyncDetailCalculations.updateSubText(activity, squareButtonViewHolder, cardDisplayData);
-            }
+            SyncDetailCalculations.updateSubText(activity, squareButtonViewHolder, cardDisplayData, notificationText);
             squareButtonViewHolder.subTextView.setBackgroundColor(activity.getResources().getColor(cardDisplayData.subTextBgColor));
             squareButtonViewHolder.textView.setTextColor(context.getResources().getColor(cardDisplayData.textColor));
             squareButtonViewHolder.textView.setText(cardDisplayData.text);
