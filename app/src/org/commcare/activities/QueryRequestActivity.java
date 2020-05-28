@@ -1,16 +1,23 @@
 package org.commcare.activities;
 
+import android.app.Activity;
+import android.content.ActivityNotFoundException;
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.google.zxing.integration.android.IntentIntegrator;
 
 import org.commcare.CommCareApplication;
 import org.commcare.core.interfaces.HttpResponseProcessor;
@@ -24,6 +31,7 @@ import org.commcare.suite.model.DisplayData;
 import org.commcare.suite.model.DisplayUnit;
 import org.commcare.tasks.ModernHttpTask;
 import org.commcare.tasks.templates.CommCareTaskConnector;
+import org.commcare.utils.StringUtils;
 import org.commcare.views.ManagedUi;
 import org.commcare.views.UiElement;
 import org.commcare.views.ViewUtil;
@@ -40,6 +48,8 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
+
+import static org.commcare.activities.EntitySelectActivity.BARCODE_FETCH;
 
 /**
  * Collects 'query datum' in the current session. Prompts user for query
@@ -69,6 +79,7 @@ public class QueryRequestActivity
     private String errorMessage;
     private RemoteQuerySessionManager remoteQuerySessionManager;
     private final Hashtable<String, EditText> promptsBoxes = new Hashtable<>();
+    private String mPendingPromptId;
 
     @Override
     public void onCreateSessionSafe(Bundle savedInstanceState) {
@@ -134,8 +145,43 @@ public class QueryRequestActivity
             // replace 'done' on keyboard with 'next'
             promptEditText.setImeOptions(EditorInfo.IME_ACTION_NEXT);
         }
+        ImageView barcodeScannerView = promptView.findViewById(R.id.barcode_scanner);
+        barcodeScannerView.setTag(promptId);
+        promptView.findViewById(R.id.barcode_scanner).setOnClickListener(v ->
+                callBarcodeScanIntent((String)v.getTag())
+        );
+
         promptsLayout.addView(promptView);
         promptsBoxes.put(promptId, promptEditText);
+    }
+
+    private void callBarcodeScanIntent(String promptId) {
+        Intent intent = new IntentIntegrator(this).createScanIntent();
+        mPendingPromptId = promptId;
+        try {
+            startActivityForResult(intent, BARCODE_FETCH);
+        } catch (ActivityNotFoundException anfe) {
+            Toast.makeText(this,
+                    "No barcode reader available! You can install one " +
+                            "from the android market.",
+                    Toast.LENGTH_LONG).show();
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        if (requestCode == BARCODE_FETCH) {
+            if (resultCode == RESULT_OK && !TextUtils.isEmpty(mPendingPromptId)) {
+                String result = intent.getStringExtra("SCAN_RESULT");
+                if (result != null) {
+                    result = result.trim();
+                    EditText promptEt = promptsBoxes.get(mPendingPromptId);
+                    promptEt.setText(result);
+                }
+            }
+        } else {
+            super.onActivityResult(requestCode, resultCode, intent);
+        }
     }
 
     private MediaLayout createPromptMedia(DisplayUnit display) {

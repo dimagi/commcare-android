@@ -18,6 +18,7 @@
         android:singleLine="true" />
 
     <ImageView
+        android:id="@+id/barcode_scanner"
         android:layout_height="match_parent"
         android:layout_width="40dp"
         android:background="@color/blue"
