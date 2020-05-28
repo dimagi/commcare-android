@@ -121,7 +121,7 @@ public class QueryRequestActivity
                 remoteQuerySessionManager.getUserAnswers();
         promptsLayout.addView(createPromptMedia(displayUnit));
 
-        EditText promptEditText = new EditText(this);
+        EditText promptEditText = new EditText(this); // todo use a layout resource , switch visibility of scanner based on appearance
         if (userAnswers.containsKey(promptId)) {
             promptEditText.setText(userAnswers.get(promptId));
         }
