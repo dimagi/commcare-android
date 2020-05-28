@@ -18,9 +18,7 @@ import org.htmlcleaner.TagNode;
 import org.javarosa.core.services.locale.Localization;
 
 import in.uncod.android.bypass.Bypass;
-import ru.noties.markwon.Markwon;
-import ru.noties.markwon.SpannableBuilder;
-import ru.noties.markwon.renderer.SpannableRenderer;
+import io.noties.markwon.Markwon;
 
 public class MarkupUtil {
 
@@ -72,12 +70,8 @@ public class MarkupUtil {
     }
 
     private static CharSequence generateMarkdown(Context c, String message) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
-            return trimTrailingWhitespace(
-                    new Bypass(c).markdownToSpannable(convertCharacterEncodings(message)));
-        }
         return trimTrailingWhitespace(
-                Markwon.markdown(c, convertCharacterEncodings(message)));
+                Markwon.create(CommCareApplication.instance()).toMarkdown(convertCharacterEncodings(message)));
     }
 
     /**
