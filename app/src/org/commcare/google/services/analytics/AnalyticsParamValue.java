@@ -42,16 +42,22 @@ public class AnalyticsParamValue {
     public static final String SYNC_FAIL_NO_CONNECTION = "no_connection";
     public static final String SYNC_FAIL_AUTH = "auth_failure";
     public static final String SYNC_FAIL_EMPTY_URL = "empty_url";
+    public static final String SYNC_FAIL_RETRY_NEEDED = "retry_needed";
     public static final String SYNC_FAIL_BAD_DATA = "bad_data";
     public static final String SYNC_FAIL_SERVER_ERROR = "server_error";
     public static final String SYNC_FAIL_RATE_LIMITED_SERVER_ERROR = "rate_limited_server_error";
     public static final String SYNC_FAIL_UNREACHABLE_HOST = "unreachable_host";
     public static final String SYNC_FAIL_CONNECTION_TIMEOUT = "connection_timeout";
     public static final String SYNC_FAIL_UNKNOWN = "unknown_failure";
+    public static final String SYNC_FAIL_CANCELLED = "cancelled";
+    public static final String SYNC_FAIL_ENCRYPTION = "encryption_failure";
+    public static final String SYNC_FAIL_SESSION_EXPIRE = "session_expire";
+    public static final String SYNC_FAIL_RECOVERY = "recovery_failure";
     public static final String SYNC_FAIL_STORAGE_FULL = "storage_full";
     public static final String SYNC_FAIL_ACTIONABLE = "actionable_failure";
     public static final String SYNC_FAIL_AUTH_OVER_HTTP = "auth_over_http";
     public static final String SYNC_FAIL_CAPTIVE_PORTAL = "captive_portal";
+    public static final String SYNC_SUCCESS = "success";
 
     // Param values for feature usage
     public static final String FEATURE_SET_PIN = "set_pin";

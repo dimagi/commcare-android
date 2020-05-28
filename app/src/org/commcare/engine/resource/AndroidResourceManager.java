@@ -180,10 +180,6 @@ public class AndroidResourceManager extends ResourceManager {
         }
     }
 
-    public void incrementUpdateAttempts() {
-        updateStats.registerStagingAttempt();
-    }
-
     /**
      * Log update failure that occurs while trying to install the staged update table
      */
@@ -206,7 +202,7 @@ public class AndroidResourceManager extends ResourceManager {
      * @param result       update attempt result
      */
     public void processUpdateFailure(AppInstallStatus result) {
-        updateStats.registerUpdateException(new Exception(result.toString()));
+        updateStats.registerUpdateFailure(result);
         FirebaseAnalyticsUtil.reportStageUpdateAttemptFailure(result.toString());
 
         if (!result.canReusePartialUpdateTable()) {
