@@ -3,6 +3,7 @@ package org.commcare.activities;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
@@ -121,21 +122,19 @@ public class QueryRequestActivity
                 remoteQuerySessionManager.getUserAnswers();
         promptsLayout.addView(createPromptMedia(displayUnit));
 
-        EditText promptEditText = new EditText(this); // todo use a layout resource , switch visibility of scanner based on appearance
+        View promptView = LayoutInflater.from(this).inflate(R.layout.query_prompt_edit_text, promptsLayout, false);
+        EditText promptEditText = promptView.findViewById(R.id.prompt_et);
         if (userAnswers.containsKey(promptId)) {
             promptEditText.setText(userAnswers.get(promptId));
         }
-        promptEditText.setBackgroundResource(R.drawable.login_edit_text);
         // needed to allow 'done' and 'next' keyboard action
-        promptEditText.setSingleLine();
-
         if (isLastPrompt) {
             promptEditText.setImeOptions(EditorInfo.IME_ACTION_DONE);
         } else {
             // replace 'done' on keyboard with 'next'
             promptEditText.setImeOptions(EditorInfo.IME_ACTION_NEXT);
         }
-        promptsLayout.addView(promptEditText);
+        promptsLayout.addView(promptView);
         promptsBoxes.put(promptId, promptEditText);
     }
 
