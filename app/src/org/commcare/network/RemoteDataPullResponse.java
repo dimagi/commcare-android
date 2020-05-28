@@ -27,7 +27,10 @@ import retrofit2.Response;
 public class RemoteDataPullResponse {
     private final DataPullTask task;
     public final int responseCode;
-    private final Response<ResponseBody> response;
+    private final long dataSizeGuess;
+    private final InputStream inputStream;
+    private final String retryHeader;
+    private final String error;
 
     /**
      * Makes data pulling request and keeps response for local caching
@@ -36,8 +39,15 @@ public class RemoteDataPullResponse {
      * @param response Contains data pull response stream and status code
      */
     protected RemoteDataPullResponse(DataPullTask task,
-                                     Response response) throws IOException {
-        this.response = response;
+                                     Response<ResponseBody> response) throws IOException {
+        this.dataSizeGuess = ModernHttpRequester.getContentLength(response);
+        this.retryHeader = ModernHttpRequester.getFirstHeader(response, "Retry-After");
+        if (response.errorBody() != null) {
+            error = HttpUtils.parseUserVisibleError(response);
+        } else {
+            error = null;
+        }
+        inputStream = response.body() == null ? null : response.body().byteStream();
         this.responseCode = response.code();
         this.task = task;
     }
@@ -51,15 +61,12 @@ public class RemoteDataPullResponse {
      */
     public BitCache writeResponseToCache(Context c) throws IOException {
         BitCache cache = null;
-        try {
-            final long dataSizeGuess = ModernHttpRequester.getContentLength(response);
-
+        try (InputStream input = getInputStream()) {
             cache = BitCacheFactory.getCache(new AndroidCacheDirSetup(c), dataSizeGuess);
 
             cache.initializeCache();
 
             OutputStream cacheOut = cache.getCacheStream();
-            InputStream input = getInputStream();
 
             Log.i("commcare-network", "Starting network read, expected content size: " + dataSizeGuess + "b");
             StreamsUtil.writeFromInputToOutputNew(new BufferedInputStream(input),
@@ -112,14 +119,14 @@ public class RemoteDataPullResponse {
     }
 
     protected InputStream getInputStream() throws IOException {
-        return response.body().byteStream();
+        return inputStream;
     }
 
-    public Response<ResponseBody> getResponse() {
-        return response;
+    public String getError() {
+        return error;
     }
 
     public String getRetryHeader() {
-        return ModernHttpRequester.getFirstHeader(response, "Retry-After");
+        return retryHeader;
     }
 }
