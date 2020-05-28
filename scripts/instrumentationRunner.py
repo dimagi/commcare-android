@@ -10,7 +10,7 @@ import sys
 import json
 
 def appendData(command, dataUrl):
-    var = 'data={\"url\": \"%s\"}' % dataUrl
+    var = "file=@{}".format(dataUrl)
     return command + " " + json.dumps(var)
 
 def buildTestCommand(appToken, testToken):
@@ -29,12 +29,11 @@ if __name__ == "__main__":
     if "BROWSERSTACK_PASSWORD" in os.environ:
         password = os.environ["BROWSERSTACK_PASSWORD"]
 
-    if "BUILD_NUMBER" in os.environ:
-        buildNumber = os.environ["BUILD_NUMBER"]
+    if "BASE_LOCATION" in os.environ:
+        baseLoc = os.environ["BASE_LOCATION"]
 
-    base = "https://jenkins.dimagi.com/job/commcare-android-instrumentation-tests/{}".format(buildNumber)
-    debugApk = base + "/artifact/app-commcare-debug.apk"
-    testApk = base + "/artifact/app-commcare-debug-androidTest.apk"
+    debugApk = baseLoc + "commcare/debug/app-commcare-debug.apk"
+    testApk = baseLoc + "androidTest/commcare/debug/app-commcare-debug-androidTest.apk"
 
     debugUrl = "https://api-cloud.browserstack.com/app-automate/upload"
     testUrl = "https://api-cloud.browserstack.com/app-automate/espresso/test-suite"
