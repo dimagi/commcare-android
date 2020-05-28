@@ -319,7 +319,7 @@ public abstract class DataPullTask<R>
     }
 
     private ResultAndError<PullTaskResult> processErrorResponseWithMessage(RemoteDataPullResponse pullResponse) {
-        return new ResultAndError<>(PullTaskResult.ACTIONABLE_FAILURE, pullResponse.getError());
+        return new ResultAndError<>(PullTaskResult.ACTIONABLE_FAILURE, HttpUtils.parseUserVisibleError(pullResponse.getResponse()));
     }
 
     private ResultAndError<PullTaskResult> handleAuthFailed() {
