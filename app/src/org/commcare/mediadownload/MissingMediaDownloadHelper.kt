@@ -157,6 +157,9 @@ object MissingMediaDownloadHelper : TableStateListener, InstallCancelled {
         return lazyResources.first { lazyResource -> AndroidResourceUtils.matchFileUriToResource(lazyResource, uri) }
     }
 
+
+    // Cancels all missing media work
+    @JvmStatic
     fun cancelAllDownloads() {
         jobs.map { job -> job.cancel() }
     }

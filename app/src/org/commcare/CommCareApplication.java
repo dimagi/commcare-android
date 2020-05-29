@@ -544,7 +544,7 @@ public class CommCareApplication extends MultiDexApplication {
         // cancel all Workmanager tasks for the unseated record
         WorkManager.getInstance(CommCareApplication.instance())
                 .cancelAllWorkByTag(record.getApplicationId());
-
+        MissingMediaDownloadHelper.cancelAllDownloads();
         if (isSeated(record)) {
             this.currentApp.teardownSandbox();
             this.currentApp = null;
