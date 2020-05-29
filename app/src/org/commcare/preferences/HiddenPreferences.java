@@ -47,6 +47,7 @@ public class HiddenPreferences {
     private final static String DISABLE_RATE_LIMIT_POPUP = "disable-rate-limit-popup";
 
     // Preferences whose values are only ever set by being sent down from HQ via the profile file
+    private final static String USE_MAPBOX_MAP = "cc-use-mapbox-map";
     private final static String LABEL_REQUIRED_QUESTIONS_WITH_ASTERISK = "cc-label-required-questions-with-asterisk";
     private final static String MAPS_DEFAULT_LAYER = "cc-maps-default-layer";
     public final static String AUTO_SYNC_FREQUENCY = "cc-autosync-freq";
@@ -462,6 +463,11 @@ public class HiddenPreferences {
 
     public static boolean shouldDownloadLazyMediaInBackground() {
         return CommCareApplication.instance().getCurrentApp().getAppPreferences().getBoolean(DOWNLOAD_LAZY_MEDIA_IN_BACKGROUND, false);
+    }
+
+    public static boolean shouldUseMapboxMap() {
+        return CommCareApplication.instance().getCurrentApp().getAppPreferences()
+                .getString(USE_MAPBOX_MAP, PrefValues.NO).equals(PrefValues.YES);
     }
 
     public static void setDisableBackgroundWorkTime(boolean disableBackgroundWork) {

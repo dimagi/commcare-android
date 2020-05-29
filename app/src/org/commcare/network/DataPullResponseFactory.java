@@ -5,6 +5,7 @@ import org.commcare.tasks.DataPullTask;
 
 import java.io.IOException;
 
+import okhttp3.ResponseBody;
 import retrofit2.Response;
 
 /**
@@ -21,7 +22,7 @@ public enum DataPullResponseFactory implements DataPullRequester {
                                                       CommcareRequestEndpoints requestor,
                                                       String server,
                                                       boolean includeSyncToken) throws IOException {
-        Response response = requestor.makeCaseFetchRequest(server, includeSyncToken);
+        Response<ResponseBody> response = requestor.makeCaseFetchRequest(server, includeSyncToken);
         return new RemoteDataPullResponse(task, response);
     }
 

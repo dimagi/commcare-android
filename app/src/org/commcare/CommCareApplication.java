@@ -195,6 +195,7 @@ public class CommCareApplication extends MultiDexApplication {
         CommCareApplication.app = this;
         CrashUtil.init();
         DataChangeLogger.init(this);
+
         logFirstCommCareRun();
         CommCarePreferenceManagerFactory.init(new AndroidPreferenceManager());
 

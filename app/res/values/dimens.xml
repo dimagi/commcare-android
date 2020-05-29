@@ -137,5 +137,9 @@
     <!-- Audio button -->
     <dimen name="audio_button_size">55dp</dimen>
 
+    <!--  Map Info View  -->
+    <dimen name="map_info_view_text_size">12sp</dimen>
+    <dimen name="map_info_view_text_padding">4dp</dimen>
+
 
 </resources>
