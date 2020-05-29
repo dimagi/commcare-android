@@ -98,6 +98,8 @@ public class FormStorageTest {
             , "org.commcare.suite.model.ComputedDatum"
             , "org.commcare.suite.model.Detail"
             , "org.commcare.suite.model.DetailField"
+            , "org.commcare.suite.model.Global"
+            , "org.commcare.suite.model.GeoOverlay"
             , "org.commcare.suite.model.DisplayUnit"
             , "org.commcare.suite.model.EntityDatum"
             , "org.commcare.suite.model.Entry"
