@@ -37,8 +37,8 @@ public class AndroidCommCarePlatform extends CommCarePlatform {
     private final CommCareApp app;
     private String mUpdateInfoFormXmlns;
 
-    public AndroidCommCarePlatform(int majorVersion, int minorVersion, CommCareApp app) {
-        super(majorVersion, minorVersion);
+    public AndroidCommCarePlatform(int majorVersion, int minorVersion, int minimalVersion, CommCareApp app) {
+        super(majorVersion, minorVersion, minimalVersion);
         xmlnstable = new Hashtable<>();
         installedSuites = new Vector<>();
         this.app = app;
