@@ -26,17 +26,11 @@ object AndroidResourceUtils {
     @JvmStatic
     fun matchFileUriToResource(resource: Resource, uri: String?): Boolean {
         if (resource.installer is MediaFileAndroidInstaller) {
-            try {
-                val resourceUri = (resource.installer as MediaFileAndroidInstaller).localLocation
-                val resourcePath = ReferenceManager.instance().DeriveReference(resourceUri).localURI
-                val problemPath = ReferenceManager.instance().DeriveReference(uri).localURI
-                if (File(resourcePath).canonicalPath.contentEquals(File(problemPath).canonicalPath)) {
-                    return true
-                }
-            } catch (e: InvalidReferenceException) {
-                e.printStackTrace()
-            } catch (e: IOException) {
-                e.printStackTrace()
+            val resourceUri = (resource.installer as MediaFileAndroidInstaller).localLocation
+            val resourcePath = ReferenceManager.instance().DeriveReference(resourceUri).localURI
+            val problemPath = ReferenceManager.instance().DeriveReference(uri).localURI
+            if (File(resourcePath).canonicalPath.contentEquals(File(problemPath).canonicalPath)) {
+                return true
             }
         }
         return false
