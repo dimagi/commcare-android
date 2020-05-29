@@ -17,12 +17,15 @@ import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.interfaces.UiLoadedListener;
+import org.commcare.preferences.HiddenPreferences;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.sync.ProcessAndSendTask;
 import org.commcare.tasks.PullTaskResultReceiver;
 import org.commcare.tasks.ResultAndError;
 import org.commcare.utils.SyncDetailCalculations;
 import org.commcare.views.dialogs.CustomProgressDialog;
+import org.commcare.views.dialogs.StandardAlertDialog;
+import org.commcare.views.notifications.NotificationMessageFactory;
 import org.javarosa.core.services.locale.Localization;
 
 import androidx.annotation.AnimRes;
@@ -123,6 +126,18 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
             case UNKNOWN_FAILURE:
                 updateUiAfterDataPullOrSend(Localization.get("sync.fail.unknown"), FAIL);
                 break;
+            case CANCELLED:
+                updateUiAfterDataPullOrSend(Localization.get("sync.fail.cancelled"), FAIL);
+                break;
+            case ENCRYPTION_FAILURE:
+                updateUiAfterDataPullOrSend(Localization.get("sync.fail.encryption.failure"), FAIL);
+                break;
+            case SESSION_EXPIRE:
+                updateUiAfterDataPullOrSend(Localization.get("sync.fail.session.expire"), FAIL);
+                break;
+            case RECOVERY_FAILURE:
+                updateUiAfterDataPullOrSend(Localization.get("sync.fail.recovery.failure"), FAIL);
+                break;
             case ACTIONABLE_FAILURE:
                 updateUiAfterDataPullOrSend(resultAndError.errorMessage, FAIL);
                 break;
@@ -139,11 +154,10 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
 
         String syncModeParam = formsToSend ? AnalyticsParamValue.SYNC_MODE_SEND_FORMS : AnalyticsParamValue.SYNC_MODE_JUST_PULL_DATA;
 
-        if (result == DataPullTask.PullTaskResult.DOWNLOAD_SUCCESS) {
-            FirebaseAnalyticsUtil.reportSyncSuccess(syncTriggerParam, syncModeParam);
-        } else {
-            FirebaseAnalyticsUtil.reportSyncFailure(syncTriggerParam, syncModeParam, result.analyticsFailureReasonParam);
-        }
+        FirebaseAnalyticsUtil.reportSyncResult(result == DataPullTask.PullTaskResult.DOWNLOAD_SUCCESS,
+                syncTriggerParam,
+                syncModeParam,
+                result.analyticsFailureReasonParam);
     }
 
     @Override
@@ -211,6 +225,28 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
             // Since we know that we just had connectivity, now is a great time to try this
             CommCareApplication.instance().getSession().initHeartbeatLifecycle();
         }
+    }
+
+    public void showRateLimitError(boolean userTriggered) {
+
+        if (HiddenPreferences.isRateLimitPopupDisabled() || !userTriggered) {
+            handleFormSendResult(Localization.get("form.send.rate.limit.error.toast"), false);
+            return;
+        }
+        String title = Localization.get("form.send.rate.limit.error.title");
+        String message = Localization.get("form.send.rate.limit.error.message");
+        StandardAlertDialog dialog = StandardAlertDialog.getBasicAlertDialog(this, title,
+                message, null);
+
+        dialog.setNegativeButton(Localization.get("rate.limit.error.dialog.do.not.show"), (dialog1, which) -> {
+            HiddenPreferences.disableRateLimitPopup(true);
+            dismissAlertDialog();
+        });
+        dialog.setPositiveButton(Localization.get("rate.limit.error.dialog.close"), (dialog1, which) -> {
+            dismissAlertDialog();
+        });
+
+        showAlertDialog(dialog);
     }
 
     abstract void updateUiAfterDataPullOrSend(String message, boolean success);

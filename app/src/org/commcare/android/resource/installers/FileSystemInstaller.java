@@ -125,18 +125,22 @@ abstract class FileSystemInstaller implements ResourceInstaller<AndroidCommCareP
             e.printStackTrace();
             throw new UnreliableSourceException(r, e.getMessage());
         } catch (RateLimitedException e) {
-            throw new UnresolvedResourceException(r, "Our servers are unavailable at this time. Please try again later", true);
+            UnresolvedResourceException mURE = new UnresolvedResourceException(r, "Our servers are unavailable at this time. Please try again later", true);
+            mURE.initCause(e);
+            throw mURE;
         }
     }
 
-    private File writeToTempFile(InputStream inputFileStream) throws LocalStorageUnavailableException {
+    private File writeToTempFile(InputStream inputFileStream) throws LocalStorageUnavailableException, IOException {
+        File tempFile = new File(CommCareApplication.instance().getTempFilePath());
         try {
-            File tempFile = new File(CommCareApplication.instance().getTempFilePath());
             OutputStream outputFileStream = new FileOutputStream(tempFile);
             StreamsUtil.writeFromInputToOutputNew(inputFileStream, outputFileStream);
             return tempFile;
-        } catch (IOException e) {
-            throw new LocalStorageUnavailableException("Couldn't write to local reference " + localLocation + " for file system installation", localLocation);
+        } catch (FileNotFoundException e) {
+            throw new LocalStorageUnavailableException("Couldn't create temp file for file system installation", localLocation);
+        } catch (StreamsUtil.OutputIOException e) {
+            throw new LocalStorageUnavailableException("Couldn't write incoming file to temp location for file system installation", tempFile.getAbsolutePath());
         }
     }
 

@@ -132,7 +132,7 @@ public abstract class DataPullTask<R>
     protected ResultAndError<PullTaskResult> doTaskBackground(Void... params) {
         if (!CommCareSessionService.sessionAliveLock.tryLock()) {
             // Don't try to sync if logging out is occurring
-            return new ResultAndError<>(PullTaskResult.UNKNOWN_FAILURE,
+            return new ResultAndError<>(PullTaskResult.SESSION_EXPIRE,
                     "Cannot sync while a logout is in process");
         }
         try {
@@ -156,7 +156,7 @@ public abstract class DataPullTask<R>
         byte[] wrappedEncryptionKey = getEncryptionKey();
         if (wrappedEncryptionKey == null) {
             this.publishProgress(PROGRESS_DONE);
-            return new ResultAndError<>(PullTaskResult.UNKNOWN_FAILURE,
+            return new ResultAndError<>(PullTaskResult.ENCRYPTION_FAILURE,
                     "Unable to get or generate encryption key");
         }
 
@@ -240,7 +240,7 @@ public abstract class DataPullTask<R>
             }
 
             if (isCancelled()) {
-                return new ResultAndError<>(PullTaskResult.UNKNOWN_FAILURE);
+                return new ResultAndError<>(PullTaskResult.CANCELLED);
             }
         }
 
@@ -311,7 +311,7 @@ public abstract class DataPullTask<R>
             return processErrorResponseWithMessage(pullResponse);
         } else if (responseCode == 500) {
             return handleServerError();
-        } else if (responseCode == 503) {
+        } else if (responseCode == 503 || responseCode == 429) {
             return handleRateLimitedError();
         } else {
             throw new UnknownSyncError();
@@ -342,7 +342,7 @@ public abstract class DataPullTask<R>
 
         if (isCancelled()) {
             // About to enter data commit phase; last chance to finish early if cancelled.
-            return new ResultAndError<>(PullTaskResult.UNKNOWN_FAILURE);
+            return new ResultAndError<>(PullTaskResult.CANCELLED);
         }
 
         this.publishProgress(PROGRESS_DOWNLOADING_COMPLETE, 0);
@@ -423,7 +423,7 @@ public abstract class DataPullTask<R>
         } else if (returnCode == PROGRESS_RECOVERY_FAIL_SAFE || returnCode == PROGRESS_RECOVERY_FAIL_BAD) {
             wipeLoginIfItOccurred();
             this.publishProgress(PROGRESS_DONE);
-            return new ResultAndError<>(PullTaskResult.UNKNOWN_FAILURE, failureReason);
+            return new ResultAndError<>(PullTaskResult.RECOVERY_FAILURE, failureReason);
         } else {
             throw new UnknownSyncError();
         }
@@ -652,13 +652,17 @@ public abstract class DataPullTask<R>
     }
 
     public enum PullTaskResult {
-        DOWNLOAD_SUCCESS(null),
-        RETRY_NEEDED(null),
+        DOWNLOAD_SUCCESS(AnalyticsParamValue.SYNC_SUCCESS),
+        RETRY_NEEDED(AnalyticsParamValue.SYNC_FAIL_RETRY_NEEDED),
         EMPTY_URL(AnalyticsParamValue.SYNC_FAIL_EMPTY_URL),
         AUTH_FAILED(AnalyticsParamValue.SYNC_FAIL_AUTH),
         BAD_DATA(AnalyticsParamValue.SYNC_FAIL_BAD_DATA),
         BAD_DATA_REQUIRES_INTERVENTION(AnalyticsParamValue.SYNC_FAIL_BAD_DATA),
         UNKNOWN_FAILURE(AnalyticsParamValue.SYNC_FAIL_UNKNOWN),
+        CANCELLED(AnalyticsParamValue.SYNC_FAIL_CANCELLED),
+        ENCRYPTION_FAILURE(AnalyticsParamValue.SYNC_FAIL_ENCRYPTION),
+        SESSION_EXPIRE(AnalyticsParamValue.SYNC_FAIL_SESSION_EXPIRE),
+        RECOVERY_FAILURE(AnalyticsParamValue.SYNC_FAIL_RECOVERY),
         ACTIONABLE_FAILURE(AnalyticsParamValue.SYNC_FAIL_ACTIONABLE),
         UNREACHABLE_HOST(AnalyticsParamValue.SYNC_FAIL_UNREACHABLE_HOST),
         CONNECTION_TIMEOUT(AnalyticsParamValue.SYNC_FAIL_CONNECTION_TIMEOUT),

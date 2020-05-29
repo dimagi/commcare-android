@@ -208,7 +208,7 @@ public class FormUploadUtil {
             return processActionableFaiure(response);
         } else if (responseCode == 422) {
             return handleProcessingFailure(response.errorBody().byteStream());
-        } else if (responseCode == 503) {
+        } else if (responseCode == 503 || responseCode == 429) {
             return FormUploadResult.RATE_LIMITED;
         } else {
             return FormUploadResult.FAILURE;

@@ -41,7 +41,7 @@ public class DataPullTaskTest {
     public void dataPullWithMissingRemoteKeyRecordTest() {
         TestAppInstaller.installApp(APP_BASE + "profile.ccpr");
         runDataPull(200, GOOD_RESTORE);
-        Assert.assertEquals(DataPullTask.PullTaskResult.UNKNOWN_FAILURE, dataPullResult.data);
+        Assert.assertEquals(DataPullTask.PullTaskResult.ENCRYPTION_FAILURE, dataPullResult.data);
         Assert.assertEquals("Unable to get or generate encryption key", dataPullResult.errorMessage);
     }
 
@@ -83,7 +83,7 @@ public class DataPullTaskTest {
     public void dataPullRecoverFailTest() {
         installLoginAndUseLocalKeys();
         runDataPull(new Integer[]{412, 500}, new String[]{GOOD_RESTORE, GOOD_RESTORE});
-        Assert.assertEquals(DataPullTask.PullTaskResult.UNKNOWN_FAILURE, dataPullResult.data);
+        Assert.assertEquals(DataPullTask.PullTaskResult.RECOVERY_FAILURE, dataPullResult.data);
     }
 
     @Test
@@ -106,14 +106,14 @@ public class DataPullTaskTest {
     public void dataPullRecoverFailLoginNeededTest() {
         installWithUserAndUseLocalKeys();
         runDataPull(new Integer[]{412, 500}, new String[]{GOOD_RESTORE, GOOD_RESTORE});
-        Assert.assertEquals(DataPullTask.PullTaskResult.UNKNOWN_FAILURE, dataPullResult.data);
+        Assert.assertEquals(DataPullTask.PullTaskResult.RECOVERY_FAILURE, dataPullResult.data);
     }
 
     @Test
     public void dataPullBadRecoverPayloadTest() {
         installLoginAndUseLocalKeys();
         runDataPull(new Integer[]{412, 200}, new String[]{GOOD_RESTORE, BAD_RESTORE_XML});
-        Assert.assertEquals(DataPullTask.PullTaskResult.UNKNOWN_FAILURE, dataPullResult.data);
+        Assert.assertEquals(DataPullTask.PullTaskResult.RECOVERY_FAILURE, dataPullResult.data);
     }
 
     @Test

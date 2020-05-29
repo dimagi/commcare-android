@@ -104,6 +104,7 @@ menu.disable.pre.update.sync=Disable Mandatory Pre-Update Sync
 menu.enable.privileges=Mobile Privileges
 menu.privilege.claim.disable=Disable Privileges
 menu.data.change.logs=Data Change Logs
+menu.enable.rate.limit.popup=Enable Rate Limit Error Popup
 
 install.fail.error=We encountered an ${0} error processing your request. Please try again later. If the problem persists, contact CommCare Support.
 
@@ -122,8 +123,18 @@ sync.fail.bad.network=Couldn't contact server. Please make sure an internet conn
 sync.fail.server.error=The server encountered an error processing your data. Please try again later. If the problem persists, contact CommCare Support.
 sync.fail.rate.limited.server.error=Our servers are unavailable at this time. Please try again later.
 sync.fail.unknown=An unexpected issue occurred during sync. Please try to sync again.
+sync.fail.cancelled=Sync was cancelled. Please retry.
+sync.fail.encryption.failure=You were logged out during sync. Login again and retry sync.
+sync.fail.session.expire=Failed to set up data encryption. Login again and retry sync.
+sync.fail.recovery.failure=There was an error trying to recover from a bad local state. Please try again later. If the problem persists, contact help desk.
 sync.fail.unsent=Having issues communicating with the server to send forms. Will try again later.
 sync.fail.individual=1 or more forms failed to send due to individual problems. See quarantined forms for details.
+
+form.send.rate.limit.error.toast=Form submission rate limit reached. Your forms are being saved locally and will be submitted to the server later.
+form.send.rate.limit.error.title=You've reached your form submission rate limit
+form.send.rate.limit.error.message=Form submissions will be saved locally on your phone until rate limiting expires. Not to worry, all forms will be auto-synced to the server later. Contact your CommCare admin for more information.
+rate.limit.error.dialog.do.not.show=Don’t show again
+rate.limit.error.dialog.close=Close
 
 auth.over.http=CommCare can't connect with authentication to an insecure (HTTP) server.
 
@@ -525,6 +536,22 @@ notification.restore.unknown.title=Unknown Error during Restore
 notification.restore.unknown.detail=CommCare had trouble dealing with something that happened when you tried to log in 
 notification.restore.unknown.action=Try to log in again. If you receive this message again, force close the application from the Manage Applications menu on the phone. If the error persists, contact CommCare Support.
 
+notification.restore.cancelled.title= Sync cancelled
+notification.restore.cancelled.detail=Sync was cancelled by user
+notification.restore.cancelled.action=Please try to sync again if required
+
+notification.restore.session.expire.title=Session expired
+notification.restore.session.expire.detail=You were logged out during sync
+notification.restore.session.expire.action=Please Login again and retry.
+
+notification.restore.encryption.error.title=Encryption error during Sync
+notification.restore.encryption.error.detail=Failed to set up data encryption
+notification.restore.encryption.error.action=Please Login again and retry. Contact help desk if you receive this message again.
+
+notification.restore.recovery.error.title=Sync Recovery Failed
+notification.restore.recovery.error.detail=There was an error trying to recover from a bad local state.
+notification.restore.recovery.error.action=Please retry and contact help desk if the error persists.
+
 notification.restore.baddata.title=Bad Server Response
 notification.restore.baddata.detail=CommCare had trouble processing the network response. Please try again.
 
@@ -597,6 +624,14 @@ notification.install.updatestaged.detail=A newer version of the app is ready to 
 notification.install.no.connection.title=No internet connection
 notification.install.no.connection.detail=Install failed because your device is not connected to Wi-Fi currently
 notification.install.no.connection.action=Go to your device settings to check the current status of your Wi-Fi connection. If a connection is unavailable at this time, you may try offline install.
+
+notification.install.network.failure.title=Bad internet connection
+notification.install.network.failure.detail=Install failed because of bad internet
+notification.install.network.failure.action=Your internet connection is not good at the moment. Please try again after some time.
+
+notification.install.rate.limited.title=Servers are busy
+notification.install.rate.limited.detail=Install failed because of servers being busy at the moment.
+notification.install.rate.limited.action=Our servers are unavailable at this time. Please try again later
 
 notification.logger.submitted.title=Device Logs Submitted
 notification.logger.submitted.detail=Your devices logs have been successfully submitted

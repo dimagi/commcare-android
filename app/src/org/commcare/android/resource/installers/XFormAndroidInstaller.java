@@ -8,6 +8,7 @@ import org.commcare.android.javarosa.PollSensorAction;
 import org.commcare.engine.extensions.IntentExtensionParser;
 import org.commcare.engine.extensions.PollSensorExtensionParser;
 import org.commcare.engine.extensions.XFormExtensionUtils;
+import org.commcare.resources.model.InvalidResourceException;
 import org.commcare.resources.model.MissingMediaException;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
@@ -83,7 +84,6 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
                 platform.registerXmlns(namespace, formDefId);
             }
         }
-
         return true;
     }
 
@@ -95,12 +95,12 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
         try (InputStream inputStream = local.getStream()) {
             formDef = XFormExtensionUtils.getFormFromInputStream(inputStream);
         } catch (XFormParseException xfpe) {
-            throw new UnresolvedResourceException(r, xfpe.getMessage(), true);
+            throw new InvalidResourceException(r.getDescriptor(), xfpe.getMessage());
         }
 
         this.namespace = formDef.getInstance().schema;
         if (namespace == null) {
-            throw new UnresolvedResourceException(r, "Invalid XForm, no namespace defined", true);
+            throw new InvalidResourceException(r.getDescriptor(), "Invalid XForm, no namespace defined");
         }
 
         FormDefRecord formDefRecord = new FormDefRecord("NAME", formDef.getMainInstance().schema, local.getLocalURI(), GlobalConstants.MEDIA_REF, r.getVersion());

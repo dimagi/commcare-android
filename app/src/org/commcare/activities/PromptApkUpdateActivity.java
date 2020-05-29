@@ -138,7 +138,7 @@ public class PromptApkUpdateActivity extends PromptActivity {
     void refreshPromptObject() {
         if (getIntent().getStringExtra(REQUIRED_VERSION) != null) {
             String requiredVersion = getIntent().getStringExtra(REQUIRED_VERSION);
-            toPrompt = new UpdateToPrompt(requiredVersion, "true", UpdateToPrompt.Type.APK_UPDATE);
+            toPrompt = new UpdateToPrompt(requiredVersion, "false", UpdateToPrompt.Type.APK_UPDATE);
         } else if (getIntent().getBooleanExtra(FROM_RECOVERY_MEASURE, false)) {
             toPrompt = UpdateToPrompt.DUMMY_APK_PROMPT_FOR_RECOVERY_MEASURE;
         } else {
