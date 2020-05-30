@@ -7,6 +7,7 @@ import org.commcare.core.network.CaptivePortalRedirectException;
 import org.commcare.engine.resource.AppInstallStatus;
 import org.commcare.engine.resource.ResourceInstallUtils;
 import org.commcare.engine.resource.installers.LocalStorageUnavailableException;
+import org.commcare.modern.reference.JavaHttpReference;
 import org.commcare.resources.ResourceManager;
 import org.commcare.resources.model.InvalidResourceException;
 import org.commcare.resources.model.Resource;
@@ -16,6 +17,9 @@ import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.tasks.templates.CommCareTask;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.AndroidCommCarePlatform;
+import org.javarosa.core.reference.InvalidReferenceException;
+import org.javarosa.core.reference.Reference;
+import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.Logger;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
 
@@ -39,6 +43,7 @@ public abstract class ResourceEngineTask<R>
 
     private UnresolvedResourceException missingResourceException = null;
     private InvalidResourceException invalidResourceException = null;
+    private InvalidReferenceException invalidReferenceException = null;
     private int phase = -1;
     // This boolean is set from CommCareSetupActivity -- If we are in keep
     // trying mode for installation, we want to sleep in between attempts to
@@ -55,11 +60,10 @@ public abstract class ResourceEngineTask<R>
 
     private int authorityForInstall;
 
-    public ResourceEngineTask(CommCareApp app, int taskId, boolean shouldSleep, int authority, boolean reinstall) {
+    public ResourceEngineTask(CommCareApp app, int taskId, boolean shouldSleep, boolean reinstall) {
         this.app = app;
         this.taskId = taskId;
         this.shouldSleep = shouldSleep;
-        this.authorityForInstall = authority;
         this.reinstall = reinstall;
         TAG = ResourceEngineTask.class.getSimpleName();
     }
@@ -67,6 +71,14 @@ public abstract class ResourceEngineTask<R>
     @Override
     protected AppInstallStatus doTaskBackground(String... profileRefs) {
         String profileRef = profileRefs[0];
+
+        try {
+            authorityForInstall = deriveAuthorityFromReference(profileRef);
+        } catch (InvalidReferenceException e) {
+            invalidReferenceException = e;
+            return AppInstallStatus.InvalidReference;
+        }
+
         ResourceInstallUtils.recordUpdateAttemptTime(app);
 
         app.setupSandbox();
@@ -134,6 +146,12 @@ public abstract class ResourceEngineTask<R>
                     "Unknown error ocurred during install|");
             return AppInstallStatus.UnknownFailure;
         }
+    }
+
+    private int deriveAuthorityFromReference(String profileRef) throws InvalidReferenceException {
+        Reference reference = ReferenceManager.instance().DeriveReference(profileRef);
+        return  reference instanceof JavaHttpReference || reference instanceof org.commcare.engine.references.JavaHttpReference ?
+                Resource.RESOURCE_AUTHORITY_REMOTE : Resource.RESOURCE_AUTHORITY_LOCAL;
     }
 
     @Override
@@ -225,6 +243,10 @@ public abstract class ResourceEngineTask<R>
 
     public InvalidResourceException getInvalidResourceException() {
         return invalidResourceException;
+    }
+
+    public InvalidReferenceException getInvalidReferenceException() {
+        return invalidReferenceException;
     }
 
     public String getVersionAvailable() {

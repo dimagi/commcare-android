@@ -10,12 +10,14 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.PowerManager;
+
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.core.content.ContextCompat;
+
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -462,7 +464,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 
             ResourceEngineTask<CommCareSetupActivity> task =
                     new ResourceEngineTask<CommCareSetupActivity>(ccApp,
-                            DIALOG_INSTALL_PROGRESS, shouldSleep, determineAuthorityForInstall(), false) {
+                            DIALOG_INSTALL_PROGRESS, shouldSleep, false) {
 
                         @Override
                         protected void deliverResult(CommCareSetupActivity receiver,
@@ -506,6 +508,9 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             case InvalidResource:
                 receiver.failInvalidResource(resourceEngineTask.getInvalidResourceException(), result);
                 break;
+            case InvalidReference:
+                receiver.failInvalidReference(resourceEngineTask.getInvalidReferenceException(), result);
+                break;
             case IncompatibleReqs:
                 receiver.failBadReqs(resourceEngineTask.getVersionRequired(),
                         resourceEngineTask.getVersionAvailable(), resourceEngineTask.isMajorIsProblem());
@@ -535,14 +540,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                 receiver.failUnknown(AppInstallStatus.UnknownFailure);
                 break;
         }
-    }
-
-    private int determineAuthorityForInstall() {
-        // Note that this is an imperfect way to determine the resource authority; we should
-        // really be looking at the nature of the reference that is being used itself (i.e. is it
-        // a file reference or a URL)
-        return lastInstallMode == INSTALL_MODE_OFFLINE ?
-                Resource.RESOURCE_AUTHORITY_LOCAL : Resource.RESOURCE_AUTHORITY_REMOTE;
     }
 
     public static CommCareApp getCommCareApp() {
@@ -755,6 +752,11 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     @Override
     public void failInvalidResource(InvalidResourceException e, AppInstallStatus statusMissing) {
         fail(NotificationMessageFactory.message(statusMissing, new String[]{null, e.resourceName, e.getMessage()}), true);
+    }
+
+    @Override
+    public void failInvalidReference(InvalidReferenceException e, AppInstallStatus status) {
+        fail(NotificationMessageFactory.message(status, new String[]{null, null, e.getMessage()}), true);
     }
 
     @Override
