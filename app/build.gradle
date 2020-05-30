@@ -237,7 +237,7 @@ android {
                 googlePlayMapsApiKey: "${project.ext.GOOGLE_PLAY_MAPS_API_KEY}"
         ]
 
-        versionCode computeVersionCode()
+        versionCode 1
 
         // when set, app won't show install screen and try to install
         // resources from assets folder
@@ -261,6 +261,14 @@ android {
         buildConfigField "String", "ENTITY_SELECT_AD_UNIT_ID", "\"\""
         buildConfigField "String", "MENU_LIST_AD_UNIT_ID", "\"\""
         buildConfigField "String", "MENU_GRID_AD_UNIT_ID", "\"\""
+    }
+
+    applicationVariants.all { variant ->
+        if (variant.buildType.name == "release") {
+            variant.outputs.each { output ->
+                output.versionCodeOverride = computeVersionCode()
+            }
+        }
     }
 
     compileOptions {
