@@ -4,10 +4,10 @@ import android.os.SystemClock;
 
 import org.commcare.CommCareApp;
 import org.commcare.core.network.CaptivePortalRedirectException;
+import org.commcare.engine.references.JavaHttpReference;
 import org.commcare.engine.resource.AppInstallStatus;
 import org.commcare.engine.resource.ResourceInstallUtils;
 import org.commcare.engine.resource.installers.LocalStorageUnavailableException;
-import org.commcare.modern.reference.JavaHttpReference;
 import org.commcare.resources.ResourceManager;
 import org.commcare.resources.model.InvalidResourceException;
 import org.commcare.resources.model.Resource;
@@ -150,8 +150,7 @@ public abstract class ResourceEngineTask<R>
 
     private int deriveAuthorityFromReference(String profileRef) throws InvalidReferenceException {
         Reference reference = ReferenceManager.instance().DeriveReference(profileRef);
-        return  reference instanceof JavaHttpReference || reference instanceof org.commcare.engine.references.JavaHttpReference ?
-                Resource.RESOURCE_AUTHORITY_REMOTE : Resource.RESOURCE_AUTHORITY_LOCAL;
+        return reference instanceof JavaHttpReference ? Resource.RESOURCE_AUTHORITY_REMOTE : Resource.RESOURCE_AUTHORITY_LOCAL;
     }
 
     @Override
