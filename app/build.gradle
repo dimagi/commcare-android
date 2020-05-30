@@ -361,7 +361,7 @@ android {
                 boolean getAsBoolean() {
                     return true
                 }
-            }, null)
+            }, true, null)
             def ccVersion = manifestParser.getVersionName()
             // convert numbers to words to use in app id
             def ccVersionSafe = numbersToLetters(ccVersion)
