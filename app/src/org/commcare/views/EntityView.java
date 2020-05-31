@@ -52,9 +52,12 @@ public class EntityView extends LinearLayout {
     // index => { orientation => GraphView }
     private Hashtable<Long, Hashtable<Integer, View>> renderedGraphsCache;
     private long rowId;
+
+
     public static final String FORM_AUDIO = "audio";
     public static final String FORM_IMAGE = "image";
     public static final String FORM_GRAPH = "graph";
+    public static final String FORM_ADDRESS = "address";
     public static final String FORM_CALLLOUT = "callout";
 
     // Flag indicating if onMeasure has already been called for the first time on this view

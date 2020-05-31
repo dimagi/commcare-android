@@ -15,6 +15,7 @@ import java.util.function.BooleanSupplier
 
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
 apply plugin: 'com.google.firebase.crashlytics'
 
 repositories {
@@ -27,6 +28,7 @@ repositories {
         dirs 'libs'
     }
     maven { url "https://jitpack.io" }
+    maven { url "http://dl.bintray.com/ona/kujaku" }
 }
 
 configurations {
@@ -52,25 +54,25 @@ dependencies {
     implementation(name: 'htmlspanner-custom', ext: 'aar')
     implementation(name: 'android-zebra-interface-1.1', ext: 'aar')
     implementation 'com.simprints:LibSimprints:1.0.12'
-    implementation 'androidx.multidex:multidex:2.0.0'
+    implementation 'androidx.multidex:multidex:2.0.1'
     implementation 'androidx.cardview:cardview:1.0.0'
-    implementation 'androidx.recyclerview:recyclerview:1.0.0'
+    implementation 'androidx.recyclerview:recyclerview:1.1.0'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'androidx.legacy:legacy-preference-v14:1.0.0'
     implementation 'androidx.gridlayout:gridlayout:1.0.0'
     implementation 'com.madgag.spongycastle:core:1.54.0.0'
     implementation 'com.madgag.spongycastle:prov:1.54.0.0'
-    implementation 'com.google.android.gms:play-services-maps:16.0.0'
+    implementation 'com.google.android.gms:play-services-maps:17.0.0'
     implementation 'joda-time:joda-time:2.9.4'
     implementation 'net.zetetic:android-database-sqlcipher:3.5.9@aar'
     implementation('org.apache.james:apache-mime4j:0.7.2') {
         exclude module: 'commons-io'
     }
-    implementation('org.apache.httpcomponents:httpmime:4.3.6')
+    implementation('org.apache.httpcomponents:httpmime:4.5.6')
     implementation 'net.sourceforge.htmlcleaner:htmlcleaner:2.16'
     implementation 'org.jsoup:jsoup:1.8.3'
-    implementation 'com.google.firebase:firebase-core:16.0.5'
-    implementation 'com.google.firebase:firebase-ads:16.0.1'
+    implementation 'com.google.firebase:firebase-core:17.4.2'
+    implementation 'com.google.firebase:firebase-ads:19.1.0'
     implementation 'com.carrotsearch:hppc:0.7.2'
     implementation 'io.reactivex.rxjava2:rxandroid:2.0.1'
     implementation 'com.jakewharton.rxbinding2:rxbinding:2.0.0'
@@ -89,12 +91,14 @@ dependencies {
     implementation 'ru.noties:markwon:1.0.4'
     implementation 'ru.noties:markwon-image-loader:1.0.4'
     implementation 'ru.noties:markwon-view:1.0.4'
+    implementation ('io.ona.kujaku:library:0.8.7'){
+        exclude module: 'xpp3'
+    }
+    implementation "androidx.work:work-runtime:2.3.4"
+    implementation "androidx.work:work-runtime-ktx:2.3.4"
 
-    implementation "androidx.work:work-runtime:2.3.0"
-    implementation "androidx.work:work-runtime-ktx:2.3.0"
-
-    implementation 'com.google.android.play:core:1.7.2'
-    implementation 'android.arch.lifecycle:common-java8:1.1.0'
+    implementation 'com.google.android.play:core:1.7.3'
+    implementation 'android.arch.lifecycle:common-java8:1.1.1'
 
     //Robust TLS 1.2 ciphers on Android 9-19
     implementation "org.conscrypt:conscrypt-android:2.4.0"
@@ -103,6 +107,7 @@ dependencies {
 ext {
     // Obtained from ~/.gradle/gradle.properties on build server (mobile agent), or your local
     // ~/.gradle/gradle.properties file, or loads default empty strings if neither is present
+    MAPBOX_SDK_API_KEY = project.properties['MAPBOX_SDK_API_KEY'] ?: ""
     ANALYTICS_TRACKING_ID_DEV = project.properties['ANALYTICS_TRACKING_ID_DEV'] ?: ""
     ANALYTICS_TRACKING_ID_LIVE = project.properties['ANALYTICS_TRACKING_ID_LIVE'] ?: ""
     GOOGLE_PLAY_MAPS_API_KEY = project.properties['GOOGLE_PLAY_MAPS_API_KEY'] ?: ""
@@ -162,8 +167,8 @@ def ccDomain = project.hasProperty('cc_domain') ? cc_domain : ""
 def isConsumerApp = project.hasProperty('is_consumer_app') ? is_consumer_app : "false"
 def runDownloadScripts = project.hasProperty('run_download_scripts') ? run_download_scripts : "true"
 def ccDomainSafe = ccDomain.replaceAll("-", "")
-def consumerAppUsername = getConsumerAppUsername(isConsumerApp);
-def consumerAppPassword = getConsumerAppPassword(isConsumerApp);
+def consumerAppUsername = getConsumerAppUsername(isConsumerApp)
+def consumerAppPassword = getConsumerAppPassword(isConsumerApp)
 def usingAdmob = isConsumerApp && project.hasProperty('admob_id') && allAdUnitIdsPresent()
 def admobId = usingAdmob ? admob_id : ""
 def entityDetailAdUnitId = usingAdmob ? entity_detail_ad_id : ""
@@ -189,7 +194,7 @@ def computeVersionCode() {
     return code
 }
 
-def getDate() {
+static def getDate() {
     def date = new Date()
     def formattedDate = date.format('yyyy-MM-dd')
     return formattedDate
@@ -218,7 +223,7 @@ android {
     }
 
     defaultConfig {
-        minSdkVersion 14
+        minSdkVersion 16
         targetSdkVersion 29
         multiDexEnabled true
         applicationId "org.commcare.dalvik"
@@ -232,7 +237,7 @@ android {
                 googlePlayMapsApiKey: "${project.ext.GOOGLE_PLAY_MAPS_API_KEY}"
         ]
 
-        versionCode computeVersionCode()
+        versionCode 1
 
         // when set, app won't show install screen and try to install
         // resources from assets folder
@@ -249,12 +254,21 @@ android {
         buildConfigField "String", "TRUSTED_SOURCE_PUBLIC_KEY", "\"${project.ext.TRUSTED_SOURCE_PUBLIC_KEY}\""
         buildConfigField "String", "ANALYTICS_TRACKING_ID_LIVE", "\"${project.ext.ANALYTICS_TRACKING_ID_LIVE}\""
         buildConfigField "String", "ANALYTICS_TRACKING_ID_DEV", "\"${project.ext.ANALYTICS_TRACKING_ID_DEV}\""
+        buildConfigField "String", "MAPBOX_SDK_API_KEY", "\"${project.ext.MAPBOX_SDK_API_KEY}\""
 
         buildConfigField "String", "ADMOB_ID", "\"\""
         buildConfigField "String", "ENTITY_DETAIL_AD_UNIT_ID", "\"\""
         buildConfigField "String", "ENTITY_SELECT_AD_UNIT_ID", "\"\""
         buildConfigField "String", "MENU_LIST_AD_UNIT_ID", "\"\""
         buildConfigField "String", "MENU_GRID_AD_UNIT_ID", "\"\""
+    }
+
+    applicationVariants.all { variant ->
+        if (variant.buildType.name == "release") {
+            variant.outputs.each { output ->
+                output.versionCodeOverride = computeVersionCode()
+            }
+        }
     }
 
     compileOptions {
@@ -355,7 +369,7 @@ android {
                 boolean getAsBoolean() {
                     return true
                 }
-            }, null)
+            }, true, null)
             def ccVersion = manifestParser.getVersionName()
             // convert numbers to words to use in app id
             def ccVersionSafe = numbersToLetters(ccVersion)

@@ -83,7 +83,7 @@ public class CommCareApp implements AppFilePathBuilder {
         int[] version = CommCareApplication.instance().getCommCareVersion();
 
         // TODO: Badly coupled
-        platform = new AndroidCommCarePlatform(version[0], version[1], this);
+        platform = new AndroidCommCarePlatform(version[0], version[1], version[2], this);
     }
 
     public Stylizer getStylizer() {
