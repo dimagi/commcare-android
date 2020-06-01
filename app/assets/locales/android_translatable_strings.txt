@@ -570,6 +570,10 @@ notification.install.invalid.title=A part of your application is invalid.
 notification.install.invalid.detail=CommCare found an issue with the '${0}' resource:
 notification.install.invalid.action=${0}
 
+notification.install.invalid.reference.title=Bad resource location in the application
+notification.install.invalid.reference.detail=Invalid resource location found in the application.
+notification.install.invalid.reference.action=${0}
+
 notification.install.missing.withmessage.title=Part of your app is not valid
 notification.install.missing.withmessage.detail=One of your app's resources (${0}) is not valid and must be fixed before it can be installed.
 notification.install.missing.withmessage.action=Installation error: ${0}
