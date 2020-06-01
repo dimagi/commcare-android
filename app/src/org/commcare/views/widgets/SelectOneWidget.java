@@ -1,13 +1,17 @@
 package org.commcare.views.widgets;
 
 import android.content.Context;
+import android.graphics.drawable.GradientDrawable;
 import android.util.TypedValue;
-import android.view.View;
+import android.view.Gravity;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RadioButton;
+import androidx.core.content.ContextCompat;
 
 import org.commcare.dalvik.R;
 import org.commcare.views.media.MediaLayout;
@@ -15,6 +19,7 @@ import org.javarosa.core.model.SelectChoice;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.data.SelectOneData;
 import org.javarosa.core.model.data.helper.Selection;
+import org.javarosa.core.services.locale.Localization;
 import org.javarosa.form.api.FormEntryCaption;
 import org.javarosa.form.api.FormEntryPrompt;
 
@@ -30,6 +35,7 @@ public class SelectOneWidget extends QuestionWidget implements OnCheckedChangeLi
 
     private final Vector<SelectChoice> mItems;
     private final int buttonIdBase;
+    private Button clearButton;
 
     private final Vector<RadioButton> buttons;
 
@@ -101,7 +107,34 @@ public class SelectOneWidget extends QuestionWidget implements OnCheckedChangeLi
                     addView(divider);
                 }
             }
+            addClearButton(context, s != null && !prompt.isReadOnly());
         }
+    }
+
+    private void addClearButton(Context context, boolean show) {
+        clearButton = new Button(context);
+        clearButton.setText(Localization.get("button.clear.title"));
+        setStyle(context, clearButton);
+        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+        layoutParams.gravity = Gravity.END;
+        clearButton.setLayoutParams(layoutParams);
+        clearButton.setPadding(10, 10, 10, 10);
+        clearButton.setVisibility(show ? VISIBLE : GONE);
+        clearButton.setOnClickListener(view -> {
+            clearAnswer();
+            widgetEntryChanged();
+        });
+        addView(clearButton);
+    }
+
+    private void setStyle(Context context, Button button) {
+        GradientDrawable shape = new GradientDrawable();
+        shape.setShape(GradientDrawable.RECTANGLE);
+        shape.setCornerRadius(20f);
+        shape.setColor(ContextCompat.getColor(context, R.color.transparent));
+        shape.setStroke(2, ContextCompat.getColor(context, R.color.blue_light));
+        button.setBackground(shape);
+        button.setTextColor(ContextCompat.getColor(context, R.color.blue_light));
     }
 
     @Override
@@ -109,9 +142,10 @@ public class SelectOneWidget extends QuestionWidget implements OnCheckedChangeLi
         for (RadioButton button : this.buttons) {
             if (button.isChecked()) {
                 button.setChecked(false);
-                return;
+                break;
             }
         }
+        clearButton.setVisibility(GONE);
     }
 
     @Override
@@ -158,6 +192,7 @@ public class SelectOneWidget extends QuestionWidget implements OnCheckedChangeLi
                     button.setChecked(false);
                 }
             }
+            clearButton.setVisibility(VISIBLE);
         }
         widgetEntryChanged();
     }
