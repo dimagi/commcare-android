@@ -89,7 +89,7 @@ public class SelectOneWidget extends QuestionWidget implements OnCheckedChangeLi
 
                 MediaLayout mediaLayout = MediaLayout.buildAudioImageVisualLayout(getContext(), rb, audioURI, imageURI, videoURI, bigImageURI);
                 mediaLayout.setPadding(0, padding, 0, padding);
-
+                mediaLayout.setEnabled(!mPrompt.isReadOnly());
                 mediaLayout.setOnClickListener(v -> rb.performClick());
                 addView(mediaLayout);
 
