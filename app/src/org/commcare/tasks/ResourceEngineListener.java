@@ -3,6 +3,7 @@ package org.commcare.tasks;
 import org.commcare.engine.resource.AppInstallStatus;
 import org.commcare.resources.model.InvalidResourceException;
 import org.commcare.resources.model.UnresolvedResourceException;
+import org.javarosa.core.reference.InvalidReferenceException;
 
 public interface ResourceEngineListener {
     void reportSuccess(boolean b);
@@ -10,6 +11,8 @@ public interface ResourceEngineListener {
     void failMissingResource(UnresolvedResourceException ure, AppInstallStatus statusmissing);
 
     void failInvalidResource(InvalidResourceException e, AppInstallStatus statusmissing);
+
+    void failInvalidReference(InvalidReferenceException e, AppInstallStatus status);
 
     void failBadReqs(String vReq, String vAvail, boolean majorIsProblem);
 
