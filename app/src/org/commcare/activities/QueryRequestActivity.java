@@ -29,6 +29,7 @@ import org.commcare.modern.util.Pair;
 import org.commcare.session.RemoteQuerySessionManager;
 import org.commcare.suite.model.DisplayData;
 import org.commcare.suite.model.DisplayUnit;
+import org.commcare.suite.model.QueryPrompt;
 import org.commcare.tasks.ModernHttpTask;
 import org.commcare.tasks.templates.CommCareTaskConnector;
 import org.commcare.utils.StringUtils;
@@ -115,7 +116,7 @@ public class QueryRequestActivity
 
     private void buildPromptUI() {
         LinearLayout promptsLayout = findViewById(R.id.query_prompts);
-        OrderedHashtable<String, DisplayUnit> userInputDisplays =
+        OrderedHashtable<String, QueryPrompt> userInputDisplays =
                 remoteQuerySessionManager.getNeededUserInputDisplays();
         int promptCount = 1;
 
@@ -128,12 +129,16 @@ public class QueryRequestActivity
     }
 
     private void buildPromptEntry(LinearLayout promptsLayout, String promptId,
-                                  DisplayUnit displayUnit, boolean isLastPrompt) {
+                                  QueryPrompt queryPrompt, boolean isLastPrompt) {
         Hashtable<String, String> userAnswers =
                 remoteQuerySessionManager.getUserAnswers();
-        promptsLayout.addView(createPromptMedia(displayUnit));
+        promptsLayout.addView(createPromptMedia(queryPrompt.getDisplay()));
 
         View promptView = LayoutInflater.from(this).inflate(R.layout.query_prompt_edit_text, promptsLayout, false);
+
+        promptView.findViewById(R.id.barcode_scanner)
+                .setVisibility(isBarcodeEnabled(queryPrompt) ? View.VISIBLE : View.GONE);
+
         EditText promptEditText = promptView.findViewById(R.id.prompt_et);
         if (userAnswers.containsKey(promptId)) {
             promptEditText.setText(userAnswers.get(promptId));
@@ -153,6 +158,10 @@ public class QueryRequestActivity
 
         promptsLayout.addView(promptView);
         promptsBoxes.put(promptId, promptEditText);
+    }
+
+    private boolean isBarcodeEnabled(QueryPrompt queryPrompt) {
+        return "barcode_scan".equals(queryPrompt.getAppearance());
     }
 
     private void callBarcodeScanIntent(String promptId) {
