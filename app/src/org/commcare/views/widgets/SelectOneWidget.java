@@ -132,9 +132,9 @@ public class SelectOneWidget extends QuestionWidget implements OnCheckedChangeLi
         shape.setShape(GradientDrawable.RECTANGLE);
         shape.setCornerRadius(20f);
         shape.setColor(ContextCompat.getColor(context, R.color.transparent));
-        shape.setStroke(2, ContextCompat.getColor(context, R.color.blue_light));
+        shape.setStroke(2, ContextCompat.getColor(context, R.color.blue));
         button.setBackground(shape);
-        button.setTextColor(ContextCompat.getColor(context, R.color.blue_light));
+        button.setTextColor(ContextCompat.getColor(context, R.color.blue));
     }
 
     @Override
