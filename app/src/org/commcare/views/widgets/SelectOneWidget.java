@@ -1,17 +1,14 @@
 package org.commcare.views.widgets;
 
 import android.content.Context;
-import android.graphics.drawable.GradientDrawable;
 import android.util.TypedValue;
-import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.RadioButton;
-import androidx.core.content.ContextCompat;
 
 import org.commcare.dalvik.R;
 import org.commcare.views.media.MediaLayout;
@@ -112,29 +109,14 @@ public class SelectOneWidget extends QuestionWidget implements OnCheckedChangeLi
     }
 
     private void addClearButton(Context context, boolean show) {
-        clearButton = new Button(context);
+        clearButton = (Button) LayoutInflater.from(context).inflate(R.layout.blue_outlined_button, this, false);
         clearButton.setText(Localization.get("button.clear.title"));
-        setStyle(context, clearButton);
-        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-        layoutParams.gravity = Gravity.END;
-        clearButton.setLayoutParams(layoutParams);
-        clearButton.setPadding(10, 10, 10, 10);
         clearButton.setVisibility(show ? VISIBLE : GONE);
         clearButton.setOnClickListener(view -> {
             clearAnswer();
             widgetEntryChanged();
         });
         addView(clearButton);
-    }
-
-    private void setStyle(Context context, Button button) {
-        GradientDrawable shape = new GradientDrawable();
-        shape.setShape(GradientDrawable.RECTANGLE);
-        shape.setCornerRadius(20f);
-        shape.setColor(ContextCompat.getColor(context, R.color.transparent));
-        shape.setStroke(2, ContextCompat.getColor(context, R.color.blue));
-        button.setBackground(shape);
-        button.setTextColor(ContextCompat.getColor(context, R.color.blue));
     }
 
     @Override
