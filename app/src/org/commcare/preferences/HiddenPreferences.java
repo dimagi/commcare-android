@@ -71,8 +71,8 @@ public class HiddenPreferences {
     public final static String MM_VALIDATED_FROM_HQ = "cc-content-valid";
     private static final String USER_DOMAIN_SUFFIX = "cc_user_domain";
     private final static String LOGS_ENABLED = "logenabled";
-    public final static String LOGS_ENABLED_YES = "yes";
-    public final static String LOGS_ENABLED_NO = "no";
+    public final static String LOGS_ENABLED_YES = "Enabled";
+    public final static String LOGS_ENABLED_NO = "Disabled";
     public final static String LOGS_ENABLED_ON_DEMAND = "on_demand";
     private final static String RELEASED_ON_TIME_FOR_ONGOING_APP_DOWNLOAD = "released-on-time-for-ongoing-app-download";
 
