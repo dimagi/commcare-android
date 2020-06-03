@@ -1,9 +1,7 @@
 package org.commcare.activities;
 
-import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -14,6 +12,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -32,12 +31,10 @@ import org.commcare.suite.model.DisplayUnit;
 import org.commcare.suite.model.QueryPrompt;
 import org.commcare.tasks.ModernHttpTask;
 import org.commcare.tasks.templates.CommCareTaskConnector;
-import org.commcare.utils.StringUtils;
 import org.commcare.views.ManagedUi;
 import org.commcare.views.UiElement;
 import org.commcare.views.ViewUtil;
 import org.commcare.views.dialogs.CustomProgressDialog;
-import org.commcare.views.media.MediaLayout;
 import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.locale.Localizer;
@@ -69,6 +66,8 @@ public class QueryRequestActivity
     private static final String ANSWERED_USER_PROMPTS_KEY = "answered_user_prompts";
     private static final String IN_ERROR_STATE_KEY = "in-error-state-key";
     private static final String ERROR_MESSAGE_KEY = "error-message-key";
+    private static final CharSequence SELECT1 = "select1";
+    private static final String APPEARANCE_BARCODE_SCAN = "barcode_scan";
 
     @UiElement(value = R.id.request_button, locale = "query.button")
     private Button queryButton;
@@ -79,7 +78,7 @@ public class QueryRequestActivity
     private boolean inErrorState;
     private String errorMessage;
     private RemoteQuerySessionManager remoteQuerySessionManager;
-    private final Hashtable<String, EditText> promptsBoxes = new Hashtable<>();
+    private final Hashtable<String, View> promptsBoxes = new Hashtable<>();
     private String mPendingPromptId;
 
     @Override
@@ -132,14 +131,47 @@ public class QueryRequestActivity
                                   QueryPrompt queryPrompt, boolean isLastPrompt) {
         Hashtable<String, String> userAnswers =
                 remoteQuerySessionManager.getUserAnswers();
-        promptsLayout.addView(createPromptMedia(queryPrompt.getDisplay()));
 
-        View promptView = LayoutInflater.from(this).inflate(R.layout.query_prompt_edit_text, promptsLayout, false);
+        View promptView = LayoutInflater.from(this).inflate(R.layout.query_prompt_layout, promptsLayout, false);
+        setLabelText(promptView, queryPrompt.getDisplay());
+        View inputView;
+        String input = queryPrompt.getInput();
+        if (input != null && input.contentEquals(SELECT1)) {
+            inputView = setUpSpinnerInput(promptView, queryPrompt, promptId, userAnswers);
+        } else {
+            inputView = setUpTextInput(promptView, queryPrompt, promptId, userAnswers, isLastPrompt);
+        }
+        setUpBarCodeScanButton(promptView, promptId, queryPrompt);
 
-        promptView.findViewById(R.id.barcode_scanner)
-                .setVisibility(isBarcodeEnabled(queryPrompt) ? View.VISIBLE : View.GONE);
+        promptsLayout.addView(promptView);
+        promptsBoxes.put(promptId, inputView);
+    }
 
+    private void setUpBarCodeScanButton(View promptView, String promptId, QueryPrompt queryPrompt) {
+        ImageView barcodeScannerView = promptView.findViewById(R.id.barcode_scanner);
+        barcodeScannerView.setVisibility(isBarcodeEnabled(queryPrompt) ? View.VISIBLE : View.GONE);
+        barcodeScannerView.setTag(promptId);
+        barcodeScannerView.setOnClickListener(v ->
+                callBarcodeScanIntent((String)v.getTag())
+        );
+    }
+
+    private Spinner setUpSpinnerInput(View promptView, QueryPrompt queryPrompt,
+                                      String promptId, Hashtable<String, String> userAnswers) {
+        Spinner promptSpinner = promptView.findViewById(R.id.prompt_spinner);
+        promptSpinner.setVisibility(View.VISIBLE);
+        promptView.findViewById(R.id.prompt_et).setVisibility(View.GONE);
+
+        // todo populate spinner
+        return promptSpinner;
+    }
+
+    private EditText setUpTextInput(View promptView, QueryPrompt queryPrompt, String promptId,
+                                    Hashtable<String, String> userAnswers, boolean isLastPrompt) {
         EditText promptEditText = promptView.findViewById(R.id.prompt_et);
+        promptEditText.setVisibility(View.VISIBLE);
+        promptView.findViewById(R.id.prompt_spinner).setVisibility(View.GONE);
+
         if (userAnswers.containsKey(promptId)) {
             promptEditText.setText(userAnswers.get(promptId));
         }
@@ -150,18 +182,11 @@ public class QueryRequestActivity
             // replace 'done' on keyboard with 'next'
             promptEditText.setImeOptions(EditorInfo.IME_ACTION_NEXT);
         }
-        ImageView barcodeScannerView = promptView.findViewById(R.id.barcode_scanner);
-        barcodeScannerView.setTag(promptId);
-        promptView.findViewById(R.id.barcode_scanner).setOnClickListener(v ->
-                callBarcodeScanIntent((String)v.getTag())
-        );
-
-        promptsLayout.addView(promptView);
-        promptsBoxes.put(promptId, promptEditText);
+        return promptEditText;
     }
 
     private boolean isBarcodeEnabled(QueryPrompt queryPrompt) {
-        return "barcode_scan".equals(queryPrompt.getAppearance());
+        return APPEARANCE_BARCODE_SCAN.equals(queryPrompt.getAppearance());
     }
 
     private void callBarcodeScanIntent(String promptId) {
@@ -184,8 +209,10 @@ public class QueryRequestActivity
                 String result = intent.getStringExtra("SCAN_RESULT");
                 if (result != null) {
                     result = result.trim();
-                    EditText promptEt = promptsBoxes.get(mPendingPromptId);
-                    promptEt.setText(result);
+                    View input = promptsBoxes.get(mPendingPromptId);
+                    if (input instanceof EditText) {
+                        ((EditText)input).setText(result);
+                    }
                 }
             }
         } else {
@@ -193,31 +220,31 @@ public class QueryRequestActivity
         }
     }
 
-    private MediaLayout createPromptMedia(DisplayUnit display) {
+    private void setLabelText(View promptView, DisplayUnit display) {
         DisplayData displayData = display.evaluate();
         String promptText =
                 Localizer.processArguments(displayData.getName(), new String[]{""}).trim();
-        TextView text = new TextView(getApplicationContext());
-        text.setText(promptText);
-        text.setPadding(0, 0, 0, 7);
-        text.setTextColor(Color.BLACK);
-
-        MediaLayout helpLayout = MediaLayout.buildAudioImageLayout(this, text, displayData.getAudioURI(), displayData.getImageURI());
-        int padding = (int)getResources().getDimension(R.dimen.help_text_padding);
-        helpLayout.setPadding(padding, padding, padding, padding);
-
-        return helpLayout;
+        ((TextView)promptView.findViewById(R.id.prompt_label)).setText(promptText);
     }
 
     private void answerPrompts() {
         remoteQuerySessionManager.clearAnswers();
-
-        for (Map.Entry<String, EditText> promptEntry : promptsBoxes.entrySet()) {
-            String promptText = promptEntry.getValue().getText().toString();
+        for (Map.Entry<String, View> promptEntry : promptsBoxes.entrySet()) {
+            View input = promptEntry.getValue();
+            String promptText = getPromptInput(input);
             if (!"".equals(promptText)) {
                 remoteQuerySessionManager.answerUserPrompt(promptEntry.getKey(), promptText);
             }
         }
+    }
+
+    private String getPromptInput(View input) {
+        if (input instanceof EditText) {
+            return ((EditText)input).getText().toString();
+        } else if (input instanceof Spinner) {
+            return ((Spinner)input).getSelectedItem().toString();
+        }
+        return null;
     }
 
     private void makeQueryRequest() {

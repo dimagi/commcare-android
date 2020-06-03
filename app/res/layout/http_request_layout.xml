@@ -34,12 +34,7 @@
                 android:id="@+id/query_prompts"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:paddingBottom="@dimen/content_start"
-                android:paddingLeft="@dimen/login_box_margins"
-                android:paddingRight="@dimen/login_box_margins"
-                android:paddingStart="@dimen/login_box_margins"
-                android:paddingEnd="@dimen/login_box_margins" />
+                android:orientation="vertical" />
 
         </LinearLayout>
     </ScrollView>
