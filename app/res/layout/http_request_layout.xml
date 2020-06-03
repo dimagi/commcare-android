@@ -6,9 +6,9 @@
     android:layout_height="match_parent">
 
     <ScrollView
+        android:id="@+id/prompt_scroll"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_above="@+id/request_button">
+        android:layout_height="wrap_content">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -42,10 +42,10 @@
     <Button
         android:id="@+id/request_button"
         style="@style/ButtonBottom"
-        android:layout_width="match_parent"
+        android:layout_below="@id/prompt_scroll"
+        android:layout_width="wrap_content"
+        android:layout_centerHorizontal="true"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_gravity="bottom"
         android:background="@color/cc_brand_color"
         android:paddingBottom="@dimen/content_start"
         android:paddingTop="@dimen/content_start"
