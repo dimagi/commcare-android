@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.activities.GeoPointActivity;
+import org.commcare.android.logging.ReportingUtils;
 import org.commcare.utils.AndroidCommCarePlatform;
 import org.commcare.utils.GeoUtils;
 import org.commcare.utils.MapLayer;
@@ -313,7 +314,7 @@ public class HiddenPreferences {
 
     public static String getLatestCommcareVersion() {
         return PreferenceManager.getDefaultSharedPreferences(CommCareApplication.instance())
-                .getString(LATEST_COMMCARE_VERSION, null);
+                .getString(LATEST_COMMCARE_VERSION, ReportingUtils.getCommCareVersionString());
     }
 
     public static void setLatestAppVersion(int appVersion) {
