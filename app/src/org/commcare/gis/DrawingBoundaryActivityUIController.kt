@@ -68,4 +68,8 @@ class DrawingBoundaryActivityUIController(private val drawingBoundaryActivity: D
         redoTrackingButton.visibility = View.GONE
     }
 
+    fun readyToTrack() {
+        startTrackingButton.visibility = View.VISIBLE
+    }
+
 }

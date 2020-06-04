@@ -128,6 +128,7 @@ class DrawingBoundaryActivity : BaseMapboxActivity(), WithUIController, Location
             false
         }
         setUiFromBoundaryCoords()
+        uiController.readyToTrack();
     }
 
     private fun setUiFromBoundaryCoords() {
