@@ -220,7 +220,8 @@ class DrawingBoundaryActivity : BaseMapboxActivity(), WithUIController, Location
 
         val data = Intent()
         data.putExtra(IntentCallout.INTENT_RESULT_EXTRAS_BUNDLE, result)
-        data.putExtra(IntentCallout.INTENT_RESULT_VALUE, areaCalculator.getArea().toString())
+        var area = areaCalculator.getArea()
+        data.putExtra(IntentCallout.INTENT_RESULT_VALUE, String.format("%.4f", area))
         setResult(Activity.RESULT_OK, data)
         finish()
     }
