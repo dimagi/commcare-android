@@ -123,11 +123,17 @@ class DrawingBoundaryActivity : BaseMapboxActivity(), WithUIController, Location
         mapView.isWarmGps = true
         drawingManager = DrawingManager(mapView, map, loadedStyle)
         map.addOnMapClickListener {
-            polygon = drawingManager.currentPolygon
-            uiController.refreshView()
+            updateMetrics();
             false
         }
         setUiFromBoundaryCoords()
+        uiController.readyToTrack();
+    }
+
+    // updates the polygon and refresh the UI
+    private fun updateMetrics() {
+        polygon = drawingManager.currentPolygon
+        uiController.refreshView()
     }
 
     private fun setUiFromBoundaryCoords() {
@@ -140,6 +146,7 @@ class DrawingBoundaryActivity : BaseMapboxActivity(), WithUIController, Location
             finish()
         }.onSuccess { latlngs ->
             latlngs.map { latlng -> drawingManager.drawCircle(latlng) }
+            updateMetrics()
         }
     }
 
@@ -167,8 +174,7 @@ class DrawingBoundaryActivity : BaseMapboxActivity(), WithUIController, Location
     fun stopTracking() {
         isRecording = false
         mapView.locationClient!!.removeLocationListener(this)
-        polygon = drawingManager.currentPolygon
-        uiController.refreshView()
+        updateMetrics()
     }
 
     fun finishTracking() {
@@ -214,7 +220,8 @@ class DrawingBoundaryActivity : BaseMapboxActivity(), WithUIController, Location
 
         val data = Intent()
         data.putExtra(IntentCallout.INTENT_RESULT_EXTRAS_BUNDLE, result)
-        data.putExtra(IntentCallout.INTENT_RESULT_VALUE, areaCalculator.getArea().toString())
+        var area = areaCalculator.getArea()
+        data.putExtra(IntentCallout.INTENT_RESULT_VALUE, String.format("%.4f", area))
         setResult(Activity.RESULT_OK, data)
         finish()
     }
