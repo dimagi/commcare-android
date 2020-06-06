@@ -462,7 +462,8 @@ public class HiddenPreferences {
     }
 
     public static boolean shouldDownloadLazyMediaInBackground() {
-        return CommCareApplication.instance().getCurrentApp().getAppPreferences().getBoolean(DOWNLOAD_LAZY_MEDIA_IN_BACKGROUND, false);
+        return CommCareApplication.instance().getCurrentApp().getAppPreferences()
+                .getString(DOWNLOAD_LAZY_MEDIA_IN_BACKGROUND, PrefValues.NO).equals(PrefValues.YES);
     }
 
     public static boolean shouldUseMapboxMap() {

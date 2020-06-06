@@ -1,25 +1,23 @@
 package org.commcare.mediadownload
 
-import android.content.Context
-import android.widget.ImageButton
-import android.widget.Toast
+import android.util.Log
 import androidx.work.*
 import kotlinx.coroutines.*
 import org.commcare.CommCareApplication
+import org.commcare.android.resource.installers.MediaFileAndroidInstaller
 import org.commcare.dalvik.R
 import org.commcare.engine.resource.AndroidResourceUtils
 import org.commcare.engine.resource.ResourceInstallUtils
 import org.commcare.preferences.HiddenPreferences
-import org.commcare.resources.model.*
+import org.commcare.resources.model.InstallCancelled
+import org.commcare.resources.model.Resource
+import org.commcare.resources.model.ResourceTable
+import org.commcare.resources.model.TableStateListener
 import org.commcare.utils.AndroidCommCarePlatform
-import org.commcare.utils.AndroidUtil
 import org.commcare.utils.FileUtil
 import org.commcare.views.dialogs.PinnedNotificationWithProgress
 import org.javarosa.core.services.Logger
-import org.javarosa.core.util.SizeBoundUniqueVector
-import java.util.*
 import java.util.concurrent.TimeUnit
-import kotlin.collections.ArrayList
 
 // Contains helper functions to download lazy or missing media resources
 object MissingMediaDownloadHelper : TableStateListener, InstallCancelled {
@@ -69,41 +67,40 @@ object MissingMediaDownloadHelper : TableStateListener, InstallCancelled {
     }
 
 
-    // Verifies all application media and re-downloads any missing lazy resources
-    fun downloadAllMissingMedia() {
+    /**
+     *
+     * Downloads any missing lazy resources, make sure to call this on background thread
+     */
+    fun downloadAllLazyMedia(): Boolean {
         val platform = CommCareApplication.instance().commCarePlatform
         val global = platform.globalResourceTable
 
         global.setInstallCancellationChecker(this)
 
-        val problems = Vector<MissingMediaException>()
-        global.verifyInstallation(problems, platform)
-
-        val missingMediaResources = SizeBoundUniqueVector<Resource>(problems.size)
-        val lazyResources = global.lazyResources
-
-        problems.filter { problem -> problem.type == MissingMediaException.MissingMediaExceptionType.FILE_NOT_FOUND }
-                .map { problem ->
-                    runCatching {
-                        missingMediaResources.add(getLazyResourceFromMediaUri(lazyResources, problem.uri))
-                    }.onFailure {
-                        Logger.exception(
-                                "Could not map to a lazy resource while downloading missing media for uri ${problem.uri}",
-                                java.lang.Exception(it))
-                    }
-                }
-
         startPinnedNotification()
 
-        missingMediaResources.mapIndexed { index, resource ->
-            if (!wasInstallCancelled()) {
-                recoverResource(platform, resource)
-                incrementProgress(index + 1, missingMediaResources.size)
-            }
-        }
+        val lazyResourceIds = global.lazyResourceIds
+
+        lazyResourceIds.asSequence()
+                .withIndex()
+                .onEach { incrementProgress(it.index + 1, lazyResourceIds.size) }
+                .takeWhile { !wasInstallCancelled() }
+                .map { global.getResource(it.value) }
+                .filter { isResourceMissing(it) }
+                .takeWhile { !wasInstallCancelled() }
+                .onEach { recoverResource(platform, it) }
+                .toList()
 
         cancelNotification()
         global.setInstallCancellationChecker(null)
+        return true
+    }
+
+    private fun isResourceMissing(it: Resource): Boolean {
+        if (it.installer is MediaFileAndroidInstaller) {
+            return !FileUtil.referenceFileExists((it.installer as MediaFileAndroidInstaller).localLocation)
+        }
+        return false
     }
 
     /**
@@ -133,28 +130,30 @@ object MissingMediaDownloadHelper : TableStateListener, InstallCancelled {
     private fun downloadMissingMediaResource(uri: String): MissingMediaDownloadResult {
         val platform = CommCareApplication.instance().commCarePlatform
         val global = platform.globalResourceTable
-        val lazyResources: Vector<Resource> = global.lazyResources!!
-
-        getLazyResourceFromMediaUri(lazyResources, uri).let {
-            return if (resourceInProgress == null || it.resourceId != resourceInProgress!!.resourceId) {
-                recoverResource(platform, getLazyResourceFromMediaUri(lazyResources, uri))
-                MissingMediaDownloadResult.Success
-            } else {
-                MissingMediaDownloadResult.InProgress
-            }
-        }
+        val lazyResourceIds = global.lazyResourceIds
+        lazyResourceIds.asSequence().map { global.getResource(it) }
+                .filter { AndroidResourceUtils.matchFileUriToResource(it, uri) }
+                .take(1)
+                .firstOrNull {
+                    return if (it == null) {
+                        MissingMediaDownloadResult.Error("Resource not found")
+                    } else if (resourceInProgress == null || it.resourceId != resourceInProgress!!.resourceId) {
+                        recoverResource(platform, it)
+                        MissingMediaDownloadResult.Success
+                    } else {
+                        MissingMediaDownloadResult.InProgress
+                    }
+                }
+        return MissingMediaDownloadResult.Error("Resource not found")
     }
 
+    // downloads the resource
     @Synchronized
     private fun recoverResource(platform: AndroidCommCarePlatform, it: Resource) {
         resourceInProgress = it
         platform.globalResourceTable.recoverResource(it, platform, ResourceInstallUtils.getProfileReference())
         resourceInProgress = null
 
-    }
-
-    private fun getLazyResourceFromMediaUri(lazyResources: Vector<Resource>, uri: String): Resource {
-        return lazyResources.first { lazyResource -> AndroidResourceUtils.matchFileUriToResource(lazyResource, uri) }
     }
 
 
@@ -195,5 +194,4 @@ object MissingMediaDownloadHelper : TableStateListener, InstallCancelled {
     private fun cancelNotification() {
         mPinnedNotificationProgress.handleTaskCancellation()
     }
-
 }

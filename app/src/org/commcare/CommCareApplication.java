@@ -67,7 +67,6 @@ import org.commcare.network.DataPullRequester;
 import org.commcare.network.DataPullResponseFactory;
 import org.commcare.network.ForceTLS12BuilderConfig;
 import org.commcare.network.HttpUtils;
-import org.commcare.network.Tls12SocketFactory;
 import org.commcare.preferences.DevSessionRestorer;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.preferences.HiddenPreferences;
@@ -1135,5 +1134,4 @@ public class CommCareApplication extends MultiDexApplication {
                 method,
                 responseProcessor);
     }
-
 }

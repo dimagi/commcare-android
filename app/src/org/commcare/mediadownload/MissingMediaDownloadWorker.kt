@@ -10,8 +10,14 @@ class MissingMediaDownloadWorker(appContext: Context, workerParams: WorkerParame
 
     override suspend fun doWork(): Result {
         MissingMediaDownloadHelper.installCancelled = this
-        MissingMediaDownloadHelper.downloadAllMissingMedia()
-        return Result.success()
+        kotlin.runCatching {
+            MissingMediaDownloadHelper.downloadAllLazyMedia()
+        }.onSuccess {
+            return Result.success()
+        }.onFailure {
+            return Result.failure()
+        }
+        return Result.failure()
     }
 
     override fun wasInstallCancelled(): Boolean {
