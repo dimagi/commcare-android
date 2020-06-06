@@ -1,6 +1,7 @@
 package org.commcare.models.database;
 
 import android.content.Context;
+import android.util.Log;
 
 import org.commcare.models.AndroidPrototypeFactory;
 import org.javarosa.core.util.externalizable.Externalizable;
@@ -52,16 +53,18 @@ public class AndroidPrototypeFactorySetup {
         ArrayList<String> classNames = new ArrayList<>();
 
         String zpath = c.getApplicationInfo().sourceDir;
-
+        Log.d("dexLogs", " zpath " + zpath);
 
         if (zpath == null) {
             zpath = "/data/app/org.commcare.android.apk";
         }
 
         DexFile df = new DexFile(new File(zpath));
+
         for (Enumeration<String> en = df.entries(); en.hasMoreElements(); ) {
             String cn = en.nextElement();
             loadClass(cn, classNames);
+            Log.d("dexLogs", "cn " + cn);
         }
         df.close();
 
