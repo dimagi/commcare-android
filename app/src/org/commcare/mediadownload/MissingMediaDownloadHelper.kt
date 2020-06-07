@@ -72,29 +72,32 @@ object MissingMediaDownloadHelper : TableStateListener, InstallCancelled {
      * Downloads any missing lazy resources, make sure to call this on background thread
      */
     fun downloadAllLazyMedia(): AppInstallStatus {
-        val platform = CommCareApplication.instance().commCarePlatform
-        val global = platform.globalResourceTable
+        if (!HiddenPreferences.hasLazyMediaDownloaded()) {
+            val platform = CommCareApplication.instance().commCarePlatform
+            val global = platform.globalResourceTable
 
-        global.setInstallCancellationChecker(this)
-        startPinnedNotification()
+            global.setInstallCancellationChecker(this)
+            startPinnedNotification()
 
-        val lazyResourceIds = global.lazyResourceIds
-        lazyResourceIds.asSequence()
-                .runCatching {
-                    withIndex()
-                            .onEach { incrementProgress(it.index + 1, lazyResourceIds.size) }
-                            .takeWhile { !wasInstallCancelled() }
-                            .map { global.getResource(it.value) }
-                            .filter { isResourceMissing(it) }
-                            .takeWhile { !wasInstallCancelled() }
-                            .onEach { recoverResource(platform, it) }.toList()
-                }.onFailure {
-                    Logger.log(LogTypes.TYPE_MAINTENANCE, "An error occured while lazy downloading a media resource : " + it.message)
-                    return handleRecoverResourceFailure(it).data
-                }
+            val lazyResourceIds = global.lazyResourceIds
+            lazyResourceIds.asSequence()
+                    .runCatching {
+                        withIndex()
+                                .onEach { incrementProgress(it.index + 1, lazyResourceIds.size) }
+                                .takeWhile { !wasInstallCancelled() }
+                                .map { global.getResource(it.value) }
+                                .filter { isResourceMissing(it) }
+                                .takeWhile { !wasInstallCancelled() }
+                                .onEach { recoverResource(platform, it) }.toList()
+                    }.onFailure {
+                        Logger.log(LogTypes.TYPE_MAINTENANCE, "An error occured while lazy downloading a media resource : " + it.message)
+                        return handleRecoverResourceFailure(it).data
+                    }
 
-        cancelNotification()
-        global.setInstallCancellationChecker(null)
+            cancelNotification()
+            global.setInstallCancellationChecker(null)
+            HiddenPreferences.updateLazyMediaDownloadResult()
+        }
         return AppInstallStatus.Installed
     }
 
