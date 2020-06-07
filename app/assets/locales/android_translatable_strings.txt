@@ -567,6 +567,10 @@ notification.install.invalid.title=A part of your application is invalid.
 notification.install.invalid.detail=CommCare found an issue with the '${0}' resource:
 notification.install.invalid.action=${0}
 
+notification.install.invalid.reference.title=Bad resource location in the application
+notification.install.invalid.reference.detail=Invalid resource location found in the application.
+notification.install.invalid.reference.action=${0}
+
 notification.install.missing.withmessage.title=Part of your app is not valid
 notification.install.missing.withmessage.detail=One of your app's resources (${0}) is not valid and must be fixed before it can be installed.
 notification.install.missing.withmessage.action=Installation error: ${0}
@@ -902,6 +906,11 @@ quarantine.reason.manual=The form was manually quarantined by a user
 quarantine.reason.fnf=The file backing the form submission could not be found
 quarantine.reason.unknown=Reason for quarantine unknown
 
+drawing.boundary.map.start.tracking=Start
+drawing.boundary.map.stop.tracking=Stop
+drawing.boundary.map.ok.tracking=Done
+drawing.boundary.map.redo.tracking=Redo
+
 in.app.update.installed.title=Finish CommCare Update
 in.app.update.installed.detail=CommCare just downloaded an update. You need to restart CommCare to finish the installation.
 in.app.update.dialog.cancel=Cancel
@@ -915,3 +924,5 @@ in.app.update.error.unknown=Couldn't install CommCare update due to an unknown e
 in.app.update.error.playstore=Updating CommCare requires an official PlayStore app which is missing. Please install PlayStore.
 in.app.update.error.invalid.request=Couldn't install CommCare update due to internal failure. Please try later.
 in.app.update.error.internal.error=Couldn't install CommCare update due to internal error in PlayStore. Please try later.
+
+button.clear.title=Clear

@@ -13,9 +13,6 @@ import android.os.Environment;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.StrictMode;
-
-import androidx.preference.PreferenceManager;
-
 import android.text.format.DateUtils;
 import android.util.Log;
 
@@ -81,9 +78,9 @@ import org.commcare.sync.FormSubmissionWorker;
 import org.commcare.tasks.DeleteLogs;
 import org.commcare.tasks.LogSubmissionTask;
 import org.commcare.tasks.PurgeStaleArchivedFormsTask;
-import org.commcare.update.UpdateWorker;
 import org.commcare.tasks.templates.ManagedAsyncTask;
 import org.commcare.update.UpdateHelper;
+import org.commcare.update.UpdateWorker;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.AndroidCacheDirSetup;
 import org.commcare.utils.AndroidCommCarePlatform;
@@ -122,6 +119,7 @@ import javax.crypto.SecretKey;
 
 import androidx.annotation.NonNull;
 import androidx.multidex.MultiDexApplication;
+import androidx.preference.PreferenceManager;
 import androidx.work.BackoffPolicy;
 import androidx.work.Constraints;
 import androidx.work.ExistingPeriodicWorkPolicy;
@@ -196,6 +194,7 @@ public class CommCareApplication extends MultiDexApplication {
         CommCareApplication.app = this;
         CrashUtil.init();
         DataChangeLogger.init(this);
+
         logFirstCommCareRun();
         CommCarePreferenceManagerFactory.init(new AndroidPreferenceManager());
 

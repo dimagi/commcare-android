@@ -21,6 +21,7 @@ import org.commcare.tasks.UnZipTaskListener;
 import org.commcare.utils.StringUtils;
 import org.commcare.views.ManagedUi;
 import org.commcare.views.UiElement;
+import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.services.locale.Localization;
 
 import java.io.File;
@@ -149,12 +150,17 @@ public class ExecuteRecoveryMeasuresActivity extends CommCareActivity<ExecuteRec
 
     @Override
     public void failMissingResource(UnresolvedResourceException ure, AppInstallStatus status) {
-        mPresenter.appInstallExecutionFailed(status, "missing resource");
+        mPresenter.appInstallExecutionFailed(status, ure.getMessage());
     }
 
     @Override
     public void failInvalidResource(InvalidResourceException e, AppInstallStatus status) {
-        mPresenter.appInstallExecutionFailed(status, "invalid resource");
+        mPresenter.appInstallExecutionFailed(status, e.getMessage());
+    }
+
+    @Override
+    public void failInvalidReference(InvalidReferenceException e, AppInstallStatus status) {
+        mPresenter.appInstallExecutionFailed(status, e.getMessage());
     }
 
     @Override

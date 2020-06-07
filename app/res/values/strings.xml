@@ -59,7 +59,8 @@
 
     <integer-array name="commcare_version">
         <item>2</item>
-        <item>48</item>
+        <item>49</item>
+        <item>0</item>
     </integer-array>
 
     <string name="app_version_string">version.id.long</string>
@@ -416,4 +417,7 @@
 
     <string name="install_error_file_not_found" cc:translatable="true">No file found for resource %1$s</string>
     <string name="update_blocked_on_sync_message" cc:translatable="true">Sync is required to install this update. Auto initiating sync...</string>
+    <string name="area_format" cc:translatable="true">%1s sq m</string>
+    <string name="parse_coordinates_failure" cc:translatable="true">Could not parse input coordinates</string>
+    <string name="location_provider_disabled" cc:translatable="true">Turn on your location to receive location updates</string>
 </resources>
