@@ -37,7 +37,6 @@ object MissingMediaDownloadHelper : TableStateListener, InstallCancelled {
     // Schedules MissingMediaDownloadWorker
     @JvmStatic
     fun scheduleMissingMediaDownload() {
-        if (HiddenPreferences.shouldDownloadLazyMediaInBackground()) {
             val constraints = Constraints.Builder()
                     .setRequiredNetworkType(NetworkType.CONNECTED)
                     .setRequiresBatteryNotLow(true)
@@ -57,7 +56,6 @@ object MissingMediaDownloadHelper : TableStateListener, InstallCancelled {
                             getMissingMediaDownloadRequestName(),
                             ExistingWorkPolicy.KEEP,
                             downloadMissingMediaRequest)
-        }
     }
 
     // Returns Unique request name for the UpdateWorker Request

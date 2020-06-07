@@ -69,7 +69,6 @@ public class HiddenPreferences {
     public static final String DUMP_FOLDER_PATH = "dump-folder-path";
     private final static String RESIZING_METHOD = "cc-resize-images";
     private static final String KEY_TARGET_DENSITY = "cc-inflation-target-density";
-    private static final String DOWNLOAD_LAZY_MEDIA_IN_BACKGROUND = "cc-download-lazy-media-in-background";
     // Used to make it so that CommCare will not conduct a multimedia validation check
     public final static String MM_VALIDATED_FROM_HQ = "cc-content-valid";
     private static final String USER_DOMAIN_SUFFIX = "cc_user_domain";
@@ -461,11 +460,6 @@ public class HiddenPreferences {
 
     public static boolean shouldBypassPreUpdateSync() {
         return CommCareApplication.instance().getCurrentApp().getAppPreferences().getBoolean(BYPASS_PRE_UPDATE_SYNC, false);
-    }
-
-    public static boolean shouldDownloadLazyMediaInBackground() {
-        return CommCareApplication.instance().getCurrentApp().getAppPreferences()
-                .getString(DOWNLOAD_LAZY_MEDIA_IN_BACKGROUND, PrefValues.NO).equals(PrefValues.YES);
     }
 
     public static boolean shouldUseMapboxMap() {
