@@ -2,8 +2,9 @@ package org.commcare.views.widgets;
 
 import android.content.Context;
 import android.util.TypedValue;
-import android.view.View;
+import android.view.LayoutInflater;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.ImageView;
@@ -15,6 +16,7 @@ import org.javarosa.core.model.SelectChoice;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.data.SelectOneData;
 import org.javarosa.core.model.data.helper.Selection;
+import org.javarosa.core.services.locale.Localization;
 import org.javarosa.form.api.FormEntryCaption;
 import org.javarosa.form.api.FormEntryPrompt;
 
@@ -30,6 +32,7 @@ public class SelectOneWidget extends QuestionWidget implements OnCheckedChangeLi
 
     private final Vector<SelectChoice> mItems;
     private final int buttonIdBase;
+    private Button clearButton;
 
     private final Vector<RadioButton> buttons;
 
@@ -89,7 +92,7 @@ public class SelectOneWidget extends QuestionWidget implements OnCheckedChangeLi
 
                 MediaLayout mediaLayout = MediaLayout.buildAudioImageVisualLayout(getContext(), rb, audioURI, imageURI, videoURI, bigImageURI);
                 mediaLayout.setPadding(0, padding, 0, padding);
-
+                mediaLayout.setEnabled(!mPrompt.isReadOnly());
                 mediaLayout.setOnClickListener(v -> rb.performClick());
                 addView(mediaLayout);
 
@@ -101,7 +104,19 @@ public class SelectOneWidget extends QuestionWidget implements OnCheckedChangeLi
                     addView(divider);
                 }
             }
+            addClearButton(context, s != null && !prompt.isReadOnly());
         }
+    }
+
+    private void addClearButton(Context context, boolean show) {
+        clearButton = (Button) LayoutInflater.from(context).inflate(R.layout.blue_outlined_button, this, false);
+        clearButton.setText(Localization.get("button.clear.title"));
+        clearButton.setVisibility(show ? VISIBLE : GONE);
+        clearButton.setOnClickListener(view -> {
+            clearAnswer();
+            widgetEntryChanged();
+        });
+        addView(clearButton);
     }
 
     @Override
@@ -109,9 +124,10 @@ public class SelectOneWidget extends QuestionWidget implements OnCheckedChangeLi
         for (RadioButton button : this.buttons) {
             if (button.isChecked()) {
                 button.setChecked(false);
-                return;
+                break;
             }
         }
+        clearButton.setVisibility(GONE);
     }
 
     @Override
@@ -158,6 +174,7 @@ public class SelectOneWidget extends QuestionWidget implements OnCheckedChangeLi
                     button.setChecked(false);
                 }
             }
+            clearButton.setVisibility(VISIBLE);
         }
         widgetEntryChanged();
     }
