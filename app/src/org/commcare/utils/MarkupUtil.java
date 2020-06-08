@@ -1,11 +1,15 @@
 package org.commcare.utils;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.text.Html;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
+import android.text.Spanned;
+import android.text.style.ForegroundColorSpan;
 import android.text.style.UnderlineSpan;
+import android.widget.TextView;
 
 import net.nightwhistler.htmlspanner.HtmlSpanner;
 import net.nightwhistler.htmlspanner.SpanStack;
@@ -13,6 +17,7 @@ import net.nightwhistler.htmlspanner.TagNodeHandler;
 
 import org.commcare.CommCareApplication;
 import org.commcare.preferences.DeveloperPreferences;
+import org.commonmark.node.Node;
 import org.htmlcleaner.TagNode;
 import org.javarosa.core.services.locale.Localization;
 
@@ -61,6 +66,23 @@ public class MarkupUtil {
 
     public static Spannable returnMarkdown(Context c, String message) {
         return new SpannableString(generateMarkdown(c, message));
+    }
+
+    /**
+     *
+     * @param textView textview we want to set Markdown to
+     * @param markDownBuilder message containing the markdown we want to apply
+     * @param nonMarkDownSuffix message to be applied as suffix to {@param markDownBuilder} as it is without any markdown formatting
+     */
+    public static void setMarkdown(TextView textView, SpannableStringBuilder markDownBuilder, SpannableStringBuilder nonMarkDownSuffix) {
+        Markwon markwon = CommCareApplication.getMarkwonInstance();
+        Node node = markwon.parse(markDownBuilder.toString());
+        final Spanned markdownBuilder = markwon.render(node);
+        if(markdownBuilder instanceof SpannableStringBuilder) {
+            SpannableStringBuilder markdown = ((SpannableStringBuilder)markdownBuilder);
+            markdown.append(nonMarkDownSuffix);
+        }
+        markwon.setParsedMarkdown(textView, markdownBuilder);
     }
 
     public static Spannable returnCSS(String message) {
