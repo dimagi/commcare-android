@@ -26,6 +26,7 @@ import org.commcare.dalvik.R
 import org.commcare.gis.EntityMapUtils.parseBoundaryCoords
 import org.commcare.interfaces.CommCareActivityUIController
 import org.commcare.interfaces.WithUIController
+import org.commcare.util.LogTypes
 import org.commcare.utils.FileUtil
 import org.commcare.utils.ImageType
 import org.javarosa.core.services.Logger
@@ -197,12 +198,11 @@ class DrawingBoundaryActivity : BaseMapboxActivity(), WithUIController, Location
                     (location.distanceTo(previousLocation) >= location.accuracy + previousLocation!!.accuracy &&
                             location.time - previousLocation!!.time >= recordingIntervalMillis &&
                             location.distanceTo(previousLocation) >= recordingIntervalMeters)
-            Toast.makeText(this, "loc $addLocation", Toast.LENGTH_SHORT).show()
             if (addLocation && isRecording) {
                 previousLocation = location
                 val latLng = LatLng(location.latitude, location.longitude)
                 drawingManager.drawCircle(latLng)
-                uiController.refreshView()
+                updateMetrics()
             }
         }
     }
