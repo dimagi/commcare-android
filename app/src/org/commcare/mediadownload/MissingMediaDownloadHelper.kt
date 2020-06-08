@@ -12,7 +12,6 @@ import org.commcare.engine.resource.installers.LocalStorageUnavailableException
 import org.commcare.preferences.HiddenPreferences
 import org.commcare.resources.model.*
 import org.commcare.tasks.ResultAndError
-import org.commcare.update.UpdateHelper
 import org.commcare.util.LogTypes
 import org.commcare.utils.AndroidCommCarePlatform
 import org.commcare.utils.FileUtil
@@ -70,7 +69,7 @@ object MissingMediaDownloadHelper : TableStateListener, InstallCancelled {
      * Downloads any missing lazy resources, make sure to call this on background thread
      */
     fun downloadAllLazyMedia(): AppInstallStatus {
-        if (!HiddenPreferences.hasLazyMediaDownloaded()) {
+        if (!HiddenPreferences.isLazyMediaDownloadComplete()) {
             val platform = CommCareApplication.instance().commCarePlatform
             val global = platform.globalResourceTable
 
@@ -94,7 +93,7 @@ object MissingMediaDownloadHelper : TableStateListener, InstallCancelled {
 
             cancelNotification()
             global.setInstallCancellationChecker(null)
-            HiddenPreferences.updateLazyMediaDownloadResult()
+            HiddenPreferences.setLazyMediaDownloadComplete(true)
         }
         return AppInstallStatus.Installed
     }
