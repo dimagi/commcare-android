@@ -9,16 +9,11 @@ import android.location.Location
 import android.location.LocationListener
 import android.os.Build
 import android.os.Bundle
-import android.widget.Toast
-import androidx.work.Operation
-import com.google.android.gms.common.api.ResultCallback
-import com.google.android.gms.location.LocationSettingsStatusCodes
 import com.mapbox.geojson.Polygon
 import com.mapbox.mapboxsdk.geometry.LatLng
 import com.mapbox.mapboxsdk.maps.MapboxMap
 import com.mapbox.mapboxsdk.maps.Style
 import io.ona.kujaku.manager.DrawingManager
-import io.ona.kujaku.utils.LocationSettingsHelper
 import kotlinx.android.synthetic.main.activity_entity_mapbox.*
 import org.commcare.activities.components.FormEntryInstanceState
 import org.commcare.android.javarosa.IntentCallout
@@ -197,12 +192,11 @@ class DrawingBoundaryActivity : BaseMapboxActivity(), WithUIController, Location
                     (location.distanceTo(previousLocation) >= location.accuracy + previousLocation!!.accuracy &&
                             location.time - previousLocation!!.time >= recordingIntervalMillis &&
                             location.distanceTo(previousLocation) >= recordingIntervalMeters)
-            Toast.makeText(this, "loc $addLocation", Toast.LENGTH_SHORT).show()
             if (addLocation && isRecording) {
                 previousLocation = location
                 val latLng = LatLng(location.latitude, location.longitude)
                 drawingManager.drawCircle(latLng)
-                uiController.refreshView()
+                updateMetrics()
             }
         }
     }
