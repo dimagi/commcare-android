@@ -9,16 +9,11 @@ import android.location.Location
 import android.location.LocationListener
 import android.os.Build
 import android.os.Bundle
-import android.widget.Toast
-import androidx.work.Operation
-import com.google.android.gms.common.api.ResultCallback
-import com.google.android.gms.location.LocationSettingsStatusCodes
 import com.mapbox.geojson.Polygon
 import com.mapbox.mapboxsdk.geometry.LatLng
 import com.mapbox.mapboxsdk.maps.MapboxMap
 import com.mapbox.mapboxsdk.maps.Style
 import io.ona.kujaku.manager.DrawingManager
-import io.ona.kujaku.utils.LocationSettingsHelper
 import kotlinx.android.synthetic.main.activity_entity_mapbox.*
 import org.commcare.activities.components.FormEntryInstanceState
 import org.commcare.android.javarosa.IntentCallout
@@ -26,7 +21,6 @@ import org.commcare.dalvik.R
 import org.commcare.gis.EntityMapUtils.parseBoundaryCoords
 import org.commcare.interfaces.CommCareActivityUIController
 import org.commcare.interfaces.WithUIController
-import org.commcare.util.LogTypes
 import org.commcare.utils.FileUtil
 import org.commcare.utils.ImageType
 import org.javarosa.core.services.Logger
