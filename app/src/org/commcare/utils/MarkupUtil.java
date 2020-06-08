@@ -1,7 +1,6 @@
 package org.commcare.utils;
 
 import android.content.Context;
-import android.os.Build;
 import android.text.Html;
 import android.text.Spannable;
 import android.text.SpannableString;
@@ -17,7 +16,6 @@ import org.commcare.preferences.DeveloperPreferences;
 import org.htmlcleaner.TagNode;
 import org.javarosa.core.services.locale.Localization;
 
-import in.uncod.android.bypass.Bypass;
 import io.noties.markwon.Markwon;
 
 public class MarkupUtil {
@@ -70,8 +68,8 @@ public class MarkupUtil {
     }
 
     private static CharSequence generateMarkdown(Context c, String message) {
-        return trimTrailingWhitespace(
-                Markwon.create(CommCareApplication.instance()).toMarkdown(convertCharacterEncodings(message)));
+        return trimTrailingWhitespace(CommCareApplication.getMarkwonInstance()
+                .toMarkdown(convertCharacterEncodings(message)));
     }
 
     /**
