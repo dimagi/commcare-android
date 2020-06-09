@@ -15,8 +15,10 @@ import org.commcare.tasks.ResultAndError
 import org.commcare.util.LogTypes
 import org.commcare.utils.AndroidCommCarePlatform
 import org.commcare.utils.FileUtil
+import org.commcare.utils.StringUtils
 import org.commcare.views.dialogs.PinnedNotificationWithProgress
 import org.javarosa.core.services.Logger
+import org.javarosa.core.services.locale.Localization
 import java.lang.Exception
 import java.util.concurrent.TimeUnit
 
@@ -146,7 +148,7 @@ object MissingMediaDownloadHelper : TableStateListener, InstallCancelled {
                 .take(1)
                 .firstOrNull {
                     return if (it == null) {
-                        MissingMediaDownloadResult.Error("Resource not found")
+                        MissingMediaDownloadResult.Error(StringUtils.getStringRobust(CommCareApplication.instance(), R.string.media_not_found_error))
                     } else if (resourceInProgress == null || it.resourceId != resourceInProgress!!.resourceId) {
                         recoverResource(platform, it)
                         MissingMediaDownloadResult.Success
@@ -154,7 +156,7 @@ object MissingMediaDownloadHelper : TableStateListener, InstallCancelled {
                         MissingMediaDownloadResult.InProgress
                     }
                 }
-        return MissingMediaDownloadResult.Error("Resource not found")
+        return MissingMediaDownloadResult.Error(StringUtils.getStringRobust(CommCareApplication.instance(), R.string.media_not_found_error))
     }
 
     // downloads the resource
