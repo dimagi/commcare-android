@@ -226,7 +226,6 @@ public abstract class AudioPlaybackButtonBase extends FrameLayout {
             if (!exists) {
                 currentState = MediaState.Missing;
                 refreshAppearance();
-                AndroidUtil.showToast(getContext(), R.string.audio_download_prompt);
             }
         }
     }
