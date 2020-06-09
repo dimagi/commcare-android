@@ -93,6 +93,7 @@ dependencies {
     // Markdown
     implementation 'io.noties.markwon:core:4.4.0'
     implementation 'io.noties.markwon:ext-tables:4.4.0'
+    implementation 'io.noties.markwon:ext-strikethrough:4.4.0'
 
     implementation ('io.ona.kujaku:library:0.8.7'){
         exclude module: 'xpp3'

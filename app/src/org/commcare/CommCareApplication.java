@@ -129,6 +129,7 @@ import androidx.work.OneTimeWorkRequest;
 import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkManager;
 import io.noties.markwon.Markwon;
+import io.noties.markwon.ext.strikethrough.StrikethroughPlugin;
 import io.noties.markwon.ext.tables.TablePlugin;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
@@ -1071,6 +1072,7 @@ public class CommCareApplication extends MultiDexApplication {
         if (markwon == null) {
             markwon = Markwon.builder(CommCareApplication.instance())
                     .usePlugin(TablePlugin.create(CommCareApplication.instance()))
+                    .usePlugin(StrikethroughPlugin.create())
                     .build();
         }
         return markwon;
