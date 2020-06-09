@@ -217,15 +217,18 @@ public abstract class AudioPlaybackButtonBase extends FrameLayout {
             // arguments
             resetButton(URI, viewId, visible);
         }
-        validateUri();
+        validateUri(visible);
     }
 
-    private void validateUri() {
+    private void validateUri(boolean visible) {
         if(!TextUtils.isEmpty(URI)) {
             boolean exists = FileUtil.referenceFileExists(URI);
             if (!exists) {
                 currentState = MediaState.Missing;
                 refreshAppearance();
+                if(visible) {
+                    AndroidUtil.showToast(getContext(), R.string.audio_download_prompt);
+                }
             }
         }
     }
