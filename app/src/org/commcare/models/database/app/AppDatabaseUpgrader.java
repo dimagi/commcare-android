@@ -411,7 +411,7 @@ class AppDatabaseUpgrader {
             Vector<Resource> updateResourceList = new Vector<>();
 
             for (ResourceV13 oldResource : resourceStorage) {
-                Resource newResource = new Resource(oldResource.getVersion(), oldResource.getResourceId(), oldResource.getLocations(), oldResource.getDescriptor(), "false");
+                Resource newResource = new Resource(oldResource.getVersion(), oldResource.getResourceId(), oldResource.getLocations(), oldResource.getDescriptor(), Resource.LAZY_VAL_FALSE);
                 newResource.setStatus(oldResource.getStatus());
                 newResource.setRecordGuid(oldResource.getRecordGuid());
                 newResource.setID(oldResource.getID());
