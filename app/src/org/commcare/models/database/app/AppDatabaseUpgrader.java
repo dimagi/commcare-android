@@ -400,8 +400,8 @@ class AppDatabaseUpgrader {
             db.execSQL(DbUtil.addColumnToTable(
                     tableName,
                     Resource.META_INDEX_LAZY,
-                    "INTEGER",
-                    "0"));
+                    "TEXT",
+                    "false"));
 
             SqlStorage<ResourceV13> resourceStorage = new SqlStorage<>(
                     tableName,
@@ -411,7 +411,7 @@ class AppDatabaseUpgrader {
             Vector<Resource> updateResourceList = new Vector<>();
 
             for (ResourceV13 oldResource : resourceStorage) {
-                Resource newResource = new Resource(oldResource.getVersion(), oldResource.getResourceId(), oldResource.getLocations(), oldResource.getDescriptor(), false);
+                Resource newResource = new Resource(oldResource.getVersion(), oldResource.getResourceId(), oldResource.getLocations(), oldResource.getDescriptor(), "false");
                 newResource.setStatus(oldResource.getStatus());
                 newResource.setRecordGuid(oldResource.getRecordGuid());
                 newResource.setID(oldResource.getID());
