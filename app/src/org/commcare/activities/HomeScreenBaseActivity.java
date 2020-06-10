@@ -1302,7 +1302,9 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
 
     @Override
     protected void onDestroy() {
-        appUpdateController.unregister();
+        if (appUpdateController != null) {
+            appUpdateController.unregister();
+        }
         super.onDestroy();
     }
 
