@@ -2,6 +2,7 @@ package org.commcare.preferences;
 
 import android.content.SharedPreferences;
 
+import org.commcare.AppUtils;
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.activities.GeoPointActivity;
@@ -45,6 +46,7 @@ public class HiddenPreferences {
     private final static String FORCE_LOGS = "force-logs";
     private final static String COMMCARE_UPDATE_CANCELLATION_COUNTER = "cc_update_cancellation_counter";
     private final static String DISABLE_RATE_LIMIT_POPUP = "disable-rate-limit-popup";
+    private final static String LAZY_MEDIA_DOWNLOAD_COMPLETE = "lazy-media-download-complete";
 
     // Preferences whose values are only ever set by being sent down from HQ via the profile file
     private final static String USE_MAPBOX_MAP = "cc-use-mapbox-map";
@@ -505,4 +507,21 @@ public class HiddenPreferences {
                 .putBoolean(DISABLE_RATE_LIMIT_POPUP, disable)
                 .apply();
     }
+
+    public static void setLazyMediaDownloadComplete(boolean lazyMediaDownloadComplete) {
+        CommCareApplication.instance().getCurrentApp().getAppPreferences()
+                .edit()
+                .putBoolean(LAZY_MEDIA_DOWNLOAD_COMPLETE, lazyMediaDownloadComplete)
+                .apply();
+    }
+
+    /**
+     *
+     * @return whether the lazy media download has already completed successfully for this app version
+     */
+    public static boolean isLazyMediaDownloadComplete() {
+        return CommCareApplication.instance().getCurrentApp().getAppPreferences()
+                .getBoolean(LAZY_MEDIA_DOWNLOAD_COMPLETE, false);
+    }
+
 }

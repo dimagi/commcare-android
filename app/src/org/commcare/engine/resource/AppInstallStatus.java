@@ -85,7 +85,20 @@ public enum AppInstallStatus implements MessageTag {
         return !(this == Cancelled ||
                 this == BadCertificate ||
                 this == NoConnection ||
+                this == CaptivePortal ||
                 this == RateLimited ||
                 this == NetworkFailure);
     }
+
+    public boolean isNonPersistentFailure() {
+        return (this == Cancelled ||
+                this == BadCertificate ||
+                this == NoConnection ||
+                this == CaptivePortal ||
+                this == RateLimited ||
+                this == NetworkFailure ||
+                this == NoLocalStorage
+        );
+    }
+
 }

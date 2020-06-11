@@ -542,6 +542,7 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
     public static void OnSuccessfulUpdate(boolean logout, boolean syncPostUpdate) {
         reportAppUpdate();
         HiddenPreferences.setShowXformUpdateInfo(true);
+        HiddenPreferences.setLazyMediaDownloadComplete(false);
         if (logout) {
             CommCareApplication.instance().expireUserSession();
         }
