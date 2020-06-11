@@ -1,11 +1,9 @@
 package org.commcare.views;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.graphics.Typeface;
 import android.os.Build;
 import android.os.Handler;
-import androidx.preference.PreferenceManager;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.util.TypedValue;
@@ -20,7 +18,6 @@ import org.commcare.activities.FormEntryActivity;
 import org.commcare.dalvik.R;
 import org.commcare.interfaces.WidgetChangedListener;
 import org.commcare.logic.PendingCalloutInterface;
-import org.commcare.models.ODKStorage;
 import org.commcare.preferences.FormEntryPreferences;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.BlockingActionsManager;

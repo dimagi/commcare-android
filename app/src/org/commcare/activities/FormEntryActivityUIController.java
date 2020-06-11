@@ -1,6 +1,5 @@
 package org.commcare.activities;
 
-import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.graphics.Rect;
 import android.os.Bundle;
@@ -28,7 +27,6 @@ import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.interfaces.CommCareActivityUIController;
-import org.commcare.models.ODKStorage;
 import org.commcare.preferences.FormEntryPreferences;
 import org.commcare.preferences.LocalePreferences;
 import org.commcare.utils.BlockingActionsManager;
@@ -59,8 +57,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.Vector;
-
-import androidx.preference.PreferenceManager;
 
 public class FormEntryActivityUIController implements CommCareActivityUIController,
         Animation.AnimationListener {
