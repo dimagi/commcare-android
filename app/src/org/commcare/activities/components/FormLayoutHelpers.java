@@ -84,14 +84,7 @@ public class FormLayoutHelpers {
     }
 
     private static int getFontSizeInPx(Activity activity) {
-        SharedPreferences settings =
-                PreferenceManager.getDefaultSharedPreferences(activity.getApplicationContext());
-        String question_font =
-                settings.getString(FormEntryPreferences.KEY_FONT_SIZE, ODKStorage.DEFAULT_FONTSIZE);
-
-        int sizeInPx = Integer.valueOf(question_font);
-
-        return (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, sizeInPx,
+        return (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, FormEntryPreferences.getQuestionFontSize(),
                 activity.getResources().getDisplayMetrics());
     }
 

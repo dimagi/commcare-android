@@ -113,11 +113,7 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
 
         this.setOnClickListener(v -> QuestionWidget.this.acceptFocus());
 
-        SharedPreferences settings =
-                PreferenceManager.getDefaultSharedPreferences(context.getApplicationContext());
-        String question_font =
-                settings.getString(FormEntryPreferences.KEY_FONT_SIZE, ODKStorage.DEFAULT_FONTSIZE);
-        mQuestionFontSize = Integer.valueOf(question_font);
+        mQuestionFontSize = FormEntryPreferences.getQuestionFontSize();
         mAnswerFontSize = mQuestionFontSize + 2;
 
         setOrientation(LinearLayout.VERTICAL);
