@@ -8,6 +8,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -35,6 +37,7 @@ import org.commcare.views.ManagedUi;
 import org.commcare.views.UiElement;
 import org.commcare.views.ViewUtil;
 import org.commcare.views.dialogs.CustomProgressDialog;
+import org.javarosa.core.model.SelectChoice;
 import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.locale.Localizer;
@@ -46,6 +49,7 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
+import java.util.Vector;
 
 import static org.commcare.activities.EntitySelectActivity.BARCODE_FETCH;
 
@@ -137,7 +141,7 @@ public class QueryRequestActivity
         View inputView;
         String input = queryPrompt.getInput();
         if (input != null && input.contentEquals(SELECT1)) {
-            inputView = setUpSpinnerInput(promptView, queryPrompt, promptId, userAnswers);
+            inputView = setUpSpinnerInput(promptView, queryPrompt, userAnswers);
         } else {
             inputView = setUpTextInput(promptView, queryPrompt, promptId, userAnswers, isLastPrompt);
         }
@@ -157,13 +161,39 @@ public class QueryRequestActivity
     }
 
     private Spinner setUpSpinnerInput(View promptView, QueryPrompt queryPrompt,
-                                      String promptId, Hashtable<String, String> userAnswers) {
+                                      Hashtable<String, String> userAnswers) {
         Spinner promptSpinner = promptView.findViewById(R.id.prompt_spinner);
         promptSpinner.setVisibility(View.VISIBLE);
         promptView.findViewById(R.id.prompt_et).setVisibility(View.GONE);
 
-        // todo populate spinner
+        remoteQuerySessionManager.populateItemSetChoices(queryPrompt);
+        Vector<SelectChoice> items = queryPrompt.getItemsetBinding().getChoices();
+        String[] choices = new String[items.size()];
+        for (int i = 0; i < items.size(); i++) {
+            choices[i] = items.get(i).getLabelInnerText();
+        }
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, choices);
+        promptSpinner.setAdapter(adapter);
+
+        promptSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                remoteQuerySessionManager.answerUserPrompt(queryPrompt.getKey(), promptSpinner.getSelectedItem().toString());
+                reloadUI();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+
         return promptSpinner;
+    }
+
+    private void reloadUI() {
+
     }
 
     private EditText setUpTextInput(View promptView, QueryPrompt queryPrompt, String promptId,
