@@ -27,6 +27,7 @@ import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.interfaces.CommCareActivityUIController;
+import org.commcare.preferences.FormEntryPreferences;
 import org.commcare.preferences.LocalePreferences;
 import org.commcare.utils.BlockingActionsManager;
 import org.commcare.utils.CompoundIntentList;
@@ -267,6 +268,7 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
 
         if (groupLabelText != null && !groupLabelText.toString().trim().equals("")) {
             TextView groupLabel = activity.findViewById(R.id.form_entry_group_label);
+            groupLabel.setTextSize(FormEntryPreferences.getQuestionFontSize());
             groupLabel.setText(groupLabelText);
             hasGroupLabel = true;
             FormLayoutHelpers.updateGroupViewVisibility(activity, true, shouldHideGroupLabel);
