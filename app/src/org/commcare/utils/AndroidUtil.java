@@ -6,6 +6,7 @@ import android.content.res.Resources;
 import android.os.Build;
 import android.util.TypedValue;
 import android.view.View;
+import android.widget.Toast;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -56,5 +57,13 @@ public class AndroidUtil {
             }
         }
         return colors;
+    }
+
+    public static void showToast(Context context, int stringResource) {
+        Toast.makeText(context,
+                StringUtils.getStringRobust(
+                        context,
+                        stringResource),
+                Toast.LENGTH_LONG).show();
     }
 }

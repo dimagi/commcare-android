@@ -29,10 +29,10 @@ class DrawingBoundaryActivityUIController(private val drawingBoundaryActivity: D
     private lateinit var areaTv: TextView
 
     override fun refreshView() {
-        areaTv.text = StringUtils.getStringRobust(drawingBoundaryActivity, R.string.area_format, formatDecimal(drawingBoundaryActivity.getArea()))
+        areaTv.text = StringUtils.getStringRobust(drawingBoundaryActivity, R.string.area_format, formatArea(drawingBoundaryActivity.getArea()))
     }
 
-    private fun formatDecimal(num: Double): String {
+    private fun formatArea(num: Double): String {
         return String.format("%.2f", num)
     }
 
@@ -66,6 +66,10 @@ class DrawingBoundaryActivityUIController(private val drawingBoundaryActivity: D
         stopTrackingButton.visibility = View.VISIBLE
         okTrackingButton.visibility = View.GONE
         redoTrackingButton.visibility = View.GONE
+    }
+
+    fun readyToTrack() {
+        startTrackingButton.visibility = View.VISIBLE
     }
 
 }

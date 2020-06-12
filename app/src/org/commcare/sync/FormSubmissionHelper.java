@@ -538,8 +538,7 @@ public class FormSubmissionHelper implements DataSubmissionListener {
                 context.getString(R.string.PostURL));
     }
 
-    public static String getFormSubmissionRequestName() {
-        String appId = CommCareApplication.instance().getCurrentApp().getUniqueId();
+    public static String getFormSubmissionRequestName(String appId) {
         String currentUserId = CommCareApplication.instance().getCurrentUserId();
         return FORM_SUBMISSION_REQUEST_NAME + "_" + appId + "_" + currentUserId;
     }
