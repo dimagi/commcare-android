@@ -295,8 +295,7 @@ public class SaveToDiskTask extends
         int event;
         while ((event = formController.getEvent(currentFormIndex)) != FormEntryController.EVENT_END_OF_FORM) {
             if (event == FormEntryController.EVENT_QUESTION) {
-                int saveStatus =
-                        FormEntryActivity.mFormController.checkCurrentQuestionConstraint();
+                int saveStatus = formController.checkCurrentQuestionConstraint(currentFormIndex);
                 if (markCompleted &&
                         (saveStatus == FormEntryController.ANSWER_REQUIRED_BUT_EMPTY ||
                                 saveStatus == FormEntryController.ANSWER_CONSTRAINT_VIOLATED)) {

@@ -362,7 +362,10 @@ public class CommCareApplication extends MultiDexApplication {
 
     protected void cancelWorkManagerTasks() {
         // Cancel form Submissions for this user
-        WorkManager.getInstance(this).cancelUniqueWork(FormSubmissionHelper.getFormSubmissionRequestName());
+        if (currentApp != null) {
+            WorkManager.getInstance(this).cancelUniqueWork(
+                    FormSubmissionHelper.getFormSubmissionRequestName(currentApp.getUniqueId()));
+        }
     }
 
     /**
@@ -811,7 +814,7 @@ public class CommCareApplication extends MultiDexApplication {
                         .build();
 
         WorkManager.getInstance(this).enqueueUniquePeriodicWork(
-                FormSubmissionHelper.getFormSubmissionRequestName(),
+                FormSubmissionHelper.getFormSubmissionRequestName(getCurrentApp().getUniqueId()),
                 ExistingPeriodicWorkPolicy.KEEP,
                 formSubmissionRequest
         );
