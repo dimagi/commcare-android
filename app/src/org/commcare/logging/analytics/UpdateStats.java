@@ -135,33 +135,13 @@ public class UpdateStats implements InstallStatsLogger, Serializable {
 
     @Override
     public void recordResourceInstallSuccess(String resourceName) {
-        InstallAttempts<String> attempts =
-                resourceInstallStats.get(resourceName);
-        if (attempts == null) {
-            attempts = new InstallAttempts<>(resourceName);
-            resourceInstallStats.put(resourceName, attempts);
-        }
-        attempts.registerSuccesfulInstall();
+        // Do nothing
     }
 
     @Override
     public void recordResourceInstallFailure(String resourceName,
                                              Exception errorMsg) {
-        InstallAttempts<String> attempts =
-                resourceInstallStats.get(resourceName);
-        if (attempts == null) {
-            attempts = new InstallAttempts<>(resourceName);
-            resourceInstallStats.put(resourceName, attempts);
-        }
-        String stackTrace = getStackTraceString(errorMsg);
-        attempts.addFailure(stackTrace);
-    }
-
-    private static String getStackTraceString(Exception e) {
-        StringWriter sw = new StringWriter();
-        PrintWriter pw = new PrintWriter(sw);
-        e.printStackTrace(pw);
-        return sw.toString();
+        // Do nothing
     }
 
     @Override
