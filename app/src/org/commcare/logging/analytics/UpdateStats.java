@@ -62,7 +62,7 @@ public class UpdateStats implements InstallStatsLogger, Serializable {
             PrefStats.saveStatsPersistently(app, UPGRADE_STATS_KEY, stats);
         } catch (OutOfMemoryError error) {
             Logger.log(LogTypes.TYPE_MAINTENANCE, "Top level OOM while writing update stats to pref");
-            stats.resetTopLevelExceptions();
+            stats.resetResourceInstallStats();
             try {
                 PrefStats.saveStatsPersistently(app, UPGRADE_STATS_KEY, stats);
             } catch (OutOfMemoryError outOfMemoryError) {
@@ -73,8 +73,8 @@ public class UpdateStats implements InstallStatsLogger, Serializable {
 
     }
 
-    private void resetTopLevelExceptions() {
-        resourceInstallStats.put(TOP_LEVEL_STATS_KEY, new InstallAttempts<>(TOP_LEVEL_STATS_KEY));
+    private void resetResourceInstallStats() {
+        resourceInstallStats.clear();
     }
 
     public void resetStats(CommCareApp app) {
