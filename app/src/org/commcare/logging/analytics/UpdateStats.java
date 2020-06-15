@@ -3,6 +3,8 @@ package org.commcare.logging.analytics;
 import org.commcare.CommCareApp;
 import org.commcare.engine.resource.AppInstallStatus;
 import org.commcare.resources.model.InstallStatsLogger;
+import org.commcare.util.LogTypes;
+import org.javarosa.core.services.Logger;
 
 import java.io.PrintWriter;
 import java.io.Serializable;
@@ -31,7 +33,7 @@ public class UpdateStats implements InstallStatsLogger, Serializable {
         startInstallTime = new Date().getTime();
         resourceInstallStats = new Hashtable<>();
         resourceInstallStats.put(TOP_LEVEL_STATS_KEY,
-                new InstallAttempts<String>(TOP_LEVEL_STATS_KEY));
+                new InstallAttempts<>(TOP_LEVEL_STATS_KEY));
     }
 
     /**
@@ -56,7 +58,23 @@ public class UpdateStats implements InstallStatsLogger, Serializable {
      */
     public static void saveStatsPersistently(CommCareApp app,
                                              UpdateStats stats) {
-        PrefStats.saveStatsPersistently(app, UPGRADE_STATS_KEY, stats);
+        try {
+            PrefStats.saveStatsPersistently(app, UPGRADE_STATS_KEY, stats);
+        } catch (OutOfMemoryError error) {
+            Logger.log(LogTypes.TYPE_MAINTENANCE, "Top level OOM while writing update stats to pref");
+            stats.resetResourceInstallStats();
+            try {
+                PrefStats.saveStatsPersistently(app, UPGRADE_STATS_KEY, stats);
+            } catch (OutOfMemoryError outOfMemoryError) {
+                // very unlikely that this will happen, though just here as a precautionary measure
+                Logger.log(LogTypes.TYPE_MAINTENANCE, "Top - 1 level OOM while writing update stats to pref");
+            }
+        }
+
+    }
+
+    private void resetResourceInstallStats() {
+        resourceInstallStats.clear();
     }
 
     public void resetStats(CommCareApp app) {
