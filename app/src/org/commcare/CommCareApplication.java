@@ -797,21 +797,23 @@ public class CommCareApplication extends MultiDexApplication {
         }
     }
 
-    private void scheduleFormSubmissions() {
+    public PeriodicWorkRequest.Builder formSubmissionPeriodicRequest() {
         Constraints constraints = new Constraints.Builder()
                 .setRequiredNetworkType(NetworkType.CONNECTED)
                 .setRequiresBatteryNotLow(true)
                 .build();
 
-        PeriodicWorkRequest formSubmissionRequest =
-                new PeriodicWorkRequest.Builder(FormSubmissionWorker.class, PERIODICITY_FOR_FORM_SUBMISSION_IN_HOURS, TimeUnit.HOURS)
-                        .addTag(getCurrentApp().getAppRecord().getApplicationId())
-                        .setConstraints(constraints)
-                        .setBackoffCriteria(
-                                BackoffPolicy.EXPONENTIAL,
-                                BACKOFF_DELAY_FOR_FORM_SUBMISSION_RETRY,
-                                TimeUnit.MILLISECONDS)
-                        .build();
+        return new PeriodicWorkRequest.Builder(FormSubmissionWorker.class, PERIODICITY_FOR_FORM_SUBMISSION_IN_HOURS, TimeUnit.HOURS)
+                .addTag(getCurrentApp().getAppRecord().getApplicationId())
+                .setConstraints(constraints)
+                .setBackoffCriteria(
+                        BackoffPolicy.EXPONENTIAL,
+                        BACKOFF_DELAY_FOR_FORM_SUBMISSION_RETRY,
+                        TimeUnit.MILLISECONDS);
+    }
+
+    private void scheduleFormSubmissions() {
+        PeriodicWorkRequest formSubmissionRequest = formSubmissionPeriodicRequest().build();
 
         WorkManager.getInstance(this).enqueueUniquePeriodicWork(
                 FormSubmissionHelper.getFormSubmissionRequestName(getCurrentApp().getUniqueId()),

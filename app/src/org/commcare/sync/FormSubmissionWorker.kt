@@ -1,6 +1,7 @@
 package org.commcare.sync
 
 import android.content.Context
+import androidx.annotation.VisibleForTesting
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import androidx.work.workDataOf
@@ -17,11 +18,20 @@ class FormSubmissionWorker(appContext: Context, workerParams: WorkerParameters)
 
     companion object {
         const val Progress = "progress"
+        lateinit var testFormSubmissionHelper: FormSubmissionHelper
+        @VisibleForTesting
+        fun setTestData(helper: FormSubmissionHelper) {
+            testFormSubmissionHelper = helper
+        }
     }
 
     override suspend fun doWork(): Result {
-        formSubmissionHelper = FormSubmissionHelper(applicationContext, this, this)
-        formSubmissionListeners.add(CommCareApplication.instance().getSession().getListenerForSubmissionNotification())
+        if (!inputData.getBoolean("TESTING", false)) {
+            formSubmissionHelper = FormSubmissionHelper(applicationContext, this, this)
+            formSubmissionListeners.add(CommCareApplication.instance().getSession().getListenerForSubmissionNotification())
+        } else {
+            formSubmissionHelper = testFormSubmissionHelper
+        }
 
         val result = formSubmissionHelper.uploadForms()
 

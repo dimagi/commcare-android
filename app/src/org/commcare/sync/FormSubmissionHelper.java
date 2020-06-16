@@ -92,8 +92,7 @@ public class FormSubmissionHelper implements DataSubmissionListener {
      *
      * @return The result of the upload form process
      */
-    FormUploadResult uploadForms() {
-
+    public FormUploadResult uploadForms() {
         FormRecord[] records = StorageUtils.getUnsentRecordsForCurrentApp(
                 CommCareApplication.instance().getUserStorage(FormRecord.class));
 
