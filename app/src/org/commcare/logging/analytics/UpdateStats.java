@@ -75,6 +75,8 @@ public class UpdateStats implements InstallStatsLogger, Serializable {
 
     private void resetResourceInstallStats() {
         resourceInstallStats.clear();
+        resourceInstallStats.put(TOP_LEVEL_STATS_KEY,
+                new InstallAttempts<>(TOP_LEVEL_STATS_KEY));
     }
 
     public void resetStats(CommCareApp app) {
