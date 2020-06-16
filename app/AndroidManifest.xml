@@ -459,5 +459,8 @@
             android:name="firebase_crashlytics_collection_enabled"
             android:value="false" />
 
+        <receiver android:name="io.ona.kujaku.receivers.KujakuNetworkChangeReceiver"
+            tools:node="remove"/>
+
     </application>
 </manifest>
