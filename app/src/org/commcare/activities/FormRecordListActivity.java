@@ -138,7 +138,7 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
         }
 
         public boolean containsStatus(String value) {
-            for (String status: statuses) {
+            for (String status : statuses) {
                 if (status.equals(value)) {
                     return true;
                 }
@@ -464,10 +464,13 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
                 result.second, resId, null);
 
         if (FormRecordFilter.Pending.containsStatus(record.getStatus())) {
-            dialog.setNegativeButton(Localization.get("app.workflow.forms.quarantine"), (dialog1, which) -> {
-                manuallyQuarantineRecord(record);
-                dismissAlertDialog();
-            });
+            if (DeveloperPreferences.isManualFormQuarantineAllowed()) {
+                dialog.setNegativeButton(Localization.get("app.workflow.forms.quarantine"), (dialog1, which) -> {
+                    manuallyQuarantineRecord(record);
+                    dismissAlertDialog();
+                    DeveloperPreferences.disableManualFormQuarantine();
+                });
+            }
         }
 
         showAlertDialog(dialog);
