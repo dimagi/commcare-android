@@ -9,6 +9,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.dalvik.R;
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.models.FormRecordProcessor;
 import org.commcare.preferences.ServerUrls;
 import org.commcare.suite.model.Profile;
@@ -425,7 +426,7 @@ public class FormSubmissionHelper implements DataSubmissionListener {
                 String.format("Quarantining Form Record with id %s because: %s",
                         record.getInstanceID(),
                         QuarantineUtil.getQuarantineReasonDisplayString(record, true)));
-
+        FirebaseAnalyticsUtil.reportFormQuarantined(record.getQuarantineReasonType());
         NotificationMessage m = QuarantineUtil.getQuarantineNotificationMessage(record);
         if (m != null) {
             CommCareApplication.notificationManager().reportNotificationMessage(m, true);
