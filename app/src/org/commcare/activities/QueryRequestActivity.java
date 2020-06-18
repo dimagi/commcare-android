@@ -153,7 +153,7 @@ public class QueryRequestActivity
 
     private void setUpBarCodeScanButton(View promptView, String promptId, QueryPrompt queryPrompt) {
         ImageView barcodeScannerView = promptView.findViewById(R.id.barcode_scanner);
-        barcodeScannerView.setVisibility(isBarcodeEnabled(queryPrompt) ? View.VISIBLE : View.GONE);
+        barcodeScannerView.setVisibility(isBarcodeEnabled(queryPrompt) ? View.VISIBLE : View.INVISIBLE);
         barcodeScannerView.setTag(promptId);
         barcodeScannerView.setOnClickListener(v ->
                 callBarcodeScanIntent((String)v.getTag())
