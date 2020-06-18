@@ -141,9 +141,9 @@ public class QueryRequestActivity
         View inputView;
         String input = queryPrompt.getInput();
         if (input != null && input.contentEquals(SELECT1)) {
-            inputView = setUpSpinnerInput(promptView, queryPrompt, userAnswers);
+            inputView = setUpSpinnerView(promptView, queryPrompt, userAnswers);
         } else {
-            inputView = setUpTextInput(promptView, queryPrompt, promptId, userAnswers, isLastPrompt);
+            inputView = setUpEditTextView(promptView, queryPrompt, promptId, userAnswers, isLastPrompt);
         }
         setUpBarCodeScanButton(promptView, promptId, queryPrompt);
 
@@ -160,27 +160,22 @@ public class QueryRequestActivity
         );
     }
 
-    private Spinner setUpSpinnerInput(View promptView, QueryPrompt queryPrompt,
-                                      Hashtable<String, String> userAnswers) {
+    private Spinner setUpSpinnerView(View promptView, QueryPrompt queryPrompt,
+                                     Hashtable<String, String> userAnswers) {
         Spinner promptSpinner = promptView.findViewById(R.id.prompt_spinner);
         promptSpinner.setVisibility(View.VISIBLE);
         promptView.findViewById(R.id.prompt_et).setVisibility(View.GONE);
 
-        remoteQuerySessionManager.populateItemSetChoices(queryPrompt);
-        Vector<SelectChoice> items = queryPrompt.getItemsetBinding().getChoices();
-        String[] choices = new String[items.size()];
-        for (int i = 0; i < items.size(); i++) {
-            choices[i] = items.get(i).getLabelInnerText();
-        }
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, choices);
-        promptSpinner.setAdapter(adapter);
-
         promptSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                remoteQuerySessionManager.answerUserPrompt(queryPrompt.getKey(), promptSpinner.getSelectedItem().toString());
-                reloadUI();
+                Vector<SelectChoice> choices = queryPrompt.getItemsetBinding().getChoices();
+                SelectChoice selectChoice = choices.get(position);
+                String oldAnswer = userAnswers.get(queryPrompt.getKey());
+                if(oldAnswer == null || !oldAnswer.contentEquals(selectChoice.getValue())) {
+                    remoteQuerySessionManager.answerUserPrompt(queryPrompt.getKey(), selectChoice.getValue());
+                    refreshUI();
+                }
             }
 
             @Override
@@ -189,15 +184,45 @@ public class QueryRequestActivity
             }
         });
 
+        setSpinnerData(userAnswers, queryPrompt, promptSpinner);
         return promptSpinner;
     }
 
-    private void reloadUI() {
+    private void setSpinnerData(Hashtable<String, String> userAnswers, QueryPrompt queryPrompt, Spinner promptSpinner) {
+        remoteQuerySessionManager.populateItemSetChoices(queryPrompt);
+        Vector<SelectChoice> items = queryPrompt.getItemsetBinding().getChoices();
+        String answer = userAnswers.get(queryPrompt.getKey());
+        String[] choices = new String[items.size()];
+        int selectedPosition = -1;
+        for (int i = 0; i < items.size(); i++) {
+            SelectChoice item = items.get(i);
+            choices[i] = item.getLabelInnerText();
+            if(item.getValue().equals(answer)){
+                selectedPosition = i;
+            }
+        }
 
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, choices);
+        promptSpinner.setAdapter(adapter);
+        if(selectedPosition != -1) {
+            promptSpinner.setSelection(selectedPosition);
+        }
     }
 
-    private EditText setUpTextInput(View promptView, QueryPrompt queryPrompt, String promptId,
-                                    Hashtable<String, String> userAnswers, boolean isLastPrompt) {
+    private void refreshUI() {
+        for (Map.Entry<String, View> promptEntry : promptsBoxes.entrySet()) {
+            View input = promptEntry.getValue();
+            if (input instanceof Spinner) {
+                String key = promptEntry.getKey();
+                setSpinnerData(remoteQuerySessionManager.getUserAnswers(),
+                        remoteQuerySessionManager.getNeededUserInputDisplays().get(key),
+                        ((Spinner)input));
+            }
+        }
+    }
+
+    private EditText setUpEditTextView(View promptView, QueryPrompt queryPrompt, String promptId,
+                                       Hashtable<String, String> userAnswers, boolean isLastPrompt) {
         EditText promptEditText = promptView.findViewById(R.id.prompt_et);
         promptEditText.setVisibility(View.VISIBLE);
         promptView.findViewById(R.id.prompt_spinner).setVisibility(View.GONE);
