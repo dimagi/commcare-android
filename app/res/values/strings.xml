@@ -59,7 +59,7 @@
 
     <integer-array name="commcare_version">
         <item>2</item>
-        <item>49</item>
+        <item>50</item>
         <item>0</item>
     </integer-array>
 
@@ -417,6 +417,16 @@
 
     <string name="install_error_file_not_found" cc:translatable="true">No file found for resource %1$s</string>
     <string name="update_blocked_on_sync_message" cc:translatable="true">Sync is required to install this update. Auto initiating sync...</string>
+
+    <string name="media_download_failed" cc:translatable="true">An error occurred while downloading the requested media. Please try again</string>
+    <string name="media_download_in_progress" cc:translatable="true">Download in Progress, Please wait...</string>
+    <string name="media_download_started" cc:translatable="true">Download started</string>
+    <string name="media_download_completed" cc:translatable="true">Download completed</string>
+    <string name="video_download_prompt" cc:translatable="true">Video file is missing for this question, click the download button above to download</string>
+    <string name="image_download_prompt" cc:translatable="true">Image file is missing for this question, Click the download button above to download</string>
+    <string name="audio_download_prompt" cc:translatable="true">Audio file is missing for this question, click the download button above to download</string>
+    <string name="media_not_found_error" cc:translatable="true">Media not found in the application</string>
+
     <string name="area_format" cc:translatable="true">%1s sq m</string>
     <string name="parse_coordinates_failure" cc:translatable="true">Could not parse input coordinates</string>
     <string name="location_provider_disabled" cc:translatable="true">Turn on your location to receive location updates</string>
