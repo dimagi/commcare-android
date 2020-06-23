@@ -183,8 +183,16 @@ public class AppUtils {
                 .getUniqueId();
     }
 
+    /**
+     *
+     * @return version number of the currently seated app
+     */
+    public static int getCurrentAppVersion() {
+        return CommCareApplication.instance().getCurrentApp().getAppRecord().getVersionNumber();
+    }
+
     public static boolean notOnLatestAppVersion() {
-        return ReportingUtils.getAppVersion() < HiddenPreferences.getLatestAppVersion();
+        return getCurrentAppVersion() < HiddenPreferences.getLatestAppVersion();
     }
 
     public static boolean notOnLatestCCVersion() {
