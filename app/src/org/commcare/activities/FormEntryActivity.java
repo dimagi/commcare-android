@@ -234,6 +234,12 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         saveIncompleteFormToDisk();
     }
 
+    private void handleLocationErrorAction() {
+        this.runOnUiThread(() -> {
+            FormEntryDialogs.handleNoGpsBroadcast(FormEntryActivity.this);
+        });
+    }
+
     private void registerFormEntryReceiver() {
         //BroadcastReceiver for:
         // a) An unresolvable xpath expression encountered in PollSensorAction.onLocationChanged
@@ -245,6 +251,9 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 context.removeStickyBroadcast(intent);
                 badLocationXpath = intent.getStringExtra(PollSensorAction.KEY_UNRESOLVED_XPATH);
                 locationRecieverErrorAction = intent.getAction();
+                if (GeoUtils.ACTION_CHECK_GPS_ENABLED.equals(locationRecieverErrorAction)) {
+                    handleLocationErrorAction();
+                }
             }
         };
 
@@ -336,6 +345,13 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                     } else {
                         // We may have jumped to a new index in hierarchy activity, so refresh
                         uiController.refreshCurrentView(false);
+                    }
+                    break;
+                case FormEntryConstants.INTENT_LOCATION_EXCEPTION:
+                    if (resultCode == RESULT_OK) {
+                        // We resolved the exception so let's hear location updates now.
+                        // We don't wanna do anything if user doesn't except it here.
+                        PollSensorController.INSTANCE.requestLocationUpdates();
                     }
                     break;
             }
@@ -984,9 +1000,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     }
 
     private void handleFormLoadCompletion(AndroidFormController fc) {
-        if (GeoUtils.ACTION_CHECK_GPS_ENABLED.equals(locationRecieverErrorAction)) {
-            FormEntryDialogs.handleNoGpsBroadcast(this);
-        } else if (PollSensorAction.XPATH_ERROR_ACTION.equals(locationRecieverErrorAction)) {
+        if (PollSensorAction.XPATH_ERROR_ACTION.equals(locationRecieverErrorAction)) {
             handleXpathErrorBroadcast();
         }
 
@@ -1440,6 +1454,17 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 }
                 return;
             }
+            case FormEntryConstants.INTENT_LOCATION_PERMISSION:
+                boolean isGranted = grantResults.length > 0;
+                for (int result : grantResults) {
+                    if (result != PackageManager.PERMISSION_GRANTED) {
+                        isGranted = false;
+                    }
+                }
+                if (isGranted) {
+                    PollSensorController.INSTANCE.requestLocationUpdates();
+                }
+                break;
         }
 
     }

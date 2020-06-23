@@ -24,10 +24,6 @@ class CommCareFusedLocationController(private val mContext: Context,
         }
     }
 
-    companion object {
-        const val REQUEST_CHECK_SETTINGS = 101
-    }
-
     private fun requestUpdates() {
         if (isLocationPermissionGranted(mContext)) {
             mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback, null)

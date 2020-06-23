@@ -1,10 +1,12 @@
 package org.commcare.android.javarosa;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
@@ -14,9 +16,17 @@ import android.os.Handler;
 import android.os.Looper;
 import androidx.core.content.ContextCompat;
 
+import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.common.api.ResolvableApiException;
+
 import org.commcare.CommCareApplication;
+import org.commcare.location.CommCareLocationController;
+import org.commcare.location.CommCareLocationControllerFactory;
+import org.commcare.location.CommCareLocationListener;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.utils.GeoUtils;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Set;
@@ -29,12 +39,29 @@ import java.util.TimerTask;
  * @author Phillip Mates (pmates@dimagi.com)
  */
 @SuppressWarnings("ResourceType")
-public enum PollSensorController implements LocationListener {
+public enum PollSensorController implements CommCareLocationListener {
     INSTANCE;
 
-    private LocationManager mLocationManager;
+    private CommCareLocationController mLocationController;
     private final ArrayList<PollSensorAction> actions = new ArrayList<>();
     private Timer timeoutTimer = new Timer();
+
+    private ResolvableApiException apiException;
+    private boolean noProviders;
+    private boolean missingPermissions;
+
+    @Nullable
+    public ResolvableApiException getException() {
+        return apiException;
+    }
+
+    public boolean isMissingPermissions() {
+        return missingPermissions;
+    }
+
+    public boolean isNoProviders() {
+        return noProviders;
+    }
 
     void startLocationPolling(PollSensorAction action) {
         synchronized (actions) {
@@ -47,22 +74,8 @@ public enum PollSensorController implements LocationListener {
         new Handler(Looper.getMainLooper()).post(() -> {
             // Start requesting GPS updates
             Context context = CommCareApplication.instance();
-            mLocationManager = (LocationManager)context.getSystemService(Context.LOCATION_SERVICE);
-
-            Set<String> providers = GeoUtils.evaluateProviders(mLocationManager);
-            if (providers.isEmpty()) {
-                context.registerReceiver(
-                        new ProvidersChangedHandler(),
-                        new IntentFilter(LocationManager.PROVIDERS_CHANGED_ACTION)
-                );
-
-                // This thread can't take action on the UI, so instead send
-                // a message that actual activities notice and then display
-                // a dialog asking user to enable location access
-                Intent noGPSIntent = new Intent(GeoUtils.ACTION_CHECK_GPS_ENABLED);
-                context.sendStickyBroadcast(noGPSIntent);
-            }
-            requestLocationUpdates(providers);
+            mLocationController = CommCareLocationControllerFactory.Companion.getLocationController(context, this);
+            mLocationController.start();
         });
     }
 
@@ -72,33 +85,19 @@ public enum PollSensorController implements LocationListener {
         timeoutTimer = new Timer();
     }
 
-    /**
-     * Start polling for location, based on whatever providers are given, and set up a timeout
-     *
-     * @param providers Set of String objects that may contain
-     *                  LocationManager.GPS_PROVDER and/or LocationManager.NETWORK_PROVIDER
-     */
-    private void requestLocationUpdates(Set<String> providers) {
-        if (providers.isEmpty()) {
-            stopLocationPolling();
-        } else {
-            for (String provider : providers) {
-                if (hasLocationPerms()) {
-                    mLocationManager.requestLocationUpdates(provider, 0, 0, this);
-                }
-            }
-
-            // Cancel polling after maximum time is exceeded
-            timeoutTimer.schedule(new PollingTimeoutTask(),
-                    HiddenPreferences.getGpsAutoCaptureTimeoutInMilliseconds());
-        }
+    public void requestLocationUpdates() {
+        mLocationController.start();
     }
 
-    /**
-     * If this action has a target node, update its value with the given location.
-     */
     @Override
-    public void onLocationChanged(Location location) {
+    public void onLocationRequestStart() {
+        // Cancel polling after maximum time is exceeded
+        timeoutTimer.schedule(new PollingTimeoutTask(),
+                HiddenPreferences.getGpsAutoCaptureTimeoutInMilliseconds());
+    }
+
+    @Override
+    public void onLocationResult(@NotNull Location location) {
         synchronized (actions) {
             if (location != null) {
                 for (PollSensorAction action : actions) {
@@ -112,27 +111,43 @@ public enum PollSensorController implements LocationListener {
         }
     }
 
-    @Override
-    public void onProviderDisabled(String provider) {
+    private void sendBroadcast(Context context) {
+        Intent noGPSIntent = new Intent(GeoUtils.ACTION_CHECK_GPS_ENABLED);
+        context.sendStickyBroadcast(noGPSIntent);
     }
 
     @Override
-    public void onProviderEnabled(String provider) {
+    public void missingPermissions() {
+        missingPermissions = true;
+        Context context = CommCareApplication.instance();
+        sendBroadcast(context);
     }
 
     @Override
-    public void onStatusChanged(String provider, int status, Bundle extras) {
+    public void onLocationRequestFailure(@NotNull CommCareLocationListener.Failure failure) {
+        Context context = CommCareApplication.instance();
+        if (failure instanceof CommCareLocationListener.Failure.ApiException) {
+            Exception exception = ((CommCareLocationListener.Failure.ApiException) failure).getException();
+            if (exception instanceof ResolvableApiException) {
+                apiException = (ResolvableApiException) exception;
+                sendBroadcast(context);
+            } else {
+                // ignore and return, we can't do anything.
+            }
+        } else {
+            noProviders = true;
+            context.registerReceiver(
+                    new ProvidersChangedHandler(),
+                    new IntentFilter(LocationManager.PROVIDERS_CHANGED_ACTION)
+            );
+            sendBroadcast(context);
+        }
     }
 
     private class ProvidersChangedHandler extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (mLocationManager == null) {
-                mLocationManager =
-                        (LocationManager)context.getSystemService(Context.LOCATION_SERVICE);
-            }
-            Set<String> providers = GeoUtils.evaluateProviders(mLocationManager);
-            requestLocationUpdates(providers);
+            requestLocationUpdates();
         }
     }
 
@@ -148,16 +163,7 @@ public enum PollSensorController implements LocationListener {
             actions.clear();
         }
         resetTimeoutTimer();
-
-        if (hasLocationPerms() && mLocationManager != null) {
-            mLocationManager.removeUpdates(this);
-            mLocationManager = null;
-        }
+        mLocationController.stop();
     }
 
-    private static boolean hasLocationPerms() {
-        Context context = CommCareApplication.instance().getApplicationContext();
-        return ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
-                ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED;
-    }
 }

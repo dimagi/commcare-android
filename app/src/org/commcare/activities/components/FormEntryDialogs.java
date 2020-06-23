@@ -1,11 +1,19 @@
 package org.commcare.activities.components;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.IntentSender;
 import android.location.LocationManager;
 import android.view.View;
 
+import androidx.core.app.ActivityCompat;
+
+import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.common.api.ResolvableApiException;
+
 import org.commcare.activities.FormEntryActivity;
+import org.commcare.android.javarosa.PollSensorController;
 import org.commcare.dalvik.R;
 import org.commcare.preferences.LocalePreferences;
 import org.commcare.utils.ChangeLocaleUtil;
@@ -116,6 +124,24 @@ public class FormEntryDialogs {
     }
 
     public static void handleNoGpsBroadcast(final FormEntryActivity activity) {
+        ResolvableApiException apiException = PollSensorController.INSTANCE.getException();
+        if (apiException != null) {
+            try {
+                apiException.startResolutionForResult(activity, FormEntryConstants.INTENT_LOCATION_EXCEPTION);
+            } catch (IntentSender.SendIntentException e) {
+                e.printStackTrace();
+            }
+        } else if (PollSensorController.INSTANCE.isMissingPermissions()) {
+            ActivityCompat.requestPermissions(activity,
+                    new String[] {Manifest.permission.ACCESS_COARSE_LOCATION,
+                            Manifest.permission.ACCESS_FINE_LOCATION},
+                    FormEntryConstants.INTENT_LOCATION_PERMISSION);
+        } else if (PollSensorController.INSTANCE.isNoProviders()) {
+            handleNoGpsProvider(activity);
+        }
+    }
+
+    public static void handleNoGpsProvider(final FormEntryActivity activity) {
         LocationManager manager = (LocationManager)activity.getSystemService(Context.LOCATION_SERVICE);
         Set<String> providers = GeoUtils.evaluateProviders(manager);
         if (providers.isEmpty()) {
