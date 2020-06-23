@@ -34,7 +34,6 @@ import org.javarosa.core.services.locale.Localization;
 @ManagedUi(R.layout.screen_recovery)
 public class RecoveryActivity extends SessionAwareCommCareActivity<RecoveryActivity> {
 
-    private static final int RECOVERY_TASK = 10000;
     private static final int MENU_APP_MANAGER = Menu.FIRST;
 
     @UiElement(R.id.recovery_title)
@@ -68,14 +67,13 @@ public class RecoveryActivity extends SessionAwareCommCareActivity<RecoveryActiv
     }
 
     private void sendForms() {
-
+        taskInProgressUIState();
         if (!isNetworkAvaialable() || !isStorageAvailable()) {
+            recoveryFailedUIState();
             return;
         }
 
-        loadingIndicator.setVisibility(View.VISIBLE);
         updateStatus(R.string.recovery_forms_send_progress);
-
 
         ProcessAndSendTask<RecoveryActivity> mProcess =
                 new ProcessAndSendTask<RecoveryActivity>(RecoveryActivity.this, true) {
@@ -93,10 +91,8 @@ public class RecoveryActivity extends SessionAwareCommCareActivity<RecoveryActiv
 
                         int successfulSends = this.getSuccessfulSends();
 
-                        retryBt.setVisibility(View.VISIBLE);
                         switch (result) {
                             case FULL_SUCCESS:
-                                retryBt.setVisibility(View.INVISIBLE);
                                 receiver.updateStatus(StringUtils.getStringRobust(
                                         RecoveryActivity.this,
                                         R.string.recovery_forms_send_successful,
@@ -127,6 +123,10 @@ public class RecoveryActivity extends SessionAwareCommCareActivity<RecoveryActiv
                                 receiver.updateStatus(Localization.get("form.send.rate.limit.error.toast"));
                                 break;
                         }
+
+                        if (result != FormUploadResult.FULL_SUCCESS) {
+                            receiver.recoveryFailedUIState();
+                        }
                     }
 
                     @Override
@@ -138,8 +138,7 @@ public class RecoveryActivity extends SessionAwareCommCareActivity<RecoveryActiv
                     protected void deliverError(RecoveryActivity receiver, Exception e) {
                         Logger.exception("Error in recovery form send: " + ForceCloseLogger.getStackTrace(e), e);
                         receiver.updateStatus(StringUtils.getStringRobust(receiver, R.string.recovery_forms_send_error) + ": " + e.getMessage());
-                        receiver.loadingIndicator.setVisibility(View.INVISIBLE);
-                        retryBt.setVisibility(View.VISIBLE);
+                        receiver.recoveryFailedUIState();
                     }
 
                 };
@@ -178,8 +177,7 @@ public class RecoveryActivity extends SessionAwareCommCareActivity<RecoveryActiv
     }
 
     public void attemptRecovery() {
-        appManagerBt.setVisibility(View.INVISIBLE);
-        loadingIndicator.setVisibility(View.VISIBLE);
+        taskInProgressUIState();
 
         CommCareApplication commCareApplication = CommCareApplication.instance();
         // Try to reinitialize to refresh the list of missing resources
@@ -215,14 +213,8 @@ public class RecoveryActivity extends SessionAwareCommCareActivity<RecoveryActiv
 
     public void onRecoveryFailure(ResultAndError<AppInstallStatus> resultAndError) {
         updateStatus(resultAndError.errorMessage);
-        appManagerBt.setVisibility(View.VISIBLE);
-        loadingIndicator.setVisibility(View.INVISIBLE);
-
-        if (resultAndError.data.isNonPersistentFailure()) {
-            retryBt.setVisibility(View.VISIBLE);
-        }
+        recoveryFailedUIState();
     }
-
 
     private void updateStatus(int resource) {
         updateStatus(StringUtils.getStringRobust(this, resource));
@@ -231,6 +223,18 @@ public class RecoveryActivity extends SessionAwareCommCareActivity<RecoveryActiv
     public void updateStatus(String text) {
         statusTv.setVisibility(View.VISIBLE);
         statusTv.setText(text);
+    }
+
+    private void taskInProgressUIState() {
+        loadingIndicator.setVisibility(View.VISIBLE);
+        appManagerBt.setVisibility(View.INVISIBLE);
+        retryBt.setVisibility(View.INVISIBLE);
+    }
+
+    private void recoveryFailedUIState() {
+        appManagerBt.setVisibility(View.VISIBLE);
+        loadingIndicator.setVisibility(View.INVISIBLE);
+        retryBt.setVisibility(View.VISIBLE);
     }
 
     @Override
