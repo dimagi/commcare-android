@@ -206,7 +206,8 @@ static def getDate() {
 
 android {
     compileSdkVersion 29
-
+    // only required to get past a AGP 4.0 bug and should be removed when we update to AGP 4.1+
+    ndkVersion "21.3.6528147"
     lintOptions {
         abortOnError false
         disable 'MissingTranslation'
