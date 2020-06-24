@@ -382,6 +382,7 @@
     <string name="recovery_forms_state_unavailable" cc:translatable="true">Forms are not available. Make sure your phone storage is available</string>
     <string name="recovery_network_unavailable" cc:translatable="true">No network connection. Please check your internet and try again.</string>
     <string name="recovery_app_manager" cc:translatable="true">Go to App Manager</string>
+    <string name="recovery_retry" cc:translatable="true">Retry Recovery</string>
 
     <string name="notification_channel_errors_title" cc:translatable="true">Errors</string>
     <string name="notification_channel_errors_description" cc:translatable="true">Notifications for error messages when something breaks say on installing a CommCare app or while syncing forms with server</string>

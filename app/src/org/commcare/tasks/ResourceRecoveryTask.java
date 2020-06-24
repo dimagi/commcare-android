@@ -6,6 +6,7 @@ import org.commcare.CommCareApplication;
 import org.commcare.activities.RecoveryActivity;
 import org.commcare.android.logging.ForceCloseLogger;
 import org.commcare.dalvik.R;
+import org.commcare.engine.resource.AppInstallStatus;
 import org.commcare.engine.resource.ResourceInstallUtils;
 import org.commcare.resources.model.InstallCancelled;
 import org.commcare.resources.model.InstallCancelledException;
@@ -20,7 +21,7 @@ import org.javarosa.core.services.Logger;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
 
 public class ResourceRecoveryTask
-        extends CommCareTask<Void, Integer, Boolean, RecoveryActivity> implements TableStateListener, InstallCancelled {
+        extends CommCareTask<Void, Integer, ResultAndError<AppInstallStatus>, RecoveryActivity> implements TableStateListener, InstallCancelled {
 
     private static final int RECOVERY_TASK = 10000;
     private static ResourceRecoveryTask singletonRunningInstance = null;
@@ -54,24 +55,29 @@ public class ResourceRecoveryTask
     }
 
     @Override
-    protected Boolean doTaskBackground(Void... voids) {
+    protected ResultAndError<AppInstallStatus> doTaskBackground(Void... voids) {
         AndroidCommCarePlatform platform = CommCareApplication.instance().getCommCarePlatform();
         ResourceTable global = platform.getGlobalResourceTable();
         setTableListeners(global);
-        boolean success;
+        ResultAndError<AppInstallStatus> result;
         try {
-            success = global.recoverResources(platform, ResourceInstallUtils.getProfileReference());
-        } catch (InstallCancelledException | UnresolvedResourceException | UnfullfilledRequirementsException e) {
-            throw new RuntimeException(e);
+            global.recoverResources(platform, ResourceInstallUtils.getProfileReference());
+            result = new ResultAndError(AppInstallStatus.Installed);
+        } catch (InstallCancelledException e) {
+            result = new ResultAndError(AppInstallStatus.Cancelled, e.getMessage());
+        } catch (UnresolvedResourceException e) {
+            result = new ResultAndError(ResourceInstallUtils.processUnresolvedResource(e), e.getMessage());
+        } catch (UnfullfilledRequirementsException e) {
+            result = new ResultAndError(AppInstallStatus.IncompatibleReqs, e.getMessage());
         } finally {
             unsetTableListeners(global);
         }
-        return success;
+        return result;
     }
 
     @Override
-    protected void onPostExecute(Boolean aBoolean) {
-        super.onPostExecute(aBoolean);
+    protected void onPostExecute(ResultAndError<AppInstallStatus> result) {
+        super.onPostExecute(result);
         clearTaskInstance();
     }
 
@@ -88,12 +94,12 @@ public class ResourceRecoveryTask
     }
 
     @Override
-    protected void deliverResult(RecoveryActivity recoveryActivity, Boolean success) {
-        if (success) {
+    protected void deliverResult(RecoveryActivity recoveryActivity, ResultAndError<AppInstallStatus> result) {
+        if (result.data == AppInstallStatus.Installed) {
             recoveryActivity.attemptRecovery();
             recoveryActivity.stopLoading();
         } else {
-            recoveryActivity.onRecoveryFailure(R.string.recovery_error_unknown);
+            recoveryActivity.onRecoveryFailure(result);
         }
     }
 
@@ -108,13 +114,8 @@ public class ResourceRecoveryTask
 
     @Override
     protected void deliverError(RecoveryActivity recoveryActivity, Exception e) {
-        Logger.exception("Error while recovering missing resources " + ForceCloseLogger.getStackTrace(e), e);
-
-        if (e.getCause() instanceof UnreliableSourceException) {
-            recoveryActivity.onRecoveryFailure(R.string.recovery_error_poor_connection);
-        } else {
-            recoveryActivity.onRecoveryFailure(e.getMessage());
-        }
+        Logger.exception("Unknown error while recovering missing resources " + ForceCloseLogger.getStackTrace(e), e);
+        recoveryActivity.onRecoveryFailure(new ResultAndError<>(AppInstallStatus.UnknownFailure, e.getMessage()));
     }
 
     private void setTableListeners(ResourceTable table) {

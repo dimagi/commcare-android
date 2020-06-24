@@ -2,7 +2,6 @@ package org.commcare.activities;
 
 import android.app.ActionBar;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -12,18 +11,17 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import org.commcare.CommCareApplication;
-import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.logging.ForceCloseLogger;
 import org.commcare.dalvik.R;
-import org.commcare.preferences.ServerUrls;
+import org.commcare.engine.resource.AppInstallStatus;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.sync.ProcessAndSendTask;
 import org.commcare.tasks.ResourceRecoveryTask;
+import org.commcare.tasks.ResultAndError;
 import org.commcare.utils.AndroidCommCarePlatform;
 import org.commcare.utils.CommCareUtil;
 import org.commcare.utils.ConnectivityStatus;
 import org.commcare.utils.FormUploadResult;
-import org.commcare.utils.StorageUtils;
 import org.commcare.utils.StringUtils;
 import org.commcare.views.ManagedUi;
 import org.commcare.views.UiElement;
@@ -36,7 +34,6 @@ import org.javarosa.core.services.locale.Localization;
 @ManagedUi(R.layout.screen_recovery)
 public class RecoveryActivity extends SessionAwareCommCareActivity<RecoveryActivity> {
 
-    private static final int RECOVERY_TASK = 10000;
     private static final int MENU_APP_MANAGER = Menu.FIRST;
 
     @UiElement(R.id.recovery_title)
@@ -51,6 +48,9 @@ public class RecoveryActivity extends SessionAwareCommCareActivity<RecoveryActiv
     @UiElement(R.id.app_manager_button)
     Button appManagerBt;
 
+    @UiElement(R.id.retry_button)
+    Button retryBt;
+
     @Override
     public void onCreateSessionSafe(Bundle savedInstanceState) {
         super.onCreateSessionSafe(savedInstanceState);
@@ -59,21 +59,21 @@ public class RecoveryActivity extends SessionAwareCommCareActivity<RecoveryActiv
             CommCareUtil.triggerLogSubmission(this, false);
             sendForms();
         }
-
-        appManagerBt.setOnClickListener(v -> {
-            launchAppManager();
+        appManagerBt.setOnClickListener(v -> launchAppManager());
+        retryBt.setOnClickListener(v -> {
+            retryBt.setVisibility(View.GONE);
+            sendForms();
         });
     }
 
     private void sendForms() {
-
+        taskInProgressUIState();
         if (!isNetworkAvaialable() || !isStorageAvailable()) {
+            recoveryFailedUIState();
             return;
         }
 
-        loadingIndicator.setVisibility(View.VISIBLE);
         updateStatus(R.string.recovery_forms_send_progress);
-
 
         ProcessAndSendTask<RecoveryActivity> mProcess =
                 new ProcessAndSendTask<RecoveryActivity>(RecoveryActivity.this, true) {
@@ -123,6 +123,10 @@ public class RecoveryActivity extends SessionAwareCommCareActivity<RecoveryActiv
                                 receiver.updateStatus(Localization.get("form.send.rate.limit.error.toast"));
                                 break;
                         }
+
+                        if (result != FormUploadResult.FULL_SUCCESS) {
+                            receiver.recoveryFailedUIState();
+                        }
                     }
 
                     @Override
@@ -134,7 +138,7 @@ public class RecoveryActivity extends SessionAwareCommCareActivity<RecoveryActiv
                     protected void deliverError(RecoveryActivity receiver, Exception e) {
                         Logger.exception("Error in recovery form send: " + ForceCloseLogger.getStackTrace(e), e);
                         receiver.updateStatus(StringUtils.getStringRobust(receiver, R.string.recovery_forms_send_error) + ": " + e.getMessage());
-                        receiver.loadingIndicator.setVisibility(View.INVISIBLE);
+                        receiver.recoveryFailedUIState();
                     }
 
                 };
@@ -173,8 +177,7 @@ public class RecoveryActivity extends SessionAwareCommCareActivity<RecoveryActiv
     }
 
     public void attemptRecovery() {
-        appManagerBt.setVisibility(View.INVISIBLE);
-        loadingIndicator.setVisibility(View.VISIBLE);
+        taskInProgressUIState();
 
         CommCareApplication commCareApplication = CommCareApplication.instance();
         // Try to reinitialize to refresh the list of missing resources
@@ -185,7 +188,9 @@ public class RecoveryActivity extends SessionAwareCommCareActivity<RecoveryActiv
             startRecoveryTask();
         } else {
             if (isAppCorrupt()) {
-                onRecoveryFailure(getLocalizedString(R.string.recovery_error_unknown));
+                onRecoveryFailure(new ResultAndError<>(
+                        AppInstallStatus.UnknownFailure,
+                        getLocalizedString(R.string.recovery_error_unknown)));
             } else {
                 updateStatus(R.string.recovery_success);
                 loadingIndicator.setVisibility(View.INVISIBLE);
@@ -206,16 +211,10 @@ public class RecoveryActivity extends SessionAwareCommCareActivity<RecoveryActiv
         }
     }
 
-    public void onRecoveryFailure(int messageResource) {
-        onRecoveryFailure(getLocalizedString(messageResource));
+    public void onRecoveryFailure(ResultAndError<AppInstallStatus> resultAndError) {
+        updateStatus(resultAndError.errorMessage);
+        recoveryFailedUIState();
     }
-
-    public void onRecoveryFailure(String message) {
-        updateStatus(message);
-        appManagerBt.setVisibility(View.VISIBLE);
-        loadingIndicator.setVisibility(View.INVISIBLE);
-    }
-
 
     private void updateStatus(int resource) {
         updateStatus(StringUtils.getStringRobust(this, resource));
@@ -224,6 +223,18 @@ public class RecoveryActivity extends SessionAwareCommCareActivity<RecoveryActiv
     public void updateStatus(String text) {
         statusTv.setVisibility(View.VISIBLE);
         statusTv.setText(text);
+    }
+
+    private void taskInProgressUIState() {
+        loadingIndicator.setVisibility(View.VISIBLE);
+        appManagerBt.setVisibility(View.INVISIBLE);
+        retryBt.setVisibility(View.INVISIBLE);
+    }
+
+    private void recoveryFailedUIState() {
+        appManagerBt.setVisibility(View.VISIBLE);
+        loadingIndicator.setVisibility(View.INVISIBLE);
+        retryBt.setVisibility(View.VISIBLE);
     }
 
     @Override
