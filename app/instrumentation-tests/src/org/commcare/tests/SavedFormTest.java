@@ -21,6 +21,7 @@ import static androidx.test.espresso.matcher.ViewMatchers.isRoot;
 import static androidx.test.espresso.matcher.ViewMatchers.withClassName;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
+import static org.commcare.utils.Utility.clickListItem;
 import static org.hamcrest.Matchers.endsWith;
 import static org.hamcrest.Matchers.not;
 /**
@@ -63,7 +64,7 @@ public class SavedFormTest extends BaseTest {
                 .check(matches(withText(endsWith(".jpg"))));
 
         // Remove image from incomplete form and exit without saving.
-        Utility.clickListItem(android.R.id.list, 1);
+        clickListItem(android.R.id.list, 1);
         onView(withText(R.string.discard_image))
                 .perform(click());
         onView(isRoot()).perform(ViewActions.pressBack());
@@ -76,7 +77,7 @@ public class SavedFormTest extends BaseTest {
                 .check(matches(not(isDisplayed())));
 
         // Again add an image then exit without saving and confirm image is successfully added again.
-        Utility.clickListItem(android.R.id.list, 1);
+        clickListItem(android.R.id.list, 1);
 
         Utility.chooseImage();
 
@@ -102,7 +103,7 @@ public class SavedFormTest extends BaseTest {
         // Go to the incomplete form and confirm changing text
         // triggers validation condition and doesn't allow submitting form.
         Utility.openFirstIncompleteForm();
-        Utility.clickListItem(android.R.id.list, 2);
+        clickListItem(android.R.id.list, 2);
         onView(withClassName(endsWith("EditText")))
                 .perform(typeText("ANYTHING"));
         onView(withId(R.id.nav_btn_finish))
@@ -114,12 +115,79 @@ public class SavedFormTest extends BaseTest {
         onView(withText(R.string.do_not_save)).perform(click());
 
         // Go back to the incomplete form and confirm form submission is allowed when there is no text.
-        Utility.clickListItem(R.id.screen_entity_select_list, 0);
-        Utility.clickListItem(android.R.id.list, 2);
+        clickListItem(R.id.screen_entity_select_list, 0);
+        clickListItem(android.R.id.list, 2);
         onView(withClassName(endsWith("EditText")))
                 .check(matches(withText("")));
         onView(withId(R.id.nav_btn_finish))
                 .perform(click());
+        onView(withText("Start"))
+                .check(matches(isDisplayed()));
+    }
+
+    /**
+     *  We're going to test a form with all the required questions to make sure that the app doesn't
+     *  allow you to move forward unless a required question is filled, and at the same time
+     *  navigates you to the question that is failing the validation condition.
+     */
+    @Test
+    public void testFinishButtonClick_withValidationFailure() {
+        // Navigate to the second form.
+        onView(withText("Start"))
+                .perform(click());
+        clickListItem(R.id.screen_suite_menu_list, 1);
+        clickListItem(R.id.screen_suite_menu_list, 1);
+
+        // type something in first question
+        onView(withClassName(endsWith("EditText")))
+                .perform(typeText("answered"));
+        onView(withId(R.id.nav_btn_next))
+                .perform(click());
+
+        // confirm second question is not filled yet.
+        onView(withClassName(endsWith("EditText")))
+                .check(matches(withText("")));
+        // So clicking on next button should show an error.
+        onView(withId(R.id.nav_btn_next))
+                .perform(click());
+        onView(withText(R.string.required_answer_error))
+                .check(matches(isDisplayed()));
+
+        // since we can't move forward, let's save the form.
+        closeSoftKeyboard();
+        onView(isRoot()).perform(ViewActions.pressBack());
+        onView(withText(R.string.keep_changes)).perform(click());
+
+        // let's go back to the saved form again and this time we'll jump directly to 3rd question.
+        // so the 2nd one is still not filled and has a validation failure.
+        Utility.openFirstIncompleteForm();
+        clickListItem(android.R.id.list, 2); // position starts with 0. 🙃
+        onView(withClassName(endsWith("EditText")))
+                .perform(typeText("answered"));
+        onView(withId(R.id.nav_btn_next))
+                .perform(click());
+
+        // Now we're on final question which isn't required. let's click finish now.
+        onView(withId(R.id.nav_btn_finish))
+                .perform(click());
+        // it should give invalid answer error correctly.
+        onView(withText(R.string.required_answer_error))
+                .check(matches(isDisplayed()));
+        // it should've also taken you to the second question, which can be verified by the
+        // absence of finish button.
+        onView(withId(R.id.nav_btn_finish))
+                .check(matches(not(isDisplayed())));
+
+        // Now type something in 2nd question and then submit properly.
+        onView(withClassName(endsWith("EditText")))
+                .perform(typeText("answered"));
+        onView(withId(R.id.nav_btn_next))
+                .perform(click());
+        onView(withId(R.id.nav_btn_next))
+                .perform(click());
+        onView(withId(R.id.nav_btn_finish))
+                .perform(click());
+        // It should work now.
         onView(withText("Start"))
                 .check(matches(isDisplayed()));
     }
