@@ -1,4 +1,4 @@
-package org.commcare.tests;
+package org.commcare.androidTests;
 
 import androidx.test.espresso.action.GeneralLocation;
 import androidx.test.espresso.action.GeneralSwipeAction;

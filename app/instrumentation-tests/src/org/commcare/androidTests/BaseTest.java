@@ -1,4 +1,4 @@
-package org.commcare.tests;
+package org.commcare.androidTests;
 
 import android.Manifest;
 

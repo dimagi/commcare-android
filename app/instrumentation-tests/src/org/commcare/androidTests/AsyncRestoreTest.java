@@ -1,4 +1,4 @@
-package org.commcare.tests;
+package org.commcare.androidTests;
 
 import android.content.Intent;
 import androidx.test.ext.junit.runners.AndroidJUnit4;

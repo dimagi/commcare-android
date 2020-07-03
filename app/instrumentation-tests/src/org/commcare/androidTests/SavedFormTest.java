@@ -1,4 +1,4 @@
-package org.commcare.tests;
+package org.commcare.androidTests;
 
 import androidx.test.espresso.action.ViewActions;
 import androidx.test.ext.junit.runners.AndroidJUnit4;

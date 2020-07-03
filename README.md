@@ -132,7 +132,7 @@ Create a new Android Studio _Android Instrumented Test_ Build configuration usin
 - Click _Run -> Edit Configruations_ and create a new _Android Instrumented Test_ configuration by pressing the green plus button.
 - Set _Name_ to "commcare android instrumentation tests"
 - Set _Test kind_ to "All in Package"
-- set _Package_ to `org.commcare.tests`
+- set _Package_ to `org.commcare.androidTests`
 - Click `OK` to finish creating the configuration.
 - Select the "commcare android instrumentation tests" under the configuration drop down to the left of the green play button.
 - Press the green play button to run the tests.
