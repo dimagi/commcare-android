@@ -55,8 +55,6 @@ public class AndroidResourceManager extends ResourceManager {
                         new AndroidResourceInstallerFactory());
 
         updateStats = UpdateStats.loadUpdateStats(app);
-        upgradeTable.setInstallStatsLogger(updateStats);
-        tempUpgradeTable.setInstallStatsLogger(updateStats);
     }
 
     /**
@@ -178,17 +176,6 @@ public class AndroidResourceManager extends ResourceManager {
             Log.i(TAG, "Upgrade cancelled, but already finished with these stats");
             Log.i(TAG, updateStats.toString());
         }
-    }
-
-    /**
-     * Log update failure that occurs while trying to install the staged update table
-     */
-    public void recordUpdateInstallFailure(Exception exception) {
-        updateStats.registerUpdateException(exception);
-    }
-
-    public void recordUpdateInstallFailure(AppInstallStatus result) {
-        updateStats.registerUpdateException(new Exception(result.toString()));
     }
 
     public void recordStageUpdateResult(ResultAndError<AppInstallStatus> resultAndError) {
