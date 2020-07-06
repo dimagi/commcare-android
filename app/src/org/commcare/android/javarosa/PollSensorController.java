@@ -1,22 +1,14 @@
 package org.commcare.android.javarosa;
 
-import android.Manifest;
-import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.IntentSender;
-import android.content.pm.PackageManager;
 import android.location.Location;
-import android.location.LocationListener;
 import android.location.LocationManager;
-import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import androidx.core.content.ContextCompat;
 
-import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.common.api.ResolvableApiException;
 
 import org.commcare.CommCareApplication;
@@ -29,7 +21,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
-import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -74,7 +65,7 @@ public enum PollSensorController implements CommCareLocationListener {
         new Handler(Looper.getMainLooper()).post(() -> {
             // Start requesting GPS updates
             Context context = CommCareApplication.instance();
-            mLocationController = CommCareLocationControllerFactory.Companion.getLocationController(context, this);
+            mLocationController = CommCareLocationControllerFactory.getLocationController(context, this);
             mLocationController.start();
         });
     }
@@ -111,8 +102,8 @@ public enum PollSensorController implements CommCareLocationListener {
         }
     }
 
-    private void sendBroadcast(Context context) {
-        Intent noGPSIntent = new Intent(GeoUtils.ACTION_CHECK_GPS_ENABLED);
+    private void broadcastLocationError(Context context) {
+        Intent noGPSIntent = new Intent(GeoUtils.ACTION_LOCATION_ERROR);
         context.sendStickyBroadcast(noGPSIntent);
     }
 
@@ -120,7 +111,7 @@ public enum PollSensorController implements CommCareLocationListener {
     public void missingPermissions() {
         missingPermissions = true;
         Context context = CommCareApplication.instance();
-        sendBroadcast(context);
+        broadcastLocationError(context);
     }
 
     @Override
@@ -130,7 +121,7 @@ public enum PollSensorController implements CommCareLocationListener {
             Exception exception = ((CommCareLocationListener.Failure.ApiException) failure).getException();
             if (exception instanceof ResolvableApiException) {
                 apiException = (ResolvableApiException) exception;
-                sendBroadcast(context);
+                broadcastLocationError(context);
             } else {
                 // ignore and return, we can't do anything.
             }
@@ -140,7 +131,7 @@ public enum PollSensorController implements CommCareLocationListener {
                     new ProvidersChangedHandler(),
                     new IntentFilter(LocationManager.PROVIDERS_CHANGED_ACTION)
             );
-            sendBroadcast(context);
+            broadcastLocationError(context);
         }
     }
 

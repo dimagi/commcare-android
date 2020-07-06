@@ -13,7 +13,7 @@ class CommCareFusedLocationController(private val mContext: Context,
     private val mFusedLocationClient = LocationServices.getFusedLocationProviderClient(mContext)
     private val mLocationRequest = LocationRequest.create().apply {
         priority = LocationRequest.PRIORITY_HIGH_ACCURACY
-        interval = 5000
+        interval = LOCATION_UPDATE_INTERVAL
     }
     private var mCurrentLocation: Location? = null
     private val mLocationCallback = object: LocationCallback() {
@@ -22,6 +22,10 @@ class CommCareFusedLocationController(private val mContext: Context,
             mCurrentLocation = result.lastLocation
             mListener.onLocationResult(mCurrentLocation!!)
         }
+    }
+
+    companion object {
+        const val LOCATION_UPDATE_INTERVAL = 5000L
     }
 
     private fun requestUpdates() {

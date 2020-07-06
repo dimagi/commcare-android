@@ -1,24 +1,16 @@
 package org.commcare.activities;
 
 import android.Manifest;
-import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
-import android.location.LocationProvider;
-import android.os.Build;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 
 import android.view.View.OnClickListener;
 import android.widget.Toast;
@@ -29,7 +21,6 @@ import org.commcare.activities.components.FormEntryConstants;
 import org.commcare.dalvik.R;
 import org.commcare.interfaces.RuntimePermissionRequester;
 import org.commcare.interfaces.TimerListener;
-import org.commcare.location.CommCareFusedLocationController;
 import org.commcare.location.CommCareLocationController;
 import org.commcare.location.CommCareLocationControllerFactory;
 import org.commcare.location.CommCareLocationListener;
@@ -45,7 +36,6 @@ import org.javarosa.core.services.locale.Localization;
 import org.jetbrains.annotations.NotNull;
 
 import java.text.DecimalFormat;
-import java.util.Set;
 
 /**
  * Activity that blocks user until the current GPS location is captured
@@ -71,7 +61,7 @@ public class GeoPointActivity extends Activity implements TimerListener, CommCar
         setTitle(StringUtils.getStringRobust(this, R.string.application_name) +
                 " > " + StringUtils.getStringRobust(this, R.string.get_location));
 
-        locationController = CommCareLocationControllerFactory.Companion.getLocationController(this, this);
+        locationController = CommCareLocationControllerFactory.getLocationController(this, this);
 
         setupLocationDialog();
         long mLong = -1;
@@ -90,6 +80,11 @@ public class GeoPointActivity extends Activity implements TimerListener, CommCar
     protected void onPause() {
         super.onPause();
         locationController.stop();
+        // We're not using managed dialogs, so we have to dismiss the dialog to prevent it from
+        // leaking memory.
+        if (locationDialog != null && locationDialog.isShowing()) {
+            locationDialog.dismiss();
+        }
     }
 
     @Override

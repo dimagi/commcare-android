@@ -251,7 +251,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 context.removeStickyBroadcast(intent);
                 badLocationXpath = intent.getStringExtra(PollSensorAction.KEY_UNRESOLVED_XPATH);
                 locationRecieverErrorAction = intent.getAction();
-                if (GeoUtils.ACTION_CHECK_GPS_ENABLED.equals(locationRecieverErrorAction)) {
+                if (GeoUtils.ACTION_LOCATION_ERROR.equals(locationRecieverErrorAction)) {
                     handleLocationErrorAction();
                 }
             }
@@ -259,7 +259,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
         IntentFilter filter = new IntentFilter();
         filter.addAction(PollSensorAction.XPATH_ERROR_ACTION);
-        filter.addAction(GeoUtils.ACTION_CHECK_GPS_ENABLED);
+        filter.addAction(GeoUtils.ACTION_LOCATION_ERROR);
         registerReceiver(mLocationServiceIssueReceiver, filter);
     }
 
