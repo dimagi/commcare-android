@@ -25,7 +25,6 @@ import org.commcare.engine.resource.ResourceInstallUtils;
 import org.commcare.interfaces.BasePresenterContract;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.preferences.HiddenPreferences;
-import org.commcare.resources.model.Resource;
 import org.commcare.tasks.InstallStagedUpdateTask;
 import org.commcare.tasks.ResourceEngineTask;
 import org.commcare.tasks.ResultAndError;
@@ -200,13 +199,13 @@ public class ExecuteRecoveryMeasuresPresenter implements BasePresenterContract, 
         updateStatus(StringUtils.getStringRobust(mActivity, R.string.recovery_measure_ccz_scan_in_progress));
     }
 
-    private void reinstallApp(String profileRef, int authority) {
+    private void reinstallApp(String profileRef) {
         CommCareApp currentApp = CommCareApplication.instance().getCurrentApp();
         ResourceEngineTask<ExecuteRecoveryMeasuresActivity> task
                 = new sResourceEngineTask(
                 currentApp,
                 REINSTALL_TASK_ID,
-                false, authority,
+                false,
                 true);
         task.connect(mActivity);
         task.execute(profileRef);
@@ -310,7 +309,7 @@ public class ExecuteRecoveryMeasuresPresenter implements BasePresenterContract, 
     }
 
     private void doOnlineAppInstall() {
-        reinstallApp(getProfileReference(), Resource.RESOURCE_AUTHORITY_REMOTE);
+        reinstallApp(getProfileReference());
     }
 
     private void showOfflineInstallActivity() {
@@ -319,7 +318,7 @@ public class ExecuteRecoveryMeasuresPresenter implements BasePresenterContract, 
     }
 
     public void doOfflineAppInstall(String profileRef) {
-        reinstallApp(profileRef, Resource.RESOURCE_AUTHORITY_LOCAL);
+        reinstallApp(profileRef);
     }
 
     public boolean shouldAllowBackPress() {
@@ -568,8 +567,8 @@ public class ExecuteRecoveryMeasuresPresenter implements BasePresenterContract, 
 
 
     static class sResourceEngineTask extends ResourceEngineTask<ExecuteRecoveryMeasuresActivity> {
-        sResourceEngineTask(CommCareApp currentApp, int taskId, boolean shouldSleep, int authority, boolean reinstall) {
-            super(currentApp, taskId, shouldSleep, authority, reinstall);
+        sResourceEngineTask(CommCareApp currentApp, int taskId, boolean shouldSleep, boolean reinstall) {
+            super(currentApp, taskId, shouldSleep, reinstall);
         }
 
         @Override

@@ -3,7 +3,6 @@ package org.commcare.views.widgets;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Rect;
 import android.graphics.Typeface;
@@ -32,7 +31,6 @@ import android.widget.Toast;
 import org.commcare.activities.CommCareActivity;
 import org.commcare.dalvik.R;
 import org.commcare.interfaces.WidgetChangedListener;
-import org.commcare.models.ODKStorage;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.preferences.FormEntryPreferences;
 import org.commcare.preferences.HiddenPreferences;
@@ -113,11 +111,7 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
 
         this.setOnClickListener(v -> QuestionWidget.this.acceptFocus());
 
-        SharedPreferences settings =
-                PreferenceManager.getDefaultSharedPreferences(context.getApplicationContext());
-        String question_font =
-                settings.getString(FormEntryPreferences.KEY_FONT_SIZE, ODKStorage.DEFAULT_FONTSIZE);
-        mQuestionFontSize = Integer.valueOf(question_font);
+        mQuestionFontSize = FormEntryPreferences.getQuestionFontSize();
         mAnswerFontSize = mQuestionFontSize + 2;
 
         setOrientation(LinearLayout.VERTICAL);
