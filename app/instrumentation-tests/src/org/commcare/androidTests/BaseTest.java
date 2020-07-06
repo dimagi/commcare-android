@@ -5,11 +5,9 @@ import android.Manifest;
 import androidx.test.espresso.intent.rule.IntentsTestRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
-import androidx.test.rule.ActivityTestRule;
 import androidx.test.rule.GrantPermissionRule;
 import org.commcare.CommCareApplication;
 import org.commcare.activities.DispatchActivity;
-import org.commcare.activities.FormEntryActivity;
 import org.commcare.utils.InstrumentationUtility;
 import org.junit.Rule;
 import org.junit.runner.RunWith;
@@ -24,10 +22,7 @@ import static androidx.test.espresso.Espresso.pressBack;
 public abstract class BaseTest {
 
     @Rule
-    public ActivityTestRule<DispatchActivity> activityTestRule = new ActivityTestRule<>(DispatchActivity.class);
-
-    @Rule
-    public IntentsTestRule<FormEntryActivity> intentsRule = new IntentsTestRule<>(FormEntryActivity.class);
+    public IntentsTestRule<DispatchActivity> intentsRule = new IntentsTestRule<>(DispatchActivity.class);
 
     @Rule
     public GrantPermissionRule permissionRule = GrantPermissionRule.grant(
