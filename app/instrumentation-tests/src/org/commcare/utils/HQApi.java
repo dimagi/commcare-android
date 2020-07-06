@@ -8,6 +8,7 @@ import org.commcare.core.network.CommCareNetworkServiceGenerator;
 import org.commcare.dalvik.debug.test.BuildConfig;
 import org.commcare.modern.util.Pair;
 import org.commcare.network.HttpUtils;
+import org.joda.time.DateTime;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -48,8 +49,7 @@ public class HQApi {
                                 .getJSONArray("objects")
                                 .getJSONObject(0)
                                 .getString("received_on");
-                DateTime dateTime = DateTime.parseRfc3339(date);
-                return dateTime.getValue();
+                return new DateTime(date).getMillis();
             } else {
                 Log.d(TAG, "Response was unsuccessful : " + response.body().string());
             }
@@ -70,8 +70,7 @@ public class HQApi {
                         .getJSONArray("objects")
                         .getJSONObject(0);
                 String date = latestForm.getString("received_on");
-                DateTime dateTime = DateTime.parseRfc3339(date);
-
+                long time = new DateTime(date).getMillis();
                 String formId = latestForm.getString("id");
                 JSONObject attachments = latestForm.getJSONObject("attachments");
                 Iterator<String> keys = attachments.keys();
@@ -84,7 +83,7 @@ public class HQApi {
                         attachmentCount++;
                     }
                 }
-                return new Pair<>(dateTime.getValue(), attachmentCount);
+                return new Pair<>(time, attachmentCount);
             } else {
                 Log.d(TAG, "Response was unsuccessful : " + response.body().string());
             }

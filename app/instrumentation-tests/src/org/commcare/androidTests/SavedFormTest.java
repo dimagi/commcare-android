@@ -4,7 +4,7 @@ import androidx.test.espresso.action.ViewActions;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import org.commcare.dalvik.R;
-import org.commcare.utils.Utility;
+import org.commcare.utils.InstrumentationUtility;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -12,7 +12,7 @@ import org.junit.runner.RunWith;
 
 import static androidx.test.espresso.Espresso.closeSoftKeyboard;
 import static androidx.test.espresso.Espresso.onView;
-import static androidx.test.espresso.Espresso.pressBackUnconditionally;
+import static androidx.test.espresso.Espresso.pressBack;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.typeText;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
@@ -21,7 +21,7 @@ import static androidx.test.espresso.matcher.ViewMatchers.isRoot;
 import static androidx.test.espresso.matcher.ViewMatchers.withClassName;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
-import static org.commcare.utils.Utility.clickListItem;
+import static org.commcare.utils.InstrumentationUtility.clickListItem;
 import static org.hamcrest.Matchers.endsWith;
 import static org.hamcrest.Matchers.not;
 /**
@@ -31,35 +31,35 @@ import static org.hamcrest.Matchers.not;
 @LargeTest
 public class SavedFormTest extends BaseTest {
 
-    private final String cczName = "testSavedForm.ccz";
-    private final String appName = "TestSavedForm";
+    private final String CCZ_NAME = "testSavedForm.ccz";
+    private final String APP_NAME = "TestSavedForm";
 
     @Before
     public void login() {
-        installApp(appName, cczName);
-        Utility.login("check", "123");
+        installApp(APP_NAME, CCZ_NAME);
+        InstrumentationUtility.login("check", "123");
     }
 
     @After
     public void logout() {
-        Utility.logout();
+        InstrumentationUtility.logout();
     }
 
     @Test
     public void testIncompleteForm_forMediaChanges() {
         // Create an incomplete form with an image.
-        Utility.openFirstForm();
+        InstrumentationUtility.openFirstForm();
         onView(withId(R.id.nav_btn_next))
                 .perform(click());
 
-        Utility.chooseImage();
+        InstrumentationUtility.chooseImage();
 
         onView(isRoot()).perform(ViewActions.pressBack());
         onView(withText(R.string.keep_changes)).perform(click());
 
         // Go to the incomplete form and confirm if image exists there.
-        Utility.openFirstIncompleteForm();
-        Utility.getSubViewInListItem(android.R.id.list, 1, R.id.hev_secondary_text)
+        InstrumentationUtility.openFirstIncompleteForm();
+        InstrumentationUtility.getSubViewInListItem(android.R.id.list, 1, R.id.hev_secondary_text)
                 .check(matches(isDisplayed()))
                 .check(matches(withText(endsWith(".jpg"))));
 
@@ -72,29 +72,29 @@ public class SavedFormTest extends BaseTest {
 
         // Go back to the form and confirm image is successfully removed.
 //        Utility.clickListItem(R.id.screen_entity_select_list, 0);
-        Utility.openFirstIncompleteForm();
-        Utility.getSubViewInListItem(android.R.id.list, 1, R.id.hev_secondary_text)
+        InstrumentationUtility.openFirstIncompleteForm();
+        InstrumentationUtility.getSubViewInListItem(android.R.id.list, 1, R.id.hev_secondary_text)
                 .check(matches(not(isDisplayed())));
 
         // Again add an image then exit without saving and confirm image is successfully added again.
         clickListItem(android.R.id.list, 1);
 
-        Utility.chooseImage();
+        InstrumentationUtility.chooseImage();
 
         onView(isRoot()).perform(ViewActions.pressBack());
         onView(withText(R.string.do_not_save)).perform(click());
-        Utility.openFirstIncompleteForm();
-        Utility.getSubViewInListItem(android.R.id.list, 1, R.id.hev_secondary_text)
+        InstrumentationUtility.openFirstIncompleteForm();
+        InstrumentationUtility.getSubViewInListItem(android.R.id.list, 1, R.id.hev_secondary_text)
                 .check(matches(isDisplayed()))
                 .check(matches(withText(endsWith(".jpg"))));
-        pressBackUnconditionally();
-        pressBackUnconditionally();
+        pressBack();
+        pressBack();
     }
 
     @Test
     public void testIncompleteForm_forValidateCondition() {
         // Create an incomplete form.
-        Utility.openFirstForm();
+        InstrumentationUtility.openFirstForm();
         onView(withId(R.id.nav_btn_next))
                 .perform(click());
         onView(isRoot()).perform(ViewActions.pressBack());
@@ -102,7 +102,7 @@ public class SavedFormTest extends BaseTest {
 
         // Go to the incomplete form and confirm changing text
         // triggers validation condition and doesn't allow submitting form.
-        Utility.openFirstIncompleteForm();
+        InstrumentationUtility.openFirstIncompleteForm();
         clickListItem(android.R.id.list, 2);
         onView(withClassName(endsWith("EditText")))
                 .perform(typeText("ANYTHING"));
@@ -160,7 +160,7 @@ public class SavedFormTest extends BaseTest {
 
         // let's go back to the saved form again and this time we'll jump directly to 3rd question.
         // so the 2nd one is still not filled and has a validation failure.
-        Utility.openFirstIncompleteForm();
+        InstrumentationUtility.openFirstIncompleteForm();
         clickListItem(android.R.id.list, 2); // position starts with 0. 🙃
         onView(withClassName(endsWith("EditText")))
                 .perform(typeText("answered"));

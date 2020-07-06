@@ -6,7 +6,8 @@ import androidx.test.filters.LargeTest;
 import org.commcare.AsyncRestoreHelperMock;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.utils.HQApi;
-import org.commcare.utils.Utility;
+import org.commcare.utils.InstrumentationUtility;
+import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -24,8 +25,13 @@ import static org.junit.Assert.assertTrue;
 @LargeTest
 public class AsyncRestoreTest extends BaseTest {
 
-    private final String cczName = "integration_test_app.ccz";
-    private final String appName = "Integration Tests";
+    private final String CCZ_NAME = "integration_test_app.ccz";
+    private final String APP_NAME = "Integration Tests";
+
+    @After
+    public void logout() {
+        InstrumentationUtility.logout();
+    }
 
     @Test
     public void testRestoreOnLogin() {
@@ -36,15 +42,7 @@ public class AsyncRestoreTest extends BaseTest {
         // Make sure user is present in the group.
         HQApi.addUserInGroup(userId, groupId);
 
-        // Install the app.
-        installApp(appName, cczName);
-
-        // Clear cache
-        Intent intent = new Intent();
-        intent.setAction("org.commcare.dalvik.api.action.ClearCacheOnRestore");
-        getInstrumentation()
-                .getTargetContext()
-                .sendBroadcast(intent);
+        installAppAndClearCache();
 
         // Mock AsyncRestoreHelper
         DataPullTask.setAsyncRestoreHelperClass(AsyncRestoreHelperMock.class);
@@ -53,13 +51,11 @@ public class AsyncRestoreTest extends BaseTest {
         assertFalse(AsyncRestoreHelperMock.isServerProgressReportingStarted());
 
         // Login into the app
-        Utility.login("many.cases1", "123");
+        InstrumentationUtility.login("many.cases1", "123");
 
         // Confirm Async Restore is done.
         assertTrue(AsyncRestoreHelperMock.isRetryCalled());
         assertTrue(AsyncRestoreHelperMock.isServerProgressReportingStarted());
-
-        Utility.logout();
     }
 
     @Test
@@ -71,21 +67,13 @@ public class AsyncRestoreTest extends BaseTest {
         // Make sure user is not present in the group.
         HQApi.removeUserFromGroup(userId, groupId);
 
-        // Install the app.
-        installApp(appName, cczName);
-
-        // Clear cache
-        Intent intent = new Intent();
-        intent.setAction("org.commcare.dalvik.api.action.ClearCacheOnRestore");
-        getInstrumentation()
-                .getTargetContext()
-                .sendBroadcast(intent);
+        installAppAndClearCache();
 
         // Mock AsyncRestoreHelper
         DataPullTask.setAsyncRestoreHelperClass(AsyncRestoreHelperMock.class);
 
         // Login into the app
-        Utility.login("many.cases2", "123");
+        InstrumentationUtility.login("many.cases2", "123");
 
         // Confirm No Restore happened during login.
         assertFalse(AsyncRestoreHelperMock.isRetryCalled());
@@ -101,8 +89,16 @@ public class AsyncRestoreTest extends BaseTest {
         // Confirm AsyncRestore happened after sync
         assertTrue(AsyncRestoreHelperMock.isRetryCalled());
         assertTrue(AsyncRestoreHelperMock.isServerProgressReportingStarted());
+    }
 
-        Utility.logout();
+    private void installAppAndClearCache() {
+        installApp(APP_NAME, CCZ_NAME);
+
+        Intent intent = new Intent();
+        intent.setAction("org.commcare.dalvik.api.action.ClearCacheOnRestore");
+        getInstrumentation()
+                .getTargetContext()
+                .sendBroadcast(intent);
     }
 
 }

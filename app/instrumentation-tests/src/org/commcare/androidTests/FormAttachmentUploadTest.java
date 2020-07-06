@@ -10,7 +10,7 @@ import org.commcare.activities.DrawActivity;
 import org.commcare.dalvik.R;
 import org.commcare.modern.util.Pair;
 import org.commcare.utils.HQApi;
-import org.commcare.utils.Utility;
+import org.commcare.utils.InstrumentationUtility;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -19,7 +19,6 @@ import java.util.concurrent.TimeUnit;
 import static androidx.test.espresso.Espresso.onData;
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
-import static androidx.test.espresso.matcher.ViewMatchers.isRoot;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static junit.framework.Assert.assertEquals;
@@ -35,13 +34,13 @@ import static junit.framework.Assert.assertTrue;
 @LargeTest
 public class FormAttachmentUploadTest extends BaseTest {
 
-    private final String cczName = "integration_test_app.ccz";
-    private final String appName = "Integration Tests";
+    private final String CCZ_NAME = "integration_test_app.ccz";
+    private final String APP_NAME = "Integration Tests";
 
     @Before
     public void setup() {
-        installApp(appName, cczName);
-        Utility.login("test", "123");
+        installApp(APP_NAME, CCZ_NAME);
+        InstrumentationUtility.login("test", "123");
     }
 
     @Test
@@ -58,7 +57,7 @@ public class FormAttachmentUploadTest extends BaseTest {
                 .atPosition(1)
                 .perform(click());
 
-        Utility.chooseImage();
+        InstrumentationUtility.chooseImage();
 
         onView(withId(R.id.nav_btn_next))
                 .perform(click());
@@ -81,7 +80,7 @@ public class FormAttachmentUploadTest extends BaseTest {
         // Okay, so the form API takes some time to give the updated result with the latest form.
         // So waiting here for roughly 45 seconds, just to be on a safer side.
         long start = System.currentTimeMillis();
-        onView(isRoot()).perform(Utility.sleep(TimeUnit.SECONDS.toMillis(45)));
+        InstrumentationUtility.sleep(15);
         long end = System.currentTimeMillis();
 
         // Just wanna make sure that it waited enough.

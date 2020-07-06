@@ -23,6 +23,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.concurrent.TimeUnit;
 
 import static androidx.test.espresso.Espresso.closeSoftKeyboard;
 import static androidx.test.espresso.Espresso.onData;
@@ -44,7 +45,7 @@ import static org.hamcrest.Matchers.startsWith;
 /**
  * @author $|-|!˅@M
  */
-public class Utility {
+public class InstrumentationUtility {
 
     /**
      * Installs the ccz by copying it into app-specific cache directory.
@@ -150,17 +151,24 @@ public class Utility {
      */
     public static void chooseImage() {
         stubCamera();
-        IntentMonitorRegistry.getInstance().addIntentCallback(Utility::onIntentSent);
+        IntentMonitorRegistry.getInstance().addIntentCallback(InstrumentationUtility::onImageCaptureIntentSent);
         onView(withText(R.string.capture_image))
                 .perform(click());
-        IntentMonitorRegistry.getInstance().removeIntentCallback(Utility::onIntentSent);
+        IntentMonitorRegistry.getInstance().removeIntentCallback(InstrumentationUtility::onImageCaptureIntentSent);
+    }
+
+    /**
+     * Sleep the testing thread for the specific number of seconds.
+     */
+    public static void sleep(int seconds) {
+        onView(isRoot()).perform(sleep(TimeUnit.SECONDS.toMillis(seconds)));
     }
 
     /**
      * Apparently Thread.sleep() doesn't work on espresso.
      * https://youtu.be/isihPOY2vS4?t=674
      */
-    public static ViewAction sleep(final long millis) {
+    private static ViewAction sleep(final long millis) {
         return new ViewAction() {
             @Override
             public Matcher<View> getConstraints() {
@@ -222,7 +230,7 @@ public class Utility {
         intending(hasAction(Intent.ACTION_GET_CONTENT)).respondWith(result);
     }
 
-    private static void onIntentSent(Intent intent) {
+    private static void onImageCaptureIntentSent(Intent intent) {
         if (MediaStore.ACTION_IMAGE_CAPTURE.equals(intent.getAction())) {
             Uri uri = intent.getExtras().getParcelable(MediaStore.EXTRA_OUTPUT);
             Context context = InstrumentationRegistry.getInstrumentation().getTargetContext();
