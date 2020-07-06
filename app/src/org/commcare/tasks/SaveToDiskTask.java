@@ -299,6 +299,7 @@ public class SaveToDiskTask extends
                 if (markCompleted &&
                         (saveStatus == FormEntryController.ANSWER_REQUIRED_BUT_EMPTY ||
                                 saveStatus == FormEntryController.ANSWER_CONSTRAINT_VIOLATED)) {
+                    formController.jumpToIndex(currentFormIndex);
                     return true;
                 }
             }
