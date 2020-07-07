@@ -20,6 +20,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.Transformation;
+import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView.ScaleType;
@@ -214,6 +215,18 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
      * @param requestFocus If true, bring focus to this question.
      */
     private void notifyOnScreen(String text, boolean strong, boolean requestFocus) {
+        notifyOnScreen(text, strong, requestFocus, false);
+    }
+
+    /**
+     * Add notification (e.g., validation error) to this question.
+     *
+     * @param text         Text of message.
+     * @param strong       If true, display a visually stronger, negative background.
+     * @param requestFocus If true, bring focus to this question.
+     * @param showDisableButton If true, shows a button to disable the warning.
+     */
+    private void notifyOnScreen(String text, boolean strong, boolean requestFocus, boolean showDisableButton) {
         int warningBackdropId;
         if (strong) {
             warningBackdropId = R.drawable.strong_warning_backdrop;
@@ -238,7 +251,17 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
         }
         TextView messageView = this.warningView.findViewById(R.id.message);
         messageView.setText(text);
-
+        Button disableButton = warningView.findViewById(R.id.hide_message);
+        if (showDisableButton) {
+            disableButton.setVisibility(VISIBLE);
+            disableButton.setText(Localization.get("button.dont.show.again.title"));
+            disableButton.setOnClickListener(view -> {
+                this.warningView.setVisibility(GONE);
+                HiddenPreferences.disableFileOversizedWarning(true);
+            });
+        } else {
+            disableButton.setVisibility(GONE);
+        }
         //If the warningView already exists, we can just scroll to it right now
         //if not, we actually have to do it later, when we lay this all back out
         if (!focusPending && requestFocus) {
@@ -727,9 +750,10 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
             String fileSize = FileUtil.getFileSizeInMegs(file) + "";
             showOversizedMediaWarning(fileSize);
             return true;
-        } else if (FileUtil.isFileOversized(file)) {
-            notifyWarning(StringUtils.getStringRobust(getContext(), R.string.attachment_oversized,
-                    FileUtil.getFileSize(file) + ""));
+        } else if (FileUtil.isFileOversized(file) && !HiddenPreferences.isFileOversizedWarningDisabled()) {
+            String warning = StringUtils.getStringRobust(getContext(), R.string.attachment_oversized,
+                    FileUtil.getFileSize(file) + "");
+            notifyOnScreen(warning, false, false, true);
         }
         return false;
     }

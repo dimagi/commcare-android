@@ -14,7 +14,7 @@
         style="@style/DefaultHorizontalPadding"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:orientation="vertical">
 
         <TextView
             android:id="@+id/message"
@@ -24,5 +24,16 @@
             android:layout_gravity="center"
             android:gravity="center"
             android:textColor="@color/white"/>
+
+        <Button
+            android:id="@+id/hide_message"
+            android:visibility="gone"
+            android:layout_gravity="right"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="@dimen/standard_spacer"
+            android:background="@drawable/red_contained_view"
+            android:textColor="@color/white"
+            android:padding="@dimen/widget_button_padding"/>
     </LinearLayout>
 </FrameLayout>

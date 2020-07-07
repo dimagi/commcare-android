@@ -48,6 +48,7 @@ public class HiddenPreferences {
     private final static String COMMCARE_UPDATE_CANCELLATION_COUNTER = "cc_update_cancellation_counter";
     private final static String DISABLE_RATE_LIMIT_POPUP = "disable-rate-limit-popup";
     private final static String LAZY_MEDIA_DOWNLOAD_COMPLETE = "lazy-media-download-complete";
+    private final static String FILE_OVERSIZED_WARNING = "file-oversized-warning";
 
     // Preferences whose values are only ever set by being sent down from HQ via the profile file
     private final static String USE_MAPBOX_MAP = "cc-use-mapbox-map";
@@ -523,6 +524,18 @@ public class HiddenPreferences {
     public static boolean isLazyMediaDownloadComplete() {
         return CommCareApplication.instance().getCurrentApp().getAppPreferences()
                 .getBoolean(LAZY_MEDIA_DOWNLOAD_COMPLETE, false);
+    }
+
+    public static void disableFileOversizedWarning(boolean disable) {
+        PreferenceManager.getDefaultSharedPreferences(CommCareApplication.instance())
+                .edit()
+                .putBoolean(FILE_OVERSIZED_WARNING, disable)
+                .apply();
+    }
+
+    public static boolean isFileOversizedWarningDisabled() {
+        return PreferenceManager.getDefaultSharedPreferences(CommCareApplication.instance())
+                .getBoolean(FILE_OVERSIZED_WARNING, false);
     }
 
 }
