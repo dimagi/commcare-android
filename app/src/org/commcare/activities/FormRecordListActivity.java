@@ -39,6 +39,7 @@ import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.logic.ArchivedFormRemoteRestore;
 import org.commcare.models.FormRecordProcessor;
+import org.commcare.preferences.AdvancedActionsPreferences;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.FormRecordCleanupTask;
@@ -464,11 +465,11 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
                 result.second, resId, null);
 
         if (FormRecordFilter.Pending.containsStatus(record.getStatus())) {
-            if (DeveloperPreferences.isManualFormQuarantineAllowed()) {
+            if (AdvancedActionsPreferences.isManualFormQuarantineAllowed()) {
                 dialog.setNegativeButton(Localization.get("app.workflow.forms.quarantine"), (dialog1, which) -> {
                     manuallyQuarantineRecord(record);
                     dismissAlertDialog();
-                    DeveloperPreferences.disableManualFormQuarantine();
+                    AdvancedActionsPreferences.setManualFormQuarantine(false);
                 });
             }
         }

@@ -56,7 +56,6 @@ public class DeveloperPreferences extends CommCarePreferenceFragment {
     private final static String ENFORCE_SECURE_ENDPOINT = "cc-enforce-secure-endpoint";
     private final static String ALLOW_SPACE_IN_SELECT_CHOICES = "cc-allow-space-in-select-choices";
     private final static String USE_EXPRESSION_CACHING_IN_FORMS = "use-expression-caching-in-forms";
-    private final static String ALLOW_MANUAL_FORM_QUARANTINE = "cc-allow-manual-form-quarantine";
 
     public final static String PROJECT_SET_ACCESS_CODE = "cc-dev-prefs-access-code";
     public final static String USER_ENTERED_ACCESS_CODE = "cc-dev-prefs-user-entered-code";
@@ -81,7 +80,6 @@ public class DeveloperPreferences extends CommCarePreferenceFragment {
         WHITELISTED_DEVELOPER_PREF_KEYS.add(SHOW_UPDATE_OPTIONS_SETTING);
         WHITELISTED_DEVELOPER_PREF_KEYS.add(AUTO_PURGE_ENABLED);
         WHITELISTED_DEVELOPER_PREF_KEYS.add(ALTERNATE_QUESTION_LAYOUT_ENABLED);
-        WHITELISTED_DEVELOPER_PREF_KEYS.add(ALLOW_MANUAL_FORM_QUARANTINE);
     }
 
     /**
@@ -405,17 +403,6 @@ public class DeveloperPreferences extends CommCarePreferenceFragment {
 
     public static boolean isEnforceSecureEndpointEnabled() {
         return doesPropertyMatch(ENFORCE_SECURE_ENDPOINT, PrefValues.NO, PrefValues.YES);
-    }
-
-    public static boolean isManualFormQuarantineAllowed() {
-        return doesPropertyMatch(ALLOW_MANUAL_FORM_QUARANTINE, PrefValues.NO, PrefValues.YES);
-    }
-
-    public static void disableManualFormQuarantine() {
-        CommCareApplication.instance().getCurrentApp().getAppPreferences()
-                .edit()
-                .putString(DeveloperPreferences.ALLOW_MANUAL_FORM_QUARANTINE, PrefValues.NO)
-                .apply();
     }
 
     public static boolean isSpaceAllowedInSelectChoices() {

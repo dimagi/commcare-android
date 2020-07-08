@@ -166,11 +166,4 @@
         android:entryValues="@array/pref_enabled_vals"
         android:key="cc-allow-space-in-select-choices"
         android:title="Allow Space in Select Choices"/>
-    <ListPreference
-        android:defaultValue="yes"
-        android:enabled="true"
-        android:entries="@array/pref_enabled_labels"
-        android:entryValues="@array/pref_enabled_vals"
-        android:key="cc-allow-manual-form-quarantine"
-        android:title="Allow Manual Form Quarantine"/>
 </PreferenceScreen>
