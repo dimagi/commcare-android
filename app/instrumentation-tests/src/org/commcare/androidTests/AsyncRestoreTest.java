@@ -4,7 +4,6 @@ import android.content.Intent;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import org.commcare.AsyncRestoreHelperMock;
-import org.commcare.tasks.DataPullTask;
 import org.commcare.utils.HQApi;
 import org.commcare.utils.InstrumentationUtility;
 import org.junit.After;
@@ -44,9 +43,6 @@ public class AsyncRestoreTest extends BaseTest {
 
         installAppAndClearCache();
 
-        // Mock AsyncRestoreHelper
-        DataPullTask.setAsyncRestoreHelperClass(AsyncRestoreHelperMock.class);
-
         assertFalse(AsyncRestoreHelperMock.isRetryCalled());
         assertFalse(AsyncRestoreHelperMock.isServerProgressReportingStarted());
 
@@ -68,9 +64,6 @@ public class AsyncRestoreTest extends BaseTest {
         HQApi.removeUserFromGroup(userId, groupId);
 
         installAppAndClearCache();
-
-        // Mock AsyncRestoreHelper
-        DataPullTask.setAsyncRestoreHelperClass(AsyncRestoreHelperMock.class);
 
         // Login into the app
         InstrumentationUtility.login("many.cases2", "123");

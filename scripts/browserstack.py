@@ -15,7 +15,7 @@ def appendData(command, dataUrl):
 
 def buildTestCommand(appToken, testToken):
     test = {}
-    test["devices"] = ["LG G5-6.0"] #using just 1 device right now.
+    test["devices"] = ["LG G5-6.0", "Google Nexus 5-4.4"]
     test["app"] = appToken
     test["deviceLogs"] = True
     test["testSuite"] = testToken

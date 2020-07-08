@@ -16,7 +16,6 @@ import org.commcare.core.encryption.CryptUtil;
 import org.commcare.core.network.AuthenticationInterceptor;
 import org.commcare.core.network.CaptivePortalRedirectException;
 import org.commcare.core.network.bitcache.BitCache;
-import org.commcare.dalvik.BuildConfig;
 import org.commcare.data.xml.DataModelPullParser;
 import org.commcare.engine.cases.CaseUtils;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
@@ -51,7 +50,6 @@ import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.InvocationTargetException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.util.Date;
@@ -91,7 +89,7 @@ public abstract class DataPullTask<R>
     public static final int PROGRESS_SERVER_PROCESSING = 1024;
 
     private final DataPullRequester dataPullRequester;
-    protected AsyncRestoreHelper asyncRestoreHelper;
+    private final AsyncRestoreHelper asyncRestoreHelper;
     private final boolean blockRemoteKeyManagement;
 
     private boolean loginNeeded;
@@ -108,34 +106,10 @@ public abstract class DataPullTask<R>
         this.taskId = DATA_PULL_TASK_ID;
         this.dataPullRequester = dataPullRequester;
         this.requestor = dataPullRequester.getHttpGenerator(username, password, userId);
-        setAsyncRestoreHelper();
+        this.asyncRestoreHelper = CommCareApplication.instance().getAsyncRestoreHelper(this);
         this.blockRemoteKeyManagement = blockRemoteKeyManagement;
 
         TAG = DataPullTask.class.getSimpleName();
-    }
-
-    private static Class<? extends AsyncRestoreHelper> asyncRestoreHelperClass;
-
-    public static void setAsyncRestoreHelperClass(Class<? extends AsyncRestoreHelper> asyncRestoreHelperClass1) {
-        asyncRestoreHelperClass = asyncRestoreHelperClass1;
-    }
-
-    public void setAsyncRestoreHelper() {
-        if (BuildConfig.DEBUG && asyncRestoreHelperClass != null) {
-            try {
-                this.asyncRestoreHelper = asyncRestoreHelperClass.getDeclaredConstructor(DataPullTask.class).newInstance(this);
-            } catch (IllegalAccessException e) {
-                e.printStackTrace();
-            } catch (InstantiationException e) {
-                e.printStackTrace();
-            } catch (NoSuchMethodException e) {
-                e.printStackTrace();
-            } catch (InvocationTargetException e) {
-                e.printStackTrace();
-            }
-        } else {
-            this.asyncRestoreHelper = new AsyncRestoreHelper(this);
-        }
     }
 
     public DataPullTask(String username, String password, String userId,
