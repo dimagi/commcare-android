@@ -350,17 +350,13 @@ public class FormRecord extends Persisted implements EncryptedModel {
         try {
             current = updateAndWriteRecord();
         } catch (Exception e) {
-            // Something went wrong with all of the connections which should exist.
-            logPendingDeletion(TAG, "something went wrong trying to update the record for the current session");
-            AndroidSessionWrapper currentState = CommCareApplication.instance().getCurrentSessionWrapper();
-            FormRecordCleanupTask.wipeRecord(currentState);
-
             // Notify the server of this problem (since we aren't going to crash)
             ForceCloseLogger.reportExceptionInBg(e);
             CrashUtil.reportException(e);
-            raiseFormEntryError("An error occurred: " + e.getMessage() +
-                    " and your data could not be saved.", currentState);
-            return;
+            Logger.log(LogTypes.TYPE_FORM_ENTRY, e.getMessage());
+
+            // Record will be wiped when form entry is exited
+            throw new IllegalStateException(e.getMessage());
         }
 
         boolean complete = STATUS_COMPLETE.equals(status);
@@ -418,18 +414,6 @@ public class FormRecord extends Persisted implements EncryptedModel {
         } catch (UnfullfilledRequirementsException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    /**
-     * Throw and Log FormEntry-related errors
-     *
-     * @param loggerText   String sent to javarosa logger
-     * @param currentState session to be cleared
-     */
-    private void raiseFormEntryError(String loggerText, AndroidSessionWrapper currentState) {
-        Logger.log(LogTypes.TYPE_FORM_ENTRY, loggerText);
-        currentState.reset();
-        throw new RuntimeException(loggerText);
     }
 
     private static class InvalidStateException extends Exception {
