@@ -57,9 +57,11 @@ import org.commcare.interfaces.WidgetChangedListener;
 import org.commcare.interfaces.WithUIController;
 import org.commcare.logging.analytics.TimedStatsTracker;
 import org.commcare.logic.AndroidFormController;
+import org.commcare.models.AndroidSessionWrapper;
 import org.commcare.models.ODKStorage;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.tasks.FormLoaderTask;
+import org.commcare.tasks.FormRecordCleanupTask;
 import org.commcare.tasks.SaveToDiskTask;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.Base64Wrapper;
@@ -1167,6 +1169,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                         UserfacingErrorHandling.createErrorDialog(this, errorMessage,
                                 Localization.get("notification.formentry.save_error.title"), FormEntryConstants.EXIT);
                     }
+                    cleanRecordOnError(errorMessage);
                     return;
             }
             if (!"".equals(toastMessage) && !CommCareApplication.instance().isConsumerApp()) {
@@ -1174,6 +1177,17 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             }
             uiController.refreshView();
         }
+    }
+
+    // clean the form record in case it was saved
+    private void cleanRecordOnError(String errorMessage) {
+        AndroidSessionWrapper currentState = CommCareApplication.instance().getCurrentSessionWrapper();
+        FormRecord toBeDeleted = currentState.getFormRecord();
+        if (toBeDeleted != null) {
+            toBeDeleted.logPendingDeletion(TAG, errorMessage);
+            FormRecordCleanupTask.wipeRecord(currentState);
+        }
+        currentState.reset();
     }
 
     private void returnAsInterrupted() {
