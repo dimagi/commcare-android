@@ -59,10 +59,10 @@ public class WidgetFactory {
                 }
                 break;
             case Constants.CONTROL_AUDIO_CAPTURE:
-                if (appearance != null && appearance.contains("prototype")) {
-                    questionWidget = new CommCareAudioWidget(context, fep, pendingCalloutInterface);
-                } else {
+                if (appearance != null && appearance.contains("legacy")) {
                     questionWidget = new AudioWidget(context, fep, pendingCalloutInterface);
+                } else {
+                    questionWidget = new CommCareAudioWidget(context, fep, pendingCalloutInterface);
                 }
                 break;
             case Constants.CONTROL_VIDEO_CAPTURE:
