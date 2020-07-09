@@ -304,4 +304,10 @@ public class FirebaseAnalyticsUtil {
                 new String[]{FirebaseAnalytics.Param.ITEM_ID},
                 new String[]{CORRUPT_APP_STATE});
     }
+
+    public static void reportFormQuarantined(String quarantineReasonType) {
+        reportEvent(CCAnalyticsEvent.FORM_QUARANTINE_EVENT,
+                new String[]{FirebaseAnalytics.Param.ITEM_ID},
+                new String[]{quarantineReasonType});
+    }
 }

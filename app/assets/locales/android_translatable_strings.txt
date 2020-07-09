@@ -105,6 +105,7 @@ menu.enable.privileges=Mobile Privileges
 menu.privilege.claim.disable=Disable Privileges
 menu.data.change.logs=Data Change Logs
 menu.enable.rate.limit.popup=Enable Rate Limit Error Popup
+menu.enable.manual.form.quarantine=Enable Manual Form Quarantine
 
 install.fail.error=We encountered an ${0} error processing your request. Please try again later. If the problem persists, contact CommCare Support.
 
@@ -536,7 +537,7 @@ notification.restore.unknown.title=Unknown Error during Restore
 notification.restore.unknown.detail=CommCare had trouble dealing with something that happened when you tried to log in 
 notification.restore.unknown.action=Try to log in again. If you receive this message again, force close the application from the Manage Applications menu on the phone. If the error persists, contact CommCare Support.
 
-notification.restore.cancelled.title= Sync cancelled
+notification.restore.cancelled.title=Sync cancelled
 notification.restore.cancelled.detail=Sync was cancelled by user
 notification.restore.cancelled.action=Please try to sync again if required
 
