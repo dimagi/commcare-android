@@ -32,8 +32,8 @@ if __name__ == "__main__":
     if "BASE_LOCATION" in os.environ:
         baseLoc = os.environ["BASE_LOCATION"]
 
-    debugApk = baseLoc + "commcare/debug/app-commcare-debug.apk"
-    testApk = baseLoc + "androidTest/commcare/debug/app-commcare-debug-androidTest.apk"
+    debugApk = baseLoc + "bundle/commcareDebug/app-commcare-debug.aab"
+    testApk = baseLoc + "apk/androidTest/commcare/debug/app-commcare-debug-androidTest.apk"
 
     debugUrl = "https://api-cloud.browserstack.com/app-automate/upload"
     testUrl = "https://api-cloud.browserstack.com/app-automate/espresso/test-suite"
