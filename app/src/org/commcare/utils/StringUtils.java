@@ -7,6 +7,7 @@ import androidx.annotation.NonNull;
 import androidx.collection.LruCache;
 import android.text.Spannable;
 
+import org.commcare.CommCareApplication;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.NoLocalizedTextException;
 

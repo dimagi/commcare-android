@@ -1,6 +1,7 @@
 package org.commcare.android.database.user.models;
 
 import android.database.SQLException;
+
 import androidx.annotation.StringDef;
 
 import net.sqlcipher.database.SQLiteDatabase;
@@ -8,6 +9,7 @@ import net.sqlcipher.database.SQLiteDatabase;
 import org.commcare.CommCareApplication;
 import org.commcare.android.logging.ForceCloseLogger;
 import org.commcare.android.storage.framework.Persisted;
+import org.commcare.dalvik.R;
 import org.commcare.models.AndroidSessionWrapper;
 import org.commcare.models.FormRecordProcessor;
 import org.commcare.models.database.SqlStorage;
@@ -19,9 +21,11 @@ import org.commcare.tasks.FormRecordCleanupTask;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.CrashUtil;
 import org.commcare.utils.StorageUtils;
+import org.commcare.utils.StringUtils;
 import org.commcare.views.notifications.NotificationMessage;
 import org.commcare.views.notifications.NotificationMessageFactory;
 import org.javarosa.core.services.Logger;
+import org.javarosa.xml.util.InvalidCasePropertyLengthException;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.xmlpull.v1.XmlPullParserException;
@@ -380,6 +384,13 @@ public class FormRecord extends Persisted implements EncryptedModel {
                 try {
                     new FormRecordProcessor(CommCareApplication.instance()).process(current);
                     userDb.setTransactionSuccessful();
+                } catch (InvalidCasePropertyLengthException e) {
+                    Logger.log(LogTypes.TYPE_ERROR_WORKFLOW, e.getMessage());
+                    throw new IllegalStateException(
+                            StringUtils.getStringRobust(
+                                    CommCareApplication.instance(),
+                                    R.string.invalid_case_property_length,
+                                    e.getCaseProperty()));
                 } catch (InvalidStructureException e) {
                     // Record will be wiped when form entry is exited
                     Logger.log(LogTypes.TYPE_ERROR_WORKFLOW, e.getMessage());
