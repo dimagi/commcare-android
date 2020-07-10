@@ -58,6 +58,7 @@ import org.commcare.interfaces.WithUIController;
 import org.commcare.logging.analytics.TimedStatsTracker;
 import org.commcare.logic.AndroidFormController;
 import org.commcare.models.AndroidSessionWrapper;
+import org.commcare.models.FormRecordProcessor;
 import org.commcare.models.ODKStorage;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.tasks.FormLoaderTask;
@@ -68,6 +69,7 @@ import org.commcare.utils.Base64Wrapper;
 import org.commcare.utils.CompoundIntentList;
 import org.commcare.utils.FileUtil;
 import org.commcare.utils.GeoUtils;
+import org.commcare.utils.QuarantineUtil;
 import org.commcare.utils.SessionUnavailableException;
 import org.commcare.utils.StringUtils;
 import org.commcare.views.QuestionsView;
@@ -98,6 +100,8 @@ import java.util.List;
 import java.util.Map;
 
 import javax.crypto.spec.SecretKeySpec;
+
+import static org.commcare.android.database.user.models.FormRecord.QuarantineReason_LOCAL_PROCESSING_ERROR;
 
 /**
  * Displays questions, animates transitions between
@@ -1169,7 +1173,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                         UserfacingErrorHandling.createErrorDialog(this, errorMessage,
                                 Localization.get("notification.formentry.save_error.title"), FormEntryConstants.EXIT);
                     }
-                    cleanRecordOnError(errorMessage);
+                    quarantineRecordOnError(errorMessage);
                     return;
             }
             if (!"".equals(toastMessage) && !CommCareApplication.instance().isConsumerApp()) {
@@ -1180,14 +1184,18 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     }
 
     // clean the form record in case it was saved
-    private void cleanRecordOnError(String errorMessage) {
+    private void quarantineRecordOnError(String errorMessage) {
         AndroidSessionWrapper currentState = CommCareApplication.instance().getCurrentSessionWrapper();
-        FormRecord toBeDeleted = currentState.getFormRecord();
-        if (toBeDeleted != null) {
-            toBeDeleted.logPendingDeletion(TAG, errorMessage);
-            FormRecordCleanupTask.wipeRecord(currentState);
+        FormRecord toBeQuarantined = currentState.getFormRecord();
+
+        // quarantine in case the form record was saved
+        if (toBeQuarantined != null) {
+            new FormRecordProcessor(this).quarantineRecord(
+                    toBeQuarantined,
+                    QuarantineReason_LOCAL_PROCESSING_ERROR,
+                    errorMessage
+            );
         }
-        currentState.reset();
     }
 
     private void returnAsInterrupted() {

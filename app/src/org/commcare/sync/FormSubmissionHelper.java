@@ -410,26 +410,12 @@ public class FormSubmissionHelper implements DataSubmissionListener {
                         FormRecord.QuarantineReason_RECORD_ERROR :
                         FormRecord.QuarantineReason_SERVER_PROCESSING_ERROR;
         record = mProcessor.quarantineRecord(record, reasonType, uploadResult.getErrorMessage());
-        logAndNotifyQuarantine(record);
         return record;
     }
 
     private FormRecord quarantineRecord(FormRecord record, String quarantineReasonType) {
         record = mProcessor.quarantineRecord(record, quarantineReasonType);
-        logAndNotifyQuarantine(record);
         return record;
-    }
-
-    private static void logAndNotifyQuarantine(FormRecord record) {
-        Logger.log(LogTypes.TYPE_ERROR_STORAGE,
-                String.format("Quarantining Form Record with id %s because: %s",
-                        record.getInstanceID(),
-                        QuarantineUtil.getQuarantineReasonDisplayString(record, true)));
-
-        NotificationMessage m = QuarantineUtil.getQuarantineNotificationMessage(record);
-        if (m != null) {
-            CommCareApplication.notificationManager().reportNotificationMessage(m, true);
-        }
     }
 
     private static void logSubmissionAttempt(FormRecord record) {

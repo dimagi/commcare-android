@@ -476,7 +476,6 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
     private void manuallyQuarantineRecord(FormRecord record) {
         this.formRecordProcessor.quarantineRecord(record, FormRecord.QuarantineReason_MANUAL);
         listView.post(adapter::notifyDataSetInvalidated);
-        record.logManualQuarantine();
     }
 
     private void createQuarantineReasonDialog(FormRecord record) {

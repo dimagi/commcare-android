@@ -294,14 +294,6 @@ public class FormRecord extends Persisted implements EncryptedModel {
         Logger.log(LogTypes.TYPE_FORM_DELETION, logMessage);
     }
 
-    public void logManualQuarantine() {
-        String logMessage = String.format(
-                "User manually quarantined form record with id %s and submission ordering number %s ",
-                getInstanceID(),
-                getSubmissionOrderingNumber());
-        Logger.log(LogTypes.TYPE_FORM_DELETION, logMessage);
-    }
-
     public static FormRecord getFormRecord(SqlStorage<FormRecord> formRecordStorage, int formRecordId) {
         return formRecordStorage.read(formRecordId);
     }

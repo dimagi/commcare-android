@@ -13,9 +13,13 @@ import org.commcare.data.xml.TransactionParser;
 import org.commcare.engine.cases.CaseUtils;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.preferences.DeveloperPreferences;
+import org.commcare.util.LogTypes;
 import org.commcare.utils.FormUploadUtil;
+import org.commcare.utils.QuarantineUtil;
+import org.commcare.views.notifications.NotificationMessage;
 import org.commcare.xml.AndroidTransactionParserFactory;
 import org.commcare.xml.LedgerXmlParsers;
+import org.javarosa.core.services.Logger;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.kxml2.io.KXmlParser;
@@ -117,7 +121,20 @@ public class FormRecordProcessor {
         record = updateRecordStatus(record, FormRecord.STATUS_QUARANTINED);
         record.setQuarantineReason(reasonType, reasonDetail);
         storage.write(record);
+        logAndNotifyQuarantine(record);
         return record;
+    }
+
+    private static void logAndNotifyQuarantine(FormRecord record) {
+        Logger.log(LogTypes.TYPE_ERROR_STORAGE,
+                String.format("Quarantining Form Record with id %s because: %s",
+                        record.getInstanceID(),
+                        QuarantineUtil.getQuarantineReasonDisplayString(record, true)));
+
+        NotificationMessage m = QuarantineUtil.getQuarantineNotificationMessage(record);
+        if (m != null) {
+            CommCareApplication.notificationManager().reportNotificationMessage(m, true);
+        }
     }
 
     public FormRecord getRecord(int dbId) {
