@@ -38,25 +38,25 @@ object MissingMediaDownloadHelper : TableStateListener, InstallCancelled {
     // Schedules MissingMediaDownloadWorker
     @JvmStatic
     fun scheduleMissingMediaDownload() {
-            val constraints = Constraints.Builder()
-                    .setRequiredNetworkType(NetworkType.CONNECTED)
-                    .setRequiresBatteryNotLow(true)
-                    .build()
+        val constraints = Constraints.Builder()
+                .setRequiredNetworkType(NetworkType.CONNECTED)
+                .setRequiresBatteryNotLow(true)
+                .build()
 
-            val downloadMissingMediaRequest = OneTimeWorkRequest.Builder(MissingMediaDownloadWorker::class.java)
-                    .addTag(CommCareApplication.instance().currentApp.appRecord.applicationId)
-                    .setConstraints(constraints)
-                    .setBackoffCriteria(
-                            BackoffPolicy.EXPONENTIAL,
-                            BACK_OFF_DELAY,
-                            TimeUnit.MILLISECONDS)
-                    .build()
+        val downloadMissingMediaRequest = OneTimeWorkRequest.Builder(MissingMediaDownloadWorker::class.java)
+                .addTag(CommCareApplication.instance().currentApp.appRecord.applicationId)
+                .setConstraints(constraints)
+                .setBackoffCriteria(
+                        BackoffPolicy.EXPONENTIAL,
+                        BACK_OFF_DELAY,
+                        TimeUnit.MILLISECONDS)
+                .build()
 
-            WorkManager.getInstance(CommCareApplication.instance())
-                    .enqueueUniqueWork(
-                            getMissingMediaDownloadRequestName(),
-                            ExistingWorkPolicy.KEEP,
-                            downloadMissingMediaRequest)
+        WorkManager.getInstance(CommCareApplication.instance())
+                .enqueueUniqueWork(
+                        getMissingMediaDownloadRequestName(),
+                        ExistingWorkPolicy.KEEP,
+                        downloadMissingMediaRequest)
     }
 
     // Returns Unique request name for the UpdateWorker Request
@@ -163,8 +163,11 @@ object MissingMediaDownloadHelper : TableStateListener, InstallCancelled {
     @Synchronized
     private fun recoverResource(platform: AndroidCommCarePlatform, it: Resource) {
         resourceInProgress = it
-        platform.globalResourceTable.recoverResource(it, platform, ResourceInstallUtils.getProfileReference())
-        resourceInProgress = null
+        try {
+            platform.globalResourceTable.recoverResource(it, platform, ResourceInstallUtils.getProfileReference())
+        } finally {
+            resourceInProgress = null
+        }
     }
 
     // Cancels all missing media work
