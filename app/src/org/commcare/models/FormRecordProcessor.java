@@ -11,6 +11,7 @@ import org.commcare.android.logging.ForceCloseLogger;
 import org.commcare.core.process.XmlFormRecordProcessor;
 import org.commcare.data.xml.TransactionParser;
 import org.commcare.engine.cases.CaseUtils;
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.util.LogTypes;
@@ -130,7 +131,7 @@ public class FormRecordProcessor {
                 String.format("Quarantining Form Record with id %s because: %s",
                         record.getInstanceID(),
                         QuarantineUtil.getQuarantineReasonDisplayString(record, true)));
-
+        FirebaseAnalyticsUtil.reportFormQuarantined(record.getQuarantineReasonType());
         NotificationMessage m = QuarantineUtil.getQuarantineNotificationMessage(record);
         if (m != null) {
             CommCareApplication.notificationManager().reportNotificationMessage(m, true);

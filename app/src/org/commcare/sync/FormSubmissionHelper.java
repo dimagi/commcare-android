@@ -9,6 +9,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.dalvik.R;
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.models.FormRecordProcessor;
 import org.commcare.preferences.ServerUrls;
 import org.commcare.suite.model.Profile;
