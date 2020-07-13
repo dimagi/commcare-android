@@ -18,13 +18,13 @@ import org.commcare.utils.FileUtil
 import org.commcare.utils.StringUtils
 import org.commcare.views.dialogs.PinnedNotificationWithProgress
 import org.javarosa.core.services.Logger
-import org.javarosa.core.services.locale.Localization
 import java.lang.Exception
 import java.util.concurrent.TimeUnit
 
 // Contains helper functions to download lazy or missing media resources
 object MissingMediaDownloadHelper : TableStateListener, InstallCancelled {
 
+    private var mResourceInProgressListener: MissingMediaDownloadListener? = null
     private var resourceInProgress: Resource? = null
     private val jobs = ArrayList<Job>()
     private lateinit var mPinnedNotificationProgress: PinnedNotificationWithProgress
@@ -70,7 +70,7 @@ object MissingMediaDownloadHelper : TableStateListener, InstallCancelled {
      *
      * Downloads any missing lazy resources, make sure to call this on background thread
      */
-    fun downloadAllLazyMedia(): AppInstallStatus {
+    suspend fun downloadAllLazyMedia(): AppInstallStatus {
         if (!HiddenPreferences.isLazyMediaDownloadComplete()) {
             val platform = CommCareApplication.instance().commCarePlatform
             val global = platform.globalResourceTable
@@ -87,7 +87,11 @@ object MissingMediaDownloadHelper : TableStateListener, InstallCancelled {
                                 .map { global.getResource(it.value) }
                                 .filter { isResourceMissing(it) }
                                 .takeWhile { !wasInstallCancelled() }
-                                .onEach { recoverResource(platform, it) }.toList()
+                                .onEach {
+                                    runBlocking {
+                                        recoverResource(platform, it)
+                                    }
+                                }.toList()
                     }.onFailure {
                         Logger.log(LogTypes.TYPE_MAINTENANCE, "An error occured while lazy downloading a media resource : " + it.message)
                         return handleRecoverResourceFailure(it).data
@@ -132,6 +136,11 @@ object MissingMediaDownloadHelper : TableStateListener, InstallCancelled {
                         result = MissingMediaDownloadResult.Error(handleRecoverResourceFailure(it).errorMessage)
                     }
 
+                    // If the download is already in Progress save the listener to notify once the download completes
+                    if (result == MissingMediaDownloadResult.InProgress) {
+                        mResourceInProgressListener = missingMediaDownloadListener
+                    }
+
                     withContext(Dispatchers.Main) {
                         missingMediaDownloadListener.onComplete(result)
                     }
@@ -139,7 +148,8 @@ object MissingMediaDownloadHelper : TableStateListener, InstallCancelled {
         )
     }
 
-    private fun downloadMissingMediaResource(uri: String): MissingMediaDownloadResult {
+
+    private suspend fun downloadMissingMediaResource(uri: String): MissingMediaDownloadResult {
         val platform = CommCareApplication.instance().commCarePlatform
         val global = platform.globalResourceTable
         val lazyResourceIds = global.lazyResourceIds
@@ -150,7 +160,9 @@ object MissingMediaDownloadHelper : TableStateListener, InstallCancelled {
                     return if (it == null) {
                         MissingMediaDownloadResult.Error(StringUtils.getStringRobust(CommCareApplication.instance(), R.string.media_not_found_error))
                     } else if (resourceInProgress == null || it.resourceId != resourceInProgress!!.resourceId) {
-                        recoverResource(platform, it)
+                        if (!FileUtil.referenceFileExists(uri)) {
+                            recoverResource(platform, it)
+                        }
                         MissingMediaDownloadResult.Success
                     } else {
                         MissingMediaDownloadResult.InProgress
@@ -161,12 +173,23 @@ object MissingMediaDownloadHelper : TableStateListener, InstallCancelled {
 
     // downloads the resource
     @Synchronized
-    private fun recoverResource(platform: AndroidCommCarePlatform, it: Resource) {
+    private suspend fun recoverResource(platform: AndroidCommCarePlatform, it: Resource) {
         resourceInProgress = it
+        var result: MissingMediaDownloadResult = MissingMediaDownloadResult.Error("Unknown error")
         try {
             platform.globalResourceTable.recoverResource(it, platform, ResourceInstallUtils.getProfileReference())
+            result = MissingMediaDownloadResult.Success
+        } catch (e: Exception) {
+            result = MissingMediaDownloadResult.Error(handleRecoverResourceFailure(e).errorMessage)
+            throw e
         } finally {
+            if (mResourceInProgressListener != null) {
+                withContext(Dispatchers.Main) {
+                    mResourceInProgressListener!!.onComplete(result)
+                }
+            }
             resourceInProgress = null
+            mResourceInProgressListener = null
         }
     }
 
