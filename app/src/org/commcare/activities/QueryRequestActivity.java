@@ -37,6 +37,7 @@ import org.commcare.views.ManagedUi;
 import org.commcare.views.UiElement;
 import org.commcare.views.ViewUtil;
 import org.commcare.views.dialogs.CustomProgressDialog;
+import org.commcare.views.widgets.SpinnerWidget;
 import org.javarosa.core.model.SelectChoice;
 import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.services.locale.Localization;
@@ -169,11 +170,15 @@ public class QueryRequestActivity
         promptSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                Vector<SelectChoice> choices = queryPrompt.getItemsetBinding().getChoices();
-                SelectChoice selectChoice = choices.get(position);
+                String value = "";
+                if(position > 0) {
+                    Vector<SelectChoice> choices = queryPrompt.getItemsetBinding().getChoices();
+                    SelectChoice selectChoice = choices.get(position - 1);
+                    value = selectChoice.getValue();
+                }
                 String oldAnswer = userAnswers.get(queryPrompt.getKey());
-                if(oldAnswer == null || !oldAnswer.contentEquals(selectChoice.getValue())) {
-                    remoteQuerySessionManager.answerUserPrompt(queryPrompt.getKey(), selectChoice.getValue());
+                if(oldAnswer == null || !oldAnswer.contentEquals(value)) {
+                    remoteQuerySessionManager.answerUserPrompt(queryPrompt.getKey(), value);
                     refreshUI();
                 }
             }
@@ -198,11 +203,14 @@ public class QueryRequestActivity
             SelectChoice item = items.get(i);
             choices[i] = item.getLabelInnerText();
             if(item.getValue().equals(answer)){
-                selectedPosition = i;
+                selectedPosition = i + 1; // first choice is blank in adapter
             }
         }
 
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, choices);
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(
+                this,
+                android.R.layout.simple_spinner_item,
+                SpinnerWidget.getChoicesWithEmptyFirstSlot(choices));
         promptSpinner.setAdapter(adapter);
         if(selectedPosition != -1) {
             promptSpinner.setSelection(selectedPosition);
