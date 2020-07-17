@@ -78,6 +78,7 @@ public class HiddenPreferences {
     public final static String LOGS_ENABLED_NO = "Disabled";
     public final static String LOGS_ENABLED_ON_DEMAND = "on_demand";
     private final static String RELEASED_ON_TIME_FOR_ONGOING_APP_DOWNLOAD = "released-on-time-for-ongoing-app-download";
+    private final static String FILE_OVERSIZE_WARNING = "cc-disable-file-oversize-warning";
 
 
     // Boolean pref to determine whether user has already been through the update information form
@@ -523,6 +524,15 @@ public class HiddenPreferences {
     public static boolean isLazyMediaDownloadComplete() {
         return CommCareApplication.instance().getCurrentApp().getAppPreferences()
                 .getBoolean(LAZY_MEDIA_DOWNLOAD_COMPLETE, false);
+    }
+
+    public static boolean isFileOversizeWarningDisabled() {
+        if (CommCareApplication.instance().isConsumerApp()) {
+            return false;
+        }
+
+        SharedPreferences properties = CommCareApplication.instance().getCurrentApp().getAppPreferences();
+        return PrefValues.YES.equals(properties.getString(FILE_OVERSIZE_WARNING, PrefValues.NO));
     }
 
 }
