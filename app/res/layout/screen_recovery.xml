@@ -38,8 +38,18 @@
         tools:text="Waiting"/>
 
     <Button
-        android:id="@+id/app_manager_button"
+        android:id="@+id/retry_button"
         android:layout_below="@id/recovery_status"
+        android:layout_centerHorizontal="true"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/standard_spacer_double"
+        android:layout_width="wrap_content"
+        android:text="@string/recovery_retry"
+        android:visibility="gone"/>
+
+    <Button
+        android:id="@+id/app_manager_button"
+        android:layout_below="@id/retry_button"
         android:layout_centerHorizontal="true"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/standard_spacer_double"

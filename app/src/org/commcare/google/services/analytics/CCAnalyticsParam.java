@@ -8,6 +8,7 @@ public class CCAnalyticsParam {
 
 
     static final String CC_APP_ID = "cc_app_id";
+    static final String CC_APP_BUILD_PROFILE_ID = "cc_app_build_profile_id";
     static final String CCHQ_DOMAIN = "cchq_domain";
     static final String SERVER = "server";
 
