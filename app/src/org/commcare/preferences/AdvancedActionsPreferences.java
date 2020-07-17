@@ -54,6 +54,7 @@ public class AdvancedActionsPreferences extends CommCarePreferenceFragment {
     private final static String CLEAR_SAVED_SESSION = "clear-saved-session";
     private final static String DISABLE_PRE_UPDATE_SYNC = "bypass-pre-update-sync";
     private final static String ENABLE_RATE_LIMIT_POPUP = "enable-rate-limit-popup";
+    private final static String ENABLE_MANUAL_FORM_QUARANTINE = "enable-manual-form-quarantine";
 
     private final static int WIFI_DIRECT_ACTIVITY = 1;
     private final static int DUMP_FORMS_ACTIVITY = 2;
@@ -81,6 +82,7 @@ public class AdvancedActionsPreferences extends CommCarePreferenceFragment {
         keyToTitleMap.put(CLEAR_SAVED_SESSION, "menu.clear.saved.session");
         keyToTitleMap.put(DISABLE_PRE_UPDATE_SYNC, "menu.disable.pre.update.sync");
         keyToTitleMap.put(ENABLE_RATE_LIMIT_POPUP, "menu.enable.rate.limit.popup");
+        keyToTitleMap.put(ENABLE_MANUAL_FORM_QUARANTINE, "menu.enable.manual.form.quarantine");
     }
 
     @NonNull
@@ -208,7 +210,7 @@ public class AdvancedActionsPreferences extends CommCarePreferenceFragment {
             FirebaseAnalyticsUtil.reportAdvancedActionSelected(
                     AnalyticsParamValue.DISABLE_PRE_UPDATE_SYNC);
             HiddenPreferences.enableBypassPreUpdateSync(true);
-            Toast.makeText(getActivity(),R.string.success, Toast.LENGTH_SHORT).show();
+            Toast.makeText(getActivity(), R.string.success, Toast.LENGTH_SHORT).show();
             return true;
         });
 
@@ -217,9 +219,18 @@ public class AdvancedActionsPreferences extends CommCarePreferenceFragment {
             FirebaseAnalyticsUtil.reportAdvancedActionSelected(
                     AnalyticsParamValue.ENABLE_RATE_LIMIT_POPUP);
             HiddenPreferences.disableRateLimitPopup(false);
-            Toast.makeText(getActivity(),R.string.success, Toast.LENGTH_SHORT).show();
+            Toast.makeText(getActivity(), R.string.success, Toast.LENGTH_SHORT).show();
             return true;
         });
+
+        findPreference(ENABLE_MANUAL_FORM_QUARANTINE)
+                .setOnPreferenceClickListener(preference -> {
+                    FirebaseAnalyticsUtil.reportAdvancedActionSelected(
+                            AnalyticsParamValue.ENABLE_MANUAL_FORM_QUARANTINE);
+                    setManualFormQuarantine(true);
+                    Toast.makeText(getActivity(), R.string.success, Toast.LENGTH_SHORT).show();
+                    return true;
+                });
     }
 
     private void startReportActivity() {
@@ -306,6 +317,17 @@ public class AdvancedActionsPreferences extends CommCarePreferenceFragment {
         } else {
             return null;
         }
+    }
+
+    public static boolean isManualFormQuarantineAllowed() {
+        return DeveloperPreferences.doesPropertyMatch(ENABLE_MANUAL_FORM_QUARANTINE, PrefValues.NO, PrefValues.YES);
+    }
+
+    public static void setManualFormQuarantine(boolean enabled) {
+        CommCareApplication.instance().getCurrentApp().getAppPreferences()
+                .edit()
+                .putString(ENABLE_MANUAL_FORM_QUARANTINE, enabled ? PrefValues.YES : PrefValues.NO)
+                .apply();
     }
 }
 
