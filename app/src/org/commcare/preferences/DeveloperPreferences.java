@@ -56,6 +56,7 @@ public class DeveloperPreferences extends CommCarePreferenceFragment {
     private final static String ENFORCE_SECURE_ENDPOINT = "cc-enforce-secure-endpoint";
     private final static String ALLOW_SPACE_IN_SELECT_CHOICES = "cc-allow-space-in-select-choices";
     private final static String USE_EXPRESSION_CACHING_IN_FORMS = "use-expression-caching-in-forms";
+    private final static String FILE_OVERSIZE_WARNING = "cc-file-oversize-warning";
 
     public final static String PROJECT_SET_ACCESS_CODE = "cc-dev-prefs-access-code";
     public final static String USER_ENTERED_ACCESS_CODE = "cc-dev-prefs-user-entered-code";
@@ -411,6 +412,10 @@ public class DeveloperPreferences extends CommCarePreferenceFragment {
 
     public static boolean useExpressionCachingInForms() {
         return doesPropertyMatch(USE_EXPRESSION_CACHING_IN_FORMS, PrefValues.NO, PrefValues.YES);
+    }
+
+    public static boolean isFileOversizedWarningDisabled() {
+        return doesPropertyMatch(FILE_OVERSIZE_WARNING, PrefValues.YES, PrefValues.NO);
     }
 
     private void hideOrShowDangerousSettings() {
