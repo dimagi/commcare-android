@@ -527,10 +527,6 @@ public class HiddenPreferences {
     }
 
     public static boolean isFileOversizeWarningDisabled() {
-        if (CommCareApplication.instance().isConsumerApp()) {
-            return false;
-        }
-
         SharedPreferences properties = CommCareApplication.instance().getCurrentApp().getAppPreferences();
         return PrefValues.YES.equals(properties.getString(FILE_OVERSIZE_WARNING, PrefValues.NO));
     }
