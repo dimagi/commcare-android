@@ -1,11 +1,8 @@
 package org.commcare.android.javarosa;
 
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.location.Location;
-import android.location.LocationManager;
 import android.os.Handler;
 import android.os.Looper;
 
@@ -127,18 +124,7 @@ public enum PollSensorController implements CommCareLocationListener {
             }
         } else {
             noProviders = true;
-            context.registerReceiver(
-                    new ProvidersChangedHandler(),
-                    new IntentFilter(LocationManager.PROVIDERS_CHANGED_ACTION)
-            );
             broadcastLocationError(context);
-        }
-    }
-
-    private class ProvidersChangedHandler extends BroadcastReceiver {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            requestLocationUpdates();
         }
     }
 

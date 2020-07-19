@@ -1,6 +1,9 @@
 package org.commcare.location
 
+import android.content.BroadcastReceiver
 import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
@@ -15,7 +18,9 @@ class CommCareProviderLocationController(private val mContext: Context,
 
     private val mLocationManager = mContext.getSystemService(Context.LOCATION_SERVICE) as LocationManager
     private var mCurrentLocation: Location? = null
-    private val mProviders = GeoUtils.evaluateProviders(mLocationManager)
+    private var mProviders = GeoUtils.evaluateProviders(mLocationManager)
+    private val mReceiver = ProviderChangedReceiver()
+    private var mLocationRequestStarted = false
     private val mLocationListener = object: LocationListener {
         override fun onLocationChanged(location: Location?) {
             location ?: return
@@ -28,11 +33,11 @@ class CommCareProviderLocationController(private val mContext: Context,
         }
 
         override fun onProviderEnabled(provider: String?) {
-            TODO("Not yet implemented")
+
         }
 
         override fun onProviderDisabled(provider: String?) {
-            TODO("Not yet implemented")
+
         }
 
     }
@@ -42,22 +47,49 @@ class CommCareProviderLocationController(private val mContext: Context,
             mListener.missingPermissions()
             return
         }
+        mContext.registerReceiver(mReceiver, IntentFilter(LocationManager.PROVIDERS_CHANGED_ACTION))
+        checkProviderAndRequestLocation()
+    }
+
+    override fun stop() {
+        mLocationManager.removeUpdates(mLocationListener)
+        try {
+            mContext.unregisterReceiver(mReceiver)
+        } catch (e: IllegalArgumentException) {
+            // This can happen if stop is called multiple times.
+            e.printStackTrace()
+        }
+    }
+
+    override fun getLocation(): Location? {
+        return mCurrentLocation
+    }
+
+    private fun checkProviderAndRequestLocation() {
+        mProviders = GeoUtils.evaluateProviders(mLocationManager)
         if (mProviders.isEmpty()) {
             mListener.onLocationRequestFailure(CommCareLocationListener.Failure.NoProvider)
             return
         }
+        startLocationRequest()
+    }
+
+    private fun startLocationRequest() {
+        if (mLocationRequestStarted) {
+            // We've already started location request so no need to request again!
+            return
+        }
+        mLocationRequestStarted = true
         mListener.onLocationRequestStart()
         for (provider in mProviders) {
             mLocationManager.requestLocationUpdates(provider, 0L, 0.0f, mLocationListener)
         }
     }
 
-    override fun stop() {
-        mLocationManager.removeUpdates(mLocationListener)
-    }
-
-    override fun getLocation(): Location? {
-        return mCurrentLocation
+    inner class ProviderChangedReceiver: BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            checkProviderAndRequestLocation()
+        }
     }
 
 }
