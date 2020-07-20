@@ -3,6 +3,8 @@ package org.commcare.views.widgets;
 import android.content.Context;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
+
+import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
@@ -48,7 +50,7 @@ public class GregorianDateWidget extends AbstractUniversalDateWidget
     private final long todaysDateInMillis;
     private long timeBeforeCalendarOpened;
 
-    private final CalendarFragment myCalendarFragment;
+    private CalendarFragment myCalendarFragment;
     private final FragmentManager fm;
 
     public static final int MIN_YEAR = 1900;
@@ -56,6 +58,7 @@ public class GregorianDateWidget extends AbstractUniversalDateWidget
 
     private static final String DAYFORMAT = "%02d";
     private static final String YEARFORMAT = "%04d";
+    private static final String CALENDAR_FRAGMENT_TAG = "calendar-popup";
 
     public GregorianDateWidget(Context context, FormEntryPrompt prompt, boolean closeButton) {
         super(context, prompt);
@@ -69,11 +72,12 @@ public class GregorianDateWidget extends AbstractUniversalDateWidget
         }
 
         fm = ((FragmentActivity)getContext()).getSupportFragmentManager();
-
-        myCalendarFragment = new CalendarFragment();
+        myCalendarFragment = (CalendarFragment) fm.findFragmentByTag(CALENDAR_FRAGMENT_TAG);
+        if (myCalendarFragment == null) {
+            myCalendarFragment = new CalendarFragment();
+        }
         myCalendarFragment.setListener(this);
         myCalendarFragment.setCancelable(false);
-        myCalendarFragment.setToday(todaysDateInMillis);
 
         openCalButton = findViewById(R.id.open_calendar_bottom);
         openCalButton.setOnClickListener(v -> openCalendar());
@@ -345,20 +349,16 @@ public class GregorianDateWidget extends AbstractUniversalDateWidget
         setFocus(getContext());
         timeBeforeCalendarOpened = getCurrentMillis();
         calendar.setTimeInMillis(timeBeforeCalendarOpened);
-        myCalendarFragment.updateUnderlyingCalendar(calendar);
-        myCalendarFragment.show(fm, "Calendar Popup");
+        Bundle args = new Bundle();
+        args.putLong(CalendarFragment.KEY_STARTING_SELECTION, timeBeforeCalendarOpened);
+        myCalendarFragment.setArguments(args);
+        myCalendarFragment.show(fm, CALENDAR_FRAGMENT_TAG);
     }
 
     @Override
-    public void onCalendarClose() {
-        refreshDisplay();
+    public void onDateSelected(long millis) {
+        updateDateDisplay(millis);
         setFocus(getContext());
-    }
-
-    @Override
-    public void onCalendarCancel() {
-        calendar.setTimeInMillis(timeBeforeCalendarOpened);
-        onCalendarClose();
     }
 
     @Override
