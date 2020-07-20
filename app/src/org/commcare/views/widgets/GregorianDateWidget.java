@@ -383,8 +383,4 @@ public class GregorianDateWidget extends AbstractUniversalDateWidget
         }
     }
 
-    @Override
-    public boolean forcesPortrait() {
-        return true;
-    }
 }
