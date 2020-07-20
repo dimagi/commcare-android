@@ -3,7 +3,9 @@ package org.commcare.activities;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Editable;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -109,7 +111,6 @@ public class QueryRequestActivity
 
         queryButton.setOnClickListener(v -> {
             ViewUtil.hideVirtualKeyboard(QueryRequestActivity.this);
-            answerPrompts();
             makeQueryRequest();
         });
 
@@ -142,9 +143,9 @@ public class QueryRequestActivity
         View inputView;
         String input = queryPrompt.getInput();
         if (input != null && input.contentEquals(INPUT_TYPE_SELECT1)) {
-            inputView = setUpSpinnerView(promptView, queryPrompt, userAnswers);
+            inputView = buildSpinnerView(promptView, queryPrompt, userAnswers);
         } else {
-            inputView = setUpEditTextView(promptView, queryPrompt, promptId, userAnswers, isLastPrompt);
+            inputView = buildEditTextView(promptView, queryPrompt, promptId, userAnswers, isLastPrompt);
         }
         setUpBarCodeScanButton(promptView, promptId, queryPrompt);
 
@@ -161,7 +162,7 @@ public class QueryRequestActivity
         );
     }
 
-    private Spinner setUpSpinnerView(View promptView, QueryPrompt queryPrompt,
+    private Spinner buildSpinnerView(View promptView, QueryPrompt queryPrompt,
                                      Hashtable<String, String> userAnswers) {
         Spinner promptSpinner = promptView.findViewById(R.id.prompt_spinner);
         promptSpinner.setVisibility(View.VISIBLE);
@@ -171,14 +172,13 @@ public class QueryRequestActivity
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 String value = "";
-                if(position > 0) {
+                if (position > 0) {
                     Vector<SelectChoice> choices = queryPrompt.getItemsetBinding().getChoices();
                     SelectChoice selectChoice = choices.get(position - 1);
                     value = selectChoice.getValue();
                 }
                 String oldAnswer = userAnswers.get(queryPrompt.getKey());
-                if(oldAnswer == null || !oldAnswer.contentEquals(value)) {
-                    // todo call remoteQuerySessionManager to calculate any new changes to the itemset choices based on this change
+                if (oldAnswer == null || !oldAnswer.contentEquals(value)) {
                     remoteQuerySessionManager.answerUserPrompt(queryPrompt.getKey(), value);
                     remoteQuerySessionManager.refreshItemSetChoices(remoteQuerySessionManager.getUserAnswers());
                     refreshUI();
@@ -206,7 +206,7 @@ public class QueryRequestActivity
         for (int i = 0; i < items.size(); i++) {
             SelectChoice item = items.get(i);
             choices[i] = item.getLabelInnerText();
-            if(item.getValue().equals(answer)){
+            if (item.getValue().equals(answer)) {
                 selectedPosition = i + 1; // first choice is blank in adapter
             }
         }
@@ -216,7 +216,7 @@ public class QueryRequestActivity
                 android.R.layout.simple_spinner_item,
                 SpinnerWidget.getChoicesWithEmptyFirstSlot(choices));
         promptSpinner.setAdapter(adapter);
-        if(selectedPosition != -1) {
+        if (selectedPosition != -1) {
             promptSpinner.setSelection(selectedPosition);
         }
     }
@@ -233,7 +233,7 @@ public class QueryRequestActivity
         }
     }
 
-    private EditText setUpEditTextView(View promptView, QueryPrompt queryPrompt, String promptId,
+    private EditText buildEditTextView(View promptView, QueryPrompt queryPrompt, String promptId,
                                        Hashtable<String, String> userAnswers, boolean isLastPrompt) {
         EditText promptEditText = promptView.findViewById(R.id.prompt_et);
         promptEditText.setVisibility(View.VISIBLE);
@@ -249,6 +249,21 @@ public class QueryRequestActivity
             // replace 'done' on keyboard with 'next'
             promptEditText.setImeOptions(EditorInfo.IME_ACTION_NEXT);
         }
+
+        promptEditText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                remoteQuerySessionManager.answerUserPrompt(queryPrompt.getKey(), s.toString());
+            }
+        });
         return promptEditText;
     }
 
@@ -294,26 +309,6 @@ public class QueryRequestActivity
         ((TextView)promptView.findViewById(R.id.prompt_label)).setText(promptText);
     }
 
-    private void answerPrompts() {
-        remoteQuerySessionManager.clearAnswers();
-        for (Map.Entry<String, View> promptEntry : promptsBoxes.entrySet()) {
-            View input = promptEntry.getValue();
-            String promptText = getPromptInput(input);
-            if (!"".equals(promptText)) {
-                remoteQuerySessionManager.answerUserPrompt(promptEntry.getKey(), promptText);
-            }
-        }
-    }
-
-    private String getPromptInput(View input) {
-        if (input instanceof EditText) {
-            return ((EditText)input).getText().toString();
-        } else if (input instanceof Spinner) {
-            return ((Spinner)input).getSelectedItem().toString();
-        }
-        return null;
-    }
-
     private void makeQueryRequest() {
         clearErrorState();
         ModernHttpTask httpTask = new ModernHttpTask(this,
@@ -346,8 +341,8 @@ public class QueryRequestActivity
         if (savedInstanceState != null) {
             errorMessage = savedInstanceState.getString(ERROR_MESSAGE_KEY);
             inErrorState = savedInstanceState.getBoolean(IN_ERROR_STATE_KEY);
-            Hashtable<String, String> answeredPrompts =
-                    (Hashtable<String, String>)savedInstanceState.getSerializable(ANSWERED_USER_PROMPTS_KEY);
+            Map<String, String> answeredPrompts =
+                    (Map<String, String>)savedInstanceState.getSerializable(ANSWERED_USER_PROMPTS_KEY);
             if (answeredPrompts != null) {
                 for (Map.Entry<String, String> entry : answeredPrompts.entrySet()) {
                     remoteQuerySessionManager.answerUserPrompt(entry.getKey(), entry.getValue());
@@ -359,9 +354,6 @@ public class QueryRequestActivity
     @Override
     protected void onSaveInstanceState(Bundle savedInstanceState) {
         super.onSaveInstanceState(savedInstanceState);
-
-        answerPrompts();
-
         savedInstanceState.putSerializable(ANSWERED_USER_PROMPTS_KEY,
                 remoteQuerySessionManager.getUserAnswers());
         savedInstanceState.putString(ERROR_MESSAGE_KEY, errorMessage);
