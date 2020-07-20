@@ -53,6 +53,7 @@ import java.util.Map;
 import java.util.Vector;
 
 import static org.commcare.activities.EntitySelectActivity.BARCODE_FETCH;
+import static org.commcare.suite.model.QueryPrompt.INPUT_TYPE_SELECT1;
 
 /**
  * Collects 'query datum' in the current session. Prompts user for query
@@ -71,7 +72,6 @@ public class QueryRequestActivity
     private static final String ANSWERED_USER_PROMPTS_KEY = "answered_user_prompts";
     private static final String IN_ERROR_STATE_KEY = "in-error-state-key";
     private static final String ERROR_MESSAGE_KEY = "error-message-key";
-    private static final CharSequence SELECT1 = "select1";
     private static final String APPEARANCE_BARCODE_SCAN = "barcode_scan";
 
     @UiElement(value = R.id.request_button, locale = "query.button")
@@ -141,7 +141,7 @@ public class QueryRequestActivity
         setLabelText(promptView, queryPrompt.getDisplay());
         View inputView;
         String input = queryPrompt.getInput();
-        if (input != null && input.contentEquals(SELECT1)) {
+        if (input != null && input.contentEquals(INPUT_TYPE_SELECT1)) {
             inputView = setUpSpinnerView(promptView, queryPrompt, userAnswers);
         } else {
             inputView = setUpEditTextView(promptView, queryPrompt, promptId, userAnswers, isLastPrompt);
@@ -178,7 +178,9 @@ public class QueryRequestActivity
                 }
                 String oldAnswer = userAnswers.get(queryPrompt.getKey());
                 if(oldAnswer == null || !oldAnswer.contentEquals(value)) {
+                    // todo call remoteQuerySessionManager to calculate any new changes to the itemset choices based on this change
                     remoteQuerySessionManager.answerUserPrompt(queryPrompt.getKey(), value);
+                    remoteQuerySessionManager.refreshItemSetChoices(remoteQuerySessionManager.getUserAnswers());
                     refreshUI();
                 }
             }
@@ -189,16 +191,18 @@ public class QueryRequestActivity
             }
         });
 
+        remoteQuerySessionManager.populateItemSetChoices(queryPrompt);
         setSpinnerData(userAnswers, queryPrompt, promptSpinner);
         return promptSpinner;
     }
 
+
     private void setSpinnerData(Hashtable<String, String> userAnswers, QueryPrompt queryPrompt, Spinner promptSpinner) {
-        remoteQuerySessionManager.populateItemSetChoices(queryPrompt);
         Vector<SelectChoice> items = queryPrompt.getItemsetBinding().getChoices();
-        String answer = userAnswers.get(queryPrompt.getKey());
         String[] choices = new String[items.size()];
+
         int selectedPosition = -1;
+        String answer = userAnswers.get(queryPrompt.getKey());
         for (int i = 0; i < items.size(); i++) {
             SelectChoice item = items.get(i);
             choices[i] = item.getLabelInnerText();
