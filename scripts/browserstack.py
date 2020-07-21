@@ -8,6 +8,7 @@ import subprocess
 from subprocess import PIPE
 import sys
 import json
+import time
 
 def appendData(command, dataUrl):
     var = "file=@{}".format(dataUrl)
@@ -53,11 +54,30 @@ if __name__ == "__main__":
     output = subprocess.Popen(shlex.split(testUploadCmd), stdout=PIPE, stderr=None, shell=False)
     testToken = json.loads(output.communicate()[0])["test_url"]
 
-    # Running the tests on LG-G5
+    # Running the tests
 
     espressoUrl = "https://api-cloud.browserstack.com/app-automate/espresso/build"
     runConfig = buildTestCommand(appToken, testToken)
     runCmd = 'curl -X POST "{}" -d \ {} -H "Content-Type: application/json" -u "{}:{}"'.format(espressoUrl, runConfig, userName, password)
 
-    output = subprocess.Popen(shlex.split(runCmd), stdout=PIPE, stderr=None, shell=False)
-    print(output.communicate())
+    output = subprocess.Popen(shlex.split(runCmd), stdout=PIPE, stderr=None, shell=False).communicate()
+    print(output)
+
+    buildId = json.loads(output[0])["build_id"]
+
+    # Get the result of the test build
+
+    resultCommand = 'curl -u "{}:{}" -X GET "https://api-cloud.browserstack.com/app-automate/espresso/builds/{}"'.format(userName, password, buildId)
+
+    result = subprocess.Popen(shlex.split(resultCommand), stdout=PIPE, stderr=None, shell=False)
+    status = json.loads(result.communicate()[0])["status"]
+
+    while status == "running":
+        print("Waiting for tests on browserstack to complete")
+        time.sleep(60)
+        result = subprocess.Popen(shlex.split(resultCommand), stdout=PIPE, stderr=None, shell=False)
+        status = json.loads(result.communicate()[0])["status"]
+
+    if (status == "failed" or status == "error"):
+        print("Instrumentation Tests Failed. Visit browserstack dashboard for more details.")
+        sys.exit(-1)
