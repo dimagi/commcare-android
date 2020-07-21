@@ -15,7 +15,12 @@ def appendData(command, dataUrl):
 
 def buildTestCommand(appToken, testToken):
     test = {}
-    test["devices"] = ["LG G5-6.0", "Google Nexus 5-4.4"]
+    if "BROWSERSTACK_DEVICES" in os.environ:
+        list = os.environ["BROWSERSTACK_DEVICES"]
+        devices = [x.strip() for x in list.split(',')]
+    else:
+        devices = ["LG G5-6.0", "Google Nexus 5-4.4"]
+    test["devices"] = devices
     test["app"] = appToken
     test["deviceLogs"] = True
     test["testSuite"] = testToken
