@@ -80,7 +80,7 @@ public class FormAttachmentUploadTest extends BaseTest {
         // Okay, so the form API takes some time to give the updated result with the latest form.
         // So waiting here for roughly 45 seconds, just to be on a safer side.
         long start = System.currentTimeMillis();
-        InstrumentationUtility.sleep(15);
+        InstrumentationUtility.sleep(45);
         long end = System.currentTimeMillis();
 
         // Just wanna make sure that it waited enough.
