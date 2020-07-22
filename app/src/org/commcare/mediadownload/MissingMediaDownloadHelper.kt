@@ -17,8 +17,10 @@ import org.commcare.utils.AndroidCommCarePlatform
 import org.commcare.utils.FileUtil
 import org.commcare.utils.StringUtils
 import org.commcare.views.dialogs.PinnedNotificationWithProgress
+import org.commcare.views.notifications.NotificationMessage
+import org.commcare.views.notifications.NotificationMessageFactory
 import org.javarosa.core.services.Logger
-import java.lang.Exception
+import org.javarosa.core.services.locale.Localization
 import java.util.concurrent.TimeUnit
 
 // Contains helper functions to download lazy or missing media resources
@@ -107,13 +109,23 @@ object MissingMediaDownloadHelper : TableStateListener, InstallCancelled {
     }
 
     private fun handleRecoverResourceFailure(it: Throwable): ResultAndError<AppInstallStatus> {
-        return when (it) {
-            is InvalidResourceException -> ResultAndError(AppInstallStatus.InvalidResource, it.message)
-            is LocalStorageUnavailableException -> ResultAndError(AppInstallStatus.NoLocalStorage, it.message)
-            is UnresolvedResourceException -> ResultAndError(ResourceInstallUtils.processUnresolvedResource(it), it.message)
-            is InstallCancelledException -> ResultAndError(AppInstallStatus.Cancelled)
-            else -> ResultAndError(AppInstallStatus.UnknownFailure, it.message)
+        val notificationMessage: NotificationMessage = when (it) {
+            is InvalidResourceException -> NotificationMessageFactory.message(
+                    AppInstallStatus.InvalidResource,
+                    arrayOf(null, it.resourceName, it.message))
+            is LocalStorageUnavailableException -> NotificationMessageFactory.message(
+                    AppInstallStatus.NoLocalStorage,
+                    arrayOf(null, null, it.message))
+            is UnresolvedResourceException ->  NotificationMessageFactory.message(
+                    ResourceInstallUtils.processUnresolvedResource(it),
+                    arrayOf(null, it.resource.descriptor, it.message))
+            is InstallCancelledException -> NotificationMessageFactory.message(
+                    AppInstallStatus.Cancelled,
+                    arrayOf(null, null, it.message))
+            else ->  NotificationMessageFactory.message(AppInstallStatus.UnknownFailure, arrayOf(null, null, it.message))
         }
+        CommCareApplication.notificationManager().reportNotificationMessage(notificationMessage)
+        return ResultAndError(AppInstallStatus.InvalidResource, Localization.get(notificationMessage!!.title))
     }
 
     private fun isResourceMissing(it: Resource): Boolean {
