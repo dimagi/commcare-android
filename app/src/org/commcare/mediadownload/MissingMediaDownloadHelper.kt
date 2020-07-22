@@ -75,30 +75,32 @@ object MissingMediaDownloadHelper : TableStateListener, InstallCancelled {
             val platform = CommCareApplication.instance().commCarePlatform
             val global = platform.globalResourceTable
 
-            global.setInstallCancellationChecker(this)
+            global.setInstallCancellationChecker(installCancelled)
             startPinnedNotification()
 
             val lazyResourceIds = global.lazyResourceIds
-            lazyResourceIds.asSequence()
-                    .runCatching {
-                        withIndex()
-                                .onEach { incrementProgress(it.index + 1, lazyResourceIds.size) }
-                                .takeWhile { !wasInstallCancelled() }
-                                .map { global.getResource(it.value) }
-                                .filter { isResourceMissing(it) }
-                                .takeWhile { !wasInstallCancelled() }
-                                .onEach {
-                                    runBlocking {
-                                        recoverResource(platform, it)
-                                    }
-                                }.toList()
-                    }.onFailure {
-                        Logger.log(LogTypes.TYPE_MAINTENANCE, "An error occured while lazy downloading a media resource : " + it.message)
-                        return handleRecoverResourceFailure(it).data
-                    }
 
-            cancelNotification()
-            global.setInstallCancellationChecker(null)
+            try {
+                lazyResourceIds.asSequence()
+                        .withIndex()
+                        .onEach { incrementProgress(it.index + 1, lazyResourceIds.size) }
+                        .takeWhile { !wasInstallCancelled() }
+                        .map { global.getResource(it.value) }
+                        .filter { isResourceMissing(it) }
+                        .takeWhile { !wasInstallCancelled() }
+                        .onEach {
+                            runBlocking {
+                                recoverResource(platform, it)
+                            }
+                        }.toList()
+            } catch (e: Exception) {
+                Logger.log(LogTypes.TYPE_MAINTENANCE, "An error occured while lazy downloading a media resource : " + e.message)
+                return handleRecoverResourceFailure(e).data
+            } finally {
+                cancelNotification()
+                global.setInstallCancellationChecker(null)
+            }
+
             HiddenPreferences.setLazyMediaDownloadComplete(true)
         }
         return AppInstallStatus.Installed
