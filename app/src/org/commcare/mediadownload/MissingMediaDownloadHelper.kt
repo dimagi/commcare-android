@@ -111,24 +111,32 @@ object MissingMediaDownloadHelper : TableStateListener, InstallCancelled {
     }
 
     private fun handleRecoverResourceFailure(it: Throwable): ResultAndError<AppInstallStatus> {
+        val appInstallStatus: AppInstallStatus
         val notificationMessage: NotificationMessage = when (it) {
-            is InvalidResourceException -> NotificationMessageFactory.message(
-                    AppInstallStatus.InvalidResource,
-                    arrayOf(null, it.resourceName, it.message))
-            is LocalStorageUnavailableException -> NotificationMessageFactory.message(
-                    AppInstallStatus.NoLocalStorage,
-                    arrayOf(null, null, it.message))
-            is UnresolvedResourceException -> NotificationMessageFactory.message(
-                    ResourceInstallUtils.processUnresolvedResource(it),
-                    arrayOf(null, it.resource.descriptor, it.message))
-            is InstallCancelledException -> NotificationMessageFactory.message(
-                    AppInstallStatus.Cancelled,
-                    arrayOf(null, null, it.message))
-            else -> NotificationMessageFactory.message(AppInstallStatus.UnknownFailure, arrayOf(null, null, it.message))
+            is InvalidResourceException -> {
+                appInstallStatus = AppInstallStatus.InvalidResource
+                NotificationMessageFactory.message(appInstallStatus, arrayOf(null, it.resourceName, it.message))
+            }
+            is LocalStorageUnavailableException -> {
+                appInstallStatus = AppInstallStatus.NoLocalStorage
+                NotificationMessageFactory.message(appInstallStatus, arrayOf(null, null, it.message))
+            }
+            is UnresolvedResourceException -> {
+                appInstallStatus = ResourceInstallUtils.processUnresolvedResource(it)
+                NotificationMessageFactory.message(appInstallStatus, arrayOf(null, it.resource.descriptor, it.message))
+            }
+            is InstallCancelledException -> {
+                appInstallStatus = AppInstallStatus.Cancelled
+                NotificationMessageFactory.message(appInstallStatus, arrayOf(null, null, it.message))
+            }
+            else -> {
+                appInstallStatus = AppInstallStatus.UnknownFailure
+                NotificationMessageFactory.message(appInstallStatus, arrayOf(null, null, it.message))
+            }
         }
         CommCareApplication.notificationManager().reportNotificationMessage(notificationMessage)
         Logger.log(LogTypes.TYPE_MAINTENANCE, "An error occured while lazy downloading a media resource : " + it.message)
-        return ResultAndError(AppInstallStatus.InvalidResource, notificationMessage!!.title)
+        return ResultAndError(appInstallStatus, notificationMessage!!.title)
     }
 
     private fun isResourceMissing(it: Resource): Boolean {
@@ -190,8 +198,8 @@ object MissingMediaDownloadHelper : TableStateListener, InstallCancelled {
 
         if (result == null) {
             result = MissingMediaDownloadResult.Error(StringUtils.getStringRobust(
-                            CommCareApplication.instance(),
-                            R.string.media_not_found_error))
+                    CommCareApplication.instance(),
+                    R.string.media_not_found_error))
         }
         return result
     }
