@@ -49,12 +49,6 @@ public class CommcareRequestGenerator implements CommcareRequestEndpoints {
     private static final String SUBMIT_MODE_DEMO = "demo";
     private static final String QUERY_PARAM_FORCE_LOGS = "force_logs";
 
-    // headers
-    private static final String X_OPENROSA_VERSION = "X-OpenRosa-Version";
-    private static final String X_COMMCAREHQ_LAST_SYNC_TOKEN = "X-CommCareHQ-LastSyncToken";
-    public static final String X_COMMCAREHQ_ALLOW_RATE_LIMITING = "X-CommCareHQ-AllowRateLimiting";
-    private static final String X_OPENROSA_DEVICEID = "x-openrosa-deviceid";
-
     private final String username;
     private final String password;
     private final String userType;
@@ -143,13 +137,13 @@ public class CommcareRequestGenerator implements CommcareRequestEndpoints {
         return requester.makeRequest();
     }
 
-    public static HashMap<String, String> getHeaders(String lastToken) {
+    public static HashMap getHeaders(String lastToken) {
         HashMap<String, String> headers = new HashMap<>();
-        headers.put(X_OPENROSA_VERSION, "3.0");
+        headers.put("X-OpenRosa-Version", "3.0");
         if (lastToken != null) {
-            headers.put(X_COMMCAREHQ_LAST_SYNC_TOKEN, lastToken);
+            headers.put("X-CommCareHQ-LastSyncToken", lastToken);
         }
-        headers.put(X_OPENROSA_DEVICEID, CommCareApplication.instance().getPhoneId());
+        headers.put("x-openrosa-deviceid", CommCareApplication.instance().getPhoneId());
         return headers;
     }
 
@@ -232,19 +226,17 @@ public class CommcareRequestGenerator implements CommcareRequestEndpoints {
 
     @Override
     public Response<ResponseBody> simpleGet(String uri) throws IOException {
-        return simpleGet(uri, new HashMap<>(), new HashMap<>());
+        return simpleGet(uri, new HashMap());
     }
 
     @Override
-    public Response<ResponseBody> simpleGet(String uri, Map<String, String> httpParams, Map<String, String> httpHeaders) throws IOException {
-        HashMap<String, String> headers = getHeaders("");
-        headers.putAll(httpHeaders);
+    public Response<ResponseBody> simpleGet(String uri, Map<String, String> httpParams) throws IOException {
 
         ModernHttpRequester requester = CommCareApplication.instance().createGetRequester(
                 CommCareApplication.instance(),
                 uri,
                 httpParams,
-                headers,
+                getHeaders(""),
                 new AuthInfo.ProvidedAuth(username, password),
                 null);
 

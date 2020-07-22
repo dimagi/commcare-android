@@ -80,7 +80,7 @@ public class CommcareRequestEndpointsMock implements CommcareRequestEndpoints {
         throw new RuntimeException("Not yet mocked");
     }
     @Override
-    public Response<ResponseBody> simpleGet(String uri, Map<String, String> params, Map<String, String> httpHeaders) throws IOException {
+    public Response<ResponseBody> simpleGet(String uri, Map<String, String> params) throws IOException {
         throw new RuntimeException("Not yet mocked");
     }
 

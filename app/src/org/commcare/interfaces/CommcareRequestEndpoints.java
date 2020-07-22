@@ -30,9 +30,8 @@ public interface CommcareRequestEndpoints {
      * Synchronous GET request
      *
      * @param httpParams non URL-Encoded parameters to include in the HTTP request with the URL
-     * @param httpHeaders http headers to use in the HTTP request
      */
-    Response<ResponseBody> simpleGet(String uri, Map<String, String> httpParams, Map<String, String> httpHeaders) throws IOException;
+    Response<ResponseBody> simpleGet(String uri, Map<String, String> httpParams) throws IOException;
 
     void abortCurrentRequest();
 
