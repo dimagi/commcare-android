@@ -20,11 +20,10 @@ import org.commcare.views.dialogs.PinnedNotificationWithProgress
 import org.commcare.views.notifications.NotificationMessage
 import org.commcare.views.notifications.NotificationMessageFactory
 import org.javarosa.core.services.Logger
-import org.javarosa.core.services.locale.Localization
 import java.util.concurrent.TimeUnit
 
 // Contains helper functions to download lazy or missing media resources
-object MissingMediaDownloadHelper : TableStateListener, InstallCancelled {
+object MissingMediaDownloadHelper : TableStateListener {
 
     private var mResourceInProgressListener: MissingMediaDownloadListener? = null
     private var resourceInProgress: Resource? = null
@@ -34,8 +33,6 @@ object MissingMediaDownloadHelper : TableStateListener, InstallCancelled {
     // constants
     private const val BACK_OFF_DELAY = 5 * 60 * 1000L // 5 mins
     private const val REQUEST_NAME = "missing_media_download_request"
-
-    var installCancelled: InstallCancelled? = null
 
     // Schedules MissingMediaDownloadWorker
     @JvmStatic
@@ -72,12 +69,12 @@ object MissingMediaDownloadHelper : TableStateListener, InstallCancelled {
      *
      * Downloads any missing lazy resources, make sure to call this on background thread
      */
-    suspend fun downloadAllLazyMedia(): AppInstallStatus {
+    suspend fun downloadAllLazyMedia(cancellationChecker: InstallCancelled): AppInstallStatus {
         if (!HiddenPreferences.isLazyMediaDownloadComplete()) {
             val platform = CommCareApplication.instance().commCarePlatform
             val global = platform.globalResourceTable
 
-            global.setInstallCancellationChecker(installCancelled)
+            global.setInstallCancellationChecker(cancellationChecker)
             startPinnedNotification()
 
             val lazyResourceIds = global.lazyResourceIds
@@ -86,10 +83,10 @@ object MissingMediaDownloadHelper : TableStateListener, InstallCancelled {
                 val failure = lazyResourceIds.asSequence()
                         .withIndex()
                         .onEach { incrementProgress(it.index + 1, lazyResourceIds.size) }
-                        .takeWhile { !wasInstallCancelled() }
+                        .takeWhile { !cancellationChecker.wasInstallCancelled() }
                         .map { global.getResource(it.value) }
                         .filter { isResourceMissing(it) }
-                        .takeWhile { !wasInstallCancelled() }
+                        .takeWhile { !cancellationChecker.wasInstallCancelled() }
                         .map { runBlocking { recoverResource(platform, it) } }
                         .firstOrNull { it.data != AppInstallStatus.Installed }
 
@@ -251,10 +248,6 @@ object MissingMediaDownloadHelper : TableStateListener, InstallCancelled {
 
     override fun simpleResourceAdded() {
         // Do nothing
-    }
-
-    override fun wasInstallCancelled(): Boolean {
-        return installCancelled != null && installCancelled!!.wasInstallCancelled()
     }
 
     private fun startPinnedNotification() {
