@@ -89,7 +89,7 @@ object MissingMediaDownloadHelper : TableStateListener, InstallCancelled {
                                 .takeWhile { !wasInstallCancelled() }
                                 .onEach {
                                     runBlocking {
-                                        recoverResource(platform, it)
+                                        recoverResource(platform, it, true)
                                     }
                                 }.toList()
                     }.onFailure {
@@ -109,7 +109,7 @@ object MissingMediaDownloadHelper : TableStateListener, InstallCancelled {
             is InvalidResourceException -> ResultAndError(AppInstallStatus.InvalidResource, it.message)
             is LocalStorageUnavailableException -> ResultAndError(AppInstallStatus.NoLocalStorage, it.message)
             is UnresolvedResourceException -> ResultAndError(ResourceInstallUtils.processUnresolvedResource(it), it.message)
-            is InstallCancelledException -> ResultAndError(AppInstallStatus.Cancelled)
+            is InstallCancelledException -> ResultAndError(AppInstallStatus.Cancelled, it.message)
             else -> ResultAndError(AppInstallStatus.UnknownFailure, it.message)
         }
     }
@@ -148,7 +148,7 @@ object MissingMediaDownloadHelper : TableStateListener, InstallCancelled {
         )
     }
 
-
+    // Downloads the resource on priority with rate limiting disabled
     private suspend fun downloadMissingMediaResource(uri: String): MissingMediaDownloadResult {
         val platform = CommCareApplication.instance().commCarePlatform
         val global = platform.globalResourceTable
@@ -161,7 +161,7 @@ object MissingMediaDownloadHelper : TableStateListener, InstallCancelled {
                         MissingMediaDownloadResult.Error(StringUtils.getStringRobust(CommCareApplication.instance(), R.string.media_not_found_error))
                     } else if (resourceInProgress == null || it.resourceId != resourceInProgress!!.resourceId) {
                         if (!FileUtil.referenceFileExists(uri)) {
-                            recoverResource(platform, it)
+                            recoverResource(platform, it, false)
                         }
                         MissingMediaDownloadResult.Success
                     } else {
@@ -173,11 +173,11 @@ object MissingMediaDownloadHelper : TableStateListener, InstallCancelled {
 
     // downloads the resource
     @Synchronized
-    private suspend fun recoverResource(platform: AndroidCommCarePlatform, it: Resource) {
+    private suspend fun recoverResource(platform: AndroidCommCarePlatform, it: Resource, allowRateLimiting: Boolean) {
         resourceInProgress = it
         var result: MissingMediaDownloadResult = MissingMediaDownloadResult.Error("Unknown error")
         try {
-            platform.globalResourceTable.recoverResource(it, platform, ResourceInstallUtils.getProfileReference())
+            platform.globalResourceTable.recoverResource(it, platform, ResourceInstallUtils.getProfileReference(), allowRateLimiting)
             result = MissingMediaDownloadResult.Success
         } catch (e: Exception) {
             result = MissingMediaDownloadResult.Error(handleRecoverResourceFailure(e).errorMessage)

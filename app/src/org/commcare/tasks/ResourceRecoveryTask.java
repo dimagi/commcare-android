@@ -61,7 +61,7 @@ public class ResourceRecoveryTask
         setTableListeners(global);
         ResultAndError<AppInstallStatus> result;
         try {
-            global.recoverResources(platform, ResourceInstallUtils.getProfileReference());
+            global.recoverResources(platform, ResourceInstallUtils.getProfileReference(), false);
             result = new ResultAndError(AppInstallStatus.Installed);
         } catch (InstallCancelledException e) {
             result = new ResultAndError(AppInstallStatus.Cancelled, e.getMessage());
