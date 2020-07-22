@@ -1,7 +1,6 @@
 package org.commcare.android.javarosa;
 
 import org.commcare.CommCareApplication;
-import org.commcare.logging.AndroidLogger;
 import org.commcare.network.CommcareRequestGenerator;
 import org.commcare.services.CommCareSessionService;
 import org.commcare.util.LogTypes;
@@ -44,7 +43,7 @@ public class AndroidXFormHttpRequester implements FormSendCalloutHandler {
         }
 
         try {
-            Response<ResponseBody> response = generator.simpleGet(url, paramMap);
+            Response<ResponseBody> response = generator.simpleGet(url, paramMap, new HashMap<>());
             if(response.code() != 200) {
                 Logger.log(LogTypes.TYPE_ERROR_SERVER_COMMS, "HTTP Callout failed w/Response code: " + response.code() + " | and message " + response.message());
                 return null;

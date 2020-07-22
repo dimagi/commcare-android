@@ -80,10 +80,10 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
 
     @Override
     public boolean install(Resource r, ResourceLocation location, Reference ref,
-                           ResourceTable table, AndroidCommCarePlatform platform, boolean upgrade, boolean recovery)
+                           ResourceTable table, AndroidCommCarePlatform platform, boolean upgrade, boolean recovery, boolean allowRateLimiting)
             throws UnresolvedResourceException, UnfullfilledRequirementsException {
         //First, make sure all the file stuff is managed.
-        super.install(r, location, ref, table, platform, upgrade, recovery);
+        super.install(r, location, ref, table, platform, upgrade, recovery, allowRateLimiting);
         try {
             storeReleasedTime(platform, ref);
         } catch (ParseException e) {

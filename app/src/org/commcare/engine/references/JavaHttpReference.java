@@ -6,7 +6,6 @@ import org.commcare.network.HttpUtils;
 import org.commcare.network.RateLimitedException;
 import org.javarosa.core.reference.ReleasedOnTimeSupportedReference;
 import org.javarosa.core.reference.Reference;
-import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 
 import java.io.IOException;
@@ -14,6 +13,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.annotation.Nullable;
 
@@ -24,7 +25,7 @@ import retrofit2.Response;
 /**
  * @author ctsims
  */
-public class JavaHttpReference implements Reference, ReleasedOnTimeSupportedReference {
+public class JavaHttpReference implements Reference, ReleasedOnTimeSupportedReference, ParameterizedReference {
 
     private static final String HEADER_APP_RELEASED_ON = "x-commcarehq-appreleasedon";
 
@@ -53,7 +54,12 @@ public class JavaHttpReference implements Reference, ReleasedOnTimeSupportedRefe
 
     @Override
     public InputStream getStream() throws IOException {
-        Response<ResponseBody> response = generator.simpleGet(uri);
+       return getStream(new HashMap<>());
+    }
+
+    @Override
+    public InputStream getStream(Map<String, String> params) throws IOException {
+        Response<ResponseBody> response = generator.simpleGet(uri,new HashMap<>(), params);
         if (response.isSuccessful()) {
             responseHeaders = response.headers();
             return response.body().byteStream();
@@ -81,7 +87,6 @@ public class JavaHttpReference implements Reference, ReleasedOnTimeSupportedRefe
     public void remove() throws IOException {
         throw new IOException("Http references are read only!");
     }
-
 
     @Override
     public String getLocalURI() {
