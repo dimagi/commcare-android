@@ -5,7 +5,7 @@ import android.util.Log;
 import org.commcare.core.network.AuthInfo;
 import org.commcare.core.network.CommCareNetworkService;
 import org.commcare.core.network.CommCareNetworkServiceGenerator;
-import org.commcare.dalvik.debug.test.BuildConfig;
+import org.commcare.dalvik.BuildConfig;
 import org.commcare.modern.util.Pair;
 import org.commcare.network.HttpUtils;
 import org.joda.time.DateTime;
