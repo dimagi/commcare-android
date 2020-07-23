@@ -38,16 +38,16 @@ if __name__ == "__main__":
     if "BASE_LOCATION" in os.environ:
         baseLoc = os.environ["BASE_LOCATION"]
 
-    debugAppBundle = baseLoc + "bundle/commcareDebug/app-commcare-debug.aab"
-    testApk = baseLoc + "apk/androidTest/commcare/debug/app-commcare-debug-androidTest.apk"
+    releaseAppBundle = baseLoc + "bundle/commcareRelease/app-commcare-release.aab"
+    testApk = baseLoc + "apk/androidTest/commcare/release/app-commcare-release-androidTest.apk"
 
-    debugUrl = "https://api-cloud.browserstack.com/app-automate/upload"
+    releaseUrl = "https://api-cloud.browserstack.com/app-automate/upload"
     testUrl = "https://api-cloud.browserstack.com/app-automate/espresso/test-suite"
 
     command = 'curl -u "{}:{}" -X POST "{}" -F'
 
-    debugUploadCmd = appendData(command.format(userName, password, debugUrl), debugAppBundle)
-    output = subprocess.Popen(shlex.split(debugUploadCmd), stdout=PIPE, stderr=None, shell=False)
+    releaseUploadCmd = appendData(command.format(userName, password, releaseUrl), releaseAppBundle)
+    output = subprocess.Popen(shlex.split(releaseUploadCmd), stdout=PIPE, stderr=None, shell=False)
     appToken = json.loads(output.communicate()[0])["app_url"]
 
     testUploadCmd = appendData(command.format(userName, password, testUrl), testApk)
