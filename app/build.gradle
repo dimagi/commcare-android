@@ -44,6 +44,12 @@ dependencies {
     testImplementation 'org.json:json:20140107'
     testImplementation project(path: ':commcare-core', configuration: 'testsAsJar')
 
+    androidTestImplementation 'androidx.test:runner:1.1.0'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.0'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.1'
+    androidTestImplementation 'androidx.test:rules:1.1.0'
+    androidTestImplementation 'androidx.test.espresso:espresso-intents:3.1.0'
+
     // release build type expects commcare jars to be in app/libs
     implementation(project(':commcare-core')) {
         exclude module: 'xpp3'
@@ -129,6 +135,8 @@ ext {
     STANDALONE_APP_ID = ""
     LTS_APP_ID = ""
     COMMCARE_APP_ID = ""
+    HQ_API_USERNAME = project.properties['HQ_API_USERNAME'] ?: ""
+    HQ_API_PASSWORD = project.properties['HQ_API_PASSWORD'] ?: ""
 }
 
 afterEvaluate {
@@ -213,6 +221,11 @@ android {
         disable "ResourceType"
     }
 
+    // Espresso requires us to disable animations on device.
+    testOptions {
+        animationsDisabled = true
+    }
+
     packagingOptions {
         exclude 'META-INF/LICENSE'
         exclude 'META-INF/LICENSE.txt'
@@ -265,6 +278,11 @@ android {
         buildConfigField "String", "ENTITY_SELECT_AD_UNIT_ID", "\"\""
         buildConfigField "String", "MENU_LIST_AD_UNIT_ID", "\"\""
         buildConfigField "String", "MENU_GRID_AD_UNIT_ID", "\"\""
+
+        buildConfigField "String", "HQ_API_USERNAME", "\"${project.ext.HQ_API_USERNAME}\""
+        buildConfigField "String", "HQ_API_PASSWORD", "\"${project.ext.HQ_API_PASSWORD}\""
+
+        testInstrumentationRunner "org.commcare.CommCareJUnitRunner"
     }
 
     applicationVariants.all { variant ->
@@ -327,6 +345,12 @@ android {
         test {
             java.srcDirs = ['unit-tests/src/']
             resources.srcDirs = ['unit-tests/resources/']
+        }
+
+        androidTest {
+            setRoot('instrumentation-tests/')
+            java.srcDirs = ['instrumentation-tests/src/']
+            resources.srcDirs = ['instrumentation-tests/resources']
         }
 
         // Move the build types to build-types/<type>
@@ -473,6 +497,9 @@ android {
             includeAndroidResources = true
         }
     }
+
+    // Needed to run espresso tests on release build.
+    testBuildType "release"
 }
 
 /**
