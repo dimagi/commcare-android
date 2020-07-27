@@ -42,6 +42,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.NoSuchElementException;
 import java.util.Vector;
 
 /**
@@ -124,16 +125,21 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
     @Override
     public boolean uninstall(Resource r, AndroidCommCarePlatform platform) throws UnresolvedResourceException {
         if (formDefId != -1) {
-            FormDefRecord formDefRecord = platform.getFormDefStorage().read(formDefId);
-            if (formDefRecord.getResourceVersion() == r.getVersion()) {
+            try {
+                FormDefRecord formDefRecord = platform.getFormDefStorage().read(formDefId);
+                if (formDefRecord.getResourceVersion() == r.getVersion()) {
 //                // This form def record belongs to an old version which is not part of current version since
 //                // otherwise it's resource version would have got bumped to the resource
 //                // version of new resource in the update.
-                platform.deregisterForm(formDefRecord.getJrFormId(), formDefId);
-                platform.getFormDefStorage().remove(formDefId);
-                return super.uninstall(r, platform);
+                    platform.deregisterForm(formDefRecord.getJrFormId(), formDefId);
+                    platform.getFormDefStorage().remove(formDefId);
+                }
+            } catch (NoSuchElementException e) {
+                // no form with the formDefId exists somehow so just log the failure
+                Logger.log(LogTypes.TYPE_MAINTENANCE,
+                        "No form record with id " + formDefId + " was found while uninstalling the resource");
             }
-            return true;
+            return super.uninstall(r, platform);
         }
         return false;
     }

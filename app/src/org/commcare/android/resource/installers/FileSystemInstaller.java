@@ -213,6 +213,10 @@ abstract class FileSystemInstaller implements ResourceInstaller<AndroidCommCareP
             String finalLocation = localDestination + "/" + filepart;
 
             if (!FileSystemUtils.moveFrom(localLocation, finalLocation, false)) {
+                Logger.log(LogTypes.TYPE_RESOURCES, "Failed to move resource " + r.getDescriptor() +
+                        " during upgrade from origin file path " + localLocation + " to  desination file path " +
+                        finalLocation + ". Origin file exists = " + new File(localLocation).exists()
+                        + " and Destination File exits = " + new File(finalLocation).exists());
                 return false;
             }
 
