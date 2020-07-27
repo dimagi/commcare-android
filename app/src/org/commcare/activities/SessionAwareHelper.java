@@ -22,6 +22,7 @@ public class SessionAwareHelper {
             return false;
         } catch (SessionUnavailableException e) {
             SessionActivityRegistration.redirectToLogin(a);
+            a.finish();
             return true;
         }
     }
