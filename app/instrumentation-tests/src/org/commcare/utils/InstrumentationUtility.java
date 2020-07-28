@@ -9,6 +9,8 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.provider.MediaStore;
 import android.view.View;
+import android.widget.ListView;
+
 import androidx.annotation.IdRes;
 import androidx.test.espresso.DataInteraction;
 import androidx.test.espresso.UiController;
@@ -19,6 +21,8 @@ import org.commcare.dalvik.R;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
+import org.hamcrest.TypeSafeMatcher;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -207,6 +211,29 @@ public class InstrumentationUtility {
             @Override
             public void describeTo(Description description) {
                 description.appendText("will return " + position + " matching item");
+            }
+        };
+    }
+
+    /**
+     * Matches the listView item count with the @param size
+     * Note: Only works for listview.
+     */
+    public static Matcher<View> matchListSize(int size) {
+        return new TypeSafeMatcher<View>() {
+            @Override
+            protected boolean matchesSafely(View view) {
+                if (view instanceof ListView) {
+                    return ((ListView) view).getAdapter().getCount() == size;
+                } else {
+                    throw new IllegalStateException("matchListSize() should only be used with " +
+                            "listView. Current view is :: " + view.getClass().getSimpleName());
+                }
+            }
+
+            @Override
+            public void describeTo(Description description) {
+                description.appendText("will match listView item size with " + size);
             }
         };
     }
