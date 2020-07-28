@@ -52,6 +52,7 @@ class CommCareProviderLocationController(private val mContext: Context,
     }
 
     override fun stop() {
+        mLocationRequestStarted = false
         mLocationManager.removeUpdates(mLocationListener)
         try {
             mContext.unregisterReceiver(mReceiver)

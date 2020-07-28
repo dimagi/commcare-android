@@ -63,7 +63,7 @@ public enum PollSensorController implements CommCareLocationListener {
             // Start requesting GPS updates
             Context context = CommCareApplication.instance();
             mLocationController = CommCareLocationControllerFactory.getLocationController(context, this);
-            mLocationController.start();
+            requestLocationUpdates();
         });
     }
 
