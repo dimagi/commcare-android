@@ -140,7 +140,9 @@ public enum PollSensorController implements CommCareLocationListener {
             actions.clear();
         }
         resetTimeoutTimer();
-        mLocationController.stop();
+        if (mLocationController != null) {
+            mLocationController.stop();
+        }
     }
 
 }
