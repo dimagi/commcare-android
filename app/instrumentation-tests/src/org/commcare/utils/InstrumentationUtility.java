@@ -109,6 +109,17 @@ public class InstrumentationUtility {
         openActionBarOverflowOrOptionsMenu(context);
     }
 
+    public static void enableDeveloperMode() {
+        // Click on About CommCare 4 times to become developer.
+        for (int i = 0; i < 4; i++) {
+            openOptionsMenu();
+            onView(withText("About CommCare"))
+                    .perform(click());
+            onView(withText("OK"))
+                    .perform(click());
+        }
+    }
+
     /**
      * Click the list item at a particular item position
      * @param resId Resource reference to the list.
