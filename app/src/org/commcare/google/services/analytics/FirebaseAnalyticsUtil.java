@@ -72,6 +72,11 @@ public class FirebaseAnalyticsUtil {
             analyticsInstance.setUserProperty(CCAnalyticsParam.CC_APP_ID, appId);
         }
 
+        String buildProfileID = ReportingUtils.getAppBuildProfileId();
+        if (!TextUtils.isEmpty(appId)) {
+            analyticsInstance.setUserProperty(CCAnalyticsParam.CC_APP_BUILD_PROFILE_ID, buildProfileID);
+        }
+
         String serverName = ReportingUtils.getServerName();
         if (!TextUtils.isEmpty(serverName)) {
             analyticsInstance.setUserProperty(CCAnalyticsParam.SERVER, serverName);

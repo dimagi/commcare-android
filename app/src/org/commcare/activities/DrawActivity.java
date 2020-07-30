@@ -300,7 +300,7 @@ public class DrawActivity extends Activity {
         dialog.showNonPersistentDialog();
     }
 
-    private static class DrawView extends View {
+    public static class DrawView extends View {
         private boolean isSignature;
         private Bitmap mBitmap;
         private Canvas mCanvas;
