@@ -38,7 +38,7 @@ public class GeoUtils {
     // For passive collection, milliseconds to wait for GPS before giving up
     public static final int AUTO_CAPTURE_MAX_WAIT_IN_MINUTES = 2;
 
-    public static final String ACTION_CHECK_GPS_ENABLED = "org.commcare.utils.GeoUtils.check";
+    public static final String ACTION_LOCATION_ERROR = "org.commcare.utils.GeoUtils.check";
 
 
     /**

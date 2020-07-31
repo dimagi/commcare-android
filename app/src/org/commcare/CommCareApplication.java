@@ -75,6 +75,8 @@ import org.commcare.services.CommCareSessionService;
 import org.commcare.session.CommCareSession;
 import org.commcare.sync.FormSubmissionHelper;
 import org.commcare.sync.FormSubmissionWorker;
+import org.commcare.tasks.AsyncRestoreHelper;
+import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.DeleteLogs;
 import org.commcare.tasks.LogSubmissionTask;
 import org.commcare.tasks.PurgeStaleArchivedFormsTask;
@@ -1136,5 +1138,9 @@ public class CommCareApplication extends MultiDexApplication {
                 networkService,
                 method,
                 responseProcessor);
+    }
+
+    public AsyncRestoreHelper getAsyncRestoreHelper(DataPullTask task) {
+        return new AsyncRestoreHelper(task);
     }
 }

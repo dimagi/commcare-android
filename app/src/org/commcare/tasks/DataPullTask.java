@@ -106,7 +106,7 @@ public abstract class DataPullTask<R>
         this.taskId = DATA_PULL_TASK_ID;
         this.dataPullRequester = dataPullRequester;
         this.requestor = dataPullRequester.getHttpGenerator(username, password, userId);
-        this.asyncRestoreHelper = new AsyncRestoreHelper(this);
+        this.asyncRestoreHelper = CommCareApplication.instance().getAsyncRestoreHelper(this);
         this.blockRemoteKeyManagement = blockRemoteKeyManagement;
 
         TAG = DataPullTask.class.getSimpleName();
