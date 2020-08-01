@@ -103,7 +103,6 @@ public class AndroidSessionWrapper implements SessionWrapperInterface {
 
     public void setFormRecordId(int formRecordId) {
         this.formRecordId = formRecordId;
-        Log.d("shubham","setting formRecordId to " + formRecordId);
     }
 
 
