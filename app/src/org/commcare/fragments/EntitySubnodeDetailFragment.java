@@ -22,6 +22,8 @@ import org.javarosa.core.model.instance.TreeReference;
 
 import java.util.List;
 
+import androidx.annotation.Nullable;
+
 /**
  * Created by jschweers on 8/26/2015.
  * <p/>
@@ -33,6 +35,12 @@ public class EntitySubnodeDetailFragment extends EntityDetailFragment implements
     private ListView listView;
 
     public EntitySubnodeDetailFragment() {
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setRetainInstance(true);
     }
 
     @Override
@@ -65,6 +73,8 @@ public class EntitySubnodeDetailFragment extends EntityDetailFragment implements
             headerLayout.removeAllViews();
             headerLayout.addView(headerView);
             headerLayout.setVisibility(View.VISIBLE);
+        } else if (adapter != null) {
+            listView.setAdapter((ListAdapter)adapter);
         }
 
         return rootView;
