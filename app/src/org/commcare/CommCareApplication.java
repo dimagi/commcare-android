@@ -249,10 +249,6 @@ public class CommCareApplication extends MultiDexApplication {
         if (useConscryptSecurity()) {
             Security.insertProviderAt(Conscrypt.newProvider(), 1);
         }
-
-        if (Build.VERSION.SDK_INT >= 16 && Build.VERSION.SDK_INT < 22) {
-            CommCareNetworkServiceGenerator.customizeRetrofitSetup(new ForceTLS12BuilderConfig());
-        }
     }
 
     protected void turnOnStrictMode() {
