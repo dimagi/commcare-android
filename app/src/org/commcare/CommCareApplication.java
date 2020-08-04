@@ -65,7 +65,6 @@ import org.commcare.modern.database.Table;
 import org.commcare.modern.util.PerformanceTuningUtil;
 import org.commcare.network.DataPullRequester;
 import org.commcare.network.DataPullResponseFactory;
-import org.commcare.network.ForceTLS12BuilderConfig;
 import org.commcare.network.HttpUtils;
 import org.commcare.preferences.DevSessionRestorer;
 import org.commcare.preferences.DeveloperPreferences;
