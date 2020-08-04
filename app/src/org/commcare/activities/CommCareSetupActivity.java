@@ -746,7 +746,11 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 
     @Override
     public void failMissingResource(UnresolvedResourceException ure, AppInstallStatus statusMissing) {
-        fail(NotificationMessageFactory.message(statusMissing, new String[]{null, ure.getResource().getDescriptor(), ure.getMessage()}), ure.isMessageUseful());
+        if (lastInstallMode == INSTALL_MODE_URL) {
+            fail(Localization.get("install.wrong.code"));
+        } else {
+            fail(NotificationMessageFactory.message(statusMissing, new String[]{null, ure.getResource().getDescriptor(), ure.getMessage()}), ure.isMessageUseful());
+        }
     }
 
     @Override
