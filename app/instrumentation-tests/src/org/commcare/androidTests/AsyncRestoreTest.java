@@ -5,7 +5,7 @@ import androidx.test.espresso.IdlingRegistry;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import org.commcare.AsyncRestoreHelperMock;
-import org.commcare.utils.CommCareIdlingResource;
+import org.commcare.utils.ProgressIdlingResource;
 import org.commcare.utils.HQApi;
 import org.commcare.utils.InstrumentationUtility;
 import org.junit.After;
@@ -49,7 +49,7 @@ public class AsyncRestoreTest extends BaseTest {
         assertFalse(AsyncRestoreHelperMock.isServerProgressReportingStarted());
 
         // Register commcareidling resource before login
-        CommCareIdlingResource idlingResource = new CommCareIdlingResource();
+        ProgressIdlingResource idlingResource = new ProgressIdlingResource();
         IdlingRegistry.getInstance().register(idlingResource);
 
         // Login into the app
@@ -75,7 +75,7 @@ public class AsyncRestoreTest extends BaseTest {
         installAppAndClearCache();
 
         // Register commcareidling resource before login
-        CommCareIdlingResource idlingResource = new CommCareIdlingResource();
+        ProgressIdlingResource idlingResource = new ProgressIdlingResource();
         IdlingRegistry.getInstance().register(idlingResource);
 
         // Login into the app

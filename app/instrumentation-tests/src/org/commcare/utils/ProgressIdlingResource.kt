@@ -18,7 +18,7 @@ import org.commcare.activities.CommCareActivity
  * So the app will be like Not-Idle(Progress bar showing) -> Idle(Progress bar closed) -> Not-Idle -> Idle...
  * And we don't want to report idle when this happens.
  */
-class CommCareIdlingResource: IdlingResource {
+class ProgressIdlingResource: IdlingResource {
 
     companion object {
         const val timeoutMs = 1000L
@@ -29,7 +29,7 @@ class CommCareIdlingResource: IdlingResource {
     val handler = Handler(Looper.getMainLooper())
 
     override fun getName(): String {
-        return CommCareIdlingResource::class.java.name
+        return ProgressIdlingResource::class.java.name
     }
 
     override fun isIdleNow(): Boolean {
