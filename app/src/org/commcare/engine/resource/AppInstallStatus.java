@@ -74,7 +74,9 @@ public enum AppInstallStatus implements MessageTag {
     }
 
     public boolean shouldRetryUpdate() {
-        return (this == MissingResources || this == MissingResourcesWithMessage || this == NoConnection);
+        return (this == NetworkFailure ||
+                this == NoConnection ||
+                this == RateLimited);
     }
 
     @Override
