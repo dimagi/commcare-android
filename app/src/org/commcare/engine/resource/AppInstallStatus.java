@@ -75,8 +75,7 @@ public enum AppInstallStatus implements MessageTag {
 
     public boolean shouldRetryUpdate() {
         return (this == NetworkFailure ||
-                this == NoConnection ||
-                this == RateLimited);
+                this == NoConnection);
     }
 
     @Override
