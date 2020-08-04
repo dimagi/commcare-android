@@ -62,8 +62,11 @@ public enum AppInstallStatus implements MessageTag {
         return root;
     }
 
-    public boolean canReusePartialUpdateTable() {
-        return (this == UnknownFailure || this == NoLocalStorage);
+    public boolean shouldDiscardPartialUpdateTable() {
+        return this == MissingResources ||
+                this == MissingResourcesWithMessage ||
+                this == InvalidResource ||
+                this == IncompatibleReqs;
     }
 
     public boolean isUpdateInCompletedState() {

@@ -192,7 +192,7 @@ public class AndroidResourceManager extends ResourceManager {
         updateStats.registerUpdateFailure(result);
         FirebaseAnalyticsUtil.reportStageUpdateAttemptFailure(result.toString());
 
-        if (!result.canReusePartialUpdateTable()) {
+        if (result.shouldDiscardPartialUpdateTable()) {
             clearUpgrade();
             FirebaseAnalyticsUtil.reportUpdateReset(UPDATE_RESET_REASON_CORRUPT);
         }
