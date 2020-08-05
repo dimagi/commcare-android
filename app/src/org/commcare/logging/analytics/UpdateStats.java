@@ -60,7 +60,7 @@ public class UpdateStats implements Serializable {
     /**
      * Wipe stats associated with upgrade table from app preferences.
      */
-    public static void clearPersistedStats(CommCareApp app) {
+    private static void clearPersistedStats(CommCareApp app) {
         PrefStats.clearPersistedStats(app, UPGRADE_STATS_KEY);
     }
 
