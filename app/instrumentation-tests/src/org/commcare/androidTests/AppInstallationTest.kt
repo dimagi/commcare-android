@@ -1,6 +1,5 @@
 package org.commcare.androidTests
 
-import android.app.Activity
 import android.widget.ListView
 import androidx.test.espresso.Espresso.closeSoftKeyboard
 import androidx.test.espresso.Espresso.onView
@@ -13,10 +12,9 @@ import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
-import androidx.test.runner.lifecycle.ActivityLifecycleMonitorRegistry
-import androidx.test.runner.lifecycle.Stage
 import junit.framework.Assert.assertNotNull
 import org.commcare.CommCareApplication
+import org.commcare.CommCareInstrumentationTestApplication
 import org.commcare.activities.InstallFromListActivity
 import org.commcare.android.database.global.models.AppAvailableToInstall
 import org.commcare.dalvik.BuildConfig
@@ -182,21 +180,10 @@ class AppInstallationTest: BaseTest() {
                 .check(matches(isDisplayed()))
     }
 
-    private fun getCurrentActivity(): Activity? {
-        var currentActivity: Activity? = null
-        InstrumentationRegistry.getInstrumentation().runOnMainSync {
-            kotlin.run {
-                currentActivity = ActivityLifecycleMonitorRegistry
-                        .getInstance()
-                        .getActivitiesInStage(Stage.RESUMED)
-                        .elementAtOrNull(0)
-            }
-        }
-        return currentActivity
-    }
-
     private fun getAppListSize(): Int {
-        var activity = getCurrentActivity()
+        val application = InstrumentationRegistry.getInstrumentation().targetContext.applicationContext
+                as CommCareInstrumentationTestApplication
+        var activity = application.currentActivity
         assertNotNull(activity)
         assert(activity is InstallFromListActivity<*>)
         val listView = activity!!.findViewById<ListView>(R.id.apps_list_view)
