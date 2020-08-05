@@ -1,9 +1,11 @@
 package org.commcare.androidTests;
 
 import android.content.Intent;
+import androidx.test.espresso.IdlingRegistry;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import org.commcare.AsyncRestoreHelperMock;
+import org.commcare.utils.ProgressIdlingResource;
 import org.commcare.utils.HQApi;
 import org.commcare.utils.InstrumentationUtility;
 import org.junit.After;
@@ -46,12 +48,19 @@ public class AsyncRestoreTest extends BaseTest {
         assertFalse(AsyncRestoreHelperMock.isRetryCalled());
         assertFalse(AsyncRestoreHelperMock.isServerProgressReportingStarted());
 
+        // Register commcareidling resource before login
+        ProgressIdlingResource idlingResource = new ProgressIdlingResource();
+        IdlingRegistry.getInstance().register(idlingResource);
+
         // Login into the app
         InstrumentationUtility.login("many.cases1", "123");
 
         // Confirm Async Restore is done.
         assertTrue(AsyncRestoreHelperMock.isRetryCalled());
         assertTrue(AsyncRestoreHelperMock.isServerProgressReportingStarted());
+
+        // Unregister idling resource
+        IdlingRegistry.getInstance().unregister(idlingResource);
     }
 
     @Test
@@ -64,6 +73,10 @@ public class AsyncRestoreTest extends BaseTest {
         HQApi.removeUserFromGroup(userId, groupId);
 
         installAppAndClearCache();
+
+        // Register commcareidling resource before login
+        ProgressIdlingResource idlingResource = new ProgressIdlingResource();
+        IdlingRegistry.getInstance().register(idlingResource);
 
         // Login into the app
         InstrumentationUtility.login("many.cases2", "123");
@@ -82,6 +95,9 @@ public class AsyncRestoreTest extends BaseTest {
         // Confirm AsyncRestore happened after sync
         assertTrue(AsyncRestoreHelperMock.isRetryCalled());
         assertTrue(AsyncRestoreHelperMock.isServerProgressReportingStarted());
+
+        // Unregister idling resource
+        IdlingRegistry.getInstance().unregister(idlingResource);
     }
 
     private void installAppAndClearCache() {

@@ -65,7 +65,6 @@ import org.commcare.modern.database.Table;
 import org.commcare.modern.util.PerformanceTuningUtil;
 import org.commcare.network.DataPullRequester;
 import org.commcare.network.DataPullResponseFactory;
-import org.commcare.network.ForceTLS12BuilderConfig;
 import org.commcare.network.HttpUtils;
 import org.commcare.preferences.DevSessionRestorer;
 import org.commcare.preferences.DeveloperPreferences;
@@ -248,10 +247,6 @@ public class CommCareApplication extends MultiDexApplication {
     private void initTls12IfNeeded() {
         if (useConscryptSecurity()) {
             Security.insertProviderAt(Conscrypt.newProvider(), 1);
-        }
-
-        if (Build.VERSION.SDK_INT >= 16 && Build.VERSION.SDK_INT < 22) {
-            CommCareNetworkServiceGenerator.customizeRetrofitSetup(new ForceTLS12BuilderConfig());
         }
     }
 
