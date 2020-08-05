@@ -50,6 +50,7 @@ import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 
 import java.util.ArrayList;
+import java.util.Date;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
@@ -679,7 +680,9 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                 raiseLoginMessageWithInfo(StockMessages.Recovery_Error, resultAndErrorMessage.errorMessage, true);
                 break;
             case ACTIONABLE_FAILURE:
-                raiseLoginMessageWithInfo(StockMessages.Restore_Unknown, resultAndErrorMessage.errorMessage, true);
+                NotificationMessage message = new NotificationMessage(NOTIFICATION_MESSAGE_LOGIN,
+                        resultAndErrorMessage.errorMessage, "", null, new Date());
+                raiseMessage(message, true);
                 break;
             case AUTH_OVER_HTTP:
                 raiseLoginMessage(StockMessages.Auth_Over_HTTP, true);
