@@ -12,6 +12,7 @@ import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
+import junit.framework.Assert.fail
 import org.commcare.CommCareApplication
 import org.commcare.CommCareInstrumentationTestApplication
 import org.commcare.activities.InstallFromListActivity
@@ -100,8 +101,8 @@ class AppInstallationTest: BaseTest() {
         onView(withText("Case Search and Claim"))
                 .perform(click())
 
-        assert(CommCareApplication.instance().currentApp != null)
-        assert(CommCareApplication.instance().currentApp.appRecord.displayName == "Case Search and Claim")
+        assert(CommCareApplication.instance().currentApp != null, "App is null")
+        assert(CommCareApplication.instance().currentApp.appRecord.displayName == "Case Search and Claim", "App didn't match")
     }
 
     @Test
@@ -156,8 +157,8 @@ class AppInstallationTest: BaseTest() {
                 withAppName("SWAT: App Tracker")))
                 .perform(click())
 
-        assert(CommCareApplication.instance().currentApp != null)
-        assert(CommCareApplication.instance().currentApp.appRecord.displayName == "SWAT: App Tracker")
+        assert(CommCareApplication.instance().currentApp != null, "App is null")
+        assert(CommCareApplication.instance().currentApp.appRecord.displayName == "SWAT: App Tracker", "App didn't match")
     }
 
     private fun withAppName(appName: String): TypeSafeMatcher<AppAvailableToInstall> {
@@ -185,5 +186,15 @@ class AppInstallationTest: BaseTest() {
         var activity = application.currentActivity as InstallFromListActivity<*>
         val listView = activity.findViewById<ListView>(R.id.apps_list_view)
         return listView.adapter.count
+    }
+
+    /**
+     * A workaround to Failed resolution of: Lkotlin/_Assertions;
+     * This will fail the test if the value is false.
+     */
+    private fun assert(value: Boolean, failMsg: String) {
+        if (!value) {
+            fail("Assertion Failed: $failMsg")
+        }
     }
 }
