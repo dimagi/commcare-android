@@ -213,12 +213,12 @@ public class AndroidResourceManager extends ResourceManager {
         updateStats.registerUpdateFailure(result);
         FirebaseAnalyticsUtil.reportStageUpdateAttemptFailure(result.toString());
 
-        if (!result.canReusePartialUpdateTable()) {
+        if (result.shouldDiscardPartialUpdateTable()) {
             clearUpgrade();
             FirebaseAnalyticsUtil.reportUpdateReset(UPDATE_RESET_REASON_CORRUPT);
+        } else {
+            retryUpdateOrGiveUp(ctx, isAutoUpdate);
         }
-
-        retryUpdateOrGiveUp(ctx, isAutoUpdate);
     }
 
     private void retryUpdateOrGiveUp(Context ctx, boolean isAutoUpdate) {
@@ -229,8 +229,6 @@ public class AndroidResourceManager extends ResourceManager {
 
             FirebaseAnalyticsUtil.reportUpdateReset(updateStats.hasUpdateTrialsMaxedOut() ?
                     UPDATE_RESET_REASON_OVERSHOOT_TRIALS : UPDATE_RESET_REASON_TIMEOUT);
-
-            UpdateStats.clearPersistedStats(app);
 
             if (isAutoUpdate) {
                 ResourceInstallUtils.recordAutoUpdateCompletion(app);
@@ -299,6 +297,7 @@ public class AndroidResourceManager extends ResourceManager {
     @Override
     public void clearUpgrade() {
         super.clearUpgrade();
+        updateStats.resetStats(app);
         HiddenPreferences.setReleasedOnTimeForOngoingAppDownload((AndroidCommCarePlatform)platform, 0);
         HiddenPreferences.setPreUpdateSyncNeeded(PrefValues.NO);
     }
