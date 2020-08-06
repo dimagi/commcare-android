@@ -12,7 +12,6 @@ import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
-import junit.framework.Assert.assertNotNull
 import org.commcare.CommCareApplication
 import org.commcare.CommCareInstrumentationTestApplication
 import org.commcare.activities.InstallFromListActivity
@@ -183,10 +182,8 @@ class AppInstallationTest: BaseTest() {
     private fun getAppListSize(): Int {
         val application = InstrumentationRegistry.getInstrumentation().targetContext.applicationContext
                 as CommCareInstrumentationTestApplication
-        var activity = application.currentActivity
-        assertNotNull(activity)
-        assert(activity is InstallFromListActivity<*>)
-        val listView = activity!!.findViewById<ListView>(R.id.apps_list_view)
+        var activity = application.currentActivity as InstallFromListActivity<*>
+        val listView = activity.findViewById<ListView>(R.id.apps_list_view)
         return listView.adapter.count
     }
 }
