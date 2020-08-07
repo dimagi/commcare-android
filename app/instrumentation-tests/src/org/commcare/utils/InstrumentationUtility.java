@@ -9,12 +9,15 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.provider.MediaStore;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ListView;
 
 import androidx.annotation.IdRes;
 import androidx.test.espresso.DataInteraction;
 import androidx.test.espresso.UiController;
 import androidx.test.espresso.ViewAction;
+import androidx.test.espresso.matcher.BoundedMatcher;
+import androidx.test.espresso.util.TreeIterables;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.runner.intent.IntentMonitorRegistry;
 import org.commcare.dalvik.R;
@@ -37,13 +40,16 @@ import static androidx.test.espresso.action.ViewActions.clearText;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.swipeUp;
 import static androidx.test.espresso.action.ViewActions.typeText;
+import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.intent.Intents.intending;
 import static androidx.test.espresso.intent.matcher.IntentMatchers.hasAction;
 import static androidx.test.espresso.matcher.RootMatchers.isDialog;
 import static androidx.test.espresso.matcher.ViewMatchers.isRoot;
+import static androidx.test.espresso.matcher.ViewMatchers.withClassName;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static org.hamcrest.Matchers.anything;
+import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.startsWith;
 
 /**
@@ -245,6 +251,42 @@ public class InstrumentationUtility {
             @Override
             public void describeTo(Description description) {
                 description.appendText("will match listView item size with " + size);
+            }
+        };
+    }
+
+    /**
+     * Matches total occurrences of child inside parent with count.
+     */
+    public static void matchChildCount(Class<?> parent, Class<?> child, int count) {
+        onView(withClassName(is(parent.getCanonicalName())))
+                .check(matches(
+                        withChildViewCount(count,
+                                withClassName(is(child.getCanonicalName())))
+                ));
+    }
+
+    /**
+     * This matcher will count all the children of a viewGroup that matches the `childMatcher`.
+     * And then assert the count with the passed parameter.
+     */
+    public static Matcher<View> withChildViewCount(final int count, final Matcher<View> childMatcher) {
+        return new BoundedMatcher<View, ViewGroup>(ViewGroup.class) {
+            @Override
+            protected boolean matchesSafely(ViewGroup viewGroup) {
+                int matchCount = 0;
+                for (View child: TreeIterables.breadthFirstViewTraversal(viewGroup)) {
+                    if (childMatcher.matches(child)) {
+                        matchCount++;
+                    }
+                }
+                return matchCount == count;
+            }
+
+            @Override
+            public void describeTo(Description description) {
+                description.appendText("ViewGroup with child-count=" + count + " and");
+                childMatcher.describeTo(description);
             }
         };
     }
