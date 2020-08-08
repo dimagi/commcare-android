@@ -58,7 +58,7 @@ public class AndroidSessionWrapper implements SessionWrapperInterface {
     public void loadFromStateDescription(SessionStateDescriptor descriptor) {
         this.reset();
         this.sessionStateRecordId = descriptor.getID();
-        this.formRecordId = descriptor.getFormRecordId();
+        setFormRecordId(descriptor.getFormRecordId());
         SessionDescriptorUtil.loadSessionFromDescriptor(descriptor.getSessionDescriptor(), session);
     }
 
@@ -76,7 +76,7 @@ public class AndroidSessionWrapper implements SessionWrapperInterface {
      * and such.
      */
     private void cleanVolatiles() {
-        formRecordId = -1;
+        setFormRecordId(-1);
         sessionStateRecordId = -1;
         //CTS - Added to fix bugs where casedb didn't get renewed between sessions (possibly
         //we want to "update" the casedb rather than rebuild it, but this is safest for now.
