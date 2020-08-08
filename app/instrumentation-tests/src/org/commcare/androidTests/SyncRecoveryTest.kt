@@ -75,7 +75,7 @@ class SyncRecoveryTest: BaseTest() {
                 .perform(click())
 
         // make sure the same number of cases are around
-        assert(InstrumentationUtility.getListSize(R.id.screen_entity_select_list) == size)
+        assert(InstrumentationUtility.getListSize(R.id.screen_entity_select_list) == size, "List size isn't same")
     }
 
 }

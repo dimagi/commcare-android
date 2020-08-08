@@ -187,14 +187,13 @@ class AppInstallationTest: BaseTest() {
         val listView = activity.findViewById<ListView>(R.id.apps_list_view)
         return listView.adapter.count
     }
-
-    /**
-     * A workaround to Failed resolution of: Lkotlin/_Assertions;
-     * This will fail the test if the value is false.
-     */
-    private fun assert(value: Boolean, failMsg: String) {
-        if (!value) {
-            fail("Assertion Failed: $failMsg")
-        }
+}
+/**
+ * A workaround to Failed resolution of: Lkotlin/_Assertions;
+ * This will fail the test if the value is false.
+ */
+public fun assert(value: Boolean, failMsg: String) {
+    if (!value) {
+        fail("Assertion Failed: $failMsg")
     }
 }
