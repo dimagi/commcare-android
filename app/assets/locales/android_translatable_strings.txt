@@ -829,6 +829,9 @@ permission.acquire.required=Acquire Required Permissions
 permission.camera.title=Permission for Camera
 permission.camera.message=In order to take a picture, CommCare needs permission to use your device camera.
 permission.camera.denial.message=CommCare doesn't have the permission to use camera. Please enable via Android's settings.
+permission.location.title=Permission for Location
+permission.location.message=In order to record location, CommCare needs permission to use your device location.
+permission.location.denial.message=CommCare doesn't have the permission to use location. Please enable via Android's settings.
 
 custom.acknowledgement=
 case.error.self.index=Case '${0}' cannot index itself. In order to login you must change the case on the server.
