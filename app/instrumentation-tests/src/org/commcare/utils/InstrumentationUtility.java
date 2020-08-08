@@ -20,6 +20,8 @@ import androidx.test.espresso.matcher.BoundedMatcher;
 import androidx.test.espresso.util.TreeIterables;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.runner.intent.IntentMonitorRegistry;
+
+import org.commcare.CommCareInstrumentationTestApplication;
 import org.commcare.dalvik.R;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
@@ -289,6 +291,21 @@ public class InstrumentationUtility {
                 childMatcher.describeTo(description);
             }
         };
+    }
+
+    /**
+     * Returns the count of total number of items present in the listView.
+     * @param resId Resource reference to the list.
+     */
+    public static int getListSize(@IdRes int resId) {
+        CommCareInstrumentationTestApplication application =
+                (CommCareInstrumentationTestApplication) InstrumentationRegistry
+                        .getInstrumentation()
+                        .getTargetContext()
+                        .getApplicationContext();
+        Activity activity = application.getCurrentActivity();
+        ListView listView = activity.findViewById(resId);
+        return listView.getAdapter().getCount();
     }
 
     //region private helpers.
