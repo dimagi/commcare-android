@@ -4,6 +4,7 @@ import androidx.core.util.Pair;
 
 import org.commcare.CommCareApplication;
 import org.commcare.dalvik.R;
+import org.commcare.engine.references.ParameterizedReference;
 import org.commcare.engine.resource.installers.LocalStorageUnavailableException;
 import org.commcare.network.RateLimitedException;
 import org.commcare.resources.model.MissingMediaException;
@@ -38,6 +39,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Map;
 import java.util.Vector;
 
 import javax.net.ssl.SSLHandshakeException;
@@ -82,7 +84,7 @@ abstract class FileSystemInstaller implements ResourceInstaller<AndroidCommCareP
     @Override
     public boolean install(Resource r, ResourceLocation location,
                            Reference ref, ResourceTable table,
-                           AndroidCommCarePlatform platform, boolean upgrade, boolean recovery)
+                           AndroidCommCarePlatform platform, boolean upgrade, boolean recovery, Map<String, String> customRequestHeaders)
             throws UnresolvedResourceException, UnfullfilledRequirementsException {
         try {
 
@@ -90,7 +92,11 @@ abstract class FileSystemInstaller implements ResourceInstaller<AndroidCommCareP
 
             InputStream inputFileStream;
             try {
-                inputFileStream = ref.getStream();
+                if (ref instanceof ParameterizedReference) {
+                    inputFileStream = ((ParameterizedReference)ref).getStream(customRequestHeaders);
+                } else {
+                    inputFileStream = ref.getStream();
+                }
             } catch (FileNotFoundException e) {
                 // Means the reference wasn't valid so let it keep iterating through options.
                 throw new UnresolvedResourceException(r,

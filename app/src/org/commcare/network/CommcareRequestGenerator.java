@@ -52,7 +52,8 @@ public class CommcareRequestGenerator implements CommcareRequestEndpoints {
     // headers
     private static final String X_OPENROSA_VERSION = "X-OpenRosa-Version";
     private static final String X_COMMCAREHQ_LAST_SYNC_TOKEN = "X-CommCareHQ-LastSyncToken";
-    public static final String X_COMMCAREHQ_ALLOW_RATE_LIMITING = "X-CommCareHQ-AllowRateLimiting";
+    public static final String X_COMMCAREHQ_REQUEST_SOURCE = "X-CommCareHQ-RequestSource";
+    public static final String X_COMMCAREHQ_REQUEST_AGE = "X-CommCareHQ-RequestAge";
     private static final String X_OPENROSA_DEVICEID = "x-openrosa-deviceid";
 
     private final String username;

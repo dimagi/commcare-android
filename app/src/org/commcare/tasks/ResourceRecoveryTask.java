@@ -8,8 +8,10 @@ import org.commcare.android.logging.ForceCloseLogger;
 import org.commcare.dalvik.R;
 import org.commcare.engine.resource.AppInstallStatus;
 import org.commcare.engine.resource.ResourceInstallUtils;
+import org.commcare.network.CommcareRequestGenerator;
 import org.commcare.resources.model.InstallCancelled;
 import org.commcare.resources.model.InstallCancelledException;
+import org.commcare.resources.model.InstallRequestSource;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.TableStateListener;
 import org.commcare.resources.model.UnreliableSourceException;
@@ -19,6 +21,9 @@ import org.commcare.utils.AndroidCommCarePlatform;
 import org.commcare.utils.StringUtils;
 import org.javarosa.core.services.Logger;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class ResourceRecoveryTask
         extends CommCareTask<Void, Integer, ResultAndError<AppInstallStatus>, RecoveryActivity> implements TableStateListener, InstallCancelled {
@@ -61,8 +66,10 @@ public class ResourceRecoveryTask
         setTableListeners(global);
         ResultAndError<AppInstallStatus> result;
         try {
-            global.recoverResources(platform, ResourceInstallUtils.getProfileReference());
+            RequestStats.register(InstallRequestSource.RECOVERY);
+            global.recoverResources(platform, ResourceInstallUtils.getProfileReference(), getRecoveryHeaders());
             result = new ResultAndError(AppInstallStatus.Installed);
+            RequestStats.markSuccess(InstallRequestSource.RECOVERY);
         } catch (InstallCancelledException e) {
             result = new ResultAndError(AppInstallStatus.Cancelled, e.getMessage());
         } catch (UnresolvedResourceException e) {
@@ -73,6 +80,15 @@ public class ResourceRecoveryTask
             unsetTableListeners(global);
         }
         return result;
+    }
+
+    private Map<String, String> getRecoveryHeaders() {
+        Map<String, String> headers = new HashMap<>();
+        headers.put(CommcareRequestGenerator.X_COMMCAREHQ_REQUEST_SOURCE,
+                String.valueOf(InstallRequestSource.RECOVERY));
+        headers.put(CommcareRequestGenerator.X_COMMCAREHQ_REQUEST_AGE,
+                String.valueOf(RequestStats.getRequestAge(InstallRequestSource.RECOVERY)));
+        return headers;
     }
 
     @Override

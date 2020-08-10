@@ -18,7 +18,6 @@ import org.commcare.utils.FileUtil
 import org.commcare.utils.StringUtils
 import org.commcare.views.dialogs.PinnedNotificationWithProgress
 import org.javarosa.core.services.Logger
-import org.javarosa.core.services.locale.Localization
 import java.lang.Exception
 import java.util.concurrent.TimeUnit
 
@@ -163,7 +162,7 @@ object MissingMediaDownloadHelper : TableStateListener, InstallCancelled {
     @Synchronized
     private fun recoverResource(platform: AndroidCommCarePlatform, it: Resource) {
         resourceInProgress = it
-        platform.globalResourceTable.recoverResource(it, platform, ResourceInstallUtils.getProfileReference())
+        platform.globalResourceTable.recoverResource(it, platform, ResourceInstallUtils.getProfileReference(), customHeaders)
         resourceInProgress = null
     }
 

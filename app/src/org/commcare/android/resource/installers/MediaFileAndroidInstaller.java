@@ -15,6 +15,7 @@ import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.Map;
 
 import androidx.core.util.Pair;
 
@@ -37,7 +38,7 @@ public class MediaFileAndroidInstaller extends FileSystemInstaller {
     }
 
     @Override
-    public boolean install(Resource r, ResourceLocation location, Reference ref, ResourceTable table, AndroidCommCarePlatform platform, boolean upgrade, boolean recovery) throws UnresolvedResourceException, UnfullfilledRequirementsException {
+    public boolean install(Resource r, ResourceLocation location, Reference ref, ResourceTable table, AndroidCommCarePlatform platform, boolean upgrade, boolean recovery, Map<String, String> customRequestHeaders) throws UnresolvedResourceException, UnfullfilledRequirementsException {
 
         // If it's a lazy media resource and we are not lazy recovering resource,
         // just add the resource to the table without actually installing it.
@@ -48,7 +49,7 @@ public class MediaFileAndroidInstaller extends FileSystemInstaller {
         }
 
 
-        return super.install(r, location, ref, table, platform, upgrade, recovery);
+        return super.install(r, location, ref, table, platform, upgrade, recovery, customRequestHeaders);
     }
 
     @Override
