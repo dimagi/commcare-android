@@ -72,6 +72,11 @@ public class FirebaseAnalyticsUtil {
             analyticsInstance.setUserProperty(CCAnalyticsParam.CC_APP_ID, appId);
         }
 
+        String buildProfileID = ReportingUtils.getAppBuildProfileId();
+        if (!TextUtils.isEmpty(appId)) {
+            analyticsInstance.setUserProperty(CCAnalyticsParam.CC_APP_BUILD_PROFILE_ID, buildProfileID);
+        }
+
         String serverName = ReportingUtils.getServerName();
         if (!TextUtils.isEmpty(serverName)) {
             analyticsInstance.setUserProperty(CCAnalyticsParam.SERVER, serverName);
@@ -303,5 +308,11 @@ public class FirebaseAnalyticsUtil {
         reportEvent(CCAnalyticsEvent.COMMON_COMMCARE_EVENT,
                 new String[]{FirebaseAnalytics.Param.ITEM_ID},
                 new String[]{CORRUPT_APP_STATE});
+    }
+
+    public static void reportFormQuarantined(String quarantineReasonType) {
+        reportEvent(CCAnalyticsEvent.FORM_QUARANTINE_EVENT,
+                new String[]{FirebaseAnalytics.Param.ITEM_ID},
+                new String[]{quarantineReasonType});
     }
 }

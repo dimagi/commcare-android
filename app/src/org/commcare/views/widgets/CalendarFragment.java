@@ -3,6 +3,8 @@ package org.commcare.views.widgets;
 import android.content.Context;
 import android.graphics.Rect;
 import android.os.Bundle;
+
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -45,10 +47,22 @@ public class CalendarFragment extends DialogFragment {
 
     private long todaysDateInMillis;
     private static final int DAYSINWEEK = 7;
+    private static final String KEY_SELECTED_DATE = "selected-date";
+
+    public static final String KEY_STARTING_SELECTION = "starting-selection";
+    private long startingSelectedDate;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         getDialog().getWindow().requestFeature(Window.FEATURE_NO_TITLE);
+        this.calendar = Calendar.getInstance();
+        this.todaysDateInMillis = calendar.getTimeInMillis();
+        // Set the starting selection passed in from outside.
+        Bundle input = getArguments();
+        if (input != null && input.containsKey(KEY_STARTING_SELECTION)) {
+            startingSelectedDate = input.getLong(KEY_STARTING_SELECTION);
+            calendar.setTimeInMillis(startingSelectedDate);
+        }
         inflateView(inflater, container);
 
         initDisplay();
@@ -56,7 +70,18 @@ public class CalendarFragment extends DialogFragment {
         initOnClick();
         setWindowSize();
 
+        // Set the calendar date to what the user selected before rotation.
+        if (savedInstanceState != null && savedInstanceState.containsKey(KEY_SELECTED_DATE)) {
+            calendar.setTimeInMillis(savedInstanceState.getLong(KEY_SELECTED_DATE));
+        }
         return layout;
+    }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        long millis = calendar.getTimeInMillis();
+        outState.putLong(KEY_SELECTED_DATE, millis);
     }
 
     @Override
@@ -92,7 +117,7 @@ public class CalendarFragment extends DialogFragment {
         cancel.setOnClickListener(v -> {
             dismiss();
             if (calendarCloseListener != null) {
-                calendarCloseListener.onCalendarCancel();
+                calendarCloseListener.onDateSelected(startingSelectedDate);
             }
         });
 
@@ -100,7 +125,7 @@ public class CalendarFragment extends DialogFragment {
         closer.setOnClickListener(v -> {
             dismiss();
             if (calendarCloseListener != null) {
-                calendarCloseListener.onCalendarClose();
+                calendarCloseListener.onDateSelected(calendar.getTimeInMillis());
             }
         });
 
@@ -263,17 +288,8 @@ public class CalendarFragment extends DialogFragment {
         layout = (LinearLayout)inflater.inflate(R.layout.scrolling_calendar_widget, container);
     }
 
-    public void setToday(long currentDayInMillis) {
-        todaysDateInMillis = currentDayInMillis;
-    }
-
-    public void updateUnderlyingCalendar(Calendar cal) {
-        this.calendar = cal;
-    }
-
     public interface CalendarCloseListener {
-        void onCalendarClose();
-        void onCalendarCancel();
+        void onDateSelected(long millis);
     }
 
     public void setListener(CalendarCloseListener listener) {

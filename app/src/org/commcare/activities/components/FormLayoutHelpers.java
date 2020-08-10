@@ -1,11 +1,8 @@
 package org.commcare.activities.components;
 
 import android.app.Activity;
-import android.content.SharedPreferences;
 import android.graphics.Rect;
 import android.os.Build;
-import androidx.preference.PreferenceManager;
-import androidx.core.widget.TextViewCompat;
 import android.util.TypedValue;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -14,8 +11,9 @@ import android.widget.TextView;
 import org.commcare.activities.CommCareActivity;
 import org.commcare.activities.FormEntryActivity;
 import org.commcare.dalvik.R;
-import org.commcare.models.ODKStorage;
 import org.commcare.preferences.FormEntryPreferences;
+
+import androidx.core.widget.TextViewCompat;
 
 /**
  * @author ctsims
@@ -84,14 +82,7 @@ public class FormLayoutHelpers {
     }
 
     private static int getFontSizeInPx(Activity activity) {
-        SharedPreferences settings =
-                PreferenceManager.getDefaultSharedPreferences(activity.getApplicationContext());
-        String question_font =
-                settings.getString(FormEntryPreferences.KEY_FONT_SIZE, ODKStorage.DEFAULT_FONTSIZE);
-
-        int sizeInPx = Integer.valueOf(question_font);
-
-        return (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, sizeInPx,
+        return (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, FormEntryPreferences.getQuestionFontSize(),
                 activity.getResources().getDisplayMetrics());
     }
 

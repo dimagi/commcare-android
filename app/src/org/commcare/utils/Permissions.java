@@ -53,7 +53,7 @@ public class Permissions {
         }
     }
 
-    private static boolean missingAppPermission(Activity activity,
+    public static boolean missingAppPermission(Activity activity,
                                                 String[] permissions) {
         for (String perm : permissions) {
             if (missingAppPermission(activity, perm)) {
@@ -68,7 +68,7 @@ public class Permissions {
         return ContextCompat.checkSelfPermission(activity, permission) == PackageManager.PERMISSION_DENIED;
     }
 
-    private static boolean shouldShowPermissionRationale(Activity activity,
+    public static boolean shouldShowPermissionRationale(Activity activity,
                                                          String[] permissions) {
         for (String perm : permissions) {
             if (shouldShowPermissionRationale(activity, perm)) {

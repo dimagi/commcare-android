@@ -5,7 +5,6 @@ import org.commcare.resources.model.InstallerFactory;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
 import org.javarosa.core.services.storage.IStorageIterator;
-import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 
 import java.util.HashSet;
 import java.util.Vector;

@@ -138,4 +138,12 @@ public class ReportingUtils {
         }
         return "";
     }
+
+    public static String getAppBuildProfileId() {
+        try {
+            return CommCareApplication.instance().getCommCarePlatform().getCurrentProfile().getBuildProfileId();
+        } catch (Exception e) {
+            return "";
+        }
+    }
 }

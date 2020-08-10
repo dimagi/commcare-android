@@ -44,6 +44,12 @@ dependencies {
     testImplementation 'org.json:json:20140107'
     testImplementation project(path: ':commcare-core', configuration: 'testsAsJar')
 
+    androidTestImplementation 'androidx.test:runner:1.1.0'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.0'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.1'
+    androidTestImplementation 'androidx.test:rules:1.1.0'
+    androidTestImplementation 'androidx.test.espresso:espresso-intents:3.1.0'
+
     // release build type expects commcare jars to be in app/libs
     implementation(project(':commcare-core')) {
         exclude module: 'xpp3'
@@ -54,25 +60,29 @@ dependencies {
     implementation(name: 'htmlspanner-custom', ext: 'aar')
     implementation(name: 'android-zebra-interface-1.1', ext: 'aar')
     implementation 'com.simprints:LibSimprints:1.0.12'
-    implementation 'androidx.multidex:multidex:2.0.0'
+    implementation 'androidx.multidex:multidex:2.0.1'
     implementation 'androidx.cardview:cardview:1.0.0'
-    implementation 'androidx.recyclerview:recyclerview:1.0.0'
+    implementation 'androidx.recyclerview:recyclerview:1.1.0'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'androidx.legacy:legacy-preference-v14:1.0.0'
     implementation 'androidx.gridlayout:gridlayout:1.0.0'
     implementation 'com.madgag.spongycastle:core:1.54.0.0'
     implementation 'com.madgag.spongycastle:prov:1.54.0.0'
-    implementation 'com.google.android.gms:play-services-maps:16.0.0'
+    implementation 'com.google.android.gms:play-services-maps:17.0.0'
     implementation 'joda-time:joda-time:2.9.4'
     implementation 'net.zetetic:android-database-sqlcipher:3.5.9@aar'
     implementation('org.apache.james:apache-mime4j:0.7.2') {
         exclude module: 'commons-io'
     }
-    implementation('org.apache.httpcomponents:httpmime:4.3.6')
+    implementation('org.apache.httpcomponents:httpmime:4.5.6')
     implementation 'net.sourceforge.htmlcleaner:htmlcleaner:2.16'
     implementation 'org.jsoup:jsoup:1.8.3'
-    implementation 'com.google.firebase:firebase-core:16.0.5'
+    implementation 'com.google.firebase:firebase-core:17.4.2'
+
+    // crashes on update - https://developers.google.com/admob/android/quick-start#update_your_androidmanifestxml
+    // We need to update consumer apps script to inject the right admob id to be able to update this
     implementation 'com.google.firebase:firebase-ads:16.0.1'
+
     implementation 'com.carrotsearch:hppc:0.7.2'
     implementation 'io.reactivex.rxjava2:rxandroid:2.0.1'
     implementation 'com.jakewharton.rxbinding2:rxbinding:2.0.0'
@@ -94,11 +104,11 @@ dependencies {
     implementation ('io.ona.kujaku:library:0.8.7'){
         exclude module: 'xpp3'
     }
-    implementation "androidx.work:work-runtime:2.3.0"
-    implementation "androidx.work:work-runtime-ktx:2.3.0"
+    implementation "androidx.work:work-runtime:2.3.4"
+    implementation "androidx.work:work-runtime-ktx:2.3.4"
 
-    implementation 'com.google.android.play:core:1.7.2'
-    implementation 'android.arch.lifecycle:common-java8:1.1.0'
+    implementation 'com.google.android.play:core:1.7.3'
+    implementation 'android.arch.lifecycle:common-java8:1.1.1'
 
     //Robust TLS 1.2 ciphers on Android 9-19
     implementation "org.conscrypt:conscrypt-android:2.4.0"
@@ -125,6 +135,8 @@ ext {
     STANDALONE_APP_ID = ""
     LTS_APP_ID = ""
     COMMCARE_APP_ID = ""
+    HQ_API_USERNAME = project.properties['HQ_API_USERNAME'] ?: ""
+    HQ_API_PASSWORD = project.properties['HQ_API_PASSWORD'] ?: ""
 }
 
 afterEvaluate {
@@ -167,8 +179,8 @@ def ccDomain = project.hasProperty('cc_domain') ? cc_domain : ""
 def isConsumerApp = project.hasProperty('is_consumer_app') ? is_consumer_app : "false"
 def runDownloadScripts = project.hasProperty('run_download_scripts') ? run_download_scripts : "true"
 def ccDomainSafe = ccDomain.replaceAll("-", "")
-def consumerAppUsername = getConsumerAppUsername(isConsumerApp);
-def consumerAppPassword = getConsumerAppPassword(isConsumerApp);
+def consumerAppUsername = getConsumerAppUsername(isConsumerApp)
+def consumerAppPassword = getConsumerAppPassword(isConsumerApp)
 def usingAdmob = isConsumerApp && project.hasProperty('admob_id') && allAdUnitIdsPresent()
 def admobId = usingAdmob ? admob_id : ""
 def entityDetailAdUnitId = usingAdmob ? entity_detail_ad_id : ""
@@ -194,7 +206,7 @@ def computeVersionCode() {
     return code
 }
 
-def getDate() {
+static def getDate() {
     def date = new Date()
     def formattedDate = date.format('yyyy-MM-dd')
     return formattedDate
@@ -207,6 +219,11 @@ android {
         abortOnError false
         disable 'MissingTranslation'
         disable "ResourceType"
+    }
+
+    // Espresso requires us to disable animations on device.
+    testOptions {
+        animationsDisabled = true
     }
 
     packagingOptions {
@@ -237,7 +254,7 @@ android {
                 googlePlayMapsApiKey: "${project.ext.GOOGLE_PLAY_MAPS_API_KEY}"
         ]
 
-        versionCode computeVersionCode()
+        versionCode 1
 
         // when set, app won't show install screen and try to install
         // resources from assets folder
@@ -261,6 +278,19 @@ android {
         buildConfigField "String", "ENTITY_SELECT_AD_UNIT_ID", "\"\""
         buildConfigField "String", "MENU_LIST_AD_UNIT_ID", "\"\""
         buildConfigField "String", "MENU_GRID_AD_UNIT_ID", "\"\""
+
+        buildConfigField "String", "HQ_API_USERNAME", "\"${project.ext.HQ_API_USERNAME}\""
+        buildConfigField "String", "HQ_API_PASSWORD", "\"${project.ext.HQ_API_PASSWORD}\""
+
+        testInstrumentationRunner "org.commcare.CommCareJUnitRunner"
+    }
+
+    applicationVariants.all { variant ->
+        if (variant.buildType.name == "release") {
+            variant.outputs.each { output ->
+                output.versionCodeOverride = computeVersionCode()
+            }
+        }
     }
 
     compileOptions {
@@ -317,6 +347,12 @@ android {
             resources.srcDirs = ['unit-tests/resources/']
         }
 
+        androidTest {
+            setRoot('instrumentation-tests/')
+            java.srcDirs = ['instrumentation-tests/src/']
+            resources.srcDirs = ['instrumentation-tests/resources']
+        }
+
         // Move the build types to build-types/<type>
         // For instance, build-types/debug/java, build-types/debug/AndroidManifest.xml, ...
         // This moves them out of them default location under src/<type>/... which would
@@ -361,7 +397,7 @@ android {
                 boolean getAsBoolean() {
                     return true
                 }
-            }, null)
+            }, true, null)
             def ccVersion = manifestParser.getVersionName()
             // convert numbers to words to use in app id
             def ccVersionSafe = numbersToLetters(ccVersion)
@@ -461,6 +497,9 @@ android {
             includeAndroidResources = true
         }
     }
+
+    // Needed to run espresso tests on release build.
+    testBuildType "release"
 }
 
 /**

@@ -34,5 +34,10 @@ public enum MediaState {
      * music was playing in the previous version of the app, was paused
      * onDestroy, and should be renewed to the Playing state upon resuming
      */
-    PausedForRenewal
+    PausedForRenewal,
+
+    /**
+     * Media file is not present on the system
+     */
+    Missing
 }
