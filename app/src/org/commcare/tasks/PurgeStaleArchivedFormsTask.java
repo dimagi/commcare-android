@@ -8,6 +8,7 @@ import org.commcare.util.LogTypes;
 import org.javarosa.core.services.Logger;
 import org.joda.time.DateTime;
 
+import java.util.NoSuchElementException;
 import java.util.Vector;
 
 /**
@@ -127,8 +128,13 @@ public class PurgeStaleArchivedFormsTask
                 new Object[]{FormRecord.STATUS_SAVED, currentAppId});
 
         for (int id : savedFormsForThisApp) {
-            String dateAsString =
-                    formStorage.getMetaDataFieldForRecord(id, FormRecord.META_LAST_MODIFIED);
+            String dateAsString;
+            try {
+                dateAsString = formStorage.getMetaDataFieldForRecord(id, FormRecord.META_LAST_MODIFIED);
+            } catch (NoSuchElementException e) {
+                continue;
+            }
+
             long timeSinceEpoch;
             try {
                 timeSinceEpoch = Long.valueOf(dateAsString);
