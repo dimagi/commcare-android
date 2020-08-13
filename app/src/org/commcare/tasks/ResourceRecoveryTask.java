@@ -67,7 +67,7 @@ public class ResourceRecoveryTask
         ResultAndError<AppInstallStatus> result;
         try {
             RequestStats.register(InstallRequestSource.RECOVERY);
-            global.recoverResources(platform, ResourceInstallUtils.getProfileReference(), getRecoveryHeaders());
+            global.recoverResources(platform, ResourceInstallUtils.getProfileReference(), InstallRequestSource.RECOVERY);
             result = new ResultAndError(AppInstallStatus.Installed);
             RequestStats.markSuccess(InstallRequestSource.RECOVERY);
         } catch (InstallCancelledException e) {
@@ -82,14 +82,6 @@ public class ResourceRecoveryTask
         return result;
     }
 
-    private Map<String, String> getRecoveryHeaders() {
-        Map<String, String> headers = new HashMap<>();
-        headers.put(CommcareRequestGenerator.X_COMMCAREHQ_REQUEST_SOURCE,
-                String.valueOf(InstallRequestSource.RECOVERY));
-        headers.put(CommcareRequestGenerator.X_COMMCAREHQ_REQUEST_AGE,
-                String.valueOf(RequestStats.getRequestAge(InstallRequestSource.RECOVERY)));
-        return headers;
-    }
 
     @Override
     protected void onPostExecute(ResultAndError<AppInstallStatus> result) {

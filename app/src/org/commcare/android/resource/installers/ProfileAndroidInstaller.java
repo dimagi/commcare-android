@@ -9,6 +9,7 @@ import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.preferences.HiddenPreferences;
+import org.commcare.resources.model.InstallRequestSource;
 import org.commcare.resources.model.InvalidResourceException;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceLocation;
@@ -35,7 +36,6 @@ import java.io.InputStream;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Map;
 
 /**
  * @author ctsims
@@ -81,10 +81,10 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
 
     @Override
     public boolean install(Resource r, ResourceLocation location, Reference ref,
-                           ResourceTable table, AndroidCommCarePlatform platform, boolean upgrade, boolean recovery, Map<String, String> customRequestHeaders)
+                           ResourceTable table, AndroidCommCarePlatform platform, boolean upgrade, boolean recovery, InstallRequestSource installRequestSource)
             throws UnresolvedResourceException, UnfullfilledRequirementsException {
         //First, make sure all the file stuff is managed.
-        super.install(r, location, ref, table, platform, upgrade, recovery, customRequestHeaders);
+        super.install(r, location, ref, table, platform, upgrade, recovery, installRequestSource);
         try {
             storeReleasedTime(platform, ref);
         } catch (ParseException e) {

@@ -13,7 +13,9 @@ class MissingMediaDownloadWorker(appContext: Context, workerParams: WorkerParame
         MissingMediaDownloadHelper.installCancelled = this
         val result = MissingMediaDownloadHelper.downloadAllLazyMedia()
         return when {
-            result == AppInstallStatus.Installed -> Result.success()
+            result == AppInstallStatus.Installed -> {
+                Result.success()
+            }
             result.isNonPersistentFailure || result == AppInstallStatus.UnknownFailure -> Result.retry()
             else -> Result.failure()
         }

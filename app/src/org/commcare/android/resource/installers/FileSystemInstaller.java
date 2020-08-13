@@ -6,7 +6,9 @@ import org.commcare.CommCareApplication;
 import org.commcare.dalvik.R;
 import org.commcare.engine.references.ParameterizedReference;
 import org.commcare.engine.resource.installers.LocalStorageUnavailableException;
+import org.commcare.network.CommcareRequestGenerator;
 import org.commcare.network.RateLimitedException;
+import org.commcare.resources.model.InstallRequestSource;
 import org.commcare.resources.model.MissingMediaException;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceInstaller;
@@ -14,6 +16,7 @@ import org.commcare.resources.model.ResourceLocation;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.UnreliableSourceException;
 import org.commcare.resources.model.UnresolvedResourceException;
+import org.commcare.tasks.RequestStats;
 import org.commcare.util.CommCarePlatform;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.AndroidCommCarePlatform;
@@ -39,6 +42,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
 
@@ -84,7 +88,7 @@ abstract class FileSystemInstaller implements ResourceInstaller<AndroidCommCareP
     @Override
     public boolean install(Resource r, ResourceLocation location,
                            Reference ref, ResourceTable table,
-                           AndroidCommCarePlatform platform, boolean upgrade, boolean recovery, Map<String, String> customRequestHeaders)
+                           AndroidCommCarePlatform platform, boolean upgrade, boolean recovery, InstallRequestSource installRequestSource)
             throws UnresolvedResourceException, UnfullfilledRequirementsException {
         try {
 
@@ -93,7 +97,7 @@ abstract class FileSystemInstaller implements ResourceInstaller<AndroidCommCareP
             InputStream inputFileStream;
             try {
                 if (ref instanceof ParameterizedReference) {
-                    inputFileStream = ((ParameterizedReference)ref).getStream(customRequestHeaders);
+                    inputFileStream = ((ParameterizedReference)ref).getStream(getInstallHeaders(installRequestSource));
                 } else {
                     inputFileStream = ref.getStream();
                 }
@@ -135,6 +139,15 @@ abstract class FileSystemInstaller implements ResourceInstaller<AndroidCommCareP
             mURE.initCause(e);
             throw mURE;
         }
+    }
+
+    private Map<String, String> getInstallHeaders(InstallRequestSource installRequestSource) {
+        Map<String, String> headers = new HashMap<>();
+        headers.put(CommcareRequestGenerator.X_COMMCAREHQ_REQUEST_SOURCE,
+                String.valueOf(installRequestSource));
+        headers.put(CommcareRequestGenerator.X_COMMCAREHQ_REQUEST_AGE,
+                String.valueOf(RequestStats.getRequestAge(installRequestSource)));
+        return headers;
     }
 
     private File writeToTempFile(InputStream inputFileStream) throws LocalStorageUnavailableException, IOException {
