@@ -168,6 +168,11 @@ public class CommCareTestApplication extends CommCareApplication implements Test
         }
     }
 
+    @Override
+    protected void loadSqliteLibs() {
+        // do nothing
+    }
+
     /**
      * @return Names of externalizable classes loaded from *.class files in the build dir
      */

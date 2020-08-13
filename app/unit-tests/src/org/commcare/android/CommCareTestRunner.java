@@ -31,8 +31,8 @@ public class CommCareTestRunner extends RobolectricTestRunner {
     @Override
     public InstrumentationConfiguration createClassLoaderConfig(final FrameworkMethod method) {
         InstrumentationConfiguration.Builder builder = new InstrumentationConfiguration.Builder(super.createClassLoaderConfig(method));
-        builder.addInstrumentedPackage("net.sqlcipher.database.SQLiteDatabase");
-        builder.addInstrumentedPackage("org.commcare.models.encryption");
+//        builder.addInstrumentedPackage("net.sqlcipher.database.SQLiteDatabase");
+//        builder.addInstrumentedPackage("org.commcare.models.encryption");
         return builder.build();
     }
 

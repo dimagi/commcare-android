@@ -214,10 +214,8 @@ public class CommCareApplication extends MultiDexApplication {
 
         Thread.setDefaultUncaughtExceptionHandler(new CommCareExceptionHandler(Thread.getDefaultUncaughtExceptionHandler(), this));
 
-        SQLiteDatabase.loadLibs(this);
-
+        loadSqliteLibs();
         setRoots();
-
         prepareTemporaryStorage();
 
         if (LegacyInstallUtils.checkForLegacyInstall(this)) {
@@ -238,6 +236,10 @@ public class CommCareApplication extends MultiDexApplication {
         }
 
         LocalePreferences.saveDeviceLocale(Locale.getDefault());
+    }
+
+    protected void loadSqliteLibs() {
+        SQLiteDatabase.loadLibs(this);
     }
 
     public boolean useConscryptSecurity() {
