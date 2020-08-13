@@ -79,9 +79,10 @@ class UpdateWorker(appContext: Context, workerParams: WorkerParameters)
 
         cleanUp()
 
-        return when (updateResult.data.shouldRetryUpdate()) {
-            true -> Result.success()
-            else -> Result.retry()
+        return when {
+            updateResult.data == AppInstallStatus.Installed -> Result.success()
+            updateResult.data.shouldRetryUpdate() -> Result.retry()
+            else -> Result.failure()
         }
     }
 
