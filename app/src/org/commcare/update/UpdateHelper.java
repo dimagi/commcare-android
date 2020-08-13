@@ -16,6 +16,7 @@ import org.commcare.preferences.MainConfigurablePreferences;
 import org.commcare.preferences.PrefValues;
 import org.commcare.resources.model.InstallCancelled;
 import org.commcare.resources.model.InstallCancelledException;
+import org.commcare.resources.model.InstallRequestSource;
 import org.commcare.resources.model.InvalidResourceException;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
@@ -81,11 +82,11 @@ public class UpdateHelper implements TableStateListener {
     }
 
     // Main UpdateHelper function for staging updates
-    public ResultAndError<AppInstallStatus> update(String profileRef) {
+    public ResultAndError<AppInstallStatus> update(String profileRef, InstallRequestSource installRequestSource) {
         setupUpdate(profileRef);
 
         try {
-            return new ResultAndError<>(stageUpdate(profileRef));
+            return new ResultAndError<>(stageUpdate(profileRef, installRequestSource));
         } catch (InvalidResourceException e) {
             ResourceInstallUtils.logInstallError(e,
                     "Structure error ocurred during install|");
@@ -132,8 +133,8 @@ public class UpdateHelper implements TableStateListener {
     }
 
 
-    private AppInstallStatus stageUpdate(String profileRef) throws UnfullfilledRequirementsException,
-            UnresolvedResourceException, InstallCancelledException {
+    private AppInstallStatus stageUpdate(String profileRef, InstallRequestSource installRequestSource)
+            throws UnfullfilledRequirementsException, UnresolvedResourceException, InstallCancelledException {
         Resource profile = mResourceManager.getMasterProfile();
         boolean appInstalled = (profile != null &&
                 profile.getStatus() == Resource.RESOURCE_STATUS_INSTALLED);
@@ -145,7 +146,7 @@ public class UpdateHelper implements TableStateListener {
         String profileRefWithParams =
                 ResourceInstallUtils.addParamsToProfileReference(profileRef);
 
-        return mResourceManager.checkAndPrepareUpgradeResources(profileRefWithParams, mAuthority);
+        return mResourceManager.checkAndPrepareUpgradeResources(profileRefWithParams, mAuthority, installRequestSource);
     }
 
     /**

@@ -9,6 +9,7 @@ import org.commcare.engine.resource.AppInstallStatus;
 import org.commcare.engine.resource.ResourceInstallUtils;
 import org.commcare.engine.resource.installers.LocalStorageUnavailableException;
 import org.commcare.resources.ResourceManager;
+import org.commcare.resources.model.InstallRequestSource;
 import org.commcare.resources.model.InvalidResourceException;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
@@ -100,7 +101,8 @@ public abstract class ResourceEngineTask<R>
 
             global.setStateListener(this);
             try {
-                ResourceManager.installAppResources(platform, profileRef, global, reinstall, authorityForInstall);
+                ResourceManager.installAppResources(platform, profileRef, global, reinstall, authorityForInstall, InstallRequestSource.INSTALL);
+                RequestStats.markSuccess(InstallRequestSource.INSTALL);
             } catch (LocalStorageUnavailableException e) {
                 ResourceInstallUtils.logInstallError(e,
                         "Couldn't install file to local storage|");

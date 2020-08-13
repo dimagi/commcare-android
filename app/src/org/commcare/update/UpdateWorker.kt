@@ -11,6 +11,8 @@ import org.commcare.CommCareApplication
 import org.commcare.engine.resource.AppInstallStatus
 import org.commcare.engine.resource.ResourceInstallUtils
 import org.commcare.resources.model.InstallCancelled
+import org.commcare.resources.model.InstallRequestSource
+import org.commcare.tasks.RequestStats
 import org.commcare.tasks.ResultAndError
 
 /**
@@ -62,7 +64,7 @@ class UpdateWorker(appContext: Context, workerParams: WorkerParameters)
                 CommCareApplication.instance().getSession().isActive()) {
 
             updateHelper.startPinnedNotification(CommCareApplication.instance())
-            updateResult = updateHelper.update(ResourceInstallUtils.getDefaultProfileRef())
+            updateResult = updateHelper.update(ResourceInstallUtils.getDefaultProfileRef(), InstallRequestSource.BACKGROUND_UPDATE)
         } else {
             return Result.success()
         }
@@ -70,6 +72,10 @@ class UpdateWorker(appContext: Context, workerParams: WorkerParameters)
     }
 
     private fun handleUpdateResult(updateResult: ResultAndError<AppInstallStatus>): Result {
+
+        if (updateResult.data == AppInstallStatus.Installed) {
+            RequestStats.markSuccess(InstallRequestSource.BACKGROUND_UPDATE);
+        }
 
         if (updateResult.data == AppInstallStatus.Cancelled) {
             updateHelper.OnUpdateCancelled()
