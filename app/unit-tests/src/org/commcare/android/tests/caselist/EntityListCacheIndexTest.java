@@ -3,7 +3,7 @@ package org.commcare.android.tests.caselist;
 import org.commcare.CommCareTestApplication;
 import org.commcare.activities.EntitySelectActivity;
 import org.commcare.adapters.EntityListAdapter;
-import org.commcare.android.CommCareTestRunner;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import org.commcare.android.util.CaseLoadUtils;
 import org.commcare.android.util.TestAppInstaller;
 import org.commcare.android.util.TestUtils;
@@ -23,7 +23,7 @@ import static org.junit.Assert.fail;
  * @author willpride
  */
 @Config(application = CommCareTestApplication.class)
-@RunWith(CommCareTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 public class EntityListCacheIndexTest {
     private EntitySelectActivity entitySelectActivity;
     private EntityListAdapter adapter;

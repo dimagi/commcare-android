@@ -2,6 +2,7 @@ package org.commcare;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Environment;
 import android.os.StrictMode;
 import android.util.Log;
 
@@ -50,6 +51,7 @@ import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 
 import static junit.framework.Assert.fail;
+import static org.robolectric.shadows.ShadowEnvironment.setExternalStorageState;
 
 /**
  * @author Phillip Mates (pmates@dimagi.com).
@@ -74,6 +76,7 @@ public class CommCareTestApplication extends CommCareApplication implements Test
             asyncExceptions.add(ex);
             Assert.fail(ex.getMessage());
         });
+        setExternalStorageState(Environment.MEDIA_MOUNTED);
     }
 
     @Override
