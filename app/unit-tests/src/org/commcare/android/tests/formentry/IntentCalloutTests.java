@@ -8,7 +8,7 @@ import junit.framework.Assert;
 
 import org.commcare.CommCareTestApplication;
 import org.commcare.activities.FormEntryActivity;
-import org.commcare.android.CommCareTestRunner;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import org.commcare.android.resource.installers.XFormAndroidInstaller;
 import org.commcare.android.util.ActivityLaunchUtils;
 import org.commcare.android.util.TestAppInstaller;
@@ -32,7 +32,7 @@ import static junit.framework.Assert.assertTrue;
  * @author wpride
  */
 @Config(application = CommCareTestApplication.class)
-@RunWith(CommCareTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 public class IntentCalloutTests {
 
     @Before
