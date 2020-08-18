@@ -173,23 +173,14 @@ class AppUpdateTest: BaseTest() {
 
         // The below tests will only work on a pre-android Q device.
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
-            changeWifi(false)
+            InstrumentationUtility.changeWifi(false)
             InstrumentationUtility.openOptionsMenu()
             onView(withText("Update App"))
                     .perform(click())
             onView(withText("No network connectivity"))
                     .perform(click())
-            changeWifi(true)
+            InstrumentationUtility.changeWifi(true)
         }
-    }
-
-    /**
-     * Starting with Android Q, applications are not allowed to enable/disable Wi-Fi.
-     */
-    private fun changeWifi(enable: Boolean) {
-        val context = InstrumentationRegistry.getInstrumentation().targetContext
-        val wifiManager = context.getSystemService(Context.WIFI_SERVICE) as WifiManager
-        wifiManager.isWifiEnabled = enable
     }
 
 }

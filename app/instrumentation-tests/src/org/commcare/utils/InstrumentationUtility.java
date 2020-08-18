@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.net.wifi.WifiManager;
 import android.provider.MediaStore;
 import android.view.View;
 import android.view.ViewGroup;
@@ -211,86 +212,14 @@ public class InstrumentationUtility {
     }
 
     /**
-     * In case a view contains more than 1 items of same type,
-     * use this to select the item at @param position.
-     * NOTE:- position is 1 based.
-     */
-    public static <T> Matcher<T> find(Matcher<T> matcher, int position) {
-        return new BaseMatcher<T>() {
-            int count = 0;
-            @Override
-            public boolean matches(Object item) {
-                if (matcher.matches(item)) {
-                    count++;
-                    return count == position;
-                }
-                return false;
-            }
-
-            @Override
-            public void describeTo(Description description) {
-                description.appendText("will return " + position + " matching item");
-            }
-        };
-    }
-
-    /**
-     * Matches the listView item count with the @param size
-     * Note: Only works for listview.
-     */
-    public static Matcher<View> matchListSize(int size) {
-        return new TypeSafeMatcher<View>() {
-            @Override
-            protected boolean matchesSafely(View view) {
-                if (view instanceof ListView) {
-                    return ((ListView) view).getAdapter().getCount() == size;
-                } else {
-                    throw new IllegalStateException("matchListSize() should only be used with " +
-                            "listView. Current view is :: " + view.getClass().getSimpleName());
-                }
-            }
-
-            @Override
-            public void describeTo(Description description) {
-                description.appendText("will match listView item size with " + size);
-            }
-        };
-    }
-
-    /**
      * Matches total occurrences of child inside parent with count.
      */
     public static void matchChildCount(Class<?> parent, Class<?> child, int count) {
         onView(withClassName(is(parent.getCanonicalName())))
                 .check(matches(
-                        withChildViewCount(count,
+                        CustomMatchers.withChildViewCount(count,
                                 withClassName(is(child.getCanonicalName())))
                 ));
-    }
-
-    /**
-     * This matcher will count all the children of a viewGroup that matches the `childMatcher`.
-     * And then assert the count with the passed parameter.
-     */
-    public static Matcher<View> withChildViewCount(final int count, final Matcher<View> childMatcher) {
-        return new BoundedMatcher<View, ViewGroup>(ViewGroup.class) {
-            @Override
-            protected boolean matchesSafely(ViewGroup viewGroup) {
-                int matchCount = 0;
-                for (View child: TreeIterables.breadthFirstViewTraversal(viewGroup)) {
-                    if (childMatcher.matches(child)) {
-                        matchCount++;
-                    }
-                }
-                return matchCount == count;
-            }
-
-            @Override
-            public void describeTo(Description description) {
-                description.appendText("ViewGroup with child-count=" + count + " and");
-                childMatcher.describeTo(description);
-            }
-        };
     }
 
     /**
@@ -306,6 +235,26 @@ public class InstrumentationUtility {
         Activity activity = application.getCurrentActivity();
         ListView listView = activity.findViewById(resId);
         return listView.getAdapter().getCount();
+    }
+
+    /**
+     * This method will toggle the wifi state in mobile.
+     * Starting with Android Q, applications are not allowed to enable/disable Wi-Fi.
+     */
+    public static void changeWifi(boolean enable) {
+        Context context = InstrumentationRegistry.getInstrumentation().getTargetContext();
+        WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
+        wifiManager.setWifiEnabled(enable);
+    }
+
+    /**
+     * A wrapper around espresso's typeText api. This method will type text into the specified
+     * edittext and after that it will close the keyboard.
+     */
+    public static void enterText(@IdRes int editTextId, String text) {
+        onView(withId(editTextId))
+                .perform(typeText(text));
+        closeSoftKeyboard();
     }
 
     //region private helpers.

@@ -8,6 +8,7 @@ import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import org.commcare.dalvik.R
+import org.commcare.utils.CustomMatchers
 import org.commcare.utils.InstrumentationUtility
 import org.hamcrest.Matchers.*
 import org.junit.Before
@@ -57,6 +58,6 @@ class SubmissionErrorResponseTest: BaseTest() {
                 .perform(click())
 
         onView(withId(R.id.screen_entity_select_list))
-                .check(matches(InstrumentationUtility.matchListSize(1)))
+                .check(matches(CustomMatchers.matchListSize(1)))
     }
 }
