@@ -12,7 +12,7 @@ import org.commcare.CommCareNoficationManager;
 import org.commcare.CommCareTestApplication;
 import org.commcare.activities.InstallArchiveActivity;
 import org.commcare.activities.UpdateActivity;
-import org.commcare.android.CommCareTestRunner;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import org.commcare.android.util.TestAppInstaller;
 import org.commcare.dalvik.R;
 import org.javarosa.core.services.locale.Localization;
@@ -38,7 +38,7 @@ import static org.junit.Assert.assertNull;
 // Using sdk 19 to get past NsdManager because of a bug in robolectric that causes NsdManager
 // to get initialized with a null context resulting in a NPE
 @Config(application = CommCareTestApplication.class, sdk = 18)
-@RunWith(CommCareTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 public class UpdateActivityTest {
     @Before
     public void setup() {

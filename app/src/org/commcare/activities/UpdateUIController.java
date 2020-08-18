@@ -172,7 +172,6 @@ class UpdateUIController implements CommCareActivityUIController {
     protected void errorUiState() {
         currentUIState = UIState.Error;
         checkUpdateButton.setVisibility(View.VISIBLE);
-        checkUpdateButton.setEnabled(false);
         stopUpdateButton.setVisibility(View.GONE);
         installUpdateButton.setVisibility(View.GONE);
 
@@ -182,7 +181,6 @@ class UpdateUIController implements CommCareActivityUIController {
     protected void noConnectivityUiState() {
         currentUIState = UIState.NoConnectivity;
         checkUpdateButton.setVisibility(View.VISIBLE);
-        checkUpdateButton.setEnabled(false);
         stopUpdateButton.setVisibility(View.GONE);
         installUpdateButton.setVisibility(View.GONE);
 

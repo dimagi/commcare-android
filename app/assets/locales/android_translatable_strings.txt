@@ -20,6 +20,9 @@ updates.pinned.download=Downloading updates
 updates.pinned.progress=${0}/${1}
 install.current.version=Current version: ${0}
 
+media.pinned.download=Downloading application media
+media.pinned.progress=${0}/${1}
+
 apk.update.available.title=New version of ${0} is Available
 apk.update.required.title=New version of ${0} is Required
 ccz.update.available.title=New version of the application is available
@@ -102,6 +105,7 @@ menu.enable.privileges=Mobile Privileges
 menu.privilege.claim.disable=Disable Privileges
 menu.data.change.logs=Data Change Logs
 menu.enable.rate.limit.popup=Enable Rate Limit Error Popup
+menu.enable.manual.form.quarantine=Enable Manual Form Quarantine
 
 install.fail.error=We encountered an ${0} error processing your request. Please try again later. If the problem persists, contact CommCare Support.
 
@@ -533,7 +537,7 @@ notification.restore.unknown.title=Unknown Error during Restore
 notification.restore.unknown.detail=CommCare had trouble dealing with something that happened when you tried to log in 
 notification.restore.unknown.action=Try to log in again. If you receive this message again, force close the application from the Manage Applications menu on the phone. If the error persists, contact CommCare Support.
 
-notification.restore.cancelled.title= Sync cancelled
+notification.restore.cancelled.title=Sync cancelled
 notification.restore.cancelled.detail=Sync was cancelled by user
 notification.restore.cancelled.action=Please try to sync again if required
 
@@ -566,6 +570,10 @@ notification.install.missing.action=This failure is generally due to a bad or in
 notification.install.invalid.title=A part of your application is invalid.
 notification.install.invalid.detail=CommCare found an issue with the '${0}' resource:
 notification.install.invalid.action=${0}
+
+notification.install.invalid.reference.title=Bad resource location in the application
+notification.install.invalid.reference.detail=Invalid resource location found in the application.
+notification.install.invalid.reference.action=${0}
 
 notification.install.missing.withmessage.title=Part of your app is not valid
 notification.install.missing.withmessage.detail=One of your app's resources (${0}) is not valid and must be fixed before it can be installed.
@@ -821,6 +829,9 @@ permission.acquire.required=Acquire Required Permissions
 permission.camera.title=Permission for Camera
 permission.camera.message=In order to take a picture, CommCare needs permission to use your device camera.
 permission.camera.denial.message=CommCare doesn't have the permission to use camera. Please enable via Android's settings.
+permission.location.title=Permission for Location
+permission.location.message=In order to record location, CommCare needs permission to use your device location.
+permission.location.denial.message=CommCare doesn't have the permission to use location. Please enable via Android's settings.
 
 custom.acknowledgement=
 case.error.self.index=Case '${0}' cannot index itself. In order to login you must change the case on the server.
@@ -921,3 +932,4 @@ in.app.update.error.playstore=Updating CommCare requires an official PlayStore a
 in.app.update.error.invalid.request=Couldn't install CommCare update due to internal failure. Please try later.
 in.app.update.error.internal.error=Couldn't install CommCare update due to internal error in PlayStore. Please try later.
 
+button.clear.title=Clear

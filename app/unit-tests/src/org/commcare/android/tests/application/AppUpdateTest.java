@@ -4,7 +4,7 @@ import android.util.Log;
 
 import org.commcare.CommCareApplication;
 import org.commcare.CommCareTestApplication;
-import org.commcare.android.CommCareTestRunner;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import org.commcare.android.util.TestAppInstaller;
 import org.commcare.android.util.UpdateUtils;
 import org.commcare.engine.resource.AppInstallStatus;
@@ -28,7 +28,7 @@ import static org.junit.Assert.assertEquals;
  * @author Phillip Mates (pmates@dimagi.com).
  */
 @Config(application = CommCareTestApplication.class)
-@RunWith(CommCareTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 public class AppUpdateTest {
     private final static String TAG = AppUpdateTest.class.getSimpleName();
     private final static String REF_BASE_DIR = "jr://resource/commcare-apps/update_tests/";

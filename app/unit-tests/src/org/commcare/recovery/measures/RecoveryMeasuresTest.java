@@ -9,7 +9,7 @@ import org.commcare.activities.LoginActivity;
 import org.commcare.activities.PromptApkUpdateActivity;
 import org.commcare.activities.PromptCCReinstallActivity;
 import org.commcare.activities.StandardHomeActivity;
-import org.commcare.android.CommCareTestRunner;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import org.commcare.android.util.TestAppInstaller;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.preferences.HiddenPreferences;
@@ -27,7 +27,7 @@ import java.util.List;
 import static junit.framework.Assert.assertTrue;
 
 @Config(application = CommCareTestApplication.class)
-@RunWith(CommCareTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 public class RecoveryMeasuresTest {
 
     private static final String REINSTALL_AND_UPDATE_VALID_FOR_CURRENT_APP_VERSION =  "{ \"latest_ccz_version\":9, \"latest_apk_version\":\"2.91.0\"," +

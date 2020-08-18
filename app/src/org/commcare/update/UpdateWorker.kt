@@ -70,13 +70,11 @@ class UpdateWorker(appContext: Context, workerParams: WorkerParameters)
     }
 
     private fun handleUpdateResult(updateResult: ResultAndError<AppInstallStatus>): Result {
-
         if (updateResult.data == AppInstallStatus.Cancelled) {
             updateHelper.OnUpdateCancelled()
         }
 
         updateHelper.OnUpdateComplete(updateResult)
-
         cleanUp()
 
         return when {
