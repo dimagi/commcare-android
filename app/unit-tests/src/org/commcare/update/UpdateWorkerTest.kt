@@ -1,18 +1,19 @@
 package org.commcare.update
 
 import android.content.Context
-import android.util.Log
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.work.ListenableWorker
 import androidx.work.testing.TestListenableWorkerBuilder
 import kotlinx.coroutines.runBlocking
+import okhttp3.HttpUrl
+import okhttp3.mockwebserver.MockResponse
+import okhttp3.mockwebserver.MockWebServer
 import org.commcare.CommCareApplication
 import org.commcare.CommCareTestApplication
-import org.commcare.android.tests.application.AppUpdateTest
+import org.commcare.android.mocks.ModernHttpRequesterMock
 import org.commcare.android.util.TestAppInstaller
 import org.commcare.android.util.UpdateUtils
-import org.commcare.engine.resource.AppInstallStatus
 import org.commcare.preferences.ServerUrls.PREFS_APP_SERVER_KEY
 import org.hamcrest.CoreMatchers.`is`
 import org.junit.Assert
@@ -74,6 +75,13 @@ class UpdateWorkerTest {
     fun testIncompatibleVersion_shouldFail() {
         val profileRef = UpdateUtils.buildResourceRef(REF_BASE_DIR, "invalid_version", "profile.ccpr")
         runAndTestUpdateWorker(profileRef, ListenableWorker.Result.failure())
+    }
+
+    @Test
+    fun testNetworkFailure_shouldRetry() {
+        ModernHttpRequesterMock.setRequestPayloads(arrayOf("null", "null", "null", "null")) // should cause an IO Exception
+        val profileRef = UpdateUtils.buildResourceRef("https://", "fake_update", "fake.ccpr")
+        runAndTestUpdateWorker(profileRef, ListenableWorker.Result.retry())
     }
 
     private fun runAndTestUpdateWorker(profileRef: String, expectedResult: ListenableWorker.Result) {
