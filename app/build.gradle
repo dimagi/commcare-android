@@ -44,6 +44,7 @@ dependencies {
     testImplementation 'org.robolectric:shadows-multidex:4.3.1'
     testImplementation 'androidx.test:core:1.2.0'
     testImplementation 'androidx.test.ext:junit:1.1.1'
+    testImplementation 'androidx.work:work-testing:2.4.0'
     testImplementation 'org.json:json:20140107'
     testImplementation project(path: ':commcare-core', configuration: 'testsAsJar')
 
@@ -107,8 +108,8 @@ dependencies {
     implementation ('io.ona.kujaku:library:0.8.7'){
         exclude module: 'xpp3'
     }
-    implementation "androidx.work:work-runtime:2.3.4"
-    implementation "androidx.work:work-runtime-ktx:2.3.4"
+    implementation "androidx.work:work-runtime:2.4.0"
+    implementation "androidx.work:work-runtime-ktx:2.4.0"
 
     implementation 'com.google.android.play:core:1.7.3'
     implementation 'android.arch.lifecycle:common-java8:1.1.1'
