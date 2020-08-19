@@ -40,13 +40,9 @@ class UpdateWorker(appContext: Context, workerParams: WorkerParameters)
             }
 
             job.invokeOnCompletion { exception: Throwable? ->
-                when (exception) {
-                    is CancellationException -> {
-                        handleUpdateResult(ResultAndError(AppInstallStatus.Cancelled))
-                    }
-                    else -> {
-                        handleUpdateResult(ResultAndError(AppInstallStatus.UnknownFailure))
-                    }
+                when {
+                    exception is CancellationException -> handleUpdateResult(ResultAndError(AppInstallStatus.Cancelled))
+                    exception != null -> handleUpdateResult(ResultAndError(AppInstallStatus.UnknownFailure))
                 }
             }
 
