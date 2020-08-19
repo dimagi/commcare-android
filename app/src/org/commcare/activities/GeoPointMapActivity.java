@@ -153,7 +153,8 @@ public class GeoPointMapActivity extends Activity
     public void onLocationChanged(Location location) {
         if (!inViewMode && !isManualSelectedLocation) {
             if (location != null &&
-                    (this.location == null || (location.getAccuracy() < this.location.getAccuracy()))) {
+                    (this.location == null || this.location.getAccuracy() == 0 ||
+                            (location.getAccuracy() < this.location.getAccuracy()))) {
                 this.location = location;
                 drawMarker();
             }
