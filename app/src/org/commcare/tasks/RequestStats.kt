@@ -1,27 +1,34 @@
 package org.commcare.tasks
 
+import org.commcare.CommCareApp
 import org.commcare.CommCareApplication
 import org.commcare.resources.model.InstallRequestSource
 import org.commcare.utils.SyncDetailCalculations.getDaysBetweenJavaDatetimes
+import org.commcare.utils.TimeProvider
 import java.util.*
 
 object RequestStats {
     @JvmStatic
-    fun register(requestTag: InstallRequestSource) {
-        val firstAttempt = getFirstRequestAttempt(requestTag);
+    fun register(installRequestSource: InstallRequestSource) {
+        register(CommCareApplication.instance().currentApp, installRequestSource)
+    }
+
+    @JvmStatic
+    fun register(app: CommCareApp, installRequestSource: InstallRequestSource) {
+        val firstAttempt = getFirstRequestAttempt(app, installRequestSource);
         if (firstAttempt == -1L) {
             // this is the first Attempt
-            CommCareApplication.instance().currentApp.appPreferences
+            app.appPreferences
                     .edit()
-                    .putLong(getFirstRequestAttemptKey(requestTag), Date().time)
+                    .putLong(getFirstRequestAttemptKey(installRequestSource), Date().time)
                     .apply()
         }
     }
 
     @JvmStatic
-    fun getRequestAge(requestTag: InstallRequestSource): RequestAge {
-        val firstAttempt = getFirstRequestAttempt(requestTag)
-        return when (if (firstAttempt == -1L) 0 else getDaysBetweenJavaDatetimes(Date(firstAttempt), Date())) {
+    fun getRequestAge(app: CommCareApp, requestTag: InstallRequestSource): RequestAge {
+        val firstAttempt = getFirstRequestAttempt(app, requestTag)
+        return when (if (firstAttempt == -1L) 0 else getDaysBetweenJavaDatetimes(Date(firstAttempt), TimeProvider.getCurrentDate())) {
             in 0..10 -> RequestAge.LT_10
             in 10..30 -> RequestAge.LT_30
             in 30..60 -> RequestAge.LT_60
@@ -33,15 +40,20 @@ object RequestStats {
     }
 
     @JvmStatic
-    fun markSuccess(requestTag: InstallRequestSource) {
-        CommCareApplication.instance().currentApp.appPreferences
+    fun markSuccess(installRequestSource: InstallRequestSource) {
+        markSuccess(CommCareApplication.instance().currentApp, installRequestSource)
+    }
+
+    @JvmStatic
+    fun markSuccess(app: CommCareApp, installRequestSource: InstallRequestSource) {
+        app.appPreferences
                 .edit()
-                .remove(getFirstRequestAttemptKey(requestTag))
+                .remove(getFirstRequestAttemptKey(installRequestSource))
                 .apply()
     }
 
-    private fun getFirstRequestAttempt(requestTag: InstallRequestSource): Long {
-        val appPrefrences = CommCareApplication.instance().currentApp.appPreferences
+    private fun getFirstRequestAttempt(app: CommCareApp, requestTag: InstallRequestSource): Long {
+        val appPrefrences = app.appPreferences
         return appPrefrences.getLong(getFirstRequestAttemptKey(requestTag), -1L)
     }
 
