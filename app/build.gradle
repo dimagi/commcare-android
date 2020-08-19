@@ -17,6 +17,7 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'com.google.firebase.crashlytics'
+apply from: 'jacoco.gradle'
 
 repositories {
     google()
@@ -140,6 +141,7 @@ ext {
     COMMCARE_APP_ID = ""
     HQ_API_USERNAME = project.properties['HQ_API_USERNAME'] ?: ""
     HQ_API_PASSWORD = project.properties['HQ_API_PASSWORD'] ?: ""
+    TEST_BUILD_TYPE = project.properties['TEST_BUILD_TYPE'] ?: "debug"
 }
 
 afterEvaluate {
@@ -502,7 +504,7 @@ android {
     }
 
     // Needed to run espresso tests on release build.
-    testBuildType "release"
+    testBuildType project.ext.TEST_BUILD_TYPE
 }
 
 /**
