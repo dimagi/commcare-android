@@ -3,7 +3,7 @@ package org.commcare.android.tests.application;
 import android.text.format.DateUtils;
 
 import org.commcare.CommCareTestApplication;
-import org.commcare.android.CommCareTestRunner;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import org.commcare.preferences.PrefValues;
 import org.commcare.utils.PendingCalcs;
 import org.joda.time.DateTime;
@@ -24,7 +24,7 @@ import static org.junit.Assert.fail;
  * @author Phillip Mates (pmates@dimagi.com).
  */
 @Config(application = CommCareTestApplication.class)
-@RunWith(CommCareTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 public class PendingCalcTest {
 
     /**

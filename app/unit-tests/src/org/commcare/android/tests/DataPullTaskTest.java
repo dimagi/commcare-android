@@ -3,7 +3,7 @@ package org.commcare.android.tests;
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.CommCareTestApplication;
-import org.commcare.android.CommCareTestRunner;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import org.commcare.network.CommcareRequestEndpointsMock;
 import org.commcare.android.util.TestAppInstaller;
 import org.commcare.network.LocalReferencePullResponseFactory;
@@ -23,7 +23,7 @@ import org.robolectric.annotation.Config;
  * @author Phillip Mates (pmates@dimagi.com)
  */
 @Config(application = CommCareTestApplication.class)
-@RunWith(CommCareTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 public class DataPullTaskTest {
     private final static String APP_BASE = "jr://resource/commcare-apps/form_nav_tests/";
     private final static String GOOD_RESTORE = APP_BASE + "simple_data_restore.xml";
