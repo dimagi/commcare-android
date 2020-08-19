@@ -16,7 +16,7 @@ import java.util.ArrayList;
 
 import org.commcare.CommCareApplication;
 import org.commcare.CommCareTestApplication;
-import org.commcare.android.CommCareTestRunner;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import org.commcare.android.util.TestUtils;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.FormInstance;
@@ -42,7 +42,7 @@ import org.robolectric.annotation.Config;
  *   3. Run this test file, and observe the output to sys.out.
  */
 @Config(application = CommCareTestApplication.class)
-@RunWith(CommCareTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 public class FormCacheEligibilityTester {
 
     // Place whatever app you want to test at this path

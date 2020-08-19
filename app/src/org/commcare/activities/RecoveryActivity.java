@@ -295,6 +295,7 @@ public class RecoveryActivity extends SessionAwareCommCareActivity<RecoveryActiv
         Intent i = new Intent(this, AppManagerActivity.class);
         i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(i);
+        finish();
     }
 
     public void stopLoading() {

@@ -10,12 +10,9 @@ class MissingMediaDownloadWorker(appContext: Context, workerParams: WorkerParame
     : CoroutineWorker(appContext, workerParams), InstallCancelled {
 
     override suspend fun doWork(): Result {
-        MissingMediaDownloadHelper.installCancelled = this
-        val result = MissingMediaDownloadHelper.downloadAllLazyMedia()
+        val result = MissingMediaDownloadHelper.downloadAllLazyMedia(this)
         return when {
-            result == AppInstallStatus.Installed -> {
-                Result.success()
-            }
+            result == AppInstallStatus.Installed -> Result.success()
             result.isNonPersistentFailure || result == AppInstallStatus.UnknownFailure -> Result.retry()
             else -> Result.failure()
         }

@@ -2,7 +2,7 @@ package org.commcare.android.tests.queries;
 
 import org.commcare.CommCareApplication;
 import org.commcare.CommCareTestApplication;
-import org.commcare.android.CommCareTestRunner;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import org.commcare.android.util.TestUtils;
 import org.commcare.cases.query.QueryContext;
 import org.commcare.cases.query.queryset.CurrentModelQuerySet;
@@ -39,7 +39,7 @@ import static junit.framework.Assert.assertEquals;
  * @author ctsims
  */
 @Config(application = CommCareTestApplication.class)
-@RunWith(CommCareTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 public class CaseDbQueryTest {
 
     @Before

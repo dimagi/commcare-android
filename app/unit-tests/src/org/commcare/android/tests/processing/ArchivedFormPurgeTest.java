@@ -3,7 +3,7 @@ package org.commcare.android.tests.processing;
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.CommCareTestApplication;
-import org.commcare.android.CommCareTestRunner;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.util.SavedFormLoader;
 import org.commcare.android.util.TestAppInstaller;
@@ -24,7 +24,7 @@ import static org.junit.Assert.assertEquals;
  * @author Phillip Mates (pmates@dimagi.com).
  */
 @Config(application = CommCareTestApplication.class)
-@RunWith(CommCareTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 public class ArchivedFormPurgeTest {
 
     @Before

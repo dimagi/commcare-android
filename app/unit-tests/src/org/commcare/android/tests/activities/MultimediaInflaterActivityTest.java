@@ -6,7 +6,7 @@ import android.widget.ImageButton;
 
 import org.commcare.CommCareTestApplication;
 import org.commcare.activities.MultimediaInflaterActivity;
-import org.commcare.android.CommCareTestRunner;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import org.commcare.android.util.TestAppInstaller;
 import org.commcare.dalvik.R;
 import org.javarosa.core.services.locale.Localization;
@@ -24,7 +24,7 @@ import org.robolectric.shadows.ShadowToast;
  * @author Phillip Mates (pmates@dimagi.com)
  */
 @Config(application = CommCareTestApplication.class)
-@RunWith(CommCareTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 public class MultimediaInflaterActivityTest {
 
     @Before

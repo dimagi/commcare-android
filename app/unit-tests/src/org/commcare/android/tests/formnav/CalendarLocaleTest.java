@@ -8,7 +8,7 @@ import android.widget.TextView;
 import org.commcare.CommCareTestApplication;
 import org.commcare.activities.FormEntryActivity;
 import org.commcare.activities.components.FormEntryConstants;
-import org.commcare.android.CommCareTestRunner;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import org.commcare.android.util.ActivityLaunchUtils;
 import org.commcare.android.util.TestAppInstaller;
 import org.commcare.dalvik.R;
@@ -27,7 +27,7 @@ import static junit.framework.Assert.assertTrue;
  * @author Phillip Mates (pmates@dimagi.com).
  */
 @Config(application = CommCareTestApplication.class)
-@RunWith(CommCareTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 public class CalendarLocaleTest {
 
     @Before
@@ -82,6 +82,4 @@ public class CalendarLocaleTest {
         assertEquals("26", ethiopianDayText.getText());
         assertEquals("2008", ethiopianYearText.getText());
     }
-
-
 }

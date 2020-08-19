@@ -3,7 +3,7 @@ package org.commcare.notifications;
 import android.os.Parcel;
 
 import org.commcare.CommCareTestApplication;
-import org.commcare.android.CommCareTestRunner;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import org.commcare.views.notifications.NotificationMessage;
 import org.junit.Assert;
 import org.junit.Test;
@@ -16,7 +16,7 @@ import java.util.Date;
  * @author Phillip Mates (pmates@dimagi.com)
  */
 @Config(application = CommCareTestApplication.class)
-@RunWith(CommCareTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 public class NotificationMessageTest {
     /**
      * Write NotificationMessage to parcel and read it back out again

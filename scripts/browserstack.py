@@ -22,6 +22,7 @@ def buildTestCommand(appToken, testToken):
     else:
         devices = ["LG G5-6.0", "Google Nexus 5-4.4"]
     test["devices"] = devices
+    test["project"] = "CommCare"
     test["app"] = appToken
     test["deviceLogs"] = True
     test["testSuite"] = testToken
