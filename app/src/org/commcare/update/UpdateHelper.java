@@ -22,6 +22,7 @@ import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.TableStateListener;
 import org.commcare.resources.model.UnresolvedResourceException;
+import org.commcare.tasks.RequestStats;
 import org.commcare.tasks.ResultAndError;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.AndroidCommCarePlatform;
@@ -83,7 +84,7 @@ public class UpdateHelper implements TableStateListener {
 
     // Main UpdateHelper function for staging updates
     public ResultAndError<AppInstallStatus> update(String profileRef, InstallRequestSource installRequestSource) {
-        setupUpdate(profileRef);
+        setupUpdate(profileRef, installRequestSource);
 
         try {
             return new ResultAndError<>(stageUpdate(profileRef, installRequestSource));
@@ -122,7 +123,8 @@ public class UpdateHelper implements TableStateListener {
         }
     }
 
-    private void setupUpdate(String profileRef) {
+    private void setupUpdate(String profileRef, InstallRequestSource installRequestSource) {
+        RequestStats.register(installRequestSource);
         ResourceInstallUtils.recordUpdateAttemptTime(mApp);
         Logger.log(LogTypes.TYPE_RESOURCES,
                 "Beginning install attempt for profile " + profileRef);

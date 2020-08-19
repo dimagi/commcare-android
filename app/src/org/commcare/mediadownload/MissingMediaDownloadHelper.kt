@@ -78,6 +78,7 @@ object MissingMediaDownloadHelper : TableStateListener {
             val platform = CommCareApplication.instance().commCarePlatform
             val global = platform.globalResourceTable
 
+            RequestStats.register(InstallRequestSource.BACKGROUND_LAZY_RESOURCE)
             global.setInstallCancellationChecker(cancellationChecker)
             startPinnedNotification()
 
@@ -98,6 +99,7 @@ object MissingMediaDownloadHelper : TableStateListener {
                     failure.data
                 } else {
                     HiddenPreferences.setLazyMediaDownloadComplete(true)
+                    RequestStats.markSuccess(InstallRequestSource.BACKGROUND_LAZY_RESOURCE)
                     AppInstallStatus.Installed
                 }
 
@@ -108,7 +110,6 @@ object MissingMediaDownloadHelper : TableStateListener {
                 global.setInstallCancellationChecker(null)
             }
         }
-        RequestStats.markSuccess(InstallRequestSource.BACKGROUND_LAZY_RESOURCE)
         return AppInstallStatus.Installed
     }
 
@@ -176,7 +177,7 @@ object MissingMediaDownloadHelper : TableStateListener {
     }
 
 
-    private suspend fun downloadMissingMediaResource(uri: String): MissingMediaDownloadResult {
+    private fun downloadMissingMediaResource(uri: String): MissingMediaDownloadResult {
         val platform = CommCareApplication.instance().commCarePlatform
         val global = platform.globalResourceTable
         val lazyResourceIds = global.lazyResourceIds
@@ -185,23 +186,8 @@ object MissingMediaDownloadHelper : TableStateListener {
                 .filter { it != null }
                 .filter { AndroidResourceUtils.matchFileUriToResource(it, uri) }
                 .take(1)
-                .map {
-                    if (resourceInProgress == null || it.resourceId != resourceInProgress!!.resourceId) {
-                        if (!FileUtil.referenceFileExists(uri)) {
-                            val resultAndError = runBlocking {
-                                recoverResource(platform, it, InstallRequestSource.FOREGROUND_LAZY_RESOURCE)
-                            }
-                            if (resultAndError.data == AppInstallStatus.Installed) {
-                                RequestStats.markSuccess(InstallRequestSource.FOREGROUND_LAZY_RESOURCE)
-                            }
-                            getMissingMediaResult(resultAndError)
-                        } else {
-                            MissingMediaDownloadResult.Success
-                        }
-                    } else {
-                        MissingMediaDownloadResult.InProgress
-                    }
-                }.firstOrNull()
+                .map { downloadResource(it, uri) }
+                .firstOrNull()
 
         if (result == null) {
             result = MissingMediaDownloadResult.Error(StringUtils.getStringRobust(
@@ -209,6 +195,26 @@ object MissingMediaDownloadHelper : TableStateListener {
                     R.string.media_not_found_error))
         }
         return result
+    }
+
+    private fun downloadResource(it: Resource, uri: String): MissingMediaDownloadResult {
+        return if (resourceInProgress == null || it.resourceId != resourceInProgress!!.resourceId) {
+            if (!FileUtil.referenceFileExists(uri)) {
+                RequestStats.register(InstallRequestSource.FOREGROUND_LAZY_RESOURCE)
+                val resultAndError = runBlocking {
+                    recoverResource(CommCareApplication.instance().commCarePlatform,
+                            it, InstallRequestSource.FOREGROUND_LAZY_RESOURCE)
+                }
+                if (resultAndError.data == AppInstallStatus.Installed) {
+                    RequestStats.markSuccess(InstallRequestSource.FOREGROUND_LAZY_RESOURCE)
+                }
+                getMissingMediaResult(resultAndError)
+            } else {
+                MissingMediaDownloadResult.Success
+            }
+        } else {
+            MissingMediaDownloadResult.InProgress
+        }
     }
 
     // downloads the resource

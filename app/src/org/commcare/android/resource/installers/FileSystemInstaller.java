@@ -97,7 +97,7 @@ abstract class FileSystemInstaller implements ResourceInstaller<AndroidCommCareP
             InputStream inputFileStream;
             try {
                 if (ref instanceof ParameterizedReference) {
-                    inputFileStream = ((ParameterizedReference)ref).getStream(getInstallHeaders(installRequestSource));
+                    inputFileStream = ((ParameterizedReference)ref).getStream(getInstallHeaders(platform, installRequestSource));
                 } else {
                     inputFileStream = ref.getStream();
                 }
@@ -141,12 +141,12 @@ abstract class FileSystemInstaller implements ResourceInstaller<AndroidCommCareP
         }
     }
 
-    private Map<String, String> getInstallHeaders(InstallRequestSource installRequestSource) {
+    private Map<String, String> getInstallHeaders(AndroidCommCarePlatform platform, InstallRequestSource installRequestSource) {
         Map<String, String> headers = new HashMap<>();
         headers.put(CommcareRequestGenerator.X_COMMCAREHQ_REQUEST_SOURCE,
                 String.valueOf(installRequestSource));
         headers.put(CommcareRequestGenerator.X_COMMCAREHQ_REQUEST_AGE,
-                String.valueOf(RequestStats.getRequestAge(installRequestSource)));
+                String.valueOf(RequestStats.getRequestAge(platform.getApp(), installRequestSource)));
         return headers;
     }
 
