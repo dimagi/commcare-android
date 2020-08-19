@@ -151,6 +151,8 @@ public class AppUpdateTest {
                 AppInstallStatus.UnknownFailure);
         checkUpdateComplete(6, false);
 
+        // todo check for request age
+
         // Retry and return a valid response this time
         String formRef = UpdateUtils.buildResourceRef(
                 REF_BASE_DIR,

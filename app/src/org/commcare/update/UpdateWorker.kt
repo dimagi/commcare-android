@@ -69,7 +69,7 @@ class UpdateWorker(appContext: Context, workerParams: WorkerParameters)
 
     private fun handleUpdateResult(updateResult: ResultAndError<AppInstallStatus>): Result {
 
-        if (updateResult.data == AppInstallStatus.Installed) {
+        if (updateResult.data == AppInstallStatus.UpdateStaged) {
             RequestStats.markSuccess(InstallRequestSource.BACKGROUND_UPDATE);
         }
 
