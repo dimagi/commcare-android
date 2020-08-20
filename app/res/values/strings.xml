@@ -27,7 +27,7 @@
     <string name="retry_button_text">Retry</string>
     <string name="skipped_verification_warning">You did not validate multimedia resources for the app that was just
          installed! This app will not be visible to users on the log-in screen until multimedia is validated.</string>
-    <string name="skipped_verification_warning_2">You did not validate multimedia resources for this app! The app will 
+    <string name="skipped_verification_warning_2">You did not validate multimedia resources for this app! The app will
         not be visible to users on the log-in screen until multimedia is validated.</string>
     <string name="manager_instructions">Select an app to view its management options, or install a new app.</string>
     <string name="pre_multiple_apps_warning">Warning: The app you have installed is from an outdated build.
@@ -419,4 +419,5 @@
     <string name="area_format" cc:translatable="true">%1s sq m</string>
     <string name="parse_coordinates_failure" cc:translatable="true">Could not parse input coordinates</string>
     <string name="location_provider_disabled" cc:translatable="true">Turn on your location to receive location updates</string>
+    <string name="wait_for_location_fix"  cc:translatable="true">CommCare is still trying to get your location. Please wait or click Cancel to abort.</string>
 </resources>
