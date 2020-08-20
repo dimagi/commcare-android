@@ -123,7 +123,7 @@ public class GeoPointMapActivity extends Activity
     }
 
     private void returnLocation() {
-        if (location != null &&
+        if (location == null ||
                 (location.getLatitude() == 0d && location.getLongitude() == 0d && location.getAccuracy() == 0d)) {
             // we do not have a location fix yet, show an error to the user
             Toast.makeText(
