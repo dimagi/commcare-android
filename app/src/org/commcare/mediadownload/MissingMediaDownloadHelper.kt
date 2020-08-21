@@ -12,7 +12,7 @@ import org.commcare.engine.resource.ResourceInstallUtils
 import org.commcare.engine.resource.installers.LocalStorageUnavailableException
 import org.commcare.preferences.HiddenPreferences
 import org.commcare.resources.model.*
-import org.commcare.tasks.RequestStats
+import org.commcare.network.RequestStats
 import org.commcare.tasks.ResultAndError
 import org.commcare.util.LogTypes
 import org.commcare.utils.AndroidCommCarePlatform

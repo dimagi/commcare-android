@@ -8,6 +8,7 @@ import org.commcare.engine.references.JavaHttpReference;
 import org.commcare.engine.resource.AppInstallStatus;
 import org.commcare.engine.resource.ResourceInstallUtils;
 import org.commcare.engine.resource.installers.LocalStorageUnavailableException;
+import org.commcare.network.RequestStats;
 import org.commcare.resources.ResourceManager;
 import org.commcare.resources.model.InstallRequestSource;
 import org.commcare.resources.model.InvalidResourceException;

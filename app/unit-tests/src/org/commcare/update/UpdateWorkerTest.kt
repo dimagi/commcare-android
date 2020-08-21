@@ -15,7 +15,7 @@ import org.commcare.android.util.TestAppInstaller
 import org.commcare.android.util.UpdateUtils
 import org.commcare.preferences.ServerUrls.PREFS_APP_SERVER_KEY
 import org.commcare.resources.model.InstallRequestSource
-import org.commcare.tasks.RequestStats
+import org.commcare.network.RequestStats
 import org.commcare.utils.TimeProvider
 import org.hamcrest.CoreMatchers.`is`
 import org.junit.Assert

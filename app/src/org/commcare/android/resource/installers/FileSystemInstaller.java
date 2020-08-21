@@ -16,7 +16,7 @@ import org.commcare.resources.model.ResourceLocation;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.UnreliableSourceException;
 import org.commcare.resources.model.UnresolvedResourceException;
-import org.commcare.tasks.RequestStats;
+import org.commcare.network.RequestStats;
 import org.commcare.util.CommCarePlatform;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.AndroidCommCarePlatform;

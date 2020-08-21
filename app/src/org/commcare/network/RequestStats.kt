@@ -1,4 +1,4 @@
-package org.commcare.tasks
+package org.commcare.network
 
 import org.commcare.CommCareApp
 import org.commcare.CommCareApplication

@@ -22,7 +22,7 @@ import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.TableStateListener;
 import org.commcare.resources.model.UnresolvedResourceException;
-import org.commcare.tasks.RequestStats;
+import org.commcare.network.RequestStats;
 import org.commcare.tasks.ResultAndError;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.AndroidCommCarePlatform;
