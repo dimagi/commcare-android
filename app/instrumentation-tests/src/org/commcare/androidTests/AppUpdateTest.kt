@@ -1,7 +1,5 @@
 package org.commcare.androidTests
 
-import android.content.Context
-import android.net.wifi.WifiManager
 import android.os.Build
 import androidx.test.espresso.Espresso.*
 import androidx.test.espresso.action.ViewActions.click
@@ -10,9 +8,9 @@ import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
-import androidx.test.platform.app.InstrumentationRegistry
+import org.commcare.CommCareInstrumentationTestApplication
 import org.commcare.dalvik.R
-import org.commcare.utils.InstrumentationUtility
+import org.commcare.utils.*
 import org.hamcrest.Matchers.endsWith
 import org.junit.Before
 import org.junit.Test
@@ -25,12 +23,14 @@ class AppUpdateTest: BaseTest() {
     companion object {
         const val CCZ_NAME = "app_update.ccz"
         const val APP_NAME = "Update Test"
+        const val USERNAME = "user_with_no_data"
+        const val PASSWORD = "123"
     }
 
     @Before
     fun setup() {
         installApp(APP_NAME, CCZ_NAME)
-        InstrumentationUtility.login("user_with_no_data", "123")
+        InstrumentationUtility.login(USERNAME, PASSWORD)
     }
 
     @Test
@@ -79,9 +79,7 @@ class AppUpdateTest: BaseTest() {
                 .perform(click())
         onView(withText("Status"))
                 .check(doesNotExist())
-        pressBack()
-        pressBack()
-        pressBack()
+        gotoHome()
 
         // download the app update
         InstrumentationUtility.openOptionsMenu()
@@ -91,13 +89,36 @@ class AppUpdateTest: BaseTest() {
                 .check(matches(isDisplayed()))
         onView(withText("Update to version 11 & log out"))
                 .check(matches(isDisplayed()))
+        // Disable Wifi and make sure update is saved.
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+            InstrumentationUtility.changeWifi(false)
+        }
+        InstrumentationUtility.rotateLeft()
+        InstrumentationUtility.rotatePortrait()
+        onView(withText("Update to version 11 & log out"))
+                .check(matches(isDisplayed()))
+        pressBack()
+        InstrumentationUtility.openOptionsMenu()
+        onView(withText("Update App"))
+                .perform(click())
+        onView(withText("Update to version 11 & log out"))
+                .check(matches(isDisplayed()))
+        // Enable Wifi again.
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+            InstrumentationUtility.changeWifi(true)
+        }
         onView(withText("Update to version 11 & log out"))
                 .perform(click())
+
+        // Record LastSyncTime
+        var lastSyncTime = CommCareInstrumentationTestApplication.getLastSyncTime(USERNAME)
 
         // Login into the updated version
         InstrumentationUtility.login("user_with_no_data", "123")
 
-        //TODO check that a sync is triggered automatically
+        // Check that a sync is triggered automatically
+        assert(CommCareInstrumentationTestApplication.getLastSyncTime(USERNAME) > lastSyncTime,
+                "Sync not triggered automatically")
 
         // Check updated data, including multimedia
         onView(withText("Start"))
@@ -125,9 +146,7 @@ class AppUpdateTest: BaseTest() {
                 .perform(click())
         onView(withText("Status"))
                 .check(matches(isDisplayed()))
-        pressBack()
-        pressBack()
-        pressBack()
+        gotoHome()
 
         // make sure there are no new updates
         InstrumentationUtility.openOptionsMenu()
@@ -160,9 +179,14 @@ class AppUpdateTest: BaseTest() {
         onView(withText("Update to version 22 & log out"))
                 .perform(click())
 
+        // Record the last sync time.
+        lastSyncTime = CommCareInstrumentationTestApplication.getLastSyncTime(USERNAME)
         // Login again
         InstrumentationUtility.login("user_with_no_data", "123")
-        //TODO Check that sync is triggered automatically
+
+        // Check that login triggers sync
+        assert(CommCareInstrumentationTestApplication.getLastSyncTime(USERNAME) > lastSyncTime,
+                "Sync not triggered automatically")
 
         // Check updates in base form
         onView(withText("Start"))
@@ -182,5 +206,4 @@ class AppUpdateTest: BaseTest() {
             InstrumentationUtility.changeWifi(true)
         }
     }
-
 }

@@ -8,6 +8,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.net.wifi.WifiManager;
+import android.os.RemoteException;
 import android.provider.MediaStore;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,6 +22,7 @@ import androidx.test.espresso.matcher.BoundedMatcher;
 import androidx.test.espresso.util.TreeIterables;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.runner.intent.IntentMonitorRegistry;
+import androidx.test.uiautomator.UiDevice;
 
 import org.commcare.CommCareInstrumentationTestApplication;
 import org.commcare.dalvik.R;
@@ -39,6 +41,7 @@ import static androidx.test.espresso.Espresso.closeSoftKeyboard;
 import static androidx.test.espresso.Espresso.onData;
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.Espresso.openActionBarOverflowOrOptionsMenu;
+import static androidx.test.espresso.Espresso.pressBack;
 import static androidx.test.espresso.action.ViewActions.clearText;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.swipeUp;
@@ -255,6 +258,16 @@ public class InstrumentationUtility {
         onView(withId(editTextId))
                 .perform(typeText(text));
         closeSoftKeyboard();
+    }
+
+    public static void rotatePortrait() throws RemoteException {
+        UiDevice uiDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation());
+        uiDevice.setOrientationNatural();
+    }
+
+    public static void rotateLeft() throws RemoteException {
+        UiDevice uiDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation());
+        uiDevice.setOrientationLeft();
     }
 
     //region private helpers.

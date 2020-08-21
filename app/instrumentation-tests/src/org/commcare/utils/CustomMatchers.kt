@@ -11,6 +11,11 @@ import org.hamcrest.Description
 import org.hamcrest.Matcher
 import org.hamcrest.TypeSafeMatcher
 
+/**
+ * I would've created a Matchers+Extension file but as of now
+ * kotlin doesn't allow adding static extension funtions to a java class.
+ * https://youtrack.jetbrains.com/issue/KT-11968
+ */
 object CustomMatchers {
 
     /**
@@ -37,7 +42,7 @@ object CustomMatchers {
      * NOTE:- position is 1 based.
      */
     @JvmStatic
-    fun <T> find(matcher: Matcher<T>, position: Int): Matcher<T>? {
+    fun <T> find(matcher: Matcher<T>, position: Int): Matcher<T> {
         return object : BaseMatcher<T>() {
             var count = 0
             override fun matches(item: Any): Boolean {
@@ -58,7 +63,7 @@ object CustomMatchers {
      * Creates a matcher that matches the number of items in the list to the specified <code>size</code>
      */
     @JvmStatic
-    fun matchListSize(size: Int): Matcher<View?>? {
+    fun matchListSize(size: Int): Matcher<View> {
         return object : TypeSafeMatcher<View>() {
             override fun matchesSafely(view: View): Boolean {
                 return if (view is ListView) {
@@ -81,9 +86,9 @@ object CustomMatchers {
      * And asserts that count with the specified <code>count</code>
      */
     @JvmStatic
-    fun withChildViewCount(count: Int, childMatcher: Matcher<View?>): Matcher<View?>? {
-        return object : BoundedMatcher<View?, ViewGroup?>(ViewGroup::class.java) {
-            override fun matchesSafely(viewGroup: ViewGroup?): Boolean {
+    fun withChildViewCount(count: Int, childMatcher: Matcher<View>): Matcher<View> {
+        return object : BoundedMatcher<View, ViewGroup>(ViewGroup::class.java) {
+            override fun matchesSafely(viewGroup: ViewGroup): Boolean {
                 var matchCount = 0
                 for (child in TreeIterables.breadthFirstViewTraversal(viewGroup)) {
                     if (childMatcher.matches(child)) {

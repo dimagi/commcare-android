@@ -7,6 +7,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import org.commcare.tasks.AsyncRestoreHelper;
 import org.commcare.tasks.DataPullTask;
+import org.commcare.utils.SyncDetailCalculations;
 
 public class CommCareInstrumentationTestApplication extends CommCareApplication implements Application.ActivityLifecycleCallbacks {
 
@@ -64,6 +65,11 @@ public class CommCareInstrumentationTestApplication extends CommCareApplication 
     public Activity getCurrentActivity() {
         return currentActivity;
     }
-    
 
+    public static long getLastSyncTime(String userName) {
+        return instance()
+                .getCurrentApp()
+                .getAppPreferences()
+                .getLong(SyncDetailCalculations.getLastSyncKey(userName), 0L);
+    }
 }

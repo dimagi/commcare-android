@@ -1,7 +1,6 @@
 package org.commcare.androidTests
 
 import android.widget.ListView
-import androidx.test.espresso.Espresso.closeSoftKeyboard
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.Espresso.onData
 import androidx.test.espresso.action.ViewActions.*
@@ -12,7 +11,6 @@ import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
-import junit.framework.Assert.fail
 import org.commcare.CommCareApplication
 import org.commcare.CommCareInstrumentationTestApplication
 import org.commcare.activities.InstallFromListActivity
@@ -21,9 +19,7 @@ import org.commcare.dalvik.BuildConfig
 import org.commcare.dalvik.R
 import org.commcare.utils.CustomMatchers
 import org.commcare.utils.InstrumentationUtility
-import org.hamcrest.Description
 import org.hamcrest.Matchers.*
-import org.hamcrest.TypeSafeMatcher
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -149,14 +145,5 @@ class InstallFromListTest: BaseTest() {
     private fun assertAppInstalled(appName: String) {
         assert(CommCareApplication.instance().currentApp != null, "App is null")
         assert(CommCareApplication.instance().currentApp.appRecord.displayName == appName, "App didn't match")
-    }
-}
-/**
- * A workaround to Failed resolution of: Lkotlin/_Assertions;
- * This will fail the test if the value is false.
- */
-public fun assert(value: Boolean, failMsg: String) {
-    if (!value) {
-        fail("Assertion Failed: $failMsg")
     }
 }
