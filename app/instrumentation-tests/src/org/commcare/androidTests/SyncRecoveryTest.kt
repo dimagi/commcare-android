@@ -11,6 +11,7 @@ import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
+import org.commcare.utils.assert
 import org.commcare.dalvik.R
 import org.commcare.provider.DebugControlsReceiver
 import org.commcare.utils.InstrumentationUtility
