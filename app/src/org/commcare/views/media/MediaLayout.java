@@ -44,6 +44,7 @@ import org.javarosa.core.reference.ReferenceManager;
 import java.io.File;
 
 import androidx.annotation.IdRes;
+import kotlinx.coroutines.Dispatchers;
 
 /**
  * This layout is used anywhere we can have image/audio/video/text.
@@ -172,7 +173,7 @@ public class MediaLayout extends RelativeLayout {
 
             boolean mediaPresent = FileUtil.referenceFileExists(videoURI);
             videoButton.setImageResource(mediaPresent ? android.R.drawable.ic_media_play : R.drawable.update_download_icon);
-            if(!mediaPresent) {
+            if (!mediaPresent) {
                 AndroidUtil.showToast(getContext(), R.string.video_download_prompt);
             }
             videoButton.setOnClickListener(v -> {
@@ -209,7 +210,7 @@ public class MediaLayout extends RelativeLayout {
 
     private void downloadMissingVideo(ImageButton videoButton, String videoURI) {
         AndroidUtil.showToast(getContext(), R.string.media_download_started);
-        MissingMediaDownloadHelper.requestMediaDownload(videoURI, result -> {
+        MissingMediaDownloadHelper.requestMediaDownload(videoURI, Dispatchers.getDefault(), result -> {
             if (result instanceof MissingMediaDownloadResult.Success) {
                 boolean mediaPresent = FileUtil.referenceFileExists(videoURI);
                 videoButton.setImageResource(mediaPresent ? android.R.drawable.ic_media_play : R.drawable.update_download_icon);
@@ -509,7 +510,7 @@ public class MediaLayout extends RelativeLayout {
             downloadIcon.setEnabled(false);
             status.setText(StringUtils.getStringRobust(getContext(), R.string.media_download_in_progress));
 
-            MissingMediaDownloadHelper.requestMediaDownload(mediaUri, result -> {
+            MissingMediaDownloadHelper.requestMediaDownload(mediaUri, Dispatchers.getDefault(), result -> {
                 progressView.setVisibility(GONE);
                 if (result instanceof MissingMediaDownloadResult.Success) {
                     AndroidUtil.showToast(getContext(), R.string.media_download_completed);

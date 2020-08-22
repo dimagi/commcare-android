@@ -138,7 +138,7 @@ object MissingMediaDownloadHelper : TableStateListener {
             }
         }
         CommCareApplication.notificationManager().reportNotificationMessage(notificationMessage)
-        Logger.log(LogTypes.TYPE_MAINTENANCE, "An error occured while lazy downloading a media resource : " + it.message)
+        Logger.exception("An error occured while lazy downloading a media resource", it)
         return ResultAndError(appInstallStatus, notificationMessage!!.title)
     }
 
@@ -153,14 +153,14 @@ object MissingMediaDownloadHelper : TableStateListener {
      * Downloads a resource with it's location represented by {@param mediaUri}
      */
     @JvmStatic
-    fun requestMediaDownload(mediaUri: String, missingMediaDownloadListener: MissingMediaDownloadListener) {
+    fun requestMediaDownload(mediaUri: String, defaultDispatcher: CoroutineDispatcher,
+                             missingMediaDownloadListener: MissingMediaDownloadListener) {
         jobs.add(
-                CoroutineScope(Dispatchers.Default).launch {
+                CoroutineScope(defaultDispatcher).launch {
                     var result: MissingMediaDownloadResult = MissingMediaDownloadResult.Error("Unknown Error")
                     kotlin.runCatching {
                         result = downloadMissingMediaResource(mediaUri)
                     }.onFailure {
-                        Logger.exception(" An error occured while recovering a missing resource", it as Exception?)
                         result = MissingMediaDownloadResult.Error(handleRecoverResourceFailure(it).errorMessage)
                     }
 
