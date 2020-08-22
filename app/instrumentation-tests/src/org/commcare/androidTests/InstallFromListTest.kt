@@ -7,6 +7,7 @@ import androidx.test.espresso.action.ViewActions.*
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.intent.Intents.intended
 import androidx.test.espresso.intent.matcher.IntentMatchers.hasComponent
+import androidx.test.espresso.matcher.RootMatchers.isDialog
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
@@ -32,6 +33,9 @@ class InstallFromListTest: BaseTest() {
 
     @Before
     fun setup() {
+        if (CommCareInstrumentationTestApplication.instance().currentApp != null) {
+            InstrumentationUtility.uninstallCurrentApp()
+        }
         InstrumentationUtility.openOptionsMenu()
         onView(withText("See Apps for My User"))
                 .perform(click())
@@ -58,7 +62,12 @@ class InstallFromListTest: BaseTest() {
     @After
     fun tearDown() {
         // Uninstall app.
-        InstrumentationUtility.uninstallCurrentApp()
+        InstrumentationUtility.clickListItem(R.id.apps_list_view, 0)
+        onView(withText("Uninstall")).perform(click())
+        onView(withText("OK")).inRoot(isDialog()).perform(click())
+        onView(withId(R.id.install_app_button)).perform(click())
+
+        // Clear app list.
         InstrumentationUtility.openOptionsMenu()
         onView(withText("See Apps for My User"))
                 .perform(click())

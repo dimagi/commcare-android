@@ -8,7 +8,6 @@ import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
-import org.commcare.CommCareInstrumentationTestApplication
 import org.commcare.dalvik.R
 import org.commcare.utils.*
 import org.hamcrest.Matchers.endsWith
@@ -90,9 +89,8 @@ class AppUpdateTest: BaseTest() {
         onView(withText("Update to version 11 & log out"))
                 .check(matches(isDisplayed()))
         // Disable Wifi and make sure update is saved.
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
-            InstrumentationUtility.changeWifi(false)
-        }
+        InstrumentationUtility.changeWifi(false)
+
         InstrumentationUtility.rotateLeft()
         InstrumentationUtility.rotatePortrait()
         onView(withText("Update to version 11 & log out"))
@@ -104,20 +102,19 @@ class AppUpdateTest: BaseTest() {
         onView(withText("Update to version 11 & log out"))
                 .check(matches(isDisplayed()))
         // Enable Wifi again.
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
-            InstrumentationUtility.changeWifi(true)
-        }
+        InstrumentationUtility.changeWifi(true)
+
         onView(withText("Update to version 11 & log out"))
                 .perform(click())
 
         // Record LastSyncTime
-        var lastSyncTime = CommCareInstrumentationTestApplication.getLastSyncTime(USERNAME)
+        var lastSyncTime = SyncDetailCalculations.getLastSyncTime()
 
         // Login into the updated version
         InstrumentationUtility.login("user_with_no_data", "123")
 
         // Check that a sync is triggered automatically
-        assert(CommCareInstrumentationTestApplication.getLastSyncTime(USERNAME) > lastSyncTime,
+        assert(SyncDetailCalculations.getLastSyncTime() > lastSyncTime,
                 "Sync not triggered automatically")
 
         // Check updated data, including multimedia
@@ -180,12 +177,12 @@ class AppUpdateTest: BaseTest() {
                 .perform(click())
 
         // Record the last sync time.
-        lastSyncTime = CommCareInstrumentationTestApplication.getLastSyncTime(USERNAME)
+        lastSyncTime = SyncDetailCalculations.getLastSyncTime()
         // Login again
         InstrumentationUtility.login("user_with_no_data", "123")
 
         // Check that login triggers sync
-        assert(CommCareInstrumentationTestApplication.getLastSyncTime(USERNAME) > lastSyncTime,
+        assert(SyncDetailCalculations.getLastSyncTime() > lastSyncTime,
                 "Sync not triggered automatically")
 
         // Check updates in base form

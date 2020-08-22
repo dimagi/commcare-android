@@ -8,6 +8,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.net.wifi.WifiManager;
+import android.os.Build;
 import android.os.RemoteException;
 import android.provider.MediaStore;
 import android.view.View;
@@ -245,9 +246,11 @@ public class InstrumentationUtility {
      * Starting with Android Q, applications are not allowed to enable/disable Wi-Fi.
      */
     public static void changeWifi(boolean enable) {
-        Context context = InstrumentationRegistry.getInstrumentation().getTargetContext();
-        WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
-        wifiManager.setWifiEnabled(enable);
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+            Context context = InstrumentationRegistry.getInstrumentation().getTargetContext();
+            WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
+            wifiManager.setWifiEnabled(enable);
+        }
     }
 
     /**
