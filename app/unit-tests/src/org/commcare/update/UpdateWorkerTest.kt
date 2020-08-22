@@ -42,13 +42,13 @@ class UpdateWorkerTest {
     fun setUp() {
         context = ApplicationProvider.getApplicationContext()
         TestAppInstaller.installAppAndLogin(
-                UpdateUtils.buildResourceRef(Companion.REF_BASE_DIR, "base_app", "profile.ccpr"),
+                UpdateUtils.buildResourceRef(REF_BASE_DIR, "base_app", "profile.ccpr"),
                 "test", "123")
     }
 
     @Test
     fun testValidUpdate_shouldSucceed() {
-        val profileRef = UpdateUtils.buildResourceRef(Companion.REF_BASE_DIR, "valid_update", "profile.ccpr")
+        val profileRef = UpdateUtils.buildResourceRef(REF_BASE_DIR, "valid_update", "profile.ccpr")
         runAndTestUpdateWorker(profileRef, ListenableWorker.Result.success())
     }
 
