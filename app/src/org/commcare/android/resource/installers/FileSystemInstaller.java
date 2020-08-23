@@ -1,13 +1,12 @@
 package org.commcare.android.resource.installers;
 
-import androidx.core.util.Pair;
-
 import org.commcare.CommCareApplication;
 import org.commcare.dalvik.R;
 import org.commcare.engine.references.ParameterizedReference;
 import org.commcare.engine.resource.installers.LocalStorageUnavailableException;
 import org.commcare.network.CommcareRequestGenerator;
 import org.commcare.network.RateLimitedException;
+import org.commcare.network.RequestStats;
 import org.commcare.resources.model.InstallRequestSource;
 import org.commcare.resources.model.MissingMediaException;
 import org.commcare.resources.model.Resource;
@@ -16,7 +15,6 @@ import org.commcare.resources.model.ResourceLocation;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.UnreliableSourceException;
 import org.commcare.resources.model.UnresolvedResourceException;
-import org.commcare.network.RequestStats;
 import org.commcare.util.CommCarePlatform;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.AndroidCommCarePlatform;
@@ -48,6 +46,8 @@ import java.util.Vector;
 
 import javax.net.ssl.SSLHandshakeException;
 import javax.net.ssl.SSLPeerUnverifiedException;
+
+import androidx.core.util.Pair;
 
 /**
  * @author ctsims

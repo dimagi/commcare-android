@@ -7,7 +7,13 @@ import org.commcare.utils.SyncDetailCalculations.getDaysBetweenJavaDatetimes
 import org.commcare.utils.TimeProvider
 import java.util.*
 
+/**
+ *  Used to keep track of metrics like time since last suceess for various resource install requests
+ *  Any resource install workflows from [InstallRequestSource] should [register] before starting and
+ *  [markSuccess] on a successful run
+ */
 object RequestStats {
+
     @JvmStatic
     fun register(installRequestSource: InstallRequestSource) {
         register(CommCareApplication.instance().currentApp, installRequestSource)
