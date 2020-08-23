@@ -44,7 +44,8 @@ public class MediaFileAndroidInstaller extends FileSystemInstaller {
 
         // If it's a lazy media resource and we are not lazy recovering resource,
         // just add the resource to the table without actually installing it.
-        if (r.isLazy() && !recovery) {
+        if (r.isLazy() && (installRequestSource == InstallRequestSource.BACKGROUND_UPDATE ||
+                installRequestSource == InstallRequestSource.FOREGROUND_UPDATE)) {
             resolveEmptyLocalReference(r, location, upgrade);
             table.commit(r, upgrade ? Resource.RESOURCE_STATUS_UPGRADE : Resource.RESOURCE_STATUS_INSTALLED);
             return true;

@@ -45,6 +45,7 @@ class LazyMediaDownloadTest {
 
     @Test
     fun testLazyMediaIsDownloadedOnInstall() {
+        mockSuccessfulResourceDownload()
         TestAppInstaller.installAppAndLogin(UpdateUtils.buildResourceRef(REF_BASE_DIR,
                 "valid_update_with_lazy_multimedia_present", "profile.ccpr"),
                 "test", "123")
