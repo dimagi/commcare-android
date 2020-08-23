@@ -78,7 +78,7 @@ class AppUpdateTest: BaseTest() {
                 .perform(click())
         onView(withText("Status"))
                 .check(doesNotExist())
-        gotoHome()
+        InstrumentationUtility.gotoHome()
 
         // download the app update
         InstrumentationUtility.openOptionsMenu()
@@ -114,7 +114,7 @@ class AppUpdateTest: BaseTest() {
         InstrumentationUtility.login("user_with_no_data", "123")
 
         // Check that a sync is triggered automatically
-        assert(SyncDetailCalculations.getLastSyncTime() > lastSyncTime,
+        InstrumentationUtility.assert(SyncDetailCalculations.getLastSyncTime() > lastSyncTime,
                 "Sync not triggered automatically")
 
         // Check updated data, including multimedia
@@ -143,7 +143,7 @@ class AppUpdateTest: BaseTest() {
                 .perform(click())
         onView(withText("Status"))
                 .check(matches(isDisplayed()))
-        gotoHome()
+        InstrumentationUtility.gotoHome()
 
         // make sure there are no new updates
         InstrumentationUtility.openOptionsMenu()
@@ -182,7 +182,7 @@ class AppUpdateTest: BaseTest() {
         InstrumentationUtility.login("user_with_no_data", "123")
 
         // Check that login triggers sync
-        assert(SyncDetailCalculations.getLastSyncTime() > lastSyncTime,
+        InstrumentationUtility.assert(SyncDetailCalculations.getLastSyncTime() > lastSyncTime,
                 "Sync not triggered automatically")
 
         // Check updates in base form

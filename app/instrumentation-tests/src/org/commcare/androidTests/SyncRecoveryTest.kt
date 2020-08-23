@@ -11,7 +11,6 @@ import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
-import org.commcare.utils.assert
 import org.commcare.dalvik.R
 import org.commcare.provider.DebugControlsReceiver
 import org.commcare.utils.InstrumentationUtility
@@ -76,7 +75,8 @@ class SyncRecoveryTest: BaseTest() {
                 .perform(click())
 
         // make sure the same number of cases are around
-        assert(InstrumentationUtility.getListSize(R.id.screen_entity_select_list) == size, "List size isn't same")
+        InstrumentationUtility.assert(InstrumentationUtility.getListSize(R.id.screen_entity_select_list) == size,
+                "List size isn't same")
     }
 
 }

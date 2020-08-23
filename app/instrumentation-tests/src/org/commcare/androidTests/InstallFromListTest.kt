@@ -25,7 +25,6 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.commcare.utils.assert
 
 @RunWith(AndroidJUnit4::class)
 @LargeTest
@@ -152,7 +151,9 @@ class InstallFromListTest: BaseTest() {
     }
 
     private fun assertAppInstalled(appName: String) {
-        assert(CommCareApplication.instance().currentApp != null, "App is null")
-        assert(CommCareApplication.instance().currentApp.appRecord.displayName == appName, "App didn't match")
+        InstrumentationUtility.assert(CommCareApplication.instance().currentApp != null,
+                "App is null")
+        InstrumentationUtility.assert(CommCareApplication.instance().currentApp.appRecord.displayName == appName,
+                "App didn't match")
     }
 }

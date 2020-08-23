@@ -21,7 +21,6 @@ import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withClassName;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
-import static org.commcare.utils.InstrumentationHelpersKt.gotoHome;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.endsWith;
 
@@ -171,7 +170,7 @@ public class CaseClaimTest extends BaseTest {
     }
 
     private void logout() {
-        gotoHome();
+        InstrumentationUtility.gotoHome();
         InstrumentationUtility.logout();
     }
 
