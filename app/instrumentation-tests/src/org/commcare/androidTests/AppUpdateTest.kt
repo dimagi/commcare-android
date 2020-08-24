@@ -8,9 +8,11 @@ import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import androidx.test.filters.SdkSuppress
 import org.commcare.dalvik.R
 import org.commcare.utils.*
 import org.hamcrest.Matchers.endsWith
+import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -30,6 +32,12 @@ class AppUpdateTest: BaseTest() {
     fun setup() {
         installApp(APP_NAME, CCZ_NAME)
         InstrumentationUtility.login(USERNAME, PASSWORD)
+    }
+
+    @After
+    fun tearDown() {
+        InstrumentationUtility.logout()
+        InstrumentationUtility.uninstallCurrentApp()
     }
 
     @Test
@@ -88,27 +96,13 @@ class AppUpdateTest: BaseTest() {
                 .check(matches(isDisplayed()))
         onView(withText("Update to version 11 & log out"))
                 .check(matches(isDisplayed()))
-        // Disable Wifi and make sure update is saved.
-        InstrumentationUtility.changeWifi(false)
-
-        InstrumentationUtility.rotateLeft()
-        InstrumentationUtility.rotatePortrait()
-        onView(withText("Update to version 11 & log out"))
-                .check(matches(isDisplayed()))
-        pressBack()
-        InstrumentationUtility.openOptionsMenu()
-        onView(withText("Update App"))
-                .perform(click())
-        onView(withText("Update to version 11 & log out"))
-                .check(matches(isDisplayed()))
-        // Enable Wifi again.
-        InstrumentationUtility.changeWifi(true)
-
-        onView(withText("Update to version 11 & log out"))
-                .perform(click())
 
         // Record LastSyncTime
         var lastSyncTime = SyncDetailCalculations.getLastSyncTime()
+
+        // Update app
+        onView(withText("Update to version 11 & log out"))
+                .perform(click())
 
         // Login into the updated version
         InstrumentationUtility.login("user_with_no_data", "123")
@@ -173,11 +167,14 @@ class AppUpdateTest: BaseTest() {
                 .perform(click())
         onView(withText("Update to version 22 & log out"))
                 .check(matches(isDisplayed()))
-        onView(withText("Update to version 22 & log out"))
-                .perform(click())
 
         // Record the last sync time.
         lastSyncTime = SyncDetailCalculations.getLastSyncTime()
+
+        // Update app
+        onView(withText("Update to version 22 & log out"))
+                .perform(click())
+
         // Login again
         InstrumentationUtility.login("user_with_no_data", "123")
 
@@ -190,17 +187,50 @@ class AppUpdateTest: BaseTest() {
                 .perform(click())
         onView(withText("Module One, renamed"))
                 .check(matches(isDisplayed()))
-        pressBack()
+    }
 
-        // The below tests will only work on a pre-android Q device.
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
-            InstrumentationUtility.changeWifi(false)
-            InstrumentationUtility.openOptionsMenu()
-            onView(withText("Update App"))
-                    .perform(click())
-            onView(withText("No network connectivity"))
-                    .perform(click())
-            InstrumentationUtility.changeWifi(true)
-        }
+    @SdkSuppress(maxSdkVersion = Build.VERSION_CODES.Q)
+    @Test
+    fun testAppUpdate_withoutInternet() {
+        InstrumentationUtility.changeWifi(false)
+        InstrumentationUtility.openOptionsMenu()
+        onView(withText("Update App"))
+                .perform(click())
+        onView(withText("No network connectivity"))
+                .perform(click())
+        InstrumentationUtility.changeWifi(true)
+    }
+
+    @SdkSuppress(maxSdkVersion = Build.VERSION_CODES.Q)
+    @Test
+    fun testAppUpdate_persistOnceDownloaded() {
+        // download the app update
+        InstrumentationUtility.openOptionsMenu()
+        onView(withText("Update App"))
+                .perform(click())
+        onView(withText("Current version: 2"))
+                .check(matches(isDisplayed()))
+        onView(withText("Update to version 11 & log out"))
+                .check(matches(isDisplayed()))
+
+        // Disable Wifi
+        InstrumentationUtility.changeWifi(false)
+
+        // Make sure update is saved on rotation.
+        InstrumentationUtility.rotateLeft()
+        InstrumentationUtility.rotatePortrait()
+        onView(withText("Update to version 11 & log out"))
+                .check(matches(isDisplayed()))
+
+        // Make sure update is saved on going back and forth.
+        pressBack()
+        InstrumentationUtility.openOptionsMenu()
+        onView(withText("Update App"))
+                .perform(click())
+        onView(withText("Update to version 11 & log out"))
+                .check(matches(isDisplayed()))
+
+        // Enable Wifi again.
+        InstrumentationUtility.changeWifi(true)
     }
 }

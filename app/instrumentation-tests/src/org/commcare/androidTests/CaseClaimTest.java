@@ -95,7 +95,7 @@ public class CaseClaimTest extends BaseTest {
                 .check(matches(isDisplayed()));
 
         // Login with another user.
-        logout();
+        InstrumentationUtility.logout();
 
         // This wait it to ensure that HQ doesn't give stale data.
         InstrumentationUtility.sleep(15);
@@ -167,11 +167,6 @@ public class CaseClaimTest extends BaseTest {
                 .perform(click());
         onView(withText("SEARCH ALL CASES"))
                 .perform(click());
-    }
-
-    private void logout() {
-        InstrumentationUtility.gotoHome();
-        InstrumentationUtility.logout();
     }
 
 }

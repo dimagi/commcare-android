@@ -7,8 +7,8 @@ import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 
 /**
  * A utility view interaction to check whether a view is present in the screen or not.
- * Espresso APIs are designed away from conditional logic by only allowing test actions and assertions.
- * So it's kinda against what espresso tells you to do.
+ * This method is same as <code>check(matches(isDisplayed()))</code> except that it doesn't throw
+ * an exception if the view isn't displayed.
  */
 fun ViewInteraction.isPresent(): Boolean {
     return try {

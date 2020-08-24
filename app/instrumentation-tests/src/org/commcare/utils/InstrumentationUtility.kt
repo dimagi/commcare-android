@@ -24,7 +24,6 @@ import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.intent.Intents.intending
 import androidx.test.espresso.intent.matcher.IntentMatchers.hasAction
 import androidx.test.espresso.matcher.RootMatchers
-import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.runner.intent.IntentCallback
@@ -161,6 +160,7 @@ object InstrumentationUtility {
 
     @JvmStatic
     fun logout() {
+        gotoHome()
         onView(withId(R.id.home_gridview_buttons))
                 .perform(swipeUp())
         onView(withText("Log out of CommCare"))
@@ -227,6 +227,8 @@ object InstrumentationUtility {
             val context = InstrumentationRegistry.getInstrumentation().targetContext
             val wifiManager = context.getSystemService(Context.WIFI_SERVICE) as WifiManager
             wifiManager.isWifiEnabled = enable
+        } else {
+            throw IllegalAccessException("changeWifi should only be called in pre-android Q devices")
         }
     }
 
@@ -274,7 +276,7 @@ object InstrumentationUtility {
     @JvmStatic
     fun gotoHome() {
         for (i in 0..5) { // Try atmost 6 times.
-            if (Espresso.onView(ViewMatchers.withId(R.id.home_gridview_buttons)).isPresent()) {
+            if (onView(withId(R.id.home_gridview_buttons)).isPresent()) {
                 return
             } else {
                 Espresso.pressBack()

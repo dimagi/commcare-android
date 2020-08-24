@@ -86,7 +86,6 @@ public class SavedFormTest extends BaseTest {
         InstrumentationUtility.getSubViewInListItem(android.R.id.list, 1, R.id.hev_secondary_text)
                 .check(matches(isDisplayed()))
                 .check(matches(withText(endsWith(".jpg"))));
-        InstrumentationUtility.gotoHome();
     }
 
     @Test
