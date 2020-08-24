@@ -1,13 +1,13 @@
 package org.commcare.androidTests
 
 import android.widget.ListView
+import androidx.test.espresso.Espresso
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.Espresso.onData
 import androidx.test.espresso.action.ViewActions.*
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.intent.Intents.intended
 import androidx.test.espresso.intent.matcher.IntentMatchers.hasComponent
-import androidx.test.espresso.matcher.RootMatchers.isDialog
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
@@ -20,6 +20,7 @@ import org.commcare.dalvik.BuildConfig
 import org.commcare.dalvik.R
 import org.commcare.utils.CustomMatchers
 import org.commcare.utils.InstrumentationUtility
+import org.commcare.utils.isPresent
 import org.hamcrest.Matchers.*
 import org.junit.After
 import org.junit.Before
@@ -60,12 +61,11 @@ class InstallFromListTest: BaseTest() {
 
     @After
     fun tearDown() {
-        // Uninstall app.
-        InstrumentationUtility.clickListItem(R.id.apps_list_view, 0)
-        onView(withText("Uninstall")).perform(click())
-        onView(withText("OK")).inRoot(isDialog()).perform(click())
-        onView(withId(R.id.install_app_button)).perform(click())
-
+        if (onView(withText("Install An App")).isPresent()) {
+            Espresso.pressBack()
+        }
+        // uninstall current app.
+        InstrumentationUtility.uninstallCurrentApp()
         // Clear app list.
         InstrumentationUtility.openOptionsMenu()
         onView(withText("See Apps for My User"))
