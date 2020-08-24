@@ -4,16 +4,6 @@ import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.support.annotation.CallSuper;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.app.DialogFragment;
-import android.support.v4.app.Fragment;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.preference.Preference;
-import android.support.v7.preference.PreferenceFragmentCompat;
-import android.support.v7.preference.PreferenceManager;
-import android.support.v7.preference.PreferenceScreen;
 import android.util.Log;
 
 import org.commcare.CommCareApplication;
@@ -25,6 +15,17 @@ import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.NoLocalizedTextException;
 
 import java.util.Map;
+
+import androidx.annotation.CallSuper;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.DialogFragment;
+import androidx.fragment.app.Fragment;
+import androidx.preference.Preference;
+import androidx.preference.PreferenceFragmentCompat;
+import androidx.preference.PreferenceManager;
+import androidx.preference.PreferenceScreen;
 
 /**
  * Common PreferenceFragment class from which all other preferences extend.
@@ -125,9 +126,10 @@ public abstract class CommCarePreferenceFragment extends PreferenceFragmentCompa
 
     /**
      * Utility function to request a file using a file browser
-     * @param fragment Fragment implementing onActivityResult for this file request
+     *
+     * @param fragment    Fragment implementing onActivityResult for this file request
      * @param requestCode Request code to fire the file fetch intent with
-     * @param errorTitle Title of the error dialogue that appears if no file browser is installed
+     * @param errorTitle  Title of the error dialogue that appears if no file browser is installed
      */
     public static void startFileBrowser(Fragment fragment, int requestCode, String errorTitle) {
         Intent chooseTemplateIntent = new Intent()

@@ -14,11 +14,10 @@ public class TestHeartbeatRequester extends HeartbeatRequester {
     private static List<String> nextResponseStrings = new ArrayList<>();
     public static boolean responseWasParsed;
 
-
     @Override
-    protected void requestHeartbeat() {
+    public void makeRequest() {
         try {
-            parseHeartbeatResponse(new JSONObject(nextResponseStrings.remove(0)));
+            parseResponse(new JSONObject(nextResponseStrings.remove(0)));
             responseWasParsed = true;
         } catch (JSONException e) {
             System.out.println("Test response was not properly formed JSON");

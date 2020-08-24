@@ -3,9 +3,9 @@ package org.commcare.models;
 import android.util.Log;
 
 import org.commcare.CommCareApplication;
-import org.commcare.models.database.SqlStorage;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
+import org.commcare.models.database.SqlStorage;
 import org.commcare.modern.session.SessionWrapperInterface;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.session.CommCareSession;
@@ -17,10 +17,14 @@ import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.FormEntry;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.StackOperation;
+import org.commcare.suite.model.Text;
 import org.commcare.util.CommCarePlatform;
 import org.commcare.utils.AndroidInstanceInitializer;
 import org.commcare.utils.CommCareUtil;
+import org.commcare.utils.CrashUtil;
 import org.javarosa.core.model.condition.EvaluationContext;
+import org.javarosa.xpath.analysis.InstanceNameAccumulatingAnalyzer;
+import org.javarosa.xpath.analysis.XPathAnalyzable;
 
 import java.util.Date;
 import java.util.Hashtable;
@@ -54,7 +58,7 @@ public class AndroidSessionWrapper implements SessionWrapperInterface {
     public void loadFromStateDescription(SessionStateDescriptor descriptor) {
         this.reset();
         this.sessionStateRecordId = descriptor.getID();
-        this.formRecordId = descriptor.getFormRecordId();
+        setFormRecordId(descriptor.getFormRecordId());
         SessionDescriptorUtil.loadSessionFromDescriptor(descriptor.getSessionDescriptor(), session);
     }
 
@@ -72,7 +76,7 @@ public class AndroidSessionWrapper implements SessionWrapperInterface {
      * and such.
      */
     private void cleanVolatiles() {
-        formRecordId = -1;
+        setFormRecordId(-1);
         sessionStateRecordId = -1;
         //CTS - Added to fix bugs where casedb didn't get renewed between sessions (possibly
         //we want to "update" the casedb rather than rebuild it, but this is safest for now.
@@ -198,7 +202,14 @@ public class AndroidSessionWrapper implements SessionWrapperInterface {
         setFormRecordId(r.getID());
 
         SessionStateDescriptor ssd = SessionStateDescriptor.buildFromSessionWrapper(this);
-        sessionStorage.write(ssd);
+        try {
+            sessionStorage.write(ssd);
+        } catch (Exception e) {
+            if (ssd != null) {
+                CrashUtil.log("SessionStateDescriptor form id: " + ssd.getFormRecordId());
+            }
+            throw e;
+        }
         sessionStateRecordId = ssd.getID();
     }
 
@@ -219,6 +230,13 @@ public class AndroidSessionWrapper implements SessionWrapperInterface {
         return session.getEvaluationContext(getIIF(), commandId, instancesToInclude);
     }
 
+    @Override
+    public EvaluationContext getEvaluationContextWithAccumulatedInstances(String commandID, XPathAnalyzable xPathAnalyzable) {
+        Set<String> instancesNeededForTextCalculation =
+                (new InstanceNameAccumulatingAnalyzer()).accumulate(xPathAnalyzable);
+        return getRestrictedEvaluationContext(commandID, instancesNeededForTextCalculation);
+    }
+
     /**
      * @param commandId The id of the command to evaluate against
      * @return The evaluation context relevant for the provided command id
@@ -226,13 +244,13 @@ public class AndroidSessionWrapper implements SessionWrapperInterface {
     public EvaluationContext getEvaluationContext(String commandId) {
         return session.getEvaluationContext(getIIF(), commandId, null);
     }
-    
+
     private AndroidInstanceInitializer initializer;
 
     public AndroidInstanceInitializer getIIF() {
         if (initializer == null) {
             initializer = new AndroidInstanceInitializer(session);
-        } 
+        }
 
         return initializer;
     }
@@ -265,7 +283,7 @@ public class AndroidSessionWrapper implements SessionWrapperInterface {
                     if (datum instanceof ComputedDatum) {
                         // Allow mocking of routes that need computed data, useful for case creation forms
                         wrapper = new AndroidSessionWrapper(platform);
-                        wrapper.session.setCommand(platform.getModuleNameForEntry((FormEntry) e));
+                        wrapper.session.setCommand(platform.getModuleNameForEntry((FormEntry)e));
                         wrapper.session.setCommand(e.getCommandId());
                         wrapper.session.setComputedDatum(wrapper.getEvaluationContext());
                     } else if (datum instanceof EntityDatum) {
@@ -287,7 +305,7 @@ public class AndroidSessionWrapper implements SessionWrapperInterface {
                         }
 
                         wrapper = new AndroidSessionWrapper(platform);
-                        wrapper.session.setCommand(platform.getModuleNameForEntry((FormEntry) e));
+                        wrapper.session.setCommand(platform.getModuleNameForEntry((FormEntry)e));
                         wrapper.session.setCommand(e.getCommandId());
                         wrapper.session.setDatum(entityDatum.getDataId(), selectedValue);
                     }

@@ -2,10 +2,11 @@ package org.commcare.utils;
 
 import org.commcare.android.resource.installers.LocaleAndroidInstaller;
 import org.commcare.android.resource.installers.MediaFileAndroidInstaller;
+import org.commcare.android.resource.installers.OfflineUserRestoreAndroidInstaller;
 import org.commcare.android.resource.installers.ProfileAndroidInstaller;
 import org.commcare.android.resource.installers.SuiteAndroidInstaller;
-import org.commcare.android.resource.installers.OfflineUserRestoreAndroidInstaller;
 import org.commcare.android.resource.installers.XFormAndroidInstaller;
+import org.commcare.android.resource.installers.XFormUpdateInfoInstaller;
 import org.commcare.resources.model.InstallerFactory;
 import org.commcare.resources.model.ResourceInstaller;
 
@@ -45,5 +46,10 @@ public class AndroidResourceInstallerFactory extends InstallerFactory {
     @Override
     public ResourceInstaller getMediaInstaller(String path) {
         return new MediaFileAndroidInstaller(GlobalConstants.MEDIA_REF, GlobalConstants.UPGRADE_REF, path);
+    }
+
+    @Override
+    public ResourceInstaller getXFormUpdateInfoInstaller() {
+        return new XFormUpdateInfoInstaller(GlobalConstants.INSTALL_REF, GlobalConstants.UPGRADE_REF);
     }
 }

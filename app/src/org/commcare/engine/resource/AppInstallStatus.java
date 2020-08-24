@@ -11,11 +11,9 @@ public enum AppInstallStatus implements MessageTag {
     DuplicateApp("notification.install.duplicate"),
 
     /**
-     * installing an app targetting a different flavout than the one running
+     * installing an app targetting a different flavour than the one running
      */
     IncorrectTargetPackage(""),
-
-
 
     // Statuses unique to app updating
     /**
@@ -28,20 +26,31 @@ public enum AppInstallStatus implements MessageTag {
      */
     UpToDate("notification.install.uptodate"),
 
+    // Update cancelled by user
+    Cancelled("notification.install.cancel"),
+
     // Error states shared by both app installation and updating:
     MissingResources("notification.install.missing"),
     MissingResourcesWithMessage("notification.install.missing.withmessage"),
     InvalidResource("notification.install.invalid"),
+    InvalidReference("notification.install.invalid.reference"),
     IncompatibleReqs("notification.install.badreqs"),
     UnknownFailure("notification.install.unknown"),
     NoLocalStorage("notification.install.nolocal"),
     NoConnection("notification.install.no.connection"),
+    NetworkFailure("notification.install.network.failure"),
+    RateLimited("notification.install.rate.limited"),
     BadCertificate("notification.install.badcert"),
+
 
     /**
      * A catch-all MessageTag to use for reporting app update failures to the notifications bar
      */
-    UpdateFailedGeneral("notification.update.failed.general");
+    UpdateFailedGeneral("notification.update.failed.general"),
+    UpdateFailedResourceInit("notification.update.resource.init.fail"),
+    CaptivePortal("connection.captive_portal"),
+
+    ReinstallFromInvalidCcz("notification.reinstall.invalid.ccz");
 
     AppInstallStatus(String root) {
         this.root = root;
@@ -54,16 +63,46 @@ public enum AppInstallStatus implements MessageTag {
         return root;
     }
 
-    public boolean canReusePartialUpdateTable() {
-        return (this == UnknownFailure || this == NoLocalStorage);
+    public boolean shouldDiscardPartialUpdateTable() {
+        return this == MissingResources ||
+                this == MissingResourcesWithMessage ||
+                this == InvalidResource ||
+                this == IncompatibleReqs;
     }
 
     public boolean isUpdateInCompletedState() {
         return (this == UpdateStaged || this == UpToDate);
     }
 
+    public boolean shouldRetryUpdate() {
+        return (this == NetworkFailure ||
+                this == NoConnection);
+    }
+
     @Override
     public String getCategory() {
         return "install_update";
     }
+
+    // whether to include in the counter for update reset
+    public boolean causeUpdateReset() {
+        return !(this == Cancelled ||
+                this == BadCertificate ||
+                this == NoConnection ||
+                this == CaptivePortal ||
+                this == RateLimited ||
+                this == NetworkFailure);
+    }
+
+    public boolean isNonPersistentFailure() {
+        return (this == Cancelled ||
+                this == BadCertificate ||
+                this == NoConnection ||
+                this == CaptivePortal ||
+                this == RateLimited ||
+                this == NetworkFailure ||
+                this == NoLocalStorage
+        );
+    }
+
 }

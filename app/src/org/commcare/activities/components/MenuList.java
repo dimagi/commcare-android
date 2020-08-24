@@ -1,11 +1,11 @@
 package org.commcare.activities.components;
 
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -28,7 +28,7 @@ public class MenuList implements AdapterView.OnItemClickListener {
     protected AdapterView<ListAdapter> adapterView;
     protected MenuAdapter adapter;
     private boolean beingUsedInHomeScreen;
-    private TextView header;
+    private LinearLayout header;
 
     /**
      * Injects a list (or grid) of CommCare modules/forms for the given menu id into the UI of
@@ -62,7 +62,7 @@ public class MenuList implements AdapterView.OnItemClickListener {
 
     protected void requestBannerAd() {
         AdMobManager.requestBannerAdForView(activity,
-                (FrameLayout)activity.findViewById(R.id.ad_container), AdLocation.MenuList);
+                activity.findViewById(R.id.ad_container), AdLocation.MenuList);
     }
 
     protected void initViewAndAdapter(String menuId) {
@@ -72,11 +72,11 @@ public class MenuList implements AdapterView.OnItemClickListener {
 
         // in menu list only, we add a header
         if (header == null) {
-            header = (TextView)activity.getLayoutInflater().inflate(R.layout.menu_list_header, null);
+            header = (LinearLayout)activity.getLayoutInflater().inflate(R.layout.menu_list_header, null);
         }
         String subHeaderTitle = BreadcrumbBarFragment.getBestSubHeaderTitle();
         if (subHeaderTitle != null) {
-            header.setText(subHeaderTitle);
+            ((TextView)header.findViewById(R.id.menu_list_header_text)).setText(subHeaderTitle);
             // header must not be clickable
             ((ListView)adapterView).addHeaderView(header, null, false);
         }

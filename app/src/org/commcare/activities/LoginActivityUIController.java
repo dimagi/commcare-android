@@ -2,17 +2,16 @@ package org.commcare.activities;
 
 import android.content.SharedPreferences;
 import android.content.res.Resources;
-import android.graphics.Bitmap;
 import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.graphics.drawable.StateListDrawable;
 import android.os.Build;
-import android.support.v7.preference.PreferenceManager;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
 import android.util.StateSet;
 import android.view.View;
-import android.view.ViewTreeObserver;
+import android.view.inputmethod.EditorInfo;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
@@ -31,7 +30,7 @@ import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.preferences.DevSessionRestorer;
 import org.commcare.preferences.HiddenPreferences;
-import org.commcare.utils.MediaUtil;
+import org.commcare.preferences.LocalePreferences;
 import org.commcare.utils.MultipleAppsUtil;
 import org.commcare.views.CustomBanner;
 import org.commcare.views.ManagedUi;
@@ -43,6 +42,8 @@ import org.javarosa.core.services.locale.Localization;
 
 import java.util.ArrayList;
 import java.util.Vector;
+
+import androidx.preference.PreferenceManager;
 
 /**
  * Handles login activity UI
@@ -140,20 +141,18 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         setTextChangeListeners();
         setBannerLayoutLogic();
 
-        loginButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View arg0) {
+        loginButton.setOnClickListener(arg0 -> activity.initiateLoginAttempt(isRestoreSessionChecked()));
+
+        passwordOrPin.setOnEditorActionListener((v, actionId, event) -> {
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
                 activity.initiateLoginAttempt(isRestoreSessionChecked());
+                return true;
             }
+            return false;
         });
 
         notificationButton.setText(Localization.get("error.button.text"));
-        notificationButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                CommCareNoficationManager.performIntentCalloutToNotificationsView(activity);
-            }
-        });
+        notificationButton.setOnClickListener(view -> CommCareNoficationManager.performIntentCalloutToNotificationsView(activity));
     }
 
     private void setTextChangeListeners() {
@@ -171,34 +170,20 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         final View activityRootView = activity.findViewById(R.id.screen_login_main);
         final SharedPreferences prefs = CommCareApplication.instance().getCurrentApp().getAppPreferences();
         activityRootView.getViewTreeObserver().addOnGlobalLayoutListener(
-                new ViewTreeObserver.OnGlobalLayoutListener() {
+                () -> {
+                    int hideAll = getResources().getInteger(
+                            R.integer.login_screen_hide_all_cuttoff);
+                    int hideBanner = getResources().getInteger(
+                            R.integer.login_screen_hide_banner_cuttoff);
+                    int height = activityRootView.getHeight();
 
-                    @Override
-                    public void onGlobalLayout() {
-                        int hideAll = getResources().getInteger(
-                                R.integer.login_screen_hide_all_cuttoff);
-                        int hideBanner = getResources().getInteger(
-                                R.integer.login_screen_hide_banner_cuttoff);
-                        int height = activityRootView.getHeight();
-
-                        if (height < hideAll) {
-                            banner.setVisibility(View.GONE);
-                        } else if (height < hideBanner) {
-                            banner.setVisibility(View.GONE);
-                        } else {
-                            // Override default CommCare banner if requested
-                            String customBannerURI = prefs.getString(
-                                    HiddenPreferences.BRAND_BANNER_LOGIN, "");
-                            if (!"".equals(customBannerURI)) {
-                                Bitmap bitmap = MediaUtil.inflateDisplayImage(activity, customBannerURI);
-                                if (bitmap != null) {
-                                    ImageView bannerView =
-                                            (ImageView)banner.findViewById(R.id.main_top_banner);
-                                    bannerView.setImageBitmap(bitmap);
-                                }
-                            }
-                            banner.setVisibility(View.VISIBLE);
-                        }
+                    if (height < hideAll) {
+                        banner.setVisibility(View.GONE);
+                    } else if (height < hideBanner) {
+                        banner.setVisibility(View.GONE);
+                    } else {
+                        banner.setVisibility(View.VISIBLE);
+                        updateBanner();
                     }
                 });
     }
@@ -217,7 +202,7 @@ public class LoginActivityUIController implements CommCareActivityUIController {
             // on first startup
             ApplicationRecord r = readyApps.get(0);
             SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(activity);
-            prefs.edit().putString(LoginActivity.KEY_LAST_APP, r.getUniqueId()).commit();
+            prefs.edit().putString(LoginActivity.KEY_LAST_APP, r.getUniqueId()).apply();
 
             setSingleAppUIState();
         } else {
@@ -240,7 +225,7 @@ public class LoginActivityUIController implements CommCareActivityUIController {
             checkEnteredUsernameForMatch();
         }
 
-        if(!CommCareApplication.notificationManager().messagesForCommCareArePending()) {
+        if (!CommCareApplication.notificationManager().messagesForCommCareArePending()) {
             notificationButtonView.setVisibility(View.GONE);
         }
     }
@@ -397,8 +382,15 @@ public class LoginActivityUIController implements CommCareActivityUIController {
 
     private void setStyleDefault() {
         setLoginBoxesColorNormal();
-        username.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.icon_user_neutral50), null, null, null);
-        passwordOrPin.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.icon_lock_neutral50), null, null, null);
+        Drawable usernameDrawable = getResources().getDrawable(R.drawable.icon_user_neutral50);
+        Drawable passwordDrawable = getResources().getDrawable(R.drawable.icon_lock_neutral50);
+        if (LocalePreferences.isLocaleRTL()) {
+            username.setCompoundDrawablesWithIntrinsicBounds(null, null, usernameDrawable, null);
+            passwordOrPin.setCompoundDrawablesWithIntrinsicBounds(null, null, passwordDrawable, null);
+        } else {
+            username.setCompoundDrawablesWithIntrinsicBounds(usernameDrawable, null, null, null);
+            passwordOrPin.setCompoundDrawablesWithIntrinsicBounds(passwordDrawable, null, null, null);
+        }
         setupLoginButton();
         if (loginButton.isEnabled()) {
             clearErrorMessage();
@@ -488,8 +480,8 @@ public class LoginActivityUIController implements CommCareActivityUIController {
 
     private void updateBanner() {
         ImageView topBannerImageView =
-                (ImageView)banner.findViewById(org.commcare.dalvik.R.id.main_top_banner);
-        if (!CustomBanner.useCustomBannerFitToActivity(activity, topBannerImageView)) {
+                banner.findViewById(R.id.main_top_banner);
+        if (!CustomBanner.useCustomBannerFitToActivity(activity, topBannerImageView, CustomBanner.Banner.LOGIN)) {
             topBannerImageView.setImageResource(R.drawable.commcare_logo);
         }
     }

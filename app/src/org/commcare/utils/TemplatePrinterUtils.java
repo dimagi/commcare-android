@@ -1,7 +1,5 @@
 package org.commcare.utils;
 
-import android.support.v7.app.AppCompatActivity;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -28,6 +26,8 @@ import javax.crypto.CipherInputStream;
 import javax.crypto.CipherOutputStream;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 /**
  * Various utilities used by TemplatePrinterTask and TemplatePrinterActivity
@@ -86,7 +86,6 @@ public abstract class TemplatePrinterUtils {
     /**
      * @param file the input file
      * @return A string representation of the entire contents of the file
-     * @throws IOException
      */
     public static String docToString(File file) throws IOException {
         StringBuilder builder = new StringBuilder();
@@ -147,13 +146,10 @@ public abstract class TemplatePrinterUtils {
      */
     public static void showAlertDialog(final AppCompatActivity activity, String title, String msg,
                                        final boolean finishActivity) {
-        StandardAlertDialog.getBasicAlertDialog(activity, title, msg, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-                if (finishActivity) {
-                    activity.finish();
-                }
+        StandardAlertDialog.getBasicAlertDialog(activity, title, msg, (dialog, which) -> {
+            dialog.dismiss();
+            if (finishActivity) {
+                activity.finish();
             }
         }).showNonPersistentDialog();
     }
@@ -161,19 +157,15 @@ public abstract class TemplatePrinterUtils {
     public static void showPrintStatusDialog(final AppCompatActivity activity, String title, String msg,
                                              final boolean printInitiated) {
         StandardAlertDialog.getBasicAlertDialog(activity, title, msg,
-                new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                        Intent intent = new Intent();
-                        Bundle responses = new Bundle();
-                        responses.putString("print_initiated", "" + printInitiated);
-                        intent.putExtra(IntentCallout.INTENT_RESULT_EXTRAS_BUNDLE, responses);
-                        activity.setResult(AppCompatActivity.RESULT_OK, intent);
-                        activity.finish();
-                    }
+                (dialog, which) -> {
+                    dialog.dismiss();
+                    Intent intent = new Intent();
+                    Bundle responses = new Bundle();
+                    responses.putString("print_initiated", "" + printInitiated);
+                    intent.putExtra(IntentCallout.INTENT_RESULT_EXTRAS_BUNDLE, responses);
+                    activity.setResult(AppCompatActivity.RESULT_OK, intent);
+                    activity.finish();
                 }).showNonPersistentDialog();
 
     }
-
 }

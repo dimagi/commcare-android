@@ -7,12 +7,16 @@ import android.util.Log;
 import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.CommCareApplication;
+import org.commcare.android.database.user.models.ACasePreV24Model;
 import org.commcare.android.database.user.models.FormRecordV2;
 import org.commcare.android.database.user.models.FormRecordV3;
+import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.android.logging.ForceCloseLogEntry;
 import org.commcare.android.javarosa.AndroidLogEntry;
+import org.commcare.cases.model.Case;
 import org.commcare.cases.model.StorageIndexedTreeElementModel;
 import org.commcare.logging.XPathErrorEntry;
+import org.commcare.models.database.user.models.AndroidCaseIndexTablePreV21;
 import org.commcare.modern.database.TableBuilder;
 import org.commcare.models.database.ConcreteAndroidDbHelper;
 import org.commcare.models.database.DbUtil;
@@ -29,13 +33,16 @@ import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.FormRecordV1;
 import org.commcare.android.database.user.models.GeocodeCacheModel;
 import org.commcare.modern.database.DatabaseIndexingUtils;
-import org.commcare.provider.InstanceProviderAPI;
 import org.javarosa.core.model.User;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.storage.Persistable;
 
+import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.Vector;
+
+import static org.commcare.modern.database.IndexedFixturePathsConstants.INDEXED_FIXTURE_PATHS_COL_ATTRIBUTES;
+import static org.commcare.modern.database.IndexedFixturePathsConstants.INDEXED_FIXTURE_PATHS_TABLE;
 
 /**
  * @author ctsims
@@ -59,6 +66,8 @@ class UserDatabaseUpgrader {
         // A lot of the upgrade processes can take a little while, so we tell the service to wait
         // longer than usual in order to make sure the upgrade has time to finish
         CommCareApplication.instance().setCustomServiceBindTimeout(5 * 60 * 1000);
+
+        int startVersion = oldVersion;
 
         if (oldVersion == 1) {
             if (upgradeOneTwo(db)) {
@@ -183,6 +192,30 @@ class UserDatabaseUpgrader {
                 oldVersion = 23;
             }
         }
+
+        if (oldVersion == 23) {
+            if (upgradeTwentyThreeTwentyFour(db)) {
+                oldVersion = 24;
+            }
+        }
+
+        if (oldVersion == 24) {
+            // We are doing migration to v25 because of a bug in migration to v23 earlier, so
+            // we only want to actually trigger this for apps already on v23 or greater
+            if (startVersion > 22) {
+                if (upgradeTwentyFourTwentyFive(db)) {
+                    oldVersion = 25;
+                }
+            } else {
+                oldVersion = 25;
+            }
+        }
+
+        if (oldVersion == 25) {
+            if(upgradeTwentyFiveTwentySix(db)){
+                oldVersion = 26;
+            }
+        }
     }
 
     private boolean upgradeOneTwo(final SQLiteDatabase db) {
@@ -239,9 +272,9 @@ class UserDatabaseUpgrader {
             db.execSQL(EntityStorageCache.getTableDefinition());
             EntityStorageCache.createIndexes(db);
 
-            db.execSQL(UserDbUpgradeUtils.getCreateV6AndroidCaseIndexTableSqlDef());
+            db.execSQL(AndroidCaseIndexTablePreV21.getTableDefinition());
             AndroidCaseIndexTable.createIndexes(db);
-            AndroidCaseIndexTable cit = new AndroidCaseIndexTable(db);
+            AndroidCaseIndexTablePreV21 cit = new AndroidCaseIndexTablePreV21(db);
 
             //NOTE: Need to use the PreV6 case model any time we manipulate cases in this model for upgraders
             //below 6
@@ -281,7 +314,7 @@ class UserDatabaseUpgrader {
         long start = System.currentTimeMillis();
         db.beginTransaction();
         try {
-            SqlStorage<Persistable> userStorage = new SqlStorage<Persistable>(AUser.STORAGE_KEY, AUser.class, new ConcreteAndroidDbHelper(c, db));
+            SqlStorage<Persistable> userStorage = new SqlStorage<>(AUser.STORAGE_KEY, AUser.class, new ConcreteAndroidDbHelper(c, db));
             SqlStorageIterator<Persistable> iterator = userStorage.iterate();
             while (iterator.hasMore()) {
                 AUser oldUser = (AUser)iterator.next();
@@ -442,7 +475,7 @@ class UserDatabaseUpgrader {
     private boolean upgradeFourteenFifteen(SQLiteDatabase db) {
         db.beginTransaction();
         try {
-            IndexedFixturePathUtils.createStorageBackedFixtureIndexTable(db);
+            IndexedFixturePathUtils.createStorageBackedFixtureIndexTableV15(db);
             db.setTransactionSuccessful();
             return true;
         } finally {
@@ -513,7 +546,7 @@ class UserDatabaseUpgrader {
                     "owner_id",
                     "TEXT"));
 
-            SqlStorage<ACase> caseStorage = new SqlStorage<>(ACase.STORAGE_KEY, ACase.class,
+            SqlStorage<ACase> caseStorage = new SqlStorage<>(ACase.STORAGE_KEY, ACasePreV24Model.class,
                     new ConcreteAndroidDbHelper(c, db));
             updateModels(caseStorage);
 
@@ -526,14 +559,13 @@ class UserDatabaseUpgrader {
         }
     }
 
-
     private boolean upgradeEighteenNineteen(SQLiteDatabase db) {
         db.beginTransaction();
         try {
-            SqlStorage<ACase> caseStorage = new SqlStorage<>(ACase.STORAGE_KEY, ACase.class,
+            SqlStorage<ACase> caseStorage = new SqlStorage<>(ACase.STORAGE_KEY, ACasePreV24Model.class,
                     new ConcreteAndroidDbHelper(c, db));
 
-            AndroidCaseIndexTable indexTable = new AndroidCaseIndexTable(db);
+            AndroidCaseIndexTablePreV21 indexTable = new AndroidCaseIndexTablePreV21(db);
             indexTable.reIndexAllCases(caseStorage);
             db.setTransactionSuccessful();
             return true;
@@ -590,7 +622,7 @@ class UserDatabaseUpgrader {
     }
 
     private boolean upgradeTwentyTwoTwentyThree(SQLiteDatabase db) {
-        //drop the existing table and recreate using current definition
+        // drop the existing table and recreate using current definition
         boolean success;
         Vector<Uri> migratedInstances;
         db.beginTransaction();
@@ -615,6 +647,88 @@ class UserDatabaseUpgrader {
             }
         }
         return success;
+    }
+
+    /**
+     * Add external_id index to Case table
+     */
+    private boolean upgradeTwentyThreeTwentyFour(SQLiteDatabase db) {
+        db.beginTransaction();
+        try {
+            db.execSQL(DbUtil.addColumnToTable(
+                    ACase.STORAGE_KEY,
+                    Case.EXTERNAL_ID_KEY,
+                    "TEXT"));
+
+            SqlStorage<ACase> caseStorage = new SqlStorage<>(ACase.STORAGE_KEY, ACase.class,
+                    new ConcreteAndroidDbHelper(c, db));
+            updateModels(caseStorage);
+
+            db.execSQL(DatabaseIndexingUtils.indexOnTableCommand(
+                    "case_external_id_index", "AndroidCase", "external_id"));
+            db.setTransactionSuccessful();
+            return true;
+        } finally {
+            db.endTransaction();
+        }
+    }
+
+    // check for integrity of SSD records and wipes the whole table in case of any discrepancy
+    private boolean upgradeTwentyFourTwentyFive(SQLiteDatabase db) {
+        db.beginTransaction();
+        try {
+            boolean strandedRecordObserved = false;
+            SqlStorage<FormRecord> formRecordStorage = UserDbUpgradeUtils.getFormRecordStorage(c, db, FormRecord.class);
+            SqlStorage<SessionStateDescriptor> ssdStorage = new SqlStorage<>(
+                    SessionStateDescriptor.STORAGE_KEY,
+                    SessionStateDescriptor.class,
+                    new ConcreteAndroidDbHelper(c, db));
+            for (SessionStateDescriptor ssd : ssdStorage) {
+                // we are in invalid state if formRecord with corresponding ssd form id
+                // either doesn't exist or has status unstarted
+                try {
+                    FormRecord formRecord = formRecordStorage.read(ssd.getFormRecordId());
+                    if (formRecord.getStatus().contentEquals(FormRecord.STATUS_UNSTARTED)) {
+                        strandedRecordObserved = true;
+                        break;
+                    }
+                } catch (NoSuchElementException e) {
+                    strandedRecordObserved = true;
+                    break;
+                }
+            }
+
+            if (strandedRecordObserved) {
+                SqlStorage.wipeTable(db, SessionStateDescriptor.STORAGE_KEY);
+
+                // Since we have wiped out SSD records, we won't be able to resume
+                // incomplete forms with their earlier session state. Therfore we are
+                // going to delete all incomplete form records as well
+                Vector<FormRecord> incompleteRecords = formRecordStorage.getRecordsForValue(FormRecord.META_STATUS, FormRecord.STATUS_INCOMPLETE);
+                for (FormRecord incompleteRecord : incompleteRecords) {
+                    formRecordStorage.remove(incompleteRecord);
+                }
+            }
+            db.setTransactionSuccessful();
+            return true;
+        } finally {
+            db.endTransaction();
+        }
+    }
+
+    private boolean upgradeTwentyFiveTwentySix(SQLiteDatabase db) {
+        db.beginTransaction();
+        try {
+            db.execSQL(DbUtil.addColumnToTable(
+                    INDEXED_FIXTURE_PATHS_TABLE,
+                    INDEXED_FIXTURE_PATHS_COL_ATTRIBUTES,
+                    "BLOB"));
+
+            db.setTransactionSuccessful();
+            return true;
+        } finally {
+            db.endTransaction();
+        }
     }
 
     private void migrateV2FormRecordsForSingleApp(String appId,

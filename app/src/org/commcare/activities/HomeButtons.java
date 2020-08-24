@@ -99,137 +99,87 @@ public class HomeButtons {
     }
 
     private static View.OnClickListener getViewOldFormsListener(final StandardHomeActivity activity) {
-        return new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                reportButtonClick(AnalyticsParamValue.SAVED_FORMS_BUTTON);
-                activity.goToFormArchive(false);
-            }
+        return v -> {
+            reportButtonClick(AnalyticsParamValue.SAVED_FORMS_BUTTON);
+            activity.goToFormArchive(false);
         };
     }
 
     private static View.OnClickListener getSyncButtonListener(final StandardHomeActivity activity) {
-        return new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                reportButtonClick(AnalyticsParamValue.SYNC_BUTTON);
-                activity.syncButtonPressed();
-            }
+        return v -> {
+            reportButtonClick(AnalyticsParamValue.SYNC_BUTTON);
+            activity.syncButtonPressed();
         };
     }
 
     private static TextSetter getSyncButtonTextSetter(final StandardHomeActivity activity) {
-        return new TextSetter() {
-            @Override
-            public void update(HomeCardDisplayData cardDisplayData,
-                               SquareButtonViewHolder squareButtonViewHolder,
-                               Context context,
-                               String notificationText) {
-                if (notificationText != null) {
-                    squareButtonViewHolder.subTextView.setText(notificationText);
-                    squareButtonViewHolder.subTextView.setTextColor(activity.getResources().getColor(cardDisplayData.subTextColor));
-                } else {
-                    SyncDetailCalculations.updateSubText(activity, squareButtonViewHolder, cardDisplayData);
-                }
-                squareButtonViewHolder.subTextView.setBackgroundColor(activity.getResources().getColor(cardDisplayData.subTextBgColor));
-                squareButtonViewHolder.textView.setTextColor(context.getResources().getColor(cardDisplayData.textColor));
-                squareButtonViewHolder.textView.setText(cardDisplayData.text);
-            }
+        return (cardDisplayData, squareButtonViewHolder, context, notificationText) -> {
+            SyncDetailCalculations.updateSubText(activity, squareButtonViewHolder, cardDisplayData, notificationText);
+            squareButtonViewHolder.subTextView.setBackgroundColor(activity.getResources().getColor(cardDisplayData.subTextBgColor));
+            squareButtonViewHolder.textView.setTextColor(context.getResources().getColor(cardDisplayData.textColor));
+            squareButtonViewHolder.textView.setText(cardDisplayData.text);
         };
     }
 
     private static View.OnClickListener getStartButtonListener(final StandardHomeActivity activity) {
-        return new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                activity.enterRootModule();
-            }
-        };
+        return v -> activity.enterRootModule();
     }
 
     private static View.OnClickListener getTrainingButtonListener(final StandardHomeActivity activity) {
-        return new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                activity.enterTrainingModule();
-            }
-        };
+        return view -> activity.enterTrainingModule();
     }
 
     private static View.OnClickListener getIncompleteButtonListener(final StandardHomeActivity activity) {
-        return new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                reportButtonClick(AnalyticsParamValue.INCOMPLETE_FORMS_BUTTON);
-                activity.goToFormArchive(true);
-            }
+        return v -> {
+            reportButtonClick(AnalyticsParamValue.INCOMPLETE_FORMS_BUTTON);
+            activity.goToFormArchive(true);
         };
     }
 
     private static TextSetter getIncompleteButtonTextSetter(final StandardHomeActivity activity) {
-        return new TextSetter() {
-            @Override
-            public void update(HomeCardDisplayData cardDisplayData,
-                               SquareButtonViewHolder squareButtonViewHolder,
-                               Context context,
-                               String notificationText) {
-                int numIncompleteForms;
-                try {
-                    numIncompleteForms = StorageUtils.getNumIncompleteForms();
-                } catch (SessionUnavailableException e) {
-                    // stop button setup, since redirection to login is imminent
-                    return;
-                }
-
-                if (numIncompleteForms > 0) {
-                    Spannable incompleteIndicator =
-                            (activity.localize("home.forms.incomplete.indicator",
-                                    new String[]{String.valueOf(numIncompleteForms),
-                                            Localization.get("home.forms.incomplete")}));
-                    squareButtonViewHolder.textView.setText(incompleteIndicator);
-                } else {
-                    squareButtonViewHolder.textView.setText(activity.localize("home.forms.incomplete"));
-                }
-                squareButtonViewHolder.textView.setTextColor(context.getResources()
-                        .getColor(cardDisplayData.textColor));
-                squareButtonViewHolder.subTextView.setVisibility(View.GONE);
+        return (cardDisplayData, squareButtonViewHolder, context, notificationText) -> {
+            int numIncompleteForms;
+            try {
+                numIncompleteForms = StorageUtils.getNumIncompleteForms();
+            } catch (SessionUnavailableException e) {
+                // stop button setup, since redirection to login is imminent
+                return;
             }
+
+            if (numIncompleteForms > 0) {
+                Spannable incompleteIndicator =
+                        (activity.localize("home.forms.incomplete.indicator",
+                                new String[]{String.valueOf(numIncompleteForms),
+                                        Localization.get("home.forms.incomplete")}));
+                squareButtonViewHolder.textView.setText(incompleteIndicator);
+            } else {
+                squareButtonViewHolder.textView.setText(activity.localize("home.forms.incomplete"));
+            }
+            squareButtonViewHolder.textView.setTextColor(context.getResources()
+                    .getColor(cardDisplayData.textColor));
+            squareButtonViewHolder.subTextView.setVisibility(View.GONE);
         };
     }
 
     private static View.OnClickListener getLogoutButtonListener(final StandardHomeActivity activity) {
-        return new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                activity.userTriggeredLogout();
-            }
-        };
+        return v -> activity.userTriggeredLogout();
     }
 
     private static TextSetter getLogoutButtonTextSetter(final StandardHomeActivity activity) {
-        return new TextSetter() {
-            @Override
-            public void update(HomeCardDisplayData cardDisplayData,
-                               SquareButtonViewHolder squareButtonViewHolder,
-                               Context context,
-                               String notificationText) {
-                squareButtonViewHolder.textView.setText(cardDisplayData.text);
-                squareButtonViewHolder.textView.setTextColor(context.getResources().getColor(cardDisplayData.textColor));
-                squareButtonViewHolder.subTextView.setText(activity.getActivityTitle());
-                squareButtonViewHolder.subTextView.setTextColor(context.getResources().getColor(cardDisplayData.subTextColor));
-                squareButtonViewHolder.subTextView.setBackgroundColor(activity.getResources().getColor(cardDisplayData.subTextBgColor));
-            }
+        return (cardDisplayData, squareButtonViewHolder, context, notificationText) -> {
+            squareButtonViewHolder.textView.setText(cardDisplayData.text);
+            squareButtonViewHolder.textView.setTextColor(context.getResources().getColor(cardDisplayData.textColor));
+            squareButtonViewHolder.subTextView.setText(activity.getActivityTitle());
+            squareButtonViewHolder.subTextView.setTextColor(context.getResources().getColor(cardDisplayData.subTextColor));
+            squareButtonViewHolder.subTextView.setBackgroundColor(activity.getResources().getColor(cardDisplayData.subTextBgColor));
         };
     }
 
     private static View.OnClickListener getReportButtonListener(final StandardHomeActivity activity) {
-        return new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                reportButtonClick(AnalyticsParamValue.REPORT_BUTTON);
-                Intent i = new Intent(activity, ReportProblemActivity.class);
-                activity.startActivity(i);
-            }
+        return v -> {
+            reportButtonClick(AnalyticsParamValue.REPORT_BUTTON);
+            Intent i = new Intent(activity, ReportProblemActivity.class);
+            activity.startActivity(i);
         };
     }
 

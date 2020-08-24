@@ -1,6 +1,6 @@
 package org.commcare.adapters;
 
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
@@ -96,12 +96,7 @@ public class EntityStringFilterer extends EntityFiltererBase {
                     isFuzzySearchEnabled,
                     matchScores,
                     matchList,
-                    new EntityProvider() {
-                        @Override
-                        public Entity<TreeReference> getEntity(int index) {
-                            return getEntityAtIndex(db, index);
-                        }
-                    });
+                    index -> getEntityAtIndex(db, index));
             db.setTransactionSuccessful();
         } finally {
             db.endTransaction();

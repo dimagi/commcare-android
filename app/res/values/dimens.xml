@@ -112,6 +112,10 @@
 
     <dimen name="min_button_padding">20dp</dimen>
 
+    <!--    Map layer Button-->
+    <dimen name="map_layer_padding">4dp</dimen>
+    <dimen name="map_layer_margin">16dp</dimen>
+
     <!--Custom Preferences Dialog-->
     <dimen name="pref_dialog_margin_top">48dp</dimen>
     <dimen name="pref_dialog_margin_bottom">48dp</dimen>
@@ -125,5 +129,17 @@
     <!--Big Layout Button Dimensions-->
     <!-- Should be font medium SP x 4, roughly -->
     <dimen name="rectangle_button_height">60sp</dimen>
+
+
+    <!--action button on center of screen-->
+    <dimen name="center_button_width">180dp</dimen>
+
+    <!-- Audio button -->
+    <dimen name="audio_button_size">55dp</dimen>
+
+    <!--  Map Info View  -->
+    <dimen name="map_info_view_text_size">12sp</dimen>
+    <dimen name="map_info_view_text_padding">4dp</dimen>
+
 
 </resources>

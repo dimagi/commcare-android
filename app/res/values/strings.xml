@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:cc="http://strings_namespace">
-    <string name="title_bar_name">CommCare</string>
+    <string name="title_bar_name">@string/application_name</string>
 
     <!-- string name="default_app_server">http://build.dimagi.com/commcare/pact/profile.xml</string -->
     <string name="default_app_server">jr://asset/testing/profile.ccpr</string>
@@ -59,7 +59,8 @@
 
     <integer-array name="commcare_version">
         <item>2</item>
-        <item>44</item>
+        <item>50</item>
+        <item>0</item>
     </integer-array>
 
     <string name="app_version_string">version.id.long</string>
@@ -74,20 +75,7 @@
 
     <string name="url_prompt">Choose a URL</string>
 
-    <string name="about_dialog" formatted="false" cc:translatable="true">%s\n\n
-_Copyright 2016, Dimagi inc, All rights reserved_ \n\n
-
----------------- \n\n
-__Acknowledgements:__ \n\n
-%s
-Some images in CommCare are graciously used under Creative Commons Licensing from thenounproject.com collection:\n\n
-* “Door” symbol by Tak Imoto \n
-* “Pencil” symbol by Creologica \n
-* “Notebook” symbol by Carlo \n
-* “Antenna” symbol by Dima \n
-* “Map Marker” symbol by P.J. Onori \n
-* "List" by Landan Lloyd \n
-* broken screen by Sam Martin from the Noun Project \n\n
+    <string name="about_dialog" formatted="false" cc:translatable="true">%s\n\n_Copyright 2016, Dimagi inc, All rights reserved_ \n\n---------------- \n\n__Acknowledgements:__ \n\n%sSome images in CommCare are graciously used under Creative Commons Licensing from thenounproject.com collection:\n\n* “Door” symbol by Tak Imoto \n* “Pencil” symbol by Creologica \n* “Notebook” symbol by Carlo \n* “Antenna” symbol by Dima \n* “Map Marker” symbol by P.J. Onori \n* "List" by Landan Lloyd \n* broken screen by Sam Martin from the Noun Project \n\n
 
 </string>
     <string name="notification_message_title">CommCare Notification</string>
@@ -212,6 +200,7 @@ Some images in CommCare are graciously used under Creative Commons Licensing fro
     <string name="delete_no" cc:translatable="true">Do Not Delete</string>
     <string name="delete_yes" cc:translatable="true">Delete Forms</string>
     <string name="discard_answer" cc:translatable="true">REMOVE RESPONSE</string>
+    <string name="discard_image" cc:translatable="true">Remove Image</string>
     <string name="download" cc:translatable="true">Get Selected</string>
     <string name="download_forms_result" cc:translatable="true">Download Result</string>
     <string name="downloading_data" cc:translatable="true">Connecting to Server</string>
@@ -369,4 +358,78 @@ Some images in CommCare are graciously used under Creative Commons Licensing fro
     <string name="target_mismatch_commcare_open" cc:translatable="true">Open CommCare</string>
     <string name="target_mismatch_commcare_required_info" cc:translatable="true">Follow the link below to install CommCare(Non LTS) from the Play Store, and then try installing your app again.</string>
     <string name="target_mismatch_commcare_available_info" cc:translatable="true">This app requires CommCare(Non LTS). Click the button below to open CommCare, and then try installing your app again.</string>
+
+    <!--Incorrect Time Dialog-->
+    <string name="incorrect_time_dialog_title" cc:translatable="true">Incorrect Time</string>
+    <string name="incorrect_time_dialog_message" cc:translatable="true">Your device time is incorrectly set. Please click the Correct Time button below to change your time settings.</string>
+    <string name="incorrect_time_dialog_correct_time" cc:translatable="true">Correct Time</string>
+    <string name="incorrect_time_dialog_cancel" cc:translatable="true">Cancel</string>
+
+    <!--Recovery Activity-->
+    <string name="recovery_mode_title" cc:translatable="true">CommCare Recovery Mode</string>
+    <string name="recovery_mode_detail" cc:translatable="true">CommCare has entered recovery mode due to a problem with your app. We are trying to recover your app. Please wait...</string>
+    <string name="recovery_resource_progress" cc:translatable="true">Recovered %1$s out of %2$s resources</string>
+    <string name="recovery_error_poor_connection" cc:translatable="true">Recovery failed due to bad internet. Please make sure that you have a stable internet connection and try again</string>
+    <string name="recovery_error_unknown" cc:translatable="true">Recovery failed due to an unknown reason. Please try again or reinstall your app by going to App Manager</string>
+    <string name="recovery_success" cc:translatable="true">App recovery has been successful. Please press back to resume your work</string>
+    <string name="recovery_forms_send_progress" cc:translatable="true">Submitting form(s) to the server...</string>
+    <string name="recovery_forms_send_session_expired" cc:translatable="true">Log-in expired during send</string>
+    <string name="recovery_forms_send_successful" cc:translatable="true">Send successful. All %s forms were submitted</string>
+    <string name="recovery_forms_send_failure" cc:translatable="true">There were errors submitting the forms.</string>
+    <string name="recovery_forms_send_parital_success" cc:translatable="true">There were errors submitting the forms. Only %s were submitted. Please try again later</string>
+    <string name="recovery_forms_send_network_error" cc:translatable="true">Forms submissing failed due to poor network</string>
+    <string name="recovery_forms_send_error" cc:translatable="true">Error while sending forms</string>
+    <string name="recovery_forms_state_unavailable" cc:translatable="true">Forms are not available. Make sure your phone storage is available</string>
+    <string name="recovery_network_unavailable" cc:translatable="true">No network connection. Please check your internet and try again.</string>
+    <string name="recovery_app_manager" cc:translatable="true">Go to App Manager</string>
+    <string name="recovery_retry" cc:translatable="true">Retry Recovery</string>
+
+    <string name="notification_channel_errors_title" cc:translatable="true">Errors</string>
+    <string name="notification_channel_errors_description" cc:translatable="true">Notifications for error messages when something breaks say on installing a CommCare app or while syncing forms with server</string>
+    <string name="notification_channel_user_session_title" cc:translatable="true">User Session</string>
+    <string name="notification_channel_user_session_description" cc:translatable="true">Notification containing information around current user session like when the current session is scheduled to expire</string>
+    <string name="notification_channel_server_communication_title" cc:translatable="true">Server Communications</string>
+    <string name="notification_channel_server_communication_description" cc:translatable="true">Notifications for status of any background server communication happening at the moment like CommCare App updates, log submission etc.</string>
+
+    <!--Recovery Measures-->
+    <string name="recovery_measure_reinstall_method" cc:translatable="true">Choose Reinstall Method</string>
+    <string name="recovery_measure_reinstall_detail" cc:translatable="true">Your app needs to be reinstalled due to a problem, please select a method for reinstalling.</string>
+    <string name="recovery_measure_reinstall_online_method" cc:translatable="true">Online Reinstall</string>
+    <string name="recovery_measure_reinstall_offline_method" cc:translatable="true">Reinstall Using CCZ</string>
+    <string name="recovery_measure_detail" cc:translatable="true">Recovery procedures have been initiated for your CommCare App due to a problem with it. Please wait...</string>
+    <string name="recovery_measure_faiure" cc:translatable="true">An error occurred when CommCare tried to execute a recovery measure. We will try again later. If the problem persists please contact helpdesk</string>
+    <string name="recovery_measure_retry" cc:translatable="true">Retry Recovery</string>
+    <string name="recovery_measure_app_reinstall_progress" cc:translatable="true">Reinstalling %1$s out of %2$s resources</string>
+    <string name="recovery_measure_app_update_progress" cc:translatable="true">Updating %1$s out of %2$s resources</string>
+    <string name="recovery_measure_known_error" cc:translatable="true">An error occurred during recovery. Error details - \n %1$s</string>
+    <string name="recovery_measure_ccz_scan_in_progress" cc:translatable="true">Scanning your phone for ccz files</string>
+    <string name="recovery_measure_ccz_found_scan_in_progress" cc:translatable="true">We found a CCZ file for the app on your phone. We are still scanning your device to see if there is a newer CCZ file present. You can wait for the scan to complete or click reinstall below to immediately reinstall the app</string>
+    <string name="recovery_measure_reinstall" cc:translatable="true">Reinstall</string>
+    <string name="recovery_measure_no_ccz_found" cc:translatable="true">No CCZ file found for your app. You can manually locate CCZ file by clicking \"Select CCZ\" button below. In case you can not find CCZ file on your phone, please contact your help desk.</string>
+    <string name="recovery_measure_select_ccz" cc:translatable="true">Select CCZ</string>
+    <string name="recovery_measure_select_ccz_no_file_browser" cc:translatable="true">You need a file manager to access the files on this device. You have not installed a file manager, please go to the Google Play Store and download a file manager, then return to this screen.</string>
+    <string name="recovery_measure_invalid_ccz_path" cc:translatable="true">Unable to process the CCZ file you selected. Please retry</string>
+    <string name="recovery_measure_ccz_scan_failed" cc:translatable="true">An error occurred while loacting CCZ file on your phone. Please retry or locate CCZ file manually by clicking \"Select CCZ\" button below.</string>
+    <string name="recovery_measure_unzip_error" cc:translatable="true">An error occurred while installing the app from CCZ file. Please retry or locate CCZ file manually by clicking \"Select CCZ\" button below.</string>
+    <string name="recovery_measure_update_cancelled" cc:translatable="true">Update cancelled</string>
+    <string name="recovery_measure_offline_install_cancelled" cc:translatable="true">Offline install cancelled</string>
+    <string name="recovery_measure_unzip_progress" cc:translatable="true">Processing CCZ File.. %1$s</string>
+    <string name="reinstall_prompt_title" cc:translatable="true">Reinstall of %1$s is Required</string>
+
+    <string name="install_error_file_not_found" cc:translatable="true">No file found for resource %1$s</string>
+    <string name="update_blocked_on_sync_message" cc:translatable="true">Sync is required to install this update. Auto initiating sync...</string>
+
+    <string name="media_download_failed" cc:translatable="true">An error occurred while downloading the requested media. Please try again</string>
+    <string name="media_download_in_progress" cc:translatable="true">Download in Progress, Please wait...</string>
+    <string name="media_download_started" cc:translatable="true">Download started</string>
+    <string name="media_download_completed" cc:translatable="true">Download completed</string>
+    <string name="video_download_prompt" cc:translatable="true">Video file is missing for this question, click the download button above to download</string>
+    <string name="image_download_prompt" cc:translatable="true">Image file is missing for this question, Click the download button above to download</string>
+    <string name="audio_download_prompt" cc:translatable="true">Audio file is missing for this question, click the download button above to download</string>
+    <string name="media_not_found_error" cc:translatable="true">Media not found in the application</string>
+
+    <string name="area_format" cc:translatable="true">%1s sq m</string>
+    <string name="parse_coordinates_failure" cc:translatable="true">Could not parse input coordinates</string>
+    <string name="location_provider_disabled" cc:translatable="true">Turn on your location to receive location updates</string>
+    <string name="invalid_case_property_length" cc:translatable="true">Invalid %1s, value must be 255 characters or less</string>
 </resources>

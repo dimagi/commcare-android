@@ -2,7 +2,9 @@ package org.commcare.views;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.support.v7.widget.CardView;
+
+import androidx.cardview.widget.CardView;
+
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -31,7 +33,7 @@ public class EntityActionViewUtils {
         setupActionAudio(displayData.getAudioURI(), actionCardView);
         setupActionImage(displayData.getImageURI(), actionCardView, commCareActivity);
 
-        TextView text = (TextView)actionCardView.findViewById(R.id.text);
+        TextView text = actionCardView.findViewById(R.id.text);
         text.setText(displayData.getName().toUpperCase());
 
         setupActionClickListener(actionCardView, action, commCareActivity);
@@ -39,7 +41,7 @@ public class EntityActionViewUtils {
 
     private static void setupActionAudio(String audioURI, FrameLayout actionCardView) {
         if (audioURI != null) {
-            AudioPlaybackButton audioButton = (AudioPlaybackButton)actionCardView.findViewById(R.id.audio);
+            AudioPlaybackButton audioButton = actionCardView.findViewById(R.id.audio);
             if (FileUtil.referenceFileExists(audioURI)) {
                 audioButton.setVisibility(View.VISIBLE);
                 audioButton.resetButton(audioURI, true);
@@ -50,7 +52,7 @@ public class EntityActionViewUtils {
     private static void setupActionImage(String imageURI, FrameLayout actionCardView,
                                          Context context) {
         if (imageURI != null) {
-            ImageView icon = (ImageView)actionCardView.findViewById(R.id.icon);
+            ImageView icon = actionCardView.findViewById(R.id.icon);
             int iconDimension = (int)context.getResources().getDimension(R.dimen.action_icon_size);
             Bitmap b = MediaUtil.inflateDisplayImage(context, imageURI, iconDimension, iconDimension, true);
             if (b != null) {
@@ -63,12 +65,10 @@ public class EntityActionViewUtils {
     private static void setupActionClickListener(FrameLayout actionCardView,
                                                  final Action action,
                                                  final CommCareActivity commCareActivity) {
-        CardView cardView = (CardView)actionCardView.findViewById(R.id.card_body);
-        cardView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                EntitySelectActivity.triggerDetailAction(action, commCareActivity);
-            }
+        CardView cardView = actionCardView.findViewById(R.id.card_body);
+        cardView.setOnClickListener(v -> {
+            cardView.setEnabled(false);
+            EntitySelectActivity.triggerDetailAction(action, commCareActivity);
         });
     }
 }

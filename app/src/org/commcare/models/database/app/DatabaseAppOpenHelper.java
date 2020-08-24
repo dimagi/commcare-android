@@ -1,6 +1,7 @@
 package org.commcare.models.database.app;
 
 import android.content.Context;
+import android.util.Log;
 
 import net.sqlcipher.database.SQLiteDatabase;
 import net.sqlcipher.database.SQLiteException;
@@ -14,8 +15,13 @@ import org.commcare.modern.database.TableBuilder;
 import org.commcare.models.database.DbUtil;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.modern.database.DatabaseIndexingUtils;
+import org.commcare.recovery.measures.RecoveryMeasure;
 import org.commcare.resources.model.Resource;
 import org.javarosa.core.model.instance.FormInstance;
+
+import static org.commcare.utils.AndroidCommCarePlatform.GLOBAL_RESOURCE_TABLE_NAME;
+import static org.commcare.utils.AndroidCommCarePlatform.RECOVERY_RESOURCE_TABLE_NAME;
+import static org.commcare.utils.AndroidCommCarePlatform.UPGRADE_RESOURCE_TABLE_NAME;
 
 /**
  * The helper for opening/updating the global (unencrypted) db space for
@@ -34,8 +40,13 @@ public class DatabaseAppOpenHelper extends SQLiteOpenHelper {
      * V.7 - Update serialized fixtures in db to use new schema
      * V.8 - Add fields to UserKeyRecord to support PIN auth
      * V.9 - Adds FormRecord and Instance Record tables, XFormAndroidInstaller: contentUri -> formDefId
+     * V.10 - No Change, Added because of incomplete resource table migration for v8 to v9
+     * V.11 - No Change, Corrects FormDef references if corrupt (because of an earlier bug)
+     * V.12 - Add RecoveryMeasure table
+     * V.13 - Add resource version for Form Def Record
+     * V.14 - Adds a new resource property called 'lazy'
      */
-    private static final int DB_VERSION_APP = 9;
+    private static final int DB_VERSION_APP = 14;
 
     private static final String DB_LOCATOR_PREF_APP = "database_app_";
 
@@ -57,11 +68,11 @@ public class DatabaseAppOpenHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase database) {
         database.beginTransaction();
         try {
-            TableBuilder builder = new TableBuilder("GLOBAL_RESOURCE_TABLE");
+            TableBuilder builder = new TableBuilder(GLOBAL_RESOURCE_TABLE_NAME);
             builder.addData(new Resource());
             database.execSQL(builder.getTableCreateString());
 
-            builder = new TableBuilder("UPGRADE_RESOURCE_TABLE");
+            builder = new TableBuilder(UPGRADE_RESOURCE_TABLE_NAME);
             builder.addData(new Resource());
             database.execSQL(builder.getTableCreateString());
 
@@ -69,7 +80,7 @@ public class DatabaseAppOpenHelper extends SQLiteOpenHelper {
             builder.addData(new Resource());
             database.execSQL(builder.getTableCreateString());
 
-            builder = new TableBuilder("RECOVERY_RESOURCE_TABLE");
+            builder = new TableBuilder(RECOVERY_RESOURCE_TABLE_NAME);
             builder.addData(new Resource());
             database.execSQL(builder.getTableCreateString());
 
@@ -85,12 +96,14 @@ public class DatabaseAppOpenHelper extends SQLiteOpenHelper {
             builder = new TableBuilder(FormDefRecord.class);
             database.execSQL(builder.getTableCreateString());
 
-            database.execSQL(indexOnTableWithPGUIDCommand("global_index_id", "GLOBAL_RESOURCE_TABLE"));
-            database.execSQL(indexOnTableWithPGUIDCommand("upgrade_index_id", "UPGRADE_RESOURCE_TABLE"));
-            database.execSQL(indexOnTableWithPGUIDCommand("recovery_index_id", "RECOVERY_RESOURCE_TABLE"));
+            database.execSQL(indexOnTableWithPGUIDCommand("global_index_id", GLOBAL_RESOURCE_TABLE_NAME));
+            database.execSQL(indexOnTableWithPGUIDCommand("upgrade_index_id", UPGRADE_RESOURCE_TABLE_NAME));
+            database.execSQL(indexOnTableWithPGUIDCommand("recovery_index_id", RECOVERY_RESOURCE_TABLE_NAME));
             database.execSQL(indexOnTableWithPGUIDCommand("temp_upgrade_index_id", AndroidResourceManager.TEMP_UPGRADE_TABLE_KEY));
 
             DbUtil.createNumbersTable(database);
+
+            database.execSQL(new TableBuilder(RecoveryMeasure.class).getTableCreateString());
 
             database.setTransactionSuccessful();
         } finally {

@@ -1,14 +1,17 @@
 package org.commcare.utils;
 
 import android.annotation.SuppressLint;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.Build;
-import android.support.v4.content.FileProvider;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.util.Pair;
+import android.webkit.MimeTypeMap;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -44,6 +47,9 @@ import javax.crypto.Cipher;
 import javax.crypto.CipherInputStream;
 import javax.crypto.CipherOutputStream;
 
+import androidx.annotation.Nullable;
+import androidx.core.content.FileProvider;
+
 /**
  * @author ctsims
  */
@@ -62,7 +68,7 @@ public class FileUtil {
         if (!f.exists()) {
             return true;
         }
-        if (f.isDirectory() && f.listFiles().length > 0) {
+        if (f.isDirectory() && f.listFiles() != null) {
             for (File child : f.listFiles()) {
                 if (!deleteFileOrDir(child)) {
                     return false;
@@ -277,17 +283,17 @@ public class FileUtil {
         return "file://" + fileLocation;
     }
 
-    public static void checkReferenceURI(Resource r, String URI, Vector<MissingMediaException> problems) throws IOException {
+    public static void checkReferenceURI(Resource r, String URI, Vector<MissingMediaException> problems) throws InvalidReferenceException {
+        Reference mRef = ReferenceManager.instance().DeriveReference(URI);
+        String mLocalReference = mRef.getLocalURI();
         try {
-            Reference mRef = ReferenceManager.instance().DeriveReference(URI);
-
             if (!mRef.doesBinaryExist()) {
-                String mLocalReference = mRef.getLocalURI();
-                problems.addElement(new MissingMediaException(r, "Missing external media: " + mLocalReference, mLocalReference));
+                problems.addElement(new MissingMediaException(r, "Missing external media: " + mLocalReference, URI,
+                        MissingMediaException.MissingMediaExceptionType.FILE_NOT_FOUND));
             }
-
-        } catch (InvalidReferenceException ire) {
-            //do nothing for now
+        } catch (IOException e) {
+            problems.addElement(new MissingMediaException(r, "Problem reading external media: " + mLocalReference, URI,
+                    MissingMediaException.MissingMediaExceptionType.FILE_NOT_ACCESSIBLE));
         }
     }
 
@@ -361,7 +367,7 @@ public class FileUtil {
         }
     }
 
-    public static Properties loadProperties(File file) throws IOException{
+    public static Properties loadProperties(File file) throws IOException {
         Properties prop = new Properties();
         InputStream input = null;
         try {
@@ -464,7 +470,8 @@ public class FileUtil {
      * @return whether or not originalImage was scaled down according to maxDimen, and saved to
      * the location given by finalFilePath
      */
-    public static boolean scaleAndSaveImage(File originalImage, String finalFilePath, int maxDimen) {
+    public static boolean scaleAndSaveImage(File originalImage, String finalFilePath,
+                                            int maxDimen) {
         String extension = getExtension(originalImage.getAbsolutePath());
         ImageType type = ImageType.fromExtension(extension);
         if (type == null) {
@@ -493,7 +500,7 @@ public class FileUtil {
     }
 
     public static void writeBitmapToDiskAndCleanupHandles(Bitmap bitmap, ImageType type,
-                                                          File location) throws IOException{
+                                                          File location) throws IOException {
         FileOutputStream out = null;
         try {
             out = new FileOutputStream(location);
@@ -582,9 +589,9 @@ public class FileUtil {
 
     /**
      * Makes a copy of file represented by inputStream to dstFile
+     *
      * @param inputStream inputStream for File that needs to be copied
-     * @param dstFile destination File where we need to copy the inputStream
-     * @throws IOException
+     * @param dstFile     destination File where we need to copy the inputStream
      */
     public static void copyFile(InputStream inputStream, File dstFile) throws IOException {
         if (inputStream == null) return;
@@ -606,31 +613,106 @@ public class FileUtil {
 
     /**
      * Tries to get a filePath from an intent returned from file provider and sets it to the given  <code>filePathEditText</code>
-     * @param context Context of the Activity File Provider returned to
-     * @param intent Intent returned from File Provider
+     *
+     * @param context          Context of the Activity File Provider returned to
+     * @param intent           Intent returned from File Provider
      * @param filePathEditText EditText where we need to show the file path
      */
     public static void updateFileLocationFromIntent(Context context, Intent intent, EditText filePathEditText) {
-        // Android versions 4.4 and up sometimes don't return absolute
-        // filepaths from the file chooser. So resolve the URI into a
-        // valid file path.
-        Uri uriPath = intent.getData();
-        if (uriPath == null) {
-            // issue getting the filepath uri from file browser callout
-            // result
+        String filePath = getFileLocationFromIntent(intent);
+        if (filePath == null) {
+            // issue getting the filepath uri from file browser callout result
             Toast.makeText(context,
                     Localization.get("file.invalid.path"),
                     Toast.LENGTH_SHORT).show();
         } else {
+            filePathEditText.setText(filePath);
+        }
+    }
+
+    // get a filePath from an intent returned from file provider
+    @Nullable
+    public static String getFileLocationFromIntent(Intent intent) {
+        // Android versions 4.4 and up sometimes don't return absolute
+        // filepaths from the file chooser. So resolve the URI into a
+        // valid file path.
+        Uri uriPath = intent.getData();
+        if (uriPath != null) {
             String filePath;
             try {
                 filePath = UriToFilePath.getPathFromUri(CommCareApplication.instance(), uriPath);
             } catch (UriToFilePath.NoDataColumnForUriException e) {
                 filePath = uriPath.toString();
             }
-            if (filePath != null) {
-                filePathEditText.setText(filePath);
-            }
+            return isValidFileLocation(filePath) ? filePath : null;
+        }
+        return null;
+    }
+
+    // Retruns true if location is either a content Uri or a valid file path
+    public static boolean isValidFileLocation(String location) {
+        return location != null && (location.startsWith("content://") || new File(location).exists());
+    }
+
+    // returns the duration for a media file otherwise -1 in case of an error
+    public static long getDuration(File file) {
+        try {
+            MediaMetadataRetriever mediaMetadataRetriever = new MediaMetadataRetriever();
+            mediaMetadataRetriever.setDataSource(file.getAbsolutePath());
+            String durationStr = mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
+            return Long.parseLong(durationStr);
+        } catch (Exception e) {
+            Logger.exception("Exception while trying to get duration of a media file", e);
+            return -1;
         }
     }
+
+    private static String getMimeType(String filePath) {
+        String extension = MimeTypeMap.getFileExtensionFromUrl(filePath);
+        String mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
+        return mimeType;
+    }
+
+    /**
+     * @param file
+     * @return Boolean indicating whether the method successfully added te file to content provider.
+     */
+
+    /**
+     * This method will add the file to the content provider.
+     * NOTE:- Currently it only support Audio and Video.
+     *
+     * @param file The File that needs to be inserted to the ContentProvider.
+     * @throws UnsupportedMediaException is raised if file other than audio or video is sent to this method.
+     * @throws FileNotFoundException     is raised if file doesn't exist.
+     */
+    public static void addMediaToGallery(Context context, File file) throws
+            UnsupportedMediaException, FileNotFoundException {
+        if (!file.exists()) {
+            throw new FileNotFoundException("Couldn't find file");
+        }
+        String mimeType = getMimeType(file.getAbsolutePath());
+
+        if (mimeType.startsWith("video")) {
+            ContentValues values = new ContentValues(6);
+            values.put(MediaStore.Video.Media.TITLE, file.getName());
+            values.put(MediaStore.Video.Media.DISPLAY_NAME, file.getName());
+            values.put(MediaStore.Video.Media.DATE_ADDED, System.currentTimeMillis());
+            values.put(MediaStore.Video.Media.DATA, file.getAbsolutePath());
+            values.put(MediaStore.Video.Media.MIME_TYPE, mimeType);
+            Uri mediaUri = context.getContentResolver().insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, values);
+            Log.i("FileUtil", "Inserting video returned uri = " + (mediaUri == null ? "null" : mediaUri.toString()));
+        } else if (mimeType.startsWith("audio")) {
+            ContentValues values = new ContentValues(6);
+            values.put(MediaStore.Audio.Media.TITLE, file.getName());
+            values.put(MediaStore.Audio.Media.DISPLAY_NAME, file.getName());
+            values.put(MediaStore.Audio.Media.DATE_ADDED, System.currentTimeMillis());
+            values.put(MediaStore.Audio.Media.DATA, file.getAbsolutePath());
+            Uri mediaUri = context.getContentResolver().insert(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, values);
+            Log.i("FileUtil", "Inserting audio returned uri = " + (mediaUri == null ? "null" : mediaUri.toString()));
+        } else {
+            throw new UnsupportedMediaException("Doesn't support file with mimeType: " + mimeType);
+        }
+    }
+
 }

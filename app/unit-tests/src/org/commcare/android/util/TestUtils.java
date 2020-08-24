@@ -7,6 +7,8 @@ import org.commcare.CommCareApplication;
 import org.commcare.CommCareTestApplication;
 import org.commcare.android.database.app.models.FormDefRecord;
 import org.commcare.cases.ledger.Ledger;
+import org.commcare.core.interfaces.UserSandbox;
+import org.commcare.core.process.CommCareInstanceInitializer;
 import org.commcare.data.xml.DataModelPullParser;
 import org.commcare.data.xml.TransactionParser;
 import org.commcare.data.xml.TransactionParserFactory;
@@ -35,6 +37,7 @@ import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.core.model.instance.ExternalDataInstance;
+import org.javarosa.core.model.instance.InstanceInitializationFactory;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
@@ -91,48 +94,45 @@ public class TestUtils {
         } else {
             formInstanceNamespaces = null;
         }
-        return new TransactionParserFactory() {
-            @Override
-            public TransactionParser getParser(KXmlParser parser) {
-                String namespace = parser.getNamespace();
-                if (namespace != null && formInstanceNamespaces != null && formInstanceNamespaces.containsKey(namespace)) {
-                    return new FormInstanceXmlParser(parser,
-                            Collections.unmodifiableMap(formInstanceNamespaces),
-                            CommCareApplication.instance().getCurrentApp().fsPath(GlobalConstants.FILE_CC_FORMS));
-                } else if (CaseXmlParser.CASE_XML_NAMESPACE.equals(parser.getNamespace()) && "case".equalsIgnoreCase(parser.getName())) {
+        return parser -> {
+            String namespace = parser.getNamespace();
+            if (namespace != null && formInstanceNamespaces != null && formInstanceNamespaces.containsKey(namespace)) {
+                return new FormInstanceXmlParser(parser,
+                        Collections.unmodifiableMap(formInstanceNamespaces),
+                        CommCareApplication.instance().getCurrentApp().fsPath(GlobalConstants.FILE_CC_FORMS));
+            } else if (CaseXmlParser.CASE_XML_NAMESPACE.equals(parser.getNamespace()) && "case".equalsIgnoreCase(parser.getName())) {
 
-                    //Note - this isn't even actually bulk processing. since this class is static
-                    //there's no good lifecycle to manage the bulk processor in, but at least
-                    //this will validate that the bulk processor works.
-                    EntityStorageCache entityStorageCache = null;
+                //Note - this isn't even actually bulk processing. since this class is static
+                //there's no good lifecycle to manage the bulk processor in, but at least
+                //this will validate that the bulk processor works.
+                EntityStorageCache entityStorageCache = null;
 
-                    if (CommCareApplication.instance().getCurrentApp() != null) {
-                        entityStorageCache = new EntityStorageCache("case", db, AppUtils.getCurrentAppId());
-                    }
-
-                    if (bulkProcessingEnabled) {
-                        return new AndroidBulkCaseXmlParser(parser, getCaseStorage(db), entityStorageCache, new AndroidCaseIndexTable(db)) {
-                            @Override
-                            protected SQLiteDatabase getDbHandle() {
-                                return db;
-                            }
-                        };
-
-                    } else {
-                        return new AndroidCaseXmlParser(parser, getCaseStorage(db), entityStorageCache, new AndroidCaseIndexTable(db)) {
-                            @Override
-                            protected SQLiteDatabase getDbHandle() {
-                                return db;
-                            }
-                        };
-                    }
-
-
-                } else if (LedgerXmlParsers.STOCK_XML_NAMESPACE.equals(namespace)) {
-                    return new LedgerXmlParsers(parser, getLedgerStorage(db));
+                if (CommCareApplication.instance().getCurrentApp() != null) {
+                    entityStorageCache = new EntityStorageCache("case", db, AppUtils.getCurrentAppId());
                 }
-                return null;
+
+                if (bulkProcessingEnabled) {
+                    return new AndroidBulkCaseXmlParser(parser, getCaseStorage(db), entityStorageCache, new AndroidCaseIndexTable(db)) {
+                        @Override
+                        protected SQLiteDatabase getDbHandle() {
+                            return db;
+                        }
+                    };
+
+                } else {
+                    return new AndroidCaseXmlParser(parser, getCaseStorage(db), entityStorageCache, new AndroidCaseIndexTable(db)) {
+                        @Override
+                        protected SQLiteDatabase getDbHandle() {
+                            return db;
+                        }
+                    };
+                }
+
+
+            } else if (LedgerXmlParsers.STOCK_XML_NAMESPACE.equals(namespace)) {
+                return new LedgerXmlParsers(parser, getLedgerStorage(db));
             }
+            return null;
         };
     }
 
@@ -266,14 +266,27 @@ public class TestUtils {
 
     //TODO: Make this work natively with the CommCare Android IIF
 
+    public static EvaluationContext getEvaluationContextWithAndroidIIF() {
+        AndroidInstanceInitializer iif = new AndroidInstanceInitializer(CommCareApplication.instance().getCurrentSession());
+        return buildEvaluationContext(iif, null);
+    }
+
     /**
      * @return An evaluation context which is capable of evaluating against
      * the connected storage instances: casedb is the only one supported for now
      */
     public static EvaluationContext getEvaluationContextWithoutSession() {
+        return getEvaluationContextWithoutSession(null);
+    }
+
+    public static EvaluationContext getEvaluationContextWithoutSession(DataInstance mainInstanceForEC) {
+        return buildEvaluationContext(buildTestInstanceInitializer(), mainInstanceForEC);
+    }
+
+    private static AndroidInstanceInitializer buildTestInstanceInitializer() {
         final SQLiteDatabase db = getTestDb();
 
-        AndroidInstanceInitializer iif = new AndroidInstanceInitializer() {
+        return new AndroidInstanceInitializer() {
             @Override
             public AbstractTreeElement setupCaseData(ExternalDataInstance instance) {
                 SqlStorage<ACase> storage = getCaseStorage(db);
@@ -288,16 +301,9 @@ public class TestUtils {
                 return new AndroidLedgerInstanceTreeElement(instance.getBase(), storage);
             }
         };
-
-        return buildEvaluationContext(iif);
     }
 
-    public static EvaluationContext getEvaluationContextWithAndroidIIF() {
-        AndroidInstanceInitializer iif = new AndroidInstanceInitializer(CommCareApplication.instance().getCurrentSession());
-        return buildEvaluationContext(iif);
-    }
-
-    private static EvaluationContext buildEvaluationContext(AndroidInstanceInitializer iif) {
+    private static EvaluationContext buildEvaluationContext(AndroidInstanceInitializer iif, DataInstance mainInstance) {
         ExternalDataInstance edi = new ExternalDataInstance(CaseTestUtils.CASE_INSTANCE, "casedb");
         DataInstance specializedDataInstance = edi.initialize(iif, "casedb");
 
@@ -308,7 +314,12 @@ public class TestUtils {
         formInstances.put("casedb", specializedDataInstance);
         formInstances.put("ledger", ledgerDataInstance);
 
-        return new EvaluationContext(new EvaluationContext(null), formInstances, TreeReference.rootRef());
+        return new EvaluationContext(new EvaluationContext(mainInstance), formInstances, TreeReference.rootRef());
+    }
+
+    public static DataInstance getCaseDbInstance() {
+        ExternalDataInstance edi = new ExternalDataInstance(CaseTestUtils.CASE_INSTANCE, "casedb");
+        return edi.initialize(buildTestInstanceInitializer(), "casedb");
     }
 
     public static RuntimeException wrapError(Exception e, String prefix) {
@@ -316,5 +327,31 @@ public class TestUtils {
         RuntimeException re = new RuntimeException(prefix + ": " + e.getMessage());
         re.initCause(e);
         throw re;
+    }
+
+    /**
+     * Create an evaluation context with an abstract instance available.
+     */
+    public static EvaluationContext buildContextWithInstance(UserSandbox sandbox, String instanceId, String instanceRef) {
+        Hashtable<String, String> instanceRefToId = new Hashtable<>();
+        instanceRefToId.put(instanceRef, instanceId);
+        return buildContextWithInstances(sandbox, instanceRefToId);
+    }
+
+    /**
+     * Create an evaluation context with an abstract instances available.
+     */
+    private static EvaluationContext buildContextWithInstances(UserSandbox sandbox,
+                                                               Hashtable<String, String> instanceRefToId) {
+        InstanceInitializationFactory iif = new AndroidInstanceInitializer(null, sandbox, null);
+
+        Hashtable<String, DataInstance> instances = new Hashtable<>();
+        for (String instanceRef : instanceRefToId.keySet()) {
+            String instanceId = instanceRefToId.get(instanceRef);
+            ExternalDataInstance edi = new ExternalDataInstance(instanceRef, instanceId);
+            instances.put(instanceId, edi.initialize(iif, instanceId));
+        }
+
+        return new EvaluationContext(null, instances);
     }
 }

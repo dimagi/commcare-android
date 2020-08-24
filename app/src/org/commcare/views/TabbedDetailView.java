@@ -3,8 +3,6 @@ package org.commcare.views;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.support.v4.view.ViewPager;
-import android.support.v7.app.AppCompatActivity;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,6 +16,9 @@ import org.commcare.dalvik.R;
 import org.commcare.suite.model.Detail;
 import org.commcare.utils.AndroidUtil;
 import org.javarosa.core.model.instance.TreeReference;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.viewpager.widget.ViewPager;
 
 /**
  * Widget that combines a ViewPager with a set of page titles styled to look like tabs.
@@ -71,8 +72,8 @@ public class TabbedDetailView extends RelativeLayout {
 
         inflater.inflate(R.layout.tabbed_detail_view, root, true);
 
-        mMenu = (LinearLayout)root.findViewById(R.id.tabbed_detail_menu);
-        mViewPager = (ViewPager)root.findViewById(R.id.tabbed_detail_pager);
+        mMenu = root.findViewById(R.id.tabbed_detail_menu);
+        mViewPager = root.findViewById(R.id.tabbed_detail_pager);
         mViewPager.setId(AndroidUtil.generateViewId());
 
         mViewPageTabStrip = root.findViewById(R.id.pager_tab_strip);

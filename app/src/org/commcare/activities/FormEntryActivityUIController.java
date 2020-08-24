@@ -1,6 +1,5 @@
 package org.commcare.activities;
 
-import android.content.DialogInterface;
 import android.content.pm.ActivityInfo;
 import android.graphics.Rect;
 import android.os.Bundle;
@@ -10,13 +9,13 @@ import android.view.ContextThemeWrapper;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewGroup.LayoutParams;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.view.ViewGroup.LayoutParams;
 import android.widget.Toast;
 
 import org.commcare.activities.components.FormEntryConstants;
@@ -28,6 +27,8 @@ import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.interfaces.CommCareActivityUIController;
+import org.commcare.preferences.FormEntryPreferences;
+import org.commcare.preferences.LocalePreferences;
 import org.commcare.utils.BlockingActionsManager;
 import org.commcare.utils.CompoundIntentList;
 import org.commcare.utils.StringUtils;
@@ -37,6 +38,7 @@ import org.commcare.views.dialogs.DialogChoiceItem;
 import org.commcare.views.dialogs.HorizontalPaneledChoiceDialog;
 import org.commcare.views.dialogs.PaneledChoiceDialog;
 import org.commcare.views.media.AudioController;
+import org.commcare.views.widgets.ImageWidget;
 import org.commcare.views.widgets.IntentWidget;
 import org.commcare.views.widgets.QuestionWidget;
 import org.javarosa.core.model.Constants;
@@ -92,60 +94,46 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
         activity.setContentView(R.layout.screen_form_entry);
         blockingActionsManager = new BlockingActionsManager(this.activity);
 
-        ImageButton nextButton = (ImageButton)activity.findViewById(R.id.nav_btn_next);
-        ImageButton prevButton = (ImageButton)activity.findViewById(R.id.nav_btn_prev);
+        ImageButton nextButton = activity.findViewById(R.id.nav_btn_next);
+        ImageButton prevButton = activity.findViewById(R.id.nav_btn_prev);
 
-        Button multiIntentDispatchButton = (Button)activity.findViewById(R.id.multiple_intent_dispatch_button);
+        Button multiIntentDispatchButton = activity.findViewById(R.id.multiple_intent_dispatch_button);
 
         View finishButton = activity.findViewById(R.id.nav_btn_finish);
 
-        TextView finishText = (TextView)finishButton.findViewById(R.id.nav_btn_finish_text);
+        TextView finishText = finishButton.findViewById(R.id.nav_btn_finish_text);
         finishText.setText(Localization.get("form.entry.finish.button").toUpperCase());
 
-        nextButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        nextButton.setOnClickListener(v -> {
+            FirebaseAnalyticsUtil.reportFormNav(
+                    AnalyticsParamValue.DIRECTION_FORWARD,
+                    AnalyticsParamValue.NAV_BUTTON_PRESS);
+            showNextView();
+        });
+
+        prevButton.setOnClickListener(v -> {
+            if (!FormEntryConstants.NAV_STATE_QUIT.equals(v.getTag())) {
                 FirebaseAnalyticsUtil.reportFormNav(
-                        AnalyticsParamValue.DIRECTION_FORWARD,
+                        AnalyticsParamValue.DIRECTION_BACKWARD,
                         AnalyticsParamValue.NAV_BUTTON_PRESS);
-                showNextView();
+                showPreviousView(true);
+            } else {
+                FirebaseAnalyticsUtil.reportFormQuitAttempt(AnalyticsParamValue.NAV_BUTTON_PRESS);
+                activity.triggerUserQuitInput();
             }
         });
 
-        prevButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (!FormEntryConstants.NAV_STATE_QUIT.equals(v.getTag())) {
-                    FirebaseAnalyticsUtil.reportFormNav(
-                            AnalyticsParamValue.DIRECTION_BACKWARD,
-                            AnalyticsParamValue.NAV_BUTTON_PRESS);
-                    showPreviousView(true);
-                } else {
-                    FirebaseAnalyticsUtil.reportFormQuitAttempt(AnalyticsParamValue.NAV_BUTTON_PRESS);
-                    activity.triggerUserQuitInput();
-                }
-            }
+        finishButton.setOnClickListener(v -> {
+            FirebaseAnalyticsUtil.reportFormNav(
+                    AnalyticsParamValue.DIRECTION_FORWARD,
+                    AnalyticsParamValue.NAV_BUTTON_PRESS);
+            activity.triggerUserFormComplete();
         });
 
-        finishButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                FirebaseAnalyticsUtil.reportFormNav(
-                        AnalyticsParamValue.DIRECTION_FORWARD,
-                        AnalyticsParamValue.NAV_BUTTON_PRESS);
-                activity.triggerUserFormComplete();
-            }
-        });
-
-        multiIntentDispatchButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                activity.fireCompoundIntentDispatch();
-            }
-        });
+        multiIntentDispatchButton.setOnClickListener(v -> activity.fireCompoundIntentDispatch());
 
 
-        mViewPane = (ViewGroup)activity.findViewById(R.id.form_entry_pane);
+        mViewPane = activity.findViewById(R.id.form_entry_pane);
 
         activity.requestMajorLayoutUpdates();
 
@@ -279,7 +267,8 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
         SpannableStringBuilder groupLabelText = questionsView.getGroupLabel();
 
         if (groupLabelText != null && !groupLabelText.toString().trim().equals("")) {
-            TextView groupLabel = (TextView)activity.findViewById(R.id.form_entry_group_label);
+            TextView groupLabel = activity.findViewById(R.id.form_entry_group_label);
+            groupLabel.setTextSize(FormEntryPreferences.getQuestionFontSize());
             groupLabel.setText(groupLabelText);
             hasGroupLabel = true;
             FormLayoutHelpers.updateGroupViewVisibility(activity, true, shouldHideGroupLabel);
@@ -298,7 +287,7 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
 
         // The answer is saved on a back swipe, but question constraints are ignored.
         if (activity.currentPromptIsQuestion()) {
-            activity.saveAnswersForCurrentScreen(FormEntryConstants.DO_NOT_EVALUATE_CONSTRAINTS);
+            activity.saveAnswersForCurrentScreen(false);
         }
 
         // Any info stored about the last changed widget is useless when we move to a new view
@@ -342,7 +331,7 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
                 AudioController.INSTANCE.releaseCurrentMediaEntity();
                 QuestionsView next = createView();
                 if (showSwipeAnimation) {
-                    showView(next, AnimationType.LEFT);
+                    showView(next, LocalePreferences.isLocaleRTL() ? AnimationType.RIGHT : AnimationType.LEFT);
                 } else {
                     showView(next, AnimationType.FADE, false);
                 }
@@ -405,7 +394,7 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
         }
 
         if (activity.currentPromptIsQuestion()) {
-            if (!activity.saveAnswersForCurrentScreen(FormEntryConstants.EVALUATE_CONSTRAINTS)) {
+            if (!activity.saveAnswersForCurrentScreen(!activity.mFormController.isFormReadOnly())) {
                 // A constraint was violated so a dialog should be showing.
                 return;
             }
@@ -425,14 +414,21 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
                         case FormEntryController.EVENT_QUESTION:
                             QuestionsView next = createView();
                             if (!resuming) {
-                                showView(next, AnimationType.RIGHT);
+                                showView(next, LocalePreferences.isLocaleRTL() ? AnimationType.LEFT : AnimationType.RIGHT);
                             } else {
                                 showView(next, AnimationType.FADE, false);
                             }
                             break group_skip;
                         case FormEntryController.EVENT_END_OF_FORM:
                             // auto-advance questions might advance past the last form quesion
-                            activity.triggerUserFormComplete();
+                            // In special case when questionsView is null (there is no question),
+                            // to avoid exit dialog without saving option, shown from refreshCurrentView(),
+                            // save and exit method called.
+                            if (questionsView != null) {
+                                refreshCurrentView();
+                            } else {
+                                activity.triggerUserFormComplete();
+                            }
                             break group_skip;
                         case FormEntryController.EVENT_PROMPT_NEW_REPEAT:
                             createRepeatDialog();
@@ -446,7 +442,7 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
                                     && FormEntryActivity.mFormController.getQuestionPrompts().length != 0) {
                                 QuestionsView nextGroupView = createView();
                                 if (!resuming) {
-                                    showView(nextGroupView, AnimationType.RIGHT);
+                                    showView(nextGroupView, LocalePreferences.isLocaleRTL() ? AnimationType.LEFT : AnimationType.RIGHT);
                                 } else {
                                     showView(nextGroupView, AnimationType.FADE, false);
                                 }
@@ -513,71 +509,63 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
         final PaneledChoiceDialog dialog = new HorizontalPaneledChoiceDialog(wrapper, title);
 
         // Panel 1: Back option
-        View.OnClickListener backListener = new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (backExitsForm) {
-                    activity.triggerUserQuitInput();
-                } else {
-                    dialog.dismiss();
-                    refreshCurrentView(false);
-                }
+        View.OnClickListener backListener = v -> {
+            if (backExitsForm) {
+                activity.triggerUserQuitInput();
+            } else {
+                dialog.dismiss();
+                refreshCurrentView(false);
             }
         };
         int backIconId;
         if (backExitsForm) {
             backIconId = R.drawable.icon_exit;
         } else {
-            backIconId = R.drawable.icon_back;
+            if (LocalePreferences.isLocaleRTL())
+                backIconId = R.drawable.icon_next;
+            else
+                backIconId = R.drawable.icon_back;
         }
         DialogChoiceItem backItem = new DialogChoiceItem(backText, backIconId, backListener);
 
         // Panel 2: Add another option
-        View.OnClickListener addAnotherListener = new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                dialog.dismiss();
-                try {
-                    FormEntryActivity.mFormController.newRepeat();
-                } catch (XPathUnhandledException | XPathTypeMismatchException e) {
-                    Logger.exception("Error creating new repeat", e);
-                    UserfacingErrorHandling.logErrorAndShowDialog(activity, e, FormEntryConstants.EXIT);
-                    return;
-                }
-                showNextView();
+        View.OnClickListener addAnotherListener = v -> {
+            dialog.dismiss();
+            try {
+                FormEntryActivity.mFormController.newRepeat();
+            } catch (XPathUnhandledException | XPathTypeMismatchException e) {
+                Logger.exception("Error creating new repeat", e);
+                UserfacingErrorHandling.logErrorAndShowDialog(activity, e, FormEntryConstants.EXIT);
+                return;
             }
+            showNextView();
         };
         DialogChoiceItem addAnotherItem = new DialogChoiceItem(addAnotherText, R.drawable.icon_new, addAnotherListener);
 
         // Panel 3: Skip option
-        View.OnClickListener skipListener = new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                dialog.dismiss();
-                if (!nextExitsForm) {
-                    showNextView();
-                } else {
-                    activity.triggerUserFormComplete();
-                }
+        View.OnClickListener skipListener = v -> {
+            dialog.dismiss();
+            if (!nextExitsForm) {
+                showNextView();
+            } else {
+                activity.triggerUserFormComplete();
             }
         };
         int skipIconId;
         if (nextExitsForm) {
             skipIconId = R.drawable.icon_done;
         } else {
-            skipIconId = R.drawable.icon_next;
+            if (LocalePreferences.isLocaleRTL())
+                skipIconId = R.drawable.icon_back;
+            else
+                skipIconId = R.drawable.icon_next;
         }
         DialogChoiceItem skipItem = new DialogChoiceItem(skipText, skipIconId, skipListener);
 
         dialog.setChoiceItems(new DialogChoiceItem[]{backItem, addAnotherItem, skipItem});
         dialog.makeNotCancelable();
         dialog.setOnDismissListener(
-                new DialogInterface.OnDismissListener() {
-                    @Override
-                    public void onDismiss(DialogInterface d) {
-                        isDialogShowing = false;
-                    }
-                }
+                d -> isDialogShowing = false
         );
         // Purposefully don't persist this dialog across rotation! Rotation
         // refreshes the view, which steps the form index back from the repeat
@@ -706,7 +694,7 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
             hideCompoundIntentCalloutButton();
         } else {
             Button compoundDispatchButton =
-                    (Button)activity.findViewById(R.id.multiple_intent_dispatch_button);
+                    activity.findViewById(R.id.multiple_intent_dispatch_button);
             compoundDispatchButton.setVisibility(View.VISIBLE);
             compoundDispatchButton.setText(i.getTitle() + ": " + i.getNumberOfCallouts());
         }
@@ -731,7 +719,7 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
         ArrayList<String> oldQuestionTexts =
                 FormRelevancyUpdating.getOldQuestionTextsForEachWidget(oldWidgets);
 
-        activity.saveAnswersForCurrentScreen(FormEntryConstants.DO_NOT_EVALUATE_CONSTRAINTS);
+        activity.saveAnswersForCurrentScreen(false);
 
         FormEntryPrompt[] newValidPrompts;
         try {
@@ -752,6 +740,13 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
                 shouldRemoveFromView.add(i);
                 continue;
             }
+
+            if (oldWidgets.get(i) instanceof ImageWidget) {
+                // If there was change(in particular image-remove) in an image widget,
+                // only then update the form to disk.
+                activity.onExternalAttachmentUpdated();
+            }
+
             FormEntryPrompt oldPrompt = oldWidgets.get(i).getPrompt();
             String priorQuestionTextForThisWidget = oldQuestionTexts.get(i);
             Vector<SelectChoice> priorSelectChoicesForThisWidget = oldSelectChoices.get(i);

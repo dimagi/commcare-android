@@ -23,7 +23,7 @@ public class CaseLoadUtils {
         Robolectric.flushForegroundThreadScheduler();
 
         ListView entityList =
-                (ListView)entitySelectActivity.findViewById(R.id.screen_entity_select_list);
+                entitySelectActivity.findViewById(R.id.screen_entity_select_list);
         EntityListAdapter adapter = (EntityListAdapter)entityList.getAdapter();
 
         ShadowListView shadowListView = Shadows.shadowOf(entityList);
@@ -41,8 +41,8 @@ public class CaseLoadUtils {
         Assert.assertEquals(EntitySelectActivity.class.getName(), intentActivityName);
 
         // start the entity select activity
-        return Robolectric.buildActivity(EntitySelectActivity.class)
-                .withIntent(entitySelectIntent).setup().get();
+        return Robolectric.buildActivity(EntitySelectActivity.class, entitySelectIntent)
+                .setup().get();
     }
 
 }

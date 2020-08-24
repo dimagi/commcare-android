@@ -11,7 +11,7 @@ import android.net.wifi.p2p.WifiP2pManager.Channel;
 import android.net.wifi.p2p.WifiP2pManager.ChannelListener;
 import android.net.wifi.p2p.WifiP2pManager.ConnectionInfoListener;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
+import androidx.fragment.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -59,7 +59,7 @@ public class WiFiDirectManagementFragment extends Fragment
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View mContentView = inflater.inflate(R.layout.wifi_manager, null);
 
-        mStatusText = (TextView)mContentView.findViewById(R.id.wifi_manager_status_text);
+        mStatusText = mContentView.findViewById(R.id.wifi_manager_status_text);
 
         return mContentView;
     }

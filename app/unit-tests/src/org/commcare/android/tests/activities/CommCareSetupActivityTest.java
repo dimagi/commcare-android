@@ -1,6 +1,6 @@
 package org.commcare.android.tests.activities;
 
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.content.Context;
@@ -10,7 +10,7 @@ import org.commcare.CommCareNoficationManager;
 import org.commcare.CommCareTestApplication;
 import org.commcare.activities.CommCareSetupActivity;
 import org.commcare.activities.InstallArchiveActivity;
-import org.commcare.android.CommCareTestRunner;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import org.javarosa.core.services.locale.Localization;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -29,9 +29,13 @@ import static org.junit.Assert.assertTrue;
  *
  * @author Phillip Mates (pmates@dimagi.com)
  */
-@Config(application = CommCareTestApplication.class)
-@RunWith(CommCareTestRunner.class)
+
+// Using sdk 19 to get past NsdManager because of a bug in robolectric that causes NsdManager
+// to get initialized with a null context resulting in a NPE
+@Config(application = CommCareTestApplication.class, sdk = 18)
+@RunWith(AndroidJUnit4.class)
 public class CommCareSetupActivityTest {
+
 
     /**
      * Test that trying to install an app with an invalid suite file results in
@@ -42,13 +46,14 @@ public class CommCareSetupActivityTest {
     public void invalidAppInstall() {
         String invalidUpdateReference = "jr://resource/commcare-apps/update_tests/invalid_suite_update/profile.ccpr";
 
+
         // start the setup activity
         Intent setupIntent =
                 new Intent(RuntimeEnvironment.application, CommCareSetupActivity.class);
 
         CommCareSetupActivity setupActivity =
-                Robolectric.buildActivity(CommCareSetupActivity.class)
-                        .withIntent(setupIntent).setup().get();
+                Robolectric.buildActivity(CommCareSetupActivity.class, setupIntent)
+                        .setup().get();
 
         // click the 'offline install' menu item
         ShadowActivity shadowActivity = Shadows.shadowOf(setupActivity);

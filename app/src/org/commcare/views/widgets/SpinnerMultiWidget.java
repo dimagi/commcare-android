@@ -75,49 +75,49 @@ public class SpinnerMultiWidget extends QuestionWidget {
 
         // Give the button a click listener. This defines the alert as well. All the
         // click and selection behavior is defined here.
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        button.setOnClickListener(v -> {
 
-                alert_builder.setTitle(mPrompt.getQuestionText()).setPositiveButton(R.string.ok,
-                        new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int id) {
-                                boolean first = true;
-                                selectionText.setText("");
-                                for (int i = 0; i < selections.length; i++) {
-                                    if (selections[i]) {
+            alert_builder.setTitle(mPrompt.getQuestionText());
 
-                                        if (first) {
-                                            first = false;
-                                            selectionText.setText(StringUtils.getStringSpannableRobust(context, R.string.selected)
-                                                    + answerItems[i].toString());
-                                            selectionText.setVisibility(View.VISIBLE);
-                                        } else {
-                                            selectionText.setText(selectionText.getText() + ", "
-                                                    + answerItems[i].toString());
-                                        }
+            if (mPrompt.isReadOnly()) {
+                alert_builder.setNegativeButton(R.string.cancel,
+                        (dialog, id) -> {
+                            dialog.dismiss();
+                        });
+            } else {
+                alert_builder.setPositiveButton(R.string.ok,
+                        (dialog, id) -> {
+                            boolean first = true;
+                            selectionText.setText("");
+                            for (int i = 0; i < selections.length; i++) {
+                                if (selections[i]) {
+
+                                    if (first) {
+                                        first = false;
+                                        selectionText.setText(StringUtils.getStringSpannableRobust(context, R.string.selected)
+                                                + answerItems[i].toString());
+                                        selectionText.setVisibility(View.VISIBLE);
+                                    } else {
+                                        selectionText.setText(selectionText.getText() + ", "
+                                                + answerItems[i].toString());
                                     }
                                 }
-
-                                widgetEntryChanged();
                             }
+
+                            widgetEntryChanged();
                         });
-
-                alert_builder.setMultiChoiceItems(answerItems, selections,
-                        new DialogInterface.OnMultiChoiceClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which, boolean isChecked) {
-                                selections[which] = isChecked;
-
-                                widgetEntryChanged();
-                            }
-                        });
-                AlertDialog alert = alert_builder.create();
-                alert.show();
-
-                widgetEntryChanged();
             }
+
+            alert_builder.setMultiChoiceItems(answerItems, selections,
+                    (dialog, which, isChecked) -> {
+                        selections[which] = isChecked;
+
+                        widgetEntryChanged();
+                    });
+            AlertDialog alert = alert_builder.create();
+            alert.show();
+
+            widgetEntryChanged();
         });
 
         // Fill in previous answers

@@ -9,4 +9,7 @@
     <Preference android:key="recovery-mode"/>
     <Preference android:key="clear-user-data"/>
     <Preference android:key="clear-saved-session"/>
+    <Preference android:key="bypass-pre-update-sync"/>
+    <Preference android:key="enable-rate-limit-popup" />
+    <Preference android:key="enable-manual-form-quarantine" />
 </PreferenceScreen>

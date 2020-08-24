@@ -1,15 +1,15 @@
 package org.commcare.views;
 
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.os.Build;
-import android.support.v4.util.Pair;
-import android.support.v4.widget.Space;
-import android.support.v7.widget.GridLayout;
+import androidx.core.util.Pair;
+import androidx.legacy.widget.Space;
+import androidx.gridlayout.widget.GridLayout;
 import android.text.Spannable;
 import android.util.DisplayMetrics;
 import android.util.Log;

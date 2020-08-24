@@ -9,7 +9,6 @@ import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.mocks.CommCareTaskConnectorFake;
 import org.commcare.engine.resource.AppInstallStatus;
 import org.commcare.models.database.user.DemoUserBuilder;
-import org.commcare.resources.model.Resource;
 import org.commcare.tasks.ResourceEngineTask;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.reference.ResourceReferenceFactory;
@@ -85,7 +84,7 @@ public class TestAppInstaller {
 
         CommCareApp app = new CommCareTestApp(new CommCareApp(newRecord));
         ResourceEngineTask<Object> task =
-                new ResourceEngineTask<Object>(app, -1, false, Resource.RESOURCE_AUTHORITY_LOCAL) {
+                new ResourceEngineTask<Object>(app, -1, false, false) {
                     @Override
                     protected void deliverResult(Object receiver,
                                                  AppInstallStatus result) {

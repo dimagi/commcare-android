@@ -1,8 +1,7 @@
 package org.commcare.views.widgets;
 
 import android.content.Context;
-import android.support.v4.app.FragmentManager;
-import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
@@ -25,11 +24,13 @@ import org.joda.time.DateTime;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.FragmentManager;
 
 public class GregorianDateWidget extends AbstractUniversalDateWidget
         implements CalendarFragment.CalendarCloseListener {
@@ -49,7 +50,7 @@ public class GregorianDateWidget extends AbstractUniversalDateWidget
     private final long todaysDateInMillis;
     private long timeBeforeCalendarOpened;
 
-    private final CalendarFragment myCalendarFragment;
+    private CalendarFragment myCalendarFragment;
     private final FragmentManager fm;
 
     public static final int MIN_YEAR = 1900;
@@ -57,68 +58,55 @@ public class GregorianDateWidget extends AbstractUniversalDateWidget
 
     private static final String DAYFORMAT = "%02d";
     private static final String YEARFORMAT = "%04d";
+    private static final String CALENDAR_FRAGMENT_TAG = "calendar-popup";
 
     public GregorianDateWidget(Context context, FormEntryPrompt prompt, boolean closeButton) {
         super(context, prompt);
         todaysDateInMillis = calendar.getTimeInMillis();
-        ImageButton clearAll = (ImageButton)findViewById(R.id.clear_all);
+        ImageButton clearAll = findViewById(R.id.clear_all);
 
         if (closeButton) {
-            clearAll.setOnClickListener(new OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    clearAll();
-                }
-            });
+            clearAll.setOnClickListener(v -> clearAll());
         } else {
             clearAll.setVisibility(View.GONE);
         }
 
         fm = ((AppCompatActivity)getContext()).getSupportFragmentManager();
+        myCalendarFragment = (CalendarFragment)fm.findFragmentByTag(CALENDAR_FRAGMENT_TAG);
+        if (myCalendarFragment == null) {
+            myCalendarFragment = new CalendarFragment();
+        }
 
-        myCalendarFragment = new CalendarFragment();
         myCalendarFragment.setListener(this);
         myCalendarFragment.setCancelable(false);
-        myCalendarFragment.setToday(todaysDateInMillis);
 
-        openCalButton = (ImageButton)findViewById(R.id.open_calendar_bottom);
-        openCalButton.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                openCalendar();
-            }
-        });
+        openCalButton = findViewById(R.id.open_calendar_bottom);
+        openCalButton.setOnClickListener(v -> openCalendar());
 
         setAnswer();
     }
 
     @Override
     protected void initText() {
-        dayOfWeek = (TextView)findViewById(R.id.greg_day_of_week);
-        dayText = (EditText)findViewById(R.id.day_txt_field);
-        yearText = (EditText)findViewById(R.id.year_txt_field);
+        dayOfWeek = findViewById(R.id.greg_day_of_week);
+        dayText = findViewById(R.id.day_txt_field);
+        yearText = findViewById(R.id.year_txt_field);
 
-        dayText.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                dayText.clearFocus();
-                dayText.requestFocus();
-            }
+        dayText.setOnClickListener(v -> {
+            dayText.clearFocus();
+            dayText.requestFocus();
         });
 
-        yearText.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                yearText.clearFocus();
-                yearText.requestFocus();
-            }
+        yearText.setOnClickListener(v -> {
+            yearText.clearFocus();
+            yearText.requestFocus();
         });
 
         setupMonthComponents();
     }
 
     private void setupMonthComponents() {
-        monthSpinner = (Spinner)gregorianView.findViewById(R.id.month_spinner);
+        monthSpinner = gregorianView.findViewById(R.id.month_spinner);
         monthList.add("");
         monthSpinner.setAdapter(new ArrayAdapter<>(getContext(), R.layout.calendar_date, monthList));
         monthSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -137,7 +125,8 @@ public class GregorianDateWidget extends AbstractUniversalDateWidget
             }
 
             @Override
-            public void onNothingSelected(AdapterView<?> parent) {}
+            public void onNothingSelected(AdapterView<?> parent) {
+            }
         });
     }
 
@@ -161,7 +150,7 @@ public class GregorianDateWidget extends AbstractUniversalDateWidget
         //ui loop where the widget is created, we're guaranteed to get this execution path
         //on the next loop. If something changes, we should fire the event, but otherwise
         //this can end up supressing QuestionWidget state like validation messages
-        if(dateOfLastWidgetUpdateNotice != millisFromJavaEpoch) {
+        if (dateOfLastWidgetUpdateNotice != millisFromJavaEpoch) {
             dateOfLastWidgetUpdateNotice = millisFromJavaEpoch;
             widgetEntryChanged();
         }
@@ -206,7 +195,7 @@ public class GregorianDateWidget extends AbstractUniversalDateWidget
     //Makes sure that value of day text field is valid given values of month and year fields
     private void validateDayText() {
         String dayTextString = dayText.getText().toString();
-        if(dayTextString.isEmpty()){
+        if (dayTextString.isEmpty()) {
             return;
         }
         int dayTextValue = Integer.parseInt(dayTextString);
@@ -259,12 +248,7 @@ public class GregorianDateWidget extends AbstractUniversalDateWidget
         final Map<String, Integer> monthMap =
                 calendar.getDisplayNames(Calendar.MONTH, Calendar.LONG, Locale.getDefault());
         monthList = new ArrayList<>(monthMap.keySet());
-        Collections.sort(monthList, new Comparator<String>() {
-            @Override
-            public int compare(String a, String b) {
-                return monthMap.get(a) - monthMap.get(b);
-            }
-        });
+        Collections.sort(monthList, (a, b) -> monthMap.get(a) - monthMap.get(b));
 
         monthNames = monthList.toArray(monthNames);
         return monthNames;
@@ -367,20 +351,16 @@ public class GregorianDateWidget extends AbstractUniversalDateWidget
         setFocus(getContext());
         timeBeforeCalendarOpened = getCurrentMillis();
         calendar.setTimeInMillis(timeBeforeCalendarOpened);
-        myCalendarFragment.updateUnderlyingCalendar(calendar);
-        myCalendarFragment.show(fm, "Calendar Popup");
+        Bundle args = new Bundle();
+        args.putLong(CalendarFragment.KEY_STARTING_SELECTION, timeBeforeCalendarOpened);
+        myCalendarFragment.setArguments(args);
+        myCalendarFragment.show(fm, CALENDAR_FRAGMENT_TAG);
     }
 
     @Override
-    public void onCalendarClose() {
-        refreshDisplay();
+    public void onDateSelected(long millis) {
+        updateDateDisplay(millis);
         setFocus(getContext());
-    }
-
-    @Override
-    public void onCalendarCancel() {
-        calendar.setTimeInMillis(timeBeforeCalendarOpened);
-        onCalendarClose();
     }
 
     @Override
@@ -396,7 +376,7 @@ public class GregorianDateWidget extends AbstractUniversalDateWidget
                 monthSpinner.setSelection(monthList.indexOf(month)); //Update month first because selecting a month item will call refreshDisplay().
                 dayText.setText(day);
                 yearText.setText(year);
-            }else{
+            } else {
                 Date date = (Date)mPrompt.getAnswerValue().getValue();
                 updateDateDisplay(date.getTime());
             }
@@ -405,8 +385,4 @@ public class GregorianDateWidget extends AbstractUniversalDateWidget
         }
     }
 
-    @Override
-    public boolean forcesPortrait() {
-        return true;
-    }
 }

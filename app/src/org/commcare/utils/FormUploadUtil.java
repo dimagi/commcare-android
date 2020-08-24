@@ -6,11 +6,11 @@ import android.util.Log;
 import android.webkit.MimeTypeMap;
 
 import org.commcare.core.network.AuthenticationInterceptor;
+import org.commcare.core.network.CaptivePortalRedirectException;
 import org.commcare.network.CommcareRequestGenerator;
 import org.commcare.network.EncryptedFileBody;
 import org.commcare.tasks.DataSubmissionListener;
 import org.commcare.util.LogTypes;
-import org.commcare.xml.CommCareElementParser;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.io.StreamsUtil.InputIOException;
 import org.javarosa.core.model.User;
@@ -30,8 +30,10 @@ import java.net.UnknownHostException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
+import javax.annotation.Nullable;
 import javax.crypto.Cipher;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.SecretKeySpec;
@@ -41,6 +43,8 @@ import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import retrofit2.Response;
+
+import static org.commcare.network.HttpUtils.parseUserVisibleError;
 
 public class FormUploadUtil {
     private static final String TAG = FormUploadUtil.class.getSimpleName();
@@ -104,16 +108,9 @@ public class FormUploadUtil {
      *                               file-system
      */
     public static FormUploadResult sendInstance(int submissionNumber, File folder,
-                                                SecretKeySpec key, String url,
-                                                AsyncTask listener, User user)
+                                                @Nullable  SecretKeySpec key, String url,
+                                                @Nullable DataSubmissionListener listener, User user)
             throws FileNotFoundException {
-        boolean hasListener = false;
-        DataSubmissionListener myListener = null;
-
-        if (listener instanceof DataSubmissionListener) {
-            hasListener = true;
-            myListener = (DataSubmissionListener)listener;
-        }
 
         File[] files = folder.listFiles();
 
@@ -132,13 +129,12 @@ public class FormUploadUtil {
         // If we're listening, figure out how much (roughly) we have to send
         long bytes = estimateUploadBytes(files);
 
-        if (hasListener) {
-            myListener.startSubmission(submissionNumber, bytes);
+        if (listener != null) {
+            listener.startSubmission(submissionNumber, bytes);
         }
 
         if (files.length == 0) {
             Log.e(TAG, "no files to upload");
-            listener.cancel(true);
             throw new FileNotFoundException("Folder at path " + folder.getAbsolutePath() + " had no files.");
         }
 
@@ -163,7 +159,7 @@ public class FormUploadUtil {
         Response<ResponseBody> response;
 
         try {
-            response = generator.postMultipart(url, parts);
+            response = generator.postMultipart(url, parts, new HashMap<>());
         } catch (InputIOException ioe) {
             // This implies that there was a problem with the _source_ of the
             // transmission, not the processing or receiving end.
@@ -181,6 +177,10 @@ public class FormUploadUtil {
             Logger.log(LogTypes.TYPE_ERROR_CONFIG_STRUCTURE,
                     "Encountered PlainTextPasswordException while submission: Sending password over HTTP");
             return FormUploadResult.AUTH_OVER_HTTP;
+        } catch (CaptivePortalRedirectException e) {
+            e.printStackTrace();
+            Logger.log(LogTypes.TYPE_WARNING_NETWORK, "Captive portal detected while form submission");
+            return FormUploadResult.CAPTIVE_PORTAL;
         } catch (IOException | IllegalStateException e) {
             Logger.exception("Error reading form during submission: " + e.getMessage(), e);
             return FormUploadResult.TRANSPORT_FAILURE;
@@ -204,17 +204,28 @@ public class FormUploadUtil {
             return FormUploadResult.FULL_SUCCESS;
         } else if (responseCode == 401) {
             return FormUploadResult.AUTH_FAILURE;
+        } else if (responseCode == 406) {
+            return processActionableFaiure(response);
         } else if (responseCode == 422) {
             return handleProcessingFailure(response.errorBody().byteStream());
+        } else if (responseCode == 503 || responseCode == 429) {
+            return FormUploadResult.RATE_LIMITED;
         } else {
             return FormUploadResult.FAILURE;
         }
     }
 
+    private static FormUploadResult processActionableFaiure(Response<ResponseBody> response) {
+        String message = parseUserVisibleError(response);
+        FormUploadResult result = FormUploadResult.ACTIONABLE_FAILURE;
+        result.setErrorMessage(message);
+        return result;
+    }
+
     private static FormUploadResult handleProcessingFailure(InputStream responseStream) {
         FormUploadResult result = FormUploadResult.PROCESSING_FAILURE;
         try {
-            result.setProcessingFailureReason(parseProcessingFailureResponse(responseStream));
+            result.setErrorMessage(parseProcessingFailureResponse(responseStream));
         } catch (IOException | InvalidStructureException | XmlPullParserException |
                 UnfullfilledRequirementsException e) {
             // If we can't parse out the failure reason then we won't quarantine this form, because
@@ -304,7 +315,7 @@ public class FormUploadUtil {
      *                               file-system
      */
     private static boolean buildMultipartEntity(List<MultipartBody.Part> parts,
-                                                SecretKeySpec key,
+                                                @Nullable SecretKeySpec key,
                                                 File[] files)
             throws FileNotFoundException {
 

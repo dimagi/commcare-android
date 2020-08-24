@@ -1,6 +1,6 @@
 package org.commcare.android.tests.activities;
 
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -12,7 +12,7 @@ import android.widget.TextView;
 import org.commcare.CommCareApplication;
 import org.commcare.CommCareTestApplication;
 import org.commcare.activities.QueryRequestActivity;
-import org.commcare.android.CommCareTestRunner;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import org.commcare.android.mocks.ModernHttpRequesterMock;
 import org.commcare.android.util.TestAppInstaller;
 import org.commcare.dalvik.R;
@@ -26,9 +26,9 @@ import org.junit.runner.RunWith;
 import org.robolectric.Robolectric;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.Shadows;
+import org.robolectric.android.controller.ActivityController;
 import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowToast;
-import org.robolectric.util.ActivityController;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -37,7 +37,7 @@ import static org.junit.Assert.assertTrue;
  * @author Phillip Mates (pmates@dimagi.com)
  */
 @Config(application = CommCareTestApplication.class)
-@RunWith(CommCareTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 public class QueryRequestActivityTest {
     @Before
     public void setup() {
@@ -55,8 +55,8 @@ public class QueryRequestActivityTest {
         Intent queryActivityIntent =
                 new Intent(RuntimeEnvironment.application, QueryRequestActivity.class);
         QueryRequestActivity queryRequestActivity =
-                Robolectric.buildActivity(QueryRequestActivity.class)
-                        .withIntent(queryActivityIntent).setup().get();
+                Robolectric.buildActivity(QueryRequestActivity.class, queryActivityIntent)
+                        .setup().get();
 
         assertEquals(AppCompatActivity.RESULT_CANCELED,
                 Shadows.shadowOf(queryRequestActivity).getResultCode());
@@ -80,17 +80,17 @@ public class QueryRequestActivityTest {
         Intent queryActivityIntent =
                 new Intent(RuntimeEnvironment.application, QueryRequestActivity.class);
         QueryRequestActivity queryRequestActivity =
-                Robolectric.buildActivity(QueryRequestActivity.class)
-                        .withIntent(queryActivityIntent).setup().get();
+                Robolectric.buildActivity(QueryRequestActivity.class, queryActivityIntent)
+                        .setup().get();
 
         LinearLayout promptsLayout =
-                (LinearLayout)queryRequestActivity.findViewById(R.id.query_prompts);
+                queryRequestActivity.findViewById(R.id.query_prompts);
         EditText patientName = (EditText)promptsLayout.getChildAt(1);
         patientName.setText("francisco");
         EditText patientId = (EditText)promptsLayout.getChildAt(3);
         patientId.setText("123");
 
-        Button queryButton = (Button)queryRequestActivity.findViewById(R.id.request_button);
+        Button queryButton = queryRequestActivity.findViewById(R.id.request_button);
         queryButton.performClick();
 
         assertEquals(AppCompatActivity.RESULT_OK,
@@ -116,22 +116,21 @@ public class QueryRequestActivityTest {
                 new Intent(RuntimeEnvironment.application, QueryRequestActivity.class);
 
         ActivityController<QueryRequestActivity> controller =
-                Robolectric.buildActivity(QueryRequestActivity.class)
-                        .withIntent(queryActivityIntent).setup();
+                Robolectric.buildActivity(QueryRequestActivity.class, queryActivityIntent).setup();
         QueryRequestActivity queryRequestActivity = controller.get();
 
         LinearLayout promptsLayout =
-                (LinearLayout)queryRequestActivity.findViewById(R.id.query_prompts);
+                queryRequestActivity.findViewById(R.id.query_prompts);
         EditText patientName = (EditText)promptsLayout.getChildAt(1);
         patientName.setText("francisco");
         EditText patientId = (EditText)promptsLayout.getChildAt(3);
         patientId.setText("123");
 
         Button queryButton =
-                (Button)queryRequestActivity.findViewById(R.id.request_button);
+                queryRequestActivity.findViewById(R.id.request_button);
         queryButton.performClick();
 
-        TextView errorMessage = (TextView)queryRequestActivity.findViewById(R.id.error_message);
+        TextView errorMessage = queryRequestActivity.findViewById(R.id.error_message);
         assertEquals(View.VISIBLE, errorMessage.getVisibility());
         String expectedErrorPart = Localization.get("query.response.format.error", "");
         assertTrue(((String)errorMessage.getText()).contains(expectedErrorPart));
@@ -141,11 +140,11 @@ public class QueryRequestActivityTest {
         controller.saveInstanceState(savedInstanceState);
 
         // start new activity with serialized app state
-        queryRequestActivity = Robolectric.buildActivity(QueryRequestActivity.class)
-                .withIntent(queryActivityIntent).setup(savedInstanceState).get();
+        queryRequestActivity = Robolectric.buildActivity(QueryRequestActivity.class, queryActivityIntent)
+                .setup(savedInstanceState).get();
 
         // check that the error message is still there
-        errorMessage = (TextView)queryRequestActivity.findViewById(R.id.error_message);
+        errorMessage = queryRequestActivity.findViewById(R.id.error_message);
         assertEquals(View.VISIBLE, errorMessage.getVisibility());
         assertTrue(((String)errorMessage.getText()).contains(expectedErrorPart));
     }
@@ -162,12 +161,12 @@ public class QueryRequestActivityTest {
                 new Intent(RuntimeEnvironment.application, QueryRequestActivity.class);
 
         ActivityController<QueryRequestActivity> controller =
-                Robolectric.buildActivity(QueryRequestActivity.class)
-                        .withIntent(queryActivityIntent).create().start().resume();
+                Robolectric.buildActivity(QueryRequestActivity.class, queryActivityIntent)
+                        .create().start().resume();
         QueryRequestActivity queryRequestActivity = controller.get();
 
         LinearLayout promptsLayout =
-                (LinearLayout)queryRequestActivity.findViewById(R.id.query_prompts);
+                queryRequestActivity.findViewById(R.id.query_prompts);
         EditText patientId = (EditText)promptsLayout.getChildAt(1);
         patientId.setText("123");
 
@@ -176,11 +175,11 @@ public class QueryRequestActivityTest {
         controller.saveInstanceState(savedInstanceState);
 
         // start new activity with serialized app state
-        queryRequestActivity = Robolectric.buildActivity(QueryRequestActivity.class)
-                .withIntent(queryActivityIntent).setup(savedInstanceState).get();
+        queryRequestActivity = Robolectric.buildActivity(QueryRequestActivity.class, queryActivityIntent)
+                .setup(savedInstanceState).get();
 
         // check that the query prompts are filled out still
-        promptsLayout = (LinearLayout)queryRequestActivity.findViewById(R.id.query_prompts);
+        promptsLayout = queryRequestActivity.findViewById(R.id.query_prompts);
         patientId = (EditText)promptsLayout.getChildAt(1);
         assertEquals("123", patientId.getText().toString());
 
@@ -207,17 +206,17 @@ public class QueryRequestActivityTest {
                 new Intent(RuntimeEnvironment.application, QueryRequestActivity.class);
 
         ActivityController<QueryRequestActivity> controller =
-                Robolectric.buildActivity(QueryRequestActivity.class)
-                        .withIntent(queryActivityIntent).setup();
+                Robolectric.buildActivity(QueryRequestActivity.class, queryActivityIntent)
+                        .setup();
         QueryRequestActivity queryRequestActivity = controller.get();
 
         LinearLayout promptsLayout =
-                (LinearLayout)queryRequestActivity.findViewById(R.id.query_prompts);
+                queryRequestActivity.findViewById(R.id.query_prompts);
         EditText patientName = (EditText)promptsLayout.getChildAt(1);
         patientName.setText("francisco");
 
         Button queryButton =
-                (Button)queryRequestActivity.findViewById(R.id.request_button);
+                queryRequestActivity.findViewById(R.id.request_button);
         queryButton.performClick();
 
         Assert.assertEquals(Localization.get("query.response.empty"),

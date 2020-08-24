@@ -63,7 +63,7 @@ public class DotsDetailView {
         
         View view = View.inflate(context, R.layout.dots_detail, null);
         
-        LinearLayout container = (LinearLayout)view.findViewById(R.id.dots_content_frame);
+        LinearLayout container = view.findViewById(R.id.dots_content_frame);
         
         container.removeAllViews();
         
@@ -81,7 +81,7 @@ public class DotsDetailView {
             DotsBox box = day.boxes()[i][subIndex];
             final View details = View.inflate(context, R.layout.compact_dot_entry, null);
             groups[i] = details;
-            TextView timeView = (TextView)details.findViewById(R.id.text_time);
+            TextView timeView = details.findViewById(R.id.text_time);
             
             int doseName = box.getDoseLabel();
             String label = "";
@@ -99,7 +99,7 @@ public class DotsDetailView {
             details.setPadding(0, 0, 0,0);
             
             final View missingDetails = details.findViewById(R.id.missed_details);
-            missedName[i] = (EditText)details.findViewById(R.id.text_missed);
+            missedName[i] = details.findViewById(R.id.text_missed);
             
             //groups[i] = (RadioGroup)details.findViewById(R.id.dose_group);
 
@@ -117,7 +117,7 @@ public class DotsDetailView {
                 break;
             }
             
-            ToggleButton selectedReportType = (ToggleButton)details.findViewById(type);
+            ToggleButton selectedReportType = details.findViewById(type);
             selectedReportType.setChecked(true);
                         
             int checked = -1;
@@ -139,29 +139,26 @@ public class DotsDetailView {
                     break;
             }
             
-            ToggleButton checkedToggle = (ToggleButton)details.findViewById(checked);
+            ToggleButton checkedToggle = details.findViewById(checked);
             checkedToggle.setChecked(true);
             
             //set up listeners
             final int[] ids = new int[] {R.id.radio_all, R.id.radio_some, R.id.radio_unchecked, R.id.radio_none};
             for(int id : ids) {
-                ToggleButton toggle = (ToggleButton)details.findViewById(id);
-                toggle.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        for(int id : ids) {
-                            if(v.getId() == id) {
-                                ((ToggleButton)v).setChecked(true);
-                            } else {
-                                ToggleButton toggle = (ToggleButton)details.findViewById(id);
-                                toggle.setChecked(false);
-                            }
-                            
-                            if(v.getId() == R.id.radio_some) {
-                                missingDetails.setVisibility(View.VISIBLE);
-                            } else {
-                                missingDetails.setVisibility(View.GONE);
-                            }
+                ToggleButton toggle = details.findViewById(id);
+                toggle.setOnClickListener(v -> {
+                    for(int id1 : ids) {
+                        if(v.getId() == id1) {
+                            ((ToggleButton)v).setChecked(true);
+                        } else {
+                            ToggleButton toggle1 = details.findViewById(id1);
+                            toggle1.setChecked(false);
+                        }
+
+                        if(v.getId() == R.id.radio_some) {
+                            missingDetails.setVisibility(View.VISIBLE);
+                        } else {
+                            missingDetails.setVisibility(View.GONE);
                         }
                     }
                 });
@@ -170,17 +167,14 @@ public class DotsDetailView {
             //set up listeners
             final int[] typeids = new int[] {R.id.tbt_direct, R.id.tbt_pillbox, R.id.tbt_self};
             for(int id : typeids) {
-                ToggleButton toggle = (ToggleButton)details.findViewById(id);
-                toggle.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        for(int id : typeids) {
-                            if(v.getId() == id) {
-                                ((ToggleButton)v).setChecked(true);
-                            } else {
-                                ToggleButton toggle = (ToggleButton)details.findViewById(id);
-                                toggle.setChecked(false);
-                            }
+                ToggleButton toggle = details.findViewById(id);
+                toggle.setOnClickListener(v -> {
+                    for(int id12 : typeids) {
+                        if(v.getId() == id12) {
+                            ((ToggleButton)v).setChecked(true);
+                        } else {
+                            ToggleButton toggle12 = details.findViewById(id12);
+                            toggle12.setChecked(false);
                         }
                     }
                 });
@@ -198,26 +192,12 @@ public class DotsDetailView {
             }
         }
         
-        Button ok = (Button)view.findViewById(R.id.btn_dots_detail_ok);
-        Button cancel = (Button)view.findViewById(R.id.btn_dots_detail_cancel);
+        Button ok = view.findViewById(R.id.btn_dots_detail_ok);
+        Button cancel = view.findViewById(R.id.btn_dots_detail_cancel);
         
-        ok.setOnClickListener(new OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-                listener.dayEdited(DotsDetailView.this.index, DotsDetailView.this.getDay());
-            }
-            
-        });
+        ok.setOnClickListener(v -> listener.dayEdited(DotsDetailView.this.index, DotsDetailView.this.getDay()));
         
-        cancel.setOnClickListener(new OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-                listener.cancelDoseEdit();
-            }
-            
-        });
+        cancel.setOnClickListener(v -> listener.cancelDoseEdit());
         
         return view;
     }
@@ -240,7 +220,7 @@ public class DotsDetailView {
             //Retrieve the selected value
             int[] ids = new int[] {R.id.radio_all, R.id.radio_some, R.id.radio_unchecked, R.id.radio_none};
             for(int id : ids) {
-                ToggleButton button = (ToggleButton)groups[i].findViewById(id);
+                ToggleButton button = groups[i].findViewById(id);
                 if(button.isChecked()) {
                     checkedButton = id;
                 }
@@ -250,7 +230,7 @@ public class DotsDetailView {
             //Retrieve the selected value
             int[] reportids = new int[] {R.id.tbt_direct, R.id.tbt_pillbox, R.id.tbt_self};
             for(int id : reportids) {
-                ToggleButton button = (ToggleButton)groups[i].findViewById(id);
+                ToggleButton button = groups[i].findViewById(id);
                 if(button.isChecked()) {
                     reportType = id;
                 }

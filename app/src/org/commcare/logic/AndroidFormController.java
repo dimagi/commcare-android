@@ -1,24 +1,33 @@
 package org.commcare.logic;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
+import org.commcare.google.services.analytics.FormAnalyticsHelper;
+import org.commcare.utils.FileUtil;
 import org.commcare.views.widgets.WidgetFactory;
 import org.javarosa.core.model.FormIndex;
 import org.javarosa.form.api.FormController;
 import org.javarosa.form.api.FormEntryController;
 
+import java.io.File;
+import java.util.Date;
+
 /**
  * Wrapper around FormController to handle Android-specific form entry actions
  */
 
-public class AndroidFormController extends FormController implements PendingCalloutInterface{
+public class AndroidFormController extends FormController implements PendingCalloutInterface {
 
     private FormIndex mPendingCalloutFormIndex = null;
     private boolean wasPendingCalloutCancelled;
     private FormIndex formIndexToReturnTo = null;
+    private boolean formCompleteAndSaved = false;
+
+    private FormAnalyticsHelper formAnalyticsHelper;
 
     public AndroidFormController(FormEntryController fec, boolean readOnly) {
         super(fec, readOnly);
+        formAnalyticsHelper = new FormAnalyticsHelper();
     }
 
     @Override
@@ -63,4 +72,15 @@ public class AndroidFormController extends FormController implements PendingCall
         this.formIndexToReturnTo = null;
     }
 
+    public boolean isFormCompleteAndSaved() {
+        return formCompleteAndSaved;
+    }
+
+    public void markCompleteFormAsSaved() {
+        this.formCompleteAndSaved = true;
+    }
+
+    public FormAnalyticsHelper getFormAnalyticsHelper() {
+        return formAnalyticsHelper;
+    }
 }

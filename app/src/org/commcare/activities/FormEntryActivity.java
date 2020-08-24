@@ -4,7 +4,6 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.BroadcastReceiver;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -14,9 +13,6 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.provider.MediaStore.Images;
-import android.support.v4.app.ActivityCompat;
-import android.support.v7.app.ActionBar;
 import android.util.Log;
 import android.util.Pair;
 import android.view.ContextMenu;
@@ -47,6 +43,7 @@ import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
+import org.commcare.google.services.analytics.FormAnalyticsHelper;
 import org.commcare.interfaces.AdvanceToNextListener;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.FormSaveCallback;
@@ -56,6 +53,8 @@ import org.commcare.interfaces.WidgetChangedListener;
 import org.commcare.interfaces.WithUIController;
 import org.commcare.logging.analytics.TimedStatsTracker;
 import org.commcare.logic.AndroidFormController;
+import org.commcare.models.AndroidSessionWrapper;
+import org.commcare.models.FormRecordProcessor;
 import org.commcare.models.ODKStorage;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.tasks.FormLoaderTask;
@@ -79,6 +78,8 @@ import org.commcare.views.widgets.QuestionWidget;
 import org.javarosa.core.model.FormIndex;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.instance.TreeReference;
+import org.javarosa.core.model.trace.EvaluationTraceReporter;
+import org.javarosa.core.model.trace.ReducingTraceReporter;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.form.api.FormEntryController;
@@ -88,12 +89,16 @@ import org.javarosa.xpath.XPathTypeMismatchException;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.crypto.spec.SecretKeySpec;
+
+import androidx.appcompat.app.ActionBar;
+import androidx.core.app.ActivityCompat;
+
+import static org.commcare.android.database.user.models.FormRecord.QuarantineReason_LOCAL_PROCESSING_ERROR;
 
 /**
  * Displays questions, animates transitions between
@@ -153,12 +158,16 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
     private BroadcastReceiver mLocationServiceIssueReceiver;
 
-    // marked true if we are in the process of saving a form because the user
-    // database & key session are expiring. Being set causes savingComplete to
-    // broadcast a form saving intent.
-    private boolean savingFormOnKeySessionExpiration = false;
+    // This will be set if a unique action needs to be taken
+    // at the end of saving a form - like continuing a logout
+    // or proceeding unblocked
+    private Runnable customFormSaveCallback = null;
+
     private FormEntryActivityUIController uiController;
     private SqlStorage<FormRecord> formRecordStorage;
+
+    private boolean fullFormProfilingEnabled = false;
+    private EvaluationTraceReporter traceReporter;
 
     @Override
     @SuppressLint("NewApi")
@@ -201,15 +210,37 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     }
 
     @Override
-    public void formSaveCallback() {
+    public boolean onMenuItemSelected(int featureId, MenuItem item) {
+        /*
+         * EventLog accepts only proper Strings as input, but prior to this version,
+         * Android would try to send SpannedStrings to it, thus crashing the app.
+         * This makes sure the title is actually a String.
+         * This fixes bug 174626.
+         */
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR2
+                && item.getTitleCondensed() != null) {
+            item.setTitleCondensed(item.getTitleCondensed().toString());
+        }
+
+        return super.onMenuItemSelected(featureId, item);
+    }
+
+    @Override
+    public void formSaveCallback(Runnable listener) {
         // note that we have started saving the form
-        savingFormOnKeySessionExpiration = true;
+        customFormSaveCallback = listener;
 
         // Set flag that will allow us to restore this form when we log back in
         CommCareApplication.instance().getCurrentSessionWrapper().setCurrentStateAsInterrupted();
 
         // Start saving form; will trigger expireUserSession() on completion
         saveIncompleteFormToDisk();
+    }
+
+    private void handleLocationErrorAction() {
+        this.runOnUiThread(() -> {
+            FormEntryDialogs.handleNoGpsBroadcast(FormEntryActivity.this);
+        });
     }
 
     private void registerFormEntryReceiver() {
@@ -223,12 +254,15 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 context.removeStickyBroadcast(intent);
                 badLocationXpath = intent.getStringExtra(PollSensorAction.KEY_UNRESOLVED_XPATH);
                 locationRecieverErrorAction = intent.getAction();
+                if (GeoUtils.ACTION_LOCATION_ERROR.equals(locationRecieverErrorAction)) {
+                    handleLocationErrorAction();
+                }
             }
         };
 
         IntentFilter filter = new IntentFilter();
         filter.addAction(PollSensorAction.XPATH_ERROR_ACTION);
-        filter.addAction(GeoUtils.ACTION_CHECK_GPS_ENABLED);
+        filter.addAction(GeoUtils.ACTION_LOCATION_ERROR);
         registerReceiver(mLocationServiceIssueReceiver, filter);
     }
 
@@ -305,7 +339,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 case FormEntryConstants.LOCATION_CAPTURE:
                     String sl = intent.getStringExtra(FormEntryConstants.LOCATION_RESULT);
                     uiController.questionsView.setBinaryData(sl, mFormController);
-                    saveAnswersForCurrentScreen(FormEntryConstants.DO_NOT_EVALUATE_CONSTRAINTS);
+                    saveAnswersForCurrentScreen(false);
                     break;
                 case FormEntryConstants.HIERARCHY_ACTIVITY:
                 case FormEntryConstants.HIERARCHY_ACTIVITY_FIRST_START:
@@ -314,6 +348,13 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                     } else {
                         // We may have jumped to a new index in hierarchy activity, so refresh
                         uiController.refreshCurrentView(false);
+                    }
+                    break;
+                case FormEntryConstants.INTENT_LOCATION_EXCEPTION:
+                    if (resultCode == RESULT_OK) {
+                        // We resolved the exception so let's hear location updates now.
+                        // We don't wanna do anything if user doesn't except it here.
+                        PollSensorController.INSTANCE.requestLocationUpdates();
                     }
                     break;
             }
@@ -327,13 +368,10 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         }
     }
 
-    public void saveImageWidgetAnswer(ContentValues values) {
-        Uri imageURI =
-                getContentResolver().insert(Images.Media.EXTERNAL_CONTENT_URI, values);
-        Log.i(TAG, "Inserting image returned uri = " + imageURI);
-
-        uiController.questionsView.setBinaryData(imageURI, mFormController);
-        saveAnswersForCurrentScreen(FormEntryConstants.DO_NOT_EVALUATE_CONSTRAINTS);
+    public void saveImageWidgetAnswer(String imagePath) {
+        uiController.questionsView.setBinaryData(imagePath, mFormController);
+        saveAnswersForCurrentScreen(false);
+        onExternalAttachmentUpdated();
         uiController.refreshView();
     }
 
@@ -341,7 +379,14 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         // For audio/video capture/chooser, we get the URI from the content provider
         // then the widget copies the file and makes a new entry in the content provider.
         Uri media = intent.getData();
-        if (!FileUtil.isSupportedMultiMediaFile(media)) {
+        if (media == null) {
+            Logger.log(LogTypes.TYPE_ERROR_ASSERTION, "AUDIO_VIDEO_FETCH intent data returns null " + intent.toString());
+            Logger.log(LogTypes.TYPE_ERROR_ASSERTION, "Extras: " + (intent.getExtras() != null ? intent.getExtras().toString() : "null"));
+            uiController.questionsView.clearAnswer();
+            Toast.makeText(FormEntryActivity.this,
+                    Localization.get("form.attachment.notfound"),
+                    Toast.LENGTH_LONG).show();
+        } else if (!FileUtil.isSupportedMultiMediaFile(media)) {
             // don't let the user select a file that won't be included in the
             // upload to the server
             uiController.questionsView.clearAnswer();
@@ -351,7 +396,8 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         } else {
             uiController.questionsView.setBinaryData(media, mFormController);
         }
-        saveAnswersForCurrentScreen(FormEntryConstants.DO_NOT_EVALUATE_CONSTRAINTS);
+        saveAnswersForCurrentScreen(false);
+        onExternalAttachmentUpdated();
         uiController.refreshView();
     }
 
@@ -384,44 +430,68 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         // keep track of whether we should auto advance
         boolean wasAnswerSet = false;
         boolean isQuick = false;
-
-        IntentWidget pendingIntentWidget = (IntentWidget)getPendingWidget();
-        if (pendingIntentWidget != null) {
-            if (!wasIntentCancelled) {
-                isQuick = "quick".equals(pendingIntentWidget.getAppearance());
-                TreeReference contextRef = null;
-                if (mFormController.getPendingCalloutFormIndex() != null) {
-                    contextRef = mFormController.getPendingCalloutFormIndex().getReference();
-                }
-                if (pendingIntentWidget instanceof BarcodeWidget) {
-                    String scanResult = response.getStringExtra("SCAN_RESULT");
-                    if (scanResult != null) {
-                        ((BarcodeWidget)pendingIntentWidget).processBarcodeResponse(contextRef, scanResult);
-                        wasAnswerSet = true;
+        try {
+            IntentWidget pendingIntentWidget = (IntentWidget)getPendingWidget();
+            if (pendingIntentWidget != null) {
+                if (!wasIntentCancelled) {
+                    isQuick = "quick".equals(pendingIntentWidget.getAppearance());
+                    TreeReference contextRef = null;
+                    if (mFormController.getPendingCalloutFormIndex() != null) {
+                        contextRef = mFormController.getPendingCalloutFormIndex().getReference();
                     }
-                } else {
-                    // Set our instance destination for binary data if needed
-                    String destination = instanceState.getInstanceFolder();
-                    wasAnswerSet = pendingIntentWidget.getIntentCallout()
-                            .processResponse(response, contextRef, new File(destination));
+                    if (pendingIntentWidget instanceof BarcodeWidget) {
+                        String scanResult = response.getStringExtra("SCAN_RESULT");
+                        if (scanResult != null) {
+                            ((BarcodeWidget)pendingIntentWidget).processBarcodeResponse(contextRef, scanResult);
+                            wasAnswerSet = true;
+                        }
+                    } else {
+                        // Set our instance destination for binary data if needed
+                        String destination = instanceState.getInstanceFolder();
+                        wasAnswerSet = pendingIntentWidget.getIntentCallout()
+                                .processResponse(response, contextRef, new File(destination));
+                    }
+                }
+
+                if (wasIntentCancelled) {
+                    mFormController.setPendingCalloutAsCancelled();
                 }
             }
 
-            if (wasIntentCancelled) {
-                mFormController.setPendingCalloutAsCancelled();
+            // auto advance if we got a good result and are in quick mode
+            if (wasAnswerSet && isQuick) {
+                uiController.showNextView();
+            } else {
+                uiController.refreshView();
             }
-        }
 
-        // auto advance if we got a good result and are in quick mode
-        if (wasAnswerSet && isQuick) {
-            uiController.showNextView();
-        } else {
-            uiController.refreshView();
+            return wasAnswerSet;
+        } catch (XPathException e) {
+            UserfacingErrorHandling.logErrorAndShowDialog(this, e, true);
+            return false;
         }
-
-        return wasAnswerSet;
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        if (CommCareApplication.instance().isConsumerApp()) {
+            // Do not show options menu at all if this is a consumer app
+            return super.onCreateOptionsMenu(menu);
+        }
+
+        super.onCreateOptionsMenu(menu);
+
+        menu.add(0, FormEntryConstants.MENU_SAVE, 0, StringUtils.getStringRobust(this, R.string.save_all_answers))
+                .setIcon(android.R.drawable.ic_menu_save);
+        menu.add(0, FormEntryConstants.MENU_HIERARCHY_VIEW, 0, StringUtils.getStringRobust(this, R.string.view_hierarchy))
+                .setIcon(R.drawable.ic_menu_goto);
+        menu.add(0, FormEntryConstants.MENU_LANGUAGES, 0, StringUtils.getStringRobust(this, R.string.change_language))
+                .setIcon(R.drawable.ic_menu_start_conversation);
+        menu.add(0, FormEntryConstants.MENU_PREFERENCES, 0, StringUtils.getStringRobust(this, R.string.form_entry_settings))
+                .setIcon(android.R.drawable.ic_menu_preferences);
+
+        return true;
+    }
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
@@ -429,29 +499,15 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             // Do not show options menu at all if this is a consumer app
             return super.onPrepareOptionsMenu(menu);
         }
+        super.onPrepareOptionsMenu(menu);
 
-        menu.removeItem(FormEntryConstants.MENU_LANGUAGES);
-        menu.removeItem(FormEntryConstants.MENU_HIERARCHY_VIEW);
-        menu.removeItem(FormEntryConstants.MENU_SAVE);
-        menu.removeItem(FormEntryConstants.MENU_PREFERENCES);
+        menu.findItem(FormEntryConstants.MENU_SAVE).setVisible(mIncompleteEnabled && !instanceIsReadOnly);
 
-        if (mIncompleteEnabled && !instanceIsReadOnly) {
-            menu.add(0, FormEntryConstants.MENU_SAVE, 0, StringUtils.getStringRobust(this, R.string.save_all_answers)).setIcon(
-                    android.R.drawable.ic_menu_save);
-        }
-        menu.add(0, FormEntryConstants.MENU_HIERARCHY_VIEW, 0, StringUtils.getStringRobust(this, R.string.view_hierarchy)).setIcon(
-                R.drawable.ic_menu_goto);
+        boolean hasMultipleLanguages = (!(mFormController == null ||
+                mFormController.getLanguages() == null || mFormController.getLanguages().length == 1));
+        menu.findItem(FormEntryConstants.MENU_LANGUAGES).setEnabled(hasMultipleLanguages);
 
-        boolean hasMultipleLanguages =
-                (!(mFormController == null || mFormController.getLanguages() == null || mFormController.getLanguages().length == 1));
-        menu.add(0, FormEntryConstants.MENU_LANGUAGES, 0, StringUtils.getStringRobust(this, R.string.change_language))
-                .setIcon(R.drawable.ic_menu_start_conversation)
-                .setEnabled(hasMultipleLanguages);
-
-        menu.add(0, FormEntryConstants.MENU_PREFERENCES, 0, StringUtils.getStringRobust(this, R.string.form_entry_settings)).setIcon(
-                android.R.drawable.ic_menu_preferences);
-
-        return super.onPrepareOptionsMenu(menu);
+        return true;
     }
 
     @Override
@@ -470,7 +526,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 return true;
             case FormEntryConstants.MENU_HIERARCHY_VIEW:
                 if (currentPromptIsQuestion()) {
-                    saveAnswersForCurrentScreen(FormEntryConstants.DO_NOT_EVALUATE_CONSTRAINTS);
+                    saveAnswersForCurrentScreen(false);
                 }
                 Intent i = new Intent(this, FormHierarchyActivity.class);
                 startActivityForResult(i, FormEntryConstants.HIERARCHY_ACTIVITY);
@@ -539,32 +595,31 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             // bring focus to the first one
             List<FormIndex> indexKeys = new ArrayList<>();
             indexKeys.addAll(answers.keySet());
-            Collections.sort(indexKeys, new Comparator<FormIndex>() {
-                @Override
-                public int compare(FormIndex arg0, FormIndex arg1) {
-                    return arg0.compareTo(arg1);
-                }
-            });
+            Collections.sort(indexKeys, FormIndex::compareTo);
 
-            for (FormIndex index : indexKeys) {
-                // Within a group, you can only save for question events
-                if (mFormController.getEvent(index) == FormEntryController.EVENT_QUESTION) {
-                    int saveStatus = saveAnswer(answers.get(index),
-                            index, evaluateConstraints);
-                    if (evaluateConstraints &&
-                            ((saveStatus != FormEntryController.ANSWER_OK) &&
-                                    (failOnRequired ||
-                                            saveStatus != FormEntryController.ANSWER_REQUIRED_BUT_EMPTY))) {
-                        if (!headless) {
-                            uiController.showConstraintWarning(index, mFormController.getQuestionPrompt(index).getConstraintText(), saveStatus, success);
+            try {
+                for (FormIndex index : indexKeys) {
+                    // Within a group, you can only save for question events
+                    if (mFormController.getEvent(index) == FormEntryController.EVENT_QUESTION) {
+                        int saveStatus = saveAnswer(answers.get(index),
+                                index, evaluateConstraints);
+                        if (evaluateConstraints &&
+                                ((saveStatus != FormEntryController.ANSWER_OK) &&
+                                        (failOnRequired ||
+                                                saveStatus != FormEntryController.ANSWER_REQUIRED_BUT_EMPTY))) {
+                            if (!headless) {
+                                uiController.showConstraintWarning(index, mFormController.getQuestionPrompt(index).getConstraintText(), saveStatus, success);
+                            }
+                            success = false;
                         }
-                        success = false;
+                    } else {
+                        Log.w(TAG,
+                                "Attempted to save an index referencing something other than a question: "
+                                        + index.getReference());
                     }
-                } else {
-                    Log.w(TAG,
-                            "Attempted to save an index referencing something other than a question: "
-                                    + index.getReference());
                 }
+            } catch (XPathException e) {
+                UserfacingErrorHandling.createErrorDialog(this, e.getLocalizedMessage(), true);
             }
         }
         return success;
@@ -619,7 +674,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
         // mFormEntryController is static so we don't need to pass it.
         if (mFormController != null && currentPromptIsQuestion() && uiController.questionsView != null) {
-            saveAnswersForCurrentScreen(FormEntryConstants.DO_NOT_EVALUATE_CONSTRAINTS);
+            saveAnswersForCurrentScreen(false);
         }
         return null;
     }
@@ -674,6 +729,21 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         saveDataToDisk(FormEntryConstants.EXIT, false, null, true);
     }
 
+    /**
+     * Attempts to update the form in the disk when user changes the attachment.
+     * NOTE:- This fixes the mismatch in attachments while trying to update attachments in a saved form.
+     */
+    protected void onExternalAttachmentUpdated() {
+        FormRecord formRecord = FormRecord.getFormRecord(formRecordStorage, FormEntryInstanceState.mFormRecordPath);
+        if (formRecord == null) {
+            return;
+        }
+        String formStatus = formRecord.getStatus();
+        if (FormRecord.STATUS_INCOMPLETE.equals(formStatus)) {
+            saveDataToDisk(false, false, null, true);
+        }
+    }
+
     private void showSaveErrorAndExit() {
         Toast.makeText(this, Localization.get("form.entry.save.error"), Toast.LENGTH_SHORT).show();
         hasSaved = false;
@@ -690,17 +760,19 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
      * @param headless        Disables GUI warnings and lets answers that
      *                        violate constraints be saved.
      */
-    private void saveDataToDisk(boolean exit, boolean complete, String updatedSaveName, boolean headless) {
+    private void saveDataToDisk(boolean exit, boolean complete, String updatedSaveName,
+                                boolean headless) {
         if (!formHasLoaded()) {
             if (exit) {
                 showSaveErrorAndExit();
             }
             return;
         }
+
         // save current answer; if headless, don't evaluate the constraints
         // before doing so.
         boolean wasScreenSaved =
-                saveAnswersForCurrentScreen(FormEntryConstants.DO_NOT_EVALUATE_CONSTRAINTS, complete, headless);
+                saveAnswersForCurrentScreen(false, complete, headless);
         if (!wasScreenSaved) {
             return;
         }
@@ -708,6 +780,11 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         // If a save task is already running, just let it do its thing
         if ((mSaveToDiskTask != null) &&
                 (mSaveToDiskTask.getStatus() != AsyncTask.Status.FINISHED)) {
+            return;
+        }
+
+        // A form save has already been triggered, ignore subsequent form saves
+        if (FormEntryActivity.mFormController.isFormCompleteAndSaved()) {
             return;
         }
 
@@ -731,9 +808,10 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         mFormController.setLanguage(languages[index]);
         dismissAlertDialog();
         if (currentPromptIsQuestion()) {
-            saveAnswersForCurrentScreen(FormEntryConstants.DO_NOT_EVALUATE_CONSTRAINTS);
+            saveAnswersForCurrentScreen(false);
         }
         uiController.refreshView();
+        invalidateOptionsMenu();
     }
 
     @Override
@@ -767,7 +845,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         super.onPause();
 
         if (!isFinishing() && uiController.questionsView != null && currentPromptIsQuestion()) {
-            saveAnswersForCurrentScreen(FormEntryConstants.DO_NOT_EVALUATE_CONSTRAINTS);
+            saveAnswersForCurrentScreen(false);
         }
 
         if (mLocationServiceIssueReceiver != null) {
@@ -793,7 +871,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             for (int i = 0; i < uiController.questionsView.getWidgets().size(); i++) {
                 QuestionWidget q = uiController.questionsView.getWidgets().get(i);
                 if (q.findViewById(MediaLayout.INLINE_VIDEO_PANE_ID) != null) {
-                    VideoView inlineVideo = (VideoView)q.findViewById(MediaLayout.INLINE_VIDEO_PANE_ID);
+                    VideoView inlineVideo = q.findViewById(MediaLayout.INLINE_VIDEO_PANE_ID);
                     if (inlineVideo.isPlaying()) {
                         indexOfWidgetWithVideoPlaying = i;
                         positionOfVideoProgress = inlineVideo.getCurrentPosition();
@@ -807,7 +885,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     private void restoreInlineVideoState() {
         if (indexOfWidgetWithVideoPlaying != -1) {
             QuestionWidget widgetWithVideoToResume = uiController.questionsView.getWidgets().get(indexOfWidgetWithVideoPlaying);
-            VideoView inlineVideo = (VideoView)widgetWithVideoToResume.findViewById(MediaLayout.INLINE_VIDEO_PANE_ID);
+            VideoView inlineVideo = widgetWithVideoToResume.findViewById(MediaLayout.INLINE_VIDEO_PANE_ID);
             if (inlineVideo != null) {
                 inlineVideo.seekTo(positionOfVideoProgress);
                 inlineVideo.start();
@@ -831,6 +909,19 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
         registerFormEntryReceiver();
         restorePriorStates();
+
+        reportVideoUsageIfAny();
+    }
+
+    private void reportVideoUsageIfAny() {
+        if (mFormController != null) {
+            FormAnalyticsHelper formAnalyticsHelper = mFormController.getFormAnalyticsHelper();
+            if (formAnalyticsHelper.getVideoStartTime() != -1) {
+                FirebaseAnalyticsUtil.reportVideoPlayEvent(formAnalyticsHelper.getVideoName(), formAnalyticsHelper.getVideoDuration(), formAnalyticsHelper.getVideoStartTime());
+                formAnalyticsHelper.resetVideoPlaybackInfo();
+            }
+        }
+
     }
 
     private void restorePriorStates() {
@@ -849,7 +940,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         if (intent != null) {
             loadIntentFormData(intent);
             setTitleToLoading();
-            int formId = -1;
+            int formId;
             try {
                 SqlStorage<FormDefRecord> formDefStorage = CommCareApplication.instance().getAppStorage(FormDefRecord.class);
                 if (intent.hasExtra(KEY_FORM_RECORD_ID)) {
@@ -893,8 +984,18 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                     } else {
                         UserfacingErrorHandling.createErrorDialog(receiver, StringUtils.getStringRobust(receiver, R.string.parse_error), FormEntryConstants.EXIT);
                     }
+
+                    if (intent.hasExtra(KEY_FORM_RECORD_ID)) {
+                        // log the form record id for which form load has failed
+                        FormRecord formRecord = FormRecord.getFormRecord(formRecordStorage, intent.getIntExtra(KEY_FORM_RECORD_ID, -1));
+                        Logger.log(LogTypes.TYPE_FORM_ENTRY, "Form load failed for form with id " + formRecord.getInstanceID());
+                    }
                 }
             };
+            if (fullFormProfilingEnabled) {
+                traceReporter = new ReducingTraceReporter(true);
+                mFormLoaderTask.setProfilingOnFullForm(traceReporter);
+            }
             mFormLoaderTask.connect(this);
             mFormLoaderTask.executeParallel(formId);
             hasFormLoadBeenTriggered = true;
@@ -902,13 +1003,12 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     }
 
     private void handleFormLoadCompletion(AndroidFormController fc) {
-        if (GeoUtils.ACTION_CHECK_GPS_ENABLED.equals(locationRecieverErrorAction)) {
-            FormEntryDialogs.handleNoGpsBroadcast(this);
-        } else if (PollSensorAction.XPATH_ERROR_ACTION.equals(locationRecieverErrorAction)) {
+        if (PollSensorAction.XPATH_ERROR_ACTION.equals(locationRecieverErrorAction)) {
             handleXpathErrorBroadcast();
         }
 
         mFormController = fc;
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             // Newer menus may have already built the menu, before all data was ready
             supportInvalidateOptionsMenu();
@@ -967,11 +1067,13 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
      * Call when the user is ready to save and return the current form as complete
      */
     protected void triggerUserFormComplete() {
-        if (mFormController.isFormReadOnly()) {
-            finishReturnInstance(false);
-        } else {
-            int formRecordId = getIntent().getIntExtra(KEY_FORM_RECORD_ID, -1);
-            saveCompletedFormToDisk(instanceState.getDefaultFormTitle(formRecordId));
+        if (!isFinishing()) {
+            if (mFormController.isFormReadOnly()) {
+                finishReturnInstance(false);
+            } else {
+                int formRecordId = getIntent().getIntExtra(KEY_FORM_RECORD_ID, -1);
+                saveCompletedFormToDisk(instanceState.getDefaultFormTitle(formRecordId));
+            }
         }
     }
 
@@ -1047,13 +1149,12 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     public void savingComplete(SaveToDiskTask.SaveStatus saveStatus, String errorMessage) {
         // Did we just save a form because the key session
         // (CommCareSessionService) is ending?
-        if (savingFormOnKeySessionExpiration) {
-            savingFormOnKeySessionExpiration = false;
+        if (customFormSaveCallback != null) {
+            Runnable toCall = customFormSaveCallback;
+            customFormSaveCallback = null;
 
-            // Notify the key session that the form state has been saved (or at
-            // least attempted to be saved) so CommCareSessionService can
-            // continue closing down key pool and user database.
-            CommCareApplication.instance().expireUserSession();
+            toCall.run();
+            returnAsInterrupted();
         } else if (saveStatus != null) {
             String toastMessage = "";
             switch (saveStatus) {
@@ -1066,21 +1167,24 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                     hasSaved = true;
                     break;
                 case SAVED_AND_EXIT:
-                    toastMessage = Localization.get("form.entry.complete.save.success");
                     hasSaved = true;
+                    if (!CommCareApplication.instance().isConsumerApp()) {
+                        Toast.makeText(this, Localization.get("form.entry.complete.save.success"), Toast.LENGTH_SHORT).show();
+                    }
                     finishReturnInstance();
-                    break;
+                    return;
                 case INVALID_ANSWER:
                     // an answer constraint was violated, so try to save the
                     // current question to trigger the constraint violation message
                     uiController.refreshView();
-                    saveAnswersForCurrentScreen(FormEntryConstants.EVALUATE_CONSTRAINTS);
+                    saveAnswersForCurrentScreen(true);
                     return;
                 case SAVE_ERROR:
                     if (!CommCareApplication.instance().isConsumerApp()) {
                         UserfacingErrorHandling.createErrorDialog(this, errorMessage,
                                 Localization.get("notification.formentry.save_error.title"), FormEntryConstants.EXIT);
                     }
+                    quarantineRecordOnError(errorMessage);
                     return;
             }
             if (!"".equals(toastMessage) && !CommCareApplication.instance().isConsumerApp()) {
@@ -1088,6 +1192,29 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             }
             uiController.refreshView();
         }
+    }
+
+    // clean the form record in case it was saved
+    private void quarantineRecordOnError(String errorMessage) {
+        AndroidSessionWrapper currentState = CommCareApplication.instance().getCurrentSessionWrapper();
+        FormRecord toBeQuarantined = currentState.getFormRecord();
+
+        // quarantine in case the form record was saved
+        if (toBeQuarantined != null) {
+            new FormRecordProcessor(this).quarantineRecord(
+                    toBeQuarantined,
+                    QuarantineReason_LOCAL_PROCESSING_ERROR,
+                    errorMessage
+            );
+        }
+    }
+
+    private void returnAsInterrupted() {
+        Intent formReturnIntent = new Intent();
+        formReturnIntent.putExtra(FormEntryConstants.WAS_INTERRUPTED, true);
+
+        setResult(RESULT_CANCELED, formReturnIntent);
+        finish();
     }
 
     /**
@@ -1126,9 +1253,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     private void finishReturnInstance(boolean reportSaved) {
         String action = getIntent().getAction();
         if (Intent.ACTION_PICK.equals(action) || Intent.ACTION_EDIT.equals(action)) {
-            FormRecord formRecord = CommCareApplication.instance().getCurrentSessionWrapper().getFormRecord();
             Intent formReturnIntent = new Intent();
-            formReturnIntent.putExtra(KEY_FORM_RECORD_ID, formRecord.getID());
             formReturnIntent.putExtra(FormEntryConstants.IS_ARCHIVED_FORM, mFormController.isFormReadOnly());
             formReturnIntent.putExtra(KEY_IS_RESTART_AFTER_EXPIRATION,
                     getIntent().getBooleanExtra(KEY_IS_RESTART_AFTER_EXPIRATION, false));
@@ -1144,6 +1269,13 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         } catch (SessionUnavailableException sue) {
             // looks like the session expired, swallow exception because we
             // might be auto-saving a form due to user session expiring
+        }
+
+        if (fullFormProfilingEnabled) {
+            // Uncomment 1 of the following expressions for whichever trace serialization format you're interested in
+            //InstrumentationUtils.printAndClearTraces(this.traceReporter, "FULL FORM ENTRY TRACE:", EvaluationTraceSerializer.TraceInfoType.CACHE_INFO_ONLY);
+            //InstrumentationUtils.printExpressionsThatUsedCaching(this.traceReporter, "EXPRESSIONS THAT USED CACHING:");
+            //InstrumentationUtils.printCachedAndNotCachedExpressions(this.traceReporter, "CACHED AND NOT CACHED EXPRESSIONS:");
         }
 
         dismissProgressDialog();
@@ -1207,7 +1339,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     }
 
     private boolean canNavigateForward() {
-        ImageButton nextButton = (ImageButton)this.findViewById(R.id.nav_btn_next);
+        ImageButton nextButton = this.findViewById(R.id.nav_btn_next);
         return FormEntryConstants.NAV_STATE_NEXT.equals(nextButton.getTag());
     }
 
@@ -1341,6 +1473,17 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 }
                 return;
             }
+            case FormEntryConstants.INTENT_LOCATION_PERMISSION:
+                boolean isGranted = grantResults.length > 0;
+                for (int result : grantResults) {
+                    if (result != PackageManager.PERMISSION_GRANTED) {
+                        isGranted = false;
+                    }
+                }
+                if (isGranted) {
+                    PollSensorController.INSTANCE.requestLocationUpdates();
+                }
+                break;
         }
 
     }

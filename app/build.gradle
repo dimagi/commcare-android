@@ -1,6 +1,8 @@
 import org.apache.tools.ant.filters.ReplaceTokens
 import com.android.builder.core.DefaultManifestParser
 
+import java.util.function.BooleanSupplier
+
 ////////////
 // README //
 ////////////
@@ -13,18 +15,21 @@ import com.android.builder.core.DefaultManifestParser
 
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
-apply plugin: 'io.fabric'
+apply plugin: 'kotlin-android-extensions'
+apply plugin: 'com.google.firebase.crashlytics'
+apply from: 'jacoco.gradle'
 
 repositories {
+    google()
     mavenCentral()
+    google()
     jcenter()
     // for local aar inclusion
     flatDir {
         dirs 'libs'
     }
-    maven { url 'https://maven.fabric.io/public' }
-    google()
     maven { url "https://jitpack.io" }
+    maven { url "http://dl.bintray.com/ona/kujaku" }
 }
 
 configurations {
@@ -34,11 +39,19 @@ configurations {
 
 dependencies {
     testImplementation 'junit:junit:4.12'
-    testImplementation ('org.robolectric:robolectric:3.2.2')
-    testImplementation 'org.robolectric:shadows-multidex:3.2.2'
-    testImplementation 'org.robolectric:shadows-core:3.2.2'
+    testImplementation 'org.robolectric:robolectric:4.3.1'
+    testImplementation 'org.robolectric:shadows-multidex:4.3.1'
+    testImplementation 'androidx.test:core:1.2.0'
+    testImplementation 'androidx.test.ext:junit:1.1.1'
+    testImplementation 'androidx.work:work-testing:2.4.0'
     testImplementation 'org.json:json:20140107'
     testImplementation project(path: ':commcare-core', configuration: 'testsAsJar')
+
+    androidTestImplementation 'androidx.test:runner:1.2.0'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.1'
+    androidTestImplementation 'androidx.test:rules:1.2.0'
+    androidTestImplementation 'androidx.test.espresso:espresso-intents:3.2.0'
 
     // release build type expects commcare jars to be in app/libs
     implementation(project(':commcare-core')) {
@@ -46,50 +59,71 @@ dependencies {
     }
 
     // this syntax doesn't work for compiling .aar files, so those have to be loaded manually
-    implementation fileTree(include: '*.jar',exclude: 'regexp-me.jar', dir: 'libs')
+    implementation fileTree(include: '*.jar', exclude: 'regexp-me.jar', dir: 'libs')
     implementation(name: 'htmlspanner-custom', ext: 'aar')
     implementation(name: 'android-zebra-interface-1.1', ext: 'aar')
-    implementation 'com.simprints:LibSimprints:1.0.10'
-    implementation 'com.android.support:multidex:1.0.1'
-    implementation 'com.android.support:appcompat-v7:25.0.1'
-    implementation 'com.android.support:cardview-v7:25.2.0'
-    implementation 'com.android.support:recyclerview-v7:25.2.0'
-    implementation 'com.android.support:support-v4:25.2.0'
-    implementation 'com.android.support:preference-v7:25.2.0'
-    implementation 'com.android.support:preference-v14:25.2.0'
-    implementation 'com.android.support:gridlayout-v7:25.2.0'
+    implementation 'com.simprints:LibSimprints:1.0.12'
+    implementation 'androidx.appcompat:appcompat:1.2.0'
+    implementation 'androidx.multidex:multidex:2.0.1'
+    implementation 'androidx.cardview:cardview:1.0.0'
+    implementation 'androidx.recyclerview:recyclerview:1.1.0'
+    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+    implementation 'androidx.legacy:legacy-preference-v14:1.0.0'
+    implementation 'androidx.gridlayout:gridlayout:1.0.0'
     implementation 'com.madgag.spongycastle:core:1.54.0.0'
     implementation 'com.madgag.spongycastle:prov:1.54.0.0'
-    implementation 'com.google.android.gms:play-services-maps:10.0.1'
+    implementation 'com.google.android.gms:play-services-maps:17.0.0'
     implementation 'joda-time:joda-time:2.9.4'
-    implementation 'net.zetetic:android-database-sqlcipher:3.5.7@aar'
-    implementation ('org.apache.james:apache-mime4j:0.7.2') {
+    implementation 'net.zetetic:android-database-sqlcipher:3.5.9@aar'
+    implementation('org.apache.james:apache-mime4j:0.7.2') {
         exclude module: 'commons-io'
     }
-    implementation('org.apache.httpcomponents:httpmime:4.3.6')
+    implementation('org.apache.httpcomponents:httpmime:4.5.6')
     implementation 'net.sourceforge.htmlcleaner:htmlcleaner:2.16'
     implementation 'org.jsoup:jsoup:1.8.3'
-    implementation 'com.google.firebase:firebase-core:10.0.1'
-    implementation 'com.google.firebase:firebase-ads:10.0.1'
+    implementation 'com.google.firebase:firebase-core:17.4.2'
+
+    // crashes on update - https://developers.google.com/admob/android/quick-start#update_your_androidmanifestxml
+    // We need to update consumer apps script to inject the right admob id to be able to update this
+    implementation 'com.google.firebase:firebase-ads:16.0.1'
+
     implementation 'com.carrotsearch:hppc:0.7.2'
     implementation 'io.reactivex.rxjava2:rxandroid:2.0.1'
-    implementation 'com.journeyapps:zxing-android-embedded:3.5.0'
-    implementation('com.crashlytics.sdk.android:crashlytics:2.6.8@aar') {
-        transitive = true;
+    implementation 'com.jakewharton.rxbinding2:rxbinding:2.0.0'
+    implementation 'com.journeyapps:zxing-android-embedded:3.6.0'
+    implementation 'com.google.firebase:firebase-crashlytics:17.0.0'
+    implementation 'androidx.legacy:legacy-support-core-ui:1.0.0'
+    implementation 'com.duolingo.open:rtl-viewpager:1.0.3'
+    implementation ("com.github.bumptech.glide:glide:4.9.0") {
+        exclude group: "com.android.support"
     }
 
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
 
     // Markdown
-    implementation 'com.github.budsmile:bypass-android:1.0.5' //Needed for Ice Cream Sandwich (14&15)
+    implementation 'com.github.budsmile:bypass-android:1.0.5'//Needed for Ice Cream Sandwich (14&15)
     implementation 'ru.noties:markwon:1.0.4'
     implementation 'ru.noties:markwon-image-loader:1.0.4'
     implementation 'ru.noties:markwon-view:1.0.4'
+
+    implementation ('io.ona.kujaku:library:0.8.7'){
+        exclude module: 'xpp3'
+    }
+    implementation "androidx.work:work-runtime:2.4.0"
+    implementation "androidx.work:work-runtime-ktx:2.4.0"
+
+    implementation 'com.google.android.play:core:1.7.3'
+    implementation 'android.arch.lifecycle:common-java8:1.1.1'
+
+    //Robust TLS 1.2 ciphers on Android 9-19
+    implementation "org.conscrypt:conscrypt-android:2.4.0"
+
 }
 
 ext {
     // Obtained from ~/.gradle/gradle.properties on build server (mobile agent), or your local
     // ~/.gradle/gradle.properties file, or loads default empty strings if neither is present
+    MAPBOX_SDK_API_KEY = project.properties['MAPBOX_SDK_API_KEY'] ?: ""
     ANALYTICS_TRACKING_ID_DEV = project.properties['ANALYTICS_TRACKING_ID_DEV'] ?: ""
     ANALYTICS_TRACKING_ID_LIVE = project.properties['ANALYTICS_TRACKING_ID_LIVE'] ?: ""
     GOOGLE_PLAY_MAPS_API_KEY = project.properties['GOOGLE_PLAY_MAPS_API_KEY'] ?: ""
@@ -107,6 +141,9 @@ ext {
     STANDALONE_APP_ID = ""
     LTS_APP_ID = ""
     COMMCARE_APP_ID = ""
+    HQ_API_USERNAME = project.properties['HQ_API_USERNAME'] ?: ""
+    HQ_API_PASSWORD = project.properties['HQ_API_PASSWORD'] ?: ""
+    TEST_BUILD_TYPE = project.properties['TEST_BUILD_TYPE'] ?: "debug"
 }
 
 afterEvaluate {
@@ -121,23 +158,6 @@ afterEvaluate {
     processLtsReleaseGoogleServices.dependsOn injectGoogleServicesAPIKey
     processCommcareDebugGoogleServices.dependsOn injectGoogleServicesAPIKey
     processCommcareReleaseGoogleServices.dependsOn injectGoogleServicesAPIKey
-}
-
-gradle.taskGraph.beforeTask { Task task ->
-    if (task.name ==~ /.*fabricGenerateResourcesCommcareRelease/) {
-        initFabricPropertiesIfNeeded()
-    }
-}
-
-def initFabricPropertiesIfNeeded() {
-    def propertiesFile = file('fabric.properties')
-    if (!propertiesFile.exists()) {
-        def commentMessage = "This is autogenerated fabric property from system environment to prevent key to be committed to source control."
-        ant.propertyfile(file: "fabric.properties", comment: commentMessage) {
-            entry(key: "apiSecret", value: FABRIC_API_SECRET)
-            entry(key: "apiKey", value: FABRIC_API_KEY)
-        }
-    }
 }
 
 task injectGoogleServicesAPIKey(type: Copy) {
@@ -166,8 +186,8 @@ def ccDomain = project.hasProperty('cc_domain') ? cc_domain : ""
 def isConsumerApp = project.hasProperty('is_consumer_app') ? is_consumer_app : "false"
 def runDownloadScripts = project.hasProperty('run_download_scripts') ? run_download_scripts : "true"
 def ccDomainSafe = ccDomain.replaceAll("-", "")
-def consumerAppUsername = getConsumerAppUsername(isConsumerApp);
-def consumerAppPassword = getConsumerAppPassword(isConsumerApp);
+def consumerAppUsername = getConsumerAppUsername(isConsumerApp)
+def consumerAppPassword = getConsumerAppPassword(isConsumerApp)
 def usingAdmob = isConsumerApp && project.hasProperty('admob_id') && allAdUnitIdsPresent()
 def admobId = usingAdmob ? admob_id : ""
 def entityDetailAdUnitId = usingAdmob ? entity_detail_ad_id : ""
@@ -193,19 +213,24 @@ def computeVersionCode() {
     return code
 }
 
-def getDate() {
+static def getDate() {
     def date = new Date()
     def formattedDate = date.format('yyyy-MM-dd')
     return formattedDate
 }
 
 android {
-    compileSdkVersion 26
+    compileSdkVersion 29
 
     lintOptions {
         abortOnError false
         disable 'MissingTranslation'
         disable "ResourceType"
+    }
+
+    // Espresso requires us to disable animations on device.
+    testOptions {
+        animationsDisabled = true
     }
 
     packagingOptions {
@@ -222,21 +247,21 @@ android {
     }
 
     defaultConfig {
-        minSdkVersion 14
-        targetSdkVersion 25
+        minSdkVersion 16
+        targetSdkVersion 29
         multiDexEnabled true
         applicationId "org.commcare.dalvik"
         project.ext.COMMCARE_APP_ID = applicationId
-        resValue "string", "application_name", "CommCare"
+        // set the app name
+        def applicationName = "CommCare"
+        resValue "string", "application_name", applicationName
         def odkProviderStr = "org.commcare.android.provider.odk"
         manifestPlaceholders = [
                 odkProvider         : odkProviderStr,
                 googlePlayMapsApiKey: "${project.ext.GOOGLE_PLAY_MAPS_API_KEY}"
         ]
 
-        vectorDrawables.useSupportLibrary = true
-
-        versionCode computeVersionCode()
+        versionCode 1
 
         // when set, app won't show install screen and try to install
         // resources from assets folder
@@ -253,17 +278,35 @@ android {
         buildConfigField "String", "TRUSTED_SOURCE_PUBLIC_KEY", "\"${project.ext.TRUSTED_SOURCE_PUBLIC_KEY}\""
         buildConfigField "String", "ANALYTICS_TRACKING_ID_LIVE", "\"${project.ext.ANALYTICS_TRACKING_ID_LIVE}\""
         buildConfigField "String", "ANALYTICS_TRACKING_ID_DEV", "\"${project.ext.ANALYTICS_TRACKING_ID_DEV}\""
+        buildConfigField "String", "MAPBOX_SDK_API_KEY", "\"${project.ext.MAPBOX_SDK_API_KEY}\""
 
         buildConfigField "String", "ADMOB_ID", "\"\""
         buildConfigField "String", "ENTITY_DETAIL_AD_UNIT_ID", "\"\""
         buildConfigField "String", "ENTITY_SELECT_AD_UNIT_ID", "\"\""
         buildConfigField "String", "MENU_LIST_AD_UNIT_ID", "\"\""
         buildConfigField "String", "MENU_GRID_AD_UNIT_ID", "\"\""
+
+        buildConfigField "String", "HQ_API_USERNAME", "\"${project.ext.HQ_API_USERNAME}\""
+        buildConfigField "String", "HQ_API_PASSWORD", "\"${project.ext.HQ_API_PASSWORD}\""
+
+        testInstrumentationRunner "org.commcare.CommCareJUnitRunner"
+    }
+
+    applicationVariants.all { variant ->
+        if (variant.buildType.name == "release") {
+            variant.outputs.each { output ->
+                output.versionCodeOverride = computeVersionCode()
+            }
+        }
     }
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    kotlinOptions {
+        jvmTarget = JavaVersion.VERSION_1_8.toString()
     }
 
     signingConfigs {
@@ -311,6 +354,12 @@ android {
             resources.srcDirs = ['unit-tests/resources/']
         }
 
+        androidTest {
+            setRoot('instrumentation-tests/')
+            java.srcDirs = ['instrumentation-tests/src/']
+            resources.srcDirs = ['instrumentation-tests/resources']
+        }
+
         // Move the build types to build-types/<type>
         // For instance, build-types/debug/java, build-types/debug/AndroidManifest.xml, ...
         // This moves them out of them default location under src/<type>/... which would
@@ -341,7 +390,8 @@ android {
             buildConfigField "String", "ODK_AUTHORITY", "\"${odkProviderStr}\""
 
             // set the app name
-            resValue "string", "application_name", " CommCare LTS"
+            def applicationName = "CommCare LTS"
+            resValue "string", "application_name", applicationName
         }
 
         qabeta {
@@ -349,7 +399,12 @@ android {
             // next to play store version
 
             // grab commcare version from manifest
-            def manifestParser = new DefaultManifestParser(android.sourceSets.main.manifest.srcFile)
+            def manifestParser = new DefaultManifestParser(android.sourceSets.main.manifest.srcFile, new BooleanSupplier() {
+                @Override
+                boolean getAsBoolean() {
+                    return true
+                }
+            }, true, null)
             def ccVersion = manifestParser.getVersionName()
             // convert numbers to words to use in app id
             def ccVersionSafe = numbersToLetters(ccVersion)
@@ -364,7 +419,8 @@ android {
             buildConfigField "String", "ODK_AUTHORITY", "\"${odkProviderStr}\""
 
             // set the app name
-            resValue "string", "application_name", " ${ccVersion} QA CommCare"
+            def applicationName = "${ccVersion} QA CommCare"
+            resValue "string", "application_name", applicationName
         }
 
         standalone {
@@ -401,13 +457,13 @@ android {
             applicationIdSuffix ".debug"
             def applicationId = "org.commcare.dalvik.debug"
             project.ext.COMMCARE_APP_ID = applicationId
-            resValue "string", "application_name", "CommCare Debug"
+            def applicationName = "CommCare Debug"
+            resValue "string", "application_name", applicationName
             def odkProviderStr = "org.commcare.dalvik.debug.provider.odk"
             manifestPlaceholders = [odkProvider: odkProviderStr]
 
-            minifyEnabled true
+            minifyEnabled false
             debuggable true
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard.cfg'
 
             // used in test suite to build the prototype factory; otherwise unneeded
             buildConfigField "String", "CC_AUTHORITY", "\"${applicationId}\""
@@ -425,6 +481,7 @@ android {
             signingConfig signingConfigs.release
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard.cfg'
 
+            multiDexKeepProguard file('proguard-multidex.pro')
             // enable crashlytics
             buildConfigField "boolean", "USE_CRASHLYTICS", "true"
             ext.enableCrashlytics = true
@@ -443,7 +500,13 @@ android {
             systemProperty 'robolectric.logging.enable', true
             systemProperty 'robolectric.logging', 'stdout'
         }
+        unitTests {
+            includeAndroidResources = true
+        }
     }
+
+    // Needed to run espresso tests on release build.
+    testBuildType project.ext.TEST_BUILD_TYPE
 }
 
 /**
@@ -468,12 +531,14 @@ downloadCCApp {
 }
 
 // dynamic check at task execution time
-downloadCCApp << {
-    if (ccAppId.equals("")) {
-        throw new InvalidUserDataException("Please provide cc_app_id property (CommCare App ID) to be packaged with apk")
-    }
-    if (ccDomain.equals("")) {
-        throw new InvalidUserDataException("Please provide cc_domain property (CommCare App Domain) to be packaged with apk")
+downloadCCApp {
+    doLast {
+        if (ccAppId.equals("")) {
+            throw new InvalidUserDataException("Please provide cc_app_id property (CommCare App ID) to be packaged with apk")
+        }
+        if (ccDomain.equals("")) {
+            throw new InvalidUserDataException("Please provide cc_domain property (CommCare App Domain) to be packaged with apk")
+        }
     }
 }
 
@@ -496,12 +561,14 @@ downloadRestoreFile {
 }
 
 // dynamic check at task execution time
-downloadRestoreFile << {
-    if (consumerAppUsername.equals("")) {
-        throw new InvalidUserDataException("Please provide username for restore to be packaged with apk")
-    }
-    if (consumerAppPassword.equals("")) {
-        throw new InvalidUserDataException("Please provide password for restore to be packaged with apk")
+downloadRestoreFile {
+    doLast {
+        if (consumerAppUsername.equals("")) {
+            throw new InvalidUserDataException("Please provide username for restore to be packaged with apk")
+        }
+        if (consumerAppPassword.equals("")) {
+            throw new InvalidUserDataException("Please provide password for restore to be packaged with apk")
+        }
     }
 }
 
@@ -598,5 +665,3 @@ downloadLicenses {
     includeProjectDependencies = true
     dependencyConfiguration = 'compile'
 }
-
-

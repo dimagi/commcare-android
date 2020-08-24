@@ -1,7 +1,6 @@
 package org.commcare.fragments;
 
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,6 +20,8 @@ import org.commcare.views.EntityView;
 import org.javarosa.core.model.instance.TreeReference;
 
 import java.util.List;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 /**
  * Created by jschweers on 8/26/2015.
@@ -45,8 +46,10 @@ public class EntitySubnodeDetailFragment extends EntityDetailFragment implements
         TreeReference referenceToDisplay = getReferenceToDisplay();
 
         View rootView = inflater.inflate(R.layout.entity_detail_list, container, false);
+
         final AppCompatActivity thisActivity = (AppCompatActivity)getActivity();
-        this.listView = ((ListView)rootView.findViewById(R.id.screen_entity_detail_list));
+        this.listView = rootView.findViewById(R.id.screen_entity_detail_list);
+
         if (this.adapter == null && this.loader == null && !EntityLoaderTask.attachToActivity(this)) {
             // Set up task to fetch entity data
             EntityLoaderTask theLoader =
@@ -55,7 +58,7 @@ public class EntitySubnodeDetailFragment extends EntityDetailFragment implements
             theLoader.executeParallel(detailToDisplay.getNodeset().contextualize(referenceToDisplay));
 
             // Add header row
-            final LinearLayout headerLayout = ((LinearLayout)rootView.findViewById(R.id.entity_detail_header));
+            final LinearLayout headerLayout = rootView.findViewById(R.id.entity_detail_header);
             String[] headers = new String[detailToDisplay.getFields().length];
             for (int i = 0; i < headers.length; ++i) {
                 headers[i] = detailToDisplay.getFields()[i].getHeader().evaluate();

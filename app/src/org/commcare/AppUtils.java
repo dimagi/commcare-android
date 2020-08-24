@@ -2,11 +2,14 @@ package org.commcare;
 
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.text.TextUtils;
 
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
+import org.commcare.android.logging.ReportingUtils;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
+import org.commcare.heartbeat.ApkVersion;
 import org.commcare.logging.DataChangeLog;
 import org.commcare.logging.DataChangeLogger;
 import org.commcare.models.database.HybridFileBackedSqlStorage;
@@ -14,6 +17,7 @@ import org.commcare.models.database.user.DatabaseUserOpenHelper;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.suite.model.Profile;
 import org.commcare.util.LogTypes;
+import org.commcare.utils.AppLifecycleUtils;
 import org.commcare.utils.FileUtil;
 import org.commcare.utils.MultipleAppsUtil;
 import org.javarosa.core.services.Logger;
@@ -39,14 +43,7 @@ public class AppUtils {
         for (ApplicationRecord r : CommCareApplication.instance().getGlobalStorage(ApplicationRecord.class)) {
             records.add(r);
         }
-        Collections.sort(records, new Comparator<ApplicationRecord>() {
-
-            @Override
-            public int compare(ApplicationRecord lhs, ApplicationRecord rhs) {
-                return lhs.getDisplayName().compareTo(rhs.getDisplayName());
-            }
-
-        });
+        Collections.sort(records, (lhs, rhs) -> lhs.getDisplayName().compareTo(rhs.getDisplayName()));
         return records;
     }
 
@@ -83,7 +80,7 @@ public class AppUtils {
         for (ApplicationRecord record : CommCareApplication.instance().getGlobalStorage(ApplicationRecord.class)) {
             if (record.getStatus() == ApplicationRecord.STATUS_DELETE_REQUESTED) {
                 try {
-                    CommCareApplication.instance().uninstall(record);
+                    AppLifecycleUtils.uninstall(record);
                 } catch (RuntimeException e) {
                     Logger.log(LogTypes.TYPE_ERROR_STORAGE, "Unable to uninstall an app " +
                             "during startup that was previously left partially-deleted");
@@ -101,14 +98,18 @@ public class AppUtils {
      * it shouldn't be used lightly.
      */
     public static void clearUserData() {
-        DataChangeLogger.log(new DataChangeLog.ClearUserData());
-        wipeSandboxForUser(CommCareApplication.instance().getSession().getLoggedInUser().getUsername());
+        wipeSandboxForUser(getLoggedInUserName());
         CommCareApplication.instance().getCurrentApp().getAppPreferences().edit()
-                .putString(HiddenPreferences.LAST_LOGGED_IN_USER, null).commit();
+                .putString(HiddenPreferences.LAST_LOGGED_IN_USER, null).apply();
         CommCareApplication.instance().closeUserSession();
     }
 
+    /**
+     * Deletes the db sandbox for the given user; this IS safe to execute even if the user in
+     * question is not currently logged in
+     */
     public static void wipeSandboxForUser(final String username) {
+        DataChangeLogger.log(new DataChangeLog.WipeUserSandbox());
         // Get the uuids that match this username
         final Set<String> dbIdsToRemove = new HashSet<>();
         CommCareApplication.instance().getAppStorage(UserKeyRecord.class).removeAll(new EntityFilter<UserKeyRecord>() {
@@ -164,6 +165,12 @@ public class AppUtils {
         if (p != null) {
             profileVersion = String.valueOf(p.getVersion());
         }
+
+        String appVersionTag = HiddenPreferences.getAppVersionTag();
+        if (!TextUtils.isEmpty(appVersionTag)) {
+            profileVersion += " (" + appVersionTag + ")";
+        }
+
         String buildDate = BuildConfig.BUILD_DATE;
         String buildNumber = BuildConfig.BUILD_NUMBER;
 
@@ -172,8 +179,28 @@ public class AppUtils {
 
     public static String getCurrentAppId() {
         return CommCareApplication.instance()
-                .getCommCarePlatform()
-                .getCurrentProfile()
+                .getCurrentApp()
                 .getUniqueId();
+    }
+
+    /**
+     *
+     * @return version number of the currently seated app
+     */
+    public static int getCurrentAppVersion() {
+        return CommCareApplication.instance().getCurrentApp().getAppRecord().getVersionNumber();
+    }
+
+    public static boolean notOnLatestAppVersion() {
+        return getCurrentAppVersion() < HiddenPreferences.getLatestAppVersion();
+    }
+
+    public static boolean notOnLatestCCVersion() {
+        return new ApkVersion(ReportingUtils.getCommCareVersionString()).compareTo(
+                new ApkVersion(HiddenPreferences.getLatestCommcareVersion())) < 0;
+    }
+
+    public static String getLoggedInUserName() {
+        return CommCareApplication.instance().getSession().getLoggedInUser().getUsername();
     }
 }

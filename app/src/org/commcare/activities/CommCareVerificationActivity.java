@@ -1,6 +1,6 @@
 package org.commcare.activities;
 
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
@@ -21,6 +21,7 @@ import org.commcare.utils.ConsumerAppsUtil;
 import org.commcare.utils.MultipleAppsUtil;
 import org.commcare.views.dialogs.CustomProgressDialog;
 import org.javarosa.core.services.locale.Localization;
+import org.javarosa.core.util.SizeBoundUniqueVector;
 import org.javarosa.core.util.SizeBoundVector;
 
 import java.util.Enumeration;
@@ -34,6 +35,7 @@ public class CommCareVerificationActivity
         extends CommCareActivity<CommCareVerificationActivity>
         implements OnClickListener {
     private static final String TAG = CommCareVerificationActivity.class.getSimpleName();
+    private static final int MAX_PROBLEMS_TO_SHOW = 10;
 
     private TextView missingMediaPrompt;
     private static final int MENU_UNZIP = Menu.FIRST;
@@ -78,7 +80,7 @@ public class CommCareVerificationActivity
             setContentView(R.layout.missing_multimedia_layout);
         }
 
-        Button retryButton = (Button)findViewById(R.id.screen_multimedia_retry);
+        Button retryButton = findViewById(R.id.screen_multimedia_retry);
         retryButton.setOnClickListener(this);
         retryButton.setText(Localization.get("verify.retry"));
 
@@ -87,12 +89,12 @@ public class CommCareVerificationActivity
         this.fromManager = this.getIntent().
                 getBooleanExtra(AppManagerActivity.KEY_LAUNCH_FROM_MANAGER, false);
         if (fromManager) {
-            Button skipButton = (Button)findViewById(R.id.skip_verification_button);
+            Button skipButton = findViewById(R.id.skip_verification_button);
             skipButton.setVisibility(View.VISIBLE);
             skipButton.setOnClickListener(this);
         }
 
-        missingMediaPrompt = (TextView)findViewById(R.id.MissingMediaPrompt);
+        missingMediaPrompt = findViewById(R.id.MissingMediaPrompt);
 
         loadStateFromBundle(savedInstanceState);
 
@@ -156,7 +158,7 @@ public class CommCareVerificationActivity
                 new VerificationTask<CommCareVerificationActivity>(DIALOG_VERIFY_PROGRESS) {
                     @Override
                     protected void deliverResult(CommCareVerificationActivity receiver,
-                                                 SizeBoundVector<MissingMediaException> problems) {
+                                                 SizeBoundUniqueVector<MissingMediaException> problems) {
                         if (problems == null) {
                             receiver.handleVerificationSuccess();
                         } else {
@@ -194,11 +196,18 @@ public class CommCareVerificationActivity
     public void taskCancelled() {
     }
 
-    private void handleVerificationProblems(SizeBoundVector<MissingMediaException> problems) {
+    private void handleVerificationProblems(SizeBoundUniqueVector<MissingMediaException> problems) {
         String message = Localization.get("verification.fail.message");
 
         Hashtable<String, Vector<String>> problemList = new Hashtable<>();
+
+        int count = 0;
         for (Enumeration en = problems.elements(); en.hasMoreElements(); ) {
+
+            if(count == MAX_PROBLEMS_TO_SHOW){
+                break;
+            }
+
             MissingMediaException ure = (MissingMediaException)en.nextElement();
             String res = ure.getResource().getResourceId();
 
@@ -211,6 +220,7 @@ public class CommCareVerificationActivity
             list.addElement(ure.getMessage());
 
             problemList.put(res, list);
+            count++;
 
         }
 

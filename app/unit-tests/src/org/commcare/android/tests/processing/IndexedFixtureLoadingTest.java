@@ -3,7 +3,8 @@ package org.commcare.android.tests.processing;
 import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.CommCareTestApplication;
-import org.commcare.android.CommCareTestRunner;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
+import org.commcare.android.util.TestUtils;
 import org.commcare.models.database.AndroidSandbox;
 import org.commcare.models.database.IndexedFixturePathUtils;
 import org.commcare.models.database.StoreFixturesOnFilesystemTests;
@@ -30,7 +31,7 @@ import static org.junit.Assert.assertTrue;
  * @author Phillip Mates (pmates@dimagi.com).
  */
 @Config(application = CommCareTestApplication.class)
-@RunWith(CommCareTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 public class IndexedFixtureLoadingTest {
 
     @Test
@@ -41,12 +42,20 @@ public class IndexedFixtureLoadingTest {
                         "indexed_fixture_restore.xml");
 
         EvaluationContext evalContext =
-                MockDataUtils.buildContextWithInstance(sandbox, "commtrack:products",
+                TestUtils.buildContextWithInstance(sandbox, "commtrack:products",
                         "jr://fixture/commtrack:products");
 
         assertTrue(CaseTestUtils.xpathEvalAndCompare(evalContext,
                         "count(instance('commtrack:products')/products/product)",
                         11.0));
+
+        assertTrue(CaseTestUtils.xpathEvalAndCompare(evalContext,
+                "instance('commtrack:products')/products/@last_sync",
+                "2018-07-27T12:56:10.835570+00:00"));
+
+        assertTrue(CaseTestUtils.xpathEvalAndCompare(evalContext,
+                "instance('commtrack:products')/products/@missing_attr",
+                ""));
 
         // check that the '@id' attribute and the 'id' element are treated differently
         assertTrue(CaseTestUtils.xpathEvalAndCompare(evalContext,
@@ -65,7 +74,7 @@ public class IndexedFixtureLoadingTest {
                         "indexed_fixture_with_nested_children_restore.xml");
 
         EvaluationContext evalContext =
-                MockDataUtils.buildContextWithInstance(sandbox, "commtrack:products",
+                TestUtils.buildContextWithInstance(sandbox, "commtrack:products",
                         "jr://fixture/commtrack:products");
 
         assertTrue(CaseTestUtils.xpathEvalAndCompare(evalContext,
@@ -91,7 +100,7 @@ public class IndexedFixtureLoadingTest {
                         "indexed_fixture_with_index_over_nonhomo_entry.xml");
 
         EvaluationContext evalContext =
-                MockDataUtils.buildContextWithInstance(sandbox, "commtrack:products",
+                TestUtils.buildContextWithInstance(sandbox, "commtrack:products",
                         "jr://fixture/commtrack:products");
 
         assertTrue(CaseTestUtils.xpathEvalAndCompare(evalContext,

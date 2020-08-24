@@ -1,22 +1,27 @@
 package org.commcare.views.media;
 
 import android.content.Context;
+import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
-import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import org.commcare.dalvik.R;
+import org.commcare.mediadownload.MissingMediaDownloadHelper;
+import org.commcare.mediadownload.MissingMediaDownloadResult;
+import org.commcare.utils.AndroidUtil;
+import org.commcare.utils.FileUtil;
 
 import java.io.IOException;
 
 /**
  * @author Phillip Mates (pmates@dimagi.com)
  */
-public abstract class AudioPlaybackButtonBase extends LinearLayout {
+public abstract class AudioPlaybackButtonBase extends FrameLayout {
 
     private final static String TAG = AudioPlaybackButtonBase.class.getSimpleName();
     /**
@@ -61,12 +66,13 @@ public abstract class AudioPlaybackButtonBase extends LinearLayout {
     protected void setupView(Context context) {
         LayoutInflater vi = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View view = vi.inflate(getLayout(), null);
+
         addView(view);
         setupButton();
     }
 
     private void setupButton() {
-        playButton = (ImageButton)findViewById(R.id.play_button);
+        playButton = findViewById(R.id.play_button);
         playButton.setOnClickListener(buildOnClickListener());
     }
 
@@ -98,6 +104,15 @@ public abstract class AudioPlaybackButtonBase extends LinearLayout {
             case PausedForRenewal:
                 pauseProgressBar();
                 playButton.setSelected(false);
+                break;
+            default:
+                break;
+        }
+
+        if (currentState == MediaState.Missing) {
+            playButton.setImageResource(R.drawable.update_download_icon);
+        } else {
+            playButton.setImageResource(R.drawable.audio_playback_selector);
         }
     }
 
@@ -120,38 +135,58 @@ public abstract class AudioPlaybackButtonBase extends LinearLayout {
     }
 
     private OnClickListener buildOnClickListener() {
-        return new OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                switch (currentState) {
-                    case Ready:
-                        try {
-                            MediaEntity mediaEntity = new MediaEntity(URI, residingViewId, currentState);
-                            AudioController.INSTANCE.setCurrentMediaAndButton(
-                                    mediaEntity,
-                                    AudioPlaybackButtonBase.this);
-                            startPlaying();
-                        } catch (IOException e) {
-                            String errorMsg =
-                                    getContext().getString(R.string.audio_file_invalid);
-                            Log.e(TAG, errorMsg);
-                            Toast.makeText(getContext(), errorMsg, Toast.LENGTH_LONG).show();
-                            e.printStackTrace();
-                        }
-                        break;
-                    case PausedForRenewal:
-                    case Paused:
+        return view -> {
+            switch (currentState) {
+                case Missing:
+                    downloadMissingAudioResource();
+                    break;
+                case Ready:
+                    try {
+                        MediaEntity mediaEntity = new MediaEntity(URI, residingViewId, currentState);
+                        AudioController.INSTANCE.setCurrentMediaAndButton(
+                                mediaEntity,
+                                AudioPlaybackButtonBase.this);
                         startPlaying();
-                        break;
-                    case Playing:
-                        pausePlaying();
-                        break;
-                    default:
-                        Log.w(TAG, "Current playback state set to unexpected value");
-
-                }
+                    } catch (IOException e) {
+                        String errorMsg =
+                                getContext().getString(R.string.audio_file_invalid);
+                        Log.e(TAG, errorMsg);
+                        Toast.makeText(getContext(), errorMsg, Toast.LENGTH_LONG).show();
+                        e.printStackTrace();
+                    }
+                    break;
+                case PausedForRenewal:
+                case Paused:
+                    startPlaying();
+                    break;
+                case Playing:
+                    pausePlaying();
+                    break;
+                default:
+                    Log.w(TAG, "Current playback state set to unexpected value");
             }
         };
+    }
+
+    private void downloadMissingAudioResource() {
+        AndroidUtil.showToast(getContext(), R.string.media_download_started);
+        MissingMediaDownloadHelper.requestMediaDownload(URI, result -> {
+            if (result instanceof MissingMediaDownloadResult.Success) {
+                boolean mediaPresent = FileUtil.referenceFileExists(URI);
+                if (mediaPresent) {
+                    currentState = MediaState.Ready;
+                    AndroidUtil.showToast(getContext(), R.string.media_download_completed);
+                } else {
+                    currentState = MediaState.Missing;
+                    AndroidUtil.showToast(getContext(), R.string.media_download_failed);
+                }
+                refreshAppearance();
+            } else if (result instanceof MissingMediaDownloadResult.InProgress) {
+                AndroidUtil.showToast(getContext(), R.string.media_download_in_progress);
+            } else {
+                Toast.makeText(getContext(), result.getMessage(), Toast.LENGTH_LONG).show();
+            }
+        });
     }
 
     /**
@@ -181,6 +216,20 @@ public abstract class AudioPlaybackButtonBase extends LinearLayout {
             // controller, so just setup the button normally using the provided
             // arguments
             resetButton(URI, viewId, visible);
+        }
+        validateUri(visible);
+    }
+
+    private void validateUri(boolean visible) {
+        if(!TextUtils.isEmpty(URI)) {
+            boolean exists = FileUtil.referenceFileExists(URI);
+            if (!exists) {
+                currentState = MediaState.Missing;
+                refreshAppearance();
+                if(visible) {
+                    AndroidUtil.showToast(getContext(), R.string.audio_download_prompt);
+                }
+            }
         }
     }
 

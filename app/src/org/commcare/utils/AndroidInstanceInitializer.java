@@ -2,14 +2,18 @@ package org.commcare.utils;
 
 import org.commcare.AppUtils;
 import org.commcare.CommCareApplication;
+import org.commcare.activities.DriftHelper;
+import org.commcare.android.database.user.models.ACase;
 import org.commcare.cases.ledger.Ledger;
+import org.commcare.core.interfaces.UserSandbox;
 import org.commcare.core.process.CommCareInstanceInitializer;
 import org.commcare.engine.cases.AndroidCaseInstanceTreeElement;
+import org.commcare.engine.cases.AndroidIndexedFixtureInstanceTreeElement;
 import org.commcare.engine.cases.AndroidLedgerInstanceTreeElement;
 import org.commcare.models.database.AndroidSandbox;
 import org.commcare.models.database.SqlStorage;
-import org.commcare.android.database.user.models.ACase;
 import org.commcare.session.CommCareSession;
+import org.commcare.util.CommCarePlatform;
 import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.ExternalDataInstance;
 
@@ -23,11 +27,15 @@ public class AndroidInstanceInitializer extends CommCareInstanceInitializer {
      * isn't present.
      */
     public AndroidInstanceInitializer() {
-        super(null);
+        this(null, null, null);
     }
 
     public AndroidInstanceInitializer(CommCareSession session) {
-        super(session, new AndroidSandbox(CommCareApplication.instance()), CommCareApplication.instance().getCommCarePlatform());
+        this(session, new AndroidSandbox(CommCareApplication.instance()), CommCareApplication.instance().getCommCarePlatform());
+    }
+
+    public AndroidInstanceInitializer(CommCareSession session, UserSandbox sandbox, CommCarePlatform platform) {
+        super(session, sandbox, platform);
     }
 
     @Override
@@ -56,6 +64,20 @@ public class AndroidInstanceInitializer extends CommCareInstanceInitializer {
     }
 
     @Override
+    protected AbstractTreeElement setupFixtureData(ExternalDataInstance instance) {
+        AbstractTreeElement indexedFixture = AndroidIndexedFixtureInstanceTreeElement.get(
+                mSandbox,
+                getRefId(instance.getReference()),
+                instance.getBase());
+
+        if (indexedFixture != null) {
+            return indexedFixture;
+        } else {
+            return loadFixtureRoot(instance, instance.getReference());
+        }
+    }
+
+    @Override
     public String getVersionString() {
         return AppUtils.getCurrentVersionString();
     }
@@ -67,5 +89,10 @@ public class AndroidInstanceInitializer extends CommCareInstanceInitializer {
             return super.getDeviceId();
         }
         return phoneId;
+    }
+
+    @Override
+    protected long getCurrentDrift() {
+        return DriftHelper.getCurrentDrift();
     }
 }

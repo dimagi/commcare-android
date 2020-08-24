@@ -8,15 +8,15 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Binder;
 import android.os.IBinder;
-import android.support.v4.app.NotificationCompat;
-import android.support.v7.preference.PreferenceManager;
 import android.text.format.DateFormat;
 import android.util.Log;
+import android.widget.Toast;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.AppUtils;
 import org.commcare.CommCareApplication;
+import org.commcare.CommCareNoficationManager;
 import org.commcare.activities.DispatchActivity;
 import org.commcare.activities.UITestInfoActivity;
 import org.commcare.android.database.app.models.UserKeyRecord;
@@ -28,8 +28,8 @@ import org.commcare.models.database.user.DatabaseUserOpenHelper;
 import org.commcare.models.database.user.UserSandboxUtils;
 import org.commcare.models.encryption.CipherPool;
 import org.commcare.preferences.HiddenPreferences;
+import org.commcare.sync.FormSubmissionHelper;
 import org.commcare.tasks.DataSubmissionListener;
-import org.commcare.tasks.ProcessAndSendTask;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.SessionStateUninitException;
 import org.commcare.utils.SessionUnavailableException;
@@ -49,6 +49,9 @@ import javax.crypto.Cipher;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
+
+import androidx.core.app.NotificationCompat;
+import androidx.preference.PreferenceManager;
 
 /**
  * The CommCare Session Service is a persistent service which maintains
@@ -114,6 +117,7 @@ public class CommCareSessionService extends Service {
 
     private boolean cczUpdatePromptWasShown;
     private boolean apkUpdatePromptWasShown;
+    private boolean showInAppUpdate = true;
 
     // Have the app health checks in HomeScreenBaseActivity#checkForPendingAppHealthActions() been
     // done at least once during this session?
@@ -214,7 +218,7 @@ public class CommCareSessionService extends Service {
         }
 
         // Set the icon, scrolling text and timestamp
-        Notification notification = new NotificationCompat.Builder(this)
+        Notification notification = new NotificationCompat.Builder(this, CommCareNoficationManager.NOTIFICATION_CHANNEL_ERRORS_ID)
                 .setContentTitle(notificationText)
                 .setContentText("Session Expires: " + DateFormat.format("MMM dd h:mmaa", sessionExpireDate))
                 .setSmallIcon(org.commcare.dalvik.R.drawable.notification)
@@ -237,7 +241,7 @@ public class CommCareSessionService extends Service {
         i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         PendingIntent contentIntent = PendingIntent.getActivity(this, 0, i, PendingIntent.FLAG_UPDATE_CURRENT);
 
-        Notification notification = new NotificationCompat.Builder(this)
+        Notification notification = new NotificationCompat.Builder(this, CommCareNoficationManager.NOTIFICATION_CHANNEL_USER_SESSION_ID)
                 .setContentTitle(this.getString(R.string.expirenotification))
                 .setContentText("Click here to log back into your session")
                 .setSmallIcon(org.commcare.dalvik.R.drawable.notification)
@@ -370,14 +374,38 @@ public class CommCareSessionService extends Service {
         // maintenance timer will launch CommCareApplication.instance().expireUserSession
         logoutStartedAt = new Date().getTime();
 
+        // Note: Any other types of callbacks should be added to both this method
+        // and the non-close version
+
         // save form progress, if any
         synchronized (lock) {
             if (formSaver != null) {
-                formSaver.formSaveCallback();
+                formSaver.formSaveCallback(() -> {
+                    CommCareApplication.instance().expireUserSession();
+                });
             } else {
                 CommCareApplication.instance().expireUserSession();
             }
         }
+    }
+
+    /**
+     * Calls the provided runnable ensuring that if there is currently an active
+     * form session being executed that it is interrupted and stored
+     */
+    public void proceedWithSavedSessionIfNeeded(Runnable callback) {
+        // save form progress, if any
+        synchronized (lock) {
+            if (formSaver != null) {
+                Toast.makeText(CommCareApplication.instance(),
+                        "Suspending existing form entry session...", Toast.LENGTH_LONG).show();
+                formSaver.formSaveCallback(callback);
+                formSaver = null;
+                return;
+            }
+        }
+        //No forms to be saved, just run the callback immediately
+        callback.run();
     }
 
     /**
@@ -507,7 +535,8 @@ public class CommCareSessionService extends Service {
                 //TODO: Put something here that will, I dunno, cancel submission or something? Maybe show it live? 
                 PendingIntent contentIntent = PendingIntent.getActivity(CommCareSessionService.this, 0, callable, 0);
 
-                submissionNotification = new NotificationCompat.Builder(CommCareSessionService.this)
+                submissionNotification = new NotificationCompat.Builder(CommCareSessionService.this,
+                        CommCareNoficationManager.NOTIFICATION_CHANNEL_SERVER_COMMUNICATIONS_ID)
                         .setContentTitle(getString(notificationId))
                         .setContentInfo(getSubmittedFormCount(1, totalItems))
                         .setContentText("0b transmitted")
@@ -546,7 +575,7 @@ public class CommCareSessionService extends Service {
                         progressDetails = String.format("%1$,.1f", (progress / (1024.0 * 1024.0))) + "mb transmitted";
                     }
 
-                    int pending = ProcessAndSendTask.pending();
+                    int pending = FormSubmissionHelper.pending();
                     if (pending > 1) {
                         submissionNotification.setContentInfo(pending - 1 + " Pending");
                     }
@@ -640,5 +669,13 @@ public class CommCareSessionService extends Service {
 
     public boolean appHealthChecksCompleted() {
         return this.appHealthChecksCompleted;
+    }
+
+    public void hideInAppUpdate() {
+        this.showInAppUpdate = false;
+    }
+
+    public boolean shouldShowInAppUpdate() {
+        return this.showInAppUpdate;
     }
 }

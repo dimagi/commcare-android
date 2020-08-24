@@ -44,7 +44,7 @@ public class CreatePinActivity extends SessionAwareCommCareActivity<CreatePinAct
     @UiElement(value = R.id.pin_prompt_text)
     private TextView promptText;
 
-    @UiElement(value = R.id.pin_cancel_button)
+    @UiElement(value = R.id.pin_cancel_button, locale = "pin.cancel.button")
     private Button cancelButton;
 
     @UiElement(value = R.id.pin_confirm_button)
@@ -98,39 +98,30 @@ public class CreatePinActivity extends SessionAwareCommCareActivity<CreatePinAct
 
     private void setListeners() {
         enterPinBox.addTextChangedListener(getPinTextWatcher(continueButton));
-        enterPinBox.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                // processes the done/next keyboard action
-                if (actionId == EditorInfo.IME_ACTION_DONE || actionId == EditorInfo.IME_ACTION_NEXT) {
-                    if (pinLengthIsValid(enterPinBox.getText())) {
-                        continueButton.performClick();
-                    } else {
-                        Toast.makeText(CreatePinActivity.this, Localization.get("pin.length.error"),
-                                Toast.LENGTH_LONG).show();
-                    }
-                    return true;
-                }
-                return false;
-            }
-        });
-
-        cancelButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                setResult(RESULT_CANCELED);
-                finish();
-            }
-        });
-
-        continueButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (!inConfirmMode) {
-                    processInitialPinEntry();
+        enterPinBox.setOnEditorActionListener((v, actionId, event) -> {
+            // processes the done/next keyboard action
+            if (actionId == EditorInfo.IME_ACTION_DONE || actionId == EditorInfo.IME_ACTION_NEXT) {
+                if (pinLengthIsValid(enterPinBox.getText())) {
+                    continueButton.performClick();
                 } else {
-                    processConfirmPinEntry();
+                    Toast.makeText(CreatePinActivity.this, Localization.get("pin.length.error"),
+                            Toast.LENGTH_LONG).show();
                 }
+                return true;
+            }
+            return false;
+        });
+
+        cancelButton.setOnClickListener(v -> {
+            setResult(RESULT_CANCELED);
+            finish();
+        });
+
+        continueButton.setOnClickListener(v -> {
+            if (!inConfirmMode) {
+                processInitialPinEntry();
+            } else {
+                processConfirmPinEntry();
             }
         });
     }
@@ -215,27 +206,17 @@ public class CreatePinActivity extends SessionAwareCommCareActivity<CreatePinAct
                 Localization.get("remember.password.confirm.title"),
                 Localization.get("remember.password.confirm.message"));
 
-        d.setPositiveButton(Localization.get("dialog.ok"), new DialogInterface.OnClickListener() {
-
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dismissAlertDialog();
-                userRecord.setPrimedPassword(unhashedUserPassword);
-                CommCareApplication.instance().getCurrentApp().getStorage(UserKeyRecord.class).write(userRecord);
-                Intent i = new Intent();
-                i.putExtra(CHOSE_REMEMBER_PASSWORD, true);
-                setResult(RESULT_OK, i);
-                finish();
-            }
+        d.setPositiveButton(Localization.get("dialog.ok"), (dialog, which) -> {
+            dismissAlertDialog();
+            userRecord.setPrimedPassword(unhashedUserPassword);
+            CommCareApplication.instance().getCurrentApp().getStorage(UserKeyRecord.class).write(userRecord);
+            Intent i = new Intent();
+            i.putExtra(CHOSE_REMEMBER_PASSWORD, true);
+            setResult(RESULT_OK, i);
+            finish();
         });
 
-        d.setNegativeButton(Localization.get("option.cancel"), new DialogInterface.OnClickListener() {
-
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dismissAlertDialog();
-            }
-        });
+        d.setNegativeButton(Localization.get("option.cancel"), (dialog, which) -> dismissAlertDialog());
 
         showAlertDialog(d);
     }

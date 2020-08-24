@@ -8,7 +8,7 @@ import android.widget.TextView;
 import org.commcare.CommCareTestApplication;
 import org.commcare.activities.FormEntryActivity;
 import org.commcare.activities.components.FormEntryConstants;
-import org.commcare.android.CommCareTestRunner;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import org.commcare.android.util.ActivityLaunchUtils;
 import org.commcare.android.util.TestAppInstaller;
 import org.commcare.dalvik.R;
@@ -27,7 +27,7 @@ import static junit.framework.Assert.assertTrue;
  * @author Phillip Mates (pmates@dimagi.com).
  */
 @Config(application = CommCareTestApplication.class)
-@RunWith(CommCareTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 public class CalendarLocaleTest {
 
     @Before
@@ -58,15 +58,15 @@ public class CalendarLocaleTest {
     private void navigateCalendarForm(Intent formEntryIntent) {
         // launch form entry
         FormEntryActivity formEntryActivity =
-                Robolectric.buildActivity(FormEntryActivity.class).withIntent(formEntryIntent)
+                Robolectric.buildActivity(FormEntryActivity.class, formEntryIntent)
                         .create().start().resume().get();
 
-        ImageButton nextButton = (ImageButton)formEntryActivity.findViewById(R.id.nav_btn_next);
+        ImageButton nextButton = formEntryActivity.findViewById(R.id.nav_btn_next);
 
         // enter an answer for the question
-        TextView dayText = (TextView)formEntryActivity.findViewById(R.id.daytxt);
-        TextView monthText = (TextView)formEntryActivity.findViewById(R.id.monthtxt);
-        TextView yearText = (TextView)formEntryActivity.findViewById(R.id.yeartxt);
+        TextView dayText = formEntryActivity.findViewById(R.id.daytxt);
+        TextView monthText = formEntryActivity.findViewById(R.id.monthtxt);
+        TextView yearText = formEntryActivity.findViewById(R.id.yeartxt);
 
         assertEquals(monthText.getText(), "Ashadh");
         assertEquals(dayText.getText(), "19");
@@ -75,13 +75,11 @@ public class CalendarLocaleTest {
 
         nextButton.performClick();
 
-        TextView ethiopianDayText = (TextView)formEntryActivity.findViewById(R.id.daytxt);
-        TextView ethiopianMonthText = (TextView)formEntryActivity.findViewById(R.id.monthtxt);
-        TextView ethiopianYearText = (TextView)formEntryActivity.findViewById(R.id.yeartxt);
+        TextView ethiopianDayText = formEntryActivity.findViewById(R.id.daytxt);
+        TextView ethiopianMonthText = formEntryActivity.findViewById(R.id.monthtxt);
+        TextView ethiopianYearText = formEntryActivity.findViewById(R.id.yeartxt);
         assertEquals("Säne",ethiopianMonthText.getText());
         assertEquals("26", ethiopianDayText.getText());
         assertEquals("2008", ethiopianYearText.getText());
     }
-
-
 }

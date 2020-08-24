@@ -1,13 +1,7 @@
 package org.commcare.activities.components;
 
-import android.content.ContentResolver;
-import android.content.ContentUris;
-import android.content.ContentValues;
 import android.content.Intent;
-import android.database.Cursor;
 import android.net.Uri;
-import android.provider.MediaStore;
-import android.provider.MediaStore.Images.Media;
 import android.widget.Toast;
 
 import org.commcare.activities.FormEntryActivity;
@@ -60,12 +54,10 @@ public class ImageCaptureProcessing {
 
             try {
                 FileUtil.copyFile(originalImage, finalFile);
-                originalImage.delete();
             } catch (Exception e) {
                 throw new IOException("Failed to rename " + originalImage.getAbsolutePath() +
                         " to " + finalFile.getAbsolutePath());
             }
-            deleteFileFromMediaStore(formEntryActivity.getContentResolver(), originalImage);
             return finalFile;
         } else {
             // Otherwise, relocate the original image to a raw/ folder, so that we still have access
@@ -78,36 +70,12 @@ public class ImageCaptureProcessing {
             File rawImageFile = new File(rawDirPath + "/" + imageFilename);
             try {
                 FileUtil.copyFile(originalImage, rawImageFile);
-                originalImage.delete();
             } catch (Exception e) {
                 throw new IOException("Failed to rename " + originalImage.getAbsolutePath() +
                         " to " + rawImageFile.getAbsolutePath());
             }
-            deleteFileFromMediaStore(formEntryActivity.getContentResolver(), originalImage);
             return rawImageFile;
         }
-    }
-
-    public static void deleteFileFromMediaStore(final ContentResolver contentResolver, final File file) {
-        // Set up the projection (we only need the ID)
-        String[] projection = {MediaStore.Images.Media._ID};
-
-        // Match on the file path
-        String selection = MediaStore.Images.Media.DATA + " = ?";
-        String[] selectionArgs = new String[]{file.getAbsolutePath()};
-
-        // Query for the ID of the media matching the file path
-        Uri queryUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
-        Cursor c = contentResolver.query(queryUri, projection, selection, selectionArgs, null);
-        if (c.moveToFirst()) {
-            // We found the ID. Deleting the item via the content provider will also remove the file
-            long id = c.getLong(c.getColumnIndexOrThrow(MediaStore.Images.Media._ID));
-            Uri deleteUri = ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id);
-            contentResolver.delete(deleteUri, null, null);
-        } else {
-            // File not found in media store DB
-        }
-        c.close();
     }
 
     /**
@@ -131,7 +99,7 @@ public class ImageCaptureProcessing {
         File originalImage = ImageWidget.getTempFileForImageCapture();
         try {
             File unscaledFinalImage = moveAndScaleImage(originalImage, isImage, instanceFolder, activity);
-            activity.saveImageWidgetAnswer(buildImageFileContentValues(unscaledFinalImage));
+            activity.saveImageWidgetAnswer(unscaledFinalImage.getAbsolutePath());
             return true;
         } catch (IOException e) {
             e.printStackTrace();
@@ -203,7 +171,7 @@ public class ImageCaptureProcessing {
         if (originalImage.exists()) {
             try {
                 File unscaledFinalImage = moveAndScaleImage(originalImage, true, instanceFolder, activity);
-                activity.saveImageWidgetAnswer(buildImageFileContentValues(unscaledFinalImage));
+                activity.saveImageWidgetAnswer(unscaledFinalImage.getAbsolutePath());
             } catch (IOException e) {
                 e.printStackTrace();
                 Toast.makeText(activity, Localization.get("image.selection.not.saved"), Toast.LENGTH_LONG).show();
@@ -217,17 +185,6 @@ public class ImageCaptureProcessing {
 
     private static void showInvalidImageMessage(FormEntryActivity activity) {
         Toast.makeText(activity, Localization.get("invalid.image.selection"), Toast.LENGTH_LONG).show();
-    }
-
-    private static ContentValues buildImageFileContentValues(File unscaledFinalImage) {
-        // Add the new image to the Media content provider so that the viewing is fast in Android 2.0+
-        ContentValues values = new ContentValues(6);
-        values.put(Media.TITLE, unscaledFinalImage.getName());
-        values.put(Media.DISPLAY_NAME, unscaledFinalImage.getName());
-        values.put(Media.DATE_TAKEN, System.currentTimeMillis());
-        values.put(Media.MIME_TYPE, "image/jpeg");
-        values.put(Media.DATA, unscaledFinalImage.getAbsolutePath());
-        return values;
     }
 
     public static void processImageFromBroadcast(FormEntryActivity activity, String instanceFolder) {

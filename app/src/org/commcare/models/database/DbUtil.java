@@ -13,6 +13,8 @@ import org.commcare.modern.database.TableBuilder;
 
 import java.io.File;
 
+import androidx.annotation.NonNull;
+
 public class DbUtil {
     private static final String TAG = DbUtil.class.getSimpleName();
     public final static String orphanFileTableName = "OrphanedFiles";
@@ -89,5 +91,12 @@ public class DbUtil {
     public static String addColumnToTable(String tableName, String columnName, String dataType) {
         return "ALTER TABLE " + tableName + " ADD " +
                 TableBuilder.scrubName(columnName) + " " + dataType;
+    }
+
+    /**
+     * Build and return SQL command to add a column with a default value to a table
+     */
+    public static String addColumnToTable(String tableName, String columnName, String dataType, String defaultValue) {
+        return addColumnToTable(tableName, columnName, dataType) + " DEFAULT " + defaultValue;
     }
 }

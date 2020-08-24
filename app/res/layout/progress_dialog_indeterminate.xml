@@ -15,21 +15,25 @@
         android:layout_below="@id/progress_dialog_title"
         android:paddingBottom="@dimen/standard_spacer_large"
         android:layout_marginLeft="@dimen/standard_spacer_large"
-        android:layout_marginRight="@dimen/standard_spacer_large">
+        android:layout_marginRight="@dimen/standard_spacer_large"
+        android:layout_marginStart="@dimen/standard_spacer_large"
+        android:layout_marginEnd="@dimen/standard_spacer_large">
 
         <ProgressBar
             android:id="@+id/progress_bar"
             style="@style/Base.Widget.AppCompat.ProgressBar"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginRight="@dimen/standard_spacer"/>
+            android:layout_marginRight="@dimen/standard_spacer"
+            android:layout_marginEnd="@dimen/standard_spacer" />
 
         <TextView
             android:id="@+id/progress_dialog_message"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_toRightOf="@id/progress_bar"
-            android:textSize="@dimen/font_size_dp_large"/>
+            android:textSize="@dimen/font_size_dp_large"
+            android:layout_toEndOf="@id/progress_bar" />
 
     </RelativeLayout>
 

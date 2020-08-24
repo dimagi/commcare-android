@@ -63,12 +63,7 @@ public abstract class FormRecordToFileTask extends CommCareTask<String, String, 
      * Return an int status code from FormUploadUtil corresponding to the outcome of the transfer
      */
     private FormUploadResult copyFileInstanceFromStorage(File formRecordFolder, SecretKeySpec decryptionKey) {
-        File[] files = formRecordFolder.listFiles(new FileFilter() {
-            @Override
-            public boolean accept(File file) {
-                return file.isFile();
-            }
-        });
+        File[] files = formRecordFolder.listFiles(File::isFile);
         Logger.log(TAG, "Trying to get instance with: " + files.length + " files.");
 
         File myDir = new File(storedFormDirectory, formRecordFolder.getName());

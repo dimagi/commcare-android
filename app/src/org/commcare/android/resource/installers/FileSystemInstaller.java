@@ -1,9 +1,11 @@
 package org.commcare.android.resource.installers;
 
-import android.support.v4.util.Pair;
+import androidx.core.util.Pair;
 
 import org.commcare.CommCareApplication;
+import org.commcare.dalvik.R;
 import org.commcare.engine.resource.installers.LocalStorageUnavailableException;
+import org.commcare.network.RateLimitedException;
 import org.commcare.resources.model.MissingMediaException;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceInstaller;
@@ -15,6 +17,7 @@ import org.commcare.util.CommCarePlatform;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.AndroidCommCarePlatform;
 import org.commcare.utils.FileUtil;
+import org.commcare.utils.StringUtils;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.Reference;
@@ -23,7 +26,9 @@ import org.javarosa.core.services.Logger;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
+import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
+import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -64,52 +69,41 @@ abstract class FileSystemInstaller implements ResourceInstaller<AndroidCommCareP
     }
 
     @Override
-    public abstract boolean initialize(AndroidCommCarePlatform platform, boolean isUpgrade);
+    public boolean initialize(AndroidCommCarePlatform platform, boolean isUpgrade) throws
+            IOException, InvalidReferenceException, InvalidStructureException,
+            XmlPullParserException, UnfullfilledRequirementsException {
+        Reference ref = ReferenceManager.instance().DeriveReference(localLocation);
+        if (!ref.doesBinaryExist()) {
+            throw new FileNotFoundException("No file exists at " + ref.getLocalURI());
+        }
+        return true;
+    }
 
     @Override
     public boolean install(Resource r, ResourceLocation location,
                            Reference ref, ResourceTable table,
-                           AndroidCommCarePlatform platform, boolean upgrade)
+                           AndroidCommCarePlatform platform, boolean upgrade, boolean recovery)
             throws UnresolvedResourceException, UnfullfilledRequirementsException {
         try {
+
+            Reference localReference = resolveEmptyLocalReference(r, location, upgrade);
+
             InputStream inputFileStream;
             try {
                 inputFileStream = ref.getStream();
             } catch (FileNotFoundException e) {
                 // Means the reference wasn't valid so let it keep iterating through options.
-                return false;
+                throw new UnresolvedResourceException(r,
+                        StringUtils.getStringRobust(CommCareApplication.instance(), R.string.install_error_file_not_found, r.getDescriptor()), true);
             }
 
-            File tempFile = new File(CommCareApplication.instance().getTempFilePath());
-            Reference localReference;
-            OutputStream outputFileStream;
-            try {
-                Pair<String, String> fileNameAndExt = getResourceName(r, location);
-                String referenceRoot = upgrade ? upgradeDestination : localDestination;
-                localReference = getEmptyLocalReference(referenceRoot, fileNameAndExt.first, fileNameAndExt.second);
-
-                outputFileStream = new FileOutputStream(tempFile);
-
-                //Get the actual local file we'll be putting the data into
-                localLocation = localReference.getURI();
-            } catch (InvalidReferenceException ire) {
-                throw new LocalStorageUnavailableException("Couldn't create reference to declared location " + localLocation + " for file system installation", localLocation);
-            } catch (IOException ioe) {
-                throw new LocalStorageUnavailableException("Couldn't write to local reference " + localLocation + " for file system installation", localLocation);
-            }
-
-            StreamsUtil.writeFromInputToOutputNew(inputFileStream, outputFileStream);
-
-            renameFile(localReference.getLocalURI(), tempFile);
+            renameFile(localReference.getLocalURI(), writeToTempFile(inputFileStream));
 
             //TODO: Sketch - if this fails, we'll still have the file at that location.
             int status = customInstall(r, localReference, upgrade, platform);
 
             table.commit(r, status);
 
-            if (localLocation == null) {
-                throw new UnresolvedResourceException(r, "After install there is no local resource location");
-            }
             return true;
         } catch (SSLHandshakeException | SSLPeerUnverifiedException e) {
             // SSLHandshakeException is thrown by the CommcareRequestGenerator on
@@ -130,6 +124,23 @@ abstract class FileSystemInstaller implements ResourceInstaller<AndroidCommCareP
         } catch (IOException e) {
             e.printStackTrace();
             throw new UnreliableSourceException(r, e.getMessage());
+        } catch (RateLimitedException e) {
+            UnresolvedResourceException mURE = new UnresolvedResourceException(r, "Our servers are unavailable at this time. Please try again later", true);
+            mURE.initCause(e);
+            throw mURE;
+        }
+    }
+
+    private File writeToTempFile(InputStream inputFileStream) throws LocalStorageUnavailableException, IOException {
+        File tempFile = new File(CommCareApplication.instance().getTempFilePath());
+        try {
+            OutputStream outputFileStream = new FileOutputStream(tempFile);
+            StreamsUtil.writeFromInputToOutputNew(inputFileStream, outputFileStream);
+            return tempFile;
+        } catch (FileNotFoundException e) {
+            throw new LocalStorageUnavailableException("Couldn't create temp file for file system installation", localLocation);
+        } catch (StreamsUtil.OutputIOException e) {
+            throw new LocalStorageUnavailableException("Couldn't write incoming file to temp location for file system installation", tempFile.getAbsolutePath());
         }
     }
 
@@ -141,13 +152,34 @@ abstract class FileSystemInstaller implements ResourceInstaller<AndroidCommCareP
         }
     }
 
+    protected Reference resolveEmptyLocalReference(Resource r, ResourceLocation location, boolean upgrade)
+            throws UnresolvedResourceException, LocalStorageUnavailableException {
+        Reference localReference;
+        try {
+            Pair<String, String> fileNameAndExt = getResourceName(r, location);
+            String referenceRoot = upgrade ? upgradeDestination : localDestination;
+            localReference = getEmptyLocalReference(referenceRoot, fileNameAndExt.first, fileNameAndExt.second);
+            //Get the actual local file we'll be putting the data into
+            localLocation = localReference.getURI();
+        } catch (InvalidReferenceException ire) {
+            throw new LocalStorageUnavailableException("Couldn't create reference to declared location " + localLocation + " for file system installation", localLocation);
+        } catch (IOException ioe) {
+            throw new LocalStorageUnavailableException("Couldn't get a local reference " + localLocation + " for file system installation", localLocation);
+        }
+
+        if (localLocation == null) {
+            throw new UnresolvedResourceException(r, "After install there is no local resource location");
+        }
+        return localReference;
+    }
+
     private Reference getEmptyLocalReference(String root, String fileName, String extension)
             throws InvalidReferenceException, IOException {
         Reference r = ReferenceManager.instance().DeriveReference(root + "/" + fileName + extension);
         int count = 0;
         while (r.doesBinaryExist()) {
             count++;
-            r = ReferenceManager.instance().DeriveReference(root + "/" + fileName + String.valueOf(count) + extension);
+            r = ReferenceManager.instance().DeriveReference(root + "/" + fileName + count + extension);
         }
         return r;
     }
@@ -181,6 +213,10 @@ abstract class FileSystemInstaller implements ResourceInstaller<AndroidCommCareP
             String finalLocation = localDestination + "/" + filepart;
 
             if (!FileSystemUtils.moveFrom(localLocation, finalLocation, false)) {
+                Logger.log(LogTypes.TYPE_RESOURCES, "Failed to move resource " + r.getDescriptor() +
+                        " during upgrade from origin file path " + localLocation + " to  desination file path " +
+                        finalLocation + ". Origin file exists = " + new File(localLocation).exists()
+                        + " and Destination File exits = " + new File(finalLocation).exists());
                 return false;
             }
 
@@ -349,15 +385,10 @@ abstract class FileSystemInstaller implements ResourceInstaller<AndroidCommCareP
                                       CommCarePlatform platform) {
         try {
             Reference ref = ReferenceManager.instance().DeriveReference(localLocation);
-            if (!ref.doesBinaryExist()) {
-                issues.add(new MissingMediaException(r, "File doesn't exist at: " + ref.getLocalURI()));
-                return true;
-            }
-        } catch (IOException e) {
-            issues.add(new MissingMediaException(r, "Problem accessing file at: " + localLocation));
-            return true;
+            FileUtil.checkReferenceURI(r, ref.getURI(), issues);
         } catch (InvalidReferenceException e) {
-            issues.add(new MissingMediaException(r, "invalid reference: " + localLocation));
+            issues.add(new MissingMediaException(r, "invalid reference: " + localLocation, localLocation,
+                    MissingMediaException.MissingMediaExceptionType.INVALID_REFERENCE));
             return true;
         }
         return false;
@@ -389,4 +420,5 @@ abstract class FileSystemInstaller implements ResourceInstaller<AndroidCommCareP
     public String getUpgradeDestination() {
         return upgradeDestination;
     }
+
 }

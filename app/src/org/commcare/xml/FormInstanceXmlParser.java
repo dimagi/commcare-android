@@ -88,7 +88,6 @@ public class FormInstanceXmlParser extends TransactionParser<FormRecord> {
 
 
         formRecord.setDisplayName("Historical Form");
-        formRecord.setCanEditWhenComplete(Boolean.toString(false));
 
         String filePath = getInstanceDestination(namespaceToInstallPath.get(xmlns));
         formRecord.setFilePath(filePath);

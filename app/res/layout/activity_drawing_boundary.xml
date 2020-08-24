@@ -1,0 +1,81 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_height="match_parent"
+    android:layout_width="match_parent"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/title"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="20dp"
+        android:layout_width="match_parent"
+        android:textSize="18sp"
+        android:visibility="gone" />
+
+
+    <TextView
+        android:id="@+id/detail"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="20dp"
+        android:layout_width="match_parent"
+        android:textSize="18sp"
+        android:visibility="gone" />
+
+    <RelativeLayout
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent">
+
+        <TextView
+            android:id="@+id/area_tv"
+            android:layout_centerInParent="true"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:textSize="32sp" />
+
+    </RelativeLayout>
+
+    <io.ona.kujaku.views.KujakuMapView
+        android:id="@+id/mapView"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_width="match_parent" />
+    
+    <LinearLayout
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:orientation="horizontal">
+
+        <Button
+            style="@style/MapButtonGreen"
+            android:id="@+id/start_tracking_button"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:visibility="gone"
+            android:layout_width="0dp" />
+
+        <Button
+            style="@style/MapButtonRed"
+            android:id="@+id/stop_tracking_button"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:visibility="gone" />
+
+        <Button
+            style="@style/MapButtonOrange"
+            android:id="@+id/redo_tracking_button"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:visibility="gone" />
+
+        <Button
+            style="@style/MapButtonGreen"
+            android:id="@+id/ok_tracking_button"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:visibility="gone" />
+
+    </LinearLayout>
+
+</LinearLayout>

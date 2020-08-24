@@ -4,9 +4,6 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.AnimRes;
-import android.support.annotation.LayoutRes;
-import android.support.v4.view.MenuItemCompat;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -20,13 +17,18 @@ import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.interfaces.UiLoadedListener;
+import org.commcare.preferences.HiddenPreferences;
+import org.commcare.sync.ProcessAndSendTask;
 import org.commcare.tasks.DataPullTask;
-import org.commcare.tasks.ProcessAndSendTask;
 import org.commcare.tasks.PullTaskResultReceiver;
 import org.commcare.tasks.ResultAndError;
 import org.commcare.utils.SyncDetailCalculations;
 import org.commcare.views.dialogs.CustomProgressDialog;
+import org.commcare.views.dialogs.StandardAlertDialog;
 import org.javarosa.core.services.locale.Localization;
+
+import androidx.annotation.AnimRes;
+import androidx.annotation.LayoutRes;
 
 public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCareActivity<T>
         implements PullTaskResultReceiver {
@@ -75,15 +77,12 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
      * triggered after they are submitted. If no forms are sent, triggers a sync explicitly.
      */
     protected void sendFormsOrSync(boolean userTriggeredSync) {
-        boolean formsSentToServer = checkAndStartUnsentFormsTask(true, userTriggeredSync);
-        if (!formsSentToServer) {
-            formAndDataSyncer.syncDataForLoggedInUser(this, false, userTriggeredSync);
-        }
+        startUnsentFormsTask(true, userTriggeredSync);
     }
 
-    protected boolean checkAndStartUnsentFormsTask(boolean syncAfterwards, boolean userTriggered) {
+    protected void startUnsentFormsTask(boolean syncAfterwards, boolean userTriggered) {
         isSyncUserLaunched = userTriggered;
-        return formAndDataSyncer.checkAndStartUnsentFormsTask(this, syncAfterwards, userTriggered);
+        formAndDataSyncer.startUnsentFormsTask(this, syncAfterwards, userTriggered);
     }
 
     @Override
@@ -95,9 +94,12 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
         }
 
         DataPullTask.PullTaskResult result = resultAndError.data;
-        String syncModeParam = null;
+
 
         switch (result) {
+            case EMPTY_URL:
+                updateUiAfterDataPullOrSend(Localization.get("sync.fail.empty.url"), FAIL);
+                break;
             case AUTH_FAILED:
                 updateUiAfterDataPullOrSend(Localization.get("sync.fail.auth.loggedin"), FAIL);
                 break;
@@ -106,15 +108,13 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
                 updateUiAfterDataPullOrSend(Localization.get("sync.fail.bad.data"), FAIL);
                 break;
             case DOWNLOAD_SUCCESS:
-                if (formsToSend) {
-                    syncModeParam = AnalyticsParamValue.SYNC_MODE_SEND_FORMS;
-                } else {
-                    syncModeParam = AnalyticsParamValue.SYNC_MODE_JUST_PULL_DATA;
-                }
                 updateUiAfterDataPullOrSend(Localization.get("sync.success.synced"), SUCCESS);
                 break;
             case SERVER_ERROR:
                 updateUiAfterDataPullOrSend(Localization.get("sync.fail.server.error"), FAIL);
+                break;
+            case RATE_LIMITED_SERVER_ERROR:
+                updateUiAfterDataPullOrSend(Localization.get("sync.fail.rate.limited.server.error"), FAIL);
                 break;
             case UNREACHABLE_HOST:
                 updateUiAfterDataPullOrSend(Localization.get("sync.fail.bad.network"), FAIL);
@@ -125,22 +125,38 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
             case UNKNOWN_FAILURE:
                 updateUiAfterDataPullOrSend(Localization.get("sync.fail.unknown"), FAIL);
                 break;
+            case CANCELLED:
+                updateUiAfterDataPullOrSend(Localization.get("sync.fail.cancelled"), FAIL);
+                break;
+            case ENCRYPTION_FAILURE:
+                updateUiAfterDataPullOrSend(Localization.get("sync.fail.encryption.failure"), FAIL);
+                break;
+            case SESSION_EXPIRE:
+                updateUiAfterDataPullOrSend(Localization.get("sync.fail.session.expire"), FAIL);
+                break;
+            case RECOVERY_FAILURE:
+                updateUiAfterDataPullOrSend(Localization.get("sync.fail.recovery.failure"), FAIL);
+                break;
             case ACTIONABLE_FAILURE:
                 updateUiAfterDataPullOrSend(resultAndError.errorMessage, FAIL);
                 break;
             case AUTH_OVER_HTTP:
                 updateUiAfterDataPullOrSend(Localization.get("auth.over.http"), FAIL);
                 break;
+            case CAPTIVE_PORTAL:
+                updateUiAfterDataPullOrSend(Localization.get("connection.captive_portal.action"), FAIL);
+                break;
         }
 
         String syncTriggerParam =
                 userTriggeredSync ? AnalyticsParamValue.SYNC_TRIGGER_USER : AnalyticsParamValue.SYNC_TRIGGER_AUTO;
 
-        if (result == DataPullTask.PullTaskResult.DOWNLOAD_SUCCESS) {
-            FirebaseAnalyticsUtil.reportSyncSuccess(syncTriggerParam, syncModeParam);
-        } else {
-            FirebaseAnalyticsUtil.reportSyncFailure(syncTriggerParam, result.analyticsFailureReasonParam);
-        }
+        String syncModeParam = formsToSend ? AnalyticsParamValue.SYNC_MODE_SEND_FORMS : AnalyticsParamValue.SYNC_MODE_JUST_PULL_DATA;
+
+        FirebaseAnalyticsUtil.reportSyncResult(result == DataPullTask.PullTaskResult.DOWNLOAD_SUCCESS,
+                syncTriggerParam,
+                syncModeParam,
+                result.analyticsFailureReasonParam);
     }
 
     @Override
@@ -208,6 +224,28 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
             // Since we know that we just had connectivity, now is a great time to try this
             CommCareApplication.instance().getSession().initHeartbeatLifecycle();
         }
+    }
+
+    public void showRateLimitError(boolean userTriggered) {
+
+        if (HiddenPreferences.isRateLimitPopupDisabled() || !userTriggered) {
+            handleFormSendResult(Localization.get("form.send.rate.limit.error.toast"), false);
+            return;
+        }
+        String title = Localization.get("form.send.rate.limit.error.title");
+        String message = Localization.get("form.send.rate.limit.error.message");
+        StandardAlertDialog dialog = StandardAlertDialog.getBasicAlertDialog(this, title,
+                message, null);
+
+        dialog.setNegativeButton(Localization.get("rate.limit.error.dialog.do.not.show"), (dialog1, which) -> {
+            HiddenPreferences.disableRateLimitPopup(true);
+            dismissAlertDialog();
+        });
+        dialog.setPositiveButton(Localization.get("rate.limit.error.dialog.close"), (dialog1, which) -> {
+            dismissAlertDialog();
+        });
+
+        showAlertDialog(dialog);
     }
 
     abstract void updateUiAfterDataPullOrSend(String message, boolean success);
@@ -326,14 +364,14 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
         ImageView iv = (ImageView)inflater.inflate(layoutResource, null);
         Animation animation = AnimationUtils.loadAnimation(this, animationId);
         iv.startAnimation(animation);
-        MenuItemCompat.setActionView(menuItem, iv);
+        menuItem.setActionView(iv);
     }
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     private void clearCurrentAnimation(MenuItem item) {
-        if (item != null && MenuItemCompat.getActionView(item) != null) {
-            MenuItemCompat.getActionView(item).clearAnimation();
-            MenuItemCompat.setActionView(item, null);
+        if (item != null && item.getActionView() != null) {
+            item.getActionView().clearAnimation();
+            item.setActionView(null);
         }
     }
 

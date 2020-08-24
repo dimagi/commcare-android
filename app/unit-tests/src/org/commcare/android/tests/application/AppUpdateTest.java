@@ -4,14 +4,19 @@ import android.util.Log;
 
 import org.commcare.CommCareApplication;
 import org.commcare.CommCareTestApplication;
-import org.commcare.android.CommCareTestRunner;
+
+import androidx.test.ext.junit.runners.AndroidJUnit4;
+
+import org.commcare.android.mocks.ModernHttpRequesterMock;
 import org.commcare.android.util.TestAppInstaller;
 import org.commcare.android.util.UpdateUtils;
+import org.commcare.engine.resource.AndroidResourceManager;
 import org.commcare.engine.resource.AppInstallStatus;
 import org.commcare.models.database.AndroidSandbox;
+import org.commcare.resources.model.ResourceTable;
 import org.commcare.suite.model.Profile;
 import org.commcare.tasks.InstallStagedUpdateTask;
-import org.commcare.tasks.UpdateTask;
+import org.commcare.update.UpdateTask;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.junit.Assert;
@@ -23,12 +28,13 @@ import org.robolectric.annotation.Config;
 import java.io.File;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 
 /**
  * @author Phillip Mates (pmates@dimagi.com).
  */
 @Config(application = CommCareTestApplication.class)
-@RunWith(CommCareTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 public class AppUpdateTest {
     private final static String TAG = AppUpdateTest.class.getSimpleName();
     private final static String REF_BASE_DIR = "jr://resource/commcare-apps/update_tests/";
@@ -51,9 +57,16 @@ public class AppUpdateTest {
         UpdateUtils.installUpdate(profileRef,
                 AppInstallStatus.UpdateStaged,
                 AppInstallStatus.Installed);
+        checkUpdateComplete(9, true);
+    }
 
+    private void checkUpdateComplete(int expectedVersion, boolean expectedResetUpgrade) {
         Profile p = CommCareApplication.instance().getCommCarePlatform().getCurrentProfile();
-        Assert.assertTrue(p.getVersion() == 9);
+        Assert.assertTrue(p.getVersion() == expectedVersion);
+
+        // check that update table has been cleared
+        ResourceTable upgradeTable = CommCareApplication.instance().getCommCarePlatform().getUpgradeResourceTable();
+        Assert.assertTrue(upgradeTable.isEmpty() == expectedResetUpgrade);
     }
 
     @Test
@@ -64,9 +77,7 @@ public class AppUpdateTest {
         UpdateUtils.installUpdate(profileRef,
                 AppInstallStatus.UpToDate,
                 AppInstallStatus.UnknownFailure);
-
-        Profile p = CommCareApplication.instance().getCommCarePlatform().getCurrentProfile();
-        Assert.assertTrue(p.getVersion() == 6);
+        checkUpdateComplete(6, true);
     }
 
     @Test
@@ -81,9 +92,7 @@ public class AppUpdateTest {
         UpdateUtils.installUpdate(profileRef,
                 AppInstallStatus.NoLocalStorage,
                 AppInstallStatus.UnknownFailure);
-
-        Profile p = CommCareApplication.instance().getCommCarePlatform().getCurrentProfile();
-        Assert.assertTrue(p.getVersion() == 6);
+        checkUpdateComplete(6, false);
     }
 
     @Test
@@ -92,11 +101,9 @@ public class AppUpdateTest {
 
         String profileRef = UpdateUtils.buildResourceRef(REF_BASE_DIR, "invalid_update", "profile.ccpr");
         UpdateUtils.installUpdate(profileRef,
-                AppInstallStatus.MissingResourcesWithMessage,
+                AppInstallStatus.InvalidResource,
                 AppInstallStatus.UnknownFailure);
-
-        Profile p = CommCareApplication.instance().getCommCarePlatform().getCurrentProfile();
-        Assert.assertTrue(p.getVersion() == 6);
+        checkUpdateComplete(6, true);
     }
 
     @Test
@@ -107,9 +114,7 @@ public class AppUpdateTest {
         UpdateUtils.installUpdate(profileRef,
                 AppInstallStatus.UpdateStaged,
                 AppInstallStatus.Installed);
-
-        Profile p = CommCareApplication.instance().getCommCarePlatform().getCurrentProfile();
-        Assert.assertTrue(p.getVersion() == 14);
+        checkUpdateComplete(14, true);
     }
 
     @Test
@@ -118,11 +123,9 @@ public class AppUpdateTest {
 
         String profileRef = UpdateUtils.buildResourceRef(REF_BASE_DIR, "valid_update_without_multimedia_present", "profile.ccpr");
         UpdateUtils.installUpdate(profileRef,
-                AppInstallStatus.MissingResources,
+                AppInstallStatus.MissingResourcesWithMessage,
                 AppInstallStatus.UnknownFailure);
-
-        Profile p = CommCareApplication.instance().getCommCarePlatform().getCurrentProfile();
-        Assert.assertTrue(p.getVersion() == 6);
+        checkUpdateComplete(6, true);
     }
 
     @Test
@@ -133,9 +136,32 @@ public class AppUpdateTest {
         UpdateUtils.installUpdate(profileRef,
                 AppInstallStatus.IncompatibleReqs,
                 AppInstallStatus.UnknownFailure);
+        checkUpdateComplete(6, true);
+    }
 
-        Profile p = CommCareApplication.instance().getCommCarePlatform().getCurrentProfile();
-        Assert.assertTrue(p.getVersion() == 6);
+    @Test
+    public void testValidUpdateWithNetworkFailureInBetween() {
+        ModernHttpRequesterMock.setRequestPayloads(new String[]{"null","null","null","null"});
+        String profileRef = UpdateUtils.buildResourceRef(
+                REF_BASE_DIR,
+                "update_with_a_fake_http_resource",
+                "profile.ccpr");
+        UpdateUtils.installUpdate(profileRef,
+                AppInstallStatus.NetworkFailure,
+                AppInstallStatus.UnknownFailure);
+        checkUpdateComplete(6, false);
+
+        // Retry and return a valid response this time
+        String formRef = UpdateUtils.buildResourceRef(
+                REF_BASE_DIR,
+                "update_with_a_fake_http_resource",
+                "modules-0/forms-1.xml");
+        ModernHttpRequesterMock.setRequestPayloads(new String[]{formRef});
+        ModernHttpRequesterMock.setResponseCodes(new Integer[]{200});
+        UpdateUtils.installUpdate(profileRef,
+                AppInstallStatus.UpdateStaged,
+                AppInstallStatus.Installed);
+        checkUpdateComplete(9, true);
     }
 
     @Test
@@ -161,5 +187,7 @@ public class AppUpdateTest {
         // ensure suite fixture updated after actually applying a staged update
         assertEquals(1, appFixtureStorage.getNumRecords());
         assertEquals(2, appFixtureStorage.read(1).getRoot().getNumChildren());
+
+        checkUpdateComplete(9, true);
     }
 }

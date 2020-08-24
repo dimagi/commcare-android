@@ -1,21 +1,18 @@
 package org.commcare.activities;
 
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.database.DataSetObserver;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v4.app.FragmentManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.GridView;
@@ -23,6 +20,9 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.jakewharton.rxbinding2.widget.AdapterViewItemClickEvent;
+import com.jakewharton.rxbinding2.widget.RxAdapterView;
 
 import org.commcare.CommCareApplication;
 import org.commcare.activities.components.EntitySelectCalloutSetup;
@@ -34,6 +34,8 @@ import org.commcare.cases.entity.Entity;
 import org.commcare.cases.entity.NodeEntityFactory;
 import org.commcare.dalvik.R;
 import org.commcare.fragments.ContainerFragment;
+import org.commcare.gis.EntityMapboxActivity;
+import org.commcare.gis.EntityMapActivity;
 import org.commcare.google.services.ads.AdLocation;
 import org.commcare.google.services.ads.AdMobManager;
 import org.commcare.models.AndroidSessionWrapper;
@@ -48,10 +50,10 @@ import org.commcare.suite.model.DetailField;
 import org.commcare.suite.model.EntityDatum;
 import org.commcare.tasks.EntityLoaderListener;
 import org.commcare.tasks.EntityLoaderTask;
+import org.commcare.utils.AndroidHereFunctionHandler;
 import org.commcare.utils.AndroidInstanceInitializer;
 import org.commcare.utils.EntityDetailUtils;
 import org.commcare.utils.EntitySelectRefreshTimer;
-import org.commcare.utils.AndroidHereFunctionHandler;
 import org.commcare.utils.SerializationUtil;
 import org.commcare.views.EntityView;
 import org.commcare.views.TabbedDetailView;
@@ -67,16 +69,22 @@ import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.OrderedHashtable;
+import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathTypeMismatchException;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
+
+import androidx.fragment.app.FragmentManager;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.functions.Consumer;
 
 /**
  * @author ctsims
  */
 public class EntitySelectActivity extends SaveSessionCommCareActivity
-        implements EntityLoaderListener, OnItemClickListener, HereFunctionHandlerListener {
+        implements EntityLoaderListener, HereFunctionHandlerListener {
     private CommCareSession session;
     private AndroidSessionWrapper asw;
 
@@ -98,6 +106,8 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     private static final int MENU_ACTION = Menu.FIRST + 3;
 
     private static final int MENU_ACTION_GROUP = Menu.FIRST + 1;
+
+    private static final int CLICK_DEBOUNCE_TIME = 500;
 
     private EntityListAdapter adapter;
     private LinearLayout header;
@@ -250,8 +260,8 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         }
 
         AdapterView visibleView;
-        GridView gridView = (GridView)this.findViewById(R.id.screen_entity_select_grid);
-        ListView listView = ((ListView)this.findViewById(R.id.screen_entity_select_list));
+        GridView gridView = this.findViewById(R.id.screen_entity_select_grid);
+        ListView listView = this.findViewById(R.id.screen_entity_select_list);
         if (shortSelect.shouldBeLaidOutInGrid()) {
             visibleView = gridView;
             gridView.setVisibility(View.VISIBLE);
@@ -263,16 +273,20 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             gridView.setVisibility(View.GONE);
             EntitySelectViewSetup.setupDivider(this, listView, shortSelect.usesEntityTileView());
         }
-        visibleView.setOnItemClickListener(this);
+        RxAdapterView.itemClickEvents(visibleView)
+                .subscribeOn(AndroidSchedulers.mainThread())
+                .throttleFirst(CLICK_DEBOUNCE_TIME, TimeUnit.MILLISECONDS)
+                .subscribe((Consumer<AdapterViewItemClickEvent>)clickEvent ->
+                        onEntitySelected(clickEvent.position()));
 
-        header = (LinearLayout)findViewById(R.id.entity_select_header);
+        header = findViewById(R.id.entity_select_header);
         entitySelectSearchUI = new EntitySelectSearchUI(this);
         restoreLastQueryString();
         persistAdapterState(visibleView);
         setUpCalloutClickListener();
         entitySelectSearchUI.setupPreHoneycombFooter(barcodeScanOnClickListener, this.customCallout);
         setupMapNav();
-        AdMobManager.requestBannerAdForView(this, (FrameLayout)findViewById(R.id.ad_container),
+        AdMobManager.requestBannerAdForView(this, findViewById(R.id.ad_container),
                 AdLocation.EntitySelect);
     }
 
@@ -289,12 +303,12 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
 
     private void setupLandscapeDualPaneView() {
         setContentView(R.layout.screen_compound_select);
-        View.inflate(this, R.layout.entity_select_layout, (ViewGroup)findViewById(R.id.screen_compound_select_left_pane));
+        View.inflate(this, R.layout.entity_select_layout, findViewById(R.id.screen_compound_select_left_pane));
         inAwesomeMode = true;
 
-        rightFrame = (FrameLayout)findViewById(R.id.screen_compound_select_right_pane);
+        rightFrame = findViewById(R.id.screen_compound_select_right_pane);
 
-        TextView message = (TextView)findViewById(R.id.screen_compound_select_prompt);
+        TextView message = findViewById(R.id.screen_compound_select_prompt);
         //use the old method here because some Android versions don't like Spannables for titles
         message.setText(Localization.get("select.placeholder.message", new String[]{Localization.get("cchq.case")}));
     }
@@ -519,26 +533,29 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         }
     }
 
-    @Override
-    public void onItemClick(AdapterView<?> listView, View view, int position, long id) {
-        if (adapter.getItemViewType(position) == EntityListAdapter.ENTITY_TYPE) {
-            TreeReference selection = adapter.getItem(position);
+    public void onEntitySelected(int itemPosition) {
+        if (adapter.getItemViewType(itemPosition) == EntityListAdapter.ENTITY_TYPE) {
+            TreeReference selection = adapter.getItem(itemPosition);
             if (HiddenPreferences.isEntityDetailLoggingEnabled()) {
                 Logger.log(EntityDetailActivity.class.getSimpleName(), selectDatum.getLongDetail());
             }
-            if (inAwesomeMode) {
-                displayReferenceAwesome(selection, position);
-                updateSelectedItem(selection, false);
-            } else {
-                Intent i = EntityDetailUtils.getDetailIntent(getApplicationContext(),
-                        selection, null, selectDatum, asw);
-                i.putExtra("entity_detail_index", position);
-                if (mNoDetailMode) {
-                    // Not actually launching detail intent because there's no confirm detail available
-                    returnWithResult(i);
+            try {
+                if (inAwesomeMode) {
+                    displayReferenceAwesome(selection, itemPosition);
+                    updateSelectedItem(selection, false);
                 } else {
-                    startActivityForResult(i, CONFIRM_SELECT);
+                    Intent i = EntityDetailUtils.getDetailIntent(getApplicationContext(),
+                            selection, null, selectDatum, asw);
+                    i.putExtra("entity_detail_index", itemPosition);
+                    if (mNoDetailMode) {
+                        // Not actually launching detail intent because there's no confirm detail available
+                        returnWithResult(i);
+                    } else {
+                        startActivityForResult(i, CONFIRM_SELECT);
+                    }
                 }
+            } catch (XPathException e) {
+                UserfacingErrorHandling.logErrorAndShowDialog(this, e, true);
             }
         }
     }
@@ -684,6 +701,12 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             tryToAddSearchActionToAppBar(this, menu, entitySelectSearchUI.getActionBarInstantiator());
             setupActionOptionsMenu(menu);
         }
+
+        MenuItem settingsItem = menu.findItem(R.id.menu_settings);
+        if (settingsItem != null) {
+            settingsItem.setTitle(Localization.get("select.menu.settings"));
+        }
+
         return true;
     }
 
@@ -726,7 +749,8 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
                 createSortMenu();
                 return true;
             case MENU_MAP:
-                Intent i = new Intent(this, EntityMapActivity.class);
+                Intent i = new Intent(this,
+                        HiddenPreferences.shouldUseMapboxMap() ? EntityMapboxActivity.class : EntityMapActivity.class);
                 this.startActivityForResult(i, MAP_SELECT);
                 return true;
             // handling click on the barcode scanner's actionbar
@@ -798,13 +822,10 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         DialogChoiceItem[] choiceItems = new DialogChoiceItem[namesList.size()];
         for (int i = 0; i < namesList.size(); i++) {
             final int index = i;
-            View.OnClickListener listener = new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    adapter.sortEntities(new int[]{keyArray[index]});
-                    adapter.filterByString(entitySelectSearchUI.getSearchText().toString());
-                    dismissAlertDialog();
-                }
+            View.OnClickListener listener = v -> {
+                adapter.sortEntities(new int[]{keyArray[index]});
+                adapter.filterByString(entitySelectSearchUI.getSearchText().toString());
+                dismissAlertDialog();
             };
             DialogChoiceItem item = new DialogChoiceItem(namesList.get(i), -1, listener);
             choiceItems[i] = item;
@@ -822,7 +843,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         if (shortSelect.shouldBeLaidOutInGrid()) {
             visibleView = ((GridView)this.findViewById(R.id.screen_entity_select_grid));
         } else {
-            ListView listView = ((ListView)this.findViewById(R.id.screen_entity_select_list));
+            ListView listView = this.findViewById(R.id.screen_entity_select_list);
             EntitySelectViewSetup.setupDivider(this, listView, shortSelect.usesEntityTileView());
             visibleView = listView;
         }
@@ -832,6 +853,10 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         visibleView.setAdapter(adapter);
         adapter.registerDataSetObserver(this.mListStateObserver);
         containerFragment.setData(adapter);
+
+        if (entitySelectSearchUI != null) {
+            entitySelectSearchUI.restoreSearchString();
+        }
 
         // Pre-select entity if one was provided in original intent
         if (!resuming && !mNoDetailMode && inAwesomeMode && this.getIntent().hasExtra(EXTRA_ENTITY_KEY)) {
@@ -886,7 +911,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         if (adapter != null && selected != null) {
             adapter.notifyCurrentlyHighlighted(selected);
             if (forceMove) {
-                ListView view = ((ListView)this.findViewById(R.id.screen_entity_select_list));
+                ListView view = this.findViewById(R.id.screen_entity_select_list);
                 view.setSelection(adapter.getPosition(selected));
             }
         }
@@ -905,15 +930,10 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         if (!rightFrameSetup) {
             findViewById(R.id.screen_compound_select_prompt).setVisibility(View.GONE);
             View.inflate(this, R.layout.entity_detail, rightFrame);
-            Button next = (Button)findViewById(R.id.entity_select_button);
+            Button next = findViewById(R.id.entity_select_button);
             //use the old method here because some Android versions don't like Spannables for titles
             next.setText(Localization.get("select.detail.confirm"));
-            next.setOnClickListener(new OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    performEntitySelect();
-                }
-            });
+            next.setOnClickListener(v -> performEntitySelect());
 
             if (mViewMode) {
                 next.setVisibility(View.GONE);
@@ -928,7 +948,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
                 mViewMode = session.isViewCommand(session.getCommand());
             }
 
-            detailView = (TabbedDetailView)rightFrame.findViewById(R.id.entity_detail_tabs);
+            detailView = rightFrame.findViewById(R.id.entity_detail_tabs);
             detailView.setRoot(detailView);
 
             Detail detail = session.getDetail(selectedIntent.getStringExtra(EntityDetailActivity.DETAIL_ID));

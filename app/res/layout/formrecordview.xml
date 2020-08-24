@@ -7,7 +7,9 @@
     android:paddingLeft="@dimen/row_padding_vertical"
     android:layout_marginTop="@dimen/standard_spacer"
     android:layout_marginBottom="@dimen/standard_spacer"
-    android:orientation="vertical" >
+    android:orientation="vertical"
+    android:paddingEnd="@dimen/row_padding_vertical"
+    android:paddingStart="@dimen/row_padding_vertical">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -31,7 +33,8 @@
                 android:layout_alignParentRight="true"
                 android:id="@+id/formrecord_txt_right"
                 android:textColor="?attr/filter_select_text_color"
-                android:layout_alignParentBottom="true"/>
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentEnd="true" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -40,7 +43,8 @@
                 android:id="@+id/formrecord_txt_upp_right"
                 android:layout_above="@+id/formrecord_txt_right"
                 android:textColor="@color/cc_neutral_color"
-                android:gravity="right"/>
+                android:gravity="end"
+                android:layout_alignParentEnd="true" />
 
             <ImageView
                 android:id="@+id/formrecord_sync_icon"
@@ -52,7 +56,8 @@
                 android:layout_above="@+id/formrecord_txt_right"
                 android:tint="@color/cc_neutral_color"
                 android:tintMode="src_atop"
-                android:src="@android:drawable/stat_notify_sync_noanim"/>
+                android:src="@android:drawable/stat_notify_sync_noanim"
+                android:layout_toStartOf="@id/formrecord_txt_upp_right" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -60,9 +65,11 @@
                 android:id="@+id/formrecord_txt_main"
                 android:layout_alignParentLeft="true"
                 android:layout_alignParentTop="true"
-                android:gravity="left"
+                android:gravity="start"
                 android:textColor="?attr/filter_select_text_color"
-                android:layout_toLeftOf="@id/formrecord_txt_upp_right"/>
+                android:layout_toLeftOf="@id/formrecord_txt_upp_right"
+                android:layout_toStartOf="@id/formrecord_txt_upp_right"
+                android:layout_alignParentStart="true" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -78,7 +85,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/reason_for_quarantine_display"
-        android:gravity="left"
+        android:gravity="start"
         android:visibility="gone"
         android:textColor="@color/cc_attention_negative_text"
         android:textSize="@dimen/font_size_medium" />

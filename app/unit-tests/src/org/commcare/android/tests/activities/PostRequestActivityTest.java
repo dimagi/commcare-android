@@ -8,7 +8,7 @@ import android.widget.TextView;
 import org.commcare.CommCareApplication;
 import org.commcare.CommCareTestApplication;
 import org.commcare.activities.PostRequestActivity;
-import org.commcare.android.CommCareTestRunner;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import org.commcare.android.mocks.HttpURLConnectionMock;
 import org.commcare.android.mocks.ModernHttpRequesterMock;
 import org.commcare.android.util.ActivityLaunchUtils;
@@ -43,7 +43,7 @@ import static org.junit.Assert.fail;
  * @author Phillip Mates (pmates@dimagi.com)
  */
 @Config(application = CommCareTestApplication.class)
-@RunWith(CommCareTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 public class PostRequestActivityTest {
     @Before
     public void setup() {
@@ -72,7 +72,7 @@ public class PostRequestActivityTest {
                                            boolean isVisible,
                                            String expectedErrorMessage) {
         TextView errorMessage =
-                (TextView)postRequestActivity.findViewById(R.id.error_message);
+                postRequestActivity.findViewById(R.id.error_message);
         if (isVisible) {
             assertEquals(View.VISIBLE, errorMessage.getVisibility());
         } else {
@@ -91,7 +91,7 @@ public class PostRequestActivityTest {
             postLaunchIntent.putExtra(PostRequestActivity.PARAMS_KEY,
                     new HashMap<String, String>());
         }
-        return Robolectric.buildActivity(PostRequestActivity.class).withIntent(postLaunchIntent)
+        return Robolectric.buildActivity(PostRequestActivity.class, postLaunchIntent)
                 .create().start().resume().get();
     }
 
@@ -156,7 +156,7 @@ public class PostRequestActivityTest {
 
         PostRequestActivity postRequestActivity = buildPostActivity("https://www.fake.com");
 
-        Button retryButton = (Button)postRequestActivity.findViewById(R.id.request_button);
+        Button retryButton = postRequestActivity.findViewById(R.id.request_button);
         assertEquals(View.VISIBLE, retryButton.getVisibility());
         retryButton.performClick();
 
@@ -203,7 +203,7 @@ public class PostRequestActivityTest {
         assertEquals("321", postUrlParams.get("selected_case_id"));
 
         PostRequestActivity postRequestActivity =
-                Robolectric.buildActivity(PostRequestActivity.class).withIntent(postActivityIntent)
+                Robolectric.buildActivity(PostRequestActivity.class, postActivityIntent)
                         .create().start().resume().get();
 
         assertTrue(postRequestActivity.isFinishing());

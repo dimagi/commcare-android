@@ -3,10 +3,6 @@ package org.commcare.activities;
 import android.annotation.TargetApi;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBar;
-import android.view.View;
-import android.widget.AdapterView;
 import android.widget.ListView;
 
 import org.commcare.CommCareApplication;
@@ -20,6 +16,9 @@ import org.javarosa.core.services.locale.Localization;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import androidx.appcompat.app.ActionBar;
+import androidx.drawerlayout.widget.DrawerLayout;
 
 /**
  * Manages the UI of the nav drawer in RootMenuHomeActivity
@@ -37,6 +36,7 @@ public class HomeNavDrawerController {
     private static final String SAVED_FORMS_ITEM_ID = "saved-forms";
     private static final String LOGOUT_DRAWER_ITEM_ID = "home-logout";
     private static final String TRAINING_DRAWER_ITEM_ID = "training";
+    private static final String UPDATE_CC_DRAWER_ITEM_ID = "update-cc";
 
     protected static final String KEY_DRAWER_WAS_OPEN = "drawer-open-before-rotation";
 
@@ -50,8 +50,8 @@ public class HomeNavDrawerController {
 
     public HomeNavDrawerController(RootMenuHomeActivity activity) {
         this.activity = activity;
-        drawerLayout = (DrawerLayout)activity.findViewById(R.id.menu_activity_drawer_layout);
-        navDrawerList = (ListView)activity.findViewById(R.id.nav_drawer);
+        drawerLayout = activity.findViewById(R.id.menu_activity_drawer_layout);
+        navDrawerList = activity.findViewById(R.id.nav_drawer);
         // Disable opening of the nav drawer via swiping
         drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
     }
@@ -107,14 +107,15 @@ public class HomeNavDrawerController {
         boolean hideChangeLanguageItem = ChangeLocaleUtil.getLocaleNames().length <= 1;
         int numItemsToInclude = allDrawerItems.size()
                 - (hideChangeLanguageItem ? 1 : 0)
-                - (hideSavedFormsItem ? 1 : 0);
-        boolean hideTrainingItem = !CommCareApplication.instance().getCurrentApp().hasTrainingMenu();
+                - (hideSavedFormsItem ? 1 : 0)
+                - (activity.showCommCareUpdateMenu ? 0 : 1);
+        boolean hideTrainingItem = !CommCareApplication.instance().getCurrentApp().hasVisibleTrainingContent();
 
         drawerItemsShowing = new NavDrawerItem[numItemsToInclude];
         int index = 0;
         for (String id : getAllItemIdsInOrder()) {
             NavDrawerItem item = allDrawerItems.get(id);
-            if (!excludeItem(id, hideChangeLanguageItem, hideSavedFormsItem, hideTrainingItem)) {
+            if (!excludeItem(id, hideChangeLanguageItem, hideSavedFormsItem, hideTrainingItem, !activity.showCommCareUpdateMenu)) {
                 drawerItemsShowing[index] = item;
                 index++;
             }
@@ -122,59 +123,60 @@ public class HomeNavDrawerController {
     }
 
     private boolean excludeItem(String itemId, boolean hideChangeLanguageItem,
-                                boolean hideSavedFormsItem, boolean hideTrainingItem) {
+                                boolean hideSavedFormsItem, boolean hideTrainingItem, boolean hideCCUpdateItem) {
         return (itemId.equals(CHANGE_LANGUAGE_DRAWER_ITEM_ID) && hideChangeLanguageItem) ||
                 (itemId.equals(SAVED_FORMS_ITEM_ID) && hideSavedFormsItem) ||
-                (itemId.equals(TRAINING_DRAWER_ITEM_ID) && hideTrainingItem);
+                (itemId.equals(TRAINING_DRAWER_ITEM_ID) && hideTrainingItem) ||
+                (itemId.equals(UPDATE_CC_DRAWER_ITEM_ID) && hideCCUpdateItem);
     }
 
     private ListView.OnItemClickListener getNavDrawerClickListener() {
-        return new ListView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                drawerLayout.closeDrawer(navDrawerList);
-                switch(drawerItemsShowing[position].id) {
-                    case SYNC_DRAWER_ITEM_ID:
-                        activity.sendFormsOrSync(true);
-                        break;
-                    case SAVED_FORMS_ITEM_ID:
-                        activity.goToFormArchive(false);
-                        break;
-                    case UPDATE_DRAWER_ITEM_ID:
-                        activity.launchUpdateActivity();
-                        break;
-                    case ABOUT_CC_DRAWER_ITEM_ID:
-                        activity.showAboutCommCareDialog();
-                        break;
-                    case SETTINGS_DRAWER_ITEM_ID:
-                        HomeScreenBaseActivity.createPreferencesMenu(activity);
-                        break;
-                    case ADVANCED_DRAWER_ITEM_ID:
-                        activity.showAdvancedActionsPreferences();
-                        break;
-                    case CHANGE_LANGUAGE_DRAWER_ITEM_ID:
-                        activity.showLocaleChangeMenu(null);
-                        break;
-                    case LOGOUT_DRAWER_ITEM_ID:
-                        activity.userTriggeredLogout();
-                        break;
-                    case TRAINING_DRAWER_ITEM_ID:
-                        activity.enterTrainingModule();
-                        break;
-                }
+        return (parent, view, position, id) -> {
+            drawerLayout.closeDrawer(navDrawerList);
+            switch (drawerItemsShowing[position].id) {
+                case SYNC_DRAWER_ITEM_ID:
+                    activity.sendFormsOrSync(true);
+                    break;
+                case SAVED_FORMS_ITEM_ID:
+                    activity.goToFormArchive(false);
+                    break;
+                case UPDATE_DRAWER_ITEM_ID:
+                    activity.launchUpdateActivity(false);
+                    break;
+                case ABOUT_CC_DRAWER_ITEM_ID:
+                    activity.showAboutCommCareDialog();
+                    break;
+                case SETTINGS_DRAWER_ITEM_ID:
+                    HomeScreenBaseActivity.createPreferencesMenu(activity);
+                    break;
+                case ADVANCED_DRAWER_ITEM_ID:
+                    activity.showAdvancedActionsPreferences();
+                    break;
+                case CHANGE_LANGUAGE_DRAWER_ITEM_ID:
+                    activity.showLocaleChangeMenu(null);
+                    break;
+                case LOGOUT_DRAWER_ITEM_ID:
+                    activity.userTriggeredLogout();
+                    break;
+                case TRAINING_DRAWER_ITEM_ID:
+                    activity.enterTrainingModule();
+                    break;
+                case UPDATE_CC_DRAWER_ITEM_ID:
+                    activity.startCommCareUpdate();
+                    break;
             }
         };
     }
 
     private static String[] getAllItemIdsInOrder() {
-        return new String[] {
+        return new String[]{
                 ABOUT_CC_DRAWER_ITEM_ID, TRAINING_DRAWER_ITEM_ID, SETTINGS_DRAWER_ITEM_ID,
                 ADVANCED_DRAWER_ITEM_ID, CHANGE_LANGUAGE_DRAWER_ITEM_ID, SAVED_FORMS_ITEM_ID,
-                UPDATE_DRAWER_ITEM_ID, SYNC_DRAWER_ITEM_ID, LOGOUT_DRAWER_ITEM_ID };
+                UPDATE_DRAWER_ITEM_ID, SYNC_DRAWER_ITEM_ID, UPDATE_CC_DRAWER_ITEM_ID, LOGOUT_DRAWER_ITEM_ID};
     }
 
     private static String getItemTitle(String id) {
-        switch(id) {
+        switch (id) {
             case ABOUT_CC_DRAWER_ITEM_ID:
                 return Localization.get("home.menu.about");
             case SETTINGS_DRAWER_ITEM_ID:
@@ -193,12 +195,14 @@ public class HomeNavDrawerController {
                 return Localization.get("home.logout");
             case TRAINING_DRAWER_ITEM_ID:
                 return Localization.get("training.root.title");
+            case UPDATE_CC_DRAWER_ITEM_ID:
+                return Localization.get("home.menu.update.commcare");
         }
         return "";
     }
 
     private static int getItemIcon(String id) {
-        switch(id) {
+        switch (id) {
             case ABOUT_CC_DRAWER_ITEM_ID:
                 return R.drawable.ic_about_cc_nav_drawer;
             case SETTINGS_DRAWER_ITEM_ID:
@@ -248,5 +252,4 @@ public class HomeNavDrawerController {
     private void closeDrawer() {
         drawerLayout.closeDrawer(navDrawerList);
     }
-
 }

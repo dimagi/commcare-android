@@ -1,7 +1,7 @@
 package org.commcare.utils;
 
 import android.Manifest;
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -9,7 +9,6 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;
-import android.support.v4.content.ContextCompat;
 
 import org.commcare.activities.CommCareActivity;
 import org.commcare.dalvik.R;
@@ -20,6 +19,8 @@ import org.javarosa.core.model.data.UncastData;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import androidx.core.content.ContextCompat;
 
 /**
  * Static functions for dealing with GPS data, specifically Location and LocationManager objects.
@@ -37,7 +38,8 @@ public class GeoUtils {
     // For passive collection, milliseconds to wait for GPS before giving up
     public static final int AUTO_CAPTURE_MAX_WAIT_IN_MINUTES = 2;
 
-    public static final String ACTION_CHECK_GPS_ENABLED = "org.commcare.utils.GeoUtils.check";
+    public static final String ACTION_LOCATION_ERROR = "org.commcare.utils.GeoUtils.check";
+
 
     /**
      * Format location in a string for user display.

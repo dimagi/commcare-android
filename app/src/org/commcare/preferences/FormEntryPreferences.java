@@ -2,12 +2,14 @@ package org.commcare.preferences;
 
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
-import android.support.annotation.NonNull;
-import android.support.v7.preference.ListPreference;
+import androidx.annotation.NonNull;
+import androidx.preference.ListPreference;
+import androidx.preference.PreferenceManager;
 
+import org.commcare.CommCareApplication;
 import org.commcare.dalvik.R;
 import org.commcare.fragments.CommCarePreferenceFragment;
-import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
+import org.commcare.models.ODKStorage;
 
 import java.util.Map;
 
@@ -59,5 +61,11 @@ public class FormEntryPreferences extends CommCarePreferenceFragment
     private void updateFontSize() {
         ListPreference lp = (ListPreference)findPreference(KEY_FONT_SIZE);
         lp.setSummary(lp.getEntry());
+    }
+
+    public static int getQuestionFontSize() {
+        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(CommCareApplication.instance());
+        String fontString = settings.getString(FormEntryPreferences.KEY_FONT_SIZE, ODKStorage.DEFAULT_FONTSIZE);
+        return Integer.parseInt(fontString);
     }
 }

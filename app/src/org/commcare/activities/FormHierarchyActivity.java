@@ -48,35 +48,24 @@ public class FormHierarchyActivity extends SessionAwareListActivity {
 
         setTitle(Localization.get("form.hierarchy"));
 
-        mPath = (TextView)findViewById(R.id.pathtext);
+        mPath = findViewById(R.id.pathtext);
 
-        jumpPreviousButton = (Button)findViewById(R.id.jumpPreviousButton);
-        jumpPreviousButton.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                goUpLevel();
-            }
+        jumpPreviousButton = findViewById(R.id.jumpPreviousButton);
+        jumpPreviousButton.setOnClickListener(v -> goUpLevel());
+
+        Button jumpBeginningButton = findViewById(R.id.jumpBeginningButton);
+        jumpBeginningButton.setOnClickListener(v -> {
+            FormEntryActivity.mFormController.jumpToIndex(FormIndex
+                    .createBeginningOfFormIndex());
+            setResult(RESULT_OK);
+            finish();
         });
 
-        Button jumpBeginningButton = (Button)findViewById(R.id.jumpBeginningButton);
-        jumpBeginningButton.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                FormEntryActivity.mFormController.jumpToIndex(FormIndex
-                        .createBeginningOfFormIndex());
-                setResult(RESULT_OK);
-                finish();
-            }
-        });
-
-        Button jumpEndButton = (Button)findViewById(R.id.jumpEndButton);
-        jumpEndButton.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                FormEntryActivity.mFormController.jumpToIndex(FormIndex.createEndOfFormIndex());
-                setResult(RESULT_OK);
-                finish();
-            }
+        Button jumpEndButton = findViewById(R.id.jumpEndButton);
+        jumpEndButton.setOnClickListener(v -> {
+            FormEntryActivity.mFormController.jumpToIndex(FormIndex.createEndOfFormIndex());
+            setResult(RESULT_OK);
+            finish();
         });
 
         // We use a static FormEntryController to make jumping faster.
@@ -84,21 +73,18 @@ public class FormHierarchyActivity extends SessionAwareListActivity {
 
         // kinda slow, but works.
         // this scrolls to the last question the user was looking at
-        getListView().post(new Runnable() {
-            @Override
-            public void run() {
-                int position = 0;
-                ListAdapter adapter = getListAdapter();
-                if (adapter != null) {
-                    for (int i = 0; i < adapter.getCount(); i++) {
-                        HierarchyElement he = (HierarchyElement)getListAdapter().getItem(i);
-                        if (mStartIndex.equals(he.getFormIndex())) {
-                            position = i;
-                            break;
-                        }
+        getListView().post(() -> {
+            int position = 0;
+            ListAdapter adapter = getListAdapter();
+            if (adapter != null) {
+                for (int i = 0; i < adapter.getCount(); i++) {
+                    HierarchyElement he = (HierarchyElement)getListAdapter().getItem(i);
+                    if (mStartIndex.equals(he.getFormIndex())) {
+                        position = i;
+                        break;
                     }
-                    getListView().setSelection(position);
                 }
+                getListView().setSelection(position);
             }
         });
 

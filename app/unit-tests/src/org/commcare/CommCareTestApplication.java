@@ -2,14 +2,18 @@ package org.commcare;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Environment;
+import android.os.StrictMode;
 import android.util.Log;
+
+import androidx.annotation.NonNull;
 
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.mocks.ModernHttpRequesterMock;
 import org.commcare.android.util.TestUtils;
 import org.commcare.core.encryption.CryptUtil;
 import org.commcare.core.interfaces.HttpResponseProcessor;
-import org.commcare.core.network.CommCareNetworkServiceGenerator;
+import org.commcare.core.network.AuthInfo;
 import org.commcare.core.network.HTTPMethod;
 import org.commcare.core.network.ModernHttpRequester;
 import org.commcare.dalvik.BuildConfig;
@@ -20,11 +24,8 @@ import org.commcare.models.database.AndroidPrototypeFactorySetup;
 import org.commcare.models.database.HybridFileBackedSqlStorage;
 import org.commcare.models.database.HybridFileBackedSqlStorageMock;
 import org.commcare.models.encryption.ByteEncrypter;
-import org.commcare.modern.util.Pair;
 import org.commcare.network.DataPullRequester;
-import org.commcare.network.HttpUtils;
 import org.commcare.network.LocalReferencePullResponseFactory;
-import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.services.CommCareSessionService;
 import org.commcare.utils.AndroidCacheDirSetup;
 import org.javarosa.core.model.User;
@@ -36,7 +37,7 @@ import org.junit.Assert;
 import org.robolectric.Robolectric;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.TestLifecycleApplication;
-import org.robolectric.util.ServiceController;
+import org.robolectric.android.controller.ServiceController;
 
 import java.io.File;
 import java.lang.reflect.Method;
@@ -46,12 +47,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
-import javax.annotation.Nullable;
-
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 
 import static junit.framework.Assert.fail;
+import static org.robolectric.shadows.ShadowEnvironment.setExternalStorageState;
 
 /**
  * @author Phillip Mates (pmates@dimagi.com).
@@ -72,13 +72,26 @@ public class CommCareTestApplication extends CommCareApplication implements Test
         // allow "jr://resource" references
         ReferenceManager.instance().addReferenceFactory(new ResourceReferenceFactory());
 
-        Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
-            @Override
-            public void uncaughtException(Thread thread, Throwable ex) {
-                asyncExceptions.add(ex);
-                Assert.fail(ex.getMessage());
-            }
+        Thread.setDefaultUncaughtExceptionHandler((thread, ex) -> {
+            asyncExceptions.add(ex);
+            Assert.fail(ex.getMessage());
         });
+        setExternalStorageState(Environment.MEDIA_MOUNTED);
+    }
+
+    @Override
+    public boolean useConscryptSecurity() {
+        return false;
+    }
+
+
+    @Override
+    protected void turnOnStrictMode() {
+        StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder()
+                .detectLeakedSqlLiteObjects()
+                .detectLeakedClosableObjects()
+                .penaltyLog()
+                .build());
     }
 
     @Override
@@ -127,9 +140,14 @@ public class CommCareTestApplication extends CommCareApplication implements Test
      */
     private static void initFactoryClassList() {
         if (factoryClassNames.isEmpty()) {
-            String baseODK = BuildConfig.BUILD_DIR + "/intermediates/classes/commcare/debug/";
+            String[] baseODK = new String[]{BuildConfig.BUILD_DIR + "/intermediates/javac/commcareDebug/compileCommcareDebugJavaWithJavac/classes/"
+                        , BuildConfig.BUILD_DIR + "/intermediates/javac/commcareDebug/classes/"};
             String baseCC = BuildConfig.PROJECT_DIR + "/../../commcare-core/build/classes/java/main/";
-            addExternalizableClassesFromDir(baseODK.replace("/", File.separator), factoryClassNames);
+
+
+            for(String variant : baseODK) {
+                addExternalizableClassesFromDir(variant.replace("/", File.separator), factoryClassNames);
+            }
             addExternalizableClassesFromDir(baseCC.replace("/", File.separator), factoryClassNames);
         }
     }
@@ -151,6 +169,11 @@ public class CommCareTestApplication extends CommCareApplication implements Test
         } catch (Exception e) {
             Log.w(TAG, e.getMessage());
         }
+    }
+
+    @Override
+    protected void loadSqliteLibs() {
+        // do nothing
     }
 
     /**
@@ -198,7 +221,7 @@ public class CommCareTestApplication extends CommCareApplication implements Test
                 new Intent(RuntimeEnvironment.application, CommCareSessionService.class);
         ServiceController<CommCareSessionService> serviceController =
                 Robolectric.buildService(CommCareSessionService.class, startIntent);
-        serviceController.attach()
+        serviceController
                 .create()
                 .startCommand(0, 1);
         return serviceController.get();
@@ -240,6 +263,11 @@ public class CommCareTestApplication extends CommCareApplication implements Test
     }
 
     @Override
+    protected void cancelWorkManagerTasks() {
+        // do nothing
+    }
+
+    @Override
     public void beforeTest(Method method) {
 
     }
@@ -252,17 +280,21 @@ public class CommCareTestApplication extends CommCareApplication implements Test
     @Override
     public ModernHttpRequester buildHttpRequester(Context context, String url, Map<String, String> params,
                                                   HashMap headers, RequestBody requestBody, List<MultipartBody.Part> parts,
-                                                  HTTPMethod method, @Nullable Pair<String, String> usernameAndPasswordToAuthWith, HttpResponseProcessor responseProcessor) {
+                                                  HTTPMethod method, AuthInfo authInfo, HttpResponseProcessor responseProcessor, boolean b) {
         return new ModernHttpRequesterMock(new AndroidCacheDirSetup(context),
                 url,
                 params,
                 headers,
                 requestBody,
                 parts,
-                CommCareNetworkServiceGenerator.createCommCareNetworkService(
-                        HttpUtils.getCredential(usernameAndPasswordToAuthWith),
-                        DeveloperPreferences.isEnforceSecureEndpointEnabled()),
+                null,
                 method,
                 responseProcessor);
+    }
+
+    @NonNull
+    @Override
+    public String getPhoneId() {
+        return "000000000000000";
     }
 }

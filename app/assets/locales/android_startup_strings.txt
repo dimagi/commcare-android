@@ -16,6 +16,7 @@ install.appprofile=Enter your app code
 install.perms.rationale.message=CommCare requires at least external storage read & write permissions in order to store form submissions.
 install.perms.denied.message=Crucial permissions denied ${0} times.\n\n If requesting permissions here fails, please enable permissions under Android's settings.
 install.choose.local.app=Available Apps
+install.wrong.code=The app code you have entered is incorrect. Please try scanning barcode or entering correct code.
 
 menu.archive=Offline Install
 menu.sms=SMS Install
@@ -30,16 +31,20 @@ updates.resources.profile=Locating application...
 archive.install.prompt=Install your CommCare application from a .ccz file
 archive.install.button=Install App
 
-install.version.mismatch=The application requires CommCare version ${0}. You are running ${1}.
-install.major.mismatch=Please uninstall your CommCare Application from the phone Settings Menu, navigate to the marketplace, and install the proper version.
-install.minor.mismatch=Please update your version of CommCare from the Android Market to run this application.
+install.version.mismatch=The application requires CommCare version ${0}. You are currently running ${1}.
+install.major.mismatch=Please uninstall your CommCare Application from the phone Settings Menu, navigate to the Google Playstore, and install CommCare again.
+install.minor.mismatch=Please update CommCare from the Google Playstore to run this application.
+
+update.version.mismatch=This application update requires CommCare version ${0}. You are currently running ${1}.
+update.major.mismatch=Please uninstall your CommCare Application from the phone Settings Menu, navigate to the Google Playstore, and install CommCare again.
+update.minor.mismatch=Please update CommCare from the Google Playstore to update this application.
 
 # App manager strings
 app.manager.advanced.settings.title=App Manager > Advanced Settings
 app.manager.advanced.settings.option=Advanced
 
 # strings for Install from list
-menu.app.list.install=See Apps for My User (NEW!)
+menu.app.list.install=See Apps for My User
 menu.app.list.install.other.user=See Apps for Another User
 toggle.web.user.mode=Web User
 toggle.mobile.user.mode=Mobile User

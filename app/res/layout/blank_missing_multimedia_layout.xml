@@ -14,7 +14,9 @@
         android:maxHeight="135px"
         android:maxWidth="663px"
         android:src="@drawable/ccbanner"
-        android:visibility="gone">
+        android:visibility="gone"
+        android:layout_marginEnd="20px"
+        android:paddingStart="20px">
     </ImageView>
 
     <Button

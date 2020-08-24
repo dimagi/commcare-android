@@ -45,11 +45,7 @@ class UpdateUIController implements CommCareActivityUIController {
     private UIState currentUIState;
 
     public UpdateUIController(UpdateActivity updateActivity, boolean startedByAppManager) {
-        if (startedByAppManager) {
-            applyUpdateButtonTextKey = "updates.staged.version.app.manager";
-        } else {
-            applyUpdateButtonTextKey = "updates.staged.version";
-        }
+        applyUpdateButtonTextKey = startedByAppManager ? "updates.staged.version.app.manager" : "updates.staged.version";
         activity = updateActivity;
     }
 
@@ -57,10 +53,10 @@ class UpdateUIController implements CommCareActivityUIController {
     public void setupUI() {
         activity.setContentView(R.layout.update_activity);
 
-        progressBar = (ProgressBar)activity.findViewById(R.id.update_progress_bar);
-        progressText = (TextView)activity.findViewById(R.id.update_progress_text);
+        progressBar = activity.findViewById(R.id.update_progress_bar);
+        progressText = activity.findViewById(R.id.update_progress_text);
         currentVersionText =
-                (TextView)activity.findViewById(R.id.current_version_text);
+                activity.findViewById(R.id.current_version_text);
 
         notificationsButtonContainer = activity.findViewById(R.id.btn_view_errors_container);
 
@@ -85,43 +81,23 @@ class UpdateUIController implements CommCareActivityUIController {
 
     private void setupButtonListeners() {
         checkUpdateButton =
-                (SquareButtonWithText)activity.findViewById(R.id.check_for_update_button);
-        checkUpdateButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                activity.startUpdateCheck();
-            }
-        });
+                activity.findViewById(R.id.check_for_update_button);
+        checkUpdateButton.setOnClickListener(v -> activity.startUpdateCheck());
         checkUpdateButton.setText(Localization.getWithDefault("updates.check.start", ""));
 
         stopUpdateButton =
-                (SquareButtonWithText)activity.findViewById(R.id.stop_update_download_button);
-        stopUpdateButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                activity.stopUpdateCheck();
-            }
-        });
+                activity.findViewById(R.id.stop_update_download_button);
+        stopUpdateButton.setOnClickListener(v -> activity.stopUpdateCheck());
         stopUpdateButton.setText(Localization.getWithDefault("updates.check.cancel", ""));
 
         installUpdateButton =
-                (SquareButtonWithText)activity.findViewById(R.id.install_update_button);
-        installUpdateButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                activity.launchUpdateInstallTask();
-            }
-        });
+                activity.findViewById(R.id.install_update_button);
+        installUpdateButton.setOnClickListener(v -> activity.launchUpdateInstallTask());
         String updateVersionPlaceholderMsg =
                 Localization.getWithDefault(applyUpdateButtonTextKey, new String[]{"-1"}, "");
         installUpdateButton.setText(updateVersionPlaceholderMsg);
 
-        notificationsButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                CommCareNoficationManager.performIntentCalloutToNotificationsView(activity);
-            }
-        });
+        notificationsButton.setOnClickListener(v -> CommCareNoficationManager.performIntentCalloutToNotificationsView(activity));
     }
 
     protected void upToDateUiState() {
@@ -169,11 +145,16 @@ class UpdateUIController implements CommCareActivityUIController {
 
         updateProgressBar(100, 100);
 
-        int version = ResourceInstallUtils.upgradeTableVersion();
-        String versionMsg =
-                Localization.get(applyUpdateButtonTextKey,
-                        new String[]{Integer.toString(version)});
-        installUpdateButton.setText(versionMsg);
+        if (UpdateActivity.isUpdateBlockedOnSync()) {
+            installUpdateButton.setText(Localization.get("updates.staged.version.sync.required"));
+            installUpdateButton.setImage(activity.getResources().getDrawable(R.drawable.home_sync));
+        } else {
+            int version = ResourceInstallUtils.upgradeTableVersion();
+            String versionMsg =
+                    Localization.get(applyUpdateButtonTextKey,
+                            new String[]{Integer.toString(version)});
+            installUpdateButton.setText(versionMsg);
+        }
         updateProgressText("");
     }
 
@@ -190,7 +171,6 @@ class UpdateUIController implements CommCareActivityUIController {
     protected void errorUiState() {
         currentUIState = UIState.Error;
         checkUpdateButton.setVisibility(View.VISIBLE);
-        checkUpdateButton.setEnabled(false);
         stopUpdateButton.setVisibility(View.GONE);
         installUpdateButton.setVisibility(View.GONE);
 
@@ -200,7 +180,6 @@ class UpdateUIController implements CommCareActivityUIController {
     protected void noConnectivityUiState() {
         currentUIState = UIState.NoConnectivity;
         checkUpdateButton.setVisibility(View.VISIBLE);
-        checkUpdateButton.setEnabled(false);
         stopUpdateButton.setVisibility(View.GONE);
         installUpdateButton.setVisibility(View.GONE);
 
@@ -239,9 +218,9 @@ class UpdateUIController implements CommCareActivityUIController {
     }
 
     private void refreshStatusText() {
-        CommCareApplication app = CommCareApplication.instance();
+        CommCareApplication commCareApplication = CommCareApplication.instance();
 
-        int version = app.getCommCarePlatform().getCurrentProfile().getVersion();
+        int version = commCareApplication.getCurrentApp().getAppRecord().getVersionNumber();
 
         currentVersionText.setText(Localization.get("install.current.version",
                 new String[]{Integer.toString(version)}));

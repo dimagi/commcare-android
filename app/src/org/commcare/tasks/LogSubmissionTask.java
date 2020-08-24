@@ -14,8 +14,8 @@ import org.commcare.logging.XPathErrorEntry;
 import org.commcare.logging.XPathErrorSerializer;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.network.CommcareRequestGenerator;
-import org.commcare.preferences.ServerUrls;
 import org.commcare.preferences.HiddenPreferences;
+import org.commcare.preferences.ServerUrls;
 import org.commcare.tasks.LogSubmissionTask.LogSubmitOutcomes;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.FormUploadUtil;
@@ -40,6 +40,7 @@ import javax.crypto.spec.SecretKeySpec;
 import okhttp3.MultipartBody;
 import okhttp3.ResponseBody;
 import retrofit2.Response;
+
 /**
  * @author ctsims
  */
@@ -84,16 +85,16 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
         }
     }
 
-    private boolean serializeCurrentLogs = false;
     private final DataSubmissionListener listener;
     private final String submissionUrl;
+    private final boolean forceLogs;
 
-    public LogSubmissionTask(boolean serializeCurrentLogs,
-                             DataSubmissionListener listener,
-                             String submissionUrl) {
-        this.serializeCurrentLogs = serializeCurrentLogs;
+    public LogSubmissionTask(DataSubmissionListener listener,
+                             String submissionUrl,
+                             boolean forceLogs) {
         this.listener = listener;
         this.submissionUrl = submissionUrl;
+        this.forceLogs = forceLogs;
     }
 
     public static String getSubmissionUrl(SharedPreferences appPreferences) {
@@ -104,35 +105,54 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
     @Override
     protected LogSubmitOutcomes doInBackground(Void... params) {
         try {
-            SqlStorage<DeviceReportRecord> storage =
-                    CommCareApplication.instance().getUserStorage(DeviceReportRecord.class);
+            String logsEnabled = HiddenPreferences.getLogsEnabled();
 
-            if (serializeCurrentLogs && !serializeLogs(storage)) {
-                return LogSubmitOutcomes.Error;
+            // We want to serialize logs in on demand mode, but only submit to server when triggered using forcelogs
+            if (forceLogs
+                    || logsEnabled.contentEquals(HiddenPreferences.LOGS_ENABLED_YES)
+                    || logsEnabled.contentEquals(HiddenPreferences.LOGS_ENABLED_ON_DEMAND)) {
+
+                SqlStorage<DeviceReportRecord> storage =
+                        CommCareApplication.instance().getUserStorage(DeviceReportRecord.class);
+
+                if (!serializeLogs(storage)) {
+                    return LogSubmitOutcomes.Error;
+                }
+
+                if (forceLogs || logsEnabled.contentEquals(HiddenPreferences.LOGS_ENABLED_YES)) {
+
+                    // See how many we have pending to submit
+                    int numberOfLogsToSubmit = storage.getNumRecords();
+                    if (numberOfLogsToSubmit == 0) {
+                        return LogSubmitOutcomes.Submitted;
+                    }
+
+                    // Signal to the listener that we're ready to submit
+                    this.beginSubmissionProcess(numberOfLogsToSubmit);
+
+                    ArrayList<Integer> submittedSuccesfullyIds = new ArrayList<>();
+                    ArrayList<DeviceReportRecord> submittedSuccesfully = new ArrayList<>();
+                    submitReports(storage, submittedSuccesfullyIds, submittedSuccesfully);
+
+                    if (!removeLocalReports(storage, submittedSuccesfullyIds, submittedSuccesfully)) {
+                        return LogSubmitOutcomes.Serialized;
+                    }
+
+                    LogSubmitOutcomes result = checkSubmissionResult(numberOfLogsToSubmit, submittedSuccesfully);
+
+                    // Reset force_logs if the logs submission was successful
+                    if (result == LogSubmitOutcomes.Submitted) {
+                        HiddenPreferences.setForceLogs(CommCareApplication.instance().getSession().getLoggedInUser().getUniqueId(), false);
+                    }
+
+                    return result;
+                }
             }
-
-            // See how many we have pending to submit
-            int numberOfLogsToSubmit = storage.getNumRecords();
-            if (numberOfLogsToSubmit == 0) {
-                return LogSubmitOutcomes.Submitted;
-            }
-
-            // Signal to the listener that we're ready to submit
-            this.beginSubmissionProcess(numberOfLogsToSubmit);
-
-            ArrayList<Integer> submittedSuccesfullyIds = new ArrayList<>();
-            ArrayList<DeviceReportRecord> submittedSuccesfully = new ArrayList<>();
-            submitReports(storage, submittedSuccesfullyIds, submittedSuccesfully);
-
-            if (!removeLocalReports(storage, submittedSuccesfullyIds, submittedSuccesfully)) {
-                return LogSubmitOutcomes.Serialized;
-            }
-
-            return checkSubmissionResult(numberOfLogsToSubmit, submittedSuccesfully);
         } catch (SessionUnavailableException e) {
             // The user database closed on us
             return LogSubmitOutcomes.Error;
         }
+        return LogSubmitOutcomes.Submitted;
     }
 
     /**
@@ -153,7 +173,7 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
             DeviceReportWriter reporter;
             try {
                 //Create a report writer
-                reporter = new DeviceReportWriter(record);
+                    reporter = new DeviceReportWriter(record);
             } catch (IOException e) {
                 //TODO: Bad local file (almost certainly). Throw a better message!
                 e.printStackTrace();
@@ -218,7 +238,7 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
         int index = 0;
         for (DeviceReportRecord slr : storage) {
             try {
-                if (submitDeviceReportRecord(slr, submissionUrl, this, index)) {
+                if (submitDeviceReportRecord(slr, submissionUrl, this, index, forceLogs)) {
                     submittedSuccesfullyIds.add(slr.getID());
                     submittedSuccesfully.add(slr);
                 }
@@ -230,7 +250,7 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
     }
 
     private static boolean submitDeviceReportRecord(DeviceReportRecord slr, String submissionUrl,
-                                                    DataSubmissionListener listener, int index) {
+                                                    DataSubmissionListener listener, int index, boolean forceLogs) {
         //Get our file pointer
         File f = new File(slr.getFilePath());
 
@@ -260,15 +280,20 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
                 "text/xml",
                 new SecretKeySpec(slr.getKey(), "AES")));
 
-        Response<ResponseBody> response;
+
+        Response<ResponseBody> response = null;
         try {
-            response = generator.postMultipart(submissionUrl, parts);
+            response = generator.postLogs(submissionUrl, parts, forceLogs);
         } catch (IOException e) {
             e.printStackTrace();
             return false;
         } catch (IllegalStateException e) {
             e.printStackTrace();
             return false;
+        } finally {
+            if (response != null && response.body() != null) {
+                response.body().close();
+            }
         }
 
         int responseCode = response.code();

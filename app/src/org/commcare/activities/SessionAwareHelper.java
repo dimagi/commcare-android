@@ -2,7 +2,7 @@ package org.commcare.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
 
 import org.commcare.CommCareApplication;
 import org.commcare.utils.SessionActivityRegistration;
@@ -22,6 +22,7 @@ public class SessionAwareHelper {
             return false;
         } catch (SessionUnavailableException e) {
             SessionActivityRegistration.redirectToLogin(a);
+            a.finish();
             return true;
         }
     }
@@ -32,7 +33,11 @@ public class SessionAwareHelper {
                 SessionActivityRegistration.handleOrListenForSessionExpiration(a) ||
                         redirectedInOnCreate;
         if (!redirectedToLogin) {
-            sessionAware.onResumeSessionSafe();
+            try {
+                sessionAware.onResumeSessionSafe();
+            } catch (SessionUnavailableException e) {
+                SessionActivityRegistration.redirectToLogin(a);
+            }
         }
     }
 

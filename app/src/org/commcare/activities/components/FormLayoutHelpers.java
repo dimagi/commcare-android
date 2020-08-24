@@ -1,11 +1,7 @@
 package org.commcare.activities.components;
 
-import android.support.v7.app.AppCompatActivity;
-import android.content.SharedPreferences;
 import android.graphics.Rect;
 import android.os.Build;
-import android.support.v4.widget.TextViewCompat;
-import android.support.v7.preference.PreferenceManager;
 import android.util.TypedValue;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -14,8 +10,10 @@ import android.widget.TextView;
 import org.commcare.activities.CommCareActivity;
 import org.commcare.activities.FormEntryActivity;
 import org.commcare.dalvik.R;
-import org.commcare.models.ODKStorage;
 import org.commcare.preferences.FormEntryPreferences;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.widget.TextViewCompat;
 
 /**
  * @author ctsims
@@ -25,8 +23,8 @@ public class FormLayoutHelpers {
                                                            Rect newRootViewDimensions,
                                                            boolean hasGroupLabel,
                                                            boolean shouldHideGroupLabel) {
-        FrameLayout header = (FrameLayout)activity.findViewById(R.id.form_entry_header);
-        TextView groupLabel = ((TextView)header.findViewById(R.id.form_entry_group_label));
+        FrameLayout header = activity.findViewById(R.id.form_entry_header);
+        TextView groupLabel = header.findViewById(R.id.form_entry_group_label);
 
         int numberOfGroupLinesAllowed =
                 getNumberOfGroupLinesAllowed(groupLabel, newRootViewDimensions, activity);
@@ -65,8 +63,8 @@ public class FormLayoutHelpers {
     public static void updateGroupViewVisibility(FormEntryActivity activity,
                                                  boolean hasGroupLabel,
                                                  boolean shouldHideGroupLabel) {
-        FrameLayout header = (FrameLayout)activity.findViewById(R.id.form_entry_header);
-        TextView groupLabel = ((TextView)header.findViewById(R.id.form_entry_group_label));
+        FrameLayout header = activity.findViewById(R.id.form_entry_header);
+        TextView groupLabel = header.findViewById(R.id.form_entry_group_label);
         updateGroupViewVisibility(header, groupLabel, hasGroupLabel, shouldHideGroupLabel);
     }
 
@@ -84,14 +82,7 @@ public class FormLayoutHelpers {
     }
 
     private static int getFontSizeInPx(AppCompatActivity activity) {
-        SharedPreferences settings =
-                PreferenceManager.getDefaultSharedPreferences(activity.getApplicationContext());
-        String question_font =
-                settings.getString(FormEntryPreferences.KEY_FONT_SIZE, ODKStorage.DEFAULT_FONTSIZE);
-
-        int sizeInPx = Integer.valueOf(question_font);
-
-        return (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, sizeInPx,
+        return (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, FormEntryPreferences.getQuestionFontSize(),
                 activity.getResources().getDisplayMetrics());
     }
 

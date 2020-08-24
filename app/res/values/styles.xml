@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources xmlns:android="http://schemas.android.com/apk/res/android"
-    >
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
 
     <style name="NotificationText">
         <item name="android:textColor">@color/white</item>
@@ -32,6 +31,7 @@
         <item name="android:paddingRight">15dp</item>
     </style>
 
+
     <dimen name="entity_padding">@dimen/content_min_margin</dimen>
     <dimen name="grid_entity_padding">3dp</dimen>
 
@@ -41,7 +41,6 @@
         <item name="android:paddingBottom">@dimen/entity_padding</item>
         <item name="android:paddingRight">@dimen/entity_padding</item>
     </style>
-
     <style name="EntityItemImageView">
         <item name="android:paddingLeft">@dimen/entity_item_image_margins</item>
         <item name="android:paddingTop">@dimen/entity_item_image_margins</item>
@@ -57,7 +56,6 @@
     </style>
 
     <style name="EntityItemText" parent="@android:style/TextAppearance.Medium"/>
-
     <style name="GridEntityItemText" parent="@android:style/TextAppearance.Medium"/>
 
     <style name="VersionIdText">
@@ -69,7 +67,7 @@
         <item name="android:textColor">@color/cc_neutral_color</item>
     </style>
 
-    <style name="Animation"/>
+    <style name="Animation" />
 
     <style name="Animation.ScreenAnimations">
         <item name="android:activityOpenEnterAnimation">@anim/push_left_in</item>
@@ -119,7 +117,7 @@
         <item name="android:textColor">@color/red</item>
     </style>
 
-    <style name="DialogBaseTheme" parent="android:Theme.Dialog"/>
+    <style name="DialogBaseTheme" parent="android:Theme.Holo.Light.Dialog"/>
 
     <!-- Start Collect styles -->
 
@@ -135,7 +133,6 @@
 
     <!-- This is the value that needs to be used to pull the lower view back up over the badge -->
     <dimen name="badge_overlap_offset">-5dp</dimen>
-
 
     <style name="FloatingLabel" parent="@android:style/TextAppearance">
         <item name="android:background">@drawable/label_floating_good</item>
@@ -153,13 +150,11 @@
         <item name="android:colorBackground">@color/cc_core_bg</item>
         <item name="android:gravity">center_vertical</item>
     </style>
-
     <style name="ListContentWithBadge">
         <item name="android:layout_width">@dimen/list_content_with_space_for_badge</item>
         <item name="android:layout_height">@dimen/list_content_with_space_for_badge</item>
         <item name="android:gravity">center_vertical</item>
     </style>
-
     <style name="GridViewContentWithBadge">
         <item name="android:layout_width">@dimen/menu_grid_icon_size</item>
         <item name="android:layout_height">@dimen/menu_grid_icon_size_with_badge</item>
@@ -179,7 +174,6 @@
         <item name="android:clickable">false</item>
         <item name="android:longClickable">false</item>
     </style>
-
     <style name="LoginEditTextV2">
         <item name="android:paddingLeft">8dp</item>
         <item name="android:drawablePadding">8dp</item>
@@ -190,7 +184,6 @@
         <item name="android:paddingLeft">@dimen/content_start</item>
         <item name="android:paddingRight">@dimen/content_start</item>
     </style>
-
     <style name="DefaultVerticalPadding">
         <item name="android:paddingTop">@dimen/content_min_margin</item>
         <item name="android:paddingBottom">@dimen/content_min_margin</item>
@@ -202,6 +195,7 @@
         <item name="android:paddingTop">@dimen/content_min_margin</item>
         <item name="android:paddingBottom">@dimen/content_min_margin</item>
     </style>
+
 
     <style name="TextViewV2" parent="DefaultPadding">
         <item name="android:background">@color/cc_brand_color</item>
@@ -218,21 +212,29 @@
         <item name="odd_row_color">@color/drawer_pulldown_odd_row_color</item>
     </style>
 
-    <style name="ScreenPinnedButton">
+    <style name="ScreenPinnedButtonBase">
         <item name="android:layout_width">fill_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:background">@color/cc_attention_positive_bg</item>
         <item name="android:drawableRight">@drawable/icon_chevron_right_attnpos</item>
         <item name="android:textColor">@color/cc_attention_positive_text</item>
-        <item name="android:gravity">left|center_vertical</item>
+        <item name="android:gravity">left|end|center_vertical</item>
         <item name="android:paddingLeft">@dimen/content_min_margin</item>
         <item name="android:paddingRight">@dimen/content_min_margin</item>
         <item name="android:textSize">@dimen/text_large</item>
     </style>
 
-    <style name="ScreenPinnedButtonNeutral" parent="@style/ScreenPinnedButton">
+    <style name="ScreenPinnedButton" parent="ScreenPinnedButtonBase">
+        <item name="android:drawableRight">@drawable/icon_chevron_right_attnpos</item>
+    </style>
+
+    <style name="ScreenPinnedButtonNeutralBase" parent="@style/ScreenPinnedButton">
         <item name="android:background">@color/cc_light_cool_accent_bg</item>
         <item name="android:textColor">@color/cc_light_cool_accent_text</item>
+        <item name="android:drawableRight">@drawable/icon_chevron_right_brand</item>
+    </style>
+
+    <style name="ScreenPinnedButtonNeutral" parent="ScreenPinnedButtonNeutralBase">
         <item name="android:drawableRight">@drawable/icon_chevron_right_brand</item>
     </style>
 
@@ -264,6 +266,27 @@
         <item name="android:textSize">@dimen/abc_text_size_medium_material</item>
     </style>
 
+    <style name="MapButton">
+        <item name="android:minWidth">@dimen/map_button_min_width</item>
+    </style>
+
+    <style name="MapButtonColored" parent="MapButton">
+        <item name="android:textColor">@color/button_colored_text</item>
+    </style>
+
+    <style name="MapButtonGreen" parent="MapButtonColored">
+        <item name="android:background">@drawable/button_green_background</item>
+    </style>
+
+    <style name="MapButtonRed" parent="MapButtonColored">
+        <item name="android:background">@drawable/button_red_background</item>
+    </style>
+
+    <style name="MapButtonOrange" parent="MapButtonColored">
+        <item name="android:background">@drawable/button_orange_background</item>
+    </style>
+
     <color name="login_edit_text_color">@color/cc_core_text</color>
     <color name="login_edit_text_color_error">@color/cc_attention_negative_color</color>
+    <dimen name="map_button_min_width">120dp</dimen>
 </resources>

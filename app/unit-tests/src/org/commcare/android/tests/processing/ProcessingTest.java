@@ -1,10 +1,13 @@
 package org.commcare.android.tests.processing;
 
 import org.commcare.CommCareApplication;
-import org.commcare.android.CommCareTestRunner;
+import org.commcare.CommCareTestApplication;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import org.commcare.android.util.TestUtils;
 import org.commcare.cases.model.Case;
 import org.commcare.android.database.user.models.ACase;
+import org.commcare.cases.util.CaseDBUtils;
+import org.commcare.engine.cases.CaseUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -15,8 +18,8 @@ import static junit.framework.Assert.assertEquals;
 /**
  * @author ctsims
  */
-@Config(application = CommCareApplication.class)
-@RunWith(CommCareTestRunner.class)
+@Config(application = CommCareTestApplication.class)
+@RunWith(AndroidJUnit4.class)
 public class ProcessingTest {
 
     @Before
@@ -53,5 +56,24 @@ public class ProcessingTest {
         TestUtils.processResourceTransaction("/inputs/case_change_type.xml");
         Case c2 = TestUtils.getCaseStorage().getRecordForValue(ACase.INDEX_CASE_ID, "test_case_id");
         assertEquals("Changed Type", "changed_unit_test", c2.getTypeId());
+    }
+
+    @Test
+    public void testHashingParity() {
+        assertHashesEqual();
+        TestUtils.processResourceTransaction("/inputs/case_create.xml");
+        assertHashesEqual();
+        TestUtils.processResourceTransaction("/inputs/case_update.xml");
+        assertHashesEqual();
+        TestUtils.processResourceTransaction("/inputs/case_create_and_index.xml");
+        assertHashesEqual();
+    }
+
+    private void assertHashesEqual() {
+        String rawCalcHash = CaseDBUtils.computeCaseDbHash(TestUtils.getCaseStorage());
+
+        String fastCalcHash = CaseUtils.computeCaseDbHash(TestUtils.getCaseStorage());
+
+        assertEquals("fasthash incorrect", rawCalcHash, fastCalcHash);
     }
 }

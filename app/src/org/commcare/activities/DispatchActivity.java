@@ -1,9 +1,8 @@
 package org.commcare.activities;
 
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -14,12 +13,12 @@ import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.dalvik.R;
 import org.commcare.preferences.DeveloperPreferences;
+import org.commcare.recovery.measures.ExecuteRecoveryMeasuresActivity;
+import org.commcare.recovery.measures.RecoveryMeasuresHelper;
 import org.commcare.utils.AndroidShortcuts;
-import org.commcare.utils.LifecycleUtils;
+import org.commcare.utils.CommCareLifecycleUtils;
 import org.commcare.utils.MultipleAppsUtil;
 import org.commcare.utils.SessionUnavailableException;
-import org.commcare.views.dialogs.AlertDialogFragment;
-import org.commcare.views.dialogs.StandardAlertDialog;
 import org.javarosa.core.services.locale.Localization;
 
 /**
@@ -33,10 +32,13 @@ public class DispatchActivity extends AppCompatActivity {
     public static final String WAS_EXTERNAL = "launch_from_external";
     public static final String WAS_SHORTCUT_LAUNCH = "launch_from_shortcut";
     public static final String START_FROM_LOGIN = "process_successful_login";
+    public static final String EXECUTE_RECOVERY_MEASURES = "execute_recovery_measures";
 
     private static final int LOGIN_USER = 0;
     private static final int HOME_SCREEN = 1;
     public static final int INIT_APP = 2;
+    public static final int RECOVERY_MEASURES = 3;
+
 
     /**
      * Request code for automatically validating media.
@@ -51,6 +53,7 @@ public class DispatchActivity extends AppCompatActivity {
     private boolean shouldFinish;
     private boolean userTriggeredLogout;
     private boolean shortcutExtraWasConsumed;
+    private boolean needToExecuteRecoveryMeasures = false;
 
     private static final String EXTRA_CONSUMED_KEY = "shortcut_extra_was_consumed";
     private static final String KEY_APP_FILES_CHECK_OCCURRED = "check-for-changed-app-files-occurred";
@@ -63,7 +66,6 @@ public class DispatchActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         if (finishIfNotRoot()) {
             return;
         }
@@ -126,7 +128,6 @@ public class DispatchActivity extends AppCompatActivity {
         }
 
         CommCareApp currentApp = CommCareApplication.instance().getCurrentApp();
-
         if (currentApp == null) {
             if (MultipleAppsUtil.usableAppsPresent()) {
                 AppUtils.initFirstUsableAppRecord();
@@ -137,6 +138,16 @@ public class DispatchActivity extends AppCompatActivity {
                 this.startActivityForResult(i, INIT_APP);
             }
         } else {
+            if (needToExecuteRecoveryMeasures) {
+                needToExecuteRecoveryMeasures = false;
+                startRecoveryExecutionActivity();
+                return;
+            }
+
+            // Send this off at the earliest possible point where we know we have a seated app.
+            // Result will be stored for later use
+            RecoveryMeasuresHelper.requestRecoveryMeasures();
+
             // Note that the order in which these conditions are checked matters!!
             if (CommCareApplication.instance().isConsumerApp() && !alreadyCheckedForAppFilesChange) {
                 checkForChangedCCZ();
@@ -178,17 +189,17 @@ public class DispatchActivity extends AppCompatActivity {
         int dbState = CommCareApplication.instance().getDatabaseState();
         if (dbState == CommCareApplication.STATE_LEGACY_DETECTED) {
             // Starting from CommCare 2.44, we don't supoort upgrading from Legacy DB
-            LifecycleUtils.triggerHandledAppExit(this,
+            CommCareLifecycleUtils.triggerHandledAppExit(this,
                     getString(R.string.legacy_failure),
                     getString(R.string.legacy_failure_title), false, false);
             return true;
         } else if (dbState == CommCareApplication.STATE_MIGRATION_FAILED) {
-            LifecycleUtils.triggerHandledAppExit(this,
+            CommCareLifecycleUtils.triggerHandledAppExit(this,
                     getString(R.string.migration_definite_failure),
                     getString(R.string.migration_failure_title), false, false);
             return true;
         } else if (dbState == CommCareApplication.STATE_MIGRATION_QUESTIONABLE) {
-            LifecycleUtils.triggerHandledAppExit(this,
+            CommCareLifecycleUtils.triggerHandledAppExit(this,
                     getString(R.string.migration_possible_failure),
                     getString(R.string.migration_failure_title), false, true);
             return true;
@@ -203,11 +214,12 @@ public class DispatchActivity extends AppCompatActivity {
         if (!CommCareApplication.instance().isStorageAvailable()) {
             createNoStorageDialog();
         } else {
-            // See if we're logged in. If so, prompt for recovery.
+            // See if we're logged in. If so, show recovery screen
             try {
                 CommCareApplication.instance().getSession();
-
-                createAskFixDialog().show(getSupportFragmentManager(), "damage-dialog");
+                Intent intent = new Intent(DispatchActivity.this, RecoveryActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);
             } catch (SessionUnavailableException e) {
                 // Otherwise, log in first
                 launchLoginScreen();
@@ -215,8 +227,14 @@ public class DispatchActivity extends AppCompatActivity {
         }
     }
 
+    private  void startRecoveryExecutionActivity() {
+        startActivityForResult(
+                new Intent(this, ExecuteRecoveryMeasuresActivity.class),
+                RECOVERY_MEASURES);
+    }
+
     private void createNoStorageDialog() {
-        LifecycleUtils.triggerHandledAppExit(this,
+        CommCareLifecycleUtils.triggerHandledAppExit(this,
                 Localization.get("app.storage.missing.message"),
                 Localization.get("app.storage.missing.title"));
     }
@@ -293,20 +311,24 @@ public class DispatchActivity extends AppCompatActivity {
         } else {
             // Means that there are no usable apps, but there are multiple apps who all don't have
             // MM verified -- show an error message and shut down
-            LifecycleUtils.triggerHandledAppExit(this,
+            CommCareLifecycleUtils.triggerHandledAppExit(this,
                     Localization.get("multiple.apps.unverified.message"),
                     Localization.get("multiple.apps.unverified.title"));
         }
     }
 
     private void handleExternalLaunch() {
-        String sessionRequest = this.getIntent().getStringExtra(SESSION_REQUEST);
-        SessionStateDescriptor ssd = new SessionStateDescriptor();
-        ssd.fromBundle(sessionRequest);
-        CommCareApplication.instance().getCurrentSessionWrapper().loadFromStateDescription(ssd);
-        Intent i = new Intent(this, StandardHomeActivity.class);
-        i.putExtra(WAS_EXTERNAL, true);
-        startActivityForResult(i, HOME_SCREEN);
+        //First off, make sure the incoming session is clear
+        CommCareApplication.instance().getSession().proceedWithSavedSessionIfNeeded(() -> {
+                    String sessionRequest = this.getIntent().getStringExtra(SESSION_REQUEST);
+                    SessionStateDescriptor ssd = new SessionStateDescriptor();
+                    ssd.fromBundle(sessionRequest);
+                    CommCareApplication.instance().getCurrentSessionWrapper().loadFromStateDescription(ssd);
+                    Intent i = new Intent(this, StandardHomeActivity.class);
+                    i.putExtra(WAS_EXTERNAL, true);
+                    startActivityForResult(i, HOME_SCREEN);
+        }
+        );
     }
 
     private void handleShortcutLaunch() {
@@ -338,6 +360,10 @@ public class DispatchActivity extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        if (intent != null && intent.getBooleanExtra(EXECUTE_RECOVERY_MEASURES, false)) {
+            this.needToExecuteRecoveryMeasures = true;
+        }
+
         // if handling new return code (want to return to home screen) but a return at the end of your statement
         switch (requestCode) {
             case INIT_APP:
@@ -374,32 +400,10 @@ public class DispatchActivity extends AppCompatActivity {
                     userTriggeredLogout = true;
                 }
                 return;
+            case RECOVERY_MEASURES:
+                RecoveryMeasuresHelper.handleExecutionActivityResult(this, intent);
+                return;
         }
         super.onActivityResult(requestCode, resultCode, intent);
-    }
-
-    private AlertDialogFragment createAskFixDialog() {
-        //TODO: Localize this in theory, but really shift it to the upgrade/management state
-        String title = "Storage is Corrupt :/";
-        String message = "Sorry, something really bad has happened, and the app can't start up. " +
-                "With your permission CommCare can try to repair itself if you have network access.";
-        StandardAlertDialog d = new StandardAlertDialog(this, title, message);
-        DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int i) {
-                switch (i) {
-                    case DialogInterface.BUTTON_POSITIVE: // attempt repair
-                        Intent intent = new Intent(DispatchActivity.this, RecoveryActivity.class);
-                        startActivity(intent);
-                        break;
-                    case DialogInterface.BUTTON_NEGATIVE: // Shut down
-                        DispatchActivity.this.finish();
-                        break;
-                }
-            }
-        };
-        d.setPositiveButton("Enter Recovery Mode", listener);
-        d.setNegativeButton("Shut Down", listener);
-        return AlertDialogFragment.fromCommCareAlertDialog(d);
     }
 }

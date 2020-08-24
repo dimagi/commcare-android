@@ -87,14 +87,7 @@ public class DotsHomeView extends RelativeLayout {
         Button done = new Button(this.getContext());
         done.setId(666);
         done.setText("Finished");
-        done.setOnClickListener(new OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-                listener.doneWithDOTS();
-            }
-
-        });
+        done.setOnClickListener(v -> listener.doneWithDOTS());
 
 
         RelativeLayout topPane = new RelativeLayout(this.getContext());
@@ -117,13 +110,13 @@ public class DotsHomeView extends RelativeLayout {
     private View getDayView(Calendar c, DotsDay d, final int dayIndex) {
         View dayView = View.inflate(this.getContext(), R.layout.dotsday, null);
 
-        TextView date = (TextView)dayView.findViewById(R.id.text_date);
-        TextView dow = (TextView)dayView.findViewById(R.id.text_dow);
+        TextView date = dayView.findViewById(R.id.text_date);
+        TextView dow = dayView.findViewById(R.id.text_dow);
 
         dow.setText(dayArray[c.get(Calendar.DAY_OF_WEEK) - 1]);
         date.setText((c.get(Calendar.MONTH) + 1) + "/" + c.get(Calendar.DAY_OF_MONTH));
 
-        ImageView icon = (ImageView)dayView.findViewById(R.id.day_icon);
+        ImageView icon = dayView.findViewById(R.id.day_icon);
         MedStatus s = d.status();
         if (s == MedStatus.empty) {
             icon.setImageResource(R.drawable.checkmark);
@@ -133,23 +126,18 @@ public class DotsHomeView extends RelativeLayout {
             icon.setVisibility(View.INVISIBLE);
         }
 
-        dayView.setOnClickListener(new OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-                Rect hitRect = new Rect();
-                if (v.getParent() instanceof View) {
-                    v.getHitRect(hitRect);
-                    View parent = (View)v.getParent();
-                    DotsHomeView.this.offsetDescendantRectToMyCoords(parent, hitRect);
-                    listener.editDotsDay(dayIndex, hitRect);
-                } else {
-                    hitRect = new Rect(0, 0, v.getWidth(), v.getHeight());
-                    DotsHomeView.this.offsetDescendantRectToMyCoords(v, hitRect);
-                    listener.editDotsDay(dayIndex, hitRect);
-                }
+        dayView.setOnClickListener(v -> {
+            Rect hitRect = new Rect();
+            if (v.getParent() instanceof View) {
+                v.getHitRect(hitRect);
+                View parent = (View)v.getParent();
+                DotsHomeView.this.offsetDescendantRectToMyCoords(parent, hitRect);
+                listener.editDotsDay(dayIndex, hitRect);
+            } else {
+                hitRect = new Rect(0, 0, v.getWidth(), v.getHeight());
+                DotsHomeView.this.offsetDescendantRectToMyCoords(v, hitRect);
+                listener.editDotsDay(dayIndex, hitRect);
             }
-
         });
 
         return dayView;

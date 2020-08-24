@@ -1,13 +1,8 @@
 package org.commcare.views.widgets;
 
-import android.support.v7.app.AppCompatActivity;
-import android.content.DialogInterface;
 import android.content.Context;
-import android.content.pm.ActivityInfo;
-import android.content.res.Configuration;
 import android.graphics.Rect;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,12 +15,18 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
+
 import org.commcare.dalvik.R;
+
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 import java.util.Map;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.DialogFragment;
 
 /**
  * Created by Saumya on 5/29/2016.
@@ -33,7 +34,7 @@ import java.util.Map;
  * Uses support library for compatibility with pre-honeycomb devices
  * Layout and logic inspired by Ahmed Al-Amir at https://www.toptal.com/android/android-customization-how-to-build-a-ui-component-that-does-what-you-want
  */
-public class CalendarFragment extends android.support.v4.app.DialogFragment {
+public class CalendarFragment extends DialogFragment {
 
     private GridView calendarGrid;
     private ImageButton cancel;
@@ -47,10 +48,22 @@ public class CalendarFragment extends android.support.v4.app.DialogFragment {
 
     private long todaysDateInMillis;
     private static final int DAYSINWEEK = 7;
+    private static final String KEY_SELECTED_DATE = "selected-date";
+
+    public static final String KEY_STARTING_SELECTION = "starting-selection";
+    private long startingSelectedDate;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         getDialog().getWindow().requestFeature(Window.FEATURE_NO_TITLE);
+        this.calendar = Calendar.getInstance();
+        this.todaysDateInMillis = calendar.getTimeInMillis();
+        // Set the starting selection passed in from outside.
+        Bundle input = getArguments();
+        if (input != null && input.containsKey(KEY_STARTING_SELECTION)) {
+            startingSelectedDate = input.getLong(KEY_STARTING_SELECTION);
+            calendar.setTimeInMillis(startingSelectedDate);
+        }
         inflateView(inflater, container);
 
         initDisplay();
@@ -58,7 +71,18 @@ public class CalendarFragment extends android.support.v4.app.DialogFragment {
         initOnClick();
         setWindowSize();
 
+        // Set the calendar date to what the user selected before rotation.
+        if (savedInstanceState != null && savedInstanceState.containsKey(KEY_SELECTED_DATE)) {
+            calendar.setTimeInMillis(savedInstanceState.getLong(KEY_SELECTED_DATE));
+        }
         return layout;
+    }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        long millis = calendar.getTimeInMillis();
+        outState.putLong(KEY_SELECTED_DATE, millis);
     }
 
     @Override
@@ -85,42 +109,30 @@ public class CalendarFragment extends android.support.v4.app.DialogFragment {
 
     private void initOnClick() {
 
-        calendarGrid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Date date = (Date) parent.getItemAtPosition(position);
-                calendar.setTime(date);
-                refresh();
+        calendarGrid.setOnItemClickListener((parent, view, position, id) -> {
+            Date date = (Date)parent.getItemAtPosition(position);
+            calendar.setTime(date);
+            refresh();
+        });
+
+        cancel.setOnClickListener(v -> {
+            dismiss();
+            if (calendarCloseListener != null) {
+                calendarCloseListener.onDateSelected(startingSelectedDate);
             }
         });
 
-        cancel.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                dismiss();
-                if (calendarCloseListener != null) {
-                    calendarCloseListener.onCalendarCancel();
-                }
+        ImageButton closer = layout.findViewById(R.id.close_calendar);
+        closer.setOnClickListener(v -> {
+            dismiss();
+            if (calendarCloseListener != null) {
+                calendarCloseListener.onDateSelected(calendar.getTimeInMillis());
             }
         });
 
-        ImageButton closer = (ImageButton) layout.findViewById(R.id.close_calendar);
-        closer.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                dismiss();
-                if (calendarCloseListener != null) {
-                    calendarCloseListener.onCalendarClose();
-                }
-            }
-        });
-
-        today.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                calendar.setTimeInMillis(todaysDateInMillis);
-                refresh();
-            }
+        today.setOnClickListener(v -> {
+            calendar.setTimeInMillis(todaysDateInMillis);
+            refresh();
         });
     }
 
@@ -132,15 +144,15 @@ public class CalendarFragment extends android.support.v4.app.DialogFragment {
     }
 
     private void initDisplay() {
-        calendarGrid = (GridView)layout.findViewById(R.id.calendar_grid);
+        calendarGrid = layout.findViewById(R.id.calendar_grid);
         setupMonthComponents();
         setupYearComponents();
-        cancel = (ImageButton)layout.findViewById(R.id.cancel_calendar);
-        today = (Button)layout.findViewById(R.id.today);
+        cancel = layout.findViewById(R.id.cancel_calendar);
+        today = layout.findViewById(R.id.today);
     }
 
     private void setupYearComponents() {
-        yearSpinner = (Spinner)layout.findViewById(R.id.year_spinner);
+        yearSpinner = layout.findViewById(R.id.year_spinner);
 
         ArrayList<String> years = new ArrayList<>();
 
@@ -154,18 +166,19 @@ public class CalendarFragment extends android.support.v4.app.DialogFragment {
         yearSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                calendar.set(Calendar.YEAR, position+GregorianDateWidget.MIN_YEAR);
+                calendar.set(Calendar.YEAR, position + GregorianDateWidget.MIN_YEAR);
                 refresh();
             }
 
             @Override
-            public void onNothingSelected(AdapterView<?> parent) {}
+            public void onNothingSelected(AdapterView<?> parent) {
+            }
         });
     }
 
     //Have to sort month names because Calendar can't return them in order
     private void setupMonthComponents() {
-        monthSpinner = (Spinner)layout.findViewById(R.id.calendar_spinner);
+        monthSpinner = layout.findViewById(R.id.calendar_spinner);
 
         final Map<String, Integer> monthMap = calendar.getDisplayNames(Calendar.MONTH, Calendar.LONG, Locale.getDefault());
         ArrayList<String> monthList = new ArrayList<>(monthMap.keySet());
@@ -180,7 +193,8 @@ public class CalendarFragment extends android.support.v4.app.DialogFragment {
             }
 
             @Override
-            public void onNothingSelected(AdapterView<?> parent) {}
+            public void onNothingSelected(AdapterView<?> parent) {
+            }
         });
     }
 
@@ -192,19 +206,19 @@ public class CalendarFragment extends android.support.v4.app.DialogFragment {
         int totalDays = getNumDaysInMonth(populator);
         populateListOfDates(dateList, populator, totalDays);
 
-        yearSpinner.setSelection(calendar.get(Calendar.YEAR)-GregorianDateWidget.MIN_YEAR);
+        yearSpinner.setSelection(calendar.get(Calendar.YEAR) - GregorianDateWidget.MIN_YEAR);
         monthSpinner.setSelection(calendar.get(Calendar.MONTH));
         calendarGrid.setAdapter(new CalendarAdapter(getContext(), dateList));
     }
 
     //Populates an arraylist with dates
     private static void populateListOfDates(ArrayList<Date> dateList, Calendar populator, int totalDays) {
-        while(dateList.size() < totalDays) {
+        while (dateList.size() < totalDays) {
             dateList.add(populator.getTime());
             populator.add(Calendar.DAY_OF_MONTH, 1);
         }
 
-        int remainingDays = ((DAYSINWEEK + 1)-(populator.get(Calendar.DAY_OF_WEEK)))%DAYSINWEEK;
+        int remainingDays = ((DAYSINWEEK + 1) - (populator.get(Calendar.DAY_OF_WEEK))) % DAYSINWEEK;
 
         for (int i = 0; i < remainingDays; i++) {
             dateList.add(populator.getTime());
@@ -229,7 +243,7 @@ public class CalendarFragment extends android.support.v4.app.DialogFragment {
         return totalDays;
     }
 
-    private class CalendarAdapter extends ArrayAdapter<Date>{
+    private class CalendarAdapter extends ArrayAdapter<Date> {
 
         private final LayoutInflater mInflater;
 
@@ -261,12 +275,10 @@ public class CalendarFragment extends android.support.v4.app.DialogFragment {
             if (calendarDate.equals(currentDate)) {
                 text.setTextColor(getResources().getColor(R.color.white));
                 text.setBackgroundColor(getResources().getColor(R.color.cc_attention_positive_color));
-            }
-            else if (calendarDate.get(Calendar.MONTH) != currentDate.get(Calendar.MONTH)) {
+            } else if (calendarDate.get(Calendar.MONTH) != currentDate.get(Calendar.MONTH)) {
                 text.setTextColor(getResources().getColor(R.color.grey_dark));
                 text.setBackgroundColor(getResources().getColor(R.color.grey_lighter));
-            }
-            else {
+            } else {
                 text.setTextColor(getResources().getColor(R.color.black));
                 text.setBackgroundColor(getResources().getColor(R.color.transparent));
             }
@@ -277,17 +289,8 @@ public class CalendarFragment extends android.support.v4.app.DialogFragment {
         layout = (LinearLayout)inflater.inflate(R.layout.scrolling_calendar_widget, container);
     }
 
-    public void setToday(long currentDayInMillis) {
-        todaysDateInMillis = currentDayInMillis;
-    }
-
-    public void updateUnderlyingCalendar(Calendar cal) {
-        this.calendar = cal;
-    }
-
     public interface CalendarCloseListener {
-        void onCalendarClose();
-        void onCalendarCancel();
+        void onDateSelected(long millis);
     }
 
     public void setListener(CalendarCloseListener listener) {

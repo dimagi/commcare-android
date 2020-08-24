@@ -27,6 +27,8 @@ public abstract class CommCareTask<Params, Progress, Result, Receiver>
     //Wait for 2 seconds for something to reconnnect for now (very high)
     private static final int ALLOWABLE_CONNECTOR_ACQUISITION_DELAY = 2000;
 
+    private int connectionTimout = ALLOWABLE_CONNECTOR_ACQUISITION_DELAY;
+
     protected CommCareTask() {
         TAG = CommCareTask.class.getSimpleName();
     }
@@ -127,6 +129,15 @@ public abstract class CommCareTask<Params, Progress, Result, Receiver>
         }
     }
 
+    /**
+     * Adjust the time that the task will wait for a connector before cancelling
+     * or proceeding (if headless)
+     *
+     */
+    protected void setConnectionTimeout(int connectionTimeout) {
+        this.connectionTimout = connectionTimeout;
+    }
+
     private CommCareTaskConnector<Receiver> getConnector() {
         return getConnector(true);
     }
@@ -136,7 +147,7 @@ public abstract class CommCareTask<Params, Progress, Result, Receiver>
         //We wanna hold off on anything that requires the connector
         //until there is one present, up until some specified limit
         long requested = System.currentTimeMillis();
-        while (System.currentTimeMillis() - requested < ALLOWABLE_CONNECTOR_ACQUISITION_DELAY) {
+        while (System.currentTimeMillis() - requested < connectionTimout) {
             //See if we've gotten a connector
             synchronized (connectorLock) {
                 if (connector != null) {

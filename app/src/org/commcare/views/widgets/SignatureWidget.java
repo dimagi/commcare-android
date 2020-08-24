@@ -15,7 +15,7 @@ package org.commcare.views.widgets;
  */
 
 
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
@@ -93,12 +93,7 @@ public class SignatureWidget extends QuestionWidget {
 
         // launch capture intent on click
         final FormIndex questionIndex = prompt.getIndex();
-        mSignButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                launchSignatureActivity(questionIndex);
-            }
-        });
+        mSignButton.setOnClickListener(v -> launchSignatureActivity(questionIndex));
 
 
         // finish complex layout
@@ -137,12 +132,7 @@ public class SignatureWidget extends QuestionWidget {
 
             mImageView.setPadding(10, 10, 10, 10);
             mImageView.setAdjustViewBounds(true);
-            mImageView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    launchSignatureActivity(questionIndex);
-                }
-            });
+            mImageView.setOnClickListener(v -> launchSignatureActivity(questionIndex));
 
             addView(mImageView);
         }
@@ -211,15 +201,14 @@ public class SignatureWidget extends QuestionWidget {
 
 
     @Override
-    public void setBinaryData(Object binaryURI) {
+    public void setBinaryData(Object binaryPath) {
         // you are replacing an answer. delete the previous image using the
         // content provider.
         if (mBinaryName != null) {
             deleteMedia();
         }
 
-        String binaryPath = UrlUtils.getPathFromUri((Uri)binaryURI, getContext());
-        File f = new File(binaryPath);
+        File f = new File(binaryPath.toString());
         mBinaryName = f.getName();
         Log.i(t, "Setting current answer to " + f.getName());
     }

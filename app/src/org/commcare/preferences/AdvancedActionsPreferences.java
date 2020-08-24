@@ -1,14 +1,10 @@
 package org.commcare.preferences;
 
-import android.support.v7.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.preference.Preference;
+import android.widget.Toast;
 
 import org.commcare.AppUtils;
 import org.commcare.CommCareApplication;
@@ -34,6 +30,12 @@ import org.javarosa.core.services.locale.Localization;
 import java.util.HashMap;
 import java.util.Map;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.preference.Preference;
+
 /**
  * Menu for launching advanced CommCare actions
  *
@@ -50,6 +52,9 @@ public class AdvancedActionsPreferences extends CommCarePreferenceFragment {
     private final static String RECOVERY_MODE = "recovery-mode";
     private final static String CLEAR_USER_DATA = "clear-user-data";
     private final static String CLEAR_SAVED_SESSION = "clear-saved-session";
+    private final static String DISABLE_PRE_UPDATE_SYNC = "bypass-pre-update-sync";
+    private final static String ENABLE_RATE_LIMIT_POPUP = "enable-rate-limit-popup";
+    private final static String ENABLE_MANUAL_FORM_QUARANTINE = "enable-manual-form-quarantine";
 
     private final static int WIFI_DIRECT_ACTIVITY = 1;
     private final static int DUMP_FORMS_ACTIVITY = 2;
@@ -75,6 +80,9 @@ public class AdvancedActionsPreferences extends CommCarePreferenceFragment {
         keyToTitleMap.put(FORCE_LOG_SUBMIT, "force.log.submit");
         keyToTitleMap.put(RECOVERY_MODE, "recovery.mode");
         keyToTitleMap.put(CLEAR_SAVED_SESSION, "menu.clear.saved.session");
+        keyToTitleMap.put(DISABLE_PRE_UPDATE_SYNC, "menu.disable.pre.update.sync");
+        keyToTitleMap.put(ENABLE_RATE_LIMIT_POPUP, "menu.enable.rate.limit.popup");
+        keyToTitleMap.put(ENABLE_MANUAL_FORM_QUARANTINE, "menu.enable.manual.form.quarantine");
     }
 
     @NonNull
@@ -100,90 +108,81 @@ public class AdvancedActionsPreferences extends CommCarePreferenceFragment {
         if (reportProblemButton != null && DeveloperPreferences.shouldHideReportIssue()) {
             getPreferenceScreen().removePreference(reportProblemButton);
         }
+        if (!HiddenPreferences.preUpdateSyncNeeded()) {
+            Preference clearAppReleaseTimePref = findPreference(DISABLE_PRE_UPDATE_SYNC);
+            if (clearAppReleaseTimePref != null) {
+                getPreferenceScreen().removePreference(clearAppReleaseTimePref);
+            }
+        }
+        if (!HiddenPreferences.isRateLimitPopupDisabled()) {
+            Preference rateLimitPopup = findPreference(ENABLE_RATE_LIMIT_POPUP);
+            if (rateLimitPopup != null) {
+                getPreferenceScreen().removePreference(rateLimitPopup);
+            }
+        }
     }
 
     @Override
     protected void setupPrefClickListeners() {
         Preference reportProblemButton = findPreference(REPORT_PROBLEM);
-        reportProblemButton.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-                FirebaseAnalyticsUtil.reportAdvancedActionSelected(
-                        AnalyticsParamValue.REPORT_PROBLEM);
-                startReportActivity();
-                return true;
-            }
+        reportProblemButton.setOnPreferenceClickListener(preference -> {
+            FirebaseAnalyticsUtil.reportAdvancedActionSelected(
+                    AnalyticsParamValue.REPORT_PROBLEM);
+            startReportActivity();
+            return true;
         });
 
         Preference validateMediaButton = findPreference(VALIDATE_MEDIA);
-        validateMediaButton.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-                FirebaseAnalyticsUtil.reportAdvancedActionSelected(
-                        AnalyticsParamValue.VALIDATE_MEDIA);
-                startValidationActivity();
-                return true;
-            }
+        validateMediaButton.setOnPreferenceClickListener(preference -> {
+            FirebaseAnalyticsUtil.reportAdvancedActionSelected(
+                    AnalyticsParamValue.VALIDATE_MEDIA);
+            startValidationActivity();
+            return true;
         });
 
         Preference wifiDirectButton = findPreference(WIFI_DIRECT);
         if (hasP2p()) {
-            wifiDirectButton.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-                @Override
-                public boolean onPreferenceClick(Preference preference) {
-                    FirebaseAnalyticsUtil.reportAdvancedActionSelected(
-                            AnalyticsParamValue.WIFI_DIRECT);
-                    startWifiDirect();
-                    return true;
-                }
+            wifiDirectButton.setOnPreferenceClickListener(preference -> {
+                FirebaseAnalyticsUtil.reportAdvancedActionSelected(
+                        AnalyticsParamValue.WIFI_DIRECT);
+                startWifiDirect();
+                return true;
             });
         } else {
             getPreferenceScreen().removePreference(wifiDirectButton);
         }
 
         Preference dumpFormsButton = findPreference(DUMP_FORMS);
-        dumpFormsButton.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-                FirebaseAnalyticsUtil.reportAdvancedActionSelected(
-                        AnalyticsParamValue.MANAGE_SD);
-                startFormDump();
-                return true;
-            }
+        dumpFormsButton.setOnPreferenceClickListener(preference -> {
+            FirebaseAnalyticsUtil.reportAdvancedActionSelected(
+                    AnalyticsParamValue.MANAGE_SD);
+            startFormDump();
+            return true;
         });
 
         Preference connectionTestButton = findPreference(CONNECTION_TEST);
-        connectionTestButton.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-                FirebaseAnalyticsUtil.reportAdvancedActionSelected(
-                        AnalyticsParamValue.CONNECTION_TEST);
-                startConnectionTest();
-                return true;
-            }
+        connectionTestButton.setOnPreferenceClickListener(preference -> {
+            FirebaseAnalyticsUtil.reportAdvancedActionSelected(
+                    AnalyticsParamValue.CONNECTION_TEST);
+            startConnectionTest();
+            return true;
         });
 
         Preference clearDataButton = findPreference(CLEAR_USER_DATA);
-        clearDataButton.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-                FirebaseAnalyticsUtil.reportAdvancedActionSelected(
-                        AnalyticsParamValue.CLEAR_USER_DATA);
-                clearUserData((AppCompatActivity)getActivity());
-                return true;
-            }
+        clearDataButton.setOnPreferenceClickListener(preference -> {
+            FirebaseAnalyticsUtil.reportAdvancedActionSelected(
+                    AnalyticsParamValue.CLEAR_USER_DATA);
+            clearUserData((AppCompatActivity)getActivity());
+            return true;
         });
 
         Preference clearSavedSessionButton = findPreference(CLEAR_SAVED_SESSION);
         if (DevSessionRestorer.savedSessionPresent()) {
-            clearSavedSessionButton.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-                @Override
-                public boolean onPreferenceClick(Preference preference) {
-                    FirebaseAnalyticsUtil.reportAdvancedActionSelected(
-                            AnalyticsParamValue.CLEAR_SAVED_SESSION);
-                    DevSessionRestorer.clearSession();
-                    return true;
-                }
+            clearSavedSessionButton.setOnPreferenceClickListener(preference -> {
+                FirebaseAnalyticsUtil.reportAdvancedActionSelected(
+                        AnalyticsParamValue.CLEAR_SAVED_SESSION);
+                DevSessionRestorer.clearSession();
+                return true;
             });
         } else {
             getPreferenceScreen().removePreference(clearSavedSessionButton);
@@ -191,26 +190,47 @@ public class AdvancedActionsPreferences extends CommCarePreferenceFragment {
 
 
         Preference forceSubmitButton = findPreference(FORCE_LOG_SUBMIT);
-        forceSubmitButton.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-                FirebaseAnalyticsUtil.reportAdvancedActionSelected(
-                        AnalyticsParamValue.FORCE_LOG_SUBMISSION);
-                CommCareUtil.triggerLogSubmission(getActivity());
-                return true;
-            }
+        forceSubmitButton.setOnPreferenceClickListener(preference -> {
+            FirebaseAnalyticsUtil.reportAdvancedActionSelected(
+                    AnalyticsParamValue.FORCE_LOG_SUBMISSION);
+            CommCareUtil.triggerLogSubmission(getActivity(), false);
+            return true;
         });
 
         Preference recoveryModeButton = findPreference(RECOVERY_MODE);
-        recoveryModeButton.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-                FirebaseAnalyticsUtil.reportAdvancedActionSelected(
-                        AnalyticsParamValue.RECOVERY_MODE);
-                startRecoveryMode();
-                return true;
-            }
+        recoveryModeButton.setOnPreferenceClickListener(preference -> {
+            FirebaseAnalyticsUtil.reportAdvancedActionSelected(
+                    AnalyticsParamValue.RECOVERY_MODE);
+            startRecoveryMode();
+            return true;
         });
+
+        Preference clearAppReleaseTimePref = findPreference(DISABLE_PRE_UPDATE_SYNC);
+        clearAppReleaseTimePref.setOnPreferenceClickListener(preference -> {
+            FirebaseAnalyticsUtil.reportAdvancedActionSelected(
+                    AnalyticsParamValue.DISABLE_PRE_UPDATE_SYNC);
+            HiddenPreferences.enableBypassPreUpdateSync(true);
+            Toast.makeText(getActivity(), R.string.success, Toast.LENGTH_SHORT).show();
+            return true;
+        });
+
+        Preference rateLimitPopup = findPreference(ENABLE_RATE_LIMIT_POPUP);
+        rateLimitPopup.setOnPreferenceClickListener(preference -> {
+            FirebaseAnalyticsUtil.reportAdvancedActionSelected(
+                    AnalyticsParamValue.ENABLE_RATE_LIMIT_POPUP);
+            HiddenPreferences.disableRateLimitPopup(false);
+            Toast.makeText(getActivity(), R.string.success, Toast.LENGTH_SHORT).show();
+            return true;
+        });
+
+        findPreference(ENABLE_MANUAL_FORM_QUARANTINE)
+                .setOnPreferenceClickListener(preference -> {
+                    FirebaseAnalyticsUtil.reportAdvancedActionSelected(
+                            AnalyticsParamValue.ENABLE_MANUAL_FORM_QUARANTINE);
+                    setManualFormQuarantine(true);
+                    Toast.makeText(getActivity(), R.string.success, Toast.LENGTH_SHORT).show();
+                    return true;
+                });
     }
 
     private void startReportActivity() {
@@ -255,17 +275,13 @@ public class AdvancedActionsPreferences extends CommCarePreferenceFragment {
                 new StandardAlertDialog(activity,
                         Localization.get("clear.user.data.warning.title"),
                         Localization.get("clear.user.data.warning.message"));
-        DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog,
-                                int which) {
-                if (which == AlertDialog.BUTTON_POSITIVE) {
-                    AppUtils.clearUserData();
-                    activity.setResult(RESULT_DATA_RESET);
-                    activity.finish();
-                }
-                dialog.dismiss();
+        DialogInterface.OnClickListener listener = (dialog, which) -> {
+            if (which == AlertDialog.BUTTON_POSITIVE) {
+                AppUtils.clearUserData();
+                activity.setResult(RESULT_DATA_RESET);
+                activity.finish();
             }
+            dialog.dismiss();
         };
         d.setPositiveButton(StringUtils.getStringRobust(activity, R.string.ok), listener);
         d.setNegativeButton(StringUtils.getStringRobust(activity, R.string.cancel), listener);
@@ -301,6 +317,17 @@ public class AdvancedActionsPreferences extends CommCarePreferenceFragment {
         } else {
             return null;
         }
+    }
+
+    public static boolean isManualFormQuarantineAllowed() {
+        return DeveloperPreferences.doesPropertyMatch(ENABLE_MANUAL_FORM_QUARANTINE, PrefValues.NO, PrefValues.YES);
+    }
+
+    public static void setManualFormQuarantine(boolean enabled) {
+        CommCareApplication.instance().getCurrentApp().getAppPreferences()
+                .edit()
+                .putString(ENABLE_MANUAL_FORM_QUARANTINE, enabled ? PrefValues.YES : PrefValues.NO)
+                .apply();
     }
 }
 

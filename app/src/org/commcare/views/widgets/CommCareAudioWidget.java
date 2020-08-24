@@ -5,22 +5,29 @@ import android.content.Context;
 import android.content.Intent;
 import android.media.MediaPlayer;
 import android.net.Uri;
-import android.support.v4.app.FragmentManager;
-import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import org.commcare.activities.components.FormEntryConstants;
+import org.commcare.activities.components.FormEntryInstanceState;
 import org.commcare.dalvik.R;
 import org.commcare.logic.PendingCalloutInterface;
 import org.commcare.utils.StringUtils;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.form.api.FormEntryPrompt;
+
+import java.util.Date;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.FragmentActivity;
+
+import static org.commcare.views.widgets.RecordingFragment.AUDIO_FILE_PATH_ARG_KEY;
 
 /**
  * An alternative audio widget that records and plays audio natively without
@@ -31,66 +38,50 @@ import org.javarosa.form.api.FormEntryPrompt;
 public class CommCareAudioWidget extends AudioWidget
         implements RecordingFragment.RecordingCompletionListener {
 
-    private final RecordingFragment recorder;
-    private final FragmentManager fm;
     private LinearLayout layout;
     private ImageButton mPlayButton;
     private TextView recordingNameText;
-    private final String questionIndexText;
     private MediaPlayer player;
+    private static final String ACQUIRE_UPLOAD_FIELD = "acquire-or-upload";
 
     public CommCareAudioWidget(Context context, FormEntryPrompt prompt,
                                PendingCalloutInterface pic) {
         super(context, prompt, pic);
-        fm = ((AppCompatActivity)getContext()).getSupportFragmentManager();
-        recorder = new RecordingFragment();
-        recorder.setListener(this);
-        questionIndexText = prompt.getIndex().toString();
     }
+
 
     @Override
     protected void initializeButtons() {
         LayoutInflater vi = LayoutInflater.from(getContext());
         layout = (LinearLayout)vi.inflate(R.layout.audio_prototype, null);
 
-        mPlayButton = (ImageButton)layout.findViewById(R.id.play_audio);
-        ImageButton captureButton = (ImageButton)layout.findViewById(R.id.capture_button);
-        ImageButton chooseButton = (ImageButton)layout.findViewById(R.id.choose_file);
+        mPlayButton = layout.findViewById(R.id.play_audio);
+        ImageButton captureButton = layout.findViewById(R.id.capture_button);
+        ImageButton chooseButton = layout.findViewById(R.id.choose_file);
 
-        captureButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                captureAudio(mPrompt);
-            }
-        });
+        captureButton.setOnClickListener(v -> captureAudio(mPrompt));
 
         // launch audio filechooser intent on click
-        chooseButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent i = new Intent(Intent.ACTION_GET_CONTENT);
-                i.setType("audio/*");
-                try {
-                    ((AppCompatActivity)getContext()).startActivityForResult(i, FormEntryConstants.AUDIO_VIDEO_FETCH);
-                    recordingNameText.setTextColor(getResources().getColor(R.color.black));
-                    pendingCalloutInterface.setPendingCalloutFormIndex(mPrompt.getIndex());
-                } catch (ActivityNotFoundException e) {
-                    Toast.makeText(getContext(),
-                            StringUtils.getStringSpannableRobust(getContext(),
-                                    R.string.activity_not_found,
-                                    "choose audio"),
-                            Toast.LENGTH_SHORT).show();
-                }
+        chooseButton.setOnClickListener(v -> {
+            Intent i = new Intent(Intent.ACTION_GET_CONTENT);
+            i.setType("audio/*");
+            try {
+                ((AppCompatActivity)getContext()).startActivityForResult(i, FormEntryConstants.AUDIO_VIDEO_FETCH);
+                recordingNameText.setTextColor(getResources().getColor(R.color.black));
+                pendingCalloutInterface.setPendingCalloutFormIndex(mPrompt.getIndex());
+            } catch (ActivityNotFoundException e) {
+                Toast.makeText(getContext(),
+                        StringUtils.getStringSpannableRobust(getContext(),
+                                R.string.activity_not_found,
+                                "choose audio"),
+                        Toast.LENGTH_SHORT).show();
             }
         });
 
 
-        mPlayButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                playAudio();
-            }
-        });
+        mPlayButton.setOnClickListener(v -> playAudio());
+        boolean showFileChooser = ACQUIRE_UPLOAD_FIELD.equals(mPrompt.getAppearanceHint());
+        chooseButton.setVisibility(showFileChooser ? VISIBLE : GONE);
     }
 
     @Override
@@ -113,14 +104,21 @@ public class CommCareAudioWidget extends AudioWidget
 
     @Override
     public void setupLayout() {
-        recordingNameText = (TextView)layout.findViewById(R.id.recording_text);
+        recordingNameText = layout.findViewById(R.id.recording_text);
         recordingNameText.setText(Localization.get("recording.prompt"));
         addView(layout);
     }
 
     @Override
     protected void captureAudio(FormEntryPrompt prompt) {
-        recorder.show(fm, "Recorder");
+        RecordingFragment recorder = new RecordingFragment();
+        recorder.setListener(this);
+        if (!TextUtils.isEmpty(mBinaryName)) {
+            Bundle args = new Bundle();
+            args.putString(AUDIO_FILE_PATH_ARG_KEY, mInstanceFolder + mBinaryName);
+            recorder.setArguments(args);
+        }
+        recorder.show(((FragmentActivity)getContext()).getSupportFragmentManager(), "Recorder");
     }
 
     @Override
@@ -132,8 +130,8 @@ public class CommCareAudioWidget extends AudioWidget
     }
 
     @Override
-    public void onRecordingCompletion() {
-        setBinaryData(recorder.getFileName());
+    public void onRecordingCompletion(String audioFile) {
+        setBinaryData(audioFile);
         mPlayButton.setEnabled(true);
         mPlayButton.setBackgroundResource(R.drawable.play);
         recordingNameText.setTextColor(getResources().getColor(R.color.black));
@@ -142,60 +140,36 @@ public class CommCareAudioWidget extends AudioWidget
 
     @Override
     public String getFileUniqueIdentifier() {
-        return questionIndexText;
+        String formFileName = FormEntryInstanceState.mFormRecordPath.substring(FormEntryInstanceState.mFormRecordPath.lastIndexOf("/") + 1);
+        return formFileName + "_" + mPrompt.getIndex().toString() + "_" + (new Date().getTime());
     }
 
     @Override
     protected void playAudio() {
         Uri filePath = Uri.parse(mInstanceFolder + mBinaryName);
         player = MediaPlayer.create(getContext(), filePath);
-        player.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-            @Override
-            public void onCompletion(MediaPlayer mp) {
-                resetAudioPlayer();
-            }
-        });
+        player.setOnCompletionListener(mp -> resetAudioPlayer());
         player.start();
         mPlayButton.setBackgroundResource(R.drawable.pause);
-        mPlayButton.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                pauseAudioPlayer();
-            }
-        });
+        mPlayButton.setOnClickListener(v -> pauseAudioPlayer());
     }
 
     private void pauseAudioPlayer() {
         player.pause();
         mPlayButton.setBackgroundResource(R.drawable.play);
-        mPlayButton.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                resumeAudioPlayer();
-            }
-        });
+        mPlayButton.setOnClickListener(v -> resumeAudioPlayer());
     }
 
     private void resumeAudioPlayer() {
         player.start();
         mPlayButton.setBackgroundResource(R.drawable.pause);
-        mPlayButton.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                pauseAudioPlayer();
-            }
-        });
+        mPlayButton.setOnClickListener(v -> pauseAudioPlayer());
     }
 
     private void resetAudioPlayer() {
         player.release();
         mPlayButton.setBackgroundResource(R.drawable.play);
-        mPlayButton.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                playAudio();
-            }
-        });
+        mPlayButton.setOnClickListener(v -> playAudio());
     }
 
     @Override

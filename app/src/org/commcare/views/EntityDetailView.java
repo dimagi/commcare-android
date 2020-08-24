@@ -1,11 +1,11 @@
 package org.commcare.views;
 
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Build;
-import android.support.annotation.IdRes;
+import androidx.annotation.IdRes;
 import android.text.method.LinkMovementMethod;
 import android.view.Display;
 import android.view.GestureDetector;
@@ -116,12 +116,12 @@ public class EntityDetailView extends FrameLayout {
         super(context);
 
         detailRow = (LinearLayout)View.inflate(context, R.layout.component_entity_detail_item, null);
-        label = (TextView)detailRow.findViewById(R.id.detail_type_text);
-        spacer = (TextView)detailRow.findViewById(R.id.entity_detail_spacer);
-        data = (TextView)detailRow.findViewById(R.id.detail_value_text);
+        label = detailRow.findViewById(R.id.detail_type_text);
+        spacer = detailRow.findViewById(R.id.entity_detail_spacer);
+        data = detailRow.findViewById(R.id.detail_value_text);
         currentView = data;
         valuePane = detailRow.findViewById(R.id.detail_value_pane);
-        videoButton = (ImageButton)detailRow.findViewById(R.id.detail_video_button);
+        videoButton = detailRow.findViewById(R.id.detail_video_button);
 
         ViewId uniqueId = ViewId.buildTableViewId(detailNumber, index, true);
         String audioText = e.getFieldString(index);
@@ -129,12 +129,12 @@ public class EntityDetailView extends FrameLayout {
         detailRow.addView(audioButton);
         audioButton.setVisibility(View.GONE);
 
-        callout = (Button)detailRow.findViewById(R.id.detail_value_phone);
+        callout = detailRow.findViewById(R.id.detail_value_phone);
         addressView = detailRow.findViewById(R.id.detail_address_view);
-        addressText = (TextView)addressView.findViewById(R.id.detail_address_text);
-        addressButton = (Button)addressView.findViewById(R.id.detail_address_button);
+        addressText = addressView.findViewById(R.id.detail_address_text);
+        addressButton = addressView.findViewById(R.id.detail_address_button);
 
-        imageView = (ImageView)detailRow.findViewById(R.id.detail_value_image);
+        imageView = detailRow.findViewById(R.id.detail_value_image);
         int height;
         if (HiddenPreferences.isSmartInflationEnabled()) {
             // If using smart inflation, we don't want to do any other artificial resizing of images
@@ -147,11 +147,11 @@ public class EntityDetailView extends FrameLayout {
                 new FrameLayout.LayoutParams(LayoutParams.WRAP_CONTENT, height);
         imageView.setLayoutParams(imageViewParams);
 
-        graphLayout = (AspectRatioLayout)detailRow.findViewById(R.id.graph);
+        graphLayout = detailRow.findViewById(R.id.graph);
         calloutView = detailRow.findViewById(R.id.callout_view);
-        calloutText = (TextView)detailRow.findViewById(R.id.callout_text);
-        calloutButton = (Button)detailRow.findViewById(R.id.callout_button);
-        calloutImageButton = (ImageButton)detailRow.findViewById(R.id.callout_image_button);
+        calloutText = detailRow.findViewById(R.id.callout_text);
+        calloutButton = detailRow.findViewById(R.id.callout_button);
+        calloutImageButton = detailRow.findViewById(R.id.callout_image_button);
         graphViewsCache = new Hashtable<>();
         graphsWithErrors = new HashSet<>();
         graphIntentsCache = new Hashtable<>();
@@ -235,12 +235,7 @@ public class EntityDetailView extends FrameLayout {
     private void setupPhoneNumber(String textField) {
         callout.setText(textField);
         if (current != PHONE) {
-            callout.setOnClickListener(new OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    listener.callRequested(callout.getText().toString());
-                }
-            });
+            callout.setOnClickListener(v -> listener.callRequested(callout.getText().toString()));
             this.removeView(currentView);
             updateCurrentView(PHONE, callout);
         }
@@ -272,12 +267,7 @@ public class EntityDetailView extends FrameLayout {
                 calloutImageButton.setId(CALLOUT_BUTTON_ID);
             }
 
-            calloutImageButton.setOnClickListener(new OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    listener.performCallout(callout, CALLOUT);
-                }
-            });
+            calloutImageButton.setOnClickListener(v -> listener.performCallout(callout, CALLOUT));
         } else {
             calloutImageButton.setVisibility(View.GONE);
             calloutText.setVisibility(View.GONE);
@@ -291,12 +281,7 @@ public class EntityDetailView extends FrameLayout {
                 calloutButton.setText(actionName);
             }
 
-            calloutButton.setOnClickListener(new OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    listener.performCallout(callout, CALLOUT);
-                }
-            });
+            calloutButton.setOnClickListener(v -> listener.performCallout(callout, CALLOUT));
         }
 
         updateCurrentView(CALLOUT, calloutView);
@@ -307,12 +292,7 @@ public class EntityDetailView extends FrameLayout {
         addressText.setText(address);
         if (current != ADDRESS) {
             addressButton.setText(Localization.get("select.address.show"));
-            addressButton.setOnClickListener(new OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    listener.addressRequested(GeoUtils.getGeoIntentURI(address));
-                }
-            });
+            addressButton.setOnClickListener(v -> listener.addressRequested(GeoUtils.getGeoIntentURI(address)));
             updateCurrentView(ADDRESS, addressView);
         }
     }
@@ -388,14 +368,7 @@ public class EntityDetailView extends FrameLayout {
 
         final String location = localLocation;
 
-        videoButton.setOnClickListener(new OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-                listener.playVideo(location);
-            }
-
-        });
+        videoButton.setOnClickListener(v -> listener.playVideo(location));
 
         if (location == null) {
             videoButton.setEnabled(false);
@@ -517,11 +490,6 @@ public class EntityDetailView extends FrameLayout {
                 return true;
             }
         });
-        graphView.setOnTouchListener(new OnTouchListener() {
-            @Override
-            public boolean onTouch(View view, MotionEvent event) {
-                return detector.onTouchEvent(event);
-            }
-        });
+        graphView.setOnTouchListener((view, event) -> detector.onTouchEvent(event));
     }
 }

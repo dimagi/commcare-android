@@ -237,17 +237,14 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
 
         // NOTE: This does _not_ parse and process the case data. It's only for
         // getting meta information about the entry session.
-        TransactionParserFactory factory = new TransactionParserFactory() {
-            @Override
-            public TransactionParser getParser(KXmlParser parser) {
-                String name = parser.getName();
-                if ("case".equals(name)) {
-                    return buildCaseParser(parser.getNamespace(), parser, caseIDs);
-                } else if ("meta".equalsIgnoreCase(name)) {
-                    return buildMetaParser(uuid, modified, parser);
-                }
-                return null;
+        TransactionParserFactory factory = parser -> {
+            String name = parser.getName();
+            if ("case".equals(name)) {
+                return buildCaseParser(parser.getNamespace(), parser, caseIDs);
+            } else if ("meta".equalsIgnoreCase(name)) {
+                return buildMetaParser(uuid, modified, parser);
             }
+            return null;
         };
 
         String path = r.getFilePath();
@@ -284,8 +281,6 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
         FormRecord parsed = new FormRecord(r);
         parsed.setUuid(uuid[0]);
         parsed.setLastModified(modified[0]);
-        // Make sure that the instance is no longer editable
-        parsed.setCanEditWhenComplete( Boolean.toString(false));
         return new Pair<>(parsed, caseIDs[0]);
     }
 

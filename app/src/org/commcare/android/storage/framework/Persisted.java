@@ -1,6 +1,6 @@
 package org.commcare.android.storage.framework;
 
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 
 import org.commcare.models.framework.Persisting;
 import org.commcare.modern.models.MetaField;
@@ -33,13 +33,10 @@ public class Persisted implements Persistable, IMetaData {
 
     protected int recordId = -1;
     private static final Hashtable<Class, ArrayList<Field>> fieldOrderings = new Hashtable<>();
-    private static final Comparator<Field> orderedComparator = new Comparator<Field>() {
-        @Override
-        public int compare(Field f1, Field f2) {
-            int i1 = f1.getAnnotation(Persisting.class).value();
-            int i2 = f2.getAnnotation(Persisting.class).value();
-            return (i1 < i2 ? -1 : (i1 == i2 ? 0 : 1));
-        }
+    private static final Comparator<Field> orderedComparator = (f1, f2) -> {
+        int i1 = f1.getAnnotation(Persisting.class).value();
+        int i2 = f2.getAnnotation(Persisting.class).value();
+        return (i1 < i2 ? -1 : (i1 == i2 ? 0 : 1));
     };
 
     @Override
@@ -75,6 +72,9 @@ public class Persisted implements Persistable, IMetaData {
                     //Primitive Integers
                     f.setInt(o, ExtUtil.readInt(in));
                     return;
+                } else if (type.equals(Long.TYPE)) {
+                  f.setLong(o, ExtUtil.readLong(in));
+                  return;
                 } else if (type.equals(Date.class)) {
                     f.set(o, ExtUtil.readDate(in));
                     return;
@@ -124,6 +124,9 @@ public class Persisted implements Persistable, IMetaData {
                     return;
                 } else if (type.equals(Integer.TYPE)) {
                     ExtUtil.writeNumeric(out, f.getInt(o));
+                    return;
+                } else if (type.equals(Long.TYPE)) {
+                    ExtUtil.writeNumeric(out, f.getLong(o));
                     return;
                 } else if (type.equals(Date.class)) {
                     ExtUtil.writeDate(out, (Date)f.get(o));

@@ -8,6 +8,7 @@ import org.commcare.android.javarosa.PollSensorAction;
 import org.commcare.engine.extensions.IntentExtensionParser;
 import org.commcare.engine.extensions.PollSensorExtensionParser;
 import org.commcare.engine.extensions.XFormExtensionUtils;
+import org.commcare.resources.model.InvalidResourceException;
 import org.commcare.resources.model.MissingMediaException;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
@@ -15,6 +16,7 @@ import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.util.CommCarePlatform;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.AndroidCommCarePlatform;
+import org.commcare.utils.FileUtil;
 import org.commcare.utils.GlobalConstants;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.reference.InvalidReferenceException;
@@ -28,14 +30,19 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.form.api.FormEntryCaption;
 import org.javarosa.xform.parse.XFormParseException;
 import org.javarosa.xform.parse.XFormParser;
+import org.javarosa.xml.util.InvalidStructureException;
+import org.javarosa.xml.util.UnfullfilledRequirementsException;
+import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.NoSuchElementException;
 import java.util.Vector;
 
 /**
@@ -44,7 +51,7 @@ import java.util.Vector;
 public class XFormAndroidInstaller extends FileSystemInstaller {
     private static final String TAG = XFormAndroidInstaller.class.getSimpleName();
 
-    private String namespace;
+    protected String namespace;
     private int formDefId = -1;
 
     @SuppressWarnings("unused")
@@ -63,45 +70,42 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
     }
 
     @Override
-    public boolean initialize(AndroidCommCarePlatform platform, boolean isUpgrade) {
-        platform.registerXmlns(namespace, formDefId);
+    public boolean initialize(AndroidCommCarePlatform platform, boolean isUpgrade) throws
+            IOException, InvalidReferenceException, InvalidStructureException,
+            XmlPullParserException, UnfullfilledRequirementsException {
+        super.initialize(platform, isUpgrade);
+
+        if (platform.getFormDefId(namespace) == -1) {
+            platform.registerXmlns(namespace, formDefId);
+        } else {
+            // Only overwrites the existing form if the resourceVersion of the new form is higher than the existing one
+            FormDefRecord existingForm = FormDefRecord.getFormDef(platform.getFormDefStorage(), platform.getFormDefId(namespace));
+            FormDefRecord newForm = FormDefRecord.getFormDef(platform.getFormDefStorage(), formDefId);
+            if (newForm.getResourceVersion() >= existingForm.getResourceVersion()) {
+                platform.registerXmlns(namespace, formDefId);
+            }
+        }
         return true;
     }
+
 
     @Override
     protected int customInstall(Resource r, Reference local, boolean upgrade, AndroidCommCarePlatform platform) throws IOException, UnresolvedResourceException {
         registerAndroidLevelFormParsers();
         FormDef formDef;
-        try {
-            formDef = XFormExtensionUtils.getFormFromInputStream(local.getStream());
+        try (InputStream inputStream = local.getStream()) {
+            formDef = XFormExtensionUtils.getFormFromInputStream(inputStream);
         } catch (XFormParseException xfpe) {
-            throw new UnresolvedResourceException(r, xfpe.getMessage(), true);
+            throw new InvalidResourceException(r.getDescriptor(), xfpe.getMessage());
         }
 
         this.namespace = formDef.getInstance().schema;
         if (namespace == null) {
-            throw new UnresolvedResourceException(r, "Invalid XForm, no namespace defined", true);
+            throw new InvalidResourceException(r.getDescriptor(), "Invalid XForm, no namespace defined");
         }
 
-        Vector<Integer> existingforms = FormDefRecord.getFormDefIdsByJrFormId(platform.getFormDefStorage(), formDef.getMainInstance().schema);
-        if (existingforms != null && existingforms.size() > 0) {
-            //we already have one form. Hopefully this is during an upgrade...
-            if (!upgrade) {
-                //Hm, error out?
-                Logger.log(LogTypes.SOFT_ASSERT, "Form with schema " + formDef.getMainInstance().schema + " already present during the install");
-            }
-
-            //So we know there's another form here. We should wait until it's time for
-            //the upgrade and replace the pointer to here.
-            formDefId = existingforms.get(0);
-
-            if (existingforms.size() > 1) {
-                Logger.log(LogTypes.SOFT_ASSERT, "More than one Form with schema " + formDef.getMainInstance().schema + "present during the install");
-            }
-        } else {
-            FormDefRecord formDefRecord = new FormDefRecord("NAME", formDef.getMainInstance().schema, local.getLocalURI(), GlobalConstants.MEDIA_REF);
-            formDefId = formDefRecord.save(platform.getFormDefStorage());
-        }
+        FormDefRecord formDefRecord = new FormDefRecord("NAME", formDef.getMainInstance().schema, local.getLocalURI(), GlobalConstants.MEDIA_REF, r.getVersion());
+        formDefId = formDefRecord.save(platform.getFormDefStorage());
 
         return upgrade ? Resource.RESOURCE_STATUS_UPGRADE : Resource.RESOURCE_STATUS_INSTALLED;
     }
@@ -116,6 +120,25 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
     public boolean upgrade(Resource r, AndroidCommCarePlatform platform) {
         boolean fileUpgrade = super.upgrade(r, platform);
         return fileUpgrade && updateFilePath(platform);
+    }
+
+    @Override
+    public boolean uninstall(Resource r, AndroidCommCarePlatform platform) throws UnresolvedResourceException {
+        if (formDefId != -1) {
+            try {
+                FormDefRecord formDefRecord = platform.getFormDefStorage().read(formDefId);
+                if (formDefRecord.getResourceVersion() == r.getVersion()) { // check if the record corresponds to the same resource we are uninstalling
+                    platform.deregisterForm(formDefRecord.getJrFormId(), formDefId);
+                    platform.getFormDefStorage().remove(formDefId);
+                }
+            } catch (NoSuchElementException e) {
+                // no form with the formDefId exists somehow so just log the failure
+                Logger.log(LogTypes.TYPE_MAINTENANCE,
+                        "No form record with id " + formDefId + " was found while uninstalling the resource");
+            }
+            return super.uninstall(r, platform);
+        }
+        return false;
     }
 
     /**
@@ -184,14 +207,23 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
         FormDef formDef;
         try {
             Reference local = ReferenceManager.instance().DeriveReference(localLocation);
+
+            if (!local.doesBinaryExist()) {
+                problems.add(new MissingMediaException(r, "File doesn't exist at: " + local.getLocalURI(), local.getLocalURI(),
+                        MissingMediaException.MissingMediaExceptionType.FILE_NOT_FOUND));
+            }
+
             formDef = new XFormParser(new InputStreamReader(local.getStream(), "UTF-8")).parse();
         } catch (Exception e) {
             // something weird/bad happened here. first make sure storage is available
             if (!CommCareApplication.instance().isStorageAvailable()) {
-                problems.addElement(new MissingMediaException(r, "Couldn't access your persisent storage. Please make sure your SD card is connected properly"));
+                problems.addElement(new MissingMediaException(r,
+                        "Couldn't access your persisent storage. Please make sure your SD card is connected properly",
+                        MissingMediaException.MissingMediaExceptionType.NONE));
             }
 
-            problems.addElement(new MissingMediaException(r, "Form did not properly save into persistent storage"));
+            problems.addElement(new MissingMediaException(r, "Form did not properly save into persistent storage",
+                    MissingMediaException.MissingMediaExceptionType.NONE));
             return true;
         }
         if (formDef == null) {
@@ -211,22 +243,15 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
                 String key = (String)en.nextElement();
                 if (key.contains(";")) {
                     //got some forms here
-                    String form = key.substring(key.indexOf(";") + 1, key.length());
+                    String form = key.substring(key.indexOf(";") + 1);
                     if (form.equals(FormEntryCaption.TEXT_FORM_VIDEO) ||
                             form.equals(FormEntryCaption.TEXT_FORM_AUDIO) ||
                             form.equals(FormEntryCaption.TEXT_FORM_IMAGE)) {
-                        try {
 
-                            String externalMedia = localeData.get(key);
-                            Reference ref = ReferenceManager.instance().DeriveReference(externalMedia);
-                            String localName = ref.getLocalURI();
-                            try {
-                                if (!ref.doesBinaryExist()) {
-                                    problems.addElement(new MissingMediaException(r, "Missing external media: " + localName, externalMedia));
-                                }
-                            } catch (IOException e) {
-                                problems.addElement(new MissingMediaException(r, "Problem reading external media: " + localName, externalMedia));
-                            }
+                        String externalMedia = localeData.get(key);
+
+                        try {
+                            FileUtil.checkReferenceURI(r, externalMedia, problems);
                         } catch (InvalidReferenceException e) {
                             //So the problem is that this might be a valid entry that depends on context
                             //in the form, so we'll ignore this situation for now.

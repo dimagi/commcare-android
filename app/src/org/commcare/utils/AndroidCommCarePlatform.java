@@ -6,6 +6,7 @@ import org.commcare.android.database.app.models.FormDefRecord;
 import org.commcare.engine.resource.AndroidResourceTable;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.resources.model.Resource;
+import org.commcare.resources.model.ResourceInitializationException;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.suite.model.Profile;
 import org.commcare.suite.model.Suite;
@@ -22,6 +23,10 @@ import java.util.Vector;
  */
 public class AndroidCommCarePlatform extends CommCarePlatform {
 
+    public static final String GLOBAL_RESOURCE_TABLE_NAME = "GLOBAL_RESOURCE_TABLE";
+    public static final String UPGRADE_RESOURCE_TABLE_NAME = "UPGRADE_RESOURCE_TABLE";
+    public static final String RECOVERY_RESOURCE_TABLE_NAME = "RECOVERY_RESOURCE_TABLE";
+
     private final Hashtable<String, Integer> xmlnstable;
     private ResourceTable global;
     private ResourceTable upgrade;
@@ -30,9 +35,10 @@ public class AndroidCommCarePlatform extends CommCarePlatform {
     private Profile profile;
     private final Vector<Suite> installedSuites;
     private final CommCareApp app;
+    private String mUpdateInfoFormXmlns;
 
-    public AndroidCommCarePlatform(int majorVersion, int minorVersion, CommCareApp app) {
-        super(majorVersion, minorVersion);
+    public AndroidCommCarePlatform(int majorVersion, int minorVersion, int minimalVersion, CommCareApp app) {
+        super(majorVersion, minorVersion, minimalVersion);
         xmlnstable = new Hashtable<>();
         installedSuites = new Vector<>();
         this.app = app;
@@ -40,6 +46,16 @@ public class AndroidCommCarePlatform extends CommCarePlatform {
 
     public void registerXmlns(String xmlns, Integer formDefId) {
         xmlnstable.put(xmlns, formDefId);
+    }
+
+    // remove the form from xmlnstable if the form with formDefId is registered agains xmlns
+    public void deregisterForm(String xmlns, Integer formDefId) {
+        if(xmlnstable.containsKey(xmlns)) {
+            int existingFormId = xmlnstable.get(xmlns);
+            if (existingFormId == formDefId) {
+                xmlnstable.remove(xmlns);
+            }
+        }
     }
 
     public Set<String> getInstalledForms() {
@@ -57,21 +73,21 @@ public class AndroidCommCarePlatform extends CommCarePlatform {
 
     public ResourceTable getGlobalResourceTable() {
         if (global == null) {
-            global = new AndroidResourceTable(app.getStorage("GLOBAL_RESOURCE_TABLE", Resource.class), new AndroidResourceInstallerFactory());
+            global = new AndroidResourceTable(app.getStorage(GLOBAL_RESOURCE_TABLE_NAME, Resource.class), new AndroidResourceInstallerFactory());
         }
         return global;
     }
 
     public ResourceTable getUpgradeResourceTable() {
         if (upgrade == null) {
-            upgrade = new AndroidResourceTable(app.getStorage("UPGRADE_RESOURCE_TABLE", Resource.class), new AndroidResourceInstallerFactory());
+            upgrade = new AndroidResourceTable(app.getStorage(UPGRADE_RESOURCE_TABLE_NAME, Resource.class), new AndroidResourceInstallerFactory());
         }
         return upgrade;
     }
 
     public ResourceTable getRecoveryTable() {
         if (recovery == null) {
-            recovery = new AndroidResourceTable(app.getStorage("RECOVERY_RESOURCE_TABLE", Resource.class), new AndroidResourceInstallerFactory());
+            recovery = new AndroidResourceTable(app.getStorage(RECOVERY_RESOURCE_TABLE_NAME, Resource.class), new AndroidResourceInstallerFactory());
         }
         return recovery;
     }
@@ -97,7 +113,7 @@ public class AndroidCommCarePlatform extends CommCarePlatform {
     }
 
     @Override
-    public void initialize(ResourceTable global, boolean isUpgrade) {
+    public void initialize(ResourceTable global, boolean isUpgrade) throws ResourceInitializationException {
         this.profile = null;
         this.installedSuites.clear();
         // We also need to clear any _resource table_ linked localization files which may have
@@ -113,5 +129,17 @@ public class AndroidCommCarePlatform extends CommCarePlatform {
 
     public SqlStorage<FormDefRecord> getFormDefStorage() {
         return app.getStorage(FormDefRecord.class);
+    }
+
+    public void setUpdateInfoFormXmlns(String updateInfoFormXmlns) {
+        mUpdateInfoFormXmlns = updateInfoFormXmlns;
+    }
+
+    public String getUpdateInfoFormXmlns() {
+        return mUpdateInfoFormXmlns;
+    }
+
+    public CommCareApp getApp() {
+        return app;
     }
 }

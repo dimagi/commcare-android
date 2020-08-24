@@ -21,7 +21,9 @@
             android:layout_marginRight="@dimen/content_min_margin"
             android:layout_marginTop="@dimen/content_min_margin"
             android:gravity="center"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:layout_marginEnd="@dimen/content_min_margin"
+            android:layout_marginStart="@dimen/content_min_margin">
 
             <TextView
                 android:id="@+id/update_progress_text"
@@ -57,8 +59,10 @@
             android:layout_marginBottom="@dimen/content_min_margin"
             android:layout_marginLeft="@dimen/content_min_margin"
             android:layout_marginRight="@dimen/content_min_margin"
+            android:gravity="center"
             android:progressDrawable="@drawable/progressbar_modern"
-            android:gravity="center"/>
+            android:layout_marginStart="@dimen/content_min_margin"
+            android:layout_marginEnd="@dimen/content_min_margin" />
 
         <TextView
             android:id="@+id/current_version_text"
@@ -69,7 +73,9 @@
             android:layout_marginRight="@dimen/content_min_margin"
             android:layout_marginTop="@dimen/content_min_margin"
             android:gravity="center"
-            android:textSize="@dimen/font_size_medium"/>
+            android:textSize="@dimen/font_size_medium"
+            android:layout_marginStart="@dimen/content_min_margin"
+            android:layout_marginEnd="@dimen/content_min_margin" />
 
         <LinearLayout
             android:id="@+id/update_check_cancel_buttons"
@@ -79,7 +85,9 @@
             android:paddingBottom="@dimen/content_min_margin"
             android:paddingLeft="100dp"
             android:paddingRight="100dp"
-            android:paddingTop="@dimen/content_min_margin">
+            android:paddingTop="@dimen/content_min_margin"
+            android:paddingStart="100dp"
+            android:paddingEnd="100dp">
 
             <org.commcare.views.SquareButtonWithText
                 android:id="@+id/check_for_update_button"
@@ -116,6 +124,8 @@
             android:layout_marginLeft="@dimen/content_min_margin"
             android:layout_marginRight="@dimen/content_min_margin"
             android:gravity="center"
-            android:textSize="@dimen/font_size_medium"/>
+            android:textSize="@dimen/font_size_medium"
+            android:layout_marginEnd="@dimen/content_min_margin"
+            android:layout_marginStart="@dimen/content_min_margin" />
     </LinearLayout>
 </ScrollView>

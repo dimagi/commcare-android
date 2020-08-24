@@ -3,7 +3,7 @@ package org.commcare.android.tests;
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.CommCareTestApplication;
-import org.commcare.android.CommCareTestRunner;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import org.commcare.network.CommcareRequestEndpointsMock;
 import org.commcare.android.util.TestAppInstaller;
 import org.commcare.network.LocalReferencePullResponseFactory;
@@ -23,7 +23,7 @@ import org.robolectric.annotation.Config;
  * @author Phillip Mates (pmates@dimagi.com)
  */
 @Config(application = CommCareTestApplication.class)
-@RunWith(CommCareTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 public class DataPullTaskTest {
     private final static String APP_BASE = "jr://resource/commcare-apps/form_nav_tests/";
     private final static String GOOD_RESTORE = APP_BASE + "simple_data_restore.xml";
@@ -41,7 +41,7 @@ public class DataPullTaskTest {
     public void dataPullWithMissingRemoteKeyRecordTest() {
         TestAppInstaller.installApp(APP_BASE + "profile.ccpr");
         runDataPull(200, GOOD_RESTORE);
-        Assert.assertEquals(DataPullTask.PullTaskResult.UNKNOWN_FAILURE, dataPullResult.data);
+        Assert.assertEquals(DataPullTask.PullTaskResult.ENCRYPTION_FAILURE, dataPullResult.data);
         Assert.assertEquals("Unable to get or generate encryption key", dataPullResult.errorMessage);
     }
 
@@ -56,6 +56,13 @@ public class DataPullTaskTest {
         installAndUseLocalKeys();
         runDataPull(500, GOOD_RESTORE);
         Assert.assertEquals(DataPullTask.PullTaskResult.SERVER_ERROR, dataPullResult.data);
+    }
+
+    @Test
+    public void dataPullRateLimitedServerErrorTest() {
+        installAndUseLocalKeys();
+        runDataPull(503, GOOD_RESTORE);
+        Assert.assertEquals(DataPullTask.PullTaskResult.RATE_LIMITED_SERVER_ERROR, dataPullResult.data);
     }
 
     @Test
@@ -76,7 +83,7 @@ public class DataPullTaskTest {
     public void dataPullRecoverFailTest() {
         installLoginAndUseLocalKeys();
         runDataPull(new Integer[]{412, 500}, new String[]{GOOD_RESTORE, GOOD_RESTORE});
-        Assert.assertEquals(DataPullTask.PullTaskResult.UNKNOWN_FAILURE, dataPullResult.data);
+        Assert.assertEquals(DataPullTask.PullTaskResult.RECOVERY_FAILURE, dataPullResult.data);
     }
 
     @Test
@@ -99,14 +106,14 @@ public class DataPullTaskTest {
     public void dataPullRecoverFailLoginNeededTest() {
         installWithUserAndUseLocalKeys();
         runDataPull(new Integer[]{412, 500}, new String[]{GOOD_RESTORE, GOOD_RESTORE});
-        Assert.assertEquals(DataPullTask.PullTaskResult.UNKNOWN_FAILURE, dataPullResult.data);
+        Assert.assertEquals(DataPullTask.PullTaskResult.RECOVERY_FAILURE, dataPullResult.data);
     }
 
     @Test
     public void dataPullBadRecoverPayloadTest() {
         installLoginAndUseLocalKeys();
         runDataPull(new Integer[]{412, 200}, new String[]{GOOD_RESTORE, BAD_RESTORE_XML});
-        Assert.assertEquals(DataPullTask.PullTaskResult.UNKNOWN_FAILURE, dataPullResult.data);
+        Assert.assertEquals(DataPullTask.PullTaskResult.RECOVERY_FAILURE, dataPullResult.data);
     }
 
     @Test

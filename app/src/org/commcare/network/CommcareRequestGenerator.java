@@ -4,13 +4,14 @@ import android.net.Uri;
 
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.user.models.ACase;
-import org.commcare.cases.util.CaseDBUtils;
+import org.commcare.core.network.AuthInfo;
 import org.commcare.core.network.HTTPMethod;
 import org.commcare.core.network.ModernHttpRequester;
+import org.commcare.engine.cases.CaseUtils;
 import org.commcare.interfaces.CommcareRequestEndpoints;
 import org.commcare.models.database.SqlStorage;
-import org.commcare.modern.util.Pair;
 import org.commcare.provider.DebugControlsReceiver;
+import org.commcare.utils.SyncDetailCalculations;
 import org.javarosa.core.model.User;
 import org.javarosa.core.model.utils.DateUtils;
 
@@ -46,6 +47,7 @@ public class CommcareRequestGenerator implements CommcareRequestEndpoints {
 
     private static final String SUBMIT_MODE = "submit_mode";
     private static final String SUBMIT_MODE_DEMO = "demo";
+    private static final String QUERY_PARAM_FORCE_LOGS = "force_logs";
 
     private final String username;
     private final String password;
@@ -106,6 +108,11 @@ public class CommcareRequestGenerator implements CommcareRequestEndpoints {
             if (digest != null) {
                 params.put("state", "ccsh:" + digest);
             }
+
+            int getDaysSinceSync = SyncDetailCalculations.getDaysSinceLastSync();
+            if(getDaysSinceSync != -1) {
+                params.put("days_since_last_sync", Integer.toString(getDaysSinceSync));
+            }
         }
 
         //Add items count to fetch request
@@ -124,7 +131,7 @@ public class CommcareRequestGenerator implements CommcareRequestEndpoints {
                 baseUri,
                 params,
                 getHeaders(syncToken),
-                new Pair(username, password),
+                new AuthInfo.ProvidedAuth(username, password),
                 null);
 
         return requester.makeRequest();
@@ -156,7 +163,7 @@ public class CommcareRequestGenerator implements CommcareRequestEndpoints {
                 baseUri,
                 params,
                 new HashMap(),
-                new Pair(username, password),
+                new AuthInfo.ProvidedAuth(username, password),
                 null);
 
         return requester.makeRequest();
@@ -182,34 +189,37 @@ public class CommcareRequestGenerator implements CommcareRequestEndpoints {
             // For integration tests, use fake hash to trigger 412 recovery on this sync
             return fakeHash;
         } else {
-            return CaseDBUtils.computeCaseDbHash(CommCareApplication.instance().getUserStorage(ACase.STORAGE_KEY, ACase.class));
+            return CaseUtils.computeCaseDbHash(
+                    CommCareApplication.instance().getUserStorage(ACase.STORAGE_KEY, ACase.class));
         }
     }
 
     @Override
-    public Response<ResponseBody> postMultipart(String url, List<MultipartBody.Part> parts) throws IOException {
+    public Response<ResponseBody> postMultipart(String url, List<MultipartBody.Part> parts, HashMap<String, String> params) throws IOException {
 
-        HashMap<String, String> params = new HashMap<>();
+        HashMap<String, String> queryParams = new HashMap<>(params);
 
         //If we're going to try to post with no credentials, we need to be explicit about the fact that we're not ready
         if (username == null || password == null) {
-            params.put(AUTH_REQUEST_TYPE, AUTH_REQUEST_TYPE_NO_AUTH);
+            queryParams.put(AUTH_REQUEST_TYPE, AUTH_REQUEST_TYPE_NO_AUTH);
         }
 
         if (User.TYPE_DEMO.equals(userType)) {
-            params.put(SUBMIT_MODE, SUBMIT_MODE_DEMO);
+            queryParams.put(SUBMIT_MODE, SUBMIT_MODE_DEMO);
+            queryParams.put(AUTH_REQUEST_TYPE, AUTH_REQUEST_TYPE_NO_AUTH);
         }
 
-       requester = CommCareApplication.instance().buildHttpRequester(
+        requester = CommCareApplication.instance().buildHttpRequester(
                 CommCareApplication.instance(),
                 url,
-                params,
+                queryParams,
                 getHeaders(getSyncToken(username)),
                 null,
                 parts,
                 HTTPMethod.MULTIPART_POST,
-                new Pair(username, password),
-                null);
+                new AuthInfo.ProvidedAuth(username, password),
+                null,
+                false);
 
         return requester.makeRequest();
     }
@@ -227,7 +237,7 @@ public class CommcareRequestGenerator implements CommcareRequestEndpoints {
                 uri,
                 httpParams,
                 getHeaders(""),
-                new Pair(username, password),
+                new AuthInfo.ProvidedAuth(username, password),
                 null);
 
         Response<ResponseBody> response = requester.makeRequest();
@@ -242,5 +252,12 @@ public class CommcareRequestGenerator implements CommcareRequestEndpoints {
         if (requester != null) {
             requester.cancelRequest();
         }
+    }
+
+    @Override
+    public Response<ResponseBody> postLogs(String submissionUrl, List<MultipartBody.Part> parts, boolean forceLogs) throws IOException {
+        HashMap<String, String> queryParams = new HashMap<>();
+        queryParams.put(QUERY_PARAM_FORCE_LOGS, String.valueOf(forceLogs));
+        return postMultipart(submissionUrl, parts, queryParams);
     }
 }

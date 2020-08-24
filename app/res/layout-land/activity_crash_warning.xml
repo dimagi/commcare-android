@@ -14,7 +14,9 @@
         android:layout_marginRight="@dimen/content_min_margin"
         android:layout_marginLeft="@dimen/content_min_margin"
         android:background="@drawable/tile_drop_shadow_small_margins"
-        android:padding="@dimen/content_min_margin">
+        android:padding="@dimen/content_min_margin"
+        android:layout_marginEnd="@dimen/content_min_margin"
+        android:layout_marginStart="@dimen/content_min_margin">
 
         <LinearLayout
             android:layout_width="fill_parent"
@@ -24,7 +26,7 @@
             <!-- Simple message and info button -->
             <LinearLayout
                 android:orientation="horizontal"
-                android:layout_gravity="right"
+                android:layout_gravity="end"
                 android:layout_width="fill_parent"
                 android:padding="@dimen/content_min_margin"
                 android:layout_height="wrap_content">
@@ -44,7 +46,9 @@
                     android:layout_width="1dp"
                     android:layout_marginRight="@dimen/content_min_margin"
                     android:layout_marginLeft="@dimen/content_min_margin"
-                    android:background="@android:color/darker_gray"/>
+                    android:background="@android:color/darker_gray"
+                    android:layout_marginStart="@dimen/content_min_margin"
+                    android:layout_marginEnd="@dimen/content_min_margin" />
 
                 <ImageButton
                     android:id="@+id/InfoButton"
@@ -70,7 +74,9 @@
                     android:layout_height="1dp"
                     android:layout_marginLeft="@dimen/content_min_margin"
                     android:layout_marginRight="@dimen/content_min_margin"
-                    android:background="@android:color/darker_gray"/>
+                    android:background="@android:color/darker_gray"
+                    android:layout_marginStart="@dimen/content_min_margin"
+                    android:layout_marginEnd="@dimen/content_min_margin" />
 
                 <TextView
                     android:id="@+id/ErrorText"

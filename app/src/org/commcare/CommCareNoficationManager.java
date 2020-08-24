@@ -1,16 +1,19 @@
 package org.commcare;
 
+import android.annotation.TargetApi;
 import android.app.Notification;
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Message;
-import android.support.v4.app.NotificationCompat;
-import android.support.v7.app.AppCompatActivity;
 
-import org.commcare.activities.LoginActivity;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.NotificationCompat;
+
 import org.commcare.activities.MessageActivity;
 import org.commcare.dalvik.R;
 import org.commcare.utils.PopupHandler;
@@ -30,6 +33,10 @@ public class CommCareNoficationManager {
     private static final String ACTION_PURGE_NOTIFICATIONS = "CommCareApplication_purge";
     private final ArrayList<NotificationMessage> pendingMessages = new ArrayList<>();
     public static final int MESSAGE_NOTIFICATION = R.string.notification_message_title;
+
+    public static final String NOTIFICATION_CHANNEL_ERRORS_ID = "notification-channel-errors";
+    public static final String NOTIFICATION_CHANNEL_USER_SESSION_ID = "notification-channel-user-session";
+    public static final String NOTIFICATION_CHANNEL_SERVER_COMMUNICATIONS_ID = "notification-channel-server-communications";
 
     /**
      * Handler to receive notifications and show them the user using toast.
@@ -60,7 +67,7 @@ public class CommCareNoficationManager {
 
             String additional = pendingMessages.size() > 1 ? Localization.get("notifications.prompt.more", new String[]{String.valueOf(pendingMessages.size() - 1)}) : "";
 
-            Notification messageNotification = new NotificationCompat.Builder(context)
+            Notification messageNotification = new NotificationCompat.Builder(context, NOTIFICATION_CHANNEL_ERRORS_ID)
                     .setContentTitle(title)
                     .setContentText(Localization.get("notifications.prompt.details", new String[]{additional}))
                     .setSmallIcon(R.drawable.notification)
@@ -76,24 +83,24 @@ public class CommCareNoficationManager {
     }
 
     public void clearNotifications(String category) {
-            synchronized (pendingMessages) {
-                NotificationManager mNM = (NotificationManager)context.getSystemService(NOTIFICATION_SERVICE);
-                Vector<NotificationMessage> toRemove = new Vector<>();
-                for (NotificationMessage message : pendingMessages) {
-                    if (category == null || category.equals(message.getCategory())) {
-                        toRemove.add(message);
-                    }
-                }
-
-                for (NotificationMessage message : toRemove) {
-                    pendingMessages.remove(message);
-                }
-                if (pendingMessages.size() == 0) {
-                    mNM.cancel(MESSAGE_NOTIFICATION);
-                } else {
-                    updateMessageNotification();
+        synchronized (pendingMessages) {
+            NotificationManager mNM = (NotificationManager)context.getSystemService(NOTIFICATION_SERVICE);
+            Vector<NotificationMessage> toRemove = new Vector<>();
+            for (NotificationMessage message : pendingMessages) {
+                if (category == null || category.equals(message.getCategory())) {
+                    toRemove.add(message);
                 }
             }
+
+            for (NotificationMessage message : toRemove) {
+                pendingMessages.remove(message);
+            }
+            if (pendingMessages.size() == 0) {
+                mNM.cancel(MESSAGE_NOTIFICATION);
+            } else {
+                updateMessageNotification();
+            }
+        }
     }
 
     public ArrayList<NotificationMessage> purgeNotifications() {
@@ -148,5 +155,31 @@ public class CommCareNoficationManager {
         synchronized (pendingMessages) {
             return pendingMessages.size() > 0;
         }
+    }
+
+    @TargetApi(Build.VERSION_CODES.O)
+    public void createNotificationChannels() {
+        createNotificationChannel(NOTIFICATION_CHANNEL_ERRORS_ID,
+                R.string.notification_channel_errors_title,
+                R.string.notification_channel_errors_description,
+                NotificationManager.IMPORTANCE_DEFAULT);
+
+        createNotificationChannel(NOTIFICATION_CHANNEL_USER_SESSION_ID,
+                R.string.notification_channel_user_session_title,
+                R.string.notification_channel_user_session_description,
+                NotificationManager.IMPORTANCE_LOW);
+
+        createNotificationChannel(NOTIFICATION_CHANNEL_SERVER_COMMUNICATIONS_ID,
+                R.string.notification_channel_server_communication_title,
+                R.string.notification_channel_server_communication_description,
+                NotificationManager.IMPORTANCE_LOW);
+    }
+
+    @TargetApi(Build.VERSION_CODES.O)
+    private void createNotificationChannel(String channelId, int titleResource, int descriptionResource, int priority) {
+        NotificationChannel channel = new NotificationChannel(channelId, context.getString(titleResource), priority);
+        channel.setDescription(context.getString(descriptionResource));
+        NotificationManager notificationManager = context.getSystemService(NotificationManager.class);
+        notificationManager.createNotificationChannel(channel);
     }
 }

@@ -2,11 +2,9 @@ package org.commcare.views.widgets;
 
 import android.content.Context;
 import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
 import android.text.Spannable;
 import android.util.TypedValue;
 import android.view.Gravity;
-import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.LinearLayout;
@@ -23,6 +21,10 @@ import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.form.api.FormEntryPrompt;
 
 import java.text.DecimalFormat;
+
+import androidx.appcompat.app.AppCompatActivity;
+
+import static org.commcare.activities.GeoPointMapActivity.EXTRA_VIEW_ONLY;
 
 /**
  * GeoPointWidget is the widget that allows the user to get GPS readings.
@@ -51,7 +53,7 @@ public class GeoPointWidget extends QuestionWidget {
         if ("maps".equalsIgnoreCase(appearance)) {
             try {
                 // use google maps it exists on the device
-                Class.forName("com.google.android.maps.MapActivity");
+                Class.forName("com.google.android.gms.maps.MapView");
                 mUseMaps = true;
             } catch (ClassNotFoundException e) {
                 mUseMaps = false;
@@ -87,18 +89,18 @@ public class GeoPointWidget extends QuestionWidget {
                 mAnswerFontSize,
                 !prompt.isReadOnly());
 
-        mGetLocationButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent i;
-                if (mUseMaps) {
-                    i = new Intent(getContext(), GeoPointMapActivity.class);
-                } else {
-                    i = new Intent(getContext(), GeoPointActivity.class);
+        mGetLocationButton.setOnClickListener(v -> {
+            Intent i;
+            if (mUseMaps) {
+                i = new Intent(getContext(), GeoPointMapActivity.class);
+                if (mStringAnswer.getText().length() != 0) {
+                    i.putExtra(LOCATION, parseLocation());
                 }
-                ((AppCompatActivity)getContext()).startActivityForResult(i, FormEntryConstants.LOCATION_CAPTURE);
-                pendingCalloutInterface.setPendingCalloutFormIndex(prompt.getIndex());
+            } else {
+                i = new Intent(getContext(), GeoPointActivity.class);
             }
+            ((AppCompatActivity)getContext()).startActivityForResult(i, FormEntryConstants.LOCATION_CAPTURE);
+            pendingCalloutInterface.setPendingCalloutFormIndex(prompt.getIndex());
         });
 
         // setup 'view location' button
@@ -109,20 +111,11 @@ public class GeoPointWidget extends QuestionWidget {
                 viewButtonEnabled);
 
         // launch appropriate map viewer
-        mViewButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String s = mStringAnswer.getText().toString();
-                String[] sa = s.split(" ");
-                double gp[] = new double[4];
-                gp[0] = Double.valueOf(sa[0]);
-                gp[1] = Double.valueOf(sa[1]);
-                gp[2] = Double.valueOf(sa[2]);
-                gp[3] = Double.valueOf(sa[3]);
-                Intent i = new Intent(getContext(), GeoPointMapActivity.class);
-                i.putExtra(LOCATION, gp);
-                getContext().startActivity(i);
-            }
+        mViewButton.setOnClickListener(v -> {
+            Intent i = new Intent(getContext(), GeoPointMapActivity.class);
+            i.putExtra(LOCATION, parseLocation());
+            i.putExtra(EXTRA_VIEW_ONLY, true);
+            getContext().startActivity(i);
         });
 
         addView(mGetLocationButton);
@@ -130,6 +123,17 @@ public class GeoPointWidget extends QuestionWidget {
             addView(mViewButton);
         }
         addView(mAnswerDisplay);
+    }
+
+    private double[] parseLocation() {
+        String s1 = mStringAnswer.getText().toString();
+        String[] sa = s1.split(" ");
+        double gp[] = new double[4];
+        gp[0] = Double.valueOf(sa[0]);
+        gp[1] = Double.valueOf(sa[1]);
+        gp[2] = Double.valueOf(sa[2]);
+        gp[3] = Double.valueOf(sa[3]);
+        return gp;
     }
 
     @Override

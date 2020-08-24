@@ -73,101 +73,95 @@ public class CommCareFormDumpActivity extends SessionAwareCommCareActivity<CommC
 
         updateCounters();
 
-        btnSubmitForms.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        btnSubmitForms.setOnClickListener(v -> {
 
-                formsOnSD = getDumpFiles().length;
-                Logger.log(LogTypes.TYPE_FORM_DUMP, "Send task found " + formsOnSD + " forms on the phone.");
+            formsOnSD = getDumpFiles().length;
+            Logger.log(LogTypes.TYPE_FORM_DUMP, "Send task found " + formsOnSD + " forms on the phone.");
 
-                //if there're no forms to dump, just return
-                if (formsOnSD == 0) {
-                    txtInteractiveMessages.setText(localize("bulk.form.no.unsynced.submit"));
-                    transplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
-                    return;
-                }
+            //if there're no forms to dump, just return
+            if (formsOnSD == 0) {
+                txtInteractiveMessages.setText(localize("bulk.form.no.unsynced.submit"));
+                transplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
+                return;
+            }
 
-                SharedPreferences settings = CommCareApplication.instance().getCurrentApp().getAppPreferences();
-                SendTask<CommCareFormDumpActivity> mSendTask = new SendTask<CommCareFormDumpActivity>(
-                        settings.getString(ServerUrls.PREFS_SUBMISSION_URL_KEY, url),
-                        getFolderPath()) {
-                    @Override
-                    protected void deliverResult(CommCareFormDumpActivity receiver, Boolean result) {
-                        if (result == Boolean.TRUE) {
-                            CommCareApplication.notificationManager().clearNotifications(AIRPLANE_MODE_CATEGORY);
-                            Intent i = new Intent(getIntent());
-                            i.putExtra(AdvancedActionsPreferences.KEY_NUMBER_DUMPED, formsOnSD);
-                            receiver.setResult(BULK_SEND_ID, i);
-                            Logger.log(LogTypes.TYPE_FORM_DUMP, "Successfully submitted " + formsOnSD + " forms.");
-                            receiver.finish();
-                        } else {
-                            //assume that we've already set the error message, but make it look scary
-                            CommCareApplication.notificationManager().reportNotificationMessage(NotificationMessageFactory.message(StockMessages.Sync_AirplaneMode, AIRPLANE_MODE_CATEGORY));
-                            receiver.updateCounters();
-                            receiver.transplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
-                        }
-                    }
-
-                    @Override
-                    protected void deliverUpdate(CommCareFormDumpActivity receiver, String... update) {
-                        receiver.updateProgress(update[0], BULK_SEND_ID);
-                        receiver.txtInteractiveMessages.setText(update[0]);
-                    }
-
-                    @Override
-                    protected void deliverError(CommCareFormDumpActivity receiver, Exception e) {
-                        Logger.log(LogTypes.TYPE_FORM_DUMP, "Send failed with exception: " + e.getMessage());
-                        receiver.txtInteractiveMessages.setText(Localization.get("bulk.form.error", new String[]{e.getMessage()}));
+            SharedPreferences settings = CommCareApplication.instance().getCurrentApp().getAppPreferences();
+            SendTask<CommCareFormDumpActivity> mSendTask = new SendTask<CommCareFormDumpActivity>(
+                    settings.getString(ServerUrls.PREFS_SUBMISSION_URL_KEY, url),
+                    getFolderPath()) {
+                @Override
+                protected void deliverResult(CommCareFormDumpActivity receiver, Boolean result) {
+                    if (result == Boolean.TRUE) {
+                        CommCareApplication.notificationManager().clearNotifications(AIRPLANE_MODE_CATEGORY);
+                        Intent i = new Intent(getIntent());
+                        i.putExtra(AdvancedActionsPreferences.KEY_NUMBER_DUMPED, formsOnSD);
+                        receiver.setResult(BULK_SEND_ID, i);
+                        Logger.log(LogTypes.TYPE_FORM_DUMP, "Successfully submitted " + formsOnSD + " forms.");
+                        receiver.finish();
+                    } else {
+                        //assume that we've already set the error message, but make it look scary
+                        CommCareApplication.notificationManager().reportNotificationMessage(NotificationMessageFactory.message(StockMessages.Sync_AirplaneMode, AIRPLANE_MODE_CATEGORY));
+                        receiver.updateCounters();
                         receiver.transplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
                     }
-                };
-                mSendTask.connect(CommCareFormDumpActivity.this);
-                mSendTask.execute();
-            }
+                }
+
+                @Override
+                protected void deliverUpdate(CommCareFormDumpActivity receiver, String... update) {
+                    receiver.updateProgress(update[0], BULK_SEND_ID);
+                    receiver.txtInteractiveMessages.setText(update[0]);
+                }
+
+                @Override
+                protected void deliverError(CommCareFormDumpActivity receiver, Exception e) {
+                    Logger.log(LogTypes.TYPE_FORM_DUMP, "Send failed with exception: " + e.getMessage());
+                    receiver.txtInteractiveMessages.setText(Localization.get("bulk.form.error", new String[]{e.getMessage()}));
+                    receiver.transplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
+                }
+            };
+            mSendTask.connect(CommCareFormDumpActivity.this);
+            mSendTask.execute();
         });
 
-        btnDumpForms.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        btnDumpForms.setOnClickListener(v -> {
 
-                Logger.log(LogTypes.TYPE_FORM_DUMP, "Dump task found " + formsOnSD + " forms on the SD card.");
+            Logger.log(LogTypes.TYPE_FORM_DUMP, "Dump task found " + formsOnSD + " forms on the SD card.");
 
-                if (formsOnPhone == 0) {
-                    txtInteractiveMessages.setText(Localization.get("bulk.form.no.unsynced.dump"));
-                    transplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
-                    return;
-                }
-                DumpTask mDumpTask = new DumpTask(getApplicationContext()) {
-                    @Override
-                    protected void deliverResult(CommCareFormDumpActivity receiver, Boolean result) {
-                        if (result == Boolean.TRUE) {
-                            Intent i = new Intent(getIntent());
-                            i.putExtra(AdvancedActionsPreferences.KEY_NUMBER_DUMPED, formsOnPhone);
-                            receiver.setResult(BULK_DUMP_ID, i);
-                            Logger.log(LogTypes.TYPE_FORM_DUMP, "Successfully dumped " + formsOnPhone + " forms.");
-                            receiver.finish();
-                        } else {
-                            //assume that we've already set the error message, but make it look scary
-                            receiver.transplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
-                        }
-                    }
-
-                    @Override
-                    protected void deliverUpdate(CommCareFormDumpActivity receiver, String... update) {
-                        receiver.updateProgress(update[0], BULK_DUMP_ID);
-                        receiver.txtInteractiveMessages.setText(update[0]);
-                    }
-
-                    @Override
-                    protected void deliverError(CommCareFormDumpActivity receiver, Exception e) {
-                        Logger.log(LogTypes.TYPE_FORM_DUMP, "Dump failed with exception: " + e.getMessage());
-                        receiver.txtInteractiveMessages.setText(Localization.get("bulk.form.error", new String[]{e.getMessage()}));
+            if (formsOnPhone == 0) {
+                txtInteractiveMessages.setText(Localization.get("bulk.form.no.unsynced.dump"));
+                transplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
+                return;
+            }
+            DumpTask mDumpTask = new DumpTask(getApplicationContext()) {
+                @Override
+                protected void deliverResult(CommCareFormDumpActivity receiver, Boolean result) {
+                    if (result == Boolean.TRUE) {
+                        Intent i = new Intent(getIntent());
+                        i.putExtra(AdvancedActionsPreferences.KEY_NUMBER_DUMPED, formsOnPhone);
+                        receiver.setResult(BULK_DUMP_ID, i);
+                        Logger.log(LogTypes.TYPE_FORM_DUMP, "Successfully dumped " + formsOnPhone + " forms.");
+                        receiver.finish();
+                    } else {
+                        //assume that we've already set the error message, but make it look scary
                         receiver.transplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
                     }
-                };
-                mDumpTask.connect(CommCareFormDumpActivity.this);
-                mDumpTask.execute();
-            }
+                }
+
+                @Override
+                protected void deliverUpdate(CommCareFormDumpActivity receiver, String... update) {
+                    receiver.updateProgress(update[0], BULK_DUMP_ID);
+                    receiver.txtInteractiveMessages.setText(update[0]);
+                }
+
+                @Override
+                protected void deliverError(CommCareFormDumpActivity receiver, Exception e) {
+                    Logger.log(LogTypes.TYPE_FORM_DUMP, "Dump failed with exception: " + e.getMessage());
+                    receiver.txtInteractiveMessages.setText(Localization.get("bulk.form.error", new String[]{e.getMessage()}));
+                    receiver.transplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
+                }
+            };
+            mDumpTask.connect(CommCareFormDumpActivity.this);
+            mDumpTask.execute();
         });
 
         if (!acknowledgedRisk) {
@@ -191,16 +185,13 @@ public class CommCareFormDumpActivity extends SessionAwareCommCareActivity<CommC
     private void showWarningMessage() {
         StandardAlertDialog d = new StandardAlertDialog(this,
                 Localization.get("bulk.form.alert.title"), Localization.get("bulk.form.warning"));
-        DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int id) {
-                dialog.dismiss();
-                if (id == AlertDialog.BUTTON_POSITIVE) {
-                    acknowledgedRisk = true;
-                    dismissAlertDialog();
-                } else {
-                    exitDump();
-                }
+        DialogInterface.OnClickListener listener = (dialog, id) -> {
+            dialog.dismiss();
+            if (id == AlertDialog.BUTTON_POSITIVE) {
+                acknowledgedRisk = true;
+                dismissAlertDialog();
+            } else {
+                exitDump();
             }
         };
         d.setPositiveButton("OK", listener);

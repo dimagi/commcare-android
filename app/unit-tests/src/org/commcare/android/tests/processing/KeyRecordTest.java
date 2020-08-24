@@ -6,7 +6,7 @@ import org.commcare.CommCareTestApplication;
 import org.commcare.ManageKeyRecordTaskFake;
 import org.commcare.activities.DataPullControllerMock;
 import org.commcare.activities.LoginMode;
-import org.commcare.android.CommCareTestRunner;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.tests.activities.FormRecordListActivityTest;
@@ -36,7 +36,7 @@ import static org.junit.Assert.fail;
  * @author Phillip Mates (pmates@dimagi.com)
  */
 @Config(application = CommCareTestApplication.class)
-@RunWith(CommCareTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 public class KeyRecordTest {
     private CommCareApp app;
 

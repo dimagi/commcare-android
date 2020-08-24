@@ -8,9 +8,13 @@ import org.commcare.AppUtils;
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.preferences.HiddenPreferences;
+import org.commcare.preferences.ServerUrls;
 import org.commcare.session.CommCareSession;
 import org.commcare.suite.model.Profile;
 import org.commcare.utils.SessionStateUninitException;
+import org.commcare.utils.UrlUtils;
+
+import java.net.URL;
 
 /**
  * Created by amstone326 on 2/11/16.
@@ -56,11 +60,11 @@ public class ReportingUtils {
         try {
             String domain = HiddenPreferences.getUserDomain();
             if (domain == null) {
-                domain = "not found";
+                domain = "";
             }
             return domain;
         } catch (Exception e) {
-            return "Domain not set.";
+            return "";
         }
     }
 
@@ -120,5 +124,26 @@ public class ReportingUtils {
 
     public static String getDeviceId() {
         return CommCareApplication.instance().getPhoneId();
+    }
+
+    public static String getServerName() {
+        try {
+            String keyServer = ServerUrls.getKeyServer();
+            if (keyServer != null) {
+                URL url = new URL(keyServer);
+                return url.getHost();
+            }
+        } catch (Exception e) {
+            return "";
+        }
+        return "";
+    }
+
+    public static String getAppBuildProfileId() {
+        try {
+            return CommCareApplication.instance().getCommCarePlatform().getCurrentProfile().getBuildProfileId();
+        } catch (Exception e) {
+            return "";
+        }
     }
 }

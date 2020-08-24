@@ -3,7 +3,8 @@ package org.commcare.tasks;
 import android.os.SystemClock;
 
 import org.commcare.CommCareApp;
-import org.commcare.CommCareApplication;
+import org.commcare.core.network.CaptivePortalRedirectException;
+import org.commcare.engine.references.JavaHttpReference;
 import org.commcare.engine.resource.AppInstallStatus;
 import org.commcare.engine.resource.ResourceInstallUtils;
 import org.commcare.engine.resource.installers.LocalStorageUnavailableException;
@@ -16,6 +17,9 @@ import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.tasks.templates.CommCareTask;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.AndroidCommCarePlatform;
+import org.javarosa.core.reference.InvalidReferenceException;
+import org.javarosa.core.reference.Reference;
+import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.Logger;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
 
@@ -39,6 +43,7 @@ public abstract class ResourceEngineTask<R>
 
     private UnresolvedResourceException missingResourceException = null;
     private InvalidResourceException invalidResourceException = null;
+    private InvalidReferenceException invalidReferenceException = null;
     private int phase = -1;
     // This boolean is set from CommCareSetupActivity -- If we are in keep
     // trying mode for installation, we want to sleep in between attempts to
@@ -51,21 +56,29 @@ public abstract class ResourceEngineTask<R>
 
     private final Object statusLock = new Object();
     private boolean statusCheckRunning = false;
+    private boolean reinstall = false;
 
     private int authorityForInstall;
 
-    public ResourceEngineTask(CommCareApp app, int taskId, boolean shouldSleep, int authority) {
+    public ResourceEngineTask(CommCareApp app, int taskId, boolean shouldSleep, boolean reinstall) {
         this.app = app;
         this.taskId = taskId;
         this.shouldSleep = shouldSleep;
-        this.authorityForInstall = authority;
-
+        this.reinstall = reinstall;
         TAG = ResourceEngineTask.class.getSimpleName();
     }
 
     @Override
     protected AppInstallStatus doTaskBackground(String... profileRefs) {
         String profileRef = profileRefs[0];
+
+        try {
+            authorityForInstall = deriveAuthorityFromReference(profileRef);
+        } catch (InvalidReferenceException e) {
+            invalidReferenceException = e;
+            return AppInstallStatus.InvalidReference;
+        }
+
         ResourceInstallUtils.recordUpdateAttemptTime(app);
 
         app.setupSandbox();
@@ -81,14 +94,21 @@ public abstract class ResourceEngineTask<R>
             AndroidCommCarePlatform platform = app.getCommCarePlatform();
             ResourceTable global = platform.getGlobalResourceTable();
 
+            if (reinstall) {
+                global.clearAll(platform);
+            }
+
             global.setStateListener(this);
             try {
-                ResourceManager.installAppResources(platform, profileRef, global, false, authorityForInstall);
+                ResourceManager.installAppResources(platform, profileRef, global, reinstall, authorityForInstall);
             } catch (LocalStorageUnavailableException e) {
                 ResourceInstallUtils.logInstallError(e,
                         "Couldn't install file to local storage|");
                 return AppInstallStatus.NoLocalStorage;
             } catch (UnfullfilledRequirementsException e) {
+                if (e.isReinstallFromInvalidCCZException()) {
+                    return AppInstallStatus.ReinstallFromInvalidCcz;
+                }
                 if (e.isDuplicateException()) {
                     return AppInstallStatus.DuplicateApp;
                 } else if (e.isIncorrectTargetException()) {
@@ -112,6 +132,9 @@ public abstract class ResourceEngineTask<R>
             } catch (InvalidResourceException e) {
                 invalidResourceException = e;
                 return AppInstallStatus.InvalidResource;
+            } catch (CaptivePortalRedirectException e) {
+                Logger.log(LogTypes.TYPE_WARNING_NETWORK, "Resource installation failed due to captive portal");
+                return AppInstallStatus.CaptivePortal;
             }
 
             ResourceInstallUtils.initAndCommitApp(app, profileRef);
@@ -123,6 +146,11 @@ public abstract class ResourceEngineTask<R>
                     "Unknown error ocurred during install|");
             return AppInstallStatus.UnknownFailure;
         }
+    }
+
+    private int deriveAuthorityFromReference(String profileRef) throws InvalidReferenceException {
+        Reference reference = ReferenceManager.instance().DeriveReference(profileRef);
+        return reference instanceof JavaHttpReference ? Resource.RESOURCE_AUTHORITY_REMOTE : Resource.RESOURCE_AUTHORITY_LOCAL;
     }
 
     @Override
@@ -214,6 +242,10 @@ public abstract class ResourceEngineTask<R>
 
     public InvalidResourceException getInvalidResourceException() {
         return invalidResourceException;
+    }
+
+    public InvalidReferenceException getInvalidReferenceException() {
+        return invalidReferenceException;
     }
 
     public String getVersionAvailable() {

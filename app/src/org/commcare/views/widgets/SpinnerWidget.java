@@ -66,7 +66,10 @@ public class SpinnerWidget extends QuestionWidget {
             for (int i = 0; i < mItems.size(); ++i) {
                 String sMatch = mItems.get(i).getValue();
                 if (sMatch.equals(s)) {
-                    spinner.setSelection(i+1);
+                    // Workaround to a really weird spinner bug that triggers onItemSelected
+                    // in the initial selection of spinner even though no listener is set.
+                    // https://stackoverflow.com/a/17336944/6671572
+                    spinner.setSelection(i+1, false);
                 }
             }
         }
@@ -152,7 +155,7 @@ public class SpinnerWidget extends QuestionWidget {
                 convertView = inflater.inflate(R.layout.custom_spinner_item, parent, false);
             }
 
-            TextView tv = (TextView)convertView.findViewById(android.R.id.text1);
+            TextView tv = convertView.findViewById(android.R.id.text1);
 
             tv.setText(items[position]);
             tv.setTextSize(textUnit, textSize);
@@ -169,7 +172,7 @@ public class SpinnerWidget extends QuestionWidget {
                 convertView = inflater.inflate(android.R.layout.simple_spinner_item, parent, false);
             }
 
-            TextView tv = (TextView)convertView.findViewById(android.R.id.text1);
+            TextView tv = convertView.findViewById(android.R.id.text1);
             tv.setText(items[position]);
             tv.setTextSize(textUnit, textSize);
             return convertView;

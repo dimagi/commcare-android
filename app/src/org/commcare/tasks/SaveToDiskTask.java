@@ -20,6 +20,7 @@ import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.transport.payload.ByteArrayPayload;
+import org.javarosa.form.api.FormController;
 import org.javarosa.form.api.FormEntryController;
 import org.javarosa.model.xform.XFormSerializingVisitor;
 import org.javarosa.xform.util.XFormSerializer;
@@ -76,6 +77,9 @@ public class SaveToDiskTask extends
 
         if (headless) {
             this.taskId = -1;
+
+            //Don't block on the UI thread if there's no available screen to connect to
+            this.setConnectionTimeout(0);
         } else {
             this.taskId = SAVING_TASK_ID;
         }
@@ -94,7 +98,6 @@ public class SaveToDiskTask extends
         } catch (XPathException xpe) {
             String cleanedMessage = "An error in your form prevented it from saving: \n" +
                     xpe.getMessage();
-
             return new ResultAndError<>(SaveStatus.SAVE_ERROR, cleanedMessage);
         }
 
@@ -124,10 +127,12 @@ public class SaveToDiskTask extends
             return new ResultAndError<>(SaveStatus.SAVE_ERROR, cleanedMessage);
         }
 
+        if (mMarkCompleted) {
+            FormEntryActivity.mFormController.markCompleteFormAsSaved();
+        }
+
+        logFormSave(exitAfterSave);
         if (exitAfterSave) {
-            FormRecord saved = CommCareApplication.instance().getCurrentSessionWrapper().getFormRecord();
-            Logger.log(LogTypes.TYPE_FORM_ENTRY,
-                    String.format("Form Entry Completed for record with id %s", saved.getInstanceID()));
             return new ResultAndError<>(SaveStatus.SAVED_AND_EXIT);
         } else if (mMarkCompleted) {
             return new ResultAndError<>(SaveStatus.SAVED_COMPLETE);
@@ -136,10 +141,19 @@ public class SaveToDiskTask extends
         }
     }
 
+    private void logFormSave(boolean exit) {
+        FormRecord saved = CommCareApplication.instance().getCurrentSessionWrapper().getFormRecord();
+        String log = String.format("Form Entry Completed: Record with id %s was saved as %s", saved.getInstanceID(), mMarkCompleted ? "complete" : "incomplete");
+        if(exit){
+            log += " with user exiting";
+        }
+        Logger.log(LogTypes.TYPE_FORM_ENTRY, log);
+    }
+
     /**
      * Update form Record with necessary params
      */
-    private void updateFormRecord(SqlStorage<FormRecord> formRecordStorage, boolean incomplete, boolean canEditAfterCompleted)
+    private void updateFormRecord(SqlStorage<FormRecord> formRecordStorage, boolean incomplete)
             throws FormInstanceTransactionException {
 
         String status;
@@ -149,36 +163,30 @@ public class SaveToDiskTask extends
             status = FormRecord.STATUS_COMPLETE;
         }
 
-        // update this whether or not the status is complete.
-        String canEditWhenComplete = Boolean.toString(canEditAfterCompleted);
-
         // Insert or update the form instance into the database.
-
+        FormRecord formRecord = null;
+        String recordName = mRecordName;
         if (mFormRecordId != -1) {
-            // Started with a concrete instance (e.i. by editing an existing
-            // form), so just update it.
+            // We started with a concrete instance (i.e. by editing an existing form)
+            formRecord = FormRecord.getFormRecord(formRecordStorage, mFormRecordId);
+        } else if (mFormDefId != -1) {
+            // We started with an empty form or possibly a manually saved form
+            formRecord = CommCareApplication.instance().getCurrentSessionWrapper().getFormRecord();
+            formRecord.setFilePath(mFormRecordPath);
+            if (recordName == null) {
+                FormDefRecord formDefRecord = FormDefRecord.getFormDef(
+                        CommCareApplication.instance().getAppStorage(FormDefRecord.class), mFormDefId);
+                recordName = formDefRecord.getDisplayName();
+            }
+        }
+
+        if (formRecord != null) {
             try {
-                FormRecord formRecord = FormRecord.getFormRecord(formRecordStorage, mFormRecordId);
-                formRecord.updateStatus(formRecordStorage, status, mRecordName, canEditWhenComplete);
+                formRecord.setDisplayName(recordName);
+                formRecord.updateStatus(formRecordStorage, status);
             } catch (IllegalStateException e) {
                 throw new FormInstanceTransactionException(e);
             }
-        } else if (mFormDefId != -1) {
-            // Started with an empty form or possibly a manually saved form.
-            // Try updating, and create a new instance if that fails.
-
-            FormDefRecord formDefRecord = FormDefRecord.getFormDef(CommCareApplication.instance().getAppStorage(FormDefRecord.class), mFormDefId);
-            String recordName = mRecordName;
-            if (recordName == null) {
-                recordName = formDefRecord.getDisplayname();
-            }
-
-            FormRecord formRecord = CommCareApplication.instance().getCurrentSessionWrapper().getFormRecord();
-            formRecord.setFilePath(mFormRecordPath);
-            formRecord.setDisplayName(recordName);
-            formRecord.setCanEditWhenComplete(canEditWhenComplete);
-            formRecord.setStatus(status);
-            formRecord.update(formRecordStorage);
         }
     }
 
@@ -196,70 +204,39 @@ public class SaveToDiskTask extends
      */
     private void exportData(boolean markCompleted)
             throws IOException, FormInstanceTransactionException {
-        ByteArrayPayload payload;
-        // assume no binary data inside the model.
-        FormInstance datamodel = FormEntryActivity.mFormController.getInstance();
+
+        FormInstance dataModel = FormEntryActivity.mFormController.getInstance();
         XFormSerializingVisitor serializer = new XFormSerializingVisitor(markCompleted);
-        payload = (ByteArrayPayload)serializer.createSerializedPayload(datamodel);
+        ByteArrayPayload payload = (ByteArrayPayload)serializer.createSerializedPayload(dataModel);
 
         writeXmlToStream(payload,
                 EncryptionIO.createFileOutputStream(mFormRecordPath, symetricKey));
 
         SqlStorage<FormRecord> formRecordStorage = CommCareApplication.instance().getUserStorage(FormRecord.class);
-        updateFormRecord(formRecordStorage, true, true);
+        updateFormRecord(formRecordStorage, true);
 
         if (markCompleted) {
-            // now see if it is to be finalized and perhaps update everything...
-            boolean canEditAfterCompleted = FormEntryActivity.mFormController.isSubmissionEntireForm();
-            boolean isEncrypted = false;
-
-            // build a submission.xml to hold the data being submitted 
-            // and (if appropriate) encrypt the files on the side
-
-            // pay attention to the ref attribute of the submission profile...
             payload = FormEntryActivity.mFormController.getSubmissionXml();
-
             File instanceXml = new File(mFormRecordPath);
             File submissionXml = new File(instanceXml.getParentFile(), "submission.xml");
             // write out submission.xml -- the data to actually submit to aggregate
             writeXmlToStream(payload,
                     EncryptionIO.createFileOutputStream(submissionXml.getAbsolutePath(), symetricKey));
 
+            // Set this record's status to COMPLETE
+            updateFormRecord(formRecordStorage, false);
 
-            // At this point, we have:
-            // 1. the saved original instanceXml, 
-            // 2. all the plaintext attachments
-            // 3. the submission.xml that is the completed xml (whether encrypting or not)
+            // delete the restore Xml file.
+            if (!instanceXml.delete()) {
+                Log.e(TAG,
+                        "Error deleting " + instanceXml.getAbsolutePath()
+                                + " prior to renaming submission.xml");
+                return;
+            }
 
-            //
-            // NEXT:
-            // 1. Update the form record database (with status complete).
-            // 2. Overwrite the instanceXml with the submission.xml 
-            //    and remove the plaintext attachments if encrypting
-            updateFormRecord(formRecordStorage, false, canEditAfterCompleted);
-
-            if (!canEditAfterCompleted) {
-                // AT THIS POINT, there is no going back.  We are committed
-                // to returning "success" (true) whether or not we can 
-                // rename "submission.xml" to instanceXml and whether or 
-                // not we can delete the plaintext media files.
-                //
-                // Handle the fall-out for a failed "submission.xml" rename
-                // in the InstanceUploader task.  Leftover plaintext media
-                // files are handled during form deletion.
-
-                // delete the restore Xml file.
-                if (!instanceXml.delete()) {
-                    Log.e(TAG, "Error deleting " + instanceXml.getAbsolutePath()
-                            + " prior to renaming submission.xml");
-                    return;
-                }
-
-                // rename the submission.xml to be the instanceXml
-                if (!submissionXml.renameTo(instanceXml)) {
-                    Log.e(TAG, "Error renaming submission.xml to " + instanceXml.getAbsolutePath());
-                    return;
-                }
+            // rename the submission.xml to be the instanceXml
+            if (!submissionXml.renameTo(instanceXml)) {
+                Log.e(TAG, "Error renaming submission.xml to " + instanceXml.getAbsolutePath());
             }
         }
     }
@@ -313,25 +290,21 @@ public class SaveToDiskTask extends
      * though, until all answers conform to their constraints/requirements.
      */
     private boolean hasInvalidAnswers(boolean markCompleted) {
-        FormIndex i = FormEntryActivity.mFormController.getFormIndex();
-        FormEntryActivity.mFormController.jumpToIndex(FormIndex.createBeginningOfFormIndex());
-
+        FormController formController = FormEntryActivity.mFormController;
+        FormIndex currentFormIndex = FormIndex.createBeginningOfFormIndex();
         int event;
-        while ((event =
-                FormEntryActivity.mFormController.stepToNextEvent(FormEntryController.STEP_INTO_GROUP)) != FormEntryController.EVENT_END_OF_FORM) {
+        while ((event = formController.getEvent(currentFormIndex)) != FormEntryController.EVENT_END_OF_FORM) {
             if (event == FormEntryController.EVENT_QUESTION) {
-                int saveStatus =
-                        FormEntryActivity.mFormController.checkCurrentQuestionConstraint();
+                int saveStatus = formController.checkCurrentQuestionConstraint(currentFormIndex);
                 if (markCompleted &&
                         (saveStatus == FormEntryController.ANSWER_REQUIRED_BUT_EMPTY ||
                                 saveStatus == FormEntryController.ANSWER_CONSTRAINT_VIOLATED)) {
-
+                    formController.jumpToIndex(currentFormIndex);
                     return true;
                 }
             }
+            currentFormIndex = formController.getNextFormIndex(currentFormIndex, FormEntryController.STEP_INTO_GROUP, true);
         }
-
-        FormEntryActivity.mFormController.jumpToIndex(i);
         return false;
     }
 

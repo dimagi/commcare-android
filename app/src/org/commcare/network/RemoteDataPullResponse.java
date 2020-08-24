@@ -51,7 +51,7 @@ public class RemoteDataPullResponse {
      */
     public BitCache writeResponseToCache(Context c) throws IOException {
         BitCache cache = null;
-        try {
+        try (InputStream input = getInputStream()) {
             final long dataSizeGuess = ModernHttpRequester.getContentLength(response);
 
             cache = BitCacheFactory.getCache(new AndroidCacheDirSetup(c), dataSizeGuess);
@@ -59,7 +59,6 @@ public class RemoteDataPullResponse {
             cache.initializeCache();
 
             OutputStream cacheOut = cache.getCacheStream();
-            InputStream input = getInputStream();
 
             Log.i("commcare-network", "Starting network read, expected content size: " + dataSizeGuess + "b");
             StreamsUtil.writeFromInputToOutputNew(new BufferedInputStream(input),
@@ -115,8 +114,8 @@ public class RemoteDataPullResponse {
         return response.body().byteStream();
     }
 
-    public String getErrorBody() throws IOException {
-        return response.errorBody().string();
+    public Response<ResponseBody> getResponse() {
+        return response;
     }
 
     public String getRetryHeader() {

@@ -1,18 +1,17 @@
 package org.commcare.activities;
 
-import android.support.v7.app.AppCompatActivity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
-import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
 
 import org.commcare.CommCareApplication;
-import org.commcare.dalvik.R;
 import org.commcare.android.database.global.models.AndroidSharedKeyRecord;
+import org.commcare.dalvik.R;
 import org.commcare.views.ManagedUi;
 import org.commcare.views.UiElement;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 /**
  * @author ctsims
@@ -33,27 +32,18 @@ public class KeyAccessRequestActivity extends CommCareActivity<KeyAccessRequestA
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        grantButton.setOnClickListener(new OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-                Intent response = new Intent(getIntent());
-                AndroidSharedKeyRecord record = AndroidSharedKeyRecord.generateNewSharingKey();
-                CommCareApplication.instance().getGlobalStorage(AndroidSharedKeyRecord.class).write(record);
-                record.writeResponseToIntent(response);
-                setResult(AppCompatActivity.RESULT_OK, response);
-                finish();
-            }
+        grantButton.setOnClickListener(v -> {
+            Intent response = new Intent(getIntent());
+            AndroidSharedKeyRecord record = AndroidSharedKeyRecord.generateNewSharingKey();
+            CommCareApplication.instance().getGlobalStorage(AndroidSharedKeyRecord.class).write(record);
+            record.writeResponseToIntent(response);
+            setResult(AppCompatActivity.RESULT_OK, response);
+            finish();
         });
 
-        denyButton.setOnClickListener(new OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-                setResult(AppCompatActivity.RESULT_CANCELED);
-                finish();
-            }
-
+        denyButton.setOnClickListener(v -> {
+            setResult(AppCompatActivity.RESULT_CANCELED);
+            finish();
         });
     }
 }

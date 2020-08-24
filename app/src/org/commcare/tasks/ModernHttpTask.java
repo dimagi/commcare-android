@@ -5,9 +5,9 @@ import android.content.Context;
 import org.commcare.CommCareApplication;
 import org.commcare.core.interfaces.HttpResponseProcessor;
 import org.commcare.core.interfaces.ResponseStreamAccessor;
+import org.commcare.core.network.AuthInfo;
 import org.commcare.core.network.HTTPMethod;
 import org.commcare.core.network.ModernHttpRequester;
-import org.commcare.modern.util.Pair;
 import org.commcare.tasks.templates.CommCareTask;
 
 import java.io.IOException;
@@ -17,6 +17,8 @@ import java.util.HashMap;
 import javax.annotation.Nullable;
 
 import okhttp3.RequestBody;
+import okhttp3.ResponseBody;
+import retrofit2.Response;
 
 /**
  * Makes get/post request and delegates http response to receiver on completion
@@ -25,27 +27,27 @@ import okhttp3.RequestBody;
  */
 public class ModernHttpTask
         extends CommCareTask<Void, Void, Void, HttpResponseProcessor>
-        implements HttpResponseProcessor, ResponseStreamAccessor {
+        implements ResponseStreamAccessor {
 
     public static final int SIMPLE_HTTP_TASK_ID = 11;
 
     private final ModernHttpRequester requester;
-    private int responseCode;
     private InputStream responseDataStream;
-    private IOException exception;
+    private IOException mException;
+    private Response<ResponseBody> mResponse;
 
     // Use for GET request
     public ModernHttpTask(Context context, String url, HashMap<String, String> params,
                           HashMap<String, String> headers,
-                          @Nullable Pair<String, String> usernameAndPasswordToAuthWith) {
-        this(context, url, params, headers, null, HTTPMethod.GET, usernameAndPasswordToAuthWith);
+                          AuthInfo authInfo) {
+        this(context, url, params, headers, null, HTTPMethod.GET, authInfo);
     }
 
     public ModernHttpTask(Context context, String url, HashMap<String, String> params,
                           HashMap<String, String> headers,
                           @Nullable RequestBody requestBody,
                           HTTPMethod method,
-                          @Nullable Pair<String, String> usernameAndPasswordToAuthWith) {
+                          AuthInfo authInfo) {
         taskId = SIMPLE_HTTP_TASK_ID;
         requester = CommCareApplication.instance().buildHttpRequester(
                 context,
@@ -55,26 +57,35 @@ public class ModernHttpTask
                 requestBody,
                 null,
                 method,
-                usernameAndPasswordToAuthWith,
-                this);
+                authInfo,
+                null,
+                method.equals(HTTPMethod.GET) ? true : false);
     }
 
     @Override
     protected Void doTaskBackground(Void... params) {
-        requester.makeRequestAndProcess();
+        try {
+            mResponse = requester.makeRequest();
+            if (mResponse.isSuccessful()) {
+                responseDataStream = requester.getResponseStream(mResponse);
+            }
+        } catch (IOException e) {
+            mException = e;
+        }
         return null;
     }
 
     @Override
     protected void deliverResult(HttpResponseProcessor httpResponseProcessor,
                                  Void result) {
-        if (exception != null) {
-            httpResponseProcessor.handleIOException(exception);
+
+        if (mException != null) {
+            httpResponseProcessor.handleIOException(mException);
         } else {
             // route to appropriate callback based on http response code
             ModernHttpRequester.processResponse(
                     httpResponseProcessor,
-                    responseCode,
+                    mResponse.code(),
                     this);
         }
     }
@@ -82,43 +93,15 @@ public class ModernHttpTask
     @Override
     protected void deliverUpdate(HttpResponseProcessor httpResponseProcessor,
                                  Void... update) {
-
     }
 
     @Override
     protected void deliverError(HttpResponseProcessor httpResponseProcessor,
                                 Exception e) {
-
     }
 
     @Override
-    public void processSuccess(int responseCode, InputStream responseData) {
-        this.responseCode = responseCode;
-        responseDataStream = responseData;
-    }
-
-    @Override
-    public void processClientError(int responseCode) {
-        this.responseCode = responseCode;
-    }
-
-    @Override
-    public void processServerError(int responseCode) {
-        this.responseCode = responseCode;
-    }
-
-    @Override
-    public void processOther(int responseCode) {
-        this.responseCode = responseCode;
-    }
-
-    @Override
-    public void handleIOException(IOException exception) {
-        this.exception = exception;
-    }
-
-    @Override
-    public InputStream getResponseStream() throws IOException {
+    public InputStream getResponseStream() {
         return responseDataStream;
     }
 }

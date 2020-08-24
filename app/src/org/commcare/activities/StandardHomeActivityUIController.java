@@ -2,8 +2,8 @@ package org.commcare.activities;
 
 import android.annotation.SuppressLint;
 import android.os.Build;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.StaggeredGridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 import android.view.ViewTreeObserver;
 
 import org.commcare.CommCareApp;
@@ -63,7 +63,7 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
         if (!DeveloperPreferences.isHomeReportEnabled()) {
             hiddenButtons.add("report");
         }
-        if (!CommCareApplication.instance().getCurrentApp().hasTrainingMenu()) {
+        if (!CommCareApplication.instance().getCurrentApp().hasVisibleTrainingContent()) {
             hiddenButtons.add("training");
         }
 
@@ -71,7 +71,7 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
     }
 
     private void setupGridView() {
-        final RecyclerView grid = (RecyclerView)activity.findViewById(R.id.home_gridview_buttons);
+        final RecyclerView grid = activity.findViewById(R.id.home_gridview_buttons);
         grid.setHasFixedSize(false);
 
         StaggeredGridLayoutManager gridView =

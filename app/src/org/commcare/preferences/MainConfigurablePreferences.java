@@ -1,12 +1,11 @@
 package org.commcare.preferences;
 
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
-import android.support.annotation.NonNull;
-import android.support.v7.preference.Preference;
-import android.support.v7.preference.PreferenceScreen;
+import androidx.annotation.NonNull;
+import androidx.preference.Preference;
+import androidx.preference.PreferenceScreen;
 
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
@@ -42,6 +41,7 @@ public class MainConfigurablePreferences
     private static final int REQUEST_DEVELOPER_PREFERENCES = 1;
 
     private final static Map<String, String> keyToTitleMap = new HashMap<>();
+
     static {
         keyToTitleMap.put(DEVELOPER_SETTINGS, "settings.developer.options");
         keyToTitleMap.put(DISABLE_ANALYTICS, "home.menu.disable.analytics");
@@ -105,12 +105,9 @@ public class MainConfigurablePreferences
     private void configureDevPreferencesButton() {
         Preference developerSettingsButton = findPreference(DEVELOPER_SETTINGS);
         if (DeveloperPreferences.isSuperuserEnabled()) {
-            developerSettingsButton.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-                @Override
-                public boolean onPreferenceClick(Preference preference) {
-                    startDeveloperOptions();
-                    return true;
-                }
+            developerSettingsButton.setOnPreferenceClickListener(preference -> {
+                startDeveloperOptions();
+                return true;
             });
         } else {
             getPreferenceScreen().removePreference(developerSettingsButton);
@@ -119,7 +116,7 @@ public class MainConfigurablePreferences
 
     private void startDeveloperOptions() {
         Intent intent = new Intent(getActivity(), SessionAwarePreferenceActivity.class);
-        intent.putExtra(CommCarePreferenceActivity.EXTRA_PREF_TYPE,CommCarePreferenceActivity.PREF_TYPE_DEVELOPER);
+        intent.putExtra(CommCarePreferenceActivity.EXTRA_PREF_TYPE, CommCarePreferenceActivity.PREF_TYPE_DEVELOPER);
         startActivityForResult(intent, REQUEST_DEVELOPER_PREFERENCES);
     }
 
@@ -129,23 +126,13 @@ public class MainConfigurablePreferences
                 Localization.get("analytics.opt.out.message"));
 
         f.setPositiveButton(Localization.get("analytics.disable.button"),
-                new DialogInterface.OnClickListener() {
-
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                        MainConfigurablePreferences.disableAnalytics();
-                    }
+                (dialog, which) -> {
+                    dialog.dismiss();
+                    MainConfigurablePreferences.disableAnalytics();
                 });
 
         f.setNegativeButton(Localization.get("option.cancel"),
-                new DialogInterface.OnClickListener() {
-
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                    }
-                });
+                (dialog, which) -> dialog.dismiss());
 
         f.showNonPersistentDialog();
     }
@@ -156,8 +143,7 @@ public class MainConfigurablePreferences
             if (resultCode == DeveloperPreferences.RESULT_SYNC_CUSTOM) {
                 getActivity().setResult(DeveloperPreferences.RESULT_SYNC_CUSTOM);
                 getActivity().finish();
-            }
-            else if (resultCode == DeveloperPreferences.RESULT_DEV_OPTIONS_DISABLED) {
+            } else if (resultCode == DeveloperPreferences.RESULT_DEV_OPTIONS_DISABLED) {
                 configureDevPreferencesButton();
             }
         }
@@ -239,9 +225,9 @@ public class MainConfigurablePreferences
         }
     }
 
-    public static void setCurrentLocale(String locale) {
+    public static void setCurrentLocale(String currentLocale) {
         SharedPreferences prefs = CommCareApplication.instance().getCurrentApp().getAppPreferences();
-        prefs.edit().putString(PREFS_LOCALE_KEY, locale).apply();
+        prefs.edit().putString(PREFS_LOCALE_KEY, currentLocale).apply();
     }
 
 }

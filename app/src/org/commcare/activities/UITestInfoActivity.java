@@ -2,11 +2,12 @@ package org.commcare.activities;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.support.v7.preference.PreferenceManager;
-import android.support.v7.app.AppCompatActivity;
 import android.widget.TextView;
 
 import org.commcare.dalvik.R;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.preference.PreferenceManager;
 
 // Used for ui testing components which don't have UI components
 public class UITestInfoActivity extends AppCompatActivity {

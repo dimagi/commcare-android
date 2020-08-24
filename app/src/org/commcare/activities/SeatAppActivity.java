@@ -1,6 +1,6 @@
 package org.commcare.activities;
 
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -30,7 +30,7 @@ public class SeatAppActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.screen_seat_app);
-        TextView tv = (TextView)findViewById(R.id.text);
+        TextView tv = findViewById(R.id.text);
         tv.setText(Localization.get("seating.app"));
 
         inProgress = savedInstanceState != null &&

@@ -2,16 +2,16 @@ package org.commcare.activities;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
-import android.support.v4.view.MenuItemCompat;
-import android.support.v7.app.AppCompatActivity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Rect;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v4.app.DialogFragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v7.widget.SearchView;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SearchView;
+import androidx.fragment.app.DialogFragment;
+import androidx.fragment.app.FragmentManager;
 import android.text.Spannable;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -25,6 +25,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.user.models.ACase;
@@ -34,6 +35,7 @@ import org.commcare.fragments.ContainerFragment;
 import org.commcare.fragments.TaskConnectorFragment;
 import org.commcare.interfaces.WithUIController;
 import org.commcare.logic.DetailCalloutListenerDefaultImpl;
+import org.commcare.preferences.LocalePreferences;
 import org.commcare.session.SessionFrame;
 import org.commcare.session.SessionInstanceBuilder;
 import org.commcare.suite.model.CalloutData;
@@ -47,6 +49,7 @@ import org.commcare.utils.ConnectivityStatus;
 import org.commcare.utils.DetailCalloutListener;
 import org.commcare.utils.MarkupUtil;
 import org.commcare.utils.SessionStateUninitException;
+import org.commcare.utils.StringUtils;
 import org.commcare.views.ManagedUiFramework;
 import org.commcare.views.dialogs.AlertDialogFragment;
 import org.commcare.views.dialogs.CommCareAlertDialog;
@@ -59,7 +62,6 @@ import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.NoLocalizedTextException;
 
-import io.reactivex.Observable;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 
@@ -69,6 +71,7 @@ import io.reactivex.disposables.Disposable;
  *
  * @author ctsims
  */
+
 public abstract class CommCareActivity<R> extends AppCompatActivity
         implements CommCareTaskConnector<R>, DialogController, OnGestureListener, DetailCalloutListener {
 
@@ -118,6 +121,7 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
     private int dialogId = -1;
     private ContainerFragment<Bundle> managedUiState;
     private boolean isMainScreenBlocked;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -410,14 +414,11 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
      * Display exception details as a pop-up to the user.
      */
     private void displayException(String title, String message) {
-        DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int i) {
-                switch (i) {
-                    case DialogInterface.BUTTON_POSITIVE:
-                        finish();
-                        break;
-                }
+        DialogInterface.OnClickListener listener = (dialog, i) -> {
+            switch (i) {
+                case DialogInterface.BUTTON_POSITIVE:
+                    finish();
+                    break;
             }
         };
         showAlertDialog(StandardAlertDialog.getBasicAlertDialogWithIcon(this, title,
@@ -668,6 +669,10 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
         return null;
     }
 
+    public boolean aTaskInProgress() {
+        return stateHolder != null && stateHolder.isCurrentTaskRunning();
+    }
+
     /**
      * Interface to perform additional setup code when adding an ActionBar
      */
@@ -691,17 +696,18 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
             inflater.inflate(org.commcare.dalvik.R.menu.action_bar_search_view, menu);
 
             MenuItem searchMenuItem = menu.findItem(org.commcare.dalvik.R.id.search_action_bar);
-            SearchView searchView = (SearchView)MenuItemCompat.getActionView(searchMenuItem);
+            SearchView searchView =
+                    (SearchView)searchMenuItem.getActionView();
             MenuItem barcodeItem = menu.findItem(org.commcare.dalvik.R.id.barcode_scan_action_bar);
             if (searchView != null) {
-//                int[] searchViewStyle =
-//                        AndroidUtil.getThemeColorIDs(this,
-//                                new int[]{org.commcare.dalvik.R.attr.searchbox_action_bar_color});
-//                int id = searchView.getContext()
-//                        .getResources()
-//                        .getIdentifier("android:id/search_src_text", null, null);
-//                TextView textView = (TextView)searchView.findViewById(id);
-//                textView.setTextColor(searchViewStyle[0]);
+                int[] searchViewStyle =
+                        AndroidUtil.getThemeColorIDs(this,
+                                new int[]{org.commcare.dalvik.R.attr.searchbox_action_bar_color});
+                int id = searchView.getContext()
+                        .getResources()
+                        .getIdentifier("android:id/search_src_text", null, null);
+                TextView textView = searchView.findViewById(id);
+                textView.setTextColor(searchViewStyle[0]);
                 if (instantiator != null) {
                     instantiator.onActionBarFound(searchMenuItem, searchView, barcodeItem);
                 }
@@ -738,10 +744,17 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
     @Override
     public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
         if (isHorizontalSwipe(this, e1, e2) && !isMainScreenBlocked) {
-            if (velocityX <= 0) {
+            if (LocalePreferences.isLocaleRTL()) {
+                if (velocityX <= 0) {
+                    return onBackwardSwipe();
+                }
                 return onForwardSwipe();
+            } else {
+                if (velocityX <= 0) {
+                    return onForwardSwipe();
+                }
+                return onBackwardSwipe();
             }
-            return onBackwardSwipe();
         }
 
         return false;
@@ -870,7 +883,7 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
         isMainScreenBlocked = isBlocked;
     }
 
-    private boolean usesUIController() {
+    protected boolean usesUIController() {
         return this instanceof WithUIController;
     }
 
@@ -920,5 +933,13 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
     @Override
     public void performCallout(CalloutData callout, int id) {
         DetailCalloutListenerDefaultImpl.performCallout(this, callout, id);
+    }
+
+    protected void showToast(int stringResource) {
+        Toast.makeText(this, getLocalizedString(stringResource), Toast.LENGTH_LONG).show();
+    }
+
+    protected String getLocalizedString(int stringResource) {
+        return StringUtils.getStringRobust(this, stringResource);
     }
 }

@@ -115,7 +115,7 @@ public class EntityDetailActivity
             this.mEntityContext = new Pair<>(shortDetail, mTreeReference);
         }
 
-        /* Caution: The detailIndex field comes from EntitySelectActivity, which is the 
+        /* Caution: The detailIndex field comes from EntitySelectActivity, which is the
          * source of this intent. In some instances, the detailIndex may not have been assigned,
          * in which case it will take on a value of -1. If making use of the detailIndex, it may
          * be useful to include the debugging print statement below.
@@ -132,13 +132,10 @@ public class EntityDetailActivity
             }
         }
 
-        next.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                FirebaseAnalyticsUtil.reportEntityDetailContinue(
-                        AnalyticsParamValue.NAV_BUTTON_PRESS, mDetailView.getTabCount());
-                select();
-            }
+        next.setOnClickListener(v -> {
+            FirebaseAnalyticsUtil.reportEntityDetailContinue(
+                    AnalyticsParamValue.NAV_BUTTON_PRESS, mDetailView.getTabCount());
+            select();
         });
 
         if (viewMode) {
@@ -146,13 +143,13 @@ public class EntityDetailActivity
             next.setText(Localization.get("select.detail.bypass"));
         }
 
-        mDetailView.setRoot((ViewGroup)container.findViewById(R.id.entity_detail_tabs));
+        mDetailView.setRoot(container.findViewById(R.id.entity_detail_tabs));
         mDetailView.refresh(detail, mTreeReference, detailIndex);
 
         mDetailView.showMenu();
         isFinalSwipeActionEnabled = DeveloperPreferences.isDetailTabSwipeActionEnabled();
 
-        AdMobManager.requestBannerAdForView(this, (FrameLayout)this.findViewById(R.id.ad_container),
+        AdMobManager.requestBannerAdForView(this, this.findViewById(R.id.ad_container),
                 AdLocation.EntityDetail);
     }
 
@@ -256,7 +253,7 @@ public class EntityDetailActivity
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
-        menu.findItem(MENU_PRINT_DETAIL).setVisible(detail.isPrintEnabled());
+        menu.findItem(MENU_PRINT_DETAIL).setVisible(detail != null && detail.isPrintEnabled());
         return true;
     }
 

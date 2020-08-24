@@ -12,11 +12,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import org.commcare.CommCareApplication;
-import org.commcare.core.network.AuthenticationInterceptor;
-import org.commcare.core.network.HTTPMethod;
-import org.commcare.core.network.ModernHttpRequester;
-import org.commcare.dalvik.R;
 import org.commcare.core.interfaces.HttpResponseProcessor;
+import org.commcare.core.network.AuthInfo;
+import org.commcare.core.network.AuthenticationInterceptor;
+import org.commcare.dalvik.R;
 import org.commcare.models.AndroidSessionWrapper;
 import org.commcare.modern.util.Pair;
 import org.commcare.session.RemoteQuerySessionManager;
@@ -36,7 +35,6 @@ import org.javarosa.core.util.OrderedHashtable;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Hashtable;
@@ -85,7 +83,6 @@ public class QueryRequestActivity
             finish();
         } else {
             loadStateFromSavedInstance(savedInstanceState);
-
             setupUI();
         }
     }
@@ -93,13 +90,10 @@ public class QueryRequestActivity
     private void setupUI() {
         buildPromptUI();
 
-        queryButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ViewUtil.hideVirtualKeyboard(QueryRequestActivity.this);
-                answerPrompts();
-                makeQueryRequest();
-            }
+        queryButton.setOnClickListener(v -> {
+            ViewUtil.hideVirtualKeyboard(QueryRequestActivity.this);
+            answerPrompts();
+            makeQueryRequest();
         });
 
         if (inErrorState) {
@@ -108,7 +102,7 @@ public class QueryRequestActivity
     }
 
     private void buildPromptUI() {
-        LinearLayout promptsLayout = (LinearLayout)findViewById(R.id.query_prompts);
+        LinearLayout promptsLayout = findViewById(R.id.query_prompts);
         OrderedHashtable<String, DisplayUnit> userInputDisplays =
                 remoteQuerySessionManager.getNeededUserInputDisplays();
         int promptCount = 1;
@@ -178,7 +172,7 @@ public class QueryRequestActivity
                 remoteQuerySessionManager.getBaseUrl().toString(),
                 new HashMap(remoteQuerySessionManager.getRawQueryParams()),
                 new HashMap(),
-                null);
+                new AuthInfo.CurrentAuth());
         httpTask.connect((CommCareTaskConnector)this);
         httpTask.executeParallel();
     }

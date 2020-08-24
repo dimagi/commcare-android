@@ -21,6 +21,14 @@ public class NotificationMessageFactory {
 
     //TODO: Move these to an enum for the task that they represent the return state of
     public enum StockMessages implements MessageTag {
+
+        InApp_Update("in.app.update.downloading"),
+
+        /**
+         * The server url was null or empty *
+         */
+        Empty_Url("login.attempt.fail.empty.url"),
+
         /**
          * The user's credentials weren't accepted on the server *
          */
@@ -83,6 +91,12 @@ public class NotificationMessageFactory {
          */
         Remote_ServerError("notification.server.error"),
 
+
+        /**
+         * 503 error *
+         */
+        Remote_RateLimitedServerError("notification.rate.limited.server.error"),
+
         /**
          * Network timed out *
          */
@@ -92,6 +106,14 @@ public class NotificationMessageFactory {
          * Unknown error during restore *
          */
         Restore_Unknown("notification.restore.unknown"),
+
+        Cancelled("notification.restore.cancelled"),
+
+        Encryption_Error("notification.restore.encryption.error"),
+
+        Session_Expire("notification.restore.session.expire"),
+
+        Recovery_Error("notification.restore.recovery.error"),
 
         Auth_Over_HTTP("auth.over.http"),
 
@@ -106,6 +128,11 @@ public class NotificationMessageFactory {
          * In airplane mode while trying to sync*
          */
         Sync_AirplaneMode("notification.sync.airplane"),
+
+        /**
+         * Restricted access to network by Captive Portal
+         */
+        Sync_CaptivePortal("connection.captive_portal"),
 
         /**
          * No connections while trying to sync *

@@ -3,13 +3,14 @@ package org.commcare.android.tests.formsave;
 import android.content.Intent;
 import android.os.Environment;
 import android.util.Log;
+import android.view.View;
 import android.widget.ImageButton;
 
 import org.commcare.CommCareApplication;
 import org.commcare.CommCareTestApplication;
 import org.commcare.activities.StandardHomeActivity;
 import org.commcare.activities.FormEntryActivity;
-import org.commcare.android.CommCareTestRunner;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import org.commcare.android.mocks.FormAndDataSyncerFake;
 import org.commcare.android.tests.queries.CaseDbQueryTest;
 import org.commcare.android.util.TestAppInstaller;
@@ -52,7 +53,7 @@ import static junit.framework.Assert.fail;
  * @author Phillip Mates (pmates@dimagi.com).
  */
 @Config(application = CommCareTestApplication.class)
-@RunWith(CommCareTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 public class FormRecordProcessingTest {
     private static final String TAG = FormRecordProcessingTest.class.getSimpleName();
 
@@ -133,18 +134,18 @@ public class FormRecordProcessingTest {
     private ShadowActivity navigateFormEntry(Intent formEntryIntent) {
         // launch form entry
         FormEntryActivity formEntryActivity =
-                Robolectric.buildActivity(FormEntryActivity.class).withIntent(formEntryIntent)
+                Robolectric.buildActivity(FormEntryActivity.class, formEntryIntent)
                         .create().start().resume().get();
-
-        ImageButton nextButton = (ImageButton)formEntryActivity.findViewById(R.id.nav_btn_next);
 
         // enter an answer for the question
         QuestionsView questionsView = formEntryActivity.getODKView();
         IntegerWidget cohort = (IntegerWidget)questionsView.getWidgets().get(0);
         cohort.setAnswer("2");
 
+        ImageButton nextButton = formEntryActivity.findViewById(R.id.nav_btn_next);
         nextButton.performClick();
-        nextButton.performClick();
+        View finishButton = formEntryActivity.findViewById(R.id.nav_btn_finish);
+        finishButton.performClick();
 
         ShadowActivity shadowFormEntryActivity = Shadows.shadowOf(formEntryActivity);
 

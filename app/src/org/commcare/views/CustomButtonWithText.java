@@ -8,7 +8,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.StateListDrawable;
 import android.os.Build;
-import android.support.v4.graphics.drawable.DrawableCompat;
+import androidx.core.graphics.drawable.DrawableCompat;
 import android.util.AttributeSet;
 import android.util.StateSet;
 import android.widget.ImageButton;
@@ -57,8 +57,8 @@ public abstract class CustomButtonWithText extends RelativeLayout {
 
         typedArray.recycle();
 
-        button = (ImageButton)findViewById(R.id.button);
-        textView = (TextView)findViewById(R.id.text_view);
+        button = findViewById(R.id.button);
+        textView = findViewById(R.id.text_view);
 
         if (isInEditMode()) {
             setUI(R.color.cc_brand_color, getResources().getDrawable(R.drawable.barcode), "Your text goes here", colorButtonText);
@@ -82,7 +82,7 @@ public abstract class CustomButtonWithText extends RelativeLayout {
         }
     }
 
-    private void setImage(Drawable backgroundImg) {
+    public void setImage(Drawable backgroundImg) {
         button.setImageDrawable(backgroundImg);
     }
 

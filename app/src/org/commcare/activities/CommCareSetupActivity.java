@@ -2,7 +2,7 @@ package org.commcare.activities;
 
 import android.Manifest;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.RestrictionsManager;
@@ -10,12 +10,14 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.PowerManager;
-import android.support.annotation.NonNull;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
-import android.support.v4.content.ContextCompat;
+
+import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
+import androidx.core.content.ContextCompat;
+
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -40,6 +42,7 @@ import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.logging.DataChangeLog;
 import org.commcare.logging.DataChangeLogger;
 import org.commcare.preferences.GlobalPrivilegesManager;
+import org.commcare.resources.ResourceManager;
 import org.commcare.resources.model.InvalidResourceException;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.UnresolvedResourceException;
@@ -462,7 +465,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 
             ResourceEngineTask<CommCareSetupActivity> task =
                     new ResourceEngineTask<CommCareSetupActivity>(ccApp,
-                            DIALOG_INSTALL_PROGRESS, shouldSleep, determineAuthorityForInstall()) {
+                            DIALOG_INSTALL_PROGRESS, shouldSleep, false) {
 
                         @Override
                         protected void deliverResult(CommCareSetupActivity receiver,
@@ -490,7 +493,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         }
     }
 
-    public static void handleAppInstallResult(ResourceEngineTask<CommCareSetupActivity> resourceEngineTask, CommCareSetupActivity receiver, AppInstallStatus result) {
+    public static void handleAppInstallResult(ResourceEngineTask resourceEngineTask, ResourceEngineListener receiver, AppInstallStatus result) {
         switch (result) {
             case Installed:
                 receiver.reportSuccess(true);
@@ -505,6 +508,9 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                 break;
             case InvalidResource:
                 receiver.failInvalidResource(resourceEngineTask.getInvalidResourceException(), result);
+                break;
+            case InvalidReference:
+                receiver.failInvalidReference(resourceEngineTask.getInvalidReferenceException(), result);
                 break;
             case IncompatibleReqs:
                 receiver.failBadReqs(resourceEngineTask.getVersionRequired(),
@@ -525,18 +531,16 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             case IncorrectTargetPackage:
                 receiver.failTargetMismatch();
                 break;
+            case ReinstallFromInvalidCcz:
+                receiver.failUnknown(AppInstallStatus.ReinstallFromInvalidCcz);
+                break;
+            case CaptivePortal:
+                receiver.failWithNotification(AppInstallStatus.CaptivePortal);
+                break;
             default:
                 receiver.failUnknown(AppInstallStatus.UnknownFailure);
                 break;
         }
-    }
-
-    private int determineAuthorityForInstall() {
-        // Note that this is an imperfect way to determine the resource authority; we should
-        // really be looking at the nature of the reference that is being used itself (i.e. is it
-        // a file reference or a URL)
-        return lastInstallMode == INSTALL_MODE_OFFLINE ?
-                Resource.RESOURCE_AUTHORITY_LOCAL : Resource.RESOURCE_AUTHORITY_REMOTE;
     }
 
     public static CommCareApp getCommCareApp() {
@@ -551,17 +555,22 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
         menu.add(0, MENU_ARCHIVE, 0, Localization.get("menu.archive")).setIcon(android.R.drawable.ic_menu_upload);
-        menu.add(0, MENU_SMS, 1, Localization.get("menu.sms")).setIcon(android.R.drawable.stat_notify_chat);
         menu.add(0, MENU_FROM_LIST, 2, Localization.get("menu.app.list.install"));
         return true;
     }
 
     /**
+     * UPDATE: 16/Jan/2019: This code path is no longer in use, since we have turned off sms install
+     * in response to Google play console policies for now. We are going to watch out for a while
+     * for any changes in policies in near future before completely removing the surrounding code
+     *
+     *
      * Scan SMS messages for texts with profile references.
      *
      * @param installTriggeredManually if scan was triggered manually, then
      *                                 install automatically if reference is found
      */
+
     private void performSMSInstall(boolean installTriggeredManually) {
         manualSMSInstall = installTriggeredManually;
         if (ContextCompat.checkSelfPermission(this,
@@ -738,7 +747,11 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 
     @Override
     public void failMissingResource(UnresolvedResourceException ure, AppInstallStatus statusMissing) {
-        fail(NotificationMessageFactory.message(statusMissing, new String[]{null, ure.getResource().getDescriptor(), ure.getMessage()}), ure.isMessageUseful());
+        if (lastInstallMode == INSTALL_MODE_URL && ResourceManager.ApplicationDescriptor.equals(ure.getResource().getDescriptor())) {
+            fail(Localization.get("install.wrong.code"));
+        } else {
+            fail(NotificationMessageFactory.message(statusMissing, new String[]{null, ure.getResource().getDescriptor(), ure.getMessage()}), ure.isMessageUseful());
+        }
     }
 
     @Override
@@ -747,17 +760,17 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     }
 
     @Override
+    public void failInvalidReference(InvalidReferenceException e, AppInstallStatus status) {
+        fail(NotificationMessageFactory.message(status, new String[]{null, null, e.getMessage()}), true);
+    }
+
+    @Override
     public void failBadReqs(String versionRequired, String versionAvailable, boolean majorIsProblem) {
         String versionMismatch = Localization.get("install.version.mismatch", new String[]{versionRequired, versionAvailable});
-
-        String error;
-        if (majorIsProblem) {
-            error = Localization.get("install.major.mismatch");
-        } else {
-            error = Localization.get("install.minor.mismatch");
-        }
-
-        fail(NotificationMessageFactory.message(AppInstallStatus.IncompatibleReqs, new String[]{null, versionMismatch, error}), true);
+        Intent intent = new Intent(this, PromptApkUpdateActivity.class);
+        intent.putExtra(PromptApkUpdateActivity.REQUIRED_VERSION, versionRequired);
+        intent.putExtra(PromptApkUpdateActivity.CUSTOM_PROMPT_TITLE, versionMismatch);
+        startActivity(intent);
     }
 
     @Override

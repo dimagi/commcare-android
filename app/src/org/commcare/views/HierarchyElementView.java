@@ -18,9 +18,9 @@ public class HierarchyElementView extends RelativeLayout {
 
         RelativeLayout layout = (RelativeLayout)inflate(context, R.layout.hierarchy_element_view, null);
 
-        mPrimaryTextView = ((TextView)layout.findViewById(R.id.hev_primary_text));
-        mSecondaryTextView = ((TextView)layout.findViewById(R.id.hev_secondary_text));
-        mIcon = ((ImageView)layout.findViewById(R.id.hev_icon));
+        mPrimaryTextView = layout.findViewById(R.id.hev_primary_text);
+        mSecondaryTextView = layout.findViewById(R.id.hev_secondary_text);
+        mIcon = layout.findViewById(R.id.hev_icon);
 
         setFromHierarchyElement(it);
 

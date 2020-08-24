@@ -1,6 +1,6 @@
 package org.commcare.adapters;
 
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
 
 import org.commcare.cases.entity.Entity;
 import org.commcare.cases.entity.NodeEntityFactory;
@@ -35,33 +35,25 @@ public abstract class EntityFiltererBase {
     }
 
     public void start() {
-        thread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                //Make sure that we have loaded the necessary cached data
-                //before we attempt to search over it
-                while (!nodeFactory.isEntitySetReady()) {
-                    try {
-                        Thread.sleep(100);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
+        thread = new Thread(() -> {
+            //Make sure that we have loaded the necessary cached data
+            //before we attempt to search over it
+            while (!nodeFactory.isEntitySetReady()) {
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
                 }
-                filter();
-
-                finishSearch();
             }
+            filter();
+
+            finishSearch();
         });
         thread.start();
     }
 
     private void finishSearch() {
-        context.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                adapter.setCurrent(matchList);
-            }
-        });
+        context.runOnUiThread(() -> adapter.setCurrent(matchList));
     }
 
     public void cancelSearch() {

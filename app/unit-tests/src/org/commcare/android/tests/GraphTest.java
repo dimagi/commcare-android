@@ -1,5 +1,6 @@
 package org.commcare.android.tests;
 
+import org.commcare.CommCareTestApplication;
 import org.commcare.core.graph.suite.Graph;
 
 import org.commcare.core.graph.suite.XYSeries;
@@ -12,7 +13,7 @@ import org.javarosa.xpath.test.XPathEvalTest;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
 import org.commcare.CommCareApplication;
-import org.commcare.android.CommCareTestRunner;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -21,8 +22,8 @@ import org.robolectric.annotation.Config;
 import java.util.Vector;
 
 
-@Config(application = CommCareApplication.class)
-@RunWith(CommCareTestRunner.class)
+@Config(application = CommCareTestApplication.class)
+@RunWith(AndroidJUnit4.class)
 public class GraphTest extends XPathEvalTest {
 
     @Test

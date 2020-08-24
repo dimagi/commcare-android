@@ -9,7 +9,7 @@ import org.commcare.activities.EntitySelectActivity;
 import org.commcare.activities.LoginActivity;
 import org.commcare.activities.StandardHomeActivity;
 import org.commcare.adapters.EntityListAdapter;
-import org.commcare.android.CommCareTestRunner;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.util.CaseLoadUtils;
 import org.commcare.android.util.TestAppInstaller;
@@ -37,7 +37,7 @@ import static org.junit.Assert.assertTrue;
  * @author Phillip Mates (pmates@dimagi.com)
  */
 @Config(application = CommCareTestApplication.class)
-@RunWith(CommCareTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 public class DemoUserRestoreTest {
     private final static String REF_BASE_DIR =
             "jr://resource/commcare-apps/demo_user_restore/";
@@ -46,8 +46,8 @@ public class DemoUserRestoreTest {
         Intent loginActivityIntent =
                 new Intent(RuntimeEnvironment.application, LoginActivity.class);
         LoginActivity loginActivity =
-                Robolectric.buildActivity(LoginActivity.class)
-                        .withIntent(loginActivityIntent).setup().get();
+                Robolectric.buildActivity(LoginActivity.class, loginActivityIntent)
+                        .setup().get();
         ShadowActivity shadowActivity = Shadows.shadowOf(loginActivity);
         shadowActivity.clickMenuItem(LoginActivity.MENU_DEMO);
     }
@@ -57,8 +57,8 @@ public class DemoUserRestoreTest {
                 new Intent(RuntimeEnvironment.application, StandardHomeActivity.class);
         homeActivityIntent.putExtra(DispatchActivity.START_FROM_LOGIN, true);
         StandardHomeActivity homeActivity =
-                Robolectric.buildActivity(StandardHomeActivity.class)
-                        .withIntent(homeActivityIntent).setup().get();
+                Robolectric.buildActivity(StandardHomeActivity.class, homeActivityIntent)
+                        .setup().get();
         return Shadows.shadowOf(homeActivity);
     }
 

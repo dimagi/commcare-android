@@ -1,7 +1,7 @@
 package org.commcare.android.tests.processing;
 
 import org.commcare.CommCareTestApplication;
-import org.commcare.android.CommCareTestRunner;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.resource.installers.XFormAndroidInstaller;
 import org.commcare.android.util.TestUtils;
@@ -36,7 +36,7 @@ import static org.junit.Assert.fail;
  * @author ctsims
  */
 @Config(application = CommCareTestApplication.class)
-@RunWith(CommCareTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 public class FormStorageTest {
     private boolean noSerializiationExceptions;
 
@@ -46,7 +46,7 @@ public class FormStorageTest {
     // but should be moved to the bottom with a comment as to what version it was migrated in
     private static final List<String> completeHistoryOfExternalizableClasses = Arrays.asList(
             // current class names:
-            "org.commcare.android.database.app.models.ResourceModelUpdater"
+            "org.commcare.android.database.app.models.ResourceV13"
             , "org.commcare.android.database.app.models.UserKeyRecord"
             , "org.commcare.android.database.app.models.UserKeyRecordV1"
             , "org.commcare.android.database.global.models.AndroidSharedKeyRecord"
@@ -98,6 +98,8 @@ public class FormStorageTest {
             , "org.commcare.suite.model.ComputedDatum"
             , "org.commcare.suite.model.Detail"
             , "org.commcare.suite.model.DetailField"
+            , "org.commcare.suite.model.Global"
+            , "org.commcare.suite.model.GeoOverlay"
             , "org.commcare.suite.model.DisplayUnit"
             , "org.commcare.suite.model.EntityDatum"
             , "org.commcare.suite.model.Entry"
@@ -307,10 +309,22 @@ public class FormStorageTest {
             , "org.javarosa.xpath.expr.XPathDistinctValuesFunc"
             , "org.javarosa.xpath.expr.XPathSleepFunc"
 
-            // Added in 2.42
+            // Added in 2.44
             , "org.commcare.android.database.user.models.FormRecordV4"
             , "org.commcare.android.database.app.models.FormDefRecord"
-            , "org.commcare.android.resource.installers.XFormAndroidInstallerV1"
+            , "org.commcare.android.resource.installers.XFormAndroidInstallerV8"
+            , "org.commcare.android.resource.installers.XFormUpdateInfoInstaller"
+            , "org.commcare.android.database.user.models.ACasePreV24Model"
+
+            // Added in 2.45
+            , "org.commcare.recovery.measures.RecoveryMeasure"
+            , "org.javarosa.xpath.expr.CacheableExprState"
+
+            // Added in 2.47
+            , "org.commcare.android.database.app.models.FormDefRecordV12"
+
+            // Added in 2.49
+            , "org.javarosa.xpath.expr.XPathIndexOfFunc"
     );
 
 

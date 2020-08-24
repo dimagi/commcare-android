@@ -3,14 +3,15 @@ package org.commcare.utils;
 import android.Manifest;
 import android.content.pm.PackageManager;
 import android.os.Build;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AppCompatActivity;
 
 import org.commcare.interfaces.RuntimePermissionRequester;
 import org.commcare.views.dialogs.CommCareAlertDialog;
 import org.commcare.views.dialogs.DialogCreationHelpers;
 import org.javarosa.core.services.locale.Localization;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 /**
  * Acquire Android permissions needed by CommCare.
@@ -53,8 +54,8 @@ public class Permissions {
         }
     }
 
-    private static boolean missingAppPermission(AppCompatActivity activity,
-                                                String[] permissions) {
+    public static boolean missingAppPermission(AppCompatActivity activity,
+                                               String[] permissions) {
         for (String perm : permissions) {
             if (missingAppPermission(activity, perm)) {
                 return true;
@@ -69,8 +70,8 @@ public class Permissions {
         return ContextCompat.checkSelfPermission(activity, permission) == PackageManager.PERMISSION_DENIED;
     }
 
-    private static boolean shouldShowPermissionRationale(AppCompatActivity activity,
-                                                         String[] permissions) {
+    public static boolean shouldShowPermissionRationale(AppCompatActivity activity,
+                                                        String[] permissions) {
         for (String perm : permissions) {
             if (shouldShowPermissionRationale(activity, perm)) {
                 return true;
@@ -88,7 +89,6 @@ public class Permissions {
      * @return Permissions needed for _normal_ CommCare functionality
      */
     public static String[] getAppPermissions() {
-        // leaving out READ_SMS, which is only needed for sms installs
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
             // exclude READ_EXTERNAL_STORAGE which isn't compat. w/ API < 16
             return new String[]{Manifest.permission.READ_PHONE_STATE,

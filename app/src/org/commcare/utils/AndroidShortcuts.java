@@ -1,6 +1,6 @@
 package org.commcare.utils;
 
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
@@ -51,13 +51,10 @@ public class AndroidShortcuts extends AppCompatActivity {
     private void buildMenuList() {
         final PaneledChoiceDialog dialog = new PaneledChoiceDialog(this, "Select CommCare Shortcut");
         dialog.setChoiceItems(getChoiceItemList(dialog));
-        dialog.setOnCancelListener(new OnCancelListener() {
-            @Override
-            public void onCancel(DialogInterface dialog) {
-                AndroidShortcuts sc = AndroidShortcuts.this;
-                sc.setResult(RESULT_CANCELED);
-                sc.finish();
-            }
+        dialog.setOnCancelListener(dialog1 -> {
+            AndroidShortcuts sc = AndroidShortcuts.this;
+            sc.setResult(RESULT_CANCELED);
+            sc.finish();
         });
         dialog.showNonPersistentDialog();
     }
@@ -80,13 +77,10 @@ public class AndroidShortcuts extends AppCompatActivity {
         DialogChoiceItem[] choiceItems = new DialogChoiceItem[names.size()];
         for (int i = 0; i < names.size(); i++) {
             final int index = i;
-            View.OnClickListener listener = new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    returnShortcut(AndroidShortcuts.this.names[index],
-                            AndroidShortcuts.this.commands[index]);
-                    dialog.dismiss();
-                }
+            View.OnClickListener listener = v -> {
+                returnShortcut(AndroidShortcuts.this.names[index],
+                        AndroidShortcuts.this.commands[index]);
+                dialog.dismiss();
             };
             DialogChoiceItem item = new DialogChoiceItem(names.get(i), -1, listener);
             choiceItems[i] = item;

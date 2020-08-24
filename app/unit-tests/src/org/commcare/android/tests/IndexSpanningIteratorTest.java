@@ -1,7 +1,8 @@
 package org.commcare.android.tests;
 
 import org.commcare.CommCareApplication;
-import org.commcare.android.CommCareTestRunner;
+import org.commcare.CommCareTestApplication;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import org.commcare.android.mocks.ExtendedTestCursor;
 import org.commcare.models.database.IndexSpanningIterator;
 import org.junit.Test;
@@ -13,8 +14,8 @@ import java.util.Vector;
 
 import static junit.framework.Assert.assertEquals;
 
-@Config(application = CommCareApplication.class)
-@RunWith(CommCareTestRunner.class)
+@Config(application = CommCareTestApplication.class)
+@RunWith(AndroidJUnit4.class)
 public class IndexSpanningIteratorTest {
 
     private int[] i(int... inputs) {

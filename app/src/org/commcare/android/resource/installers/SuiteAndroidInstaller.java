@@ -18,6 +18,7 @@ import org.commcare.utils.DummyResourceTable;
 import org.commcare.utils.FileUtil;
 import org.commcare.xml.AndroidSuiteParser;
 import org.commcare.xml.SuiteParser;
+import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.Reference;
 import org.javarosa.core.reference.ReferenceManager;
@@ -28,6 +29,7 @@ import org.javarosa.xpath.XPathException;
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
@@ -48,46 +50,47 @@ public class SuiteAndroidInstaller extends FileSystemInstaller {
     }
 
     @Override
-    public boolean initialize(final AndroidCommCarePlatform platform, boolean isUpgrade) {
+    public boolean initialize(final AndroidCommCarePlatform platform, boolean isUpgrade) throws
+            IOException, InvalidReferenceException, InvalidStructureException, XmlPullParserException,
+            UnfullfilledRequirementsException {
+        InputStream inputStream = null;
         try {
             if (localLocation == null) {
                 throw new RuntimeException("Error initializing the suite, its file location is null!");
             }
             Reference local = ReferenceManager.instance().DeriveReference(localLocation);
-
+            inputStream = local.getStream();
             SuiteParser parser;
             if (isUpgrade) {
-                parser = AndroidSuiteParser.buildUpgradeParser(local.getStream(), platform.getGlobalResourceTable(), platform.getFixtureStorage());
+                parser = AndroidSuiteParser.buildUpgradeParser(inputStream, platform.getGlobalResourceTable(), platform.getFixtureStorage());
             } else {
-                parser = AndroidSuiteParser.buildInitParser(local.getStream(), platform.getGlobalResourceTable(), platform.getFixtureStorage());
+                parser = AndroidSuiteParser.buildInitParser(inputStream, platform.getGlobalResourceTable(), platform.getFixtureStorage());
             }
-
             Suite s = parser.parse();
-
             platform.registerSuite(s);
-
             return true;
-        } catch (InvalidStructureException | InvalidReferenceException
-                | IOException | XmlPullParserException
-                | UnfullfilledRequirementsException e) {
-            e.printStackTrace();
-            Logger.log(LogTypes.TYPE_RESOURCES, "Initialization failed for Suite resource with exception " + e.getMessage());
+        } finally {
+            try {
+                if (inputStream != null) {
+                    inputStream.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
-
-        return false;
     }
 
     @Override
     public boolean install(Resource r, ResourceLocation location, Reference ref,
                            ResourceTable table, final AndroidCommCarePlatform platform,
-                           boolean upgrade) throws UnresolvedResourceException, UnfullfilledRequirementsException {
+                           boolean upgrade, boolean recovery) throws UnresolvedResourceException, UnfullfilledRequirementsException {
         //First, make sure all the file stuff is managed.
-        super.install(r, location, ref, table, platform, upgrade);
-
+        super.install(r, location, ref, table, platform, upgrade, recovery);
+        InputStream inputStream = null;
         try {
             Reference local = ReferenceManager.instance().DeriveReference(localLocation);
-
-            AndroidSuiteParser.buildInstallParser(local.getStream(), table, r.getRecordGuid(), platform.getFixtureStorage()).parse();
+            inputStream = local.getStream();
+            AndroidSuiteParser.buildInstallParser(inputStream, table, r.getRecordGuid(), platform.getFixtureStorage()).parse();
 
             table.commitCompoundResource(r, upgrade ? Resource.RESOURCE_STATUS_UPGRADE : Resource.RESOURCE_STATUS_INSTALLED);
             return true;
@@ -96,6 +99,14 @@ public class SuiteAndroidInstaller extends FileSystemInstaller {
             throw new InvalidResourceException(r.getDescriptor(), e.getMessage());
         } catch (XmlPullParserException | InvalidReferenceException | IOException e) {
             e.printStackTrace();
+        } finally {
+            try {
+                if (inputStream != null) {
+                    inputStream.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
 
         return false;
@@ -115,9 +126,11 @@ public class SuiteAndroidInstaller extends FileSystemInstaller {
     public boolean verifyInstallation(Resource r,
                                       Vector<MissingMediaException> problems,
                                       CommCarePlatform platform) {
+        InputStream suiteStream = null;
         try {
             Reference local = ReferenceManager.instance().DeriveReference(localLocation);
-            Suite suite = AndroidSuiteParser.buildVerifyParser(local.getStream(), new DummyResourceTable()).parse();
+            suiteStream = local.getStream();
+            Suite suite = AndroidSuiteParser.buildVerifyParser(suiteStream, new DummyResourceTable()).parse();
             Hashtable<String, Entry> mHashtable = suite.getEntries();
             for (Enumeration en = mHashtable.keys(); en.hasMoreElements(); ) {
                 String key = (String)en.nextElement();
@@ -135,6 +148,8 @@ public class SuiteAndroidInstaller extends FileSystemInstaller {
             Logger.log(LogTypes.TYPE_RESOURCES, "Suite validation failed with: " + e.getMessage());
             Log.d(TAG, "Suite validation failed");
             e.printStackTrace();
+        } finally {
+            StreamsUtil.closeStream(suiteStream);
         }
 
         return problems.size() != 0;

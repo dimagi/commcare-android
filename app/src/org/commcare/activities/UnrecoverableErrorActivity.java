@@ -2,12 +2,13 @@ package org.commcare.activities;
 
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 
-import org.commcare.utils.LifecycleUtils;
+import org.commcare.utils.CommCareLifecycleUtils;
 import org.commcare.views.dialogs.AlertDialogFragment;
 import org.commcare.views.dialogs.StandardAlertDialog;
 import org.javarosa.core.services.locale.Localization;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 /**
  * @author ctsims
@@ -39,14 +40,11 @@ public class UnrecoverableErrorActivity extends AppCompatActivity {
             message = message + "\n\n" + Localization.get("app.handled.error.explanation");
         }
         StandardAlertDialog d = new StandardAlertDialog(this, title, message);
-        DialogInterface.OnClickListener buttonListener = new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int i) {
-                if (restart) {
-                    LifecycleUtils.restartCommCare(UnrecoverableErrorActivity.this, true);
-                } else {
-                    finish();
-                }
+        DialogInterface.OnClickListener buttonListener = (dialog, i) -> {
+            if (restart) {
+                CommCareLifecycleUtils.restartCommCare(UnrecoverableErrorActivity.this, true);
+            } else {
+                finish();
             }
         };
 

@@ -1,6 +1,5 @@
 package org.commcare.activities.components;
 
-import android.support.v7.app.AppCompatActivity;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
@@ -24,6 +23,8 @@ import org.javarosa.core.services.locale.Localization;
 
 import java.util.Map;
 
+import androidx.appcompat.app.AppCompatActivity;
+
 public class EntitySelectCalloutSetup {
     /**
      * Updates the ImageView layout that is passed in, based on the
@@ -45,11 +46,11 @@ public class EntitySelectCalloutSetup {
         iv.setImageDrawable(drawable);
     }
 
-    private static Drawable getCalloutDrawable(Context context, String imagePath){
+    private static Drawable getCalloutDrawable(Context context, String imagePath) {
         Bitmap b;
         if (!imagePath.equals("")) {
             int actionBarHeight = MediaUtil.getActionBarHeightInPixels(context);
-            b = MediaUtil.inflateDisplayImage(context, imagePath, -1,actionBarHeight);
+            b = MediaUtil.inflateDisplayImage(context, imagePath, -1, actionBarHeight);
             if (b == null) {
                 // Input stream could not be used to derive bitmap, so
                 // showing error-indicating image
@@ -67,17 +68,14 @@ public class EntitySelectCalloutSetup {
      * @return A click listener that launches QR code scanner
      */
     public static View.OnClickListener makeBarcodeClickListener(final AppCompatActivity activity) {
-        return new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new IntentIntegrator(activity).createScanIntent();
-                try {
-                    activity.startActivityForResult(intent, EntitySelectActivity.BARCODE_FETCH);
-                } catch (ActivityNotFoundException anfe) {
-                    Toast.makeText(activity,
-                            Localization.get("barcode.reader.missing"),
-                            Toast.LENGTH_LONG).show();
-                }
+        return v -> {
+            Intent intent = new IntentIntegrator(activity).createScanIntent();
+            try {
+                activity.startActivityForResult(intent, EntitySelectActivity.BARCODE_FETCH);
+            } catch (ActivityNotFoundException anfe) {
+                Toast.makeText(activity,
+                        Localization.get("barcode.reader.missing"),
+                        Toast.LENGTH_LONG).show();
             }
         };
     }
@@ -93,16 +91,13 @@ public class EntitySelectCalloutSetup {
     public static View.OnClickListener makeCalloutClickListener(final AppCompatActivity activity,
                                                                 Callout callout, EvaluationContext ec) {
         final Intent i = buildCalloutIntent(callout, ec);
-        return new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                try {
-                    activity.startActivityForResult(i, EntitySelectActivity.CALLOUT);
-                } catch (ActivityNotFoundException anfe) {
-                    Toast.makeText(activity,
-                            Localization.get("callout.missing", new String[]{i.getAction()}),
-                            Toast.LENGTH_LONG).show();
-                }
+        return v -> {
+            try {
+                activity.startActivityForResult(i, EntitySelectActivity.CALLOUT);
+            } catch (ActivityNotFoundException anfe) {
+                Toast.makeText(activity,
+                        Localization.get("callout.missing", new String[]{i.getAction()}),
+                        Toast.LENGTH_LONG).show();
             }
         };
     }

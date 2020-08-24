@@ -74,12 +74,7 @@ public class NSDDiscoveryTools {
                 //Receivers should expect to receive these messages from not-their-main thread
                 //which is managed inherently during discovery, but won't be during
                 //registration
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        listener.onMicronodeDiscovery();
-                    }
-                }).start();
+                new Thread(listener::onMicronodeDiscovery).start();
             }
         }
     }

@@ -1,14 +1,12 @@
 package org.commcare.activities;
 
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v4.util.Pair;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.Toast;
 
 import org.commcare.CommCareApplication;
@@ -17,25 +15,30 @@ import org.commcare.android.nsd.MicroNode;
 import org.commcare.android.nsd.NSDDiscoveryTools;
 import org.commcare.android.nsd.NsdServiceListener;
 import org.commcare.dalvik.BuildConfig;
+import org.commcare.dalvik.R;
 import org.commcare.engine.resource.AppInstallStatus;
 import org.commcare.engine.resource.ResourceInstallUtils;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.WithUIController;
 import org.commcare.logging.DataChangeLog;
 import org.commcare.logging.DataChangeLogger;
-import org.commcare.preferences.PrefValues;
+import org.commcare.logging.analytics.UpdateStats;
+import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.preferences.MainConfigurablePreferences;
-import org.commcare.preferences.DeveloperPreferences;
+import org.commcare.preferences.PrefValues;
 import org.commcare.tasks.InstallStagedUpdateTask;
 import org.commcare.tasks.ResultAndError;
 import org.commcare.tasks.TaskListener;
 import org.commcare.tasks.TaskListenerRegistrationException;
-import org.commcare.tasks.UpdateTask;
+import org.commcare.update.UpdateTask;
+import org.commcare.update.UpdateWorker;
+import org.commcare.update.UpdateHelper;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.ConnectivityStatus;
 import org.commcare.utils.ConsumerAppsUtil;
 import org.commcare.utils.SessionUnavailableException;
+import org.commcare.utils.SyncDetailCalculations;
 import org.commcare.views.dialogs.CustomProgressDialog;
 import org.commcare.views.dialogs.DialogChoiceItem;
 import org.commcare.views.dialogs.PaneledChoiceDialog;
@@ -43,6 +46,11 @@ import org.commcare.views.notifications.NotificationMessage;
 import org.commcare.views.notifications.NotificationMessageFactory;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
+
+import androidx.core.util.Pair;
+import androidx.work.Data;
+import androidx.work.WorkInfo;
+import androidx.work.WorkManager;
 
 /**
  * Allow user to manage app updating:
@@ -55,7 +63,8 @@ import org.javarosa.core.services.locale.Localization;
 public class UpdateActivity extends CommCareActivity<UpdateActivity>
         implements TaskListener<Integer, ResultAndError<AppInstallStatus>>, WithUIController, NsdServiceListener {
 
-    public static final String KEY_FROM_LATEST_BUILD_ACTIVITY = "from-test-latest-build-util";
+    public static final String KEY_PROCEED_AUTOMATICALLY = "proceed-automatically";
+    public static final String KEY_PRE_UPDATE_SYNC_SUCCEED = "pre-update-sync-succeed";
 
     // Options menu codes
     public static final int MENU_UPDATE_TARGET_OPTIONS = Menu.FIRST;
@@ -85,13 +94,15 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
 
     private MicroNode.AppManifest hubAppRecord;
 
+    public static boolean sBlockedUpdateWorkflowInProgress = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         uiController.setupUI();
 
-        if (getIntent().getBooleanExtra(KEY_FROM_LATEST_BUILD_ACTIVITY, false)) {
+        if (getIntent().getBooleanExtra(KEY_PROCEED_AUTOMATICALLY, false)) {
             proceedAutomatically = true;
         } else if (CommCareApplication.instance().isConsumerApp()) {
             proceedAutomatically = true;
@@ -101,7 +112,16 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
         loadSavedInstanceState(savedInstanceState);
 
         boolean isRotation = savedInstanceState != null;
-        setupUpdateTask(isRotation);
+
+
+        if (ResourceInstallUtils.isUpdateReadyToInstall() && sBlockedUpdateWorkflowInProgress) {
+            if (getIntent().getBooleanExtra(KEY_PRE_UPDATE_SYNC_SUCCEED, false)) {
+                launchUpdateInstallTask();
+            }
+            sBlockedUpdateWorkflowInProgress = false;
+        } else {
+            setupUpdateTask(isRotation);
+        }
     }
 
     private void loadSavedInstanceState(Bundle savedInstanceState) {
@@ -115,20 +135,59 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
     }
 
     private void setupUpdateTask(boolean isRotation) {
-        updateTask = UpdateTask.getRunningInstance();
+        if (isAutoUpdateInProgress()) {
+            connectToUpdateWorker();
+        } else {
+            updateTask = UpdateTask.getRunningInstance();
 
-        if (updateTask != null) {
-            try {
-                updateTask.registerTaskListener(this);
-            } catch (TaskListenerRegistrationException e) {
-                Log.e(TAG, "Attempting to register a TaskListener to an already " +
-                        "registered task.");
-                uiController.errorUiState();
+            if (updateTask != null) {
+                try {
+                    updateTask.registerTaskListener(this);
+                } catch (TaskListenerRegistrationException e) {
+                    Log.e(TAG, "Attempting to register a TaskListener to an already " +
+                            "registered task.");
+                    uiController.errorUiState();
+                }
+            } else if (!isRotation && !taskIsCancelling
+                    && (ConnectivityStatus.isNetworkAvailable(this) || offlineUpdateRef != null)) {
+                startUpdateCheck();
             }
-        } else if (!isRotation && !taskIsCancelling
-                && (ConnectivityStatus.isNetworkAvailable(this) || offlineUpdateRef != null)) {
-            startUpdateCheck();
         }
+    }
+
+    private static boolean isAutoUpdateInProgress() {
+        return ResourceInstallUtils.isAutoUpdateInProgress(CommCareApplication.instance().getCurrentApp());
+    }
+
+    // connect listeners to update worker
+    private void connectToUpdateWorker() {
+        WorkManager.getInstance(getApplicationContext())
+                .getWorkInfosForUniqueWorkLiveData(UpdateHelper.getUpdateRequestName())
+                .observe(this, listOfWorkInfo -> {
+
+                    if (listOfWorkInfo == null || listOfWorkInfo.isEmpty()) {
+                        return;
+                    }
+
+                    WorkInfo updateInfo = listOfWorkInfo.get(0);
+                    boolean running = updateInfo.getState() == WorkInfo.State.RUNNING;
+                    if (running) {
+                        Data data = updateInfo.getProgress();
+                        publishUpdateProgress(data.getInt(UpdateWorker.Progress_Complete, -1),
+                                data.getInt(UpdateWorker.Progress_Total, -1));
+                    } else {
+                        // Worker getting fired when not running imply completion of worker
+                        ResultAndError<AppInstallStatus> lastUpdateResult = getlastStageUpdateResult();
+                        if (lastUpdateResult != null) {
+                            handleTaskCompletion(getlastStageUpdateResult());
+                        }
+                    }
+                });
+    }
+
+    private ResultAndError<AppInstallStatus> getlastStageUpdateResult() {
+        UpdateStats updateStats = UpdateStats.loadUpdateStats(CommCareApplication.instance().getCurrentApp());
+        return updateStats.getLastStageUpdateResult();
     }
 
     @Override
@@ -142,13 +201,16 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
             return;
         }
 
-        setUiFromTask();
+        if (isAutoUpdateInProgress()) {
+            uiController.downloadingUiState();
+        } else {
+            setUiFromTask();
+        }
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-
         NSDDiscoveryTools.unregisterForNsdServices(this);
     }
 
@@ -193,7 +255,6 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
     @Override
     protected void onDestroy() {
         super.onDestroy();
-
         unregisterTask();
     }
 
@@ -222,12 +283,7 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
 
     @Override
     public void handleTaskUpdate(Integer... vals) {
-        int progress = vals[0];
-        int max = vals[1];
-        uiController.updateProgressBar(progress, max);
-        String msg = Localization.get("updates.found",
-                new String[]{"" + progress, "" + max});
-        uiController.updateProgressText(msg);
+        publishUpdateProgress(vals[0], vals[1]);
     }
 
     @Override
@@ -261,9 +317,9 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
     private void reportFailureToNotifications(String errorMessage) {
         NotificationMessage notificationMessage = null;
 
-        if (UpdateTask.isCombinedErrorMessage(errorMessage)) {
+        if (UpdateHelper.isCombinedErrorMessage(errorMessage)) {
             Pair<String, String> resourceAndMessage =
-                    UpdateTask.splitCombinedErrorMessage(errorMessage);
+                    UpdateHelper.splitCombinedErrorMessage(errorMessage);
             notificationMessage =
                     NotificationMessageFactory.message(AppInstallStatus.InvalidResource,
                             new String[]{null, resourceAndMessage.first, resourceAndMessage.second});
@@ -290,7 +346,6 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
     @Override
     public void handleTaskCancellation() {
         unregisterTask();
-
         uiController.idleUiState();
     }
 
@@ -300,6 +355,7 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
             initUpdateTaskProgressDisplay();
             if (isLocalUpdate) {
                 updateTask.setLocalAuthority();
+                updateTask.clearUpgrade();
             }
             updateTask.registerTaskListener(this);
         } catch (IllegalStateException e) {
@@ -350,8 +406,12 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
     }
 
     public void stopUpdateCheck() {
+
+        if(isAutoUpdateInProgress()){
+            UpdateHelper.cancelUpdateWorker();
+        }
+
         if (updateTask != null) {
-            updateTask.cancelWasUserTriggered();
             updateTask.cancel(true);
             taskIsCancelling = true;
             uiController.cancellingUiState();
@@ -368,6 +428,16 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
      * Block the user with a dialog while the update is finalized.
      */
     protected void launchUpdateInstallTask() {
+        if (isUpdateBlockedOnSync()) {
+            Logger.log(LogTypes.TYPE_MAINTENANCE, "Update blocked because a sync is required to update");
+            Toast.makeText(this, getLocalizedString(R.string.update_blocked_on_sync_message), Toast.LENGTH_LONG).show();
+            sBlockedUpdateWorkflowInProgress = true;
+            // Delegate to Dispatch
+            Intent intent = new Intent(this, DispatchActivity.class);
+            startActivity(intent);
+            return;
+        }
+        HiddenPreferences.enableBypassPreUpdateSync(false);
         InstallStagedUpdateTask<UpdateActivity> task =
                 new InstallStagedUpdateTask<UpdateActivity>(DIALOG_UPGRADE_INSTALL) {
 
@@ -375,8 +445,8 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
                     protected void deliverResult(UpdateActivity receiver,
                                                  AppInstallStatus result) {
                         if (result == AppInstallStatus.Installed) {
-                            reportAppUpdate();
-                            receiver.logoutOnSuccessfulUpdate();
+                            OnSuccessfulUpdate(true, !isLocalUpdate && !BuildConfig.DEBUG);
+                            receiver.returnResult();
                         } else {
                             if (proceedAutomatically) {
                                 finishWithResult(RefreshToLatestBuildActivity.UPDATE_ERROR);
@@ -403,6 +473,24 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
         task.executeParallel();
         isApplyingUpdate = true;
         uiController.applyingUpdateUiState();
+    }
+
+    public static boolean isUpdateBlockedOnSync() {
+        return isUpdateBlockedOnSync(ReportingUtils.getUser());
+    }
+
+    // Returns whether a sync is required in order to take an app update
+    public static boolean isUpdateBlockedOnSync(String username) {
+        if (HiddenPreferences.shouldBypassPreUpdateSync()) {
+            return false;
+        }
+
+        if (ResourceInstallUtils.isUpdateReadyToInstall() && HiddenPreferences.preUpdateSyncNeeded()) {
+            long lastSyncTime = SyncDetailCalculations.getLastSyncTime(username);
+            long updateReleasedOnTime = HiddenPreferences.geReleasedOnTimeForOngoingAppDownload();
+            return lastSyncTime < updateReleasedOnTime;
+        }
+        return false;
     }
 
     @Override
@@ -439,18 +527,26 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
         DataChangeLogger.log(new DataChangeLog.CommCareAppUpdated());
     }
 
-    private void logoutOnSuccessfulUpdate() {
-        final String upgradeFinishedText =
-                Localization.get("updates.install.finished");
-        HiddenPreferences.setPostUpdateSyncNeeded(!isLocalUpdate && !BuildConfig.DEBUG);
-        CommCareApplication.instance().expireUserSession();
+    private void returnResult() {
         if (proceedAutomatically) {
             finishWithResult(RefreshToLatestBuildActivity.UPDATE_SUCCESS);
         } else {
+            final String upgradeFinishedText = Localization.get("updates.install.finished");
             Toast.makeText(this, upgradeFinishedText, Toast.LENGTH_LONG).show();
             setResult(RESULT_OK);
             this.finish();
         }
+    }
+
+    // Helper function for common operations to do after an app update
+    public static void OnSuccessfulUpdate(boolean logout, boolean syncPostUpdate) {
+        reportAppUpdate();
+        HiddenPreferences.setShowXformUpdateInfo(true);
+        HiddenPreferences.setLazyMediaDownloadComplete(false);
+        if (logout) {
+            CommCareApplication.instance().expireUserSession();
+        }
+        HiddenPreferences.setPostUpdateSyncNeeded(syncPostUpdate);
     }
 
     @Override
@@ -497,6 +593,7 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case MENU_UPDATE_FROM_CCZ:
+                stopUpdateCheck();
                 Intent i = new Intent(getApplicationContext(), InstallArchiveActivity.class);
                 i.putExtra(InstallArchiveActivity.FROM_UPDATE, true);
                 startActivityForResult(i, OFFLINE_UPDATE);
@@ -520,30 +617,21 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
                 new PaneledChoiceDialog(this, Localization.get("menu.update.options"));
 
         DialogChoiceItem latestStarredChoice = new DialogChoiceItem(
-                Localization.get("update.option.starred"), -1, new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                MainConfigurablePreferences.setUpdateTarget(PrefValues.UPDATE_TARGET_STARRED);
-                dialog.dismiss();
-            }
+                Localization.get("update.option.starred"), -1, v -> {
+            MainConfigurablePreferences.setUpdateTarget(PrefValues.UPDATE_TARGET_STARRED);
+            dialog.dismiss();
         });
 
         DialogChoiceItem latestBuildChoice = new DialogChoiceItem(
-                Localization.get("update.option.build"), -1, new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                MainConfigurablePreferences.setUpdateTarget(PrefValues.UPDATE_TARGET_BUILD);
-                dialog.dismiss();
-            }
+                Localization.get("update.option.build"), -1, v -> {
+            MainConfigurablePreferences.setUpdateTarget(PrefValues.UPDATE_TARGET_BUILD);
+            dialog.dismiss();
         });
 
         DialogChoiceItem latestSavedChoice = new DialogChoiceItem(
-                Localization.get("update.option.saved"), -1, new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                MainConfigurablePreferences.setUpdateTarget(PrefValues.UPDATE_TARGET_SAVED);
-                dialog.dismiss();
-            }
+                Localization.get("update.option.saved"), -1, v -> {
+            MainConfigurablePreferences.setUpdateTarget(PrefValues.UPDATE_TARGET_SAVED);
+            dialog.dismiss();
         });
 
         dialog.setChoiceItems(
@@ -559,12 +647,19 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
                     offlineUpdateRef = intent.getStringExtra(InstallArchiveActivity.ARCHIVE_JR_REFERENCE);
                     if (offlineUpdateRef != null) {
                         isLocalUpdate = true;
+
+                        // Reset taskIsCancelling in case the updateTask instance has been cleared
+                        // meaning the last task instance got cancelled successfully
+                        if (updateTask == null) {
+                            taskIsCancelling = false;
+                        }
                         setupUpdateTask(false);
                     }
                 }
                 break;
         }
     }
+
 
     private void notifyLocalUpdatePathAvailable(MicroNode.AppManifest hubAppRecord) {
         this.hubAppRecord = hubAppRecord;
@@ -584,14 +679,18 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
         for (MicroNode node : NSDDiscoveryTools.getAvailableMicronodes()) {
             final MicroNode.AppManifest appManifest = node.getManifestForAppId(appId);
             if (appManifest != null) {
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        notifyLocalUpdatePathAvailable(appManifest);
-                    }
-                });
+                runOnUiThread(() -> notifyLocalUpdatePathAvailable(appManifest));
             }
         }
     }
 
+    private void publishUpdateProgress(int complete, int total) {
+        if (total != -1) {
+            uiController.updateProgressBar(complete, total);
+            String msg = Localization.get("updates.found",
+                    new String[]{"" + complete, "" + total});
+            uiController.updateProgressText(msg);
+            uiController.updateProgressBar(complete, total);
+        }
+    }
 }

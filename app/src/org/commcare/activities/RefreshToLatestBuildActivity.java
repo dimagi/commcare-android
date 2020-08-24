@@ -103,12 +103,9 @@ public class RefreshToLatestBuildActivity extends CommCareActivity {
                 break;
         }
 
-        DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dismissAlertDialog();
-                finish();
-            }
+        DialogInterface.OnClickListener listener = (dialog, which) -> {
+            dismissAlertDialog();
+            finish();
         };
 
         showAlertDialog(StandardAlertDialog.getBasicAlertDialog(this, title, message, listener));
@@ -120,7 +117,7 @@ public class RefreshToLatestBuildActivity extends CommCareActivity {
 
     private void attemptUpdate() {
         Intent i = new Intent(this, UpdateActivity.class);
-        i.putExtra(UpdateActivity.KEY_FROM_LATEST_BUILD_ACTIVITY, true);
+        i.putExtra(UpdateActivity.KEY_PROCEED_AUTOMATICALLY, true);
         startActivityForResult(i, PERFORM_UPDATE);
     }
 

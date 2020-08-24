@@ -71,12 +71,7 @@ public abstract class DumpTask extends CommCareTask<String, String, Boolean, Com
 
         Logger.log(TAG, "Dumping form instance at folder: " + folder);
 
-        File[] files = folder.listFiles(new FileFilter() {
-            @Override
-            public boolean accept(File file) {
-                return file.isFile();
-            }
-        });
+        File[] files = folder.listFiles(File::isFile);
 
         Logger.log(TAG, "Dumping files: " + Arrays.toString(files));
 

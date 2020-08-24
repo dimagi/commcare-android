@@ -1,43 +1,56 @@
 package org.commcare.activities;
 
 import android.Manifest;
-import android.support.v7.app.AppCompatActivity;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
-import android.location.LocationProvider;
-import android.net.Uri;
 import android.os.Bundle;
-import android.support.v4.content.ContextCompat;
-import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.Toast;
+
+import com.google.android.gms.common.api.ResolvableApiException;
 
 import org.commcare.activities.components.FormEntryConstants;
 import org.commcare.dalvik.R;
+import org.commcare.interfaces.RuntimePermissionRequester;
 import org.commcare.interfaces.TimerListener;
+import org.commcare.location.CommCareLocationController;
+import org.commcare.location.CommCareLocationControllerFactory;
+import org.commcare.location.CommCareLocationListener;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.utils.GeoUtils;
+import org.commcare.utils.Permissions;
 import org.commcare.utils.StringUtils;
 import org.commcare.utils.TimeoutTimer;
+import org.commcare.views.dialogs.CommCareAlertDialog;
+import org.commcare.views.dialogs.DialogCreationHelpers;
 import org.commcare.views.dialogs.GeoProgressDialog;
+import org.javarosa.core.services.locale.Localization;
+import org.jetbrains.annotations.NotNull;
 
 import java.text.DecimalFormat;
-import java.util.Set;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 
 /**
  * Activity that blocks user until the current GPS location is captured
  */
-public class GeoPointActivity extends AppCompatActivity implements LocationListener, TimerListener {
+public class GeoPointActivity extends AppCompatActivity implements TimerListener, CommCareLocationListener, RuntimePermissionRequester {
+
     private GeoProgressDialog locationDialog;
-    private LocationManager locationManager;
     private Location location;
-    private Set<String> providers;
+    private CommCareLocationController locationController;
 
     public final static int DEFAULT_MAX_WAIT_IN_SECS = 60;
+    private final static int LOCATION_PERMISSION_REQ = 101;
+    private final static int LOCATION_SETTING_REQ = 102;
+    private final static String[] requiredPermissions = new String[]{
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.ACCESS_COARSE_LOCATION};
 
     private TimeoutTimer mTimer;
 
@@ -48,9 +61,7 @@ public class GeoPointActivity extends AppCompatActivity implements LocationListe
         setTitle(StringUtils.getStringRobust(this, R.string.application_name) +
                 " > " + StringUtils.getStringRobust(this, R.string.get_location));
 
-        locationManager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
-
-        providers = GeoUtils.evaluateProviders(locationManager);
+        locationController = CommCareLocationControllerFactory.getLocationController(this, this);
 
         setupLocationDialog();
         long mLong = -1;
@@ -68,13 +79,7 @@ public class GeoPointActivity extends AppCompatActivity implements LocationListe
     @Override
     protected void onPause() {
         super.onPause();
-
-        // stops the GPS. Note that this will turn off the GPS if the screen goes to sleep.
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
-                ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            locationManager.removeUpdates(this);
-        }
-
+        locationController.stop();
         // We're not using managed dialogs, so we have to dismiss the dialog to prevent it from
         // leaking memory.
         if (locationDialog != null && locationDialog.isShowing()) {
@@ -85,45 +90,62 @@ public class GeoPointActivity extends AppCompatActivity implements LocationListe
     @Override
     protected void onResume() {
         super.onResume();
+        requestLocation();
+    }
 
-        providers = GeoUtils.evaluateProviders(locationManager);
-        if (providers.isEmpty()) {
-            handleNoLocationProviders();
-        } else {
-            for (String provider : providers) {
-                if ((provider.equals(LocationManager.GPS_PROVIDER) && ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) ||
-                        (provider.equals(LocationManager.NETWORK_PROVIDER) && ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED)) {
-                    locationManager.requestLocationUpdates(provider, 0, 0, this);
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch (requestCode) {
+            case LOCATION_PERMISSION_REQ:
+                boolean granted = grantResults.length > 0;
+                for (int result : grantResults) {
+                    if (result != PackageManager.PERMISSION_GRANTED) {
+                        granted = false;
+                    }
                 }
-            }
-            // TODO PLM: warn user and ask for permissions if the user has disabled them
-            locationDialog.show();
+                if (granted) {
+                    locationController.start();
+                } else {
+                    Toast.makeText(this,
+                            Localization.get("permission.location.denial.message"),
+                            Toast.LENGTH_LONG).show();
+                    returnLocation();
+                }
+                break;
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        switch (requestCode) {
+            case LOCATION_SETTING_REQ:
+                if (resultCode == RESULT_OK) {
+                    locationController.start();
+                } else {
+                    returnLocation();
+                }
         }
     }
 
     private void handleNoLocationProviders() {
-        DialogInterface.OnCancelListener onCancelListener = new DialogInterface.OnCancelListener() {
-            @Override
-            public void onCancel(DialogInterface dialog) {
-                location = null;
-                GeoPointActivity.this.finish();
-            }
+        DialogInterface.OnCancelListener onCancelListener = dialog -> {
+            location = null;
+            GeoPointActivity.this.finish();
         };
 
-        DialogInterface.OnClickListener onChangeListener = new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int i) {
-                switch (i) {
-                    case DialogInterface.BUTTON_POSITIVE:
-                        GeoUtils.goToProperLocationSettingsScreen(GeoPointActivity.this);
-                        break;
-                    case DialogInterface.BUTTON_NEGATIVE:
-                        location = null;
-                        GeoPointActivity.this.finish();
-                        break;
-                }
-                dialog.dismiss();
+        DialogInterface.OnClickListener onChangeListener = (dialog, i) -> {
+            switch (i) {
+                case DialogInterface.BUTTON_POSITIVE:
+                    GeoUtils.goToProperLocationSettingsScreen(GeoPointActivity.this);
+                    break;
+                case DialogInterface.BUTTON_NEGATIVE:
+                    location = null;
+                    GeoPointActivity.this.finish();
+                    break;
             }
+            dialog.dismiss();
         };
 
         GeoUtils.showNoGpsDialog(this, onChangeListener, onCancelListener);
@@ -135,20 +157,12 @@ public class GeoPointActivity extends AppCompatActivity implements LocationListe
     private void setupLocationDialog() {
         // dialog displayed while fetching gps location
 
-        OnClickListener cancelButtonListener = new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                location = null;
-                finish();
-            }
+        OnClickListener cancelButtonListener = v -> {
+            location = null;
+            finish();
         };
 
-        OnClickListener okButtonListener = new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                returnLocation();
-            }
-        };
+        OnClickListener okButtonListener = v -> returnLocation();
 
         locationDialog = new GeoProgressDialog(this, StringUtils.getStringRobust(this, R.string.found_location),
                 StringUtils.getStringRobust(this, R.string.finding_location));
@@ -169,8 +183,7 @@ public class GeoPointActivity extends AppCompatActivity implements LocationListe
         finish();
     }
 
-    @Override
-    public void onLocationChanged(Location location) {
+    private void onLocationChanged(Location location) {
         this.location = location;
         if (this.location != null) {
             String accuracy = truncateDouble(this.location.getAccuracy());
@@ -197,32 +210,6 @@ public class GeoPointActivity extends AppCompatActivity implements LocationListe
     }
 
     @Override
-    public void onProviderDisabled(String provider) {
-
-    }
-
-    @Override
-    public void onProviderEnabled(String provider) {
-
-    }
-
-    @Override
-    public void onStatusChanged(String provider, int status, Bundle extras) {
-        switch (status) {
-            case LocationProvider.AVAILABLE:
-                if (location != null) {
-                    locationDialog.setMessage(StringUtils.getStringRobust(this, R.string.location_accuracy,
-                            "" + (int)location.getAccuracy()));
-                }
-                break;
-            case LocationProvider.OUT_OF_SERVICE:
-                break;
-            case LocationProvider.TEMPORARILY_UNAVAILABLE:
-                break;
-        }
-    }
-
-    @Override
     public void notifyTimerFinished() {
         onLocationChanged(location);
     }
@@ -231,5 +218,64 @@ public class GeoPointActivity extends AppCompatActivity implements LocationListe
     public void onSaveInstanceState(Bundle savedInstanceState) {
         savedInstanceState.putLong("millisRemaining", mTimer.getMillisUntilFinished());
         super.onSaveInstanceState(savedInstanceState);
+    }
+
+    private void requestLocation() {
+        if (Permissions.missingAppPermission(this, requiredPermissions)) {
+            if (Permissions.shouldShowPermissionRationale(this, requiredPermissions)) {
+                CommCareAlertDialog dialog =
+                        DialogCreationHelpers.buildPermissionRequestDialog(this, this,
+                                LOCATION_PERMISSION_REQ,
+                                Localization.get("permission.location.title"),
+                                Localization.get("permission.location.message"));
+                dialog.showNonPersistentDialog();
+            } else {
+                missingPermissions();
+            }
+        } else {
+            locationController.start();
+        }
+    }
+
+    @Override
+    public void onLocationRequestStart() {
+        locationDialog.show();
+    }
+
+    @Override
+    public void onLocationResult(@NotNull Location result) {
+        onLocationChanged(result);
+    }
+
+    @Override
+    public void missingPermissions() {
+        ActivityCompat.requestPermissions(this,
+                new String[]{Manifest.permission.ACCESS_FINE_LOCATION,
+                        Manifest.permission.ACCESS_COARSE_LOCATION},
+                LOCATION_PERMISSION_REQ);
+    }
+
+    @Override
+    public void onLocationRequestFailure(@NotNull CommCareLocationListener.Failure failure) {
+        if (failure instanceof CommCareLocationListener.Failure.ApiException) {
+            Exception exception = ((CommCareLocationListener.Failure.ApiException)failure).getException();
+            if (exception instanceof ResolvableApiException) {
+                try {
+                    ((ResolvableApiException)exception).startResolutionForResult(this, LOCATION_SETTING_REQ);
+                } catch (IntentSender.SendIntentException e) {
+                    e.printStackTrace();
+                }
+            } else {
+                // ignore and return, we can't do anything.
+                returnLocation();
+            }
+        } else {
+            handleNoLocationProviders();
+        }
+    }
+
+    @Override
+    public void requestNeededPermissions(int requestCode) {
+        missingPermissions();
     }
 }

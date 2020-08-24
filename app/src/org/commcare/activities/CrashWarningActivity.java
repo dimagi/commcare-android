@@ -1,6 +1,6 @@
 package org.commcare.activities;
 
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -11,7 +11,7 @@ import android.widget.TextView;
 
 import org.commcare.dalvik.R;
 import org.commcare.utils.CommCareExceptionHandler;
-import org.commcare.utils.LifecycleUtils;
+import org.commcare.utils.CommCareLifecycleUtils;
 import org.javarosa.core.services.locale.Localization;
 
 /**
@@ -50,29 +50,18 @@ public class CrashWarningActivity extends AppCompatActivity {
     }
 
     private void setupButtons() {
-        Button closeButton = (Button)findViewById(R.id.RestartCommCare);
+        Button closeButton = findViewById(R.id.RestartCommCare);
         closeButton.setText(Localization.get("crash.warning.button"));
-        closeButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                LifecycleUtils.restartCommCare(CrashWarningActivity.this, true);
-            }
-        });
-
-        infoButton = (ImageButton)findViewById(R.id.InfoButton);
-        infoButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                toggleErrorMessageVisibility();
-            }
-        });
+        closeButton.setOnClickListener(v -> CommCareLifecycleUtils.restartCommCare(CrashWarningActivity.this, true));
+        infoButton = findViewById(R.id.InfoButton);
+        infoButton.setOnClickListener(v -> toggleErrorMessageVisibility());
     }
 
     private void setupText() {
-        TextView simpleWarningView = (TextView)findViewById(R.id.SimpleWarningMessage);
+        TextView simpleWarningView = findViewById(R.id.SimpleWarningMessage);
         simpleWarningView.setText(Localization.get("crash.warning.header"));
 
-        TextView errorMessageView = (TextView)findViewById(R.id.ErrorText);
+        TextView errorMessageView = findViewById(R.id.ErrorText);
 
         Intent intent = getIntent();
         if (intent.hasExtra(CommCareExceptionHandler.WARNING_MESSAGE_KEY)) {
@@ -81,7 +70,7 @@ public class CrashWarningActivity extends AppCompatActivity {
             errorMessageView.setText(Localization.get("crash.warning.detail") + "\n" + warningMessage);
         }
 
-        errorView = (LinearLayout)findViewById(R.id.Error);
+        errorView = findViewById(R.id.Error);
         errorView.setVisibility(errorMessageVisibility);
         updateButtonState();
     }

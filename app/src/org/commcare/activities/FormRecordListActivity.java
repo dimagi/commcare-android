@@ -1,14 +1,13 @@
 package org.commcare.activities;
 
-import android.annotation.TargetApi;
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SearchView;
+
 import android.content.ActivityNotFoundException;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.PowerManager;
-import android.support.v7.widget.SearchView;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -41,6 +40,7 @@ import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.logic.ArchivedFormRemoteRestore;
 import org.commcare.models.FormRecordProcessor;
+import org.commcare.preferences.AdvancedActionsPreferences;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.FormRecordCleanupTask;
@@ -99,9 +99,9 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
     public enum FormRecordFilter {
 
         /**
-         * Processed and Pending
+         * Submitted and Pending
          **/
-        SubmittedAndPending("form.record.filter.subandpending", new String[]{FormRecord.STATUS_SAVED, FormRecord.STATUS_UNSENT}),
+        SubmittedAndPending("form.record.filter.subandpending", new String[]{FormRecord.STATUS_SAVED, FormRecord.STATUS_UNSENT, FormRecord.STATUS_COMPLETE}),
 
         /**
          * Submitted Only
@@ -111,7 +111,7 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
         /**
          * Pending Submission
          **/
-        Pending("form.record.filter.pending", new String[]{FormRecord.STATUS_UNSENT}),
+        Pending("form.record.filter.pending", new String[]{FormRecord.STATUS_UNSENT, FormRecord.STATUS_COMPLETE}),
 
         /**
          * Incomplete forms
@@ -121,7 +121,7 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
         /**
          * Limbo forms
          **/
-        Limbo("form.record.filter.limbo", new String[]{FormRecord.STATUS_QUARANTINED });
+        Limbo("form.record.filter.limbo", new String[]{FormRecord.STATUS_QUARANTINED});
 
         FormRecordFilter(String message, String[] statuses) {
             this.message = message;
@@ -138,6 +138,15 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
         public String[] getStatus() {
             return statuses;
         }
+
+        public boolean containsStatus(String value) {
+            for (String status : statuses) {
+                if (status.equals(value)) {
+                    return true;
+                }
+            }
+            return false;
+        }
     }
 
     @Override
@@ -148,26 +157,21 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
         setContentView(R.layout.entity_select_layout);
         findViewById(R.id.entity_select_loading).setVisibility(View.GONE);
 
-        searchbox = (EditText)findViewById(R.id.searchbox);
-        LinearLayout header = (LinearLayout)findViewById(R.id.entity_select_header);
-        ImageButton barcodeButton = (ImageButton)findViewById(R.id.barcodeButton);
+        searchbox = findViewById(R.id.searchbox);
+        LinearLayout header = findViewById(R.id.entity_select_header);
+        ImageButton barcodeButton = findViewById(R.id.barcodeButton);
 
-        Spinner filterSelect = (Spinner)findViewById(R.id.entity_select_filter_dropdown);
+        Spinner filterSelect = findViewById(R.id.entity_select_filter_dropdown);
 
-        listView = (ListView)findViewById(R.id.screen_entity_select_list);
+        listView = findViewById(R.id.screen_entity_select_list);
         listView.setOnItemClickListener(this);
 
         header.setVisibility(View.GONE);
         barcodeButton.setVisibility(View.GONE);
 
-        barcodeScanOnClickListener = new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                callBarcodeScanIntent(FormRecordListActivity.this);
-            }
-        };
+        barcodeScanOnClickListener = v -> callBarcodeScanIntent(FormRecordListActivity.this);
 
-        TextView searchLabel = (TextView)findViewById(R.id.screen_entity_select_search_label);
+        TextView searchLabel = findViewById(R.id.screen_entity_select_search_label);
         searchLabel.setText(this.localize("select.search.label"));
 
         searchbox.addTextChangedListener(this);
@@ -391,7 +395,7 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
 
         menu.add(Menu.NONE, OPEN_RECORD, OPEN_RECORD, Localization.get("app.workflow.forms.open"));
 
-        if (!FormRecord.STATUS_UNSENT.equals(value.getStatus())) {
+        if (!FormRecordFilter.Pending.containsStatus(value.getStatus())) {
             menu.add(Menu.NONE, DELETE_RECORD, DELETE_RECORD, Localization.get("app.workflow.forms.delete"));
         }
 
@@ -425,12 +429,7 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
                             CommCareApplication.instance().getUserStorage(FormRecord.class).read((int)info.id);
                     toDelete.logPendingDeletion(TAG, "the user manually selected 'DELETE' in FormRecordListActivity");
                     FormRecordCleanupTask.wipeRecord(toDelete);
-                    listView.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            adapter.notifyDataSetInvalidated();
-                        }
-                    });
+                    listView.post(adapter::notifyDataSetInvalidated);
                     return true;
                 case RESTORE_RECORD:
                     new FormRecordProcessor(this).updateRecordStatus(selectedRecord, FormRecord.STATUS_UNSENT);
@@ -466,14 +465,14 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
         StandardAlertDialog dialog = StandardAlertDialog.getBasicAlertDialogWithIcon(this, title,
                 result.second, resId, null);
 
-        if (record.getStatus().equals(FormRecord.STATUS_UNSENT)) {
-            dialog.setNegativeButton(Localization.get("app.workflow.forms.quarantine"), new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
+        if (FormRecordFilter.Pending.containsStatus(record.getStatus())) {
+            if (AdvancedActionsPreferences.isManualFormQuarantineAllowed()) {
+                dialog.setNegativeButton(Localization.get("app.workflow.forms.quarantine"), (dialog1, which) -> {
                     manuallyQuarantineRecord(record);
                     dismissAlertDialog();
-                }
-            });
+                    AdvancedActionsPreferences.setManualFormQuarantine(false);
+                });
+            }
         }
 
         showAlertDialog(dialog);
@@ -481,13 +480,8 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
 
     private void manuallyQuarantineRecord(FormRecord record) {
         this.formRecordProcessor.quarantineRecord(record, FormRecord.QuarantineReason_MANUAL);
-        listView.post(new Runnable() {
-            @Override
-            public void run() {
-                adapter.notifyDataSetInvalidated();
-            }
-        });
-        record.logManualQuarantine();
+        listView.post(adapter::notifyDataSetInvalidated);
+        FirebaseAnalyticsUtil.reportFormQuarantined(FormRecord.QuarantineReason_MANUAL);
     }
 
     private void createQuarantineReasonDialog(FormRecord record) {
@@ -516,66 +510,69 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        boolean parent = super.onCreateOptionsMenu(menu);
-        tryToAddSearchActionToAppBar(this, menu, new ActionBarInstantiator() {
-            // this should be unnecessary...
-            @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-            @Override
-            public void onActionBarFound(MenuItem searchItem, SearchView searchView, MenuItem barcodeItem) {
-                FormRecordListActivity.this.searchItem = searchItem;
-                FormRecordListActivity.this.searchView = searchView;
-                if (lastQueryString != null && lastQueryString.length() > 0) {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-                        searchItem.expandActionView();
-                    }
-                    setSearchText(lastQueryString);
-                    if (adapter != null) {
-                        adapter.applyTextFilter(lastQueryString == null ? "" : lastQueryString);
-                    }
+        super.onCreateOptionsMenu(menu);
+        // this should be unnecessary...
+        tryToAddSearchActionToAppBar(this, menu, (searchItem, searchView, barcodeItem) -> {
+            FormRecordListActivity.this.searchItem = searchItem;
+            FormRecordListActivity.this.searchView = searchView;
+            if (lastQueryString != null && lastQueryString.length() > 0) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+                    searchItem.expandActionView();
                 }
-                FormRecordListActivity.this.searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-                    @Override
-                    public boolean onQueryTextSubmit(String query) {
-                        return true;
-                    }
-
-                    @Override
-                    public boolean onQueryTextChange(String newText) {
-                        adapter.applyTextFilter(newText);
-                        return false;
-                    }
-                });
+                setSearchText(lastQueryString);
+                if (adapter != null) {
+                    adapter.applyTextFilter(lastQueryString == null ? "" : lastQueryString);
+                }
             }
+            FormRecordListActivity.this.searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+                @Override
+                public boolean onQueryTextSubmit(String query) {
+                    return true;
+                }
+
+                @Override
+                public boolean onQueryTextChange(String newText) {
+                    adapter.applyTextFilter(newText);
+                    return false;
+                }
+            });
         });
-        if (!FormRecordFilter.Incomplete.equals(adapter.getFilter())) {
-            String source = DeveloperPreferences.getRemoteFormPayloadUrl();
 
-            //If there's nowhere to fetch forms from, we can't really go fetch them
-            if (!source.equals("")) {
-                menu.add(0, DOWNLOAD_FORMS_FROM_SERVER, 0, Localization.get("app.workflow.forms.fetch")).setIcon(android.R.drawable.ic_menu_rotate);
-            }
-            menu.add(0, MENU_SUBMIT_QUARANTINE_REPORT, MENU_SUBMIT_QUARANTINE_REPORT, Localization.get("app.workflow.forms.quarantine.report"));
+        String source = DeveloperPreferences.getRemoteFormPayloadUrl();
 
-            String fileSource = DeveloperPreferences.getLocalFormPayloadFilePath();
-            if(!fileSource.isEmpty()){
-                menu.add(0, DOWNLOAD_FORMS_FROM_FILE, 0, Localization.get("app.workflow.forms.fetch.file"));
-            }
-            return true;
+        //If there's nowhere to fetch forms from, we can't really go fetch them
+        if (!source.equals("")) {
+            menu.add(0, DOWNLOAD_FORMS_FROM_SERVER, 0, Localization.get("app.workflow.forms.fetch")).setIcon(android.R.drawable.ic_menu_rotate);
         }
-        return parent;
+        menu.add(0, MENU_SUBMIT_QUARANTINE_REPORT, MENU_SUBMIT_QUARANTINE_REPORT, Localization.get("app.workflow.forms.quarantine.report"));
+
+        String fileSource = DeveloperPreferences.getLocalFormPayloadFilePath();
+        if (!fileSource.isEmpty()) {
+            menu.add(0, DOWNLOAD_FORMS_FROM_FILE, 0, Localization.get("app.workflow.forms.fetch.file"));
+        }
+
+        return true;
     }
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
+
         MenuItem quarantine = menu.findItem(MENU_SUBMIT_QUARANTINE_REPORT);
         if (quarantine != null) {
-            if (FormRecordFilter.Limbo.equals(adapter.getFilter())) {
-                quarantine.setVisible(true);
-            } else {
-                quarantine.setVisible(false);
-            }
+            quarantine.setVisible(FormRecordFilter.Limbo.equals(adapter.getFilter()));
         }
+
+        MenuItem downloadFormsFromServer = menu.findItem(DOWNLOAD_FORMS_FROM_SERVER);
+        if (downloadFormsFromServer != null) {
+            downloadFormsFromServer.setVisible(!FormRecordFilter.Incomplete.equals(adapter.getFilter()));
+        }
+
+        MenuItem downloadFormsFromFile = menu.findItem(DOWNLOAD_FORMS_FROM_FILE);
+        if (downloadFormsFromFile != null) {
+            downloadFormsFromFile.setVisible(!FormRecordFilter.Incomplete.equals(adapter.getFilter()));
+        }
+
         return menu.hasVisibleItems();
     }
 
@@ -610,7 +607,7 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
             Pair<Boolean, String> integrity = this.formRecordProcessor.verifyFormRecordIntegrity(r);
             logIntegrityScanResult(r, integrity);
         }
-        CommCareUtil.triggerLogSubmission(this);
+        CommCareUtil.triggerLogSubmission(this, false);
     }
 
     private static void logIntegrityScanResult(FormRecord r, Pair<Boolean, String> integrityScanResult) {

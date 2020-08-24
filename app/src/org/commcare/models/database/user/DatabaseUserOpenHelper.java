@@ -61,9 +61,12 @@ public class DatabaseUserOpenHelper extends SQLiteOpenHelper {
      * V.21 - Reindex all cases to add relationship, and add reasonForQuarantine field to FormRecords
      * V.22 - Add column for appId in entity_cache table
      * V.23 - Merges InstanceProvider to FormRecord (delete instanceUri, add displayName, filePath and canEditWhenComplete)
+     * v.24 - Adds and indexes column for Case external_id
+     * v.25 - No DB changes, validates SessionStateDescriptor records corrupted due to an earlier bug in v23 migration (In 2.44 and 2.44.1)
+     * v.26 - Adds a column for 'last_sync' in IndexedFixtureIndex
      */
 
-    private static final int USER_DB_VERSION = 23;
+    private static final int USER_DB_VERSION = 26;
 
     private static final String USER_DB_LOCATOR = "database_sandbox_";
 
@@ -142,6 +145,8 @@ public class DatabaseUserOpenHelper extends SQLiteOpenHelper {
                     "case_status_index", "AndroidCase", TableBuilder.scrubName(Case.INDEX_CASE_STATUS)));
             database.execSQL(DatabaseIndexingUtils.indexOnTableCommand(
                     "case_owner_id_index", "AndroidCase", TableBuilder.scrubName(Case.INDEX_OWNER_ID)));
+            database.execSQL(DatabaseIndexingUtils.indexOnTableCommand(
+                    "case_external_id_index", "AndroidCase", TableBuilder.scrubName(Case.INDEX_EXTERNAL_ID)));
 
             database.execSQL(DatabaseIndexingUtils.indexOnTableCommand(
                     "case_status_open_index", "AndroidCase", "case_type,case_status"));

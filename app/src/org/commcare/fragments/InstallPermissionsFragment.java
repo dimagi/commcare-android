@@ -1,9 +1,9 @@
 package org.commcare.fragments;
 
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -13,6 +13,10 @@ import org.commcare.dalvik.R;
 import org.commcare.interfaces.RuntimePermissionRequester;
 import org.commcare.utils.Permissions;
 import org.javarosa.core.services.locale.Localization;
+
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
 
 /**
  * Block user until they accept necessary permissions. Shows permissions
@@ -28,20 +32,23 @@ public class InstallPermissionsFragment extends Fragment {
     private int attemptCount = 0;
 
     @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.install_permission_requester, container, false);
 
-        TextView neededPermDetails = (TextView)view.findViewById(R.id.perms_rationale_message);
+        TextView neededPermDetails = view.findViewById(R.id.perms_rationale_message);
         neededPermDetails.setText(Localization.get("install.perms.rationale.message"));
 
-        Button requestPermsButton = (Button)view.findViewById(R.id.get_perms_button);
-        requestPermsButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                RuntimePermissionRequester permissionRequester = (RuntimePermissionRequester)getActivity();
-                Permissions.acquireAllAppPermissions((AppCompatActivity)getActivity(), permissionRequester,
-                        Permissions.ALL_PERMISSIONS_REQUEST);
-            }
+        Button requestPermsButton = view.findViewById(R.id.get_perms_button);
+        requestPermsButton.setOnClickListener(v -> {
+            RuntimePermissionRequester permissionRequester = (RuntimePermissionRequester)getActivity();
+            Permissions.acquireAllAppPermissions((AppCompatActivity)getActivity(), permissionRequester,
+                    Permissions.ALL_PERMISSIONS_REQUEST);
         });
         requestPermsButton.setText(Localization.get("permission.acquire.required"));
 
@@ -52,9 +59,15 @@ public class InstallPermissionsFragment extends Fragment {
         attemptCount++;
         View currentView = getView();
         if (currentView != null) {
-            TextView deniedDetails = (TextView)currentView.findViewById(R.id.needed_perms_message);
+            TextView deniedDetails = currentView.findViewById(R.id.needed_perms_message);
             deniedDetails.setText(Localization.get("install.perms.denied.message",
                     new String[]{attemptCount + ""}));
         }
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        menu.clear();
     }
 }

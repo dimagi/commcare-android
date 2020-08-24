@@ -1,15 +1,12 @@
 package org.commcare.android.tests.formnav;
 
 import android.content.Intent;
-import android.os.Environment;
 import android.util.Log;
-import android.widget.ImageButton;
+import android.view.View;
 
 import org.commcare.CommCareApplication;
 import org.commcare.CommCareTestApplication;
 import org.commcare.activities.FormEntryActivity;
-import org.commcare.activities.components.FormEntryConstants;
-import org.commcare.android.CommCareTestRunner;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.util.ActivityLaunchUtils;
 import org.commcare.android.util.TestAppInstaller;
@@ -24,7 +21,8 @@ import org.robolectric.Robolectric;
 import org.robolectric.Shadows;
 import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowActivity;
-import org.robolectric.shadows.ShadowEnvironment;
+
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
@@ -33,7 +31,7 @@ import static junit.framework.Assert.assertTrue;
  * @author Phillip Mates (pmates@dimagi.com).
  */
 @Config(application = CommCareTestApplication.class)
-@RunWith(CommCareTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 public class EndOfFormTest {
 
     private static final String TAG = EndOfFormTest.class.getSimpleName();
@@ -70,22 +68,20 @@ public class EndOfFormTest {
         assertStoredForms();
     }
 
-    public static ShadowActivity navigateFormEntry(Intent formEntryIntent) {
+    private static ShadowActivity navigateFormEntry(Intent formEntryIntent) {
         // launch form entry
         FormEntryActivity formEntryActivity =
-                Robolectric.buildActivity(FormEntryActivity.class).withIntent(formEntryIntent)
+                Robolectric.buildActivity(FormEntryActivity.class, formEntryIntent)
                         .create().start().resume().get();
 
-        ImageButton nextButton = (ImageButton)formEntryActivity.findViewById(R.id.nav_btn_next);
+
 
         // enter an answer for the question
         QuestionsView questionsView = formEntryActivity.getODKView();
         IntegerWidget favoriteNumber = (IntegerWidget)questionsView.getWidgets().get(0);
         favoriteNumber.setAnswer("2");
-        assertTrue(nextButton.getTag().equals(FormEntryConstants.NAV_STATE_NEXT));
-        // Finish off the form even by clicking next.
-        // The form progress meter thinks there is more to do, but that is a bug.
-        nextButton.performClick();
+        View finishButton = formEntryActivity.findViewById(R.id.nav_btn_finish);
+        finishButton.performClick();
 
         ShadowActivity shadowFormEntryActivity = Shadows.shadowOf(formEntryActivity);
         while (!shadowFormEntryActivity.isFinishing()) {

@@ -16,11 +16,12 @@ import org.commcare.models.database.SqlStorage;
 import org.commcare.models.database.UnencryptedHybridFileBackedSqlStorage;
 import org.commcare.models.database.app.DatabaseAppOpenHelper;
 import org.commcare.modern.database.Table;
-import org.commcare.preferences.PrefValues;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.preferences.MainConfigurablePreferences;
+import org.commcare.preferences.PrefValues;
 import org.commcare.provider.ProviderUtils;
 import org.commcare.resources.model.Resource;
+import org.commcare.resources.model.ResourceInitializationException;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.Suite;
@@ -31,12 +32,18 @@ import org.commcare.utils.GlobalConstants;
 import org.commcare.utils.MultipleAppsUtil;
 import org.commcare.utils.SessionUnavailableException;
 import org.commcare.utils.Stylizer;
+import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.storage.Persistable;
+import org.javarosa.core.util.SizeBoundUniqueVector;
 import org.javarosa.core.util.UnregisteredLocaleException;
+import org.javarosa.xpath.XPathException;
+import org.javarosa.xpath.expr.FunctionUtils;
+import org.javarosa.xpath.expr.XPathExpression;
+import org.javarosa.xpath.parser.XPathSyntaxException;
 
 import java.io.File;
 import java.util.List;
@@ -76,7 +83,7 @@ public class CommCareApp implements AppFilePathBuilder {
         int[] version = CommCareApplication.instance().getCommCareVersion();
 
         // TODO: Badly coupled
-        platform = new AndroidCommCarePlatform(version[0], version[1], this);
+        platform = new AndroidCommCarePlatform(version[0], version[1], version[2], this);
     }
 
     public Stylizer getStylizer() {
@@ -218,12 +225,23 @@ public class CommCareApp implements AppFilePathBuilder {
 
         Resource profile = global.getResourceWithId(CommCarePlatform.APP_PROFILE_RESOURCE_ID);
         if (profile != null && profile.getStatus() == Resource.RESOURCE_STATUS_INSTALLED) {
-            platform.initialize(global, false);
             try {
+                platform.initialize(global, false);
+
+                // Return false if resources are missing
+                if (!global.getMissingResources().isEmpty()) {
+                    return false;
+                }
+
                 Localization.setLocale(
                         getAppPreferences().getString(MainConfigurablePreferences.PREFS_LOCALE_KEY, "default"));
             } catch (UnregisteredLocaleException urle) {
                 Localization.setLocale(Localization.getGlobalLocalizerAdvanced().getAvailableLocales()[0]);
+            } catch (ResourceInitializationException e) {
+                Logger.exception("Initialization of platform failed due to resource initialization failure", e);
+                Logger.log(LogTypes.TYPE_RESOURCES,
+                        "Initialization of platform failed due to resource initialization failure");
+                return false;
             }
 
             initializeStylizer();
@@ -235,9 +253,13 @@ public class CommCareApp implements AppFilePathBuilder {
                         "Unable to get app db handle to clear orphaned files");
             }
             return true;
+        } else {
+            SizeBoundUniqueVector<Resource> missingResources = new SizeBoundUniqueVector<>(1);
+            missingResources.add(profile);
+            global.setMissingResources(missingResources);
         }
 
-        String failureReason = profile == null ? "profle being null" : "profile status value " + String.valueOf(profile.getStatus());
+        String failureReason = profile == null ? "profle being null" : "profile status value " + profile.getStatus();
         Logger.log(LogTypes.TYPE_RESOURCES, "Initializing application failed because of " + failureReason);
         return false;
     }
@@ -296,10 +318,67 @@ public class CommCareApp implements AppFilePathBuilder {
         return platform;
     }
 
-    public boolean hasTrainingMenu() {
+    public boolean hasVisibleTrainingContent() {
+        // This is the same eval context that would be used to evaluate the relevancy conditions of
+        // these menus when they're actually loaded
+        EvaluationContext ec =
+                CommCareApplication.instance().getCurrentSessionWrapper().getEvaluationContext(Menu.TRAINING_MENU_ROOT);
         for (Suite s : platform.getInstalledSuites()) {
-            List<Menu> trainingMenus = s.getMenusWithId(Menu.TRAINING_MENU_ROOT);
-            if (trainingMenus != null) {
+            if (visibleMenusInTrainingRoot(s) || visibleEntriesInTrainingRoot(s, ec)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static boolean visibleMenusInTrainingRoot(Suite s) {
+        List<Menu> trainingMenus = s.getMenusWithRoot(Menu.TRAINING_MENU_ROOT);
+        if (trainingMenus != null) {
+            for (Menu m : trainingMenus) {
+                try {
+                    if (m.getMenuRelevance() == null){
+                        return true;
+                    }
+
+                    EvaluationContext menuEvalContext = CommCareApplication.instance()
+                            .getCurrentSessionWrapper()
+                            .getEvaluationContext(m.getCommandID());
+
+                    if (FunctionUtils.toBoolean(m.getMenuRelevance().eval(menuEvalContext))) {
+                        return true;
+                    }
+                } catch (XPathSyntaxException | XPathException e) {
+                    // Now is the wrong time to show the user an error about this since they
+                    // haven't actually navigated to the menu. To be safe, just assume that this
+                    // menu is visible, and then if they navigate to it they'll see the XPath error there
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private static boolean visibleEntriesInTrainingRoot(Suite s, EvaluationContext ec) {
+        List<Menu> trainingRoots = s.getMenusWithId(Menu.TRAINING_MENU_ROOT);
+        if (trainingRoots == null || trainingRoots.isEmpty()) {
+            return false;
+        } else if (trainingRoots.size() > 1) {
+            throw new RuntimeException("An app is allowed to contain at most 1 menu with ID " +
+                    "'training-root', but this app has more than one.");
+        }
+
+        Menu trainingRoot = trainingRoots.get(0);
+        for (String command : trainingRoot.getCommandIds()) {
+            try {
+                XPathExpression relevancyCondition =
+                        trainingRoot.getCommandRelevance(trainingRoot.indexOfCommand(command));
+                if (relevancyCondition == null || FunctionUtils.toBoolean(relevancyCondition.eval(ec))) {
+                    return true;
+                }
+            } catch (XPathSyntaxException | XPathException e) {
+                // Now is the wrong time to show the user an error about this since they
+                // haven't actually navigated to the menu. To be safe, just assume that this
+                // entry is visible, and then if they navigate to it they'll see the XPath error there
                 return true;
             }
         }
@@ -374,5 +453,4 @@ public class CommCareApp implements AppFilePathBuilder {
             throw new RuntimeException("For testing purposes only!");
         }
     }
-
 }

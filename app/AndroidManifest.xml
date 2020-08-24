@@ -3,7 +3,7 @@
           xmlns:android="http://schemas.android.com/apk/res/android"
           xmlns:tools="http://schemas.android.com/tools"
           android:versionCode="106"
-          android:versionName="2.44">
+          android:versionName="2.50">
 
     <uses-permission android:name="android.permission.NFC"/>
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
@@ -24,10 +24,11 @@
     <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE"/>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.READ_SMS"/>
     <uses-permission android:name="android.permission.WAKE_LOCK"/>
-    <uses-permission android:name="android.permission.RECORD_AUDIO"/>
-    <uses-permission android:name="android.permission.CAMERA"/>
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+
 
     <uses-feature
         android:name="android.hardware.telephony"
@@ -46,7 +47,7 @@
         android:required="false"/>
 
     <uses-sdk tools:overrideLibrary="com.dimagi.android.zebraprinttool, com.simprints.libsimprints,
-    ru.noties.markwon.il, ru.noties.markwon.view, ru.noties.markwon.renderer"/>
+    ru.noties.markwon.il, ru.noties.markwon.view, ru.noties.markwon.renderer, com.google.firebase.crashlytics, com.google.firebase.iid"/>
 
     <permission
         android:description="@string/permission_content_provider_description"
@@ -57,12 +58,16 @@
 
     <application
         android:allowBackup="false"
-        android:hardwareAccelerated="true"
-        android:icon="@mipmap/ic_launcher"
-        android:label="@string/application_name"
+        tools:replace="android:label,android:icon,android:theme, android:allowBackup"
         android:name="org.commcare.CommCareApplication"
-        android:theme="@style/AppBaseTheme"
-        tools:replace="android:label,android:icon, android:allowBackup">
+        android:icon="@mipmap/ic_launcher"
+        android:supportsRtl="true"
+        android:label="@string/application_name"
+        android:hardwareAccelerated="true"
+        android:usesCleartextTraffic="true"
+        android:requestLegacyExternalStorage="true"
+        android:theme="@style/AppBaseTheme">
+
         <activity
             android:label="@string/application_name"
             android:name="org.commcare.activities.DispatchActivity">
@@ -99,13 +104,13 @@
         <activity android:name="org.commcare.activities.MenuActivity"/>
 
         <provider
-            android:authorities="${odkProvider}.forms"
-            android:exported="true"
-            android:name="org.commcare.provider.FormsProvider"/>
+            android:name="org.commcare.provider.FormsProvider"
+            android:exported="false"
+            android:authorities="${odkProvider}.forms"/>
         <provider
-            android:authorities="${odkProvider}.instances"
-            android:exported="true"
-            android:name="org.commcare.provider.InstanceProvider"/>
+            android:name="org.commcare.provider.InstanceProvider"
+            android:exported="false"
+            android:authorities="${odkProvider}.instances"/>
         <provider
             android:authorities="${applicationId}.case"
             android:enabled="true"
@@ -119,10 +124,10 @@
             android:name="org.commcare.provider.FixtureDataContentProvider"
             android:readPermission="${applicationId}.provider.cases.read"/>
         <provider
+            android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.external.files.provider"
             android:exported="false"
-            android:grantUriPermissions="true"
-            android:name="android.support.v4.content.FileProvider">
+            android:grantUriPermissions="true">
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/provider_paths"/>
@@ -263,8 +268,23 @@
             android:name="org.commcare.activities.InstallArchiveActivity"
             android:windowSoftInputMode="adjustResize">
         </activity>
-        <activity android:name="org.commcare.activities.EntityMapActivity">
+
+        <activity android:name="org.commcare.gis.EntityMapActivity">
         </activity>
+
+        <activity android:name="org.commcare.gis.EntityMapboxActivity"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar">
+        </activity>
+
+        <activity android:name="org.commcare.gis.DrawingBoundaryActivity"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar">
+            <intent-filter>
+                <action android:name="org.commcare.dalvik.action.DrawBoundary"/>
+
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </activity>
+
         <activity android:name="org.commcare.activities.RefreshToLatestBuildActivity">
         </activity>
         <activity android:name="org.commcare.activities.MultipleAppsLimitWarningActivity">
@@ -401,8 +421,8 @@
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </activity>
-        <activity android:name="org.commcare.activities.SeatAppActivity">
-        </activity>
+
+        <activity android:name="org.commcare.activities.SeatAppActivity"/>
         <activity android:name="org.commcare.activities.PostRequestActivity"/>
         <activity android:name="org.commcare.activities.QueryRequestActivity"/>
         <activity
@@ -428,6 +448,8 @@
             </intent-filter>
         </activity>
         <activity android:name="org.commcare.activities.TargetMismatchErrorActivity"/>
+        <activity android:name="org.commcare.recovery.measures.ExecuteRecoveryMeasuresActivity"/>
+        <activity android:name="org.commcare.activities.PromptCCReinstallActivity"/>
         <!-- Start Collect Manifest -->
 
         <meta-data
@@ -440,8 +462,24 @@
             android:name="android.content.APP_RESTRICTIONS"
             android:resource="@xml/app_restrictions"/>
 
-        <activity android:name="org.commcare.activities.CommcareListActivity">
-        </activity>
+
+        <activity android:name="org.commcare.activities.CommcareListActivity"/>
+
+        <meta-data android:name="android.content.APP_RESTRICTIONS"
+            android:resource="@xml/app_restrictions" />
+
+        <!-- This is to disable fabric for debug builds properly - https://stackoverflow.com/a/49836972/3811963 -->
+        <meta-data
+            android:name="firebase_crashlytics_collection_enabled"
+            android:value="false" />
+
+        <!-- With App Bundles, we're seeing a number of MissingLibraryExceptions
+            which is coming from `MapboxOfflineDownloaderService` in Kujaku library.
+            One way to start this service is by using this network change receiver.
+            So removing this entry from the manifest file.
+         -->
+        <receiver android:name="io.ona.kujaku.receivers.KujakuNetworkChangeReceiver"
+            tools:node="remove"/>
     </application>
 
 </manifest>

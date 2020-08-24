@@ -1,9 +1,9 @@
 package org.commcare.activities;
 
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.ActivityCompat;
+import androidx.core.app.ActivityCompat;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -46,12 +46,7 @@ public class GlobalPrivilegeClaimingActivity extends AppCompatActivity {
 
         setContentView(R.layout.privilege_claiming_view);
 
-        findViewById(R.id.claim_button).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                callOutToBarcodeScanner();
-            }
-        });
+        findViewById(R.id.claim_button).setOnClickListener(v -> callOutToBarcodeScanner());
 
         CommCarePreferenceActivity.addBackButtonToActionBar(this);
     }
@@ -63,10 +58,10 @@ public class GlobalPrivilegeClaimingActivity extends AppCompatActivity {
     }
 
     private void refreshUI() {
-        TextView enabledTextView = (TextView) findViewById(R.id.enabled_textview);
-        TextView notEnabledTextView = (TextView) findViewById(R.id.not_enabled_textview);
-        Button claimButton = (Button) findViewById(R.id.claim_button);
-        TextView instructions = (TextView) findViewById(R.id.instructions);
+        TextView enabledTextView = findViewById(R.id.enabled_textview);
+        TextView notEnabledTextView = findViewById(R.id.not_enabled_textview);
+        Button claimButton = findViewById(R.id.claim_button);
+        TextView instructions = findViewById(R.id.instructions);
 
         if (GlobalPrivilegesManager.getEnabledPrivileges().size() > 0) {
             notEnabledTextView.setVisibility(View.GONE);
@@ -90,7 +85,7 @@ public class GlobalPrivilegeClaimingActivity extends AppCompatActivity {
 
     private void callOutToBarcodeScanner() {
         Intent intent = new IntentIntegrator(this)
-                .setDesiredBarcodeFormats(IntentIntegrator.QR_CODE_TYPES)
+                .setDesiredBarcodeFormats(IntentIntegrator.QR_CODE)
                 .createScanIntent();
         startActivityForResult(intent, BARCODE_CAPTURE);
     }

@@ -14,8 +14,8 @@ import java.util.TimerTask;
 /**
  * While active, this class is responsible controlling a TimerTask that periodically pings the
  * server with a "heartbeat" request. The lifecycle of this object is tied directly to that of
- * the CommCareSessionService; it should be started whenever a session service is started,
- * and ended whenever a session service is ended for any reason.
+ * the CommCareSessionService; it is started whenever a session service is started, and ended
+ * whenever a session service is ended for any reason.
  *
  * Created by amstone326 on 4/13/17.
  */
@@ -41,7 +41,7 @@ public class HeartbeatLifecycleManager {
                         HeartbeatLifecycleManager.this.endCurrentHeartbeatTask();
                     } else {
                         try {
-                            requester.requestHeartbeat();
+                            requester.makeRequest();
                         } catch (Exception e) {
                             // Encountered an unexpected issue, should just bail on this thread
                             HeartbeatLifecycleManager.this.endCurrentHeartbeatTask();
@@ -57,11 +57,17 @@ public class HeartbeatLifecycleManager {
     }
 
     private boolean shouldStartHeartbeatRequests() {
-        return appHasHeartbeatUrl() && !hasSucceededOnThisLogin() && endCurrentHeartbeatTask();
+        return appNotCorrupted() && appHasHeartbeatUrl() && !hasSucceededOnThisLogin() &&
+                endCurrentHeartbeatTask();
     }
 
     private boolean shouldStopHeartbeatRequests() {
         return sessionHasDied() || hasSucceededOnThisLogin();
+    }
+
+    private boolean appNotCorrupted() {
+        CommCareApp currentApp = CommCareApplication.instance().getCurrentApp();
+        return currentApp.getAppResourceState() != CommCareApplication.STATE_CORRUPTED;
     }
 
     private boolean appHasHeartbeatUrl() {

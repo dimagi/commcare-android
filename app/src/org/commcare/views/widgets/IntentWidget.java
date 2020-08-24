@@ -1,6 +1,6 @@
 package org.commcare.views.widgets;
 
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
@@ -124,12 +124,7 @@ public class IntentWidget extends QuestionWidget {
                 !mPrompt.isReadOnly());
 
         // launch barcode capture intent on click
-        launchIntentButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                performCallout();
-            }
-        });
+        launchIntentButton.setOnClickListener(v -> performCallout());
         addView(launchIntentButton);
     }
 

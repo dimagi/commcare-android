@@ -1,6 +1,6 @@
 package org.commcare.activities;
 
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.content.Context;
 import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
@@ -163,7 +163,7 @@ public class DrawActivity extends AppCompatActivity {
         LayoutInflater inflater = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         RelativeLayout v = (RelativeLayout)inflater.inflate(
                 R.layout.draw_layout, null);
-        LinearLayout ll = (LinearLayout)v.findViewById(R.id.drawViewLayout);
+        LinearLayout ll = v.findViewById(R.id.drawViewLayout);
 
         Paint paint = new Paint();
         paint.setAntiAlias(true);
@@ -187,32 +187,16 @@ public class DrawActivity extends AppCompatActivity {
 
         setContentView(v);
 
-        Button btnFinished = (Button)findViewById(R.id.btnFinishDraw);
+        Button btnFinished = findViewById(R.id.btnFinishDraw);
         btnFinished.setText(StringUtils.getStringRobust(this, R.string.save_and_close));
-        btnFinished.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        btnFinished.setOnClickListener(v13 -> saveAndClose());
 
-                saveAndClose();
-            }
-        });
-
-        Button btnReset = (Button)findViewById(R.id.btnResetDraw);
-        btnReset.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                reset();
-            }
-        });
+        Button btnReset = findViewById(R.id.btnResetDraw);
+        btnReset.setOnClickListener(v12 -> reset());
         btnReset.setText(StringUtils.getStringRobust(this, R.string.reset_image));
 
-        Button btnCancel = (Button)findViewById(R.id.btnCancelDraw);
-        btnCancel.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                cancelAndClose();
-            }
-        });
+        Button btnCancel = findViewById(R.id.btnCancelDraw);
+        btnCancel.setOnClickListener(v1 -> cancelAndClose());
         btnCancel.setText(StringUtils.getStringRobust(this, R.string.cancel));
     }
 
@@ -237,7 +221,7 @@ public class DrawActivity extends AppCompatActivity {
             FileOutputStream fos;
             fos = new FileOutputStream(f);
             Bitmap bitmap = Bitmap.createBitmap(drawView.getWidth(),
-                    drawView.getHeight(), Bitmap.Config.ARGB_8888);
+                    drawView.getHeight(), Bitmap.Config.RGB_565);
             Canvas canvas = new Canvas(bitmap);
             drawView.draw(canvas);
             bitmap.compress(Bitmap.CompressFormat.JPEG, 70, fos);
@@ -301,37 +285,22 @@ public class DrawActivity extends AppCompatActivity {
     private void createQuitDrawDialog() {
         final PaneledChoiceDialog dialog = new PaneledChoiceDialog(this, alertTitleString);
 
-        View.OnClickListener keepChangesListener = new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                saveAndClose();
-            }
-        };
+        View.OnClickListener keepChangesListener = v -> saveAndClose();
         DialogChoiceItem keepOption = new DialogChoiceItem(getString(R.string.keep_changes), -1,
                 keepChangesListener);
 
-        View.OnClickListener discardChangesListener = new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                cancelAndClose();
-            }
-        };
+        View.OnClickListener discardChangesListener = v -> cancelAndClose();
         DialogChoiceItem discardOption = new DialogChoiceItem(getString(R.string.do_not_save), -1,
                 discardChangesListener);
 
         dialog.setChoiceItems(new DialogChoiceItem[]{keepOption, discardOption});
 
-        dialog.addButton(getString(R.string.cancel), new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                dialog.dismiss();
-            }
-        });
+        dialog.addButton(getString(R.string.cancel), v -> dialog.dismiss());
 
         dialog.showNonPersistentDialog();
     }
 
-    private static class DrawView extends View {
+    public static class DrawView extends View {
         private boolean isSignature;
         private Bitmap mBitmap;
         private Canvas mCanvas;
@@ -373,13 +342,13 @@ public class DrawActivity extends AppCompatActivity {
             if (mBackgroundBitmapFile.exists()) {
                 mBitmap = MediaUtil.getBitmapScaledToContainer(
                         mBackgroundBitmapFile, w, h).copy(
-                        Bitmap.Config.ARGB_8888, true);
+                        Bitmap.Config.RGB_565, true);
                 // mBitmap =
                 // Bitmap.createScaledBitmap(BitmapFactory.decodeFile(mBackgroundBitmapFile.getPath()),
                 // w, h, true);
                 mCanvas = new Canvas(mBitmap);
             } else {
-                mBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
+                mBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.RGB_565);
                 mCanvas = new Canvas(mBitmap);
                 mCanvas.drawColor(0xFFFFFFFF);
                 if (isSignature) {

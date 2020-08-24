@@ -1,7 +1,7 @@
 package org.commcare.activities;
 
 import android.os.Bundle;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 
 import org.commcare.CommCareApplication;
 import org.commcare.activities.components.MenuList;

@@ -1,6 +1,6 @@
 package org.commcare.android.tests.caselist;
 
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.widget.ImageButton;
 
@@ -12,7 +12,7 @@ import org.commcare.CommCareTestApplication;
 import org.commcare.activities.EntitySelectActivity;
 import org.commcare.activities.components.EntitySelectCalloutSetup;
 import org.commcare.adapters.EntityListAdapter;
-import org.commcare.android.CommCareTestRunner;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import org.commcare.android.util.CaseLoadUtils;
 import org.commcare.android.util.TestAppInstaller;
 import org.commcare.android.util.TestUtils;
@@ -41,7 +41,7 @@ import static org.junit.Assert.assertTrue;
  * @author Phillip Mates (pmates@dimagi.com)
  */
 @Config(application = CommCareTestApplication.class)
-@RunWith(CommCareTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 public class EntityListCalloutDataTest {
     private EntitySelectActivity entitySelectActivity;
     private EntityListAdapter adapter;
@@ -146,7 +146,7 @@ public class EntityListCalloutDataTest {
         // clear the callout data and make sure the extra column is removed and
         // all the entities are shown
         ImageButton clearSearchButton =
-                (ImageButton)entitySelectActivity.findViewById(R.id.clear_search_button);
+                entitySelectActivity.findViewById(R.id.clear_search_button);
         clearSearchButton.performClick();
     }
 }

@@ -1,6 +1,5 @@
 package org.commcare.views;
 
-import android.support.v7.app.AppCompatActivity;
 import android.content.DialogInterface;
 
 import org.commcare.activities.CommCareActivity;
@@ -8,6 +7,8 @@ import org.commcare.logging.XPathErrorLogger;
 import org.commcare.utils.StringUtils;
 import org.commcare.views.dialogs.StandardAlertDialog;
 import org.javarosa.xpath.XPathException;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 /**
  * Dialog logic for showing errors to user.
@@ -43,33 +44,26 @@ public class UserfacingErrorHandling {
         factory.setIcon(android.R.drawable.ic_dialog_info);
 
         DialogInterface.OnCancelListener cancelListener =
-                new DialogInterface.OnCancelListener() {
-                    @Override
-                    public void onCancel(DialogInterface dialog) {
-                        if (shouldExit) {
-                            activity.setResult(AppCompatActivity.RESULT_CANCELED);
-                            activity.finish();
-                        }
-                        activity.dismissAlertDialog();
+                dialog -> {
+                    if (shouldExit) {
+                        activity.setResult(AppCompatActivity.RESULT_CANCELED);
+                        activity.finish();
                     }
+                    activity.dismissAlertDialog();
                 };
         factory.setOnCancelListener(cancelListener);
 
         CharSequence buttonDisplayText =
                 StringUtils.getStringSpannableRobust(activity, org.commcare.dalvik.R.string.ok);
         DialogInterface.OnClickListener buttonListener =
-                new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int i) {
-                        if (shouldExit) {
-                            activity.setResult(AppCompatActivity.RESULT_CANCELED);
-                            activity.finish();
-                        }
-                        activity.dismissAlertDialog();
+                (dialog, i) -> {
+                    if (shouldExit) {
+                        activity.setResult(AppCompatActivity.RESULT_CANCELED);
+                        activity.finish();
                     }
+                    activity.dismissAlertDialog();
                 };
         factory.setPositiveButton(buttonDisplayText, buttonListener);
-
         activity.showAlertDialog(factory);
     }
 }

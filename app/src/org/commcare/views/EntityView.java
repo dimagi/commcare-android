@@ -52,9 +52,12 @@ public class EntityView extends LinearLayout {
     // index => { orientation => GraphView }
     private Hashtable<Long, Hashtable<Integer, View>> renderedGraphsCache;
     private long rowId;
+
+
     public static final String FORM_AUDIO = "audio";
     public static final String FORM_IMAGE = "image";
     public static final String FORM_GRAPH = "graph";
+    public static final String FORM_ADDRESS = "address";
     public static final String FORM_CALLLOUT = "callout";
 
     // Flag indicating if onMeasure has already been called for the first time on this view
@@ -175,7 +178,7 @@ public class EntityView extends LinearLayout {
             view = initView(data, form, uniqueId, sortField);
             view.setId(AndroidUtil.generateViewId());
             if (textColor != -1) {
-                TextView tv = (TextView)view.findViewById(R.id.entity_view_text);
+                TextView tv = view.findViewById(R.id.entity_view_text);
                 if (tv != null) tv.setTextColor(textColor);
             }
 
@@ -323,7 +326,7 @@ public class EntityView extends LinearLayout {
      * Updates the text layout that is passed in, based on the new text
      */
     private void setupText(View layout, final String text, String searchField) {
-        TextView tv = (TextView)layout.findViewById(R.id.entity_view_text);
+        TextView tv = layout.findViewById(R.id.entity_view_text);
         tv.setVisibility(View.VISIBLE);
         Spannable rawText = new SpannableString(text == null ? "" : text);
         tv.setText(highlightSearches(searchTerms, rawText, searchField, mFuzzySearchEnabled, mIsAsynchronous));

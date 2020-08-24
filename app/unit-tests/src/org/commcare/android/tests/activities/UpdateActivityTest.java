@@ -1,6 +1,6 @@
 package org.commcare.android.tests.activities;
 
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.content.Context;
@@ -12,7 +12,7 @@ import org.commcare.CommCareNoficationManager;
 import org.commcare.CommCareTestApplication;
 import org.commcare.activities.InstallArchiveActivity;
 import org.commcare.activities.UpdateActivity;
-import org.commcare.android.CommCareTestRunner;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import org.commcare.android.util.TestAppInstaller;
 import org.commcare.dalvik.R;
 import org.javarosa.core.services.locale.Localization;
@@ -34,8 +34,11 @@ import static org.junit.Assert.assertNull;
  *
  * @author Phillip Mates (pmates@dimagi.com)
  */
-@Config(application = CommCareTestApplication.class)
-@RunWith(CommCareTestRunner.class)
+
+// Using sdk 19 to get past NsdManager because of a bug in robolectric that causes NsdManager
+// to get initialized with a null context resulting in a NPE
+@Config(application = CommCareTestApplication.class, sdk = 18)
+@RunWith(AndroidJUnit4.class)
 public class UpdateActivityTest {
     @Before
     public void setup() {
@@ -58,8 +61,8 @@ public class UpdateActivityTest {
                 new Intent(RuntimeEnvironment.application, UpdateActivity.class);
 
         UpdateActivity updateActivity =
-                Robolectric.buildActivity(UpdateActivity.class)
-                        .withIntent(updateActivityIntent).setup().get();
+                Robolectric.buildActivity(UpdateActivity.class, updateActivityIntent)
+                        .setup().get();
 
         // click the 'offline install' menu item
         ShadowActivity shadowActivity = Shadows.shadowOf(updateActivity);

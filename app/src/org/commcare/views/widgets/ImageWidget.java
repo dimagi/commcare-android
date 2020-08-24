@@ -9,7 +9,6 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Display;
 import android.view.View;
@@ -34,7 +33,6 @@ import org.commcare.utils.GlobalConstants;
 import org.commcare.utils.MediaUtil;
 import org.commcare.utils.Permissions;
 import org.commcare.utils.StringUtils;
-import org.commcare.utils.UrlUtils;
 import org.commcare.views.dialogs.CommCareAlertDialog;
 import org.commcare.views.dialogs.DialogCreationHelpers;
 import org.javarosa.core.model.QuestionDataExtension;
@@ -45,6 +43,8 @@ import org.javarosa.core.services.locale.Localization;
 import org.javarosa.form.api.FormEntryPrompt;
 
 import java.io.File;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 /**
  * Widget that allows user to take pictures, sounds or video and add them to the form.
@@ -60,6 +60,7 @@ public class ImageWidget extends QuestionWidget {
 
     private final Button mCaptureButton;
     private final Button mChooseButton;
+    private final Button mDiscardButton;
     private ImageView mImageView;
 
     private String mBinaryName;
@@ -125,38 +126,48 @@ public class ImageWidget extends QuestionWidget {
                 !mPrompt.isReadOnly());
 
         // launch capture intent on click
-        mChooseButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (ImageCaptureProcessing.getCustomImagePath() != null) {
-                    // This block is only in use for a Calabash test and
-                    // processes the custom file path set from a broadcast triggered by calabash test
-                    pendingCalloutInterface.setPendingCalloutFormIndex(mPrompt.getIndex());
-                    ImageCaptureProcessing.processImageFromBroadcast((FormEntryActivity)getContext(), FormEntryInstanceState.getInstanceFolder());
-                    ImageCaptureProcessing.setCustomImagePath(null);
-                } else {
-                    mErrorTextView.setVisibility(View.GONE);
-                    Intent i = new Intent(Intent.ACTION_GET_CONTENT);
-                    i.setType("image/*");
+        mChooseButton.setOnClickListener(v -> {
+            if (ImageCaptureProcessing.getCustomImagePath() != null) {
+                // This block is only in use for a Calabash test and
+                // processes the custom file path set from a broadcast triggered by calabash test
+                pendingCalloutInterface.setPendingCalloutFormIndex(mPrompt.getIndex());
+                ImageCaptureProcessing.processImageFromBroadcast((FormEntryActivity)getContext(), FormEntryInstanceState.getInstanceFolder());
+                ImageCaptureProcessing.setCustomImagePath(null);
+            } else {
+                mErrorTextView.setVisibility(View.GONE);
+                Intent i = new Intent(Intent.ACTION_GET_CONTENT);
+                i.setType("image/*");
 
-                    try {
-                        ((AppCompatActivity)getContext()).startActivityForResult(i,
-                                FormEntryConstants.IMAGE_CHOOSER);
-                        pendingCalloutInterface.setPendingCalloutFormIndex(mPrompt.getIndex());
-                    } catch (ActivityNotFoundException e) {
-                        Toast.makeText(getContext(),
-                                StringUtils.getStringSpannableRobust(getContext(),
-                                        R.string.activity_not_found, "choose image"),
-                                Toast.LENGTH_SHORT).show();
-                    }
+                try {
+                    ((AppCompatActivity)getContext()).startActivityForResult(i,
+                            FormEntryConstants.IMAGE_CHOOSER);
+                    pendingCalloutInterface.setPendingCalloutFormIndex(mPrompt.getIndex());
+                } catch (ActivityNotFoundException e) {
+                    Toast.makeText(getContext(),
+                            StringUtils.getStringSpannableRobust(getContext(),
+                                    R.string.activity_not_found, "choose image"),
+                            Toast.LENGTH_SHORT).show();
                 }
             }
         });
+
+        // setup discard button
+        mDiscardButton = new Button(getContext());
+        WidgetUtils.setupButton(mDiscardButton,
+                StringUtils.getStringSpannableRobust(getContext(), R.string.discard_image),
+                mAnswerFontSize,
+                !mPrompt.isReadOnly());
+        mDiscardButton.setOnClickListener(v -> {
+            deleteMedia();
+            widgetEntryChanged();
+        });
+        mDiscardButton.setVisibility(View.GONE);
 
         // finish complex layout
         //
         addView(mCaptureButton);
         addView(mChooseButton);
+        addView(mDiscardButton);
 
         String acq = mPrompt.getAppearanceHint();
         if (QuestionWidget.ACQUIREFIELD.equalsIgnoreCase(acq)) {
@@ -201,47 +212,45 @@ public class ImageWidget extends QuestionWidget {
 
             mImageView.setPadding(10, 10, 10, 10);
             mImageView.setAdjustViewBounds(true);
-            mImageView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Intent i = new Intent("android.intent.action.VIEW");
-                    String[] projection = {
-                            "_id"
-                    };
-                    Cursor c = null;
-                    try {
-                        c = getContext().getContentResolver().query(
-                                android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                                projection, "_data='" + mInstanceFolder + mBinaryName + "'",
-                                null, null);
-                        if (c != null && c.getCount() > 0) {
-                            c.moveToFirst();
-                            String id = c.getString(c.getColumnIndex("_id"));
+            mImageView.setOnClickListener(v -> {
+                Intent i = new Intent("android.intent.action.VIEW");
+                String[] projection = {
+                        "_id"
+                };
+                Cursor c = null;
+                try {
+                    c = getContext().getContentResolver().query(
+                            android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                            projection, "_data='" + mInstanceFolder + mBinaryName + "'",
+                            null, null);
+                    if (c != null && c.getCount() > 0) {
+                        c.moveToFirst();
+                        String id = c.getString(c.getColumnIndex("_id"));
 
-                            Log.i(t, "setting view path to: " +
-                                    Uri.withAppendedPath(android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id));
+                        Log.i(t, "setting view path to: " +
+                                Uri.withAppendedPath(android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id));
 
-                            i.setDataAndType(Uri.withAppendedPath(
-                                    android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id),
-                                    "image/*");
-                            try {
-                                getContext().startActivity(i);
-                            } catch (ActivityNotFoundException e) {
-                                Toast.makeText(getContext(),
-                                        StringUtils.getStringSpannableRobust(getContext(),
-                                                R.string.activity_not_found, "view image"),
-                                        Toast.LENGTH_SHORT).show();
-                            }
+                        i.setDataAndType(Uri.withAppendedPath(
+                                android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id),
+                                "image/*");
+                        try {
+                            getContext().startActivity(i);
+                        } catch (ActivityNotFoundException e) {
+                            Toast.makeText(getContext(),
+                                    StringUtils.getStringSpannableRobust(getContext(),
+                                            R.string.activity_not_found, "view image"),
+                                    Toast.LENGTH_SHORT).show();
                         }
-                    } finally {
-                        if (c != null) {
-                            c.close();
-                        }
+                    }
+                } finally {
+                    if (c != null) {
+                        c.close();
                     }
                 }
             });
 
             addView(mImageView);
+            mDiscardButton.setVisibility(View.VISIBLE);
         }
     }
 
@@ -280,11 +289,8 @@ public class ImageWidget extends QuestionWidget {
         // clean up variables
         mBinaryName = null;
 
-        //TODO: possibly switch back to this implementation, but causes NullPointerException right now
-        /*
-        int del = MediaUtils.deleteImageFileFromMediaProvider(mInstanceFolder + File.separator + mBinaryName);
-        Log.i(t, "Deleted " + del + " rows from media content provider");
-        mBinaryName = null;*/
+        removeView(mImageView);
+        mDiscardButton.setVisibility(View.GONE);
     }
 
     @Override
@@ -308,17 +314,15 @@ public class ImageWidget extends QuestionWidget {
     }
 
     @Override
-    public void setBinaryData(Object binaryuri) {
+    public void setBinaryData(Object binaryPath) {
         // you are replacing an answer. delete the previous image using the
         // content provider.
         if (mBinaryName != null) {
             deleteMedia();
         }
-        String binaryPath = UrlUtils.getPathFromUri((Uri)binaryuri, getContext());
 
-        File f = new File(binaryPath);
+        File f = new File(binaryPath.toString());
         mBinaryName = f.getName();
-        Log.i(t, "Setting current answer to " + f.getName());
     }
 
     @Override

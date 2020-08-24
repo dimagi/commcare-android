@@ -16,7 +16,6 @@ import org.javarosa.core.model.MultiWordFilterRule;
 import org.javarosa.core.model.QuestionDataExtension;
 import org.javarosa.core.model.StandardFilterRule;
 import org.javarosa.core.model.condition.EvaluationContext;
-import org.javarosa.core.services.locale.Localization;
 import org.javarosa.form.api.FormEntryPrompt;
 import org.javarosa.xform.util.CalendarUtils;
 
@@ -60,10 +59,10 @@ public class WidgetFactory {
                 }
                 break;
             case Constants.CONTROL_AUDIO_CAPTURE:
-                if (appearance != null && appearance.contains("prototype")) {
-                    questionWidget = new CommCareAudioWidget(context, fep, pendingCalloutInterface);
-                } else {
+                if (appearance != null && appearance.contains("legacy")) {
                     questionWidget = new AudioWidget(context, fep, pendingCalloutInterface);
+                } else {
+                    questionWidget = new CommCareAudioWidget(context, fep, pendingCalloutInterface);
                 }
                 break;
             case Constants.CONTROL_VIDEO_CAPTURE:

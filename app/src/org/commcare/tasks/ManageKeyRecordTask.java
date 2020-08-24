@@ -202,6 +202,10 @@ public abstract class ManageKeyRecordTask<R extends DataPullController> extends 
                 Logger.log(LogTypes.TYPE_USER, "ManageKeyRecordTask error|auth over http");
                 receiver.raiseLoginMessage(StockMessages.Auth_Over_HTTP, true);
                 break;
+            case CaptivePortal:
+                Logger.log(LogTypes.TYPE_USER, "ManageKeyRecordTask error|captive portal detected");
+                receiver.raiseLoginMessage(StockMessages.Sync_CaptivePortal, true);
+                break;
             default:
                 break;
         }
@@ -335,23 +339,19 @@ public abstract class ManageKeyRecordTask<R extends DataPullController> extends 
 
     @Override
     protected TransactionParserFactory getTransactionParserFactory() {
-        return new TransactionParserFactory() {
+        return parser -> {
+            String name = parser.getName();
+            if ("auth_keys".equals(name)) {
+                return new KeyRecordParser(parser, username, password) {
 
-            @Override
-            public TransactionParser getParser(KXmlParser parser) {
-                String name = parser.getName();
-                if ("auth_keys".equals(name)) {
-                    return new KeyRecordParser(parser, username, password) {
+                    @Override
+                    public void commit(ArrayList<UserKeyRecord> parsed) throws IOException {
+                        ManageKeyRecordTask.this.keyRecords = parsed;
+                    }
 
-                        @Override
-                        public void commit(ArrayList<UserKeyRecord> parsed) throws IOException {
-                            ManageKeyRecordTask.this.keyRecords = parsed;
-                        }
-
-                    };
-                } else {
-                    return null;
-                }
+                };
+            } else {
+                return null;
             }
         };
     }

@@ -1,6 +1,5 @@
 package org.commcare.logic;
 
-import android.support.v7.app.AppCompatActivity;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.net.Uri;
@@ -10,6 +9,8 @@ import org.commcare.activities.CallOutActivity;
 import org.commcare.suite.model.CalloutData;
 
 import java.util.Hashtable;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 /**
  * Created by dancluna on 3/5/15.
