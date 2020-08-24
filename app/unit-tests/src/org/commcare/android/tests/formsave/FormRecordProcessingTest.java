@@ -10,7 +10,7 @@ import org.commcare.CommCareApplication;
 import org.commcare.CommCareTestApplication;
 import org.commcare.activities.StandardHomeActivity;
 import org.commcare.activities.FormEntryActivity;
-import org.commcare.android.CommCareTestRunner;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import org.commcare.android.mocks.FormAndDataSyncerFake;
 import org.commcare.android.tests.queries.CaseDbQueryTest;
 import org.commcare.android.util.TestAppInstaller;
@@ -53,7 +53,7 @@ import static junit.framework.Assert.fail;
  * @author Phillip Mates (pmates@dimagi.com).
  */
 @Config(application = CommCareTestApplication.class)
-@RunWith(CommCareTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 public class FormRecordProcessingTest {
     private static final String TAG = FormRecordProcessingTest.class.getSimpleName();
 

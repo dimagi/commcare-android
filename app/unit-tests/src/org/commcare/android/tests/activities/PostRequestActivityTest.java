@@ -8,7 +8,7 @@ import android.widget.TextView;
 import org.commcare.CommCareApplication;
 import org.commcare.CommCareTestApplication;
 import org.commcare.activities.PostRequestActivity;
-import org.commcare.android.CommCareTestRunner;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import org.commcare.android.mocks.HttpURLConnectionMock;
 import org.commcare.android.mocks.ModernHttpRequesterMock;
 import org.commcare.android.util.ActivityLaunchUtils;
@@ -43,7 +43,7 @@ import static org.junit.Assert.fail;
  * @author Phillip Mates (pmates@dimagi.com)
  */
 @Config(application = CommCareTestApplication.class)
-@RunWith(CommCareTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 public class PostRequestActivityTest {
     @Before
     public void setup() {

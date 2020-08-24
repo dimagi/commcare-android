@@ -38,7 +38,7 @@ public class SessionStateDescriptorTests {
         AndroidSessionWrapper originalSessionWrapper = new AndroidSessionWrapper(session);
         SessionStateDescriptor oldDescriptor = SessionStateDescriptor.buildFromSessionWrapper(originalSessionWrapper);
 
-        AndroidSessionWrapper newSessionWrapper = new AndroidSessionWrapper(new CommCarePlatform(0, 0));
+        AndroidSessionWrapper newSessionWrapper = new AndroidSessionWrapper(new CommCarePlatform(0, 0,0));
         newSessionWrapper.loadFromStateDescription(oldDescriptor);
 
         SessionStateDescriptor newDescriptor = SessionStateDescriptor.buildFromSessionWrapper(newSessionWrapper);

@@ -13,7 +13,7 @@ import org.javarosa.xpath.test.XPathEvalTest;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
 import org.commcare.CommCareApplication;
-import org.commcare.android.CommCareTestRunner;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -23,7 +23,7 @@ import java.util.Vector;
 
 
 @Config(application = CommCareTestApplication.class)
-@RunWith(CommCareTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 public class GraphTest extends XPathEvalTest {
 
     @Test

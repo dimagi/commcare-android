@@ -16,13 +16,13 @@ import java.io.DataInputStream;
 import java.io.IOException;
 
 // This class was used prior to Commcare v2.42 and should currently only be used for migration purposes
-public class XFormAndroidInstallerV1 extends FileSystemInstaller {
+public class XFormAndroidInstallerV8 extends FileSystemInstaller {
 
     private String namespace;
     private String contentUri;
 
     @SuppressWarnings("unused")
-    public XFormAndroidInstallerV1() {
+    public XFormAndroidInstallerV8() {
         // for externalization
     }
 

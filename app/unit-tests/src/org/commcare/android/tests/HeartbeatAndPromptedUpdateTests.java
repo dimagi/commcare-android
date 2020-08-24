@@ -5,7 +5,7 @@ import junit.framework.Assert;
 import org.commcare.CommCareApplication;
 import org.commcare.CommCareTestApplication;
 import org.commcare.activities.StandardHomeActivity;
-import org.commcare.android.CommCareTestRunner;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import org.commcare.android.mocks.FormAndDataSyncerFake;
 import org.commcare.android.util.TestAppInstaller;
 import org.commcare.heartbeat.ApkVersion;
@@ -25,7 +25,7 @@ import static junit.framework.Assert.assertTrue;
  * Created by amstone326 on 5/10/17.
  */
 @Config(application = CommCareTestApplication.class)
-@RunWith(CommCareTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 public class HeartbeatAndPromptedUpdateTests {
 
     private static final String RESPONSE_CorrectApp_CczUpdateNeeded =

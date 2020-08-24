@@ -2,7 +2,9 @@ package org.commcare.views;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+
 import androidx.cardview.widget.CardView;
+
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -64,6 +66,9 @@ public class EntityActionViewUtils {
                                                  final Action action,
                                                  final CommCareActivity commCareActivity) {
         CardView cardView = actionCardView.findViewById(R.id.card_body);
-        cardView.setOnClickListener(v -> EntitySelectActivity.triggerDetailAction(action, commCareActivity));
+        cardView.setOnClickListener(v -> {
+            cardView.setEnabled(false);
+            EntitySelectActivity.triggerDetailAction(action, commCareActivity);
+        });
     }
 }

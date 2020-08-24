@@ -33,6 +33,7 @@ public enum AppInstallStatus implements MessageTag {
     MissingResources("notification.install.missing"),
     MissingResourcesWithMessage("notification.install.missing.withmessage"),
     InvalidResource("notification.install.invalid"),
+    InvalidReference("notification.install.invalid.reference"),
     IncompatibleReqs("notification.install.badreqs"),
     UnknownFailure("notification.install.unknown"),
     NoLocalStorage("notification.install.nolocal"),
@@ -88,7 +89,20 @@ public enum AppInstallStatus implements MessageTag {
         return !(this == Cancelled ||
                 this == BadCertificate ||
                 this == NoConnection ||
+                this == CaptivePortal ||
                 this == RateLimited ||
                 this == NetworkFailure);
     }
+
+    public boolean isNonPersistentFailure() {
+        return (this == Cancelled ||
+                this == BadCertificate ||
+                this == NoConnection ||
+                this == CaptivePortal ||
+                this == RateLimited ||
+                this == NetworkFailure ||
+                this == NoLocalStorage
+        );
+    }
+
 }
