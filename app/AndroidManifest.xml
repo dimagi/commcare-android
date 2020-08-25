@@ -29,6 +29,9 @@
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
+    <!-- used to create an alarm from a custom callout -->
+    <uses-permission android:name="com.android.alarm.permission.SET_ALARM" />
+
     <uses-feature
         android:name="android.hardware.telephony"
         android:required="false"/>
@@ -297,7 +300,7 @@
         </activity>
         <activity android:name="org.commcare.activities.InstallFromListActivity">
         </activity>
-        
+
         <uses-library
             android:name="com.google.android.maps"
             android:required="false"/>
