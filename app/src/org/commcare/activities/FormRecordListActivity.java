@@ -557,19 +557,21 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
     public boolean onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
 
-        MenuItem quarantine = menu.findItem(MENU_SUBMIT_QUARANTINE_REPORT);
-        if (quarantine != null) {
-            quarantine.setVisible(FormRecordFilter.Limbo.equals(adapter.getFilter()));
-        }
+        if (adapter != null) {
+            MenuItem quarantine = menu.findItem(MENU_SUBMIT_QUARANTINE_REPORT);
+            if (quarantine != null) {
+                quarantine.setVisible(FormRecordFilter.Limbo.equals(adapter.getFilter()));
+            }
 
-        MenuItem downloadFormsFromServer = menu.findItem(DOWNLOAD_FORMS_FROM_SERVER);
-        if (downloadFormsFromServer != null) {
-            downloadFormsFromServer.setVisible(!FormRecordFilter.Incomplete.equals(adapter.getFilter()));
-        }
+            MenuItem downloadFormsFromServer = menu.findItem(DOWNLOAD_FORMS_FROM_SERVER);
+            if (downloadFormsFromServer != null) {
+                downloadFormsFromServer.setVisible(!FormRecordFilter.Incomplete.equals(adapter.getFilter()));
+            }
 
-        MenuItem downloadFormsFromFile = menu.findItem(DOWNLOAD_FORMS_FROM_FILE);
-        if (downloadFormsFromFile != null) {
-            downloadFormsFromFile.setVisible(!FormRecordFilter.Incomplete.equals(adapter.getFilter()));
+            MenuItem downloadFormsFromFile = menu.findItem(DOWNLOAD_FORMS_FROM_FILE);
+            if (downloadFormsFromFile != null) {
+                downloadFormsFromFile.setVisible(!FormRecordFilter.Incomplete.equals(adapter.getFilter()));
+            }
         }
 
         return menu.hasVisibleItems();
