@@ -26,6 +26,7 @@ def buildTestCommand(appToken, testToken):
     test["app"] = appToken
     test["deviceLogs"] = True
     test["testSuite"] = testToken
+    test["networkLogs"] = True
     return json.dumps(json.dumps(test))
 
 if __name__ == "__main__":
