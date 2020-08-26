@@ -9,7 +9,6 @@ import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.preferences.HiddenPreferences;
-import org.commcare.resources.model.InstallRequestSource;
 import org.commcare.resources.model.InvalidResourceException;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceLocation;
@@ -81,10 +80,10 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
 
     @Override
     public boolean install(Resource r, ResourceLocation location, Reference ref,
-                           ResourceTable table, AndroidCommCarePlatform platform, boolean upgrade, boolean recovery, InstallRequestSource installRequestSource)
+                           ResourceTable table, AndroidCommCarePlatform platform, boolean upgrade, boolean recovery)
             throws UnresolvedResourceException, UnfullfilledRequirementsException {
         //First, make sure all the file stuff is managed.
-        super.install(r, location, ref, table, platform, upgrade, recovery, installRequestSource);
+        super.install(r, location, ref, table, platform, upgrade, recovery);
         try {
             storeReleasedTime(platform, ref);
         } catch (ParseException e) {

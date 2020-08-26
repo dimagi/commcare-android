@@ -19,7 +19,6 @@ import org.xmlpull.v1.XmlPullParserException;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.util.Map;
 import java.util.Vector;
 
 /**
@@ -95,7 +94,7 @@ public class DummyResourceTable extends ResourceTable {
                     public boolean install(Resource r,
                                            ResourceLocation location, Reference ref,
                                            ResourceTable table, CommCarePlatform platform,
-                                           boolean upgrade, boolean recovery, InstallRequestSource installRequestSource)
+                                           boolean upgrade, boolean recovery)
                             throws UnresolvedResourceException,
                             UnfullfilledRequirementsException {
                         return true;

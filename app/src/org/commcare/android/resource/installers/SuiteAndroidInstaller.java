@@ -2,7 +2,6 @@ package org.commcare.android.resource.installers;
 
 import android.util.Log;
 
-import org.commcare.resources.model.InstallRequestSource;
 import org.commcare.resources.model.InvalidResourceException;
 import org.commcare.resources.model.MissingMediaException;
 import org.commcare.resources.model.Resource;
@@ -84,9 +83,9 @@ public class SuiteAndroidInstaller extends FileSystemInstaller {
     @Override
     public boolean install(Resource r, ResourceLocation location, Reference ref,
                            ResourceTable table, final AndroidCommCarePlatform platform,
-                           boolean upgrade, boolean recovery, InstallRequestSource installRequestSource) throws UnresolvedResourceException, UnfullfilledRequirementsException {
+                           boolean upgrade, boolean recovery) throws UnresolvedResourceException, UnfullfilledRequirementsException {
         //First, make sure all the file stuff is managed.
-        super.install(r, location, ref, table, platform, upgrade, recovery, installRequestSource);
+        super.install(r, location, ref, table, platform, upgrade, recovery);
         InputStream inputStream = null;
         try {
             Reference local = ReferenceManager.instance().DeriveReference(localLocation);

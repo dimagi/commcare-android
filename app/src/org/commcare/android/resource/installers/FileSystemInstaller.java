@@ -88,7 +88,7 @@ abstract class FileSystemInstaller implements ResourceInstaller<AndroidCommCareP
     @Override
     public boolean install(Resource r, ResourceLocation location,
                            Reference ref, ResourceTable table,
-                           AndroidCommCarePlatform platform, boolean upgrade, boolean recovery, InstallRequestSource installRequestSource)
+                           AndroidCommCarePlatform platform, boolean upgrade, boolean recovery)
             throws UnresolvedResourceException, UnfullfilledRequirementsException {
         try {
 
@@ -97,7 +97,7 @@ abstract class FileSystemInstaller implements ResourceInstaller<AndroidCommCareP
             InputStream inputFileStream;
             try {
                 if (ref instanceof ParameterizedReference) {
-                    inputFileStream = ((ParameterizedReference)ref).getStream(getInstallHeaders(platform, installRequestSource));
+                    inputFileStream = ((ParameterizedReference)ref).getStream(getInstallHeaders(platform));
                 } else {
                     inputFileStream = ref.getStream();
                 }
@@ -141,12 +141,15 @@ abstract class FileSystemInstaller implements ResourceInstaller<AndroidCommCareP
         }
     }
 
-    private Map<String, String> getInstallHeaders(AndroidCommCarePlatform platform, InstallRequestSource installRequestSource) {
+    private Map<String, String> getInstallHeaders(AndroidCommCarePlatform platform) {
         Map<String, String> headers = new HashMap<>();
-        headers.put(CommcareRequestGenerator.X_COMMCAREHQ_REQUEST_SOURCE,
-                String.valueOf(installRequestSource));
-        headers.put(CommcareRequestGenerator.X_COMMCAREHQ_REQUEST_AGE,
-                String.valueOf(RequestStats.getRequestAge(platform.getApp(), installRequestSource)));
+        if (platform.getResourceInstallContext() != null) {
+            InstallRequestSource installRequestSource = platform.getResourceInstallContext().getInstallRequestSource();
+            headers.put(CommcareRequestGenerator.X_COMMCAREHQ_REQUEST_SOURCE,
+                    String.valueOf(installRequestSource));
+            headers.put(CommcareRequestGenerator.X_COMMCAREHQ_REQUEST_AGE,
+                    String.valueOf(RequestStats.getRequestAge(platform.getApp(), installRequestSource)));
+        }
         return headers;
     }
 
