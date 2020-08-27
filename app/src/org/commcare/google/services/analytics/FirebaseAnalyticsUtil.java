@@ -205,7 +205,7 @@ public class FirebaseAnalyticsUtil {
 
     public static void reportInAppUpdateResult(boolean result, String failureReason) {
         Bundle bundle = new Bundle();
-        bundle.putInt(FirebaseAnalytics.Param.SUCCESS, result ? 1 : 0);
+        bundle.putLong(FirebaseAnalytics.Param.VALUE, result ? 1 : 0);
         bundle.putString(CCAnalyticsParam.REASON, failureReason);
         reportEvent(CCAnalyticsEvent.IN_APP_UPDATE_EVENT, bundle);
     }
