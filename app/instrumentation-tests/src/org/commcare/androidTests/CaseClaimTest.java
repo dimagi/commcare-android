@@ -3,6 +3,7 @@ package org.commcare.androidTests;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import org.commcare.dalvik.R;
+import org.commcare.utils.CustomMatchers;
 import org.commcare.utils.HQApi;
 import org.commcare.utils.InstrumentationUtility;
 import org.junit.Before;
@@ -53,7 +54,7 @@ public class CaseClaimTest extends BaseTest {
 
         // Make sure that a case with cordelia doesn't exist.
         gotoSearchAllCases();
-        onView(InstrumentationUtility.find(
+        onView(CustomMatchers.find(
                 allOf(withClassName(endsWith("EditText"))),
                 1
         )).perform(typeText(name));
@@ -94,7 +95,7 @@ public class CaseClaimTest extends BaseTest {
                 .check(matches(isDisplayed()));
 
         // Login with another user.
-        logout();
+        InstrumentationUtility.logout();
 
         // This wait it to ensure that HQ doesn't give stale data.
         InstrumentationUtility.sleep(15);
@@ -107,12 +108,12 @@ public class CaseClaimTest extends BaseTest {
         // Search for cordelia.
         gotoSearchAllCases();
 
-        onView(InstrumentationUtility.find(
+        onView(CustomMatchers.find(
                 allOf(withClassName(endsWith("EditText"))),
                 1
         )).perform(typeText(name));
 
-        onView(InstrumentationUtility.find(
+        onView(CustomMatchers.find(
                 allOf(withClassName(endsWith("EditText"))),
                 2
         )).perform(typeText(location));
@@ -166,15 +167,6 @@ public class CaseClaimTest extends BaseTest {
                 .perform(click());
         onView(withText("SEARCH ALL CASES"))
                 .perform(click());
-    }
-
-    private void logout() {
-        //TODO: Use repeatedlyUntil. I can't get it to work with withText() matcher for now.
-        pressBack();
-        pressBack();
-        pressBack();
-        pressBack();
-        InstrumentationUtility.logout();
     }
 
 }
