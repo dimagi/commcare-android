@@ -177,6 +177,13 @@ public class AppUtils {
         return Localization.get(application.getString(R.string.app_version_string), new String[]{pi.versionName, String.valueOf(pi.versionCode), ccv, buildNumber, buildDate, profileVersion});
     }
 
+    public static String getCommCareVersion() throws PackageManager.NameNotFoundException {
+        CommCareApplication application = CommCareApplication.instance();
+        PackageManager pm = application.getPackageManager();
+        PackageInfo pi = pm.getPackageInfo(application.getPackageName(), 0);
+        return pi.versionName;
+    }
+
     public static String getCurrentAppId() {
         return CommCareApplication.instance()
                 .getCurrentApp()
