@@ -9,6 +9,7 @@ import org.commcare.android.database.user.models.ACase;
 import org.commcare.core.network.AuthInfo;
 import org.commcare.core.network.HTTPMethod;
 import org.commcare.core.network.ModernHttpRequester;
+import org.commcare.dalvik.BuildConfig;
 import org.commcare.engine.cases.CaseUtils;
 import org.commcare.interfaces.CommcareRequestEndpoints;
 import org.commcare.models.database.SqlStorage;
@@ -154,12 +155,7 @@ public class CommcareRequestGenerator implements CommcareRequestEndpoints {
             headers.put(X_COMMCAREHQ_LAST_SYNC_TOKEN, lastToken);
         }
         headers.put(X_OPENROSA_DEVICEID, CommCareApplication.instance().getPhoneId());
-
-        try {
-            headers.put(X_OPENROSA_COMMCARE_VERSION, AppUtils.getCommCareVersion());
-        } catch (PackageManager.NameNotFoundException e) {
-            // do nothing
-        }
+        headers.put(X_OPENROSA_COMMCARE_VERSION, BuildConfig.VERSION_NAME);
         return headers;
     }
 

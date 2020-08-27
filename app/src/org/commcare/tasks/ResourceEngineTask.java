@@ -103,7 +103,7 @@ public abstract class ResourceEngineTask<R>
             global.setStateListener(this);
             try {
                 RequestStats.register(app, InstallRequestSource.INSTALL);
-                ResourceManager.installAppResources(platform, profileRef, global, reinstall, authorityForInstall, InstallRequestSource.INSTALL);
+                ResourceManager.installAppResources(platform, profileRef, global, reinstall, authorityForInstall);
                 RequestStats.markSuccess(app, InstallRequestSource.INSTALL);
             } catch (LocalStorageUnavailableException e) {
                 ResourceInstallUtils.logInstallError(e,
