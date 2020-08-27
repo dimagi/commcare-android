@@ -203,6 +203,13 @@ public class FirebaseAnalyticsUtil {
         reportEvent(CCAnalyticsEvent.SYNC_ATTEMPT, b);
     }
 
+    public static void reportInAppUpdateResult(boolean result, String failureReason) {
+        Bundle bundle = new Bundle();
+        bundle.putLong(FirebaseAnalytics.Param.VALUE, result ? 1 : 0);
+        bundle.putString(CCAnalyticsParam.REASON, failureReason);
+        reportEvent(CCAnalyticsEvent.IN_APP_UPDATE_EVENT, bundle);
+    }
+
     public static void reportFeatureUsage(String feature) {
         reportEvent(CCAnalyticsEvent.FEATURE_USAGE,
                 FirebaseAnalytics.Param.ITEM_CATEGORY, feature);

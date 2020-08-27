@@ -134,4 +134,6 @@ public class AnalyticsParamValue {
     public static final String UPDATE_RESET_REASON_OVERSHOOT_TRIALS = "update_overshoot_trials";
     public static final String UPDATE_RESET_REASON_NEWER_VERSION_AVAILABLE = "update_newer_version_available";
 
+    public static final String IN_APP_UPDATE_SUCCESS = "success";
+
 }
