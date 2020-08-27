@@ -247,7 +247,7 @@ public class CommcareRequestGenerator implements CommcareRequestEndpoints {
 
     @Override
     public Response<ResponseBody> simpleGet(String uri, Map<String, String> httpParams, Map<String, String> httpHeaders) throws IOException {
-        HashMap<String, String> headers = getHeaders(null);
+        HashMap<String, String> headers = new HashMap<>(getHeaders(null));
         headers.putAll(httpHeaders);
 
         ModernHttpRequester requester = CommCareApplication.instance().createGetRequester(
