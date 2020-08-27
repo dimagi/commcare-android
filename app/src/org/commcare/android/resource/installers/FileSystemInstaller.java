@@ -146,9 +146,9 @@ abstract class FileSystemInstaller implements ResourceInstaller<AndroidCommCareP
         if (platform.getResourceInstallContext() != null) {
             InstallRequestSource installRequestSource = platform.getResourceInstallContext().getInstallRequestSource();
             headers.put(CommcareRequestGenerator.X_COMMCAREHQ_REQUEST_SOURCE,
-                    String.valueOf(installRequestSource));
+                    String.valueOf(installRequestSource).toLowerCase());
             headers.put(CommcareRequestGenerator.X_COMMCAREHQ_REQUEST_AGE,
-                    String.valueOf(RequestStats.getRequestAge(platform.getApp(), installRequestSource)));
+                    String.valueOf(RequestStats.getRequestAge(platform.getApp(), installRequestSource)).toLowerCase());
         }
         return headers;
     }
