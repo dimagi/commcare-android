@@ -73,20 +73,25 @@ public class AndroidResourceManager extends ResourceManager {
             throws UnfullfilledRequirementsException, UnresolvedResourceException, InstallCancelledException {
         synchronized (platform) {
             this.profileRef = profileRef;
-            platform.registerInstallContext(new ResourceInstallContext(installRequestSource));
-            instantiateLatestUpgradeProfile(profileAuthority);
 
-            if (isUpgradeTableStaged()) {
-                return AppInstallStatus.UpdateStaged;
+            try {
+                platform.registerInstallContext(new ResourceInstallContext(installRequestSource));
+                instantiateLatestUpgradeProfile(profileAuthority);
+
+                if (isUpgradeTableStaged()) {
+                    return AppInstallStatus.UpdateStaged;
+                }
+
+                if (updateNotNewer(getMasterProfile())) {
+                    Logger.log(LogTypes.TYPE_RESOURCES, "App Resources up to Date");
+                    clearUpgrade();
+                    return AppInstallStatus.UpToDate;
+                }
+
+                prepareUpgradeResources(installRequestSource);
+            } finally {
+                platform.registerInstallContext(null);
             }
-
-            if (updateNotNewer(getMasterProfile())) {
-                Logger.log(LogTypes.TYPE_RESOURCES, "App Resources up to Date");
-                clearUpgrade();
-                return AppInstallStatus.UpToDate;
-            }
-
-            prepareUpgradeResources(installRequestSource);
             return AppInstallStatus.UpdateStaged;
         }
     }
@@ -186,7 +191,7 @@ public class AndroidResourceManager extends ResourceManager {
      * Clear update table, log failure with update stats,
      * and, if appropriate, schedule a update retry
      *
-     * @param result       update attempt result
+     * @param result update attempt result
      */
     public void processUpdateFailure(AppInstallStatus result) {
         updateStats.registerUpdateFailure(result);
