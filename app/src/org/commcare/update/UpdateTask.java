@@ -58,9 +58,6 @@ public class UpdateTask extends SingletonTask<String, Integer, ResultAndError<Ap
     protected final ResultAndError<AppInstallStatus> doInBackground(String... params) {
         ResultAndError<AppInstallStatus> result = mUpdateHelper.update(params[0], InstallRequestSource.FOREGROUND_UPDATE);
 
-        if (result.data == AppInstallStatus.UpdateStaged) {
-            RequestStats.markSuccess(InstallRequestSource.FOREGROUND_UPDATE);
-        }
         // onPostExecute doesn't get invoked in case of task cancellation, so process the failure here
         if (result.data == AppInstallStatus.Cancelled) {
             mUpdateHelper.OnUpdateComplete(result);

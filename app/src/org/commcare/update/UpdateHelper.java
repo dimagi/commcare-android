@@ -26,7 +26,6 @@ import org.commcare.network.RequestStats;
 import org.commcare.tasks.ResultAndError;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.AndroidCommCarePlatform;
-import org.commcare.utils.PendingCalcs;
 import org.commcare.views.dialogs.PinnedNotificationWithProgress;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
@@ -84,7 +83,7 @@ public class UpdateHelper implements TableStateListener {
 
     // Main UpdateHelper function for staging updates
     public ResultAndError<AppInstallStatus> update(String profileRef, InstallRequestSource installRequestSource) {
-        setupUpdate(profileRef, installRequestSource);
+        setupUpdate(profileRef);
 
         try {
             return new ResultAndError<>(stageUpdate(profileRef, installRequestSource));
@@ -123,8 +122,7 @@ public class UpdateHelper implements TableStateListener {
         }
     }
 
-    private void setupUpdate(String profileRef, InstallRequestSource installRequestSource) {
-        RequestStats.register(installRequestSource);
+    private void setupUpdate(String profileRef) {
         ResourceInstallUtils.recordUpdateAttemptTime(mApp);
         Logger.log(LogTypes.TYPE_RESOURCES,
                 "Beginning install attempt for profile " + profileRef);
@@ -137,6 +135,7 @@ public class UpdateHelper implements TableStateListener {
 
     private AppInstallStatus stageUpdate(String profileRef, InstallRequestSource installRequestSource)
             throws UnfullfilledRequirementsException, UnresolvedResourceException, InstallCancelledException {
+        RequestStats.register(installRequestSource);
         Resource profile = mResourceManager.getMasterProfile();
         boolean appInstalled = (profile != null &&
                 profile.getStatus() == Resource.RESOURCE_STATUS_INSTALLED);
@@ -148,7 +147,13 @@ public class UpdateHelper implements TableStateListener {
         String profileRefWithParams =
                 ResourceInstallUtils.addParamsToProfileReference(profileRef);
 
-        return mResourceManager.checkAndPrepareUpgradeResources(profileRefWithParams, mAuthority, installRequestSource);
+        AppInstallStatus result = mResourceManager.checkAndPrepareUpgradeResources(profileRefWithParams, mAuthority, installRequestSource);
+
+        if (result == AppInstallStatus.UpdateStaged) {
+            RequestStats.markSuccess(installRequestSource);
+        }
+
+        return result;
     }
 
     /**
