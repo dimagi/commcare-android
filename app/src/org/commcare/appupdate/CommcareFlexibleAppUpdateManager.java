@@ -21,7 +21,7 @@ import javax.annotation.Nullable;
  */
 public class CommcareFlexibleAppUpdateManager implements FlexibleAppUpdateController {
 
-    private static final String TAG = CommcareFlexibleAppUpdateManager.class.getName();
+    private static final String TAG = CommcareFlexibleAppUpdateManager.class.getSimpleName();
 
     private final AppUpdateManager mAppUpdateManager;
     private @Nullable AppUpdateInfo mAppUpdateInfo;
