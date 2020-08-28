@@ -46,7 +46,6 @@ public class MediaFileAndroidInstaller extends FileSystemInstaller {
             table.commit(r, upgrade ? Resource.RESOURCE_STATUS_UPGRADE : Resource.RESOURCE_STATUS_INSTALLED);
             return true;
         }
-
         return super.install(r, location, ref, table, platform, upgrade);
     }
 

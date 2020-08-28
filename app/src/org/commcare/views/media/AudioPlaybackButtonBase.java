@@ -18,6 +18,8 @@ import org.commcare.utils.FileUtil;
 
 import java.io.IOException;
 
+import kotlinx.coroutines.Dispatchers;
+
 /**
  * @author Phillip Mates (pmates@dimagi.com)
  */
@@ -170,7 +172,7 @@ public abstract class AudioPlaybackButtonBase extends FrameLayout {
 
     private void downloadMissingAudioResource() {
         AndroidUtil.showToast(getContext(), R.string.media_download_started);
-        MissingMediaDownloadHelper.requestMediaDownload(URI, result -> {
+        MissingMediaDownloadHelper.requestMediaDownload(URI, Dispatchers.getDefault(), result -> {
             if (result instanceof MissingMediaDownloadResult.Success) {
                 boolean mediaPresent = FileUtil.referenceFileExists(URI);
                 if (mediaPresent) {
