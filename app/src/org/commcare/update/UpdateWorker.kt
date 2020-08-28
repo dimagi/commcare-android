@@ -12,7 +12,6 @@ import org.commcare.engine.resource.AppInstallStatus
 import org.commcare.engine.resource.ResourceInstallUtils
 import org.commcare.resources.model.InstallCancelled
 import org.commcare.resources.model.InstallRequestSource
-import org.commcare.network.RequestStats
 import org.commcare.tasks.ResultAndError
 
 /**
