@@ -9,6 +9,7 @@ import org.commcare.engine.resource.AppInstallStatus;
 import org.commcare.engine.resource.ResourceInstallUtils;
 import org.commcare.engine.resource.installers.LocalStorageUnavailableException;
 import org.commcare.network.RequestStats;
+import org.commcare.resources.ResourceInstallContext;
 import org.commcare.resources.ResourceManager;
 import org.commcare.resources.model.InstallRequestSource;
 import org.commcare.resources.model.InvalidResourceException;
@@ -102,9 +103,11 @@ public abstract class ResourceEngineTask<R>
 
             global.setStateListener(this);
             try {
-                RequestStats.register(app, InstallRequestSource.INSTALL);
+                InstallRequestSource installRequestSource = reinstall ? InstallRequestSource.REINSTALL : InstallRequestSource.INSTALL;
+                RequestStats.register(app, installRequestSource);
+                platform.registerInstallContext(new ResourceInstallContext(installRequestSource));
                 ResourceManager.installAppResources(platform, profileRef, global, reinstall, authorityForInstall);
-                RequestStats.markSuccess(app, InstallRequestSource.INSTALL);
+                RequestStats.markSuccess(app, installRequestSource);
             } catch (LocalStorageUnavailableException e) {
                 ResourceInstallUtils.logInstallError(e,
                         "Couldn't install file to local storage|");
@@ -139,6 +142,8 @@ public abstract class ResourceEngineTask<R>
             } catch (CaptivePortalRedirectException e) {
                 Logger.log(LogTypes.TYPE_WARNING_NETWORK, "Resource installation failed due to captive portal");
                 return AppInstallStatus.CaptivePortal;
+            } finally {
+                platform.registerInstallContext(null);
             }
 
             ResourceInstallUtils.initAndCommitApp(app, profileRef);
