@@ -88,7 +88,7 @@ public class AndroidResourceManager extends ResourceManager {
                     return AppInstallStatus.UpToDate;
                 }
 
-                prepareUpgradeResources(installRequestSource);
+                prepareUpgradeResources();
             } finally {
                 platform.registerInstallContext(null);
             }

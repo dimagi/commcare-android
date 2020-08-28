@@ -1,6 +1,5 @@
 package org.commcare.utils;
 
-import org.commcare.resources.model.InstallRequestSource;
 import org.commcare.resources.model.InstallerFactory;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceInstaller;
@@ -188,7 +187,7 @@ public class DummyResourceTable extends ResourceTable {
     }
 
     @Override
-    public void prepareResources(ResourceTable master, CommCarePlatform platform, InstallRequestSource installRequestSource)
+    public void prepareResources(ResourceTable master, CommCarePlatform platform)
             throws UnresolvedResourceException,
             UnfullfilledRequirementsException {
     }
