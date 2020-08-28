@@ -93,7 +93,7 @@ public class DummyResourceTable extends ResourceTable {
                     public boolean install(Resource r,
                                            ResourceLocation location, Reference ref,
                                            ResourceTable table, CommCarePlatform platform,
-                                           boolean upgrade, boolean recovery)
+                                           boolean upgrade)
                             throws UnresolvedResourceException,
                             UnfullfilledRequirementsException {
                         return true;

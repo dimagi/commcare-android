@@ -83,9 +83,9 @@ public class SuiteAndroidInstaller extends FileSystemInstaller {
     @Override
     public boolean install(Resource r, ResourceLocation location, Reference ref,
                            ResourceTable table, final AndroidCommCarePlatform platform,
-                           boolean upgrade, boolean recovery) throws UnresolvedResourceException, UnfullfilledRequirementsException {
+                           boolean upgrade) throws UnresolvedResourceException, UnfullfilledRequirementsException {
         //First, make sure all the file stuff is managed.
-        super.install(r, location, ref, table, platform, upgrade, recovery);
+        super.install(r, location, ref, table, platform, upgrade);
         InputStream inputStream = null;
         try {
             Reference local = ReferenceManager.instance().DeriveReference(localLocation);

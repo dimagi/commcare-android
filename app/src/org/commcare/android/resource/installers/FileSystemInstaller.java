@@ -88,9 +88,12 @@ abstract class FileSystemInstaller implements ResourceInstaller<AndroidCommCareP
     @Override
     public boolean install(Resource r, ResourceLocation location,
                            Reference ref, ResourceTable table,
-                           AndroidCommCarePlatform platform, boolean upgrade, boolean recovery)
+                           AndroidCommCarePlatform platform, boolean upgrade)
             throws UnresolvedResourceException, UnfullfilledRequirementsException {
         try {
+            if (platform.getResourceInstallContext() == null) {
+                throw new RuntimeException("Encountered invalid Platform with null Resource Install Context while installing resource " + r.getDescriptor());
+            }
 
             Reference localReference = resolveEmptyLocalReference(r, location, upgrade);
 
