@@ -1,11 +1,9 @@
 package org.commcare.utils;
 
 import android.util.Pair;
-
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.commcare.util.Base64;
 import org.commcare.util.Base64DecoderException;
-import org.spongycastle.jce.provider.BouncyCastleProvider;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
