@@ -211,12 +211,7 @@ public class HiddenPreferences {
     }
 
     public static boolean isLoggingEnabled() {
-        if (CommCareApplication.instance().getCurrentApp() == null) {
-            return true;
-        }
-
-        String logsEnabled = getLogsEnabled();
-        return logsEnabled.equals(LOGS_ENABLED_YES) || logsEnabled.equals(LOGS_ENABLED_ON_DEMAND);
+        return true;
     }
 
     public static String getLogsEnabled() {
@@ -316,7 +311,7 @@ public class HiddenPreferences {
 
     public static MapLayer getMapsDefaultLayer() {
         try {
-            String mapType =  CommCareApplication.instance().getCurrentApp().getAppPreferences()
+            String mapType = CommCareApplication.instance().getCurrentApp().getAppPreferences()
                     .getString(MAPS_DEFAULT_LAYER, "normal");
             return MapLayer.valueOf(mapType.toUpperCase());
         } catch (IllegalArgumentException e) {
