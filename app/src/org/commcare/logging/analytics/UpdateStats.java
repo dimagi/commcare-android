@@ -155,10 +155,7 @@ public class UpdateStats implements InstallStatsLogger, Serializable {
                 .append(".\n")
                 .append("Update restarted ")
                 .append(restartCount)
-                .append(" times.\n")
-                .append("Failures logged to the update table: \n")
-                .append(resourceInstallStats.get(TOP_LEVEL_STATS_KEY).toString())
-                .append("\n");
+                .append(" times.\n");
 
         for (String resourceName : resourceInstallStats.keySet()) {
             if (!resourceName.equals(TOP_LEVEL_STATS_KEY)) {
