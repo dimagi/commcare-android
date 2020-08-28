@@ -7,6 +7,7 @@ import android.content.pm.PackageManager;
 import org.commcare.AppUtils;
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
+import org.commcare.dalvik.BuildConfig;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.preferences.ServerUrls;
 import org.commcare.session.CommCareSession;
@@ -97,13 +98,7 @@ public class ReportingUtils {
     }
 
     public static String getCommCareVersionString() {
-        Context c = CommCareApplication.instance();
-        try {
-            PackageInfo pi = c.getPackageManager().getPackageInfo(c.getPackageName(), 0);
-            return pi.versionName;
-        } catch (PackageManager.NameNotFoundException e) {
-            return "";
-        }
+        return BuildConfig.VERSION_NAME;
     }
 
     public static int getAppVersion() {
