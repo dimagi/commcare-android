@@ -12,6 +12,7 @@ import com.google.android.play.core.install.model.AppUpdateType;
 import com.google.android.play.core.install.model.InstallErrorCode;
 import com.google.android.play.core.install.model.InstallStatus;
 import com.google.android.play.core.install.model.UpdateAvailability;
+import org.commcare.util.LogTypes;
 import org.javarosa.core.services.Logger;
 
 import javax.annotation.Nullable;
@@ -20,8 +21,6 @@ import javax.annotation.Nullable;
  * @author $|-|!˅@M
  */
 public class CommcareFlexibleAppUpdateManager implements FlexibleAppUpdateController {
-
-    private static final String TAG = CommcareFlexibleAppUpdateManager.class.getSimpleName();
 
     private final AppUpdateManager mAppUpdateManager;
     private @Nullable AppUpdateInfo mAppUpdateInfo;
@@ -64,12 +63,12 @@ public class CommcareFlexibleAppUpdateManager implements FlexibleAppUpdateContro
             boolean success = mAppUpdateManager.startUpdateFlowForResult(
                     mAppUpdateInfo, AppUpdateType.FLEXIBLE, activity, IN_APP_UPDATE_REQUEST_CODE);
             if (!success) {
-                Logger.log(TAG, "startUpdate|requested update cannot be started");
+                Logger.log(LogTypes.TYPE_CC_UPDATE, "startUpdate|requested update cannot be started");
             }
         } catch (IntentSender.SendIntentException exception) {
             mInstallStatus = InstallStatus.FAILED;
             mInstallErrorCode = InstallErrorCode.ERROR_INTERNAL_ERROR;
-            Logger.log(TAG, "startUpdate|failed with : " + exception.getMessage());
+            Logger.log(LogTypes.TYPE_CC_UPDATE, "startUpdate|failed with : " + exception.getMessage());
             publishStatus();
         }
     }
@@ -84,10 +83,10 @@ public class CommcareFlexibleAppUpdateManager implements FlexibleAppUpdateContro
     public void completeUpdate() {
         mAppUpdateManager.completeUpdate()
                 .addOnSuccessListener(result -> {
-                    Logger.log(TAG, "completeUpdate|was successful");
+                    Logger.log(LogTypes.TYPE_CC_UPDATE, "completeUpdate|was successful");
                 })
                 .addOnFailureListener(exception -> {
-                    Logger.log(TAG, "completeUpdate|failed with : " + exception.getMessage());
+                    Logger.log(LogTypes.TYPE_CC_UPDATE, "completeUpdate|failed with : " + exception.getMessage());
                     publishStatus();
                 });
     }
@@ -119,7 +118,7 @@ public class CommcareFlexibleAppUpdateManager implements FlexibleAppUpdateContro
 
     @Override
     public void onStateUpdate(InstallState state) {
-        Logger.log(TAG, "Install state updated with install status: " + state.installStatus()
+        Logger.log(LogTypes.TYPE_CC_UPDATE, "Install state updated with install status: " + state.installStatus()
                 + ", and error code: " + state.installErrorCode());
         mInstallErrorCode = state.installErrorCode();
         if (state.installStatus() == InstallStatus.DOWNLOADING) {
@@ -146,7 +145,7 @@ public class CommcareFlexibleAppUpdateManager implements FlexibleAppUpdateContro
                     mAppUpdateInfo = null;
                     mUpdateAvailability = UpdateAvailability.UNKNOWN;
                     mInstallStatus = InstallStatus.UNKNOWN;
-                    Logger.log(TAG, "fetchAppUpdateInfo|failed with : " + exception.getMessage());
+                    Logger.log(LogTypes.TYPE_CC_UPDATE, "fetchAppUpdateInfo|failed with : " + exception.getMessage());
                     publishStatus();
                 });
     }
@@ -162,7 +161,7 @@ public class CommcareFlexibleAppUpdateManager implements FlexibleAppUpdateContro
         if (mAppUpdateState == newState) {
             return;
         }
-        Logger.log(TAG, "Publishing status update to : " + newState.name() + ", from : "
+        Logger.log(LogTypes.TYPE_CC_UPDATE, "Publishing status update to : " + newState.name() + ", from : "
                 + (mAppUpdateState != null ? mAppUpdateState.name() : "null"));
         mAppUpdateState = newState;
         mCallback.run();
