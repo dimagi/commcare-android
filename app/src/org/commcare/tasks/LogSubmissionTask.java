@@ -2,6 +2,7 @@ package org.commcare.tasks;
 
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
+import android.util.Log;
 
 import org.commcare.CommCareApplication;
 import org.commcare.android.javarosa.AndroidLogEntry;
@@ -87,14 +88,13 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
 
     private final DataSubmissionListener listener;
     private final String submissionUrl;
-    private final boolean forceLogs;
+    private boolean forceLogs = true;
 
     public LogSubmissionTask(DataSubmissionListener listener,
                              String submissionUrl,
                              boolean forceLogs) {
         this.listener = listener;
         this.submissionUrl = submissionUrl;
-        this.forceLogs = forceLogs;
     }
 
     public static String getSubmissionUrl(SharedPreferences appPreferences) {
@@ -108,7 +108,11 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
             String logsEnabled = HiddenPreferences.getLogsEnabled();
 
             // We want to serialize logs in on demand mode, but only submit to server when triggered using forcelogs
-            if (true) {
+            if (forceLogs
+                    || logsEnabled.contentEquals(HiddenPreferences.LOGS_ENABLED_YES)
+                    || logsEnabled.contentEquals(HiddenPreferences.LOGS_ENABLED_ON_DEMAND)) {
+
+                Log.d("logs", "Sending logs");
 
                 SqlStorage<DeviceReportRecord> storage =
                         CommCareApplication.instance().getUserStorage(DeviceReportRecord.class);
@@ -141,6 +145,7 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
                     // Reset force_logs if the logs submission was successful
                     if (result == LogSubmitOutcomes.Submitted) {
                         HiddenPreferences.setForceLogs(CommCareApplication.instance().getSession().getLoggedInUser().getUniqueId(), false);
+                        Log.d("logs", "Logs Submitted");
                     }
 
                     return result;
