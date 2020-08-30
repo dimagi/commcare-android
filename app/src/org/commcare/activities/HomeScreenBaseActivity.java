@@ -1355,6 +1355,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                     dismissAlertDialog();
                 });
                 showAlertDialog(dialog);
+                FirebaseAnalyticsUtil.reportInAppUpdateResult(true, AnalyticsParamValue.IN_APP_UPDATE_SUCCESS);
                 break;
             case FAILED:
                 String errorReason = "in.app.update.error.unknown";
@@ -1381,6 +1382,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                 Logger.log(LogTypes.TYPE_CC_UPDATE, "CommCare In App Update failed because : " + errorReason);
                 CommCareApplication.notificationManager().clearNotifications(APP_UPDATE_NOTIFICATION);
                 Toast.makeText(this, Localization.get(errorReason), Toast.LENGTH_LONG).show();
+                FirebaseAnalyticsUtil.reportInAppUpdateResult(false, errorReason);
                 break;
         }
     }

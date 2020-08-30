@@ -3,7 +3,7 @@ package org.commcare.models.database;
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.CommCareTestApplication;
-import org.commcare.android.CommCareTestRunner;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.FormInstanceWithFailures;
 import org.junit.Assert;
@@ -21,7 +21,7 @@ import java.io.File;
  * @author Phillip Mates (pmates@dimagi.com).
  */
 @Config(application = CommCareTestApplication.class)
-@RunWith(CommCareTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 public class HybridFileBackedSqlStorageTest {
 
     @Before

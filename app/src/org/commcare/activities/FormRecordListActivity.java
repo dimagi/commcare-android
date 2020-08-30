@@ -39,6 +39,7 @@ import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.logic.ArchivedFormRemoteRestore;
 import org.commcare.models.FormRecordProcessor;
+import org.commcare.preferences.AdvancedActionsPreferences;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.FormRecordCleanupTask;
@@ -138,7 +139,7 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
         }
 
         public boolean containsStatus(String value) {
-            for (String status: statuses) {
+            for (String status : statuses) {
                 if (status.equals(value)) {
                     return true;
                 }
@@ -464,10 +465,13 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
                 result.second, resId, null);
 
         if (FormRecordFilter.Pending.containsStatus(record.getStatus())) {
-            dialog.setNegativeButton(Localization.get("app.workflow.forms.quarantine"), (dialog1, which) -> {
-                manuallyQuarantineRecord(record);
-                dismissAlertDialog();
-            });
+            if (AdvancedActionsPreferences.isManualFormQuarantineAllowed()) {
+                dialog.setNegativeButton(Localization.get("app.workflow.forms.quarantine"), (dialog1, which) -> {
+                    manuallyQuarantineRecord(record);
+                    dismissAlertDialog();
+                    AdvancedActionsPreferences.setManualFormQuarantine(false);
+                });
+            }
         }
 
         showAlertDialog(dialog);
@@ -476,7 +480,7 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
     private void manuallyQuarantineRecord(FormRecord record) {
         this.formRecordProcessor.quarantineRecord(record, FormRecord.QuarantineReason_MANUAL);
         listView.post(adapter::notifyDataSetInvalidated);
-        record.logManualQuarantine();
+        FirebaseAnalyticsUtil.reportFormQuarantined(FormRecord.QuarantineReason_MANUAL);
     }
 
     private void createQuarantineReasonDialog(FormRecord record) {
@@ -553,19 +557,21 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
     public boolean onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
 
-        MenuItem quarantine = menu.findItem(MENU_SUBMIT_QUARANTINE_REPORT);
-        if (quarantine != null) {
-            quarantine.setVisible(FormRecordFilter.Limbo.equals(adapter.getFilter()));
-        }
+        if (adapter != null) {
+            MenuItem quarantine = menu.findItem(MENU_SUBMIT_QUARANTINE_REPORT);
+            if (quarantine != null) {
+                quarantine.setVisible(FormRecordFilter.Limbo.equals(adapter.getFilter()));
+            }
 
-        MenuItem downloadFormsFromServer = menu.findItem(DOWNLOAD_FORMS_FROM_SERVER);
-        if (downloadFormsFromServer != null) {
-            downloadFormsFromServer.setVisible(!FormRecordFilter.Incomplete.equals(adapter.getFilter()));
-        }
+            MenuItem downloadFormsFromServer = menu.findItem(DOWNLOAD_FORMS_FROM_SERVER);
+            if (downloadFormsFromServer != null) {
+                downloadFormsFromServer.setVisible(!FormRecordFilter.Incomplete.equals(adapter.getFilter()));
+            }
 
-        MenuItem downloadFormsFromFile = menu.findItem(DOWNLOAD_FORMS_FROM_FILE);
-        if (downloadFormsFromFile != null) {
-            downloadFormsFromFile.setVisible(!FormRecordFilter.Incomplete.equals(adapter.getFilter()));
+            MenuItem downloadFormsFromFile = menu.findItem(DOWNLOAD_FORMS_FROM_FILE);
+            if (downloadFormsFromFile != null) {
+                downloadFormsFromFile.setVisible(!FormRecordFilter.Incomplete.equals(adapter.getFilter()));
+            }
         }
 
         return menu.hasVisibleItems();

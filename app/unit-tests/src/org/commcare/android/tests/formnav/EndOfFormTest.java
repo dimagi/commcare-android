@@ -1,16 +1,12 @@
 package org.commcare.android.tests.formnav;
 
 import android.content.Intent;
-import android.os.Environment;
 import android.util.Log;
 import android.view.View;
-import android.widget.ImageButton;
 
 import org.commcare.CommCareApplication;
 import org.commcare.CommCareTestApplication;
 import org.commcare.activities.FormEntryActivity;
-import org.commcare.activities.components.FormEntryConstants;
-import org.commcare.android.CommCareTestRunner;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.util.ActivityLaunchUtils;
 import org.commcare.android.util.TestAppInstaller;
@@ -25,7 +21,8 @@ import org.robolectric.Robolectric;
 import org.robolectric.Shadows;
 import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowActivity;
-import org.robolectric.shadows.ShadowEnvironment;
+
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
@@ -34,7 +31,7 @@ import static junit.framework.Assert.assertTrue;
  * @author Phillip Mates (pmates@dimagi.com).
  */
 @Config(application = CommCareTestApplication.class)
-@RunWith(CommCareTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 public class EndOfFormTest {
 
     private static final String TAG = EndOfFormTest.class.getSimpleName();

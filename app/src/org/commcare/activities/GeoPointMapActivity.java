@@ -14,6 +14,7 @@ import android.view.View;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.fasterxml.jackson.databind.type.MapType;
 import com.google.android.gms.maps.CameraUpdate;
@@ -26,11 +27,13 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import org.commcare.CommCareApplication;
 import org.commcare.activities.components.FormEntryConstants;
 import org.commcare.dalvik.R;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.utils.GeoUtils;
 import org.commcare.utils.MapLayer;
+import org.commcare.utils.StringUtils;
 import org.commcare.views.widgets.GeoPointWidget;
 
 import java.text.DecimalFormat;
@@ -120,12 +123,20 @@ public class GeoPointMapActivity extends Activity
     }
 
     private void returnLocation() {
-        if (location != null) {
+        if (location == null ||
+                (location.getLatitude() == 0d && location.getLongitude() == 0d && location.getAccuracy() == 0d)) {
+            // we do not have a location fix yet, show an error to the user
+            Toast.makeText(
+                    this,
+                    StringUtils.getStringRobust(CommCareApplication.instance(), R.string.wait_for_location_fix),
+                    Toast.LENGTH_LONG).show();
+
+        } else {
             Intent i = new Intent();
             i.putExtra(FormEntryConstants.LOCATION_RESULT, GeoUtils.locationToString(location));
             setResult(RESULT_OK, i);
+            finish();
         }
-        finish();
     }
 
     private void loadMapView(Bundle savedInstanceState) {
@@ -153,7 +164,8 @@ public class GeoPointMapActivity extends Activity
     public void onLocationChanged(Location location) {
         if (!inViewMode && !isManualSelectedLocation) {
             if (location != null &&
-                    (this.location == null || (location.getAccuracy() < this.location.getAccuracy()))) {
+                    (this.location == null || this.location.getAccuracy() == 0 ||
+                            (location.getAccuracy() < this.location.getAccuracy()))) {
                 this.location = location;
                 drawMarker();
             }

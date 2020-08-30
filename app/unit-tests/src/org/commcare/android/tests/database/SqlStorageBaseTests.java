@@ -1,7 +1,7 @@
 package org.commcare.android.tests.database;
 
 import org.commcare.CommCareTestApplication;
-import org.commcare.android.CommCareTestRunner;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import org.commcare.android.util.TestUtils;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.storage.IndexedStorageUtilityTests;
@@ -16,7 +16,7 @@ import org.robolectric.annotation.Config;
  */
 
 @Config(application = CommCareTestApplication.class)
-@RunWith(CommCareTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 public class SqlStorageBaseTests extends IndexedStorageUtilityTests {
 
     @Override

@@ -65,7 +65,6 @@ import org.commcare.modern.database.Table;
 import org.commcare.modern.util.PerformanceTuningUtil;
 import org.commcare.network.DataPullRequester;
 import org.commcare.network.DataPullResponseFactory;
-import org.commcare.network.ForceTLS12BuilderConfig;
 import org.commcare.network.HttpUtils;
 import org.commcare.preferences.DevSessionRestorer;
 import org.commcare.preferences.DeveloperPreferences;
@@ -75,6 +74,8 @@ import org.commcare.services.CommCareSessionService;
 import org.commcare.session.CommCareSession;
 import org.commcare.sync.FormSubmissionHelper;
 import org.commcare.sync.FormSubmissionWorker;
+import org.commcare.tasks.AsyncRestoreHelper;
+import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.DeleteLogs;
 import org.commcare.tasks.LogSubmissionTask;
 import org.commcare.tasks.PurgeStaleArchivedFormsTask;
@@ -213,10 +214,8 @@ public class CommCareApplication extends MultiDexApplication {
 
         Thread.setDefaultUncaughtExceptionHandler(new CommCareExceptionHandler(Thread.getDefaultUncaughtExceptionHandler(), this));
 
-        SQLiteDatabase.loadLibs(this);
-
+        loadSqliteLibs();
         setRoots();
-
         prepareTemporaryStorage();
 
         if (LegacyInstallUtils.checkForLegacyInstall(this)) {
@@ -239,6 +238,10 @@ public class CommCareApplication extends MultiDexApplication {
         LocalePreferences.saveDeviceLocale(Locale.getDefault());
     }
 
+    protected void loadSqliteLibs() {
+        SQLiteDatabase.loadLibs(this);
+    }
+
     public boolean useConscryptSecurity() {
         return Build.VERSION.SDK_INT >= 16 && Build.VERSION.SDK_INT < 20;
     }
@@ -246,10 +249,6 @@ public class CommCareApplication extends MultiDexApplication {
     private void initTls12IfNeeded() {
         if (useConscryptSecurity()) {
             Security.insertProviderAt(Conscrypt.newProvider(), 1);
-        }
-
-        if (Build.VERSION.SDK_INT >= 16 && Build.VERSION.SDK_INT < 22) {
-            CommCareNetworkServiceGenerator.customizeRetrofitSetup(new ForceTLS12BuilderConfig());
         }
     }
 
@@ -1136,5 +1135,9 @@ public class CommCareApplication extends MultiDexApplication {
                 networkService,
                 method,
                 responseProcessor);
+    }
+
+    public AsyncRestoreHelper getAsyncRestoreHelper(DataPullTask task) {
+        return new AsyncRestoreHelper(task);
     }
 }

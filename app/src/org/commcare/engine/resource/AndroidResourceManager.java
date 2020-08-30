@@ -55,8 +55,6 @@ public class AndroidResourceManager extends ResourceManager {
                         new AndroidResourceInstallerFactory());
 
         updateStats = UpdateStats.loadUpdateStats(app);
-        upgradeTable.setInstallStatsLogger(updateStats);
-        tempUpgradeTable.setInstallStatsLogger(updateStats);
     }
 
     /**
@@ -180,17 +178,6 @@ public class AndroidResourceManager extends ResourceManager {
         }
     }
 
-    /**
-     * Log update failure that occurs while trying to install the staged update table
-     */
-    public void recordUpdateInstallFailure(Exception exception) {
-        updateStats.registerUpdateException(exception);
-    }
-
-    public void recordUpdateInstallFailure(AppInstallStatus result) {
-        updateStats.registerUpdateException(new Exception(result.toString()));
-    }
-
     public void recordStageUpdateResult(ResultAndError<AppInstallStatus> resultAndError) {
         updateStats.registerStagingUpdateResult(resultAndError);
     }
@@ -205,23 +192,23 @@ public class AndroidResourceManager extends ResourceManager {
         updateStats.registerUpdateFailure(result);
         FirebaseAnalyticsUtil.reportStageUpdateAttemptFailure(result.toString());
 
-        if (!result.canReusePartialUpdateTable()) {
+        if (result.shouldDiscardPartialUpdateTable()) {
+            Logger.log(LogTypes.TYPE_CC_UPDATE, "Clearing update due to error: " + result);
             clearUpgrade();
             FirebaseAnalyticsUtil.reportUpdateReset(UPDATE_RESET_REASON_CORRUPT);
+        } else {
+            saveUpdateOrGiveUp();
         }
-
-        saveUpdateOrGiveUp();
     }
 
     private void saveUpdateOrGiveUp() {
         if (updateStats.isUpgradeStale()) {
-            Logger.log(LogTypes.TYPE_RESOURCES,
+            Logger.log(LogTypes.TYPE_CC_UPDATE,
                     "Update was stale, stopped trying to download update. Update Stats: " + updateStats.toString());
 
             FirebaseAnalyticsUtil.reportUpdateReset(updateStats.hasUpdateTrialsMaxedOut() ?
                     UPDATE_RESET_REASON_OVERSHOOT_TRIALS : UPDATE_RESET_REASON_TIMEOUT);
 
-            UpdateStats.clearPersistedStats(app);
             clearUpgrade();
         } else {
             UpdateStats.saveStatsPersistently(app, updateStats);
@@ -231,6 +218,7 @@ public class AndroidResourceManager extends ResourceManager {
     @Override
     public void clearUpgrade() {
         super.clearUpgrade();
+        updateStats.resetStats(app);
         HiddenPreferences.setReleasedOnTimeForOngoingAppDownload((AndroidCommCarePlatform)platform, 0);
         HiddenPreferences.setPreUpdateSyncNeeded(PrefValues.NO);
     }

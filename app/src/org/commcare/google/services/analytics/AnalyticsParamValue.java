@@ -104,6 +104,7 @@ public class AnalyticsParamValue {
     public static final String RECOVERY_MODE = "recovery_mode";
     public static final String ENABLE_PRIVILEGES = "enable_mobile_privileges";
     public static final String ENABLE_RATE_LIMIT_POPUP = "enable_rate_limit_popup";
+    public static final String ENABLE_MANUAL_FORM_QUARANTINE = "enable_manual_form_quarantine";
 
     // Param values for entity detail ui state
     static final String DETAIL_WITH_TABS = "detail_with_tabs";
@@ -132,5 +133,7 @@ public class AnalyticsParamValue {
     public static final String UPDATE_RESET_REASON_TIMEOUT = "update_timeout";
     public static final String UPDATE_RESET_REASON_OVERSHOOT_TRIALS = "update_overshoot_trials";
     public static final String UPDATE_RESET_REASON_NEWER_VERSION_AVAILABLE = "update_newer_version_available";
+
+    public static final String IN_APP_UPDATE_SUCCESS = "success";
 
 }

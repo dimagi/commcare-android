@@ -5,7 +5,7 @@ import android.util.DisplayMetrics;
 
 import org.commcare.CommCareApplication;
 import org.commcare.CommCareTestApplication;
-import org.commcare.android.CommCareTestRunner;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import org.commcare.utils.MediaUtil;
 import org.junit.Assert;
 import org.junit.Before;
@@ -14,7 +14,7 @@ import org.junit.runner.RunWith;
 import org.robolectric.annotation.Config;
 
 @Config(application = CommCareTestApplication.class)
-@RunWith(CommCareTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 public class ImageInflationTest {
 
     private String imageFilepath;
