@@ -135,17 +135,14 @@ public class QueryRequestActivity
 
     private void buildPromptEntry(LinearLayout promptsLayout, String promptId,
                                   QueryPrompt queryPrompt, boolean isLastPrompt) {
-        Hashtable<String, String> userAnswers =
-                remoteQuerySessionManager.getUserAnswers();
-
         View promptView = LayoutInflater.from(this).inflate(R.layout.query_prompt_layout, promptsLayout, false);
         setLabelText(promptView, queryPrompt.getDisplay());
         View inputView;
         String input = queryPrompt.getInput();
         if (input != null && input.contentEquals(INPUT_TYPE_SELECT1)) {
-            inputView = buildSpinnerView(promptView, queryPrompt, userAnswers);
+            inputView = buildSpinnerView(promptView, queryPrompt);
         } else {
-            inputView = buildEditTextView(promptView, queryPrompt, promptId, userAnswers, isLastPrompt);
+            inputView = buildEditTextView(promptView, queryPrompt, promptId, isLastPrompt);
         }
         setUpBarCodeScanButton(promptView, promptId, queryPrompt);
 
@@ -162,8 +159,7 @@ public class QueryRequestActivity
         );
     }
 
-    private Spinner buildSpinnerView(View promptView, QueryPrompt queryPrompt,
-                                     Hashtable<String, String> userAnswers) {
+    private Spinner buildSpinnerView(View promptView, QueryPrompt queryPrompt) {
         Spinner promptSpinner = promptView.findViewById(R.id.prompt_spinner);
         promptSpinner.setVisibility(View.VISIBLE);
         promptView.findViewById(R.id.prompt_et).setVisibility(View.GONE);
@@ -177,12 +173,7 @@ public class QueryRequestActivity
                     SelectChoice selectChoice = choices.get(position - 1);
                     value = selectChoice.getValue();
                 }
-                String oldAnswer = userAnswers.get(queryPrompt.getKey());
-                if (oldAnswer == null || !oldAnswer.contentEquals(value)) {
-                    remoteQuerySessionManager.answerUserPrompt(queryPrompt.getKey(), value);
-                    remoteQuerySessionManager.refreshItemSetChoices(remoteQuerySessionManager.getUserAnswers());
-                    refreshUI();
-                }
+                updateAnswerAndRefresh(queryPrompt, value);
             }
 
             @Override
@@ -192,16 +183,27 @@ public class QueryRequestActivity
         });
 
         remoteQuerySessionManager.populateItemSetChoices(queryPrompt);
-        setSpinnerData(userAnswers, queryPrompt, promptSpinner);
+        setSpinnerData(queryPrompt, promptSpinner);
         return promptSpinner;
     }
 
+    private void updateAnswerAndRefresh(QueryPrompt queryPrompt, String answer) {
+        Hashtable<String, String> userAnswers = remoteQuerySessionManager.getUserAnswers();
+        String oldAnswer = userAnswers.get(queryPrompt.getKey());
+        if (oldAnswer == null || !oldAnswer.contentEquals(answer)) {
+            remoteQuerySessionManager.answerUserPrompt(queryPrompt.getKey(), answer);
+            remoteQuerySessionManager.refreshItemSetChoices(remoteQuerySessionManager.getUserAnswers());
+            refreshUI();
+        }
+    }
 
-    private void setSpinnerData(Hashtable<String, String> userAnswers, QueryPrompt queryPrompt, Spinner promptSpinner) {
+
+    private void setSpinnerData(QueryPrompt queryPrompt, Spinner promptSpinner) {
         Vector<SelectChoice> items = queryPrompt.getItemsetBinding().getChoices();
         String[] choices = new String[items.size()];
 
         int selectedPosition = -1;
+        Hashtable<String, String> userAnswers = remoteQuerySessionManager.getUserAnswers();
         String answer = userAnswers.get(queryPrompt.getKey());
         for (int i = 0; i < items.size(); i++) {
             SelectChoice item = items.get(i);
@@ -226,19 +228,17 @@ public class QueryRequestActivity
             View input = promptEntry.getValue();
             if (input instanceof Spinner) {
                 String key = promptEntry.getKey();
-                setSpinnerData(remoteQuerySessionManager.getUserAnswers(),
-                        remoteQuerySessionManager.getNeededUserInputDisplays().get(key),
-                        ((Spinner)input));
+                setSpinnerData(remoteQuerySessionManager.getNeededUserInputDisplays().get(key), ((Spinner)input));
             }
         }
     }
 
     private EditText buildEditTextView(View promptView, QueryPrompt queryPrompt, String promptId,
-                                       Hashtable<String, String> userAnswers, boolean isLastPrompt) {
+                                       boolean isLastPrompt) {
         EditText promptEditText = promptView.findViewById(R.id.prompt_et);
         promptEditText.setVisibility(View.VISIBLE);
         promptView.findViewById(R.id.prompt_spinner).setVisibility(View.GONE);
-
+        Hashtable<String, String> userAnswers = remoteQuerySessionManager.getUserAnswers();
         if (userAnswers.containsKey(promptId)) {
             promptEditText.setText(userAnswers.get(promptId));
         }
@@ -262,6 +262,7 @@ public class QueryRequestActivity
             @Override
             public void afterTextChanged(Editable s) {
                 remoteQuerySessionManager.answerUserPrompt(queryPrompt.getKey(), s.toString());
+                updateAnswerAndRefresh(queryPrompt, s.toString());
             }
         });
         return promptEditText;
