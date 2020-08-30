@@ -108,9 +108,7 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
             String logsEnabled = HiddenPreferences.getLogsEnabled();
 
             // We want to serialize logs in on demand mode, but only submit to server when triggered using forcelogs
-            if (forceLogs
-                    || logsEnabled.contentEquals(HiddenPreferences.LOGS_ENABLED_YES)
-                    || logsEnabled.contentEquals(HiddenPreferences.LOGS_ENABLED_ON_DEMAND)) {
+            if (true) {
 
                 SqlStorage<DeviceReportRecord> storage =
                         CommCareApplication.instance().getUserStorage(DeviceReportRecord.class);
