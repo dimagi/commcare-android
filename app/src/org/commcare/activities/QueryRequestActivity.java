@@ -356,7 +356,9 @@ public class QueryRequestActivity
                     if (promptView instanceof EditText) {
                         ((EditText)promptView).setText(entry.getValue());
                     } else if (promptView instanceof Spinner) {
-                        setSpinnerData(remoteQuerySessionManager.getNeededUserInputDisplays().get(entry.getKey()), (Spinner)promptView);
+                        QueryPrompt queryPrompt = remoteQuerySessionManager.getNeededUserInputDisplays().get(entry.getKey());
+                        remoteQuerySessionManager.populateItemSetChoices(queryPrompt);
+                        setSpinnerData(queryPrompt, (Spinner)promptView);
                     }
                 }
             }

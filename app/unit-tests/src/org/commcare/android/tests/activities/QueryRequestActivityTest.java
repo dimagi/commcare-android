@@ -7,6 +7,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import org.commcare.CommCareApplication;
@@ -15,12 +16,17 @@ import org.commcare.activities.QueryRequestActivity;
 
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+
 import org.commcare.android.mocks.ModernHttpRequesterMock;
 import org.commcare.android.util.TestAppInstaller;
+import org.commcare.core.parse.ParseUtils;
 import org.commcare.dalvik.R;
 import org.commcare.models.AndroidSessionWrapper;
+import org.commcare.models.database.AndroidSandbox;
 import org.commcare.session.CommCareSession;
 import org.javarosa.core.services.locale.Localization;
+import org.javarosa.xml.util.InvalidStructureException;
+import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -31,6 +37,9 @@ import org.robolectric.Shadows;
 import org.robolectric.android.controller.ActivityController;
 import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowToast;
+import org.xmlpull.v1.XmlPullParserException;
+
+import java.io.IOException;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -46,6 +55,20 @@ public class QueryRequestActivityTest {
         TestAppInstaller.installAppAndLogin(
                 "jr://resource/commcare-apps/case_search_and_claim/profile.ccpr",
                 "test", "123");
+
+        try {
+            ParseUtils.parseIntoSandbox(
+                    this.getClass().getResourceAsStream("/commcare-apps/case_search_and_claim/user_restore.xml"),
+                    new AndroidSandbox(CommCareApplication.instance()));
+        } catch (InvalidStructureException e) {
+            e.printStackTrace();
+        } catch (UnfullfilledRequirementsException e) {
+            e.printStackTrace();
+        } catch (XmlPullParserException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -172,6 +195,13 @@ public class QueryRequestActivityTest {
         EditText patientId = promptsLayout.getChildAt(1).findViewById(R.id.prompt_et);
         patientId.setText("123");
 
+        Spinner stateSpinner = promptsLayout.getChildAt(2).findViewById(R.id.prompt_spinner);
+        stateSpinner.setSelection(2);
+
+        Spinner districtSpinner = promptsLayout.getChildAt(3).findViewById(R.id.prompt_spinner);
+        districtSpinner.setSelection(1);
+
+
         // serialize app state into bundle
         Bundle savedInstanceState = new Bundle();
         controller.saveInstanceState(savedInstanceState);
@@ -187,6 +217,12 @@ public class QueryRequestActivityTest {
 
         EditText patientName = promptsLayout.getChildAt(0).findViewById(R.id.prompt_et);
         assertEquals("", patientName.getText().toString());
+
+        stateSpinner = promptsLayout.getChildAt(2).findViewById(R.id.prompt_spinner);
+        assertEquals(2, stateSpinner.getSelectedItemPosition());
+
+        districtSpinner = promptsLayout.getChildAt(3).findViewById(R.id.prompt_spinner);
+        assertEquals(1, districtSpinner.getSelectedItemPosition());
     }
 
     /**

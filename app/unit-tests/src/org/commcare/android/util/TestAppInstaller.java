@@ -7,6 +7,7 @@ import org.commcare.CommCareTestApplication;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.mocks.CommCareTaskConnectorFake;
+import org.commcare.core.parse.ParseUtils;
 import org.commcare.engine.resource.AppInstallStatus;
 import org.commcare.models.database.user.DemoUserBuilder;
 import org.commcare.tasks.ResourceEngineTask;
