@@ -32,7 +32,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.Robolectric;
-import org.robolectric.RuntimeEnvironment;
 import org.robolectric.Shadows;
 import org.robolectric.android.controller.ActivityController;
 import org.robolectric.annotation.Config;
@@ -77,11 +76,7 @@ public class QueryRequestActivityTest {
      */
     @Test
     public void launchQueryActivityAtWrongTimeTest() {
-        Intent queryActivityIntent =
-                new Intent(ApplicationProvider.getApplicationContext(), QueryRequestActivity.class);
-        QueryRequestActivity queryRequestActivity =
-                Robolectric.buildActivity(QueryRequestActivity.class, queryActivityIntent)
-                        .setup().get();
+        QueryRequestActivity queryRequestActivity = buildQueryActivity().get();
 
         assertEquals(Activity.RESULT_CANCELED,
                 Shadows.shadowOf(queryRequestActivity).getResultCode());
@@ -94,26 +89,13 @@ public class QueryRequestActivityTest {
      */
     @Test
     public void makeSuccessfulQueryRequestTest() {
-        setSessionCommand("patient-search");
-
         ModernHttpRequesterMock.setResponseCodes(new Integer[]{200});
         ModernHttpRequesterMock.setExpectedUrls(
                 new String[]{"https://www.fake.com/patient_search/?patient_id=123&name=francisco&device_id=000000000000000"});
         ModernHttpRequesterMock.setRequestPayloads(
                 new String[]{"jr://resource/commcare-apps/case_search_and_claim/good-query-result.xml"});
 
-        Intent queryActivityIntent =
-                new Intent(ApplicationProvider.getApplicationContext(), QueryRequestActivity.class);
-        QueryRequestActivity queryRequestActivity =
-                Robolectric.buildActivity(QueryRequestActivity.class, queryActivityIntent)
-                        .setup().get();
-
-        LinearLayout promptsLayout =
-                queryRequestActivity.findViewById(R.id.query_prompts);
-        EditText patientName = promptsLayout.getChildAt(0).findViewById(R.id.prompt_et);
-        patientName.setText("francisco");
-        EditText patientId = promptsLayout.getChildAt(1).findViewById(R.id.prompt_et);
-        patientId.setText("123");
+        QueryRequestActivity queryRequestActivity = buildActivityAndSetViews().get();
 
         Button queryButton = queryRequestActivity.findViewById(R.id.request_button);
         queryButton.performClick();
@@ -123,33 +105,51 @@ public class QueryRequestActivityTest {
         assertTrue(queryRequestActivity.isFinishing());
     }
 
+    private ActivityController<QueryRequestActivity> buildActivityAndSetViews() {
+        setSessionCommand("patient-search");
+
+        ActivityController<QueryRequestActivity> controller = buildQueryActivity();
+        QueryRequestActivity queryRequestActivity = controller.get();
+
+        // set views
+        LinearLayout promptsLayout = queryRequestActivity.findViewById(R.id.query_prompts);
+
+        EditText patientName = promptsLayout.getChildAt(0).findViewById(R.id.prompt_et);
+        patientName.setText("francisco");
+
+        EditText patientId = promptsLayout.getChildAt(1).findViewById(R.id.prompt_et);
+        patientId.setText("123");
+
+        Spinner stateSpinner = promptsLayout.getChildAt(2).findViewById(R.id.prompt_spinner);
+        stateSpinner.setSelection(2);
+
+        Spinner districtSpinner = promptsLayout.getChildAt(3).findViewById(R.id.prompt_spinner);
+        districtSpinner.setSelection(1);
+        return controller;
+    }
+
+    private ActivityController<QueryRequestActivity> buildQueryActivity() {
+        Intent queryActivityIntent =
+                new Intent(ApplicationProvider.getApplicationContext(), QueryRequestActivity.class);
+        ActivityController<QueryRequestActivity> controller =
+                Robolectric.buildActivity(QueryRequestActivity.class, queryActivityIntent).setup();
+        return controller;
+    }
+
     /**
      * Make query whose response isn't in the correct format and check the
      * error message displayed
      */
     @Test
     public void makeQueryWithBadServerPayloadTest() {
-        setSessionCommand("patient-search");
-
         ModernHttpRequesterMock.setResponseCodes(new Integer[]{200});
         ModernHttpRequesterMock.setExpectedUrls(
                 new String[]{"https://www.fake.com/patient_search/?patient_id=123&name=francisco&device_id=000000000000000"});
         ModernHttpRequesterMock.setRequestPayloads(
                 new String[]{"jr://resource/commcare-apps/case_search_and_claim/bad-query-result.xml"});
 
-        Intent queryActivityIntent =
-                new Intent(ApplicationProvider.getApplicationContext(), QueryRequestActivity.class);
-
-        ActivityController<QueryRequestActivity> controller =
-                Robolectric.buildActivity(QueryRequestActivity.class, queryActivityIntent).setup();
+        ActivityController<QueryRequestActivity> controller = buildActivityAndSetViews();
         QueryRequestActivity queryRequestActivity = controller.get();
-
-        LinearLayout promptsLayout =
-                queryRequestActivity.findViewById(R.id.query_prompts);
-        EditText patientName = promptsLayout.getChildAt(0).findViewById(R.id.prompt_et);
-        patientName.setText("francisco");
-        EditText patientId = promptsLayout.getChildAt(1).findViewById(R.id.prompt_et);
-        patientId.setText("123");
 
         Button queryButton =
                 queryRequestActivity.findViewById(R.id.request_button);
@@ -165,6 +165,8 @@ public class QueryRequestActivityTest {
         controller.saveInstanceState(savedInstanceState);
 
         // start new activity with serialized app state
+        Intent queryActivityIntent =
+                new Intent(ApplicationProvider.getApplicationContext(), QueryRequestActivity.class);
         queryRequestActivity = Robolectric.buildActivity(QueryRequestActivity.class, queryActivityIntent)
                 .setup(savedInstanceState).get();
 
@@ -182,46 +184,30 @@ public class QueryRequestActivityTest {
     public void reloadQueryActivityStateTest() {
         setSessionCommand("patient-search");
 
-        Intent queryActivityIntent =
-                new Intent(ApplicationProvider.getApplicationContext(), QueryRequestActivity.class);
-
-        ActivityController<QueryRequestActivity> controller =
-                Robolectric.buildActivity(QueryRequestActivity.class, queryActivityIntent)
-                        .create().start().resume();
-        QueryRequestActivity queryRequestActivity = controller.get();
-
-        LinearLayout promptsLayout =
-                queryRequestActivity.findViewById(R.id.query_prompts);
-        EditText patientId = promptsLayout.getChildAt(1).findViewById(R.id.prompt_et);
-        patientId.setText("123");
-
-        Spinner stateSpinner = promptsLayout.getChildAt(2).findViewById(R.id.prompt_spinner);
-        stateSpinner.setSelection(2);
-
-        Spinner districtSpinner = promptsLayout.getChildAt(3).findViewById(R.id.prompt_spinner);
-        districtSpinner.setSelection(1);
-
+        ActivityController<QueryRequestActivity> controller = buildActivityAndSetViews();
 
         // serialize app state into bundle
         Bundle savedInstanceState = new Bundle();
         controller.saveInstanceState(savedInstanceState);
 
         // start new activity with serialized app state
-        queryRequestActivity = Robolectric.buildActivity(QueryRequestActivity.class, queryActivityIntent)
+        Intent queryActivityIntent =
+                new Intent(ApplicationProvider.getApplicationContext(), QueryRequestActivity.class);
+        QueryRequestActivity queryRequestActivity = Robolectric.buildActivity(QueryRequestActivity.class, queryActivityIntent)
                 .setup(savedInstanceState).get();
 
         // check that the query prompts are filled out still
-        promptsLayout = queryRequestActivity.findViewById(R.id.query_prompts);
-        patientId = promptsLayout.getChildAt(1).findViewById(R.id.prompt_et);
+        LinearLayout promptsLayout = queryRequestActivity.findViewById(R.id.query_prompts);
+        EditText patientId = promptsLayout.getChildAt(1).findViewById(R.id.prompt_et);
         assertEquals("123", patientId.getText().toString());
 
         EditText patientName = promptsLayout.getChildAt(0).findViewById(R.id.prompt_et);
-        assertEquals("", patientName.getText().toString());
+        assertEquals("francisco", patientName.getText().toString());
 
-        stateSpinner = promptsLayout.getChildAt(2).findViewById(R.id.prompt_spinner);
+        Spinner stateSpinner = promptsLayout.getChildAt(2).findViewById(R.id.prompt_spinner);
         assertEquals(2, stateSpinner.getSelectedItemPosition());
 
-        districtSpinner = promptsLayout.getChildAt(3).findViewById(R.id.prompt_spinner);
+        Spinner districtSpinner = promptsLayout.getChildAt(3).findViewById(R.id.prompt_spinner);
         assertEquals(1, districtSpinner.getSelectedItemPosition());
     }
 
@@ -230,8 +216,6 @@ public class QueryRequestActivityTest {
      */
     @Test
     public void receiveEmptyQueryResultTest() {
-        setSessionCommand("patient-search");
-
         ModernHttpRequesterMock.setResponseCodes(new Integer[]{200, 200, 200});
         ModernHttpRequesterMock.setExpectedUrls(
                 new String[]{"https://www.fake.com/patient_search/?name=francisco&device_id=000000000000000"});
@@ -240,13 +224,8 @@ public class QueryRequestActivityTest {
                         "jr://resource/commcare-apps/case_search_and_claim/empty-query-result-two-tags.xml",
                         "jr://resource/commcare-apps/case_search_and_claim/single-query-result.xml"});
 
-        Intent queryActivityIntent =
-                new Intent(ApplicationProvider.getApplicationContext(), QueryRequestActivity.class);
-
-        ActivityController<QueryRequestActivity> controller =
-                Robolectric.buildActivity(QueryRequestActivity.class, queryActivityIntent)
-                        .setup();
-        QueryRequestActivity queryRequestActivity = controller.get();
+        setSessionCommand("patient-search");
+        QueryRequestActivity queryRequestActivity = buildQueryActivity().get();
 
         LinearLayout promptsLayout =
                 queryRequestActivity.findViewById(R.id.query_prompts);
