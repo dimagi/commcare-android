@@ -12,6 +12,8 @@ import android.widget.TextView;
 import org.commcare.CommCareApplication;
 import org.commcare.CommCareTestApplication;
 import org.commcare.activities.QueryRequestActivity;
+
+import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import org.commcare.android.mocks.ModernHttpRequesterMock;
 import org.commcare.android.util.TestAppInstaller;
@@ -53,7 +55,7 @@ public class QueryRequestActivityTest {
     @Test
     public void launchQueryActivityAtWrongTimeTest() {
         Intent queryActivityIntent =
-                new Intent(RuntimeEnvironment.application, QueryRequestActivity.class);
+                new Intent(ApplicationProvider.getApplicationContext(), QueryRequestActivity.class);
         QueryRequestActivity queryRequestActivity =
                 Robolectric.buildActivity(QueryRequestActivity.class, queryActivityIntent)
                         .setup().get();
@@ -78,16 +80,16 @@ public class QueryRequestActivityTest {
                 new String[]{"jr://resource/commcare-apps/case_search_and_claim/good-query-result.xml"});
 
         Intent queryActivityIntent =
-                new Intent(RuntimeEnvironment.application, QueryRequestActivity.class);
+                new Intent(ApplicationProvider.getApplicationContext(), QueryRequestActivity.class);
         QueryRequestActivity queryRequestActivity =
                 Robolectric.buildActivity(QueryRequestActivity.class, queryActivityIntent)
                         .setup().get();
 
         LinearLayout promptsLayout =
                 queryRequestActivity.findViewById(R.id.query_prompts);
-        EditText patientName = (EditText)promptsLayout.getChildAt(1);
+        EditText patientName = promptsLayout.getChildAt(0).findViewById(R.id.prompt_et);
         patientName.setText("francisco");
-        EditText patientId = (EditText)promptsLayout.getChildAt(3);
+        EditText patientId = promptsLayout.getChildAt(1).findViewById(R.id.prompt_et);
         patientId.setText("123");
 
         Button queryButton = queryRequestActivity.findViewById(R.id.request_button);
@@ -113,7 +115,7 @@ public class QueryRequestActivityTest {
                 new String[]{"jr://resource/commcare-apps/case_search_and_claim/bad-query-result.xml"});
 
         Intent queryActivityIntent =
-                new Intent(RuntimeEnvironment.application, QueryRequestActivity.class);
+                new Intent(ApplicationProvider.getApplicationContext(), QueryRequestActivity.class);
 
         ActivityController<QueryRequestActivity> controller =
                 Robolectric.buildActivity(QueryRequestActivity.class, queryActivityIntent).setup();
@@ -121,9 +123,9 @@ public class QueryRequestActivityTest {
 
         LinearLayout promptsLayout =
                 queryRequestActivity.findViewById(R.id.query_prompts);
-        EditText patientName = (EditText)promptsLayout.getChildAt(1);
+        EditText patientName = promptsLayout.getChildAt(0).findViewById(R.id.prompt_et);
         patientName.setText("francisco");
-        EditText patientId = (EditText)promptsLayout.getChildAt(3);
+        EditText patientId = promptsLayout.getChildAt(1).findViewById(R.id.prompt_et);
         patientId.setText("123");
 
         Button queryButton =
@@ -158,7 +160,7 @@ public class QueryRequestActivityTest {
         setSessionCommand("patient-search");
 
         Intent queryActivityIntent =
-                new Intent(RuntimeEnvironment.application, QueryRequestActivity.class);
+                new Intent(ApplicationProvider.getApplicationContext(), QueryRequestActivity.class);
 
         ActivityController<QueryRequestActivity> controller =
                 Robolectric.buildActivity(QueryRequestActivity.class, queryActivityIntent)
@@ -203,7 +205,7 @@ public class QueryRequestActivityTest {
                         "jr://resource/commcare-apps/case_search_and_claim/single-query-result.xml"});
 
         Intent queryActivityIntent =
-                new Intent(RuntimeEnvironment.application, QueryRequestActivity.class);
+                new Intent(ApplicationProvider.getApplicationContext(), QueryRequestActivity.class);
 
         ActivityController<QueryRequestActivity> controller =
                 Robolectric.buildActivity(QueryRequestActivity.class, queryActivityIntent)
@@ -212,7 +214,7 @@ public class QueryRequestActivityTest {
 
         LinearLayout promptsLayout =
                 queryRequestActivity.findViewById(R.id.query_prompts);
-        EditText patientName = (EditText)promptsLayout.getChildAt(1);
+        EditText patientName = promptsLayout.getChildAt(0).findViewById(R.id.prompt_et);
         patientName.setText("francisco");
 
         Button queryButton =

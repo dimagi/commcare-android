@@ -114,10 +114,6 @@ public class QueryRequestActivity
             ViewUtil.hideVirtualKeyboard(QueryRequestActivity.this);
             makeQueryRequest();
         });
-
-        if (inErrorState) {
-            enterErrorState();
-        }
     }
 
     private void buildPromptUI() {
@@ -346,6 +342,11 @@ public class QueryRequestActivity
         if (savedInstanceState != null) {
             errorMessage = savedInstanceState.getString(ERROR_MESSAGE_KEY);
             inErrorState = savedInstanceState.getBoolean(IN_ERROR_STATE_KEY);
+
+            if (inErrorState) {
+                enterErrorState();
+            }
+
             Map<String, String> answeredPrompts =
                     (Map<String, String>)savedInstanceState.getSerializable(ANSWERED_USER_PROMPTS_KEY);
             if (answeredPrompts != null) {
