@@ -167,7 +167,7 @@ public class QueryRequestActivityTest {
 
         LinearLayout promptsLayout =
                 queryRequestActivity.findViewById(R.id.query_prompts);
-        EditText patientId = (EditText)promptsLayout.getChildAt(1);
+        EditText patientId = promptsLayout.getChildAt(1).findViewById(R.id.prompt_et);
         patientId.setText("123");
 
         // serialize app state into bundle
@@ -180,11 +180,11 @@ public class QueryRequestActivityTest {
 
         // check that the query prompts are filled out still
         promptsLayout = queryRequestActivity.findViewById(R.id.query_prompts);
-        patientId = (EditText)promptsLayout.getChildAt(1);
+        patientId = promptsLayout.getChildAt(1).findViewById(R.id.prompt_et);
         assertEquals("123", patientId.getText().toString());
 
-        patientId = (EditText)promptsLayout.getChildAt(3);
-        assertEquals("", patientId.getText().toString());
+        EditText patientName = promptsLayout.getChildAt(0).findViewById(R.id.prompt_et);
+        assertEquals("", patientName.getText().toString());
     }
 
     /**
