@@ -105,37 +105,6 @@ public class QueryRequestActivityTest {
         assertTrue(queryRequestActivity.isFinishing());
     }
 
-    private ActivityController<QueryRequestActivity> buildActivityAndSetViews() {
-        setSessionCommand("patient-search");
-
-        ActivityController<QueryRequestActivity> controller = buildQueryActivity();
-        QueryRequestActivity queryRequestActivity = controller.get();
-
-        // set views
-        LinearLayout promptsLayout = queryRequestActivity.findViewById(R.id.query_prompts);
-
-        EditText patientName = promptsLayout.getChildAt(0).findViewById(R.id.prompt_et);
-        patientName.setText("francisco");
-
-        EditText patientId = promptsLayout.getChildAt(1).findViewById(R.id.prompt_et);
-        patientId.setText("123");
-
-        Spinner stateSpinner = promptsLayout.getChildAt(2).findViewById(R.id.prompt_spinner);
-        stateSpinner.setSelection(2);
-
-        Spinner districtSpinner = promptsLayout.getChildAt(3).findViewById(R.id.prompt_spinner);
-        districtSpinner.setSelection(1);
-        return controller;
-    }
-
-    private ActivityController<QueryRequestActivity> buildQueryActivity() {
-        Intent queryActivityIntent =
-                new Intent(ApplicationProvider.getApplicationContext(), QueryRequestActivity.class);
-        ActivityController<QueryRequestActivity> controller =
-                Robolectric.buildActivity(QueryRequestActivity.class, queryActivityIntent).setup();
-        return controller;
-    }
-
     /**
      * Make query whose response isn't in the correct format and check the
      * error message displayed
@@ -176,9 +145,42 @@ public class QueryRequestActivityTest {
         assertTrue(((String)errorMessage.getText()).contains(expectedErrorPart));
     }
 
-
     @Test
     public void spinnersInterDependencyTest() {
+        setSessionCommand("patient-search");
+        QueryRequestActivity queryRequestActivity = buildQueryActivity().get();
+        LinearLayout promptsLayout = queryRequestActivity.findViewById(R.id.query_prompts);
+        Spinner stateSpinner = promptsLayout.getChildAt(2).findViewById(R.id.prompt_spinner);
+        Spinner districtSpinner = promptsLayout.getChildAt(3).findViewById(R.id.prompt_spinner);
+
+        // Confirm Start State
+        assertEquals(3, stateSpinner.getAdapter().getCount());
+        assertEquals("", stateSpinner.getAdapter().getItem(0));
+        assertEquals("karnataka", stateSpinner.getAdapter().getItem(1));
+        assertEquals("Raj as than", stateSpinner.getAdapter().getItem(2));
+        assertEquals(1, districtSpinner.getAdapter().getCount());
+        assertEquals("", districtSpinner.getAdapter().getItem(0));
+
+        // Changes to state should filter district spinner accordingly
+        stateSpinner.setSelection(1);
+        assertEquals(3, districtSpinner.getAdapter().getCount());
+        assertEquals("", districtSpinner.getAdapter().getItem(0));
+        assertEquals("Bangalore", districtSpinner.getAdapter().getItem(1));
+        assertEquals("Hampi", districtSpinner.getAdapter().getItem(2));
+
+        stateSpinner.setSelection(2);
+        assertEquals(3, districtSpinner.getAdapter().getCount());
+        assertEquals("", districtSpinner.getAdapter().getItem(0));
+        assertEquals("Baran", districtSpinner.getAdapter().getItem(1));
+        assertEquals("Kota", districtSpinner.getAdapter().getItem(2));
+
+        // changes to district doesn't affect state
+        districtSpinner.setSelection(2);
+        assertEquals(3, stateSpinner.getAdapter().getCount());
+        assertEquals("", stateSpinner.getAdapter().getItem(0));
+        assertEquals("karnataka", stateSpinner.getAdapter().getItem(1));
+        assertEquals("Raj as than", stateSpinner.getAdapter().getItem(2));
+        assertEquals(2, stateSpinner.getSelectedItemPosition());
 
     }
 
@@ -189,7 +191,6 @@ public class QueryRequestActivityTest {
     @Test
     public void reloadQueryActivityStateTest() {
         setSessionCommand("patient-search");
-
         ActivityController<QueryRequestActivity> controller = buildActivityAndSetViews();
 
         // serialize app state into bundle
@@ -260,5 +261,36 @@ public class QueryRequestActivityTest {
                 CommCareApplication.instance().getCurrentSessionWrapper();
         CommCareSession session = sessionWrapper.getSession();
         session.setCommand(command);
+    }
+
+    private ActivityController<QueryRequestActivity> buildActivityAndSetViews() {
+        setSessionCommand("patient-search");
+
+        ActivityController<QueryRequestActivity> controller = buildQueryActivity();
+        QueryRequestActivity queryRequestActivity = controller.get();
+
+        // set views
+        LinearLayout promptsLayout = queryRequestActivity.findViewById(R.id.query_prompts);
+
+        EditText patientName = promptsLayout.getChildAt(0).findViewById(R.id.prompt_et);
+        patientName.setText("francisco");
+
+        EditText patientId = promptsLayout.getChildAt(1).findViewById(R.id.prompt_et);
+        patientId.setText("123");
+
+        Spinner stateSpinner = promptsLayout.getChildAt(2).findViewById(R.id.prompt_spinner);
+        stateSpinner.setSelection(2);
+
+        Spinner districtSpinner = promptsLayout.getChildAt(3).findViewById(R.id.prompt_spinner);
+        districtSpinner.setSelection(1);
+        return controller;
+    }
+
+    private ActivityController<QueryRequestActivity> buildQueryActivity() {
+        Intent queryActivityIntent =
+                new Intent(ApplicationProvider.getApplicationContext(), QueryRequestActivity.class);
+        ActivityController<QueryRequestActivity> controller =
+                Robolectric.buildActivity(QueryRequestActivity.class, queryActivityIntent).setup();
+        return controller;
     }
 }
