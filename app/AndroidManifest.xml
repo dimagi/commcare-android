@@ -457,14 +457,6 @@
         <meta-data
             android:name="firebase_crashlytics_collection_enabled"
             android:value="false" />
-
-        <!-- With App Bundles, we're seeing a number of MissingLibraryExceptions
-            which is coming from `MapboxOfflineDownloaderService` in Kujaku library.
-            One way to start this service is by using this network change receiver.
-            So removing this entry from the manifest file.
-         -->
-        <receiver android:name="io.ona.kujaku.receivers.KujakuNetworkChangeReceiver"
-            tools:node="remove"/>
-
+        
     </application>
 </manifest>
