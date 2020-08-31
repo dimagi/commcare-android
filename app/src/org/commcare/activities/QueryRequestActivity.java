@@ -54,6 +54,8 @@ import java.util.Hashtable;
 import java.util.Map;
 import java.util.Vector;
 
+import androidx.annotation.NonNull;
+
 import static org.commcare.activities.EntitySelectActivity.BARCODE_FETCH;
 import static org.commcare.suite.model.QueryPrompt.INPUT_TYPE_SELECT1;
 
@@ -101,7 +103,6 @@ public class QueryRequestActivity
             setResult(RESULT_CANCELED);
             finish();
         } else {
-            loadStateFromSavedInstance(savedInstanceState);
             setupUI();
         }
     }
@@ -142,7 +143,7 @@ public class QueryRequestActivity
         if (input != null && input.contentEquals(INPUT_TYPE_SELECT1)) {
             inputView = buildSpinnerView(promptView, queryPrompt);
         } else {
-            inputView = buildEditTextView(promptView, queryPrompt, promptId, isLastPrompt);
+            inputView = buildEditTextView(promptView, queryPrompt, isLastPrompt);
         }
         setUpBarCodeScanButton(promptView, promptId, queryPrompt);
 
@@ -233,15 +234,12 @@ public class QueryRequestActivity
         }
     }
 
-    private EditText buildEditTextView(View promptView, QueryPrompt queryPrompt, String promptId,
+    private EditText buildEditTextView(View promptView, QueryPrompt queryPrompt,
                                        boolean isLastPrompt) {
         EditText promptEditText = promptView.findViewById(R.id.prompt_et);
         promptEditText.setVisibility(View.VISIBLE);
         promptView.findViewById(R.id.prompt_spinner).setVisibility(View.GONE);
-        Hashtable<String, String> userAnswers = remoteQuerySessionManager.getUserAnswers();
-        if (userAnswers.containsKey(promptId)) {
-            promptEditText.setText(userAnswers.get(promptId));
-        }
+
         // needed to allow 'done' and 'next' keyboard action
         if (isLastPrompt) {
             promptEditText.setImeOptions(EditorInfo.IME_ACTION_DONE);
@@ -338,6 +336,12 @@ public class QueryRequestActivity
         errorTextView.setVisibility(View.VISIBLE);
     }
 
+    @Override
+    protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        loadStateFromSavedInstance(savedInstanceState);
+    }
+
     private void loadStateFromSavedInstance(Bundle savedInstanceState) {
         if (savedInstanceState != null) {
             errorMessage = savedInstanceState.getString(ERROR_MESSAGE_KEY);
@@ -347,6 +351,12 @@ public class QueryRequestActivity
             if (answeredPrompts != null) {
                 for (Map.Entry<String, String> entry : answeredPrompts.entrySet()) {
                     remoteQuerySessionManager.answerUserPrompt(entry.getKey(), entry.getValue());
+                    View promptView = promptsBoxes.get(entry.getKey());
+                    if (promptView instanceof EditText) {
+                        ((EditText)promptView).setText(entry.getValue());
+                    } else if (promptView instanceof Spinner) {
+                        setSpinnerData(remoteQuerySessionManager.getNeededUserInputDisplays().get(entry.getKey()), (Spinner)promptView);
+                    }
                 }
             }
         }
