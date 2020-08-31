@@ -91,7 +91,7 @@ public class QueryRequestActivityTest {
     public void makeSuccessfulQueryRequestTest() {
         ModernHttpRequesterMock.setResponseCodes(new Integer[]{200});
         ModernHttpRequesterMock.setExpectedUrls(
-                new String[]{"https://www.fake.com/patient_search/?patient_id=123&name=francisco&device_id=000000000000000"});
+                new String[]{"https://www.fake.com/patient_search/?name=francisco&state=rj&device_id=000000000000000&patient_id=123&district=baran"});
         ModernHttpRequesterMock.setRequestPayloads(
                 new String[]{"jr://resource/commcare-apps/case_search_and_claim/good-query-result.xml"});
 
@@ -144,7 +144,7 @@ public class QueryRequestActivityTest {
     public void makeQueryWithBadServerPayloadTest() {
         ModernHttpRequesterMock.setResponseCodes(new Integer[]{200});
         ModernHttpRequesterMock.setExpectedUrls(
-                new String[]{"https://www.fake.com/patient_search/?patient_id=123&name=francisco&device_id=000000000000000"});
+                new String[]{"https://www.fake.com/patient_search/?name=francisco&state=rj&device_id=000000000000000&patient_id=123&district=baran"});
         ModernHttpRequesterMock.setRequestPayloads(
                 new String[]{"jr://resource/commcare-apps/case_search_and_claim/bad-query-result.xml"});
 
@@ -174,6 +174,12 @@ public class QueryRequestActivityTest {
         errorMessage = queryRequestActivity.findViewById(R.id.error_message);
         assertEquals(View.VISIBLE, errorMessage.getVisibility());
         assertTrue(((String)errorMessage.getText()).contains(expectedErrorPart));
+    }
+
+
+    @Test
+    public void spinnersInterDependencyTest() {
+
     }
 
     /**
