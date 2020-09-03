@@ -1,7 +1,12 @@
 package org.commcare.views.media;
 
 import android.content.Context;
+import android.os.Build;
+import android.util.AttributeSet;
 import android.widget.VideoView;
+
+import androidx.annotation.RequiresApi;
+
 import java.util.Date;
 
 /**
@@ -18,6 +23,14 @@ public class CommCareVideoView extends VideoView {
 
     public CommCareVideoView(Context context) {
         super(context);
+    }
+
+    public CommCareVideoView(Context context, AttributeSet attrs) {
+        super(context, attrs);
+    }
+
+    public CommCareVideoView(Context context, AttributeSet attrs, int defStyleAttr) {
+        super(context, attrs, defStyleAttr);
     }
 
     public void setListener(VideoDetachedListener listener) {
@@ -39,7 +52,9 @@ public class CommCareVideoView extends VideoView {
     @Override
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
-        listener.onVideoDetached(duration);
+        if (listener != null) {
+            listener.onVideoDetached(duration);
+        }
     }
 
     public interface VideoDetachedListener {

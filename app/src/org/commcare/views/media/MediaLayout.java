@@ -7,7 +7,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Point;
 import android.net.Uri;
-import android.os.Build;
+import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
@@ -18,18 +18,19 @@ import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
-
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.constraintlayout.widget.Constraints;
 import com.bumptech.glide.Glide;
-
 import org.commcare.activities.FormEntryActivity;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.mediadownload.MissingMediaDownloadHelper;
 import org.commcare.mediadownload.MissingMediaDownloadResult;
-import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.utils.AndroidUtil;
 import org.commcare.utils.FileUtil;
@@ -40,54 +41,41 @@ import org.commcare.views.ResizingImageView;
 import org.commcare.views.ViewUtil;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
-
 import java.io.File;
 
-import androidx.annotation.IdRes;
-
 /**
- * This layout is used anywhere we can have image/audio/video/text.
- * TODO: Put this in a layout file!!!!
- *
- * @author carlhartung
+ * @author $|-|!˅@M
  */
-public class MediaLayout extends RelativeLayout {
+public class MediaLayout extends ConstraintLayout {
+
     private static final String TAG = MediaLayout.class.getSimpleName();
-
-    @IdRes
-    public static final int INLINE_VIDEO_PANE_ID = 99999;
-
-    @IdRes
-    private static final int QUESTION_TEXT_PANE_ID = 2342134;
-
-    @IdRes
-    private static final int AUDIO_BUTTON_ID = 3245345;
-
-    @IdRes
-    private static final int VIDEO_BUTTON_ID = 234982340;
-
-    @IdRes
-    private static final int IMAGE_VIEW_ID = 23423534;
-
     private static final String IMAGE_GIF_EXTENSION = ".gif";
 
-    private TextView viewText;
     private AudioPlaybackButton audioButton;
     private ImageButton videoButton;
-    private View missingMediaView;
-    private String mInlineVideoUri;
-    private String mImageURI;
-    private String mBigImageURI;
-    private String mQrCodeContent;
-    private RelativeLayout mediaPane;
+    private FrameLayout textViewContainer;
+    private CommCareVideoView videoView;
+    private ImageView qrView;
+    private ImageView imageView;
+    private ResizingImageView resizingImageView;
+    private ImageView downloadIcon;
+    private ProgressBar progressBar;
+    private TextView missingMediaText;
+    private ImageView divider;
 
-    private MediaLayout(Context c) {
-        super(c);
+    public MediaLayout(@NonNull Context context) {
+        super(context);
+        initView(context);
+    }
 
-        viewText = null;
-        audioButton = null;
-        missingMediaView = null;
-        videoButton = null;
+    public MediaLayout(@NonNull Context context, @Nullable AttributeSet attrs) {
+        super(context, attrs);
+        initView(context);
+    }
+
+    public MediaLayout(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
+        super(context, attrs, defStyleAttr);
+        initView(context);
     }
 
     public static MediaLayout buildAudioImageLayout(Context context, TextView text, String audioURI, String imageURI) {
@@ -114,69 +102,47 @@ public class MediaLayout extends RelativeLayout {
         return mediaLayout;
     }
 
+    public void addDivider() {
+        divider.setVisibility(VISIBLE);
+    }
+
+    //region private helpers
+
     private void setAVT(TextView text, String audioURI, String imageURI,
                         final String videoURI, final String bigImageURI,
                         final String qrCodeContent, String inlineVideoURI,
                         boolean showImageAboveText,
                         int questionIndex) {
-        viewText = text;
-        mInlineVideoUri = inlineVideoURI;
-        mImageURI = imageURI;
-        mBigImageURI = bigImageURI;
-        mQrCodeContent = qrCodeContent;
-
-        RelativeLayout questionTextPane = new RelativeLayout(this.getContext());
-        questionTextPane.setId(QUESTION_TEXT_PANE_ID);
-
         setupStandardAudio(audioURI, questionIndex);
         setupVideoButton(videoURI);
-
-        // Now set up the center view -- it is either an image, a QR Code, an inline video, or
-        // expanded audio
-        mediaPane = new RelativeLayout(getContext());
-
-        LayoutParams mediaPaneParams = refreshMediaView();
-
-        addAudioVideoButtonsToView(questionTextPane);
-
-        showImageAboveText = showImageAboveText || DeveloperPreferences.imageAboveTextEnabled();
-        addElementsToView(mediaPane, mediaPaneParams, questionTextPane, showImageAboveText);
+        setupQRView(qrCodeContent);
+        setupInlineVideoView(inlineVideoURI);
+        setupImage(imageURI, bigImageURI);
+        addTextView(text);
+        //TODO Need to use showImageAboveText
     }
 
-    private LayoutParams refreshMediaView() {
-        RelativeLayout.LayoutParams mediaPaneParams =
-                new RelativeLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
-
-        View mediaView = null;
-        if (mInlineVideoUri != null) {
-            mediaView = getInlineVideoView(mInlineVideoUri, mediaPaneParams);
-        } else if (mQrCodeContent != null) {
-            mediaView = setupQRView(mQrCodeContent);
-        } else if (mImageURI != null) {
-            mediaView = setupImage(mImageURI, mBigImageURI);
-        }
-
-        if (mediaView != null) {
-            RelativeLayout.LayoutParams mediaViewParams =
-                    new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-            mediaViewParams.addRule(CENTER_IN_PARENT, mediaView.getId());
-            mediaPane.addView(mediaView, mediaViewParams);
-        }
-
-        return mediaPaneParams;
+    private void addTextView(TextView text) {
+        textViewContainer.addView(text);
+        textViewContainer.setVisibility(text.getVisibility());
     }
 
-    private void setupVideoButton(final String videoURI) {
+    private void setupStandardAudio(String audioURI, int questionIndex) {
+        if (audioURI != null) {
+            boolean mediaPresent = FileUtil.referenceFileExists(audioURI);
+            audioButton.modifyButtonForNewView(ViewId.buildListViewId(questionIndex), audioURI, true);
+            audioButton.setVisibility(VISIBLE);
+        }
+    }
+
+    private void setupVideoButton(String videoURI) {
         if (videoURI != null) {
-            videoButton = new ImageButton(getContext());
-
             boolean mediaPresent = FileUtil.referenceFileExists(videoURI);
             videoButton.setImageResource(mediaPresent ? android.R.drawable.ic_media_play : R.drawable.update_download_icon);
-            if(!mediaPresent) {
+            if (!mediaPresent) {
                 AndroidUtil.showToast(getContext(), R.string.video_download_prompt);
             }
             videoButton.setOnClickListener(v -> {
-
                 String videoFilename = "";
                 try {
                     videoFilename = ReferenceManager.instance().DeriveReference(videoURI).getLocalURI();
@@ -203,7 +169,7 @@ public class MediaLayout extends RelativeLayout {
                     }
                 }
             });
-            videoButton.setId(VIDEO_BUTTON_ID);
+            videoButton.setVisibility(VISIBLE);
         }
     }
 
@@ -214,6 +180,7 @@ public class MediaLayout extends RelativeLayout {
                 boolean mediaPresent = FileUtil.referenceFileExists(videoURI);
                 videoButton.setImageResource(mediaPresent ? android.R.drawable.ic_media_play : R.drawable.update_download_icon);
                 AndroidUtil.showToast(getContext(), R.string.media_download_completed);
+                videoButton.setVisibility(VISIBLE);
             } else if (result instanceof MissingMediaDownloadResult.InProgress) {
                 AndroidUtil.showToast(getContext(), R.string.media_download_in_progress);
             } else {
@@ -222,117 +189,40 @@ public class MediaLayout extends RelativeLayout {
         });
     }
 
-    private void addAudioVideoButtonsToView(RelativeLayout questionTextPane) {
-        LayoutParams textParams =
-                new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-
-        LayoutParams audioParams =
-                new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-
-        LayoutParams videoParams =
-                new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-
-        // Add the audioButton and videoButton (if applicable) and view
-        // (containing text) to the relative layout.
-        if (audioButton != null) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-                audioParams.addRule(RelativeLayout.ALIGN_PARENT_END);
-                textParams.addRule(RelativeLayout.START_OF, audioButton.getId());
-            } else {
-                audioParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
-                textParams.addRule(RelativeLayout.LEFT_OF, audioButton.getId());
-            }
-            questionTextPane.addView(audioButton, audioParams);
-
-            if (videoButton != null) {
-                videoParams.addRule(RelativeLayout.BELOW, audioButton.getId());
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-                    videoParams.addRule(RelativeLayout.ALIGN_PARENT_END);
-                } else {
-                    videoParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
-                }
-                questionTextPane.addView(videoButton, videoParams);
-            }
-        } else if (videoButton != null) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-                videoParams.addRule(RelativeLayout.ALIGN_PARENT_END);
-                textParams.addRule(RelativeLayout.START_OF, videoButton.getId());
-            } else {
-                videoParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
-                textParams.addRule(RelativeLayout.LEFT_OF, videoButton.getId());
-            }
-            questionTextPane.addView(videoButton, videoParams);
-        } else {
-            //Audio and Video are both null, let text bleed to right
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-                textParams.addRule(RelativeLayout.ALIGN_PARENT_END);
-            } else {
-                textParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
-            }
+    private void setupQRView(String qrCodeContent) {
+        if (qrCodeContent == null) {
+            return;
         }
-        if (viewText.getVisibility() != GONE) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-                textParams.addRule(RelativeLayout.ALIGN_PARENT_START);
-            } else {
-                textParams.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
-            }
-            questionTextPane.addView(viewText, textParams);
-        }
-    }
-
-    private void setupStandardAudio(String audioURI, int questionIndex) {
-        if (audioURI != null) {
-            boolean mediaPresent = FileUtil.referenceFileExists(audioURI);
-            audioButton = new AudioPlaybackButton(getContext(), audioURI,
-                    ViewId.buildListViewId(questionIndex), true);
-            // random ID to be used by the relative layout.
-            audioButton.setId(AUDIO_BUTTON_ID);
-        }
-    }
-
-    private View setupQRView(String qrCodeContent) {
         Bitmap image;
-        int minimumDim = getScreenMinimumDimension();
-
         try {
             QRCodeEncoder qrCodeEncoder =
-                    new QRCodeEncoder(qrCodeContent, minimumDim);
-
+                    new QRCodeEncoder(qrCodeContent, getScreenMinimumDimension());
             image = qrCodeEncoder.encodeAsBitmap();
-
-            ImageView imageView = new ImageView(getContext());
-            imageView.setPadding(10, 10, 10, 10);
-            imageView.setAdjustViewBounds(true);
-            imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
-            imageView.setImageBitmap(image);
-            imageView.setId(IMAGE_VIEW_ID);
-            return imageView;
+            qrView.setImageBitmap(image);
+            qrView.setVisibility(VISIBLE);
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return null;
     }
 
-    private View setupImage(String imageURI, String bigImageURI) {
-        View mediaPane = null;
+    private void setupImage(String imageURI, String bigImageURI) {
+        if (imageURI == null) {
+            return;
+        }
         try {
-            int[] maxBounds = getMaxCenterViewBounds();
             final String imageFilename = ReferenceManager.instance().DeriveReference(imageURI).getLocalURI();
             final File imageFile = new File(imageFilename);
             if (imageFile.exists()) {
-                Bitmap b = MediaUtil.inflateDisplayImage(getContext(), imageURI, maxBounds[0],
-                        maxBounds[1]);
+                int[] maxBounds = getMaxCenterViewBounds();
+                Bitmap b = MediaUtil.inflateDisplayImage(getContext(), imageURI, maxBounds[0], maxBounds[1]);
                 if (b != null) {
-                    ImageView mImageView = new ImageView(getContext());
+                    ImageView mImageView;
                     if (useResizingImageView()) {
-                        mImageView = new ResizingImageView(getContext(), imageURI, bigImageURI);
-                        mImageView.setAdjustViewBounds(true);
-                        mImageView.setMaxWidth(maxBounds[0]);
-                        mImageView.setMaxHeight(maxBounds[1]);
+                        resizingImageView.setImageURI(imageURI, bigImageURI);
+                        mImageView = resizingImageView;
                     } else {
-                        mImageView.setScaleType(ImageView.ScaleType.CENTER);
+                        mImageView = imageView;
                     }
-                    mImageView.setPadding(10, 10, 10, 10);
                     if (imageFilename.toLowerCase().endsWith(IMAGE_GIF_EXTENSION)) {
                         Glide.with(mImageView).asGif()
                                 .override(b.getWidth(), b.getHeight())
@@ -342,129 +232,66 @@ public class MediaLayout extends RelativeLayout {
                     } else {
                         mImageView.setImageBitmap(b);
                     }
-                    mImageView.setId(IMAGE_VIEW_ID);
-                    mediaPane = mImageView;
+                    mImageView.setVisibility(VISIBLE);
                 }
             } else {
                 // An error hasn't been logged. We should have an image, but the file doesn't
                 // exist.
-                mediaPane = getMissingMediaView(imageURI,
-                        StringUtils.getStringRobust(getContext(), R.string.video_download_prompt),
-                        true);
+                showMissingMediaView(imageURI,
+                        StringUtils.getStringRobust(getContext(), R.string.image_download_prompt),
+                        true,
+                        () -> {
+                            hideMissingMediaView();
+                            setupImage(imageURI, bigImageURI);
+                        });
             }
         } catch (InvalidReferenceException e) {
             Log.e(TAG, "image invalid reference exception");
             e.printStackTrace();
         }
-        return mediaPane;
     }
 
-    private void addElementsToView(View mediaPane,
-                                   RelativeLayout.LayoutParams mediaPaneParams,
-                                   RelativeLayout questionTextPane, boolean showImageAboveText) {
-        RelativeLayout.LayoutParams questionTextPaneParams =
-                new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-        if (mediaPane != null) {
-            if (viewText.getVisibility() == GONE) {
-                this.addView(questionTextPane, questionTextPaneParams);
-                if (audioButton != null) {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-                        mediaPaneParams.addRule(RelativeLayout.START_OF, audioButton.getId());
-                    } else {
-                        mediaPaneParams.addRule(RelativeLayout.LEFT_OF, audioButton.getId());
-                    }
-                    questionTextPane.addView(mediaPane, mediaPaneParams);
-                }
-                if (videoButton != null) {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-                        mediaPaneParams.addRule(RelativeLayout.START_OF, videoButton.getId());
-                    } else {
-                        mediaPaneParams.addRule(RelativeLayout.LEFT_OF, videoButton.getId());
-                    }
-                    questionTextPane.addView(mediaPane, mediaPaneParams);
-                }
-            } else {
-                if (showImageAboveText) {
-                    mediaPaneParams.addRule(CENTER_HORIZONTAL);
-                    this.addView(mediaPane, mediaPaneParams);
-                    questionTextPaneParams.addRule(RelativeLayout.BELOW, mediaPane.getId());
-                    this.addView(questionTextPane, questionTextPaneParams);
-                } else {
-                    this.addView(questionTextPane, questionTextPaneParams);
-                    mediaPaneParams.addRule(RelativeLayout.BELOW, questionTextPane.getId());
-                    mediaPaneParams.addRule(CENTER_HORIZONTAL);
-                    this.addView(mediaPane, mediaPaneParams);
-                }
-            }
-        } else {
-            this.addView(questionTextPane, questionTextPaneParams);
+    private void setupInlineVideoView(String inlineVideoURI) {
+        if (inlineVideoURI == null) {
+            return;
         }
-    }
-
-    @SuppressWarnings("deprecation")
-    private int getScreenMinimumDimension() {
-        Display display =
-                ((WindowManager)getContext().getSystemService(Context.WINDOW_SERVICE))
-                        .getDefaultDisplay();
-
-        int width, height;
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB_MR2) {
-            width = display.getWidth();
-            height = display.getHeight();
-        } else {
-            Point screenDims = new Point();
-            display.getSize(screenDims);
-            width = screenDims.x;
-            height = screenDims.y;
-        }
-
-        return Math.min(width, height);
-    }
-
-    /**
-     * Creates a video view for the provided URI or an error view elaborating why the video
-     * couldn't be displayed.
-     *
-     * @param inlineVideoURI   JavaRosa Reference URI
-     * @param viewLayoutParams the layout params that will be applied to the view. Expect to be
-     *                         mutated by this method
-     */
-    private View getInlineVideoView(String inlineVideoURI, RelativeLayout.LayoutParams viewLayoutParams) {
         try {
             final String videoFilename = ReferenceManager.instance().DeriveReference(inlineVideoURI).getLocalURI();
-
-            int[] maxBounds = getMaxCenterViewBounds();
-
             final File videoFile = new File(videoFilename);
             if (!videoFile.exists()) {
-                return getMissingMediaView(inlineVideoURI,
+                showMissingMediaView(inlineVideoURI,
                         StringUtils.getStringRobust(getContext(), R.string.video_download_prompt),
-                        true);
+                        true,
+                        () -> {
+                            hideMissingMediaView();
+                            setupInlineVideoView(inlineVideoURI);
+                        });
             } else {
-                //NOTE: This has odd behavior when you have a text input on the screen
-                //since clicking the video view to bring up controls has weird effects.
-                //since we shotgun grab the focus for the input widget.
-
                 final CommCareMediaController ctrl = new CommCareMediaController(this.getContext());
-                CommCareVideoView videoView = new CommCareVideoView(this.getContext());
+                ctrl.setId(AndroidUtil.generateViewId());
                 videoView.setOnPreparedListener(mediaPlayer -> {
                     //Since MediaController will create a default set of controls and put them in a window floating above your application(From AndroidDocs)
                     //It would never follow the parent view's animation or scroll.
                     //So, adding the MediaController to the view hierarchy here.
                     FrameLayout frameLayout = (FrameLayout)ctrl.getParent();
                     ((ViewGroup)frameLayout.getParent()).removeView(frameLayout);
-                    LayoutParams params = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-                    params.addRule(ALIGN_BOTTOM, videoView.getId());
-                    params.addRule(ALIGN_LEFT, videoView.getId());
-                    params.addRule(ALIGN_RIGHT, videoView.getId());
 
-                    ((RelativeLayout)videoView.getParent()).addView(frameLayout, params);
+                    ConstraintLayout.LayoutParams params = new Constraints.LayoutParams(LayoutParams.MATCH_CONSTRAINT, LayoutParams.WRAP_CONTENT);
+                    params.bottomToBottom = videoView.getId();
+                    params.leftToLeft = videoView.getId();
+                    params.rightToRight = videoView.getId();
+                    int margin = this.getResources().getDimensionPixelSize(R.dimen.question_widget_side_padding);
+                    params.leftMargin = margin;
+                    params.rightMargin = margin;
+
+                    ((ConstraintLayout)videoView.getParent()).addView(frameLayout, params);
 
                     ctrl.setAnchorView(videoView);
                     videoView.setMediaController(ctrl);
                     ctrl.show();
                 });
 
+                makeVideoViewVisible();
                 videoView.setVideoPath(videoFilename);
                 videoView.setListener(duration -> {
                     // Do not log events if the video is never played.
@@ -473,64 +300,72 @@ public class MediaLayout extends RelativeLayout {
                     }
                     FirebaseAnalyticsUtil.reportInlineVideoPlayEvent(videoFilename, FileUtil.getDuration(videoFile), duration);
                 });
-
                 videoView.setOnClickListener(v -> ViewUtil.hideVirtualKeyboard((Activity)getContext()));
-
-                //These surprisingly get re-jiggered as soon as the video is loaded, so we
-                //just want to give it the _max_ bounds, it'll pick the limiter and shrink
-                //itself when it's ready.
-                viewLayoutParams.width = maxBounds[0];
-                viewLayoutParams.height = maxBounds[1];
-
-                videoView.setId(INLINE_VIDEO_PANE_ID);
-                return videoView;
+                videoView.setVisibility(VISIBLE);
             }
         } catch (InvalidReferenceException ire) {
             Log.e(TAG, "invalid video reference exception");
             ire.printStackTrace();
-            return getMissingMediaView(inlineVideoURI, "Invalid reference: " + ire.getReferenceString(), false);
+            showMissingMediaView(inlineVideoURI, "Invalid reference: " + ire.getReferenceString(), false, null);
         }
     }
 
-    private View getMissingMediaView(String mediaUri, String errorMessage, boolean allowDownload) {
-        missingMediaView = LayoutInflater.from(getContext()).inflate(R.layout.missing_media_view, this, false);
+    /**
+     * Without this code VideoView doesn't appear on the screen.
+     * It's height is always 0(from LayoutInspector) even if you set it to match_parent.
+     */
+    private void makeVideoViewVisible() {
+        int[] maxBounds = getMaxCenterViewBounds();
+        //These surprisingly get re-jiggered as soon as the video is loaded, so we
+        //just want to give it the _max_ bounds, it'll pick the limiter and shrink
+        //itself when it's ready.
+        ViewGroup.LayoutParams params = videoView.getLayoutParams();
+        params.width = maxBounds[0];
+        params.height = maxBounds[1];
+        videoView.setLayoutParams(params);
+    }
 
-        TextView status = missingMediaView.findViewById(R.id.missing_media_tv);
-        status.setText(errorMessage);
-
-        View progressView = missingMediaView.findViewById(R.id.progress_bar);
-        View downloadIcon = missingMediaView.findViewById(R.id.download_media_icon);
+    private void showMissingMediaView(String mediaUri, String errorMessage, boolean allowDownload, @Nullable Runnable completion) {
+        missingMediaText.setText(errorMessage);
         downloadIcon.setVisibility(allowDownload ? View.VISIBLE : INVISIBLE);
 
         downloadIcon.setOnClickListener(v -> {
 
-            progressView.setVisibility(VISIBLE);
+            progressBar.setVisibility(VISIBLE);
             downloadIcon.setVisibility(INVISIBLE);
             downloadIcon.setEnabled(false);
-            status.setText(StringUtils.getStringRobust(getContext(), R.string.media_download_in_progress));
+            missingMediaText.setText(StringUtils.getStringRobust(getContext(), R.string.media_download_in_progress));
 
             MissingMediaDownloadHelper.requestMediaDownload(mediaUri, result -> {
-                progressView.setVisibility(GONE);
                 if (result instanceof MissingMediaDownloadResult.Success) {
                     AndroidUtil.showToast(getContext(), R.string.media_download_completed);
-                    reAddMediaPane();
+                    if (completion != null) {
+                        completion.run();
+                    }
                 } else if (!(result instanceof MissingMediaDownloadResult.InProgress)) {
+                    progressBar.setVisibility(GONE);
                     downloadIcon.setVisibility(VISIBLE);
                     downloadIcon.setEnabled(true);
-                    status.setText(StringUtils.getStringRobust(getContext(), R.string.media_download_failed));
+                    missingMediaText.setText(StringUtils.getStringRobust(getContext(), R.string.media_download_failed));
                 }
             });
         });
-        return missingMediaView;
     }
 
-    // for some reason unless we re-add the mediaPane the layout doesn't refreshes itself
-    private void reAddMediaPane() {
-        int index = indexOfChild(mediaPane);
-        removeView(mediaPane);
-        mediaPane.removeAllViews();
-        LayoutParams mediaPaneParams = refreshMediaView();
-        addView(mediaPane, index, mediaPaneParams);
+    private void hideMissingMediaView() {
+        progressBar.setVisibility(GONE);
+        downloadIcon.setVisibility(GONE);
+        missingMediaText.setVisibility(GONE);
+    }
+
+    @SuppressWarnings("deprecation")
+    private int getScreenMinimumDimension() {
+        Display display =
+                ((WindowManager)getContext().getSystemService(Context.WINDOW_SERVICE))
+                        .getDefaultDisplay();
+        Point screenDims = new Point();
+        display.getSize(screenDims);
+        return Math.min(screenDims.x, screenDims.y);
     }
 
     private boolean useResizingImageView() {
@@ -539,6 +374,37 @@ public class MediaLayout extends RelativeLayout {
                 ("full".equals(ResizingImageView.resizeMethod)
                         || "half".equals(ResizingImageView.resizeMethod)
                         || "width".equals(ResizingImageView.resizeMethod));
+    }
+
+    private void initView(Context context) {
+        View view = LayoutInflater.from(context).inflate(R.layout.media_layout, this);
+        audioButton = view.findViewById(R.id.audio_button);
+        videoButton = view.findViewById(R.id.video_button);
+        textViewContainer = view.findViewById(R.id.question_text_container);
+        videoView = view.findViewById(R.id.inline_video_view);
+        qrView = view.findViewById(R.id.qr_view);
+        imageView = view.findViewById(R.id.image);
+        resizingImageView = view.findViewById(R.id.resizing_image);
+        downloadIcon = view.findViewById(R.id.download_media_icon);
+        progressBar = view.findViewById(R.id.progress_bar);
+        missingMediaText = view.findViewById(R.id.missing_media_tv);
+        divider = view.findViewById(R.id.divider);
+
+        resetView();
+    }
+
+    private void resetView() {
+        audioButton.setVisibility(GONE);
+        videoButton.setVisibility(GONE);
+        textViewContainer.setVisibility(GONE);
+        videoView.setVisibility(GONE);
+        qrView.setVisibility(GONE);
+        imageView.setVisibility(GONE);
+        resizingImageView.setVisibility(GONE);
+        downloadIcon.setVisibility(GONE);
+        progressBar.setVisibility(GONE);
+        missingMediaText.setVisibility(GONE);
+        divider.setVisibility(GONE);
     }
 
     /**
@@ -551,8 +417,8 @@ public class MediaLayout extends RelativeLayout {
         int maxHeight = metrics.heightPixels;
 
         // subtract height for textview and buttons, if present
-        if (viewText != null) {
-            maxHeight = maxHeight - viewText.getHeight();
+        if (textViewContainer.getChildCount() > 0) {
+            maxHeight = maxHeight - textViewContainer.getChildAt(0).getHeight();
         }
         if (videoButton != null) {
             maxHeight = maxHeight - videoButton.getHeight();
@@ -563,27 +429,6 @@ public class MediaLayout extends RelativeLayout {
         // reduce by third for safety
         return new int[]{maxWidth, (2 * maxHeight) / 3};
     }
+    //endregion
 
-    /**
-     * This adds a divider at the bottom of this layout. Used to separate
-     * fields in lists.
-     */
-    public void addDivider(ImageView v) {
-        RelativeLayout.LayoutParams dividerParams =
-                new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-        if (missingMediaView != null) {
-            dividerParams.addRule(RelativeLayout.BELOW, missingMediaView.getId());
-        } else if (videoButton != null) {
-            dividerParams.addRule(RelativeLayout.BELOW, videoButton.getId());
-        } else if (audioButton != null) {
-            dividerParams.addRule(RelativeLayout.BELOW, audioButton.getId());
-        } else if (viewText != null) {
-            // No picture
-            dividerParams.addRule(RelativeLayout.BELOW, viewText.getId());
-        } else {
-            Log.e(TAG, "Tried to add divider to uninitialized ATVWidget");
-            return;
-        }
-        addView(v, dividerParams);
-    }
 }

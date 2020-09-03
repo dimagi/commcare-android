@@ -69,6 +69,7 @@ dependencies {
     implementation 'com.github.dimagi:zebra-print-android:v1.2'
     implementation 'com.simprints:LibSimprints:1.0.12'
     implementation 'androidx.multidex:multidex:2.0.1'
+    implementation 'androidx.constraintlayout:constraintlayout:2.0.1'
     implementation 'androidx.cardview:cardview:1.0.0'
     implementation 'androidx.recyclerview:recyclerview:1.1.0'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
