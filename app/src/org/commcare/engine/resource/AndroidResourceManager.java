@@ -287,11 +287,11 @@ public class AndroidResourceManager extends ResourceManager {
      * @param numberOfRestarts used as the exponent for the delay calculation
      * @return delay in MS, which grows exponentially over the number of restarts.
      */
-    private long exponentionalRetryDelay(int numberOfRestarts) {
+    private static long exponentionalRetryDelay(int numberOfRestarts) {
         final Double base = 10 * (1.78);
         final long thirtySeconds = 30 * 1000;
-        long exponentialDelay = thirtySeconds + (long)Math.pow(base, numberOfRestarts);
-        return Math.min(exponentialDelay, MAX_UPDATE_RETRY_DELAY_IN_MS);
+        long exponentialDelay = numberOfRestarts < 6 ? thirtySeconds + (long)Math.pow(base, numberOfRestarts) : MAX_UPDATE_RETRY_DELAY_IN_MS;
+        return exponentialDelay;
     }
 
     @Override
