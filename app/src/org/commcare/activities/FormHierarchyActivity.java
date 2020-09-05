@@ -1,10 +1,8 @@
 package org.commcare.activities;
 
 import android.os.Bundle;
-import android.support.v7.app.ActionBar;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.ListAdapter;
 import android.widget.ListView;
@@ -25,6 +23,8 @@ import org.javarosa.xpath.XPathTypeMismatchException;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import androidx.appcompat.app.ActionBar;
 
 public class FormHierarchyActivity extends SessionAwareListActivity {
     private Button jumpPreviousButton;

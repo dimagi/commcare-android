@@ -3,7 +3,6 @@ package org.commcare.activities;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Build;
-import android.support.v7.widget.SearchView;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.MenuItem;
@@ -17,6 +16,8 @@ import org.commcare.activities.components.EntitySelectCalloutSetup;
 import org.commcare.dalvik.R;
 import org.commcare.suite.model.Callout;
 import org.javarosa.core.services.locale.Localization;
+
+import androidx.appcompat.widget.SearchView;
 
 /**
  * Manages case list activity's search state and UI

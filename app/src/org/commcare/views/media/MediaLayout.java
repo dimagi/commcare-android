@@ -44,6 +44,7 @@ import org.javarosa.core.reference.ReferenceManager;
 import java.io.File;
 
 import androidx.annotation.IdRes;
+import androidx.appcompat.app.AppCompatActivity;
 
 /**
  * This layout is used anywhere we can have image/audio/video/text.
@@ -172,7 +173,7 @@ public class MediaLayout extends RelativeLayout {
 
             boolean mediaPresent = FileUtil.referenceFileExists(videoURI);
             videoButton.setImageResource(mediaPresent ? android.R.drawable.ic_media_play : R.drawable.update_download_icon);
-            if(!mediaPresent) {
+            if (!mediaPresent) {
                 AndroidUtil.showToast(getContext(), R.string.video_download_prompt);
             }
             videoButton.setOnClickListener(v -> {
@@ -474,7 +475,7 @@ public class MediaLayout extends RelativeLayout {
                     FirebaseAnalyticsUtil.reportInlineVideoPlayEvent(videoFilename, FileUtil.getDuration(videoFile), duration);
                 });
 
-                videoView.setOnClickListener(v -> ViewUtil.hideVirtualKeyboard((Activity)getContext()));
+                videoView.setOnClickListener(v -> ViewUtil.hideVirtualKeyboard((AppCompatActivity)getContext()));
 
                 //These surprisingly get re-jiggered as soon as the video is loaded, so we
                 //just want to give it the _max_ bounds, it'll pick the limiter and shrink

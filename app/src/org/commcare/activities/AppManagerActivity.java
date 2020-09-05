@@ -1,6 +1,5 @@
 package org.commcare.activities;
 
-import android.support.v7.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -21,6 +20,8 @@ import org.commcare.services.CommCareSessionService;
 import org.commcare.utils.SessionUnavailableException;
 import org.commcare.views.dialogs.StandardAlertDialog;
 import org.javarosa.core.services.locale.Localization;
+
+import androidx.appcompat.app.AlertDialog;
 
 /**
  * The activity that starts up when a user launches into the app manager.

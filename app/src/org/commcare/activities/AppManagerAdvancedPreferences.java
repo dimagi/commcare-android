@@ -1,8 +1,10 @@
 package org.commcare.activities;
 
 import android.content.Intent;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.preference.Preference;
 
 import org.commcare.CommCareApplication;
@@ -66,7 +68,7 @@ public class AppManagerAdvancedPreferences extends CommCarePreferenceFragment {
         clearUserDataButton.setOnPreferenceClickListener(preference -> {
             FirebaseAnalyticsUtil.reportAdvancedActionSelected(
                     AnalyticsParamValue.CLEAR_USER_DATA);
-            AdvancedActionsPreferences.clearUserData(getActivity());
+            AdvancedActionsPreferences.clearUserData((AppCompatActivity)getActivity());
             return true;
 
         });

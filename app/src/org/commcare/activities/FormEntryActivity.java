@@ -210,7 +210,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     }
 
     @Override
-    public boolean onMenuItemSelected(int featureId, MenuItem item) {
+    public final boolean onMenuItemSelected(int featureId, MenuItem item) {
         /*
          * EventLog accepts only proper Strings as input, but prior to this version,
          * Android would try to send SpannedStrings to it, thus crashing the app.
