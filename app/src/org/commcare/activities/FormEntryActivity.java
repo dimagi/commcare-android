@@ -210,22 +210,6 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     }
 
     @Override
-    public final boolean onMenuItemSelected(int featureId, MenuItem item) {
-        /*
-         * EventLog accepts only proper Strings as input, but prior to this version,
-         * Android would try to send SpannedStrings to it, thus crashing the app.
-         * This makes sure the title is actually a String.
-         * This fixes bug 174626.
-         */
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR2
-                && item.getTitleCondensed() != null) {
-            item.setTitleCondensed(item.getTitleCondensed().toString());
-        }
-
-        return super.onMenuItemSelected(featureId, item);
-    }
-
-    @Override
     public void formSaveCallback(Runnable listener) {
         // note that we have started saving the form
         customFormSaveCallback = listener;
