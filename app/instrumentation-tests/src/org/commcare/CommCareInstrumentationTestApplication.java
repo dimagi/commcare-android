@@ -3,17 +3,20 @@ package org.commcare;
 import android.app.Activity;
 import android.app.Application;
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
+
 import org.commcare.tasks.AsyncRestoreHelper;
 import org.commcare.tasks.DataPullTask;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 
 public class CommCareInstrumentationTestApplication extends CommCareApplication implements Application.ActivityLifecycleCallbacks {
 
     /**
      * We only wanna store the activity that's currently on top of the screen.
      */
-    private Activity currentActivity;
+    private AppCompatActivity currentActivity;
 
     @Override
     public void onCreate() {
@@ -61,7 +64,7 @@ public class CommCareInstrumentationTestApplication extends CommCareApplication 
 
     }
 
-    public Activity getCurrentActivity() {
+    public AppCompatActivity getCurrentActivity() {
         return currentActivity;
     }
     

@@ -1,5 +1,6 @@
 <ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent">
@@ -18,7 +19,7 @@
             android:paddingTop="@dimen/content_min_margin"
             android:scaleType="fitCenter"
             android:adjustViewBounds="true"
-            android:src="@drawable/commcare_logo"
+            app:srcCompat="@drawable/commcare_logo"
             android:layout_marginEnd="@dimen/content_min_margin"
             android:paddingStart="@dimen/content_min_margin"></ImageView>
 

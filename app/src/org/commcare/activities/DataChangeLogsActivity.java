@@ -1,11 +1,8 @@
 package org.commcare.activities;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
-import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
@@ -14,7 +11,12 @@ import org.commcare.dalvik.R;
 import org.commcare.logging.DataChangeLogger;
 import org.commcare.views.CommCareShareActionProvider;
 
-public class DataChangeLogsActivity extends Activity {
+import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.view.MenuItemCompat;
+
+public class DataChangeLogsActivity extends AppCompatActivity {
 
 
     private CommCareShareActionProvider mShareActionProvider;
@@ -40,7 +42,7 @@ public class DataChangeLogsActivity extends Activity {
     private void setUpShareActionProvider(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_share, menu);
         MenuItem item = menu.findItem(R.id.menu_item_share);
-        mShareActionProvider = (CommCareShareActionProvider)item.getActionProvider();
+        mShareActionProvider = (CommCareShareActionProvider)MenuItemCompat.getActionProvider(item);
         setShareIntent();
     }
 

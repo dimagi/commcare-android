@@ -2,17 +2,22 @@ package org.commcare.appupdate;
 
 import android.app.Activity;
 import android.content.IntentSender;
-import androidx.annotation.NonNull;
-import androidx.lifecycle.DefaultLifecycleObserver;
-import androidx.lifecycle.LifecycleOwner;
+
 import com.google.android.play.core.appupdate.AppUpdateInfo;
 import com.google.android.play.core.appupdate.AppUpdateManager;
 import com.google.android.play.core.appupdate.AppUpdateManagerFactory;
 import com.google.android.play.core.install.model.AppUpdateType;
 import com.google.android.play.core.install.model.UpdateAvailability;
+
 import org.commcare.activities.CommCareActivity;
 import org.javarosa.core.services.Logger;
+
 import javax.annotation.Nullable;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.DefaultLifecycleObserver;
+import androidx.lifecycle.LifecycleOwner;
 
 /**
  * @author $|-|!˅@M
@@ -23,7 +28,7 @@ public class CommcareImmediateAppUpdateManager implements AppUpdateController, D
 
     private AppUpdateManager mAppUpdateManager;
     private AppUpdateInfo mAppUpdateInfo;
-    private Activity activity;
+    private AppCompatActivity activity;
 
     CommcareImmediateAppUpdateManager(CommCareActivity activity) {
         this.activity = activity;

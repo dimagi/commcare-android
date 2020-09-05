@@ -1,8 +1,5 @@
 package org.commcare.activities;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.SearchView;
-
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.os.Build;
@@ -59,6 +56,10 @@ import org.commcare.views.dialogs.CustomProgressDialog;
 import org.commcare.views.dialogs.StandardAlertDialog;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SearchView;
+import androidx.core.view.MenuItemCompat;
 
 
 public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRecordListActivity>
@@ -501,7 +502,7 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
     private void setSearchText(CharSequence text) {
         if (isUsingActionBar()) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-                searchItem.expandActionView();
+                MenuItemCompat.expandActionView(searchItem);
             }
             searchView.setQuery(text, false);
         }
@@ -517,7 +518,7 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
             FormRecordListActivity.this.searchView = searchView;
             if (lastQueryString != null && lastQueryString.length() > 0) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-                    searchItem.expandActionView();
+                    MenuItemCompat.expandActionView(searchItem);
                 }
                 setSearchText(lastQueryString);
                 if (adapter != null) {

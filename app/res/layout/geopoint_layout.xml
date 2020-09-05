@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
+<RelativeLayout xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/mainlayout"
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
@@ -74,5 +74,5 @@
         android:layout_height="36dp"
         android:layout_width="36dp"
         android:background="@color/map_layer_button_color"
-        android:src="@drawable/ic_layers" />
+        app:srcCompat="@drawable/ic_layers" />
 </RelativeLayout>

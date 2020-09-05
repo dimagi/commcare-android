@@ -29,6 +29,7 @@ import org.javarosa.core.services.locale.Localization;
 
 import androidx.annotation.AnimRes;
 import androidx.annotation.LayoutRes;
+import androidx.core.view.MenuItemCompat;
 
 public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCareActivity<T>
         implements PullTaskResultReceiver {
@@ -325,7 +326,7 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
         if (shouldShowSyncItemInActionBar() &&
                 Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             currentSyncMenuItem = menu.add(MENU_GROUP_SYNC_ACTION, MENU_SYNC, MENU_SYNC, "Sync");
-            currentSyncMenuItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+            MenuItemCompat.setShowAsAction(currentSyncMenuItem, MenuItem.SHOW_AS_ACTION_ALWAYS);
             switch (syncStateForIcon) {
                 case PULLING_DATA:
                     addDataPullAnimation(currentSyncMenuItem);
@@ -364,14 +365,14 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
         ImageView iv = (ImageView)inflater.inflate(layoutResource, null);
         Animation animation = AnimationUtils.loadAnimation(this, animationId);
         iv.startAnimation(animation);
-        menuItem.setActionView(iv);
+        MenuItemCompat.setActionView(menuItem, iv);
     }
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     private void clearCurrentAnimation(MenuItem item) {
-        if (item != null && item.getActionView() != null) {
-            item.getActionView().clearAnimation();
-            item.setActionView(null);
+        if (item != null && MenuItemCompat.getActionView(item) != null) {
+            MenuItemCompat.getActionView(item).clearAnimation();
+            MenuItemCompat.setActionView(item, null);
         }
     }
 

@@ -18,6 +18,7 @@ import org.commcare.suite.model.Callout;
 import org.javarosa.core.services.locale.Localization;
 
 import androidx.appcompat.widget.SearchView;
+import androidx.core.view.MenuItemCompat;
 
 /**
  * Manages case list activity's search state and UI
@@ -93,7 +94,7 @@ class EntitySelectSearchUI implements TextWatcher {
         String lastQueryString = activity.getLastQueryString();
         if (lastQueryString != null && lastQueryString.length() > 0) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-                searchMenuItem.expandActionView();
+                MenuItemCompat.expandActionView(searchMenuItem);
             }
             filterString = lastQueryString;
             searchView.setQuery(lastQueryString, false);
@@ -116,7 +117,7 @@ class EntitySelectSearchUI implements TextWatcher {
     protected void setSearchText(CharSequence text) {
         if (isUsingActionBar()) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-                searchMenuItem.expandActionView();
+                MenuItemCompat.expandActionView(searchMenuItem);
             }
             searchView.setQuery(text, false);
         } else {

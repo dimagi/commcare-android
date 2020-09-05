@@ -7,11 +7,6 @@ import android.content.DialogInterface;
 import android.graphics.Rect;
 import android.os.Build;
 import android.os.Bundle;
-
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.SearchView;
-import androidx.fragment.app.DialogFragment;
-import androidx.fragment.app.FragmentManager;
 import android.text.Spannable;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -29,7 +24,6 @@ import android.widget.Toast;
 
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.user.models.ACase;
-import org.commcare.dalvik.R;
 import org.commcare.fragments.BreadcrumbBarFragment;
 import org.commcare.fragments.ContainerFragment;
 import org.commcare.fragments.TaskConnectorFragment;
@@ -62,6 +56,11 @@ import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.NoLocalizedTextException;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SearchView;
+import androidx.core.view.MenuItemCompat;
+import androidx.fragment.app.DialogFragment;
+import androidx.fragment.app.FragmentManager;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 
@@ -697,7 +696,7 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
 
             MenuItem searchMenuItem = menu.findItem(org.commcare.dalvik.R.id.search_action_bar);
             SearchView searchView =
-                    (SearchView)searchMenuItem.getActionView();
+                    (SearchView)MenuItemCompat.getActionView(searchMenuItem);
             MenuItem barcodeItem = menu.findItem(org.commcare.dalvik.R.id.barcode_scan_action_bar);
             if (searchView != null) {
                 int[] searchViewStyle =

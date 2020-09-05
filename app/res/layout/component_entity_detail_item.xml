@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:layout_width="fill_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="fill_parent"
               android:layout_height="wrap_content"
               android:orientation="horizontal"
               android:weightSum="10">
@@ -59,7 +60,7 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="start|center_vertical"
-            android:src="@android:drawable/ic_media_play"
+            app:srcCompat="@android:drawable/ic_media_play"
             android:layout_marginLeft="11dp"
             android:layout_marginRight="12dp"
             android:visibility="gone"

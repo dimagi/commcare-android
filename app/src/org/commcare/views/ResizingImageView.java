@@ -13,7 +13,6 @@ import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.Toast;
 
 import org.commcare.dalvik.R;
@@ -22,6 +21,8 @@ import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
 
 import java.io.File;
+
+import androidx.appcompat.widget.AppCompatImageView;
 
 /**
  * @author wspride
@@ -32,7 +33,7 @@ import java.io.File;
  */
 
 @SuppressLint("NewApi")
-public class ResizingImageView extends ImageView {
+public class ResizingImageView extends AppCompatImageView {
 
     public static String resizeMethod;
 

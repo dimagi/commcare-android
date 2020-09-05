@@ -83,7 +83,7 @@
     </style>
 
     <style name="TextInteractiveFreeFloating">
-        <item name="android:background">@drawable/info_bubble</item>
+        <item name="background">@drawable/info_bubble</item>
         <item name="android:paddingTop">5dp</item>
         <item name="android:paddingBottom">5dp</item>
         <item name="android:layout_marginLeft">2dp</item>
@@ -94,7 +94,7 @@
     </style>
 
     <style name="TextInteractive">
-        <item name="android:background">@drawable/bubble</item>
+        <item name="background">@drawable/bubble</item>
         <item name="android:paddingTop">2dp</item>
         <item name="android:paddingBottom">2dp</item>
         <item name="android:layout_marginLeft">2dp</item>
@@ -105,7 +105,7 @@
     </style>
 
     <style name="TextInteractiveProblem">
-        <item name="android:background">@drawable/bubble_danger</item>
+        <item name="background">@drawable/bubble_danger</item>
         <item name="android:paddingTop">2dp</item>
         <item name="android:paddingBottom">2dp</item>
         <item name="android:layout_marginLeft">2dp</item>
@@ -117,7 +117,7 @@
         <item name="android:textColor">@color/red</item>
     </style>
 
-    <style name="DialogBaseTheme" parent="android:Theme.Holo.Light.Dialog"/>
+    <style name="DialogBaseTheme" parent="Theme.AppCompat.Light.Dialog"/>
 
     <!-- Start Collect styles -->
 
@@ -135,13 +135,13 @@
     <dimen name="badge_overlap_offset">-5dp</dimen>
 
     <style name="FloatingLabel" parent="@android:style/TextAppearance">
-        <item name="android:background">@drawable/label_floating_good</item>
+        <item name="background">@drawable/label_floating_good</item>
         <item name="android:textColor">@color/white</item>
     </style>
 
     <style name="ListViewV2">
         <item name="android:padding">@dimen/content_start</item>
-        <item name="android:divider">@null</item>
+        <item name="divider">@null</item>
         <item name="android:scrollbars">none</item>
     </style>
 
@@ -198,7 +198,7 @@
 
 
     <style name="TextViewV2" parent="DefaultPadding">
-        <item name="android:background">@color/cc_brand_color</item>
+        <item name="background">@color/cc_brand_color</item>
         <item name="android:textColor">@color/cc_core_bg</item>
     </style>
 
@@ -215,7 +215,7 @@
     <style name="ScreenPinnedButtonBase">
         <item name="android:layout_width">fill_parent</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:background">@color/cc_attention_positive_bg</item>
+        <item name="background">@color/cc_attention_positive_bg</item>
         <item name="android:drawableRight">@drawable/icon_chevron_right_attnpos</item>
         <item name="android:textColor">@color/cc_attention_positive_text</item>
         <item name="android:gravity">left|end|center_vertical</item>
@@ -229,7 +229,7 @@
     </style>
 
     <style name="ScreenPinnedButtonNeutralBase" parent="@style/ScreenPinnedButton">
-        <item name="android:background">@color/cc_light_cool_accent_bg</item>
+        <item name="background">@color/cc_light_cool_accent_bg</item>
         <item name="android:textColor">@color/cc_light_cool_accent_text</item>
         <item name="android:drawableRight">@drawable/icon_chevron_right_brand</item>
     </style>
@@ -250,12 +250,12 @@
     </style>
 
     <style name="PromptedUpdateButtonUpdate" parent="PromptedUpdateButtonBase">
-        <item name="android:background">@color/solid_green</item>
+        <item name="background">@color/solid_green</item>
         <item name="android:textSize">@dimen/font_size_xlargest</item>
     </style>
 
     <style name="PromptedUpdateButtonUpdateLater" parent="PromptedUpdateButtonBase">
-        <item name="android:background">@color/cc_brand_color</item>
+        <item name="background">@color/cc_brand_color</item>
         <item name="android:textSize">@dimen/font_size_xlarge</item>
         <item name="android:paddingLeft">@dimen/standard_spacer_large</item>
         <item name="android:paddingRight">@dimen/standard_spacer_large</item>
@@ -275,15 +275,15 @@
     </style>
 
     <style name="MapButtonGreen" parent="MapButtonColored">
-        <item name="android:background">@drawable/button_green_background</item>
+        <item name="background">@drawable/button_green_background</item>
     </style>
 
     <style name="MapButtonRed" parent="MapButtonColored">
-        <item name="android:background">@drawable/button_red_background</item>
+        <item name="background">@drawable/button_red_background</item>
     </style>
 
     <style name="MapButtonOrange" parent="MapButtonColored">
-        <item name="android:background">@drawable/button_orange_background</item>
+        <item name="background">@drawable/button_orange_background</item>
     </style>
 
     <color name="login_edit_text_color">@color/cc_core_text</color>

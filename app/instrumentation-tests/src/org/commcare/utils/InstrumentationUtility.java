@@ -1,6 +1,5 @@
 package org.commcare.utils;
 
-import android.app.Activity;
 import android.app.Instrumentation;
 import android.content.Context;
 import android.content.Intent;
@@ -9,21 +8,25 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.provider.MediaStore;
 import android.view.View;
-import androidx.annotation.IdRes;
-import androidx.test.espresso.DataInteraction;
-import androidx.test.espresso.UiController;
-import androidx.test.espresso.ViewAction;
-import androidx.test.platform.app.InstrumentationRegistry;
-import androidx.test.runner.intent.IntentMonitorRegistry;
+
 import org.commcare.dalvik.R;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.concurrent.TimeUnit;
+
+import androidx.annotation.IdRes;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.test.espresso.DataInteraction;
+import androidx.test.espresso.UiController;
+import androidx.test.espresso.ViewAction;
+import androidx.test.platform.app.InstrumentationRegistry;
+import androidx.test.runner.intent.IntentMonitorRegistry;
 
 import static androidx.test.espresso.Espresso.closeSoftKeyboard;
 import static androidx.test.espresso.Espresso.onData;
@@ -215,7 +218,7 @@ public class InstrumentationUtility {
     private static void stubCamera() {
         // Build a result to return from the Camera app
         Intent resultData = new Intent();
-        Instrumentation.ActivityResult result = new Instrumentation.ActivityResult(Activity.RESULT_OK, resultData);
+        Instrumentation.ActivityResult result = new Instrumentation.ActivityResult(AppCompatActivity.RESULT_OK, resultData);
 
         // Stub out the Camera. When an intent is sent to the Camera, this tells Espresso to respond
         // with the ActivityResult we just created
@@ -226,7 +229,7 @@ public class InstrumentationUtility {
         Intent resultData = new Intent();
         Uri fileUri = Uri.fromFile(new File(filePath));
         resultData.setData(fileUri);
-        Instrumentation.ActivityResult result = new Instrumentation.ActivityResult(Activity.RESULT_OK, resultData);
+        Instrumentation.ActivityResult result = new Instrumentation.ActivityResult(AppCompatActivity.RESULT_OK, resultData);
         intending(hasAction(Intent.ACTION_GET_CONTENT)).respondWith(result);
     }
 

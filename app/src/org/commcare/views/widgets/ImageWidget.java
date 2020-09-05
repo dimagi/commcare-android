@@ -2,7 +2,6 @@ package org.commcare.views.widgets;
 
 
 import android.Manifest;
-import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
@@ -269,7 +268,7 @@ public class ImageWidget extends QuestionWidget {
         i.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
         i.setFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
         try {
-            ((Activity)getContext()).startActivityForResult(i,
+            ((AppCompatActivity)getContext()).startActivityForResult(i,
                     FormEntryConstants.IMAGE_CAPTURE);
             pendingCalloutInterface.setPendingCalloutFormIndex(mPrompt.getIndex());
         } catch (ActivityNotFoundException e) {

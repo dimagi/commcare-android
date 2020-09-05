@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="@color/border_grey"
     android:id="@+id/missing_media_view"
     android:layout_height="match_parent"
@@ -14,7 +15,7 @@
         android:layout_width="wrap_content"
         android:scaleType="center"
         android:layout_marginTop="40dp"
-        android:src="@drawable/update_download_icon" />
+        app:srcCompat="@drawable/update_download_icon" />
 
     <ProgressBar
         style="?android:attr/progressBarStyle"

@@ -7,7 +7,7 @@
         <item name="colorAccent">@color/colorAccent</item>
         <item name="colorControlActivated">@color/colorAccent</item>
         <item name="android:textColorSecondary">@color/cc_neutral_text</item>
-        <item name="android:buttonStyle">@style/commcare_button_style</item>
+        <item name="buttonStyle">@style/commcare_button_style</item>
         <item name="android:textAppearanceButton">@style/TextAppearance.AppCompat.Medium</item>
         <item name="android:colorBackground">@color/cc_neutral_bg</item>
         <item name="detail_odd_row_color">@color/cc_neutral_bg</item>
@@ -18,8 +18,8 @@
         <item name="drawer_pulldown_text_color">@color/white</item>
         <item name="drawer_pulldown_even_row_color">@color/cc_brand_bg</item>
         <item name="drawer_pulldown_odd_row_color">@color/drawer_pulldown_odd_row_color</item>
-        <item name="android:actionBarStyle">@style/ActionBar</item>
-        <item name="android:actionOverflowButtonStyle">@style/OverflowButton</item>
+        <item name="actionBarStyle">@style/ActionBar</item>
+        <item name="actionOverflowButtonStyle">@style/OverflowButton</item>
         <item name="android:textViewStyle">@style/AppTheme.Widget.TextView</item>
         <item name="android:textSize">@dimen/text_medium</item>
         <item name="menu_tile_title_text_color">@color/cc_brand_bg</item>
@@ -51,12 +51,12 @@
         <item name="android:textSize">@dimen/text_medium</item>
     </style>
 
-    <style name="ActionBar" parent="android:Widget.Holo.Light.ActionBar">
-        <item name="android:background">@color/cc_brand_color</item>
-        <item name="android:titleTextStyle">@style/ActionBar.TitleTextStyle</item>
-        <item name="android:subtitleTextStyle">@style/ActionBarSubtitleTextStyle</item>
-        <item name="android:logo">@drawable/actionbar_modern_spacing</item>
-        <item name="android:actionButtonStyle">@style/ActionButtonStyle</item>
+    <style name="ActionBar" parent="Widget.AppCompat.Light.ActionBar">
+        <item name="background">@color/cc_brand_color</item>
+        <item name="titleTextStyle">@style/ActionBar.TitleTextStyle</item>
+        <item name="subtitleTextStyle">@style/ActionBarSubtitleTextStyle</item>
+        <item name="logo">@drawable/actionbar_modern_spacing</item>
+        <item name="actionButtonStyle">@style/ActionButtonStyle</item>
     </style>
 
     <style name="ActionBar.TitleTextStyle">
@@ -72,7 +72,7 @@
         <item name="android:minWidth">8dp</item>
     </style>
 
-    <style name="OverflowButton" parent="android:Widget.Holo.Light.ActionButton.Overflow">
+    <style name="OverflowButton" parent="Widget.AppCompat.Light.ActionButton.Overflow">
         <item name="android:src">@drawable/ic_action_overflow</item>
     </style>
 
@@ -84,14 +84,14 @@
         <item name="android:windowIsTranslucent">true</item>
         <item name="android:windowBackground">@android:color/transparent</item>
         <item name="android:windowContentOverlay">@null</item>
-        <item name="android:windowNoTitle">true</item>
+        <item name="windowNoTitle">true</item>
         <item name="android:windowIsFloating">true</item>
         <item name="android:backgroundDimEnabled">false</item>
     </style>
 
     <style name="WindowTitle.Custom.Menu" parent="android:Widget.TextView">
         <item name="android:textAppearance">@style/TextAppearance.Custom.WindowTitle.Menu</item>
-        <item name="android:background">@drawable/title_neutral_tab</item>
+        <item name="background">@drawable/title_neutral_tab</item>
         <item name="android:paddingRight">@dimen/title_padding</item>
         <item name="android:layout_marginLeft">@dimen/title_round_bleed</item>
         <item name="android:paddingLeft">@dimen/title_paddingLeft</item>
@@ -99,7 +99,7 @@
 
     <style name="WindowTitle.Custom.Case" parent="android:Widget.TextView">
         <item name="android:textAppearance">@style/TextAppearance.Custom.WindowTitle.Case</item>
-        <item name="android:background">@drawable/title_case_tab</item>
+        <item name="background">@drawable/title_case_tab</item>
         <item name="android:paddingRight">@dimen/title_padding</item>
         <item name="android:layout_marginLeft">@dimen/title_round_bleed</item>
         <item name="android:paddingLeft">@dimen/title_paddingLeft</item>
@@ -115,14 +115,14 @@
     </style>
 
     <style name="commcare_button_style" parent="Widget.AppCompat.Button">
-        <item name="android:textAllCaps">false</item>
+        <item name="textAllCaps">false</item>
     </style>
 
     <style name="TextAppearance.Custom.WindowTitle.Menu" parent="TextAppearance.Custom.WindowTitle">
     </style>
 
     <style name="Theme.Dialog.NoTitle" parent="@android:style/Theme.Holo.Light.Dialog">
-        <item name="android:windowNoTitle">true</item>
+        <item name="windowNoTitle">true</item>
     </style>
 
 </resources>

@@ -1,7 +1,6 @@
 package org.commcare.views;
 
 import android.annotation.TargetApi;
-import androidx.appcompat.app.AppCompatActivity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -9,8 +8,6 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
-import androidx.annotation.DrawableRes;
-import androidx.core.util.Pair;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -22,6 +19,11 @@ import org.commcare.utils.MediaUtil;
 import org.javarosa.core.services.locale.Localizer;
 
 import java.util.ArrayList;
+
+import androidx.annotation.DrawableRes;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.util.Pair;
+import androidx.core.view.MenuItemCompat;
 
 /**
  * Utilities for converting CommCare UI display details into Android objects
@@ -38,7 +40,7 @@ public final class ViewUtil {
         if (action.hasActionBarIcon() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             Bitmap b = MediaUtil.inflateDisplayImage(context, action.getActionBarIconReference());
             item.setIcon(new BitmapDrawable(context.getResources(), b));
-            item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+            MenuItemCompat.setShowAsAction(item, MenuItem.SHOW_AS_ACTION_ALWAYS);
         } else if (display.getImageURI() != null) {
             Bitmap b = MediaUtil.inflateDisplayImage(context, display.getImageURI());
             if (b != null) {
@@ -52,7 +54,7 @@ public final class ViewUtil {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             MenuItem item = menu.add(menuGroupId, menuId, menuId, title);
             item.setIcon(drawableResource);
-            item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+            MenuItemCompat.setShowAsAction(item, MenuItem.SHOW_AS_ACTION_ALWAYS);
         }
     }
 

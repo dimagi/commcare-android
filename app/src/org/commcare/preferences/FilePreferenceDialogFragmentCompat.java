@@ -3,7 +3,6 @@ package org.commcare.preferences;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import androidx.preference.EditTextPreferenceDialogFragmentCompat;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -21,7 +20,9 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 
-import static android.app.Activity.RESULT_OK;
+import androidx.preference.EditTextPreferenceDialogFragmentCompat;
+
+import static androidx.appcompat.app.AppCompatActivity.RESULT_OK;
 
 public class FilePreferenceDialogFragmentCompat extends EditTextPreferenceDialogFragmentCompat {
 

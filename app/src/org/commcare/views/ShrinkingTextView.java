@@ -11,12 +11,13 @@ import android.graphics.Shader.TileMode;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.Transformation;
-import android.widget.TextView;
+
+import androidx.appcompat.widget.AppCompatTextView;
 
 /**
  * @author ctsims
  */
-public class ShrinkingTextView extends TextView {
+public class ShrinkingTextView extends AppCompatTextView {
 
     private boolean mExpanded = false;
     private boolean mInteractive = true;

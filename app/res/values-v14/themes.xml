@@ -36,12 +36,12 @@
         <item name="android:textSize">@dimen/text_medium</item>
     </style>
 
-    <style name="ActionBar" parent="android:Widget.Holo.Light.ActionBar">
-        <item name="android:background">@color/cc_brand_color</item>
-        <item name="android:titleTextStyle">@style/ActionBar.TitleTextStyle</item>
-        <item name="android:subtitleTextStyle">@style/ActionBarSubtitleTextStyle</item>
-        <item name="android:logo">@drawable/actionbar_modern_spacing</item>
-        <item name="android:actionButtonStyle">@style/ActionButtonStyle</item>
+    <style name="ActionBar" parent="Widget.AppCompat.Light.ActionBar">
+        <item name="background">@color/cc_brand_color</item>
+        <item name="titleTextStyle">@style/ActionBar.TitleTextStyle</item>
+        <item name="subtitleTextStyle">@style/ActionBarSubtitleTextStyle</item>
+        <item name="logo">@drawable/actionbar_modern_spacing</item>
+        <item name="actionButtonStyle">@style/ActionButtonStyle</item>
     </style>
 
     <style name="ActionBar.TitleTextStyle">
@@ -58,7 +58,7 @@
     </style>
 
     <!-- TODO: add new Settings icon here (needs asset file first) -->
-    <style name="OverflowButton" parent="android:Widget.Holo.Light.ActionButton.Overflow">
+    <style name="OverflowButton" parent="Widget.AppCompat.Light.ActionButton.Overflow">
         <item name="android:src">@drawable/ic_action_overflow</item>
     </style>
 
@@ -72,7 +72,7 @@
 
     <style name="WindowTitle.Custom.Menu" parent="android:Widget.TextView">
         <item name="android:textAppearance">@style/TextAppearance.Custom.WindowTitle.Menu</item>
-        <item name="android:background">@drawable/title_neutral_tab</item>
+        <item name="background">@drawable/title_neutral_tab</item>
         <item name="android:paddingRight">@dimen/title_padding</item>
         <item name="android:layout_marginLeft">@dimen/title_round_bleed</item>
         <item name="android:paddingLeft">@dimen/title_paddingLeft</item>
@@ -80,7 +80,7 @@
 
     <style name="WindowTitle.Custom.Case" parent="android:Widget.TextView">
         <item name="android:textAppearance">@style/TextAppearance.Custom.WindowTitle.Case</item>
-        <item name="android:background">@drawable/title_case_tab</item>
+        <item name="background">@drawable/title_case_tab</item>
         <item name="android:paddingRight">@dimen/title_padding</item>
         <item name="android:layout_marginLeft">@dimen/title_round_bleed</item>
         <item name="android:paddingLeft">@dimen/title_paddingLeft</item>
