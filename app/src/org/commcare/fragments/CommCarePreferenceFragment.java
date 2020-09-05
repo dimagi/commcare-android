@@ -35,8 +35,7 @@ public abstract class CommCarePreferenceFragment extends PreferenceFragmentCompa
 
     private static final String TAG = CommCarePreferenceFragment.class.getSimpleName();
 
-    private static final String DIALOG_FRAGMENT_TAG =
-            "android.support.v7.preference.PreferenceFragment.DIALOG";
+    private static final String DIALOG_FRAGMENT_TAG = "androidx.preference.PreferenceFragment.DIALOG";
 
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
