@@ -7,9 +7,10 @@
         <item name="colorAccent">@color/colorAccent</item>
         <item name="colorControlActivated">@color/colorAccent</item>
         <item name="android:textColorSecondary">@color/cc_neutral_text</item>
+        <item name="android:textColorPrimary">@color/cc_core_text</item>
         <item name="buttonStyle">@style/commcare_button_style</item>
         <item name="android:textAppearanceButton">@style/TextAppearance.AppCompat.Medium</item>
-        <item name="android:colorBackground">@color/cc_neutral_bg</item>
+        <item name="android:colorBackground">@color/cc_core_bg</item>
         <item name="detail_odd_row_color">@color/cc_neutral_bg</item>
         <item name="detail_even_row_color">@color/transparent</item>
         <item name="entity_view_header_background_color">@color/cc_brand_text</item>
