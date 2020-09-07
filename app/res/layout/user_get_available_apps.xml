@@ -157,8 +157,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Apps Available for Install"
-            android:textSize="@dimen/font_size_xlarge"
-            android:textStyle="bold"
+            android:textAppearance="@style/TextAppearance.AppCompat.Title"
             android:gravity="center"
             android:paddingTop="@dimen/standard_spacer"
             android:layout_marginBottom="@dimen/standard_spacer_double"/>
