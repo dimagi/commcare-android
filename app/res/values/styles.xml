@@ -198,7 +198,7 @@
 
 
     <style name="TextViewV2" parent="DefaultPadding">
-        <item name="background">@color/cc_brand_color</item>
+        <item name="android:background">?attr/filter_select_background_color</item>
         <item name="android:textColor">@color/cc_core_bg</item>
     </style>
 
