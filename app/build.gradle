@@ -18,6 +18,8 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'com.google.firebase.crashlytics'
 apply from: 'jacoco.gradle'
+apply plugin: 'com.facebook.testing.screenshot'
+
 
 repositories {
     google()
@@ -291,6 +293,12 @@ android {
         buildConfigField "String", "HQ_API_PASSWORD", "\"${project.ext.HQ_API_PASSWORD}\""
 
         testInstrumentationRunner "org.commcare.CommCareJUnitRunner"
+
+        if (project.gradle.startParameter.taskNames.toString().contains("Screenshot")) {
+            Map<String, String> map = new HashMap<String, String>()
+            map.put("package", "org.commcare.screenshotTests")
+            setTestInstrumentationRunnerArguments map
+        }
     }
 
     applicationVariants.all { variant ->
