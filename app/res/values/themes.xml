@@ -30,6 +30,7 @@
         <item name="android:listViewStyle">@style/fading_edge</item>
         <item name="android:scrollViewStyle">@style/fading_edge</item>
         <item name="android:windowContentOverlay">@null</item>
+        <item name="android:dropDownListViewStyle">@style/dropDownListView</item>
     </style>
 
     <style name="AppBaseTheme" parent="CommonTheme" />
@@ -58,6 +59,10 @@
         <item name="subtitleTextStyle">@style/ActionBarSubtitleTextStyle</item>
         <item name="logo">@drawable/actionbar_modern_spacing</item>
         <item name="actionButtonStyle">@style/ActionButtonStyle</item>
+    </style>
+
+    <style name="dropDownListView" parent="Widget.AppCompat.ListView.DropDown">
+        <item name="android:divider">?attr/dividerHorizontal</item>
     </style>
 
     <style name="ActionBar.TitleTextStyle">
