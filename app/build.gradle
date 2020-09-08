@@ -516,8 +516,11 @@ android {
 
     // Needed to run espresso tests on release build.
     // Make sure to call the gradle tasks with testBuildType argument like this:
-    // ./gradlew assembleCommcareReleaseAndroidTest -DtestBuildType=release
-    testBuildType System.getProperty('testBuildType', 'debug')
+    // ./gradlew assembleAndroidTest -DtestBuildType=release
+    testBuildType 'debug'
+
+    // Using above, we're basically generating apks for all product flavours.
+    // This will restrict it to just `Commcare` flavour.
 }
 
 /**
