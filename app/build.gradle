@@ -19,7 +19,7 @@ apply plugin: 'kotlin-android-extensions'
 apply plugin: 'com.google.firebase.crashlytics'
 apply from: 'jacoco.gradle'
 apply plugin: 'com.facebook.testing.screenshot'
-
+apply from: 'fladle.gradle'
 
 repositories {
     google()

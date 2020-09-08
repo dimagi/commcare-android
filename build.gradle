@@ -13,7 +13,10 @@ buildscript {
         classpath 'com.google.firebase:firebase-crashlytics-gradle:2.1.1'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath 'org.jacoco:org.jacoco.core:0.8.5'
+
+        // Plugins for Screenshot testing
         classpath 'com.facebook.testing.screenshot:plugin:0.13.0'
+        classpath "com.osacky.flank.gradle:fladle:0.12.1"
     }
 }
 
