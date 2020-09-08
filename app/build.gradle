@@ -517,8 +517,9 @@ android {
     }
 
     // Needed to run espresso tests on release build.
-    //TODO: Need to fix this. 
-//    testBuildType project.ext.TEST_BUILD_TYPE
+    // Make sure to call the gradle tasks with testBuildType argument like this:
+    // ./gradlew assembleCommcareReleaseAndroidTest -DtestBuildType=release
+    testBuildType System.getProperty('testBuildType', 'debug')
 }
 
 /**
