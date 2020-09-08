@@ -1,0 +1,21 @@
+/**
+ * This plugin lets us run the screenshots tests in firebase test lab using a gradle command:
+ * ./gradlew runFlank
+ * Docs here: https://runningcode.github.io/fladle/
+ */
+
+apply plugin: 'com.osacky.fladle'
+
+fladle {
+//    serviceAccountCredentials = project.layout.projectDirectory.file("flank-gradle.json")
+    projectId("commcare-a57e4")
+    variant = "CommcareRelease"
+    testTargets = [
+            "package org.commcare.screenshotTests"
+    ]
+    devices = [
+            [ "model": "Pixel2", "version": "26" ]
+    ]
+    debugApk = "$buildDir/outputs/apk/commcare/debug/app-commcare-debug.apk"
+    instrumentationApk = "$buildDir/outputs/apk/androidTest/commcare/debug/app-commcare-debug-androidTest.apk"
+}

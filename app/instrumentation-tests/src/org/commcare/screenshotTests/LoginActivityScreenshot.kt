@@ -16,6 +16,7 @@ class LoginActivityScreenshot: BaseTest() {
 
     @Test
     fun testLoginActivityUI() {
+        installApp("TestSavedForm", "testSavedForm.ccz")
         val application = InstrumentationRegistry.getInstrumentation().targetContext.applicationContext
                 as CommCareInstrumentationTestApplication
         Screenshot.snapActivity(application.currentActivity).record()
