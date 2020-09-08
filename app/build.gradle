@@ -517,7 +517,8 @@ android {
     }
 
     // Needed to run espresso tests on release build.
-    testBuildType project.ext.TEST_BUILD_TYPE
+    //TODO: Need to fix this. 
+//    testBuildType project.ext.TEST_BUILD_TYPE
 }
 
 /**
