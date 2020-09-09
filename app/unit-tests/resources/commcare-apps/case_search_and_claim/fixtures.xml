@@ -1,0 +1,38 @@
+<OpenRosaResponse>
+    <fixture id="item-list:district" user_id="test_user">
+        <district_list>
+            <district>
+                <id>bang</id>
+                <state_id>ka</state_id>
+                <name>Bangalore</name>
+            </district>
+            <district>
+                <id>hampi</id>
+                <state_id>ka</state_id>
+                <name>Hampi</name>
+            </district>
+            <district>
+                <id>kota</id>
+                <state_id>rj</state_id>
+                <name>Kota</name>
+            </district>
+            <district>
+                <id>baran</id>
+                <state_id>rj</state_id>
+                <name>Baran</name>
+            </district>
+        </district_list>
+    </fixture>
+    <fixture id="item-list:state" user_id="test_user">
+        <state_list>
+            <state>
+                <id>ka</id>
+                <name>karnataka</name>
+            </state>
+            <state>
+                <id>rj</id>
+                <name>Raj as than</name>
+            </state>
+        </state_list>
+    </fixture>
+</OpenRosaResponse>

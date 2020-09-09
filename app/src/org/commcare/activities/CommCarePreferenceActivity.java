@@ -12,6 +12,8 @@ import android.view.MenuItem;
 
 import org.commcare.fragments.CommCarePreferenceFragment;
 import org.commcare.preferences.AdvancedActionsPreferences;
+import org.commcare.preferences.AppManagerAdvancedPreferences;
+import org.commcare.preferences.AppManagerDeveloperPreferences;
 import org.commcare.preferences.MainConfigurablePreferences;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.preferences.FormEntryPreferences;
@@ -27,6 +29,7 @@ public class CommCarePreferenceActivity extends FragmentActivity {
     public static final String PREF_TYPE_ADVANCED_ACTIONS = "pref_type_advanced_actions";
     public static final String PREF_TYPE_FORM_ENTRY = "pref_type_form_entry";
     public static final String PREF_TYPE_APP_MANAGER_ADVANCED = "pref_type_app_manager_advanced";
+    public static final String PREF_TYPE_APP_MANAGER_DEVELOPER = "pref_type_app_manager_developer";
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -58,6 +61,9 @@ public class CommCarePreferenceActivity extends FragmentActivity {
                     break;
                 case PREF_TYPE_APP_MANAGER_ADVANCED:
                     commCarePreferenceFragment = new AppManagerAdvancedPreferences();
+                    break;
+                case PREF_TYPE_APP_MANAGER_DEVELOPER:
+                    commCarePreferenceFragment = new AppManagerDeveloperPreferences();
                     break;
                 default:
                     throw new IllegalStateException("Invalid prefType : " + prefType);

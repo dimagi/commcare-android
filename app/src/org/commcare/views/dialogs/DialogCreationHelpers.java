@@ -22,12 +22,15 @@ import org.javarosa.core.services.locale.Localization;
 public class DialogCreationHelpers {
 
     public static CommCareAlertDialog buildAboutCommCareDialog(Activity activity) {
+        return buildAboutCommCareDialog(activity, true);
+    }
 
+    public static CommCareAlertDialog buildAboutCommCareDialog(Activity activity, boolean showAppInfo) {
         LayoutInflater li = LayoutInflater.from(activity);
         View view = li.inflate(R.layout.scrolling_info_dialog, null);
         TextView titleView = view.findViewById(R.id.dialog_title_text);
         titleView.setText(activity.getString(R.string.about_cc));
-        Spannable markdownText = buildAboutMessage(activity);
+        Spannable markdownText = buildAboutMessage(activity, showAppInfo);
         TextView aboutText = view.findViewById(R.id.dialog_text);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
             aboutText.setText(markdownText);
@@ -41,8 +44,8 @@ public class DialogCreationHelpers {
         return dialog;
     }
 
-    private static Spannable buildAboutMessage(Context context) {
-        String commcareVersion = AppUtils.getCurrentVersionString();
+    private static Spannable buildAboutMessage(Context context, boolean showAppInfo) {
+        String commcareVersion = showAppInfo ? AppUtils.getCurrentVersionString() : AppUtils.getCommCareVersionString();
         String customAcknowledgment = Localization.getWithDefault("custom.acknowledgement", "");
         String message = StringUtils.getStringRobust(context, R.string.about_dialog, new String[]{commcareVersion, customAcknowledgment});
         return MarkupUtil.returnMarkdown(context, message);
@@ -57,10 +60,10 @@ public class DialogCreationHelpers {
      *                      dialog
      */
     public static CommCareAlertDialog buildPermissionRequestDialog(Activity activity,
-                                                           final RuntimePermissionRequester permRequester,
-                                                           final int requestCode,
-                                                           String title,
-                                                           String body) {
+                                                                   final RuntimePermissionRequester permRequester,
+                                                                   final int requestCode,
+                                                                   String title,
+                                                                   String body) {
 
         View view = LayoutInflater.from(activity).inflate(R.layout.scrolling_info_dialog, null);
         TextView bodyText = view.findViewById(R.id.dialog_text);

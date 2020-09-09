@@ -42,6 +42,10 @@ update.minor.mismatch=Please update CommCare from the Google Playstore to update
 # App manager strings
 app.manager.advanced.settings.title=App Manager > Advanced Settings
 app.manager.advanced.settings.option=Advanced
+app.manager.menu.about=About CommCare
+app.manager.developer.options.title=App Manager > Developer Options
+app.manager.advanced.developer.options=Developer Options
+app.manager.developer.options.enabled=CommCare Developer Mode Enabled
 
 # strings for Install from list
 menu.app.list.install=See Apps for My User

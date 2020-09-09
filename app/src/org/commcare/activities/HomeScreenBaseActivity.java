@@ -1260,10 +1260,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
     private void handleDeveloperModeClicks() {
         mDeveloperModeClicks++;
         if (mDeveloperModeClicks == 4) {
-            CommCareApplication.instance().getCurrentApp().getAppPreferences()
-                    .edit()
-                    .putString(DeveloperPreferences.SUPERUSER_ENABLED, PrefValues.YES)
-                    .apply();
+            DeveloperPreferences.setSuperuserEnabled(true);
             Toast.makeText(this, Localization.get("home.developer.options.enabled"),
                     Toast.LENGTH_SHORT).show();
         }
