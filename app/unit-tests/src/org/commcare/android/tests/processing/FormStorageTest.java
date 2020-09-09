@@ -325,6 +325,9 @@ public class FormStorageTest {
 
             // Added in 2.49
             , "org.javarosa.xpath.expr.XPathIndexOfFunc"
+
+            // Added in 2.50
+            , "org.commcare.suite.model.QueryPrompt"
     );
 
 
