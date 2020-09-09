@@ -3,9 +3,9 @@
 
     <style name="CommonTheme" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="colorPrimary">@color/cc_brand_color</item>
-        <item name="colorPrimaryDark">@color/black</item>
-        <item name="colorAccent">@color/colorAccent</item>
-        <item name="colorControlActivated">@color/colorAccent</item>
+        <item name="colorPrimaryDark">@color/cc_brand_text</item>
+        <item name="colorAccent">@color/cc_dark_cool_accent_color</item>
+        <item name="colorControlActivated">@color/cc_dark_cool_accent_color</item>
         <item name="android:textColorSecondary">@color/cc_neutral_text</item>
         <item name="android:textColorPrimary">@color/cc_core_text</item>
         <item name="buttonStyle">@style/commcare_button_style</item>
