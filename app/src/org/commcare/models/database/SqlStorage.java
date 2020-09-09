@@ -83,13 +83,6 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
 
 
     @Override
-    public Vector<Integer> getAllIDs() {
-        SQLiteDatabase db = helper.getHandle();
-        Cursor c = db.query(table, new String[]{DatabaseHelper.ID_COL}, null, null, null, null, null);
-        return fillIdWindow(c, DatabaseHelper.ID_COL, null);
-    }
-
-    @Override
     public Vector<Integer> getIDsForValue(String fieldName, Object value) {
         return getIDsForValues(new String[]{fieldName}, new Object[]{value});
     }
