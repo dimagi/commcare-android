@@ -15,7 +15,6 @@
         <item name="detail_even_row_color">@color/transparent</item>
         <item name="entity_view_header_background_color">@color/cc_brand_text</item>
         <item name="entity_view_header_text_color">@color/cc_core_bg</item>
-        <item name="searchbox_action_bar_color">@color/white</item>
         <item name="drawer_pulldown_text_color">@color/white</item>
         <item name="drawer_pulldown_even_row_color">@color/cc_brand_bg</item>
         <item name="drawer_pulldown_odd_row_color">@color/drawer_pulldown_odd_row_color</item>

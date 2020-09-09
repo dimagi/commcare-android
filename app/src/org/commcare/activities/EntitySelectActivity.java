@@ -284,7 +284,6 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         restoreLastQueryString();
         persistAdapterState(visibleView);
         setUpCalloutClickListener();
-        entitySelectSearchUI.setupPreHoneycombFooter(barcodeScanOnClickListener, this.customCallout);
         setupMapNav();
         AdMobManager.requestBannerAdForView(this, findViewById(R.id.ad_container),
                 AdLocation.EntitySelect);

@@ -323,10 +323,9 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
     }
 
     private void addSyncItemToActionBar(Menu menu) {
-        if (shouldShowSyncItemInActionBar() &&
-                Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+        if (shouldShowSyncItemInActionBar()) {
             currentSyncMenuItem = menu.add(MENU_GROUP_SYNC_ACTION, MENU_SYNC, MENU_SYNC, "Sync");
-            MenuItemCompat.setShowAsAction(currentSyncMenuItem, MenuItem.SHOW_AS_ACTION_ALWAYS);
+            currentSyncMenuItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
             switch (syncStateForIcon) {
                 case PULLING_DATA:
                     addDataPullAnimation(currentSyncMenuItem);

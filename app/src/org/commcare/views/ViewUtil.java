@@ -37,24 +37,15 @@ public final class ViewUtil {
         DisplayData display = action.getDisplay().evaluate();
         MenuItem item = menu.add(menuGroupId, menuId, menuId,
                 Localizer.clearArguments(display.getName()).trim());
-        if (action.hasActionBarIcon() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+        if (action.hasActionBarIcon()) {
             Bitmap b = MediaUtil.inflateDisplayImage(context, action.getActionBarIconReference());
             item.setIcon(new BitmapDrawable(context.getResources(), b));
-            MenuItemCompat.setShowAsAction(item, MenuItem.SHOW_AS_ACTION_ALWAYS);
+            item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
         } else if (display.getImageURI() != null) {
             Bitmap b = MediaUtil.inflateDisplayImage(context, display.getImageURI());
             if (b != null) {
                 item.setIcon(new BitmapDrawable(context.getResources(), b));
             }
-        }
-    }
-
-    public static void addItemToActionBar(Menu menu, int menuId, int menuGroupId, String title,
-                                          @DrawableRes int drawableResource) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            MenuItem item = menu.add(menuGroupId, menuId, menuId, title);
-            item.setIcon(drawableResource);
-            MenuItemCompat.setShowAsAction(item, MenuItem.SHOW_AS_ACTION_ALWAYS);
         }
     }
 

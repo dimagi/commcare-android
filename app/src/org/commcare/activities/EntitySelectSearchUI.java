@@ -125,37 +125,6 @@ class EntitySelectSearchUI implements TextWatcher {
         }
     }
 
-    protected void setupPreHoneycombFooter(View.OnClickListener barcodeScanOnClickListener, Callout callout) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
-            TextView preHoneycombSearchLabel =
-                    activity.findViewById(R.id.screen_entity_select_search_label);
-            //use the old method here because some Android versions don't like Spannables for titles
-            preHoneycombSearchLabel.setText(Localization.get("select.search.label"));
-            preHoneycombSearchLabel.setOnClickListener(v -> {
-                // get the focus on the edittext by performing click
-                preHoneycombSearchBox.performClick();
-                // then force the keyboard up since performClick() apparently isn't enough on some devices
-                InputMethodManager inputMethodManager =
-                        (InputMethodManager)activity.getSystemService(Context.INPUT_METHOD_SERVICE);
-                // only will trigger it if no physical keyboard is open
-                inputMethodManager.showSoftInput(preHoneycombSearchBox, InputMethodManager.SHOW_IMPLICIT);
-            });
-
-            preHoneycombSearchBox = activity.findViewById(R.id.searchbox);
-            preHoneycombSearchBox.setMaxLines(3);
-            preHoneycombSearchBox.setHorizontallyScrolling(false);
-            preHoneycombSearchBox.addTextChangedListener(this);
-            preHoneycombSearchBox.requestFocus();
-            preHoneycombSearchBox.setText(activity.getLastQueryString());
-
-            ImageButton preHoneycombBarcodeButton = activity.findViewById(R.id.barcodeButton);
-            preHoneycombBarcodeButton.setOnClickListener(barcodeScanOnClickListener);
-            if (callout != null && callout.getImage() != null) {
-                EntitySelectCalloutSetup.setupImageLayout(activity, preHoneycombBarcodeButton, callout.getImage());
-            }
-        }
-    }
-
     @Override
     public void afterTextChanged(Editable incomingEditable) {
         final String incomingString = incomingEditable.toString();

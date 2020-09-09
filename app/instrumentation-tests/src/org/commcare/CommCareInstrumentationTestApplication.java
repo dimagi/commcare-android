@@ -16,7 +16,7 @@ public class CommCareInstrumentationTestApplication extends CommCareApplication 
     /**
      * We only wanna store the activity that's currently on top of the screen.
      */
-    private AppCompatActivity currentActivity;
+    private Activity currentActivity;
 
     @Override
     public void onCreate() {
@@ -64,7 +64,7 @@ public class CommCareInstrumentationTestApplication extends CommCareApplication 
 
     }
 
-    public AppCompatActivity getCurrentActivity() {
+    public Activity getCurrentActivity() {
         return currentActivity;
     }
     

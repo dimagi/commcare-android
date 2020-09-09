@@ -5,7 +5,7 @@
         android:title="Search"
         android:icon="@drawable/icon_search_white"
         app:showAsAction="collapseActionView|ifRoom"
-        app:actionViewClass="android.support.v7.widget.SearchView"/>
+        app:actionViewClass="androidx.appcompat.widget.SearchView"/>
     <item
         android:id="@+id/barcode_scan_action_bar"
         android:title="Scan Barcode"
