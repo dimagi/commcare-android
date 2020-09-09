@@ -31,6 +31,7 @@ import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import retrofit2.Response;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -116,6 +117,11 @@ public class ModernHttpRequesterMock extends ModernHttpRequester {
         Uri requestUrl = Uri.parse(request);
         Uri expectedUrl = Uri.parse(expected);
         assertEquals(expectedUrl.getPath(), requestUrl.getPath());
+
+        // match params
+        assertEquals(requestUrl.getQueryParameterNames(), expectedUrl.getQueryParameterNames());
+
+        // match the param values
         for (String queryParam : expectedUrl.getQueryParameterNames()) {
             assertEquals(requestUrl.getQueryParameter(queryParam), expectedUrl.getQueryParameter(queryParam));
         }

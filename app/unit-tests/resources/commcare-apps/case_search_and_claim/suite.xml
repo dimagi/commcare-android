@@ -265,6 +265,8 @@
     </command>
     <instance id="session" src="jr://instance/session"/>
     <instance id="casedb" src="jr://instance/casedb"/>
+    <instance id="district" src="jr://fixture/item-list:district"/>
+    <instance id="state" src="jr://fixture/item-list:state"/>
     <session>
       <query url="https://www.fake.com/patient_search/" storage-instance="patients">
         <data key="device_id" ref="instance('session')/session/context/deviceid"/>
@@ -281,6 +283,30 @@
               <locale id="query.id"/>
             </text>
           </display>
+        </prompt>
+        <prompt key="state" input="select1">
+          <display>
+            <text>
+              <locale id="query.state"/>
+            </text>
+          </display>
+          <itemset nodeset="instance('state')/state_list/state">
+            <label ref="name"/>
+            <value ref="id"/>
+            <sort ref="id"/>
+          </itemset>
+        </prompt>
+        <prompt key="district" input="select1">
+          <display>
+            <text>
+              <locale id="query.district"/>
+            </text>
+          </display>
+          <itemset nodeset="instance('district')/district_list/district[state_id = $state]">
+            <label ref="name"/>
+            <value ref="id"/>
+            <sort ref="id"/>
+          </itemset>
         </prompt>
       </query>
       <datum id="case_id" nodeset="instance('patients')/patients/patient" value="./id" detail-select="patient_short" detail-confirm="patient_long"/>
