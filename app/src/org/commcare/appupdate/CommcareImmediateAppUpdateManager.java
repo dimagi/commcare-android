@@ -10,6 +10,7 @@ import com.google.android.play.core.install.model.AppUpdateType;
 import com.google.android.play.core.install.model.UpdateAvailability;
 
 import org.commcare.activities.CommCareActivity;
+import org.commcare.util.LogTypes;
 import org.javarosa.core.services.Logger;
 
 import javax.annotation.Nullable;
@@ -23,8 +24,6 @@ import androidx.lifecycle.LifecycleOwner;
  * @author $|-|!˅@M
  */
 public class CommcareImmediateAppUpdateManager implements AppUpdateController, DefaultLifecycleObserver {
-
-    private static final String TAG = CommcareImmediateAppUpdateManager.class.getSimpleName();
 
     private AppUpdateManager mAppUpdateManager;
     private AppUpdateInfo mAppUpdateInfo;
@@ -53,7 +52,7 @@ public class CommcareImmediateAppUpdateManager implements AppUpdateController, D
                 })
                 .addOnFailureListener(exception -> {
                     mAppUpdateInfo = null;
-                    Logger.log(TAG, "fetchAppUpdateInfo|failed with : " + exception.getMessage());
+                    Logger.log(LogTypes.TYPE_CC_UPDATE, "fetchAppUpdateInfo|failed with : " + exception.getMessage());
                 });
     }
 
@@ -65,10 +64,10 @@ public class CommcareImmediateAppUpdateManager implements AppUpdateController, D
                     activity,
                     IN_APP_UPDATE_REQUEST_CODE);
             if (!success) {
-                Logger.log(TAG, "startUpdate|requested update cannot be started");
+                Logger.log(LogTypes.TYPE_CC_UPDATE, "startUpdate|requested update cannot be started");
             }
         } catch (IntentSender.SendIntentException exception) {
-            Logger.log(TAG, "startUpdate|failed with : " + exception.getMessage());
+            Logger.log(LogTypes.TYPE_CC_UPDATE, "startUpdate|failed with : " + exception.getMessage());
         }
     }
 

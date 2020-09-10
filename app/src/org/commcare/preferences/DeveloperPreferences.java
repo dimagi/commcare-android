@@ -4,11 +4,13 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.preference.EditTextPreference;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceScreen;
+
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -287,6 +289,13 @@ public class DeveloperPreferences extends CommCarePreferenceFragment {
                 PrefValues.YES);
     }
 
+    public static void setSuperuserEnabled(boolean enabled) {
+        CommCareApplication.instance().getCurrentApp().getAppPreferences()
+                .edit()
+                .putString(DeveloperPreferences.SUPERUSER_ENABLED, enabled ? PrefValues.YES : PrefValues.NO)
+                .apply();
+    }
+
     public static boolean isActionBarEnabled() {
         return doesPropertyMatch(ACTION_BAR_ENABLED, PrefValues.YES, PrefValues.YES);
     }
@@ -413,7 +422,7 @@ public class DeveloperPreferences extends CommCarePreferenceFragment {
         return doesPropertyMatch(USE_EXPRESSION_CACHING_IN_FORMS, PrefValues.NO, PrefValues.YES);
     }
 
-    private void hideOrShowDangerousSettings() {
+    private void  hideOrShowDangerousSettings() {
         Preference[] onScreenPrefs = getOnScreenPrefs();
         if (!GlobalPrivilegesManager.isAdvancedSettingsAccessEnabled() && !BuildConfig.DEBUG) {
             // Dangerous privileges should not be showing

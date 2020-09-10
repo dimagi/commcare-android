@@ -196,9 +196,15 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
 
         NSDDiscoveryTools.registerForNsdServices(this, this);
 
-        if (!ConnectivityStatus.isNetworkAvailable(this) && offlineUpdateRef == null) {
-            uiController.noConnectivityUiState();
-            return;
+        if (!ConnectivityStatus.isNetworkAvailable(this)) {
+            // If we've already downloaded an update but the network isn't available, show the update to user.
+            if (ResourceInstallUtils.isUpdateReadyToInstall()) {
+                uiController.unappliedUpdateAvailableUiState();
+                return;
+            } else if (offlineUpdateRef == null) {
+                uiController.noConnectivityUiState();
+                return;
+            }
         }
 
         if (isAutoUpdateInProgress()) {

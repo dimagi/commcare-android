@@ -12,7 +12,6 @@ import org.junit.runner.RunWith;
 
 import static androidx.test.espresso.Espresso.closeSoftKeyboard;
 import static androidx.test.espresso.Espresso.onView;
-import static androidx.test.espresso.Espresso.pressBack;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.typeText;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
@@ -87,8 +86,6 @@ public class SavedFormTest extends BaseTest {
         InstrumentationUtility.getSubViewInListItem(android.R.id.list, 1, R.id.hev_secondary_text)
                 .check(matches(isDisplayed()))
                 .check(matches(withText(endsWith(".jpg"))));
-        pressBack();
-        pressBack();
     }
 
     @Test

@@ -1,21 +1,28 @@
 package org.commcare.androidTests;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.test.espresso.IdlingRegistry;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
+import androidx.test.platform.app.InstrumentationRegistry;
+
 import org.commcare.AsyncRestoreHelperMock;
+import org.commcare.provider.DebugControlsReceiver;
 import org.commcare.utils.ProgressIdlingResource;
 import org.commcare.utils.HQApi;
 import org.commcare.utils.InstrumentationUtility;
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
-import static androidx.test.platform.app.InstrumentationRegistry.getInstrumentation;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -28,9 +35,19 @@ public class AsyncRestoreTest extends BaseTest {
 
     private final String CCZ_NAME = "integration_test_app.ccz";
     private final String APP_NAME = "Integration Tests";
+    private final String CLEAR_CACHE_ACTION = "org.commcare.dalvik.api.action.ClearCacheOnRestore";
+    private Context mContext;
+    private DebugControlsReceiver mReceiver = new DebugControlsReceiver();
+
+    @Before
+    public void setup() {
+        mContext = InstrumentationRegistry.getInstrumentation().getTargetContext().getApplicationContext();
+        LocalBroadcastManager.getInstance(mContext).registerReceiver(mReceiver, new IntentFilter(CLEAR_CACHE_ACTION));
+    }
 
     @After
     public void logout() {
+        LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mReceiver);
         InstrumentationUtility.logout();
     }
 
@@ -103,11 +120,8 @@ public class AsyncRestoreTest extends BaseTest {
     private void installAppAndClearCache() {
         installApp(APP_NAME, CCZ_NAME);
 
-        Intent intent = new Intent();
-        intent.setAction("org.commcare.dalvik.api.action.ClearCacheOnRestore");
-        getInstrumentation()
-                .getTargetContext()
-                .sendBroadcast(intent);
+        Intent intent = new Intent(CLEAR_CACHE_ACTION);
+        LocalBroadcastManager.getInstance(mContext).sendBroadcastSync(intent);
     }
 
 }

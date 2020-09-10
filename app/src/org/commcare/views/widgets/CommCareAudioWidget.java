@@ -139,12 +139,6 @@ public class CommCareAudioWidget extends AudioWidget
     }
 
     @Override
-    public String getFileUniqueIdentifier() {
-        String formFileName = FormEntryInstanceState.mFormRecordPath.substring(FormEntryInstanceState.mFormRecordPath.lastIndexOf("/") + 1);
-        return formFileName + "_" + mPrompt.getIndex().toString() + "_" + (new Date().getTime());
-    }
-
-    @Override
     protected void playAudio() {
         Uri filePath = Uri.parse(mInstanceFolder + mBinaryName);
         player = MediaPlayer.create(getContext(), filePath);

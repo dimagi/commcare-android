@@ -67,6 +67,4 @@ public class CommCareInstrumentationTestApplication extends CommCareApplication 
     public Activity getCurrentActivity() {
         return currentActivity;
     }
-    
-
 }
