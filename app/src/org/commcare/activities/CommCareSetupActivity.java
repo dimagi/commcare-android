@@ -95,6 +95,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 
     private static final String FORCE_VALIDATE_KEY = "validate";
     private static final String KEY_SHOW_NOTIFICATIONS_BUTTON = "show-notifications-button";
+    private static final int MAX_ALLOWED_APPS = 4;
 
     /**
      * UI configuration states.
@@ -251,7 +252,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
      * @return if installation is not allowed due to multiple apps limitations
      */
     private boolean checkForMultipleAppsViolation() {
-        if (AppUtils.getInstalledAppRecords().size() >= 2
+        if (AppUtils.getInstalledAppRecords().size() >= MAX_ALLOWED_APPS
                 && !GlobalPrivilegesManager.isMultipleAppsPrivilegeEnabled()
                 && !BuildConfig.DEBUG) {
             Intent i = new Intent(this, MultipleAppsLimitWarningActivity.class);
