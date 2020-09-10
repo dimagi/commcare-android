@@ -1,15 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <merge xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/media_layout"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <org.commcare.views.media.AudioPlaybackButton
         android:id="@+id/audio_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -19,7 +15,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@android:drawable/ic_media_play"
-        android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@id/audio_button" />
@@ -65,12 +60,11 @@
         android:adjustViewBounds="true"
         android:padding="@dimen/standard_spacer"
         android:scaleType="centerCrop"
-        android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/inline_video_view" />
+        app:layout_constraintTop_toBottomOf="@id/question_barrier" />
 
     <ImageView
         android:id="@+id/image"
@@ -78,12 +72,11 @@
         android:layout_height="wrap_content"
         android:padding="@dimen/standard_spacer"
         android:scaleType="center"
-        android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/qr_view"/>
+        app:layout_constraintTop_toBottomOf="@id/question_barrier" />
 
     <org.commcare.views.ResizingImageView
         android:id="@+id/resizing_image"
@@ -91,12 +84,11 @@
         android:layout_height="wrap_content"
         android:adjustViewBounds="true"
         android:padding="@dimen/standard_spacer"
-        android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/qr_view" />
+        app:layout_constraintTop_toBottomOf="@id/question_barrier" />
 
     <!--
     Missing media view
@@ -105,10 +97,9 @@
         android:id="@+id/download_media_icon"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="40dp"
+        android:layout_marginTop="@dimen/dp40"
         android:scaleType="center"
         android:src="@drawable/update_download_icon"
-        android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
@@ -120,9 +111,7 @@
         style="?android:attr/progressBarStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_above="@id/missing_media_tv"
-        android:layout_marginTop="40dp"
-        android:visibility="gone"
+        android:layout_marginTop="@dimen/dp40"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
@@ -131,16 +120,24 @@
 
     <TextView
         android:id="@+id/missing_media_tv"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="40dp"
-        android:gravity="center_horizontal"
-        android:visibility="gone"
+        android:layout_marginTop="@dimen/dp40"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/download_media_icon" />
+
+    <!--
+    Helpful constraint to shift textContainer to the bottom of mediaView
+    -->
+    <androidx.constraintlayout.widget.Barrier
+        android:id="@+id/media_barrier"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:barrierDirection="bottom"
+        app:constraint_referenced_ids="missing_media_tv, inline_video_view, qr_view, image, resizing_image"/>
 
     <androidx.constraintlayout.widget.Barrier
         android:id="@+id/divider_barrier"
@@ -155,7 +152,6 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:background="@android:drawable/divider_horizontal_bright"
-        android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"

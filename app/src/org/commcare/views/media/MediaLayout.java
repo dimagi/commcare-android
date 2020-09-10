@@ -21,8 +21,10 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.constraintlayout.widget.Barrier;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.Constraints;
 import com.bumptech.glide.Glide;
@@ -62,6 +64,7 @@ public class MediaLayout extends ConstraintLayout {
     private ProgressBar progressBar;
     private TextView missingMediaText;
     private ImageView divider;
+    private Barrier mediaLayoutBottomBarrier;
 
     public MediaLayout(@NonNull Context context) {
         super(context);
@@ -115,11 +118,52 @@ public class MediaLayout extends ConstraintLayout {
                         int questionIndex) {
         setupStandardAudio(audioURI, questionIndex);
         setupVideoButton(videoURI);
-        setupQRView(qrCodeContent);
-        setupInlineVideoView(inlineVideoURI);
-        setupImage(imageURI, bigImageURI);
+
+        // We only show one of the inline-video-view / qrview / image
+        if (inlineVideoURI != null) {
+            setupInlineVideoView(inlineVideoURI);
+        } else if (qrCodeContent != null) {
+            setupQRView(qrCodeContent);
+        } else if (imageURI != null) {
+            setupImage(imageURI, bigImageURI);
+        }
+
         addTextView(text);
-        //TODO Need to use showImageAboveText
+        if (showImageAboveText) {
+            showMediaAboveText();
+        }
+    }
+
+    private void showMediaAboveText() {
+        // This step will change the layout constraints of the views in xml to shift
+        // media(video, image qr ) above text.
+
+        // First align the mediaView(including missing media view) to the top.
+        alignMediaAtTop(videoView);
+        alignMediaAtTop(qrView);
+        alignMediaAtTop(imageView);
+        alignMediaAtTop(resizingImageView);
+        alignMediaAtTop(downloadIcon);
+        alignMediaAtTop(progressBar);
+
+        // Next align the text, audiobutton and videoButton below mediaView.
+        alignTextContainerBelowMediaView(audioButton);
+        alignTextContainerBelowMediaView(videoButton);
+        alignTextContainerBelowMediaView(textViewContainer);
+    }
+
+    private void alignMediaAtTop(View view) {
+        LayoutParams params = (LayoutParams) view.getLayoutParams();
+        params.topToBottom = LayoutParams.UNSET;
+        params.topToTop = this.getId();
+        view.setLayoutParams(params);
+    }
+
+    private void alignTextContainerBelowMediaView(View view) {
+        LayoutParams textContainerParams = (LayoutParams) view.getLayoutParams();
+        textContainerParams.topToTop = LayoutParams.UNSET;
+        textContainerParams.topToBottom = mediaLayoutBottomBarrier.getId();
+        view.setLayoutParams(textContainerParams);
     }
 
     private void addTextView(TextView text) {
@@ -190,9 +234,6 @@ public class MediaLayout extends ConstraintLayout {
     }
 
     private void setupQRView(String qrCodeContent) {
-        if (qrCodeContent == null) {
-            return;
-        }
         Bitmap image;
         try {
             QRCodeEncoder qrCodeEncoder =
@@ -206,9 +247,6 @@ public class MediaLayout extends ConstraintLayout {
     }
 
     private void setupImage(String imageURI, String bigImageURI) {
-        if (imageURI == null) {
-            return;
-        }
         try {
             final String imageFilename = ReferenceManager.instance().DeriveReference(imageURI).getLocalURI();
             final File imageFile = new File(imageFilename);
@@ -252,9 +290,6 @@ public class MediaLayout extends ConstraintLayout {
     }
 
     private void setupInlineVideoView(String inlineVideoURI) {
-        if (inlineVideoURI == null) {
-            return;
-        }
         try {
             final String videoFilename = ReferenceManager.instance().DeriveReference(inlineVideoURI).getLocalURI();
             final File videoFile = new File(videoFilename);
@@ -327,6 +362,7 @@ public class MediaLayout extends ConstraintLayout {
 
     private void showMissingMediaView(String mediaUri, String errorMessage, boolean allowDownload, @Nullable Runnable completion) {
         missingMediaText.setText(errorMessage);
+        missingMediaText.setVisibility(VISIBLE);
         downloadIcon.setVisibility(allowDownload ? View.VISIBLE : INVISIBLE);
 
         downloadIcon.setOnClickListener(v -> {
@@ -389,6 +425,7 @@ public class MediaLayout extends ConstraintLayout {
         progressBar = view.findViewById(R.id.progress_bar);
         missingMediaText = view.findViewById(R.id.missing_media_tv);
         divider = view.findViewById(R.id.divider);
+        mediaLayoutBottomBarrier = view.findViewById(R.id.media_barrier);
 
         resetView();
     }
