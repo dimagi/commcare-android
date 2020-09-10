@@ -145,10 +145,15 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
         }
 
         persistManagedUiState(fm);
-        getSupportActionBar().setLogo(org.commcare.dalvik.R.mipmap.ic_launcher);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB && shouldShowBreadcrumbBar()) {
-            getSupportActionBar().setDisplayShowCustomEnabled(true);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setLogo(org.commcare.dalvik.R.mipmap.ic_launcher);
+        }
+
+        if (shouldShowBreadcrumbBar()) {
+            if (getSupportActionBar() != null) {
+                getSupportActionBar().setDisplayShowCustomEnabled(true);
+            }
 
             // Add breadcrumb bar
             BreadcrumbBarFragment bar = (BreadcrumbBarFragment)fm.findFragmentByTag("breadcrumbs");
