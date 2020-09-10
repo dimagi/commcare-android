@@ -1,6 +1,6 @@
 package org.commcare.utils
 
-import android.app.Activity
+import androidx.appcompat.app.AppCompatActivity
 import android.app.Instrumentation
 import android.content.Context
 import android.content.Intent
@@ -308,7 +308,7 @@ object InstrumentationUtility {
     private fun stubCamera() {
         // Build a result to return from the Camera app
         val resultData = Intent()
-        val result = Instrumentation.ActivityResult(Activity.RESULT_OK, resultData)
+        val result = Instrumentation.ActivityResult(AppCompatActivity.RESULT_OK, resultData)
 
         // Stub out the Camera. When an intent is sent to the Camera, this tells Espresso to respond
         // with the ActivityResult we just created
@@ -319,7 +319,7 @@ object InstrumentationUtility {
         val resultData = Intent()
         val fileUri = Uri.fromFile(File(filePath))
         resultData.data = fileUri
-        val result = Instrumentation.ActivityResult(Activity.RESULT_OK, resultData)
+        val result = Instrumentation.ActivityResult(AppCompatActivity.RESULT_OK, resultData)
         intending(hasAction(Intent.ACTION_GET_CONTENT)).respondWith(result)
     }
 
