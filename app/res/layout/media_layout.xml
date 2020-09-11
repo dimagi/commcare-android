@@ -93,6 +93,22 @@
     <!--
     Missing media view
     -->
+
+    <!--
+    Probably an easiest way to show a background color to the missing media view.
+    -->
+    <View
+        android:id="@+id/missing_media_background"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="@color/border_grey"
+        app:layout_constraintBottom_toBottomOf="@+id/missing_media_tv"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/question_barrier" />
+
     <ImageView
         android:id="@+id/download_media_icon"
         android:layout_width="wrap_content"
@@ -123,6 +139,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/dp40"
+        android:gravity="center_horizontal"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
@@ -137,7 +154,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:barrierDirection="bottom"
-        app:constraint_referenced_ids="missing_media_tv, inline_video_view, qr_view, image, resizing_image"/>
+        app:constraint_referenced_ids="missing_media_tv, inline_video_view, qr_view, image, resizing_image" />
 
     <androidx.constraintlayout.widget.Barrier
         android:id="@+id/divider_barrier"

@@ -65,6 +65,7 @@ public class MediaLayout extends ConstraintLayout {
     private TextView missingMediaText;
     private ImageView divider;
     private Barrier mediaLayoutBottomBarrier;
+    private View missingMediaBackground;
 
     public MediaLayout(@NonNull Context context) {
         super(context);
@@ -362,6 +363,7 @@ public class MediaLayout extends ConstraintLayout {
     }
 
     private void showMissingMediaView(String mediaUri, String errorMessage, boolean allowDownload, @Nullable Runnable completion) {
+        missingMediaBackground.setVisibility(VISIBLE);
         missingMediaText.setText(errorMessage);
         missingMediaText.setVisibility(VISIBLE);
         downloadIcon.setVisibility(allowDownload ? View.VISIBLE : INVISIBLE);
@@ -393,6 +395,7 @@ public class MediaLayout extends ConstraintLayout {
         progressBar.setVisibility(GONE);
         downloadIcon.setVisibility(GONE);
         missingMediaText.setVisibility(GONE);
+        missingMediaBackground.setVisibility(GONE);
     }
 
     @SuppressWarnings("deprecation")
@@ -427,6 +430,7 @@ public class MediaLayout extends ConstraintLayout {
         missingMediaText = view.findViewById(R.id.missing_media_tv);
         divider = view.findViewById(R.id.divider);
         mediaLayoutBottomBarrier = view.findViewById(R.id.media_barrier);
+        missingMediaBackground = view.findViewById(R.id.missing_media_background);
 
         resetView();
     }
@@ -442,6 +446,7 @@ public class MediaLayout extends ConstraintLayout {
         downloadIcon.setVisibility(GONE);
         progressBar.setVisibility(GONE);
         missingMediaText.setVisibility(GONE);
+        missingMediaBackground.setVisibility(GONE);
         divider.setVisibility(GONE);
     }
     //endregion
