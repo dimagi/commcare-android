@@ -1,11 +1,8 @@
 package org.commcare.views.media;
 
 import android.content.Context;
-import android.os.Build;
 import android.util.AttributeSet;
 import android.widget.VideoView;
-
-import androidx.annotation.RequiresApi;
 
 import java.util.Date;
 

@@ -251,7 +251,8 @@ public class MediaLayout extends ConstraintLayout {
             final String imageFilename = ReferenceManager.instance().DeriveReference(imageURI).getLocalURI();
             final File imageFile = new File(imageFilename);
             if (imageFile.exists()) {
-                int[] maxBounds = getMaxCenterViewBounds();
+                DisplayMetrics metrics = this.getContext().getResources().getDisplayMetrics();
+                int[] maxBounds = new int[] { metrics.widthPixels, metrics.heightPixels };
                 Bitmap b = MediaUtil.inflateDisplayImage(getContext(), imageURI, maxBounds[0], maxBounds[1]);
                 if (b != null) {
                     ImageView mImageView;
@@ -350,13 +351,13 @@ public class MediaLayout extends ConstraintLayout {
      * It's height is always 0(from LayoutInspector) even if you set it to match_parent.
      */
     private void makeVideoViewVisible() {
-        int[] maxBounds = getMaxCenterViewBounds();
         //These surprisingly get re-jiggered as soon as the video is loaded, so we
         //just want to give it the _max_ bounds, it'll pick the limiter and shrink
         //itself when it's ready.
+        DisplayMetrics metrics = this.getContext().getResources().getDisplayMetrics();
         ViewGroup.LayoutParams params = videoView.getLayoutParams();
-        params.width = maxBounds[0];
-        params.height = maxBounds[1];
+        params.width = metrics.widthPixels;
+        params.height = metrics.heightPixels;
         videoView.setLayoutParams(params);
     }
 
@@ -442,29 +443,6 @@ public class MediaLayout extends ConstraintLayout {
         progressBar.setVisibility(GONE);
         missingMediaText.setVisibility(GONE);
         divider.setVisibility(GONE);
-    }
-
-    /**
-     * @return The appropriate max size of an image view pane in this widget. returned as an int
-     * array of [width, height]
-     */
-    private int[] getMaxCenterViewBounds() {
-        DisplayMetrics metrics = this.getContext().getResources().getDisplayMetrics();
-        int maxWidth = metrics.widthPixels;
-        int maxHeight = metrics.heightPixels;
-
-        // subtract height for textview and buttons, if present
-        if (textViewContainer.getChildCount() > 0) {
-            maxHeight = maxHeight - textViewContainer.getChildAt(0).getHeight();
-        }
-        if (videoButton != null) {
-            maxHeight = maxHeight - videoButton.getHeight();
-        } else if (audioButton != null) {
-            maxHeight = maxHeight - audioButton.getHeight();
-        }
-
-        // reduce by third for safety
-        return new int[]{maxWidth, (2 * maxHeight) / 3};
     }
     //endregion
 
