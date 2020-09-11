@@ -174,7 +174,6 @@ public class MediaLayout extends ConstraintLayout {
 
     private void setupStandardAudio(String audioURI, int questionIndex) {
         if (audioURI != null) {
-            boolean mediaPresent = FileUtil.referenceFileExists(audioURI);
             audioButton.modifyButtonForNewView(ViewId.buildListViewId(questionIndex), audioURI, true);
             audioButton.setVisibility(VISIBLE);
         }
@@ -288,6 +287,7 @@ public class MediaLayout extends ConstraintLayout {
         } catch (InvalidReferenceException e) {
             Log.e(TAG, "image invalid reference exception");
             e.printStackTrace();
+            showMissingMediaView(imageURI, "Invalid reference: " + e.getReferenceString(), false, null);
         }
     }
 
