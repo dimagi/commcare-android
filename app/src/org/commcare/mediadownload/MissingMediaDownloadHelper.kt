@@ -174,7 +174,7 @@ object MissingMediaDownloadHelper : TableStateListener {
     private suspend fun downloadMissingMediaResource(uri: String): MissingMediaDownloadResult {
         val platform = CommCareApplication.instance().commCarePlatform
         val global = platform.globalResourceTable
-        val lazyResourceIds = global.lazyResourceIds
+        val lazyResourceIds = global.allResourceIds
         var result = lazyResourceIds.asSequence()
                 .map { global.getResource(it) }
                 .filter { it != null }
