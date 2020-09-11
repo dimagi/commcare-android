@@ -55,6 +55,10 @@ dependencies {
     androidTestImplementation 'androidx.test:rules:1.2.0'
     androidTestImplementation 'androidx.test.espresso:espresso-intents:3.2.0'
 
+    // need uiautomator to rotate the device.
+    // this only works with API >=18
+    androidTestImplementation 'androidx.test.uiautomator:uiautomator:2.2.0'
+
     // release build type expects commcare jars to be in app/libs
     implementation(project(':commcare-core')) {
         exclude module: 'xpp3'
@@ -63,7 +67,7 @@ dependencies {
     // this syntax doesn't work for compiling .aar files, so those have to be loaded manually
     implementation fileTree(include: '*.jar', exclude: 'regexp-me.jar', dir: 'libs')
     implementation(name: 'htmlspanner-custom', ext: 'aar')
-    implementation(name: 'android-zebra-interface-1.1', ext: 'aar')
+    implementation 'com.github.dimagi:zebra-print-android:v1.2'
     implementation 'com.simprints:LibSimprints:1.0.12'
     implementation 'androidx.multidex:multidex:2.0.1'
     implementation 'androidx.cardview:cardview:1.0.0'
@@ -71,8 +75,7 @@ dependencies {
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'androidx.legacy:legacy-preference-v14:1.0.0'
     implementation 'androidx.gridlayout:gridlayout:1.0.0'
-    implementation 'com.madgag.spongycastle:core:1.54.0.0'
-    implementation 'com.madgag.spongycastle:prov:1.54.0.0'
+    implementation 'org.bouncycastle:bcprov-jdk15on:1.65'
     implementation 'com.google.android.gms:play-services-maps:17.0.0'
     implementation 'joda-time:joda-time:2.9.4'
     implementation 'net.zetetic:android-database-sqlcipher:3.5.9@aar'
@@ -82,7 +85,6 @@ dependencies {
     implementation('org.apache.httpcomponents:httpmime:4.5.6')
     implementation 'net.sourceforge.htmlcleaner:htmlcleaner:2.16'
     implementation 'org.jsoup:jsoup:1.8.3'
-    implementation 'com.google.firebase:firebase-core:17.4.2'
 
     // crashes on update - https://developers.google.com/admob/android/quick-start#update_your_androidmanifestxml
     // We need to update consumer apps script to inject the right admob id to be able to update this
@@ -92,7 +94,8 @@ dependencies {
     implementation 'io.reactivex.rxjava2:rxandroid:2.0.1'
     implementation 'com.jakewharton.rxbinding2:rxbinding:2.0.0'
     implementation 'com.journeyapps:zxing-android-embedded:3.6.0'
-    implementation 'com.google.firebase:firebase-crashlytics:17.0.0'
+    implementation 'com.google.firebase:firebase-analytics:17.5.0'
+    implementation 'com.google.firebase:firebase-crashlytics:17.2.1'
     implementation 'androidx.legacy:legacy-support-core-ui:1.0.0'
     implementation 'com.duolingo.open:rtl-viewpager:1.0.3'
     implementation ("com.github.bumptech.glide:glide:4.9.0") {
@@ -102,10 +105,10 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
 
     // Markdown
-    implementation 'com.github.budsmile:bypass-android:1.0.5'//Needed for Ice Cream Sandwich (14&15)
-    implementation 'ru.noties:markwon:1.0.4'
-    implementation 'ru.noties:markwon-image-loader:1.0.4'
-    implementation 'ru.noties:markwon-view:1.0.4'
+    implementation 'io.noties.markwon:core:4.4.0'
+    implementation 'io.noties.markwon:ext-tables:4.4.0'
+    implementation 'io.noties.markwon:ext-strikethrough:4.4.0'
+
     implementation ('io.ona.kujaku:library:0.8.7'){
         exclude module: 'xpp3'
     }

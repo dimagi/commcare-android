@@ -1,7 +1,7 @@
 package org.commcare.utils;
 
 import android.util.Log;
-
+import androidx.test.platform.app.InstrumentationRegistry;
 import org.commcare.core.network.AuthInfo;
 import org.commcare.core.network.CommCareNetworkService;
 import org.commcare.core.network.CommCareNetworkServiceGenerator;
@@ -38,6 +38,7 @@ public class HQApi {
     private static final String FORM_URL = BASE_URL + "api/v0.5/form/";
     private static final String CASE_URL = BASE_URL + "api/v0.5/case/";
     private static final String ATTACHMENT_BASE_URL = BASE_URL + "api/form/attachment/";
+    private static final String FIXTURE_UPLOAD_URL = BASE_URL + "fixtures/fixapi/";
 
     public static Long getLatestFormTime() {
         try {
@@ -149,6 +150,28 @@ public class HQApi {
         } catch (JSONException e) {
             e.printStackTrace();
             Log.d(TAG, "JSON parsing failed with exception : " + e.getMessage());
+        }
+    }
+
+    public static void uploadFixture(String fixtureName) {
+        ClassLoader classLoader = InstrumentationRegistry.getInstrumentation().getTargetContext().getClassLoader();
+        RequestBody requestFile = new InputStreamRequestBody(MediaType.parse("text/xlsx"), classLoader, fixtureName);
+        List<MultipartBody.Part> parts = new ArrayList<>();
+        parts.add(MultipartBody.Part.createFormData("file-to-upload", fixtureName, requestFile));
+        parts.add(MultipartBody.Part.createFormData("replace", "true"));
+
+        CommCareNetworkService networkService = createTestNetworkService();
+        Response<ResponseBody> response;
+        try {
+            response = networkService.makeMultipartPostRequest(FIXTURE_UPLOAD_URL, new HashMap<>(), new HashMap<>(), parts).execute();
+            if (response.isSuccessful()) {
+                Log.d(TAG, "Uploading Fixture succeeded :: " + response.body().string());
+            } else {
+                Log.d(TAG, "Uploading Fixture failed :: " +
+                        (response.body() != null ? response.body().string() : response.errorBody().string()));
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 

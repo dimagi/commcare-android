@@ -117,7 +117,7 @@ public class CaseUtils {
             if (filter.invalidEdgesWereRemoved()) {
                 Logger.log(LogTypes.SOFT_ASSERT, "An invalid edge was created in the internal " +
                         "case DAG of a case purge filter, meaning that at least 1 case on the " +
-                        "device had an index into another case that no longer exists on the device");
+                         "device had an index into another case that no longer exists on the device");
                 Logger.log(LogTypes.TYPE_ERROR_ASSERTION, "Case lists on the server and device" +
                         " were out of sync. The following cases were expected to be on the device, " +
                         "but were missing: " + filter.getMissingCasesString() + ". As a result, the " +
