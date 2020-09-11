@@ -16,6 +16,7 @@ install.appprofile=Enter your app code
 install.perms.rationale.message=CommCare requires at least external storage read & write permissions in order to store form submissions.
 install.perms.denied.message=Crucial permissions denied ${0} times.\n\n If requesting permissions here fails, please enable permissions under Android's settings.
 install.choose.local.app=Available Apps
+install.wrong.code=The app code you have entered is incorrect. Please try scanning barcode or entering correct code.
 
 menu.archive=Offline Install
 menu.sms=SMS Install
@@ -41,6 +42,10 @@ update.minor.mismatch=Please update CommCare from the Google Playstore to update
 # App manager strings
 app.manager.advanced.settings.title=App Manager > Advanced Settings
 app.manager.advanced.settings.option=Advanced
+app.manager.menu.about=About CommCare
+app.manager.developer.options.title=App Manager > Developer Options
+app.manager.advanced.developer.options=Developer Options
+app.manager.developer.options.enabled=CommCare Developer Mode Enabled
 
 # strings for Install from list
 menu.app.list.install=See Apps for My User

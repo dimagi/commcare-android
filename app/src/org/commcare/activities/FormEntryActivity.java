@@ -57,15 +57,19 @@ import org.commcare.interfaces.WidgetChangedListener;
 import org.commcare.interfaces.WithUIController;
 import org.commcare.logging.analytics.TimedStatsTracker;
 import org.commcare.logic.AndroidFormController;
+import org.commcare.models.AndroidSessionWrapper;
+import org.commcare.models.FormRecordProcessor;
 import org.commcare.models.ODKStorage;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.tasks.FormLoaderTask;
+import org.commcare.tasks.FormRecordCleanupTask;
 import org.commcare.tasks.SaveToDiskTask;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.Base64Wrapper;
 import org.commcare.utils.CompoundIntentList;
 import org.commcare.utils.FileUtil;
 import org.commcare.utils.GeoUtils;
+import org.commcare.utils.QuarantineUtil;
 import org.commcare.utils.SessionUnavailableException;
 import org.commcare.utils.StringUtils;
 import org.commcare.views.QuestionsView;
@@ -96,6 +100,8 @@ import java.util.List;
 import java.util.Map;
 
 import javax.crypto.spec.SecretKeySpec;
+
+import static org.commcare.android.database.user.models.FormRecord.QuarantineReason_LOCAL_PROCESSING_ERROR;
 
 /**
  * Displays questions, animates transitions between
@@ -234,6 +240,12 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         saveIncompleteFormToDisk();
     }
 
+    private void handleLocationErrorAction() {
+        this.runOnUiThread(() -> {
+            FormEntryDialogs.handleNoGpsBroadcast(FormEntryActivity.this);
+        });
+    }
+
     private void registerFormEntryReceiver() {
         //BroadcastReceiver for:
         // a) An unresolvable xpath expression encountered in PollSensorAction.onLocationChanged
@@ -245,12 +257,15 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 context.removeStickyBroadcast(intent);
                 badLocationXpath = intent.getStringExtra(PollSensorAction.KEY_UNRESOLVED_XPATH);
                 locationRecieverErrorAction = intent.getAction();
+                if (GeoUtils.ACTION_LOCATION_ERROR.equals(locationRecieverErrorAction)) {
+                    handleLocationErrorAction();
+                }
             }
         };
 
         IntentFilter filter = new IntentFilter();
         filter.addAction(PollSensorAction.XPATH_ERROR_ACTION);
-        filter.addAction(GeoUtils.ACTION_CHECK_GPS_ENABLED);
+        filter.addAction(GeoUtils.ACTION_LOCATION_ERROR);
         registerReceiver(mLocationServiceIssueReceiver, filter);
     }
 
@@ -336,6 +351,13 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                     } else {
                         // We may have jumped to a new index in hierarchy activity, so refresh
                         uiController.refreshCurrentView(false);
+                    }
+                    break;
+                case FormEntryConstants.INTENT_LOCATION_EXCEPTION:
+                    if (resultCode == RESULT_OK) {
+                        // We resolved the exception so let's hear location updates now.
+                        // We don't wanna do anything if user doesn't except it here.
+                        PollSensorController.INSTANCE.requestLocationUpdates();
                     }
                     break;
             }
@@ -984,9 +1006,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     }
 
     private void handleFormLoadCompletion(AndroidFormController fc) {
-        if (GeoUtils.ACTION_CHECK_GPS_ENABLED.equals(locationRecieverErrorAction)) {
-            FormEntryDialogs.handleNoGpsBroadcast(this);
-        } else if (PollSensorAction.XPATH_ERROR_ACTION.equals(locationRecieverErrorAction)) {
+        if (PollSensorAction.XPATH_ERROR_ACTION.equals(locationRecieverErrorAction)) {
             handleXpathErrorBroadcast();
         }
 
@@ -1167,12 +1187,28 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                         UserfacingErrorHandling.createErrorDialog(this, errorMessage,
                                 Localization.get("notification.formentry.save_error.title"), FormEntryConstants.EXIT);
                     }
+                    quarantineRecordOnError(errorMessage);
                     return;
             }
             if (!"".equals(toastMessage) && !CommCareApplication.instance().isConsumerApp()) {
                 Toast.makeText(this, toastMessage, Toast.LENGTH_SHORT).show();
             }
             uiController.refreshView();
+        }
+    }
+
+    // clean the form record in case it was saved
+    private void quarantineRecordOnError(String errorMessage) {
+        AndroidSessionWrapper currentState = CommCareApplication.instance().getCurrentSessionWrapper();
+        FormRecord toBeQuarantined = currentState.getFormRecord();
+
+        // quarantine in case the form record was saved
+        if (toBeQuarantined != null) {
+            new FormRecordProcessor(this).quarantineRecord(
+                    toBeQuarantined,
+                    QuarantineReason_LOCAL_PROCESSING_ERROR,
+                    errorMessage
+            );
         }
     }
 
@@ -1440,6 +1476,17 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 }
                 return;
             }
+            case FormEntryConstants.INTENT_LOCATION_PERMISSION:
+                boolean isGranted = grantResults.length > 0;
+                for (int result : grantResults) {
+                    if (result != PackageManager.PERMISSION_GRANTED) {
+                        isGranted = false;
+                    }
+                }
+                if (isGranted) {
+                    PollSensorController.INSTANCE.requestLocationUpdates();
+                }
+                break;
         }
 
     }

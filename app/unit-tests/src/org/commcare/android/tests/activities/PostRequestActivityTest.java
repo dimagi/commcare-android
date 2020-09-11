@@ -8,13 +8,15 @@ import android.widget.TextView;
 import org.commcare.CommCareApplication;
 import org.commcare.CommCareTestApplication;
 import org.commcare.activities.PostRequestActivity;
-import org.commcare.android.CommCareTestRunner;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import org.commcare.android.mocks.HttpURLConnectionMock;
 import org.commcare.android.mocks.ModernHttpRequesterMock;
 import org.commcare.android.util.ActivityLaunchUtils;
 import org.commcare.android.util.TestAppInstaller;
+import org.commcare.core.parse.ParseUtils;
 import org.commcare.dalvik.R;
 import org.commcare.models.AndroidSessionWrapper;
+import org.commcare.models.database.AndroidSandbox;
 import org.commcare.modern.util.Pair;
 import org.commcare.network.CommcareRequestEndpointsMock;
 import org.commcare.network.LocalReferencePullResponseFactory;
@@ -22,13 +24,17 @@ import org.commcare.session.CommCareSession;
 import org.commcare.session.RemoteQuerySessionManager;
 import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.services.locale.Localization;
+import org.javarosa.xml.util.InvalidStructureException;
+import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.Robolectric;
 import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowActivity;
+import org.xmlpull.v1.XmlPullParserException;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -43,7 +49,7 @@ import static org.junit.Assert.fail;
  * @author Phillip Mates (pmates@dimagi.com)
  */
 @Config(application = CommCareTestApplication.class)
-@RunWith(CommCareTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 public class PostRequestActivityTest {
     @Before
     public void setup() {
@@ -173,6 +179,20 @@ public class PostRequestActivityTest {
         ModernHttpRequesterMock.setResponseCodes(new Integer[]{200});
         CommcareRequestEndpointsMock.setCaseFetchResponseCodes(new Integer[]{200});
         LocalReferencePullResponseFactory.setRequestPayloads(new String[]{"jr://resource/commcare-apps/case_search_and_claim/empty_restore.xml"});
+
+        try {
+            ParseUtils.parseIntoSandbox(
+                    this.getClass().getResourceAsStream("/commcare-apps/case_search_and_claim/fixtures.xml"),
+                    new AndroidSandbox(CommCareApplication.instance()));
+        } catch (InvalidStructureException e) {
+            e.printStackTrace();
+        } catch (UnfullfilledRequirementsException e) {
+            e.printStackTrace();
+        } catch (XmlPullParserException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         AndroidSessionWrapper sessionWrapper =
                 CommCareApplication.instance().getCurrentSessionWrapper();

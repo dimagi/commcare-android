@@ -49,6 +49,7 @@ import org.commcare.logging.PreInitLogger;
 import org.commcare.logging.XPathErrorEntry;
 import org.commcare.logging.XPathErrorLogger;
 import org.commcare.logging.analytics.TimedStatsTracker;
+import org.commcare.mediadownload.MissingMediaDownloadHelper;
 import org.commcare.models.AndroidClassHasher;
 import org.commcare.models.AndroidSessionWrapper;
 import org.commcare.models.database.AndroidDbHelper;
@@ -64,9 +65,7 @@ import org.commcare.modern.database.Table;
 import org.commcare.modern.util.PerformanceTuningUtil;
 import org.commcare.network.DataPullRequester;
 import org.commcare.network.DataPullResponseFactory;
-import org.commcare.network.ForceTLS12BuilderConfig;
 import org.commcare.network.HttpUtils;
-import org.commcare.network.Tls12SocketFactory;
 import org.commcare.preferences.DevSessionRestorer;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.preferences.HiddenPreferences;
@@ -75,6 +74,8 @@ import org.commcare.services.CommCareSessionService;
 import org.commcare.session.CommCareSession;
 import org.commcare.sync.FormSubmissionHelper;
 import org.commcare.sync.FormSubmissionWorker;
+import org.commcare.tasks.AsyncRestoreHelper;
+import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.DeleteLogs;
 import org.commcare.tasks.LogSubmissionTask;
 import org.commcare.tasks.PurgeStaleArchivedFormsTask;
@@ -217,10 +218,8 @@ public class CommCareApplication extends MultiDexApplication {
 
         Thread.setDefaultUncaughtExceptionHandler(new CommCareExceptionHandler(Thread.getDefaultUncaughtExceptionHandler(), this));
 
-        SQLiteDatabase.loadLibs(this);
-
+        loadSqliteLibs();
         setRoots();
-
         prepareTemporaryStorage();
 
         if (LegacyInstallUtils.checkForLegacyInstall(this)) {
@@ -243,6 +242,10 @@ public class CommCareApplication extends MultiDexApplication {
         LocalePreferences.saveDeviceLocale(Locale.getDefault());
     }
 
+    protected void loadSqliteLibs() {
+        SQLiteDatabase.loadLibs(this);
+    }
+
     public boolean useConscryptSecurity() {
         return Build.VERSION.SDK_INT >= 16 && Build.VERSION.SDK_INT < 20;
     }
@@ -250,10 +253,6 @@ public class CommCareApplication extends MultiDexApplication {
     private void initTls12IfNeeded() {
         if (useConscryptSecurity()) {
             Security.insertProviderAt(Conscrypt.newProvider(), 1);
-        }
-
-        if (Build.VERSION.SDK_INT >= 16 && Build.VERSION.SDK_INT < 22) {
-            CommCareNetworkServiceGenerator.customizeRetrofitSetup(new ForceTLS12BuilderConfig());
         }
     }
 
@@ -366,7 +365,10 @@ public class CommCareApplication extends MultiDexApplication {
 
     protected void cancelWorkManagerTasks() {
         // Cancel form Submissions for this user
-        WorkManager.getInstance(this).cancelUniqueWork(FormSubmissionHelper.getFormSubmissionRequestName());
+        if (currentApp != null) {
+            WorkManager.getInstance(this).cancelUniqueWork(
+                    FormSubmissionHelper.getFormSubmissionRequestName(currentApp.getUniqueId()));
+        }
     }
 
     /**
@@ -547,7 +549,7 @@ public class CommCareApplication extends MultiDexApplication {
         // cancel all Workmanager tasks for the unseated record
         WorkManager.getInstance(CommCareApplication.instance())
                 .cancelAllWorkByTag(record.getApplicationId());
-
+        MissingMediaDownloadHelper.cancelAllDownloads();
         if (isSeated(record)) {
             this.currentApp.teardownSandbox();
             this.currentApp = null;
@@ -743,6 +745,8 @@ public class CommCareApplication extends MultiDexApplication {
                             scheduleFormSubmissions();
                         }
 
+                        MissingMediaDownloadHelper.scheduleMissingMediaDownload();
+
                         doReportMaintenance();
                         mBoundService.initHeartbeatLifecycle();
 
@@ -761,11 +765,7 @@ public class CommCareApplication extends MultiDexApplication {
                             EntityStorageCache.wipeCacheForCurrentApp();
                         }
 
-                        if (shouldRunLogDeletion()) {
-                            OneTimeWorkRequest deleteLogsRequest = new OneTimeWorkRequest.Builder(DeleteLogs.class).build();
-                            WorkManager.getInstance(CommCareApplication.instance())
-                                    .enqueueUniqueWork(DELETE_LOGS_REQUEST, ExistingWorkPolicy.KEEP, deleteLogsRequest);
-                        }
+                        purgeLogs();
 
                     }
 
@@ -792,6 +792,14 @@ public class CommCareApplication extends MultiDexApplication {
         sessionServiceIsBinding = true;
     }
 
+    private void purgeLogs() {
+        if (shouldRunLogDeletion()) {
+            OneTimeWorkRequest deleteLogsRequest = new OneTimeWorkRequest.Builder(DeleteLogs.class).build();
+            WorkManager.getInstance(CommCareApplication.instance())
+                    .enqueueUniqueWork(DELETE_LOGS_REQUEST, ExistingWorkPolicy.KEEP, deleteLogsRequest);
+        }
+    }
+
     private void scheduleFormSubmissions() {
         Constraints constraints = new Constraints.Builder()
                 .setRequiredNetworkType(NetworkType.CONNECTED)
@@ -809,7 +817,7 @@ public class CommCareApplication extends MultiDexApplication {
                         .build();
 
         WorkManager.getInstance(this).enqueueUniquePeriodicWork(
-                FormSubmissionHelper.getFormSubmissionRequestName(),
+                FormSubmissionHelper.getFormSubmissionRequestName(getCurrentApp().getUniqueId()),
                 ExistingPeriodicWorkPolicy.KEEP,
                 formSubmissionRequest
         );
@@ -817,7 +825,7 @@ public class CommCareApplication extends MultiDexApplication {
 
     // Hand off an app update task to the Android WorkManager
     private void scheduleAppUpdate() {
-        if(UpdateHelper.shouldAutoUpdate()) {
+        if (UpdateHelper.shouldAutoUpdate()) {
             Constraints constraints = new Constraints.Builder()
                     .setRequiredNetworkType(NetworkType.CONNECTED)
                     .setRequiresBatteryNotLow(true)
@@ -1143,4 +1151,7 @@ public class CommCareApplication extends MultiDexApplication {
                 responseProcessor);
     }
 
+    public AsyncRestoreHelper getAsyncRestoreHelper(DataPullTask task) {
+        return new AsyncRestoreHelper(task);
+    }
 }

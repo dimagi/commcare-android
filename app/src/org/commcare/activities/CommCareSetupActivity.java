@@ -42,6 +42,7 @@ import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.logging.DataChangeLog;
 import org.commcare.logging.DataChangeLogger;
 import org.commcare.preferences.GlobalPrivilegesManager;
+import org.commcare.resources.ResourceManager;
 import org.commcare.resources.model.InvalidResourceException;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.UnresolvedResourceException;
@@ -94,6 +95,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 
     private static final String FORCE_VALIDATE_KEY = "validate";
     private static final String KEY_SHOW_NOTIFICATIONS_BUTTON = "show-notifications-button";
+    private static final int MAX_ALLOWED_APPS = 4;
 
     /**
      * UI configuration states.
@@ -250,7 +252,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
      * @return if installation is not allowed due to multiple apps limitations
      */
     private boolean checkForMultipleAppsViolation() {
-        if (AppUtils.getInstalledAppRecords().size() >= 2
+        if (AppUtils.getInstalledAppRecords().size() >= MAX_ALLOWED_APPS
                 && !GlobalPrivilegesManager.isMultipleAppsPrivilegeEnabled()
                 && !BuildConfig.DEBUG) {
             Intent i = new Intent(this, MultipleAppsLimitWarningActivity.class);
@@ -746,7 +748,11 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 
     @Override
     public void failMissingResource(UnresolvedResourceException ure, AppInstallStatus statusMissing) {
-        fail(NotificationMessageFactory.message(statusMissing, new String[]{null, ure.getResource().getDescriptor(), ure.getMessage()}), ure.isMessageUseful());
+        if (lastInstallMode == INSTALL_MODE_URL && ResourceManager.ApplicationDescriptor.equals(ure.getResource().getDescriptor())) {
+            fail(Localization.get("install.wrong.code"));
+        } else {
+            fail(NotificationMessageFactory.message(statusMissing, new String[]{null, ure.getResource().getDescriptor(), ure.getMessage()}), ure.isMessageUseful());
+        }
     }
 
     @Override

@@ -9,7 +9,7 @@ import org.commcare.activities.EntitySelectActivity;
 import org.commcare.activities.LoginActivity;
 import org.commcare.activities.StandardHomeActivity;
 import org.commcare.adapters.EntityListAdapter;
-import org.commcare.android.CommCareTestRunner;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.util.CaseLoadUtils;
 import org.commcare.android.util.TestAppInstaller;
@@ -37,7 +37,7 @@ import static org.junit.Assert.assertTrue;
  * @author Phillip Mates (pmates@dimagi.com)
  */
 @Config(application = CommCareTestApplication.class)
-@RunWith(CommCareTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 public class DemoUserRestoreTest {
     private final static String REF_BASE_DIR =
             "jr://resource/commcare-apps/demo_user_restore/";

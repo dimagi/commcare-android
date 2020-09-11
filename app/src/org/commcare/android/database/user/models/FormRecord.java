@@ -1,6 +1,7 @@
 package org.commcare.android.database.user.models;
 
 import android.database.SQLException;
+
 import androidx.annotation.StringDef;
 
 import net.sqlcipher.database.SQLiteDatabase;
@@ -8,6 +9,7 @@ import net.sqlcipher.database.SQLiteDatabase;
 import org.commcare.CommCareApplication;
 import org.commcare.android.logging.ForceCloseLogger;
 import org.commcare.android.storage.framework.Persisted;
+import org.commcare.dalvik.R;
 import org.commcare.models.AndroidSessionWrapper;
 import org.commcare.models.FormRecordProcessor;
 import org.commcare.models.database.SqlStorage;
@@ -19,9 +21,11 @@ import org.commcare.tasks.FormRecordCleanupTask;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.CrashUtil;
 import org.commcare.utils.StorageUtils;
+import org.commcare.utils.StringUtils;
 import org.commcare.views.notifications.NotificationMessage;
 import org.commcare.views.notifications.NotificationMessageFactory;
 import org.javarosa.core.services.Logger;
+import org.javarosa.xml.util.InvalidCasePropertyLengthException;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.xmlpull.v1.XmlPullParserException;
@@ -294,14 +298,6 @@ public class FormRecord extends Persisted implements EncryptedModel {
         Logger.log(LogTypes.TYPE_FORM_DELETION, logMessage);
     }
 
-    public void logManualQuarantine() {
-        String logMessage = String.format(
-                "User manually quarantined form record with id %s and submission ordering number %s ",
-                getInstanceID(),
-                getSubmissionOrderingNumber());
-        Logger.log(LogTypes.TYPE_FORM_DELETION, logMessage);
-    }
-
     public static FormRecord getFormRecord(SqlStorage<FormRecord> formRecordStorage, int formRecordId) {
         return formRecordStorage.read(formRecordId);
     }
@@ -350,17 +346,13 @@ public class FormRecord extends Persisted implements EncryptedModel {
         try {
             current = updateAndWriteRecord();
         } catch (Exception e) {
-            // Something went wrong with all of the connections which should exist.
-            logPendingDeletion(TAG, "something went wrong trying to update the record for the current session");
-            AndroidSessionWrapper currentState = CommCareApplication.instance().getCurrentSessionWrapper();
-            FormRecordCleanupTask.wipeRecord(currentState);
-
             // Notify the server of this problem (since we aren't going to crash)
             ForceCloseLogger.reportExceptionInBg(e);
             CrashUtil.reportException(e);
-            raiseFormEntryError("An error occurred: " + e.getMessage() +
-                    " and your data could not be saved.", currentState);
-            return;
+            Logger.log(LogTypes.TYPE_FORM_ENTRY, e.getMessage());
+
+            // Record will be wiped when form entry is exited
+            throw new IllegalStateException(e.getMessage());
         }
 
         boolean complete = STATUS_COMPLETE.equals(status);
@@ -380,6 +372,13 @@ public class FormRecord extends Persisted implements EncryptedModel {
                 try {
                     new FormRecordProcessor(CommCareApplication.instance()).process(current);
                     userDb.setTransactionSuccessful();
+                } catch (InvalidCasePropertyLengthException e) {
+                    Logger.log(LogTypes.TYPE_ERROR_WORKFLOW, e.getMessage());
+                    throw new IllegalStateException(
+                            StringUtils.getStringRobust(
+                                    CommCareApplication.instance(),
+                                    R.string.invalid_case_property_length,
+                                    e.getCaseProperty()));
                 } catch (InvalidStructureException e) {
                     // Record will be wiped when form entry is exited
                     Logger.log(LogTypes.TYPE_ERROR_WORKFLOW, e.getMessage());
@@ -418,18 +417,6 @@ public class FormRecord extends Persisted implements EncryptedModel {
         } catch (UnfullfilledRequirementsException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    /**
-     * Throw and Log FormEntry-related errors
-     *
-     * @param loggerText   String sent to javarosa logger
-     * @param currentState session to be cleared
-     */
-    private void raiseFormEntryError(String loggerText, AndroidSessionWrapper currentState) {
-        Logger.log(LogTypes.TYPE_FORM_ENTRY, loggerText);
-        currentState.reset();
-        throw new RuntimeException(loggerText);
     }
 
     private static class InvalidStateException extends Exception {

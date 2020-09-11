@@ -9,6 +9,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.dalvik.R;
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.models.FormRecordProcessor;
 import org.commcare.preferences.ServerUrls;
 import org.commcare.suite.model.Profile;
@@ -410,26 +411,12 @@ public class FormSubmissionHelper implements DataSubmissionListener {
                         FormRecord.QuarantineReason_RECORD_ERROR :
                         FormRecord.QuarantineReason_SERVER_PROCESSING_ERROR;
         record = mProcessor.quarantineRecord(record, reasonType, uploadResult.getErrorMessage());
-        logAndNotifyQuarantine(record);
         return record;
     }
 
     private FormRecord quarantineRecord(FormRecord record, String quarantineReasonType) {
         record = mProcessor.quarantineRecord(record, quarantineReasonType);
-        logAndNotifyQuarantine(record);
         return record;
-    }
-
-    private static void logAndNotifyQuarantine(FormRecord record) {
-        Logger.log(LogTypes.TYPE_ERROR_STORAGE,
-                String.format("Quarantining Form Record with id %s because: %s",
-                        record.getInstanceID(),
-                        QuarantineUtil.getQuarantineReasonDisplayString(record, true)));
-
-        NotificationMessage m = QuarantineUtil.getQuarantineNotificationMessage(record);
-        if (m != null) {
-            CommCareApplication.notificationManager().reportNotificationMessage(m, true);
-        }
     }
 
     private static void logSubmissionAttempt(FormRecord record) {
@@ -538,8 +525,7 @@ public class FormSubmissionHelper implements DataSubmissionListener {
                 context.getString(R.string.PostURL));
     }
 
-    public static String getFormSubmissionRequestName() {
-        String appId = CommCareApplication.instance().getCurrentApp().getUniqueId();
+    public static String getFormSubmissionRequestName(String appId) {
         String currentUserId = CommCareApplication.instance().getCurrentUserId();
         return FORM_SUBMISSION_REQUEST_NAME + "_" + appId + "_" + currentUserId;
     }

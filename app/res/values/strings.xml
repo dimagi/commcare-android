@@ -27,7 +27,7 @@
     <string name="retry_button_text">Retry</string>
     <string name="skipped_verification_warning">You did not validate multimedia resources for the app that was just
          installed! This app will not be visible to users on the log-in screen until multimedia is validated.</string>
-    <string name="skipped_verification_warning_2">You did not validate multimedia resources for this app! The app will 
+    <string name="skipped_verification_warning_2">You did not validate multimedia resources for this app! The app will
         not be visible to users on the log-in screen until multimedia is validated.</string>
     <string name="manager_instructions">Select an app to view its management options, or install a new app.</string>
     <string name="pre_multiple_apps_warning">Warning: The app you have installed is from an outdated build.
@@ -59,7 +59,7 @@
 
     <integer-array name="commcare_version">
         <item>2</item>
-        <item>49</item>
+        <item>50</item>
         <item>0</item>
     </integer-array>
 
@@ -382,6 +382,7 @@
     <string name="recovery_forms_state_unavailable" cc:translatable="true">Forms are not available. Make sure your phone storage is available</string>
     <string name="recovery_network_unavailable" cc:translatable="true">No network connection. Please check your internet and try again.</string>
     <string name="recovery_app_manager" cc:translatable="true">Go to App Manager</string>
+    <string name="recovery_retry" cc:translatable="true">Retry Recovery</string>
 
     <string name="notification_channel_errors_title" cc:translatable="true">Errors</string>
     <string name="notification_channel_errors_description" cc:translatable="true">Notifications for error messages when something breaks say on installing a CommCare app or while syncing forms with server</string>
@@ -417,7 +418,19 @@
 
     <string name="install_error_file_not_found" cc:translatable="true">No file found for resource %1$s</string>
     <string name="update_blocked_on_sync_message" cc:translatable="true">Sync is required to install this update. Auto initiating sync...</string>
+
+    <string name="media_download_failed" cc:translatable="true">An error occurred while downloading the requested media. Please try again</string>
+    <string name="media_download_in_progress" cc:translatable="true">Download in Progress, Please wait...</string>
+    <string name="media_download_started" cc:translatable="true">Download started</string>
+    <string name="media_download_completed" cc:translatable="true">Download completed</string>
+    <string name="video_download_prompt" cc:translatable="true">Video file is missing for this question, click the download button above to download</string>
+    <string name="image_download_prompt" cc:translatable="true">Image file is missing for this question, Click the download button above to download</string>
+    <string name="audio_download_prompt" cc:translatable="true">Audio file is missing for this question, click the download button above to download</string>
+    <string name="media_not_found_error" cc:translatable="true">Media not found in the application</string>
+
     <string name="area_format" cc:translatable="true">%1s sq m</string>
     <string name="parse_coordinates_failure" cc:translatable="true">Could not parse input coordinates</string>
     <string name="location_provider_disabled" cc:translatable="true">Turn on your location to receive location updates</string>
+    <string name="wait_for_location_fix"  cc:translatable="true">CommCare is still trying to get your location. Please wait or click Cancel to abort.</string>
+    <string name="invalid_case_property_length" cc:translatable="true">Invalid %1s, value must be 255 characters or less</string>
 </resources>

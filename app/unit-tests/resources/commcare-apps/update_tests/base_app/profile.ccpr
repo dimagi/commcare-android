@@ -92,7 +92,7 @@
     <suite><resource id="suite" version="6">
         
           <location authority="remote">./suite.xml</location>
-            <location authority="local">./suite.xml</location>
+          <location authority="local">./suite.xml</location>
         
     </resource></suite>
     

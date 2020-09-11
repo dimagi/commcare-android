@@ -141,6 +141,12 @@ public class AppUtils {
         }
     }
 
+    // Returns CommCare version without app version info
+    public static String getCommCareVersionString() {
+        return Localization.get("commcare.version",
+                new String[]{BuildConfig.VERSION_NAME, String.valueOf(BuildConfig.VERSION_CODE), BuildConfig.BUILD_DATE});
+    }
+
     public static String getCurrentVersionString() {
         CommCareApplication application = CommCareApplication.instance();
         PackageManager pm = application.getPackageManager();
@@ -183,8 +189,15 @@ public class AppUtils {
                 .getUniqueId();
     }
 
+    /**
+     * @return version number of the currently seated app
+     */
+    public static int getCurrentAppVersion() {
+        return CommCareApplication.instance().getCurrentApp().getAppRecord().getVersionNumber();
+    }
+
     public static boolean notOnLatestAppVersion() {
-        return ReportingUtils.getAppVersion() < HiddenPreferences.getLatestAppVersion();
+        return getCurrentAppVersion() < HiddenPreferences.getLatestAppVersion();
     }
 
     public static boolean notOnLatestCCVersion() {

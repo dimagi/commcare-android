@@ -18,6 +18,8 @@ public class FormEntryConstants {
     public static final int HIERARCHY_ACTIVITY_FIRST_START = 11;
     public static final int SIGNATURE_CAPTURE = 12;
     public static final int INTENT_COMPOUND_CALLOUT = 13;
+    public static final int INTENT_LOCATION_PERMISSION = 14;
+    public static final int INTENT_LOCATION_EXCEPTION = 15;
 
     public static final String NAV_STATE_NEXT = "next";
     public static final String NAV_STATE_DONE = "done";

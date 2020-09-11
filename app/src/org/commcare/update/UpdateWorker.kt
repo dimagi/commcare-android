@@ -70,18 +70,17 @@ class UpdateWorker(appContext: Context, workerParams: WorkerParameters)
     }
 
     private fun handleUpdateResult(updateResult: ResultAndError<AppInstallStatus>): Result {
-
         if (updateResult.data == AppInstallStatus.Cancelled) {
             updateHelper.OnUpdateCancelled()
         }
 
         updateHelper.OnUpdateComplete(updateResult)
-
         cleanUp()
 
-        return when (updateResult.data.shouldRetryUpdate()) {
-            true -> Result.success()
-            else -> Result.retry()
+        return when {
+            updateResult.data == AppInstallStatus.UpdateStaged -> Result.success()
+            updateResult.data.shouldRetryUpdate() -> Result.retry()
+            else -> Result.failure()
         }
     }
 

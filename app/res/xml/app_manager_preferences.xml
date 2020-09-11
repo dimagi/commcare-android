@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-    <Preference android:key="enable-mobile-privilege"/>
     <Preference android:key="clear-user-data"/>
     <Preference android:key="data-change-logs"/>
+    <Preference android:key="developer-options"/>
 </PreferenceScreen>

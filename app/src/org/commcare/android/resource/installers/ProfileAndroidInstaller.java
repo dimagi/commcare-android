@@ -112,8 +112,6 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
             } else {
                 savePreUpdateSyncNeeded(p);
             }
-
-
             table.commitCompoundResource(r, upgrade ? Resource.RESOURCE_STATUS_UPGRADE : Resource.RESOURCE_STATUS_INSTALLED, p.getVersion());
             return true;
         } catch (XmlPullParserException | InvalidReferenceException | IOException e) {

@@ -81,6 +81,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
         }
     }
 
+
     @Override
     public Vector<Integer> getIDsForValue(String fieldName, Object value) {
         return getIDsForValues(new String[]{fieldName}, new Object[]{value});

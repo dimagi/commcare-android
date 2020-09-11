@@ -2,9 +2,11 @@ package org.commcare.preferences;
 
 import android.content.SharedPreferences;
 
+import org.commcare.AppUtils;
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.activities.GeoPointActivity;
+import org.commcare.android.logging.ReportingUtils;
 import org.commcare.utils.AndroidCommCarePlatform;
 import org.commcare.utils.GeoUtils;
 import org.commcare.utils.MapLayer;
@@ -45,6 +47,7 @@ public class HiddenPreferences {
     private final static String FORCE_LOGS = "force-logs";
     private final static String COMMCARE_UPDATE_CANCELLATION_COUNTER = "cc_update_cancellation_counter";
     private final static String DISABLE_RATE_LIMIT_POPUP = "disable-rate-limit-popup";
+    private final static String LAZY_MEDIA_DOWNLOAD_COMPLETE = "lazy-media-download-complete";
 
     // Preferences whose values are only ever set by being sent down from HQ via the profile file
     private final static String USE_MAPBOX_MAP = "cc-use-mapbox-map";
@@ -71,10 +74,11 @@ public class HiddenPreferences {
     public final static String MM_VALIDATED_FROM_HQ = "cc-content-valid";
     private static final String USER_DOMAIN_SUFFIX = "cc_user_domain";
     private final static String LOGS_ENABLED = "logenabled";
-    public final static String LOGS_ENABLED_YES = "yes";
-    public final static String LOGS_ENABLED_NO = "no";
+    public final static String LOGS_ENABLED_YES = "Enabled";
+    public final static String LOGS_ENABLED_NO = "Disabled";
     public final static String LOGS_ENABLED_ON_DEMAND = "on_demand";
     private final static String RELEASED_ON_TIME_FOR_ONGOING_APP_DOWNLOAD = "released-on-time-for-ongoing-app-download";
+    private final static String FILE_OVERSIZE_WARNING = "cc-disable-file-oversize-warning";
 
 
     // Boolean pref to determine whether user has already been through the update information form
@@ -313,7 +317,7 @@ public class HiddenPreferences {
 
     public static String getLatestCommcareVersion() {
         return PreferenceManager.getDefaultSharedPreferences(CommCareApplication.instance())
-                .getString(LATEST_COMMCARE_VERSION, null);
+                .getString(LATEST_COMMCARE_VERSION, ReportingUtils.getCommCareVersionString());
     }
 
     public static void setLatestAppVersion(int appVersion) {
@@ -505,4 +509,26 @@ public class HiddenPreferences {
                 .putBoolean(DISABLE_RATE_LIMIT_POPUP, disable)
                 .apply();
     }
+
+    public static void setLazyMediaDownloadComplete(boolean lazyMediaDownloadComplete) {
+        CommCareApplication.instance().getCurrentApp().getAppPreferences()
+                .edit()
+                .putBoolean(LAZY_MEDIA_DOWNLOAD_COMPLETE, lazyMediaDownloadComplete)
+                .apply();
+    }
+
+    /**
+     *
+     * @return whether the lazy media download has already completed successfully for this app version
+     */
+    public static boolean isLazyMediaDownloadComplete() {
+        return CommCareApplication.instance().getCurrentApp().getAppPreferences()
+                .getBoolean(LAZY_MEDIA_DOWNLOAD_COMPLETE, false);
+    }
+
+    public static boolean isFileOversizeWarningDisabled() {
+        SharedPreferences properties = CommCareApplication.instance().getCurrentApp().getAppPreferences();
+        return PrefValues.YES.equals(properties.getString(FILE_OVERSIZE_WARNING, PrefValues.NO));
+    }
+
 }

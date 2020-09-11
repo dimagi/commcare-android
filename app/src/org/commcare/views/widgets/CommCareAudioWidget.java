@@ -42,6 +42,7 @@ public class CommCareAudioWidget extends AudioWidget
     private ImageButton mPlayButton;
     private TextView recordingNameText;
     private MediaPlayer player;
+    private static final String ACQUIRE_UPLOAD_FIELD = "acquire-or-upload";
 
     public CommCareAudioWidget(Context context, FormEntryPrompt prompt,
                                PendingCalloutInterface pic) {
@@ -79,6 +80,8 @@ public class CommCareAudioWidget extends AudioWidget
 
 
         mPlayButton.setOnClickListener(v -> playAudio());
+        boolean showFileChooser = ACQUIRE_UPLOAD_FIELD.equals(mPrompt.getAppearanceHint());
+        chooseButton.setVisibility(showFileChooser ? VISIBLE : GONE);
     }
 
     @Override
@@ -133,12 +136,6 @@ public class CommCareAudioWidget extends AudioWidget
         mPlayButton.setBackgroundResource(R.drawable.play);
         recordingNameText.setTextColor(getResources().getColor(R.color.black));
         recordingNameText.setText(Localization.get("recording.custom"));
-    }
-
-    @Override
-    public String getFileUniqueIdentifier() {
-        String formFileName = FormEntryInstanceState.mFormRecordPath.substring(FormEntryInstanceState.mFormRecordPath.lastIndexOf("/") + 1);
-        return formFileName + "_" + mPrompt.getIndex().toString() + "_" + (new Date().getTime());
     }
 
     @Override

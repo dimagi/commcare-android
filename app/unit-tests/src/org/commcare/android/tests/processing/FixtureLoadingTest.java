@@ -4,7 +4,7 @@ import junit.framework.Assert;
 
 import org.commcare.CommCareApplication;
 import org.commcare.CommCareTestApplication;
-import org.commcare.android.CommCareTestRunner;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import org.commcare.models.database.HybridFileBackedSqlStorage;
 import org.commcare.models.database.StoreFixturesOnFilesystemTests;
 import org.javarosa.core.model.instance.FormInstance;
@@ -19,7 +19,7 @@ import java.util.NoSuchElementException;
  * @author Phillip Mates (pmates@dimagi.com).
  */
 @Config(application = CommCareTestApplication.class)
-@RunWith(CommCareTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 public class FixtureLoadingTest {
 
     @Before

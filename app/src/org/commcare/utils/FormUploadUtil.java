@@ -54,6 +54,7 @@ public class FormUploadUtil {
      */
     public static final long MAX_BYTES = (15 * 1048576) - 1024;
 
+    // This list is also maintained server side and any changes to this should be replicated on server as well
     private static final String[] SUPPORTED_FILE_EXTS =
             {".xml", ".jpg", "jpeg", ".3gpp", ".3gp", ".3ga", ".3g2", ".mp3",
                     ".wav", ".amr", ".mp4", ".3gp2", ".mpg4", ".mpeg4",

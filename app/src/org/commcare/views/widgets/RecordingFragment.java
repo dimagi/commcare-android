@@ -22,11 +22,13 @@ import android.content.DialogInterface;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import org.commcare.CommCareApplication;
 import org.commcare.dalvik.R;
 import org.javarosa.core.services.locale.Localization;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Date;
 
 import androidx.fragment.app.DialogFragment;
 
@@ -41,8 +43,6 @@ public class RecordingFragment extends DialogFragment {
     public static final String AUDIO_FILE_PATH_ARG_KEY = "audio_file_path";
 
     private String fileName;
-    private static final String FILE_BASE =
-            "/Android/data/org.commcare.dalvik/temp/Custom_Recording";
     private static final String FILE_EXT = ".mp4";
 
     private LinearLayout layout;
@@ -85,7 +85,7 @@ public class RecordingFragment extends DialogFragment {
     }
 
     private void initAudioFile() {
-        fileName = Environment.getExternalStorageDirectory().getAbsolutePath() + FILE_BASE + listener.getFileUniqueIdentifier() + FILE_EXT;
+        fileName = CommCareApplication.instance().getAndroidFsTemp() + new Date().getTime() + FILE_EXT;
     }
 
     private void reloadSavedRecording() {
@@ -207,8 +207,6 @@ public class RecordingFragment extends DialogFragment {
 
     public interface RecordingCompletionListener {
         void onRecordingCompletion(String audioFile);
-
-        String getFileUniqueIdentifier();
     }
 
     public void setListener(RecordingCompletionListener listener) {

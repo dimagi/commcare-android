@@ -9,16 +9,11 @@ import android.location.Location
 import android.location.LocationListener
 import android.os.Build
 import android.os.Bundle
-import android.widget.Toast
-import androidx.work.Operation
-import com.google.android.gms.common.api.ResultCallback
-import com.google.android.gms.location.LocationSettingsStatusCodes
 import com.mapbox.geojson.Polygon
 import com.mapbox.mapboxsdk.geometry.LatLng
 import com.mapbox.mapboxsdk.maps.MapboxMap
 import com.mapbox.mapboxsdk.maps.Style
 import io.ona.kujaku.manager.DrawingManager
-import io.ona.kujaku.utils.LocationSettingsHelper
 import kotlinx.android.synthetic.main.activity_entity_mapbox.*
 import org.commcare.activities.components.FormEntryInstanceState
 import org.commcare.android.javarosa.IntentCallout
@@ -123,11 +118,17 @@ class DrawingBoundaryActivity : BaseMapboxActivity(), WithUIController, Location
         mapView.isWarmGps = true
         drawingManager = DrawingManager(mapView, map, loadedStyle)
         map.addOnMapClickListener {
-            polygon = drawingManager.currentPolygon
-            uiController.refreshView()
+            updateMetrics();
             false
         }
         setUiFromBoundaryCoords()
+        uiController.readyToTrack();
+    }
+
+    // updates the polygon and refresh the UI
+    private fun updateMetrics() {
+        polygon = drawingManager.currentPolygon
+        uiController.refreshView()
     }
 
     private fun setUiFromBoundaryCoords() {
@@ -140,6 +141,7 @@ class DrawingBoundaryActivity : BaseMapboxActivity(), WithUIController, Location
             finish()
         }.onSuccess { latlngs ->
             latlngs.map { latlng -> drawingManager.drawCircle(latlng) }
+            updateMetrics()
         }
     }
 
@@ -167,8 +169,7 @@ class DrawingBoundaryActivity : BaseMapboxActivity(), WithUIController, Location
     fun stopTracking() {
         isRecording = false
         mapView.locationClient!!.removeLocationListener(this)
-        polygon = drawingManager.currentPolygon
-        uiController.refreshView()
+        updateMetrics()
     }
 
     fun finishTracking() {
@@ -191,12 +192,11 @@ class DrawingBoundaryActivity : BaseMapboxActivity(), WithUIController, Location
                     (location.distanceTo(previousLocation) >= location.accuracy + previousLocation!!.accuracy &&
                             location.time - previousLocation!!.time >= recordingIntervalMillis &&
                             location.distanceTo(previousLocation) >= recordingIntervalMeters)
-            Toast.makeText(this, "loc $addLocation", Toast.LENGTH_SHORT).show()
             if (addLocation && isRecording) {
                 previousLocation = location
                 val latLng = LatLng(location.latitude, location.longitude)
                 drawingManager.drawCircle(latLng)
-                uiController.refreshView()
+                updateMetrics()
             }
         }
     }
@@ -214,7 +214,8 @@ class DrawingBoundaryActivity : BaseMapboxActivity(), WithUIController, Location
 
         val data = Intent()
         data.putExtra(IntentCallout.INTENT_RESULT_EXTRAS_BUNDLE, result)
-        data.putExtra(IntentCallout.INTENT_RESULT_VALUE, areaCalculator.getArea().toString())
+        var area = areaCalculator.getArea()
+        data.putExtra(IntentCallout.INTENT_RESULT_VALUE, String.format("%.4f", area))
         setResult(Activity.RESULT_OK, data)
         finish()
     }

@@ -17,6 +17,7 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'com.google.firebase.crashlytics'
+apply from: 'jacoco.gradle'
 
 repositories {
     google()
@@ -39,10 +40,23 @@ configurations {
 dependencies {
 
     testImplementation 'junit:junit:4.12'
-    testImplementation 'org.robolectric:robolectric:4.3'
-    testImplementation 'org.robolectric:shadows-multidex:4.3'
+    testImplementation 'org.robolectric:robolectric:4.3.1'
+    testImplementation 'org.robolectric:shadows-multidex:4.3.1'
+    testImplementation 'androidx.test:core:1.2.0'
+    testImplementation 'androidx.test.ext:junit:1.1.1'
+    testImplementation 'androidx.work:work-testing:2.4.0'
     testImplementation 'org.json:json:20140107'
     testImplementation project(path: ':commcare-core', configuration: 'testsAsJar')
+
+    androidTestImplementation 'androidx.test:runner:1.2.0'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.1'
+    androidTestImplementation 'androidx.test:rules:1.2.0'
+    androidTestImplementation 'androidx.test.espresso:espresso-intents:3.2.0'
+
+    // need uiautomator to rotate the device.
+    // this only works with API >=18
+    androidTestImplementation 'androidx.test.uiautomator:uiautomator:2.2.0'
 
     // release build type expects commcare jars to be in app/libs
     implementation(project(':commcare-core')) {
@@ -52,7 +66,7 @@ dependencies {
     // this syntax doesn't work for compiling .aar files, so those have to be loaded manually
     implementation fileTree(include: '*.jar', exclude: 'regexp-me.jar', dir: 'libs')
     implementation(name: 'htmlspanner-custom', ext: 'aar')
-    implementation(name: 'android-zebra-interface-1.1', ext: 'aar')
+    implementation 'com.github.dimagi:zebra-print-android:v1.2'
     implementation 'com.simprints:LibSimprints:1.0.12'
     implementation 'androidx.multidex:multidex:2.0.1'
     implementation 'androidx.cardview:cardview:1.0.0'
@@ -60,8 +74,7 @@ dependencies {
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'androidx.legacy:legacy-preference-v14:1.0.0'
     implementation 'androidx.gridlayout:gridlayout:1.0.0'
-    implementation 'com.madgag.spongycastle:core:1.54.0.0'
-    implementation 'com.madgag.spongycastle:prov:1.54.0.0'
+    implementation 'org.bouncycastle:bcprov-jdk15on:1.65'
     implementation 'com.google.android.gms:play-services-maps:17.0.0'
     implementation 'joda-time:joda-time:2.9.4'
     implementation 'net.zetetic:android-database-sqlcipher:3.5.9@aar'
@@ -71,7 +84,6 @@ dependencies {
     implementation('org.apache.httpcomponents:httpmime:4.5.6')
     implementation 'net.sourceforge.htmlcleaner:htmlcleaner:2.16'
     implementation 'org.jsoup:jsoup:1.8.3'
-    implementation 'com.google.firebase:firebase-core:17.4.2'
 
     // crashes on update - https://developers.google.com/admob/android/quick-start#update_your_androidmanifestxml
     // We need to update consumer apps script to inject the right admob id to be able to update this
@@ -81,7 +93,8 @@ dependencies {
     implementation 'io.reactivex.rxjava2:rxandroid:2.0.1'
     implementation 'com.jakewharton.rxbinding2:rxbinding:2.0.0'
     implementation 'com.journeyapps:zxing-android-embedded:3.6.0'
-    implementation 'com.google.firebase:firebase-crashlytics:17.0.0'
+    implementation 'com.google.firebase:firebase-analytics:17.5.0'
+    implementation 'com.google.firebase:firebase-crashlytics:17.2.1'
     implementation 'androidx.legacy:legacy-support-core-ui:1.0.0'
     implementation 'com.duolingo.open:rtl-viewpager:1.0.3'
     implementation ("com.github.bumptech.glide:glide:4.9.0") {
@@ -98,8 +111,8 @@ dependencies {
     implementation ('io.ona.kujaku:library:0.8.7'){
         exclude module: 'xpp3'
     }
-    implementation "androidx.work:work-runtime:2.3.4"
-    implementation "androidx.work:work-runtime-ktx:2.3.4"
+    implementation "androidx.work:work-runtime:2.4.0"
+    implementation "androidx.work:work-runtime-ktx:2.4.0"
 
     implementation 'com.google.android.play:core:1.7.3'
     implementation 'android.arch.lifecycle:common-java8:1.1.1'
@@ -129,6 +142,9 @@ ext {
     STANDALONE_APP_ID = ""
     LTS_APP_ID = ""
     COMMCARE_APP_ID = ""
+    HQ_API_USERNAME = project.properties['HQ_API_USERNAME'] ?: ""
+    HQ_API_PASSWORD = project.properties['HQ_API_PASSWORD'] ?: ""
+    TEST_BUILD_TYPE = project.properties['TEST_BUILD_TYPE'] ?: "debug"
 }
 
 afterEvaluate {
@@ -213,6 +229,11 @@ android {
         disable "ResourceType"
     }
 
+    // Espresso requires us to disable animations on device.
+    testOptions {
+        animationsDisabled = true
+    }
+
     packagingOptions {
         exclude 'META-INF/LICENSE'
         exclude 'META-INF/LICENSE.txt'
@@ -265,6 +286,11 @@ android {
         buildConfigField "String", "ENTITY_SELECT_AD_UNIT_ID", "\"\""
         buildConfigField "String", "MENU_LIST_AD_UNIT_ID", "\"\""
         buildConfigField "String", "MENU_GRID_AD_UNIT_ID", "\"\""
+
+        buildConfigField "String", "HQ_API_USERNAME", "\"${project.ext.HQ_API_USERNAME}\""
+        buildConfigField "String", "HQ_API_PASSWORD", "\"${project.ext.HQ_API_PASSWORD}\""
+
+        testInstrumentationRunner "org.commcare.CommCareJUnitRunner"
     }
 
     applicationVariants.all { variant ->
@@ -327,6 +353,12 @@ android {
         test {
             java.srcDirs = ['unit-tests/src/']
             resources.srcDirs = ['unit-tests/resources/']
+        }
+
+        androidTest {
+            setRoot('instrumentation-tests/')
+            java.srcDirs = ['instrumentation-tests/src/']
+            resources.srcDirs = ['instrumentation-tests/resources']
         }
 
         // Move the build types to build-types/<type>
@@ -450,6 +482,7 @@ android {
             signingConfig signingConfigs.release
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard.cfg'
 
+            multiDexKeepProguard file('proguard-multidex.pro')
             // enable crashlytics
             buildConfigField "boolean", "USE_CRASHLYTICS", "true"
             ext.enableCrashlytics = true
@@ -472,6 +505,9 @@ android {
             includeAndroidResources = true
         }
     }
+
+    // Needed to run espresso tests on release build.
+    testBuildType project.ext.TEST_BUILD_TYPE
 }
 
 /**

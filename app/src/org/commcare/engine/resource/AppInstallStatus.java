@@ -63,8 +63,11 @@ public enum AppInstallStatus implements MessageTag {
         return root;
     }
 
-    public boolean canReusePartialUpdateTable() {
-        return (this == UnknownFailure || this == NoLocalStorage);
+    public boolean shouldDiscardPartialUpdateTable() {
+        return this == MissingResources ||
+                this == MissingResourcesWithMessage ||
+                this == InvalidResource ||
+                this == IncompatibleReqs;
     }
 
     public boolean isUpdateInCompletedState() {
@@ -72,7 +75,8 @@ public enum AppInstallStatus implements MessageTag {
     }
 
     public boolean shouldRetryUpdate() {
-        return (this == MissingResources || this == MissingResourcesWithMessage || this == NoConnection);
+        return (this == NetworkFailure ||
+                this == NoConnection);
     }
 
     @Override
@@ -85,7 +89,20 @@ public enum AppInstallStatus implements MessageTag {
         return !(this == Cancelled ||
                 this == BadCertificate ||
                 this == NoConnection ||
+                this == CaptivePortal ||
                 this == RateLimited ||
                 this == NetworkFailure);
     }
+
+    public boolean isNonPersistentFailure() {
+        return (this == Cancelled ||
+                this == BadCertificate ||
+                this == NoConnection ||
+                this == CaptivePortal ||
+                this == RateLimited ||
+                this == NetworkFailure ||
+                this == NoLocalStorage
+        );
+    }
+
 }
