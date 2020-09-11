@@ -69,29 +69,24 @@ public class AndroidResourceManager extends ResourceManager {
      * @return UpdateStaged upon update download, UpToDate if no new update,
      * otherwise an error status.
      */
-    public AppInstallStatus checkAndPrepareUpgradeResources(String profileRef, int profileAuthority, InstallRequestSource installRequestSource)
+    public AppInstallStatus checkAndPrepareUpgradeResources(String profileRef, int profileAuthority, ResourceInstallContext resourceInstallContext)
             throws UnfullfilledRequirementsException, UnresolvedResourceException, InstallCancelledException {
         synchronized (platform) {
             this.profileRef = profileRef;
 
-            try {
-                platform.registerInstallContext(new ResourceInstallContext(installRequestSource));
-                instantiateLatestUpgradeProfile(profileAuthority);
+            instantiateLatestUpgradeProfile(profileAuthority, resourceInstallContext);
 
-                if (isUpgradeTableStaged()) {
-                    return AppInstallStatus.UpdateStaged;
-                }
-
-                if (updateNotNewer(getMasterProfile())) {
-                    Logger.log(LogTypes.TYPE_RESOURCES, "App Resources up to Date");
-                    clearUpgrade();
-                    return AppInstallStatus.UpToDate;
-                }
-
-                prepareUpgradeResources();
-            } finally {
-                platform.registerInstallContext(null);
+            if (isUpgradeTableStaged()) {
+                return AppInstallStatus.UpdateStaged;
             }
+
+            if (updateNotNewer(getMasterProfile())) {
+                Logger.log(LogTypes.TYPE_RESOURCES, "App Resources up to Date");
+                clearUpgrade();
+                return AppInstallStatus.UpToDate;
+            }
+
+            prepareUpgradeResources(resourceInstallContext);
             return AppInstallStatus.UpdateStaged;
         }
     }
@@ -100,7 +95,7 @@ public class AndroidResourceManager extends ResourceManager {
      * Load the latest profile into the upgrade table. Clears the upgrade table
      * if it's partially populated with an out-of-date version.
      */
-    private void instantiateLatestUpgradeProfile(int authority)
+    private void instantiateLatestUpgradeProfile(int authority, ResourceInstallContext resourceInstallContext)
             throws UnfullfilledRequirementsException,
             UnresolvedResourceException,
             InstallCancelledException {
@@ -122,9 +117,9 @@ public class AndroidResourceManager extends ResourceManager {
                 upgradeTable.getResourceWithId(CommCarePlatform.APP_PROFILE_RESOURCE_ID);
 
         if (upgradeProfile == null) {
-            loadProfileIntoTable(upgradeTable, profileRef, authority);
+            loadProfileIntoTable(upgradeTable, profileRef, authority, resourceInstallContext);
         } else {
-            loadProfileViaTemp(upgradeProfile, authority);
+            loadProfileViaTemp(upgradeProfile, authority, resourceInstallContext);
         }
     }
 
@@ -134,10 +129,10 @@ public class AndroidResourceManager extends ResourceManager {
      *
      * @param upgradeProfile the profile currently in the upgrade table.
      */
-    private void loadProfileViaTemp(Resource upgradeProfile, int profileAuthority)
+    private void loadProfileViaTemp(Resource upgradeProfile, int profileAuthority, ResourceInstallContext resourceInstallContext)
             throws UnfullfilledRequirementsException, UnresolvedResourceException, InstallCancelledException {
         tempUpgradeTable.destroy();
-        loadProfileIntoTable(tempUpgradeTable, profileRef, profileAuthority);
+        loadProfileIntoTable(tempUpgradeTable, profileRef, profileAuthority, resourceInstallContext);
         Resource tempProfile =
                 tempUpgradeTable.getResourceWithId(CommCarePlatform.APP_PROFILE_RESOURCE_ID);
 

@@ -105,8 +105,8 @@ public abstract class ResourceEngineTask<R>
             try {
                 InstallRequestSource installRequestSource = reinstall ? InstallRequestSource.REINSTALL : InstallRequestSource.INSTALL;
                 RequestStats.register(app, installRequestSource);
-                platform.registerInstallContext(new ResourceInstallContext(installRequestSource));
-                ResourceManager.installAppResources(platform, profileRef, global, reinstall, authorityForInstall);
+                ResourceManager.installAppResources(platform, profileRef, global,
+                        reinstall, authorityForInstall, new ResourceInstallContext(installRequestSource));
                 RequestStats.markSuccess(app, installRequestSource);
             } catch (LocalStorageUnavailableException e) {
                 ResourceInstallUtils.logInstallError(e,
@@ -142,8 +142,6 @@ public abstract class ResourceEngineTask<R>
             } catch (CaptivePortalRedirectException e) {
                 Logger.log(LogTypes.TYPE_WARNING_NETWORK, "Resource installation failed due to captive portal");
                 return AppInstallStatus.CaptivePortal;
-            } finally {
-                platform.registerInstallContext(null);
             }
 
             ResourceInstallUtils.initAndCommitApp(app, profileRef);

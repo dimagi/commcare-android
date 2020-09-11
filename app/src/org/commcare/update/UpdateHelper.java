@@ -15,6 +15,7 @@ import org.commcare.logging.DataChangeLogger;
 import org.commcare.network.RequestStats;
 import org.commcare.preferences.MainConfigurablePreferences;
 import org.commcare.preferences.PrefValues;
+import org.commcare.resources.ResourceInstallContext;
 import org.commcare.resources.model.InstallCancelled;
 import org.commcare.resources.model.InstallCancelledException;
 import org.commcare.resources.model.InstallRequestSource;
@@ -82,11 +83,11 @@ public class UpdateHelper implements TableStateListener {
     }
 
     // Main UpdateHelper function for staging updates
-    public ResultAndError<AppInstallStatus> update(String profileRef, InstallRequestSource installRequestSource) {
+    public ResultAndError<AppInstallStatus> update(String profileRef, ResourceInstallContext resourceInstallContext) {
         setupUpdate(profileRef);
 
         try {
-            return new ResultAndError<>(stageUpdate(profileRef, installRequestSource));
+            return new ResultAndError<>(stageUpdate(profileRef, resourceInstallContext));
         } catch (InvalidResourceException e) {
             ResourceInstallUtils.logInstallError(e,
                     "Structure error ocurred during install|");
@@ -133,9 +134,9 @@ public class UpdateHelper implements TableStateListener {
     }
 
 
-    private AppInstallStatus stageUpdate(String profileRef, InstallRequestSource installRequestSource)
+    private AppInstallStatus stageUpdate(String profileRef, ResourceInstallContext resourceInstallContext)
             throws UnfullfilledRequirementsException, UnresolvedResourceException, InstallCancelledException {
-        RequestStats.register(installRequestSource);
+        RequestStats.register(resourceInstallContext.getInstallRequestSource());
         Resource profile = mResourceManager.getMasterProfile();
         boolean appInstalled = (profile != null &&
                 profile.getStatus() == Resource.RESOURCE_STATUS_INSTALLED);
@@ -147,10 +148,10 @@ public class UpdateHelper implements TableStateListener {
         String profileRefWithParams =
                 ResourceInstallUtils.addParamsToProfileReference(profileRef);
 
-        AppInstallStatus result = mResourceManager.checkAndPrepareUpgradeResources(profileRefWithParams, mAuthority, installRequestSource);
+        AppInstallStatus result = mResourceManager.checkAndPrepareUpgradeResources(profileRefWithParams, mAuthority, resourceInstallContext);
 
         if (result == AppInstallStatus.UpdateStaged) {
-            RequestStats.markSuccess(installRequestSource);
+            RequestStats.markSuccess(resourceInstallContext.getInstallRequestSource());
         }
 
         return result;

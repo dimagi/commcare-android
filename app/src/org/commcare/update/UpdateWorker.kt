@@ -10,6 +10,7 @@ import kotlinx.coroutines.coroutineScope
 import org.commcare.CommCareApplication
 import org.commcare.engine.resource.AppInstallStatus
 import org.commcare.engine.resource.ResourceInstallUtils
+import org.commcare.resources.ResourceInstallContext
 import org.commcare.resources.model.InstallCancelled
 import org.commcare.resources.model.InstallRequestSource
 import org.commcare.tasks.ResultAndError
@@ -59,7 +60,8 @@ class UpdateWorker(appContext: Context, workerParams: WorkerParameters)
                 CommCareApplication.instance().session.isActive) {
 
             updateHelper.startPinnedNotification(CommCareApplication.instance())
-            updateResult = updateHelper.update(ResourceInstallUtils.getDefaultProfileRef(), InstallRequestSource.BACKGROUND_UPDATE)
+            updateResult = updateHelper.update(ResourceInstallUtils.getDefaultProfileRef(),
+                    ResourceInstallContext(InstallRequestSource.BACKGROUND_UPDATE))
         } else {
             return Result.success()
         }

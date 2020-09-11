@@ -7,6 +7,7 @@ import org.commcare.engine.resource.installers.LocalStorageUnavailableException;
 import org.commcare.network.CommcareRequestGenerator;
 import org.commcare.network.RateLimitedException;
 import org.commcare.network.RequestStats;
+import org.commcare.resources.ResourceInstallContext;
 import org.commcare.resources.model.InstallRequestSource;
 import org.commcare.resources.model.MissingMediaException;
 import org.commcare.resources.model.Resource;
@@ -88,19 +89,15 @@ abstract class FileSystemInstaller implements ResourceInstaller<AndroidCommCareP
     @Override
     public boolean install(Resource r, ResourceLocation location,
                            Reference ref, ResourceTable table,
-                           AndroidCommCarePlatform platform, boolean upgrade)
+                           AndroidCommCarePlatform platform, boolean upgrade, ResourceInstallContext resourceInstallContext)
             throws UnresolvedResourceException, UnfullfilledRequirementsException {
         try {
-            if (platform.getResourceInstallContext() == null) {
-                throw new RuntimeException("Encountered invalid Platform with null Resource Install Context while installing resource " + r.getDescriptor());
-            }
-
             Reference localReference = resolveEmptyLocalReference(r, location, upgrade);
 
             InputStream inputFileStream;
             try {
                 if (ref instanceof ParameterizedReference) {
-                    inputFileStream = ((ParameterizedReference)ref).getStream(getInstallHeaders(platform));
+                    inputFileStream = ((ParameterizedReference)ref).getStream(getInstallHeaders(platform, resourceInstallContext));
                 } else {
                     inputFileStream = ref.getStream();
                 }
@@ -144,15 +141,14 @@ abstract class FileSystemInstaller implements ResourceInstaller<AndroidCommCareP
         }
     }
 
-    private Map<String, String> getInstallHeaders(AndroidCommCarePlatform platform) {
+    private Map<String, String> getInstallHeaders(AndroidCommCarePlatform platform, ResourceInstallContext resourceInstallContext) {
         Map<String, String> headers = new HashMap<>();
-        if (platform.getResourceInstallContext() != null) {
-            InstallRequestSource installRequestSource = platform.getResourceInstallContext().getInstallRequestSource();
-            headers.put(CommcareRequestGenerator.X_COMMCAREHQ_REQUEST_SOURCE,
-                    String.valueOf(installRequestSource).toLowerCase());
-            headers.put(CommcareRequestGenerator.X_COMMCAREHQ_REQUEST_AGE,
-                    String.valueOf(RequestStats.getRequestAge(platform.getApp(), installRequestSource)).toLowerCase());
-        }
+
+        InstallRequestSource installRequestSource = resourceInstallContext.getInstallRequestSource();
+        headers.put(CommcareRequestGenerator.X_COMMCAREHQ_REQUEST_SOURCE,
+                String.valueOf(installRequestSource).toLowerCase());
+        headers.put(CommcareRequestGenerator.X_COMMCAREHQ_REQUEST_AGE,
+                String.valueOf(RequestStats.getRequestAge(platform.getApp(), installRequestSource)).toLowerCase());
         return headers;
     }
 

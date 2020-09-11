@@ -10,6 +10,7 @@ import org.commcare.engine.resource.AppInstallStatus;
 import org.commcare.engine.resource.ResourceInstallUtils;
 import org.commcare.network.CommcareRequestGenerator;
 import org.commcare.network.RequestStats;
+import org.commcare.resources.ResourceInstallContext;
 import org.commcare.resources.model.InstallCancelled;
 import org.commcare.resources.model.InstallCancelledException;
 import org.commcare.resources.model.InstallRequestSource;
@@ -68,7 +69,8 @@ public class ResourceRecoveryTask
         ResultAndError<AppInstallStatus> result;
         try {
             RequestStats.register(InstallRequestSource.RECOVERY);
-            global.recoverResources(platform, ResourceInstallUtils.getProfileReference(), InstallRequestSource.RECOVERY);
+            global.recoverResources(platform, ResourceInstallUtils.getProfileReference(),
+                    new ResourceInstallContext(InstallRequestSource.RECOVERY));
             result = new ResultAndError(AppInstallStatus.Installed);
             RequestStats.markSuccess(InstallRequestSource.RECOVERY);
         } catch (InstallCancelledException e) {

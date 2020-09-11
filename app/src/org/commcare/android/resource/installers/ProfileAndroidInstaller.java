@@ -9,6 +9,7 @@ import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.preferences.HiddenPreferences;
+import org.commcare.resources.ResourceInstallContext;
 import org.commcare.resources.model.InstallRequestSource;
 import org.commcare.resources.model.InvalidResourceException;
 import org.commcare.resources.model.Resource;
@@ -81,10 +82,10 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
 
     @Override
     public boolean install(Resource r, ResourceLocation location, Reference ref,
-                           ResourceTable table, AndroidCommCarePlatform platform, boolean upgrade)
+                           ResourceTable table, AndroidCommCarePlatform platform, boolean upgrade, ResourceInstallContext resourceInstallContext)
             throws UnresolvedResourceException, UnfullfilledRequirementsException {
         //First, make sure all the file stuff is managed.
-        super.install(r, location, ref, table, platform, upgrade);
+        super.install(r, location, ref, table, platform, upgrade, resourceInstallContext);
         try {
             storeReleasedTime(platform, ref);
         } catch (ParseException e) {
@@ -100,13 +101,13 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
 
             Profile p = parser.parse();
 
-            if (platform.getResourceInstallContext().getInstallRequestSource() == InstallRequestSource.REINSTALL) {
+            if (resourceInstallContext.getInstallRequestSource() == InstallRequestSource.REINSTALL) {
                 validateReinstall(platform, p);
             }
 
             if (!upgrade) {
                 initProperties(p);
-                if (platform.getResourceInstallContext().getInstallRequestSource() == InstallRequestSource.INSTALL) {
+                if (resourceInstallContext.getInstallRequestSource() == InstallRequestSource.INSTALL) {
                     checkDuplicate(p);
                     checkAppTarget();
                 }

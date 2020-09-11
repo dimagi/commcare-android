@@ -1,5 +1,6 @@
 package org.commcare.utils;
 
+import org.commcare.resources.ResourceInstallContext;
 import org.commcare.resources.model.InstallerFactory;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceInstaller;
@@ -93,7 +94,7 @@ public class DummyResourceTable extends ResourceTable {
                     public boolean install(Resource r,
                                            ResourceLocation location, Reference ref,
                                            ResourceTable table, CommCarePlatform platform,
-                                           boolean upgrade)
+                                           boolean upgrade, ResourceInstallContext resourceInstallContext)
                             throws UnresolvedResourceException,
                             UnfullfilledRequirementsException {
                         return true;
@@ -187,7 +188,7 @@ public class DummyResourceTable extends ResourceTable {
     }
 
     @Override
-    public void prepareResources(ResourceTable master, CommCarePlatform platform)
+    public void prepareResources(ResourceTable master, CommCarePlatform platform, ResourceInstallContext resourceInstallContext)
             throws UnresolvedResourceException,
             UnfullfilledRequirementsException {
     }

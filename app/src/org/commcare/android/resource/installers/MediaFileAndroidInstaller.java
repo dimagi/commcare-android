@@ -1,5 +1,6 @@
 package org.commcare.android.resource.installers;
 
+import org.commcare.resources.ResourceInstallContext;
 import org.commcare.resources.model.InstallRequestSource;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceLocation;
@@ -38,15 +39,17 @@ public class MediaFileAndroidInstaller extends FileSystemInstaller {
     }
 
     @Override
-    public boolean install(Resource r, ResourceLocation location, Reference ref, ResourceTable table, AndroidCommCarePlatform platform, boolean upgrade) throws UnresolvedResourceException, UnfullfilledRequirementsException {
+    public boolean install(Resource r, ResourceLocation location, Reference ref, ResourceTable table,
+                           AndroidCommCarePlatform platform, boolean upgrade, ResourceInstallContext resourceInstallContext)
+            throws UnresolvedResourceException, UnfullfilledRequirementsException {
         // skip lazy resources while update
-        InstallRequestSource installRequestSource = platform.getResourceInstallContext().getInstallRequestSource();
+        InstallRequestSource installRequestSource = resourceInstallContext.getInstallRequestSource();
         if (r.isLazy() && installRequestSource.isUpdate()) {
             resolveEmptyLocalReference(r, location, upgrade);
             table.commit(r, upgrade ? Resource.RESOURCE_STATUS_UPGRADE : Resource.RESOURCE_STATUS_INSTALLED);
             return true;
         }
-        return super.install(r, location, ref, table, platform, upgrade);
+        return super.install(r, location, ref, table, platform, upgrade, resourceInstallContext);
     }
 
     @Override

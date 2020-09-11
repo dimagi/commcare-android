@@ -13,6 +13,7 @@ import org.commcare.engine.resource.installers.LocalStorageUnavailableException
 import org.commcare.preferences.HiddenPreferences
 import org.commcare.resources.model.*
 import org.commcare.network.RequestStats
+import org.commcare.resources.ResourceInstallContext
 import org.commcare.tasks.ResultAndError
 import org.commcare.util.LogTypes
 import org.commcare.utils.AndroidCommCarePlatform
@@ -223,7 +224,7 @@ object MissingMediaDownloadHelper : TableStateListener {
         resourceInProgress = it
         var result: ResultAndError<AppInstallStatus> = ResultAndError(AppInstallStatus.UnknownFailure, "Unknown error")
         result = try {
-            platform.globalResourceTable.recoverResource(it, platform, ResourceInstallUtils.getProfileReference(), source)
+            platform.globalResourceTable.recoverResource(it, platform, ResourceInstallUtils.getProfileReference(), ResourceInstallContext(source))
             ResultAndError(AppInstallStatus.Installed)
         } catch (e: Exception) {
             handleRecoverResourceFailure(e)
