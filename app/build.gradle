@@ -104,10 +104,10 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
 
     // Markdown
-    implementation 'com.github.budsmile:bypass-android:1.0.5'//Needed for Ice Cream Sandwich (14&15)
-    implementation 'ru.noties:markwon:1.0.4'
-    implementation 'ru.noties:markwon-image-loader:1.0.4'
-    implementation 'ru.noties:markwon-view:1.0.4'
+    implementation 'io.noties.markwon:core:4.4.0'
+    implementation 'io.noties.markwon:ext-tables:4.4.0'
+    implementation 'io.noties.markwon:ext-strikethrough:4.4.0'
+
     implementation ('io.ona.kujaku:library:0.8.7'){
         exclude module: 'xpp3'
     }

@@ -7,6 +7,7 @@ import android.graphics.Color;
 import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.text.Spannable;
+import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.TextPaint;
 import android.text.method.LinkMovementMethod;
@@ -28,6 +29,7 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.commcare.CommCareApplication;
 import org.commcare.activities.CommCareActivity;
 import org.commcare.dalvik.R;
 import org.commcare.interfaces.WidgetChangedListener;
@@ -370,7 +372,7 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
     }
 
     public void setQuestionText(TextView textView, FormEntryPrompt prompt) {
-        textView.setText(getTextFromPrompt(prompt));
+        setTextFromPrompt(textView, prompt);
         if (prompt.getMarkdownText() != null) {
             textView.setMovementMethod(LinkMovementMethod.getInstance());
             // Wrap to the size of the parent view
@@ -378,26 +380,30 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
         }
     }
 
-    private SpannableStringBuilder getTextFromPrompt(FormEntryPrompt prompt) {
+    private void setTextFromPrompt(TextView textView, FormEntryPrompt prompt) {
         SpannableStringBuilder builder = new SpannableStringBuilder();
+
         if (prompt.getMarkdownText() != null) {
-            builder.append(forceMarkdown(prompt.getMarkdownText()));
-        } else if (mPrompt.getLongText() == null) {
-            return null;
-        } else {
+            builder.append(prompt.getMarkdownText());
+        } else if (mPrompt.getLongText() != null) {
             builder.append(mPrompt.getLongText());
         }
 
+        SpannableStringBuilder asteriskBuilder = new SpannableStringBuilder();
         if (HiddenPreferences.shouldLabelRequiredQuestionsWithAsterisk() && prompt.isRequired()) {
-            builder.append(" ");
-            int start = builder.length();
-            builder.append("*");
-            int end = builder.length();
-            builder.setSpan(new ForegroundColorSpan(Color.RED), start, end,
+            asteriskBuilder.append(" ");
+            int start = asteriskBuilder.length();
+            asteriskBuilder.append("*");
+            int end = asteriskBuilder.length();
+            asteriskBuilder.setSpan(new ForegroundColorSpan(Color.RED), start, end,
                     Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         }
 
-        return builder;
+        if (prompt.getMarkdownText() != null) {
+            MarkupUtil.setMarkdown(textView, builder, asteriskBuilder);
+        } else {
+            textView.setText(builder.append(asteriskBuilder));
+        }
     }
 
     public void setChoiceText(TextView choiceText, SelectChoice choice) {
