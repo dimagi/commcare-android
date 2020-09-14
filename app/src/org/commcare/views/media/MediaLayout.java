@@ -144,6 +144,7 @@ public class MediaLayout extends ConstraintLayout {
         alignMediaAtTop(qrView);
         alignMediaAtTop(imageView);
         alignMediaAtTop(resizingImageView);
+        alignMediaAtTop(missingMediaBackground);
         alignMediaAtTop(downloadIcon);
         alignMediaAtTop(progressBar);
 
@@ -416,6 +417,7 @@ public class MediaLayout extends ConstraintLayout {
     }
 
     private void initView(Context context) {
+        setId(AndroidUtil.generateViewId());
         View view = LayoutInflater.from(context).inflate(R.layout.media_layout, this);
         audioButton = view.findViewById(R.id.audio_button);
         videoButton = view.findViewById(R.id.video_button);
