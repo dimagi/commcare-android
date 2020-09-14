@@ -44,6 +44,7 @@ dependencies {
     testImplementation 'androidx.test:core:1.2.0'
     testImplementation 'androidx.test.ext:junit:1.1.1'
     testImplementation 'androidx.work:work-testing:2.4.0'
+    testImplementation "io.mockk:mockk:1.10.0"
     testImplementation 'org.json:json:20140107'
     testImplementation project(path: ':commcare-core', configuration: 'testsAsJar')
 
@@ -69,6 +70,7 @@ dependencies {
     implementation 'com.simprints:LibSimprints:1.0.12'
     implementation 'androidx.appcompat:appcompat:1.2.0'
     implementation 'androidx.multidex:multidex:2.0.1'
+    implementation 'androidx.constraintlayout:constraintlayout:2.0.1'
     implementation 'androidx.cardview:cardview:1.0.0'
     implementation 'androidx.recyclerview:recyclerview:1.1.0'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
@@ -104,10 +106,9 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
 
     // Markdown
-    implementation 'com.github.budsmile:bypass-android:1.0.5'//Needed for Ice Cream Sandwich (14&15)
-    implementation 'ru.noties:markwon:1.0.4'
-    implementation 'ru.noties:markwon-image-loader:1.0.4'
-    implementation 'ru.noties:markwon-view:1.0.4'
+    implementation 'io.noties.markwon:core:4.4.0'
+    implementation 'io.noties.markwon:ext-tables:4.4.0'
+    implementation 'io.noties.markwon:ext-strikethrough:4.4.0'
 
     implementation ('io.ona.kujaku:library:0.8.7'){
         exclude module: 'xpp3'

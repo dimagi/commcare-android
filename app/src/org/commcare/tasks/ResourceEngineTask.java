@@ -8,7 +8,10 @@ import org.commcare.engine.references.JavaHttpReference;
 import org.commcare.engine.resource.AppInstallStatus;
 import org.commcare.engine.resource.ResourceInstallUtils;
 import org.commcare.engine.resource.installers.LocalStorageUnavailableException;
+import org.commcare.network.RequestStats;
+import org.commcare.resources.ResourceInstallContext;
 import org.commcare.resources.ResourceManager;
+import org.commcare.resources.model.InstallRequestSource;
 import org.commcare.resources.model.InvalidResourceException;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
@@ -100,7 +103,11 @@ public abstract class ResourceEngineTask<R>
 
             global.setStateListener(this);
             try {
-                ResourceManager.installAppResources(platform, profileRef, global, reinstall, authorityForInstall);
+                InstallRequestSource installRequestSource = reinstall ? InstallRequestSource.REINSTALL : InstallRequestSource.INSTALL;
+                RequestStats.register(app, installRequestSource);
+                ResourceManager.installAppResources(platform, profileRef, global,
+                        reinstall, authorityForInstall, new ResourceInstallContext(installRequestSource));
+                RequestStats.markSuccess(app, installRequestSource);
             } catch (LocalStorageUnavailableException e) {
                 ResourceInstallUtils.logInstallError(e,
                         "Couldn't install file to local storage|");

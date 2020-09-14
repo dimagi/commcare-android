@@ -1,6 +1,5 @@
 package org.commcare.engine.resource;
 
-import android.content.Context;
 import android.util.Log;
 
 import org.commcare.CommCareApp;
@@ -9,9 +8,11 @@ import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.logging.analytics.UpdateStats;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.preferences.PrefValues;
+import org.commcare.resources.ResourceInstallContext;
 import org.commcare.resources.ResourceManager;
 import org.commcare.resources.model.InstallCancelled;
 import org.commcare.resources.model.InstallCancelledException;
+import org.commcare.resources.model.InstallRequestSource;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.TableStateListener;
@@ -68,11 +69,12 @@ public class AndroidResourceManager extends ResourceManager {
      * @return UpdateStaged upon update download, UpToDate if no new update,
      * otherwise an error status.
      */
-    public AppInstallStatus checkAndPrepareUpgradeResources(String profileRef, int profileAuthority)
+    public AppInstallStatus checkAndPrepareUpgradeResources(String profileRef, int profileAuthority, ResourceInstallContext resourceInstallContext)
             throws UnfullfilledRequirementsException, UnresolvedResourceException, InstallCancelledException {
         synchronized (platform) {
             this.profileRef = profileRef;
-            instantiateLatestUpgradeProfile(profileAuthority);
+
+            instantiateLatestUpgradeProfile(profileAuthority, resourceInstallContext);
 
             if (isUpgradeTableStaged()) {
                 return AppInstallStatus.UpdateStaged;
@@ -84,7 +86,7 @@ public class AndroidResourceManager extends ResourceManager {
                 return AppInstallStatus.UpToDate;
             }
 
-            prepareUpgradeResources();
+            prepareUpgradeResources(resourceInstallContext);
             return AppInstallStatus.UpdateStaged;
         }
     }
@@ -93,7 +95,7 @@ public class AndroidResourceManager extends ResourceManager {
      * Load the latest profile into the upgrade table. Clears the upgrade table
      * if it's partially populated with an out-of-date version.
      */
-    private void instantiateLatestUpgradeProfile(int authority)
+    private void instantiateLatestUpgradeProfile(int authority, ResourceInstallContext resourceInstallContext)
             throws UnfullfilledRequirementsException,
             UnresolvedResourceException,
             InstallCancelledException {
@@ -115,9 +117,9 @@ public class AndroidResourceManager extends ResourceManager {
                 upgradeTable.getResourceWithId(CommCarePlatform.APP_PROFILE_RESOURCE_ID);
 
         if (upgradeProfile == null) {
-            loadProfileIntoTable(upgradeTable, profileRef, authority);
+            loadProfileIntoTable(upgradeTable, profileRef, authority, resourceInstallContext);
         } else {
-            loadProfileViaTemp(upgradeProfile, authority);
+            loadProfileViaTemp(upgradeProfile, authority, resourceInstallContext);
         }
     }
 
@@ -127,12 +129,10 @@ public class AndroidResourceManager extends ResourceManager {
      *
      * @param upgradeProfile the profile currently in the upgrade table.
      */
-    private void loadProfileViaTemp(Resource upgradeProfile, int profileAuthority)
-            throws UnfullfilledRequirementsException,
-            UnresolvedResourceException,
-            InstallCancelledException {
+    private void loadProfileViaTemp(Resource upgradeProfile, int profileAuthority, ResourceInstallContext resourceInstallContext)
+            throws UnfullfilledRequirementsException, UnresolvedResourceException, InstallCancelledException {
         tempUpgradeTable.destroy();
-        loadProfileIntoTable(tempUpgradeTable, profileRef, profileAuthority);
+        loadProfileIntoTable(tempUpgradeTable, profileRef, profileAuthority, resourceInstallContext);
         Resource tempProfile =
                 tempUpgradeTable.getResourceWithId(CommCarePlatform.APP_PROFILE_RESOURCE_ID);
 
@@ -186,7 +186,7 @@ public class AndroidResourceManager extends ResourceManager {
      * Clear update table, log failure with update stats,
      * and, if appropriate, schedule a update retry
      *
-     * @param result       update attempt result
+     * @param result update attempt result
      */
     public void processUpdateFailure(AppInstallStatus result) {
         updateStats.registerUpdateFailure(result);

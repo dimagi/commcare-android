@@ -149,14 +149,6 @@ public class AppUtils {
 
     public static String getCurrentVersionString() {
         CommCareApplication application = CommCareApplication.instance();
-        PackageManager pm = application.getPackageManager();
-        PackageInfo pi;
-        try {
-            pi = pm.getPackageInfo(application.getPackageName(), 0);
-        } catch (PackageManager.NameNotFoundException e) {
-            e.printStackTrace();
-            return "ERROR! Incorrect package version requested";
-        }
         int[] versions = application.getCommCareVersion();
         String ccv = "";
         for (int vn : versions) {
@@ -180,7 +172,10 @@ public class AppUtils {
         String buildDate = BuildConfig.BUILD_DATE;
         String buildNumber = BuildConfig.BUILD_NUMBER;
 
-        return Localization.get(application.getString(R.string.app_version_string), new String[]{pi.versionName, String.valueOf(pi.versionCode), ccv, buildNumber, buildDate, profileVersion});
+        return Localization.get(application.getString(R.string.app_version_string), new String[]{
+                BuildConfig.VERSION_NAME,
+                String.valueOf(BuildConfig.VERSION_CODE),
+                ccv, buildNumber, buildDate, profileVersion});
     }
 
     public static String getCurrentAppId() {

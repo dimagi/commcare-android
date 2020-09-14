@@ -6,13 +6,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.util.Pair;
 import android.util.TypedValue;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
-import android.view.ViewGroup;
 import android.widget.Toast;
 
 import org.commcare.dalvik.R;
@@ -22,6 +22,7 @@ import org.javarosa.core.reference.ReferenceManager;
 
 import java.io.File;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.widget.AppCompatImageView;
 
 /**
@@ -40,29 +41,32 @@ public class ResizingImageView extends AppCompatImageView {
     private int mMaxWidth;
     private int mMaxHeight;
 
-    private final GestureDetector gestureDetector;
-    private final ScaleGestureDetector scaleGestureDetector;
+    private GestureDetector gestureDetector;
+    private ScaleGestureDetector scaleGestureDetector;
 
-    private final String imageURI;
-    private final String bigImageURI;
+    private String imageURI;
+    private String bigImageURI;
 
     private float scaleFactor = 1.0f;
     private final static float scaleFactorThreshhold = 1.2f;
 
     public ResizingImageView(Context context) {
-        this(context, null, null);
+        super(context);
     }
 
-    public ResizingImageView(Context context, String imageURI, String bigImageURI) {
-        super(context);
-        gestureDetector = new GestureDetector(context, new GestureListener());
-        scaleGestureDetector = new ScaleGestureDetector(context, new ScaleListener());
+    public ResizingImageView(Context context, @Nullable AttributeSet attrs) {
+        super(context, attrs);
+    }
+
+    public ResizingImageView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
+        super(context, attrs, defStyleAttr);
+    }
+
+    public void setImageURI(String imageURI, String bigImageURI) {
+        gestureDetector = new GestureDetector(getContext(), new GestureListener());
+        scaleGestureDetector = new ScaleGestureDetector(getContext(), new ScaleListener());
         this.imageURI = imageURI;
         this.bigImageURI = bigImageURI;
-        ViewGroup.MarginLayoutParams imageViewParams = new ViewGroup.MarginLayoutParams(
-                ViewGroup.MarginLayoutParams.WRAP_CONTENT,
-                ViewGroup.MarginLayoutParams.WRAP_CONTENT);
-        this.setLayoutParams(imageViewParams);
     }
 
     @Override

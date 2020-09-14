@@ -9,6 +9,8 @@ import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.preferences.HiddenPreferences;
+import org.commcare.resources.ResourceInstallContext;
+import org.commcare.resources.model.InstallRequestSource;
 import org.commcare.resources.model.InvalidResourceException;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceLocation;
@@ -80,10 +82,10 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
 
     @Override
     public boolean install(Resource r, ResourceLocation location, Reference ref,
-                           ResourceTable table, AndroidCommCarePlatform platform, boolean upgrade, boolean recovery)
+                           ResourceTable table, AndroidCommCarePlatform platform, boolean upgrade, ResourceInstallContext resourceInstallContext)
             throws UnresolvedResourceException, UnfullfilledRequirementsException {
         //First, make sure all the file stuff is managed.
-        super.install(r, location, ref, table, platform, upgrade, recovery);
+        super.install(r, location, ref, table, platform, upgrade, resourceInstallContext);
         try {
             storeReleasedTime(platform, ref);
         } catch (ParseException e) {
@@ -99,13 +101,13 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
 
             Profile p = parser.parse();
 
-            if (recovery) {
-                validateRecovery(platform, p);
+            if (resourceInstallContext.getInstallRequestSource() == InstallRequestSource.REINSTALL) {
+                validateReinstall(platform, p);
             }
 
             if (!upgrade) {
                 initProperties(p);
-                if (!recovery) {
+                if (resourceInstallContext.getInstallRequestSource() == InstallRequestSource.INSTALL) {
                     checkDuplicate(p);
                     checkAppTarget();
                 }
@@ -155,7 +157,7 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
     }
 
     // Makes sure we are recovering from profile belonging to the same app
-    private void validateRecovery(AndroidCommCarePlatform platform, Profile p) throws UnfullfilledRequirementsException {
+    private void validateReinstall(AndroidCommCarePlatform platform, Profile p) throws UnfullfilledRequirementsException {
         if (!platform.getApp().getAppRecord().getUniqueId().contentEquals(p.getUniqueId())) {
             throw new UnfullfilledRequirementsException(
                     "Trying to recover using ccz for a different CommCare App",

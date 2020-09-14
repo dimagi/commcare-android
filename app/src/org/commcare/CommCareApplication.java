@@ -129,6 +129,9 @@ import androidx.work.NetworkType;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkManager;
+import io.noties.markwon.Markwon;
+import io.noties.markwon.ext.strikethrough.StrikethroughPlugin;
+import io.noties.markwon.ext.tables.TablePlugin;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 
@@ -146,6 +149,7 @@ public class CommCareApplication extends MultiDexApplication {
     private static final long BACKOFF_DELAY_FOR_UPDATE_RETRY = 5 * 60 * 1000L; // 5 mins
     private static final long BACKOFF_DELAY_FOR_FORM_SUBMISSION_RETRY = 5 * 60 * 1000L; // 5 mins
     private static final long PERIODICITY_FOR_FORM_SUBMISSION_IN_HOURS = 1;
+    private static Markwon markwon;
 
 
     private int dbState;
@@ -1070,6 +1074,16 @@ public class CommCareApplication extends MultiDexApplication {
 
     public DataPullRequester getDataPullRequester() {
         return DataPullResponseFactory.INSTANCE;
+    }
+
+    public static Markwon getMarkwonInstance() {
+        if (markwon == null) {
+            markwon = Markwon.builder(CommCareApplication.instance())
+                    .usePlugin(TablePlugin.create(CommCareApplication.instance()))
+                    .usePlugin(StrikethroughPlugin.create())
+                    .build();
+        }
+        return markwon;
     }
 
     public HeartbeatRequester getHeartbeatRequester() {

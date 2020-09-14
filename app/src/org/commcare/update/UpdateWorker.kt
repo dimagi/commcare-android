@@ -10,7 +10,9 @@ import kotlinx.coroutines.coroutineScope
 import org.commcare.CommCareApplication
 import org.commcare.engine.resource.AppInstallStatus
 import org.commcare.engine.resource.ResourceInstallUtils
+import org.commcare.resources.ResourceInstallContext
 import org.commcare.resources.model.InstallCancelled
+import org.commcare.resources.model.InstallRequestSource
 import org.commcare.tasks.ResultAndError
 
 /**
@@ -38,13 +40,9 @@ class UpdateWorker(appContext: Context, workerParams: WorkerParameters)
             }
 
             job.invokeOnCompletion { exception: Throwable? ->
-                when (exception) {
-                    is CancellationException -> {
-                        handleUpdateResult(ResultAndError(AppInstallStatus.Cancelled))
-                    }
-                    else -> {
-                        handleUpdateResult(ResultAndError(AppInstallStatus.UnknownFailure))
-                    }
+                when {
+                    exception is CancellationException -> handleUpdateResult(ResultAndError(AppInstallStatus.Cancelled))
+                    exception != null -> handleUpdateResult(ResultAndError(AppInstallStatus.UnknownFailure))
                 }
             }
 
@@ -58,11 +56,12 @@ class UpdateWorker(appContext: Context, workerParams: WorkerParameters)
 
         // skip if - An update task is already running | no app is seated | user session is not active
         if (UpdateTask.getRunningInstance() == null &&
-                CommCareApplication.instance().getCurrentApp() != null &&
-                CommCareApplication.instance().getSession().isActive()) {
+                CommCareApplication.instance().currentApp != null &&
+                CommCareApplication.instance().session.isActive) {
 
             updateHelper.startPinnedNotification(CommCareApplication.instance())
-            updateResult = updateHelper.update(ResourceInstallUtils.getDefaultProfileRef())
+            updateResult = updateHelper.update(ResourceInstallUtils.getDefaultProfileRef(),
+                    ResourceInstallContext(InstallRequestSource.BACKGROUND_UPDATE))
         } else {
             return Result.success()
         }

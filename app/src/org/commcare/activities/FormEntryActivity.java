@@ -854,8 +854,8 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         if (uiController.questionsView != null) {
             for (int i = 0; i < uiController.questionsView.getWidgets().size(); i++) {
                 QuestionWidget q = uiController.questionsView.getWidgets().get(i);
-                if (q.findViewById(MediaLayout.INLINE_VIDEO_PANE_ID) != null) {
-                    VideoView inlineVideo = q.findViewById(MediaLayout.INLINE_VIDEO_PANE_ID);
+                if (q.findViewById(R.id.inline_video_view) != null) {
+                    VideoView inlineVideo = q.findViewById(R.id.inline_video_view);
                     if (inlineVideo.isPlaying()) {
                         indexOfWidgetWithVideoPlaying = i;
                         positionOfVideoProgress = inlineVideo.getCurrentPosition();
@@ -869,7 +869,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     private void restoreInlineVideoState() {
         if (indexOfWidgetWithVideoPlaying != -1) {
             QuestionWidget widgetWithVideoToResume = uiController.questionsView.getWidgets().get(indexOfWidgetWithVideoPlaying);
-            VideoView inlineVideo = widgetWithVideoToResume.findViewById(MediaLayout.INLINE_VIDEO_PANE_ID);
+            VideoView inlineVideo = widgetWithVideoToResume.findViewById(R.id.inline_video_view);
             if (inlineVideo != null) {
                 inlineVideo.seekTo(positionOfVideoProgress);
                 inlineVideo.start();

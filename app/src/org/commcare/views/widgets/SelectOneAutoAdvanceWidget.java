@@ -116,10 +116,8 @@ public class SelectOneAutoAdvanceWidget extends QuestionWidget implements OnChec
                 questionLayout.addView(mediaLayout);
 
                 // Last, add the dividing line (except for the last element)
-                ImageView divider = new ImageView(getContext());
-                divider.setBackgroundResource(android.R.drawable.divider_horizontal_bright);
                 if (i != mItems.size() - 1) {
-                    mediaLayout.addDivider(divider);
+                    mediaLayout.addDivider();
                 }
 
                 addView(thisParentLayout);
