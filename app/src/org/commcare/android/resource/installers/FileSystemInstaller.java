@@ -1,11 +1,14 @@
 package org.commcare.android.resource.installers;
 
-import androidx.core.util.Pair;
-
 import org.commcare.CommCareApplication;
 import org.commcare.dalvik.R;
+import org.commcare.engine.references.ParameterizedReference;
 import org.commcare.engine.resource.installers.LocalStorageUnavailableException;
+import org.commcare.network.CommcareRequestGenerator;
 import org.commcare.network.RateLimitedException;
+import org.commcare.network.RequestStats;
+import org.commcare.resources.ResourceInstallContext;
+import org.commcare.resources.model.InstallRequestSource;
 import org.commcare.resources.model.MissingMediaException;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceInstaller;
@@ -38,10 +41,14 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Vector;
 
 import javax.net.ssl.SSLHandshakeException;
 import javax.net.ssl.SSLPeerUnverifiedException;
+
+import androidx.core.util.Pair;
 
 /**
  * @author ctsims
@@ -82,15 +89,18 @@ abstract class FileSystemInstaller implements ResourceInstaller<AndroidCommCareP
     @Override
     public boolean install(Resource r, ResourceLocation location,
                            Reference ref, ResourceTable table,
-                           AndroidCommCarePlatform platform, boolean upgrade, boolean recovery)
+                           AndroidCommCarePlatform platform, boolean upgrade, ResourceInstallContext resourceInstallContext)
             throws UnresolvedResourceException, UnfullfilledRequirementsException {
         try {
-
             Reference localReference = resolveEmptyLocalReference(r, location, upgrade);
 
             InputStream inputFileStream;
             try {
-                inputFileStream = ref.getStream();
+                if (ref instanceof ParameterizedReference) {
+                    inputFileStream = ((ParameterizedReference)ref).getStream(getInstallHeaders(platform, resourceInstallContext));
+                } else {
+                    inputFileStream = ref.getStream();
+                }
             } catch (FileNotFoundException e) {
                 // Means the reference wasn't valid so let it keep iterating through options.
                 throw new UnresolvedResourceException(r,
@@ -129,6 +139,17 @@ abstract class FileSystemInstaller implements ResourceInstaller<AndroidCommCareP
             mURE.initCause(e);
             throw mURE;
         }
+    }
+
+    private Map<String, String> getInstallHeaders(AndroidCommCarePlatform platform, ResourceInstallContext resourceInstallContext) {
+        Map<String, String> headers = new HashMap<>();
+
+        InstallRequestSource installRequestSource = resourceInstallContext.getInstallRequestSource();
+        headers.put(CommcareRequestGenerator.X_COMMCAREHQ_REQUEST_SOURCE,
+                String.valueOf(installRequestSource).toLowerCase());
+        headers.put(CommcareRequestGenerator.X_COMMCAREHQ_REQUEST_AGE,
+                String.valueOf(RequestStats.getRequestAge(platform.getApp(), installRequestSource)).toLowerCase());
+        return headers;
     }
 
     private File writeToTempFile(InputStream inputFileStream) throws LocalStorageUnavailableException, IOException {

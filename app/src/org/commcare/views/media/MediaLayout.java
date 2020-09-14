@@ -47,6 +47,7 @@ import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.locale.Localization;
 
 import java.io.File;
+import kotlinx.coroutines.Dispatchers;
 
 /**
  * @author $|-|!˅@M
@@ -204,7 +205,7 @@ public class MediaLayout extends ConstraintLayout {
 
     private void downloadMissingVideo(ImageButton videoButton, String videoURI) {
         AndroidUtil.showToast(getContext(), R.string.media_download_started);
-        MissingMediaDownloadHelper.requestMediaDownload(videoURI, result -> {
+        MissingMediaDownloadHelper.requestMediaDownload(videoURI, Dispatchers.getDefault(), result -> {
             if (result instanceof MissingMediaDownloadResult.Success) {
                 boolean mediaPresent = FileUtil.referenceFileExists(videoURI);
                 videoButton.setImageResource(mediaPresent ? android.R.drawable.ic_media_play : R.drawable.update_download_icon);
@@ -366,7 +367,7 @@ public class MediaLayout extends ConstraintLayout {
             downloadIcon.setEnabled(false);
             missingMediaStatus.setText(StringUtils.getStringRobust(getContext(), R.string.media_download_in_progress));
 
-            MissingMediaDownloadHelper.requestMediaDownload(mediaUri, result -> {
+            MissingMediaDownloadHelper.requestMediaDownload(mediaUri, Dispatchers.getDefault(), result -> {
                 if (result instanceof MissingMediaDownloadResult.Success) {
                     AndroidUtil.showToast(getContext(), R.string.media_download_completed);
                     hideMissingMediaView();
