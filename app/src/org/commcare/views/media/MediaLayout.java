@@ -43,6 +43,8 @@ import org.commcare.views.ResizingImageView;
 import org.commcare.views.ViewUtil;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
+import org.javarosa.core.services.locale.Localization;
+
 import java.io.File;
 
 /**
@@ -62,7 +64,7 @@ public class MediaLayout extends ConstraintLayout {
     private ResizingImageView resizingImageView;
     private ImageView downloadIcon;
     private ProgressBar progressBar;
-    private TextView missingMediaText;
+    private TextView missingMediaStatus;
     private ImageView divider;
     private Barrier mediaLayoutBottomBarrier;
     private View missingMediaBackground;
@@ -280,14 +282,16 @@ public class MediaLayout extends ConstraintLayout {
                         StringUtils.getStringRobust(getContext(), R.string.image_download_prompt),
                         true,
                         () -> {
-                            hideMissingMediaView();
                             setupImage(imageURI, bigImageURI);
                         });
             }
         } catch (InvalidReferenceException e) {
             Log.e(TAG, "image invalid reference exception");
             e.printStackTrace();
-            showMissingMediaView(imageURI, "Invalid reference: " + e.getReferenceString(), false, null);
+            showMissingMediaView(imageURI,
+                    Localization.get("media.missing.invalid.reference", e.getReferenceString()),
+                    false,
+                    null);
         }
     }
 
@@ -300,7 +304,6 @@ public class MediaLayout extends ConstraintLayout {
                         StringUtils.getStringRobust(getContext(), R.string.video_download_prompt),
                         true,
                         () -> {
-                            hideMissingMediaView();
                             setupInlineVideoView(inlineVideoURI);
                         });
             } else {
@@ -316,7 +319,9 @@ public class MediaLayout extends ConstraintLayout {
                     ConstraintLayout.LayoutParams params = new Constraints.LayoutParams(LayoutParams.MATCH_CONSTRAINT, LayoutParams.WRAP_CONTENT);
                     params.bottomToBottom = videoView.getId();
                     params.leftToLeft = videoView.getId();
+                    params.startToStart = videoView.getId();
                     params.rightToRight = videoView.getId();
+                    params.endToEnd = videoView.getId();
                     int margin = this.getResources().getDimensionPixelSize(R.dimen.question_widget_side_padding);
                     params.leftMargin = margin;
                     params.rightMargin = margin;
@@ -343,7 +348,10 @@ public class MediaLayout extends ConstraintLayout {
         } catch (InvalidReferenceException ire) {
             Log.e(TAG, "invalid video reference exception");
             ire.printStackTrace();
-            showMissingMediaView(inlineVideoURI, "Invalid reference: " + ire.getReferenceString(), false, null);
+            showMissingMediaView(inlineVideoURI,
+                    Localization.get("media.missing.invalid.reference", ire.getReferenceString()),
+                    false,
+                    null);
         }
     }
 
@@ -364,8 +372,8 @@ public class MediaLayout extends ConstraintLayout {
 
     private void showMissingMediaView(String mediaUri, String errorMessage, boolean allowDownload, @Nullable Runnable completion) {
         missingMediaBackground.setVisibility(VISIBLE);
-        missingMediaText.setText(errorMessage);
-        missingMediaText.setVisibility(VISIBLE);
+        missingMediaStatus.setText(errorMessage);
+        missingMediaStatus.setVisibility(VISIBLE);
         downloadIcon.setVisibility(allowDownload ? View.VISIBLE : INVISIBLE);
 
         downloadIcon.setOnClickListener(v -> {
@@ -373,11 +381,12 @@ public class MediaLayout extends ConstraintLayout {
             progressBar.setVisibility(VISIBLE);
             downloadIcon.setVisibility(INVISIBLE);
             downloadIcon.setEnabled(false);
-            missingMediaText.setText(StringUtils.getStringRobust(getContext(), R.string.media_download_in_progress));
+            missingMediaStatus.setText(StringUtils.getStringRobust(getContext(), R.string.media_download_in_progress));
 
             MissingMediaDownloadHelper.requestMediaDownload(mediaUri, result -> {
                 if (result instanceof MissingMediaDownloadResult.Success) {
                     AndroidUtil.showToast(getContext(), R.string.media_download_completed);
+                    hideMissingMediaView();
                     if (completion != null) {
                         completion.run();
                     }
@@ -385,7 +394,7 @@ public class MediaLayout extends ConstraintLayout {
                     progressBar.setVisibility(GONE);
                     downloadIcon.setVisibility(VISIBLE);
                     downloadIcon.setEnabled(true);
-                    missingMediaText.setText(StringUtils.getStringRobust(getContext(), R.string.media_download_failed));
+                    missingMediaStatus.setText(StringUtils.getStringRobust(getContext(), R.string.media_download_failed));
                 }
             });
         });
@@ -394,7 +403,7 @@ public class MediaLayout extends ConstraintLayout {
     private void hideMissingMediaView() {
         progressBar.setVisibility(GONE);
         downloadIcon.setVisibility(GONE);
-        missingMediaText.setVisibility(GONE);
+        missingMediaStatus.setVisibility(GONE);
         missingMediaBackground.setVisibility(GONE);
     }
 
@@ -428,27 +437,10 @@ public class MediaLayout extends ConstraintLayout {
         resizingImageView = view.findViewById(R.id.resizing_image);
         downloadIcon = view.findViewById(R.id.download_media_icon);
         progressBar = view.findViewById(R.id.progress_bar);
-        missingMediaText = view.findViewById(R.id.missing_media_tv);
+        missingMediaStatus = view.findViewById(R.id.missing_media_tv);
         divider = view.findViewById(R.id.divider);
         mediaLayoutBottomBarrier = view.findViewById(R.id.media_barrier);
         missingMediaBackground = view.findViewById(R.id.missing_media_background);
-
-        resetView();
-    }
-
-    private void resetView() {
-        audioButton.setVisibility(GONE);
-        videoButton.setVisibility(GONE);
-        textViewContainer.setVisibility(GONE);
-        videoView.setVisibility(GONE);
-        qrView.setVisibility(GONE);
-        imageView.setVisibility(GONE);
-        resizingImageView.setVisibility(GONE);
-        downloadIcon.setVisibility(GONE);
-        progressBar.setVisibility(GONE);
-        missingMediaText.setVisibility(GONE);
-        missingMediaBackground.setVisibility(GONE);
-        divider.setVisibility(GONE);
     }
     //endregion
 

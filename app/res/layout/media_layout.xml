@@ -6,6 +6,7 @@
         android:id="@+id/audio_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -14,6 +15,7 @@
         android:id="@+id/video_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:visibility="gone"
         android:src="@android:drawable/ic_media_play"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintRight_toRightOf="parent"
@@ -23,13 +25,14 @@
         android:id="@+id/buttons_barrier"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:barrierDirection="left"
+        app:barrierDirection="start"
         app:constraint_referenced_ids="audio_button, video_button" />
 
     <FrameLayout
         android:id="@+id/question_text_container"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:visibility="gone"
         app:layout_constraintEnd_toStartOf="@id/buttons_barrier"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toLeftOf="@id/buttons_barrier"
@@ -47,6 +50,7 @@
         android:id="@+id/inline_video_view"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
@@ -57,6 +61,7 @@
         android:id="@+id/qr_view"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:visibility="gone"
         android:adjustViewBounds="true"
         android:padding="@dimen/standard_spacer"
         android:scaleType="centerCrop"
@@ -70,6 +75,7 @@
         android:id="@+id/image"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:visibility="gone"
         android:padding="@dimen/standard_spacer"
         android:scaleType="center"
         app:layout_constraintEnd_toEndOf="parent"
@@ -82,6 +88,7 @@
         android:id="@+id/resizing_image"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:visibility="gone"
         android:adjustViewBounds="true"
         android:padding="@dimen/standard_spacer"
         app:layout_constraintEnd_toEndOf="parent"
@@ -90,17 +97,14 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/question_barrier" />
 
-    <!--
-    Missing media view
-    -->
+    <!-- Missing media view -->
 
-    <!--
-    Probably an easiest way to show a background color to the missing media view.
-    -->
+    <!-- Probably an easiest way to show a background color to the missing media view. -->
     <View
         android:id="@+id/missing_media_background"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:visibility="gone"
         android:background="@color/border_grey"
         app:layout_constraintBottom_toBottomOf="@+id/missing_media_tv"
         app:layout_constraintEnd_toEndOf="parent"
@@ -113,6 +117,7 @@
         android:id="@+id/download_media_icon"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:visibility="gone"
         android:layout_marginTop="@dimen/dp40"
         android:scaleType="center"
         android:src="@drawable/update_download_icon"
@@ -127,6 +132,7 @@
         style="?android:attr/progressBarStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:visibility="gone"
         android:layout_marginTop="@dimen/dp40"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
@@ -138,6 +144,7 @@
         android:id="@+id/missing_media_tv"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:visibility="gone"
         android:layout_marginTop="@dimen/dp40"
         android:gravity="center_horizontal"
         app:layout_constraintEnd_toEndOf="parent"
@@ -146,9 +153,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/download_media_icon" />
 
-    <!--
-    Helpful constraint to shift textContainer to the bottom of mediaView
-    -->
+    <!-- Helpful constraint to shift textContainer to the bottom of mediaView -->
     <androidx.constraintlayout.widget.Barrier
         android:id="@+id/media_barrier"
         android:layout_width="wrap_content"
@@ -167,6 +172,7 @@
         android:id="@+id/divider"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:visibility="gone"
         android:layout_alignParentBottom="true"
         android:background="@android:drawable/divider_horizontal_bright"
         app:layout_constraintEnd_toEndOf="parent"
