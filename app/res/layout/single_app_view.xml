@@ -45,7 +45,6 @@
         android:textSize="@dimen/font_size_xlargest"/>
 
     <Button
-        android:background="@color/grey"
         android:id="@+id/archive_button"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/standard_spacer"
@@ -56,7 +55,6 @@
         android:textSize="@dimen/font_size_xlargest"/>
 
     <Button
-        android:background="@color/grey"
         android:id="@+id/update_button"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/standard_spacer"
@@ -67,7 +65,6 @@
         android:textSize="@dimen/font_size_xlargest"/>
 
     <Button
-        android:background="@color/grey"
         android:clickable="true"
         android:id="@+id/verify_button"
         android:layout_height="wrap_content"

@@ -37,7 +37,6 @@
                 android:layout_height="fill_parent"
                 android:layout_weight="1"
                 android:text="@string/go_to_location"
-                android:textColor="@color/white"
                 android:visibility="gone"/>
 
             <Button
@@ -45,16 +44,14 @@
                 android:layout_width="wrap_content"
                 android:layout_height="fill_parent"
                 android:layout_weight="1"
-                android:text="@string/accept_location"
-                android:textColor="@color/white"/>
+                android:text="@string/accept_location" />
 
             <Button
                 android:id="@+id/cancel_location"
                 android:layout_width="wrap_content"
                 android:layout_height="fill_parent"
                 android:layout_weight="1"
-                android:text="@string/cancel"
-                android:textColor="@color/white"/>
+                android:text="@string/cancel" />
         </LinearLayout>
 
         <com.google.android.gms.maps.MapView
