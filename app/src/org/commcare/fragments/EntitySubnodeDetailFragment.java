@@ -2,6 +2,7 @@ package org.commcare.fragments;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,6 +23,8 @@ import org.javarosa.core.model.instance.TreeReference;
 
 import java.util.List;
 
+import androidx.annotation.Nullable;
+
 /**
  * Created by jschweers on 8/26/2015.
  * <p/>
@@ -33,6 +36,12 @@ public class EntitySubnodeDetailFragment extends EntityDetailFragment implements
     private ListView listView;
 
     public EntitySubnodeDetailFragment() {
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setRetainInstance(true);
     }
 
     @Override
@@ -65,6 +74,8 @@ public class EntitySubnodeDetailFragment extends EntityDetailFragment implements
             headerLayout.removeAllViews();
             headerLayout.addView(headerView);
             headerLayout.setVisibility(View.VISIBLE);
+        } else if (adapter != null) {
+            listView.setAdapter((ListAdapter)adapter);
         }
 
         return rootView;
@@ -79,20 +90,22 @@ public class EntitySubnodeDetailFragment extends EntityDetailFragment implements
     public void deliverLoadResult(List<Entity<TreeReference>> entities,
                                   List<TreeReference> references,
                                   NodeEntityFactory factory, int focusTargetIndex) {
-        Bundle args = getArguments();
-        Detail detail = asw.getSession().getDetail(args.getString(DETAIL_ID));
-        final int thisIndex = args.getInt(CHILD_DETAIL_INDEX, -1);
-        final boolean detailCompound = thisIndex != -1;
-        if (detailCompound) {
-            detail = getChildDetailForDisplay(detail, thisIndex);
-        }
+        if(isVisible()) { // underlying session might have changed otherwise and can cause xpath eval errors
+            Bundle args = getArguments();
+            Detail detail = asw.getSession().getDetail(args.getString(DETAIL_ID));
+            final int thisIndex = args.getInt(CHILD_DETAIL_INDEX, -1);
+            final boolean detailCompound = thisIndex != -1;
+            if (detailCompound) {
+                detail = getChildDetailForDisplay(detail, thisIndex);
+            }
 
-        this.loader = null;
-        this.adapter = new EntitySubnodeDetailAdapter(getActivity(), detail, references,
-                entities, modifier, factory);
-        this.listView.setAdapter((ListAdapter)this.adapter);
-        if (focusTargetIndex != -1) {
-            listView.setSelection(focusTargetIndex);
+            this.loader = null;
+            this.adapter = new EntitySubnodeDetailAdapter(getActivity(), detail, references,
+                    entities, modifier, factory);
+            this.listView.setAdapter((ListAdapter)this.adapter);
+            if (focusTargetIndex != -1) {
+                listView.setSelection(focusTargetIndex);
+            }
         }
     }
 

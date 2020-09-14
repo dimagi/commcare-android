@@ -73,11 +73,9 @@ public class TabbedDetailView extends RelativeLayout {
 
         mMenu = root.findViewById(R.id.tabbed_detail_menu);
         mViewPager = root.findViewById(R.id.tabbed_detail_pager);
-        mViewPager.setId(AndroidUtil.generateViewId());
-
         mViewPageTabStrip = root.findViewById(R.id.pager_tab_strip);
 
-        mViewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+        mViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
 
             @Override
             public void onPageSelected(int position) {
