@@ -1,12 +1,15 @@
 package org.commcare.network;
 
+import android.content.pm.PackageManager;
 import android.net.Uri;
 
+import org.commcare.AppUtils;
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.core.network.AuthInfo;
 import org.commcare.core.network.HTTPMethod;
 import org.commcare.core.network.ModernHttpRequester;
+import org.commcare.dalvik.BuildConfig;
 import org.commcare.engine.cases.CaseUtils;
 import org.commcare.interfaces.CommcareRequestEndpoints;
 import org.commcare.models.database.SqlStorage;
@@ -48,6 +51,14 @@ public class CommcareRequestGenerator implements CommcareRequestEndpoints {
     private static final String SUBMIT_MODE = "submit_mode";
     private static final String SUBMIT_MODE_DEMO = "demo";
     private static final String QUERY_PARAM_FORCE_LOGS = "force_logs";
+
+    // headers
+    private static final String X_OPENROSA_VERSION = "X-OpenRosa-Version";
+    private static final String X_COMMCAREHQ_LAST_SYNC_TOKEN = "X-CommCareHQ-LastSyncToken";
+    public static final String X_COMMCAREHQ_REQUEST_SOURCE = "X-CommCareHQ-RequestSource";
+    public static final String X_COMMCAREHQ_REQUEST_AGE = "X-CommCareHQ-RequestAge";
+    private static final String X_OPENROSA_DEVICEID = "x-openrosa-deviceid";
+    private static final String X_OPENROSA_COMMCARE_VERSION = "x-openrosa-commcare-version";
 
     private final String username;
     private final String password;
@@ -137,13 +148,14 @@ public class CommcareRequestGenerator implements CommcareRequestEndpoints {
         return requester.makeRequest();
     }
 
-    public static HashMap getHeaders(String lastToken) {
+    public static HashMap<String, String> getHeaders(String lastToken) {
         HashMap<String, String> headers = new HashMap<>();
-        headers.put("X-OpenRosa-Version", "3.0");
+        headers.put(X_OPENROSA_VERSION, "3.0");
         if (lastToken != null) {
-            headers.put("X-CommCareHQ-LastSyncToken", lastToken);
+            headers.put(X_COMMCAREHQ_LAST_SYNC_TOKEN, lastToken);
         }
-        headers.put("x-openrosa-deviceid", CommCareApplication.instance().getPhoneId());
+        headers.put(X_OPENROSA_DEVICEID, CommCareApplication.instance().getPhoneId());
+        headers.put(X_OPENROSA_COMMCARE_VERSION, BuildConfig.VERSION_NAME);
         return headers;
     }
 
@@ -226,17 +238,19 @@ public class CommcareRequestGenerator implements CommcareRequestEndpoints {
 
     @Override
     public Response<ResponseBody> simpleGet(String uri) throws IOException {
-        return simpleGet(uri, new HashMap());
+        return simpleGet(uri, new HashMap<>(), new HashMap<>());
     }
 
     @Override
-    public Response<ResponseBody> simpleGet(String uri, Map<String, String> httpParams) throws IOException {
+    public Response<ResponseBody> simpleGet(String uri, Map<String, String> httpParams, Map<String, String> httpHeaders) throws IOException {
+        HashMap<String, String> headers = new HashMap<>(getHeaders(null));
+        headers.putAll(httpHeaders);
 
         ModernHttpRequester requester = CommCareApplication.instance().createGetRequester(
                 CommCareApplication.instance(),
                 uri,
                 httpParams,
-                getHeaders(""),
+                headers,
                 new AuthInfo.ProvidedAuth(username, password),
                 null);
 

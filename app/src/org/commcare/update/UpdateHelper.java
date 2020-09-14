@@ -12,10 +12,13 @@ import org.commcare.engine.resource.ResourceInstallUtils;
 import org.commcare.engine.resource.installers.LocalStorageUnavailableException;
 import org.commcare.logging.DataChangeLog;
 import org.commcare.logging.DataChangeLogger;
+import org.commcare.network.RequestStats;
 import org.commcare.preferences.MainConfigurablePreferences;
 import org.commcare.preferences.PrefValues;
+import org.commcare.resources.ResourceInstallContext;
 import org.commcare.resources.model.InstallCancelled;
 import org.commcare.resources.model.InstallCancelledException;
+import org.commcare.resources.model.InstallRequestSource;
 import org.commcare.resources.model.InvalidResourceException;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
@@ -24,7 +27,6 @@ import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.tasks.ResultAndError;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.AndroidCommCarePlatform;
-import org.commcare.utils.PendingCalcs;
 import org.commcare.views.dialogs.PinnedNotificationWithProgress;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
@@ -81,11 +83,11 @@ public class UpdateHelper implements TableStateListener {
     }
 
     // Main UpdateHelper function for staging updates
-    public ResultAndError<AppInstallStatus> update(String profileRef) {
+    public ResultAndError<AppInstallStatus> update(String profileRef, ResourceInstallContext resourceInstallContext) {
         setupUpdate(profileRef);
 
         try {
-            return new ResultAndError<>(stageUpdate(profileRef));
+            return new ResultAndError<>(stageUpdate(profileRef, resourceInstallContext));
         } catch (InvalidResourceException e) {
             ResourceInstallUtils.logInstallError(e,
                     "Structure error ocurred during install|");
@@ -132,8 +134,9 @@ public class UpdateHelper implements TableStateListener {
     }
 
 
-    private AppInstallStatus stageUpdate(String profileRef) throws UnfullfilledRequirementsException,
-            UnresolvedResourceException, InstallCancelledException {
+    private AppInstallStatus stageUpdate(String profileRef, ResourceInstallContext resourceInstallContext)
+            throws UnfullfilledRequirementsException, UnresolvedResourceException, InstallCancelledException {
+        RequestStats.register(resourceInstallContext.getInstallRequestSource());
         Resource profile = mResourceManager.getMasterProfile();
         boolean appInstalled = (profile != null &&
                 profile.getStatus() == Resource.RESOURCE_STATUS_INSTALLED);
@@ -145,7 +148,13 @@ public class UpdateHelper implements TableStateListener {
         String profileRefWithParams =
                 ResourceInstallUtils.addParamsToProfileReference(profileRef);
 
-        return mResourceManager.checkAndPrepareUpgradeResources(profileRefWithParams, mAuthority);
+        AppInstallStatus result = mResourceManager.checkAndPrepareUpgradeResources(profileRefWithParams, mAuthority, resourceInstallContext);
+
+        if (result == AppInstallStatus.UpdateStaged) {
+            RequestStats.markSuccess(resourceInstallContext.getInstallRequestSource());
+        }
+
+        return result;
     }
 
     /**
