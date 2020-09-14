@@ -33,6 +33,7 @@ import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.mediadownload.MissingMediaDownloadHelper;
 import org.commcare.mediadownload.MissingMediaDownloadResult;
+import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.utils.AndroidUtil;
 import org.commcare.utils.FileUtil;
@@ -68,6 +69,7 @@ public class MediaLayout extends ConstraintLayout {
     private ImageView divider;
     private Barrier mediaLayoutBottomBarrier;
     private View missingMediaBackground;
+    private Barrier questionBottomBarrier;
 
     public MediaLayout(@NonNull Context context) {
         super(context);
@@ -132,7 +134,7 @@ public class MediaLayout extends ConstraintLayout {
         }
 
         addTextView(text);
-        if (showImageAboveText) {
+        if (showImageAboveText || DeveloperPreferences.imageAboveTextEnabled()) {
             showMediaAboveText();
         }
     }
@@ -141,25 +143,13 @@ public class MediaLayout extends ConstraintLayout {
         // This step will change the layout constraints of the views in xml to shift
         // media(video, image qr ) above text.
 
-        // First align the mediaView(including missing media view) to the top.
-        alignMediaAtTop(videoView);
-        alignMediaAtTop(qrView);
-        alignMediaAtTop(imageView);
-        alignMediaAtTop(resizingImageView);
-        alignMediaAtTop(missingMediaBackground);
-        alignMediaAtTop(downloadIcon);
-        alignMediaAtTop(progressBar);
+        // Change the questionBottomBarrier to align at the top of parent which would automatically
+        // align the mediaViews(including missing media view) to the top.
+        questionBottomBarrier.setReferencedIds(new int[]{ R.id.top_guideline });
 
         // Next align the text, audiobutton below mediaView.
         alignTextContainerBelowMediaView(audioButton);
         alignTextContainerBelowMediaView(textViewContainer);
-    }
-
-    private void alignMediaAtTop(View view) {
-        LayoutParams params = (LayoutParams) view.getLayoutParams();
-        params.topToBottom = LayoutParams.UNSET;
-        params.topToTop = this.getId();
-        view.setLayoutParams(params);
     }
 
     private void alignTextContainerBelowMediaView(View view) {
@@ -441,6 +431,7 @@ public class MediaLayout extends ConstraintLayout {
         divider = view.findViewById(R.id.divider);
         mediaLayoutBottomBarrier = view.findViewById(R.id.media_barrier);
         missingMediaBackground = view.findViewById(R.id.missing_media_background);
+        questionBottomBarrier = view.findViewById(R.id.question_barrier);
     }
     //endregion
 
