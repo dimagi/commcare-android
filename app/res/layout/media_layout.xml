@@ -3,13 +3,21 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <!-- Used to place media views to the top of the layout. -->
+    <!-- Used to shift barriers to the top of the layout. Needed for aligning media above text -->
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/top_guideline"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         app:layout_constraintGuide_begin="0dp"/>
+
+    <!-- Helpful constraint to shift textContainer to the bottom of mediaView -->
+    <androidx.constraintlayout.widget.Barrier
+        android:id="@+id/media_barrier"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:barrierDirection="bottom"
+        app:constraint_referenced_ids="top_guideline" />
 
     <org.commcare.views.media.AudioPlaybackButton
         android:id="@+id/audio_button"
@@ -19,7 +27,7 @@
         tools:visibility="visible"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="@id/media_barrier" />
 
     <ImageButton
         android:id="@+id/video_button"
@@ -49,7 +57,7 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toLeftOf="@id/buttons_barrier"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="@id/media_barrier" />
 
     <androidx.constraintlayout.widget.Barrier
         android:id="@+id/question_barrier"
@@ -172,14 +180,6 @@
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/download_media_icon" />
-
-    <!-- Helpful constraint to shift textContainer to the bottom of mediaView -->
-    <androidx.constraintlayout.widget.Barrier
-        android:id="@+id/media_barrier"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:barrierDirection="bottom"
-        app:constraint_referenced_ids="missing_media_tv, inline_video_view, qr_view, image, resizing_image" />
 
     <androidx.constraintlayout.widget.Barrier
         android:id="@+id/divider_barrier"

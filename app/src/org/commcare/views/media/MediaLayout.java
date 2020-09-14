@@ -86,12 +86,6 @@ public class MediaLayout extends ConstraintLayout {
         initView(context);
     }
 
-    public static MediaLayout buildAudioImageLayout(Context context, TextView text, String audioURI, String imageURI) {
-        MediaLayout mediaLayout = new MediaLayout(context);
-        mediaLayout.setAVT(text, audioURI, imageURI, null, null, null, null, true, 0);
-        return mediaLayout;
-    }
-
     public static MediaLayout buildAudioImageVisualLayout(Context context,
                                                           TextView text, String audioURI, String imageURI,
                                                           final String videoURI, final String bigImageURI) {
@@ -147,16 +141,15 @@ public class MediaLayout extends ConstraintLayout {
         // align the mediaViews(including missing media view) to the top.
         questionBottomBarrier.setReferencedIds(new int[]{ R.id.top_guideline });
 
-        // Next align the text, audiobutton below mediaView.
-        alignTextContainerBelowMediaView(audioButton);
-        alignTextContainerBelowMediaView(textViewContainer);
-    }
-
-    private void alignTextContainerBelowMediaView(View view) {
-        LayoutParams textContainerParams = (LayoutParams) view.getLayoutParams();
-        textContainerParams.topToTop = LayoutParams.UNSET;
-        textContainerParams.topToBottom = mediaLayoutBottomBarrier.getId();
-        view.setLayoutParams(textContainerParams);
+        // Now change the media_barrier to align at the bottom of the mediaView which
+        // would automatically align the textContainer to the bottom of media.
+        mediaLayoutBottomBarrier.setReferencedIds(new int[]{
+                R.id.missing_media_tv,
+                R.id.inline_video_view,
+                R.id.qr_view,
+                R.id.image,
+                R.id.resizing_image
+        });
     }
 
     private void addTextView(TextView text) {
