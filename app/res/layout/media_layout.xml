@@ -35,7 +35,7 @@
         android:layout_height="wrap_content"
         android:visibility="gone"
         tools:visibility="visible"
-        android:src="@android:drawable/ic_media_play"
+        app:srcCompat="@android:drawable/ic_media_play"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@id/audio_button" />
@@ -146,7 +146,7 @@
         tools:visibility="visible"
         android:layout_marginTop="@dimen/dp40"
         android:scaleType="center"
-        android:src="@drawable/update_download_icon"
+        app:srcCompat="@drawable/update_download_icon"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
