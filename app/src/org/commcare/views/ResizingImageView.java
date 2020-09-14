@@ -13,7 +13,6 @@ import android.util.TypedValue;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
-import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -68,10 +67,6 @@ public class ResizingImageView extends ImageView {
         scaleGestureDetector = new ScaleGestureDetector(getContext(), new ScaleListener());
         this.imageURI = imageURI;
         this.bigImageURI = bigImageURI;
-        ViewGroup.MarginLayoutParams imageViewParams = new ViewGroup.MarginLayoutParams(
-                ViewGroup.MarginLayoutParams.WRAP_CONTENT,
-                ViewGroup.MarginLayoutParams.WRAP_CONTENT);
-        this.setLayoutParams(imageViewParams);
     }
 
     @Override
