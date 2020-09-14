@@ -59,7 +59,7 @@
 
     <integer-array name="commcare_version">
         <item>2</item>
-        <item>50</item>
+        <item>51</item>
         <item>0</item>
     </integer-array>
 
