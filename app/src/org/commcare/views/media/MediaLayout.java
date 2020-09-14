@@ -147,9 +147,8 @@ public class MediaLayout extends ConstraintLayout {
         alignMediaAtTop(downloadIcon);
         alignMediaAtTop(progressBar);
 
-        // Next align the text, audiobutton and videoButton below mediaView.
+        // Next align the text, audiobutton below mediaView.
         alignTextContainerBelowMediaView(audioButton);
-        alignTextContainerBelowMediaView(videoButton);
         alignTextContainerBelowMediaView(textViewContainer);
     }
 
