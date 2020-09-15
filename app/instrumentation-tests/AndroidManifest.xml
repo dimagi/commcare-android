@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="${applicationId}">
 
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-sdk tools:overrideLibrary="android_libs.ub_uiautomator"/>
 
 </manifest>

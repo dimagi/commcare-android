@@ -18,6 +18,7 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'com.google.firebase.crashlytics'
 apply from: 'jacoco.gradle'
+apply from: 'fladle.gradle'
 
 repositories {
     google()
@@ -54,6 +55,7 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
     androidTestImplementation 'androidx.test:rules:1.2.0'
     androidTestImplementation 'androidx.test.espresso:espresso-intents:3.2.0'
+    androidTestImplementation(name:'cloudtestingscreenshotter_lib', ext:'aar')
 
     // need uiautomator to rotate the device.
     // this only works with API >=18
@@ -509,7 +511,8 @@ android {
     }
 
     // Needed to run espresso tests on release build.
-    testBuildType project.ext.TEST_BUILD_TYPE
+    // TODO: Fix me.
+//    testBuildType project.ext.TEST_BUILD_TYPE
 }
 
 /**
