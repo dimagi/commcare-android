@@ -91,7 +91,7 @@ public class SetupEnterURLFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        Activity activity = getActivity();
+        AppCompatActivity activity = (AppCompatActivity)getActivity();
 
         if (activity != null) {
             View editBox = activity.findViewById(R.id.edit_profile_location);
