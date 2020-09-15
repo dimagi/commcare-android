@@ -80,6 +80,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         implements ResourceEngineListener, SetupEnterURLFragment.URLInstaller,
         InstallConfirmFragment.StartStopInstallCommands, RetrieveParseVerifyMessageListener,
         RuntimePermissionRequester {
+
     private static final String TAG = CommCareSetupActivity.class.getSimpleName();
 
     private static final String KEY_UI_STATE = "current_install_ui_state";

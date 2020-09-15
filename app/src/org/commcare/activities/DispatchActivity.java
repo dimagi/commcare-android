@@ -2,7 +2,6 @@ package org.commcare.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
-import androidx.appcompat.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -20,6 +19,8 @@ import org.commcare.utils.CommCareLifecycleUtils;
 import org.commcare.utils.MultipleAppsUtil;
 import org.commcare.utils.SessionUnavailableException;
 import org.javarosa.core.services.locale.Localization;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 /**
  * Dispatches install, login, and home screen activities.
