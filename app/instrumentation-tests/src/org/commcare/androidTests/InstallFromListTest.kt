@@ -49,7 +49,7 @@ class InstallFromListTest: BaseTest() {
                 .check(matches(not(isDisplayed())))
 
         // Toggle switch
-        onView(withClassName(endsWith("Switch")))
+        onView(withId(R.id.switch_button))
                 .perform(click())
 
         // Verify that we're now in web user auth mode
@@ -78,7 +78,7 @@ class InstallFromListTest: BaseTest() {
     @Test
     fun testAppInstall_usingMobieWorkerDetails() {
         // Switch back to mobile auth view
-        onView(withClassName(endsWith("Switch")))
+        onView(withId(R.id.switch_button))
                 .perform(click())
 
         // Test getting app list for a mobile user
