@@ -36,7 +36,6 @@ public class DateWidget extends QuestionWidget {
     private final DatePicker mDatePicker;
     private final DatePicker.OnDateChangedListener mDateListener;
 
-    @SuppressLint("NewApi")
     public DateWidget(Context context, FormEntryPrompt prompt) {
         super(context, prompt);
 

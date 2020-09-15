@@ -262,7 +262,7 @@
     </style>
 
     <style name="NumberPickerStyle">
-        <item name="colorControlNormal">@color/colorAccent</item>
+        <item name="colorControlNormal">?attr/colorAccent</item>
         <item name="android:textSize">@dimen/abc_text_size_medium_material</item>
     </style>
 
