@@ -58,12 +58,12 @@ public class SavedFormTest extends BaseTest {
 
         // Go to the incomplete form and confirm if image exists there.
         InstrumentationUtility.openFirstIncompleteForm();
-        InstrumentationUtility.getSubViewInListItem(android.R.id.list, 1, R.id.hev_secondary_text)
+        InstrumentationUtility.getSubViewInListItem(R.id.list_view, 1, R.id.hev_secondary_text)
                 .check(matches(isDisplayed()))
                 .check(matches(withText(endsWith(".jpg"))));
 
         // Remove image from incomplete form and exit without saving.
-        clickListItem(android.R.id.list, 1);
+        clickListItem(R.id.list_view, 1);
         onView(withText(R.string.discard_image))
                 .perform(click());
         onView(isRoot()).perform(ViewActions.pressBack());
@@ -72,18 +72,18 @@ public class SavedFormTest extends BaseTest {
         // Go back to the form and confirm image is successfully removed.
 //        Utility.clickListItem(R.id.screen_entity_select_list, 0);
         InstrumentationUtility.openFirstIncompleteForm();
-        InstrumentationUtility.getSubViewInListItem(android.R.id.list, 1, R.id.hev_secondary_text)
+        InstrumentationUtility.getSubViewInListItem(R.id.list_view, 1, R.id.hev_secondary_text)
                 .check(matches(not(isDisplayed())));
 
         // Again add an image then exit without saving and confirm image is successfully added again.
-        clickListItem(android.R.id.list, 1);
+        clickListItem(R.id.list_view, 1);
 
         InstrumentationUtility.chooseImage();
 
         onView(isRoot()).perform(ViewActions.pressBack());
         onView(withText(R.string.do_not_save)).perform(click());
         InstrumentationUtility.openFirstIncompleteForm();
-        InstrumentationUtility.getSubViewInListItem(android.R.id.list, 1, R.id.hev_secondary_text)
+        InstrumentationUtility.getSubViewInListItem(R.id.list_view, 1, R.id.hev_secondary_text)
                 .check(matches(isDisplayed()))
                 .check(matches(withText(endsWith(".jpg"))));
     }
@@ -100,7 +100,7 @@ public class SavedFormTest extends BaseTest {
         // Go to the incomplete form and confirm changing text
         // triggers validation condition and doesn't allow submitting form.
         InstrumentationUtility.openFirstIncompleteForm();
-        clickListItem(android.R.id.list, 2);
+        clickListItem(R.id.list_view, 2);
         onView(withClassName(endsWith("EditText")))
                 .perform(typeText("ANYTHING"));
         onView(withId(R.id.nav_btn_finish))
@@ -113,7 +113,7 @@ public class SavedFormTest extends BaseTest {
 
         // Go back to the incomplete form and confirm form submission is allowed when there is no text.
         clickListItem(R.id.screen_entity_select_list, 0);
-        clickListItem(android.R.id.list, 2);
+        clickListItem(R.id.list_view, 2);
         onView(withClassName(endsWith("EditText")))
                 .check(matches(withText("")));
         onView(withId(R.id.nav_btn_finish))
@@ -158,7 +158,7 @@ public class SavedFormTest extends BaseTest {
         // let's go back to the saved form again and this time we'll jump directly to 3rd question.
         // so the 2nd one is still not filled and has a validation failure.
         InstrumentationUtility.openFirstIncompleteForm();
-        clickListItem(android.R.id.list, 2); // position starts with 0. 🙃
+        clickListItem(R.id.list_view, 2); // position starts with 0. 🙃
         onView(withClassName(endsWith("EditText")))
                 .perform(typeText("answered"));
         onView(withId(R.id.nav_btn_next))
