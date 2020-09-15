@@ -97,6 +97,7 @@ public class GlobalPrivilegeClaimingActivity extends Activity {
             case BARCODE_CAPTURE:
                 if (resultCode == RESULT_OK) {
                     String scanResult = data.getStringExtra("SCAN_RESULT");
+                    Log.d("SHIVAMMMM", "scan result : " + scanResult);
                     try {
                         Pair<String, String[]> activatedPrivileges =
                                 new PrivilegesUtility(GlobalConstants.TRUSTED_SOURCE_PUBLIC_KEY).
@@ -115,6 +116,7 @@ public class GlobalPrivilegeClaimingActivity extends Activity {
                         e.printStackTrace();
                         privilegePayloadVersionTooNew();
                     } catch (PrivilegesUtility.PrivilagePayloadException e) {
+                        Log.d("SHIVAMMMM", "scan result : " + e.getLocalizedMessage());
                         e.printStackTrace();
                         privilegeClaimFailed();
                     }
