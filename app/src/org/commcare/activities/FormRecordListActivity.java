@@ -212,7 +212,7 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
                     //This is only relevant with the new menu format, old menus have a hard
                     //button and don't need their menu to be rebuilt
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-                        supportInvalidateOptionsMenu();
+                        invalidateOptionsMenu();
                     }
                 }
 

@@ -60,7 +60,7 @@ class UpdateUIController implements CommCareActivityUIController {
 
         notificationsButtonContainer = activity.findViewById(R.id.btn_view_errors_container);
 
-        notificationsButton = (RectangleButtonWithText)activity.findViewById(R.id.update_btn_view_notifications);
+        notificationsButton = activity.findViewById(R.id.update_btn_view_notifications);
 
         notificationsButton.setText(Localization.get("error.button.text"));
 

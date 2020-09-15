@@ -364,14 +364,14 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
         ImageView iv = (ImageView)inflater.inflate(layoutResource, null);
         Animation animation = AnimationUtils.loadAnimation(this, animationId);
         iv.startAnimation(animation);
-        MenuItemCompat.setActionView(menuItem, iv);
+        menuItem.setActionView(iv);
     }
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     private void clearCurrentAnimation(MenuItem item) {
-        if (item != null && MenuItemCompat.getActionView(item) != null) {
-            MenuItemCompat.getActionView(item).clearAnimation();
-            MenuItemCompat.setActionView(item, null);
+        if (item != null && item.getActionView() != null) {
+            item.getActionView().clearAnimation();
+            item.setActionView(null);
         }
     }
 

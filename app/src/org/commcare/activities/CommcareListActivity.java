@@ -18,7 +18,7 @@ public class CommcareListActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(getLayoutResource());
-        mListView = (ListView)findViewById(R.id.list_view);
+        mListView = findViewById(R.id.list_view);
         if (mListView == null) {
             throw new RuntimeException(
                     "Your content must have a ListView whose id attribute is " +

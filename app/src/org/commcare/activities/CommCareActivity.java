@@ -829,7 +829,6 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
     /**
      * Rebuild the activity's menu options based on the current state of the activity.
      */
-    @SuppressLint("RestrictedApi")
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     public void rebuildOptionsMenu() {
         if (CommCareApplication.instance().getCurrentApp() != null) {

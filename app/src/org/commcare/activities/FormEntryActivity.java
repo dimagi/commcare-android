@@ -995,7 +995,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             // Newer menus may have already built the menu, before all data was ready
-            supportInvalidateOptionsMenu();
+            invalidateOptionsMenu();
         }
 
         registerSessionFormSaveCallback();
