@@ -480,6 +480,7 @@ android {
         }
 
         release {
+            debuggable true
             minifyEnabled true
             signingConfig signingConfigs.release
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard.cfg'
