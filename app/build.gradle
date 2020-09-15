@@ -18,7 +18,6 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'com.google.firebase.crashlytics'
 apply from: 'jacoco.gradle'
-apply plugin: 'com.facebook.testing.screenshot'
 apply from: 'fladle.gradle'
 
 repositories {
@@ -56,6 +55,7 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
     androidTestImplementation 'androidx.test:rules:1.2.0'
     androidTestImplementation 'androidx.test.espresso:espresso-intents:3.2.0'
+    androidTestImplementation(name:'cloudtestingscreenshotter_lib', ext:'aar')
 
     // need uiautomator to rotate the device.
     // this only works with API >=18
@@ -295,12 +295,6 @@ android {
         buildConfigField "String", "HQ_API_PASSWORD", "\"${project.ext.HQ_API_PASSWORD}\""
 
         testInstrumentationRunner "org.commcare.CommCareJUnitRunner"
-
-        if (project.gradle.startParameter.taskNames.toString().contains("Screenshot")) {
-            Map<String, String> map = new HashMap<String, String>()
-            map.put("package", "org.commcare.screenshotTests")
-            setTestInstrumentationRunnerArguments map
-        }
     }
 
     applicationVariants.all { variant ->

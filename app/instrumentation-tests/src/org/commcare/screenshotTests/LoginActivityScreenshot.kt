@@ -3,7 +3,7 @@ package org.commcare.screenshotTests
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
-import com.facebook.testing.screenshot.Screenshot
+import com.google.android.libraries.cloudtesting.screenshots.ScreenShotter
 import org.commcare.CommCareInstrumentationTestApplication
 
 import org.commcare.androidTests.BaseTest
@@ -19,6 +19,6 @@ class LoginActivityScreenshot: BaseTest() {
         installApp("TestSavedForm", "testSavedForm.ccz")
         val application = InstrumentationRegistry.getInstrumentation().targetContext.applicationContext
                 as CommCareInstrumentationTestApplication
-        Screenshot.snapActivity(application.currentActivity).record()
+        ScreenShotter.takeScreenshot("first_screenshot", application.currentActivity)
     }
 }
