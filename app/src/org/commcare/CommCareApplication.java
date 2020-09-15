@@ -21,6 +21,7 @@ import com.google.firebase.analytics.FirebaseAnalytics;
 import net.sqlcipher.database.SQLiteDatabase;
 import net.sqlcipher.database.SQLiteException;
 
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.commcare.activities.LoginActivity;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
@@ -214,6 +215,7 @@ public class CommCareApplication extends MultiDexApplication {
         // improperly, so the second https request in a short time period will flop)
         System.setProperty("http.keepAlive", "false");
 
+        Security.addProvider(new BouncyCastleProvider());
         initTls12IfNeeded();
 
         Thread.setDefaultUncaughtExceptionHandler(new CommCareExceptionHandler(Thread.getDefaultUncaughtExceptionHandler(), this));
