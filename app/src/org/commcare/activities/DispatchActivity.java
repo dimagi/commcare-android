@@ -11,6 +11,7 @@ import org.commcare.CommCareApplication;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.dalvik.R;
+import org.commcare.heartbeat.UpdatePromptHelper;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.recovery.measures.ExecuteRecoveryMeasuresActivity;
 import org.commcare.recovery.measures.RecoveryMeasuresHelper;
@@ -256,6 +257,9 @@ public class DispatchActivity extends FragmentActivity {
     }
 
     private void launchHomeScreen() {
+        if (startFromLogin && UpdatePromptHelper.promptForUpdateIfNeeded(this)) {
+            return;
+        }
         Intent i;
         if (useRootMenuHomeActivity()) {
             i = new Intent(this, RootMenuHomeActivity.class);

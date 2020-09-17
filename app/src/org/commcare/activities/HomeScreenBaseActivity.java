@@ -1161,8 +1161,6 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
         } else if (CommCareApplication.instance().isSyncPending()) {
             triggerSync(true);
             kickedOff = true;
-        } else if (UpdatePromptHelper.promptForUpdateIfNeeded(this)) {
-            kickedOff = true;
         }
 
         // Trigger background log submission if required
