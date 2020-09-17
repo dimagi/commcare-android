@@ -229,6 +229,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
      * session because it is of higher importance
      * - Check for a post-update sync before doing a standard background form-send, since a sync
      * action will include a form-send action
+     * - Check if we need to show an Update Prompt
      * - Once we're past that point, starting a background form-send process is safe, and we can
      * safely do checkForPinLaunchConditions() at the same time
      */
@@ -256,6 +257,9 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
             return true;
         }
 
+        if (UpdatePromptHelper.promptForUpdateIfNeeded(this)) {
+            return true;
+        }
         checkForPinLaunchConditions();
         checkForDrift();
         return false;
