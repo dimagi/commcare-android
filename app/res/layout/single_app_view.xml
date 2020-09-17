@@ -34,7 +34,6 @@
         android:visibility="visible"/>
 
     <Button
-        android:background="@color/grey"
         android:id="@+id/uninstall_button"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/standard_spacer"
