@@ -2,9 +2,7 @@ package org.commcare.views.widgets;
 
 import android.content.Context;
 import android.util.TypedValue;
-import android.view.LayoutInflater;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.ImageView;
@@ -16,7 +14,6 @@ import org.javarosa.core.model.SelectChoice;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.data.SelectOneData;
 import org.javarosa.core.model.data.helper.Selection;
-import org.javarosa.core.services.locale.Localization;
 import org.javarosa.form.api.FormEntryCaption;
 import org.javarosa.form.api.FormEntryPrompt;
 
@@ -28,11 +25,10 @@ import java.util.Vector;
  * @author Carl Hartung (carlhartung@gmail.com)
  * @author Yaw Anokwa (yanokwa@gmail.com)
  */
-public class SelectOneWidget extends QuestionWidget implements OnCheckedChangeListener {
+public class SelectOneWidget extends SelectQuestionWidget implements OnCheckedChangeListener {
 
     private final Vector<SelectChoice> mItems;
     private final int buttonIdBase;
-    private Button clearButton;
 
     private final Vector<RadioButton> buttons;
 
@@ -106,17 +102,6 @@ public class SelectOneWidget extends QuestionWidget implements OnCheckedChangeLi
             }
             addClearButton(context, s != null && !prompt.isReadOnly());
         }
-    }
-
-    private void addClearButton(Context context, boolean show) {
-        clearButton = (Button) LayoutInflater.from(context).inflate(R.layout.blue_outlined_button, this, false);
-        clearButton.setText(Localization.get("button.clear.title"));
-        clearButton.setVisibility(show ? VISIBLE : GONE);
-        clearButton.setOnClickListener(view -> {
-            clearAnswer();
-            widgetEntryChanged();
-        });
-        addView(clearButton);
     }
 
     @Override

@@ -5,7 +5,6 @@ import android.graphics.drawable.Drawable;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.ImageView;
@@ -20,7 +19,6 @@ import org.javarosa.core.model.SelectChoice;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.data.SelectOneData;
 import org.javarosa.core.model.data.helper.Selection;
-import org.javarosa.core.services.locale.Localization;
 import org.javarosa.form.api.FormEntryCaption;
 import org.javarosa.form.api.FormEntryPrompt;
 
@@ -33,7 +31,7 @@ import java.util.Vector;
  *
  * @author Jeff Beorse (jeff@beorse.net)
  */
-public class SelectOneAutoAdvanceWidget extends QuestionWidget implements OnCheckedChangeListener {
+public class SelectOneAutoAdvanceWidget extends SelectQuestionWidget implements OnCheckedChangeListener {
 
     private final Vector<SelectChoice> mItems;
 
@@ -42,7 +40,6 @@ public class SelectOneAutoAdvanceWidget extends QuestionWidget implements OnChec
     private final AdvanceToNextListener listener;
 
     private final int buttonIdBase;
-    private Button clearButton;
 
     public SelectOneAutoAdvanceWidget(Context context, FormEntryPrompt prompt) {
         super(context, prompt);
@@ -125,17 +122,6 @@ public class SelectOneAutoAdvanceWidget extends QuestionWidget implements OnChec
             }
             addClearButton(context, s != null && !prompt.isReadOnly());
         }
-    }
-
-    private void addClearButton(Context context, boolean show) {
-        clearButton = (Button) LayoutInflater.from(context).inflate(R.layout.blue_outlined_button, this, false);
-        clearButton.setText(Localization.get("button.clear.title"));
-        clearButton.setVisibility(show ? VISIBLE : GONE);
-        clearButton.setOnClickListener(view -> {
-            clearAnswer();
-            widgetEntryChanged();
-        });
-        addView(clearButton);
     }
 
     @Override
