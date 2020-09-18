@@ -188,8 +188,9 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
 
         // Update Stats are only maintained in case of an unsuccessful update,
         // so check whether we have a ready to install update instead
-        if (lastUpdateResult == null && ResourceInstallUtils.isUpdateReadyToInstall()) {
-            lastUpdateResult = new ResultAndError<>(AppInstallStatus.UpdateStaged);
+        if (lastUpdateResult == null) {
+            lastUpdateResult = ResourceInstallUtils.isUpdateReadyToInstall() ? new ResultAndError<>(AppInstallStatus.UpdateStaged)
+                    : new ResultAndError<>(AppInstallStatus.UnknownFailure);
         }
         return lastUpdateResult;
     }
