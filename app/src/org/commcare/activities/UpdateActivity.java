@@ -456,7 +456,7 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
                     protected void deliverResult(UpdateActivity receiver,
                                                  AppInstallStatus result) {
                         if (result == AppInstallStatus.Installed) {
-                            OnSuccessfulUpdate(true, !isLocalUpdate && !BuildConfig.DEBUG);
+                            OnSuccessfulUpdate(true, !isLocalUpdate);
                             receiver.returnResult();
                         } else {
                             if (proceedAutomatically) {
