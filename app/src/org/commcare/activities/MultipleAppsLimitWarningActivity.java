@@ -4,8 +4,10 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 
 import org.commcare.dalvik.R;
+import org.commcare.utils.StringUtils;
 
 /**
  * Activity that is shown when a user tries to install more than 2 apps at a time, without having
@@ -20,6 +22,11 @@ public class MultipleAppsLimitWarningActivity extends CommCareActivity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.multiple_apps_limit_view);
+        TextView mulitpleAppLimitTextView = findViewById(R.id.mulitple_app_limit_textview);
+        String text = StringUtils.getStringRobust(this,
+                R.string.multiple_apps_limit_message,
+                String.valueOf(CommCareSetupActivity.MAX_ALLOWED_APPS));
+        mulitpleAppLimitTextView.setText(text);
         boolean installAttemptCameFromAppManager = getIntent()
                 .getBooleanExtra(AppManagerActivity.KEY_LAUNCH_FROM_MANAGER, false);
         setupUI(installAttemptCameFromAppManager);
