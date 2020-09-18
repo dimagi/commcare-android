@@ -22,11 +22,6 @@ public class MultipleAppsLimitWarningActivity extends CommCareActivity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.multiple_apps_limit_view);
-        TextView mulitpleAppLimitTextView = findViewById(R.id.mulitple_app_limit_textview);
-        String text = StringUtils.getStringRobust(this,
-                R.string.multiple_apps_limit_message,
-                String.valueOf(CommCareSetupActivity.MAX_ALLOWED_APPS));
-        mulitpleAppLimitTextView.setText(text);
         boolean installAttemptCameFromAppManager = getIntent()
                 .getBooleanExtra(AppManagerActivity.KEY_LAUNCH_FROM_MANAGER, false);
         setupUI(installAttemptCameFromAppManager);
@@ -42,6 +37,12 @@ public class MultipleAppsLimitWarningActivity extends CommCareActivity {
         }
 
         toManagerButton.setOnClickListener(v -> onManagerButtonClicked(installAttemptCameFromManager));
+
+        TextView mulitpleAppLimitTextView = findViewById(R.id.mulitple_app_limit_textview);
+        String text = StringUtils.getStringRobust(this,
+                R.string.multiple_apps_limit_message,
+                String.valueOf(CommCareSetupActivity.MAX_ALLOWED_APPS));
+        mulitpleAppLimitTextView.setText(text);
     }
 
     private void onManagerButtonClicked(boolean installAttemptCameFromManager) {
