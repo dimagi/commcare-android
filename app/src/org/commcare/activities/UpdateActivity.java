@@ -177,17 +177,22 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
                                 data.getInt(UpdateWorker.Progress_Total, -1));
                     } else {
                         // Worker getting fired when not running imply completion of worker
-                        ResultAndError<AppInstallStatus> lastUpdateResult = getlastStageUpdateResult();
-                        if (lastUpdateResult != null) {
-                            handleTaskCompletion(getlastStageUpdateResult());
-                        }
+                        handleTaskCompletion(getlastStageUpdateResult());
                     }
                 });
     }
 
     private ResultAndError<AppInstallStatus> getlastStageUpdateResult() {
         UpdateStats updateStats = UpdateStats.loadUpdateStats(CommCareApplication.instance().getCurrentApp());
-        return updateStats.getLastStageUpdateResult();
+        ResultAndError<AppInstallStatus> lastUpdateResult = updateStats.getLastStageUpdateResult();
+
+        // Update Stats are only maintained in case of an unsuccessful update,
+        // so check whether we have a ready to install update instead
+        if (lastUpdateResult == null) {
+            lastUpdateResult = ResourceInstallUtils.isUpdateReadyToInstall() ? new ResultAndError<>(AppInstallStatus.UpdateStaged)
+                    : new ResultAndError<>(AppInstallStatus.UnknownFailure);
+        }
+        return lastUpdateResult;
     }
 
     @Override
@@ -413,7 +418,7 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
 
     public void stopUpdateCheck() {
 
-        if(isAutoUpdateInProgress()){
+        if (isAutoUpdateInProgress()) {
             UpdateHelper.cancelUpdateWorker();
         }
 
