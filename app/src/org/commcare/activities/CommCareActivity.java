@@ -592,6 +592,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
             CustomProgressDialog dialog = generateProgressDialog(taskId);
             if (dialog != null) {
                 dialog.show(getSupportFragmentManager(), KEY_PROGRESS_DIALOG_FRAG);
+                getSupportFragmentManager().executePendingTransactions();
             }
         }
     }
