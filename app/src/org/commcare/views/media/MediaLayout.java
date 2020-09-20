@@ -211,6 +211,7 @@ public class MediaLayout extends ConstraintLayout {
                 videoButton.setImageResource(mediaPresent ? android.R.drawable.ic_media_play : R.drawable.update_download_icon);
                 AndroidUtil.showToast(getContext(), R.string.media_download_completed);
                 videoButton.setVisibility(VISIBLE);
+                videoButton.invalidate();
             } else if (result instanceof MissingMediaDownloadResult.InProgress) {
                 AndroidUtil.showToast(getContext(), R.string.media_download_in_progress);
             } else {

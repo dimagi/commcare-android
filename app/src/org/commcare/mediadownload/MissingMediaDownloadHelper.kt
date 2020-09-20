@@ -16,6 +16,7 @@ import org.commcare.resources.model.*
 import org.commcare.network.RequestStats
 import org.commcare.resources.ResourceInstallContext
 import org.commcare.tasks.ResultAndError
+import org.commcare.util.LogTypes
 import org.commcare.utils.AndroidCommCarePlatform
 import org.commcare.utils.FileUtil
 import org.commcare.utils.StringUtils
@@ -28,6 +29,9 @@ import java.util.concurrent.TimeUnit
 
 // Contains helper functions to download lazy or missing media resources
 object MissingMediaDownloadHelper : TableStateListener {
+
+    @Volatile
+    private var mResourceInProgressListener: MissingMediaDownloadListener? = null
 
     @Volatile
     private var resourceInProgress: Resource? = null
@@ -75,7 +79,7 @@ object MissingMediaDownloadHelper : TableStateListener {
      * Downloads any missing lazy resources
      */
     @WorkerThread
-    fun downloadAllLazyMedia(cancellationChecker: InstallCancelled): AppInstallStatus {
+    suspend fun downloadAllLazyMedia(cancellationChecker: InstallCancelled): AppInstallStatus {
         if (!HiddenPreferences.isLazyMediaDownloadComplete()) {
             val platform = CommCareApplication.instance().commCarePlatform
             val global = platform.globalResourceTable
@@ -141,7 +145,7 @@ object MissingMediaDownloadHelper : TableStateListener {
         }
         CommCareApplication.notificationManager().reportNotificationMessage(notificationMessage)
         Logger.exception("An error occured while lazy downloading a media resource", it)
-        return ResultAndError(appInstallStatus, notificationMessage.title)
+        return ResultAndError(appInstallStatus, notificationMessage!!.title)
     }
 
     private fun isResourceMissing(it: Resource): Boolean {
@@ -165,6 +169,12 @@ object MissingMediaDownloadHelper : TableStateListener {
                     }.onFailure {
                         result = MissingMediaDownloadResult.Error(handleRecoverResourceFailure(it).errorMessage)
                     }
+
+                    // If the download is already in Progress save the listener to notify once the download completes
+                    if (result == MissingMediaDownloadResult.InProgress) {
+                        mResourceInProgressListener = missingMediaDownloadListener
+                    }
+
                     withContext(Dispatchers.Main) {
                         missingMediaDownloadListener.onComplete(result)
                     }
@@ -182,7 +192,7 @@ object MissingMediaDownloadHelper : TableStateListener {
                 .filter { it != null }
                 .filter { AndroidResourceUtils.matchFileUriToResource(it, uri) }
                 .take(1)
-                .map { downloadResource(it) }
+                .map { downloadResource(it, uri) }
                 .firstOrNull()
 
         if (result == null) {
@@ -193,7 +203,7 @@ object MissingMediaDownloadHelper : TableStateListener {
         return result
     }
 
-    private fun downloadResource(it: Resource): MissingMediaDownloadResult {
+    private fun downloadResource(it: Resource, uri: String): MissingMediaDownloadResult {
         return if (resourceInProgress == null || it.resourceId != resourceInProgress!!.resourceId) {
             RequestStats.register(InstallRequestSource.FOREGROUND_LAZY_RESOURCE)
             val resultAndError = runBlocking {
@@ -211,20 +221,31 @@ object MissingMediaDownloadHelper : TableStateListener {
 
     // downloads the resource
     @Synchronized
-    private fun recoverResource(platform: AndroidCommCarePlatform, it: Resource, source: InstallRequestSource): ResultAndError<AppInstallStatus> {
+    private suspend fun recoverResource(platform: AndroidCommCarePlatform, it: Resource, source: InstallRequestSource): ResultAndError<AppInstallStatus> {
         resourceInProgress = it
-        return try {
+        var result: ResultAndError<AppInstallStatus> = ResultAndError(AppInstallStatus.UnknownFailure, "Unknown error - default")
+        result = try {
             if (!isResourceMissing(it)) {
                 ResultAndError(AppInstallStatus.Installed)
             } else {
                 platform.globalResourceTable.recoverResource(it, platform, ResourceInstallUtils.getProfileReference(), ResourceInstallContext(source))
+                Log.w("shubham", "cp")
                 ResultAndError(AppInstallStatus.Installed)
             }
         } catch (e: Exception) {
+            Log.w("shubham", "cp1")
+            e.printStackTrace()
             handleRecoverResourceFailure(e)
         } finally {
+            withContext(Dispatchers.Main) {
+                if (mResourceInProgressListener != null) {
+                    mResourceInProgressListener!!.onComplete(getMissingMediaResult(result))
+                }
+                mResourceInProgressListener = null
+            }
             resourceInProgress = null
         }
+        return result
     }
 
 
