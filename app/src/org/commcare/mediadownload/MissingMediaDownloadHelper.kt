@@ -1,6 +1,5 @@
 package org.commcare.mediadownload
 
-import android.util.Log
 import androidx.annotation.WorkerThread
 import androidx.work.*
 import kotlinx.coroutines.*
@@ -11,12 +10,11 @@ import org.commcare.engine.resource.AndroidResourceUtils
 import org.commcare.engine.resource.AppInstallStatus
 import org.commcare.engine.resource.ResourceInstallUtils
 import org.commcare.engine.resource.installers.LocalStorageUnavailableException
-import org.commcare.preferences.HiddenPreferences
-import org.commcare.resources.model.*
 import org.commcare.network.RequestStats
+import org.commcare.preferences.HiddenPreferences
 import org.commcare.resources.ResourceInstallContext
+import org.commcare.resources.model.*
 import org.commcare.tasks.ResultAndError
-import org.commcare.util.LogTypes
 import org.commcare.utils.AndroidCommCarePlatform
 import org.commcare.utils.FileUtil
 import org.commcare.utils.StringUtils
@@ -24,7 +22,6 @@ import org.commcare.views.dialogs.PinnedNotificationWithProgress
 import org.commcare.views.notifications.NotificationMessage
 import org.commcare.views.notifications.NotificationMessageFactory
 import org.javarosa.core.services.Logger
-import java.lang.Exception
 import java.util.concurrent.TimeUnit
 
 // Contains helper functions to download lazy or missing media resources
@@ -229,12 +226,9 @@ object MissingMediaDownloadHelper : TableStateListener {
                 ResultAndError(AppInstallStatus.Installed)
             } else {
                 platform.globalResourceTable.recoverResource(it, platform, ResourceInstallUtils.getProfileReference(), ResourceInstallContext(source))
-                Log.w("shubham", "cp")
                 ResultAndError(AppInstallStatus.Installed)
             }
         } catch (e: Exception) {
-            Log.w("shubham", "cp1")
-            e.printStackTrace()
             handleRecoverResourceFailure(e)
         } finally {
             withContext(Dispatchers.Main) {
