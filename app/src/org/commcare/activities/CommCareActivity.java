@@ -7,11 +7,6 @@ import android.content.DialogInterface;
 import android.graphics.Rect;
 import android.os.Build;
 import android.os.Bundle;
-
-import androidx.fragment.app.DialogFragment;
-import androidx.fragment.app.FragmentActivity;
-import androidx.fragment.app.FragmentManager;
-
 import android.text.Spannable;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -62,6 +57,9 @@ import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.NoLocalizedTextException;
 
+import androidx.fragment.app.DialogFragment;
+import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentManager;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 
@@ -112,7 +110,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
      * so that the dialog can be shown when fragments have fully resumed.
      */
     private boolean triedBlockingWhilePaused;
-    private int taskIdForPendingDismissal = -1;
+    private int taskIdForPendingDismissal = UNDEFINED_TASK_ID;
 
     /**
      * Store the id of a task progress dialog so it can be disabled/enabled
