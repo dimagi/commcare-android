@@ -11,9 +11,15 @@ public interface DialogController {
     void showProgressDialog(int taskId);
 
     /**
+     * Should dismiss the dialog fragment belonging to given taskId
+     * @param taskId
+     */
+    void dismissProgressDialogForTask(int taskId);
+
+    /**
      * Should dismiss the current dialog fragment
      */
-    void dismissProgressDialog();
+    void dismissCurrentProgressDialog();
 
     /**
      * Return the dialog that is currently showing, or null
