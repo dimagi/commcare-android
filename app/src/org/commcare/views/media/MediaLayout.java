@@ -379,7 +379,7 @@ public class MediaLayout extends ConstraintLayout {
                     progressBar.setVisibility(GONE);
                     downloadIcon.setVisibility(VISIBLE);
                     downloadIcon.setEnabled(true);
-                    missingMediaStatus.setText(StringUtils.getStringRobust(getContext(), R.string.media_download_failed));
+                    missingMediaStatus.setText(result.getMessage());
                 }
             });
         });
