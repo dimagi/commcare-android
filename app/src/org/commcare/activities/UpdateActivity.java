@@ -300,7 +300,7 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
     @Override
     public void handleTaskCompletion(ResultAndError<AppInstallStatus> result) {
         if (CommCareApplication.instance().isConsumerApp()) {
-            dismissProgressDialog();
+            dismissProgressDialogForTask(DIALOG_CONSUMER_APP_UPGRADE);
         }
 
         if (result.data == AppInstallStatus.UpdateStaged) {
