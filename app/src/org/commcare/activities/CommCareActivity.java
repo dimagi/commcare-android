@@ -620,6 +620,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
                 taskIdForPendingDismissal = taskId;
             } else {
                 progressDialog.dismiss();
+                getSupportFragmentManager().executePendingTransactions();
             }
         }
     }
