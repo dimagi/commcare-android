@@ -158,9 +158,6 @@ object MissingMediaDownloadHelper : TableStateListener {
     @JvmStatic
     fun requestMediaDownload(mediaUri: String, defaultDispatcher: CoroutineDispatcher,
                              missingMediaDownloadListener: MissingMediaDownloadListener) {
-        // We want the foreground downloads to take priority, so cancel any ongoing background download
-        WorkManager.getInstance(CommCareApplication.instance()).cancelUniqueWork(getMissingMediaDownloadRequestName())
-
         jobs.add(
                 CoroutineScope(defaultDispatcher).launch {
                     var result: MissingMediaDownloadResult = MissingMediaDownloadResult.Error("Unknown Error")
