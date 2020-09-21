@@ -165,7 +165,7 @@ class EntityMapboxActivity : BaseMapboxActivity() {
                 .withProperties(
                         PropertyFactory.iconImage(INFO_IMAGE_ID),
                         PropertyFactory.iconAnchor(Property.ICON_ANCHOR_BOTTOM),
-                        PropertyFactory.iconAllowOverlap(false),
+                        PropertyFactory.iconAllowOverlap(true),
                         PropertyFactory.iconIgnorePlacement(false),  // offset the info window to be above the marker
                         PropertyFactory.iconOffset(arrayOf(-2f, -28f))
                 ))
