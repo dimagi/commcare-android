@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:tools="http://schemas.android.com/tools"
               android:gravity="center"
               android:layout_height="wrap_content"
               android:layout_width="match_parent"
@@ -8,12 +9,13 @@
     <TextView
         android:gravity="center"
         android:id="@+id/app_name"
+        tools:text="App Name"
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"
         android:paddingBottom="@dimen/standard_spacer"
         android:paddingTop="@dimen/standard_spacer"
         android:textColor="@color/darkest_grey"
-        android:textSize="@dimen/font_size_xlargest"/>
+        style="@style/TextAppearance.AppCompat.Display1" />
 
     <TextView
         android:gravity="center"
@@ -21,7 +23,7 @@
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"
         android:textColor="@color/darkest_grey"
-        android:textSize="@dimen/font_size_small"/>
+        style="@style/TextAppearance.AppCompat.Body1" />
 
     <TextView
         android:gravity="center"
@@ -30,7 +32,7 @@
         android:layout_width="wrap_content"
         android:text="@string/pre_multiple_apps_warning"
         android:textColor="@color/cc_attention_negative_color"
-        android:textSize="@dimen/font_size_large"
+        style="@style/TextAppearance.AppCompat.Body2"
         android:visibility="visible"/>
 
     <Button
@@ -41,7 +43,7 @@
         android:onClick="rebootAlertDialog"
         android:text="@string/uninstall_app"
         android:textColor="@color/blue"
-        android:textSize="@dimen/font_size_xlargest"/>
+        style="@style/TextAppearance.AppCompat.Headline"/>
 
     <Button
         android:id="@+id/archive_button"
@@ -51,7 +53,7 @@
         android:onClick="toggleArchiveClicked"
         android:text="@string/archive_app"
         android:textColor="@color/darkest_grey"
-        android:textSize="@dimen/font_size_xlargest"/>
+        style="@style/TextAppearance.AppCompat.Headline"/>
 
     <Button
         android:id="@+id/update_button"
@@ -61,7 +63,7 @@
         android:onClick="updateClicked"
         android:text="@string/update_app"
         android:textColor="@color/blue"
-        android:textSize="@dimen/font_size_xlargest"/>
+        style="@style/TextAppearance.AppCompat.Headline"/>
 
     <Button
         android:clickable="true"
@@ -72,7 +74,7 @@
         android:onClick="verifyResourcesClicked"
         android:text="@string/verify_resources"
         android:textColor="@color/darkest_grey"
-        android:textSize="@dimen/font_size_xlargest"
+        style="@style/TextAppearance.AppCompat.Headline"/>
         />
 
 </LinearLayout>
