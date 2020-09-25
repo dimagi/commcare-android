@@ -625,8 +625,8 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
-        menu.add(0, v.getId(), 0, StringUtils.getStringSpannableRobust(this, R.string.clear_answer));
-        menu.setHeaderTitle(StringUtils.getStringSpannableRobust(this, R.string.edit_prompt));
+        menu.add(0, v.getId(), 0, StringUtils.getStringRobust(this, R.string.clear_answer));
+        menu.setHeaderTitle(StringUtils.getStringRobust(this, R.string.edit_prompt));
     }
 
     @Override
