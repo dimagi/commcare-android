@@ -95,11 +95,11 @@ object InstrumentationUtility {
     }
 
     @JvmStatic
-    fun openFirstForm() {
+    fun openForm(module: Int, form: Int) {
         onView(withText("Start"))
                 .perform(click())
-        clickListItem(R.id.screen_suite_menu_list, 0)
-        clickListItem(R.id.screen_suite_menu_list, 1)
+        clickListItem(R.id.screen_suite_menu_list, module)
+        clickListItem(R.id.screen_suite_menu_list, form + 1)
     }
 
     @JvmStatic
