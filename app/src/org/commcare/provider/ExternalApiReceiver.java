@@ -11,8 +11,6 @@ import org.commcare.CommCareApplication;
 import org.commcare.activities.LoginMode;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.global.models.AndroidSharedKeyRecord;
-import org.commcare.android.database.user.models.FormRecord;
-import org.commcare.dalvik.R;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.models.encryption.ByteEncrypter;
 import org.commcare.preferences.ServerUrls;
@@ -23,14 +21,12 @@ import org.commcare.tasks.ResultAndError;
 import org.commcare.tasks.templates.CommCareTask;
 import org.commcare.tasks.templates.CommCareTaskConnector;
 import org.commcare.utils.FormUploadResult;
-import org.commcare.utils.StorageUtils;
 import org.javarosa.core.model.User;
 import org.javarosa.core.services.locale.Localization;
 
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.util.NoSuchElementException;
-import java.util.Vector;
 
 /**
  * This broadcast receiver is the central point for incoming API calls from other apps.
@@ -70,7 +66,7 @@ public class ExternalApiReceiver extends BroadcastReceiver {
         }
 
         @Override
-        public void stopTaskTransition() {
+        public void stopTaskTransition(int taskId) {
         }
 
         @Override
