@@ -48,7 +48,7 @@ public class DataPullControllerMock implements DataPullController, CommCareTaskC
     }
 
     @Override
-    public void stopTaskTransition() {
+    public void stopTaskTransition(int taskId) {
 
     }
 

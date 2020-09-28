@@ -72,7 +72,7 @@ public abstract class CommCareTask<Params, Progress, Result, Receiver>
                 connector.stopBlockingForTask(getTaskId());
                 connector.taskCancelled();
                 handleCancellation(connector.getReceiver());
-                connector.stopTaskTransition();
+                connector.stopTaskTransition(taskId);
             }
         }
     }
@@ -92,7 +92,7 @@ public abstract class CommCareTask<Params, Progress, Result, Receiver>
                 } else {
                     deliverResult(connector.getReceiver(), result);
                 }
-                connector.stopTaskTransition();
+                connector.stopTaskTransition(taskId);
             }
         }
     }

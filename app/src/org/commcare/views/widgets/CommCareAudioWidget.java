@@ -42,6 +42,7 @@ public class CommCareAudioWidget extends AudioWidget
     private ImageButton mPlayButton;
     private TextView recordingNameText;
     private MediaPlayer player;
+    private boolean showFileChooser;
     private static final String ACQUIRE_UPLOAD_FIELD = "acquire-or-upload";
 
     public CommCareAudioWidget(Context context, FormEntryPrompt prompt,
@@ -80,7 +81,7 @@ public class CommCareAudioWidget extends AudioWidget
 
 
         mPlayButton.setOnClickListener(v -> playAudio());
-        boolean showFileChooser = ACQUIRE_UPLOAD_FIELD.equals(mPrompt.getAppearanceHint());
+        showFileChooser = ACQUIRE_UPLOAD_FIELD.equals(mPrompt.getAppearanceHint());
         chooseButton.setVisibility(showFileChooser ? VISIBLE : GONE);
     }
 
@@ -105,7 +106,8 @@ public class CommCareAudioWidget extends AudioWidget
     @Override
     public void setupLayout() {
         recordingNameText = layout.findViewById(R.id.recording_text);
-        recordingNameText.setText(Localization.get("recording.prompt"));
+        String text = Localization.get(showFileChooser ? "recording.prompt.with.file.chooser" : "recording.prompt.without.file.chooser");
+        recordingNameText.setText(text);
         addView(layout);
     }
 

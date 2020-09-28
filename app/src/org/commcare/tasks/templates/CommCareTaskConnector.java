@@ -44,8 +44,9 @@ public interface CommCareTaskConnector<R> {
      * Should be called at the end of onPreExecute or onCancelled for any
      * CommCareTask, indicating that we are ending a potential transition from
      * one task to another
+     * @param taskId
      */
-    void stopTaskTransition();
+    void stopTaskTransition(int taskId);
 
     void hideTaskCancelButton();
 }
