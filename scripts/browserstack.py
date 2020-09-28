@@ -40,7 +40,7 @@ if __name__ == "__main__":
     if "BASE_LOCATION" in os.environ:
         baseLoc = os.environ["BASE_LOCATION"]
 
-    releaseAppBundle = baseLoc + "bundle/commcareRelease/app-commcare-release.aab"
+    releaseApk = baseLoc + "apk/commcare/release/app-commcare-release.apk"
     testApk = baseLoc + "apk/androidTest/commcare/release/app-commcare-release-androidTest.apk"
 
     releaseUrl = "https://api-cloud.browserstack.com/app-automate/upload"
@@ -48,7 +48,7 @@ if __name__ == "__main__":
 
     command = 'curl -u "{}:{}" -X POST "{}" -F'
 
-    releaseUploadCmd = appendData(command.format(userName, password, releaseUrl), releaseAppBundle)
+    releaseUploadCmd = appendData(command.format(userName, password, releaseUrl), releaseApk)
     output = subprocess.Popen(shlex.split(releaseUploadCmd), stdout=PIPE, stderr=None, shell=False)
     appToken = json.loads(output.communicate()[0])["app_url"]
 
