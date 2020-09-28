@@ -132,7 +132,7 @@ class FixturesTest: BaseTest() {
                 .perform(click())
         onView(withText("Please select an option."))
                 .check(matches(isDisplayed()))
-        onView(withText("Increase Enalapril"))
+        onView(withText(startsWith("Increase Enalapril")))
                 .perform(click())
         onView(withId(R.id.nav_btn_finish))
                 .perform(click())
