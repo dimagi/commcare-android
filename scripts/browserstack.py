@@ -37,18 +37,15 @@ if __name__ == "__main__":
     if "BROWSERSTACK_PASSWORD" in os.environ:
         password = os.environ["BROWSERSTACK_PASSWORD"]
 
-    if "BASE_LOCATION" in os.environ:
-        baseLoc = os.environ["BASE_LOCATION"]
-
-    releaseApk = baseLoc + "apk/commcare/release/app-commcare-release.apk"
-    testApk = baseLoc + "apk/androidTest/commcare/release/app-commcare-release-androidTest.apk"
+    releaseApp = os.environ["RELEASE_APP_LOCATION"]
+    testApk = os.environ["TEST_APP_LOCATION"]
 
     releaseUrl = "https://api-cloud.browserstack.com/app-automate/upload"
     testUrl = "https://api-cloud.browserstack.com/app-automate/espresso/test-suite"
 
     command = 'curl -u "{}:{}" -X POST "{}" -F'
 
-    releaseUploadCmd = appendData(command.format(userName, password, releaseUrl), releaseApk)
+    releaseUploadCmd = appendData(command.format(userName, password, releaseUrl), releaseApp)
     output = subprocess.Popen(shlex.split(releaseUploadCmd), stdout=PIPE, stderr=None, shell=False)
     appToken = json.loads(output.communicate()[0])["app_url"]
 
