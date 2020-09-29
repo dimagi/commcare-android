@@ -17,11 +17,13 @@ import org.commcare.android.util.UpdateUtils
 import org.commcare.engine.resource.AppInstallStatus
 import org.commcare.network.RequestStats
 import org.commcare.resources.model.InstallRequestSource
+import org.commcare.rules.MainCoroutineRule
 import org.commcare.utils.FileUtil
 import org.commcare.utils.TimeProvider
 import org.hamcrest.CoreMatchers
 import org.junit.Assert.*
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
@@ -32,6 +34,10 @@ import java.util.*
 class LazyMediaDownloadTest {
 
     private lateinit var context: Context
+
+    @get:Rule
+    var mainCoroutineRule = MainCoroutineRule()
+
 
     companion object {
         const val REF_BASE_DIR = "jr://resource/commcare-apps/update_tests/"
@@ -70,7 +76,7 @@ class LazyMediaDownloadTest {
     }
 
     @Test
-    fun testLazyMediaDownloadInForeground() {
+    fun testLazyMediaDownloadInForeground() = mainCoroutineRule.runBlockingTest {
         updateToAnAppWithLazyMedia()
         assertFalse(FileUtil.referenceFileExists(LAZY_MEDIA_REF))
         MissingMediaDownloadHelper.requestMediaDownload(LAZY_MEDIA_REF, Dispatchers.Main, object : MissingMediaDownloadListener {

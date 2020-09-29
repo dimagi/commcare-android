@@ -62,21 +62,18 @@ import org.commcare.models.FormRecordProcessor;
 import org.commcare.models.ODKStorage;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.tasks.FormLoaderTask;
-import org.commcare.tasks.FormRecordCleanupTask;
 import org.commcare.tasks.SaveToDiskTask;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.Base64Wrapper;
 import org.commcare.utils.CompoundIntentList;
 import org.commcare.utils.FileUtil;
 import org.commcare.utils.GeoUtils;
-import org.commcare.utils.QuarantineUtil;
 import org.commcare.utils.SessionUnavailableException;
 import org.commcare.utils.StringUtils;
 import org.commcare.views.QuestionsView;
 import org.commcare.views.ResizingImageView;
 import org.commcare.views.UserfacingErrorHandling;
 import org.commcare.views.dialogs.CustomProgressDialog;
-import org.commcare.views.media.MediaLayout;
 import org.commcare.views.widgets.BarcodeWidget;
 import org.commcare.views.widgets.ImageWidget;
 import org.commcare.views.widgets.IntentWidget;
@@ -980,7 +977,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 @Override
                 protected void deliverError(FormEntryActivity receiver, Exception e) {
                     receiver.setFormLoadFailure();
-                    receiver.dismissProgressDialog();
+                    receiver.dismissProgressDialogForTask(taskId);
 
                     if (e != null) {
                         UserfacingErrorHandling.createErrorDialog(receiver, e.getMessage(), FormEntryConstants.EXIT);
@@ -1281,7 +1278,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             //InstrumentationUtils.printCachedAndNotCachedExpressions(this.traceReporter, "CACHED AND NOT CACHED EXPRESSIONS:");
         }
 
-        dismissProgressDialog();
+        dismissCurrentProgressDialog();
         reportFormExitTime();
         finish();
     }

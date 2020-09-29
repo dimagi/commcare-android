@@ -130,13 +130,14 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
                 if (formDefRecord.getResourceVersion() == r.getVersion()) { // check if the record corresponds to the same resource we are uninstalling
                     platform.deregisterForm(formDefRecord.getJrFormId(), formDefId);
                     platform.getFormDefStorage().remove(formDefId);
+                    return super.uninstall(r, platform);
                 }
             } catch (NoSuchElementException e) {
                 // no form with the formDefId exists somehow so just log the failure
                 Logger.log(LogTypes.TYPE_MAINTENANCE,
                         "No form record with id " + formDefId + " was found while uninstalling the resource");
             }
-            return super.uninstall(r, platform);
+            return true;
         }
         return false;
     }
