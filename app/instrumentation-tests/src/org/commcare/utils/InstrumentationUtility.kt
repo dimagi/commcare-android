@@ -98,6 +98,7 @@ object InstrumentationUtility {
     fun login(userName: String, password: String) {
         enterText(R.id.edit_username, userName)
         enterText(R.id.edit_password, password)
+        onView(isRoot()).perform(swipeUp())
         onView(withId(R.id.login_button))
                 .perform(click())
     }
