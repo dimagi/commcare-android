@@ -39,10 +39,7 @@ class FormEntryTest: BaseTest() {
         InstrumentationUtility.login("user_with_no_data", "123")
         // Create an incomplete form.
         InstrumentationUtility.openForm(0, 0)
-        closeSoftKeyboard()
-        Espresso.pressBack()
-        onView(withText(R.string.keep_changes))
-                .perform(click())
+        saveAsIncomplete()
 
         // Open the incomplete form and make changes but do not save.
         InstrumentationUtility.openFirstIncompleteForm()
@@ -66,10 +63,7 @@ class FormEntryTest: BaseTest() {
         // Again make changes and this time save it.
         onView(withClassName(endsWith("EditText")))
                 .perform(typeText("test"))
-        closeSoftKeyboard()
-        Espresso.pressBack()
-        onView(withText(R.string.keep_changes))
-                .perform(click())
+        saveAsIncomplete()
 
         // Open incomplete form again and confirm that the changes you made exists.
         InstrumentationUtility.openFirstIncompleteForm()
@@ -148,10 +142,7 @@ class FormEntryTest: BaseTest() {
                 .check(matches(isDisplayed()))
 
         // Confirm that we can save form despite violated constraint
-        closeSoftKeyboard()
-        Espresso.pressBack()
-        onView(withText(R.string.keep_changes))
-                .perform(click())
+        saveAsIncomplete()
         onView(withText(startsWith("Incomplete")))
                 .perform(click())
         onView(withText("Constraint"))
@@ -212,10 +203,7 @@ class FormEntryTest: BaseTest() {
                 .perform(click())
         onView(withClassName(endsWith("EditText")))
                 .perform(typeText("hello"))
-        closeSoftKeyboard()
-        Espresso.pressBack()
-        onView(withText(R.string.keep_changes))
-                .perform(click())
+        saveAsIncomplete()
 
         // testing notification for having incomplete form for case already made
         InstrumentationUtility.openForm(1, 1)
@@ -229,10 +217,7 @@ class FormEntryTest: BaseTest() {
                 .perform(click())
         onView(withClassName(endsWith("EditText")))
                 .check(matches(withText(""))) // we don't see the text hello here.
-        closeSoftKeyboard()
-        Espresso.pressBack()
-        onView(withText(R.string.keep_changes))
-                .perform(click())
+        saveAsIncomplete()
 
         // Deleting one incomplete form for case
         onView(withText(startsWith("Incomplete")))
@@ -267,10 +252,7 @@ class FormEntryTest: BaseTest() {
         // Save form
         onView(withText("hello"))
                 .check(matches(isDisplayed()))
-        closeSoftKeyboard()
-        Espresso.pressBack()
-        onView(withText(R.string.keep_changes))
-                .perform(click())
+        saveAsIncomplete()
 
         // Confirm that we have only one incomplete form.
         onView(withText(startsWith("Incomplete")))
@@ -283,6 +265,13 @@ class FormEntryTest: BaseTest() {
         onView(withText(caseName))
                 .perform(click())
         onView(withText("Continue"))
+                .perform(click())
+    }
+
+    private fun saveAsIncomplete() {
+        closeSoftKeyboard()
+        Espresso.pressBack()
+        onView(withText(R.string.keep_changes))
                 .perform(click())
     }
 
