@@ -47,7 +47,7 @@ public class SavedFormTest extends BaseTest {
     @Test
     public void testIncompleteForm_forMediaChanges() {
         // Create an incomplete form with an image.
-        InstrumentationUtility.openFirstForm();
+        InstrumentationUtility.openForm(0, 0);
         onView(withId(R.id.nav_btn_next))
                 .perform(click());
 
@@ -91,7 +91,7 @@ public class SavedFormTest extends BaseTest {
     @Test
     public void testIncompleteForm_forValidateCondition() {
         // Create an incomplete form.
-        InstrumentationUtility.openFirstForm();
+        InstrumentationUtility.openForm(0, 0);
         onView(withId(R.id.nav_btn_next))
                 .perform(click());
         onView(isRoot()).perform(ViewActions.pressBack());
