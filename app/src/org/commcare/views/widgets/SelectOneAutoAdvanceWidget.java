@@ -21,6 +21,7 @@ import org.javarosa.core.model.SelectChoice;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.data.SelectOneData;
 import org.javarosa.core.model.data.helper.Selection;
+import org.javarosa.core.services.locale.Localization;
 import org.javarosa.form.api.FormEntryCaption;
 import org.javarosa.form.api.FormEntryPrompt;
 
@@ -33,7 +34,7 @@ import java.util.Vector;
  *
  * @author Jeff Beorse (jeff@beorse.net)
  */
-public class SelectOneAutoAdvanceWidget extends QuestionWidget implements OnCheckedChangeListener {
+public class SelectOneAutoAdvanceWidget extends ClearableWidget implements OnCheckedChangeListener {
 
     private final Vector<SelectChoice> mItems;
 
@@ -70,7 +71,6 @@ public class SelectOneAutoAdvanceWidget extends QuestionWidget implements OnChec
                 ImageView rightArrow = (ImageView)thisParentLayout.getChildAt(1);
 
                 final RadioButton r = new RadioButton(getContext());
-                r.setOnCheckedChangeListener(this);
                 String markdownText = prompt.getSelectItemMarkdownText(mItems.get(i));
                 if (markdownText != null) {
                     r.setText(forceMarkdown(markdownText));
@@ -94,6 +94,7 @@ public class SelectOneAutoAdvanceWidget extends QuestionWidget implements OnChec
                 if (mItems.get(i).getValue().equals(s)) {
                     r.setChecked(true);
                 }
+                r.setOnCheckedChangeListener(this);
 
                 String audioURI = null;
                 audioURI =
@@ -122,6 +123,10 @@ public class SelectOneAutoAdvanceWidget extends QuestionWidget implements OnChec
 
                 addView(thisParentLayout);
             }
+            setupClearButton(context,
+                    Localization.get("button.clear.title"),
+                    (s != null && !prompt.isReadOnly()) ? VISIBLE : GONE);
+            addView(clearButton);
         }
     }
 
@@ -130,9 +135,10 @@ public class SelectOneAutoAdvanceWidget extends QuestionWidget implements OnChec
         for (RadioButton button : this.buttons) {
             if (button.isChecked()) {
                 button.setChecked(false);
-                return;
+                break;
             }
         }
+        clearButton.setVisibility(GONE);
     }
 
 
@@ -182,6 +188,7 @@ public class SelectOneAutoAdvanceWidget extends QuestionWidget implements OnChec
                 button.setChecked(false);
             }
         }
+        clearButton.setVisibility(VISIBLE);
         widgetEntryChanged();
 
         listener.advance();

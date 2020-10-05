@@ -35,7 +35,7 @@ import java.util.Vector;
  *
  * @author Jeff Beorse
  */
-public class LabelWidget extends QuestionWidget {
+public class LabelWidget extends ClearableWidget {
     private static final String TAG = LabelWidget.class.getSimpleName();
     private static final int RANDOM_BUTTON_ID = 4853487;
 
@@ -150,6 +150,15 @@ public class LabelWidget extends QuestionWidget {
                 buttonLayout.addView(answer, answerParams);
             }
         }
+        // Add clear button;
+        setupClearButton(context, "X", INVISIBLE);
+        // Clear button params;
+        LinearLayout.LayoutParams clearButtonParams =
+                new LinearLayout.LayoutParams(LayoutParams.FILL_PARENT,
+                        LayoutParams.WRAP_CONTENT);
+        clearButtonParams.weight = 1;
+        buttonLayout.addView(clearButton, clearButtonParams);
+
 
         // Align the buttons so that they appear horizonally and are right justified
         // buttonLayout.setGravity(Gravity.RIGHT);

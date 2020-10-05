@@ -28,11 +28,10 @@ import java.util.Vector;
  * @author Carl Hartung (carlhartung@gmail.com)
  * @author Yaw Anokwa (yanokwa@gmail.com)
  */
-public class SelectOneWidget extends QuestionWidget implements OnCheckedChangeListener {
+public class SelectOneWidget extends ClearableWidget implements OnCheckedChangeListener {
 
     private final Vector<SelectChoice> mItems;
     private final int buttonIdBase;
-    private Button clearButton;
 
     private final Vector<RadioButton> buttons;
 
@@ -104,19 +103,11 @@ public class SelectOneWidget extends QuestionWidget implements OnCheckedChangeLi
                     addView(divider);
                 }
             }
-            addClearButton(context, s != null && !prompt.isReadOnly());
+            setupClearButton(context,
+                    Localization.get("button.clear.title"),
+                    (s != null && !prompt.isReadOnly()) ? VISIBLE : GONE);
+            addView(clearButton);
         }
-    }
-
-    private void addClearButton(Context context, boolean show) {
-        clearButton = (Button) LayoutInflater.from(context).inflate(R.layout.blue_outlined_button, this, false);
-        clearButton.setText(Localization.get("button.clear.title"));
-        clearButton.setVisibility(show ? VISIBLE : GONE);
-        clearButton.setOnClickListener(view -> {
-            clearAnswer();
-            widgetEntryChanged();
-        });
-        addView(clearButton);
     }
 
     @Override
