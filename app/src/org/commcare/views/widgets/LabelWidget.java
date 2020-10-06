@@ -176,6 +176,14 @@ public class LabelWidget extends ClearableWidget {
         addView(questionLayout);
     }
 
+    /**
+     * LabelWidget is used for both ListWidget and ListMultiWidget, and we don't show the clear
+     * button in ListMultiWidget. So this method allows removal of clear button.
+     */
+    public void removeClearButton() {
+        clearButton.setVisibility(GONE);
+    }
+
     @Override
     public void clearAnswer() {
         // Do nothing, no answers to clear

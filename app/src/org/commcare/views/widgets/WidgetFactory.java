@@ -214,7 +214,9 @@ public class WidgetFactory {
         } else if (appearance != null && appearance.equals("list-nolabel")) {
             return new ListMultiWidget(context, fep, false);
         } else if (appearance != null && appearance.equals("label")) {
-            return new LabelWidget(context, fep);
+            LabelWidget labelWidget = new LabelWidget(context, fep);
+            labelWidget.removeClearButton();
+            return labelWidget;
         } else {
             return new SelectMultiWidget(context, fep);
         }
