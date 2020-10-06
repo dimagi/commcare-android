@@ -202,7 +202,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     }
 
     @Override
-    public void startDataPull(DataPullMode mode) {
+    public void startDataPull(DataPullMode mode, String password) {
         switch (mode) {
             case CONSUMER_APP:
                 formAndDataSyncer.performLocalRestore(this, getUniformUsername(),
@@ -215,8 +215,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                 formAndDataSyncer.performDemoUserRestore(this, offlineUserRestore);
                 break;
             case NORMAL:
-                formAndDataSyncer.performOtaRestore(this, getUniformUsername(),
-                        uiController.getEnteredPasswordOrPin());
+                formAndDataSyncer.performOtaRestore(this, getUniformUsername(), password);
                 break;
         }
     }
@@ -598,7 +597,8 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         }
 
         // If local login was not successful
-        startDataPull(CommCareApplication.instance().isConsumerApp() ? DataPullMode.CONSUMER_APP : DataPullMode.NORMAL);
+        startDataPull(CommCareApplication.instance().isConsumerApp() ? DataPullMode.CONSUMER_APP : DataPullMode.NORMAL,
+                uiController.getEnteredPasswordOrPin());
     }
 
     @Override
