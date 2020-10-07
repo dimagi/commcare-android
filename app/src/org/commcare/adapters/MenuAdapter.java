@@ -334,7 +334,6 @@ public class MenuAdapter extends BaseAdapter {
 
         private MenuViewHolder(View menuListItem) {
             rowText = menuListItem.findViewById(R.id.row_txt);
-            ViewUtil.addRTLSupport(rowText);
             audioPlaybackButton = menuListItem.findViewById(R.id.row_soundicon);
             iconView = menuListItem.findViewById(R.id.row_img);
             badgeView = menuListItem.findViewById(R.id.badge_view);

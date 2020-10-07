@@ -8,6 +8,7 @@ import android.util.Log;
 import android.util.TypedValue;
 import android.view.Display;
 import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageView;
@@ -121,9 +122,8 @@ public class LabelWidget extends QuestionWidget {
 
                 // build text label. Don't assign the text to the built in label to he
                 // button because it aligns horizontally, and we want the label on top
-                label = new TextView(getContext());
+                label = (TextView) LayoutInflater.from(getContext()).inflate(R.layout.textview_rtl, null);
                 setChoiceText(label, mItems.get(i));
-                ViewUtil.addRTLSupport(label);
                 label.setTextSize(TypedValue.COMPLEX_UNIT_DIP, TEXTSIZE);
 
                 // answer layout holds the label text/image on top and the radio button on bottom
@@ -191,7 +191,7 @@ public class LabelWidget extends QuestionWidget {
     @Override
     protected void addQuestionText() {
         // Add the text view. Textview always exists, regardless of whether there's text.
-        mQuestionText = new TextView(getContext());
+        mQuestionText = (TextView) LayoutInflater.from(getContext()).inflate(R.layout.textview_rtl, null);
         setQuestionText(mQuestionText, mPrompt);
         mQuestionText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, TEXTSIZE);
         mQuestionText.setTypeface(null, Typeface.BOLD);
@@ -204,7 +204,6 @@ public class LabelWidget extends QuestionWidget {
         if (mPrompt.getLongText() == null) {
             mQuestionText.setVisibility(GONE);
         }
-        ViewUtil.addRTLSupport(mQuestionText);
 
         // Put the question text on the left half of the screen
         LinearLayout.LayoutParams labelParams =

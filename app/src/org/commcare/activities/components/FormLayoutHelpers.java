@@ -66,7 +66,6 @@ public class FormLayoutHelpers {
                                                  boolean shouldHideGroupLabel) {
         FrameLayout header = activity.findViewById(R.id.form_entry_header);
         TextView groupLabel = header.findViewById(R.id.form_entry_group_label);
-        ViewUtil.addRTLSupport(groupLabel);
         updateGroupViewVisibility(header, groupLabel, hasGroupLabel, shouldHideGroupLabel);
     }
 
