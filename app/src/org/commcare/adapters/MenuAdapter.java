@@ -29,6 +29,7 @@ import org.commcare.util.LogTypes;
 import org.commcare.util.LoggerInterface;
 import org.commcare.utils.MediaUtil;
 import org.commcare.views.UserfacingErrorHandling;
+import org.commcare.views.ViewUtil;
 import org.commcare.views.media.AudioPlaybackButton;
 import org.commcare.views.media.ViewId;
 import org.javarosa.core.reference.InvalidReferenceException;
@@ -333,6 +334,7 @@ public class MenuAdapter extends BaseAdapter {
 
         private MenuViewHolder(View menuListItem) {
             rowText = menuListItem.findViewById(R.id.row_txt);
+            ViewUtil.addRTLSupport(rowText);
             audioPlaybackButton = menuListItem.findViewById(R.id.row_soundicon);
             iconView = menuListItem.findViewById(R.id.row_img);
             badgeView = menuListItem.findViewById(R.id.badge_view);

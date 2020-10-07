@@ -12,6 +12,7 @@ import org.commcare.activities.CommCareActivity;
 import org.commcare.activities.FormEntryActivity;
 import org.commcare.dalvik.R;
 import org.commcare.preferences.FormEntryPreferences;
+import org.commcare.views.ViewUtil;
 
 import androidx.core.widget.TextViewCompat;
 
@@ -65,6 +66,7 @@ public class FormLayoutHelpers {
                                                  boolean shouldHideGroupLabel) {
         FrameLayout header = activity.findViewById(R.id.form_entry_header);
         TextView groupLabel = header.findViewById(R.id.form_entry_group_label);
+        ViewUtil.addRTLSupport(groupLabel);
         updateGroupViewVisibility(header, groupLabel, hasGroupLabel, shouldHideGroupLabel);
     }
 

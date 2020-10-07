@@ -15,6 +15,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.TextView;
 
 import org.commcare.suite.model.Action;
 import org.commcare.suite.model.DisplayData;
@@ -195,4 +196,17 @@ public final class ViewUtil {
             }
         }
     }
+
+
+    /**
+     * Adds RTL support to the textview. It will make the textView ALIGN_LEFT if the view’s resolved
+     * layoutDirection is LTR, and ALIGN_RIGHT otherwise.
+     */
+    public static void addRTLSupport(TextView textView) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            textView.setTextAlignment(View.TEXT_ALIGNMENT_VIEW_START);
+            textView.setTextDirection(View.TEXT_DIRECTION_LOCALE);
+        }
+    }
+
 }

@@ -21,6 +21,7 @@ import android.widget.TextView;
 import org.commcare.dalvik.R;
 import org.commcare.utils.MediaUtil;
 import org.commcare.utils.StringUtils;
+import org.commcare.views.ViewUtil;
 import org.javarosa.core.model.SelectChoice;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.data.SelectOneData;
@@ -155,6 +156,7 @@ public class ListWidget extends QuestionWidget implements OnCheckedChangeListene
                 // button because it aligns horizontally, and we want the label on top
                 TextView label = new TextView(getContext());
                 setChoiceText(label, mItems.get(i));
+                ViewUtil.addRTLSupport(label);
                 label.setTextSize(TypedValue.COMPLEX_UNIT_DIP, TEXTSIZE);
                 if (!displayLabel) {
                     label.setVisibility(View.GONE);
@@ -282,6 +284,7 @@ public class ListWidget extends QuestionWidget implements OnCheckedChangeListene
         if (mPrompt.getLongText() == null) {
             questionText.setVisibility(GONE);
         }
+        ViewUtil.addRTLSupport(questionText);
 
         // Put the question text on the left half of the screen
         LinearLayout.LayoutParams labelParams =

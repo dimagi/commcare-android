@@ -17,6 +17,7 @@ import android.widget.TextView;
 import org.commcare.dalvik.R;
 import org.commcare.utils.MediaUtil;
 import org.commcare.utils.StringUtils;
+import org.commcare.views.ViewUtil;
 import org.javarosa.core.model.SelectChoice;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.reference.InvalidReferenceException;
@@ -122,6 +123,7 @@ public class LabelWidget extends QuestionWidget {
                 // button because it aligns horizontally, and we want the label on top
                 label = new TextView(getContext());
                 setChoiceText(label, mItems.get(i));
+                ViewUtil.addRTLSupport(label);
                 label.setTextSize(TypedValue.COMPLEX_UNIT_DIP, TEXTSIZE);
 
                 // answer layout holds the label text/image on top and the radio button on bottom
@@ -202,6 +204,7 @@ public class LabelWidget extends QuestionWidget {
         if (mPrompt.getLongText() == null) {
             mQuestionText.setVisibility(GONE);
         }
+        ViewUtil.addRTLSupport(mQuestionText);
 
         // Put the question text on the left half of the screen
         LinearLayout.LayoutParams labelParams =
