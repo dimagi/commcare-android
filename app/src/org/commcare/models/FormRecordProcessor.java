@@ -1,5 +1,6 @@
 package org.commcare.models;
 
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Pair;
@@ -89,9 +90,7 @@ public class FormRecordProcessor {
         XmlFormRecordProcessor.process(is, factory);
 
         //Let anyone who is listening know!
-        Intent i = new Intent("org.commcare.dalvik.api.action.data.update");
-        i.putStringArrayListExtra("cases", factory.getCreatedAndUpdatedCases());
-        c.sendBroadcast(i, "org.commcare.dalvik.provider.cases.read");
+        broadcastDataUpdate(factory);
 
         //Update the record before trying to purge, so we don't block on this, in case
         //anything weird happens. We don't want to get into a loop
@@ -106,6 +105,17 @@ public class FormRecordProcessor {
         }
 
         return updatedRecord;
+    }
+
+    private void broadcastDataUpdate(AndroidTransactionParserFactory factory) {
+        Intent i = new Intent("org.commcare.dalvik.api.action.data.update");
+        i.putStringArrayListExtra("cases", factory.getCreatedAndUpdatedCases());
+        c.sendBroadcast(i, "org.commcare.dalvik.provider.cases.read");
+
+        // send explicit broadcast to CommCare Reminders App
+        i.setComponent(new ComponentName("org.commcare.dalvik.reminders",
+                "org.commcare.dalvik.reminders.CommCareReceiver"));
+        c.sendBroadcast(i);
     }
 
     public FormRecord updateRecordStatus(FormRecord record, String newStatus) {
