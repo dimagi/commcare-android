@@ -433,6 +433,6 @@
     <string name="location_provider_disabled" cc:translatable="true">Turn on your location to receive location updates</string>
     <string name="wait_for_location_fix"  cc:translatable="true">CommCare is still trying to get your location. Please wait or click Cancel to abort.</string>
     <string name="invalid_case_property_length" cc:translatable="true">Invalid %1s, value must be 255 characters or less</string>
-    <string name="root_detected_title" cc:translatable="true">Rooted Phone Detected</string>
-    <string name="root_detected_message" cc:translatable="true">You are not allowed to run CommCare on a rooted phone. Please use a non rooted phone</string>
+    <string name="root_detected_title" cc:translatable="true">Rooted Device Detected</string>
+    <string name="root_detected_message" cc:translatable="true">You are not allowed to run CommCare on a rooted device. Please use a non rooted device</string>
 </resources>
