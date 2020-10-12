@@ -122,7 +122,7 @@ public class LabelWidget extends QuestionWidget {
 
                 // build text label. Don't assign the text to the built in label to he
                 // button because it aligns horizontally, and we want the label on top
-                label = (TextView) LayoutInflater.from(getContext()).inflate(R.layout.textview_rtl, null);
+                label = (TextView) LayoutInflater.from(getContext()).inflate(R.layout.question_widget_text, null);
                 setChoiceText(label, mItems.get(i));
                 label.setTextSize(TypedValue.COMPLEX_UNIT_DIP, TEXTSIZE);
 
@@ -191,7 +191,7 @@ public class LabelWidget extends QuestionWidget {
     @Override
     protected void addQuestionText() {
         // Add the text view. Textview always exists, regardless of whether there's text.
-        mQuestionText = (TextView) LayoutInflater.from(getContext()).inflate(R.layout.textview_rtl, null);
+        mQuestionText = (TextView) LayoutInflater.from(getContext()).inflate(R.layout.question_widget_text, null);
         setQuestionText(mQuestionText, mPrompt);
         mQuestionText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, TEXTSIZE);
         mQuestionText.setTypeface(null, Typeface.BOLD);

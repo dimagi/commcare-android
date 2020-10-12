@@ -155,7 +155,7 @@ public class ListWidget extends QuestionWidget implements OnCheckedChangeListene
 
                 // build text label. Don't assign the text to the built in label to he
                 // button because it aligns horizontally, and we want the label on top
-                TextView label = (TextView) LayoutInflater.from(getContext()).inflate(R.layout.textview_rtl, null);
+                TextView label = (TextView) LayoutInflater.from(getContext()).inflate(R.layout.question_widget_text, null);
                 setChoiceText(label, mItems.get(i));
                 label.setTextSize(TypedValue.COMPLEX_UNIT_DIP, TEXTSIZE);
                 if (!displayLabel) {
@@ -271,7 +271,7 @@ public class ListWidget extends QuestionWidget implements OnCheckedChangeListene
     @Override
     protected void addQuestionText() {
         // Add the text view. Textview always exists, regardless of whether there's text.
-        TextView questionText = (TextView) LayoutInflater.from(getContext()).inflate(R.layout.textview_rtl, null);
+        TextView questionText = (TextView) LayoutInflater.from(getContext()).inflate(R.layout.question_widget_text, null);
         setQuestionText(questionText, mPrompt);
         questionText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, TEXTSIZE);
         questionText.setTypeface(null, Typeface.BOLD);
