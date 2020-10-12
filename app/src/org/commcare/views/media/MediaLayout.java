@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Point;
 import android.net.Uri;
+import android.os.Build;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -18,6 +19,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -46,23 +48,20 @@ import java.io.File;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.constraintlayout.widget.Barrier;
-import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.constraintlayout.widget.Constraints;
 import kotlinx.coroutines.Dispatchers;
 
 
 /**
  * @author $|-|!˅@M
  */
-public class MediaLayout extends ConstraintLayout {
+public class MediaLayout extends RelativeLayout {
 
     private static final String TAG = MediaLayout.class.getSimpleName();
     private static final String IMAGE_GIF_EXTENSION = ".gif";
 
     private AudioPlaybackButton audioButton;
     private ImageButton videoButton;
-    private FrameLayout textViewContainer;
+    private FrameLayout questionText;
     private CommCareVideoView videoView;
     private ImageView qrView;
     private ImageView imageView;
@@ -71,9 +70,11 @@ public class MediaLayout extends ConstraintLayout {
     private ProgressBar progressBar;
     private TextView missingMediaStatus;
     private ImageView divider;
-    private Barrier mediaLayoutBottomBarrier;
-    private View missingMediaBackground;
-    private Barrier questionBottomBarrier;
+    private View missingMediaView;
+
+    // These containers will be used to toggle the position of media pane and text pane
+    private View textContainer;
+    private View mediaContainer;
 
     public MediaLayout(@NonNull Context context) {
         super(context);
@@ -138,27 +139,33 @@ public class MediaLayout extends ConstraintLayout {
     }
 
     private void showMediaAboveText() {
-        // This step will change the layout constraints of the views in xml to shift
+        // This step will change the layout attributes of the views in xml to shift
         // media(video, image qr ) above text.
 
-        // Change the questionBottomBarrier to align at the top of parent which would automatically
-        // align the mediaViews(including missing media view) to the top.
-        questionBottomBarrier.setReferencedIds(new int[]{ R.id.top_guideline });
+        // Adjust media-pane params to display it at the top
+        LayoutParams mediaParams = (LayoutParams) mediaContainer.getLayoutParams();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            mediaParams.removeRule(RelativeLayout.BELOW);
+        } else {
+            mediaParams.addRule(RelativeLayout.BELOW, 0);
+        }
+        mediaParams.addRule(RelativeLayout.ALIGN_PARENT_TOP);
+        mediaContainer.setLayoutParams(mediaParams);
 
-        // Now change the media_barrier to align at the bottom of the mediaView which
-        // would automatically align the textContainer to the bottom of media.
-        mediaLayoutBottomBarrier.setReferencedIds(new int[]{
-                R.id.missing_media_tv,
-                R.id.inline_video_view,
-                R.id.qr_view,
-                R.id.image,
-                R.id.resizing_image
-        });
+        // Adjust text-container params to display it below media-pane
+        LayoutParams textParams = (LayoutParams) textContainer.getLayoutParams();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            textParams.removeRule(RelativeLayout.ALIGN_PARENT_TOP);
+        } else {
+            textParams.addRule(RelativeLayout.ALIGN_PARENT_TOP, 0);
+        }
+        textParams.addRule(RelativeLayout.BELOW, R.id.media_pane);
+        textContainer.setLayoutParams(textParams);
     }
 
     private void addTextView(TextView text) {
-        textViewContainer.addView(text);
-        textViewContainer.setVisibility(text.getVisibility());
+        questionText.addView(text);
+        questionText.setVisibility(text.getVisibility());
     }
 
     private void setupStandardAudio(String audioURI, int questionIndex) {
@@ -302,18 +309,14 @@ public class MediaLayout extends ConstraintLayout {
                     //So, adding the MediaController to the view hierarchy here.
                     FrameLayout frameLayout = (FrameLayout)ctrl.getParent();
                     ((ViewGroup)frameLayout.getParent()).removeView(frameLayout);
+                    LayoutParams params = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+                    params.addRule(ALIGN_BOTTOM, videoView.getId());
+                    params.addRule(ALIGN_LEFT, videoView.getId());
+                    params.addRule(ALIGN_START, videoView.getId());
+                    params.addRule(ALIGN_RIGHT, videoView.getId());
+                    params.addRule(ALIGN_END, videoView.getId());
 
-                    ConstraintLayout.LayoutParams params = new Constraints.LayoutParams(LayoutParams.MATCH_CONSTRAINT, LayoutParams.WRAP_CONTENT);
-                    params.bottomToBottom = videoView.getId();
-                    params.leftToLeft = videoView.getId();
-                    params.startToStart = videoView.getId();
-                    params.rightToRight = videoView.getId();
-                    params.endToEnd = videoView.getId();
-                    int margin = this.getResources().getDimensionPixelSize(R.dimen.question_widget_side_padding);
-                    params.leftMargin = margin;
-                    params.rightMargin = margin;
-
-                    ((ConstraintLayout)videoView.getParent()).addView(frameLayout, params);
+                    ((RelativeLayout) videoView.getParent()).addView(frameLayout, params);
 
                     ctrl.setAnchorView(videoView);
                     videoView.setMediaController(ctrl);
@@ -359,7 +362,7 @@ public class MediaLayout extends ConstraintLayout {
     }
 
     private void showMissingMediaView(String mediaUri, String errorMessage, boolean allowDownload, @Nullable Runnable completion) {
-        missingMediaBackground.setVisibility(VISIBLE);
+        missingMediaView.setVisibility(VISIBLE);
         missingMediaStatus.setText(errorMessage);
         missingMediaStatus.setVisibility(VISIBLE);
         downloadIcon.setVisibility(allowDownload ? View.VISIBLE : INVISIBLE);
@@ -382,7 +385,7 @@ public class MediaLayout extends ConstraintLayout {
                     progressBar.setVisibility(GONE);
                     downloadIcon.setVisibility(VISIBLE);
                     downloadIcon.setEnabled(true);
-                    missingMediaStatus.setText(StringUtils.getStringRobust(getContext(), R.string.media_download_failed));
+                    missingMediaStatus.setText(result.getMessage());
                 }
             });
         });
@@ -392,7 +395,7 @@ public class MediaLayout extends ConstraintLayout {
         progressBar.setVisibility(GONE);
         downloadIcon.setVisibility(GONE);
         missingMediaStatus.setVisibility(GONE);
-        missingMediaBackground.setVisibility(GONE);
+        missingMediaView.setVisibility(GONE);
     }
 
     @SuppressWarnings("deprecation")
@@ -418,18 +421,18 @@ public class MediaLayout extends ConstraintLayout {
         View view = LayoutInflater.from(context).inflate(R.layout.media_layout, this);
         audioButton = view.findViewById(R.id.audio_button);
         videoButton = view.findViewById(R.id.video_button);
-        textViewContainer = view.findViewById(R.id.question_text_container);
+        questionText = view.findViewById(R.id.text);
         videoView = view.findViewById(R.id.inline_video_view);
         qrView = view.findViewById(R.id.qr_view);
         imageView = view.findViewById(R.id.image);
         resizingImageView = view.findViewById(R.id.resizing_image);
-        downloadIcon = view.findViewById(R.id.download_media_icon);
-        progressBar = view.findViewById(R.id.progress_bar);
-        missingMediaStatus = view.findViewById(R.id.missing_media_tv);
+        missingMediaView = view.findViewById(R.id.missing_media_view);
+        downloadIcon = missingMediaView.findViewById(R.id.download_media_icon);
+        progressBar = missingMediaView.findViewById(R.id.progress_bar);
+        missingMediaStatus = missingMediaView.findViewById(R.id.missing_media_tv);
         divider = view.findViewById(R.id.divider);
-        mediaLayoutBottomBarrier = view.findViewById(R.id.media_barrier);
-        missingMediaBackground = view.findViewById(R.id.missing_media_background);
-        questionBottomBarrier = view.findViewById(R.id.question_barrier);
+        textContainer = view.findViewById(R.id.text_container);
+        mediaContainer = view.findViewById(R.id.media_pane);
     }
     //endregion
 

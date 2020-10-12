@@ -4,10 +4,10 @@
     android:layout_height="match_parent" >
 
     <TextView
+        android:id="@+id/mulitple_app_limit_textview"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/standard_spacer"
-        android:text="@string/multiple_apps_limit_message"
         android:textSize="17sp"
         android:layout_centerInParent="true"
         android:gravity="center"/>

@@ -70,7 +70,6 @@ import org.commcare.views.QuestionsView;
 import org.commcare.views.ResizingImageView;
 import org.commcare.views.UserfacingErrorHandling;
 import org.commcare.views.dialogs.CustomProgressDialog;
-import org.commcare.views.media.MediaLayout;
 import org.commcare.views.widgets.BarcodeWidget;
 import org.commcare.views.widgets.ImageWidget;
 import org.commcare.views.widgets.IntentWidget;
@@ -961,7 +960,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 @Override
                 protected void deliverError(FormEntryActivity receiver, Exception e) {
                     receiver.setFormLoadFailure();
-                    receiver.dismissProgressDialog();
+                    receiver.dismissProgressDialogForTask(taskId);
 
                     if (e != null) {
                         UserfacingErrorHandling.createErrorDialog(receiver, e.getMessage(), FormEntryConstants.EXIT);
@@ -1262,7 +1261,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             //InstrumentationUtils.printCachedAndNotCachedExpressions(this.traceReporter, "CACHED AND NOT CACHED EXPRESSIONS:");
         }
 
-        dismissProgressDialog();
+        dismissCurrentProgressDialog();
         reportFormExitTime();
         finish();
     }

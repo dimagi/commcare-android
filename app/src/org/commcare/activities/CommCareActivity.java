@@ -1,6 +1,5 @@
 package org.commcare.activities;
 
-import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -38,7 +37,6 @@ import org.commcare.suite.model.StackFrameStep;
 import org.commcare.tasks.templates.CommCareTask;
 import org.commcare.tasks.templates.CommCareTaskConnector;
 import org.commcare.util.LogTypes;
-import org.commcare.utils.AndroidUtil;
 import org.commcare.utils.ConnectivityStatus;
 import org.commcare.utils.DetailCalloutListener;
 import org.commcare.utils.MarkupUtil;
@@ -77,6 +75,7 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
 
     private static final String KEY_PROGRESS_DIALOG_FRAG = "progress-dialog-fragment";
     private static final String KEY_ALERT_DIALOG_FRAG = "alert-dialog-fragment";
+    private static final int UNDEFINED_TASK_ID = -1;
 
     private int invalidTaskIdMessageThrown = -2;
     private TaskConnectorFragment<R> stateHolder;
@@ -110,7 +109,7 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
      * so that the dialog can be shown when fragments have fully resumed.
      */
     private boolean triedBlockingWhilePaused;
-    private boolean triedDismissingWhilePaused;
+    private int taskIdForPendingDismissal = UNDEFINED_TASK_ID;
 
     /**
      * Store the id of a task progress dialog so it can be disabled/enabled
@@ -347,9 +346,8 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
      * occurred while the activity was paused.
      */
     private void syncTaskBlockingWithDialogFragment() {
-        if (triedDismissingWhilePaused) {
-            triedDismissingWhilePaused = false;
-            dismissProgressDialog();
+        if (taskIdForPendingDismissal != UNDEFINED_TASK_ID) {
+            dismissProgressDialogForTask(taskIdForPendingDismissal);
         } else if (triedBlockingWhilePaused) {
             triedBlockingWhilePaused = false;
             showNewProgressDialog();
@@ -373,7 +371,7 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
         // dismissLastDialogAfterTransition is false, that means we left the last dialog up and do
         // not need to create a new one
         if (dismissLastDialogAfterTransition) {
-            dismissProgressDialog();
+            dismissCurrentProgressDialog();
             showProgressDialog(dialogId);
         }
     }
@@ -386,7 +384,7 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
             if (inTaskTransition) {
                 dismissLastDialogAfterTransition = true;
             } else {
-                dismissProgressDialog();
+                dismissProgressDialogForTask(id);
             }
         }
 
@@ -404,10 +402,10 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
     }
 
     @Override
-    public void stopTaskTransition() {
+    public void stopTaskTransition(int taskId) {
         inTaskTransition = false;
         if (dismissLastDialogAfterTransition) {
-            dismissProgressDialog();
+            dismissProgressDialogForTask(taskId);
             // Re-set shouldDismissDialog to true after this transition cycle is over
             dismissLastDialogAfterTransition = true;
         }
@@ -598,7 +596,7 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
         if (taskId >= 0) {
             CustomProgressDialog dialog = generateProgressDialog(taskId);
             if (dialog != null) {
-                dialog.show(getSupportFragmentManager(), KEY_PROGRESS_DIALOG_FRAG);
+                dialog.showNow(getSupportFragmentManager(), KEY_PROGRESS_DIALOG_FRAG);
             }
         }
     }
@@ -610,13 +608,24 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
     }
 
     @Override
-    public void dismissProgressDialog() {
+    public void dismissProgressDialogForTask(int taskId) {
+        dismissProgressDialog(taskId, false);
+    }
+
+    @Override
+    public void dismissCurrentProgressDialog() {
+        dismissProgressDialog(UNDEFINED_TASK_ID, true);
+    }
+
+    private void dismissProgressDialog(int taskId, boolean dismissAny) {
+        taskIdForPendingDismissal = UNDEFINED_TASK_ID;
         CustomProgressDialog progressDialog = getCurrentProgressDialog();
-        if (progressDialog != null && progressDialog.isAdded()) {
+        if (progressDialog != null && progressDialog.isAdded() && (progressDialog.getTaskId() == taskId || dismissAny)) {
             if (areFragmentsPaused) {
-                triedDismissingWhilePaused = true;
+                taskIdForPendingDismissal = taskId;
             } else {
                 progressDialog.dismiss();
+                getSupportFragmentManager().executePendingTransactions();
             }
         }
     }

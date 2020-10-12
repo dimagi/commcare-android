@@ -31,17 +31,13 @@ public class UpdatePromptHelper {
         try {
             CommCareSessionService currentSession = CommCareApplication.instance().getSession();
             UpdateToPrompt apkUpdate = getCurrentUpdateToPrompt(UpdateToPrompt.Type.APK_UPDATE);
-            if (apkUpdate != null &&
-                    ((apkUpdate.shouldShowOnThisLogin() && !currentSession.apkUpdatePromptWasShown()) ||
-                            apkUpdate.isForced())) {
+            if (shouldShowPrompt(apkUpdate, currentSession.apkUpdatePromptWasShown())) {
                 Intent i = new Intent(context, PromptApkUpdateActivity.class);
                 context.startActivity(i);
                 return true;
             }
             UpdateToPrompt cczUpdate = getCurrentUpdateToPrompt(UpdateToPrompt.Type.CCZ_UPDATE);
-            if (cczUpdate != null &&
-                    ((cczUpdate.shouldShowOnThisLogin() && !currentSession.cczUpdatePromptWasShown()) ||
-                            cczUpdate.isForced())) {
+            if (shouldShowPrompt(cczUpdate, currentSession.cczUpdatePromptWasShown())) {
                 Intent i = new Intent(context, PromptCczUpdateActivity.class);
                 context.startActivity(i);
                 return true;
@@ -50,6 +46,10 @@ public class UpdatePromptHelper {
             // Means we just performed an update and have therefore expired the session
         }
         return false;
+    }
+
+    private static boolean shouldShowPrompt(UpdateToPrompt prompt, boolean isAlreadyShown) {
+        return prompt != null && (prompt.isForced() || (!isAlreadyShown && prompt.shouldShowOnThisLogin()));
     }
 
     /**

@@ -260,7 +260,7 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
         if (purgeTask != null) {
             try {
                 purgeTask.unregisterTaskListener(this);
-                dismissProgressDialog();
+                dismissProgressDialogForTask(PurgeStaleArchivedFormsTask.PURGE_STALE_ARCHIVED_FORMS_TASK_ID);
             } catch (TaskListenerRegistrationException e) {
                 Log.e(TAG, "Attempting to unregister a not previously " +
                         "registered TaskListener.");
@@ -697,7 +697,7 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
      */
     @Override
     public void handleTaskCompletion(Void result) {
-        dismissProgressDialog();
+        dismissProgressDialogForTask(PurgeStaleArchivedFormsTask.PURGE_STALE_ARCHIVED_FORMS_TASK_ID);
 
         // reload form list to make sure purged forms aren't shown
         if (adapter != null) {
@@ -710,6 +710,6 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
      */
     @Override
     public void handleTaskCancellation() {
-        dismissProgressDialog();
+        dismissProgressDialogForTask(PurgeStaleArchivedFormsTask.PURGE_STALE_ARCHIVED_FORMS_TASK_ID);
     }
 }

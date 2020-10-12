@@ -94,7 +94,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 
     private static final String FORCE_VALIDATE_KEY = "validate";
     private static final String KEY_SHOW_NOTIFICATIONS_BUTTON = "show-notifications-button";
-    private static final int MAX_ALLOWED_APPS = 4;
+    public static final int MAX_ALLOWED_APPS = 4;
 
     /**
      * UI configuration states.

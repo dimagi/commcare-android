@@ -40,7 +40,7 @@ public class CommCareTaskConnectorFake<R> implements CommCareTaskConnector<R> {
     }
 
     @Override
-    public void stopTaskTransition() {
+    public void stopTaskTransition(int taskId) {
 
     }
 
