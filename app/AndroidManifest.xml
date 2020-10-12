@@ -455,6 +455,13 @@
         <meta-data
             android:name="firebase_crashlytics_collection_enabled"
             android:value="false" />
+
+        <!-- Somehow this receiver is getting triggered in Android 8+ devices and causing
+            IllegalStateException while trying to start map downloader service from background.
+            Below code removes this receiver's entry from Manifest. 
+         -->
+        <receiver android:name="io.ona.kujaku.receivers.KujakuNetworkChangeReceiver"
+            tools:node="remove"/>
         
     </application>
 </manifest>
