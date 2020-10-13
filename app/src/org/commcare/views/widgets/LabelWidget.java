@@ -40,6 +40,7 @@ public class LabelWidget extends ClearableWidget {
     private static final int RANDOM_BUTTON_ID = 4853487;
 
     private LinearLayout questionLayout;
+    private LinearLayout buttonLayout;
 
     private TextView mQuestionText;
     private TextView mMissingImage;
@@ -51,7 +52,7 @@ public class LabelWidget extends ClearableWidget {
 
         Vector<SelectChoice> mItems = getSelectChoices();
 
-        LinearLayout buttonLayout = new LinearLayout(context);
+        buttonLayout = new LinearLayout(context);
 
         if (mItems != null) {
             for (int i = 0; i < mItems.size(); i++) {
@@ -150,16 +151,6 @@ public class LabelWidget extends ClearableWidget {
                 buttonLayout.addView(answer, answerParams);
             }
         }
-        // Add clear button;
-        setupClearButton(context, "X", INVISIBLE);
-        // Clear button params;
-        LinearLayout.LayoutParams clearButtonParams =
-                new LinearLayout.LayoutParams(LayoutParams.FILL_PARENT,
-                        LayoutParams.WRAP_CONTENT);
-        clearButtonParams.weight = 1;
-        buttonLayout.addView(clearButton, clearButtonParams);
-
-
         // Align the buttons so that they appear horizonally and are right justified
         // buttonLayout.setGravity(Gravity.RIGHT);
         buttonLayout.setOrientation(LinearLayout.HORIZONTAL);
@@ -176,12 +167,15 @@ public class LabelWidget extends ClearableWidget {
         addView(questionLayout);
     }
 
-    /**
-     * LabelWidget is used for both ListWidget and ListMultiWidget, and we don't show the clear
-     * button in ListMultiWidget. So this method allows removal of clear button.
-     */
-    public void removeClearButton() {
-        clearButton.setVisibility(GONE);
+    public void addClearButton() {
+        // Add clear button;
+        setupClearButton(getContext(), "X", INVISIBLE);
+        // Clear button params;
+        LinearLayout.LayoutParams clearButtonParams =
+                new LinearLayout.LayoutParams(LayoutParams.FILL_PARENT,
+                        LayoutParams.WRAP_CONTENT);
+        clearButtonParams.weight = 1;
+        buttonLayout.addView(clearButton, clearButtonParams);
     }
 
     @Override
