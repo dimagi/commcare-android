@@ -348,10 +348,7 @@
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </receiver>
-        <receiver
-            android:enabled="true"
-            android:exported="true"
-            android:name="org.commcare.provider.RefreshToLatestBuildReceiver">
+        <receiver android:name="org.commcare.provider.RefreshToLatestBuildReceiver">
             <intent-filter>
                 <action android:name="org.commcare.dalvik.api.action.RefreshToLatestBuildAction"/>
 
