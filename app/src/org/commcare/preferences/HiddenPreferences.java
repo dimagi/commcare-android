@@ -533,6 +533,6 @@ public class HiddenPreferences {
     }
 
     public static boolean allowRunOnRootedDevice() {
-        return DeveloperPreferences.doesPropertyMatch(ALLOW_RUN_ON_ROOTED_DEVICE, PrefValues.NO, PrefValues.YES);
+        return DeveloperPreferences.doesPropertyMatch(ALLOW_RUN_ON_ROOTED_DEVICE, PrefValues.YES, PrefValues.YES);
     }
 }
