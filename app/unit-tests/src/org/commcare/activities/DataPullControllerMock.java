@@ -58,7 +58,7 @@ public class DataPullControllerMock implements DataPullController, CommCareTaskC
     }
 
     @Override
-    public void startDataPull(DataPullMode mode) {
+    public void startDataPull(DataPullMode mode, String password) {
 
     }
 
