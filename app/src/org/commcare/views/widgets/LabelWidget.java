@@ -18,7 +18,6 @@ import android.widget.TextView;
 import org.commcare.dalvik.R;
 import org.commcare.utils.MediaUtil;
 import org.commcare.utils.StringUtils;
-import org.commcare.views.ViewUtil;
 import org.javarosa.core.model.SelectChoice;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.reference.InvalidReferenceException;

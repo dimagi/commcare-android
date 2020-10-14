@@ -29,7 +29,6 @@ import org.commcare.util.LogTypes;
 import org.commcare.util.LoggerInterface;
 import org.commcare.utils.MediaUtil;
 import org.commcare.views.UserfacingErrorHandling;
-import org.commcare.views.ViewUtil;
 import org.commcare.views.media.AudioPlaybackButton;
 import org.commcare.views.media.ViewId;
 import org.javarosa.core.reference.InvalidReferenceException;
