@@ -113,7 +113,7 @@ public class SelectOneAutoAdvanceWidget extends QuestionWidget implements OnChec
 
                 MediaLayout mediaLayout = MediaLayout.buildAudioImageVisualLayout(getContext(), r, audioURI, imageURI, videoURI, bigImageURI);
 
-                questionLayout.addView(mediaLayout);
+                questionLayout.addView(mediaLayout, new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
 
                 // Last, add the dividing line (except for the last element)
                 if (i != mItems.size() - 1) {

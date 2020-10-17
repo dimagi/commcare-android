@@ -18,7 +18,7 @@ public interface DataPullController {
         CCZ_DEMO
     }
 
-    void startDataPull(DataPullMode mode);
+    void startDataPull(DataPullMode mode, String password);
 
     void dataPullCompleted();
 
