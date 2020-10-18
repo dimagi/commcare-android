@@ -48,10 +48,17 @@
     <uses-sdk tools:overrideLibrary="com.dimagi.android.zebraprinttool, com.simprints.libsimprints,
     ru.noties.markwon.il, ru.noties.markwon.view, ru.noties.markwon.renderer, com.google.firebase.crashlytics, com.google.firebase.iid"/>
 
+    <permission-group
+        android:name="commcare.permission-group.DATABASE"
+        android:description="@string/permission_content_provider_description"
+        android:label="@string/permission_content_provider_label"
+        />
+    
     <permission
         android:name="${applicationId}.provider.cases.read"
         android:description="@string/permission_content_provider_description"
         android:label="@string/permission_content_provider_label"
+        android:permissionGroup="commcare.permission-group.DATABASE"
         android:protectionLevel="dangerous">
     </permission>
 
