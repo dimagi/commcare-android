@@ -49,7 +49,6 @@ public class ListMultiWidget extends QuestionWidget {
 
     private final int buttonIdBase;
     private final static int CHECKBOX_ID = 100;
-    private final static int TEXTSIZE = 21;
 
     // Holds the entire question and answers. It is a horizontally aligned linear layout
     private LinearLayout questionLayout;
@@ -177,7 +176,7 @@ public class ListMultiWidget extends QuestionWidget {
                 // button because it aligns horizontally, and we want the label on top
                 TextView label = (TextView) LayoutInflater.from(getContext()).inflate(R.layout.question_widget_text, null);
                 setChoiceText(label, mItems.get(i));
-                label.setTextSize(TypedValue.COMPLEX_UNIT_DIP, TEXTSIZE);
+                label.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mQuestionFontSize);
                 if (!displayLabel) {
                     label.setVisibility(View.GONE);
                 }
@@ -281,7 +280,7 @@ public class ListMultiWidget extends QuestionWidget {
         // Add the text view. Textview always exists, regardless of whether there's text.
         TextView questionText = (TextView) LayoutInflater.from(getContext()).inflate(R.layout.question_widget_text, null);
         setQuestionText(questionText, mPrompt);
-        questionText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, TEXTSIZE);
+        questionText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mQuestionFontSize);
         questionText.setTypeface(null, Typeface.BOLD);
         questionText.setPadding(0, 0, 0, 7);
         questionText.setId(buttonIdBase); // assign random id

@@ -39,7 +39,6 @@ import java.util.Vector;
 public class LabelWidget extends QuestionWidget {
     private static final String TAG = LabelWidget.class.getSimpleName();
     private static final int RANDOM_BUTTON_ID = 4853487;
-    private final static int TEXTSIZE = 21;
 
     private LinearLayout questionLayout;
 
@@ -123,7 +122,7 @@ public class LabelWidget extends QuestionWidget {
                 // button because it aligns horizontally, and we want the label on top
                 label = (TextView) LayoutInflater.from(getContext()).inflate(R.layout.question_widget_text, null);
                 setChoiceText(label, mItems.get(i));
-                label.setTextSize(TypedValue.COMPLEX_UNIT_DIP, TEXTSIZE);
+                label.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mQuestionFontSize);
 
                 // answer layout holds the label text/image on top and the radio button on bottom
                 LinearLayout answer = new LinearLayout(getContext());
@@ -192,7 +191,7 @@ public class LabelWidget extends QuestionWidget {
         // Add the text view. Textview always exists, regardless of whether there's text.
         mQuestionText = (TextView) LayoutInflater.from(getContext()).inflate(R.layout.question_widget_text, null);
         setQuestionText(mQuestionText, mPrompt);
-        mQuestionText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, TEXTSIZE);
+        mQuestionText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mQuestionFontSize);
         mQuestionText.setTypeface(null, Typeface.BOLD);
         mQuestionText.setPadding(0, 0, 0, 7);
         mQuestionText.setId(RANDOM_BUTTON_ID); // assign random id
