@@ -120,6 +120,8 @@ class FormSettingsTest: BaseTest() {
 
         val mediumFontIndex = 2
         changeFontSize(fontNames[mediumFontIndex])
+        onView(withText(startsWith("The following questions")))
+                .check(matches(CustomMatchers.withFontSize(fontValues[mediumFontIndex].toFloat())))
     }
 
     private fun selectSetting(@IdRes text: Int) {
