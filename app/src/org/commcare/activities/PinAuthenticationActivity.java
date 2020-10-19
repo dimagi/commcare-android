@@ -40,7 +40,7 @@ public class PinAuthenticationActivity extends
     @UiElement(value = R.id.pin_confirm_button, locale = "pin.auth.enter.button")
     private Button enterButton;
 
-    @UiElement(R.id.pin_cancel_button)
+    @UiElement(value = R.id.pin_cancel_button, locale = "pin.auth.cancel.button")
     private Button cancelButton;
 
     private LoginMode authMode;
