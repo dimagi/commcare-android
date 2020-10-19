@@ -156,9 +156,7 @@ public class WidgetFactory {
         } else if (appearance != null && appearance.equals("list-nolabel")) {
             return new ListWidget(context, fep, false);
         } else if (appearance != null && appearance.equals("label")) {
-            LabelWidget labelWidget = new LabelWidget(context, fep);
-            labelWidget.addClearButton();
-            return labelWidget;
+            return new LabelWidget(context, fep);
         } else {
             return new SelectOneWidget(context, fep);
         }

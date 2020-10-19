@@ -43,7 +43,7 @@ import java.util.Vector;
  *
  * @author Jeff Beorse (jeff@beorse.net)
  */
-public class ListWidget extends ClearableWidget implements OnCheckedChangeListener {
+public class ListWidget extends QuestionWidget implements OnCheckedChangeListener {
     private static final String TAG = ListWidget.class.getSimpleName();
 
     private final int buttonIdBase;
@@ -78,6 +78,7 @@ public class ListWidget extends ClearableWidget implements OnCheckedChangeListen
             for (int i = 0; i < mItems.size(); i++) {
                 RadioButton r = new RadioButton(getContext());
 
+                r.setOnCheckedChangeListener(this);
                 r.setId(i + buttonIdBase);
                 r.setEnabled(!mPrompt.isReadOnly());
                 r.setFocusable(!mPrompt.isReadOnly());
@@ -87,7 +88,6 @@ public class ListWidget extends ClearableWidget implements OnCheckedChangeListen
                 if (mItems.get(i).getValue().equals(s)) {
                     r.setChecked(true);
                 }
-                r.setOnCheckedChangeListener(this);
 
                 String imageURI =
                         mPrompt.getSpecialFormSelectChoiceText(mItems.get(i),
@@ -188,22 +188,12 @@ public class ListWidget extends ClearableWidget implements OnCheckedChangeListen
                 LinearLayout.LayoutParams answerParams =
                         new LinearLayout.LayoutParams(LayoutParams.FILL_PARENT,
                                 LayoutParams.WRAP_CONTENT);
-                answerParams.gravity = Gravity.CENTER_VERTICAL;
                 answerParams.weight = 1;
 
                 buttonLayout.addView(answer, answerParams);
 
             }
         }
-        // Add clear button;
-        setupClearButton(context, "X", (s != null && !prompt.isReadOnly()) ? VISIBLE : INVISIBLE);
-        // Clear button params;
-        LinearLayout.LayoutParams clearButtonParams =
-                new LinearLayout.LayoutParams(LayoutParams.FILL_PARENT,
-                        LayoutParams.WRAP_CONTENT);
-        clearButtonParams.weight = 1;
-        clearButtonParams.setMargins(0, 4, 0, 4);
-        buttonLayout.addView(clearButton, clearButtonParams);
 
         // Align the buttons so that they appear horizonally and are right justified
         // buttonLayout.setGravity(Gravity.RIGHT);
@@ -226,10 +216,9 @@ public class ListWidget extends ClearableWidget implements OnCheckedChangeListen
         for (RadioButton button : this.buttons) {
             if (button.isChecked()) {
                 button.setChecked(false);
-                break;
+                return;
             }
         }
-        clearButton.setVisibility(INVISIBLE);
     }
 
     @Override
@@ -272,7 +261,6 @@ public class ListWidget extends ClearableWidget implements OnCheckedChangeListen
                 button.setChecked(false);
             }
         }
-        clearButton.setVisibility(VISIBLE);
 
         widgetEntryChanged();
     }
@@ -297,7 +285,6 @@ public class ListWidget extends ClearableWidget implements OnCheckedChangeListen
         // Put the question text on the left half of the screen
         LinearLayout.LayoutParams labelParams =
                 new LinearLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT);
-        labelParams.gravity = Gravity.CENTER_VERTICAL;
         labelParams.weight = 1;
 
         questionLayout = new LinearLayout(getContext());

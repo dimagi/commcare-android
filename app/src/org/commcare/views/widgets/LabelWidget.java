@@ -35,12 +35,11 @@ import java.util.Vector;
  *
  * @author Jeff Beorse
  */
-public class LabelWidget extends ClearableWidget {
+public class LabelWidget extends QuestionWidget {
     private static final String TAG = LabelWidget.class.getSimpleName();
     private static final int RANDOM_BUTTON_ID = 4853487;
 
     private LinearLayout questionLayout;
-    private LinearLayout buttonLayout;
 
     private TextView mQuestionText;
     private TextView mMissingImage;
@@ -52,7 +51,7 @@ public class LabelWidget extends ClearableWidget {
 
         Vector<SelectChoice> mItems = getSelectChoices();
 
-        buttonLayout = new LinearLayout(context);
+        LinearLayout buttonLayout = new LinearLayout(context);
 
         if (mItems != null) {
             for (int i = 0; i < mItems.size(); i++) {
@@ -151,6 +150,7 @@ public class LabelWidget extends ClearableWidget {
                 buttonLayout.addView(answer, answerParams);
             }
         }
+
         // Align the buttons so that they appear horizonally and are right justified
         // buttonLayout.setGravity(Gravity.RIGHT);
         buttonLayout.setOrientation(LinearLayout.HORIZONTAL);
@@ -165,17 +165,6 @@ public class LabelWidget extends ClearableWidget {
 
         questionLayout.addView(buttonLayout, buttonParams);
         addView(questionLayout);
-    }
-
-    public void addClearButton() {
-        // Add clear button;
-        setupClearButton(getContext(), "X", INVISIBLE);
-        // Clear button params;
-        LinearLayout.LayoutParams clearButtonParams =
-                new LinearLayout.LayoutParams(LayoutParams.FILL_PARENT,
-                        LayoutParams.WRAP_CONTENT);
-        clearButtonParams.weight = 1;
-        buttonLayout.addView(clearButton, clearButtonParams);
     }
 
     @Override
