@@ -3,6 +3,7 @@ package org.commcare.utils
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ListView
+import android.widget.TextView
 import androidx.test.espresso.matcher.BoundedMatcher
 import androidx.test.espresso.util.TreeIterables
 import org.commcare.android.database.global.models.AppAvailableToInstall
@@ -10,6 +11,7 @@ import org.hamcrest.BaseMatcher
 import org.hamcrest.Description
 import org.hamcrest.Matcher
 import org.hamcrest.TypeSafeMatcher
+
 
 /**
  * I would've created a Matchers+Extension file but as of now
@@ -101,6 +103,24 @@ object CustomMatchers {
             override fun describeTo(description: Description) {
                 description.appendText("ViewGroup with child-count=$count and")
                 childMatcher.describeTo(description)
+            }
+        }
+    }
+
+    fun withFontSize(expectedSize: Float): Matcher<View> {
+        return object : BoundedMatcher<View, View>(View::class.java) {
+            override fun matchesSafely(target: View): Boolean {
+                if (target !is TextView) {
+                    return false
+                }
+                val pixels = target.textSize
+                val actualSize = pixels / target.getResources().displayMetrics.scaledDensity
+                return actualSize.compareTo(expectedSize) == 0
+            }
+
+            override fun describeTo(description: Description) {
+                description.appendText("with match textView fontSize with $expectedSize")
+                description.appendValue(expectedSize)
             }
         }
     }

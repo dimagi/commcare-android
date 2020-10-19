@@ -11,6 +11,7 @@ import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
+import androidx.test.filters.Suppress
 import org.commcare.CommCareApplication
 import org.commcare.dalvik.R
 import org.commcare.utils.CustomMatchers
@@ -154,6 +155,7 @@ class FormEntryTest: BaseTest() {
                 .check(matches(isDisplayed()))
     }
 
+    @Suppress
     @SdkSuppress(maxSdkVersion = Build.VERSION_CODES.Q)
     @Test
     fun testSync() {
