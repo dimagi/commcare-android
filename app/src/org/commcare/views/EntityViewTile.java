@@ -1,6 +1,6 @@
 package org.commcare.views;
 
-import android.app.Activity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
@@ -163,7 +163,7 @@ public class EntityViewTile extends GridLayout {
      */
     private Pair<Integer, Integer> computeTileWidthAndHeight(Context context) {
         double screenWidth, screenHeight;
-        Display display = ((Activity)context).getWindowManager().getDefaultDisplay();
+        Display display = ((AppCompatActivity)context).getWindowManager().getDefaultDisplay();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
             Point size = new Point();
             display.getSize(size);

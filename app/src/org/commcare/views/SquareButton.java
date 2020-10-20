@@ -2,12 +2,13 @@ package org.commcare.views;
 
 import android.content.Context;
 import android.util.AttributeSet;
-import android.widget.ImageButton;
+
+import androidx.appcompat.widget.AppCompatImageButton;
 
 /**
  * @author Daniel Luna (dluna@dimagi.com)
  */
-public class SquareButton extends ImageButton {
+public class SquareButton extends AppCompatImageButton {
     public SquareButton(Context context) {
         super(context);
     }

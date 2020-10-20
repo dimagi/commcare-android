@@ -1,6 +1,6 @@
 package org.commcare.utils;
 
-import android.app.Activity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 
 import org.commcare.activities.DispatchActivity;
@@ -9,13 +9,14 @@ import org.commcare.activities.UnrecoverableErrorActivity;
 /**
  * Utils for exiting and restarting the app
  */
+
 public class CommCareLifecycleUtils {
 
-    public static void triggerHandledAppExit(Activity c, String message, String title) {
+    public static void triggerHandledAppExit(AppCompatActivity c, String message, String title) {
         triggerHandledAppExit(c, message, title, true, false);
     }
 
-    public static void triggerHandledAppExit(Activity c, String message, String title,
+    public static void triggerHandledAppExit(AppCompatActivity c, String message, String title,
                                              boolean useExtraMessage, boolean restart) {
         Intent i = new Intent(c, UnrecoverableErrorActivity.class);
         i.putExtra(UnrecoverableErrorActivity.EXTRA_ERROR_TITLE, title);
@@ -30,11 +31,11 @@ public class CommCareLifecycleUtils {
         c.finish();
     }
 
-    public static void restartCommCare(Activity originActivity, boolean systemExit) {
+    public static void restartCommCare(AppCompatActivity originActivity, boolean systemExit) {
         restartCommCare(originActivity, DispatchActivity.class, systemExit);
     }
 
-    public static void restartCommCare(Activity originActivity, Class c, boolean systemExit) {
+    public static void restartCommCare(AppCompatActivity originActivity, Class c, boolean systemExit) {
         Intent intent = new Intent(originActivity, c);
 
         // Make sure that the new stack starts with the given class, and clear everything between.

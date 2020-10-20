@@ -1,6 +1,6 @@
 package org.commcare.views.widgets;
 
-import android.app.AlertDialog;
+import androidx.appcompat.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.util.TypedValue;

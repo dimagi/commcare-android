@@ -1,7 +1,7 @@
 package org.commcare.print;
 
 import android.annotation.TargetApi;
-import android.app.Activity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
@@ -45,7 +45,7 @@ import java.util.Date;
  * @author Richard Lu
  * @author amstone
  */
-public class TemplatePrinterActivity extends Activity implements PopulateListener {
+public class TemplatePrinterActivity extends AppCompatActivity implements PopulateListener {
 
     private static final String KEY_TEMPLATE_STYLE = "PRINT_TEMPLATE_STYLE";
     private static final String TEMPLATE_STYLE_HTML = "TEMPLATE_HTML";
@@ -271,7 +271,7 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
         super.onActivityResult(requestCode, resultCode, data);
         if(requestCode == CALLOUT_ZPL) {
             Intent response = new Intent();
-            if(resultCode != Activity.RESULT_CANCELED) {
+            if(resultCode != AppCompatActivity.RESULT_CANCELED) {
                 response.putExtra(IntentCallout.INTENT_RESULT_VALUE, "");
             }
             this.setResult(resultCode, response);
@@ -308,9 +308,9 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
     class PrintDocumentAdapterWrapper extends PrintDocumentAdapter {
 
         private final PrintDocumentAdapter delegate;
-        private final Activity activity;
+        private final AppCompatActivity activity;
 
-        public PrintDocumentAdapterWrapper(Activity activity, PrintDocumentAdapter adapter) {
+        public PrintDocumentAdapterWrapper(AppCompatActivity activity, PrintDocumentAdapter adapter) {
             super();
             this.activity = activity;
             this.delegate = adapter;

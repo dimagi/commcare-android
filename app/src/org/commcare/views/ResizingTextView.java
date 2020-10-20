@@ -4,9 +4,10 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.util.AttributeSet;
 import android.util.TypedValue;
-import android.widget.TextView;
 
 import org.commcare.dalvik.R;
+
+import androidx.appcompat.widget.AppCompatTextView;
 
 /**
  * A basic text view that will resize itself to update its text size if text wraps longer than
@@ -14,7 +15,7 @@ import org.commcare.dalvik.R;
  *
  * Created by ctsims on 3/14/15.
  */
-public class ResizingTextView extends TextView {
+public class ResizingTextView extends AppCompatTextView {
     private boolean isResizable = false;
     private int mSmallTextPixels;
     private float mOriginalTextSize;

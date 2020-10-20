@@ -1,8 +1,8 @@
 package org.commcare.activities;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import androidx.appcompat.app.AppCompatActivity;
 
 import org.commcare.CommCareApplication;
 import org.commcare.utils.SessionActivityRegistration;
@@ -14,7 +14,7 @@ import org.commcare.utils.SessionUnavailableException;
 
 public class SessionAwareHelper {
 
-    protected static boolean onCreateHelper(Activity a, SessionAwareInterface sessionAware,
+    protected static boolean onCreateHelper(AppCompatActivity a, SessionAwareInterface sessionAware,
                                             Bundle savedInstanceState) {
         try {
             CommCareApplication.instance().getSession();
@@ -27,7 +27,7 @@ public class SessionAwareHelper {
         }
     }
 
-    protected static void onResumeHelper(Activity a, SessionAwareInterface sessionAware,
+    protected static void onResumeHelper(AppCompatActivity a, SessionAwareInterface sessionAware,
                                          boolean redirectedInOnCreate) {
         boolean redirectedToLogin =
                 SessionActivityRegistration.handleOrListenForSessionExpiration(a) ||
@@ -41,7 +41,7 @@ public class SessionAwareHelper {
         }
     }
 
-    protected static void onActivityResultHelper(Activity a, SessionAwareInterface sessionAware,
+    protected static void onActivityResultHelper(AppCompatActivity a, SessionAwareInterface sessionAware,
                                                  int requestCode, int resultCode, Intent intent) {
         boolean redirectedToLogin =
                 SessionActivityRegistration.handleOrListenForSessionExpiration(a);

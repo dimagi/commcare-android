@@ -6,6 +6,6 @@
     </style>
 
     <style name="ContextPopupMenuStyle" parent="@android:style/Widget.Holo.Light.PopupMenu">
-        <item name="android:overlapAnchor">true</item>
+        <item name="overlapAnchor">true</item>
     </style>
 </resources>

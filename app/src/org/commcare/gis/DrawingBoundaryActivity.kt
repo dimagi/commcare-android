@@ -1,6 +1,6 @@
 package org.commcare.gis
 
-import android.app.Activity
+import androidx.appcompat.app.AppCompatActivity
 import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.content.res.Configuration
@@ -136,7 +136,7 @@ class DrawingBoundaryActivity : BaseMapboxActivity(), WithUIController, Location
             parseBoundaryCoords(boundaryCoords)
         }.onFailure {
             showToast(R.string.parse_coordinates_failure)
-            setResult(Activity.RESULT_CANCELED)
+            setResult(AppCompatActivity.RESULT_CANCELED)
             Logger.exception("Exception while loading boundary coordinates ", Exception(it))
             finish()
         }.onSuccess { latlngs ->
@@ -216,7 +216,7 @@ class DrawingBoundaryActivity : BaseMapboxActivity(), WithUIController, Location
         data.putExtra(IntentCallout.INTENT_RESULT_EXTRAS_BUNDLE, result)
         var area = areaCalculator.getArea()
         data.putExtra(IntentCallout.INTENT_RESULT_VALUE, String.format("%.4f", area))
-        setResult(Activity.RESULT_OK, data)
+        setResult(AppCompatActivity.RESULT_OK, data)
         finish()
     }
 

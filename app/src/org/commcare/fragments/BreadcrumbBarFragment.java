@@ -1,13 +1,9 @@
 package org.commcare.fragments;
 
 import android.annotation.TargetApi;
-import android.app.ActionBar;
-import android.app.ActionBar.LayoutParams;
-import android.app.Activity;
 import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
-import androidx.fragment.app.Fragment;
 import android.util.Log;
 import android.util.Pair;
 import android.view.Display;
@@ -48,6 +44,11 @@ import org.javarosa.xpath.XPathException;
 
 import java.util.Vector;
 
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.ActionBar.LayoutParams;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
+
 /**
  * @author ctsims
  */
@@ -81,17 +82,17 @@ public class BreadcrumbBarFragment extends Fragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof Activity) {
-            refresh((Activity)context);
+        if (context instanceof AppCompatActivity) {
+            refresh((AppCompatActivity)context);
         } else {
             Logger.log(LogTypes.TYPE_ERROR_WORKFLOW, "Unable to attach breadcrumb bar fragment");
         }
     }
 
-    public void refresh(Activity activity) {
+    public void refresh(AppCompatActivity activity) {
         boolean breadCrumbsEnabled = !DeveloperPreferences.isActionBarEnabled();
 
-        ActionBar actionBar = activity.getActionBar();
+        ActionBar actionBar = activity.getSupportActionBar();
 
         if (!breadCrumbsEnabled) {
             configureSimpleNav(activity, actionBar);
@@ -106,7 +107,7 @@ public class BreadcrumbBarFragment extends Fragment {
         }
     }
 
-    private void configureSimpleNav(Activity activity, ActionBar actionBar) {
+    private void configureSimpleNav(AppCompatActivity activity, ActionBar actionBar) {
         boolean showNav = true;
         if (activity instanceof CommCareActivity) {
             showNav = ((CommCareActivity)activity).isBackEnabled();
@@ -122,7 +123,7 @@ public class BreadcrumbBarFragment extends Fragment {
         actionBar.setTitle(title);
     }
 
-    private void attachBreadcrumbBar(Activity activity, ActionBar actionBar) {
+    private void attachBreadcrumbBar(AppCompatActivity activity, ActionBar actionBar) {
         //make sure we're in the right mode
         actionBar.setDisplayShowCustomEnabled(true);
         actionBar.setDisplayShowTitleEnabled(false);
@@ -138,7 +139,7 @@ public class BreadcrumbBarFragment extends Fragment {
         actionBar.setDisplayShowHomeEnabled(false);
     }
 
-    private static void expand(Activity activity, final View v) {
+    private static void expand(AppCompatActivity activity, final View v) {
         Display display = activity.getWindowManager().getDefaultDisplay();
         if (activity instanceof CommCareActivity) {
             ((CommCareActivity)activity).setMainScreenBlocked(true);
@@ -179,7 +180,7 @@ public class BreadcrumbBarFragment extends Fragment {
         v.startAnimation(a);
     }
 
-    private static void collapse(Activity activity, final View v) {
+    private static void collapse(AppCompatActivity activity, final View v) {
         if (activity instanceof CommCareActivity) {
             ((CommCareActivity)activity).setMainScreenBlocked(false);
         }
@@ -214,7 +215,7 @@ public class BreadcrumbBarFragment extends Fragment {
         v.startAnimation(a);
     }
 
-    private View findAndLoadCaseTile(final Activity activity) {
+    private View findAndLoadCaseTile(final AppCompatActivity activity) {
         final View holder = LayoutInflater.from(activity).inflate(R.layout.com_tile_holder, null);
         final Pair<View, TreeReference> tileData = this.loadTile(activity);
         if (tileData == null || tileData.first == null) {
@@ -243,7 +244,7 @@ public class BreadcrumbBarFragment extends Fragment {
         return holder;
     }
 
-    public void expandInlineTile(Activity activity, View holder,
+    public void expandInlineTile(AppCompatActivity activity, View holder,
                                  Pair<View, TreeReference> tileData,
                                  String inlineDetailId) {
 
@@ -271,7 +272,7 @@ public class BreadcrumbBarFragment extends Fragment {
      * Returns true if a tile exists and was expanded, false if no tile existed or if it was not
      * expanded.
      */
-    public boolean collapseTileIfExpanded(Activity activity) {
+    public boolean collapseTileIfExpanded(AppCompatActivity activity) {
         View holder = tile;
         if (holder == null) {
             return false;
@@ -290,7 +291,7 @@ public class BreadcrumbBarFragment extends Fragment {
         return true;
     }
 
-    private Pair<View, TreeReference> loadTile(Activity activity) {
+    private Pair<View, TreeReference> loadTile(AppCompatActivity activity) {
         AndroidSessionWrapper asw;
         try {
             asw = CommCareApplication.instance().getCurrentSessionWrapper();
@@ -345,7 +346,7 @@ public class BreadcrumbBarFragment extends Fragment {
         }
     }
 
-    private static String getBestTitle(Activity activity) {
+    private static String getBestTitle(AppCompatActivity activity) {
         String bestTitle = getBestTitleHelper();
         return defaultTitle(bestTitle, activity);
     }
@@ -398,7 +399,7 @@ public class BreadcrumbBarFragment extends Fragment {
         return bestTitle;
     }
 
-    private static String defaultTitle(String currentTitle, Activity activity) {
+    private static String defaultTitle(String currentTitle, AppCompatActivity activity) {
         if (activity instanceof CommCareSetupActivity) {
             return activity.getString(R.string.application_name);
         }
@@ -446,7 +447,7 @@ public class BreadcrumbBarFragment extends Fragment {
         Entity entity = nef.getEntity(ref);
 
         Log.v("DEBUG-v", "Creating new GridEntityView for text header text");
-        EntityViewTile tile = EntityViewTile.createTileForIndividualDisplay(this.getActivity(),
+        EntityViewTile tile = EntityViewTile.createTileForIndividualDisplay(getActivity(),
                 detail, entity);
         int[] textColor = AndroidUtil.getThemeColorIDs(getActivity(),
                 new int[]{R.attr.drawer_pulldown_text_color, R.attr.menu_tile_title_text_color});

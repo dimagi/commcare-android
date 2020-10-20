@@ -1,9 +1,7 @@
 package org.commcare.fragments;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.os.Parcelable;
-import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,18 +14,21 @@ import org.commcare.activities.EntitySelectActivity;
 import org.commcare.adapters.EntityDetailAdapter;
 import org.commcare.adapters.ListItemViewModifier;
 import org.commcare.cases.entity.Entity;
+import org.commcare.cases.entity.EntityUtil;
 import org.commcare.cases.entity.NodeEntityFactory;
 import org.commcare.dalvik.R;
 import org.commcare.interfaces.ModifiableEntityDetailAdapter;
 import org.commcare.models.AndroidSessionWrapper;
 import org.commcare.suite.model.Detail;
-import org.commcare.cases.entity.EntityUtil;
 import org.commcare.utils.DetailCalloutListener;
 import org.commcare.utils.SerializationUtil;
 import org.commcare.views.UserfacingErrorHandling;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.xpath.XPathException;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
 
 /**
  * Fragment to display Detail content. Not meant for handling nested Detail objects.
@@ -82,7 +83,7 @@ public class EntityDetailFragment extends Fragment {
 
         View rootView = inflater.inflate(R.layout.entity_detail_list, container, false);
         try {
-            final Activity thisActivity = getActivity();
+            final AppCompatActivity thisActivity = (AppCompatActivity)getActivity();
             final Entity entity = factory.getEntity(referenceToDisplay);
             final DetailCalloutListener detailCalloutListener =
                     thisActivity instanceof DetailCalloutListener ? ((DetailCalloutListener)thisActivity) : null;

@@ -1,7 +1,7 @@
 package org.commcare.views.widgets;
 
+
 import android.Manifest;
-import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
@@ -32,7 +32,6 @@ import org.commcare.utils.GlobalConstants;
 import org.commcare.utils.MediaUtil;
 import org.commcare.utils.Permissions;
 import org.commcare.utils.StringUtils;
-import org.commcare.utils.UrlUtils;
 import org.commcare.views.dialogs.CommCareAlertDialog;
 import org.commcare.views.dialogs.DialogCreationHelpers;
 import org.javarosa.core.model.QuestionDataExtension;
@@ -43,6 +42,8 @@ import org.javarosa.core.services.locale.Localization;
 import org.javarosa.form.api.FormEntryPrompt;
 
 import java.io.File;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 /**
  * Widget that allows user to take pictures, sounds or video and add them to the form.
@@ -99,11 +100,11 @@ public class ImageWidget extends QuestionWidget {
         // launch capture intent on click
         mCaptureButton.setOnClickListener(v -> {
             mErrorTextView.setVisibility(View.GONE);
-            if (Permissions.missingAppPermission((Activity)getContext(), Manifest.permission.CAMERA)) {
+            if (Permissions.missingAppPermission((AppCompatActivity)getContext(), Manifest.permission.CAMERA)) {
                 pendingCalloutInterface.setPendingCalloutFormIndex(mPrompt.getIndex());
-                if (Permissions.shouldShowPermissionRationale((Activity)getContext(), Manifest.permission.CAMERA)) {
+                if (Permissions.shouldShowPermissionRationale((AppCompatActivity)getContext(), Manifest.permission.CAMERA)) {
                     CommCareAlertDialog dialog =
-                            DialogCreationHelpers.buildPermissionRequestDialog((Activity)getContext(), (RuntimePermissionRequester)getContext(),
+                            DialogCreationHelpers.buildPermissionRequestDialog((AppCompatActivity)getContext(), (RuntimePermissionRequester)getContext(),
                                     REQUEST_CAMERA_PERMISSION,
                                     Localization.get("permission.camera.title"),
                                     Localization.get("permission.camera.message"));
@@ -137,7 +138,7 @@ public class ImageWidget extends QuestionWidget {
                 i.setType("image/*");
 
                 try {
-                    ((Activity)getContext()).startActivityForResult(i,
+                    ((AppCompatActivity)getContext()).startActivityForResult(i,
                             FormEntryConstants.IMAGE_CHOOSER);
                     pendingCalloutInterface.setPendingCalloutFormIndex(mPrompt.getIndex());
                 } catch (ActivityNotFoundException e) {
@@ -267,7 +268,7 @@ public class ImageWidget extends QuestionWidget {
         i.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
         i.setFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
         try {
-            ((Activity)getContext()).startActivityForResult(i,
+            ((AppCompatActivity)getContext()).startActivityForResult(i,
                     FormEntryConstants.IMAGE_CAPTURE);
             pendingCalloutInterface.setPendingCalloutFormIndex(mPrompt.getIndex());
         } catch (ActivityNotFoundException e) {

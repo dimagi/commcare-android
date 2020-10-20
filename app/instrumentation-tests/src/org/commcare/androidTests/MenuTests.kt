@@ -104,16 +104,16 @@ class MenuTests: BaseTest() {
         InstrumentationUtility.openOptionsMenu()
         onView(withText(homeMenuItems[4]))
                 .perform(click())
-        onView(withResourceName("action_bar_title"))
-                .check(matches(withText("CommCare > Advanced")))
+        onView(withText("CommCare > Advanced"))
+                .check(matches(isDisplayed()))
         checkStringExists(advancedOptions)
         InstrumentationUtility.gotoHome()
 
         InstrumentationUtility.openOptionsMenu()
         onView(withText(homeMenuItems[5]))
                 .perform(click())
-        onView(withResourceName("action_bar_title"))
-                .check(matches(withText("CommCare > Settings")))
+        onView(withText("CommCare > Settings"))
+                .check(matches(isDisplayed()))
         checkStringExists(arrayOf(
                 "Auto Update Frequency",
                 "Set Print Template",
@@ -139,8 +139,8 @@ class MenuTests: BaseTest() {
                 .check(matches(isDisplayed()))
         onView(withId(R.id.negative_button))
                 .perform(click())
-        onView(withResourceName("action_bar_title"))
-                .check(matches(withText("CommCare > Advanced")))
+        onView(withText("CommCare > Advanced"))
+                .check(matches(isDisplayed()))
         onView(withText(advancedOptions[1]))
                 .perform(click())
         onView(withText(formDumpConfirmation))

@@ -64,7 +64,6 @@ class UpdateUIController implements CommCareActivityUIController {
 
         notificationsButton.setText(Localization.get("error.button.text"));
 
-
         setupButtonListeners();
         idleUiState();
     }

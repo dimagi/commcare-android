@@ -38,8 +38,4 @@
         <item name="android:paddingRight">2dp</item>
     </style>
 
-    <style name="EntityItemText" parent="@android:style/TextAppearance.Large">
-
-    </style>
-
 </resources>
