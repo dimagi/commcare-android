@@ -30,8 +30,6 @@ class CaseListSearchTest: BaseTest() {
 
     @Before
     fun setup() {
-        // screen_entity_select_list
-        //2 of 4 results for your search: "c"
         installApp(APP_NAME, CCZ_NAME)
         InstrumentationUtility.login("test_list_search", "123")
     }
