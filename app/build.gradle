@@ -86,6 +86,7 @@ dependencies {
     implementation('org.apache.httpcomponents:httpmime:4.5.6')
     implementation 'net.sourceforge.htmlcleaner:htmlcleaner:2.16'
     implementation 'org.jsoup:jsoup:1.8.3'
+    implementation 'com.scottyab:rootbeer-lib:0.0.8'
 
     // crashes on update - https://developers.google.com/admob/android/quick-start#update_your_androidmanifestxml
     // We need to update consumer apps script to inject the right admob id to be able to update this
