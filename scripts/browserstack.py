@@ -76,6 +76,7 @@ def testResult(buildId):
                 break
 
     # Now that we know all the test-classes that are failing, we can re-run those.
+    print("Failing test classes :: ", classes)
 
     runConfig = buildTestCommand(appToken, testToken, classes)
     runCmd = 'curl -X POST "{}" -d \ {} -H "Content-Type: application/json" -u "{}:{}"'.format(espressoUrl, runConfig, userName, password)
@@ -86,6 +87,7 @@ def testResult(buildId):
 
     if (status != "passed"):
         print("Instrumentation Tests Failed. Visit browserstack dashboard for more details.")
+        print("https://app-automate.browserstack.com/dashboard/v2/builds/{}".format(buildId))
         sys.exit(-1)
 
 
