@@ -84,6 +84,7 @@ import org.commcare.preferences.HiddenPreferences;
 import org.commcare.preferences.LocalePreferences;
 import org.commcare.services.CommCareSessionService;
 import org.commcare.session.CommCareSession;
+import org.commcare.tasks.CleanRawMedia;
 import org.commcare.tasks.DeleteLogs;
 import org.commcare.tasks.LogSubmissionTask;
 import org.commcare.tasks.PurgeStaleArchivedFormsTask;
@@ -141,6 +142,7 @@ public class CommCareApplication extends MultiDexApplication {
     public static final int STATE_MIGRATION_FAILED = 16;
     public static final int STATE_MIGRATION_QUESTIONABLE = 32;
     private static final String DELETE_LOGS_REQUEST = "delete-logs-request";
+    private static final String CLEAN_RAW_MEDIA_REQUEST = "clean-raw-media-request";
 
     private int dbState;
 
@@ -745,6 +747,10 @@ public class CommCareApplication extends MultiDexApplication {
                             WorkManager.getInstance(CommCareApplication.instance())
                                     .enqueueUniqueWork(DELETE_LOGS_REQUEST, ExistingWorkPolicy.KEEP, deleteLogsRequest);
                         }
+
+                        OneTimeWorkRequest cleanRawMediaRequest = new OneTimeWorkRequest.Builder(CleanRawMedia.class).build();
+                        WorkManager.getInstance(CommCareApplication.instance())
+                                .enqueueUniqueWork(CLEAN_RAW_MEDIA_REQUEST, ExistingWorkPolicy.KEEP, cleanRawMediaRequest);
                     }
 
                     TimedStatsTracker.registerStartSession();

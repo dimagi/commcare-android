@@ -2,11 +2,13 @@ package org.commcare.google.services.analytics;
 
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.text.TextUtils;
 
 import com.google.firebase.analytics.FirebaseAnalytics;
 
 import org.commcare.CommCareApplication;
+import org.commcare.DiskUtils;
 import org.commcare.android.logging.ReportingUtils;
 import org.commcare.preferences.MainConfigurablePreferences;
 import org.commcare.suite.model.OfflineUserRestore;
@@ -75,6 +77,26 @@ public class FirebaseAnalyticsUtil {
         String serverName = ReportingUtils.getServerName();
         if (!TextUtils.isEmpty(serverName)) {
             analyticsInstance.setUserProperty(CCAnalyticsParam.SERVER, serverName);
+        }
+
+        String freeDiskBucket = getFreeDiskBucket();
+        if (!TextUtils.isEmpty(freeDiskBucket)) {
+            analyticsInstance.setUserProperty(CCAnalyticsParam.FREE_DISK, freeDiskBucket);
+        }
+    }
+
+    private static String getFreeDiskBucket() {
+        long freeDiskInMB = DiskUtils.calculateFreeDiskSpaceInBytes(Environment.getDataDirectory().getPath()) / 1000;
+        if (freeDiskInMB > 1000) {
+            return "gt_1000";
+        } else if (freeDiskInMB > 500) {
+            return "lt_1000";
+        } else if (freeDiskInMB > 300) {
+            return "lt_500";
+        } else if (freeDiskInMB > 100) {
+            return "lt_300";
+        } else {
+            return "lt_100";
         }
     }
 

@@ -34,6 +34,18 @@ public class StorageUtils {
         return ids;
     }
 
+    @NonNull
+    public static Vector<Integer> getUnsentCompleteOrSavedFormIdsForCurrentApp(
+            SqlStorage<FormRecord> storage) {
+        String currentAppId =
+                CommCareApplication.instance().getCurrentApp().getAppRecord().getApplicationId();
+        Vector<Integer> ids = getUnsentOrUnprocessedFormIdsForCurrentApp(storage);
+        ids.addAll(storage.getIDsForValues(
+                new String[]{FormRecord.META_STATUS, FormRecord.META_APP_ID},
+                new Object[]{FormRecord.STATUS_SAVED, currentAppId}));
+        return ids;
+    }
+
     private static Vector<FormRecord> getUnsentOrUnprocessedFormRecordsForCurrentApp(
             SqlStorage<FormRecord> storage) {
 
