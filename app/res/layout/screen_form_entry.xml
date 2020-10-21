@@ -184,10 +184,11 @@
             android:layout_height="match_parent"
             android:paddingLeft="@dimen/content_min_margin"
             android:paddingRight="@dimen/content_min_margin"
-            android:text="Header Text"
+            android:textAlignment="viewStart"
             android:visibility="gone"
             android:paddingEnd="@dimen/content_min_margin"
-            android:paddingStart="@dimen/content_min_margin" />
+            android:paddingStart="@dimen/content_min_margin"
+            android:gravity="start" />
     </FrameLayout>
 
     <FrameLayout
