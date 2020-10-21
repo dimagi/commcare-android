@@ -1,6 +1,5 @@
 package org.commcare.androidTests
 
-import android.content.res.Resources
 import androidx.test.espresso.Espresso
 import androidx.test.espresso.Espresso.closeSoftKeyboard
 import androidx.test.espresso.Espresso.onView
@@ -11,7 +10,6 @@ import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import org.commcare.dalvik.R
-import org.commcare.utils.CustomMatchers
 import org.commcare.utils.InstrumentationUtility
 import org.hamcrest.Matchers.*
 import org.junit.Before
@@ -49,12 +47,12 @@ class CaseListSearchTest: BaseTest() {
         val searchTextId = Resources.getSystem().getIdentifier("android:id/search_src_text", null, null)
 
         // type `c` and search
-        onView(withId(searchTextId))
+        onView(withClassName(endsWith("SearchAutoComplete")))
                 .perform(typeText("c"))
         matchList(2, 4, "c", arrayOf(entities[0], entities[3]))
 
         // type `h` and search
-        onView(withId(searchTextId))
+        onView(withClassName(endsWith("SearchAutoComplete")))
                 .perform(typeText("h"))
         matchList(1, 4, "ch", arrayOf(entities[0]))
 
@@ -74,7 +72,7 @@ class CaseListSearchTest: BaseTest() {
         matchListItems(entities)
 
         onView(withText("Search Tests"))
-                .check(matches(not(isDisplayed())))
+                .check(doesNotExist())
         InstrumentationUtility.gotoHome()
 
         // Start Over
@@ -83,11 +81,13 @@ class CaseListSearchTest: BaseTest() {
         // Clearing searches the other way
         onView(withId(R.id.search_action_bar))
                 .perform(click())
-        onView(withId(searchTextId))
+        onView(withClassName(endsWith("SearchAutoComplete")))
                 .perform(typeText("x"))
         matchList(0, 4, "x", null)
         closeSoftKeyboard()
         // Use back to clear search
+        // For some weird reasons, pressing back once doesn't work with searchview.
+        Espresso.pressBack()
         Espresso.pressBack()
         onView(withText(containsString("results for your search")))
                 .check(matches(not(isDisplayed())))
@@ -99,11 +99,11 @@ class CaseListSearchTest: BaseTest() {
         // Fuzzy search
         onView(withId(R.id.search_action_bar))
                 .perform(click())
-        onView(withId(searchTextId))
+        onView(withClassName(endsWith("SearchAutoComplete")))
                 .perform(typeText("kri"))
         matchList(0, 4, "kri", null)
 
-        onView(withId(searchTextId))
+        onView(withClassName(endsWith("SearchAutoComplete")))
                 .perform(typeText("sty"))
         matchList(1, 4, "kristy", arrayOf(entities[0]))
     }
