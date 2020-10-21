@@ -1,6 +1,6 @@
 package org.commcare.activities;
 
-import android.app.Activity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.os.Bundle;
@@ -99,7 +99,7 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
-        if (requestCode == REQUEST_FILE_LOCATION && resultCode == Activity.RESULT_OK) {
+        if (requestCode == REQUEST_FILE_LOCATION && resultCode == AppCompatActivity.RESULT_OK) {
             FileUtil.updateFileLocationFromIntent(this, intent, editFileLocation);
         }
     }

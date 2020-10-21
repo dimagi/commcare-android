@@ -1,6 +1,5 @@
 package org.commcare.views.widgets;
 
-import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
@@ -14,6 +13,8 @@ import org.commcare.dalvik.R;
 import org.commcare.logic.PendingCalloutInterface;
 import org.commcare.utils.StringUtils;
 import org.javarosa.form.api.FormEntryPrompt;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 /**
  * Widget that allows user to take pictures, sounds or video and add them to
@@ -59,7 +60,7 @@ public class AudioWidget extends MediaWidget {
             Intent i = new Intent(Intent.ACTION_GET_CONTENT);
             i.setType("audio/*");
             try {
-                ((Activity)getContext()).startActivityForResult(i, FormEntryConstants.AUDIO_VIDEO_FETCH);
+                ((AppCompatActivity)getContext()).startActivityForResult(i, FormEntryConstants.AUDIO_VIDEO_FETCH);
                 pendingCalloutInterface.setPendingCalloutFormIndex(mPrompt.getIndex());
             } catch (ActivityNotFoundException e) {
                 Toast.makeText(getContext(),
@@ -87,7 +88,7 @@ public class AudioWidget extends MediaWidget {
         i.putExtra(android.provider.MediaStore.EXTRA_OUTPUT,
                 Audio.Media.EXTERNAL_CONTENT_URI.toString());
         try {
-            ((Activity)getContext()).startActivityForResult(i, FormEntryConstants.AUDIO_VIDEO_FETCH);
+            ((AppCompatActivity)getContext()).startActivityForResult(i, FormEntryConstants.AUDIO_VIDEO_FETCH);
             pendingCalloutInterface.setPendingCalloutFormIndex(prompt.getIndex());
         } catch (ActivityNotFoundException e) {
             Toast.makeText(getContext(),

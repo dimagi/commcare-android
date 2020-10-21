@@ -1,6 +1,6 @@
 package org.commcare.activities;
 
-import android.app.Activity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Rect;
@@ -39,7 +39,7 @@ import java.util.Date;
 /**
  * @author ctsims
  */
-public class DotsEntryActivity extends Activity implements DotsEditListener, AnimationListener {
+public class DotsEntryActivity extends AppCompatActivity implements DotsEditListener, AnimationListener {
     
     private DotsData dotsData;
     

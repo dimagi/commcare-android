@@ -1,9 +1,7 @@
 package org.commcare.views;
 
-import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
-import androidx.annotation.NonNull;
 import android.util.DisplayMetrics;
 import android.widget.ImageView;
 
@@ -12,8 +10,12 @@ import org.commcare.CommCareApplication;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.utils.MediaUtil;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+
 public class CustomBanner {
-    public static boolean useCustomBannerFitToActivity(Activity activity,
+
+    public static boolean useCustomBannerFitToActivity(AppCompatActivity activity,
                                                        @NonNull ImageView topBannerImageView,
                                                        Banner banner) {
         DisplayMetrics displaymetrics = new DisplayMetrics();

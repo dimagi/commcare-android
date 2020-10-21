@@ -1,6 +1,6 @@
 package org.commcare.preferences;
 
-import android.app.Activity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -31,8 +31,8 @@ import java.util.Set;
 
 public class DeveloperPreferences extends CommCarePreferenceFragment {
 
-    public static final int RESULT_SYNC_CUSTOM = Activity.RESULT_FIRST_USER + 1;
-    public static final int RESULT_DEV_OPTIONS_DISABLED = Activity.RESULT_FIRST_USER + 2;
+    public static final int RESULT_SYNC_CUSTOM = AppCompatActivity.RESULT_FIRST_USER + 1;
+    public static final int RESULT_DEV_OPTIONS_DISABLED = AppCompatActivity.RESULT_FIRST_USER + 2;
 
     private static final int MENU_ENABLE_PRIVILEGES = 0;
 

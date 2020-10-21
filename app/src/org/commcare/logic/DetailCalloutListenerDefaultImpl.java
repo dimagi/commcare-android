@@ -1,6 +1,5 @@
 package org.commcare.logic;
 
-import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.net.Uri;
@@ -10,6 +9,8 @@ import org.commcare.activities.CallOutActivity;
 import org.commcare.suite.model.CalloutData;
 
 import java.util.Hashtable;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 /**
  * Created by dancluna on 3/5/15.
@@ -21,27 +22,27 @@ public class DetailCalloutListenerDefaultImpl {
     //   due to EntitySelectActivity not implementing DetailCalloutListener.
     public static final int CALL_OUT = 0;
 
-    public static void callRequested(Activity act, String phoneNumber) {
+    public static void callRequested(AppCompatActivity act, String phoneNumber) {
         Intent intent = new Intent(act, CallOutActivity.class);
         intent.putExtra(CallOutActivity.PHONE_NUMBER, phoneNumber);
         act.startActivityForResult(intent, CALL_OUT);
     }
 
 
-    public static void addressRequested(Activity act, String address) {
+    public static void addressRequested(AppCompatActivity act, String address) {
         Intent call;
         call = new Intent(Intent.ACTION_VIEW, Uri.parse(address));
         act.startActivity(call);
     }
 
-    public static void playVideo(Activity act, String videoRef) {
+    public static void playVideo(AppCompatActivity act, String videoRef) {
         Intent intent = new Intent();
         intent.setAction(Intent.ACTION_VIEW);
         intent.setDataAndType(Uri.parse(videoRef), "video/*");
         act.startActivity(intent);
     }
 
-    public static void performCallout(Activity act, CalloutData callout, int id) {
+    public static void performCallout(AppCompatActivity act, CalloutData callout, int id) {
         Intent i = new Intent(callout.getActionName());
 
         Hashtable<String, String> extras = callout.getExtras();

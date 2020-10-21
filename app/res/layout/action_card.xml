@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout android:id="@+id/action_card"
+<FrameLayout xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/action_card"
              xmlns:android="http://schemas.android.com/apk/res/android"
              android:layout_width="match_parent"
              android:layout_height="wrap_content">
@@ -80,7 +81,7 @@
                     android:focusable="false"
                     android:focusableInTouchMode="false"
                     android:padding="@dimen/min_button_padding"
-                    android:src="@drawable/icon_chevron_right_attnpos"
+                    app:srcCompat="@drawable/icon_chevron_right_attnpos"
                     android:layout_toEndOf="@+id/text" />
 
             </LinearLayout>

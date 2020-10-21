@@ -1,9 +1,6 @@
 package org.commcare.fragments;
 
 import android.os.Bundle;
-
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -16,6 +13,10 @@ import org.commcare.dalvik.R;
 import org.commcare.interfaces.RuntimePermissionRequester;
 import org.commcare.utils.Permissions;
 import org.javarosa.core.services.locale.Localization;
+
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
 
 /**
  * Block user until they accept necessary permissions. Shows permissions
@@ -46,7 +47,7 @@ public class InstallPermissionsFragment extends Fragment {
         Button requestPermsButton = view.findViewById(R.id.get_perms_button);
         requestPermsButton.setOnClickListener(v -> {
             RuntimePermissionRequester permissionRequester = (RuntimePermissionRequester)getActivity();
-            Permissions.acquireAllAppPermissions(getActivity(), permissionRequester,
+            Permissions.acquireAllAppPermissions((AppCompatActivity)getActivity(), permissionRequester,
                     Permissions.ALL_PERMISSIONS_REQUEST);
         });
         requestPermsButton.setText(Localization.get("permission.acquire.required"));

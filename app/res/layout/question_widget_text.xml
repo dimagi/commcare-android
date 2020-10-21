@@ -4,5 +4,6 @@
     android:layout_height="match_parent"
     android:gravity="start"
     android:scrollHorizontally="false"
+    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
     android:text="QuestionWidget placeholder text: there should be a really big question text here, greater than the screen&apos;s size"
     android:textAlignment="viewStart" />

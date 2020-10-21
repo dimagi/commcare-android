@@ -51,6 +51,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
+import androidx.appcompat.widget.SwitchCompat;
+
 /**
  * Created by amstone326 on 2/3/17.
  */
@@ -145,32 +147,19 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
     }
 
     private void setUpToggle() {
-        FrameLayout toggleContainer = findViewById(R.id.toggle_button_container);
-        CompoundButton userTypeToggler;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-            Switch switchButton = new Switch(this);
-            switchButton.setTextOff(Localization.get("toggle.web.user.mode"));
-            switchButton.setTextOn(Localization.get("toggle.mobile.user.mode"));
-            userTypeToggler = switchButton;
-        } else {
-            ToggleButton toggleButton = new ToggleButton(this);
-            toggleButton.setTextOff(Localization.get("toggle.web.user.mode"));
-            toggleButton.setTextOn(Localization.get("toggle.mobile.user.mode"));
-            userTypeToggler = toggleButton;
-        }
+        SwitchCompat switchButton = findViewById(R.id.switch_button);
+        ((TextView)findViewById(R.id.switch_button_right_label)).setText(Localization.get("toggle.web.user.mode"));
 
         // Important for this call to come first; we don't want the listener to be invoked on the
         // first auto-setting, just on user-triggered ones
-        userTypeToggler.setChecked(inMobileUserAuthMode);
-        userTypeToggler.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            inMobileUserAuthMode = isChecked;
+        switchButton.setChecked(!inMobileUserAuthMode);
+        switchButton.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            inMobileUserAuthMode = !isChecked;
             errorMessage = null;
             errorMessageBox.setVisibility(View.INVISIBLE);
             ((EditText)findViewById(R.id.edit_password)).setText("");
             setProperAuthView();
         });
-
-        toggleContainer.addView(userTypeToggler);
     }
 
     private void setProperAuthView() {

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:textAppearance="@style/EntityItemText"
@@ -24,7 +25,7 @@
                 android:layout_width="@dimen/numeric_badge_width_for_grid"
                 android:layout_height="@dimen/numeric_badge_width_for_grid"
                 android:layout_centerInParent="true"
-                android:src="@drawable/badge_circle"/>
+                app:srcCompat="@drawable/badge_circle"/>
 
             <TextView
                 android:layout_width="wrap_content"

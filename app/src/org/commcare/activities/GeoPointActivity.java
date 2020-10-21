@@ -1,17 +1,12 @@
 package org.commcare.activities;
 
 import android.Manifest;
-import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.core.app.ActivityCompat;
-
 import android.view.View.OnClickListener;
 import android.widget.Toast;
 
@@ -37,10 +32,15 @@ import org.jetbrains.annotations.NotNull;
 
 import java.text.DecimalFormat;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+
 /**
  * Activity that blocks user until the current GPS location is captured
  */
-public class GeoPointActivity extends Activity implements TimerListener, CommCareLocationListener, RuntimePermissionRequester {
+public class GeoPointActivity extends AppCompatActivity implements TimerListener, CommCareLocationListener, RuntimePermissionRequester {
+
     private GeoProgressDialog locationDialog;
     private Location location;
     private CommCareLocationController locationController;
@@ -48,9 +48,9 @@ public class GeoPointActivity extends Activity implements TimerListener, CommCar
     public final static int DEFAULT_MAX_WAIT_IN_SECS = 60;
     private final static int LOCATION_PERMISSION_REQ = 101;
     private final static int LOCATION_SETTING_REQ = 102;
-    private final static String[] requiredPermissions = new String[] {
+    private final static String[] requiredPermissions = new String[]{
             Manifest.permission.ACCESS_FINE_LOCATION,
-            Manifest.permission.ACCESS_COARSE_LOCATION };
+            Manifest.permission.ACCESS_COARSE_LOCATION};
 
     private TimeoutTimer mTimer;
 
@@ -99,7 +99,7 @@ public class GeoPointActivity extends Activity implements TimerListener, CommCar
         switch (requestCode) {
             case LOCATION_PERMISSION_REQ:
                 boolean granted = grantResults.length > 0;
-                for (int result: grantResults) {
+                for (int result : grantResults) {
                     if (result != PackageManager.PERMISSION_GRANTED) {
                         granted = false;
                     }
@@ -250,18 +250,18 @@ public class GeoPointActivity extends Activity implements TimerListener, CommCar
     @Override
     public void missingPermissions() {
         ActivityCompat.requestPermissions(this,
-                new String[] { Manifest.permission.ACCESS_FINE_LOCATION,
-                        Manifest.permission.ACCESS_COARSE_LOCATION },
+                new String[]{Manifest.permission.ACCESS_FINE_LOCATION,
+                        Manifest.permission.ACCESS_COARSE_LOCATION},
                 LOCATION_PERMISSION_REQ);
     }
 
     @Override
     public void onLocationRequestFailure(@NotNull CommCareLocationListener.Failure failure) {
         if (failure instanceof CommCareLocationListener.Failure.ApiException) {
-            Exception exception = ((CommCareLocationListener.Failure.ApiException) failure).getException();
+            Exception exception = ((CommCareLocationListener.Failure.ApiException)failure).getException();
             if (exception instanceof ResolvableApiException) {
                 try {
-                    ((ResolvableApiException) exception).startResolutionForResult(this, LOCATION_SETTING_REQ);
+                    ((ResolvableApiException)exception).startResolutionForResult(this, LOCATION_SETTING_REQ);
                 } catch (IntentSender.SendIntentException e) {
                     e.printStackTrace();
                 }

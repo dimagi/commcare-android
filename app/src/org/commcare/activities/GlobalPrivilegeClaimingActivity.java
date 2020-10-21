@@ -1,6 +1,6 @@
 package org.commcare.activities;
 
-import android.app.Activity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import androidx.core.app.ActivityCompat;
@@ -29,7 +29,7 @@ import org.javarosa.core.services.locale.Localization;
  *
  * @author Aliza Stone (astone@dimagi.com), created 6/9/16.
  */
-public class GlobalPrivilegeClaimingActivity extends Activity {
+public class GlobalPrivilegeClaimingActivity extends AppCompatActivity {
 
     private static final String TAG = GlobalPrivilegeClaimingActivity.class.getSimpleName();
 

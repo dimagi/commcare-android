@@ -1,6 +1,6 @@
 package org.commcare.android.tests.activities;
 
-import android.app.Activity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -78,7 +78,7 @@ public class QueryRequestActivityTest {
     public void launchQueryActivityAtWrongTimeTest() {
         QueryRequestActivity queryRequestActivity = buildQueryActivity().get();
 
-        assertEquals(Activity.RESULT_CANCELED,
+        assertEquals(AppCompatActivity.RESULT_CANCELED,
                 Shadows.shadowOf(queryRequestActivity).getResultCode());
         assertTrue(queryRequestActivity.isFinishing());
     }
@@ -100,7 +100,7 @@ public class QueryRequestActivityTest {
         Button queryButton = queryRequestActivity.findViewById(R.id.request_button);
         queryButton.performClick();
 
-        assertEquals(Activity.RESULT_OK,
+        assertEquals(AppCompatActivity.RESULT_OK,
                 Shadows.shadowOf(queryRequestActivity).getResultCode());
         assertTrue(queryRequestActivity.isFinishing());
     }
@@ -251,7 +251,7 @@ public class QueryRequestActivityTest {
                 ShadowToast.getTextOfLatestToast());
 
         queryButton.performClick();
-        assertEquals(Activity.RESULT_OK,
+        assertEquals(AppCompatActivity.RESULT_OK,
                 Shadows.shadowOf(queryRequestActivity).getResultCode());
         assertTrue(queryRequestActivity.isFinishing());
     }

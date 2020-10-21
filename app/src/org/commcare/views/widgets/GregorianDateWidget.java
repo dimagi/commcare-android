@@ -1,9 +1,6 @@
 package org.commcare.views.widgets;
 
 import android.content.Context;
-import androidx.fragment.app.FragmentActivity;
-import androidx.fragment.app.FragmentManager;
-
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,12 +13,12 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import org.commcare.dalvik.R;
-import org.javarosa.core.model.data.InvalidDateData;
-import org.javarosa.xform.util.UniversalDate;
 import org.javarosa.core.model.data.DateData;
 import org.javarosa.core.model.data.IAnswerData;
+import org.javarosa.core.model.data.InvalidDateData;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.form.api.FormEntryPrompt;
+import org.javarosa.xform.util.UniversalDate;
 import org.joda.time.DateTime;
 
 import java.util.ArrayList;
@@ -31,6 +28,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.FragmentManager;
 
 public class GregorianDateWidget extends AbstractUniversalDateWidget
         implements CalendarFragment.CalendarCloseListener {
@@ -71,11 +71,12 @@ public class GregorianDateWidget extends AbstractUniversalDateWidget
             clearAll.setVisibility(View.GONE);
         }
 
-        fm = ((FragmentActivity)getContext()).getSupportFragmentManager();
-        myCalendarFragment = (CalendarFragment) fm.findFragmentByTag(CALENDAR_FRAGMENT_TAG);
+        fm = ((AppCompatActivity)getContext()).getSupportFragmentManager();
+        myCalendarFragment = (CalendarFragment)fm.findFragmentByTag(CALENDAR_FRAGMENT_TAG);
         if (myCalendarFragment == null) {
             myCalendarFragment = new CalendarFragment();
         }
+
         myCalendarFragment.setListener(this);
         myCalendarFragment.setCancelable(false);
 
@@ -124,7 +125,8 @@ public class GregorianDateWidget extends AbstractUniversalDateWidget
             }
 
             @Override
-            public void onNothingSelected(AdapterView<?> parent) {}
+            public void onNothingSelected(AdapterView<?> parent) {
+            }
         });
     }
 
@@ -148,7 +150,7 @@ public class GregorianDateWidget extends AbstractUniversalDateWidget
         //ui loop where the widget is created, we're guaranteed to get this execution path
         //on the next loop. If something changes, we should fire the event, but otherwise
         //this can end up supressing QuestionWidget state like validation messages
-        if(dateOfLastWidgetUpdateNotice != millisFromJavaEpoch) {
+        if (dateOfLastWidgetUpdateNotice != millisFromJavaEpoch) {
             dateOfLastWidgetUpdateNotice = millisFromJavaEpoch;
             widgetEntryChanged();
         }
@@ -193,7 +195,7 @@ public class GregorianDateWidget extends AbstractUniversalDateWidget
     //Makes sure that value of day text field is valid given values of month and year fields
     private void validateDayText() {
         String dayTextString = dayText.getText().toString();
-        if(dayTextString.isEmpty()){
+        if (dayTextString.isEmpty()) {
             return;
         }
         int dayTextValue = Integer.parseInt(dayTextString);
@@ -374,7 +376,7 @@ public class GregorianDateWidget extends AbstractUniversalDateWidget
                 monthSpinner.setSelection(monthList.indexOf(month)); //Update month first because selecting a month item will call refreshDisplay().
                 dayText.setText(day);
                 yearText.setText(year);
-            }else{
+            } else {
                 Date date = (Date)mPrompt.getAnswerValue().getValue();
                 updateDateDisplay(date.getTime());
             }

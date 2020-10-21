@@ -1,6 +1,5 @@
 package org.commcare.activities.components;
 
-import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
@@ -24,6 +23,8 @@ import org.javarosa.core.services.locale.Localization;
 
 import java.util.Map;
 
+import androidx.appcompat.app.AppCompatActivity;
+
 public class EntitySelectCalloutSetup {
     /**
      * Updates the ImageView layout that is passed in, based on the
@@ -45,11 +46,11 @@ public class EntitySelectCalloutSetup {
         iv.setImageDrawable(drawable);
     }
 
-    private static Drawable getCalloutDrawable(Context context, String imagePath){
+    private static Drawable getCalloutDrawable(Context context, String imagePath) {
         Bitmap b;
         if (!imagePath.equals("")) {
             int actionBarHeight = MediaUtil.getActionBarHeightInPixels(context);
-            b = MediaUtil.inflateDisplayImage(context, imagePath, -1,actionBarHeight);
+            b = MediaUtil.inflateDisplayImage(context, imagePath, -1, actionBarHeight);
             if (b == null) {
                 // Input stream could not be used to derive bitmap, so
                 // showing error-indicating image
@@ -66,7 +67,7 @@ public class EntitySelectCalloutSetup {
     /**
      * @return A click listener that launches QR code scanner
      */
-    public static View.OnClickListener makeBarcodeClickListener(final Activity activity) {
+    public static View.OnClickListener makeBarcodeClickListener(final AppCompatActivity activity) {
         return v -> {
             Intent intent = new IntentIntegrator(activity).createScanIntent();
             try {
@@ -87,7 +88,7 @@ public class EntitySelectCalloutSetup {
      * @return click listener that launches the callout's activity with the
      * associated callout extras
      */
-    public static View.OnClickListener makeCalloutClickListener(final Activity activity,
+    public static View.OnClickListener makeCalloutClickListener(final AppCompatActivity activity,
                                                                 Callout callout, EvaluationContext ec) {
         final Intent i = buildCalloutIntent(callout, ec);
         return v -> {

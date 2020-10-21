@@ -1,6 +1,5 @@
 package org.commcare.recovery.measures;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.widget.Toast;
 
@@ -15,6 +14,8 @@ import org.javarosa.core.services.Logger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 /**
  * Created by amstone326 on 4/27/18.
@@ -83,7 +84,7 @@ public class RecoveryMeasuresHelper {
         return toExecute;
     }
 
-    public static void handleExecutionActivityResult(Activity receiver, Intent intent) {
+    public static void handleExecutionActivityResult(AppCompatActivity receiver, Intent intent) {
         if (intent != null) {
             int lastExecutionStatus = intent.getIntExtra(RECOVERY_MEASURES_LAST_STATUS, 0);
             if (lastExecutionStatus == RecoveryMeasure.STATUS_FAILED) {

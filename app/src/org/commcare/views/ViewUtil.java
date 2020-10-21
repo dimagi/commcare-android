@@ -1,7 +1,6 @@
 package org.commcare.views;
 
 import android.annotation.TargetApi;
-import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -9,8 +8,6 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
-import androidx.annotation.DrawableRes;
-import androidx.core.util.Pair;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -22,6 +19,11 @@ import org.commcare.utils.MediaUtil;
 import org.javarosa.core.services.locale.Localizer;
 
 import java.util.ArrayList;
+
+import androidx.annotation.DrawableRes;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.util.Pair;
+import androidx.core.view.MenuItemCompat;
 
 /**
  * Utilities for converting CommCare UI display details into Android objects
@@ -35,7 +37,7 @@ public final class ViewUtil {
         DisplayData display = action.getDisplay().evaluate();
         MenuItem item = menu.add(menuGroupId, menuId, menuId,
                 Localizer.clearArguments(display.getName()).trim());
-        if (action.hasActionBarIcon() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+        if (action.hasActionBarIcon()) {
             Bitmap b = MediaUtil.inflateDisplayImage(context, action.getActionBarIconReference());
             item.setIcon(new BitmapDrawable(context.getResources(), b));
             item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
@@ -47,16 +49,7 @@ public final class ViewUtil {
         }
     }
 
-    public static void addItemToActionBar(Menu menu, int menuId, int menuGroupId, String title,
-                                          @DrawableRes int drawableResource) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            MenuItem item = menu.add(menuGroupId, menuId, menuId, title);
-            item.setIcon(drawableResource);
-            item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
-        }
-    }
-
-    public static void hideVirtualKeyboard(Activity activity) {
+    public static void hideVirtualKeyboard(AppCompatActivity activity) {
         InputMethodManager inputManager = (InputMethodManager)activity.getSystemService(Context.INPUT_METHOD_SERVICE);
 
         View focus = activity.getCurrentFocus();

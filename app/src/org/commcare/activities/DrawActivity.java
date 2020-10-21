@@ -1,6 +1,6 @@
 package org.commcare.activities;
 
-import android.app.Activity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.content.Context;
 import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
@@ -43,7 +43,7 @@ import java.io.IOException;
  *
  * @author BehrAtherton@gmail.com
  */
-public class DrawActivity extends Activity {
+public class DrawActivity extends AppCompatActivity {
     private static final String t = "DrawActivity";
 
     public static final String OPTION = "option";
@@ -203,10 +203,10 @@ public class DrawActivity extends Activity {
     private void saveAndClose() {
         try {
             saveFile(output);
-            setResult(Activity.RESULT_OK);
+            setResult(AppCompatActivity.RESULT_OK);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
-            setResult(Activity.RESULT_CANCELED);
+            setResult(AppCompatActivity.RESULT_CANCELED);
         }
         this.finish();
     }
@@ -249,7 +249,7 @@ public class DrawActivity extends Activity {
     }
 
     private void cancelAndClose() {
-        setResult(Activity.RESULT_CANCELED);
+        setResult(AppCompatActivity.RESULT_CANCELED);
         this.finish();
     }
 

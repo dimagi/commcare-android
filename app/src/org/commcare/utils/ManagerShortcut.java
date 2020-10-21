@@ -1,14 +1,14 @@
 package org.commcare.utils;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Parcelable;
+import androidx.appcompat.app.AppCompatActivity;
 
 import org.commcare.activities.AppManagerActivity;
 import org.commcare.dalvik.R;
 
-public class ManagerShortcut extends Activity {
+public class ManagerShortcut extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle bundle) {

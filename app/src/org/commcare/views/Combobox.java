@@ -4,12 +4,12 @@ import android.content.Context;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
-import android.view.View;
-import android.widget.AutoCompleteTextView;
 
 import org.commcare.adapters.ComboboxAdapter;
 
 import java.util.Vector;
+
+import androidx.appcompat.widget.AppCompatAutoCompleteTextView;
 
 /**
  * Custom view that builds upon Android's built-in AutoCompleteTextView and adds:
@@ -20,7 +20,7 @@ import java.util.Vector;
  *
  * @author Aliza Stone
  */
-public class Combobox extends AutoCompleteTextView {
+public class Combobox extends AppCompatAutoCompleteTextView {
 
     private Vector<String> choices;
     private Vector<String> choicesAllLowerCase;

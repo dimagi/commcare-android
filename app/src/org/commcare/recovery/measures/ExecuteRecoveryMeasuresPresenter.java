@@ -1,11 +1,9 @@
 package org.commcare.recovery.measures;
 
-import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import androidx.annotation.Nullable;
 import android.util.Log;
 
 import org.commcare.AppUtils;
@@ -43,6 +41,9 @@ import org.javarosa.core.services.locale.Localization;
 import java.io.File;
 import java.util.List;
 import java.util.NoSuchElementException;
+
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 
 import static org.commcare.engine.resource.ResourceInstallUtils.getProfileReference;
 import static org.commcare.recovery.measures.RecoveryMeasure.MEASURE_TYPE_APP_OFFLINE_REINSTALL_AND_UPDATE;

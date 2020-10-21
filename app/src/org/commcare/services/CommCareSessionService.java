@@ -8,7 +8,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Binder;
 import android.os.IBinder;
-import androidx.preference.PreferenceManager;
 import android.text.format.DateFormat;
 import android.util.Log;
 import android.widget.Toast;
@@ -31,7 +30,6 @@ import org.commcare.models.encryption.CipherPool;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.sync.FormSubmissionHelper;
 import org.commcare.tasks.DataSubmissionListener;
-import org.commcare.sync.ProcessAndSendTask;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.SessionStateUninitException;
 import org.commcare.utils.SessionUnavailableException;
@@ -53,6 +51,7 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
 import androidx.core.app.NotificationCompat;
+import androidx.preference.PreferenceManager;
 
 /**
  * The CommCare Session Service is a persistent service which maintains
@@ -393,9 +392,8 @@ public class CommCareSessionService extends Service {
     /**
      * Calls the provided runnable ensuring that if there is currently an active
      * form session being executed that it is interrupted and stored
-     *
      */
-    public void proceedWithSavedSessionIfNeeded(Runnable callback)  {
+    public void proceedWithSavedSessionIfNeeded(Runnable callback) {
         // save form progress, if any
         synchronized (lock) {
             if (formSaver != null) {

@@ -1,11 +1,8 @@
 package org.commcare.views.dialogs;
 
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.fragment.app.DialogFragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
@@ -16,6 +13,10 @@ import android.widget.TextView;
 import org.commcare.activities.CommCareActivity;
 import org.commcare.dalvik.R;
 import org.javarosa.core.services.locale.Localization;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
+import androidx.fragment.app.DialogFragment;
 
 /**
  * Any progress dialog associated with a CommCareTask should use

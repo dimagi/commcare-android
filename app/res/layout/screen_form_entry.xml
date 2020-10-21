@@ -43,7 +43,7 @@
         android:layout_alignLeft="@id/nav_badge"
         android:layout_alignTop="@id/nav_badge"
         android:scaleType="matrix"
-        android:src="@drawable/badge_border"
+        app:srcCompat="@drawable/badge_border"
         android:visibility="invisible"
         android:layout_alignStart="@id/nav_badge">
 
@@ -74,14 +74,14 @@
             android:minWidth="@dimen/new_progressbar_button_minwidth"
             android:paddingLeft="@dimen/content_start"
             android:paddingRight="@dimen/new_progressbar_button_padding"
-            android:src="@drawable/icon_chevron_left_brand"
+            app:srcCompat="@drawable/icon_chevron_left_brand"
             android:paddingStart="@dimen/content_start"
             android:layout_alignParentStart="true"
             android:paddingEnd="@dimen/new_progressbar_button_padding" />
 
         <ProgressBar
             android:id="@+id/nav_prog_bar"
-            style="?android:attr/progressBarStyleHorizontal"
+            style="@style/Base.Widget.AppCompat.ProgressBar.Horizontal"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignBottom="@id/nav_btn_prev"
@@ -114,7 +114,7 @@
             android:minWidth="@dimen/new_progressbar_button_minwidth"
             android:paddingLeft="@dimen/new_progressbar_button_padding"
             android:paddingRight="@dimen/content_start"
-            android:src="@drawable/icon_chevron_right_brand"
+            app:srcCompat="@drawable/icon_chevron_right_brand"
             android:paddingEnd="@dimen/content_start"
             android:paddingStart="@dimen/new_progressbar_button_padding"
             android:layout_alignParentEnd="true" />
@@ -160,7 +160,7 @@
                     android:layout_alignParentRight="true"
                     android:paddingRight="@dimen/content_start"
                     android:minHeight="@dimen/new_progressbar_button_minheight"
-                    android:src="@drawable/icon_chevron_right_finish"
+                    app:srcCompat="@drawable/icon_chevron_right_finish"
                     android:layout_alignParentEnd="true"
                     android:paddingEnd="@dimen/content_start" />
 

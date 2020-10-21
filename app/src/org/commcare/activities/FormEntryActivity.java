@@ -3,7 +3,6 @@ package org.commcare.activities;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
-import android.app.ActionBar;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -14,9 +13,6 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-
-import androidx.core.app.ActivityCompat;
-
 import android.util.Log;
 import android.util.Pair;
 import android.view.ContextMenu;
@@ -97,6 +93,9 @@ import java.util.List;
 import java.util.Map;
 
 import javax.crypto.spec.SecretKeySpec;
+
+import androidx.appcompat.app.ActionBar;
+import androidx.core.app.ActivityCompat;
 
 import static org.commcare.android.database.user.models.FormRecord.QuarantineReason_LOCAL_PROCESSING_ERROR;
 
@@ -207,22 +206,6 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             }
             uiController.refreshView();
         }
-    }
-
-    @Override
-    public boolean onMenuItemSelected(int featureId, MenuItem item) {
-        /*
-         * EventLog accepts only proper Strings as input, but prior to this version,
-         * Android would try to send SpannedStrings to it, thus crashing the app.
-         * This makes sure the title is actually a String.
-         * This fixes bug 174626.
-         */
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR2
-                && item.getTitleCondensed() != null) {
-            item.setTitleCondensed(item.getTitleCondensed().toString());
-        }
-
-        return super.onMenuItemSelected(featureId, item);
     }
 
     @Override
@@ -641,8 +624,8 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
-        menu.add(0, v.getId(), 0, StringUtils.getStringSpannableRobust(this, R.string.clear_answer));
-        menu.setHeaderTitle(StringUtils.getStringSpannableRobust(this, R.string.edit_prompt));
+        menu.add(0, v.getId(), 0, StringUtils.getStringRobust(this, R.string.clear_answer));
+        menu.setHeaderTitle(StringUtils.getStringRobust(this, R.string.edit_prompt));
     }
 
     @Override
@@ -685,7 +668,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         //We need to ignore this even if it's processed by the action
         //bar (if one exists)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            ActionBar bar = getActionBar();
+            ActionBar bar = getSupportActionBar();
             if (bar != null) {
                 View customView = bar.getCustomView();
                 if (customView != null && customView.dispatchTouchEvent(mv)) {

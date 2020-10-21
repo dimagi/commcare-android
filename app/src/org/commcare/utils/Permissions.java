@@ -1,16 +1,17 @@
 package org.commcare.utils;
 
 import android.Manifest;
-import android.app.Activity;
 import android.content.pm.PackageManager;
 import android.os.Build;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 
 import org.commcare.interfaces.RuntimePermissionRequester;
 import org.commcare.views.dialogs.CommCareAlertDialog;
 import org.commcare.views.dialogs.DialogCreationHelpers;
 import org.javarosa.core.services.locale.Localization;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 /**
  * Acquire Android permissions needed by CommCare.
@@ -31,7 +32,7 @@ public class Permissions {
      * @param permRequestCode make the permission request using this request code
      * @return Was the user asked for permissions?
      */
-    public static boolean acquireAllAppPermissions(Activity activity,
+    public static boolean acquireAllAppPermissions(AppCompatActivity activity,
                                                    RuntimePermissionRequester permRequester,
                                                    int permRequestCode) {
         String[] permissions = getAppPermissions();
@@ -53,8 +54,8 @@ public class Permissions {
         }
     }
 
-    public static boolean missingAppPermission(Activity activity,
-                                                String[] permissions) {
+    public static boolean missingAppPermission(AppCompatActivity activity,
+                                               String[] permissions) {
         for (String perm : permissions) {
             if (missingAppPermission(activity, perm)) {
                 return true;
@@ -63,13 +64,14 @@ public class Permissions {
         return false;
     }
 
-    public static boolean missingAppPermission(Activity activity,
+
+    public static boolean missingAppPermission(AppCompatActivity activity,
                                                String permission) {
         return ContextCompat.checkSelfPermission(activity, permission) == PackageManager.PERMISSION_DENIED;
     }
 
-    public static boolean shouldShowPermissionRationale(Activity activity,
-                                                         String[] permissions) {
+    public static boolean shouldShowPermissionRationale(AppCompatActivity activity,
+                                                        String[] permissions) {
         for (String perm : permissions) {
             if (shouldShowPermissionRationale(activity, perm)) {
                 return true;
@@ -78,7 +80,7 @@ public class Permissions {
         return false;
     }
 
-    public static boolean shouldShowPermissionRationale(Activity activity,
+    public static boolean shouldShowPermissionRationale(AppCompatActivity activity,
                                                         String permission) {
         return ActivityCompat.shouldShowRequestPermissionRationale(activity, permission);
     }

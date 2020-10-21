@@ -1,6 +1,6 @@
 package org.commcare.graph.view;
 
-import android.app.Activity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.view.View;
 import android.webkit.JavascriptInterface;
 
@@ -13,10 +13,10 @@ import java.util.TimerTask;
  * Its responsibility is to hide a spinner that displays while the graph loads.
  */
 public class GraphLoader extends TimerTask {
-    private final Activity activity;
+    private final AppCompatActivity activity;
     private final View spinner;
 
-    public GraphLoader(Activity a, View v) {
+    public GraphLoader(AppCompatActivity a, View v) {
         activity = a;
         spinner = v;
     }

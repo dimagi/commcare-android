@@ -1,8 +1,6 @@
 package org.commcare.activities;
 
 import android.Manifest;
-import android.app.ActionBar;
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.RestrictionsManager;
@@ -10,14 +8,6 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.PowerManager;
-
-import androidx.annotation.NonNull;
-import androidx.core.app.ActivityCompat;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
-import androidx.core.content.ContextCompat;
-
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -26,6 +16,7 @@ import android.widget.Toast;
 import org.commcare.AppUtils;
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
+import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.engine.resource.AppInstallStatus;
@@ -38,13 +29,11 @@ import org.commcare.fragments.SetupEnterURLFragment;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.interfaces.RuntimePermissionRequester;
-import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.logging.DataChangeLog;
 import org.commcare.logging.DataChangeLogger;
 import org.commcare.preferences.GlobalPrivilegesManager;
 import org.commcare.resources.ResourceManager;
 import org.commcare.resources.model.InvalidResourceException;
-import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.tasks.ResourceEngineListener;
 import org.commcare.tasks.ResourceEngineTask;
@@ -67,6 +56,15 @@ import java.io.IOException;
 import java.security.SignatureException;
 import java.util.List;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
+
 /**
  * Responsible for identifying the state of the application (uninstalled,
  * installed) and performing any necessary setup to get to a place where
@@ -82,6 +80,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         implements ResourceEngineListener, SetupEnterURLFragment.URLInstaller,
         InstallConfirmFragment.StartStopInstallCommands, RetrieveParseVerifyMessageListener,
         RuntimePermissionRequester {
+
     private static final String TAG = CommCareSetupActivity.class.getSimpleName();
 
     private static final String KEY_UI_STATE = "current_install_ui_state";
@@ -268,7 +267,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         super.onAttachFragment(fragment);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            ActionBar actionBar = getActionBar();
+            ActionBar actionBar = getSupportActionBar();
             if (actionBar != null) {
                 // removes the back button from the action bar
                 actionBar.setDisplayHomeAsUpEnabled(false);
@@ -393,20 +392,20 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         String result = null;
         switch (requestCode) {
             case BARCODE_CAPTURE:
-                if (resultCode == Activity.RESULT_OK) {
+                if (resultCode == AppCompatActivity.RESULT_OK) {
                     lastInstallMode = INSTALL_MODE_BARCODE;
                     result = data.getStringExtra("SCAN_RESULT");
                     Log.i(TAG, "Got url from barcode scanner: " + result);
                 }
                 break;
             case OFFLINE_INSTALL:
-                if (resultCode == Activity.RESULT_OK) {
+                if (resultCode == AppCompatActivity.RESULT_OK) {
                     lastInstallMode = INSTALL_MODE_OFFLINE;
                     result = data.getStringExtra(InstallArchiveActivity.ARCHIVE_JR_REFERENCE);
                 }
                 break;
             case GET_APPS_FROM_HQ:
-                if (resultCode == Activity.RESULT_OK) {
+                if (resultCode == AppCompatActivity.RESULT_OK) {
                     lastInstallMode = INSTALL_MODE_FROM_LIST;
                     result = data.getStringExtra(InstallFromListActivity.PROFILE_REF);
                 }

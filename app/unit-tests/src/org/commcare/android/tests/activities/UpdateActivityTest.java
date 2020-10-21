@@ -1,6 +1,6 @@
 package org.commcare.android.tests.activities;
 
-import android.app.Activity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.content.Context;
@@ -80,7 +80,7 @@ public class UpdateActivityTest {
         // mock receiving the offline app reference and start the update
         Intent referenceIntent = new Intent();
         referenceIntent.putExtra(InstallArchiveActivity.ARCHIVE_JR_REFERENCE, invalidUpdateReference);
-        shadowActivity.receiveResult(shadowActivity.getNextStartedActivity(), Activity.RESULT_OK,
+        shadowActivity.receiveResult(shadowActivity.getNextStartedActivity(), AppCompatActivity.RESULT_OK,
                 referenceIntent);
 
         Robolectric.flushBackgroundThreadScheduler();

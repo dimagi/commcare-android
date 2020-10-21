@@ -2,6 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="@color/border_grey"
     android:padding="20dp">
 
@@ -13,7 +14,7 @@
         android:layout_marginTop="40dp"
         android:scaleType="center"
         android:visibility="gone"
-        android:src="@drawable/update_download_icon" />
+        app:srcCompat="@drawable/update_download_icon" />
 
     <ProgressBar
         android:id="@+id/progress_bar"
