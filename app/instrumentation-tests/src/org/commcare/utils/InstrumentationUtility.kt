@@ -284,6 +284,33 @@ object InstrumentationUtility {
         }
     }
 
+    /**
+     * The method does following in order:
+     * 1. Closes keyboard.
+     * 2. Presses Back Button.
+     * 3. Selects the backOption: R.id.donotsave or R.id.saveincomplete.
+     */
+    @JvmStatic
+    fun exitForm(@IdRes backOption: Int) {
+        Espresso.closeSoftKeyboard()
+        Espresso.pressBack()
+        onView(withText(backOption))
+                .perform(click())
+    }
+
+    /**
+     * A utility to select an item from the options menu.
+     * Caller need to pass the matcher for the item to be selected. It could be withText("") or
+     * withId(R.id.*)
+     */
+    @JvmStatic
+    fun selectOptionItem(matcher: Matcher<View>) {
+        openOptionsMenu()
+        onView(matcher)
+                .perform(click())
+    }
+
+
     //region private helpers.
     /**
      * Apparently Thread.sleep() doesn't work on

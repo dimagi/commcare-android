@@ -1,7 +1,7 @@
 package org.commcare.androidTests
 
+import android.view.View
 import androidx.test.espresso.Espresso
-import androidx.test.espresso.Espresso.closeSoftKeyboard
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.doesNotExist
@@ -13,6 +13,7 @@ import org.commcare.CommCareApplication
 import org.commcare.dalvik.R
 import org.commcare.utils.CustomMatchers
 import org.commcare.utils.InstrumentationUtility
+import org.hamcrest.Matcher
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -23,6 +24,7 @@ class LanguagesTest : BaseTest() {
 
     companion object {
         const val CCZ_NAME = "languages.ccz"
+        val languageOptionItemMatcher: Matcher<View> = withText(R.string.change_language)
     }
 
     @Before
@@ -42,9 +44,9 @@ class LanguagesTest : BaseTest() {
         InstrumentationUtility.openForm(0, 0)
         onView(withText("Enter a name:"))
                 .check(matches(isDisplayed()))
-        exitForm()
+        InstrumentationUtility.exitForm(R.string.do_not_save)
         InstrumentationUtility.gotoHome()
-        selectLanguageChangeOption()
+        InstrumentationUtility.selectOptionItem(languageOptionItemMatcher)
         checkLanguageOptions()
 
         // Confirm the options persist on rotation
@@ -57,18 +59,13 @@ class LanguagesTest : BaseTest() {
         InstrumentationUtility.sleep(2)
         onView(withText("Hindi"))
                 .perform(click())
-        onView(withText("Start"))
-                .perform(click())
-        onView(withText("Basic Form Tests"))
-                .perform(click())
-        onView(withText("HIN: Languages"))
-                .perform(click())
+        InstrumentationUtility.openForm(0, 0)
 
         onView(withText("HIN: Enter a name:"))
                 .check(matches(isDisplayed()))
 
         // Check form language changes
-        selectLanguageChangeOption()
+        InstrumentationUtility.selectOptionItem(languageOptionItemMatcher)
         checkLanguageOptions()
         onView(withText("English"))
                 .perform(click())
@@ -79,14 +76,14 @@ class LanguagesTest : BaseTest() {
                 .check(matches(isDisplayed()))
 
         // Confirm app language remains the same.
-        exitForm()
+        InstrumentationUtility.exitForm(R.string.do_not_save)
         onView(withText("HIN: Languages"))
                 .check(matches(isDisplayed()))
     }
 
     @Test
     fun testAppUpdate_dontInterfereLanguageChanges() {
-        selectLanguageChangeOption()
+        InstrumentationUtility.selectOptionItem(languageOptionItemMatcher)
         checkLanguageOptions()
         // Change language to hindi
         onView(withText("Hindi"))
@@ -107,19 +104,6 @@ class LanguagesTest : BaseTest() {
                 .perform(click())
         onView(withText("HIN: Languages"))
                 .check(matches(isDisplayed()))
-    }
-
-    private fun selectLanguageChangeOption() {
-        InstrumentationUtility.openOptionsMenu()
-        onView(withText(R.string.change_language))
-                .perform(click())
-    }
-
-    private fun exitForm() {
-        Espresso.closeSoftKeyboard()
-        Espresso.pressBack()
-        onView(withText(R.string.do_not_save))
-                .perform(click())
     }
 
     private fun checkLanguageOptions() {
