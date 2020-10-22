@@ -17,10 +17,12 @@ import org.junit.runner.RunWith
 abstract class BaseTest {
 
     @Rule
+    @JvmField
     var intentsRule = IntentsTestRule(DispatchActivity::class.java)
 
     @Rule
-    var permissionRule = GrantPermissionRule.grant(
+    @JvmField
+    var permissionRule: GrantPermissionRule = GrantPermissionRule.grant(
             Manifest.permission.READ_PHONE_STATE,
             Manifest.permission.CALL_PHONE,
             Manifest.permission.ACCESS_FINE_LOCATION,
