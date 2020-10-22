@@ -27,17 +27,12 @@ class FormEntryTest: BaseTest() {
 
     companion object {
         const val CCZ_NAME = "languages.ccz"
+        const val APP_NAME = "Language Test"
     }
 
     @Before
     fun setup() {
-        if (CommCareApplication.instance().currentApp == null) {
-            InstrumentationUtility.installApp(CCZ_NAME)
-        } else {
-            InstrumentationUtility.uninstallCurrentApp()
-            InstrumentationUtility.installApp(CCZ_NAME)
-            Espresso.pressBack()
-        }
+        installApp(LanguagesTest.APP_NAME, LanguagesTest.CCZ_NAME, true)
     }
 
     @Test
