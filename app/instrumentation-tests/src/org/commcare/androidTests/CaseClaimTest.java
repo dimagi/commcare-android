@@ -36,7 +36,7 @@ public class CaseClaimTest extends BaseTest {
 
     @Before
     public void setup() {
-        installApp(APP_NAME, CCZ_NAME);
+        installApp(APP_NAME, CCZ_NAME, false);
     }
 
     @Test

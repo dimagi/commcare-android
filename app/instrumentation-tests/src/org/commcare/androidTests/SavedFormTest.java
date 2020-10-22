@@ -35,7 +35,7 @@ public class SavedFormTest extends BaseTest {
 
     @Before
     public void login() {
-        installApp(APP_NAME, CCZ_NAME);
+        installApp(APP_NAME, CCZ_NAME, false);
         InstrumentationUtility.login("check", "123");
     }
 

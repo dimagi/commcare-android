@@ -24,18 +24,13 @@ class LanguagesTest : BaseTest() {
 
     companion object {
         const val CCZ_NAME = "languages.ccz"
+        const val APP_NAME = "Language Test"
         val languageOptionItemMatcher: Matcher<View> = withText(R.string.change_language)
     }
 
     @Before
     fun setup() {
-        if (CommCareApplication.instance().currentApp == null) {
-            InstrumentationUtility.installApp(FormEntryTest.CCZ_NAME)
-        } else {
-            InstrumentationUtility.uninstallCurrentApp()
-            InstrumentationUtility.installApp(FormEntryTest.CCZ_NAME)
-            Espresso.pressBack()
-        }
+        installApp(APP_NAME, CCZ_NAME, true)
         InstrumentationUtility.login("user_with_no_data", "123")
     }
 

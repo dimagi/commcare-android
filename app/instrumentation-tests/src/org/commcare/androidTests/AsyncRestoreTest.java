@@ -118,7 +118,7 @@ public class AsyncRestoreTest extends BaseTest {
     }
 
     private void installAppAndClearCache() {
-        installApp(APP_NAME, CCZ_NAME);
+        installApp(APP_NAME, CCZ_NAME, false);
 
         Intent intent = new Intent(CLEAR_CACHE_ACTION);
         LocalBroadcastManager.getInstance(mContext).sendBroadcastSync(intent);
