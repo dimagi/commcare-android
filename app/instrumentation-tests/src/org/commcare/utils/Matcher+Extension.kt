@@ -5,6 +5,7 @@ import androidx.test.espresso.Espresso
 import androidx.test.espresso.assertion.ViewAssertions
 import androidx.test.espresso.matcher.ViewMatchers
 import org.hamcrest.Matcher
+import org.hamcrest.Matchers.not
 
 /**
  * A utility to assert that a view is displayed.
@@ -24,4 +25,15 @@ fun Matcher<View>.isDisplayed() {
 fun Matcher<View>.doesNotExist() {
     Espresso.onView(this)
             .check(ViewAssertions.doesNotExist())
+}
+
+
+/**
+ * A utility to assert that a view is not displayed.
+ * Using this method you can replace <code> onView(withText("abc")).check(matches(not(isDisplayed())) </code>
+ * with simply <code>withText("abc").isNotDisplayed()</code>
+ */
+fun Matcher<View>.isNotDisplayed() {
+    Espresso.onView(this)
+            .check(ViewAssertions.matches(not(ViewMatchers.isDisplayed())))
 }
