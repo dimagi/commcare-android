@@ -338,6 +338,14 @@ object InstrumentationUtility {
         val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
         return sharedPreferences.getBoolean(CommCareSessionService.LOG_SUBMISSION_RESULT_PREF, false)
     }
+    
+    @JvmStatic
+    fun assertCurrentActivity(check: (Activity) -> Boolean) {
+        val application = InstrumentationRegistry.getInstrumentation().targetContext.applicationContext
+                as CommCareInstrumentationTestApplication
+        var activity = application.currentActivity
+        assert(check(activity), "Current Activity is ${activity.localClassName}")
+    }
 
     //region private helpers.
     /**
