@@ -86,7 +86,7 @@ public class FirebaseAnalyticsUtil {
     }
 
     private static String getFreeDiskBucket() {
-        long freeDiskInMB = DiskUtils.calculateFreeDiskSpaceInBytes(Environment.getDataDirectory().getPath()) / 1000;
+        long freeDiskInMB = DiskUtils.calculateFreeDiskSpaceInBytes(Environment.getDataDirectory().getPath()) / 1000000;
         if (freeDiskInMB > 1000) {
             return "gt_1000";
         } else if (freeDiskInMB > 500) {
