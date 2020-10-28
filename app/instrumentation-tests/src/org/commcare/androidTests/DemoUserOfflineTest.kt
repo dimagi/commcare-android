@@ -2,13 +2,14 @@ package org.commcare.androidTests
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import org.commcare.utils.InstrumentationUtility
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 @LargeTest
-class DemoUserOnlineTest: DemoUserTest() {
+class DemoUserOfflineTest: DemoUserTest() {
 
     companion object {
         const val CCZ_NAME = "demo_user_test_1.ccz"
@@ -17,6 +18,7 @@ class DemoUserOnlineTest: DemoUserTest() {
 
     @Before
     fun setup() {
+        InstrumentationUtility.changeWifi(false)
         installApp(APP_NAME, CCZ_NAME, true)
     }
 
@@ -27,7 +29,12 @@ class DemoUserOnlineTest: DemoUserTest() {
 
     @Test
     fun testPracticeMode_withUpdatedApp_online() {
+        // Briefly turn the internet back on to allow us to log in
+        InstrumentationUtility.changeWifi(true)
         updateApp()
+        // Internet back off
+        InstrumentationUtility.changeWifi(false)
         testPracticeMode_withUpdatedApp()
     }
+
 }
