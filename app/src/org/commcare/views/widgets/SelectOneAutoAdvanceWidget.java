@@ -4,9 +4,8 @@ import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
-import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.ImageView;
@@ -34,13 +33,14 @@ import java.util.Vector;
  *
  * @author Jeff Beorse (jeff@beorse.net)
  */
-public class SelectOneAutoAdvanceWidget extends ClearableWidget implements OnCheckedChangeListener {
+public class SelectOneAutoAdvanceWidget extends QuestionWidget implements OnCheckedChangeListener {
 
     private final Vector<SelectChoice> mItems;
 
     private final Vector<RadioButton> buttons;
 
     private final AdvanceToNextListener listener;
+    private Button clearButton;
 
     private final int buttonIdBase;
 
@@ -123,9 +123,11 @@ public class SelectOneAutoAdvanceWidget extends ClearableWidget implements OnChe
 
                 addView(thisParentLayout);
             }
-            setupClearButton(context,
+            clearButton = WidgetUtils.setupClearButton(
+                    context,
                     Localization.get("button.clear.title"),
-                    (s != null && !prompt.isReadOnly()) ? VISIBLE : GONE);
+                    (s != null && !prompt.isReadOnly()) ? VISIBLE : GONE
+            );
             addView(clearButton);
         }
     }

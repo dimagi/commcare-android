@@ -2,7 +2,6 @@ package org.commcare.views.widgets;
 
 import android.content.Context;
 import android.util.TypedValue;
-import android.view.LayoutInflater;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.CompoundButton;
@@ -28,10 +27,11 @@ import java.util.Vector;
  * @author Carl Hartung (carlhartung@gmail.com)
  * @author Yaw Anokwa (yanokwa@gmail.com)
  */
-public class SelectOneWidget extends ClearableWidget implements OnCheckedChangeListener {
+public class SelectOneWidget extends QuestionWidget implements OnCheckedChangeListener {
 
     private final Vector<SelectChoice> mItems;
     private final int buttonIdBase;
+    private Button clearButton;
 
     private final Vector<RadioButton> buttons;
 
@@ -103,9 +103,11 @@ public class SelectOneWidget extends ClearableWidget implements OnCheckedChangeL
                     addView(divider);
                 }
             }
-            setupClearButton(context,
+            clearButton = WidgetUtils.setupClearButton(
+                    context,
                     Localization.get("button.clear.title"),
-                    (s != null && !prompt.isReadOnly()) ? VISIBLE : GONE);
+                    (s != null && !prompt.isReadOnly()) ? VISIBLE : GONE
+            );
             addView(clearButton);
         }
     }
