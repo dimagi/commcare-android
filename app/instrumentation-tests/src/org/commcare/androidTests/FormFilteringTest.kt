@@ -7,6 +7,7 @@ import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import org.commcare.utils.InstrumentationUtility
+import org.commcare.utils.areDisplayed
 import org.commcare.utils.doesNotExist
 import org.commcare.utils.isDisplayed
 import org.junit.Before
@@ -36,17 +37,13 @@ class FormFilteringTest: BaseTest() {
         onView(withText("Select A"))
                 .perform(click())
 
-        forms.forEach {
-            withText(it).isDisplayed()
-        }
+        forms.areDisplayed()
 
         Espresso.pressBack()
         onView(withText("Select B"))
                 .perform(click())
 
-        forms.forEach {
-            withText(it).isDisplayed()
-        }
+        forms.areDisplayed()
 
         Espresso.pressBack()
         onView(withText("Select C"))
@@ -65,17 +62,13 @@ class FormFilteringTest: BaseTest() {
         onView(withText("Select A"))
                 .perform(click())
 
-        forms.forEach {
-            withText(it).isDisplayed()
-        }
+        forms.areDisplayed()
 
         Espresso.pressBack()
         onView(withText("Select B"))
                 .perform(click())
 
-        forms.forEach {
-            withText(it).isDisplayed()
-        }
+        forms.areDisplayed()
 
         Espresso.pressBack()
         onView(withText("Select C"))
@@ -106,9 +99,7 @@ class FormFilteringTest: BaseTest() {
         onView(withText("Selection Tests"))
                 .perform(click())
 
-        cases.forEach {
-            withText(it).isDisplayed()
-        }
+        cases.areDisplayed()
     }
 
 }
