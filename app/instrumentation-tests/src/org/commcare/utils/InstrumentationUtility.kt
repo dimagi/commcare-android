@@ -95,6 +95,14 @@ object InstrumentationUtility {
     }
 
     @JvmStatic
+    fun openModule(text: String) {
+        onView(withText("Start"))
+                .perform(click())
+        onView(withText(text))
+                .perform(click())
+    }
+
+    @JvmStatic
     fun openModule(module: Int) {
         onView(withText("Start"))
                 .perform(click())

@@ -34,7 +34,7 @@ class TilesTest: BaseTest() {
 
     @Test
     fun testNoTile() {
-        InstrumentationUtility.openModule(0)
+        InstrumentationUtility.openModule("NoPersist")
 
         caseDetails.areDisplayed()
 
@@ -45,6 +45,7 @@ class TilesTest: BaseTest() {
 
         onView(withText("Continue"))
                 .perform(click())
+        withText("Sally Ride").doesNotExist()
         onView(withText("Placeholder"))
                 .perform(click())
 
@@ -54,7 +55,7 @@ class TilesTest: BaseTest() {
 
     @Test
     fun testPersistentTile_withDropDown() {
-        InstrumentationUtility.openModule(3)
+        InstrumentationUtility.openModule("PersistentInline")
 
         onView(withText("Sally Ride"))
                 .perform(click())
@@ -110,11 +111,12 @@ class TilesTest: BaseTest() {
                 .perform(click())
         caseDetails.areDisplayed()
         withText("Secret").doesNotExist()
+        withId(R.id.com_tile_holder_btn_open).isDisplayed()
     }
 
     @Test
     fun testPersistentTile_withDetail() {
-        InstrumentationUtility.openModule(1)
+        InstrumentationUtility.openModule("PersistentWithDetail")
 
         // Clicking this opens all the case details including the expanded ones.
         onView(withText("Sally Ride"))
@@ -135,6 +137,7 @@ class TilesTest: BaseTest() {
         onView(withText("Placeholder"))
                 .perform(click())
 
+        withText("Inside").isDisplayed()
         // We can still see the case details.
         caseDetails.areDisplayed()
         withId(R.id.com_tile_holder_btn_open).isNotDisplayed()
@@ -142,7 +145,7 @@ class TilesTest: BaseTest() {
 
     @Test
     fun testPersistentTile_noDetail_noInline() {
-        InstrumentationUtility.openModule(2)
+        InstrumentationUtility.openModule("PersistentNoDetailNoInline")
 
         onView(withText("Sally Ride"))
                 .perform(click())
@@ -155,6 +158,7 @@ class TilesTest: BaseTest() {
         onView(withText("Placeholder"))
                 .perform(click())
 
+        withText("Inside").isDisplayed()
         caseDetails.areDisplayed()
         withText("Secret").doesNotExist()
         withId(R.id.com_tile_holder_btn_open).isNotDisplayed()
@@ -162,11 +166,12 @@ class TilesTest: BaseTest() {
 
     @Test
     fun testBreadcrumb() {
-        InstrumentationUtility.openModule(4)
+        InstrumentationUtility.openModule("Breadcrumb")
 
         onView(withText("Sally Ride"))
                 .perform(click())
 
+        withText("Sally Ride").isDisplayed()
         withText("Placeholder").isDisplayed()
         caseDetailsExpanded.areGone()
         withId(R.id.com_tile_holder_btn_open).isNotDisplayed()
@@ -174,6 +179,7 @@ class TilesTest: BaseTest() {
         onView(withText("Placeholder"))
                 .perform(click())
 
+        withText("Sally Ride").isDisplayed()
         withText("Inside").isDisplayed()
         caseDetailsExpanded.areGone()
         withId(R.id.com_tile_holder_btn_open).isNotDisplayed()
