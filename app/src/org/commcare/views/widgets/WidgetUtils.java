@@ -1,7 +1,9 @@
 package org.commcare.views.widgets;
 
+import android.content.Context;
 import android.text.Spannable;
 import android.util.TypedValue;
+import android.view.LayoutInflater;
 import android.widget.Button;
 import android.widget.TableLayout;
 
@@ -22,5 +24,12 @@ class WidgetUtils {
         btn.setPadding(20, verticalPadding, 20, verticalPadding);
         btn.setEnabled(enabled);
         btn.setLayoutParams(WidgetUtils.params);
+    }
+
+    public static Button setupClearButton(Context context, String text, int visibility) {
+        Button clearButton = (Button) LayoutInflater.from(context).inflate(R.layout.blue_outlined_button, null);
+        clearButton.setText(text);
+        clearButton.setVisibility(visibility);
+        return clearButton;
     }
 }
