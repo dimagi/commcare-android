@@ -1,6 +1,6 @@
 package org.commcare.utils
 
-import android.app.Activity
+import androidx.appcompat.app.AppCompatActivity
 import android.app.Instrumentation
 import android.content.Context
 import android.content.Intent
@@ -284,6 +284,33 @@ object InstrumentationUtility {
         }
     }
 
+    /**
+     * The method does following in order:
+     * 1. Closes keyboard.
+     * 2. Presses Back Button.
+     * 3. Selects the backOption: R.id.donotsave or R.id.saveincomplete.
+     */
+    @JvmStatic
+    fun exitForm(@IdRes backOption: Int) {
+        Espresso.closeSoftKeyboard()
+        Espresso.pressBack()
+        onView(withText(backOption))
+                .perform(click())
+    }
+
+    /**
+     * A utility to select an item from the options menu.
+     * Caller need to pass the matcher for the item to be selected. It could be withText("") or
+     * withId(R.id.*)
+     */
+    @JvmStatic
+    fun selectOptionItem(matcher: Matcher<View>) {
+        openOptionsMenu()
+        onView(matcher)
+                .perform(click())
+    }
+
+
     //region private helpers.
     /**
      * Apparently Thread.sleep() doesn't work on
@@ -308,7 +335,7 @@ object InstrumentationUtility {
     private fun stubCamera() {
         // Build a result to return from the Camera app
         val resultData = Intent()
-        val result = Instrumentation.ActivityResult(Activity.RESULT_OK, resultData)
+        val result = Instrumentation.ActivityResult(AppCompatActivity.RESULT_OK, resultData)
 
         // Stub out the Camera. When an intent is sent to the Camera, this tells Espresso to respond
         // with the ActivityResult we just created
@@ -319,7 +346,7 @@ object InstrumentationUtility {
         val resultData = Intent()
         val fileUri = Uri.fromFile(File(filePath))
         resultData.data = fileUri
-        val result = Instrumentation.ActivityResult(Activity.RESULT_OK, resultData)
+        val result = Instrumentation.ActivityResult(AppCompatActivity.RESULT_OK, resultData)
         intending(hasAction(Intent.ACTION_GET_CONTENT)).respondWith(result)
     }
 

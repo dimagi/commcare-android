@@ -1,8 +1,7 @@
 package org.commcare.views.widgets;
 
-import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
+import androidx.appcompat.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.TypedValue;
@@ -30,13 +29,13 @@ public class BarcodeWidget extends IntentWidget implements TextWatcher {
                 "intent.barcode.get", "intent.barcode.update", "barcode.reader.missing",
                 appearance != null && appearance.contains("editable"), appearance, formDef);
         // this has to be done after call to super in order to be able to access getContext()
-        this.intent = new IntentIntegrator((Activity)getContext()).createScanIntent();
+        this.intent = new IntentIntegrator((AppCompatActivity)getContext()).createScanIntent();
     }
 
     @Override
     protected void performCallout() {
         if (this.intent == null) {
-            this.intent = new IntentIntegrator((Activity)getContext()).createScanIntent();
+            this.intent = new IntentIntegrator((AppCompatActivity)getContext()).createScanIntent();
         }
         super.performCallout();
     }

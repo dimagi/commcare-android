@@ -1,6 +1,5 @@
 package org.commcare.views.dialogs;
 
-import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.view.LayoutInflater;
@@ -11,6 +10,8 @@ import android.widget.TextView;
 
 import org.commcare.dalvik.R;
 import org.javarosa.core.services.locale.Localization;
+
+import androidx.appcompat.app.AlertDialog;
 
 /**
  * An implementation of CommCareAlertDialog that utilizes a pre-set view template, with the ability

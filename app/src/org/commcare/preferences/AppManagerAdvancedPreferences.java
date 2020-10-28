@@ -16,6 +16,7 @@ import java.util.Map;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.preference.Preference;
 
 /**
@@ -56,11 +57,13 @@ public class AppManagerAdvancedPreferences extends CommCarePreferenceFragment {
     protected void setupPrefClickListeners() {
         Preference clearUserDataButton = findPreference(CLEAR_USER_DATA);
         clearUserDataButton.setEnabled(!"".equals(CommCareApplication.instance().getCurrentUserId()));
+
         clearUserDataButton.setOnPreferenceClickListener(preference -> {
             FirebaseAnalyticsUtil.reportAdvancedActionSelected(
                     AnalyticsParamValue.CLEAR_USER_DATA);
-            AdvancedActionsPreferences.clearUserData(getActivity());
+            AdvancedActionsPreferences.clearUserData((AppCompatActivity)getActivity());
             return true;
+
         });
 
         Preference dataChangeLogs = findPreference(DATA_CHANGE_LOGS);

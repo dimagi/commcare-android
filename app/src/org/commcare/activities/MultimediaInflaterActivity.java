@@ -1,6 +1,5 @@
 package org.commcare.activities;
 
-import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.os.Bundle;
@@ -18,23 +17,23 @@ import org.commcare.tasks.MultimediaInflaterTask;
 import org.commcare.tasks.UnZipTaskListener;
 import org.commcare.tasks.templates.CommCareTask;
 import org.commcare.tasks.templates.CommCareTaskConnector;
-import org.commcare.util.LogTypes;
 import org.commcare.utils.FileUtil;
 import org.commcare.views.ManagedUi;
 import org.commcare.views.UiElement;
 import org.commcare.views.dialogs.CustomProgressDialog;
-import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 
 import java.io.File;
 import java.util.ArrayList;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 /**
  * @author ctsims
  */
 
 @ManagedUi(R.layout.screen_multimedia_inflater)
-public class MultimediaInflaterActivity extends CommCareActivity<MultimediaInflaterActivity> implements UnZipTaskListener  {
+public class MultimediaInflaterActivity extends CommCareActivity<MultimediaInflaterActivity> implements UnZipTaskListener {
 
     private static final String TAG = MultimediaInflaterActivity.class.getSimpleName();
 
@@ -85,7 +84,6 @@ public class MultimediaInflaterActivity extends CommCareActivity<MultimediaInfla
             task.executeParallel(editFileLocation.getText().toString(), destination);
         });
 
-
         try {
             //Go populate the location by default if it exists. (Note: If we are recreating, this will get overridden
             //in the restore instance state)
@@ -100,8 +98,9 @@ public class MultimediaInflaterActivity extends CommCareActivity<MultimediaInfla
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        super.onActivityResult(requestCode, resultCode, intent);
         if (requestCode == REQUEST_FILE_LOCATION) {
-            if (resultCode == Activity.RESULT_OK) {
+            if (resultCode == AppCompatActivity.RESULT_OK) {
                 FileUtil.updateFileLocationFromIntent(this, intent, editFileLocation);
             }
         }
@@ -236,12 +235,12 @@ public class MultimediaInflaterActivity extends CommCareActivity<MultimediaInfla
 
     @Override
     public void OnUnzipSuccessful(Integer result) {
-        if(result > 0) {
+        if (result > 0) {
             done = true;
             evalState();
-            setResult(Activity.RESULT_OK);
+            setResult(AppCompatActivity.RESULT_OK);
             finish();
-        }else {
+        } else {
             //assume that we've already set the error message, but make it look scary
             transplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
         }

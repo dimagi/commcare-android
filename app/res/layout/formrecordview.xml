@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:paddingRight="@dimen/row_padding_vertical"
@@ -20,7 +21,7 @@
             android:padding="@dimen/cell_padding_horizontal"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/avatar_form"/>
+            app:srcCompat="@drawable/avatar_form"/>
 
         <RelativeLayout
             xmlns:android="http://schemas.android.com/apk/res/android"
@@ -56,7 +57,7 @@
                 android:layout_above="@+id/formrecord_txt_right"
                 android:tint="@color/cc_neutral_color"
                 android:tintMode="src_atop"
-                android:src="@android:drawable/stat_notify_sync_noanim"
+                app:srcCompat="@android:drawable/stat_notify_sync_noanim"
                 android:layout_toStartOf="@id/formrecord_txt_upp_right" />
 
             <TextView

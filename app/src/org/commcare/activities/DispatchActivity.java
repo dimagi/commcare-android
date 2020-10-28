@@ -20,14 +20,14 @@ import org.commcare.utils.MultipleAppsUtil;
 import org.commcare.utils.SessionUnavailableException;
 import org.javarosa.core.services.locale.Localization;
 
-import androidx.fragment.app.FragmentActivity;
+import androidx.appcompat.app.AppCompatActivity;
 
 /**
  * Dispatches install, login, and home screen activities.
  *
  * @author Phillip Mates (pmates@dimagi.com).
  */
-public class DispatchActivity extends FragmentActivity {
+public class DispatchActivity extends AppCompatActivity {
     private static final String TAG = DispatchActivity.class.getSimpleName();
     private static final String SESSION_REQUEST = "ccodk_session_request";
     public static final String WAS_EXTERNAL = "launch_from_external";

@@ -1,6 +1,6 @@
 package org.commcare.views.widgets;
 
-import android.app.Activity;
+import android.content.DialogInterface;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.graphics.Rect;
@@ -18,7 +18,6 @@ import android.widget.Button;
 import android.widget.Chronometer;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
-import android.content.DialogInterface;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -30,6 +29,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Date;
 
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.DialogFragment;
 
 /**
@@ -62,7 +62,7 @@ public class RecordingFragment extends DialogFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         layout = (LinearLayout)inflater.inflate(R.layout.recording_fragment, container);
-        disableScreenRotation((Activity)getContext());
+        disableScreenRotation((AppCompatActivity)getContext());
         prepareButtons();
         prepareText();
         setWindowSize();
@@ -152,7 +152,7 @@ public class RecordingFragment extends DialogFragment {
     }
 
     private void startRecording() {
-        disableScreenRotation((Activity)getContext());
+        disableScreenRotation((AppCompatActivity)getContext());
         setCancelable(false);
 
         setupRecorder();
@@ -216,7 +216,7 @@ public class RecordingFragment extends DialogFragment {
     @Override
     public void onDismiss(DialogInterface dialog) {
         super.onDismiss(dialog);
-        enableScreenRotation((Activity)getContext());
+        enableScreenRotation((AppCompatActivity)getContext());
         if (recorder != null) {
             recorder.release();
             this.recorder = null;
@@ -231,7 +231,7 @@ public class RecordingFragment extends DialogFragment {
         }
     }
 
-    private static void disableScreenRotation(Activity context) {
+    private static void disableScreenRotation(AppCompatActivity context) {
         int currentOrientation = context.getResources().getConfiguration().orientation;
 
         if (currentOrientation == Configuration.ORIENTATION_LANDSCAPE) {
@@ -241,7 +241,7 @@ public class RecordingFragment extends DialogFragment {
         }
     }
 
-    private static void enableScreenRotation(Activity context) {
+    private static void enableScreenRotation(AppCompatActivity context) {
         context.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
     }
 

@@ -4,14 +4,15 @@ import android.annotation.TargetApi;
 import android.content.pm.ActivityInfo;
 import android.os.Build;
 import android.os.Bundle;
-import androidx.fragment.app.FragmentActivity;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 /**
  * Full-screen view of a graph.
  *
  * Created by jschweers on 11/20/2015.
  */
-public class GraphActivity extends FragmentActivity {
+public class GraphActivity extends AppCompatActivity {
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     @Override

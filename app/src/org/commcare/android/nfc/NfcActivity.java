@@ -1,6 +1,6 @@
 package org.commcare.android.nfc;
 
-import android.app.Activity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -21,7 +21,7 @@ import org.javarosa.core.services.locale.Localization;
  *
  * @author Aliza Stone
  */
-public abstract class NfcActivity extends Activity {
+public abstract class NfcActivity extends AppCompatActivity {
 
     protected static final String NFC_PAYLOAD_MULT_TYPES_ARG = "types";
     protected static final String NFC_PAYLOAD_SINGLE_TYPE_ARG = "type";

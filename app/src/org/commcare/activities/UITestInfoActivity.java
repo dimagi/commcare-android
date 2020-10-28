@@ -2,14 +2,15 @@ package org.commcare.activities;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import androidx.preference.PreferenceManager;
-import androidx.fragment.app.FragmentActivity;
 import android.widget.TextView;
 
 import org.commcare.dalvik.R;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.preference.PreferenceManager;
+
 // Used for ui testing components which don't have UI components
-public class UITestInfoActivity extends FragmentActivity {
+public class UITestInfoActivity extends AppCompatActivity {
 
     public static final String LOG_SUBMISSION_RESULT_PREF = "log_submission_result";
     private static final String EXTRA_INFO_TYPE = "info_type";
@@ -22,7 +23,7 @@ public class UITestInfoActivity extends FragmentActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_uitest_info);
         setTitle("UI Test Info");
-        infoTv = findViewById(R.id.infoTv);
+        infoTv = (TextView)findViewById(R.id.infoTv);
         loadInfo();
     }
 

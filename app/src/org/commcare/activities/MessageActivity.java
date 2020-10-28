@@ -1,6 +1,5 @@
 package org.commcare.activities;
 
-import android.app.ListActivity;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import android.text.format.DateUtils;
@@ -23,7 +22,7 @@ import java.util.ArrayList;
  *
  * @author ctsims
  */
-public class MessageActivity extends ListActivity {
+public class MessageActivity extends CommcareListActivity {
     private ArrayList<NotificationMessage> messages;
 
     private static final String KEY_MESSAGES = "ma_key_messages";
@@ -47,9 +46,7 @@ public class MessageActivity extends ListActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        this.setContentView(R.layout.screen_messages);
         this.setListAdapter(new ArrayAdapter<NotificationMessage>(this, R.layout.layout_note_msg, messages) {
-
             @Override
             public View getView(int position, View convertView, @NonNull ViewGroup parent) {
                 View messageView = convertView;
@@ -82,6 +79,4 @@ public class MessageActivity extends ListActivity {
 
         });
     }
-
-
 }

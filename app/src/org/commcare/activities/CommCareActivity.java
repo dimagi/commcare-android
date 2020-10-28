@@ -1,7 +1,6 @@
 package org.commcare.activities;
 
 import android.annotation.TargetApi;
-import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Rect;
@@ -19,7 +18,6 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewTreeObserver;
-import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -39,7 +37,6 @@ import org.commcare.suite.model.StackFrameStep;
 import org.commcare.tasks.templates.CommCareTask;
 import org.commcare.tasks.templates.CommCareTaskConnector;
 import org.commcare.util.LogTypes;
-import org.commcare.utils.AndroidUtil;
 import org.commcare.utils.ConnectivityStatus;
 import org.commcare.utils.DetailCalloutListener;
 import org.commcare.utils.MarkupUtil;
@@ -57,8 +54,9 @@ import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.NoLocalizedTextException;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SearchView;
 import androidx.fragment.app.DialogFragment;
-import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
@@ -69,7 +67,8 @@ import io.reactivex.disposables.Disposable;
  *
  * @author ctsims
  */
-public abstract class CommCareActivity<R> extends FragmentActivity
+
+public abstract class CommCareActivity<R> extends AppCompatActivity
         implements CommCareTaskConnector<R>, DialogController, OnGestureListener, DetailCalloutListener {
 
     private static final String TAG = CommCareActivity.class.getSimpleName();
@@ -146,8 +145,14 @@ public abstract class CommCareActivity<R> extends FragmentActivity
 
         persistManagedUiState(fm);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB && shouldShowBreadcrumbBar()) {
-            getActionBar().setDisplayShowCustomEnabled(true);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setLogo(org.commcare.dalvik.R.mipmap.ic_launcher);
+        }
+
+        if (shouldShowBreadcrumbBar()) {
+            if (getSupportActionBar() != null) {
+                getSupportActionBar().setDisplayShowCustomEnabled(true);
+            }
 
             // Add breadcrumb bar
             BreadcrumbBarFragment bar = (BreadcrumbBarFragment)fm.findFragmentByTag("breadcrumbs");
@@ -696,34 +701,23 @@ public abstract class CommCareActivity<R> extends FragmentActivity
      * @param menu         Menu passed through onCreateOptionsMenu
      * @param instantiator Optional ActionBarInstantiator for additional setup code.
      */
-    protected void tryToAddSearchActionToAppBar(Activity activity, Menu menu,
+    protected void tryToAddSearchActionToAppBar(AppCompatActivity activity, Menu menu,
                                                 ActionBarInstantiator instantiator) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            MenuInflater inflater = activity.getMenuInflater();
-            inflater.inflate(org.commcare.dalvik.R.menu.action_bar_search_view, menu);
+        MenuInflater inflater = activity.getMenuInflater();
+        inflater.inflate(org.commcare.dalvik.R.menu.action_bar_search_view, menu);
 
-            MenuItem searchMenuItem = menu.findItem(org.commcare.dalvik.R.id.search_action_bar);
-            SearchView searchView =
-                    (SearchView)searchMenuItem.getActionView();
-            MenuItem barcodeItem = menu.findItem(org.commcare.dalvik.R.id.barcode_scan_action_bar);
-            if (searchView != null) {
-                int[] searchViewStyle =
-                        AndroidUtil.getThemeColorIDs(this,
-                                new int[]{org.commcare.dalvik.R.attr.searchbox_action_bar_color});
-                int id = searchView.getContext()
-                        .getResources()
-                        .getIdentifier("android:id/search_src_text", null, null);
-                TextView textView = searchView.findViewById(id);
-                textView.setTextColor(searchViewStyle[0]);
-                if (instantiator != null) {
-                    instantiator.onActionBarFound(searchMenuItem, searchView, barcodeItem);
-                }
+        MenuItem searchMenuItem = menu.findItem(org.commcare.dalvik.R.id.search_action_bar);
+        SearchView searchView = (SearchView)searchMenuItem.getActionView();
+        MenuItem barcodeItem = menu.findItem(org.commcare.dalvik.R.id.barcode_scan_action_bar);
+        if (searchView != null) {
+            if (instantiator != null) {
+                instantiator.onActionBarFound(searchMenuItem, searchView, barcodeItem);
             }
+        }
 
-            View bottomSearchWidget = activity.findViewById(org.commcare.dalvik.R.id.searchfooter);
-            if (bottomSearchWidget != null) {
-                bottomSearchWidget.setVisibility(View.GONE);
-            }
+        View bottomSearchWidget = activity.findViewById(org.commcare.dalvik.R.id.searchfooter);
+        if (bottomSearchWidget != null) {
+            bottomSearchWidget.setVisibility(View.GONE);
         }
     }
 
@@ -823,7 +817,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
      *
      * @return True iff the movement is a definitive horizontal swipe.
      */
-    private static boolean isHorizontalSwipe(Activity activity, MotionEvent e1, MotionEvent e2) {
+    private static boolean isHorizontalSwipe(AppCompatActivity activity, MotionEvent e1, MotionEvent e2) {
         DisplayMetrics dm = new DisplayMetrics();
         activity.getWindowManager().getDefaultDisplay().getMetrics(dm);
 

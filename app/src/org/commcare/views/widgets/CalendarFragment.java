@@ -3,9 +3,6 @@ package org.commcare.views.widgets;
 import android.content.Context;
 import android.graphics.Rect;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,13 +15,17 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
+
 import org.commcare.dalvik.R;
+
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 import java.util.Map;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 
 /**
@@ -109,7 +110,7 @@ public class CalendarFragment extends DialogFragment {
     private void initOnClick() {
 
         calendarGrid.setOnItemClickListener((parent, view, position, id) -> {
-            Date date = (Date) parent.getItemAtPosition(position);
+            Date date = (Date)parent.getItemAtPosition(position);
             calendar.setTime(date);
             refresh();
         });
@@ -165,12 +166,13 @@ public class CalendarFragment extends DialogFragment {
         yearSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                calendar.set(Calendar.YEAR, position+GregorianDateWidget.MIN_YEAR);
+                calendar.set(Calendar.YEAR, position + GregorianDateWidget.MIN_YEAR);
                 refresh();
             }
 
             @Override
-            public void onNothingSelected(AdapterView<?> parent) {}
+            public void onNothingSelected(AdapterView<?> parent) {
+            }
         });
     }
 
@@ -191,7 +193,8 @@ public class CalendarFragment extends DialogFragment {
             }
 
             @Override
-            public void onNothingSelected(AdapterView<?> parent) {}
+            public void onNothingSelected(AdapterView<?> parent) {
+            }
         });
     }
 
@@ -203,19 +206,19 @@ public class CalendarFragment extends DialogFragment {
         int totalDays = getNumDaysInMonth(populator);
         populateListOfDates(dateList, populator, totalDays);
 
-        yearSpinner.setSelection(calendar.get(Calendar.YEAR)-GregorianDateWidget.MIN_YEAR);
+        yearSpinner.setSelection(calendar.get(Calendar.YEAR) - GregorianDateWidget.MIN_YEAR);
         monthSpinner.setSelection(calendar.get(Calendar.MONTH));
         calendarGrid.setAdapter(new CalendarAdapter(getContext(), dateList));
     }
 
     //Populates an arraylist with dates
     private static void populateListOfDates(ArrayList<Date> dateList, Calendar populator, int totalDays) {
-        while(dateList.size() < totalDays) {
+        while (dateList.size() < totalDays) {
             dateList.add(populator.getTime());
             populator.add(Calendar.DAY_OF_MONTH, 1);
         }
 
-        int remainingDays = ((DAYSINWEEK + 1)-(populator.get(Calendar.DAY_OF_WEEK)))%DAYSINWEEK;
+        int remainingDays = ((DAYSINWEEK + 1) - (populator.get(Calendar.DAY_OF_WEEK))) % DAYSINWEEK;
 
         for (int i = 0; i < remainingDays; i++) {
             dateList.add(populator.getTime());
@@ -240,7 +243,7 @@ public class CalendarFragment extends DialogFragment {
         return totalDays;
     }
 
-    private class CalendarAdapter extends ArrayAdapter<Date>{
+    private class CalendarAdapter extends ArrayAdapter<Date> {
 
         private final LayoutInflater mInflater;
 
@@ -272,12 +275,10 @@ public class CalendarFragment extends DialogFragment {
             if (calendarDate.equals(currentDate)) {
                 text.setTextColor(getResources().getColor(R.color.white));
                 text.setBackgroundColor(getResources().getColor(R.color.cc_attention_positive_color));
-            }
-            else if (calendarDate.get(Calendar.MONTH) != currentDate.get(Calendar.MONTH)) {
+            } else if (calendarDate.get(Calendar.MONTH) != currentDate.get(Calendar.MONTH)) {
                 text.setTextColor(getResources().getColor(R.color.grey_dark));
                 text.setBackgroundColor(getResources().getColor(R.color.grey_lighter));
-            }
-            else {
+            } else {
                 text.setTextColor(getResources().getColor(R.color.black));
                 text.setBackgroundColor(getResources().getColor(R.color.transparent));
             }

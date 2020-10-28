@@ -1,10 +1,8 @@
 package org.commcare.activities;
 
-import android.app.ActionBar;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.ListAdapter;
 import android.widget.ListView;
@@ -26,6 +24,8 @@ import org.javarosa.xpath.XPathTypeMismatchException;
 import java.util.ArrayList;
 import java.util.List;
 
+import androidx.appcompat.app.ActionBar;
+
 public class FormHierarchyActivity extends SessionAwareListActivity {
     private Button jumpPreviousButton;
     private List<HierarchyElement> formList;
@@ -42,7 +42,6 @@ public class FormHierarchyActivity extends SessionAwareListActivity {
                     "Resuming form hierarchy view after process was killed. Form state is unrecoverable.");
         }
 
-        setContentView(R.layout.hierarchy_layout);
         FormEntryActivity.mFormController.storeFormIndexToReturnTo();
 
         addActionBarBackArrow();
@@ -92,9 +91,14 @@ public class FormHierarchyActivity extends SessionAwareListActivity {
         refreshView();
     }
 
+    @Override
+    public int getLayoutResource() {
+        return R.layout.hierarchy_layout;
+    }
+
     private void addActionBarBackArrow() {
         if (android.os.Build.VERSION.SDK_INT >= 11) {
-            ActionBar bar = getActionBar();
+            ActionBar bar = getSupportActionBar();
             if (bar != null) {
                 bar.setDisplayShowHomeEnabled(true);
                 bar.setDisplayHomeAsUpEnabled(true);

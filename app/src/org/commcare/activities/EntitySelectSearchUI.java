@@ -10,13 +10,15 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.SearchView;
 import android.widget.TextView;
 
 import org.commcare.activities.components.EntitySelectCalloutSetup;
 import org.commcare.dalvik.R;
 import org.commcare.suite.model.Callout;
 import org.javarosa.core.services.locale.Localization;
+
+import androidx.appcompat.widget.SearchView;
+import androidx.core.view.MenuItemCompat;
 
 /**
  * Manages case list activity's search state and UI
@@ -92,7 +94,7 @@ class EntitySelectSearchUI implements TextWatcher {
         String lastQueryString = activity.getLastQueryString();
         if (lastQueryString != null && lastQueryString.length() > 0) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-                searchMenuItem.expandActionView();
+                MenuItemCompat.expandActionView(searchMenuItem);
             }
             filterString = lastQueryString;
             searchView.setQuery(lastQueryString, false);
@@ -115,42 +117,11 @@ class EntitySelectSearchUI implements TextWatcher {
     protected void setSearchText(CharSequence text) {
         if (isUsingActionBar()) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-                searchMenuItem.expandActionView();
+                MenuItemCompat.expandActionView(searchMenuItem);
             }
             searchView.setQuery(text, false);
         } else {
             preHoneycombSearchBox.setText(text);
-        }
-    }
-
-    protected void setupPreHoneycombFooter(View.OnClickListener barcodeScanOnClickListener, Callout callout) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
-            TextView preHoneycombSearchLabel =
-                    activity.findViewById(R.id.screen_entity_select_search_label);
-            //use the old method here because some Android versions don't like Spannables for titles
-            preHoneycombSearchLabel.setText(Localization.get("select.search.label"));
-            preHoneycombSearchLabel.setOnClickListener(v -> {
-                // get the focus on the edittext by performing click
-                preHoneycombSearchBox.performClick();
-                // then force the keyboard up since performClick() apparently isn't enough on some devices
-                InputMethodManager inputMethodManager =
-                        (InputMethodManager)activity.getSystemService(Context.INPUT_METHOD_SERVICE);
-                // only will trigger it if no physical keyboard is open
-                inputMethodManager.showSoftInput(preHoneycombSearchBox, InputMethodManager.SHOW_IMPLICIT);
-            });
-
-            preHoneycombSearchBox = activity.findViewById(R.id.searchbox);
-            preHoneycombSearchBox.setMaxLines(3);
-            preHoneycombSearchBox.setHorizontallyScrolling(false);
-            preHoneycombSearchBox.addTextChangedListener(this);
-            preHoneycombSearchBox.requestFocus();
-            preHoneycombSearchBox.setText(activity.getLastQueryString());
-
-            ImageButton preHoneycombBarcodeButton = activity.findViewById(R.id.barcodeButton);
-            preHoneycombBarcodeButton.setOnClickListener(barcodeScanOnClickListener);
-            if (callout != null && callout.getImage() != null) {
-                EntitySelectCalloutSetup.setupImageLayout(activity, preHoneycombBarcodeButton, callout.getImage());
-            }
         }
     }
 

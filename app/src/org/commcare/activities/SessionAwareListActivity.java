@@ -11,7 +11,7 @@ import org.commcare.utils.SessionActivityRegistration;
  *
  * @author Aliza Stone
  */
-public abstract class SessionAwareListActivity extends ListActivity implements SessionAwareInterface {
+public abstract class SessionAwareListActivity extends CommcareListActivity implements SessionAwareInterface {
 
     private boolean redirectedInOnCreate;
 

@@ -4,9 +4,11 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Build;
 import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.DatePicker;
 
+import org.commcare.dalvik.R;
 import org.javarosa.core.model.data.DateData;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.form.api.FormEntryPrompt;
@@ -34,7 +36,6 @@ public class DateWidget extends QuestionWidget {
     private final DatePicker mDatePicker;
     private final DatePicker.OnDateChangedListener mDateListener;
 
-    @SuppressLint("NewApi")
     public DateWidget(Context context, FormEntryPrompt prompt) {
         super(context, prompt);
 
@@ -48,12 +49,9 @@ public class DateWidget extends QuestionWidget {
     }
 
     private DatePicker buildDatePicker(boolean isQuestionWriteable) {
-        DatePicker datePicker = new DatePicker(getContext());
+        DatePicker datePicker = (DatePicker)LayoutInflater.from(getContext()).inflate(R.layout.date_widget, this, false);
         datePicker.setFocusable(isQuestionWriteable);
         datePicker.setEnabled(isQuestionWriteable);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            datePicker.setCalendarViewShown(false);
-        }
         return datePicker;
     }
 

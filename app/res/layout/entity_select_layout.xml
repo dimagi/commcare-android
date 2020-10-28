@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content" >
 
@@ -30,7 +31,7 @@
             android:layout_alignParentRight="true"
             android:background="@null"
             android:padding="@dimen/entity_item_image_margins"
-            android:src="@drawable/close_cross_icon"
+            app:srcCompat="@drawable/close_cross_icon"
             android:layout_alignParentEnd="true" />
     </RelativeLayout>
 
@@ -137,7 +138,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentRight="true"
-                android:src="@drawable/barcode"
+                app:srcCompat="@drawable/barcode"
                 android:id="@+id/barcodeButton"
                 android:layout_alignParentEnd="true" />
         </RelativeLayout>

@@ -1,6 +1,5 @@
 package org.commcare.views.widgets;
 
-import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Color;
@@ -63,6 +62,7 @@ import org.javarosa.xpath.XPathException;
 import java.io.File;
 import java.util.Vector;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.preference.PreferenceManager;
 
 public abstract class QuestionWidget extends LinearLayout implements QuestionExtensionReceiver {
@@ -501,7 +501,9 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
                 }
             };
             mAlertDialog.setCancelable(true);
-            mAlertDialog.setButton(StringUtils.getStringSpannableRobust(this.getContext(), R.string.ok), errorListener);
+            mAlertDialog.setButton(DialogInterface.BUTTON_POSITIVE,
+                    StringUtils.getStringSpannableRobust(this.getContext(), R.string.ok),
+                    errorListener);
             mAlertDialog.show();
         } else {
 

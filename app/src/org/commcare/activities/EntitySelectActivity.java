@@ -1,6 +1,6 @@
 package org.commcare.activities;
 
-import android.app.Activity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
@@ -284,7 +284,6 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         restoreLastQueryString();
         persistAdapterState(visibleView);
         setUpCalloutClickListener();
-        entitySelectSearchUI.setupPreHoneycombFooter(barcodeScanOnClickListener, this.customCallout);
         setupMapNav();
         AdMobManager.requestBannerAdForView(this, findViewById(R.id.ad_container),
                 AdLocation.EntitySelect);
@@ -296,7 +295,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         } else {
             isCalloutAutoLaunching = this.customCallout.isAutoLaunching();
             barcodeScanOnClickListener =
-                    EntitySelectCalloutSetup.makeCalloutClickListener(this, this.customCallout,
+                    EntitySelectCalloutSetup.makeCalloutClickListener(this, customCallout,
                             evalContext());
         }
     }
@@ -627,7 +626,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     }
 
     private void processBarcodeFetch(int resultCode, Intent intent) {
-        if (resultCode == Activity.RESULT_OK) {
+        if (resultCode == AppCompatActivity.RESULT_OK) {
             String result = intent.getStringExtra("SCAN_RESULT");
             if (result != null) {
                 result = result.trim();
@@ -637,7 +636,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     }
 
     private void processCalloutResult(int resultCode, Intent intent) {
-        if (resultCode == Activity.RESULT_OK) {
+        if (resultCode == AppCompatActivity.RESULT_OK) {
             if (intent.hasExtra(IntentCallout.INTENT_RESULT_VALUE)) {
                 handleSearchStringCallout(intent);
             } else if (SimprintsCalloutProcessing.isIdentificationResponse(intent)) {

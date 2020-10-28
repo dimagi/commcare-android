@@ -3,11 +3,13 @@ package org.commcare.views.widgets;
 import android.content.Context;
 import android.os.Build;
 import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.DatePicker;
 import android.widget.TimePicker;
 import android.widget.TimePicker.OnTimeChangedListener;
 
+import org.commcare.dalvik.R;
 import org.javarosa.core.model.data.DateTimeData;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.form.api.FormEntryPrompt;
@@ -32,11 +34,12 @@ public class DateTimeWidget extends QuestionWidget implements OnTimeChangedListe
     public DateTimeWidget(Context context, FormEntryPrompt prompt) {
         super(context, prompt);
 
-        mDatePicker = new DatePicker(getContext());
+        mDatePicker = (DatePicker)LayoutInflater.from(getContext()).inflate(R.layout.date_widget, this, false);
         mDatePicker.setFocusable(!prompt.isReadOnly());
         mDatePicker.setEnabled(!prompt.isReadOnly());
+        mDatePicker.setCalendarViewShown(true);
 
-        mTimePicker = new TimePicker(getContext());
+        mTimePicker = (TimePicker)LayoutInflater.from(getContext()).inflate(R.layout.time_widget, this, false);
         mTimePicker.setFocusable(!prompt.isReadOnly());
         mTimePicker.setEnabled(!prompt.isReadOnly());
         mTimePicker.setPadding(0, 20, 0, 0);

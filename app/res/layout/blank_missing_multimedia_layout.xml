@@ -1,4 +1,5 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent">
 
@@ -13,7 +14,7 @@
         android:scaleType="fitStart"
         android:maxHeight="135px"
         android:maxWidth="663px"
-        android:src="@drawable/ccbanner"
+        app:srcCompat="@drawable/ccbanner"
         android:visibility="gone"
         android:layout_marginEnd="20px"
         android:paddingStart="20px">

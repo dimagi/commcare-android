@@ -1,7 +1,7 @@
 package org.commcare.activities;
 
 import android.Manifest;
-import android.app.Activity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -44,7 +44,7 @@ import androidx.core.content.ContextCompat;
 /**
  * Allows location to be chosen using a map instead of current gps coordinates
  */
-public class GeoPointMapActivity extends Activity
+public class GeoPointMapActivity extends AppCompatActivity
         implements LocationListener, OnMapReadyCallback,
         GoogleMap.OnMyLocationButtonClickListener {
 

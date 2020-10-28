@@ -1,6 +1,5 @@
 package org.commcare.views.media;
 
-import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
@@ -24,9 +23,8 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import com.bumptech.glide.Glide;
+
 import org.commcare.activities.FormEntryActivity;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
@@ -46,7 +44,12 @@ import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.locale.Localization;
 
 import java.io.File;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 import kotlinx.coroutines.Dispatchers;
+
 
 /**
  * @author $|-|!˅@M
@@ -329,7 +332,8 @@ public class MediaLayout extends RelativeLayout {
                     }
                     FirebaseAnalyticsUtil.reportInlineVideoPlayEvent(videoFilename, FileUtil.getDuration(videoFile), duration);
                 });
-                videoView.setOnClickListener(v -> ViewUtil.hideVirtualKeyboard((Activity)getContext()));
+
+                videoView.setOnClickListener(v -> ViewUtil.hideVirtualKeyboard((AppCompatActivity)getContext()));
                 videoView.setVisibility(VISIBLE);
             }
         } catch (InvalidReferenceException ire) {

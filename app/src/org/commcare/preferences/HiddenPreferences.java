@@ -79,6 +79,7 @@ public class HiddenPreferences {
     public final static String LOGS_ENABLED_ON_DEMAND = "on_demand";
     private final static String RELEASED_ON_TIME_FOR_ONGOING_APP_DOWNLOAD = "released-on-time-for-ongoing-app-download";
     private final static String FILE_OVERSIZE_WARNING = "cc-disable-file-oversize-warning";
+    private final static String ALLOW_RUN_ON_ROOTED_DEVICE = "cc-allow-run-on-rooted-device";
 
 
     // Boolean pref to determine whether user has already been through the update information form
@@ -531,4 +532,7 @@ public class HiddenPreferences {
         return PrefValues.YES.equals(properties.getString(FILE_OVERSIZE_WARNING, PrefValues.NO));
     }
 
+    public static boolean allowRunOnRootedDevice() {
+        return DeveloperPreferences.doesPropertyMatch(ALLOW_RUN_ON_ROOTED_DEVICE, PrefValues.YES, PrefValues.YES);
+    }
 }

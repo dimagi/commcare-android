@@ -1,7 +1,7 @@
 package org.commcare.activities;
 
-import android.app.Activity;
-import android.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -1240,7 +1240,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
         }
     }
 
-    public static void createPreferencesMenu(Activity activity) {
+    public static void createPreferencesMenu(AppCompatActivity activity) {
         Intent i = new Intent(activity, SessionAwarePreferenceActivity.class);
         i.putExtra(CommCarePreferenceActivity.EXTRA_PREF_TYPE, CommCarePreferenceActivity.PREF_TYPE_COMMCARE);
         activity.startActivityForResult(i, PREFERENCES_ACTIVITY);

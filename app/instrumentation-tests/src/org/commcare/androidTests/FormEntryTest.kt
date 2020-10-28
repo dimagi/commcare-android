@@ -11,6 +11,7 @@ import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
+import androidx.test.filters.Suppress
 import org.commcare.CommCareApplication
 import org.commcare.dalvik.R
 import org.commcare.utils.CustomMatchers
@@ -26,17 +27,12 @@ class FormEntryTest: BaseTest() {
 
     companion object {
         const val CCZ_NAME = "languages.ccz"
+        const val APP_NAME = "Language Test"
     }
 
     @Before
     fun setup() {
-        if (CommCareApplication.instance().currentApp == null) {
-            InstrumentationUtility.installApp(CCZ_NAME)
-        } else {
-            InstrumentationUtility.uninstallCurrentApp()
-            InstrumentationUtility.installApp(CCZ_NAME)
-            Espresso.pressBack()
-        }
+        installApp(LanguagesTest.APP_NAME, LanguagesTest.CCZ_NAME, true)
     }
 
     @Test
@@ -154,6 +150,7 @@ class FormEntryTest: BaseTest() {
                 .check(matches(isDisplayed()))
     }
 
+    @Suppress
     @SdkSuppress(maxSdkVersion = Build.VERSION_CODES.Q)
     @Test
     fun testSync() {
