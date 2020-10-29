@@ -134,7 +134,6 @@ class AppPreferenceSettingsTest: BaseTest() {
 
         // Rotate back to portrait
         InstrumentationUtility.rotatePortrait()
-        InstrumentationUtility.sleep(2)
     }
 
     private fun matchSelectedPreference(value: String) {

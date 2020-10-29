@@ -263,6 +263,7 @@ object InstrumentationUtility {
     fun rotatePortrait() {
         val uiDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
         uiDevice.setOrientationNatural()
+        sleep(2)
     }
 
     @JvmStatic
@@ -270,6 +271,7 @@ object InstrumentationUtility {
     fun rotateLeft() {
         val uiDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
         uiDevice.setOrientationLeft()
+        sleep(2)
     }
 
     /**

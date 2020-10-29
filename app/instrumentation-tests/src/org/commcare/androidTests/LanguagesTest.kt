@@ -50,8 +50,6 @@ class LanguagesTest : BaseTest() {
         InstrumentationUtility.rotatePortrait()
         checkLanguageOptions()
 
-        // Clicking just after rotating doesn't work for some reason, so waiting here for a moment.
-        InstrumentationUtility.sleep(2)
         onView(withText("Hindi"))
                 .perform(click())
         InstrumentationUtility.openForm(0, 0)

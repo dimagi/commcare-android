@@ -60,9 +60,6 @@ class MenuTests: BaseTest() {
         checkStringExists(homeMenuItems)
         InstrumentationUtility.rotatePortrait()
 
-        // Clicking just after rotating doesn't work for some reason, so waiting here for a moment.
-        InstrumentationUtility.sleep(2)
-
         onView(withText(homeMenuItems[0]))
                 .perform(click())
         Intents.intended(IntentMatchers.hasComponent(UpdateActivity::class.java.name))
