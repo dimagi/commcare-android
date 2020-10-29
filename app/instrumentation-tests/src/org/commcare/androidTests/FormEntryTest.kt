@@ -12,7 +12,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.Suppress
-import org.commcare.CommCareApplication
 import org.commcare.dalvik.R
 import org.commcare.utils.CustomMatchers
 import org.commcare.utils.InstrumentationUtility
@@ -175,7 +174,6 @@ class FormEntryTest: BaseTest() {
 
         // Enabled wifi.
         InstrumentationUtility.changeWifi(true)
-        InstrumentationUtility.sleep(10) // Sleeping 10 seconds so that wifi is setup.
 
         // Confirm form is sent on sync.
         onView(withText("Sync with Server"))

@@ -45,12 +45,9 @@ import java.util.concurrent.TimeUnit
  * @author $|-|!˅@M
  */
 object InstrumentationUtility {
-    /**
-     * Installs the ccz by copying it into app-specific cache directory.
-     * @param cczName
-     */
+
     @JvmStatic
-    fun installApp(cczName: String) {
+    fun stubCcz(cczName: String) {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         val file = File(context.externalCacheDir, cczName)
         if (!file.exists()) {
@@ -61,10 +58,18 @@ object InstrumentationUtility {
                 e.printStackTrace()
             }
         }
+        stubFileSelection(file.absolutePath)
+    }
+    /**
+     * Installs the ccz by copying it into app-specific cache directory.
+     * @param cczName
+     */
+    @JvmStatic
+    fun installApp(cczName: String) {
+        stubCcz(cczName)
         openOptionsMenu()
         onView(withText("Offline Install"))
                 .perform(click())
-        stubFileSelection(file.absolutePath)
         onView(withId(R.id.screen_multimedia_inflater_filefetch))
                 .perform(click())
         onView(withId(R.id.screen_multimedia_inflater_install))
@@ -240,6 +245,7 @@ object InstrumentationUtility {
             val context = InstrumentationRegistry.getInstrumentation().targetContext
             val wifiManager = context.getSystemService(Context.WIFI_SERVICE) as WifiManager
             wifiManager.isWifiEnabled = enable
+            sleep(5) // Sleep 5 seconds so that wifi is set up.
         } else {
             throw IllegalAccessException("changeWifi should only be called in pre-android Q devices")
         }
