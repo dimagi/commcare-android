@@ -36,7 +36,7 @@ class LogSubmissionTest: BaseTest() {
         onView(withText("Force Log Submission"))
                 .perform(click())
         InstrumentationUtility.assert(
-                InstrumentationUtility.loadLogSubmissionInfo(),
+                InstrumentationUtility.didLastLogSubmissionSucceed(),
                 "Log submission was unsuccessful"
         )
     }

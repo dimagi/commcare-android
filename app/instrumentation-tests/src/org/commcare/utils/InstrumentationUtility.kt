@@ -327,7 +327,7 @@ object InstrumentationUtility {
                 .perform(click())
     }
 
-    fun loadLogSubmissionInfo(): Boolean {
+    fun didLastLogSubmissionSucceed(): Boolean {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
         return sharedPreferences.getBoolean(CommCareSessionService.LOG_SUBMISSION_RESULT_PREF, false)
