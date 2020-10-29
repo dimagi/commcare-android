@@ -2,6 +2,7 @@ package org.commcare.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AlertDialog;
+
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -45,6 +46,7 @@ import org.commcare.session.CommCareSession;
 import org.commcare.session.SessionFrame;
 import org.commcare.session.SessionNavigationResponder;
 import org.commcare.session.SessionNavigator;
+import org.commcare.suite.model.Endpoint;
 import org.commcare.suite.model.EntityDatum;
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.FormEntry;
@@ -85,6 +87,7 @@ import org.javarosa.xpath.XPathTypeMismatchException;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Vector;
 
@@ -92,6 +95,8 @@ import androidx.preference.PreferenceManager;
 
 import com.google.android.play.core.install.model.InstallErrorCode;
 
+import static org.commcare.activities.DispatchActivity.SESSION_ENDPOINT_ARGUMENTS;
+import static org.commcare.activities.DispatchActivity.SESSION_ENDPOINT_ID;
 import static org.commcare.activities.DriftHelper.getCurrentDrift;
 import static org.commcare.activities.DriftHelper.getDriftDialog;
 import static org.commcare.activities.DriftHelper.shouldShowDriftWarning;
@@ -194,7 +199,18 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
     private void processFromExternalLaunch(Bundle savedInstanceState) {
         if (savedInstanceState == null && getIntent().hasExtra(DispatchActivity.WAS_EXTERNAL)) {
             wasExternal = true;
+            processSessionEndpoint(getIntent());
             sessionNavigator.startNextSessionStep();
+        }
+    }
+
+    private void processSessionEndpoint(Intent intent) {
+        if (getIntent().hasExtra(SESSION_ENDPOINT_ID)) {
+            String sessionEndpointId = this.getIntent().getStringExtra(SESSION_ENDPOINT_ID);
+            ArrayList<String> args = this.getIntent().getStringArrayListExtra(SESSION_ENDPOINT_ARGUMENTS);
+
+            Endpoint endpoint = CommCareApplication.instance().getCommCarePlatform().getEndpoint(sessionEndpointId);
+
         }
     }
 
@@ -523,7 +539,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                     }
                     break;
                 case MODEL_RESULT:
-                    if(intent != null && intent.getBooleanExtra(FormEntryConstants.WAS_INTERRUPTED, false)) {
+                    if (intent != null && intent.getBooleanExtra(FormEntryConstants.WAS_INTERRUPTED, false)) {
                         tryRestoringFormFromSessionExpiration();
                         return;
                     }

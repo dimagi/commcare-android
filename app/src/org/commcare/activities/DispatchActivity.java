@@ -20,6 +20,8 @@ import org.commcare.utils.MultipleAppsUtil;
 import org.commcare.utils.SessionUnavailableException;
 import org.javarosa.core.services.locale.Localization;
 
+import java.util.ArrayList;
+
 import androidx.appcompat.app.AppCompatActivity;
 
 /**
@@ -30,6 +32,8 @@ import androidx.appcompat.app.AppCompatActivity;
 public class DispatchActivity extends AppCompatActivity {
     private static final String TAG = DispatchActivity.class.getSimpleName();
     private static final String SESSION_REQUEST = "ccodk_session_request";
+    public static final String SESSION_ENDPOINT_ID = "ccodk_session_endpoint_id";
+    public static final String SESSION_ENDPOINT_ARGUMENTS = "ccodk_session_endpoint_arguments";
     public static final String WAS_EXTERNAL = "launch_from_external";
     public static final String WAS_SHORTCUT_LAUNCH = "launch_from_shortcut";
     public static final String START_FROM_LOGIN = "process_successful_login";
@@ -170,7 +174,7 @@ public class DispatchActivity extends AppCompatActivity {
                     }
                 } else if (!CommCareApplication.instance().getSession().isActive()) {
                     launchLoginScreen();
-                } else if (this.getIntent().hasExtra(SESSION_REQUEST)) {
+                } else if (isExternalLaunch()) {
                     // CommCare was launched from an external app, with a session descriptor
                     handleExternalLaunch();
                 } else if (this.getIntent().hasExtra(AndroidShortcuts.EXTRA_KEY_SHORTCUT) &&
@@ -184,6 +188,11 @@ public class DispatchActivity extends AppCompatActivity {
                 launchLoginScreen();
             }
         }
+    }
+
+    private boolean isExternalLaunch() {
+        return this.getIntent().hasExtra(SESSION_REQUEST) ||
+                this.getIntent().hasExtra(SESSION_ENDPOINT_ID);
     }
 
     private boolean isDbInBadState() {
@@ -228,7 +237,7 @@ public class DispatchActivity extends AppCompatActivity {
         }
     }
 
-    private  void startRecoveryExecutionActivity() {
+    private void startRecoveryExecutionActivity() {
         startActivityForResult(
                 new Intent(this, ExecuteRecoveryMeasuresActivity.class),
                 RECOVERY_MEASURES);
@@ -321,14 +330,24 @@ public class DispatchActivity extends AppCompatActivity {
     private void handleExternalLaunch() {
         //First off, make sure the incoming session is clear
         CommCareApplication.instance().getSession().proceedWithSavedSessionIfNeeded(() -> {
-                    String sessionRequest = this.getIntent().getStringExtra(SESSION_REQUEST);
-                    SessionStateDescriptor ssd = new SessionStateDescriptor();
-                    ssd.fromBundle(sessionRequest);
-                    CommCareApplication.instance().getCurrentSessionWrapper().loadFromStateDescription(ssd);
-                    Intent i = new Intent(this, StandardHomeActivity.class);
-                    i.putExtra(WAS_EXTERNAL, true);
-                    startActivityForResult(i, HOME_SCREEN);
-        }
+                    if (getIntent().hasExtra(SESSION_REQUEST)) {
+                        String sessionRequest = this.getIntent().getStringExtra(SESSION_REQUEST);
+                        SessionStateDescriptor ssd = new SessionStateDescriptor();
+                        ssd.fromBundle(sessionRequest);
+                        CommCareApplication.instance().getCurrentSessionWrapper().loadFromStateDescription(ssd);
+                        Intent i = new Intent(this, StandardHomeActivity.class);
+                        i.putExtra(WAS_EXTERNAL, true);
+                        startActivityForResult(i, HOME_SCREEN);
+                    } else if (getIntent().hasExtra(SESSION_ENDPOINT_ID)) {
+                        String sessionEndpointId = this.getIntent().getStringExtra(SESSION_ENDPOINT_ID);
+                        ArrayList<String> args = this.getIntent().getStringArrayListExtra(SESSION_ENDPOINT_ARGUMENTS);
+                        Intent i = new Intent(this, StandardHomeActivity.class);
+                        i.putExtra(WAS_EXTERNAL, true);
+                        i.putExtra(SESSION_ENDPOINT_ID, sessionEndpointId);
+                        i.putStringArrayListExtra(SESSION_ENDPOINT_ARGUMENTS, args);
+                        startActivityForResult(i, HOME_SCREEN);
+                    }
+                }
         );
     }
 
