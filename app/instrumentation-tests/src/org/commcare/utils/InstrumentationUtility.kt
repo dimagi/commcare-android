@@ -1,6 +1,5 @@
 package org.commcare.utils
 
-import androidx.appcompat.app.AppCompatActivity
 import android.app.Instrumentation
 import android.content.Context
 import android.content.Intent
@@ -14,6 +13,8 @@ import android.provider.MediaStore
 import android.view.View
 import android.widget.ListView
 import androidx.annotation.IdRes
+import androidx.appcompat.app.AppCompatActivity
+import androidx.preference.PreferenceManager
 import androidx.test.espresso.DataInteraction
 import androidx.test.espresso.Espresso
 import androidx.test.espresso.Espresso.*
@@ -32,6 +33,7 @@ import androidx.test.uiautomator.UiDevice
 import junit.framework.Assert
 import org.commcare.CommCareInstrumentationTestApplication
 import org.commcare.dalvik.R
+import org.commcare.services.CommCareSessionService
 import org.commcare.utils.CustomMatchers.withChildViewCount
 import org.hamcrest.Matcher
 import org.hamcrest.Matchers
@@ -331,6 +333,11 @@ object InstrumentationUtility {
                 .perform(click())
     }
 
+    fun didLastLogSubmissionSucceed(): Boolean {
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
+        return sharedPreferences.getBoolean(CommCareSessionService.LOG_SUBMISSION_RESULT_PREF, false)
+    }
 
     //region private helpers.
     /**

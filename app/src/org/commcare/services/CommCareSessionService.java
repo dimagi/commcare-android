@@ -18,7 +18,6 @@ import org.commcare.AppUtils;
 import org.commcare.CommCareApplication;
 import org.commcare.CommCareNoficationManager;
 import org.commcare.activities.DispatchActivity;
-import org.commcare.activities.UITestInfoActivity;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.core.encryption.CryptUtil;
 import org.commcare.dalvik.R;
@@ -122,7 +121,7 @@ public class CommCareSessionService extends Service {
     // Have the app health checks in HomeScreenBaseActivity#checkForPendingAppHealthActions() been
     // done at least once during this session?
     private boolean appHealthChecksCompleted;
-
+    public static final String LOG_SUBMISSION_RESULT_PREF = "log_submission_result";
     /**
      * Class for clients to access.  Because we know this service always
      * runs in the same process as its clients, we don't need to deal with
@@ -599,7 +598,7 @@ public class CommCareSessionService extends Service {
 
             private void setLogSubmissionResultPref(boolean success) {
                 SharedPreferences globalPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-                globalPreferences.edit().putBoolean(UITestInfoActivity.LOG_SUBMISSION_RESULT_PREF, success).commit();
+                globalPreferences.edit().putBoolean(LOG_SUBMISSION_RESULT_PREF, success).commit();
             }
 
             private String getSubmittedFormCount(int current, int total) {
