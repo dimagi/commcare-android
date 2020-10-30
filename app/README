@@ -16,7 +16,7 @@ external_strings_dev.xml
 
 and place your debug API key into the string definition there.
 
-## B) Ant Builds
+## B) Ant Builds 
 
 ### Local Config Setups
 
