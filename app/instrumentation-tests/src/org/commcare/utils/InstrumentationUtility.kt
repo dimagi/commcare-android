@@ -340,11 +340,11 @@ object InstrumentationUtility {
     }
     
     @JvmStatic
-    fun assertCurrentActivity(check: (Activity) -> Boolean) {
+    fun <T> assertCurrentActivity(clazz: Class<T>) {
         val application = InstrumentationRegistry.getInstrumentation().targetContext.applicationContext
                 as CommCareInstrumentationTestApplication
-        var activity = application.currentActivity
-        assert(check(activity), "Current Activity is ${activity.localClassName}")
+        val activity = application.currentActivity
+        assert(clazz.isInstance(activity), "Current Activity is ${activity.localClassName}")
     }
 
     //region private helpers.

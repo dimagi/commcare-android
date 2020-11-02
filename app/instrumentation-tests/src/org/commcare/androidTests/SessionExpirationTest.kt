@@ -32,18 +32,14 @@ class SessionExpirationTest: BaseTest() {
         // Redirection from home screen
         InstrumentationUtility.login("user_with_no_data", "123")
         InstrumentationUtility.sleep(35)
-        InstrumentationUtility.assertCurrentActivity {
-            it is LoginActivity
-        }
+        InstrumentationUtility.assertCurrentActivity(LoginActivity::class.java)
 
         // Redirection from menu screen
         InstrumentationUtility.login("user_with_no_data", "123")
         onView(withText("Start"))
                 .perform(click())
         InstrumentationUtility.sleep(35)
-        InstrumentationUtility.assertCurrentActivity {
-            it is LoginActivity
-        }
+        InstrumentationUtility.assertCurrentActivity(LoginActivity::class.java)
 
         // Redirection from FormEntry screen
         InstrumentationUtility.login("user_with_no_data", "123")
@@ -53,15 +49,11 @@ class SessionExpirationTest: BaseTest() {
         onView(withText("2"))
                 .perform(click())
         InstrumentationUtility.sleep(30)
-        InstrumentationUtility.assertCurrentActivity {
-            it is LoginActivity
-        }
+        InstrumentationUtility.assertCurrentActivity(LoginActivity::class.java)
 
         // Check that session expiration saves form as incomplete and re-opens the form screen directly.
         InstrumentationUtility.login("user_with_no_data", "123")
-        InstrumentationUtility.assertCurrentActivity {
-            it is FormEntryActivity
-        }
+        InstrumentationUtility.assertCurrentActivity(FormEntryActivity::class.java)
     }
 
 }

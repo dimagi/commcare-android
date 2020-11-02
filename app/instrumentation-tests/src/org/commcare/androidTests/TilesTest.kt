@@ -82,9 +82,7 @@ class TilesTest: BaseTest() {
 
         // Confirm on pressing back we're in EntitySelectActivity
         Espresso.pressBack()
-        InstrumentationUtility.assertCurrentActivity {
-            it is EntitySelectActivity
-        }
+        InstrumentationUtility.assertCurrentActivity(EntitySelectActivity::class.java)
 
         onView(withText("Sally Ride"))
                 .perform(click())
