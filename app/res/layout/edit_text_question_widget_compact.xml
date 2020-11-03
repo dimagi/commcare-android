@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<EditText xmlns:android="http://schemas.android.com/apk/res/android"
+<org.commcare.views.ClearFocusEditText xmlns:android="http://schemas.android.com/apk/res/android"
           android:gravity="start"
           android:imeOptions="flagNoExtractUi"
           android:layout_gravity="end"
