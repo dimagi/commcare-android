@@ -6,8 +6,6 @@ import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
-import androidx.test.platform.app.InstrumentationRegistry
-import org.commcare.CommCareInstrumentationTestApplication
 import org.commcare.activities.EntitySelectActivity
 import org.commcare.dalvik.R
 import org.commcare.utils.*
@@ -84,10 +82,7 @@ class TilesTest: BaseTest() {
 
         // Confirm on pressing back we're in EntitySelectActivity
         Espresso.pressBack()
-        val application = InstrumentationRegistry.getInstrumentation().targetContext.applicationContext
-                as CommCareInstrumentationTestApplication
-        var activity = application.currentActivity
-        InstrumentationUtility.assert(activity is EntitySelectActivity, "Current Activity is ${activity.localClassName}")
+        InstrumentationUtility.assertCurrentActivity(EntitySelectActivity::class.java)
 
         onView(withText("Sally Ride"))
                 .perform(click())
