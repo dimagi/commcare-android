@@ -30,6 +30,7 @@ class ManualQuarantineTest: BaseTest() {
     companion object {
         const val CCZ_NAME = "ccqa.ccz"
         const val APP_NAME = "Basic Tests"
+        const val MODULE_DISPLAY_FORM = 12
     }
 
     @Before
@@ -51,10 +52,10 @@ class ManualQuarantineTest: BaseTest() {
 
     @Test
     fun test_A_Quarantine() {
-        InstrumentationUtility.openModule(12)
+        InstrumentationUtility.openModule(MODULE_DISPLAY_FORM)
         onView(withId(R.id.nav_btn_finish))
                 .perform(click())
-        InstrumentationUtility.openModule(12)
+        InstrumentationUtility.openModule(MODULE_DISPLAY_FORM)
         onView(withId(R.id.nav_btn_finish))
                 .perform(click())
 
@@ -73,7 +74,15 @@ class ManualQuarantineTest: BaseTest() {
         onView(withText("QUARANTINE FORM"))
                 .perform(click())
 
-        // After quarantining one form we'll have to re-enable quarantine setting.
+        // After quarantining one form we can't quarantine another before re-enabling it from setting.
+        onView(withText("Display Form"))
+                .perform(longClick())
+        onView(withText("Scan Record Integrity"))
+                .perform(click())
+        withText("QUARANTINE FORM").doesNotExist()
+        onView(withText("OK"))
+                .perform(click())
+
         enableFormQuarantine()
 
         // Quarantine second form
