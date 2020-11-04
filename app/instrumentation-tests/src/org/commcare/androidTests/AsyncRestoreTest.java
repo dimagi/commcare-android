@@ -11,6 +11,7 @@ import androidx.test.filters.LargeTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 
 import org.commcare.AsyncRestoreHelperMock;
+import org.commcare.annotations.BrowserstackTests;
 import org.commcare.provider.DebugControlsReceiver;
 import org.commcare.utils.ProgressIdlingResource;
 import org.commcare.utils.HQApi;
@@ -31,6 +32,7 @@ import static org.junit.Assert.assertTrue;
  */
 @RunWith(AndroidJUnit4.class)
 @LargeTest
+@BrowserstackTests
 public class AsyncRestoreTest extends BaseTest {
 
     private final String CCZ_NAME = "integration_test_app.ccz";

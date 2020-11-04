@@ -10,8 +10,8 @@ import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
-import androidx.test.filters.RequiresDevice
 import androidx.test.filters.SdkSuppress
+import org.commcare.annotations.BrowserstackTests
 import org.commcare.dalvik.R
 import org.commcare.utils.CustomMatchers
 import org.commcare.utils.InstrumentationUtility
@@ -36,6 +36,7 @@ class FormEntryTest: BaseTest() {
     }
 
     @Test
+    @BrowserstackTests
     fun testIncompleteFormCreation() {
         InstrumentationUtility.login("user_with_no_data", "123")
         // Create an incomplete form.
@@ -90,6 +91,7 @@ class FormEntryTest: BaseTest() {
     }
 
     @Test
+    @BrowserstackTests
     fun testSaveFormMenu() {
         InstrumentationUtility.login("user_with_no_data", "123")
         // Create an incomplete form.
@@ -132,6 +134,7 @@ class FormEntryTest: BaseTest() {
     }
 
     @Test
+    @BrowserstackTests
     fun testFormEntryQuirks() {
         InstrumentationUtility.login("user_with_no_data", "123")
         InstrumentationUtility.openForm(0, 1)
@@ -150,7 +153,6 @@ class FormEntryTest: BaseTest() {
                 .check(matches(isDisplayed()))
     }
 
-    @RequiresDevice
     @SdkSuppress(maxSdkVersion = Build.VERSION_CODES.Q)
     @Test
     @WifiDisabled
@@ -197,6 +199,7 @@ class FormEntryTest: BaseTest() {
     }
 
     @Test
+    @BrowserstackTests
     fun testSaveCase() {
         InstrumentationUtility.login("form_tests", "123")
         // Create incomplete update case form.
