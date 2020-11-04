@@ -9,7 +9,6 @@ import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
-import org.commcare.annotations.WifiDisabled
 import org.commcare.dalvik.R
 import org.commcare.utils.*
 import org.hamcrest.Matchers.allOf
@@ -22,7 +21,6 @@ import org.junit.runners.MethodSorters
 
 @RunWith(AndroidJUnit4::class)
 @LargeTest
-@WifiDisabled
 @SdkSuppress(maxSdkVersion = Build.VERSION_CODES.Q)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 class ManualQuarantineTest: BaseTest() {

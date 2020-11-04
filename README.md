@@ -137,11 +137,11 @@ Create a new Android Studio _Android Instrumented Test_ Build configuration usin
 - Select the "commcare android instrumentation tests" under the configuration drop down to the left of the green play button.
 - Press the green play button to run the tests.
 
-### Run Wifi dependent instrumentation-tests 
+### Run instrumentation-tests skipped on browserstack
 
 ```bash
 cd commcare-android
-./gradlew connectedCommcareDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.annotation=org.commcare.annotations.WifiDisabled
+./gradlew connectedCommcareDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.notAnnotation=org.commcare.annotations.BrowserstackTests
 ```
 
 ### Code Style Settings

@@ -15,7 +15,6 @@ import org.commcare.annotations.BrowserstackTests
 import org.commcare.dalvik.R
 import org.commcare.utils.CustomMatchers
 import org.commcare.utils.InstrumentationUtility
-import org.commcare.annotations.WifiDisabled
 import org.hamcrest.Matchers.*
 import org.junit.Before
 import org.junit.Test
@@ -155,7 +154,6 @@ class FormEntryTest: BaseTest() {
 
     @SdkSuppress(maxSdkVersion = Build.VERSION_CODES.Q)
     @Test
-    @WifiDisabled
     fun testSync() {
         InstrumentationUtility.login("user_with_no_data", "123")
         InstrumentationUtility.logout()
