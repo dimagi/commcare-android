@@ -125,9 +125,14 @@ public class SelectOneAutoAdvanceWidget extends QuestionWidget implements OnChec
             }
             clearButton = WidgetUtils.setupClearButton(
                     context,
+                    this,
                     Localization.get("button.clear.title"),
                     (s != null && !prompt.isReadOnly()) ? VISIBLE : GONE
             );
+            clearButton.setOnClickListener(view -> {
+                clearAnswer();
+                widgetEntryChanged();
+            });
             addView(clearButton);
         }
     }

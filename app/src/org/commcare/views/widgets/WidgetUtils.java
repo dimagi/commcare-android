@@ -4,6 +4,7 @@ import android.content.Context;
 import android.text.Spannable;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TableLayout;
 
@@ -26,8 +27,8 @@ class WidgetUtils {
         btn.setLayoutParams(WidgetUtils.params);
     }
 
-    public static Button setupClearButton(Context context, String text, int visibility) {
-        Button clearButton = (Button) LayoutInflater.from(context).inflate(R.layout.blue_outlined_button, null);
+    public static Button setupClearButton(Context context, ViewGroup root, String text, int visibility) {
+        Button clearButton = (Button) LayoutInflater.from(context).inflate(R.layout.blue_outlined_button, root, false);
         clearButton.setText(text);
         clearButton.setVisibility(visibility);
         return clearButton;
