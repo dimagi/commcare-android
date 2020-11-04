@@ -137,6 +137,13 @@ Create a new Android Studio _Android Instrumented Test_ Build configuration usin
 - Select the "commcare android instrumentation tests" under the configuration drop down to the left of the green play button.
 - Press the green play button to run the tests.
 
+### Run Wifi dependent instrumentation-tests 
+
+```bash
+cd commcare-android
+./gradlew connectedCommcareDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.annotation=org.commcare.annotations.WifiDisabled
+```
+
 ### Code Style Settings
 
 In order to comply with code style guidelines we follow, please use [Commcare Coding Style file](https://github.com/dimagi/commcare-android/blob/master/.android_studio_settings/codestyles/CommCare%20Coding%20Style.xml) and [Commcare Inspection Profile](https://github.com/dimagi/commcare-android/blob/master/.android_studio_settings/inspection/CommCare%20Inpsection%20Profile.xml) as your respective code style and inpection profile in Android Studio. To do so follow these instructions 

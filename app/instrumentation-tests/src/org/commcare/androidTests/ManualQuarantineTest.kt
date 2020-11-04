@@ -8,13 +8,13 @@ import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import androidx.test.filters.RequiresDevice
 import androidx.test.filters.SdkSuppress
+import org.commcare.annotations.WifiDisabled
 import org.commcare.dalvik.R
-import org.commcare.utils.CustomMatchers
-import org.commcare.utils.InstrumentationUtility
-import org.commcare.utils.doesNotExist
-import org.commcare.utils.isDisplayed
+import org.commcare.utils.*
 import org.hamcrest.Matchers.allOf
+import org.junit.After
 import org.junit.Before
 import org.junit.FixMethodOrder
 import org.junit.Test
@@ -23,6 +23,8 @@ import org.junit.runners.MethodSorters
 
 @RunWith(AndroidJUnit4::class)
 @LargeTest
+@WifiDisabled
+@RequiresDevice
 @SdkSuppress(maxSdkVersion = Build.VERSION_CODES.Q)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 class ManualQuarantineTest: BaseTest() {
@@ -40,6 +42,11 @@ class ManualQuarantineTest: BaseTest() {
         // Enable quarantine
         enableFormQuarantine()
         InstrumentationUtility.changeWifi(false)
+    }
+
+    @After
+    fun tearDown() {
+        InstrumentationUtility.logout()
     }
 
     private fun enableFormQuarantine() {

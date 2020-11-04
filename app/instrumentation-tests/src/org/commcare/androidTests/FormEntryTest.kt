@@ -10,11 +10,12 @@ import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import androidx.test.filters.RequiresDevice
 import androidx.test.filters.SdkSuppress
-import androidx.test.filters.Suppress
 import org.commcare.dalvik.R
 import org.commcare.utils.CustomMatchers
 import org.commcare.utils.InstrumentationUtility
+import org.commcare.annotations.WifiDisabled
 import org.hamcrest.Matchers.*
 import org.junit.Before
 import org.junit.Test
@@ -149,9 +150,10 @@ class FormEntryTest: BaseTest() {
                 .check(matches(isDisplayed()))
     }
 
-    @Suppress
+    @RequiresDevice
     @SdkSuppress(maxSdkVersion = Build.VERSION_CODES.Q)
     @Test
+    @WifiDisabled
     fun testSync() {
         InstrumentationUtility.login("user_with_no_data", "123")
         InstrumentationUtility.logout()
@@ -191,6 +193,7 @@ class FormEntryTest: BaseTest() {
                 .perform(click())
         onView(withText("Languages"))
                 .check(matches(isDisplayed()))
+        InstrumentationUtility.logout()
     }
 
     @Test
