@@ -7,6 +7,7 @@ import androidx.test.espresso.action.Swipe;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import org.commcare.activities.DrawActivity;
+import org.commcare.annotations.BrowserstackTests;
 import org.commcare.dalvik.R;
 import org.commcare.modern.util.Pair;
 import org.commcare.utils.HQApi;
@@ -32,6 +33,7 @@ import static junit.framework.Assert.assertTrue;
  */
 @RunWith(AndroidJUnit4.class)
 @LargeTest
+@BrowserstackTests
 public class FormAttachmentUploadTest extends BaseTest {
 
     private final String CCZ_NAME = "integration_test_app.ccz";

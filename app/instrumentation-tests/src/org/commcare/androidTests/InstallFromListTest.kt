@@ -16,6 +16,7 @@ import org.commcare.CommCareApplication
 import org.commcare.CommCareInstrumentationTestApplication
 import org.commcare.activities.InstallFromListActivity
 import org.commcare.android.database.global.models.AppAvailableToInstall
+import org.commcare.annotations.BrowserstackTests
 import org.commcare.dalvik.BuildConfig
 import org.commcare.dalvik.R
 import org.commcare.utils.CustomMatchers
@@ -29,6 +30,7 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 @LargeTest
+@BrowserstackTests
 class InstallFromListTest: BaseTest() {
 
     @Before
