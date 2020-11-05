@@ -56,17 +56,22 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
         /**
          * Logs successfully submitted
          **/
-        Submitted("notification.logger.submitted"),
+        SUBMITTED("notification.logger.submitted"),
 
         /**
          * Logs saved, but not actually submitted
          **/
-        Serialized("notification.logger.serialized"),
+        SERIALIZED("notification.logger.serialized"),
 
         /**
          * Something went wrong
          **/
-        Error("notification.logger.error");
+        ERROR("notification.logger.error"),
+
+        /**
+         * Rate limit reached. So we shouldn't retry
+         */
+        RATE_LIMITED("notification.logger.rate.limited");
 
         LogSubmitOutcomes(String root) {
             this.root = root;
@@ -116,7 +121,7 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
                         CommCareApplication.instance().getUserStorage(DeviceReportRecord.class);
 
                 if (!serializeLogs(storage)) {
-                    return LogSubmitOutcomes.Error;
+                    return LogSubmitOutcomes.ERROR;
                 }
 
                 if (forceLogs || logsEnabled.contentEquals(HiddenPreferences.LOGS_ENABLED_YES)) {
@@ -124,7 +129,7 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
                     // See how many we have pending to submit
                     int numberOfLogsToSubmit = storage.getNumRecords();
                     if (numberOfLogsToSubmit == 0) {
-                        return LogSubmitOutcomes.Submitted;
+                        return LogSubmitOutcomes.SUBMITTED;
                     }
 
                     // Signal to the listener that we're ready to submit
@@ -135,13 +140,13 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
                     submitReports(storage, submittedSuccesfullyIds, submittedSuccesfully);
 
                     if (!removeLocalReports(storage, submittedSuccesfullyIds, submittedSuccesfully)) {
-                        return LogSubmitOutcomes.Serialized;
+                        return LogSubmitOutcomes.SERIALIZED;
                     }
 
                     LogSubmitOutcomes result = checkSubmissionResult(numberOfLogsToSubmit, submittedSuccesfully);
 
                     // Reset force_logs if the logs submission was successful
-                    if (result == LogSubmitOutcomes.Submitted) {
+                    if (result == LogSubmitOutcomes.SUBMITTED) {
                         HiddenPreferences.setForceLogs(CommCareApplication.instance().getSession().getLoggedInUser().getUniqueId(), false);
                     }
 
@@ -150,9 +155,9 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
             }
         } catch (SessionUnavailableException e) {
             // The user database closed on us
-            return LogSubmitOutcomes.Error;
+            return LogSubmitOutcomes.ERROR;
         }
-        return LogSubmitOutcomes.Submitted;
+        return LogSubmitOutcomes.SUBMITTED;
     }
 
     /**
@@ -238,9 +243,13 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
         int index = 0;
         for (DeviceReportRecord slr : storage) {
             try {
-                if (submitDeviceReportRecord(slr, submissionUrl, this, index, forceLogs)) {
+                LogSubmitOutcomes outcome = submitDeviceReportRecord(slr, submissionUrl, this, index, forceLogs);
+                if (outcome == LogSubmitOutcomes.SUBMITTED) {
                     submittedSuccesfullyIds.add(slr.getID());
                     submittedSuccesfully.add(slr);
+                } else if (outcome == LogSubmitOutcomes.RATE_LIMITED) {
+                    // We're getting rate limited so breaking out of here.
+                    break;
                 }
                 index++;
             } catch (Exception e) {
@@ -249,14 +258,14 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
         }
     }
 
-    private static boolean submitDeviceReportRecord(DeviceReportRecord slr, String submissionUrl,
+    private static LogSubmitOutcomes submitDeviceReportRecord(DeviceReportRecord slr, String submissionUrl,
                                                     DataSubmissionListener listener, int index, boolean forceLogs) {
         //Get our file pointer
         File f = new File(slr.getFilePath());
 
         // Bad (Empty) record. Wipe
         if (f.length() == 0) {
-            return true;
+            return LogSubmitOutcomes.SUBMITTED;
         }
 
         listener.startSubmission(index, f.length());
@@ -267,7 +276,7 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
             user = CommCareApplication.instance().getSession().getLoggedInUser();
         } catch (SessionUnavailableException e) {
             // lost the session, so report failed submission
-            return false;
+            return LogSubmitOutcomes.ERROR;
         }
 
         generator = new CommcareRequestGenerator(user);
@@ -286,10 +295,10 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
             response = generator.postLogs(submissionUrl, parts, forceLogs);
         } catch (IOException e) {
             e.printStackTrace();
-            return false;
+            return LogSubmitOutcomes.ERROR;
         } catch (IllegalStateException e) {
             e.printStackTrace();
-            return false;
+            return LogSubmitOutcomes.ERROR;
         } finally {
             if (response != null && response.body() != null) {
                 response.body().close();
@@ -297,7 +306,13 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
         }
 
         int responseCode = response.code();
-        return (responseCode >= 200 && responseCode < 300);
+        if (responseCode >= 200 && responseCode < 300) {
+            return LogSubmitOutcomes.SUBMITTED;
+        } else if (responseCode == 503 || responseCode == 429) {
+            return LogSubmitOutcomes.RATE_LIMITED;
+        } else {
+            return LogSubmitOutcomes.ERROR;
+        }
     }
 
     private static boolean removeLocalReports(SqlStorage<DeviceReportRecord> storage,
@@ -330,11 +345,11 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
         }
         //Whether this is a full or partial success depends on how many logs were pending
         if (submittedSuccesfully.size() == numberOfLogsToSubmit) {
-            return LogSubmitOutcomes.Submitted;
+            return LogSubmitOutcomes.SUBMITTED;
         } else {
             Logger.log(LogTypes.TYPE_MAINTENANCE, numberOfLogsToSubmit - submittedSuccesfully.size() + " logs remain on phone.");
             //Some remain unsent
-            return LogSubmitOutcomes.Serialized;
+            return LogSubmitOutcomes.SERIALIZED;
         }
     }
 
@@ -389,8 +404,8 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
     @Override
     protected void onPostExecute(LogSubmitOutcomes result) {
         super.onPostExecute(result);
-        listener.endSubmissionProcess(LogSubmitOutcomes.Submitted.equals(result));
-        if (result != LogSubmitOutcomes.Submitted) {
+        listener.endSubmissionProcess(LogSubmitOutcomes.SUBMITTED.equals(result));
+        if (result != LogSubmitOutcomes.SUBMITTED) {
             CommCareApplication.notificationManager().reportNotificationMessage(NotificationMessageFactory.message(result));
         } else {
             CommCareApplication.notificationManager().clearNotifications(result.getCategory());
