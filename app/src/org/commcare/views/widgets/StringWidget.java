@@ -218,6 +218,11 @@ public class StringWidget extends QuestionWidget implements OnClickListener, Tex
     }
 
     @Override
+    public void removeFocus() {
+        mAnswer.clearFocus();
+    }
+
+    @Override
     public void afterTextChanged(Editable s) {
         widgetEntryChanged();
     }
