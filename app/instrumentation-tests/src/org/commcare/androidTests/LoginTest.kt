@@ -10,6 +10,7 @@ import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
+import org.commcare.annotations.BrowserstackTests
 import org.commcare.dalvik.R
 import org.commcare.utils.InstrumentationUtility
 import org.hamcrest.Matchers.startsWith
@@ -38,6 +39,7 @@ class LoginTest: BaseTest() {
     }
 
     @Test
+    @BrowserstackTests
     fun testLoginFlow() {
         InstrumentationUtility.login("user_with_no_data", "123")
         verifyAllHomeButtonsPresent(homeButtons)
@@ -62,7 +64,6 @@ class LoginTest: BaseTest() {
         onView(withText("Starting Practice Mode"))
                 .check(matches(isDisplayed()))
         InstrumentationUtility.rotatePortrait()
-        InstrumentationUtility.sleep(2)
         onView(withId(R.id.positive_button))
                 .perform(click())
         onView(withText(startsWith("You are logging into")))
@@ -110,7 +111,6 @@ class LoginTest: BaseTest() {
                 .check(matches(isDisplayed()))
 
         InstrumentationUtility.changeWifi(true)
-        InstrumentationUtility.sleep(10) // Sleeping 10 seconds so that wifi is setup.
         onView(withId(R.id.edit_password))
                 .perform(clearText())
         onView(withId(R.id.login_button))
