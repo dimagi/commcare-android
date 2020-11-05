@@ -41,6 +41,7 @@ import org.commcare.views.media.AudioController;
 import org.commcare.views.widgets.ImageWidget;
 import org.commcare.views.widgets.IntentWidget;
 import org.commcare.views.widgets.QuestionWidget;
+import org.commcare.views.widgets.StringWidget;
 import org.javarosa.core.model.Constants;
 import org.javarosa.core.model.FormIndex;
 import org.javarosa.core.model.SelectChoice;
@@ -763,8 +764,8 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
             }
             // Unfortunately editTexts don't lose focus by itself, so we need to remove focus
             // from editText if it's not the last widget that user was interacting with.
-            if (i != indexOfLastChangedWidget) {
-                oldWidgets.get(i).removeFocus();
+            if (i != indexOfLastChangedWidget && oldWidgets.get(i) instanceof StringWidget) {
+                ((StringWidget) oldWidgets.get(i)).removeFocus();
             }
         }
         // Remove "atomically" to not mess up iterations

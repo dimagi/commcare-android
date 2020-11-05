@@ -217,7 +217,6 @@ public class StringWidget extends QuestionWidget implements OnClickListener, Tex
         mAnswer.performClick();
     }
 
-    @Override
     public void removeFocus() {
         mAnswer.clearFocus();
     }
