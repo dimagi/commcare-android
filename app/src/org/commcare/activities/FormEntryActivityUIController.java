@@ -761,6 +761,11 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
                 // no longer relevant in the new view, so it should get removed
                 shouldRemoveFromView.add(i);
             }
+            // Unfortunately editTexts don't lose focus by itself, so we need to remove focus
+            // from editText if it's not the last widget that user was interacting with.
+            if (i != indexOfLastChangedWidget) {
+                oldWidgets.get(i).removeFocus();
+            }
         }
         // Remove "atomically" to not mess up iterations
         questionsView.removeQuestionsFromIndex(shouldRemoveFromView);

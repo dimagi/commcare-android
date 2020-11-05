@@ -135,6 +135,9 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
     protected void acceptFocus() {
     }
 
+    public void removeFocus() {
+    }
+
     private void addHelpPlaceholder() {
         if (!mPrompt.hasHelp()) {
             return;
