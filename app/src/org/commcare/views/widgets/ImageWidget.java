@@ -190,7 +190,7 @@ public class ImageWidget extends QuestionWidget {
 
             // If there is an image in the raw folder, use that as the display image, since it is
             // better quality
-            File toDisplay = new File(mInstanceFolder + "/raw/" + mBinaryName);
+            File toDisplay = new File(ImageCaptureProcessing.getRawDirectoryPath(mInstanceFolder) + mBinaryName);
             if (!toDisplay.exists()) {
                 toDisplay = imageBeingSubmitted;
             }

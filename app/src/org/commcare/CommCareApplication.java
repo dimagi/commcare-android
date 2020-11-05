@@ -96,6 +96,7 @@ import org.commcare.utils.PendingCalcs;
 import org.commcare.utils.SessionActivityRegistration;
 import org.commcare.utils.SessionStateUninitException;
 import org.commcare.utils.SessionUnavailableException;
+import org.commcare.views.widgets.CleanRawMedia;
 import org.conscrypt.Conscrypt;
 import org.javarosa.core.model.User;
 import org.javarosa.core.reference.ReferenceManager;
@@ -146,6 +147,7 @@ public class CommCareApplication extends MultiDexApplication {
     public static final int STATE_MIGRATION_FAILED = 16;
     public static final int STATE_MIGRATION_QUESTIONABLE = 32;
     private static final String DELETE_LOGS_REQUEST = "delete-logs-request";
+    private static final String CLEAN_RAW_MEDIA_REQUEST = "clean-raw-media-request";
     private static final long BACKOFF_DELAY_FOR_UPDATE_RETRY = 5 * 60 * 1000L; // 5 mins
     private static final long BACKOFF_DELAY_FOR_FORM_SUBMISSION_RETRY = 5 * 60 * 1000L; // 5 mins
     private static final long PERIODICITY_FOR_FORM_SUBMISSION_IN_HOURS = 1;
@@ -766,6 +768,7 @@ public class CommCareApplication extends MultiDexApplication {
                         }
 
                         purgeLogs();
+                        cleanRawMedia();
 
                     }
 
@@ -790,6 +793,12 @@ public class CommCareApplication extends MultiDexApplication {
         startService(new Intent(this, CommCareSessionService.class));
         bindService(new Intent(this, CommCareSessionService.class), mConnection, Context.BIND_AUTO_CREATE);
         sessionServiceIsBinding = true;
+    }
+
+    private void cleanRawMedia() {
+        OneTimeWorkRequest cleanRawMediaRequest = new OneTimeWorkRequest.Builder(CleanRawMedia.class).build();
+        WorkManager.getInstance(CommCareApplication.instance())
+                .enqueueUniqueWork(CLEAN_RAW_MEDIA_REQUEST, ExistingWorkPolicy.KEEP, cleanRawMediaRequest);
     }
 
     private void purgeLogs() {

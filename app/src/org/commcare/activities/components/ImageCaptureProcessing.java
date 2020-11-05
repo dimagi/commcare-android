@@ -62,7 +62,7 @@ public class ImageCaptureProcessing {
         } else {
             // Otherwise, relocate the original image to a raw/ folder, so that we still have access
             // to the unmodified version
-            String rawDirPath = instanceFolder + "/raw";
+            String rawDirPath = getRawDirectoryPath(instanceFolder);
             File rawDir = new File(rawDirPath);
             if (!rawDir.exists()) {
                 rawDir.mkdir();
@@ -76,6 +76,11 @@ public class ImageCaptureProcessing {
             }
             return rawImageFile;
         }
+    }
+
+    // Returns path for the raw folder used to store the original images for a form
+    public static String getRawDirectoryPath(String instanceFolderPath){
+        return instanceFolderPath + "/raw";
     }
 
     /**

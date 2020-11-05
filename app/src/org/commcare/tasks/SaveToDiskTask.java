@@ -4,6 +4,7 @@ import android.util.Log;
 
 import org.commcare.CommCareApplication;
 import org.commcare.activities.FormEntryActivity;
+import org.commcare.activities.components.ImageCaptureProcessing;
 import org.commcare.android.database.app.models.FormDefRecord;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.logging.ForceCloseLogger;
@@ -13,6 +14,7 @@ import org.commcare.models.database.SqlStorage;
 import org.commcare.models.encryption.EncryptionIO;
 import org.commcare.tasks.templates.CommCareTask;
 import org.commcare.util.LogTypes;
+import org.commcare.utils.FileUtil;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.FormIndex;
@@ -228,7 +230,7 @@ public class SaveToDiskTask extends
 
             // delete the restore Xml file.
             if (!instanceXml.delete()) {
-                Log.e(TAG,
+                Logger.log(LogTypes.TYPE_MAINTENANCE,
                         "Error deleting " + instanceXml.getAbsolutePath()
                                 + " prior to renaming submission.xml");
                 return;
@@ -236,7 +238,13 @@ public class SaveToDiskTask extends
 
             // rename the submission.xml to be the instanceXml
             if (!submissionXml.renameTo(instanceXml)) {
-                Log.e(TAG, "Error renaming submission.xml to " + instanceXml.getAbsolutePath());
+                Logger.log(LogTypes.TYPE_MAINTENANCE,
+                        "Error renaming submission.xml to " + instanceXml.getAbsolutePath());
+            }
+
+            String rawDirPath = ImageCaptureProcessing.getRawDirectoryPath(instanceXml.getParent());
+            if(!FileUtil.deleteFileOrDir(rawDirPath)){
+                Logger.log(LogTypes.TYPE_MAINTENANCE, "Error deleting raw dir at path " + rawDirPath);
             }
         }
     }
