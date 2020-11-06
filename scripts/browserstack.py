@@ -28,6 +28,7 @@ def buildTestCommand(appToken, testToken, classes=None):
     test["testSuite"] = testToken
     test["networkLogs"] = True
     test["annotation"] = ["org.commcare.annotations.BrowserstackTests"]
+    test["coverage"] = True
 
     if classes:
         test["class"] = classes
@@ -47,12 +48,31 @@ def isSuccessfulBuild(buildId):
 
     return status
 
+def getCoverageReport(buildId):
+    # First get sessionID.
+    resultCommand = 'curl -u "{}:{}" -X GET "https://api-cloud.browserstack.com/app-automate/espresso/v2/builds/{}"'.format(userName, password, buildId)
+    result = subprocess.Popen(shlex.split(resultCommand), stdout=PIPE, stderr=None, shell=False)
+    sessionId = json.loads(result.communicate()[0])["devices"][0]["sessions"][0]["id"]
+
+    filename = os.environ["INSTRUMENTATION_COVERAGE_PATH"]
+    dirname = os.path.dirname(filename)
+    if not os.path.exists(dirname):
+        os.makedirs(dirname)
+
+    f = open(filename, "w")
+
+    coverageCommand = 'curl -u "{}:{}" -X GET "https://api-cloud.browserstack.com/app-automate/espresso/v2/builds/{}/sessions/{}/coverage"'.format(userName, password, buildId, sessionId)
+    subprocess.Popen(shlex.split(coverageCommand), stdout=f, stderr=None, shell=False)
+
+
+
 
 def testResult(buildId):
     status = isSuccessfulBuild(buildId)
 
     # if test succeeded then we can simply return from here.
     if (status == "passed"):
+        getCoverageReport(buildId)
         return
 
     # Otherwise run the failing test one more time.
@@ -85,6 +105,10 @@ def testResult(buildId):
     buildId = json.loads(output[0])["build_id"]
 
     status = isSuccessfulBuild(buildId)
+
+    if (status == "passed"):
+        getCoverageReport(buildId)
+        return
 
     if (status != "passed"):
         print("Instrumentation Tests Failed. Visit browserstack dashboard for more details.")
