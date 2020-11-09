@@ -1,0 +1,80 @@
+apply plugin: 'com.android.library'
+apply plugin: 'maven-publish'
+
+version '12.3'
+
+ext {
+    BINTRAY_USERNAME = project.properties['BINTRAY_USERNAME'] ?: ""
+    BINTRAY_PASSWORD = project.properties['BINTRAY_PASSWORD'] ?: ""
+}
+
+afterEvaluate {
+    publishing {
+        publications {
+            release(MavenPublication) {
+                from components.release
+                groupId 'org.commcare'
+                artifactId 'support-library'
+                version this.version
+
+                pom {
+                    name = 'CommCare Support Library'
+                    description = 'Provides a set of utility functions for using CommCare Android mobile APIs'
+                    url = 'https://github.com/dimagi/commcare-support-library'
+                    licenses {
+                        license {
+                            name = 'The Apache Software License, Version 2.0'
+                            url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                        }
+                    }
+                    developers {
+                        developer {
+                            id = 'shubham1g5'
+                            name = 'Shubham Goyal'
+                            email = 'sgoyal@dimagi.com'
+                        }
+                    }
+                    scm {
+                        url = 'https://github.com/dimagi/commcare-support-library.git'
+                    }
+                }
+            }
+        }
+        repositories {
+            maven {
+                credentials {
+                    username project.ext.BINTRAY_USERNAME
+                    password project.ext.BINTRAY_PASSWORD
+                }
+                name = 'dimagi-commcare-support-library'
+                url = 'https://api.bintray.com/maven/dimagi/commcare-support-library/commcare-support-library/;publish=1'
+            }
+        }
+    }
+}
+
+android {
+    compileSdkVersion 26
+    defaultConfig {
+        minSdkVersion 19
+        targetSdkVersion 26
+        versionCode 1
+        versionName "1.0"
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation 'com.android.support:appcompat-v7:26.1.0'
+    implementation 'com.android.support.constraint:constraint-layout:1.0.2'
+    testImplementation 'junit:junit:4.12'
+    androidTestImplementation 'com.android.support.test:runner:1.0.1'
+    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
+}

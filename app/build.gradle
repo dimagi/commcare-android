@@ -20,10 +20,6 @@ apply plugin: 'com.google.firebase.crashlytics'
 apply from: 'jacoco.gradle'
 
 repositories {
-    google()
-    mavenCentral()
-    google()
-    jcenter()
     // for local aar inclusion
     flatDir {
         dirs 'libs'
