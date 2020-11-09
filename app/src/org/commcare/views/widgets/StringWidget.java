@@ -38,10 +38,6 @@ public class StringWidget extends QuestionWidget implements OnClickListener, Tex
     protected boolean secret = false;
     private static final String SHORT_APPEARANCE = "short";
 
-    public StringWidget(Context context, FormEntryPrompt prompt, boolean secret) {
-        this(context, prompt, secret, false);
-    }
-
     public StringWidget(Context context, FormEntryPrompt prompt, boolean secret, boolean inCompactGroup) {
         super(context, prompt, inCompactGroup);
         mAnswer = (EditText)LayoutInflater.from(getContext()).inflate(getAnswerLayout(), this, false);
@@ -239,7 +235,7 @@ public class StringWidget extends QuestionWidget implements OnClickListener, Tex
     }
 
     public void setLastQuestion(boolean isLast) {
-        if (SHORT_APPEARANCE.equalsIgnoreCase(mPrompt.getAppearanceHint())) {
+        if (SHORT_APPEARANCE.equalsIgnoreCase(mPrompt.getAppearanceHint()) || isInCompactMode()) {
             if (isLast) {
                 mAnswer.setImeOptions(EditorInfo.IME_FLAG_NO_EXTRACT_UI | EditorInfo.IME_ACTION_DONE);
             } else {
