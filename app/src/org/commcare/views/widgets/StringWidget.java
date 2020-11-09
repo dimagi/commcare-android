@@ -36,6 +36,7 @@ public class StringWidget extends QuestionWidget implements OnClickListener, Tex
     private boolean mReadOnly = false;
     protected final EditText mAnswer;
     protected boolean secret = false;
+    private static final String SHORT_APPEARANCE = "short";
 
     public StringWidget(Context context, FormEntryPrompt prompt, boolean secret) {
         this(context, prompt, secret, false);
@@ -238,6 +239,13 @@ public class StringWidget extends QuestionWidget implements OnClickListener, Tex
     }
 
     public void setLastQuestion(boolean isLast) {
+        if (SHORT_APPEARANCE.equalsIgnoreCase(mPrompt.getAppearanceHint())) {
+            if (isLast) {
+                mAnswer.setImeOptions(EditorInfo.IME_FLAG_NO_EXTRACT_UI | EditorInfo.IME_ACTION_DONE);
+            } else {
+                mAnswer.setImeOptions(EditorInfo.IME_FLAG_NO_EXTRACT_UI | EditorInfo.IME_ACTION_NEXT);
+            }
+        }
         // nothing changes for Strings
     }
 
