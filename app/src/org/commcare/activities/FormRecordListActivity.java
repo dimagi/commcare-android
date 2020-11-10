@@ -51,6 +51,8 @@ import org.commcare.tasks.TaskListenerRegistrationException;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.AndroidCommCarePlatform;
 import org.commcare.utils.CommCareUtil;
+import org.commcare.utils.FileUtil;
+import org.commcare.utils.FormUploadUtil;
 import org.commcare.utils.QuarantineUtil;
 import org.commcare.utils.SessionUnavailableException;
 import org.commcare.views.IncompleteFormRecordView;
@@ -58,6 +60,12 @@ import org.commcare.views.dialogs.CustomProgressDialog;
 import org.commcare.views.dialogs.StandardAlertDialog;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
+
+import java.io.File;
+import java.io.IOException;
+
+import javax.crypto.Cipher;
+import javax.crypto.spec.SecretKeySpec;
 
 
 public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRecordListActivity>
@@ -69,6 +77,7 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
     private static final int RESTORE_RECORD = Menu.FIRST + 2;
     private static final int SCAN_RECORD = Menu.FIRST + 3;
     private static final int VIEW_QUARANTINE_REASON = Menu.FIRST + 4;
+    private static final int DECRYPT_FORM = Menu.FIRST + 5;
 
     private static final int DOWNLOAD_FORMS_FROM_SERVER = Menu.FIRST;
     private static final int MENU_SUBMIT_QUARANTINE_REPORT = Menu.FIRST + 1;
@@ -410,6 +419,7 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
                         Localization.get("app.workflow.forms.restore"));
             }
         }
+        menu.add(Menu.NONE, DECRYPT_FORM,  DECRYPT_FORM, "Decrypt form");
 
         menu.add(Menu.NONE, SCAN_RECORD, SCAN_RECORD, Localization.get("app.workflow.forms.scan"));
     }
@@ -444,11 +454,30 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
                 case VIEW_QUARANTINE_REASON:
                     createQuarantineReasonDialog(selectedRecord);
                     return true;
+                case DECRYPT_FORM:
+                    // Decrypt form here.
+                    decryptForm((FormRecord)adapter.getItem(info.position));
+                    return true;
             }
             return true;
         } catch (SessionUnavailableException e) {
             //TODO: Login and try again
             return true;
+        }
+    }
+
+    private void decryptForm(FormRecord encryptedRecord) {
+        SecretKeySpec keySpec = new SecretKeySpec(encryptedRecord.getAesKey(), "AES");
+        File encryptedXml = new File(encryptedRecord.getFilePath());
+        File decryptedXml = new File(this.getExternalFilesDir("decrypted").toString() + "/" + encryptedXml.getName());
+
+        final Cipher decryptCipher = FormUploadUtil.getDecryptCipher(keySpec);
+        try {
+            FileUtil.copyFile(encryptedXml, decryptedXml, decryptCipher, null);
+            Toast.makeText(this, "Decryption successful, go to :: " + decryptedXml.getAbsolutePath(), Toast.LENGTH_LONG).show();
+        } catch (IOException e) {
+            Toast.makeText(this, "Error while decrypting ::" + e.getMessage(), Toast.LENGTH_LONG).show();
+            e.printStackTrace();
         }
     }
 
