@@ -18,10 +18,10 @@ import static android.app.Activity.RESULT_OK;
 public class IdentityResponseBuilder {
 
     // Constants related to Identity Provider Workflows
-    final private static String REGISTRATION = "registration";
-    final private static String IDENTIFICATION = "identification";
-    final private static String VERIFICATION = "verification";
-    final private static String REGISTRATION_DUPLICATES = "registration_duplicates";
+    final public static String REGISTRATION = "cc_registration";
+    final public static String IDENTIFICATION = "cc_identification";
+    final public static String VERIFICATION = "cc_verification";
+    final public static String REGISTRATION_DUPLICATES = "cc_registration_duplicates";
 
     private Intent resultIntent;
 

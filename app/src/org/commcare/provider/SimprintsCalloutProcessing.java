@@ -1,9 +1,10 @@
 package org.commcare.provider;
 
 import android.content.Intent;
+
 import androidx.annotation.NonNull;
+
 import android.util.Base64;
-import android.util.Log;
 
 import com.simprints.libsimprints.Constants;
 import com.simprints.libsimprints.FingerIdentifier;
@@ -12,8 +13,6 @@ import com.simprints.libsimprints.Registration;
 import com.simprints.libsimprints.Tier;
 
 import org.javarosa.core.model.FormDef;
-import org.javarosa.core.model.condition.EvaluationContext;
-import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.OrderedHashtable;
@@ -24,6 +23,8 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Vector;
 
+import static org.commcare.provider.IdentityCalloutHandler.storeValueFromCalloutInForm;
+
 /**
  * Process simprints fingerprint registration and identification callout results.
  *
@@ -31,6 +32,8 @@ import java.util.Vector;
  */
 public class SimprintsCalloutProcessing {
     private static final String TAG = SimprintsCalloutProcessing.class.getSimpleName();
+
+    public static final String SIMPRINTS_IDENTITY_PROVIDER = "simprints-identitiy-provider";
 
     /**
      * Fingerprint lookup response from Simprints scanner app.
@@ -90,21 +93,18 @@ public class SimprintsCalloutProcessing {
         // Store all the fingerprint responses
         int numOfFingersScanned = 0;
         for (FingerIdentifier fingerIdentifier : FingerIdentifier.values()) {
-            Vector<TreeReference> fingerRefs =  responseToRefMap.get(fingerIdentifier.toString());
-            if (fingerRefs != null && !fingerRefs.isEmpty()) {
-                byte[] template = registration.getTemplate(fingerIdentifier);
-                storeValueFromRegistrationResponse(formDef, fingerRefs, intentQuestionRef,
-                        Base64.encodeToString(template, Base64.DEFAULT));
+            byte[] template = registration.getTemplate(fingerIdentifier);
+            boolean success = IdentityCalloutHandler.storeValueFromCalloutInForm(formDef, responseToRefMap, intentQuestionRef,
+                    fingerIdentifier.toString(),
+                    Base64.encodeToString(template, Base64.DEFAULT));
+            if (success) {
                 numOfFingersScanned += countTemplateScanned(template);
             }
         }
 
         // Store the guid response
         String guid = registration.getGuid();
-        Vector<TreeReference> refsToStoreGuidAt = responseToRefMap.get("guid");
-        if (refsToStoreGuidAt != null && guid != null) {
-            storeValueFromRegistrationResponse(formDef, refsToStoreGuidAt, intentQuestionRef, guid);
-        }
+        storeValueFromCalloutInForm(formDef, responseToRefMap, intentQuestionRef, "guid", guid);
 
         String resultMessage =
                 Localization.get("fingerprints.scanned", new String[]{"" + numOfFingersScanned});
@@ -117,28 +117,5 @@ public class SimprintsCalloutProcessing {
         return (template == null || template.length == 0) ? 0 : 1;
     }
 
-    private static void storeValueFromRegistrationResponse(FormDef formDef,
-                                                           Vector<TreeReference> treeRefs,
-                                                           TreeReference contextRef,
-                                                           String responseValue) {
-        for (TreeReference ref : treeRefs) {
-            storeValueFromRegistrationResponse(formDef, ref, contextRef, responseValue);
-        }
-    }
 
-    private static void storeValueFromRegistrationResponse(FormDef formDef, TreeReference ref,
-                                                           TreeReference contextRef,
-                                                           String responseValue) {
-        EvaluationContext context = new EvaluationContext(formDef.getEvaluationContext(), contextRef);
-        TreeReference fullRef = ref.contextualize(contextRef);
-        AbstractTreeElement node = context.resolveReference(fullRef);
-
-        if (node == null) {
-            Log.e(TAG, "Unable to resolve ref " + ref);
-            return;
-        }
-        int dataType = node.getDataType();
-
-        IntentCallout.setValueInFormDef(formDef, fullRef, responseValue, dataType);
-    }
 }

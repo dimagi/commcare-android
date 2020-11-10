@@ -1,6 +1,8 @@
 package org.commcare.activities;
 
+import androidx.annotation.StringDef;
 import androidx.appcompat.app.AppCompatActivity;
+
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
@@ -40,6 +42,7 @@ import org.commcare.google.services.ads.AdLocation;
 import org.commcare.google.services.ads.AdMobManager;
 import org.commcare.models.AndroidSessionWrapper;
 import org.commcare.preferences.HiddenPreferences;
+import org.commcare.provider.IdentityCalloutHandler;
 import org.commcare.provider.SimprintsCalloutProcessing;
 import org.commcare.session.CommCareSession;
 import org.commcare.session.SessionFrame;
@@ -639,8 +642,10 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         if (resultCode == AppCompatActivity.RESULT_OK) {
             if (intent.hasExtra(IntentCallout.INTENT_RESULT_VALUE)) {
                 handleSearchStringCallout(intent);
+            } else if (IdentityCalloutHandler.isIdentificationResponse(intent)) {
+                handleFingerprintMatchCallout(intent, IdentityCalloutHandler.GENERALIZED_IDENTITY_PROVIDER);
             } else if (SimprintsCalloutProcessing.isIdentificationResponse(intent)) {
-                handleFingerprintMatchCallout(intent);
+                handleFingerprintMatchCallout(intent, SimprintsCalloutProcessing.SIMPRINTS_IDENTITY_PROVIDER);
             } else {
                 Toast.makeText(this,
                         Localization.get("select.callout.search.invalid"),
@@ -664,9 +669,16 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         }
     }
 
-    private void handleFingerprintMatchCallout(Intent intent) {
-        OrderedHashtable<String, String> guidToMatchConfidenceMap =
-                SimprintsCalloutProcessing.getConfidenceMatchesFromCalloutResponse(intent);
+    private void handleFingerprintMatchCallout(
+            Intent intent,
+            @IdentityCalloutHandler.IdentityProvider String identityProvider) {
+
+        OrderedHashtable<String, String> guidToMatchConfidenceMap = null;
+        if (identityProvider.contentEquals(SimprintsCalloutProcessing.SIMPRINTS_IDENTITY_PROVIDER)) {
+            guidToMatchConfidenceMap = SimprintsCalloutProcessing.getConfidenceMatchesFromCalloutResponse(intent);
+        } else if (identityProvider.contentEquals(IdentityCalloutHandler.GENERALIZED_IDENTITY_PROVIDER)) {
+            guidToMatchConfidenceMap = IdentityCalloutHandler.getConfidenceMatchesFromCalloutResponse(intent);
+        }
         adapter.filterByKeyedCalloutData(guidToMatchConfidenceMap);
         refreshView();
     }

@@ -3,7 +3,8 @@ package org.commcare.commcaresupportlibrary.identity.model;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.support.annotation.NonNull;
+
+import androidx.annotation.NonNull;
 
 @SuppressWarnings("unused")
 public class IdentificationMatch implements Parcelable, Comparable<IdentificationMatch> {

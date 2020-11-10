@@ -2,7 +2,8 @@ package org.commcare.commcaresupportlibrary.identity.model;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.support.annotation.NonNull;
+
+import androidx.annotation.NonNull;
 
 /**
  * Object representing result of a identity verification workflow
