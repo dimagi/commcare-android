@@ -1,20 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <dimen name="edit_text_question_widget_compact_width">200dp</dimen>
     <dimen name="font_size_small">16sp</dimen>
     <dimen name="font_size_medium">20sp</dimen>
     <dimen name="font_size_large">24sp</dimen>
     <dimen name="font_size_xlarge">28sp</dimen>
-
     <dimen name="cell_padding_vertical">8sp</dimen>
     <dimen name="cell_padding_horizontal">8sp</dimen>
     <dimen name="row_padding_vertical">8sp</dimen>
     <dimen name="row_padding_horizontal">8sp</dimen>
-
     <dimen name="widget_button_padding">25dp</dimen>
-
-    <dimen name="edit_text_question_widget_compact_width">96dp</dimen>
-
     <dimen name="rectangle_button_height">80dp</dimen>
-
-
 </resources>
