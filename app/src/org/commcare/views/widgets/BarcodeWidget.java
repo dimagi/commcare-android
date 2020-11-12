@@ -2,15 +2,16 @@ package org.commcare.views.widgets;
 
 import android.content.Context;
 import androidx.appcompat.app.AppCompatActivity;
+import android.content.Intent;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.TypedValue;
 import android.view.Gravity;
-
+import com.google.zxing.client.android.Intents;
 import com.google.zxing.integration.android.IntentIntegrator;
-
 import org.commcare.android.javarosa.IntentCallout;
 import org.commcare.logic.PendingCalloutInterface;
+import org.commcare.preferences.MainConfigurablePreferences;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.instance.TreeReference;
@@ -29,7 +30,18 @@ public class BarcodeWidget extends IntentWidget implements TextWatcher {
                 "intent.barcode.get", "intent.barcode.update", "barcode.reader.missing",
                 appearance != null && appearance.contains("editable"), appearance, formDef);
         // this has to be done after call to super in order to be able to access getContext()
-        this.intent = new IntentIntegrator((AppCompatActivity)getContext()).createScanIntent();
+        createScanIntent();
+    }
+
+    private void createScanIntent() {
+        if (MainConfigurablePreferences.useIntentCalloutForScanner()) {
+            Intent scanIntent = new Intent(Intents.Scan.ACTION);
+            if (scanIntent.resolveActivity(getContext().getPackageManager()) != null) {
+                this.intent = scanIntent;
+                return;
+            }
+        }
+        this.intent = new IntentIntegrator((AppCompatActivity) getContext()).createScanIntent();
     }
 
     @Override
