@@ -235,7 +235,7 @@ public class StringWidget extends QuestionWidget implements OnClickListener, Tex
     }
 
     public void setLastQuestion(boolean isLast) {
-        if (SHORT_APPEARANCE.equalsIgnoreCase(mPrompt.getAppearanceHint()) || isInCompactMode()) {
+        if (shouldSupportIMEAction()) {
             if (isLast) {
                 mAnswer.setImeOptions(EditorInfo.IME_FLAG_NO_EXTRACT_UI | EditorInfo.IME_ACTION_DONE);
             } else {
@@ -243,6 +243,10 @@ public class StringWidget extends QuestionWidget implements OnClickListener, Tex
             }
         }
         // nothing changes for Strings
+    }
+
+    private boolean shouldSupportIMEAction() {
+        return SHORT_APPEARANCE.equalsIgnoreCase(mPrompt.getAppearanceHint()) || isInCompactMode();
     }
 
     /**
