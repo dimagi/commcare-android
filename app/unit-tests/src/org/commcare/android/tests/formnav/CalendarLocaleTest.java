@@ -12,6 +12,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import org.commcare.android.util.ActivityLaunchUtils;
 import org.commcare.android.util.TestAppInstaller;
 import org.commcare.dalvik.R;
+import org.commcare.suite.model.FormEntry;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -43,24 +44,11 @@ public class CalendarLocaleTest {
      */
     @Test
     public void testNepaliEthiopianCalendar() {
-        ShadowActivity shadowActivity =
-                ActivityLaunchUtils.buildHomeActivityForFormEntryLaunch("m0-f0");
-
-        Intent formEntryIntent = shadowActivity.getNextStartedActivity();
-
-        // make sure the form entry activity should be launched
-        String intentActivityName = formEntryIntent.getComponent().getClassName();
-        assertTrue(intentActivityName.equals(FormEntryActivity.class.getName()));
-
-        navigateCalendarForm(formEntryIntent);
+        FormEntryActivity formEntryActivity = ActivityLaunchUtils.launchFormEntry("m0-f0");
+        navigateCalendarForm(formEntryActivity);
     }
 
-    private void navigateCalendarForm(Intent formEntryIntent) {
-        // launch form entry
-        FormEntryActivity formEntryActivity =
-                Robolectric.buildActivity(FormEntryActivity.class, formEntryIntent)
-                        .create().start().resume().get();
-
+    private void navigateCalendarForm(FormEntryActivity formEntryActivity) {
         ImageButton nextButton = formEntryActivity.findViewById(R.id.nav_btn_next);
 
         // enter an answer for the question

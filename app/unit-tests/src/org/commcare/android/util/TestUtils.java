@@ -5,6 +5,7 @@ import net.sqlcipher.database.SQLiteDatabase;
 import org.commcare.AppUtils;
 import org.commcare.CommCareApplication;
 import org.commcare.CommCareTestApplication;
+import org.commcare.activities.FormEntryActivity;
 import org.commcare.android.database.app.models.FormDefRecord;
 import org.commcare.cases.ledger.Ledger;
 import org.commcare.core.interfaces.UserSandbox;
@@ -33,14 +34,17 @@ import org.commcare.xml.AndroidTransactionParserFactory;
 import org.commcare.xml.CaseXmlParser;
 import org.commcare.xml.FormInstanceXmlParser;
 import org.commcare.xml.LedgerXmlParsers;
+import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.core.model.instance.ExternalDataInstance;
+import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.InstanceInitializationFactory;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
+import org.javarosa.test_utils.ExprEvalUtils;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.kxml2.io.KXmlParser;
@@ -51,6 +55,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collections;
 import java.util.Hashtable;
+
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author ctsims
@@ -353,5 +359,14 @@ public class TestUtils {
         }
 
         return new EvaluationContext(null, instances);
+    }
+
+    public static void assertFormValue(String expr, String expectedValue){
+        FormDef formDef = FormEntryActivity.mFormController.getFormEntryController().getModel().getForm();
+        FormInstance instance = formDef.getMainInstance();
+
+        String errorMsg;
+        errorMsg = ExprEvalUtils.expectedEval(expr, instance, null, expectedValue, null);
+        assertTrue(errorMsg, "".equals(errorMsg));
     }
 }

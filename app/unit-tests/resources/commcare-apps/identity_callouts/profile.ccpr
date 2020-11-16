@@ -1,0 +1,74 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<profile version="10"
+         update="https://www.commcarehq.org/a/shubhamgoyaltest/apps/download/844a399d13204c2792e4f81ae878eb7e/media_profile.ccpr?latest=true&amp;profile=None"
+         requiredMajor="2"
+         requiredMinor="49"
+         requiredMinimal="7"
+         uniqueid="9a75854101a7fc569df81b17a9a208ab"
+         name="Identity Integration Test"
+         descriptor="Profile File"
+         buildProfileID="">
+    <property key="BackupMode" value="file_mode" force="true"/>
+    <property key="backup-url" value="file:///E:/CommCare.Backup" force="true"/>
+    <property key="restore-url" value="file:///E:/CommCare.Backup" force="true"/>
+    <property key="ota-restore-url" value="https://www.commcarehq.org/a/shubhamgoyaltest/phone/restore/844a399d13204c2792e4f81ae878eb7e/" force="true"/>
+    <property key="ota-restore-url-testing" value="https://www.commcarehq.org/a/shubhamgoyaltest/phone/restore/844a399d13204c2792e4f81ae878eb7e/" force="true"/>
+    <property key="PostURL" value="https://www.commcarehq.org/a/shubhamgoyaltest/receiver/secure/844a399d13204c2792e4f81ae878eb7e/" force="true"/>
+    <property key="PostTestURL" value="https://www.commcarehq.org/a/shubhamgoyaltest/receiver/secure/844a399d13204c2792e4f81ae878eb7e/" force="true"/>
+    <property key="key_server" value="https://www.commcarehq.org/a/shubhamgoyaltest/phone/keys/" force="true"/>
+    <property key="cur_locale" value="en" force="false"/>
+    <property key="cc_user_domain" value="shubhamgoyaltest.commcarehq.org" force="true"/>
+    <property key="jr_openrosa_api" value="1.0" force="true"/>
+    
+    <property key="heartbeat-url" value="https://www.commcarehq.org/a/shubhamgoyaltest/phone/heartbeat/844a399d13204c2792e4f81ae878eb7e/?build_profile_id=" force="true"/>
+    
+    
+    
+
+    <!-- Properties configured on CommCare HQ 1.0 -->
+    
+        <property key="log_prop_weekly" value="log_short" force="true"/>
+    
+        <property key="cc-user-mode" value="cc-u-normal" force="true"/>
+    
+        <property key="cc-send-unsent" value="cc-su-auto" force="true"/>
+    
+        <property key="extra_key_action" value="audio" force="true"/>
+    
+        <property key="cc-show-saved" value="no" force="true"/>
+    
+        <property key="cc-show-incomplete" value="no" force="true"/>
+    
+        <property key="recovery-measures-url" value="https://www.commcarehq.org/a/shubhamgoyaltest/phone/recovery_measures/844a399d13204c2792e4f81ae878eb7e/" force="true"/>
+    
+
+    <!-- end -->
+
+    
+
+    <features>
+        <checkoff active="true"/>
+        <reminders active="false">
+            <time>0</time>
+        </reminders>
+        <package active="false"/>
+        
+        <users active="true">
+        </users>
+    </features>
+
+    <suite><resource id="suite" version="10">
+        
+            <location authority="local">./suite.xml</location>
+        
+        <location authority="remote">https://www.commcarehq.org/a/shubhamgoyaltest/apps/download/844a399d13204c2792e4f81ae878eb7e/suite.xml</location>
+    </resource></suite>
+    
+    <suite><resource id="media-suite" version="10">
+        
+            <location authority="local">./media_suite.xml</location>
+        
+        <location authority="remote">https://www.commcarehq.org/a/shubhamgoyaltest/apps/download/844a399d13204c2792e4f81ae878eb7e/media_suite.xml</location>
+    </resource></suite>
+    
+</profile>

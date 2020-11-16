@@ -1,6 +1,5 @@
 package org.commcare.android.tests.caselist;
 
-import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.widget.ImageButton;
 
@@ -12,7 +11,7 @@ import org.commcare.CommCareTestApplication;
 import org.commcare.activities.EntitySelectActivity;
 import org.commcare.activities.components.EntitySelectCalloutSetup;
 import org.commcare.adapters.EntityListAdapter;
-import androidx.test.ext.junit.runners.AndroidJUnit4;
+import org.commcare.android.util.ActivityLaunchUtils;
 import org.commcare.android.util.CaseLoadUtils;
 import org.commcare.android.util.TestAppInstaller;
 import org.commcare.android.util.TestUtils;
@@ -31,6 +30,9 @@ import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowActivity;
 
 import java.util.ArrayList;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -57,7 +59,7 @@ public class EntityListCalloutDataTest {
 
     @Test
     public void testAttachCalloutResultToListTest() {
-        entitySelectActivity = CaseLoadUtils.launchEntitySelectActivity("m1-f0");
+        entitySelectActivity = ActivityLaunchUtils.launchEntitySelectActivity("m1-f0");
 
         adapter = CaseLoadUtils.loadList(entitySelectActivity);
         assertEquals(8, adapter.getCount());
@@ -86,7 +88,7 @@ public class EntityListCalloutDataTest {
 
     @Test
     public void testCalloutResultWithNoColumnTest() {
-        entitySelectActivity = CaseLoadUtils.launchEntitySelectActivity("m1-f1");
+        entitySelectActivity = ActivityLaunchUtils.launchEntitySelectActivity("m1-f1");
 
         adapter = CaseLoadUtils.loadList(entitySelectActivity);
         assertEquals(8, adapter.getCount());

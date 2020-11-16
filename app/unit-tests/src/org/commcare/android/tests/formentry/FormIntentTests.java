@@ -45,23 +45,11 @@ public class FormIntentTests {
      */
     @Test
     public void testIntentCalloutAggregation() {
-        ShadowActivity shadowActivity =
-                ActivityLaunchUtils.buildHomeActivityForFormEntryLaunch("m0-f0");
-
-        Intent formEntryIntent = shadowActivity.getNextStartedActivity();
-
-        // make sure the form entry activity should be launched
-        String intentActivityName = formEntryIntent.getComponent().getClassName();
-        assertTrue(intentActivityName.equals(FormEntryActivity.class.getName()));
-
-        navigateFormStructure(formEntryIntent);
+        FormEntryActivity formEntryActivity = ActivityLaunchUtils.launchFormEntry("m0-f0");
+        navigateFormStructure(formEntryActivity);
     }
 
-    private void navigateFormStructure(Intent formEntryIntent) {
-        // launch form entry
-        FormEntryActivity formEntryActivity =
-                Robolectric.buildActivity(FormEntryActivity.class, formEntryIntent)
-                        .create().start().resume().get();
+    private void navigateFormStructure(FormEntryActivity formEntryActivity) {
 
         ImageButton nextButton = formEntryActivity.findViewById(R.id.nav_btn_next);
 
