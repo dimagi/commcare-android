@@ -410,7 +410,12 @@ public class CommCareApplication extends MultiDexApplication {
     }
 
     public int[] getCommCareVersion() {
-        return this.getResources().getIntArray(R.array.commcare_version);
+        String[] components = BuildConfig.VERSION_NAME.split("\\.");
+        int[] versions = new int[] {0, 0, 0};
+        for (int i = 0; i < components.length; i++) {
+            versions[i] = Integer.parseInt(components[i]);
+        }
+        return versions;
     }
 
     public AndroidCommCarePlatform getCommCarePlatform() {
