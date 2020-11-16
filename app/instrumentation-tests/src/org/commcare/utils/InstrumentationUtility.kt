@@ -247,7 +247,7 @@ object InstrumentationUtility {
             val context = InstrumentationRegistry.getInstrumentation().targetContext
             val wifiManager = context.getSystemService(Context.WIFI_SERVICE) as WifiManager
             wifiManager.isWifiEnabled = enable
-            sleep(5) // Sleep 5 seconds so that wifi is set up.
+            sleep(10) // Sleep 5 seconds so that wifi is set up.
         } else {
             throw IllegalAccessException("changeWifi should only be called in pre-android Q devices")
         }
@@ -337,6 +337,14 @@ object InstrumentationUtility {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
         return sharedPreferences.getBoolean(CommCareSessionService.LOG_SUBMISSION_RESULT_PREF, false)
+    }
+    
+    @JvmStatic
+    fun <T> assertCurrentActivity(clazz: Class<T>) {
+        val application = InstrumentationRegistry.getInstrumentation().targetContext.applicationContext
+                as CommCareInstrumentationTestApplication
+        val activity = application.currentActivity
+        assert(clazz.isInstance(activity), "Current Activity is ${activity.localClassName}")
     }
 
     //region private helpers.
