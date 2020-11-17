@@ -3,6 +3,7 @@ package org.commcare.views.widgets;
 import android.content.Context;
 import android.content.Intent;
 import android.text.Spannable;
+import android.text.TextUtils;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
@@ -62,14 +63,7 @@ public class WidgetUtils {
             Intent scanIntent = new Intent(Intents.Scan.ACTION);
             if (scanIntent.resolveActivity(context.getPackageManager()) != null) {
                 if (formats != null) {
-                    StringBuilder joinedByComma = new StringBuilder();
-                    for (String format : formats) {
-                        if (joinedByComma.length() > 0) {
-                            joinedByComma.append(',');
-                        }
-                        joinedByComma.append(format);
-                    }
-                    scanIntent.putExtra(Intents.Scan.FORMATS, joinedByComma.toString());
+                    scanIntent.putExtra(Intents.Scan.FORMATS, TextUtils.join(",", formats));
                 }
                 return scanIntent;
             }
