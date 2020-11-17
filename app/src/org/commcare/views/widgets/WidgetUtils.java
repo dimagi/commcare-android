@@ -68,8 +68,10 @@ public class WidgetUtils {
                 return scanIntent;
             }
         }
-        return new IntentIntegrator((AppCompatActivity) context)
-                .setDesiredBarcodeFormats(formats)
-                .createScanIntent();
+        IntentIntegrator intentIntegrator = new IntentIntegrator((AppCompatActivity) context);
+        if (formats != null) {
+            intentIntegrator.setDesiredBarcodeFormats(formats);
+        }
+        return intentIntegrator.createScanIntent();
     }
 }
