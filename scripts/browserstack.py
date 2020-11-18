@@ -27,6 +27,9 @@ def buildTestCommand(appToken, testToken, classes=None):
     test["deviceLogs"] = True
     test["testSuite"] = testToken
     test["networkLogs"] = True
+    test["shards"] = {
+        "numberOfShards": 5
+    }
     test["annotation"] = ["org.commcare.annotations.BrowserstackTests"]
 
     if classes:
