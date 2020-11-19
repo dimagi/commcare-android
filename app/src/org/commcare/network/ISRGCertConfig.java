@@ -3,6 +3,7 @@ package org.commcare.network;
 import android.os.Build;
 
 import org.commcare.core.network.HttpBuilderConfig;
+import org.javarosa.core.services.Logger;
 
 import java.io.ByteArrayInputStream;
 import java.io.UnsupportedEncodingException;
@@ -14,9 +15,14 @@ import java.security.cert.X509Certificate;
 import okhttp3.OkHttpClient;
 import okhttp3.tls.HandshakeCertificates;
 
-// https://letsencrypt.org/2020/11/06/own-two-feet.html
-// https://stackoverflow.com/questions/64844311/certpathvalidatorexception-connecting-to-a-lets-encrypt-host-on-android-m-or-ea
-public class ISGCertConfig implements HttpBuilderConfig {
+/**
+ * Pins Lets Encrypt new root CA - ISRG Root X1
+ *
+ * Read https://community.letsencrypt.org/t/mobile-client-workarounds-for-isrg-issue/137807 and
+ * https://stackoverflow.com/questions/64844311/certpathvalidatorexception-connecting-to-a-lets-encrypt-host-on-android-m-or-ea
+ * for background.
+ */
+public class ISRGCertConfig implements HttpBuilderConfig {
 
     @Override
     public OkHttpClient.Builder performCustomConfig(OkHttpClient.Builder okHttpBuilder) {
@@ -66,6 +72,7 @@ public class ISGCertConfig implements HttpBuilderConfig {
 
                 okHttpBuilder.sslSocketFactory(certificates.sslSocketFactory(), certificates.trustManager());
             } catch (CertificateException | UnsupportedEncodingException e) {
+                Logger.exception("Failed to pin ISG cert ", e);
                 e.printStackTrace();
             }
         }

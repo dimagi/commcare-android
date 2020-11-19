@@ -66,7 +66,7 @@ import org.commcare.modern.util.PerformanceTuningUtil;
 import org.commcare.network.DataPullRequester;
 import org.commcare.network.DataPullResponseFactory;
 import org.commcare.network.HttpUtils;
-import org.commcare.network.ISGCertConfig;
+import org.commcare.network.ISRGCertConfig;
 import org.commcare.preferences.DevSessionRestorer;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.preferences.HiddenPreferences;
@@ -217,7 +217,7 @@ public class CommCareApplication extends MultiDexApplication {
         // improperly, so the second https request in a short time period will flop)
         System.setProperty("http.keepAlive", "false");
 
-        attachISGCert();
+        attachISRGCert();
         initTls12IfNeeded();
 
         Thread.setDefaultUncaughtExceptionHandler(new CommCareExceptionHandler(Thread.getDefaultUncaughtExceptionHandler(), this));
@@ -246,8 +246,8 @@ public class CommCareApplication extends MultiDexApplication {
         LocalePreferences.saveDeviceLocale(Locale.getDefault());
     }
 
-    private void attachISGCert() {
-        CommCareNetworkServiceGenerator.customizeRetrofitSetup(new ISGCertConfig());
+    private void attachISRGCert() {
+        CommCareNetworkServiceGenerator.customizeRetrofitSetup(new ISRGCertConfig());
     }
 
     protected void loadSqliteLibs() {
