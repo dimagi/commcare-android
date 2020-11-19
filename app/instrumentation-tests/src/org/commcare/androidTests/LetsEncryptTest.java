@@ -33,7 +33,7 @@ public class LetsEncryptTest {
 
 
     @Test
-    public void getPassesAdditionalCert() throws IOException {
+    public void getPassesWithoutException() throws IOException {
         CommCareNetworkService commCareNetworkService = CommCareNetworkServiceGenerator.createNoAuthCommCareNetworkService();
         Response<ResponseBody> response = commCareNetworkService.makeGetRequest(ISRG_TEST_URL, new HashMap<>(), new HashMap<>()).execute();
         assertTrue(response.code() == 404);
