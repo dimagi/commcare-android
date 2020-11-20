@@ -68,6 +68,7 @@ public class ISRGCertConfig implements HttpBuilderConfig {
 
                 HandshakeCertificates certificates = new HandshakeCertificates.Builder()
                         .addTrustedCertificate((X509Certificate)isgCertificate)
+                        .addPlatformTrustedCertificates()
                         .build();
 
                 okHttpBuilder.sslSocketFactory(certificates.sslSocketFactory(), certificates.trustManager());
