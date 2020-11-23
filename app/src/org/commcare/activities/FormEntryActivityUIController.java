@@ -29,6 +29,7 @@ import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.preferences.FormEntryPreferences;
 import org.commcare.preferences.LocalePreferences;
+import org.commcare.tts.TextToSpeechConverter;
 import org.commcare.utils.BlockingActionsManager;
 import org.commcare.utils.CompoundIntentList;
 import org.commcare.utils.StringUtils;
@@ -110,6 +111,7 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
                     AnalyticsParamValue.DIRECTION_FORWARD,
                     AnalyticsParamValue.NAV_BUTTON_PRESS);
             showNextView();
+            TextToSpeechConverter.INSTANCE.stop();
         });
 
         prevButton.setOnClickListener(v -> {
@@ -122,6 +124,7 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
                 FirebaseAnalyticsUtil.reportFormQuitAttempt(AnalyticsParamValue.NAV_BUTTON_PRESS);
                 activity.triggerUserQuitInput();
             }
+            TextToSpeechConverter.INSTANCE.stop();
         });
 
         finishButton.setOnClickListener(v -> {
