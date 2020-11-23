@@ -31,7 +31,8 @@ public class IdentityCalloutHandler {
 
 
     private static final String REF_GUID = "guid";
-    private static final String REF_CONFIDENCE = "confidence";
+    private static final String REF_MATCH_GUID = "match_guid";
+    private static final String REF_MATCH_CONFIDENCE = "match_confidence";
     private static final String REF_MATCH_STRENGTH = "match_strength";
 
     public static final String GENERALIZED_IDENTITY_PROVIDER = "generalized_identity_provider";
@@ -55,8 +56,30 @@ public class IdentityCalloutHandler {
             processRegistrationReponse(formDef, intent, intentQuestionRef, responseToRefMap);
         } else if (isVerificationResponse(intent)) {
             processVerificationResponse(formDef, intent, intentQuestionRef, responseToRefMap);
+        } else if (isIdentificationResponse(intent)) {
+            processIdentificationResponse(formDef, intent, intentQuestionRef, responseToRefMap);
         }
         return false;
+    }
+
+    // Used to Handle Identified Match in a Form during Registration
+    private static void processIdentificationResponse(FormDef formDef,
+                                                      Intent intent,
+                                                      TreeReference intentQuestionRef,
+                                                      Hashtable<String, Vector<TreeReference>> responseToRefMap) {
+        List<IdentificationMatch> matches = getIdentificationMatches(intent);
+        if (matches.size() > 0) {
+            IdentificationMatch bestMatch = matches.get(0);
+            storeValueFromCalloutInForm(formDef, responseToRefMap, intentQuestionRef,
+                    REF_MATCH_GUID, bestMatch.getGuid());
+            storeValueFromCalloutInForm(formDef, responseToRefMap, intentQuestionRef,
+                    REF_MATCH_CONFIDENCE, String.valueOf(bestMatch.getMatchResult().getConfidence()));
+            storeValueFromCalloutInForm(formDef, responseToRefMap, intentQuestionRef,
+                    REF_MATCH_STRENGTH, bestMatch.getMatchResult().getStrength().toString().toLowerCase());
+
+            // Empty out the registraion guid since no new registration has been performed
+            storeValueFromCalloutInForm(formDef, responseToRefMap, intentQuestionRef, REF_GUID, "");
+        }
     }
 
     private static void processVerificationResponse(FormDef formDef,
@@ -64,15 +87,16 @@ public class IdentityCalloutHandler {
                                                     TreeReference intentQuestionRef,
                                                     Hashtable<String, Vector<TreeReference>> responseToRefMap) {
         VerificationMatch verificationMatch = intent.getParcelableExtra(IdentityResponseBuilder.VERIFICATION);
-        String guid = verificationMatch.getGuid();
-        storeValueFromCalloutInForm(formDef, responseToRefMap, intentQuestionRef, REF_GUID, guid);
+
+        storeValueFromCalloutInForm(formDef, responseToRefMap, intentQuestionRef,
+                REF_MATCH_GUID, verificationMatch.getGuid());
 
         MatchResult matchResult = verificationMatch.getMatchResult();
-        int confidence = matchResult.getConfidence();
-        storeValueFromCalloutInForm(formDef, responseToRefMap, intentQuestionRef, REF_CONFIDENCE, String.valueOf(confidence));
 
-        String matchStrength = matchResult.getStrength().toString();
-        storeValueFromCalloutInForm(formDef, responseToRefMap, intentQuestionRef, REF_MATCH_STRENGTH, matchStrength);
+        storeValueFromCalloutInForm(formDef, responseToRefMap, intentQuestionRef,
+                REF_MATCH_CONFIDENCE, String.valueOf(matchResult.getConfidence()));
+        storeValueFromCalloutInForm(formDef, responseToRefMap, intentQuestionRef,
+                REF_MATCH_STRENGTH, matchResult.getStrength().toString().toLowerCase());
     }
 
     private static void processRegistrationReponse(FormDef formDef,
@@ -82,18 +106,29 @@ public class IdentityCalloutHandler {
         RegistrationResult registrationResult = intent.getParcelableExtra(IdentityResponseBuilder.REGISTRATION);
         String guid = registrationResult.getGuid();
         storeValueFromCalloutInForm(formDef, responseToRefMap, intentQuestionRef, REF_GUID, guid);
+
+        // Empty out any references present for duplicate handling
+        storeValueFromCalloutInForm(formDef, responseToRefMap, intentQuestionRef, REF_MATCH_GUID, "");
+        storeValueFromCalloutInForm(formDef, responseToRefMap, intentQuestionRef, REF_MATCH_CONFIDENCE, "");
+        storeValueFromCalloutInForm(formDef, responseToRefMap, intentQuestionRef, REF_MATCH_STRENGTH, "");
     }
 
     public static OrderedHashtable<String, String> getConfidenceMatchesFromCalloutResponse(Intent intent) {
-        List<IdentificationMatch> idReadings = intent.getParcelableArrayListExtra(IdentityResponseBuilder.IDENTIFICATION);
-        Collections.sort(idReadings);
+        List<IdentificationMatch> matches = getIdentificationMatches(intent);
 
         OrderedHashtable<String, String> guidToConfidenceMap = new OrderedHashtable<>();
-        for (IdentificationMatch identificationMatch : idReadings) {
+        for (IdentificationMatch identificationMatch : matches) {
             guidToConfidenceMap.put(identificationMatch.getGuid(), getStrengthText(identificationMatch.getMatchResult().getStrength()));
         }
 
         return guidToConfidenceMap;
+    }
+
+    // Return matches sorted as best match first
+    private static List<IdentificationMatch> getIdentificationMatches(Intent intent) {
+        List<IdentificationMatch> matches = intent.getParcelableArrayListExtra(IdentityResponseBuilder.IDENTIFICATION);
+        Collections.sort(matches);
+        return matches;
     }
 
     private static String getStrengthText(MatchStrength strength) {

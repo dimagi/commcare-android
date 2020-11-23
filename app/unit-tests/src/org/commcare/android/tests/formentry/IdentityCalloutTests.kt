@@ -2,6 +2,7 @@ package org.commcare.android.tests.formentry
 
 import android.app.Activity
 import android.app.Instrumentation
+import android.content.Intent
 import android.widget.Button
 import android.widget.ImageButton
 import androidx.test.espresso.intent.Intents.intending
@@ -51,6 +52,17 @@ class IdentityCalloutTests {
         (formEntryActivity.odkView.widgets[0].getChildAt(2) as Button).performClick()
 
         TestUtils.assertFormValue("/data/identity_guid", "test-case-unique-guid")
+        TestUtils.assertFormValue("/data/duplicate_guid", "")
+        TestUtils.assertFormValue("/data/duplicate_score", "")
+        TestUtils.assertFormValue("/data/duplicate_strength", "")
+
+        // Dupicate
+        intendDuplicatesDuringRegistration()
+        (formEntryActivity.odkView.widgets[0].getChildAt(2) as Button).performClick()
+        TestUtils.assertFormValue("/data/identity_guid", "")
+        TestUtils.assertFormValue("/data/duplicate_guid", "guid-2")
+        TestUtils.assertFormValue("/data/duplicate_score", "90")
+        TestUtils.assertFormValue("/data/duplicate_strength", "five_stars")
 
         // navigate to verification
         val nextButton = formEntryActivity.findViewById<ImageButton>(R.id.nav_btn_next)
@@ -61,18 +73,12 @@ class IdentityCalloutTests {
         (formEntryActivity.odkView.widgets[0].getChildAt(2) as Button).performClick()
         TestUtils.assertFormValue("/data/verify_guid", "test-case-unique-guid")
         TestUtils.assertFormValue("/data/verify_score", "90")
-        TestUtils.assertFormValue("/data/verify_strength", "FIVE_STARS")
+        TestUtils.assertFormValue("/data/verify_strength", "five_stars")
     }
-
 
     @Test
     fun testIdentificationMatchesHandling() {
-        val identifications = ArrayList<IdentificationMatch>()
-        identifications.add(IdentificationMatch("guid-1", MatchResult(80, MatchStrength.FOUR_STARS)))
-        identifications.add(IdentificationMatch("guid-2", MatchResult(90, MatchStrength.FIVE_STARS)))
-        identifications.add(IdentificationMatch("guid-3", MatchResult(70, MatchStrength.THREE_STARS)))
-        val identificationResponse = IdentityResponseBuilder.identificationResponse(identifications).build()
-
+        val identificationResponse = getIdentificationIntent()
         val guidToConfidenceMap = IdentityCalloutHandler.getConfidenceMatchesFromCalloutResponse(identificationResponse)
         assertEquals(guidToConfidenceMap.keyAt(0), "guid-2")
         assertEquals(guidToConfidenceMap.elementAt(0), "★★★★★")
@@ -80,6 +86,14 @@ class IdentityCalloutTests {
         assertEquals(guidToConfidenceMap.elementAt(1), "★★★★")
         assertEquals(guidToConfidenceMap.keyAt(2), "guid-3")
         assertEquals(guidToConfidenceMap.elementAt(2), "★★★")
+    }
+
+    private fun getIdentificationIntent(): Intent {
+        val identifications = ArrayList<IdentificationMatch>()
+        identifications.add(IdentificationMatch("guid-1", MatchResult(80, MatchStrength.FOUR_STARS)))
+        identifications.add(IdentificationMatch("guid-2", MatchResult(90, MatchStrength.FIVE_STARS)))
+        identifications.add(IdentificationMatch("guid-3", MatchResult(70, MatchStrength.THREE_STARS)))
+        return IdentityResponseBuilder.identificationResponse(identifications).build()
     }
 
     private fun intendVerificationIntent() {
@@ -95,6 +109,11 @@ class IdentityCalloutTests {
                 .registrationResponse("test-case-unique-guid")
                 .build()
         val result = Instrumentation.ActivityResult(Activity.RESULT_OK, registration)
+        intending(hasAction("org.commcare.identity.bioenroll")).respondWith(result)
+    }
+
+    private fun intendDuplicatesDuringRegistration() {
+        val result = Instrumentation.ActivityResult(Activity.RESULT_OK, getIdentificationIntent())
         intending(hasAction("org.commcare.identity.bioenroll")).respondWith(result)
     }
 }
