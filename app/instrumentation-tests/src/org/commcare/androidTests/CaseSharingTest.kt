@@ -13,15 +13,12 @@ import org.commcare.utils.doesNotExist
 import org.commcare.utils.isDisplayed
 import org.hamcrest.Matchers.endsWith
 import org.junit.Before
-import org.junit.FixMethodOrder
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.junit.runners.MethodSorters
 
 @RunWith(AndroidJUnit4::class)
 @LargeTest
 @BrowserstackTests
-@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 class CaseSharingTest: BaseTest() {
 
     companion object {
@@ -35,33 +32,21 @@ class CaseSharingTest: BaseTest() {
     }
 
     @Test
-    fun test_A_CaseCleanup() {
+    fun testCaseSharing() {
         InstrumentationUtility.login("case_sharing_1", "123")
-        InstrumentationUtility.openModule("Test Cleanup")
-        onView(withId(R.id.nav_btn_finish))
-                .perform(click())
-        InstrumentationUtility.openModule("Follow Up")
-        withText("First Case").doesNotExist()
-        withText("Second Case").doesNotExist()
-        InstrumentationUtility.gotoHome()
-        onView(withText("Sync with Server"))
-                .perform(click())
-    }
+        caseCleanup()
 
-    @Test
-    fun test_B_CaseCreation_withFirstUser() {
-        InstrumentationUtility.login("case_sharing_1", "123")
+        // Create case with first user
         createCase("First Case", "1")
 
         // validate that case was created
         InstrumentationUtility.openModule("Follow Up")
         withText("First Case").isDisplayed()
-        onView(withText("First Case"))
-                .perform(click())
-    }
 
-    @Test
-    fun test_C_CaseCreation_withSecondUser() {
+        // logout first user.
+        InstrumentationUtility.logout()
+
+        // Create case with second user.
         InstrumentationUtility.login("case_sharing_2", "123")
         createCase("Second Case", "2")
 
@@ -85,10 +70,11 @@ class CaseSharingTest: BaseTest() {
                 .perform(click())
         onView(withText("Sync with Server"))
                 .perform(click())
-    }
 
-    @Test
-    fun test_D_CloseCases_withFirstUser() {
+        // Logout second user
+        InstrumentationUtility.logout()
+
+        // Login with first user and close cases.
         InstrumentationUtility.login("case_sharing_1", "123")
         onView(withText("Sync with Server"))
                 .perform(click())
@@ -113,17 +99,30 @@ class CaseSharingTest: BaseTest() {
 
         onView(withText("Sync with Server"))
                 .perform(click())
-    }
 
-    @Test
-    fun validateCaseClosed() {
-        InstrumentationUtility.login("case_sharing_1", "123")
+        // logout first user.
+        InstrumentationUtility.logout()
+
+        // login with second user and validate that the cases are closed.
+        InstrumentationUtility.login("case_sharing_2", "123")
         onView(withText("Sync with Server"))
                 .perform(click())
 
         InstrumentationUtility.openModule("Follow Up")
         withText("First Case").doesNotExist()
         withText("Second Case").doesNotExist()
+    }
+
+    private fun caseCleanup() {
+        InstrumentationUtility.openModule("Test Cleanup")
+        onView(withId(R.id.nav_btn_finish))
+                .perform(click())
+        InstrumentationUtility.openModule("Follow Up")
+        withText("First Case").doesNotExist()
+        withText("Second Case").doesNotExist()
+        InstrumentationUtility.gotoHome()
+        onView(withText("Sync with Server"))
+                .perform(click())
     }
 
     private fun createCase(name: String, number: String) {
