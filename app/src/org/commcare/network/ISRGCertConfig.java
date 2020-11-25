@@ -11,8 +11,14 @@ import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
+import java.util.List;
 
+import javax.net.ssl.SSLContext;
+
+import okhttp3.ConnectionSpec;
 import okhttp3.OkHttpClient;
+import okhttp3.TlsVersion;
 import okhttp3.tls.HandshakeCertificates;
 
 /**
@@ -71,7 +77,24 @@ public class ISRGCertConfig implements HttpBuilderConfig {
                         .addPlatformTrustedCertificates()
                         .build();
 
-                okHttpBuilder.sslSocketFactory(certificates.sslSocketFactory(), certificates.trustManager());
+
+                if (Build.VERSION.SDK_INT >= 16 && Build.VERSION.SDK_INT < 22) {
+                    // Enforce TLS v1.2 for pre Lollipop
+                    okHttpBuilder.sslSocketFactory(
+                            new Tls12SocketFactory(certificates.sslSocketFactory()),
+                            certificates.trustManager());
+                    ConnectionSpec cs = new ConnectionSpec.Builder(ConnectionSpec.MODERN_TLS)
+                            .tlsVersions(TlsVersion.TLS_1_2)
+                            .build();
+
+                    List<ConnectionSpec> specs = new ArrayList<>();
+                    specs.add(cs);
+                    specs.add(ConnectionSpec.COMPATIBLE_TLS);
+                    specs.add(ConnectionSpec.CLEARTEXT);
+                    okHttpBuilder.connectionSpecs(specs);
+                } else {
+                    okHttpBuilder.sslSocketFactory(certificates.sslSocketFactory(), certificates.trustManager());
+                }
             } catch (CertificateException | UnsupportedEncodingException e) {
                 Logger.exception("Failed to pin ISG cert ", e);
                 e.printStackTrace();
