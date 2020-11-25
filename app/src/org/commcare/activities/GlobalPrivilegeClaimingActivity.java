@@ -12,7 +12,7 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.zxing.integration.android.IntentIntegrator;
+import com.google.zxing.BarcodeFormat;
 
 import org.commcare.dalvik.R;
 import org.commcare.modern.util.Pair;
@@ -20,6 +20,7 @@ import org.commcare.preferences.GlobalPrivilegesManager;
 import org.commcare.utils.GlobalConstants;
 import org.commcare.utils.PrivilegesUtility;
 import org.commcare.utils.StringUtils;
+import org.commcare.views.widgets.WidgetUtils;
 import org.javarosa.core.services.locale.Localization;
 
 
@@ -84,9 +85,7 @@ public class GlobalPrivilegeClaimingActivity extends AppCompatActivity {
     }
 
     private void callOutToBarcodeScanner() {
-        Intent intent = new IntentIntegrator(this)
-                .setDesiredBarcodeFormats(IntentIntegrator.QR_CODE)
-                .createScanIntent();
+        Intent intent = WidgetUtils.createScanIntent(this, BarcodeFormat.QR_CODE.name());
         startActivityForResult(intent, BARCODE_CAPTURE);
     }
 

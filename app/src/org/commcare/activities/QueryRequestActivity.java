@@ -20,8 +20,6 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.zxing.integration.android.IntentIntegrator;
-
 import org.commcare.CommCareApplication;
 import org.commcare.core.interfaces.HttpResponseProcessor;
 import org.commcare.core.network.AuthInfo;
@@ -40,6 +38,7 @@ import org.commcare.views.UiElement;
 import org.commcare.views.ViewUtil;
 import org.commcare.views.dialogs.CustomProgressDialog;
 import org.commcare.views.widgets.SpinnerWidget;
+import org.commcare.views.widgets.WidgetUtils;
 import org.javarosa.core.model.SelectChoice;
 import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.services.locale.Localization;
@@ -267,7 +266,7 @@ public class QueryRequestActivity
     }
 
     private void callBarcodeScanIntent(String promptId) {
-        Intent intent = new IntentIntegrator(this).createScanIntent();
+        Intent intent = WidgetUtils.createScanIntent(this);
         mPendingPromptId = promptId;
         try {
             startActivityForResult(intent, BARCODE_FETCH);

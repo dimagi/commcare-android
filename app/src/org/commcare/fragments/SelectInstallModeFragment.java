@@ -12,7 +12,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.zxing.integration.android.IntentIntegrator;
+import com.google.zxing.BarcodeFormat;
 
 import org.commcare.CommCareApplication;
 import org.commcare.CommCareNoficationManager;
@@ -26,6 +26,7 @@ import org.commcare.views.RectangleButtonWithText;
 import org.commcare.views.SquareButtonWithText;
 import org.commcare.views.dialogs.DialogChoiceItem;
 import org.commcare.views.dialogs.PaneledChoiceDialog;
+import org.commcare.views.widgets.WidgetUtils;
 import org.javarosa.core.services.locale.Localization;
 
 import java.util.ArrayList;
@@ -82,9 +83,7 @@ public class SelectInstallModeFragment extends Fragment implements NsdServiceLis
                 if (currentActivity instanceof CommCareSetupActivity) {
                     ((CommCareSetupActivity)currentActivity).clearErrorMessage();
                 }
-                Intent intent = new IntentIntegrator(getActivity())
-                        .setDesiredBarcodeFormats(IntentIntegrator.QR_CODE)
-                        .createScanIntent();
+                Intent intent = WidgetUtils.createScanIntent(getContext(), BarcodeFormat.QR_CODE.name());
                 currentActivity.startActivityForResult(intent, CommCareSetupActivity.BARCODE_CAPTURE);
             } catch (ActivityNotFoundException e) {
                 Toast.makeText(getActivity(), "No barcode scanner installed on phone!", Toast.LENGTH_SHORT).show();

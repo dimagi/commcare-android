@@ -40,6 +40,13 @@
         android:entryValues="@array/pref_password_show_options"
         android:key="cc-password-entry-show-behavior"
         android:title="Configure Password Display"/>
+    <androidx.preference.ListPreference
+        android:enabled="true"
+        android:defaultValue="no"
+        android:entries="@array/pref_enabled_labels"
+        android:entryValues="@array/pref_enabled_vals"
+        android:key="cc-intent-callout-for-scanner"
+        android:title="Use intent callout for scanner"/>
     <Preference
         android:key="disable-analytics-button"/>
     <Preference

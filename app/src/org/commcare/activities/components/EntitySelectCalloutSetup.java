@@ -11,13 +11,12 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.google.zxing.integration.android.IntentIntegrator;
-
 import org.commcare.activities.EntitySelectActivity;
 import org.commcare.dalvik.R;
 import org.commcare.suite.model.Callout;
 import org.commcare.suite.model.CalloutData;
 import org.commcare.utils.MediaUtil;
+import org.commcare.views.widgets.WidgetUtils;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.services.locale.Localization;
 
@@ -69,7 +68,7 @@ public class EntitySelectCalloutSetup {
      */
     public static View.OnClickListener makeBarcodeClickListener(final AppCompatActivity activity) {
         return v -> {
-            Intent intent = new IntentIntegrator(activity).createScanIntent();
+            Intent intent = WidgetUtils.createScanIntent(activity);
             try {
                 activity.startActivityForResult(intent, EntitySelectActivity.BARCODE_FETCH);
             } catch (ActivityNotFoundException anfe) {
