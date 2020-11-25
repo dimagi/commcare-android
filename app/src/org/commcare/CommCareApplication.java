@@ -260,7 +260,7 @@ public class CommCareApplication extends MultiDexApplication {
 
     private void initTls12IfNeeded() {
         if (useConscryptSecurity()) {
-            Security.insertProviderAt(Conscrypt.newProvider(), 1);
+//            Security.insertProviderAt(Conscrypt.newProvider(), 1);
         }
     }
 
