@@ -83,15 +83,15 @@ public class ISRGCertConfig implements HttpBuilderConfig {
                     okHttpBuilder.sslSocketFactory(
                             new Tls12SocketFactory(certificates.sslSocketFactory()),
                             certificates.trustManager());
-                    ConnectionSpec cs = new ConnectionSpec.Builder(ConnectionSpec.MODERN_TLS)
-                            .tlsVersions(TlsVersion.TLS_1_2)
-                            .build();
-
-                    List<ConnectionSpec> specs = new ArrayList<>();
-                    specs.add(cs);
-                    specs.add(ConnectionSpec.COMPATIBLE_TLS);
-                    specs.add(ConnectionSpec.CLEARTEXT);
-                    okHttpBuilder.connectionSpecs(specs);
+//                    ConnectionSpec cs = new ConnectionSpec.Builder(ConnectionSpec.MODERN_TLS)
+//                            .tlsVersions(TlsVersion.TLS_1_2)
+//                            .build();
+//
+//                    List<ConnectionSpec> specs = new ArrayList<>();
+//                    specs.add(cs);
+//                    specs.add(ConnectionSpec.COMPATIBLE_TLS);
+//                    specs.add(ConnectionSpec.CLEARTEXT);
+//                    okHttpBuilder.connectionSpecs(specs);
                 } else {
                     okHttpBuilder.sslSocketFactory(certificates.sslSocketFactory(), certificates.trustManager());
                 }
