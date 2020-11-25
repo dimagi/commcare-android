@@ -247,7 +247,7 @@ public class CommCareApplication extends MultiDexApplication {
     }
 
     private void attachISRGCert() {
-//        CommCareNetworkServiceGenerator.customizeRetrofitSetup(new ISRGCertConfig());
+        CommCareNetworkServiceGenerator.customizeRetrofitSetup(new ISRGCertConfig());
     }
 
     protected void loadSqliteLibs() {
