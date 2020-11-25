@@ -27,6 +27,9 @@ def buildTestCommand(appToken, testToken, classes=None):
     test["deviceLogs"] = True
     test["testSuite"] = testToken
     test["networkLogs"] = True
+    test["shards"] = {
+        "numberOfShards": 5
+    }
     test["annotation"] = ["org.commcare.annotations.BrowserstackTests"]
 
     if classes:
@@ -60,21 +63,31 @@ def testResult(buildId):
     # Get the sessionID from test result
     resultCommand = 'curl -u "{}:{}" -X GET "https://api-cloud.browserstack.com/app-automate/espresso/v2/builds/{}"'.format(userName, password, buildId)
     result = subprocess.Popen(shlex.split(resultCommand), stdout=PIPE, stderr=None, shell=False)
-    sessionId = json.loads(result.communicate()[0])["devices"][0]["sessions"][0]["id"]
+    sessions = json.loads(result.communicate()[0])["devices"][0]["sessions"]
 
-    # Gather the sessionDetails
-    testDetailsCommand = 'curl -u "{}:{}" -X GET "https://api-cloud.browserstack.com/app-automate/espresso/v2/builds/{}/sessions/{}"'.format(userName, password, buildId, sessionId)
-    testDetailsResult = subprocess.Popen(shlex.split(testDetailsCommand), stdout=PIPE, stderr=None, shell=False)
-    testcases = json.loads(testDetailsResult.communicate()[0])["testcases"]["data"]
+    # Loop over all the sessions and Create an array of failing classes.
 
-    # Create an array of failing classes.
     classes = []
-    for testcase in testcases:
-        methods = testcase["testcases"]
-        for method in methods:
-            if (method["status"] != "passed"):
-                classes.append("org.commcare.androidTests." + testcase["class"])
-                break
+    for session in sessions:
+        if (session["status"] == "passed"):
+            continue
+
+        sessionId = session["id"]
+
+        # Gather the sessionDetails
+        testDetailsCommand = 'curl -u "{}:{}" -X GET "https://api-cloud.browserstack.com/app-automate/espresso/v2/builds/{}/sessions/{}"'.format(userName, password, buildId, sessionId)
+        testDetailsResult = subprocess.Popen(shlex.split(testDetailsCommand), stdout=PIPE, stderr=None, shell=False)
+        testcases = json.loads(testDetailsResult.communicate()[0])["testcases"]["data"]
+
+        # Collect the failed classes
+        for testcase in testcases:
+            methods = testcase["testcases"]
+            for method in methods:
+                if (method["status"] != "passed"):
+                    failedClassName = "org.commcare.androidTests." + testcase["class"]
+                    if (failedClassName not in classes):
+                        classes.append(failedClassName)
+                    break
 
     # Now that we know all the test-classes that are failing, we can re-run those.
     print("Failing test classes :: ", classes)

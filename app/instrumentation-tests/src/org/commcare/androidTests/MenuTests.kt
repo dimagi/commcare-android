@@ -24,7 +24,6 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 @LargeTest
-@BrowserstackTests
 class MenuTests: BaseTest() {
 
     companion object {
@@ -55,6 +54,7 @@ class MenuTests: BaseTest() {
     }
 
     @Test
+    @BrowserstackTests
     fun testHomeScreenOptions() {
         InstrumentationUtility.openOptionsMenu()
         checkStringExists(homeMenuItems)
@@ -123,6 +123,7 @@ class MenuTests: BaseTest() {
     }
 
     @Test
+    @BrowserstackTests
     fun testAdvancedActions() {
         openAdvancedOption(0)
         onView(withText("Do you want to send, receive, or submit forms?"))
@@ -185,7 +186,7 @@ class MenuTests: BaseTest() {
         onView(withText("You are not connected the Internet. Please run this test again after connecting to Wi-Fi or mobile data."))
                 .check(matches(isDisplayed()))
         InstrumentationUtility.changeWifi(true)
-        InstrumentationUtility.gotoHome()
+        InstrumentationUtility.logout()
     }
 
     private fun openAdvancedOption(index: Int) {

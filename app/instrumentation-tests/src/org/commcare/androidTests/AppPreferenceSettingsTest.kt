@@ -10,12 +10,12 @@ import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.contrib.RecyclerViewActions
 import androidx.test.espresso.intent.Intents.intended
 import androidx.test.espresso.intent.Intents.intending
-import androidx.test.espresso.intent.matcher.IntentMatchers.hasAction
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import org.commcare.annotations.BrowserstackTests
 import org.commcare.dalvik.R
+import org.commcare.utils.CustomMatchers
 import org.commcare.utils.InstrumentationUtility
 import org.hamcrest.Matchers.allOf
 import org.hamcrest.Matchers.endsWith
@@ -94,7 +94,7 @@ class AppPreferenceSettingsTest: BaseTest() {
 
         //Create a dummy file selection intent
         val resultData = Intent()
-        val expectedIntent = hasAction(Intent.ACTION_GET_CONTENT)
+        val expectedIntent = CustomMatchers.withIntent(Intent.ACTION_GET_CONTENT, Intent.CATEGORY_OPENABLE, "file/*")
         val result = Instrumentation.ActivityResult(AppCompatActivity.RESULT_CANCELED, resultData)
         intending(expectedIntent).respondWith(result)
 

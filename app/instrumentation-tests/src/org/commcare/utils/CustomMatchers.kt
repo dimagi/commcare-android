@@ -1,5 +1,6 @@
 package org.commcare.utils
 
+import android.content.Intent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ListView
@@ -10,6 +11,7 @@ import org.commcare.android.database.global.models.AppAvailableToInstall
 import org.hamcrest.BaseMatcher
 import org.hamcrest.Description
 import org.hamcrest.Matcher
+import org.hamcrest.Matchers
 import org.hamcrest.TypeSafeMatcher
 
 
@@ -121,6 +123,24 @@ object CustomMatchers {
             override fun describeTo(description: Description) {
                 description.appendText("with match textView fontSize with $expectedSize")
                 description.appendValue(expectedSize)
+            }
+        }
+    }
+
+    /**
+     * Creates a matcher that matches an intent with specified action, category and type.
+     */
+    fun withIntent(action: String, category: String, type: String): Matcher<Intent> {
+        return object : TypeSafeMatcher<Intent>() {
+            override fun describeTo(description: Description) {
+                description.appendText("has action: $action, category: $category and type: $type")
+            }
+
+            override fun matchesSafely(intent: Intent): Boolean {
+                val actionMatcher = Matchers.`is`(action).matches(intent.action)
+                val categoryMatcher = Matchers.hasItem(category).matches(intent.categories)
+                val typeMatcher = Matchers.`is`(type).matches(intent.type)
+                return actionMatcher && categoryMatcher && typeMatcher
             }
         }
     }
