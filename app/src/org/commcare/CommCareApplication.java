@@ -217,8 +217,8 @@ public class CommCareApplication extends MultiDexApplication {
         // improperly, so the second https request in a short time period will flop)
         System.setProperty("http.keepAlive", "false");
 
-        attachISRGCert();
         initTls12IfNeeded();
+        attachISRGCert();
 
         Thread.setDefaultUncaughtExceptionHandler(new CommCareExceptionHandler(Thread.getDefaultUncaughtExceptionHandler(), this));
 
