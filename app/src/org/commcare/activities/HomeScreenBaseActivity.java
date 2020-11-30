@@ -55,6 +55,7 @@ import org.commcare.suite.model.PostRequest;
 import org.commcare.suite.model.RemoteRequestEntry;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.StackFrameStep;
+import org.commcare.suite.model.StackOperation;
 import org.commcare.suite.model.Text;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.FormLoaderTask;
@@ -199,18 +200,30 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
     private void processFromExternalLaunch(Bundle savedInstanceState) {
         if (savedInstanceState == null && getIntent().hasExtra(DispatchActivity.WAS_EXTERNAL)) {
             wasExternal = true;
-            processSessionEndpoint(getIntent());
+            processSessionEndpoint();
             sessionNavigator.startNextSessionStep();
         }
     }
 
-    private void processSessionEndpoint(Intent intent) {
+    private void processSessionEndpoint() {
         if (getIntent().hasExtra(SESSION_ENDPOINT_ID)) {
             String sessionEndpointId = this.getIntent().getStringExtra(SESSION_ENDPOINT_ID);
-            ArrayList<String> args = this.getIntent().getStringArrayListExtra(SESSION_ENDPOINT_ARGUMENTS);
+            ArrayList<String> intentArguments = this.getIntent().getStringArrayListExtra(SESSION_ENDPOINT_ARGUMENTS);
 
             Endpoint endpoint = CommCareApplication.instance().getCommCarePlatform().getEndpoint(sessionEndpointId);
+            Vector<String> endpointArguments = endpoint.getArguments();
 
+            if (endpointArguments.size() != intentArguments.size()) {
+                // todo error out
+            }
+
+            HashMap<String, String> compositeArguments = new HashMap<>(endpointArguments.size());
+            for (int i = 0; i < endpointArguments.size(); i++) {
+                compositeArguments.put(endpointArguments.elementAt(i), intentArguments.get(i));
+            }
+
+            CommCareApplication.instance().getCurrentSessionWrapper()
+                    .executeStackActions(endpoint.getStackOperations(), compositeArguments);
         }
     }
 
