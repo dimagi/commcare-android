@@ -23,6 +23,7 @@ object TextToSpeechConverter {
 
     private const val MAX_TEXT_LENGTH = 4000
     private var mTextToSpeech: TextToSpeech? = null
+    private var mInitialized: Boolean = false
     private var mTTSCallback: TextToSpeechCallback? = null
     private val mUtteranceProgressListener = object: UtteranceProgressListener() {
         // The callbacks specified here can be called from multiple threads.
@@ -45,23 +46,13 @@ object TextToSpeechConverter {
     }
 
     /**
-     * Initializes the Text-To-Speech engine
-     */
-    fun initialize(context: Context) {
-        mTextToSpeech = TextToSpeech(context, TextToSpeech.OnInitListener { status ->
-            if (status == TextToSpeech.SUCCESS) {
-                // set language.
-                initTTS()
-            } else {
-                mTTSCallback?.initFailed()
-            }
-        })
-    }
-
-    /**
      * Attempts to speak the specified text.
      */
-    fun speak(text: String) {
+    fun speak(context: Context, text: String) {
+        if (!mInitialized) {
+            initialize(context, text)
+            return
+        }
         // Handle empty text
         if (TextUtils.isEmpty(text)) {
             return
@@ -96,6 +87,7 @@ object TextToSpeechConverter {
         mTextToSpeech?.let {
             it.shutdown()
         }
+        mInitialized = false
     }
 
     private fun speakInternal(tts: TextToSpeech, text: String, queueMode: Int = TextToSpeech.QUEUE_FLUSH) {
@@ -118,21 +110,34 @@ object TextToSpeechConverter {
         }
     }
 
-    private fun initTTS() {
-        mTextToSpeech?.let { tts ->
-            tts.setOnUtteranceProgressListener(mUtteranceProgressListener)
-            setLocale(tts, LinkedList(listOf(
-                    Locale(Localization.getCurrentLocale()),
-                    Locale.getDefault(),
-                    Locale.ENGLISH
-            )))
-        }
+    /**
+     * Initializes the Text-To-Speech engine
+     */
+    private fun initialize(context: Context, text: String) {
+        mTextToSpeech = TextToSpeech(context, TextToSpeech.OnInitListener { status ->
+            if (status == TextToSpeech.SUCCESS) {
+                // set language and speak
+                mTextToSpeech?.let { tts ->
+                    tts.setOnUtteranceProgressListener(mUtteranceProgressListener)
+                    if (setLocale(tts, LinkedList(listOf(
+                                    Locale(Localization.getCurrentLocale()),
+                                    Locale.getDefault(),
+                                    Locale.ENGLISH)))) {
+                        // tts initialization completed.
+                        mInitialized = true
+                        speak(context, text)
+                    }
+                }
+            } else {
+                mTTSCallback?.initFailed()
+            }
+        })
     }
 
     /**
      * Sets a TTS language from the given list of locale starting from the first Locale.
      *
-     * Returns a boolean indicating whether we were able to set TTS language.
+     * Returns a boolean indicating whether we TTS language is ready to use.
      */
     private fun setLocale(tts: TextToSpeech, localeList: LinkedList<Locale>): Boolean {
         if (localeList.isEmpty()) {
@@ -155,21 +160,24 @@ object TextToSpeechConverter {
                                 || tts.voice.isNetworkConnectionRequired) {
                             // voice data is not present
                             mTTSCallback?.voiceDataMissing(locale.displayLanguage)
+                            return false
                         }
                     }
                 } else {
                     val features = tts.getFeatures(locale)
                     if (features == null || features.contains("notInstalled")) {
                         mTTSCallback?.voiceDataMissing(locale.displayLanguage)
+                        return false
                     }
                 }
+                // voice data is present so return true that we're ready to use.
                 true
             }
             TextToSpeech.LANG_MISSING_DATA -> {
                 // Unfortunately this callback doesn't really work.
                 tts.language = locale
                 mTTSCallback?.voiceDataMissing(locale.displayLanguage)
-                true
+                false
             }
             TextToSpeech.LANG_NOT_SUPPORTED -> {
                 setLocale(tts, localeList)

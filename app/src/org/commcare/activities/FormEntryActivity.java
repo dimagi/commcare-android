@@ -239,7 +239,6 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             uiController.refreshView();
         }
         TextToSpeechConverter.INSTANCE.setListener(mTTSCallback);
-        TextToSpeechConverter.INSTANCE.initialize(this);
     }
 
     @Override

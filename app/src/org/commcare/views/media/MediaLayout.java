@@ -126,7 +126,7 @@ public class MediaLayout extends RelativeLayout {
     private void showTtsButton(String ttsText) {
         ttsButton.setVisibility(VISIBLE);
         ttsButton.setOnClickListener(view -> {
-            TextToSpeechConverter.INSTANCE.speak(ttsText);
+            TextToSpeechConverter.INSTANCE.speak(getContext(), ttsText);
         });
     }
 
