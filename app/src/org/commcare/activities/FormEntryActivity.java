@@ -881,6 +881,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         if (isFinishing()) {
             PollSensorController.INSTANCE.stopLocationPolling();
         }
+        TextToSpeechConverter.INSTANCE.stop();
     }
 
     private void saveInlineVideoState() {
