@@ -28,6 +28,13 @@
             android:gravity="center"
             android:orientation="vertical">
 
+            <ImageButton
+                android:id="@+id/tts_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_tts"
+                android:visibility="gone" />
+
             <org.commcare.views.media.AudioPlaybackButton
                 android:id="@+id/audio_button"
                 android:layout_width="wrap_content"

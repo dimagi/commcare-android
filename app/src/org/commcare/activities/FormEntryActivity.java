@@ -193,7 +193,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 installIntent.setAction(TextToSpeech.Engine.ACTION_INSTALL_TTS_DATA);
                 startActivity(installIntent);
             });
-            dialog.setNegativeButton(Localization.get("dialog.cancel"), (dialog1, which) -> {
+            dialog.setNegativeButton(Localization.get("option.cancel"), (dialog1, which) -> {
                 dismissAlertDialog();
             });
             showAlertDialog(dialog);
@@ -239,6 +239,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             uiController.refreshView();
         }
         TextToSpeechConverter.INSTANCE.setListener(mTTSCallback);
+        TextToSpeechConverter.INSTANCE.initialize(this);
     }
 
     @Override

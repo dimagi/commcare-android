@@ -33,6 +33,7 @@ import org.commcare.interfaces.WidgetChangedListener;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.preferences.FormEntryPreferences;
 import org.commcare.preferences.HiddenPreferences;
+import org.commcare.preferences.MainConfigurablePreferences;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.BlockingActionsManager;
 import org.commcare.utils.DelayedBlockingAction;
@@ -450,8 +451,12 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
             String qrCodeContent = mPrompt.getSpecialFormQuestionText("qrcode");
             // shown when image is clicked
             String bigImageURI = mPrompt.getSpecialFormQuestionText("big-image");
+            String ttsText = mPrompt.getSpecialFormQuestionText("tts");
+            if (MainConfigurablePreferences.isTTSEnabled() && ttsText == null) {
+                ttsText = mPrompt.getLongText();
+            }
 
-            MediaLayout mediaLayout = MediaLayout.buildComprehensiveLayout(getContext(), mQuestionText, audioURI, imageURI, videoURI, bigImageURI, qrCodeContent, inlineVideoUri, mPrompt.getIndex().hashCode());
+            MediaLayout mediaLayout = MediaLayout.buildComprehensiveLayout(getContext(), mQuestionText, audioURI, imageURI, videoURI, bigImageURI, qrCodeContent, inlineVideoUri, ttsText, mPrompt.getIndex().hashCode());
             addView(mediaLayout, mLayout);
         }
     }

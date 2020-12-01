@@ -2,6 +2,8 @@ package org.commcare.tts
 
 import android.content.Context
 import android.os.Build
+import android.os.Handler
+import android.os.Looper
 import android.speech.tts.TextToSpeech
 import android.speech.tts.UtteranceProgressListener
 import android.text.TextUtils
@@ -23,10 +25,13 @@ object TextToSpeechConverter {
     private var mTextToSpeech: TextToSpeech? = null
     private var mTTSCallback: TextToSpeechCallback? = null
     private val mUtteranceProgressListener = object: UtteranceProgressListener() {
+        // The callbacks specified here can be called from multiple threads.
         override fun onDone(utteranceId: String?) { }
 
         override fun onError(utteranceId: String?) {
-            mTTSCallback?.speakFailed()
+            Handler(Looper.getMainLooper()).post {
+                mTTSCallback?.speakFailed()
+            }
         }
 
         override fun onStart(utteranceId: String?) { }
@@ -64,7 +69,7 @@ object TextToSpeechConverter {
         mTextToSpeech?.let { tts ->
             if (isTextLong(text)) {
                 text.chunked(4000).forEach {
-                    speakInternal(tts, it)
+                    speakInternal(tts, it, TextToSpeech.QUEUE_ADD)
                 }
             } else {
                 speakInternal(tts, text)
@@ -93,14 +98,14 @@ object TextToSpeechConverter {
         }
     }
 
-    private fun speakInternal(tts: TextToSpeech, text: String) {
+    private fun speakInternal(tts: TextToSpeech, text: String, queueMode: Int = TextToSpeech.QUEUE_FLUSH) {
         val utteranceId = System.currentTimeMillis().toString()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            tts.speak(text, TextToSpeech.QUEUE_FLUSH, null, utteranceId)
+            tts.speak(text, queueMode, null, utteranceId)
         } else {
             val params = HashMap<String, String>()
             params[TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID] = utteranceId
-            tts.speak(text, TextToSpeech.QUEUE_FLUSH, params)
+            tts.speak(text, queueMode, params)
         }
     }
 
@@ -149,13 +154,13 @@ object TextToSpeechConverter {
                                 || features.contains(TextToSpeech.Engine.KEY_FEATURE_NOT_INSTALLED)
                                 || tts.voice.isNetworkConnectionRequired) {
                             // voice data is not present
-                            mTTSCallback?.voiceDataMissing(locale.language)
+                            mTTSCallback?.voiceDataMissing(locale.displayLanguage)
                         }
                     }
                 } else {
                     val features = tts.getFeatures(locale)
                     if (features == null || features.contains("notInstalled")) {
-                        mTTSCallback?.voiceDataMissing(locale.language)
+                        mTTSCallback?.voiceDataMissing(locale.displayLanguage)
                     }
                 }
                 true
@@ -163,7 +168,7 @@ object TextToSpeechConverter {
             TextToSpeech.LANG_MISSING_DATA -> {
                 // Unfortunately this callback doesn't really work.
                 tts.language = locale
-                mTTSCallback?.voiceDataMissing(locale.language)
+                mTTSCallback?.voiceDataMissing(locale.displayLanguage)
                 true
             }
             TextToSpeech.LANG_NOT_SUPPORTED -> {
