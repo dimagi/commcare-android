@@ -352,13 +352,15 @@ public class AndroidSessionWrapper implements SessionWrapperInterface {
 
 
     public void executeStackActions(Vector<StackOperation> ops, HashMap<String, String> arguments) {
+        Vector<StackOperation> subsitudedOps = new Vector<>(ops.size());
         for (StackOperation stackOp : ops) {
-            for (StackFrameStep stackFrameStep : stackOp.getStackFrameSteps()) {
-                // TODO: do we need a copy instead ?
+            StackOperation copyOfStackOp = new StackOperation(stackOp);
+            for (StackFrameStep stackFrameStep : copyOfStackOp.getStackFrameSteps()) {
                 stackFrameStep.substituteArgument(arguments);
             }
+            subsitudedOps.add(copyOfStackOp);
         }
-        executeStackActions(ops);
+        executeStackActions(subsitudedOps);
     }
 
     /**
