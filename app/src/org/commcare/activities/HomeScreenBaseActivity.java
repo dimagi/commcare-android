@@ -1,8 +1,5 @@
 package org.commcare.activities;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.app.AlertDialog;
-
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -12,6 +9,9 @@ import android.os.Bundle;
 import android.util.Base64;
 import android.widget.AdapterView;
 import android.widget.Toast;
+
+import com.google.android.gms.common.util.CollectionUtils;
+import com.google.android.play.core.install.model.InstallErrorCode;
 
 import org.apache.commons.lang3.StringUtils;
 import org.commcare.CommCareApplication;
@@ -40,7 +40,6 @@ import org.commcare.preferences.DevSessionRestorer;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.preferences.MainConfigurablePreferences;
-import org.commcare.preferences.PrefValues;
 import org.commcare.recovery.measures.RecoveryMeasuresHelper;
 import org.commcare.session.CommCareSession;
 import org.commcare.session.SessionFrame;
@@ -55,7 +54,6 @@ import org.commcare.suite.model.PostRequest;
 import org.commcare.suite.model.RemoteRequestEntry;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.StackFrameStep;
-import org.commcare.suite.model.StackOperation;
 import org.commcare.suite.model.Text;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.FormLoaderTask;
@@ -90,11 +88,12 @@ import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.Vector;
 
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.preference.PreferenceManager;
-
-import com.google.android.play.core.install.model.InstallErrorCode;
 
 import static org.commcare.activities.DispatchActivity.SESSION_ENDPOINT_ARGUMENTS;
 import static org.commcare.activities.DispatchActivity.SESSION_ENDPOINT_ID;
@@ -207,24 +206,50 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
 
     private void processSessionEndpoint() {
         if (getIntent().hasExtra(SESSION_ENDPOINT_ID)) {
-            String sessionEndpointId = this.getIntent().getStringExtra(SESSION_ENDPOINT_ID);
-            ArrayList<String> intentArguments = this.getIntent().getStringArrayListExtra(SESSION_ENDPOINT_ARGUMENTS);
+            Endpoint endpoint = validateIntentForSessionEndpoint(getIntent());
+            if (endpoint != null) {
+                Vector<String> endpointArguments = endpoint.getArguments();
+                ArrayList<String> intentArguments = getIntent().getStringArrayListExtra(SESSION_ENDPOINT_ARGUMENTS);
+                HashMap<String, String> compositeArguments = new HashMap<>(endpointArguments.size());
+                for (int i = 0; i < endpointArguments.size(); i++) {
+                    compositeArguments.put(endpointArguments.elementAt(i),
+                            intentArguments.get(i));
+                }
 
-            Endpoint endpoint = CommCareApplication.instance().getCommCarePlatform().getEndpoint(sessionEndpointId);
-            Vector<String> endpointArguments = endpoint.getArguments();
-
-            if (endpointArguments.size() != intentArguments.size()) {
-                // todo error out
+                CommCareApplication.instance().getCurrentSessionWrapper()
+                        .executeStackActions(endpoint.getStackOperations(), compositeArguments);
             }
-
-            HashMap<String, String> compositeArguments = new HashMap<>(endpointArguments.size());
-            for (int i = 0; i < endpointArguments.size(); i++) {
-                compositeArguments.put(endpointArguments.elementAt(i), intentArguments.get(i));
-            }
-
-            CommCareApplication.instance().getCurrentSessionWrapper()
-                    .executeStackActions(endpoint.getStackOperations(), compositeArguments);
         }
+    }
+
+    private Endpoint validateIntentForSessionEndpoint(Intent intent) {
+        String sessionEndpointId = intent.getStringExtra(SESSION_ENDPOINT_ID);
+        Endpoint endpoint = CommCareApplication.instance().getCommCarePlatform().getEndpoint(sessionEndpointId);
+        if (endpoint == null) {
+            Hashtable<String, Endpoint> allEndpoints = CommCareApplication.instance().getCommCarePlatform().getAllEndpoints();
+            String invalidEndpointError = org.commcare.utils.StringUtils.getStringRobust(
+                    this,
+                    R.string.session_endpoint_unavailable,
+                    new String[]{
+                            endpoint.getId(),
+                            StringUtils.join(allEndpoints.keySet(), ",")});
+            UserfacingErrorHandling.createErrorDialog(this, invalidEndpointError, true);
+            return null;
+        }
+
+        ArrayList<String> intentArguments = intent.getStringArrayListExtra(SESSION_ENDPOINT_ARGUMENTS);
+        if (endpoint.getArguments().size() != intentArguments.size()) {
+            String invalidEndpointArgsError = org.commcare.utils.StringUtils.getStringRobust(
+                    this,
+                    R.string.session_endpoint_invalid_arguments,
+                    new String[]{
+                            endpoint.getId(),
+                            StringUtils.join(intentArguments, ","),
+                            StringUtils.join(endpoint.getArguments(), ",")});
+            UserfacingErrorHandling.createErrorDialog(this, invalidEndpointArgsError, true);
+            return null;
+        }
+        return endpoint;
     }
 
     private void processFromShortcutLaunch() {
