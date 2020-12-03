@@ -20,8 +20,8 @@ import org.javarosa.form.api.FormEntryPrompt;
  */
 public class StringNumberWidget extends StringWidget {
 
-    public StringNumberWidget(Context context, FormEntryPrompt prompt, boolean secret) {
-        super(context, prompt, secret);
+    public StringNumberWidget(Context context, FormEntryPrompt prompt, boolean secret, boolean inCompactGroup) {
+        super(context, prompt, secret, inCompactGroup);
 
         mAnswer.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mAnswerFontSize);
         mAnswer.setImeOptions(EditorInfo.IME_FLAG_NO_EXTRACT_UI | EditorInfo.IME_ACTION_NEXT);

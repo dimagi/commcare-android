@@ -1,14 +1,11 @@
 package org.commcare.views.widgets;
 
-import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
-import androidx.fragment.app.FragmentActivity;
-
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.widget.ImageButton;
@@ -26,6 +23,9 @@ import org.javarosa.core.services.locale.Localization;
 import org.javarosa.form.api.FormEntryPrompt;
 
 import java.util.Date;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.FragmentActivity;
 
 import static org.commcare.views.widgets.RecordingFragment.AUDIO_FILE_PATH_ARG_KEY;
 
@@ -67,7 +67,7 @@ public class CommCareAudioWidget extends AudioWidget
             Intent i = new Intent(Intent.ACTION_GET_CONTENT);
             i.setType("audio/*");
             try {
-                ((Activity)getContext()).startActivityForResult(i, FormEntryConstants.AUDIO_VIDEO_FETCH);
+                ((AppCompatActivity)getContext()).startActivityForResult(i, FormEntryConstants.AUDIO_VIDEO_FETCH);
                 recordingNameText.setTextColor(getResources().getColor(R.color.black));
                 pendingCalloutInterface.setPendingCalloutFormIndex(mPrompt.getIndex());
             } catch (ActivityNotFoundException e) {

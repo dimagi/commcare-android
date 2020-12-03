@@ -8,6 +8,7 @@ import android.util.Log;
 import android.util.TypedValue;
 import android.view.Display;
 import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageView;
@@ -38,7 +39,6 @@ import java.util.Vector;
 public class LabelWidget extends QuestionWidget {
     private static final String TAG = LabelWidget.class.getSimpleName();
     private static final int RANDOM_BUTTON_ID = 4853487;
-    private final static int TEXTSIZE = 21;
 
     private LinearLayout questionLayout;
 
@@ -120,9 +120,9 @@ public class LabelWidget extends QuestionWidget {
 
                 // build text label. Don't assign the text to the built in label to he
                 // button because it aligns horizontally, and we want the label on top
-                label = new TextView(getContext());
+                label = (TextView) LayoutInflater.from(getContext()).inflate(R.layout.question_widget_text, null);
                 setChoiceText(label, mItems.get(i));
-                label.setTextSize(TypedValue.COMPLEX_UNIT_DIP, TEXTSIZE);
+                label.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mQuestionFontSize);
 
                 // answer layout holds the label text/image on top and the radio button on bottom
                 LinearLayout answer = new LinearLayout(getContext());
@@ -189,9 +189,9 @@ public class LabelWidget extends QuestionWidget {
     @Override
     protected void addQuestionText() {
         // Add the text view. Textview always exists, regardless of whether there's text.
-        mQuestionText = new TextView(getContext());
+        mQuestionText = (TextView) LayoutInflater.from(getContext()).inflate(R.layout.question_widget_text, null);
         setQuestionText(mQuestionText, mPrompt);
-        mQuestionText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, TEXTSIZE);
+        mQuestionText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mQuestionFontSize);
         mQuestionText.setTypeface(null, Typeface.BOLD);
         mQuestionText.setPadding(0, 0, 0, 7);
         mQuestionText.setId(RANDOM_BUTTON_ID); // assign random id

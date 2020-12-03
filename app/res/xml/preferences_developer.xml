@@ -1,45 +1,45 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
                   xmlns:app="http://schemas.android.com/apk/res-auto">
-    <ListPreference
+    <androidx.preference.ListPreference
         android:enabled="true"
         android:entries="@array/pref_enabled_labels"
         android:entryValues="@array/pref_enabled_vals"
         android:key="cc-superuser-enabled"
         android:title="Developer Mode Enabled"/>
-    <ListPreference
+    <androidx.preference.ListPreference
         android:defaultValue="no"
         android:enabled="true"
         android:entries="@array/pref_enabled_labels"
         android:entryValues="@array/pref_enabled_vals"
         android:key="cc-show-update-target-options"
         android:title="Show Update Options Item"/>
-    <ListPreference
+    <androidx.preference.ListPreference
         android:defaultValue="yes"
         android:enabled="true"
         android:entries="@array/pref_enabled_labels"
         android:entryValues="@array/pref_enabled_vals"
         android:key="cc-action-nav-enabled"
         android:title="Action Bar Enabled"/>
-    <ListPreference
+    <androidx.preference.ListPreference
         android:defaultValue="yes"
         android:enabled="true"
         android:entries="@array/pref_enabled_labels"
         android:entryValues="@array/pref_enabled_vals"
         android:key="cc-nav-ui-enabled"
         android:title="Navigation UI"/>
-    <ListPreference
+    <androidx.preference.ListPreference
         android:enabled="true"
         android:entries="@array/pref_enabled_labels"
         android:entryValues="@array/pref_enabled_vals"
         android:key="cc-list-refresh"
         android:title="Entity List Screen Auto-Refresh"/>
-    <ListPreference
+    <androidx.preference.ListPreference
         android:enabled="true"
         android:entries="@array/pref_enabled_labels"
         android:entryValues="@array/pref_enabled_vals"
         android:key="cc-enable-auto-login"
         android:title="Auto-login While Debugging"/>
-    <ListPreference
+    <androidx.preference.ListPreference
         android:enabled="true"
         android:entries="@array/pref_enabled_labels"
         android:entryValues="@array/pref_enabled_vals"
@@ -50,43 +50,43 @@
         android:enabled="true"
         android:key="__edit_session_save"
         android:title="Edit Saved Session"/>
-    <ListPreference
+    <androidx.preference.ListPreference
         android:enabled="true"
         android:entries="@array/pref_enabled_labels"
         android:entryValues="@array/pref_enabled_vals"
         android:key="cc-css-enabled"
         android:title="CSS Enabled"/>
-    <ListPreference
+    <androidx.preference.ListPreference
         android:enabled="true"
         android:entries="@array/pref_enabled_labels"
         android:entryValues="@array/pref_enabled_vals"
         android:key="cc-markdown-enabled"
         android:title="Markdown Enabled"/>
-    <ListPreference
+    <androidx.preference.ListPreference
         android:enabled="true"
         android:entries="@array/pref_enabled_labels"
         android:entryValues="@array/pref_enabled_vals"
         android:key="cc-alternate-question-text-format"
         android:title="Image Above Question Text Enabled"/>
-    <ListPreference
+    <androidx.preference.ListPreference
         android:enabled="true"
         android:entries="@array/pref_enabled_labels"
         android:entryValues="@array/pref_enabled_vals"
         android:key="cc-home-report"
         android:title="Home Report Button enabled"/>
-    <ListPreference
+    <androidx.preference.ListPreference
         android:enabled="true"
         android:entries="@array/pref_enabled_labels"
         android:entryValues="@array/pref_enabled_vals"
         android:key="cc-offer-pin-for-login"
         android:title="Give option to use PIN for login"/>
-    <ListPreference
+    <androidx.preference.ListPreference
         android:enabled="true"
         android:entries="@array/pref_enabled_labels"
         android:entryValues="@array/pref_enabled_vals"
         android:key="cc-auto-purge"
         android:title="Detect and Trigger Purge on Form Save"/>
-    <ListPreference
+    <androidx.preference.ListPreference
         android:defaultValue="saved"
         android:enabled="true"
         android:entries="@array/pref_load_form_payload_as_labels"
@@ -104,28 +104,28 @@
         android:enabled="true"
         android:key="remote-form-payload-url"
         android:title="Form Payload Server"/>
-    <ListPreference
+    <androidx.preference.ListPreference
         android:defaultValue="yes"
         android:enabled="true"
         android:entries="@array/pref_enabled_labels"
         android:entryValues="@array/pref_enabled_vals"
         android:key="cc-detail-final-swipe-enabled"
         android:title="Enable swipe in/out of case detail tabs"/>
-    <ListPreference
+    <androidx.preference.ListPreference
         android:defaultValue="no"
         android:enabled="true"
         android:entries="@array/pref_enabled_labels"
         android:entryValues="@array/pref_enabled_vals"
         android:key="cc-use-root-menu-as-home-screen"
         android:title="Use root module menu as home screen"/>
-    <ListPreference
+    <androidx.preference.ListPreference
         android:defaultValue="no"
         android:enabled="true"
         android:entries="@array/pref_enabled_labels"
         android:entryValues="@array/pref_enabled_vals"
         android:key="cc-show-entity-trace-outputs"
         android:title="Output Entity List Trace Data to ADB"/>
-    <ListPreference
+    <androidx.preference.ListPreference
         android:defaultValue="no"
         android:enabled="true"
         android:entries="@array/pref_enabled_labels"
@@ -138,28 +138,28 @@
         android:key="cc-custom-restore-doc-location"
         android:title="Restore a custom user XML data file"
         app:file_type="xml"/>
-    <ListPreference
+    <androidx.preference.ListPreference
         android:defaultValue="no"
         android:enabled="true"
         android:entries="@array/pref_enabled_labels"
         android:entryValues="@array/pref_enabled_vals"
         android:key="cc-enable-bulk-performance"
         android:title="Enable cutting-edge performance improvements"/>
-    <ListPreference
+    <androidx.preference.ListPreference
         android:defaultValue="no"
         android:enabled="true"
         android:entries="@array/pref_enabled_labels"
         android:entryValues="@array/pref_enabled_vals"
         android:key="cc-hide-issue-report"
         android:title="Hide the 'Report an Issue' Menu Option"/>
-    <ListPreference
+    <androidx.preference.ListPreference
         android:defaultValue="no"
         android:enabled="true"
         android:entries="@array/pref_enabled_labels"
         android:entryValues="@array/pref_enabled_vals"
         android:key="cc-enforce-secure-endpoint"
         android:title="Enforce Secure Endpoint"/>
-    <ListPreference
+    <androidx.preference.ListPreference
         android:defaultValue="yes"
         android:enabled="true"
         android:entries="@array/pref_enabled_labels"

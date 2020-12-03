@@ -1,25 +1,25 @@
 package org.commcare.activities;
 
-import android.app.ActionBar;
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.FragmentActivity;
 import android.view.MenuItem;
 
 import org.commcare.fragments.CommCarePreferenceFragment;
 import org.commcare.preferences.AdvancedActionsPreferences;
 import org.commcare.preferences.AppManagerAdvancedPreferences;
 import org.commcare.preferences.AppManagerDeveloperPreferences;
-import org.commcare.preferences.MainConfigurablePreferences;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.preferences.FormEntryPreferences;
+import org.commcare.preferences.MainConfigurablePreferences;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
 
 
-public class CommCarePreferenceActivity extends FragmentActivity {
+public class CommCarePreferenceActivity extends AppCompatActivity {
 
     public static final String EXTRA_PREF_TYPE = "extra_pref_type";
 
@@ -75,9 +75,9 @@ public class CommCarePreferenceActivity extends FragmentActivity {
         }
     }
 
-    public static void addBackButtonToActionBar(@NonNull Activity activity) {
+    public static void addBackButtonToActionBar(@NonNull AppCompatActivity activity) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            ActionBar actionBar = activity.getActionBar();
+            ActionBar actionBar = activity.getSupportActionBar();
             if (actionBar != null) {
                 actionBar.setDisplayShowHomeEnabled(true);
                 actionBar.setDisplayHomeAsUpEnabled(true);

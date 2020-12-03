@@ -334,7 +334,7 @@ public class FormRecord extends Persisted implements EncryptedModel {
         } catch (Exception e) {
             e.printStackTrace();
             Logger.exception("Failed to update Instance row " + getID(), e);
-            throw new SQLException("Failed to update Instance row " + getID());
+            throw new SQLException("Failed to update Instance row " + getID(), e);
         }
     }
 

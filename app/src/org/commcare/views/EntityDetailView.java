@@ -1,6 +1,6 @@
 package org.commcare.views;
 
-import android.app.Activity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -411,7 +411,7 @@ public class EntityDetailView extends FrameLayout {
 
         final ProgressBar spinner = new ProgressBar(this.getContext(), null, android.R.attr.progressBarStyleLarge);
         spinner.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.CENTER));
-        GraphLoader graphLoader = new GraphLoader((Activity)this.getContext(), spinner);
+        GraphLoader graphLoader = new GraphLoader((AppCompatActivity)this.getContext(), spinner);
 
         // Set up interface that JavaScript will call to hide the spinner
         // once the graph has finished rendering.

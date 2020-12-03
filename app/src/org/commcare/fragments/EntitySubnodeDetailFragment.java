@@ -1,6 +1,5 @@
 package org.commcare.fragments;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,6 +20,8 @@ import org.commcare.views.EntityView;
 import org.javarosa.core.model.instance.TreeReference;
 
 import java.util.List;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 /**
  * Created by jschweers on 8/26/2015.
@@ -45,8 +46,10 @@ public class EntitySubnodeDetailFragment extends EntityDetailFragment implements
         TreeReference referenceToDisplay = getReferenceToDisplay();
 
         View rootView = inflater.inflate(R.layout.entity_detail_list, container, false);
-        final Activity thisActivity = getActivity();
+
+        final AppCompatActivity thisActivity = (AppCompatActivity)getActivity();
         this.listView = rootView.findViewById(R.id.screen_entity_detail_list);
+
         if (this.adapter == null && this.loader == null && !EntityLoaderTask.attachToActivity(this)) {
             // Set up task to fetch entity data
             EntityLoaderTask theLoader =

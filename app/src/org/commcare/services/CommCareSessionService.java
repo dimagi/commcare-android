@@ -8,7 +8,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Binder;
 import android.os.IBinder;
-import androidx.preference.PreferenceManager;
 import android.text.format.DateFormat;
 import android.util.Log;
 import android.widget.Toast;
@@ -19,7 +18,6 @@ import org.commcare.AppUtils;
 import org.commcare.CommCareApplication;
 import org.commcare.CommCareNoficationManager;
 import org.commcare.activities.DispatchActivity;
-import org.commcare.activities.UITestInfoActivity;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.core.encryption.CryptUtil;
 import org.commcare.dalvik.R;
@@ -31,7 +29,6 @@ import org.commcare.models.encryption.CipherPool;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.sync.FormSubmissionHelper;
 import org.commcare.tasks.DataSubmissionListener;
-import org.commcare.sync.ProcessAndSendTask;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.SessionStateUninitException;
 import org.commcare.utils.SessionUnavailableException;
@@ -53,6 +50,7 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
 import androidx.core.app.NotificationCompat;
+import androidx.preference.PreferenceManager;
 
 /**
  * The CommCare Session Service is a persistent service which maintains
@@ -123,7 +121,7 @@ public class CommCareSessionService extends Service {
     // Have the app health checks in HomeScreenBaseActivity#checkForPendingAppHealthActions() been
     // done at least once during this session?
     private boolean appHealthChecksCompleted;
-
+    public static final String LOG_SUBMISSION_RESULT_PREF = "log_submission_result";
     /**
      * Class for clients to access.  Because we know this service always
      * runs in the same process as its clients, we don't need to deal with
@@ -393,9 +391,8 @@ public class CommCareSessionService extends Service {
     /**
      * Calls the provided runnable ensuring that if there is currently an active
      * form session being executed that it is interrupted and stored
-     *
      */
-    public void proceedWithSavedSessionIfNeeded(Runnable callback)  {
+    public void proceedWithSavedSessionIfNeeded(Runnable callback) {
         // save form progress, if any
         synchronized (lock) {
             if (formSaver != null) {
@@ -601,7 +598,7 @@ public class CommCareSessionService extends Service {
 
             private void setLogSubmissionResultPref(boolean success) {
                 SharedPreferences globalPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-                globalPreferences.edit().putBoolean(UITestInfoActivity.LOG_SUBMISSION_RESULT_PREF, success).commit();
+                globalPreferences.edit().putBoolean(LOG_SUBMISSION_RESULT_PREF, success).commit();
             }
 
             private String getSubmittedFormCount(int current, int total) {

@@ -31,7 +31,11 @@
         <item name="android:paddingRight">15dp</item>
     </style>
 
-    <style name="EntityItemTextView">
+
+    <dimen name="entity_padding">@dimen/content_min_margin</dimen>
+    <dimen name="grid_entity_padding">3dp</dimen>
+
+    <style name="EntityItemTextView" parent="TextAppearance.AppCompat.Medium">
         <item name="android:paddingLeft">@dimen/entity_padding</item>
         <item name="android:paddingTop">@dimen/entity_padding</item>
         <item name="android:paddingBottom">@dimen/entity_padding</item>
@@ -51,11 +55,8 @@
         <item name="android:paddingRight">@dimen/grid_entity_padding</item>
     </style>
 
-    <style name="EntityItemText" parent="@android:style/TextAppearance.Large"></style>
-
-    <style name="GridEntityItemText" parent="@android:style/TextAppearance.Medium">
-
-    </style>
+    <style name="EntityItemText" parent="@android:style/TextAppearance.Medium"/>
+    <style name="GridEntityItemText" parent="@android:style/TextAppearance.Medium"/>
 
     <style name="VersionIdText">
         <item name="android:textSize">@dimen/text_smaller</item>
@@ -116,7 +117,7 @@
         <item name="android:textColor">@color/red</item>
     </style>
 
-    <style name="DialogBaseTheme" parent="android:Theme.Holo.Light.Dialog"/>
+    <style name="DialogBaseTheme" parent="Theme.AppCompat.Light.Dialog"/>
 
     <!-- Start Collect styles -->
 
@@ -140,11 +141,11 @@
 
     <style name="ListViewV2">
         <item name="android:padding">@dimen/content_start</item>
-        <item name="android:divider">@null</item>
+        <item name="divider">@null</item>
         <item name="android:scrollbars">none</item>
     </style>
 
-    <style name="ListContentWithoutBadge">
+    <style name="ListContentWithoutBadge" parent="@style/TextAppearance.AppCompat.Medium">
         <item name="android:layout_margin">@dimen/content_min_margin</item>
         <item name="android:colorBackground">@color/cc_core_bg</item>
         <item name="android:gravity">center_vertical</item>
@@ -164,7 +165,8 @@
         <item name="android:layout_marginLeft">@dimen/content_min_margin</item>
         <item name="android:colorBackground">@color/cc_core_bg</item>
     </style>
-    <style name="ListViewHeaderV2">
+
+    <style name="ListViewHeaderV2" parent="TextAppearance.AppCompat.Medium">
         <item name="android:padding">@dimen/content_start</item>
         <item name="android:gravity">center_vertical</item>
         <item name="android:textStyle">bold</item>
@@ -196,7 +198,7 @@
 
 
     <style name="TextViewV2" parent="DefaultPadding">
-        <item name="android:background">@color/cc_brand_color</item>
+        <item name="android:background">?attr/filter_select_background_color</item>
         <item name="android:textColor">@color/cc_core_bg</item>
     </style>
 
@@ -259,6 +261,11 @@
         <item name="android:paddingRight">@dimen/standard_spacer_large</item>
     </style>
 
+    <style name="NumberPickerStyle">
+        <item name="colorControlNormal">?attr/colorAccent</item>
+        <item name="android:textSize">@dimen/abc_text_size_medium_material</item>
+    </style>
+
     <style name="MapButton">
         <item name="android:minWidth">@dimen/map_button_min_width</item>
     </style>
@@ -280,12 +287,6 @@
     </style>
 
     <color name="login_edit_text_color">@color/cc_core_text</color>
-
     <color name="login_edit_text_color_error">@color/cc_attention_negative_color</color>
-
-    <dimen name="entity_padding">@dimen/content_min_margin</dimen>
-
-    <dimen name="grid_entity_padding">3dp</dimen>
-
     <dimen name="map_button_min_width">120dp</dimen>
 </resources>

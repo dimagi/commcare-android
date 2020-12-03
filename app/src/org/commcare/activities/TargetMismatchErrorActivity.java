@@ -1,19 +1,20 @@
 package org.commcare.activities;
 
-import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
-import androidx.annotation.Nullable;
 import android.widget.Button;
 import android.widget.TextView;
 
 import org.commcare.dalvik.R;
 import org.commcare.utils.StringUtils;
 
-public class TargetMismatchErrorActivity extends Activity {
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+
+public class TargetMismatchErrorActivity extends AppCompatActivity {
 
     private static final String PACKAGE_LTS = "org.commcare.lts";
     private static final String PACKAGE_CC = "org.commcare.dalvik";

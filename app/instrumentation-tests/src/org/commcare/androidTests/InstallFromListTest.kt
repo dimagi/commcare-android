@@ -16,6 +16,7 @@ import org.commcare.CommCareApplication
 import org.commcare.CommCareInstrumentationTestApplication
 import org.commcare.activities.InstallFromListActivity
 import org.commcare.android.database.global.models.AppAvailableToInstall
+import org.commcare.annotations.BrowserstackTests
 import org.commcare.dalvik.BuildConfig
 import org.commcare.dalvik.R
 import org.commcare.utils.CustomMatchers
@@ -29,6 +30,7 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 @LargeTest
+@BrowserstackTests
 class InstallFromListTest: BaseTest() {
 
     @Before
@@ -49,7 +51,7 @@ class InstallFromListTest: BaseTest() {
                 .check(matches(not(isDisplayed())))
 
         // Toggle switch
-        onView(withClassName(endsWith("Switch")))
+        onView(withId(R.id.switch_button))
                 .perform(click())
 
         // Verify that we're now in web user auth mode
@@ -78,7 +80,7 @@ class InstallFromListTest: BaseTest() {
     @Test
     fun testAppInstall_usingMobieWorkerDetails() {
         // Switch back to mobile auth view
-        onView(withClassName(endsWith("Switch")))
+        onView(withId(R.id.switch_button))
                 .perform(click())
 
         // Test getting app list for a mobile user

@@ -2,17 +2,18 @@ package org.commcare.activities;
 
 import android.content.DialogInterface;
 import android.os.Bundle;
-import androidx.fragment.app.FragmentActivity;
 
 import org.commcare.utils.CommCareLifecycleUtils;
 import org.commcare.views.dialogs.AlertDialogFragment;
 import org.commcare.views.dialogs.StandardAlertDialog;
 import org.javarosa.core.services.locale.Localization;
 
+import androidx.appcompat.app.AppCompatActivity;
+
 /**
  * @author ctsims
  */
-public class UnrecoverableErrorActivity extends FragmentActivity {
+public class UnrecoverableErrorActivity extends AppCompatActivity {
 
     public static final String EXTRA_ERROR_TITLE = "UnrecoverableErrorActivity_Title";
     public static final String EXTRA_ERROR_MESSAGE = "UnrecoverableErrorActivity_Message";

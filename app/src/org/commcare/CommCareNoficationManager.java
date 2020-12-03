@@ -1,7 +1,6 @@
 package org.commcare;
 
 import android.annotation.TargetApi;
-import android.app.Activity;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -11,6 +10,8 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Message;
+
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.NotificationCompat;
 
 import org.commcare.activities.MessageActivity;
@@ -142,7 +143,7 @@ public class CommCareNoficationManager {
      * From the current activity context, perform a (non-return coded) intent callout to
      * view the notifications screen.
      */
-    public static void performIntentCalloutToNotificationsView(Activity activity) {
+    public static void performIntentCalloutToNotificationsView(AppCompatActivity activity) {
         Intent i = new Intent(activity, MessageActivity.class);
         activity.startActivity(i);
     }

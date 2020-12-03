@@ -3,7 +3,6 @@ package org.commcare.fragments;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
-import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,6 +14,9 @@ import android.widget.TextView;
 
 import org.commcare.dalvik.R;
 import org.javarosa.core.services.locale.Localization;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
 
 /**
  * Fragment for inputting app installation URL, "returned" through the URLInstaller interface.
@@ -76,7 +78,7 @@ public class SetupEnterURLFragment extends Fragment {
     @Override
     public void onPause() {
         super.onPause();
-        Activity activity = this.getActivity();
+        AppCompatActivity activity = (AppCompatActivity)getActivity();
 
         if (activity != null) {
             if (activity.getCurrentFocus() != null) {
@@ -89,7 +91,7 @@ public class SetupEnterURLFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        Activity activity = this.getActivity();
+        AppCompatActivity activity = (AppCompatActivity)getActivity();
 
         if (activity != null) {
             View editBox = activity.findViewById(R.id.edit_profile_location);
@@ -104,8 +106,8 @@ public class SetupEnterURLFragment extends Fragment {
     public void onAttach(Context context) {
         super.onAttach(context);
 
-        if (context instanceof Activity) {
-            ((Activity)context).getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+        if (context instanceof AppCompatActivity) {
+            ((AppCompatActivity)context).getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
         }
 
         if (!(context instanceof URLInstaller)) {

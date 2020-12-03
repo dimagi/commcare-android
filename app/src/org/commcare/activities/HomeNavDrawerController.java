@@ -1,11 +1,8 @@
 package org.commcare.activities;
 
 import android.annotation.TargetApi;
-import android.app.ActionBar;
 import android.os.Build;
 import android.os.Bundle;
-import androidx.drawerlayout.widget.DrawerLayout;
-
 import android.widget.ListView;
 
 import org.commcare.CommCareApplication;
@@ -19,6 +16,9 @@ import org.javarosa.core.services.locale.Localization;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import androidx.appcompat.app.ActionBar;
+import androidx.drawerlayout.widget.DrawerLayout;
 
 /**
  * Manages the UI of the nav drawer in RootMenuHomeActivity
@@ -63,7 +63,7 @@ public class HomeNavDrawerController {
         navDrawerList.setOnItemClickListener(getNavDrawerClickListener());
         refreshItems();
 
-        ActionBar actionBar = activity.getActionBar();
+        ActionBar actionBar = activity.getSupportActionBar();
         actionBar.setHomeButtonEnabled(true);
         actionBar.setDisplayHomeAsUpEnabled(false);
         actionBar.setDisplayUseLogoEnabled(false);
@@ -133,7 +133,7 @@ public class HomeNavDrawerController {
     private ListView.OnItemClickListener getNavDrawerClickListener() {
         return (parent, view, position, id) -> {
             drawerLayout.closeDrawer(navDrawerList);
-            switch(drawerItemsShowing[position].id) {
+            switch (drawerItemsShowing[position].id) {
                 case SYNC_DRAWER_ITEM_ID:
                     activity.sendFormsOrSync(true);
                     break;
@@ -169,14 +169,14 @@ public class HomeNavDrawerController {
     }
 
     private static String[] getAllItemIdsInOrder() {
-        return new String[] {
+        return new String[]{
                 ABOUT_CC_DRAWER_ITEM_ID, TRAINING_DRAWER_ITEM_ID, SETTINGS_DRAWER_ITEM_ID,
                 ADVANCED_DRAWER_ITEM_ID, CHANGE_LANGUAGE_DRAWER_ITEM_ID, SAVED_FORMS_ITEM_ID,
-                UPDATE_DRAWER_ITEM_ID, SYNC_DRAWER_ITEM_ID, UPDATE_CC_DRAWER_ITEM_ID, LOGOUT_DRAWER_ITEM_ID };
+                UPDATE_DRAWER_ITEM_ID, SYNC_DRAWER_ITEM_ID, UPDATE_CC_DRAWER_ITEM_ID, LOGOUT_DRAWER_ITEM_ID};
     }
 
     private static String getItemTitle(String id) {
-        switch(id) {
+        switch (id) {
             case ABOUT_CC_DRAWER_ITEM_ID:
                 return Localization.get("home.menu.about");
             case SETTINGS_DRAWER_ITEM_ID:
@@ -202,7 +202,7 @@ public class HomeNavDrawerController {
     }
 
     private static int getItemIcon(String id) {
-        switch(id) {
+        switch (id) {
             case ABOUT_CC_DRAWER_ITEM_ID:
                 return R.drawable.ic_about_cc_nav_drawer;
             case SETTINGS_DRAWER_ITEM_ID:
@@ -252,5 +252,4 @@ public class HomeNavDrawerController {
     private void closeDrawer() {
         drawerLayout.closeDrawer(navDrawerList);
     }
-
 }

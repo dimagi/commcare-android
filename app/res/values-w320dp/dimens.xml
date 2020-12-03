@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="edit_text_question_widget_compact_width">100dp</dimen>
+    <dimen name="font_size_small">12sp</dimen>
+    <dimen name="font_size_medium">15sp</dimen>
+    <dimen name="font_size_large">18sp</dimen>
+    <dimen name="font_size_xlarge">21sp</dimen>
+    <dimen name="cell_padding_vertical">8sp</dimen>
+    <dimen name="cell_padding_horizontal">8sp</dimen>
+    <dimen name="row_padding_vertical">8sp</dimen>
+    <dimen name="row_padding_horizontal">8sp</dimen>
+    <dimen name="rectangle_button_height">60dp</dimen>
+</resources>

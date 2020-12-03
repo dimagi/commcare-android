@@ -1,8 +1,6 @@
 package org.commcare.views.dialogs;
 
-import android.app.Activity;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.os.Build;
 import android.text.Spannable;
 import android.view.LayoutInflater;
@@ -16,16 +14,18 @@ import org.commcare.utils.MarkupUtil;
 import org.commcare.utils.StringUtils;
 import org.javarosa.core.services.locale.Localization;
 
+import androidx.appcompat.app.AppCompatActivity;
+
 /**
  * @author Phillip Mates (pmates@dimagi.com)
  */
 public class DialogCreationHelpers {
 
-    public static CommCareAlertDialog buildAboutCommCareDialog(Activity activity) {
+    public static CommCareAlertDialog buildAboutCommCareDialog(AppCompatActivity activity) {
         return buildAboutCommCareDialog(activity, true);
     }
 
-    public static CommCareAlertDialog buildAboutCommCareDialog(Activity activity, boolean showAppInfo) {
+    public static CommCareAlertDialog buildAboutCommCareDialog(AppCompatActivity activity, boolean showAppInfo) {
         LayoutInflater li = LayoutInflater.from(activity);
         View view = li.inflate(R.layout.scrolling_info_dialog, null);
         TextView titleView = view.findViewById(R.id.dialog_title_text);
@@ -59,12 +59,11 @@ public class DialogCreationHelpers {
      * @param permRequester interface for launching system permission request
      *                      dialog
      */
-    public static CommCareAlertDialog buildPermissionRequestDialog(Activity activity,
-                                                                   final RuntimePermissionRequester permRequester,
-                                                                   final int requestCode,
-                                                                   String title,
-                                                                   String body) {
-
+    public static CommCareAlertDialog buildPermissionRequestDialog(AppCompatActivity activity,
+                                                           final RuntimePermissionRequester permRequester,
+                                                           final int requestCode,
+                                                           String title,
+                                                           String body) {
         View view = LayoutInflater.from(activity).inflate(R.layout.scrolling_info_dialog, null);
         TextView bodyText = view.findViewById(R.id.dialog_text);
         bodyText.setText(body);

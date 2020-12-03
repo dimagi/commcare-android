@@ -1,6 +1,5 @@
 package org.commcare.activities;
 
-import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -24,6 +23,8 @@ import org.commcare.views.dialogs.CommCareAlertDialog;
 import org.commcare.views.dialogs.DialogCreationHelpers;
 import org.commcare.views.dialogs.StandardAlertDialog;
 import org.javarosa.core.services.locale.Localization;
+
+import androidx.appcompat.app.AlertDialog;
 
 /**
  * The activity that starts up when a user launches into the app manager.

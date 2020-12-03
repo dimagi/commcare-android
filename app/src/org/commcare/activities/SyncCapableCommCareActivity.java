@@ -18,18 +18,18 @@ import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.interfaces.UiLoadedListener;
 import org.commcare.preferences.HiddenPreferences;
-import org.commcare.tasks.DataPullTask;
 import org.commcare.sync.ProcessAndSendTask;
+import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.PullTaskResultReceiver;
 import org.commcare.tasks.ResultAndError;
 import org.commcare.utils.SyncDetailCalculations;
 import org.commcare.views.dialogs.CustomProgressDialog;
 import org.commcare.views.dialogs.StandardAlertDialog;
-import org.commcare.views.notifications.NotificationMessageFactory;
 import org.javarosa.core.services.locale.Localization;
 
 import androidx.annotation.AnimRes;
 import androidx.annotation.LayoutRes;
+import androidx.core.view.MenuItemCompat;
 
 public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCareActivity<T>
         implements PullTaskResultReceiver {
@@ -323,8 +323,7 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
     }
 
     private void addSyncItemToActionBar(Menu menu) {
-        if (shouldShowSyncItemInActionBar() &&
-                Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+        if (shouldShowSyncItemInActionBar()) {
             currentSyncMenuItem = menu.add(MENU_GROUP_SYNC_ACTION, MENU_SYNC, MENU_SYNC, "Sync");
             currentSyncMenuItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
             switch (syncStateForIcon) {

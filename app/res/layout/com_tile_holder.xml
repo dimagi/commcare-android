@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                android:layout_width="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@color/white">
 
@@ -41,7 +42,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="top"
-                    android:src="@drawable/icon_info_outline_brandbg"
+                    app:srcCompat="@drawable/icon_info_outline_brandbg"
                     style="@style/TileButton"
                     />
 
@@ -57,7 +58,7 @@
                     android:id="@+id/imageButton2"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:src="@drawable/icon_info_fill_brandbg"
+                    app:srcCompat="@drawable/icon_info_fill_brandbg"
                     android:background="@drawable/circle_button"
                     style="@style/TileButton"
                     />
@@ -87,7 +88,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
-            android:src="@android:drawable/arrow_up_float"
+            app:srcCompat="@android:drawable/arrow_up_float"
             android:visibility="gone"
             />
     </RelativeLayout>

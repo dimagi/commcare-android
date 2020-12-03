@@ -1,6 +1,6 @@
 package org.commcare.android.tests.caselist;
 
-import android.app.Activity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.widget.ImageButton;
 
@@ -119,7 +119,7 @@ public class EntityListCalloutDataTest {
                 entitySelectActivity.evalContext());
         Intent responseIntent = buildIdentificationResultIntent();
         ShadowActivity shadowEntitySelect = Shadows.shadowOf(entitySelectActivity);
-        shadowEntitySelect.receiveResult(calloutIntent, Activity.RESULT_OK, responseIntent);
+        shadowEntitySelect.receiveResult(calloutIntent, AppCompatActivity.RESULT_OK, responseIntent);
     }
 
     private static Intent buildIdentificationResultIntent() {

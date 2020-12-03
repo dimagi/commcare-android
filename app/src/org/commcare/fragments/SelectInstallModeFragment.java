@@ -1,13 +1,9 @@
 package org.commcare.fragments;
 
-import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
 import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,7 +12,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.zxing.integration.android.IntentIntegrator;
+import com.google.zxing.BarcodeFormat;
 
 import org.commcare.CommCareApplication;
 import org.commcare.CommCareNoficationManager;
@@ -30,9 +26,15 @@ import org.commcare.views.RectangleButtonWithText;
 import org.commcare.views.SquareButtonWithText;
 import org.commcare.views.dialogs.DialogChoiceItem;
 import org.commcare.views.dialogs.PaneledChoiceDialog;
+import org.commcare.views.widgets.WidgetUtils;
 import org.javarosa.core.services.locale.Localization;
 
 import java.util.ArrayList;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
 /**
  * Fragment for choosing app installation mode (barcode or manual install).
@@ -50,12 +52,10 @@ public class SelectInstallModeFragment extends Fragment implements NsdServiceLis
     @Override
     public void onResume() {
         super.onResume();
-
         NSDDiscoveryTools.registerForNsdServices(this.getContext(), this);
         if (!CommCareApplication.notificationManager().messagesForCommCareArePending()) {
             mViewErrorContainer.setVisibility(View.GONE);
         }
-
     }
 
     @Override
@@ -76,15 +76,14 @@ public class SelectInstallModeFragment extends Fragment implements NsdServiceLis
 
         SquareButtonWithText scanBarcodeButton = view.findViewById(R.id.btn_fetch_uri);
         final View barcodeButtonContainer = view.findViewById(R.id.btn_fetch_uri_container);
+
         scanBarcodeButton.setOnClickListener(v -> {
             try {
-                Activity currentActivity = getActivity();
+                AppCompatActivity currentActivity = (AppCompatActivity)getActivity();
                 if (currentActivity instanceof CommCareSetupActivity) {
                     ((CommCareSetupActivity)currentActivity).clearErrorMessage();
                 }
-                Intent intent = new IntentIntegrator(getActivity())
-                        .setDesiredBarcodeFormats(IntentIntegrator.QR_CODE)
-                        .createScanIntent();
+                Intent intent = WidgetUtils.createScanIntent(getContext(), BarcodeFormat.QR_CODE.name());
                 currentActivity.startActivityForResult(intent, CommCareSetupActivity.BARCODE_CAPTURE);
             } catch (ActivityNotFoundException e) {
                 Toast.makeText(getActivity(), "No barcode scanner installed on phone!", Toast.LENGTH_SHORT).show();
@@ -95,7 +94,7 @@ public class SelectInstallModeFragment extends Fragment implements NsdServiceLis
         SquareButtonWithText enterURLButton = view.findViewById(R.id.enter_app_location);
         enterURLButton.setOnClickListener(v -> {
             SetupEnterURLFragment enterUrl = new SetupEnterURLFragment();
-            Activity currentActivity = getActivity();
+            AppCompatActivity currentActivity = (AppCompatActivity)getActivity();
             if (currentActivity instanceof CommCareSetupActivity) {
                 ((CommCareSetupActivity)currentActivity).setUiState(CommCareSetupActivity.UiState.IN_URL_ENTRY);
                 ((CommCareSetupActivity)currentActivity).clearErrorMessage();
@@ -111,7 +110,7 @@ public class SelectInstallModeFragment extends Fragment implements NsdServiceLis
 
         SquareButtonWithText installFromLocal = view.findViewById(R.id.btn_fetch_hub);
         installFromLocal.setOnClickListener(v -> {
-            Activity currentActivity = getActivity();
+            AppCompatActivity currentActivity = (AppCompatActivity)getActivity();
             if (currentActivity instanceof CommCareSetupActivity) {
                 showLocalAppDialog();
             }
@@ -125,7 +124,7 @@ public class SelectInstallModeFragment extends Fragment implements NsdServiceLis
 
         mViewErrorButton.setText(Localization.get("error.button.text"));
 
-        mViewErrorButton.setOnClickListener(view1 -> CommCareNoficationManager.performIntentCalloutToNotificationsView(getActivity()));
+        mViewErrorButton.setOnClickListener(view1 -> CommCareNoficationManager.performIntentCalloutToNotificationsView((AppCompatActivity)getActivity()));
         showOrHideErrorMessage();
 
         mFetchHubContainer = view.findViewById(R.id.btn_fetch_hub_container);
@@ -145,7 +144,7 @@ public class SelectInstallModeFragment extends Fragment implements NsdServiceLis
         int count = 0;
         for (final MicroNode.AppManifest app : mLocalApps) {
             DialogChoiceItem item = new DialogChoiceItem(app.getName(), -1, v -> {
-                Activity currentActivity = getActivity();
+                AppCompatActivity currentActivity = (AppCompatActivity)getActivity();
                 if (currentActivity instanceof CommCareSetupActivity) {
                     ((CommCareSetupActivity)currentActivity).onURLChosen(app.getLocalUrl());
                 }
@@ -168,14 +167,14 @@ public class SelectInstallModeFragment extends Fragment implements NsdServiceLis
                 appsAvailable = true;
             }
         }
-        Activity activity = getActivity();
+        AppCompatActivity activity = (AppCompatActivity)getActivity();
         if (appsAvailable && activity != null) {
             getActivity().runOnUiThread(() -> mFetchHubContainer.setVisibility(View.VISIBLE));
         }
     }
 
     public void showOrHideErrorMessage() {
-        Activity currentActivity = getActivity();
+        AppCompatActivity currentActivity = (AppCompatActivity)getActivity();
         if (currentActivity instanceof CommCareSetupActivity) {
             String msg = ((CommCareSetupActivity)currentActivity).getErrorMessageToDisplay();
             if (msg != null && !"".equals(msg)) {

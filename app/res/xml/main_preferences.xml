@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
                   xmlns:app="http://schemas.android.com/apk/res-auto">
-    <ListPreference
+    <androidx.preference.ListPreference
         android:enabled="true"
         android:entries="@array/frequency_vals_labels"
         android:entryValues="@array/frequency_vals"
@@ -13,33 +13,40 @@
         android:key="print-doc-location"
         android:title="Set Print Template"
         app:file_type="html"/>
-    <ListPreference
+    <androidx.preference.ListPreference
         android:enabled="true"
         android:entries="@array/pref_enabled_labels"
         android:entryValues="@array/pref_enabled_vals"
         android:key="cc-grid-menus"
         android:title="Grid Menus Enabled"/>
-    <ListPreference
+    <androidx.preference.ListPreference
         android:defaultValue="no"
         android:enabled="true"
         android:entries="@array/pref_enabled_labels"
         android:entryValues="@array/pref_enabled_vals"
         android:key="cc-fuzzy-search-enabled"
         android:title="Fuzzy Search Matches"/>
-    <ListPreference
+    <androidx.preference.ListPreference
         android:enabled="true"
         android:defaultValue="release"
         android:entries="@array/update_target_labels"
         android:entryValues="@array/update_target_vals"
         android:key="cc-update-target"
         android:title="Update Options"/>
-    <ListPreference
+    <androidx.preference.ListPreference
         android:enabled="true"
         android:defaultValue="always_hidden"
         android:entries="@array/pref_password_show_options_labels"
         android:entryValues="@array/pref_password_show_options"
         android:key="cc-password-entry-show-behavior"
         android:title="Configure Password Display"/>
+    <androidx.preference.ListPreference
+        android:enabled="true"
+        android:defaultValue="no"
+        android:entries="@array/pref_enabled_labels"
+        android:entryValues="@array/pref_enabled_vals"
+        android:key="cc-intent-callout-for-scanner"
+        android:title="Use intent callout for scanner"/>
     <Preference
         android:key="disable-analytics-button"/>
     <Preference

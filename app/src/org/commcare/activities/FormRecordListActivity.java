@@ -1,6 +1,5 @@
 package org.commcare.activities;
 
-import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.os.Build;
@@ -23,12 +22,9 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.SearchView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import com.google.zxing.integration.android.IntentIntegrator;
 
 import org.commcare.CommCareApplication;
 import org.commcare.adapters.IncompleteFormListAdapter;
@@ -56,8 +52,13 @@ import org.commcare.utils.SessionUnavailableException;
 import org.commcare.views.IncompleteFormRecordView;
 import org.commcare.views.dialogs.CustomProgressDialog;
 import org.commcare.views.dialogs.StandardAlertDialog;
+import org.commcare.views.widgets.WidgetUtils;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SearchView;
+import androidx.core.view.MenuItemCompat;
 
 
 public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRecordListActivity>
@@ -234,8 +235,8 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
         this.formRecordProcessor = new FormRecordProcessor(this);
     }
 
-    private static void callBarcodeScanIntent(Activity act) {
-        Intent intent = new IntentIntegrator(act).createScanIntent();
+    private static void callBarcodeScanIntent(AppCompatActivity act) {
+        Intent intent = WidgetUtils.createScanIntent(act);
         try {
             act.startActivityForResult(intent, BARCODE_FETCH);
         } catch (ActivityNotFoundException anfe) {
@@ -276,7 +277,7 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
 
     @Override
     public void onActivityResultSessionSafe(int requestCode, int resultCode, Intent intent) {
-        if (resultCode == Activity.RESULT_OK && requestCode == BARCODE_FETCH) {
+        if (resultCode == AppCompatActivity.RESULT_OK && requestCode == BARCODE_FETCH) {
             onBarcodeFetch(intent);
         }
     }
@@ -500,7 +501,7 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
     private void setSearchText(CharSequence text) {
         if (isUsingActionBar()) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-                searchItem.expandActionView();
+                MenuItemCompat.expandActionView(searchItem);
             }
             searchView.setQuery(text, false);
         }
@@ -516,7 +517,7 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
             FormRecordListActivity.this.searchView = searchView;
             if (lastQueryString != null && lastQueryString.length() > 0) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-                    searchItem.expandActionView();
+                    MenuItemCompat.expandActionView(searchItem);
                 }
                 setSearchText(lastQueryString);
                 if (adapter != null) {

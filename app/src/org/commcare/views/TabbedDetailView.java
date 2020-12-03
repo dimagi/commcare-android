@@ -3,8 +3,6 @@ package org.commcare.views;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.TypedArray;
-import androidx.fragment.app.FragmentActivity;
-import androidx.viewpager.widget.ViewPager;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,6 +17,9 @@ import org.commcare.suite.model.Detail;
 import org.commcare.utils.AndroidUtil;
 import org.javarosa.core.model.instance.TreeReference;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.viewpager.widget.ViewPager;
+
 /**
  * Widget that combines a ViewPager with a set of page titles styled to look like tabs.
  * User can navigate either by swiping through pages or by tapping the tabs.
@@ -26,7 +27,7 @@ import org.javarosa.core.model.instance.TreeReference;
  * @author jschweers
  */
 public class TabbedDetailView extends RelativeLayout {
-    private FragmentActivity mContext;
+    private AppCompatActivity mContext;
 
     private LinearLayout mMenu;
     private ViewPager mViewPager;
@@ -43,7 +44,7 @@ public class TabbedDetailView extends RelativeLayout {
     public TabbedDetailView(Context context, AttributeSet attrs) {
         super(context, attrs);
         if (isInEditMode()) return;
-        mContext = (FragmentActivity)context;
+        mContext = (AppCompatActivity)context;
 
         loadViewConfig(context, attrs);
     }
@@ -60,7 +61,7 @@ public class TabbedDetailView extends RelativeLayout {
     @SuppressLint("NewApi")
     public TabbedDetailView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
-        mContext = (FragmentActivity)context;
+        mContext = (AppCompatActivity)context;
     }
 
     /*

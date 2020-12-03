@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <EditText xmlns:android="http://schemas.android.com/apk/res/android"
-          android:background="@drawable/edit_text_modern"
           android:gravity="start"
           android:imeOptions="flagNoExtractUi"
           android:layout_gravity="end"
@@ -10,5 +9,4 @@
           android:paddingLeft="@dimen/edit_text_question_widget_padding_horizontal"
           android:paddingRight="@dimen/edit_text_question_widget_padding_horizontal"
           android:paddingStart="@dimen/edit_text_question_widget_padding_horizontal"
-          android:textAlignment="viewStart"
-          android:textCursorDrawable="@drawable/color_cursor"/>
+          android:textAlignment="viewStart"/>

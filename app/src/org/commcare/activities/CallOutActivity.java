@@ -6,8 +6,8 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
-import androidx.fragment.app.FragmentActivity;
 import androidx.core.content.ContextCompat;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
@@ -26,7 +26,7 @@ import java.util.Date;
 /**
  * @author ctsims
  */
-public class CallOutActivity extends FragmentActivity
+public class CallOutActivity extends AppCompatActivity
         implements RuntimePermissionRequester {
 
     public static final String PHONE_NUMBER = "cos_pn";

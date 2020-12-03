@@ -4,10 +4,13 @@ import android.content.Context;
 import android.os.Build;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.DatePicker;
 import android.widget.TimePicker;
 import android.widget.TimePicker.OnTimeChangedListener;
 
+import org.commcare.dalvik.R;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.data.TimeData;
 import org.javarosa.form.api.FormEntryPrompt;
@@ -29,7 +32,7 @@ public class TimeWidget extends QuestionWidget implements OnTimeChangedListener 
     public TimeWidget(Context context, final FormEntryPrompt prompt) {
         super(context, prompt);
 
-        mTimePicker = new TimePicker(getContext());
+        mTimePicker = (TimePicker)LayoutInflater.from(getContext()).inflate(R.layout.time_widget, this, false);
         mTimePicker.setFocusable(!prompt.isReadOnly());
         mTimePicker.setEnabled(!prompt.isReadOnly());
         mTimePicker.setOnTimeChangedListener(this);

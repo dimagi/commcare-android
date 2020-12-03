@@ -1,12 +1,10 @@
 package org.commcare.views.widgets;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.text.Spannable;
 import android.util.TypedValue;
 import android.view.Gravity;
-import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.LinearLayout;
@@ -23,6 +21,8 @@ import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.form.api.FormEntryPrompt;
 
 import java.text.DecimalFormat;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import static org.commcare.activities.GeoPointMapActivity.EXTRA_VIEW_ONLY;
 
@@ -99,7 +99,7 @@ public class GeoPointWidget extends QuestionWidget {
             } else {
                 i = new Intent(getContext(), GeoPointActivity.class);
             }
-            ((Activity)getContext()).startActivityForResult(i, FormEntryConstants.LOCATION_CAPTURE);
+            ((AppCompatActivity)getContext()).startActivityForResult(i, FormEntryConstants.LOCATION_CAPTURE);
             pendingCalloutInterface.setPendingCalloutFormIndex(prompt.getIndex());
         });
 

@@ -1,6 +1,5 @@
 package org.commcare.activities.components;
 
-import android.app.Activity;
 import android.graphics.Rect;
 import android.os.Build;
 import android.util.TypedValue;
@@ -13,6 +12,7 @@ import org.commcare.activities.FormEntryActivity;
 import org.commcare.dalvik.R;
 import org.commcare.preferences.FormEntryPreferences;
 
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.widget.TextViewCompat;
 
 /**
@@ -81,15 +81,15 @@ public class FormLayoutHelpers {
         }
     }
 
-    private static int getFontSizeInPx(Activity activity) {
+    private static int getFontSizeInPx(AppCompatActivity activity) {
         return (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, FormEntryPreferences.getQuestionFontSize(),
                 activity.getResources().getDisplayMetrics());
     }
 
     private static int getActionBarSize(CommCareActivity activity) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB &&
-                activity.getActionBar() != null) {
-            int actionBarHeight = activity.getActionBar().getHeight();
+                activity.getSupportActionBar() != null) {
+            int actionBarHeight = activity.getSupportActionBar().getHeight();
 
             if (actionBarHeight != 0) {
                 return actionBarHeight;

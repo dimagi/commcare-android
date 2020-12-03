@@ -1,18 +1,17 @@
 package org.commcare.activities;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
-import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
 
 import org.commcare.CommCareApplication;
-import org.commcare.dalvik.R;
 import org.commcare.android.database.global.models.AndroidSharedKeyRecord;
+import org.commcare.dalvik.R;
 import org.commcare.views.ManagedUi;
 import org.commcare.views.UiElement;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 /**
  * @author ctsims
@@ -38,12 +37,12 @@ public class KeyAccessRequestActivity extends CommCareActivity<KeyAccessRequestA
             AndroidSharedKeyRecord record = AndroidSharedKeyRecord.generateNewSharingKey();
             CommCareApplication.instance().getGlobalStorage(AndroidSharedKeyRecord.class).write(record);
             record.writeResponseToIntent(response);
-            setResult(Activity.RESULT_OK, response);
+            setResult(AppCompatActivity.RESULT_OK, response);
             finish();
         });
 
         denyButton.setOnClickListener(v -> {
-            setResult(Activity.RESULT_CANCELED);
+            setResult(AppCompatActivity.RESULT_CANCELED);
             finish();
         });
     }

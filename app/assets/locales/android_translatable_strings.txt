@@ -485,6 +485,7 @@ pin.auth.failed.password=Entered password was incorrect. Please try again.
 pin.auth.prompt.pin=Enter your current PIN
 pin.auth.prompt.password=Enter your password
 pin.auth.enter.button=ENTER
+pin.auth.cancel.button=CANCEL
 pin.primed.mode.message=You will use the PIN you create here to log into CommCare on all future log-ins.
 
 refresh.build.base.message=Refreshing to your latest build...
@@ -648,6 +649,9 @@ notification.logger.serialized.detail=CommCare had a problem communicating devic
 
 notification.logger.error.title=Error submitting logs!
 notification.logger.error.detail=CommCare ran into an error trying to submit your device logs to the server! Please contact CommCare Support if this persists.
+
+notification.logger.rate.limited.title=Log Submission rate limit reached.
+notification.logger.rate.limited.detail=Logs will be saved locally on the device and will be submitted to the server later.
 
 notification.formentry.unretrievable.title=Form Entry Error - Data Lost
 notification.formentry.unretrievable.detail=CommCare couldn't retrieve the data that you just entered. Something went wrong with the app's internal communication.

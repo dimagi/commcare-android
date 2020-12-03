@@ -1,7 +1,5 @@
 package org.commcare.utils;
 
-import android.app.Activity;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -28,6 +26,8 @@ import javax.crypto.CipherInputStream;
 import javax.crypto.CipherOutputStream;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 /**
  * Various utilities used by TemplatePrinterTask and TemplatePrinterActivity
@@ -86,7 +86,6 @@ public abstract class TemplatePrinterUtils {
     /**
      * @param file the input file
      * @return A string representation of the entire contents of the file
-     * @throws IOException
      */
     public static String docToString(File file) throws IOException {
         StringBuilder builder = new StringBuilder();
@@ -145,7 +144,7 @@ public abstract class TemplatePrinterUtils {
      * Shows a pop-up dialog from the given activity that can optionally finish the activity when
      * it is dismissed by the user
      */
-    public static void showAlertDialog(final Activity activity, String title, String msg,
+    public static void showAlertDialog(final AppCompatActivity activity, String title, String msg,
                                        final boolean finishActivity) {
         StandardAlertDialog.getBasicAlertDialog(activity, title, msg, (dialog, which) -> {
             dialog.dismiss();
@@ -155,7 +154,7 @@ public abstract class TemplatePrinterUtils {
         }).showNonPersistentDialog();
     }
 
-    public static void showPrintStatusDialog(final Activity activity, String title, String msg,
+    public static void showPrintStatusDialog(final AppCompatActivity activity, String title, String msg,
                                              final boolean printInitiated) {
         StandardAlertDialog.getBasicAlertDialog(activity, title, msg,
                 (dialog, which) -> {
@@ -164,10 +163,9 @@ public abstract class TemplatePrinterUtils {
                     Bundle responses = new Bundle();
                     responses.putString("print_initiated", "" + printInitiated);
                     intent.putExtra(IntentCallout.INTENT_RESULT_EXTRAS_BUNDLE, responses);
-                    activity.setResult(Activity.RESULT_OK, intent);
+                    activity.setResult(AppCompatActivity.RESULT_OK, intent);
                     activity.finish();
                 }).showNonPersistentDialog();
 
     }
-
 }
