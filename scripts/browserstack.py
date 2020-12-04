@@ -31,7 +31,8 @@ def buildTestCommand(appToken, testToken, classes=None):
 
     if classes:
         test["class"] = classes
-        test["shards"] = { "numberOfShards": 5 if (len(classes) > 5) else len(classes) }
+        classSize = len(classes)
+        test["shards"] = { "numberOfShards": 5 if (classSize > 5) else classSize }
     else:
         test["shards"] = { "numberOfShards": 5 }
 
