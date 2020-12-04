@@ -109,9 +109,8 @@ public class MediaLayout extends RelativeLayout {
                                                        int questionIndex) {
         MediaLayout mediaLayout = new MediaLayout(context);
         mediaLayout.setAVT(text, audioURI, imageURI, videoURI, bigImageURI, qrCodeContent, inlineVideoURI, false, questionIndex);
-        // Show TTS view only when no other media is present
-        if (ttsText != null && audioURI == null && imageURI == null && videoURI == null
-                && qrCodeContent == null && inlineVideoURI == null) {
+        // Show TTS view only when audioURI is not present
+        if (ttsText != null && audioURI == null) {
             mediaLayout.showTtsButton(ttsText);
         }
         return mediaLayout;

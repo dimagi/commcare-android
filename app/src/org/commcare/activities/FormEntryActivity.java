@@ -192,9 +192,10 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 Intent installIntent = new Intent();
                 installIntent.setAction(TextToSpeech.Engine.ACTION_INSTALL_TTS_DATA);
                 startActivity(installIntent);
+                dialog1.dismiss();
             });
             dialog.setNegativeButton(Localization.get("option.cancel"), (dialog1, which) -> {
-                dismissAlertDialog();
+                dialog1.dismiss();
             });
             showAlertDialog(dialog);
         }
@@ -821,6 +822,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     }
 
     public void setFormLanguage(String[] languages, int index) {
+        TextToSpeechConverter.INSTANCE.changeLocale(languages[index]);
         mFormController.setLanguage(languages[index]);
         dismissAlertDialog();
         if (currentPromptIsQuestion()) {

@@ -21,7 +21,11 @@ import kotlin.collections.HashMap
  */
 object TextToSpeechConverter {
 
-    private const val MAX_TEXT_LENGTH = 4000
+    private val MAX_TEXT_LENGTH = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+        TextToSpeech.getMaxSpeechInputLength()
+    } else {
+        4000
+    }
     private var mTextToSpeech: TextToSpeech? = null
     private var mInitialized: Boolean = false
     private var mTTSCallback: TextToSpeechCallback? = null
@@ -58,8 +62,8 @@ object TextToSpeechConverter {
             return
         }
         mTextToSpeech?.let { tts ->
-            if (isTextLong(text)) {
-                text.chunked(4000).forEach {
+            if (text.length > MAX_TEXT_LENGTH) {
+                text.chunked(MAX_TEXT_LENGTH).forEach {
                     speakInternal(tts, it, TextToSpeech.QUEUE_ADD)
                 }
             } else {
@@ -88,6 +92,15 @@ object TextToSpeechConverter {
             it.shutdown()
         }
         mInitialized = false
+    }
+
+    /**
+     * Changes the locale of text to speech engine.
+     */
+    fun changeLocale(language: String) {
+        mTextToSpeech?.let { tts ->
+            setLocale(tts, LinkedList(listOf(Locale(language))))
+        }
     }
 
     private fun speakInternal(tts: TextToSpeech, text: String, queueMode: Int = TextToSpeech.QUEUE_FLUSH) {
