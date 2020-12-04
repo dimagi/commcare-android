@@ -123,7 +123,7 @@ dependencies {
 
     //Robust TLS 1.2 ciphers on Android 9-19
     implementation "org.conscrypt:conscrypt-android:2.4.0"
-
+    implementation 'com.squareup.okhttp3:okhttp-tls:3.12.12'
 }
 
 ext {

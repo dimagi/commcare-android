@@ -48,6 +48,7 @@ public class HiddenPreferences {
     private final static String COMMCARE_UPDATE_CANCELLATION_COUNTER = "cc_update_cancellation_counter";
     private final static String DISABLE_RATE_LIMIT_POPUP = "disable-rate-limit-popup";
     private final static String LAZY_MEDIA_DOWNLOAD_COMPLETE = "lazy-media-download-complete";
+    private final static String RAW_MEDIA_CLEANUP_COMPLETE = "raw_media_cleanup_complete";
 
     // Preferences whose values are only ever set by being sent down from HQ via the profile file
     private final static String USE_MAPBOX_MAP = "cc-use-mapbox-map";
@@ -519,7 +520,6 @@ public class HiddenPreferences {
     }
 
     /**
-     *
      * @return whether the lazy media download has already completed successfully for this app version
      */
     public static boolean isLazyMediaDownloadComplete() {
@@ -534,5 +534,15 @@ public class HiddenPreferences {
 
     public static boolean allowRunOnRootedDevice() {
         return DeveloperPreferences.doesPropertyMatch(ALLOW_RUN_ON_ROOTED_DEVICE, PrefValues.YES, PrefValues.YES);
+    }
+
+    public static boolean isRawMediaCleanUpPending() {
+        return !CommCareApplication.instance().getCurrentApp().getAppPreferences()
+                .getBoolean(RAW_MEDIA_CLEANUP_COMPLETE, false);
+    }
+
+    public static void markRawMediaCleanUpComplete() {
+        CommCareApplication.instance().getCurrentApp().getAppPreferences()
+                .edit().putBoolean(RAW_MEDIA_CLEANUP_COMPLETE, true).apply();
     }
 }
