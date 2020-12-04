@@ -175,6 +175,10 @@ object TextToSpeechConverter {
                             mTTSCallback?.voiceDataMissing(locale.displayLanguage)
                             return false
                         }
+                    } else {
+                        // Returning true here since the voice can be null for any reason,
+                        // but we know for sure that the language is available and can be used.  
+                        return true
                     }
                 } else {
                     val features = tts.getFeatures(locale)
