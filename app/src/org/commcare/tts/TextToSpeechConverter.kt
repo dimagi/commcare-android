@@ -99,7 +99,7 @@ object TextToSpeechConverter {
      */
     fun changeLocale(language: String) {
         mTextToSpeech?.let { tts ->
-            setLocale(tts, LinkedList(listOf(Locale(language))))
+            setLocale(tts, LinkedList(listOf(Locale(language, Locale.getDefault().country))))
         }
     }
 
@@ -133,7 +133,7 @@ object TextToSpeechConverter {
                 mTextToSpeech?.let { tts ->
                     tts.setOnUtteranceProgressListener(mUtteranceProgressListener)
                     if (setLocale(tts, LinkedList(listOf(
-                                    Locale(Localization.getCurrentLocale()),
+                                    Locale(Localization.getCurrentLocale(), Locale.getDefault().country),
                                     Locale.getDefault(),
                                     Locale.ENGLISH)))) {
                         // tts initialization completed.
