@@ -65,6 +65,8 @@ import java.util.Vector;
 import androidx.appcompat.app.AlertDialog;
 import androidx.preference.PreferenceManager;
 
+import javax.annotation.Nullable;
+
 public abstract class QuestionWidget extends LinearLayout implements QuestionExtensionReceiver {
     private final static String TAG = QuestionWidget.class.getSimpleName();
 
@@ -85,6 +87,8 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
 
     protected TextView mQuestionText;
     private FrameLayout helpPlaceholder;
+
+    @Nullable
     private ShrinkingTextView mHintText;
     private View warningView;
 
@@ -675,7 +679,9 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
     }
 
     public void hideHintText() {
-        mHintText.setVisibility(View.GONE);
+        if (mHintText != null) {
+            mHintText.setVisibility(View.GONE);
+        }
     }
 
     public FormIndex getFormId() {
