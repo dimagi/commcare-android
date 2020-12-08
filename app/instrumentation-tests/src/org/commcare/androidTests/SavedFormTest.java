@@ -133,10 +133,7 @@ public class SavedFormTest extends BaseTest {
     @Test
     public void testFinishButtonClick_withValidationFailure() {
         // Navigate to the second form.
-        onView(withText("Start"))
-                .perform(click());
-        clickListItem(R.id.screen_suite_menu_list, 1);
-        clickListItem(R.id.screen_suite_menu_list, 1);
+        InstrumentationUtility.openForm(1, 0);
 
         // type something in first question
         onView(withClassName(endsWith("EditText")))
