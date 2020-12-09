@@ -268,6 +268,7 @@
     <instance id="district" src="jr://fixture/item-list:district"/>
     <instance id="state" src="jr://fixture/item-list:state"/>
     <session>
+      <datum id="reference_case_id" function="'521bdbb17001bade54aa23dcb7ff48f9'"/>
       <query url="https://www.fake.com/patient_search/" storage-instance="patients">
         <data key="device_id" ref="instance('session')/session/context/deviceid"/>
         <prompt key="name">
@@ -277,7 +278,7 @@
             </text>
           </display>
         </prompt>
-        <prompt key="patient_id">
+        <prompt key="patient_id"  default="instance('casedb')/casedb/case[@case_id = instance('session')/session/data/reference_case_id]/patient_id">
           <display>
             <text>
               <locale id="query.id"/>

@@ -79,6 +79,11 @@ public class CommCareTestApplication extends CommCareApplication implements Test
         setExternalStorageState(Environment.MEDIA_MOUNTED);
     }
 
+    protected void attachISRGCert() {
+        //overrule this custom loader due to issues with bootstrapping the library
+    }
+
+
     @Override
     public boolean useConscryptSecurity() {
         return false;
