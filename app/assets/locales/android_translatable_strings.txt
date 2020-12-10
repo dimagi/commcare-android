@@ -841,6 +841,7 @@ permission.location.denial.message=CommCare doesn't have the permission to use l
 
 custom.acknowledgement=
 case.error.self.index=Case '${0}' cannot index itself. In order to login you must change the case on the server.
+case.search.title=Case Claim
 
 intent.barcode.get=Get Barcode
 intent.barcode.update=Update Barcode
