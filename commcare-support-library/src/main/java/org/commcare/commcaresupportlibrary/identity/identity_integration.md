@@ -18,7 +18,7 @@ Often you will need this generated guid to be passed back to CommCare so that it
 
 ````
 IdentityResponseBuilder.registrationResponse(guid)
-    .finalize(activity)
+    .finalizeResponse(activity)
 ````
 
 This creates an appropriate resulting Intent for the Identity registration workflow and finish your activity after setting the response as a result to returning intent.
