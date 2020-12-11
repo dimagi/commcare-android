@@ -18,7 +18,6 @@ Often you will need this generated guid to be passed back to CommCare so that it
 
 ````
 IdentityResponseBuilder.registrationResponse(guid)
-    .build()
     .finalize(activity)
 ````
 
@@ -39,8 +38,7 @@ identifications.add(new Identification(anotherMatchGuid, new MatchResult(confide
 
 // Create and return response back to CommCare
 IdentityResponseBuilder.identificationResponse(identifications)
-    .build()
-    .finalize(activity)
+    .finalizeResponse(activity)
 ````
 
 An `Identification` object comprises of the Identity Provider's guid of the match and the matching result which in turn contains the matching score `confidence` and an indicator `matchStrength` based on the `confidence` that identifies if it's a good match or not.
@@ -51,8 +49,7 @@ Verification is a 1:1 search that is used when you want to confirm whether a ben
 
 ````
 IdentityResponseBuilder.verificationResponse(guid, new MatchResult(confidence, matchStrength))
-    .build()
-    .finalize(activity)
+    .finalizeResponse(activity)
 ````
 
 #### Passing back duplicates as part of Registration
@@ -69,8 +66,7 @@ duplicates.add(new Identification(duplicateGuid, new MatchResult(confidence, mat
 
 
 IdentityResponseBuilder.registrationResponse(duplicates)
-    .build()
-    .finalize(activity)
+    .finalizeResponse(activity)
 ````
 
 
