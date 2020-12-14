@@ -10,7 +10,6 @@ import android.util.Base64;
 import android.widget.AdapterView;
 import android.widget.Toast;
 
-import com.google.android.gms.common.util.CollectionUtils;
 import com.google.android.play.core.install.model.InstallErrorCode;
 
 import org.apache.commons.lang3.StringUtils;
@@ -86,7 +85,6 @@ import org.javarosa.xpath.XPathTypeMismatchException;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Vector;

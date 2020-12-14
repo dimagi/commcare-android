@@ -4,7 +4,6 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import junit.framework.Assert.assertEquals
-import org.commcare.CommCareApplication
 import org.commcare.CommCareTestApplication
 import org.commcare.activities.DispatchActivity
 import org.commcare.activities.FormEntryActivity

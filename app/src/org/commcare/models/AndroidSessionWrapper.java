@@ -16,7 +16,6 @@ import org.commcare.suite.model.EntityDatum;
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.FormEntry;
 import org.commcare.suite.model.SessionDatum;
-import org.commcare.suite.model.StackFrameStep;
 import org.commcare.suite.model.StackOperation;
 import org.commcare.util.CommCarePlatform;
 import org.commcare.utils.AndroidInstanceInitializer;
@@ -27,9 +26,7 @@ import org.javarosa.xpath.analysis.InstanceNameAccumulatingAnalyzer;
 import org.javarosa.xpath.analysis.XPathAnalyzable;
 
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Hashtable;
-import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 
