@@ -81,6 +81,7 @@ import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
+import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathTypeMismatchException;
 
 import java.io.File;
@@ -779,7 +780,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                 boolean terminateSuccessful;
                 try {
                     terminateSuccessful = currentState.terminateSession();
-                } catch (XPathTypeMismatchException e) {
+                } catch (XPathException e) {
                     UserfacingErrorHandling.logErrorAndShowDialog(this, e, true);
                     return false;
                 }
