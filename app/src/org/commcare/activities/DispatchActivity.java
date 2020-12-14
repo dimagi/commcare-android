@@ -340,11 +340,11 @@ public class DispatchActivity extends AppCompatActivity {
                         startActivityForResult(i, HOME_SCREEN);
                     } else if (getIntent().hasExtra(SESSION_ENDPOINT_ID)) {
                         String sessionEndpointId = this.getIntent().getStringExtra(SESSION_ENDPOINT_ID);
-                        ArrayList<String> args = this.getIntent().getStringArrayListExtra(SESSION_ENDPOINT_ARGUMENTS);
+                        Bundle args = this.getIntent().getBundleExtra(SESSION_ENDPOINT_ARGUMENTS);
                         Intent i = new Intent(this, StandardHomeActivity.class);
                         i.putExtra(WAS_EXTERNAL, true);
                         i.putExtra(SESSION_ENDPOINT_ID, sessionEndpointId);
-                        i.putStringArrayListExtra(SESSION_ENDPOINT_ARGUMENTS, args);
+                        i.putExtra(SESSION_ENDPOINT_ARGUMENTS, args);
                         startActivityForResult(i, HOME_SCREEN);
                     }
                 }

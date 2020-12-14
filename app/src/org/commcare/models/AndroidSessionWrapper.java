@@ -350,16 +350,6 @@ public class AndroidSessionWrapper implements SessionWrapperInterface {
         }
     }
 
-    /**
-     * Execute a stack action in the current session environment against the given arguments map
-     */
-    public void executeStackActions(Vector<StackOperation> ops, HashMap<String, String> arguments) {
-        EvaluationContext evaluationContext = getEvaluationContext();
-        for (Map.Entry<String, String> argument : arguments.entrySet()) {
-            evaluationContext.setVariable(argument.getKey(), argument.getValue());
-        }
-        executeStackActions(ops, evaluationContext);
-    }
 
     public void executeStackActions(Vector<StackOperation> ops) {
         executeStackActions(ops, getEvaluationContext());

@@ -209,16 +209,26 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
             Endpoint endpoint = validateIntentForSessionEndpoint(getIntent());
             if (endpoint != null) {
                 Vector<String> endpointArguments = endpoint.getArguments();
-                ArrayList<String> intentArguments = getIntent().getStringArrayListExtra(SESSION_ENDPOINT_ARGUMENTS);
-                HashMap<String, String> compositeArguments = new HashMap<>(endpointArguments.size());
+                Bundle intentArguments = getIntent().getBundleExtra(SESSION_ENDPOINT_ARGUMENTS);
+                EvaluationContext evaluationContext = CommCareApplication.instance().getCurrentSessionWrapper().getEvaluationContext();
+
                 for (int i = 0; i < endpointArguments.size(); i++) {
-                    compositeArguments.put(endpointArguments.elementAt(i),
-                            intentArguments.get(i));
+                    String argumentName = endpointArguments.elementAt(i);
+                    if (!intentArguments.containsKey(argumentName)) {
+                        String noArgumentWithNameError = org.commcare.utils.StringUtils.getStringRobust(
+                                this,
+                                R.string.session_endpoint_no_argument_with_name,
+                                new String[]{argumentName, endpoint.getId()});
+                        UserfacingErrorHandling.createErrorDialog(this, noArgumentWithNameError, true);
+                        return;
+                    }
+
+                    evaluationContext.setVariable(argumentName, intentArguments.getString(argumentName));
                 }
 
                 CommCareApplication.instance().getCurrentSessionWrapper().reset();
                 CommCareApplication.instance().getCurrentSessionWrapper()
-                        .executeStackActions(endpoint.getStackOperations(), compositeArguments);
+                        .executeStackActions(endpoint.getStackOperations(), evaluationContext);
             }
         }
     }
@@ -238,7 +248,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
             return null;
         }
 
-        ArrayList<String> intentArguments = intent.getStringArrayListExtra(SESSION_ENDPOINT_ARGUMENTS);
+        Bundle intentArguments = intent.getBundleExtra(SESSION_ENDPOINT_ARGUMENTS);
         if (endpoint.getArguments().size() != intentArguments.size()) {
             String invalidEndpointArgsError = org.commcare.utils.StringUtils.getStringRobust(
                     this,
