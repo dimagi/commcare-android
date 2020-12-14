@@ -26,8 +26,6 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.zxing.integration.android.IntentIntegrator;
-
 import org.commcare.CommCareApplication;
 import org.commcare.adapters.IncompleteFormListAdapter;
 import org.commcare.android.database.user.models.FormRecord;
@@ -54,6 +52,7 @@ import org.commcare.utils.SessionUnavailableException;
 import org.commcare.views.IncompleteFormRecordView;
 import org.commcare.views.dialogs.CustomProgressDialog;
 import org.commcare.views.dialogs.StandardAlertDialog;
+import org.commcare.views.widgets.WidgetUtils;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 
@@ -237,7 +236,7 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
     }
 
     private static void callBarcodeScanIntent(AppCompatActivity act) {
-        Intent intent = new IntentIntegrator(act).createScanIntent();
+        Intent intent = WidgetUtils.createScanIntent(act);
         try {
             act.startActivityForResult(intent, BARCODE_FETCH);
         } catch (ActivityNotFoundException anfe) {

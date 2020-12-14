@@ -2,7 +2,6 @@ package org.commcare.views.widgets;
 
 import android.content.Context;
 import android.util.TypedValue;
-import android.view.LayoutInflater;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.CompoundButton;
@@ -104,19 +103,18 @@ public class SelectOneWidget extends QuestionWidget implements OnCheckedChangeLi
                     addView(divider);
                 }
             }
-            addClearButton(context, s != null && !prompt.isReadOnly());
+            clearButton = WidgetUtils.setupClearButton(
+                    context,
+                    this,
+                    Localization.get("button.clear.title"),
+                    (s != null && !prompt.isReadOnly()) ? VISIBLE : GONE
+            );
+            clearButton.setOnClickListener(view -> {
+                clearAnswer();
+                widgetEntryChanged();
+            });
+            addView(clearButton);
         }
-    }
-
-    private void addClearButton(Context context, boolean show) {
-        clearButton = (Button) LayoutInflater.from(context).inflate(R.layout.blue_outlined_button, this, false);
-        clearButton.setText(Localization.get("button.clear.title"));
-        clearButton.setVisibility(show ? VISIBLE : GONE);
-        clearButton.setOnClickListener(view -> {
-            clearAnswer();
-            widgetEntryChanged();
-        });
-        addView(clearButton);
     }
 
     @Override

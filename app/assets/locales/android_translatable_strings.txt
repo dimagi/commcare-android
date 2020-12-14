@@ -650,6 +650,9 @@ notification.logger.serialized.detail=CommCare had a problem communicating devic
 notification.logger.error.title=Error submitting logs!
 notification.logger.error.detail=CommCare ran into an error trying to submit your device logs to the server! Please contact CommCare Support if this persists.
 
+notification.logger.rate.limited.title=Log Submission rate limit reached.
+notification.logger.rate.limited.detail=Logs will be saved locally on the device and will be submitted to the server later.
+
 notification.formentry.unretrievable.title=Form Entry Error - Data Lost
 notification.formentry.unretrievable.detail=CommCare couldn't retrieve the data that you just entered. Something went wrong with the app's internal communication.
 notification.formentry.unretrievable.action=Unfortunately, CommCare can't retrieve the form you were entering. You'll almost certainly need to re-enter it. This error has been submitted to the server and is being looked into.
@@ -838,6 +841,7 @@ permission.location.denial.message=CommCare doesn't have the permission to use l
 
 custom.acknowledgement=
 case.error.self.index=Case '${0}' cannot index itself. In order to login you must change the case on the server.
+case.search.title=Case Claim
 
 intent.barcode.get=Get Barcode
 intent.barcode.update=Update Barcode

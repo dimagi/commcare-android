@@ -33,6 +33,7 @@ public class MainConfigurablePreferences
     public final static String SHOW_PASSWORD_OPTION = "cc-password-entry-show-behavior";
     public final static String PREFS_LOCALE_KEY = "cur_locale";
     public final static String ANALYTICS_ENABLED = "cc-analytics-enabled";
+    public final static String INTENT_CALLOUT_FOR_SCANNER = "cc-intent-callout-for-scanner";
 
     // Fake settings that really act as buttons to open a new activity or choice dialog
     private final static String DEVELOPER_SETTINGS = "developer-settings-button";
@@ -170,6 +171,14 @@ public class MainConfigurablePreferences
             return true;
         }
         return app.getAppPreferences().getBoolean(ANALYTICS_ENABLED, true);
+    }
+
+    public static boolean useIntentCalloutForScanner() {
+        CommCareApp app = CommCareApplication.instance().getCurrentApp();
+        if (app == null) {
+            return false;
+        }
+        return app.getAppPreferences().getString(INTENT_CALLOUT_FOR_SCANNER, PrefValues.NO).equals(PrefValues.YES);
     }
 
     public static void disableAnalytics() {

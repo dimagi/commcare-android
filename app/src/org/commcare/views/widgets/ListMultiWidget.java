@@ -8,6 +8,7 @@ import android.util.Log;
 import android.util.TypedValue;
 import android.view.Display;
 import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
@@ -173,7 +174,7 @@ public class ListMultiWidget extends QuestionWidget {
 
                 // build text label. Don't assign the text to the built in label to he
                 // button because it aligns horizontally, and we want the label on top
-                TextView label = new TextView(getContext());
+                TextView label = (TextView) LayoutInflater.from(getContext()).inflate(R.layout.question_widget_text, null);
                 setChoiceText(label, mItems.get(i));
                 label.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mQuestionFontSize);
                 if (!displayLabel) {
@@ -277,7 +278,7 @@ public class ListMultiWidget extends QuestionWidget {
     @Override
     protected void addQuestionText() {
         // Add the text view. Textview always exists, regardless of whether there's text.
-        TextView questionText = new TextView(getContext());
+        TextView questionText = (TextView) LayoutInflater.from(getContext()).inflate(R.layout.question_widget_text, null);
         setQuestionText(questionText, mPrompt);
         questionText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mQuestionFontSize);
         questionText.setTypeface(null, Typeface.BOLD);

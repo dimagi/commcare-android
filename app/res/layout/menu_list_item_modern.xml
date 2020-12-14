@@ -51,6 +51,7 @@
         android:layout_height="@dimen/list_text_height"
         android:layout_width="0dp"
         android:gravity="start"
+        android:textAlignment="viewStart"
         android:layout_weight="1"
         android:ellipsize="end"
         android:maxLines="2"/>

@@ -13,6 +13,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import org.commcare.activities.*
+import org.commcare.annotations.BrowserstackTests
 import org.commcare.dalvik.R
 import org.commcare.utils.CustomMatchers
 import org.commcare.utils.InstrumentationUtility
@@ -53,15 +54,13 @@ class MenuTests: BaseTest() {
     }
 
     @Test
+    @BrowserstackTests
     fun testHomeScreenOptions() {
         InstrumentationUtility.openOptionsMenu()
         checkStringExists(homeMenuItems)
         InstrumentationUtility.rotateLeft()
         checkStringExists(homeMenuItems)
         InstrumentationUtility.rotatePortrait()
-
-        // Clicking just after rotating doesn't work for some reason, so waiting here for a moment.
-        InstrumentationUtility.sleep(2)
 
         onView(withText(homeMenuItems[0]))
                 .perform(click())
@@ -124,6 +123,7 @@ class MenuTests: BaseTest() {
     }
 
     @Test
+    @BrowserstackTests
     fun testAdvancedActions() {
         openAdvancedOption(0)
         onView(withText("Do you want to send, receive, or submit forms?"))
@@ -186,7 +186,7 @@ class MenuTests: BaseTest() {
         onView(withText("You are not connected the Internet. Please run this test again after connecting to Wi-Fi or mobile data."))
                 .check(matches(isDisplayed()))
         InstrumentationUtility.changeWifi(true)
-        InstrumentationUtility.gotoHome()
+        InstrumentationUtility.logout()
     }
 
     private fun openAdvancedOption(index: Int) {

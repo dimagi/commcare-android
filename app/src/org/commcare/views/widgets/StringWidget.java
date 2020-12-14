@@ -36,10 +36,7 @@ public class StringWidget extends QuestionWidget implements OnClickListener, Tex
     private boolean mReadOnly = false;
     protected final EditText mAnswer;
     protected boolean secret = false;
-
-    public StringWidget(Context context, FormEntryPrompt prompt, boolean secret) {
-        this(context, prompt, secret, false);
-    }
+    private static final String SHORT_APPEARANCE = "short";
 
     public StringWidget(Context context, FormEntryPrompt prompt, boolean secret, boolean inCompactGroup) {
         super(context, prompt, inCompactGroup);
@@ -217,6 +214,10 @@ public class StringWidget extends QuestionWidget implements OnClickListener, Tex
         mAnswer.performClick();
     }
 
+    public void removeFocus() {
+        mAnswer.clearFocus();
+    }
+
     @Override
     public void afterTextChanged(Editable s) {
         widgetEntryChanged();
@@ -234,7 +235,18 @@ public class StringWidget extends QuestionWidget implements OnClickListener, Tex
     }
 
     public void setLastQuestion(boolean isLast) {
+        if (shouldSupportIMEAction()) {
+            if (isLast) {
+                mAnswer.setImeOptions(EditorInfo.IME_FLAG_NO_EXTRACT_UI | EditorInfo.IME_ACTION_DONE);
+            } else {
+                mAnswer.setImeOptions(EditorInfo.IME_FLAG_NO_EXTRACT_UI | EditorInfo.IME_ACTION_NEXT);
+            }
+        }
         // nothing changes for Strings
+    }
+
+    private boolean shouldSupportIMEAction() {
+        return SHORT_APPEARANCE.equalsIgnoreCase(mPrompt.getAppearanceHint()) || isInCompactMode();
     }
 
     /**

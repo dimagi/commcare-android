@@ -1,6 +1,5 @@
 package org.commcare.utils
 
-import androidx.appcompat.app.AppCompatActivity
 import android.app.Instrumentation
 import android.content.Context
 import android.content.Intent
@@ -14,6 +13,8 @@ import android.provider.MediaStore
 import android.view.View
 import android.widget.ListView
 import androidx.annotation.IdRes
+import androidx.appcompat.app.AppCompatActivity
+import androidx.preference.PreferenceManager
 import androidx.test.espresso.DataInteraction
 import androidx.test.espresso.Espresso
 import androidx.test.espresso.Espresso.*
@@ -32,6 +33,7 @@ import androidx.test.uiautomator.UiDevice
 import junit.framework.Assert
 import org.commcare.CommCareInstrumentationTestApplication
 import org.commcare.dalvik.R
+import org.commcare.services.CommCareSessionService
 import org.commcare.utils.CustomMatchers.withChildViewCount
 import org.hamcrest.Matcher
 import org.hamcrest.Matchers
@@ -45,12 +47,9 @@ import java.util.concurrent.TimeUnit
  * @author $|-|!˅@M
  */
 object InstrumentationUtility {
-    /**
-     * Installs the ccz by copying it into app-specific cache directory.
-     * @param cczName
-     */
+
     @JvmStatic
-    fun installApp(cczName: String) {
+    fun stubCcz(cczName: String) {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         val file = File(context.externalCacheDir, cczName)
         if (!file.exists()) {
@@ -61,10 +60,18 @@ object InstrumentationUtility {
                 e.printStackTrace()
             }
         }
+        stubFileSelection(file.absolutePath)
+    }
+    /**
+     * Installs the ccz by copying it into app-specific cache directory.
+     * @param cczName
+     */
+    @JvmStatic
+    fun installApp(cczName: String) {
+        stubCcz(cczName)
         openOptionsMenu()
         onView(withText("Offline Install"))
                 .perform(click())
-        stubFileSelection(file.absolutePath)
         onView(withId(R.id.screen_multimedia_inflater_filefetch))
                 .perform(click())
         onView(withId(R.id.screen_multimedia_inflater_install))
@@ -95,10 +102,23 @@ object InstrumentationUtility {
     }
 
     @JvmStatic
-    fun openForm(module: Int, form: Int) {
+    fun openModule(text: String) {
+        onView(withText("Start"))
+                .perform(click())
+        onView(withText(text))
+                .perform(click())
+    }
+
+    @JvmStatic
+    fun openModule(module: Int) {
         onView(withText("Start"))
                 .perform(click())
         clickListItem(R.id.screen_suite_menu_list, module)
+    }
+
+    @JvmStatic
+    fun openForm(module: Int, form: Int) {
+        openModule(module)
         clickListItem(R.id.screen_suite_menu_list, form + 1)
     }
 
@@ -227,6 +247,7 @@ object InstrumentationUtility {
             val context = InstrumentationRegistry.getInstrumentation().targetContext
             val wifiManager = context.getSystemService(Context.WIFI_SERVICE) as WifiManager
             wifiManager.isWifiEnabled = enable
+            sleep(10) // Sleep 5 seconds so that wifi is set up.
         } else {
             throw IllegalAccessException("changeWifi should only be called in pre-android Q devices")
         }
@@ -250,6 +271,7 @@ object InstrumentationUtility {
     fun rotatePortrait() {
         val uiDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
         uiDevice.setOrientationNatural()
+        sleep(2)
     }
 
     @JvmStatic
@@ -257,6 +279,7 @@ object InstrumentationUtility {
     fun rotateLeft() {
         val uiDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
         uiDevice.setOrientationLeft()
+        sleep(2)
     }
 
     /**
@@ -282,6 +305,46 @@ object InstrumentationUtility {
                 Espresso.pressBack()
             }
         }
+    }
+
+    /**
+     * The method does following in order:
+     * 1. Closes keyboard.
+     * 2. Presses Back Button.
+     * 3. Selects the backOption: R.id.donotsave or R.id.saveincomplete.
+     */
+    @JvmStatic
+    fun exitForm(@IdRes backOption: Int) {
+        Espresso.closeSoftKeyboard()
+        Espresso.pressBack()
+        onView(withText(backOption))
+                .perform(click())
+    }
+
+    /**
+     * A utility to select an item from the options menu.
+     * Caller need to pass the matcher for the item to be selected. It could be withText("") or
+     * withId(R.id.*)
+     */
+    @JvmStatic
+    fun selectOptionItem(matcher: Matcher<View>) {
+        openOptionsMenu()
+        onView(matcher)
+                .perform(click())
+    }
+
+    fun didLastLogSubmissionSucceed(): Boolean {
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
+        return sharedPreferences.getBoolean(CommCareSessionService.LOG_SUBMISSION_RESULT_PREF, false)
+    }
+    
+    @JvmStatic
+    fun <T> assertCurrentActivity(clazz: Class<T>) {
+        val application = InstrumentationRegistry.getInstrumentation().targetContext.applicationContext
+                as CommCareInstrumentationTestApplication
+        val activity = application.currentActivity
+        assert(clazz.isInstance(activity), "Current Activity is ${activity.localClassName}")
     }
 
     //region private helpers.

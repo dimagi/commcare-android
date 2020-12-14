@@ -3,6 +3,8 @@ package org.commcare.androidTests;
 import androidx.test.espresso.action.ViewActions;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
+
+import org.commcare.annotations.BrowserstackTests;
 import org.commcare.dalvik.R;
 import org.commcare.utils.InstrumentationUtility;
 import org.junit.After;
@@ -28,6 +30,7 @@ import static org.hamcrest.Matchers.not;
  */
 @RunWith(AndroidJUnit4.class)
 @LargeTest
+@BrowserstackTests
 public class SavedFormTest extends BaseTest {
 
     private final String CCZ_NAME = "testSavedForm.ccz";
@@ -35,7 +38,7 @@ public class SavedFormTest extends BaseTest {
 
     @Before
     public void login() {
-        installApp(APP_NAME, CCZ_NAME);
+        installApp(APP_NAME, CCZ_NAME, false);
         InstrumentationUtility.login("check", "123");
     }
 

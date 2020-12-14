@@ -331,7 +331,7 @@ public class FormStorageTest {
 
             // Added in 2.51
             , "org.commcare.suite.model.Endpoint"
-
+            , "org.javarosa.xpath.expr.XPathEncryptStringFunc"
     );
 
 

@@ -78,7 +78,7 @@ public class WidgetFactory {
                 questionWidget = new TriggerWidget(context, fep, appearance);
                 break;
             default:
-                questionWidget = new StringWidget(context, fep, false);
+                questionWidget = new StringWidget(context, fep, false, inCompactGroup);
                 break;
         }
 
@@ -121,12 +121,12 @@ public class WidgetFactory {
                 return new BarcodeWidget(context, fep, pendingCalloutInterface, appearance, formDef);
             case Constants.DATATYPE_TEXT:
                 if (appearance != null && (appearance.equalsIgnoreCase("numbers") || appearance.equalsIgnoreCase("numeric"))) {
-                    return new StringNumberWidget(context, fep, fep.getControlType() == Constants.CONTROL_SECRET);
+                    return new StringNumberWidget(context, fep, fep.getControlType() == Constants.CONTROL_SECRET, inCompactGroup);
                 } else {
-                    return new StringWidget(context, fep, fep.getControlType() == Constants.CONTROL_SECRET);
+                    return new StringWidget(context, fep, fep.getControlType() == Constants.CONTROL_SECRET, inCompactGroup);
                 }
             default:
-                return new StringWidget(context, fep, fep.getControlType() == Constants.CONTROL_SECRET);
+                return new StringWidget(context, fep, fep.getControlType() == Constants.CONTROL_SECRET, inCompactGroup);
         }
     }
 
