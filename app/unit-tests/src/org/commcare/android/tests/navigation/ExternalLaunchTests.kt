@@ -37,7 +37,6 @@ class ExternalLaunchTests {
         // endpoint without arguments
         var homeActivity = launchHomeActivityWithSessionEndpoint("registration_form", ArrayList())
         verifyNextIntent(Shadows.shadowOf(homeActivity).nextStartedActivity, "Case MGMT > Registration")
-        CommCareApplication.instance().currentSession.clearAllState()
 
 
         // endpoint with a case selction
@@ -45,21 +44,18 @@ class ExternalLaunchTests {
         args.add("b319e951-03f1-4172-b662-4fb3964a0be7")
         homeActivity = launchHomeActivityWithSessionEndpoint("visit_form", args)
         verifyNextIntent(Shadows.shadowOf(homeActivity).nextStartedActivity, "Case MGMT > Visit > [stan]")
-        CommCareApplication.instance().currentSession.clearAllState()
 
         // test with another case id
         args.clear()
         args.add("8e011880-602f-4017-b9d6-ed9dcbba7516")
         homeActivity = launchHomeActivityWithSessionEndpoint("visit_form", args)
         verifyNextIntent(Shadows.shadowOf(homeActivity).nextStartedActivity, "Case MGMT > Visit > [ellen]")
-        CommCareApplication.instance().currentSession.clearAllState()
 
         // endpoint to case close form
         args.clear()
         args.add("c44c7ade-0cec-4401-b422-4c475f0043ae")
         homeActivity = launchHomeActivityWithSessionEndpoint("close_form", args)
         verifyNextIntent(Shadows.shadowOf(homeActivity).nextStartedActivity, "Case MGMT > Close > [pat]")
-        CommCareApplication.instance().currentSession.clearAllState()
     }
 
     private fun verifyNextIntent(nextIntent : Intent, header: String) {

@@ -194,7 +194,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
     }
 
     /**
-     * Set state that signifies activity was launch from external app.
+     * Set state that signifies activity was launch from external app
      */
     private void processFromExternalLaunch(Bundle savedInstanceState) {
         if (savedInstanceState == null && getIntent().hasExtra(DispatchActivity.WAS_EXTERNAL)) {
@@ -216,6 +216,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                             intentArguments.get(i));
                 }
 
+                CommCareApplication.instance().getCurrentSessionWrapper().reset();
                 CommCareApplication.instance().getCurrentSessionWrapper()
                         .executeStackActions(endpoint.getStackOperations(), compositeArguments);
             }
