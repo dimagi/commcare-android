@@ -85,6 +85,7 @@ import org.javarosa.xpath.XPathTypeMismatchException;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Vector;
@@ -93,7 +94,8 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.preference.PreferenceManager;
 
-import static org.commcare.activities.DispatchActivity.SESSION_ENDPOINT_ARGUMENTS;
+import static org.commcare.activities.DispatchActivity.SESSION_ENDPOINT_ARGUMENTS_BUNDLE;
+import static org.commcare.activities.DispatchActivity.SESSION_ENDPOINT_ARGUMENTS_LIST;
 import static org.commcare.activities.DispatchActivity.SESSION_ENDPOINT_ID;
 import static org.commcare.activities.DriftHelper.getCurrentDrift;
 import static org.commcare.activities.DriftHelper.getDriftDialog;
@@ -207,12 +209,14 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
             Endpoint endpoint = validateIntentForSessionEndpoint(getIntent());
             if (endpoint != null) {
                 Vector<String> endpointArguments = endpoint.getArguments();
-                Bundle intentArguments = getIntent().getBundleExtra(SESSION_ENDPOINT_ARGUMENTS);
                 EvaluationContext evaluationContext = CommCareApplication.instance().getCurrentSessionWrapper().getEvaluationContext();
+
+                Bundle intentArgumentsAsBundle = getIntent().getBundleExtra(SESSION_ENDPOINT_ARGUMENTS_BUNDLE);
+                ArrayList<String> intentArgumentsAsList = getIntent().getStringArrayListExtra(SESSION_ENDPOINT_ARGUMENTS_LIST);
 
                 for (int i = 0; i < endpointArguments.size(); i++) {
                     String argumentName = endpointArguments.elementAt(i);
-                    if (!intentArguments.containsKey(argumentName)) {
+                    if (intentArgumentsAsBundle != null && !intentArgumentsAsBundle.containsKey(argumentName)) {
                         String noArgumentWithNameError = org.commcare.utils.StringUtils.getStringRobust(
                                 this,
                                 R.string.session_endpoint_no_argument_with_name,
@@ -221,7 +225,11 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                         return;
                     }
 
-                    evaluationContext.setVariable(argumentName, intentArguments.getString(argumentName));
+                    // Bundle Arguments take precdence over list arguments
+                    String argValue = intentArgumentsAsBundle == null ? intentArgumentsAsList.get(i)
+                            : intentArgumentsAsBundle.getString(argumentName);
+
+                    evaluationContext.setVariable(argumentName, argValue);
                 }
 
                 CommCareApplication.instance().getCurrentSessionWrapper().reset();
@@ -246,14 +254,19 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
             return null;
         }
 
-        Bundle intentArguments = intent.getBundleExtra(SESSION_ENDPOINT_ARGUMENTS);
-        if (endpoint.getArguments().size() != intentArguments.size()) {
+        Bundle intentArgumentsAsBundle = intent.getBundleExtra(SESSION_ENDPOINT_ARGUMENTS_BUNDLE);
+        ArrayList intentArgumentsAsList = getIntent().getStringArrayListExtra(SESSION_ENDPOINT_ARGUMENTS_LIST);
+
+        int numOfArgumentsInIntent = intentArgumentsAsBundle == null ?
+                (intentArgumentsAsList == null ? 0 : intentArgumentsAsList.size()) : intentArgumentsAsBundle.size();
+
+        if (endpoint.getArguments().size() != numOfArgumentsInIntent) {
             String invalidEndpointArgsError = org.commcare.utils.StringUtils.getStringRobust(
                     this,
                     R.string.session_endpoint_invalid_arguments,
                     new String[]{
                             endpoint.getId(),
-                            StringUtils.join(intentArguments, ","),
+                            StringUtils.join(intentArgumentsAsBundle, ","),
                             StringUtils.join(endpoint.getArguments(), ",")});
             UserfacingErrorHandling.createErrorDialog(this, invalidEndpointArgsError, true);
             return null;

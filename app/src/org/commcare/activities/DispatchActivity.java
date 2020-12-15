@@ -33,7 +33,10 @@ public class DispatchActivity extends AppCompatActivity {
     private static final String TAG = DispatchActivity.class.getSimpleName();
     private static final String SESSION_REQUEST = "ccodk_session_request";
     public static final String SESSION_ENDPOINT_ID = "ccodk_session_endpoint_id";
-    public static final String SESSION_ENDPOINT_ARGUMENTS = "ccodk_session_endpoint_arguments";
+
+    // Args to session endpoints can be passed as a name to value bundle or more loosely as a list
+    public static final String SESSION_ENDPOINT_ARGUMENTS_BUNDLE = "ccodk_session_endpoint_arguments_bundle";
+    public static final String SESSION_ENDPOINT_ARGUMENTS_LIST = "ccodk_session_endpoint_arguments_list";
     public static final String WAS_EXTERNAL = "launch_from_external";
     public static final String WAS_SHORTCUT_LAUNCH = "launch_from_shortcut";
     public static final String START_FROM_LOGIN = "process_successful_login";
@@ -340,11 +343,13 @@ public class DispatchActivity extends AppCompatActivity {
                         startActivityForResult(i, HOME_SCREEN);
                     } else if (getIntent().hasExtra(SESSION_ENDPOINT_ID)) {
                         String sessionEndpointId = this.getIntent().getStringExtra(SESSION_ENDPOINT_ID);
-                        Bundle args = this.getIntent().getBundleExtra(SESSION_ENDPOINT_ARGUMENTS);
+                        Bundle args = this.getIntent().getBundleExtra(SESSION_ENDPOINT_ARGUMENTS_BUNDLE);
+                        ArrayList<String> argsList = this.getIntent().getStringArrayListExtra(SESSION_ENDPOINT_ARGUMENTS_LIST);
                         Intent i = new Intent(this, StandardHomeActivity.class);
                         i.putExtra(WAS_EXTERNAL, true);
                         i.putExtra(SESSION_ENDPOINT_ID, sessionEndpointId);
-                        i.putExtra(SESSION_ENDPOINT_ARGUMENTS, args);
+                        i.putExtra(SESSION_ENDPOINT_ARGUMENTS_BUNDLE, args);
+                        i.putStringArrayListExtra(SESSION_ENDPOINT_ARGUMENTS_LIST, argsList);
                         startActivityForResult(i, HOME_SCREEN);
                     }
                 }
