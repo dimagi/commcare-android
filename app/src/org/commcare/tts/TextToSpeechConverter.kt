@@ -35,7 +35,12 @@ object TextToSpeechConverter {
 
         override fun onError(utteranceId: String?) {
             Handler(Looper.getMainLooper()).post {
-                mTTSCallback?.speakFailed()
+                val voiceDataResult = isVoiceDataMissing()
+                if (voiceDataResult.first) {
+                    mTTSCallback?.voiceDataMissing(voiceDataResult.second!!)
+                } else {
+                    mTTSCallback?.speakFailed()
+                }
             }
         }
 
@@ -92,6 +97,7 @@ object TextToSpeechConverter {
             it.shutdown()
         }
         mInitialized = false
+        mTextToSpeech = null
     }
 
     /**
@@ -111,15 +117,6 @@ object TextToSpeechConverter {
             val params = HashMap<String, String>()
             params[TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID] = utteranceId
             tts.speak(text, queueMode, params)
-        }
-    }
-
-    private fun isTextLong(text: String): Boolean {
-        // TTS can only speak 4000 characters at max at a time.
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
-            text.length > TextToSpeech.getMaxSpeechInputLength()
-        } else {
-            text.length > MAX_TEXT_LENGTH
         }
     }
 
@@ -148,6 +145,33 @@ object TextToSpeechConverter {
     }
 
     /**
+     * Checks whether the voice data for the current TTS language is missing or not.
+     * @returns true only when we're sure that the voice data is missing. Along with the current TTS language.
+     */
+    private fun isVoiceDataMissing(): Pair<Boolean, String?> {
+        mTextToSpeech?.let { tts ->
+            // Check if voice data is present or not.
+            tts.language
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                if (tts.voice != null) {
+                    val features = tts.voice.features
+                    if (features == null
+                            || features.contains(TextToSpeech.Engine.KEY_FEATURE_NOT_INSTALLED)
+                            || tts.voice.isNetworkConnectionRequired) {
+                        return Pair(true, tts.voice.locale.displayLanguage)
+                    }
+                }
+            } else {
+                val features = tts.getFeatures(tts.language)
+                if (features == null || features.contains("notInstalled")) {
+                    return Pair(true, tts.language.displayLanguage)
+                }
+            }
+        }
+        return Pair(false, null)
+    }
+
+    /**
      * Sets a TTS language from the given list of locale starting from the first Locale.
      *
      * Returns a boolean indicating whether we TTS language is ready to use.
@@ -163,31 +187,6 @@ object TextToSpeechConverter {
             TextToSpeech.LANG_COUNTRY_VAR_AVAILABLE -> {
                 // Set language
                 tts.language = locale
-
-                // Check if voice data is present or not.
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                    if (tts.voice != null) {
-                        val features = tts.voice.features
-                        if (features == null
-                                || features.contains(TextToSpeech.Engine.KEY_FEATURE_NOT_INSTALLED)
-                                || tts.voice.isNetworkConnectionRequired) {
-                            // voice data is not present
-                            mTTSCallback?.voiceDataMissing(locale.displayLanguage)
-                            return false
-                        }
-                    } else {
-                        // Returning true here since the voice can be null for any reason,
-                        // but we know for sure that the language is available and can be used.  
-                        return true
-                    }
-                } else {
-                    val features = tts.getFeatures(locale)
-                    if (features == null || features.contains("notInstalled")) {
-                        mTTSCallback?.voiceDataMissing(locale.displayLanguage)
-                        return false
-                    }
-                }
-                // voice data is present so return true that we're ready to use.
                 true
             }
             TextToSpeech.LANG_MISSING_DATA -> {
