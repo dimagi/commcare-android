@@ -33,8 +33,8 @@ An Identification workflow should result into a list of matches corresponding to
 ArrayList<Identification> identifications = new ArrayList<>();
 
 // add matches to identifications
-identifications.add(new Identification(matchGuid, new MatchResult(confidence, matchStrength)));
-identifications.add(new Identification(anotherMatchGuid, new MatchResult(confidence, matchStrength)));
+identifications.add(new IdentificationMatch(matchGuid, new MatchResult(confidence, matchStrength)));
+identifications.add(new IdentificationMatch(anotherMatchGuid, new MatchResult(confidence, matchStrength)));
 
 // Create and return response back to CommCare
 IdentityResponseBuilder.identificationResponse(identifications)
@@ -62,7 +62,7 @@ This can be done by following the same semantics as the Identification process -
 ArrayList<Identification> duplicates = new ArrayList<>();
 
 // add matches to identifications
-duplicates.add(new Identification(duplicateGuid, new MatchResult(confidence, matchStrength)));
+duplicates.add(new IdentificationMatch(duplicateGuid, new MatchResult(confidence, matchStrength)));
 
 
 IdentityResponseBuilder.registrationResponse(duplicates)
