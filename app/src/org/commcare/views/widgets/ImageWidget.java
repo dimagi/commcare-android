@@ -37,6 +37,8 @@ import org.commcare.views.dialogs.DialogCreationHelpers;
 import org.javarosa.core.model.QuestionDataExtension;
 import org.javarosa.core.model.UploadQuestionExtension;
 import org.javarosa.core.model.data.IAnswerData;
+import org.javarosa.core.model.data.IntegerData;
+import org.javarosa.core.model.data.InvalidData;
 import org.javarosa.core.model.data.StringData;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.form.api.FormEntryPrompt;
@@ -61,6 +63,7 @@ public class ImageWidget extends QuestionWidget {
     private final Button mChooseButton;
     private final Button mDiscardButton;
     private ImageView mImageView;
+    private int oversizedImageSize = -1;
 
     private String mBinaryName;
 
@@ -250,6 +253,8 @@ public class ImageWidget extends QuestionWidget {
 
             addView(mImageView);
             mDiscardButton.setVisibility(View.VISIBLE);
+        } else {
+            checkForOversizedMedia(mPrompt.getAnswerValue());
         }
     }
 
@@ -307,6 +312,8 @@ public class ImageWidget extends QuestionWidget {
     public IAnswerData getAnswer() {
         if (mBinaryName != null) {
             return new StringData(mBinaryName);
+        } else if (oversizedImageSize > 0) {
+            return new InvalidData("", new IntegerData(oversizedImageSize));
         } else {
             return null;
         }
@@ -321,6 +328,13 @@ public class ImageWidget extends QuestionWidget {
         }
 
         File f = new File(binaryPath.toString());
+
+        // Check if file is too large
+        if (checkFileSize(f)) {
+            oversizedImageSize = (int) f.length() / (1024 * 1024);
+            return;
+        }
+        oversizedImageSize = -1;
         mBinaryName = f.getName();
     }
 
