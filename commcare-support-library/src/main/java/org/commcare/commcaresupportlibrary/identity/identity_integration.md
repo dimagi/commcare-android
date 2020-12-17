@@ -18,8 +18,7 @@ Often you will need this generated guid to be passed back to CommCare so that it
 
 ````
 IdentityResponseBuilder.registrationResponse(guid)
-    .build()
-    .finalize(activity)
+    .finalizeResponse(activity)
 ````
 
 This creates an appropriate resulting Intent for the Identity registration workflow and finish your activity after setting the response as a result to returning intent.
@@ -34,13 +33,12 @@ An Identification workflow should result into a list of matches corresponding to
 ArrayList<Identification> identifications = new ArrayList<>();
 
 // add matches to identifications
-identifications.add(new Identification(matchGuid, new MatchResult(confidence, matchStrength)));
-identifications.add(new Identification(anotherMatchGuid, new MatchResult(confidence, matchStrength)));
+identifications.add(new IdentificationMatch(matchGuid, new MatchResult(confidence, matchStrength)));
+identifications.add(new IdentificationMatch(anotherMatchGuid, new MatchResult(confidence, matchStrength)));
 
 // Create and return response back to CommCare
 IdentityResponseBuilder.identificationResponse(identifications)
-    .build()
-    .finalize(activity)
+    .finalizeResponse(activity)
 ````
 
 An `Identification` object comprises of the Identity Provider's guid of the match and the matching result which in turn contains the matching score `confidence` and an indicator `matchStrength` based on the `confidence` that identifies if it's a good match or not.
@@ -51,8 +49,7 @@ Verification is a 1:1 search that is used when you want to confirm whether a ben
 
 ````
 IdentityResponseBuilder.verificationResponse(guid, new MatchResult(confidence, matchStrength))
-    .build()
-    .finalize(activity)
+    .finalizeResponse(activity)
 ````
 
 #### Passing back duplicates as part of Registration
@@ -65,12 +62,11 @@ This can be done by following the same semantics as the Identification process -
 ArrayList<Identification> duplicates = new ArrayList<>();
 
 // add matches to identifications
-duplicates.add(new Identification(duplicateGuid, new MatchResult(confidence, matchStrength)));
+duplicates.add(new IdentificationMatch(duplicateGuid, new MatchResult(confidence, matchStrength)));
 
 
 IdentityResponseBuilder.registrationResponse(duplicates)
-    .build()
-    .finalize(activity)
+    .finalizeResponse(activity)
 ````
 
 
