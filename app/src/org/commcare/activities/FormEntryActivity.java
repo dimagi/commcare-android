@@ -351,11 +351,15 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         }
     }
 
-    public void saveImageWidgetAnswer(String imagePath) {
-        uiController.questionsView.setBinaryData(imagePath, mFormController);
+    private void saveAndRefresh() {
         saveAnswersForCurrentScreen(false);
         uiController.refreshView();
         onExternalAttachmentUpdated();
+    }
+
+    public void saveImageWidgetAnswer(String imagePath) {
+        uiController.questionsView.setBinaryData(imagePath, mFormController);
+        saveAndRefresh();
     }
 
     private void processChooserResponse(Intent intent) {
@@ -379,9 +383,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         } else {
             uiController.questionsView.setBinaryData(media, mFormController);
         }
-        saveAnswersForCurrentScreen(false);
-        uiController.refreshView();
-        onExternalAttachmentUpdated();
+        saveAndRefresh();
     }
 
     /**
