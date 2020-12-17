@@ -1,7 +1,7 @@
 apply plugin: 'com.android.library'
 apply plugin: 'maven-publish'
 
-version '12.3'
+version '12.4'
 
 ext {
     BINTRAY_USERNAME = project.properties['BINTRAY_USERNAME'] ?: ""

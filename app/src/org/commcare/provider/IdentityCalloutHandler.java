@@ -53,20 +53,20 @@ public class IdentityCalloutHandler {
                                                          TreeReference intentQuestionRef,
                                                          Hashtable<String, Vector<TreeReference>> responseToRefMap) {
         if (isRegistrationResponse(intent)) {
-            processRegistrationReponse(formDef, intent, intentQuestionRef, responseToRefMap);
+            return processRegistrationReponse(formDef, intent, intentQuestionRef, responseToRefMap);
         } else if (isVerificationResponse(intent)) {
-            processVerificationResponse(formDef, intent, intentQuestionRef, responseToRefMap);
+            return processVerificationResponse(formDef, intent, intentQuestionRef, responseToRefMap);
         } else if (isIdentificationResponse(intent)) {
-            processIdentificationResponse(formDef, intent, intentQuestionRef, responseToRefMap);
+            return processIdentificationResponse(formDef, intent, intentQuestionRef, responseToRefMap);
         }
         return false;
     }
 
     // Used to Handle Identified Match in a Form during Registration
-    private static void processIdentificationResponse(FormDef formDef,
-                                                      Intent intent,
-                                                      TreeReference intentQuestionRef,
-                                                      Hashtable<String, Vector<TreeReference>> responseToRefMap) {
+    private static boolean processIdentificationResponse(FormDef formDef,
+                                                         Intent intent,
+                                                         TreeReference intentQuestionRef,
+                                                         Hashtable<String, Vector<TreeReference>> responseToRefMap) {
         List<IdentificationMatch> matches = getIdentificationMatches(intent);
         if (matches.size() > 0) {
             IdentificationMatch bestMatch = matches.get(0);
@@ -79,13 +79,15 @@ public class IdentityCalloutHandler {
 
             // Empty out the registraion guid since no new registration has been performed
             storeValueFromCalloutInForm(formDef, responseToRefMap, intentQuestionRef, REF_GUID, "");
+            return true;
         }
+        return false;
     }
 
-    private static void processVerificationResponse(FormDef formDef,
-                                                    Intent intent,
-                                                    TreeReference intentQuestionRef,
-                                                    Hashtable<String, Vector<TreeReference>> responseToRefMap) {
+    private static boolean processVerificationResponse(FormDef formDef,
+                                                       Intent intent,
+                                                       TreeReference intentQuestionRef,
+                                                       Hashtable<String, Vector<TreeReference>> responseToRefMap) {
         VerificationMatch verificationMatch = intent.getParcelableExtra(IdentityResponseBuilder.VERIFICATION);
 
         storeValueFromCalloutInForm(formDef, responseToRefMap, intentQuestionRef,
@@ -97,12 +99,13 @@ public class IdentityCalloutHandler {
                 REF_MATCH_CONFIDENCE, String.valueOf(matchResult.getConfidence()));
         storeValueFromCalloutInForm(formDef, responseToRefMap, intentQuestionRef,
                 REF_MATCH_STRENGTH, matchResult.getStrength().toString().toLowerCase());
+        return !verificationMatch.getGuid().isEmpty();
     }
 
-    private static void processRegistrationReponse(FormDef formDef,
-                                                   Intent intent,
-                                                   TreeReference intentQuestionRef,
-                                                   Hashtable<String, Vector<TreeReference>> responseToRefMap) {
+    private static boolean processRegistrationReponse(FormDef formDef,
+                                                      Intent intent,
+                                                      TreeReference intentQuestionRef,
+                                                      Hashtable<String, Vector<TreeReference>> responseToRefMap) {
         RegistrationResult registrationResult = intent.getParcelableExtra(IdentityResponseBuilder.REGISTRATION);
         String guid = registrationResult.getGuid();
         storeValueFromCalloutInForm(formDef, responseToRefMap, intentQuestionRef, REF_GUID, guid);
@@ -111,6 +114,7 @@ public class IdentityCalloutHandler {
         storeValueFromCalloutInForm(formDef, responseToRefMap, intentQuestionRef, REF_MATCH_GUID, "");
         storeValueFromCalloutInForm(formDef, responseToRefMap, intentQuestionRef, REF_MATCH_CONFIDENCE, "");
         storeValueFromCalloutInForm(formDef, responseToRefMap, intentQuestionRef, REF_MATCH_STRENGTH, "");
+        return guid != null && !guid.isEmpty();
     }
 
     public static OrderedHashtable<String, String> getConfidenceMatchesFromCalloutResponse(Intent intent) {
