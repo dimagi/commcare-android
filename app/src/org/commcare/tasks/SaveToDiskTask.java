@@ -52,6 +52,9 @@ public class SaveToDiskTask extends
     private final String mRecordName;
     private final String mFormRecordPath;
 
+    // If set, onPostExecute will ignore the result.
+    private final boolean ignoreResult;
+
     private final SecretKeySpec symetricKey;
 
     public enum SaveStatus {
@@ -66,7 +69,7 @@ public class SaveToDiskTask extends
 
     public SaveToDiskTask(int formRecordId, int formDefId, String formRecordPath, Boolean saveAndExit, Boolean markCompleted,
                           String updatedName,
-                          SecretKeySpec symetricKey, boolean headless) {
+                          SecretKeySpec symetricKey, boolean headless, boolean ignoreResult) {
         TAG = SaveToDiskTask.class.getSimpleName();
 
         mFormRecordId = formRecordId;
@@ -76,6 +79,7 @@ public class SaveToDiskTask extends
         mRecordName = updatedName;
         this.symetricKey = symetricKey;
         mFormRecordPath = formRecordPath;
+        this.ignoreResult = ignoreResult;
 
         if (headless) {
             this.taskId = -1;
@@ -262,6 +266,9 @@ public class SaveToDiskTask extends
     protected void onPostExecute(ResultAndError<SaveStatus> result) {
         super.onPostExecute(result);
 
+        if (ignoreResult) {
+            return;
+        }
         synchronized (this) {
             if (mSavedListener != null) {
                 if (result == null) {

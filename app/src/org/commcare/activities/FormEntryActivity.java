@@ -354,8 +354,8 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     public void saveImageWidgetAnswer(String imagePath) {
         uiController.questionsView.setBinaryData(imagePath, mFormController);
         saveAnswersForCurrentScreen(false);
-        onExternalAttachmentUpdated();
         uiController.refreshView();
+        onExternalAttachmentUpdated();
     }
 
     private void processChooserResponse(Intent intent) {
@@ -380,8 +380,8 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             uiController.questionsView.setBinaryData(media, mFormController);
         }
         saveAnswersForCurrentScreen(false);
-        onExternalAttachmentUpdated();
         uiController.refreshView();
+        onExternalAttachmentUpdated();
     }
 
     /**
@@ -698,18 +698,18 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     public void saveFormToDisk(boolean exit) {
         if (formHasLoaded()) {
             boolean isFormComplete = instanceState.isFormRecordComplete();
-            saveDataToDisk(exit, isFormComplete, null, false);
+            saveDataToDisk(exit, isFormComplete, null, false, false);
         } else if (exit) {
             showSaveErrorAndExit();
         }
     }
 
     private void saveCompletedFormToDisk(String updatedSaveName) {
-        saveDataToDisk(FormEntryConstants.EXIT, true, updatedSaveName, false);
+        saveDataToDisk(FormEntryConstants.EXIT, true, updatedSaveName, false, false);
     }
 
     private void saveIncompleteFormToDisk() {
-        saveDataToDisk(FormEntryConstants.EXIT, false, null, true);
+        saveDataToDisk(FormEntryConstants.EXIT, false, null, true, false);
     }
 
     /**
@@ -723,7 +723,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         }
         String formStatus = formRecord.getStatus();
         if (FormRecord.STATUS_INCOMPLETE.equals(formStatus)) {
-            saveDataToDisk(false, false, null, true);
+            saveDataToDisk(false, false, null, true, true);
         }
     }
 
@@ -742,9 +742,10 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
      *                        non-null
      * @param headless        Disables GUI warnings and lets answers that
      *                        violate constraints be saved.
+     * @param ignoreResult    If set, task's result will be ignored.
      */
     private void saveDataToDisk(boolean exit, boolean complete, String updatedSaveName,
-                                boolean headless) {
+                                boolean headless, boolean ignoreResult) {
         if (!formHasLoaded()) {
             if (exit) {
                 showSaveErrorAndExit();
@@ -774,7 +775,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         mSaveToDiskTask = new SaveToDiskTask(getIntent().getIntExtra(KEY_FORM_RECORD_ID, -1),
                 getIntent().getIntExtra(KEY_FORM_DEF_ID, -1),
                 FormEntryInstanceState.mFormRecordPath,
-                exit, complete, updatedSaveName, symetricKey, headless);
+                exit, complete, updatedSaveName, symetricKey, headless, ignoreResult);
         if (!headless) {
             mSaveToDiskTask.connect(this);
         }
