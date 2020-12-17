@@ -47,6 +47,13 @@
         android:entryValues="@array/pref_enabled_vals"
         android:key="cc-intent-callout-for-scanner"
         android:title="Use intent callout for scanner"/>
+    <androidx.preference.ListPreference
+        android:enabled="true"
+        android:defaultValue="no"
+        android:entries="@array/pref_enabled_labels"
+        android:entryValues="@array/pref_enabled_vals"
+        android:key="cc-enable-tts"
+        android:title="Enable Text To Speech"/>
     <Preference
         android:key="disable-analytics-button"/>
     <Preference
