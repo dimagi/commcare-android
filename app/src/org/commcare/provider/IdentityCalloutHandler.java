@@ -94,11 +94,12 @@ public class IdentityCalloutHandler {
                 REF_MATCH_GUID, verificationMatch.getGuid());
 
         MatchResult matchResult = verificationMatch.getMatchResult();
-
         storeValueFromCalloutInForm(formDef, responseToRefMap, intentQuestionRef,
                 REF_MATCH_CONFIDENCE, String.valueOf(matchResult.getConfidence()));
         storeValueFromCalloutInForm(formDef, responseToRefMap, intentQuestionRef,
                 REF_MATCH_STRENGTH, matchResult.getStrength().toString().toLowerCase());
+
+        IntentCallout.setNodeValue(formDef, intentQuestionRef, getStrengthText(matchResult.getStrength()));
         return !verificationMatch.getGuid().isEmpty();
     }
 
@@ -109,6 +110,7 @@ public class IdentityCalloutHandler {
         RegistrationResult registrationResult = intent.getParcelableExtra(IdentityResponseBuilder.REGISTRATION);
         String guid = registrationResult.getGuid();
         storeValueFromCalloutInForm(formDef, responseToRefMap, intentQuestionRef, REF_GUID, guid);
+        IntentCallout.setNodeValue(formDef, intentQuestionRef, guid);
 
         // Empty out any references present for duplicate handling
         storeValueFromCalloutInForm(formDef, responseToRefMap, intentQuestionRef, REF_MATCH_GUID, "");
