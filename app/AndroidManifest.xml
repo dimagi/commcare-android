@@ -63,6 +63,12 @@
         android:protectionLevel="dangerous">
     </permission>
 
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.TTS_SERVICE" />
+        </intent>
+    </queries>
+
     <application
         android:allowBackup="false"
         tools:replace="android:label,android:icon,android:theme, android:allowBackup"
