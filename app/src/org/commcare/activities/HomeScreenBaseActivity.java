@@ -61,6 +61,7 @@ import org.commcare.tasks.ResultAndError;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.AndroidCommCarePlatform;
 import org.commcare.utils.AndroidInstanceInitializer;
+import org.commcare.utils.AndroidUtil;
 import org.commcare.utils.ChangeLocaleUtil;
 import org.commcare.utils.CommCareUtil;
 import org.commcare.utils.ConnectivityStatus;
@@ -208,33 +209,38 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
         if (getIntent().hasExtra(SESSION_ENDPOINT_ID)) {
             Endpoint endpoint = validateIntentForSessionEndpoint(getIntent());
             if (endpoint != null) {
-                Vector<String> endpointArguments = endpoint.getArguments();
-                EvaluationContext evaluationContext = CommCareApplication.instance().getCurrentSessionWrapper().getEvaluationContext();
-
                 Bundle intentArgumentsAsBundle = getIntent().getBundleExtra(SESSION_ENDPOINT_ARGUMENTS_BUNDLE);
                 ArrayList<String> intentArgumentsAsList = getIntent().getStringArrayListExtra(SESSION_ENDPOINT_ARGUMENTS_LIST);
 
-                for (int i = 0; i < endpointArguments.size(); i++) {
-                    String argumentName = endpointArguments.elementAt(i);
-                    if (intentArgumentsAsBundle != null && !intentArgumentsAsBundle.containsKey(argumentName)) {
-                        String noArgumentWithNameError = org.commcare.utils.StringUtils.getStringRobust(
-                                this,
-                                R.string.session_endpoint_no_argument_with_name,
-                                new String[]{argumentName, endpoint.getId()});
-                        UserfacingErrorHandling.createErrorDialog(this, noArgumentWithNameError, true);
-                        return;
-                    }
-
-                    // Bundle Arguments take precdence over list arguments
-                    String argValue = intentArgumentsAsBundle == null ? intentArgumentsAsList.get(i)
-                            : intentArgumentsAsBundle.getString(argumentName);
-
-                    evaluationContext.setVariable(argumentName, argValue);
-                }
-
+                // Reset the Session to make sure we don't carry forward any session state to the endpoint launch
                 CommCareApplication.instance().getCurrentSessionWrapper().reset();
-                CommCareApplication.instance().getCurrentSessionWrapper()
-                        .executeStackActions(endpoint.getStackOperations(), evaluationContext);
+
+                try {
+                    if (intentArgumentsAsBundle != null) {
+                        CommCareApplication.instance().getCurrentSessionWrapper()
+                                .executeEndpointStack(endpoint, AndroidUtil.bundleAsMap(intentArgumentsAsBundle));
+                    } else {
+                        CommCareApplication.instance().getCurrentSessionWrapper()
+                                .executeEndpointStack(endpoint, intentArgumentsAsList);
+                    }
+                } catch (Endpoint.InvalidEndpointArgumentsException e) {
+                    String noArgumentWithNameError = org.commcare.utils.StringUtils.getStringRobust(
+                            this,
+                            R.string.session_endpoint_no_argument_with_name,
+                            new String[]{e.getArgumentName(), endpoint.getId()});
+                    UserfacingErrorHandling.createErrorDialog(this, noArgumentWithNameError, true);
+                } catch (Endpoint.InvalidNumberOfEndpointArgumentsException e) {
+                    String invalidEndpointArgsError = org.commcare.utils.StringUtils.getStringRobust(
+                            this,
+                            R.string.session_endpoint_invalid_arguments,
+                            new String[]{
+                                    endpoint.getId(),
+                                    intentArgumentsAsBundle != null ?
+                                            StringUtils.join(intentArgumentsAsBundle, ",") :
+                                            String.valueOf(intentArgumentsAsList.size()),
+                                    StringUtils.join(endpoint.getArguments(), ",")});
+                    UserfacingErrorHandling.createErrorDialog(this, invalidEndpointArgsError, true);
+                }
             }
         }
     }
@@ -251,24 +257,6 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                             endpoint.getId(),
                             StringUtils.join(allEndpoints.keySet(), ",")});
             UserfacingErrorHandling.createErrorDialog(this, invalidEndpointError, true);
-            return null;
-        }
-
-        Bundle intentArgumentsAsBundle = intent.getBundleExtra(SESSION_ENDPOINT_ARGUMENTS_BUNDLE);
-        ArrayList intentArgumentsAsList = getIntent().getStringArrayListExtra(SESSION_ENDPOINT_ARGUMENTS_LIST);
-
-        int numOfArgumentsInIntent = intentArgumentsAsBundle == null ?
-                (intentArgumentsAsList == null ? 0 : intentArgumentsAsList.size()) : intentArgumentsAsBundle.size();
-
-        if (endpoint.getArguments().size() != numOfArgumentsInIntent) {
-            String invalidEndpointArgsError = org.commcare.utils.StringUtils.getStringRobust(
-                    this,
-                    R.string.session_endpoint_invalid_arguments,
-                    new String[]{
-                            endpoint.getId(),
-                            StringUtils.join(intentArgumentsAsBundle, ","),
-                            StringUtils.join(endpoint.getArguments(), ",")});
-            UserfacingErrorHandling.createErrorDialog(this, invalidEndpointArgsError, true);
             return null;
         }
         return endpoint;

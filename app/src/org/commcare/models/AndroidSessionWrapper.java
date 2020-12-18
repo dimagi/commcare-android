@@ -12,6 +12,7 @@ import org.commcare.session.CommCareSession;
 import org.commcare.session.SessionDescriptorUtil;
 import org.commcare.session.SessionFrame;
 import org.commcare.suite.model.ComputedDatum;
+import org.commcare.suite.model.Endpoint;
 import org.commcare.suite.model.EntityDatum;
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.FormEntry;
@@ -25,7 +26,9 @@ import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.xpath.analysis.InstanceNameAccumulatingAnalyzer;
 import org.javarosa.xpath.analysis.XPathAnalyzable;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Set;
 import java.util.Vector;
@@ -362,5 +365,17 @@ public class AndroidSessionWrapper implements SessionWrapperInterface {
         //regardless of whether we just updated the current stack, we need to
         //assume our current volatile states are no longer relevant
         cleanVolatiles();
+    }
+
+    public void executeEndpointStack(Endpoint endpoint, ArrayList<String> args) {
+        EvaluationContext evaluationContext = getEvaluationContext();
+        Endpoint.populateEndpointArgumentsToEvaluaionContext(endpoint, args, evaluationContext);
+        executeStackActions(endpoint.getStackOperations(), evaluationContext);
+    }
+
+    public void executeEndpointStack(Endpoint endpoint, HashMap args) {
+        EvaluationContext evaluationContext = getEvaluationContext();
+        Endpoint.populateEndpointArgumentsToEvaluaionContext(endpoint, args, evaluationContext);
+        executeStackActions(endpoint.getStackOperations(), evaluationContext);
     }
 }
