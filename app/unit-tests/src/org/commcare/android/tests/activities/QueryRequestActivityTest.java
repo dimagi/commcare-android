@@ -151,7 +151,7 @@ public class QueryRequestActivityTest {
 
     @Test
     public void spinnersInterDependencyTest() {
-        setSessionCommand("patient-search");
+        setSessionCommand("patient-search-complex");
         QueryRequestActivity queryRequestActivity = buildQueryActivity().get();
         LinearLayout promptsLayout = queryRequestActivity.findViewById(R.id.query_prompts);
         Spinner stateSpinner = promptsLayout.getChildAt(2).findViewById(R.id.prompt_spinner);
@@ -194,7 +194,7 @@ public class QueryRequestActivityTest {
      */
     @Test
     public void reloadQueryActivityStateTest() {
-        setSessionCommand("patient-search");
+        setSessionCommand("patient-search-complex");
         ActivityController<QueryRequestActivity> controller = buildActivityAndSetViews();
 
         // serialize app state into bundle
@@ -235,7 +235,7 @@ public class QueryRequestActivityTest {
                         "jr://resource/commcare-apps/case_search_and_claim/empty-query-result-two-tags.xml",
                         "jr://resource/commcare-apps/case_search_and_claim/single-query-result.xml"});
 
-        setSessionCommand("patient-search");
+        setSessionCommand("patient-search-complex");
         QueryRequestActivity queryRequestActivity = buildQueryActivity().get();
 
         LinearLayout promptsLayout =
@@ -274,7 +274,7 @@ public class QueryRequestActivityTest {
     }
 
     private ActivityController<QueryRequestActivity> buildActivityAndSetViews() {
-        setSessionCommand("patient-search");
+        setSessionCommand("patient-search-complex");
 
         ActivityController<QueryRequestActivity> controller = buildQueryActivity();
         QueryRequestActivity queryRequestActivity = controller.get();
