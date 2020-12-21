@@ -56,7 +56,6 @@ import org.commcare.logging.analytics.TimedStatsTracker;
 import org.commcare.logic.AndroidFormController;
 import org.commcare.models.AndroidSessionWrapper;
 import org.commcare.models.FormRecordProcessor;
-import org.commcare.models.ODKStorage;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.tasks.FormLoaderTask;
 import org.commcare.tasks.SaveToDiskTask;
@@ -207,15 +206,6 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         super.onCreateSessionSafe(savedInstanceState);
         formRecordStorage = CommCareApplication.instance().getUserStorage(FormRecord.class);
         instanceState = new FormEntryInstanceState(formRecordStorage);
-
-        // must be at the beginning of any activity that can be called from an external intent
-        try {
-            ODKStorage.createODKDirs();
-        } catch (RuntimeException e) {
-            Logger.exception("Error creating storage directories", e);
-            UserfacingErrorHandling.createErrorDialog(this, e.getMessage(), FormEntryConstants.EXIT);
-            return;
-        }
 
         uiController.setupUI();
         mGestureDetector = new GestureDetector(this, this);

@@ -78,7 +78,6 @@
         android:label="@string/application_name"
         android:hardwareAccelerated="true"
         android:usesCleartextTraffic="true"
-        android:requestLegacyExternalStorage="true"
         android:theme="@style/AppBaseTheme">
 
         <activity

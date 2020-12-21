@@ -8,17 +8,14 @@ import org.commcare.CommCareApplication;
 import org.commcare.activities.FormEntryActivity;
 import org.commcare.android.database.app.models.FormDefRecord;
 import org.commcare.android.database.user.models.FormRecord;
-import org.commcare.models.ODKStorage;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.FileUtil;
-import org.commcare.utils.StringUtils;
 import org.javarosa.core.services.Logger;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Vector;
 
 import javax.annotation.Nullable;
 
@@ -106,8 +103,7 @@ public class FormEntryInstanceState {
         if (intent.hasExtra(KEY_FORM_RECORD_DESTINATION)) {
             this.mFormRecordDestination = intent.getStringExtra(KEY_FORM_RECORD_DESTINATION);
         } else {
-            Logger.log(LogTypes.SOFT_ASSERT, "Access outside scoped storage in loading current form.");
-            mFormRecordDestination = ODKStorage.FORM_RECORD_PATH;
+            throw new RuntimeException("Access outside scoped storage in loading current form.");
         }
     }
 
