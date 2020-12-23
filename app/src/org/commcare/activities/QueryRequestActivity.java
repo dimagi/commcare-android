@@ -35,6 +35,7 @@ import org.commcare.tasks.ModernHttpTask;
 import org.commcare.tasks.templates.CommCareTaskConnector;
 import org.commcare.views.ManagedUi;
 import org.commcare.views.UiElement;
+import org.commcare.views.UserfacingErrorHandling;
 import org.commcare.views.ViewUtil;
 import org.commcare.views.dialogs.CustomProgressDialog;
 import org.commcare.views.widgets.SpinnerWidget;
@@ -44,6 +45,7 @@ import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.locale.Localizer;
 import org.javarosa.core.util.OrderedHashtable;
+import org.javarosa.xpath.XPathException;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -93,9 +95,15 @@ public class QueryRequestActivity
     public void onCreateSessionSafe(Bundle savedInstanceState) {
         super.onCreateSessionSafe(savedInstanceState);
         AndroidSessionWrapper sessionWrapper = CommCareApplication.instance().getCurrentSessionWrapper();
-        remoteQuerySessionManager =
-                RemoteQuerySessionManager.buildQuerySessionManager(sessionWrapper.getSession(),
-                        sessionWrapper.getEvaluationContext());
+
+        try {
+            remoteQuerySessionManager =
+                    RemoteQuerySessionManager.buildQuerySessionManager(sessionWrapper.getSession(),
+                            sessionWrapper.getEvaluationContext());
+        } catch(XPathException xpe) {
+            UserfacingErrorHandling.createErrorDialog(this, xpe.getMessage(), true);
+            return;
+        }
 
         if (remoteQuerySessionManager == null) {
             Log.e(TAG, "Tried to launch remote query activity at wrong time in session.");

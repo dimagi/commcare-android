@@ -194,6 +194,31 @@
       <datum id="case_id" nodeset="instance('casedb')/casedb/case[@case_type='case']" value="./@case_id" detail-select="m1_case_short" detail-confirm="m1_case_long"/>
     </session>
   </entry>
+  <endpoint id="registration_form">
+    <stack>
+      <push>
+        <command value="'m0-f0'"/>
+      </push>
+    </stack>
+  </endpoint>
+  <endpoint id="visit_form">
+    <argument id="case_id"/>
+    <stack>
+      <push>
+        <command value="'m1-f0'"/>
+        <datum id="case_id" value="$case_id"/>
+      </push>
+    </stack>
+  </endpoint>
+  <endpoint id="close_form">
+    <argument id="case_id"/>
+    <stack>
+      <push>
+        <command value="'m1-f1'"/>
+        <datum id="case_id" value="$case_id"/>
+      </push>
+    </stack>
+  </endpoint>
   <menu id="root">
     <text>
       <locale id="modules.m0"/>

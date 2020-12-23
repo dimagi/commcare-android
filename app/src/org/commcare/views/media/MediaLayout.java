@@ -32,6 +32,7 @@ import org.commcare.mediadownload.MissingMediaDownloadHelper;
 import org.commcare.mediadownload.MissingMediaDownloadResult;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.preferences.HiddenPreferences;
+import org.commcare.tts.TextToSpeechConverter;
 import org.commcare.utils.AndroidUtil;
 import org.commcare.utils.FileUtil;
 import org.commcare.utils.MediaUtil;
@@ -71,6 +72,7 @@ public class MediaLayout extends RelativeLayout {
     private TextView missingMediaStatus;
     private ImageView divider;
     private View missingMediaView;
+    private ImageButton ttsButton;
 
     // These containers will be used to toggle the position of media pane and text pane
     private View textContainer;
@@ -103,9 +105,14 @@ public class MediaLayout extends RelativeLayout {
                                                        TextView text, String audioURI, String imageURI,
                                                        final String videoURI, final String bigImageURI,
                                                        final String qrCodeContent, String inlineVideoURI,
+                                                       final String ttsText,
                                                        int questionIndex) {
         MediaLayout mediaLayout = new MediaLayout(context);
         mediaLayout.setAVT(text, audioURI, imageURI, videoURI, bigImageURI, qrCodeContent, inlineVideoURI, false, questionIndex);
+        // Show TTS view only when audioURI is not present
+        if (ttsText != null && audioURI == null) {
+            mediaLayout.showTtsButton(ttsText);
+        }
         return mediaLayout;
     }
 
@@ -114,6 +121,13 @@ public class MediaLayout extends RelativeLayout {
     }
 
     //region private helpers
+
+    private void showTtsButton(String ttsText) {
+        ttsButton.setVisibility(VISIBLE);
+        ttsButton.setOnClickListener(view -> {
+            TextToSpeechConverter.INSTANCE.speak(getContext(), ttsText);
+        });
+    }
 
     private void setAVT(TextView text, String audioURI, String imageURI,
                         final String videoURI, final String bigImageURI,
@@ -433,6 +447,7 @@ public class MediaLayout extends RelativeLayout {
         divider = view.findViewById(R.id.divider);
         textContainer = view.findViewById(R.id.text_container);
         mediaContainer = view.findViewById(R.id.media_pane);
+        ttsButton = view.findViewById(R.id.tts_button);
     }
     //endregion
 

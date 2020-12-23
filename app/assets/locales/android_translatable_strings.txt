@@ -841,6 +841,7 @@ permission.location.denial.message=CommCare doesn't have the permission to use l
 
 custom.acknowledgement=
 case.error.self.index=Case '${0}' cannot index itself. In order to login you must change the case on the server.
+case.search.title=Case Claim
 
 intent.barcode.get=Get Barcode
 intent.barcode.update=Update Barcode
@@ -940,3 +941,8 @@ in.app.update.error.internal.error=Couldn't install CommCare update due to inter
 
 button.clear.title=Clear
 media.missing.invalid.reference=Can't load media due to invalid reference: ${0}
+
+tts.data.missing.title=Text-To-Speech voice data is missing.
+tts.data.missing.message=CommCare Text-To-Speech feature wants to use ${0} language. Please download voice data for ${0} language.
+tts.init.failed=Text-To-Speech feature will not work.
+tts.speak.failed=Couldn't speak now. Please try again!

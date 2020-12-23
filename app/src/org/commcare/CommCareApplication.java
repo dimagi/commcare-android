@@ -246,7 +246,7 @@ public class CommCareApplication extends MultiDexApplication {
         LocalePreferences.saveDeviceLocale(Locale.getDefault());
     }
 
-    private void attachISRGCert() {
+    protected void attachISRGCert() {
         CommCareNetworkServiceGenerator.customizeRetrofitSetup(new ISRGCertConfig());
     }
 

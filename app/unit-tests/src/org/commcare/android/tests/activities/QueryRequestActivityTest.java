@@ -24,6 +24,7 @@ import org.commcare.dalvik.R;
 import org.commcare.models.AndroidSessionWrapper;
 import org.commcare.models.database.AndroidSandbox;
 import org.commcare.session.CommCareSession;
+import org.commcare.suite.model.ComputedDatum;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
@@ -58,6 +59,9 @@ public class QueryRequestActivityTest {
         try {
             ParseUtils.parseIntoSandbox(
                     this.getClass().getResourceAsStream("/commcare-apps/case_search_and_claim/fixtures.xml"),
+                    new AndroidSandbox(CommCareApplication.instance()));
+            ParseUtils.parseIntoSandbox(
+                    this.getClass().getResourceAsStream("/commcare-apps/case_search_and_claim/user_restore.xml"),
                     new AndroidSandbox(CommCareApplication.instance()));
         } catch (InvalidStructureException e) {
             e.printStackTrace();
@@ -147,7 +151,7 @@ public class QueryRequestActivityTest {
 
     @Test
     public void spinnersInterDependencyTest() {
-        setSessionCommand("patient-search");
+        setSessionCommand("patient-search-complex");
         QueryRequestActivity queryRequestActivity = buildQueryActivity().get();
         LinearLayout promptsLayout = queryRequestActivity.findViewById(R.id.query_prompts);
         Spinner stateSpinner = promptsLayout.getChildAt(2).findViewById(R.id.prompt_spinner);
@@ -190,7 +194,7 @@ public class QueryRequestActivityTest {
      */
     @Test
     public void reloadQueryActivityStateTest() {
-        setSessionCommand("patient-search");
+        setSessionCommand("patient-search-complex");
         ActivityController<QueryRequestActivity> controller = buildActivityAndSetViews();
 
         // serialize app state into bundle
@@ -231,13 +235,16 @@ public class QueryRequestActivityTest {
                         "jr://resource/commcare-apps/case_search_and_claim/empty-query-result-two-tags.xml",
                         "jr://resource/commcare-apps/case_search_and_claim/single-query-result.xml"});
 
-        setSessionCommand("patient-search");
+        setSessionCommand("patient-search-complex");
         QueryRequestActivity queryRequestActivity = buildQueryActivity().get();
 
         LinearLayout promptsLayout =
                 queryRequestActivity.findViewById(R.id.query_prompts);
         EditText patientName = promptsLayout.getChildAt(0).findViewById(R.id.prompt_et);
         patientName.setText("francisco");
+
+        EditText patientId = promptsLayout.getChildAt(1).findViewById(R.id.prompt_et);
+        patientId.setText("");
 
         Button queryButton =
                 queryRequestActivity.findViewById(R.id.request_button);
@@ -261,10 +268,13 @@ public class QueryRequestActivityTest {
                 CommCareApplication.instance().getCurrentSessionWrapper();
         CommCareSession session = sessionWrapper.getSession();
         session.setCommand(command);
+        if(session.getNeededDatum() instanceof ComputedDatum) {
+            session.setComputedDatum(sessionWrapper.getEvaluationContext());
+        }
     }
 
     private ActivityController<QueryRequestActivity> buildActivityAndSetViews() {
-        setSessionCommand("patient-search");
+        setSessionCommand("patient-search-complex");
 
         ActivityController<QueryRequestActivity> controller = buildQueryActivity();
         QueryRequestActivity queryRequestActivity = controller.get();
@@ -275,8 +285,7 @@ public class QueryRequestActivityTest {
         EditText patientName = promptsLayout.getChildAt(0).findViewById(R.id.prompt_et);
         patientName.setText("francisco");
 
-        EditText patientId = promptsLayout.getChildAt(1).findViewById(R.id.prompt_et);
-        patientId.setText("123");
+        //Patient ID is autoloaded from the default value pulled from the case
 
         Spinner stateSpinner = promptsLayout.getChildAt(2).findViewById(R.id.prompt_spinner);
         stateSpinner.setSelection(2);
