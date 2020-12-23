@@ -119,7 +119,7 @@ object InstrumentationUtility {
     @JvmStatic
     fun openForm(module: Int, form: Int) {
         openModule(module)
-        clickListItem(R.id.screen_suite_menu_list, form + 1)
+        clickListItem(R.id.screen_suite_menu_list, form)
     }
 
     @JvmStatic

@@ -28,7 +28,6 @@ public class MenuList implements AdapterView.OnItemClickListener {
     protected AdapterView<ListAdapter> adapterView;
     protected MenuAdapter adapter;
     private boolean beingUsedInHomeScreen;
-    private LinearLayout header;
 
     /**
      * Injects a list (or grid) of CommCare modules/forms for the given menu id into the UI of
@@ -69,17 +68,6 @@ public class MenuList implements AdapterView.OnItemClickListener {
         adapterView = (ListView)activity.findViewById(R.id.screen_suite_menu_list);
         adapter = new MenuAdapter(activity, CommCareApplication.instance().getCommCarePlatform(),
                 menuId);
-
-        // in menu list only, we add a header
-        if (header == null) {
-            header = (LinearLayout)activity.getLayoutInflater().inflate(R.layout.menu_list_header, null);
-        }
-        String subHeaderTitle = BreadcrumbBarFragment.getBestSubHeaderTitle();
-        if (subHeaderTitle != null) {
-            ((TextView)header.findViewById(R.id.menu_list_header_text)).setText(subHeaderTitle);
-            // header must not be clickable
-            ((ListView)adapterView).addHeaderView(header, null, false);
-        }
     }
 
     protected void setupAdapter() {
