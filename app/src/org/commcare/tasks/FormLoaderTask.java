@@ -235,7 +235,7 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Integer, String, Fo
             ReferenceManager.instance().addSessionRootTranslator(
                     new RootTranslator("jr://video/", formMediaPath));
         } else {
-            throw new RuntimeException("Access outside scoped storage in form media setup.");
+            throw new RuntimeException("Invalid form definition, media path is null.");
         }
     }
 

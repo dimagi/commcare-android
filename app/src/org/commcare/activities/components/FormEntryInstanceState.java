@@ -103,7 +103,7 @@ public class FormEntryInstanceState {
         if (intent.hasExtra(KEY_FORM_RECORD_DESTINATION)) {
             this.mFormRecordDestination = intent.getStringExtra(KEY_FORM_RECORD_DESTINATION);
         } else {
-            throw new RuntimeException("Access outside scoped storage in loading current form.");
+            throw new RuntimeException("Invalid intent definition, no extra key instancedestination present in the intent.");
         }
     }
 
