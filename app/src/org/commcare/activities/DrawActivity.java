@@ -23,7 +23,6 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
 import org.commcare.dalvik.R;
-import org.commcare.models.ODKStorage;
 import org.commcare.utils.FileUtil;
 import org.commcare.utils.MediaUtil;
 import org.commcare.utils.StringUtils;

@@ -9,7 +9,6 @@ import androidx.preference.PreferenceManager;
 import org.commcare.CommCareApplication;
 import org.commcare.dalvik.R;
 import org.commcare.fragments.CommCarePreferenceFragment;
-import org.commcare.models.ODKStorage;
 
 import java.util.Map;
 
@@ -22,6 +21,7 @@ public class FormEntryPreferences extends CommCarePreferenceFragment
 
     public static final String KEY_FONT_SIZE = "font_size";
     public static final String KEY_HELP_MODE_TRAY = "help_mode_tray";
+    public static final String DEFAULT_FONTSIZE = "21";
 
     @NonNull
     @Override
@@ -65,7 +65,7 @@ public class FormEntryPreferences extends CommCarePreferenceFragment
 
     public static int getQuestionFontSize() {
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(CommCareApplication.instance());
-        String fontString = settings.getString(FormEntryPreferences.KEY_FONT_SIZE, ODKStorage.DEFAULT_FONTSIZE);
+        String fontString = settings.getString(FormEntryPreferences.KEY_FONT_SIZE, DEFAULT_FONTSIZE);
         return Integer.parseInt(fontString);
     }
 }

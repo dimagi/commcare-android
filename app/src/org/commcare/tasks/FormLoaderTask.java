@@ -135,7 +135,7 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Integer, String, Fo
         // Remove previous forms
         ReferenceManager.instance().clearSession();
 
-        setupFormMedia(formDefRecord.getMediaPath(), formXml);
+        setupFormMedia(formDefRecord.getMediaPath());
 
         AndroidFormController formController = new AndroidFormController(fec, mReadOnly);
 
@@ -226,7 +226,7 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Integer, String, Fo
         return fec;
     }
 
-    private void setupFormMedia(String formMediaPath, File formXmlFile) {
+    private void setupFormMedia(String formMediaPath) {
         if (formMediaPath != null) {
             ReferenceManager.instance().addSessionRootTranslator(
                     new RootTranslator("jr://images/", formMediaPath));
@@ -235,24 +235,7 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Integer, String, Fo
             ReferenceManager.instance().addSessionRootTranslator(
                     new RootTranslator("jr://video/", formMediaPath));
         } else {
-            // This should get moved to the Application Class
-            if (ReferenceManager.instance().getFactories().length == 0) {
-                // this is /sdcard/odk
-                Logger.log(LogTypes.SOFT_ASSERT, "Access outside scoped storage in form media setup.");
-                ReferenceManager.instance().addReferenceFactory(
-                        new FileReferenceFactory(Environment.getExternalStorageDirectory() + "/odk"));
-            }
-
-            // set paths to /sdcard/odk/forms/formfilename-media/
-            String formFileName = formXmlFile.getName().substring(0, formXmlFile.getName().lastIndexOf("."));
-
-            // Set jr://... to point to /sdcard/odk/forms/filename-media/
-            ReferenceManager.instance().addSessionRootTranslator(
-                    new RootTranslator("jr://images/", "jr://file/forms/" + formFileName + "-media/"));
-            ReferenceManager.instance().addSessionRootTranslator(
-                    new RootTranslator("jr://audio/", "jr://file/forms/" + formFileName + "-media/"));
-            ReferenceManager.instance().addSessionRootTranslator(
-                    new RootTranslator("jr://video/", "jr://file/forms/" + formFileName + "-media/"));
+            throw new RuntimeException("Invalid form definition, media path is null.");
         }
     }
 

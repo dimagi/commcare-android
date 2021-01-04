@@ -186,7 +186,7 @@ class DrawingBoundaryActivity : BaseMapboxActivity(), WithUIController, Location
         startTracking()
     }
 
-    override fun onLocationChanged(location: Location?) {
+    override fun onLocationChanged(location: Location) {
         if (location != null && location.accuracy <= locationMinAccuracy) {
             val addLocation = previousLocation == null ||
                     (location.distanceTo(previousLocation) >= location.accuracy + previousLocation!!.accuracy &&
@@ -224,11 +224,11 @@ class DrawingBoundaryActivity : BaseMapboxActivity(), WithUIController, Location
         // deprecated, never called
     }
 
-    override fun onProviderEnabled(provider: String?) {
+    override fun onProviderEnabled(provider: String) {
         // connection set, nothing more to do here
     }
 
-    override fun onProviderDisabled(provider: String?) {
+    override fun onProviderDisabled(provider: String) {
         showToast(R.string.location_provider_disabled)
     }
 
