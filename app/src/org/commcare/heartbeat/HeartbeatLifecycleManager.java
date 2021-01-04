@@ -1,15 +1,19 @@
 package org.commcare.heartbeat;
 
+import android.content.Context;
+
+import androidx.work.BackoffPolicy;
+import androidx.work.Constraints;
+import androidx.work.ExistingPeriodicWorkPolicy;
+import androidx.work.NetworkType;
+import androidx.work.PeriodicWorkRequest;
+import androidx.work.WorkManager;
+
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.preferences.ServerUrls;
 import org.commcare.services.CommCareSessionService;
-import org.commcare.util.LogTypes;
-import org.javarosa.core.services.Logger;
-
-import java.util.Date;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.concurrent.TimeUnit;
 
 /**
  * While active, this class is responsible controlling a TimerTask that periodically pings the
@@ -20,49 +24,48 @@ import java.util.TimerTask;
  * Created by amstone326 on 4/13/17.
  */
 public class HeartbeatLifecycleManager {
+    private static final String TAG = HeartbeatLifecycleManager.class.getSimpleName();
 
-    private static final long ONE_HOUR_IN_MS = 60 * 60 * 1000;
-
-    private TimerTask heartbeatRequestTask;
-    private HeartbeatRequester requester;
     private CommCareSessionService enclosingSessionService;
+    private static final long HEARTBEAT_PERIODICITY_IN_HOURS = 2;
+    private static final long HEARTBEAT_BACKOFF_DELAY_IN_MILLIS = 5 * 60 * 1000L;
+    private static final String HEARTBEAT_REQUEST_NAME = "heartbeat_request";
 
     public HeartbeatLifecycleManager(CommCareSessionService sessionService) {
         this.enclosingSessionService = sessionService;
-        this.requester = CommCareApplication.instance().getHeartbeatRequester();
     }
 
-    public void startHeartbeatCommunications() {
+    public void startHeartbeatCommunications(Context context) {
         if (shouldStartHeartbeatRequests()) {
-            this.heartbeatRequestTask = new TimerTask() {
-                @Override
-                public void run() {
-                    if (shouldStopHeartbeatRequests()) {
-                        HeartbeatLifecycleManager.this.endCurrentHeartbeatTask();
-                    } else {
-                        try {
-                            requester.makeRequest();
-                        } catch (Exception e) {
-                            // Encountered an unexpected issue, should just bail on this thread
-                            HeartbeatLifecycleManager.this.endCurrentHeartbeatTask();
-                            Logger.log(LogTypes.TYPE_ERROR_SERVER_COMMS,
-                                    "Encountered unexpected exception during heartbeat communications: "
-                                            + e.getMessage() + ". Stopping the heartbeat thread.");
-                        }
-                    }
-                }
-            };
-            (new Timer()).schedule(heartbeatRequestTask, new Date(), ONE_HOUR_IN_MS);
+            Constraints constraints = new Constraints.Builder()
+                    .setRequiredNetworkType(NetworkType.CONNECTED)
+                    .setRequiresBatteryNotLow(true)
+                    .build();
+            PeriodicWorkRequest hearbeatRequest =
+                    new PeriodicWorkRequest.Builder(HeartbeatWorker.class, HEARTBEAT_PERIODICITY_IN_HOURS, TimeUnit.HOURS)
+                            .addTag(TAG)
+                            .setConstraints(constraints)
+                            .setBackoffCriteria(
+                                    BackoffPolicy.EXPONENTIAL,
+                                    HEARTBEAT_BACKOFF_DELAY_IN_MILLIS,
+                                    TimeUnit.MILLISECONDS)
+                            .build();
+
+            WorkManager.getInstance(context).enqueueUniquePeriodicWork(
+                    uniqueRequestName(),
+                    ExistingPeriodicWorkPolicy.KEEP,
+                    hearbeatRequest
+            );
         }
     }
 
-    private boolean shouldStartHeartbeatRequests() {
-        return appNotCorrupted() && appHasHeartbeatUrl() && !hasSucceededOnThisLogin() &&
-                endCurrentHeartbeatTask();
+    public void endHeartbeatCommunications(Context context) {
+        WorkManager.getInstance(context).cancelUniqueWork(uniqueRequestName());
+        this.enclosingSessionService = null;
     }
 
-    private boolean shouldStopHeartbeatRequests() {
-        return sessionHasDied() || hasSucceededOnThisLogin();
+    private boolean shouldStartHeartbeatRequests() {
+        return appNotCorrupted() && appHasHeartbeatUrl() && !hasSucceededOnThisLogin();
     }
 
     private boolean appNotCorrupted() {
@@ -81,29 +84,8 @@ public class HeartbeatLifecycleManager {
         return enclosingSessionService.heartbeatSucceededForSession();
     }
 
-    private boolean sessionHasDied() {
-        return !enclosingSessionService.isActive();
-    }
-
-    public void endHeartbeatCommunications() {
-        endCurrentHeartbeatTask();
-        this.enclosingSessionService = null;
-    }
-
-    /**
-     *
-     * @return true if we have successfully canceled the current heartbeat task, or there is no
-     * current heartbeat task
-     */
-    private boolean endCurrentHeartbeatTask() {
-        if (heartbeatRequestTask == null) {
-            return true;
-        }
-        if (heartbeatRequestTask.cancel()) {
-            heartbeatRequestTask = null;
-            return true;
-        }
-        return false;
+    private String uniqueRequestName() {
+        return HEARTBEAT_REQUEST_NAME + "_" + CommCareApplication.instance().getCurrentApp().getUniqueId();
     }
 
 }
