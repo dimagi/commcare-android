@@ -175,7 +175,7 @@ public class HQApi {
         }
     }
 
-    public static void createUser(String name, String password) {
+    public static String createUser(String name, String password) {
         String url = BASE_URL + "api/v0.5/user/";
         try {
             String userName = name + "@commcare-tests.commcarehq.org";
@@ -186,54 +186,27 @@ public class HQApi {
             RequestBody requestBody = RequestBody.create(MediaType.parse("application/json"), payload);
             Response<ResponseBody> response = postRequest(url, null, requestBody);
             if (response.isSuccessful()) {
-                Log.d(TAG, "Create user succeeded with response :: " + response.body().string());
+                JSONObject object = new JSONObject(response.body().string());
+                return object.getString("id");
             } else {
                 Log.d(TAG, "Create user failed with response :: " + response.errorBody().string());
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public static void deleteUser(String name) {
-        String userName = name + "@commcare-tests.commcarehq.org";
-        String url = BASE_URL + "api/v0.5/user/";
-        try {
-            Response<ResponseBody> response = getRequest(url, null);
-            if (response.isSuccessful()) {
-                JSONArray userList = new JSONObject(response.body().string())
-                        .getJSONArray("objects");
-                for (int i = 0; i < userList.length(); i++) {
-                    JSONObject user = userList.getJSONObject(i);
-                    if (userName.equals(user.getString("username"))) {
-                        String userId = user.getString("id");
-
-                        return;
-                    }
-                }
-                Log.d(TAG, "User not found");
-            } else {
-                Log.d(TAG, "Getting user by id failed with response :: " + response.body().string());
             }
         } catch (JSONException | IOException e) {
             e.printStackTrace();
         }
+        return null;
     }
 
-    private static void deleteUserById(String userId) {
+    public static boolean deleteUser(String userId) {
         String url = String.format(USER_URL, userId);
         CommCareNetworkService networkService = createTestNetworkService();
-        Response<ResponseBody> response = null;
         try {
-            response = networkService.makeDeleteRequest(url, new HashMap<>(), new HashMap<>()).execute();
-            if (response.isSuccessful()) {
-                Log.d(TAG, "User successfully deleted :: " + response.body().string());
-            } else {
-                Log.d(TAG, "User deletion failed with response :: " + response.errorBody().string());
-            }
+            Response<ResponseBody> response = networkService.makeDeleteRequest(url, new HashMap<>(), new HashMap<>()).execute();
+            return response.isSuccessful();
         } catch (IOException e) {
             e.printStackTrace();
         }
+        return false;
     }
 
     private static boolean updateUser(String userId, String groupId) {

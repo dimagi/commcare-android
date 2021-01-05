@@ -5,8 +5,10 @@ import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import org.apache.commons.lang3.RandomStringUtils
 import org.commcare.utils.HQApi
 import org.commcare.utils.InstrumentationUtility
+import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -28,21 +30,22 @@ class DeletedUserTest: BaseTest() {
     @Test
     fun testUserAccountDeletion() {
         // Create a user account
-        val userName = "tempuser"
+        val userName = RandomStringUtils.random(10, true, true)
         val password = "Pass123!"
-        HQApi.createUser(userName, password)
+        val userId = HQApi.createUser(userName, password)
 
         // Login to the app using the new user account
         InstrumentationUtility.login(userName, password)
 
         // Delete the user
-        HQApi.deleteUser(userName);
+        val deleted = HQApi.deleteUser(userId)
+        Assert.assertTrue(deleted)
 
         // Sync with server
         onView(withText("Sync with Server"))
                 .perform(click())
 
-        // see Your account has been deleted
+        InstrumentationUtility.checkToast("Your account has been deleted, please contact your domain admin to request for restore")
     }
 
 }
