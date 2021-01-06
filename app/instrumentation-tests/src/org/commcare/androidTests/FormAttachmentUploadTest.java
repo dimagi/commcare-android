@@ -17,14 +17,12 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import java.util.concurrent.TimeUnit;
 
-import static androidx.test.espresso.Espresso.onData;
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
-import static org.hamcrest.Matchers.anything;
 import static org.hamcrest.Matchers.instanceOf;
 import static junit.framework.Assert.assertTrue;
 
@@ -50,14 +48,7 @@ public class FormAttachmentUploadTest extends BaseTest {
         Long latestFormTime = HQApi.getLatestFormTime();
         assertNotNull(latestFormTime);
 
-        onView(withText("Start"))
-                .perform(click());
-        onView(withText("Form Attachments"))
-                .perform(click());
-        onData(anything())
-                .inAdapterView(withId(R.id.screen_suite_menu_list))
-                .atPosition(1)
-                .perform(click());
+        InstrumentationUtility.openForm(2, 0);
 
         InstrumentationUtility.chooseImage();
 

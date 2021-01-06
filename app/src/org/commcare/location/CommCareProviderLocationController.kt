@@ -22,7 +22,7 @@ class CommCareProviderLocationController(private val mContext: Context,
     private val mReceiver = ProviderChangedReceiver()
     private var mLocationRequestStarted = false
     private val mLocationListener = object: LocationListener {
-        override fun onLocationChanged(location: Location?) {
+        override fun onLocationChanged(location: Location) {
             location ?: return
             mCurrentLocation = location
             mListener.onLocationResult(mCurrentLocation!!)
@@ -32,11 +32,11 @@ class CommCareProviderLocationController(private val mContext: Context,
             //This callback will never be invoked.
         }
 
-        override fun onProviderEnabled(provider: String?) {
+        override fun onProviderEnabled(provider: String) {
 
         }
 
-        override fun onProviderDisabled(provider: String?) {
+        override fun onProviderDisabled(provider: String) {
 
         }
 

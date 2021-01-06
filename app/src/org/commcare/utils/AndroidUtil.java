@@ -4,10 +4,13 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.Resources;
 import android.os.Build;
+import android.os.Bundle;
 import android.util.TypedValue;
 import android.view.View;
 import android.widget.Toast;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -65,5 +68,13 @@ public class AndroidUtil {
                         context,
                         stringResource),
                 Toast.LENGTH_LONG).show();
+    }
+
+    public static HashMap<String, String> bundleAsMap(Bundle bundle) {
+        HashMap<String, String> result = new HashMap<>();
+        for (String key : bundle.keySet()) {
+            result.put(key, bundle.getString(key));
+        }
+        return result;
     }
 }

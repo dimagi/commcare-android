@@ -175,6 +175,40 @@ public class HQApi {
         }
     }
 
+    public static String createUser(String name, String password) {
+        String url = BASE_URL + "api/v0.5/user/";
+        try {
+            String userName = name + "@commcare-tests.commcarehq.org";
+            String payload = "{\"first_name\": \"Temporary\", " +
+                    "\"last_name\": \"User\", " +
+                    "\"username\": \"" + userName + "\", " +
+                    "\"password\": \"" + password + "\" }";
+            RequestBody requestBody = RequestBody.create(MediaType.parse("application/json"), payload);
+            Response<ResponseBody> response = postRequest(url, null, requestBody);
+            if (response.isSuccessful()) {
+                JSONObject object = new JSONObject(response.body().string());
+                return object.getString("id");
+            } else {
+                Log.d(TAG, "Create user failed with response :: " + response.errorBody().string());
+            }
+        } catch (JSONException | IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static boolean deleteUser(String userId) {
+        String url = String.format(USER_URL, userId);
+        CommCareNetworkService networkService = createTestNetworkService();
+        try {
+            Response<ResponseBody> response = networkService.makeDeleteRequest(url, new HashMap<>(), new HashMap<>()).execute();
+            return response.isSuccessful();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
     private static boolean updateUser(String userId, String groupId) {
         String url = String.format(USER_URL, userId);
         String payload;
@@ -267,6 +301,14 @@ public class HQApi {
         }
         CommCareNetworkService networkService = createTestNetworkService();
         return networkService.makeGetRequest(url, new HashMap<>(), new HashMap<>()).execute();
+    }
+
+    private static Response<ResponseBody> postRequest(String url, String query, RequestBody body) throws IOException {
+        if (query != null) {
+            url += query;
+        }
+        CommCareNetworkService networkService = createTestNetworkService();
+        return networkService.makePostRequest(url, new HashMap<>(), new HashMap<>(), body).execute();
     }
 
     private static CommCareNetworkService createTestNetworkService() {

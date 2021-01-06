@@ -1,7 +1,5 @@
 package org.commcare.activities;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -11,6 +9,8 @@ import android.os.Bundle;
 import android.util.Base64;
 import android.widget.AdapterView;
 import android.widget.Toast;
+
+import com.google.android.play.core.install.model.InstallErrorCode;
 
 import org.apache.commons.lang3.StringUtils;
 import org.commcare.CommCareApplication;
@@ -39,12 +39,12 @@ import org.commcare.preferences.DevSessionRestorer;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.preferences.MainConfigurablePreferences;
-import org.commcare.preferences.PrefValues;
 import org.commcare.recovery.measures.RecoveryMeasuresHelper;
 import org.commcare.session.CommCareSession;
 import org.commcare.session.SessionFrame;
 import org.commcare.session.SessionNavigationResponder;
 import org.commcare.session.SessionNavigator;
+import org.commcare.suite.model.Endpoint;
 import org.commcare.suite.model.EntityDatum;
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.FormEntry;
@@ -61,6 +61,7 @@ import org.commcare.tasks.ResultAndError;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.AndroidCommCarePlatform;
 import org.commcare.utils.AndroidInstanceInitializer;
+import org.commcare.utils.AndroidUtil;
 import org.commcare.utils.ChangeLocaleUtil;
 import org.commcare.utils.CommCareUtil;
 import org.commcare.utils.ConnectivityStatus;
@@ -86,13 +87,18 @@ import org.javarosa.xpath.XPathTypeMismatchException;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.Vector;
 
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.preference.PreferenceManager;
 
-import com.google.android.play.core.install.model.InstallErrorCode;
-
+import static org.commcare.activities.DispatchActivity.SESSION_ENDPOINT_ARGUMENTS_BUNDLE;
+import static org.commcare.activities.DispatchActivity.SESSION_ENDPOINT_ARGUMENTS_LIST;
+import static org.commcare.activities.DispatchActivity.SESSION_ENDPOINT_ID;
 import static org.commcare.activities.DriftHelper.getCurrentDrift;
 import static org.commcare.activities.DriftHelper.getDriftDialog;
 import static org.commcare.activities.DriftHelper.shouldShowDriftWarning;
@@ -190,13 +196,71 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
     }
 
     /**
-     * Set state that signifies activity was launch from external app.
+     * Set state that signifies activity was launch from external app
      */
     private void processFromExternalLaunch(Bundle savedInstanceState) {
         if (savedInstanceState == null && getIntent().hasExtra(DispatchActivity.WAS_EXTERNAL)) {
             wasExternal = true;
+            processSessionEndpoint();
             sessionNavigator.startNextSessionStep();
         }
+    }
+
+    private void processSessionEndpoint() {
+        if (getIntent().hasExtra(SESSION_ENDPOINT_ID)) {
+            Endpoint endpoint = validateIntentForSessionEndpoint(getIntent());
+            if (endpoint != null) {
+                Bundle intentArgumentsAsBundle = getIntent().getBundleExtra(SESSION_ENDPOINT_ARGUMENTS_BUNDLE);
+                ArrayList<String> intentArgumentsAsList = getIntent().getStringArrayListExtra(SESSION_ENDPOINT_ARGUMENTS_LIST);
+
+                // Reset the Session to make sure we don't carry forward any session state to the endpoint launch
+                CommCareApplication.instance().getCurrentSessionWrapper().reset();
+
+                try {
+                    if (intentArgumentsAsBundle != null) {
+                        CommCareApplication.instance().getCurrentSessionWrapper()
+                                .executeEndpointStack(endpoint, AndroidUtil.bundleAsMap(intentArgumentsAsBundle));
+                    } else {
+                        CommCareApplication.instance().getCurrentSessionWrapper()
+                                .executeEndpointStack(endpoint, intentArgumentsAsList);
+                    }
+                } catch (Endpoint.InvalidEndpointArgumentsException e) {
+                    String noArgumentWithNameError = org.commcare.utils.StringUtils.getStringRobust(
+                            this,
+                            R.string.session_endpoint_no_argument_with_name,
+                            new String[]{e.getArgumentName(), endpoint.getId()});
+                    UserfacingErrorHandling.createErrorDialog(this, noArgumentWithNameError, true);
+                } catch (Endpoint.InvalidNumberOfEndpointArgumentsException e) {
+                    String invalidEndpointArgsError = org.commcare.utils.StringUtils.getStringRobust(
+                            this,
+                            R.string.session_endpoint_invalid_arguments,
+                            new String[]{
+                                    endpoint.getId(),
+                                    intentArgumentsAsBundle != null ?
+                                            StringUtils.join(intentArgumentsAsBundle, ",") :
+                                            String.valueOf(intentArgumentsAsList.size()),
+                                    StringUtils.join(endpoint.getArguments(), ",")});
+                    UserfacingErrorHandling.createErrorDialog(this, invalidEndpointArgsError, true);
+                }
+            }
+        }
+    }
+
+    private Endpoint validateIntentForSessionEndpoint(Intent intent) {
+        String sessionEndpointId = intent.getStringExtra(SESSION_ENDPOINT_ID);
+        Endpoint endpoint = CommCareApplication.instance().getCommCarePlatform().getEndpoint(sessionEndpointId);
+        if (endpoint == null) {
+            Hashtable<String, Endpoint> allEndpoints = CommCareApplication.instance().getCommCarePlatform().getAllEndpoints();
+            String invalidEndpointError = org.commcare.utils.StringUtils.getStringRobust(
+                    this,
+                    R.string.session_endpoint_unavailable,
+                    new String[]{
+                            endpoint.getId(),
+                            StringUtils.join(allEndpoints.keySet(), ",")});
+            UserfacingErrorHandling.createErrorDialog(this, invalidEndpointError, true);
+            return null;
+        }
+        return endpoint;
     }
 
     private void processFromShortcutLaunch() {
@@ -524,7 +588,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                     }
                     break;
                 case MODEL_RESULT:
-                    if(intent != null && intent.getBooleanExtra(FormEntryConstants.WAS_INTERRUPTED, false)) {
+                    if (intent != null && intent.getBooleanExtra(FormEntryConstants.WAS_INTERRUPTED, false)) {
                         tryRestoringFormFromSessionExpiration();
                         return;
                     }

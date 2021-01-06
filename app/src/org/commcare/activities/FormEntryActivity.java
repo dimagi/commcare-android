@@ -13,6 +13,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.speech.tts.TextToSpeech;
 import android.util.Log;
 import android.util.Pair;
 import android.view.ContextMenu;
@@ -55,10 +56,11 @@ import org.commcare.logging.analytics.TimedStatsTracker;
 import org.commcare.logic.AndroidFormController;
 import org.commcare.models.AndroidSessionWrapper;
 import org.commcare.models.FormRecordProcessor;
-import org.commcare.models.ODKStorage;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.tasks.FormLoaderTask;
 import org.commcare.tasks.SaveToDiskTask;
+import org.commcare.tts.TextToSpeechCallback;
+import org.commcare.tts.TextToSpeechConverter;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.Base64Wrapper;
 import org.commcare.utils.CompoundIntentList;
@@ -70,6 +72,7 @@ import org.commcare.views.QuestionsView;
 import org.commcare.views.ResizingImageView;
 import org.commcare.views.UserfacingErrorHandling;
 import org.commcare.views.dialogs.CustomProgressDialog;
+import org.commcare.views.dialogs.StandardAlertDialog;
 import org.commcare.views.widgets.BarcodeWidget;
 import org.commcare.views.widgets.ImageWidget;
 import org.commcare.views.widgets.IntentWidget;
@@ -167,6 +170,35 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
     private boolean fullFormProfilingEnabled = false;
     private EvaluationTraceReporter traceReporter;
+    private TextToSpeechCallback mTTSCallback = new TextToSpeechCallback() {
+        @Override
+        public void initFailed() {
+            Toast.makeText(FormEntryActivity.this, Localization.get("tts.init.failed"), Toast.LENGTH_LONG).show();
+        }
+
+        @Override
+        public void speakFailed() {
+            Toast.makeText(FormEntryActivity.this, Localization.get("tts.speak.failed"), Toast.LENGTH_LONG).show();
+        }
+
+        @Override
+        public void voiceDataMissing(String language) {
+            StandardAlertDialog dialog = new StandardAlertDialog(
+                    FormEntryActivity.this,
+                    Localization.get("tts.data.missing.title"),
+                    Localization.get("tts.data.missing.message", language));
+            dialog.setPositiveButton(Localization.get("dialog.ok"), (dialog1, which) -> {
+                Intent installIntent = new Intent();
+                installIntent.setAction(TextToSpeech.Engine.ACTION_INSTALL_TTS_DATA);
+                startActivity(installIntent);
+                dialog1.dismiss();
+            });
+            dialog.setNegativeButton(Localization.get("option.cancel"), (dialog1, which) -> {
+                dialog1.dismiss();
+            });
+            showAlertDialog(dialog);
+        }
+    };
 
     @Override
     @SuppressLint("NewApi")
@@ -174,15 +206,6 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         super.onCreateSessionSafe(savedInstanceState);
         formRecordStorage = CommCareApplication.instance().getUserStorage(FormRecord.class);
         instanceState = new FormEntryInstanceState(formRecordStorage);
-
-        // must be at the beginning of any activity that can be called from an external intent
-        try {
-            ODKStorage.createODKDirs();
-        } catch (RuntimeException e) {
-            Logger.exception("Error creating storage directories", e);
-            UserfacingErrorHandling.createErrorDialog(this, e.getMessage(), FormEntryConstants.EXIT);
-            return;
-        }
 
         uiController.setupUI();
         mGestureDetector = new GestureDetector(this, this);
@@ -206,6 +229,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             }
             uiController.refreshView();
         }
+        TextToSpeechConverter.INSTANCE.setListener(mTTSCallback);
     }
 
     @Override
@@ -791,6 +815,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     }
 
     public void setFormLanguage(String[] languages, int index) {
+        TextToSpeechConverter.INSTANCE.changeLocale(languages[index]);
         mFormController.setLanguage(languages[index]);
         dismissAlertDialog();
         if (currentPromptIsQuestion()) {
@@ -850,6 +875,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         if (isFinishing()) {
             PollSensorController.INSTANCE.stopLocationPolling();
         }
+        TextToSpeechConverter.INSTANCE.stop();
     }
 
     private void saveInlineVideoState() {
@@ -1107,6 +1133,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             }
         }
 
+        TextToSpeechConverter.INSTANCE.shutDown();
         super.onDestroy();
     }
 

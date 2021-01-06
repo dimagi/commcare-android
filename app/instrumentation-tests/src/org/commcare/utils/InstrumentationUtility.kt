@@ -29,6 +29,7 @@ import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.runner.intent.IntentCallback
 import androidx.test.runner.intent.IntentMonitorRegistry
+import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
 import junit.framework.Assert
 import org.commcare.CommCareInstrumentationTestApplication
@@ -119,7 +120,7 @@ object InstrumentationUtility {
     @JvmStatic
     fun openForm(module: Int, form: Int) {
         openModule(module)
-        clickListItem(R.id.screen_suite_menu_list, form + 1)
+        clickListItem(R.id.screen_suite_menu_list, form)
     }
 
     @JvmStatic
@@ -345,6 +346,16 @@ object InstrumentationUtility {
                 as CommCareInstrumentationTestApplication
         val activity = application.currentActivity
         assert(clazz.isInstance(activity), "Current Activity is ${activity.localClassName}")
+    }
+
+    /**
+     * https://stackoverflow.com/a/61404621/6671572
+     */
+    @JvmStatic
+    fun checkToast(msg: String) {
+        val uiDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+        uiDevice.waitForIdle()
+        org.junit.Assert.assertTrue(uiDevice.hasObject(By.text(msg)))
     }
 
     //region private helpers.

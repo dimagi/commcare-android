@@ -9,4 +9,18 @@
         <uuid>test_user</uuid>
         <date>2012-04-30</date>
     </Registration>
+
+    <case case_id="521bdbb17001bade54aa23dcb7ff48f9"
+        date_modified="2016-08-03T20:41:58.411000Z" user_id="441bdbb17001bade54aa23dcb7ff48f9"
+        xmlns="http://commcarehq.org/case/transaction/v2">
+        <create>
+            <case_type>case</case_type>
+            <case_name>!!!!!</case_name>
+            <owner_id>441bdbb17001bade54aa23dcb7ff48f9</owner_id>
+        </create>
+        <update>
+            <patient_id>123</patient_id>
+        </update>
+    </case>
+
 </OpenRosaResponse>
