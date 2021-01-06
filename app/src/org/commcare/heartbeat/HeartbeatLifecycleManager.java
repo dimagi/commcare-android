@@ -24,10 +24,8 @@ import java.util.concurrent.TimeUnit;
  * Created by amstone326 on 4/13/17.
  */
 public class HeartbeatLifecycleManager {
-    private static final String TAG = HeartbeatLifecycleManager.class.getSimpleName();
-
     private CommCareSessionService enclosingSessionService;
-    private static final long HEARTBEAT_PERIODICITY_IN_HOURS = 2;
+    private static final long HEARTBEAT_PERIODICITY_IN_HOURS = 1;
     private static final long HEARTBEAT_BACKOFF_DELAY_IN_MILLIS = 5 * 60 * 1000L;
     private static final String HEARTBEAT_REQUEST_NAME = "heartbeat_request";
 
@@ -43,7 +41,7 @@ public class HeartbeatLifecycleManager {
                     .build();
             PeriodicWorkRequest hearbeatRequest =
                     new PeriodicWorkRequest.Builder(HeartbeatWorker.class, HEARTBEAT_PERIODICITY_IN_HOURS, TimeUnit.HOURS)
-                            .addTag(TAG)
+                            .addTag(CommCareApplication.instance().getCurrentApp().getAppRecord().getApplicationId())
                             .setConstraints(constraints)
                             .setBackoffCriteria(
                                     BackoffPolicy.EXPONENTIAL,
