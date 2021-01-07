@@ -48,11 +48,8 @@ public class IntentCalloutTests {
      */
     @Test
     public void testIntentCalloutWithDataXPath() {
-        ShadowActivity shadowActivity =
-                ActivityLaunchUtils.buildHomeActivityForFormEntryLaunch("m0-f0");
-        Intent formEntryIntent = shadowActivity.getNextStartedActivity();
-
-        FormEntryActivity formEntryActivity = navigateFormStructure(formEntryIntent);
+        FormEntryActivity formEntryActivity = ActivityLaunchUtils.launchFormEntry("m0-f0");
+        navigateFormStructure(formEntryActivity);
 
         IntentWidget phoneCallWidget = (IntentWidget) formEntryActivity.getODKView().getWidgets().get(0);
         Intent intent = phoneCallWidget.getIntentCallout().generate(FormEntryActivity.mFormController.getFormEntryController().getModel().getForm().getEvaluationContext());
@@ -60,11 +57,7 @@ public class IntentCalloutTests {
         Assert.assertEquals(intent.getAction(), "android.intent.action.CALL");
     }
 
-    private FormEntryActivity navigateFormStructure(Intent formEntryIntent) {
-        // launch form entry
-        FormEntryActivity formEntryActivity =
-                Robolectric.buildActivity(FormEntryActivity.class, formEntryIntent)
-                        .create().start().resume().get();
+    private FormEntryActivity navigateFormStructure(FormEntryActivity formEntryActivity) {
         StringNumberWidget favoriteNumber = (StringNumberWidget)formEntryActivity.getODKView().getWidgets().get(0);
         favoriteNumber.setAnswer("1234567890");
         ImageButton nextButton = formEntryActivity.findViewById(R.id.nav_btn_next);
@@ -74,12 +67,7 @@ public class IntentCalloutTests {
 
     @Test
     public void testIntentCalloutEmptyData() {
-        ShadowActivity shadowActivity =
-                ActivityLaunchUtils.buildHomeActivityForFormEntryLaunch("m0-f1");
-        Intent formEntryIntent = shadowActivity.getNextStartedActivity();
-        FormEntryActivity formEntryActivity =
-                Robolectric.buildActivity(FormEntryActivity.class, formEntryIntent)
-                        .create().start().resume().get();
+        FormEntryActivity formEntryActivity = ActivityLaunchUtils.launchFormEntry("m0-f1");
         IntentWidget phoneCallWidget = (IntentWidget) formEntryActivity.getODKView().getWidgets().get(0);
         Intent intent = phoneCallWidget.getIntentCallout().generate(FormEntryActivity.mFormController.getFormEntryController().getModel().getForm().getEvaluationContext());
         Assert.assertEquals(intent.getData(), null);
@@ -88,12 +76,7 @@ public class IntentCalloutTests {
 
     @Test
     public void testIntentCalloutNoData() {
-        ShadowActivity shadowActivity =
-                ActivityLaunchUtils.buildHomeActivityForFormEntryLaunch("m0-f2");
-        Intent formEntryIntent = shadowActivity.getNextStartedActivity();
-        FormEntryActivity formEntryActivity =
-                Robolectric.buildActivity(FormEntryActivity.class, formEntryIntent)
-                        .create().start().resume().get();
+        FormEntryActivity formEntryActivity = ActivityLaunchUtils.launchFormEntry("m0-f2");
         IntentWidget phoneCallWidget = (IntentWidget) formEntryActivity.getODKView().getWidgets().get(0);
         Intent intent = phoneCallWidget.getIntentCallout().generate(FormEntryActivity.mFormController.getFormEntryController().getModel().getForm().getEvaluationContext());
         Assert.assertEquals(intent.getData(), null);
@@ -102,12 +85,7 @@ public class IntentCalloutTests {
 
     @Test
     public void testIntentCalloutHardCodedData() {
-        ShadowActivity shadowActivity =
-                ActivityLaunchUtils.buildHomeActivityForFormEntryLaunch("m0-f3");
-        Intent formEntryIntent = shadowActivity.getNextStartedActivity();
-        FormEntryActivity formEntryActivity =
-                Robolectric.buildActivity(FormEntryActivity.class, formEntryIntent)
-                        .create().start().resume().get();
+        FormEntryActivity formEntryActivity = ActivityLaunchUtils.launchFormEntry("m0-f3");
         IntentWidget phoneCallWidget = (IntentWidget) formEntryActivity.getODKView().getWidgets().get(0);
         Intent intent = phoneCallWidget.getIntentCallout().generate(FormEntryActivity.mFormController.getFormEntryController().getModel().getForm().getEvaluationContext());
         Assert.assertEquals(intent.getData().toString(), "tel:3333333333");

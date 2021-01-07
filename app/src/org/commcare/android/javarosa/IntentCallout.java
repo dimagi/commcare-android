@@ -7,6 +7,7 @@ import android.os.BadParcelableException;
 import android.os.Bundle;
 import android.util.Log;
 
+import org.commcare.provider.IdentityCalloutHandler;
 import org.commcare.provider.SimprintsCalloutProcessing;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.FileUtil;
@@ -79,9 +80,9 @@ public class IntentCallout implements Externalizable {
     }
 
     /**
-     * @param buttonLabel Intent callout button text for initially calling the intent.
+     * @param buttonLabel       Intent callout button text for initially calling the intent.
      * @param updateButtonLabel Intent callout button text for re-calling the intent to update the answer
-     * @param appearance if 'quick' then intent is automatically called when question is shown, and advanced when intent answer is received
+     * @param appearance        if 'quick' then intent is automatically called when question is shown, and advanced when intent answer is received
      */
     public IntentCallout(String className, Hashtable<String, XPathExpression> refs,
                          Hashtable<String, Vector<TreeReference>> responseToRefMap, String type,
@@ -124,7 +125,7 @@ public class IntentCallout implements Externalizable {
         }
         if (data != null) {
             String dataString = parseData(ec);
-            
+
             if (dataString != null && !"".equals(dataString) && type != null) {
                 // Weird hack but this call seems specifically to be needed to play video
                 // http://stackoverflow.com/questions/1572107/android-intent-for-playing-video
@@ -147,10 +148,10 @@ public class IntentCallout implements Externalizable {
                 Object xpathResult = refs.get(key).eval(ec);
 
                 if (INTENT_EXTRA_CAN_AGGREGATE.equals(key)) {
-                    if(key != null && !"".equals(key)) {
+                    if (key != null && !"".equals(key)) {
                         i.putExtra(INTENT_EXTRA_CAN_AGGREGATE, FunctionUtils.toBoolean(xpathResult));
                     }
-                } else{
+                } else {
                     String extraVal = FunctionUtils.toString(xpathResult);
                     if (extraVal != null && !"".equals(extraVal)) {
                         i.putExtra(key, extraVal);
@@ -168,6 +169,8 @@ public class IntentCallout implements Externalizable {
     public boolean processResponse(Intent intent, TreeReference intentQuestionRef, File destination) {
         if (intentInvalid(intent)) {
             return false;
+        } else if (IdentityCalloutHandler.isIdentityCalloutResponse(intent)) {
+            return IdentityCalloutHandler.processIdentityCalloutResponse(formDef, intent, intentQuestionRef, responseToRefMap);
         } else if (SimprintsCalloutProcessing.isRegistrationResponse(intent)) {
             return SimprintsCalloutProcessing.processRegistrationResponse(formDef, intent, intentQuestionRef, responseToRefMap);
         } else {

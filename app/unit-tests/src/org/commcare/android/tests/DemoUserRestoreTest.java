@@ -9,8 +9,8 @@ import org.commcare.activities.EntitySelectActivity;
 import org.commcare.activities.LoginActivity;
 import org.commcare.activities.StandardHomeActivity;
 import org.commcare.adapters.EntityListAdapter;
-import androidx.test.ext.junit.runners.AndroidJUnit4;
 import org.commcare.android.database.app.models.UserKeyRecord;
+import org.commcare.android.util.ActivityLaunchUtils;
 import org.commcare.android.util.CaseLoadUtils;
 import org.commcare.android.util.TestAppInstaller;
 import org.commcare.android.util.UpdateUtils;
@@ -25,6 +25,8 @@ import org.robolectric.RuntimeEnvironment;
 import org.robolectric.Shadows;
 import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowActivity;
+
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -85,7 +87,7 @@ public class DemoUserRestoreTest {
         assertEquals(1, CommCareApplication.instance().getCurrentApp().getStorage(UserKeyRecord.class).getNumRecords());
 
         EntitySelectActivity entitySelectActivity =
-                CaseLoadUtils.launchEntitySelectActivity("m0-f0");
+                ActivityLaunchUtils.launchEntitySelectActivity("m0-f0");
 
         // check that the demo user has 2 entries in the case list
         EntityListAdapter adapter = CaseLoadUtils.loadList(entitySelectActivity);
@@ -108,7 +110,7 @@ public class DemoUserRestoreTest {
         assertEquals(1, CommCareApplication.instance().getCurrentApp().getStorage(UserKeyRecord.class).getNumRecords());
 
         // make sure there is only 1 case after updating the demo user restore
-        entitySelectActivity = CaseLoadUtils.launchEntitySelectActivity("m0-f0");
+        entitySelectActivity = ActivityLaunchUtils.launchEntitySelectActivity("m0-f0");
 
         adapter = CaseLoadUtils.loadList(entitySelectActivity);
         assertEquals(1, adapter.getCount());

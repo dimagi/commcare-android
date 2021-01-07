@@ -20,3 +20,11 @@ plugins {
     // Pulls 3rd party license agreements for all of our libs
     id "com.github.hierynomus.license" version "0.13.1"
 }
+
+allprojects {
+    repositories {
+        google()
+        jcenter()
+        mavenCentral()
+    }
+}
