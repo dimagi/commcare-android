@@ -375,6 +375,12 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     }
 
     @Override
+    protected void onStart() {
+        super.onStart();
+        hereFunctionHandler.registerListener(this);
+    }
+
+    @Override
     public void onResumeSessionSafe() {
         if (session.getCommand() == null) {
             Intent i = new Intent(this.getIntent());
@@ -391,7 +397,6 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
                 }
             }
 
-            hereFunctionHandler.registerListener(this);
             if (containsHereFunction) {
                 hereFunctionHandler.allowGpsUse();
             }
@@ -507,7 +512,6 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         }
 
         hereFunctionHandler.forbidGpsUse();
-        hereFunctionHandler.unregisterListener();
     }
 
     @Override
@@ -517,6 +521,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             refreshTimer.stop();
         }
         saveLastQueryString();
+        hereFunctionHandler.unregisterListener();
     }
 
     @Override
