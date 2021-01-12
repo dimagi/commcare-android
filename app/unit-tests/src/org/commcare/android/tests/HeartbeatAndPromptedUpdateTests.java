@@ -1,23 +1,28 @@
 package org.commcare.android.tests;
 
+import android.content.Context;
+
 import junit.framework.Assert;
 
-import org.commcare.CommCareApplication;
-import org.commcare.CommCareTestApplication;
-import org.commcare.activities.StandardHomeActivity;
+import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import org.commcare.android.mocks.FormAndDataSyncerFake;
+import androidx.work.ListenableWorker;
+import androidx.work.testing.TestWorkerBuilder;
+
+import org.commcare.CommCareTestApplication;
 import org.commcare.android.util.TestAppInstaller;
 import org.commcare.heartbeat.ApkVersion;
+import org.commcare.heartbeat.HeartbeatWorker;
 import org.commcare.heartbeat.TestHeartbeatRequester;
 import org.commcare.heartbeat.UpdatePromptHelper;
-import org.commcare.heartbeat.UpdatePromptShowHistory;
 import org.commcare.heartbeat.UpdateToPrompt;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.Robolectric;
 import org.robolectric.annotation.Config;
+
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 import static junit.framework.Assert.assertTrue;
 
@@ -120,14 +125,13 @@ public class HeartbeatAndPromptedUpdateTests {
     }
 
     @Test
-    public void testTriggerAfterFormEntry() {
+    public void testHearbeatResponse_forCorrectCczUpdate() {
         requestAndParseHeartbeat(
                 new String[]{EMPTY_RESPONSE, RESPONSE_CorrectApp_CczUpdateNeeded});
 
         UpdateToPrompt cczUpdate = UpdatePromptHelper.getCurrentUpdateToPrompt(UpdateToPrompt.Type.CCZ_UPDATE);
         Assert.assertNull(cczUpdate);
 
-        fakeSuccessfulFormSendToTriggerHeartbeatRequest();
         waitForHeartbeatParsing();
 
         cczUpdate = UpdatePromptHelper.getCurrentUpdateToPrompt(UpdateToPrompt.Type.CCZ_UPDATE);
@@ -136,35 +140,24 @@ public class HeartbeatAndPromptedUpdateTests {
         Assert.assertEquals(97, cczUpdate.getCczVersion());
     }
 
-    private static void fakeSuccessfulFormSendToTriggerHeartbeatRequest() {
-        StandardHomeActivity homeActivity =
-                Robolectric.buildActivity(StandardHomeActivity.class).create().get();
-        homeActivity.setFormAndDataSyncer(new FormAndDataSyncerFake());
-        homeActivity.handleFormSendResult("Fake message", true);
-    }
-
     private static void requestAndParseHeartbeat(String responseStringToUse) {
         requestAndParseHeartbeat(new String[]{responseStringToUse});
     }
 
     private static void requestAndParseHeartbeat(String[] responseStringsToUse) {
         TestHeartbeatRequester.setNextResponseStrings(responseStringsToUse);
-        CommCareApplication.instance().getSession().initHeartbeatLifecycle();
         waitForHeartbeatParsing();
     }
 
     private static void waitForHeartbeatParsing() {
         TestHeartbeatRequester.responseWasParsed = false;
-        long waitTimeStart = System.currentTimeMillis();
-        while (!TestHeartbeatRequester.responseWasParsed) {
-            if (System.currentTimeMillis() - waitTimeStart > 5000) {
-                Assert.fail("Taking too long to parse the test heartbeat response");
-            } else {
-                // do not delete this print statement; for some reason that I haven't figured out,
-                // the while loop never exits if this isn't here...
-                System.out.println("Waiting for the test heartbeat response to be parsed");
-            }
-        }
+
+        Context context = ApplicationProvider.getApplicationContext();
+        Executor executor = Executors.newSingleThreadExecutor();
+        HeartbeatWorker worker = TestWorkerBuilder.from(context, HeartbeatWorker.class, executor).build();
+        ListenableWorker.Result result = worker.doWork();
+        Assert.assertEquals(result, ListenableWorker.Result.success());
+        Assert.assertTrue(TestHeartbeatRequester.responseWasParsed);
     }
 
     @Test
