@@ -191,19 +191,17 @@ public class IntentCallout implements Externalizable {
         try {
             // force unparcelling to check if we are missing classes to
             // correctly process callout response
-            boolean isValid = intent.hasExtra(INTENT_RESULT_VALUE);
+            intent.hasExtra(INTENT_RESULT_VALUE);
             if (responseToRefMap != null) {
                 for (String key: responseToRefMap.keySet()) {
-                    if (intent.hasExtra(key)) {
-                        isValid = true;
-                    }
+                    intent.hasExtra(key);
                 }
             }
-            return !isValid;
         } catch (BadParcelableException e) {
             Log.w(TAG, "unable to unparcel intent: " + e.getMessage());
             return true;
         }
+        return false;
     }
 
     private boolean processOdkResponse(Intent intent, TreeReference intentQuestionRef, File destination) {
