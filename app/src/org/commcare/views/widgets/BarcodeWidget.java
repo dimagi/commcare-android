@@ -31,7 +31,7 @@ public class BarcodeWidget extends IntentWidget implements TextWatcher {
     }
 
     @Override
-    protected void performCallout() {
+    public void performCallout() {
         if (this.intent == null) {
             this.intent = new IntentIntegrator((AppCompatActivity)getContext()).createScanIntent();
         }

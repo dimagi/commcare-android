@@ -19,6 +19,7 @@ en=English
 forms.m0f0=Phone Call Question Data
 forms.m0f1=Phone Call No Data
 forms.m0f2=Phone Call Null Data
+forms.m0f4=Callout String Response
 homescreen.title=1Scratchwork
 lang.current=en
 m0.case_long.case_name_1.header=Name
