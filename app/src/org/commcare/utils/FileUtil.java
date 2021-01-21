@@ -1,14 +1,17 @@
 package org.commcare.utils;
 
 import android.annotation.SuppressLint;
+import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.Build;
 import android.provider.MediaStore;
+import android.provider.OpenableColumns;
 import android.util.Log;
 import android.util.Pair;
 import android.webkit.MimeTypeMap;
@@ -453,6 +456,22 @@ public class FileUtil {
             return last(filePath.split("\\."));
         }
         return "";
+    }
+
+    /**
+     * Retrieve a file's name using contentUri.
+     * https://developer.android.com/training/secure-file-sharing/retrieve-info.html#RetrieveFileInfo
+     */
+    public static String getFileName(ContentResolver contentResolver, Uri uri) {
+        Cursor cursor = contentResolver.query(uri, null, null, null, null);
+        if (cursor == null) {
+            return "";
+        }
+        int nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
+        cursor.moveToFirst();
+        String name = cursor.getString(nameIndex);
+        cursor.close();
+        return name;
     }
 
     public static String getFileName(String filePath) {
