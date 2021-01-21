@@ -251,17 +251,13 @@ public abstract class MediaWidget extends QuestionWidget {
         String path = "";
         destMediaPath = "";
         if (binaryuri instanceof Uri) {
-            try {
-                path = UriToFilePath.getPathFromUri(CommCareApplication.instance(),
-                        (Uri)binaryuri);
-            } catch (UriToFilePath.NoDataColumnForUriException e) {
-                // Need to make a copy of file using uri, so might as well copy to final destination path directly
-                InputStream inputStream = getContext().getContentResolver().openInputStream((Uri)binaryuri);
-                recordedFileName = FileUtil.getFileName(((Uri)binaryuri).getPath());
-                destMediaPath = mInstanceFolder + System.currentTimeMillis() + FileUtil.getExtension(((Uri)binaryuri).getPath());
-                FileUtil.copyFile(inputStream, new File(destMediaPath));
-                path = destMediaPath;
-            }
+            // Need to make a copy of file using uri, so might as well copy to final destination path directly
+            InputStream inputStream = getContext().getContentResolver().openInputStream((Uri)binaryuri);
+            recordedFileName = FileUtil.getFileName(getContext().getContentResolver(), (Uri)binaryuri);
+            destMediaPath = mInstanceFolder + System.currentTimeMillis() + FileUtil.getExtension(recordedFileName);
+            FileUtil.copyFile(inputStream, new File(destMediaPath));
+            path = destMediaPath;
+
             customFileTag = "";
         } else {
             path = (String)binaryuri;
