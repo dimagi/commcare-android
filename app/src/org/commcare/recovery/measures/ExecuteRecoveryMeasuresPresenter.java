@@ -1,6 +1,7 @@
 package org.commcare.recovery.measures;
 
 import android.content.ActivityNotFoundException;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -414,8 +415,8 @@ public class ExecuteRecoveryMeasuresPresenter implements BasePresenterContract, 
         }
     }
 
-    public void updateCczFromIntent(Intent intent) {
-        String filePath = FileUtil.getFileLocationFromIntent(intent);
+    public void updateCczFromIntent(Context context, Intent intent) {
+        String filePath = FileUtil.getFileLocationFromIntent(context, intent);
         if (filePath != null) {
             mAppArchivePath = filePath;
             unZipCcz(filePath);
