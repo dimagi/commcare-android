@@ -184,7 +184,7 @@ public class IntentCallout implements Externalizable {
         return "org.commcare.dalvik.action.PRINT".equals(this.className);
     }
 
-    private static boolean intentInvalid(Intent intent) {
+    private boolean intentInvalid(Intent intent) {
         if (intent == null) {
             return true;
         }
@@ -192,11 +192,15 @@ public class IntentCallout implements Externalizable {
             // force unparcelling to check if we are missing classes to
             // correctly process callout response
             intent.hasExtra(INTENT_RESULT_VALUE);
+            if (responseToRefMap != null) {
+                for (String key: responseToRefMap.keySet()) {
+                    intent.hasExtra(key);
+                }
+            }
         } catch (BadParcelableException e) {
             Log.w(TAG, "unable to unparcel intent: " + e.getMessage());
             return true;
         }
-
         return false;
     }
 
@@ -207,26 +211,42 @@ public class IntentCallout implements Externalizable {
         // see if we have a return bundle
         Bundle response = intent.getBundleExtra(INTENT_RESULT_EXTRAS_BUNDLE);
 
-        // Load all of the data from the incoming bundle
-        if (responseToRefMap != null && response != null) {
-            for (String key : responseToRefMap.keySet()) {
-                // See if the value exists at all, if not, skip it
-                if (!response.containsKey(key)) {
-                    continue;
+        if (responseToRefMap != null) {
+            if (response != null) {
+                // Load all of the data from the incoming bundle
+                for (String key : responseToRefMap.keySet()) {
+                    // See if the value exists at all, if not, skip it
+                    if (!response.containsKey(key)) {
+                        continue;
+                    }
+                    setOdkResponseValue(intentQuestionRef, destination, response.getString(key), responseToRefMap.get(key));
                 }
-
-                // Get our response value
-                String responseValue = response.getString(key);
-                if (responseValue == null) {
-                    responseValue = "";
+            } else {
+                // Check if intent has response keys as extras.
+                boolean hasExtra = false;
+                for (String key: responseToRefMap.keySet()) {
+                    if (!intent.hasExtra(key)) {
+                        continue;
+                    }
+                    hasExtra = true;
+                    setOdkResponseValue(intentQuestionRef, destination, intent.getStringExtra(key), responseToRefMap.get(key));
                 }
-
-                for (TreeReference ref : responseToRefMap.get(key)) {
-                    processResponseItem(ref, responseValue, intentQuestionRef, destination);
+                if (hasExtra) {
+                    return true;
                 }
             }
         }
         return (result != null);
+    }
+
+    private void setOdkResponseValue(TreeReference intentQuestionRef, File destination, String responseValue, Vector<TreeReference> responseRefs) {
+        if (responseValue == null) {
+            responseValue = "";
+        }
+
+        for (TreeReference ref : responseRefs) {
+            processResponseItem(ref, responseValue, intentQuestionRef, destination);
+        }
     }
 
     public static void setNodeValue(FormDef formDef, TreeReference reference, String stringValue) {
