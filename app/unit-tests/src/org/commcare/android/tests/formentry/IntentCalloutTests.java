@@ -2,6 +2,7 @@ package org.commcare.android.tests.formentry;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.widget.Button;
 import android.widget.ImageButton;
 
 import junit.framework.Assert;
@@ -94,12 +95,12 @@ public class IntentCalloutTests {
         Assert.assertEquals(requestIntent.getAction(), "callout.commcare.org.dummy");
 
         // with no response
-        calloutWidget.performCallout();
+        ((Button) calloutWidget.getChildAt(2)).performClick();
         Shadows.shadowOf(formEntryActivity).receiveResult(requestIntent, Activity.RESULT_OK, null);
         TestUtils.assertFormValue("/data/display_data", "");
 
         // with valid response
-        calloutWidget.performCallout();
+        ((Button) calloutWidget.getChildAt(2)).performClick();
         Shadows.shadowOf(formEntryActivity).receiveResult(requestIntent, Activity.RESULT_OK, new Intent().putExtra("result_data", "test"));
         TestUtils.assertFormValue("/data/display_data", "test");
     }

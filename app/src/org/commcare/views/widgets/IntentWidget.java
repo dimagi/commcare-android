@@ -144,7 +144,7 @@ public class IntentWidget extends QuestionWidget {
         }
     }
 
-    public void performCallout() {
+    protected void performCallout() {
         if (calloutUnsupportedOnDevice()) {
             Toast.makeText(getContext(),
                     Localization.get("intent.callout.not.supported"), Toast.LENGTH_SHORT).show();
