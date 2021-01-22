@@ -3,6 +3,7 @@ package org.commcare.activities;
 import androidx.appcompat.app.AppCompatActivity;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -56,6 +57,7 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
     public static final String FROM_UPDATE = "from-update-activity";
 
     private String targetDirectory;
+    private Uri selectedFileUri;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,7 +84,7 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
         btnInstallArchive.setOnClickListener(v -> {
             String archivePath = editFileLocation.getText().toString();
             HiddenPreferences.setLastKnownCczLocation(archivePath);
-            ZipUtils.UnzipFile(this, archivePath, getTargetFolder());
+            ZipUtils.UnzipFile(this, selectedFileUri.toString(), getTargetFolder());
         });
 
         // avoid keyboard pop-up
@@ -101,6 +103,7 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         if (requestCode == REQUEST_FILE_LOCATION && resultCode == AppCompatActivity.RESULT_OK) {
             FileUtil.updateFileLocationFromIntent(this, intent, editFileLocation);
+            selectedFileUri = intent.getData();
         }
     }
 

@@ -2,6 +2,7 @@ package org.commcare.activities;
 
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.text.TextUtils;
@@ -59,6 +60,7 @@ public class MultimediaInflaterActivity extends CommCareActivity<MultimediaInfla
     Button btnInstallMultimedia;
 
     private boolean done = false;
+    private Uri selectedFileUri;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,7 +83,7 @@ public class MultimediaInflaterActivity extends CommCareActivity<MultimediaInfla
         btnInstallMultimedia.setOnClickListener(v -> {
             MultimediaInflaterTask<MultimediaInflaterActivity> task = new MultimediaInflaterTask();
             task.connect(((CommCareTaskConnector)this));
-            task.executeParallel(editFileLocation.getText().toString(), destination);
+            task.executeParallel(selectedFileUri.toString(), destination);
         });
 
         try {
@@ -102,6 +104,7 @@ public class MultimediaInflaterActivity extends CommCareActivity<MultimediaInfla
         if (requestCode == REQUEST_FILE_LOCATION) {
             if (resultCode == AppCompatActivity.RESULT_OK) {
                 FileUtil.updateFileLocationFromIntent(this, intent, editFileLocation);
+                selectedFileUri = intent.getData();
             }
         }
     }

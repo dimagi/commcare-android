@@ -132,7 +132,7 @@ public class ExecuteRecoveryMeasuresActivity extends CommCareActivity<ExecuteRec
                 break;
             case REQUEST_CCZ:
                 if (resultCode == Activity.RESULT_OK) {
-                    mPresenter.updateCczFromIntent(this, intent);
+                    mPresenter.updateCczFromIntent(intent);
                 }
                 break;
         }

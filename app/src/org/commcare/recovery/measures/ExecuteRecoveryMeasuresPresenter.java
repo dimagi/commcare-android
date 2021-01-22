@@ -4,6 +4,7 @@ import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -415,11 +416,11 @@ public class ExecuteRecoveryMeasuresPresenter implements BasePresenterContract, 
         }
     }
 
-    public void updateCczFromIntent(Context context, Intent intent) {
-        String filePath = FileUtil.getFileLocationFromIntent(context, intent);
-        if (filePath != null) {
-            mAppArchivePath = filePath;
-            unZipCcz(filePath);
+    public void updateCczFromIntent(Intent intent) {
+        Uri fileUri = intent.getData();
+        if (fileUri != null) {
+            mAppArchivePath = fileUri.toString();
+            unZipCcz(fileUri.toString());
         } else {
             updateStatus(StringUtils.getStringRobust(mActivity, R.string.recovery_measure_invalid_ccz_path));
         }

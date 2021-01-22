@@ -638,7 +638,7 @@ public class FileUtil {
      * @param filePathEditText EditText where we need to show the file path
      */
     public static void updateFileLocationFromIntent(Context context, Intent intent, EditText filePathEditText) {
-        String filePath = getFileLocationFromIntent(context, intent);
+        String filePath = getFileLocationFromIntent(intent);
         if (filePath == null) {
             // issue getting the filepath uri from file browser callout result
             Toast.makeText(context,
@@ -651,23 +651,19 @@ public class FileUtil {
 
     // get a filePath from an intent returned from file provider
     @Nullable
-    public static String getFileLocationFromIntent(Context context, Intent intent) {
+    public static String getFileLocationFromIntent(Intent intent) {
         // Android versions 4.4 and up sometimes don't return absolute
         // filepaths from the file chooser. So resolve the URI into a
         // valid file path.
         Uri uriPath = intent.getData();
         if (uriPath != null) {
-            String fileName = getFileName(context.getContentResolver(), uriPath);
-            File destinationFile = new File(context.getCacheDir(), fileName);
+            String filePath;
             try {
-                InputStream inputStream = context.getContentResolver().openInputStream(uriPath);
-                copyFile(inputStream, destinationFile);
-                String filePath = destinationFile.getAbsolutePath();
-                return isValidFileLocation(filePath) ? filePath : null;
-            } catch (IOException e) {
-                Logger.log(LogTypes.TYPE_ERROR_STORAGE, e.getLocalizedMessage());
-                return null;
+                filePath = UriToFilePath.getPathFromUri(CommCareApplication.instance(), uriPath);
+            } catch (UriToFilePath.NoDataColumnForUriException e) {
+                filePath = uriPath.toString();
             }
+            return isValidFileLocation(filePath) ? filePath : null;
         }
         return null;
     }
