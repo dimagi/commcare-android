@@ -24,6 +24,12 @@
       <location authority="remote">./modules-0/forms-3.xml</location>
     </resource>
   </xform>
+  <xform>
+    <resource id="98765" version="107" descriptor="Form: (Module Phone Call) - Callout String Response">
+      <location authority="local">./modules-0/forms-4.xml</location>
+      <location authority="remote">./modules-0/forms-4.xml</location>
+    </resource>
+  </xform>
   <locale language="default">
     <resource id="app_default_strings" version="107" descriptor="Translations: Default Language">
       <location authority="local">./default/app_strings.txt</location>
@@ -105,6 +111,14 @@
       </text>
     </command>
   </entry>
+  <entry>
+    <form>http://openrosa.org/formdesigner/98765</form>
+    <command id="m0-f4">
+      <text>
+        <locale id="forms.m0f4"/>
+      </text>
+    </command>
+  </entry>
   <menu id="root">
     <text>
       <locale id="modules.m0"/>
@@ -113,5 +127,6 @@
     <command id="m0-f1"/>
     <command id="m0-f2"/>
     <command id="m0-f3"/>
+    <command id="m0-f4"/>
   </menu>
 </suite>
