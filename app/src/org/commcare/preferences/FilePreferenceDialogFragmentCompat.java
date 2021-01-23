@@ -8,11 +8,9 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import org.apache.commons.io.FilenameUtils;
-import org.commcare.CommCareApplication;
 import org.commcare.dalvik.R;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.FileUtil;
-import org.commcare.utils.UriToFilePath;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 
@@ -27,7 +25,8 @@ import static androidx.appcompat.app.AppCompatActivity.RESULT_OK;
 public class FilePreferenceDialogFragmentCompat extends EditTextPreferenceDialogFragmentCompat {
 
     public static final int REQUEST_FILE = 1;
-    private EditText mEditText;
+    private EditText mSavedFilePathText;
+    private EditText mDisplayText;
 
     public static FilePreferenceDialogFragmentCompat newInstance(String key) {
         final FilePreferenceDialogFragmentCompat fragment = new FilePreferenceDialogFragmentCompat();
@@ -40,12 +39,19 @@ public class FilePreferenceDialogFragmentCompat extends EditTextPreferenceDialog
     @Override
     protected void onBindDialogView(View view) {
         super.onBindDialogView(view);
-        mEditText = view.findViewById(android.R.id.edit);
+        mSavedFilePathText = view.findViewById(android.R.id.edit);
+        mDisplayText = view.findViewById(R.id.display_field);
         view.findViewById(R.id.filefetch).setOnClickListener(v -> {
             MainConfigurablePreferences.startFileBrowser(FilePreferenceDialogFragmentCompat.this,
                     REQUEST_FILE,
                     Localization.get("no.file.browser.title"));
         });
+        if (mSavedFilePathText.getText() != null) {
+            File f = new File(mSavedFilePathText.getText().toString());
+            if (f.exists()) {
+                mDisplayText.setText(f.getName());
+            }
+        }
     }
 
     @Override
@@ -53,19 +59,21 @@ public class FilePreferenceDialogFragmentCompat extends EditTextPreferenceDialog
         if (requestCode == REQUEST_FILE) {
             if (resultCode == RESULT_OK && intent != null) {
                 Uri uri = intent.getData();
-                String filePath = null;
-                try {
-                    filePath = UriToFilePath.getPathFromUri(CommCareApplication.instance(), uri);
-                } catch (UriToFilePath.NoDataColumnForUriException e) {
+                if (uri != null) {
+                    String fileName = FileUtil.getFileName(getContext().getContentResolver(), uri);
+                    File destination = new File(getContext().getExternalCacheDir(), fileName);
                     try {
-                        filePath = getNewPathFromUri(uri);
-                    } catch (IOException ioe) {
+                        InputStream inputStream = getContext().getContentResolver().openInputStream(uri);
+                        FileUtil.copyFile(inputStream, destination);
+                    } catch (IOException e) {
                         Logger.exception(LogTypes.TYPE_MAINTENANCE, e);
                         Toast.makeText(getActivity(), Localization.get("file.selection.failed"), Toast.LENGTH_LONG).show();
                         return;
                     }
+                    validateFile(destination.getAbsolutePath());
+                } else {
+                    Toast.makeText(getActivity(), Localization.get("file.selection.failed"), Toast.LENGTH_LONG).show();
                 }
-                validateFile(filePath);
             } else {
                 //No file selected
                 Toast.makeText(getActivity(), Localization.get("file.not.selected"), Toast.LENGTH_LONG).show();
@@ -88,7 +96,7 @@ public class FilePreferenceDialogFragmentCompat extends EditTextPreferenceDialog
 
     @Override
     public void onDialogClosed(boolean positiveResult) {
-        if (positiveResult && validateFile(mEditText.getText().toString())) {
+        if (positiveResult && validateFile(mSavedFilePathText.getText().toString())) {
             super.onDialogClosed(positiveResult);
         }
     }
@@ -105,8 +113,9 @@ public class FilePreferenceDialogFragmentCompat extends EditTextPreferenceDialog
             if (fileType == null || FilenameUtils.getExtension(filePath).contentEquals(fileType)) {
                 File f = new File(filePath);
                 if (f.exists()) {
-                    if (!mEditText.getText().toString().contentEquals(filePath)) {
-                        mEditText.setText(filePath);
+                    if (!mSavedFilePathText.getText().toString().contentEquals(filePath)) {
+                        mSavedFilePathText.setText(filePath);
+                        mDisplayText.setText(f.getName());
                     }
                     return true;
                 } else {
