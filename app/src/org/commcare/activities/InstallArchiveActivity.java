@@ -82,9 +82,9 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
         });
 
         btnInstallArchive.setOnClickListener(v -> {
-            String archivePath = editFileLocation.getText().toString();
+            String archivePath = selectedFileUri.toString();
             HiddenPreferences.setLastKnownCczLocation(archivePath);
-            ZipUtils.UnzipFile(this, selectedFileUri.toString(), getTargetFolder());
+            ZipUtils.UnzipFile(this, archivePath, getTargetFolder());
         });
 
         // avoid keyboard pop-up
