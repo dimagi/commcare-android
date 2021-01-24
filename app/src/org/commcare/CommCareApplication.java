@@ -92,6 +92,7 @@ import org.commcare.utils.CrashUtil;
 import org.commcare.utils.DeviceIdentifier;
 import org.commcare.utils.FileUtil;
 import org.commcare.utils.GlobalConstants;
+import org.commcare.utils.MarkupUtil;
 import org.commcare.utils.MultipleAppsUtil;
 import org.commcare.utils.PendingCalcs;
 import org.commcare.utils.SessionActivityRegistration;
@@ -131,6 +132,7 @@ import androidx.work.NetworkType;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkManager;
+
 import io.noties.markwon.Markwon;
 import io.noties.markwon.ext.strikethrough.StrikethroughPlugin;
 import io.noties.markwon.ext.tables.TablePlugin;
@@ -1101,6 +1103,7 @@ public class CommCareApplication extends MultiDexApplication {
             markwon = Markwon.builder(CommCareApplication.instance())
                     .usePlugin(TablePlugin.create(CommCareApplication.instance()))
                     .usePlugin(StrikethroughPlugin.create())
+                    .usePlugin(MarkupUtil.getLinkResolverPlugin())
                     .build();
         }
         return markwon;
