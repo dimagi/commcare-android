@@ -222,18 +222,6 @@ public class ExecuteRecoveryMeasuresActivity extends CommCareActivity<ExecuteRec
         mPresenter.onActivityDestroy();
     }
 
-    public void updateCcz(File update) {
-        mPresenter.updateCcz(update);
-    }
-
-    public void onCczScanComplete() {
-        mPresenter.onCCZScanComplete();
-    }
-
-    public void onCczScanFailed(Exception e) {
-        mPresenter.onCczScanFailed(e);
-    }
-
     public void showReinstall() {
         reinstallBt.setVisibility(View.VISIBLE);
     }

@@ -155,12 +155,8 @@ public class ExecuteRecoveryMeasuresPresenter implements BasePresenterContract, 
                     return STATUS_EXECUTED;
                 }
             case MEASURE_TYPE_APP_OFFLINE_REINSTALL_AND_UPDATE:
-                if (AppUtils.notOnLatestAppVersion()) {
-                    initateAutoCczScan();
-                    return STATUS_WAITING;
-                } else {
-                    return STATUS_EXECUTED;
-                }
+                onCCZScanComplete();
+                return STATUS_WAITING;
             case MEASURE_TYPE_APP_UPDATE:
                 if (AppUtils.notOnLatestAppVersion()) {
                     executeAutoUpdate();
@@ -193,13 +189,6 @@ public class ExecuteRecoveryMeasuresPresenter implements BasePresenterContract, 
         updateStatus(StringUtils.getStringRobust(mActivity, R.string.recovery_measure_faiure));
         Logger.exception(String.format("Encountered exception while executing recovery measure of type %s",
                 mCurrentMeasure != null ? mCurrentMeasure.getType() : "unknown"), e);
-    }
-
-    private void initateAutoCczScan() {
-        ScanCczTask scanCczTask = new ScanCczTask();
-        scanCczTask.connect(mActivity);
-        scanCczTask.executeParallel();
-        updateStatus(StringUtils.getStringRobust(mActivity, R.string.recovery_measure_ccz_scan_in_progress));
     }
 
     private void reinstallApp(String profileRef) {
@@ -392,12 +381,6 @@ public class ExecuteRecoveryMeasuresPresenter implements BasePresenterContract, 
         }
     }
 
-    public void updateCcz(File archive) {
-        mAppArchivePath = archive.getAbsolutePath();
-        mActivity.updateStatus(StringUtils.getStringRobust(mActivity, R.string.recovery_measure_ccz_found_scan_in_progress));
-        mActivity.showReinstall();
-    }
-
     private void unZipCcz(String filePath) {
         mTargetPath = CczUtils.getCczTargetPath();
         ZipUtils.UnzipFile(mActivity, filePath, mTargetPath);
@@ -466,13 +449,6 @@ public class ExecuteRecoveryMeasuresPresenter implements BasePresenterContract, 
     private void setCczSelectionVisibility(boolean isEnable) {
         cczSelectionEnabled = isEnable;
         mActivity.setCczSelectionVisibility(isEnable);
-    }
-
-
-    public void onCczScanFailed(Exception e) {
-        updateStatus(StringUtils.getStringRobust(mActivity, R.string.recovery_measure_ccz_scan_failed));
-        onAsyncExecutionFailure(e.getMessage());
-        setCczSelectionVisibility(true);
     }
 
     private void installPendingUpdate() {
