@@ -142,10 +142,7 @@ public class ImageCaptureProcessing {
         }
 
         // First make a copy of the image to operate on and then pass it to the File function
-        String imageFilename = FileUtil.getFileName(activity.getContentResolver(), imageUri);
-        String finalFilePath = instanceFolder + imageFilename;
-
-        File finalFile = new File(finalFilePath);
+        File finalFile = ImageWidget.getTempFileForImageCapture();
         try {
             FileUtil.copyFile(inputStream, finalFile);
         } catch (IOException e) {
@@ -153,7 +150,7 @@ public class ImageCaptureProcessing {
             Toast.makeText(activity, Localization.get("image.selection.not.saved"), Toast.LENGTH_LONG).show();
             return;
         }
-        processImageGivenFilePath(activity, instanceFolder, finalFilePath);
+        processImageGivenFilePath(activity, instanceFolder, finalFile.getAbsolutePath());
     }
 
     private static void processImageGivenFilePath(FormEntryActivity activity, String instanceFolder, String imagePath) {
