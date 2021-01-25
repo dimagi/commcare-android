@@ -393,7 +393,7 @@ object InstrumentationUtility {
 
     private fun stubFileSelection(filePath: String) {
         val resultData = Intent()
-        val fileUri = Uri.fromFile(File(filePath))
+        val fileUri = Uri.parse(File(filePath).toString())
         resultData.data = fileUri
         val result = Instrumentation.ActivityResult(AppCompatActivity.RESULT_OK, resultData)
         intending(hasAction(Intent.ACTION_GET_CONTENT)).respondWith(result)

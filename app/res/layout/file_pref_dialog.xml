@@ -29,6 +29,12 @@
 
             <EditText
                 android:id="@android:id/edit"
+                android:layout_width="10dp"
+                android:layout_height="10dp"
+                android:visibility="invisible"/>
+
+            <EditText
+                android:id="@+id/display_field"
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="wrap_content"/>

@@ -94,7 +94,7 @@ class AppPreferenceSettingsTest: BaseTest() {
 
         //Create a dummy file selection intent
         val resultData = Intent()
-        val expectedIntent = CustomMatchers.withIntent(Intent.ACTION_GET_CONTENT, Intent.CATEGORY_OPENABLE, "file/*")
+        val expectedIntent = CustomMatchers.withIntent(Intent.ACTION_GET_CONTENT, Intent.CATEGORY_OPENABLE, "*/*")
         val result = Instrumentation.ActivityResult(AppCompatActivity.RESULT_CANCELED, resultData)
         intending(expectedIntent).respondWith(result)
 

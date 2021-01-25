@@ -133,7 +133,7 @@ public abstract class CommCarePreferenceFragment extends PreferenceFragmentCompa
     public static void startFileBrowser(Fragment fragment, int requestCode, String errorTitle) {
         Intent chooseTemplateIntent = new Intent()
                 .setAction(Intent.ACTION_GET_CONTENT)
-                .setType("file/*")
+                .setType("*/*")
                 .addCategory(Intent.CATEGORY_OPENABLE);
         try {
             fragment.startActivityForResult(chooseTemplateIntent, requestCode);

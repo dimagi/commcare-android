@@ -130,14 +130,7 @@ public class ImageCaptureProcessing {
             showInvalidImageMessage(activity);
             return;
         }
-
-        try {
-            String imagePath = UriToFilePath.getPathFromUri(activity, selectedImage);
-            processImageGivenFilePath(activity, instanceFolder, imagePath);
-        } catch (UriToFilePath.NoDataColumnForUriException e) {
-            // Can't get file path from Uri, so need to work with uri instead
-            processImageGivenFileUri(activity, instanceFolder, selectedImage);
-        }
+        processImageGivenFileUri(activity, instanceFolder, selectedImage);
     }
 
     private static void processImageGivenFileUri(FormEntryActivity activity, String instanceFolder, Uri imageUri) {
@@ -150,8 +143,7 @@ public class ImageCaptureProcessing {
         }
 
         // First make a copy of the image to operate on and then pass it to the File function
-        String extension = FileUtil.getExtension(imageUri.getPath());
-        String imageFilename = "tempfile" + "." + extension;
+        String imageFilename = FileUtil.getFileName(activity.getContentResolver(), imageUri);
         String finalFilePath = instanceFolder + imageFilename;
 
         File finalFile = new File(finalFilePath);
