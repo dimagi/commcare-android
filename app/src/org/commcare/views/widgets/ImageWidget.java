@@ -327,7 +327,8 @@ public class ImageWidget extends QuestionWidget {
             deleteMedia();
         }
 
-        File f = new File(binaryPath.toString());
+        String fileName = FileUtil.getFileName(binaryPath.toString());
+        File f = new File(mInstanceFolder + "/" + fileName);
 
         // Check if file is too large
         if (checkFileSize(f)) {
@@ -335,7 +336,7 @@ public class ImageWidget extends QuestionWidget {
             return;
         }
         oversizedImageSize = -1;
-        mBinaryName = f.getName();
+        mBinaryName = fileName;
     }
 
     @Override
