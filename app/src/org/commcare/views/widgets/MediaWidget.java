@@ -253,7 +253,7 @@ public abstract class MediaWidget extends QuestionWidget {
         if (binaryuri instanceof Uri) {
             // Need to make a copy of file using uri, so might as well copy to final destination path directly
             InputStream inputStream = getContext().getContentResolver().openInputStream((Uri)binaryuri);
-            recordedFileName = FileUtil.getFileName(getContext().getContentResolver(), (Uri)binaryuri);
+            recordedFileName = FileUtil.getFileName(getContext(), (Uri)binaryuri);
             destMediaPath = mInstanceFolder + System.currentTimeMillis() + "." + FileUtil.getExtension(recordedFileName);
             FileUtil.copyFile(inputStream, new File(destMediaPath));
             path = destMediaPath;

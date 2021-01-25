@@ -4,9 +4,10 @@ import android.content.Intent;
 import android.net.Uri;
 import android.widget.Toast;
 
+import org.commcare.CommCareApplication;
 import org.commcare.activities.FormEntryActivity;
+import org.commcare.modern.util.Pair;
 import org.commcare.utils.FileUtil;
-import org.commcare.utils.UriToFilePath;
 import org.commcare.views.widgets.ImageWidget;
 import org.javarosa.core.services.locale.Localization;
 
@@ -27,12 +28,12 @@ public class ImageCaptureProcessing {
      * @param originalImage the image file returned by the image capture or chooser intent
      * @param shouldScale   if false, indicates that the image is from a signature capture, so should
      *                      not attempt to scale
-     * @return the image file that should be displayed on the device screen when this question
-     * widget is in view
+     * @return A pair containing raw image and scaled imagePath. The first entry is the raw image
+     *          while the second one is path to scaled image.
      */
-    private static File moveAndScaleImage(File originalImage, boolean shouldScale,
-                                          String instanceFolder,
-                                          FormEntryActivity formEntryActivity) throws IOException {
+    private static Pair<File, String> moveAndScaleImage(File originalImage, boolean shouldScale,
+                                                        String instanceFolder,
+                                                        FormEntryActivity formEntryActivity) throws IOException {
         String extension = FileUtil.getExtension(originalImage.getAbsolutePath());
         String imageFilename = System.currentTimeMillis() + "." + extension;
         String finalFilePath = instanceFolder + imageFilename;
@@ -58,7 +59,7 @@ public class ImageCaptureProcessing {
                 throw new IOException("Failed to rename " + originalImage.getAbsolutePath() +
                         " to " + finalFile.getAbsolutePath());
             }
-            return finalFile;
+            return new Pair<>(finalFile, finalFilePath);
         } else {
             // Otherwise, relocate the original image to a raw/ folder, so that we still have access
             // to the unmodified version
@@ -74,7 +75,7 @@ public class ImageCaptureProcessing {
                 throw new IOException("Failed to rename " + originalImage.getAbsolutePath() +
                         " to " + rawImageFile.getAbsolutePath());
             }
-            return rawImageFile;
+            return new Pair<>(rawImageFile, finalFilePath);
         }
     }
 
@@ -103,9 +104,7 @@ public class ImageCaptureProcessing {
         // The intent is empty, but we know we saved the image to the temp file
         File originalImage = ImageWidget.getTempFileForImageCapture();
         try {
-            File unscaledFinalImage = moveAndScaleImage(originalImage, isImage, instanceFolder, activity);
-            activity.saveImageWidgetAnswer(unscaledFinalImage.getAbsolutePath());
-            return true;
+            return scaleAndSaveImage(originalImage, isImage, instanceFolder, activity);
         } catch (IOException e) {
             e.printStackTrace();
             Toast.makeText(activity, Localization.get("image.capture.not.saved"), Toast.LENGTH_LONG).show();
@@ -143,10 +142,8 @@ public class ImageCaptureProcessing {
         }
 
         // First make a copy of the image to operate on and then pass it to the File function
-        String imageFilename = FileUtil.getFileName(activity.getContentResolver(), imageUri);
-        String finalFilePath = instanceFolder + imageFilename;
-
-        File finalFile = new File(finalFilePath);
+        File finalFile = new File(CommCareApplication.instance().
+                getExternalTempPath(FileUtil.getFileName(activity, imageUri)));
         try {
             FileUtil.copyFile(inputStream, finalFile);
         } catch (IOException e) {
@@ -154,7 +151,7 @@ public class ImageCaptureProcessing {
             Toast.makeText(activity, Localization.get("image.selection.not.saved"), Toast.LENGTH_LONG).show();
             return;
         }
-        processImageGivenFilePath(activity, instanceFolder, finalFilePath);
+        processImageGivenFilePath(activity, instanceFolder, finalFile.getAbsolutePath());
     }
 
     private static void processImageGivenFilePath(FormEntryActivity activity, String instanceFolder, String imagePath) {
@@ -167,8 +164,7 @@ public class ImageCaptureProcessing {
 
         if (originalImage.exists()) {
             try {
-                File unscaledFinalImage = moveAndScaleImage(originalImage, true, instanceFolder, activity);
-                activity.saveImageWidgetAnswer(unscaledFinalImage.getAbsolutePath());
+                scaleAndSaveImage(originalImage, true, instanceFolder, activity);
             } catch (IOException e) {
                 e.printStackTrace();
                 Toast.makeText(activity, Localization.get("image.selection.not.saved"), Toast.LENGTH_LONG).show();
@@ -178,6 +174,19 @@ public class ImageCaptureProcessing {
             // exist on the file system anymore
             Toast.makeText(activity, Localization.get("invalid.image.selection"), Toast.LENGTH_LONG).show();
         }
+    }
+
+    private static boolean scaleAndSaveImage(File originalImage, boolean shouldScale,
+                                             String instanceFolder, FormEntryActivity activity) throws IOException {
+        Pair<File, String> rawImageAndScaledPath = moveAndScaleImage(originalImage, shouldScale, instanceFolder, activity);
+        File fileToBeUploaded = new File(rawImageAndScaledPath.second);
+        if (FileUtil.isFileTooLargeToUpload(fileToBeUploaded)) {
+            fileToBeUploaded.delete();
+            activity.showFileOversizeError();
+            return false;
+        }
+        activity.saveImageWidgetAnswer(rawImageAndScaledPath.first.getAbsolutePath());
+        return true;
     }
 
     private static void showInvalidImageMessage(FormEntryActivity activity) {
