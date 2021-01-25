@@ -4,10 +4,10 @@ import android.content.Intent;
 import android.net.Uri;
 import android.widget.Toast;
 
+import org.commcare.CommCareApplication;
 import org.commcare.activities.FormEntryActivity;
 import org.commcare.modern.util.Pair;
 import org.commcare.utils.FileUtil;
-import org.commcare.utils.UriToFilePath;
 import org.commcare.views.widgets.ImageWidget;
 import org.javarosa.core.services.locale.Localization;
 
@@ -142,7 +142,8 @@ public class ImageCaptureProcessing {
         }
 
         // First make a copy of the image to operate on and then pass it to the File function
-        File finalFile = ImageWidget.getTempFileForImageCapture();
+        File finalFile = new File(CommCareApplication.instance().
+                getExternalTempPath(FileUtil.getFileName(activity, imageUri)));
         try {
             FileUtil.copyFile(inputStream, finalFile);
         } catch (IOException e) {

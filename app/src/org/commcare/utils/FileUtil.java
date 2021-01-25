@@ -462,10 +462,14 @@ public class FileUtil {
      * Retrieve a file's name using contentUri.
      * https://developer.android.com/training/secure-file-sharing/retrieve-info.html#RetrieveFileInfo
      */
-    public static String getFileName(ContentResolver contentResolver, Uri uri) {
-        try (Cursor cursor = contentResolver.query(uri, null, null, null, null)) {
+    public static String getFileName(Context context, Uri uri) {
+        try (Cursor cursor = context.getContentResolver().query(uri, null, null, null, null)) {
             if (cursor == null || cursor.getCount() <= 0) {
-                return "";
+                try {
+                    return getFileName(UriToFilePath.getPathFromUri(context, uri));
+                } catch (UriToFilePath.NoDataColumnForUriException e) {
+                    return "";
+                }
             }
             int nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
             cursor.moveToFirst();

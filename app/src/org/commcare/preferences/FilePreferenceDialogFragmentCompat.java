@@ -60,7 +60,7 @@ public class FilePreferenceDialogFragmentCompat extends EditTextPreferenceDialog
             if (resultCode == RESULT_OK && intent != null) {
                 Uri uri = intent.getData();
                 if (uri != null) {
-                    String fileName = FileUtil.getFileName(getContext().getContentResolver(), uri);
+                    String fileName = FileUtil.getFileName(getContext(), uri);
                     File destination = new File(getContext().getExternalCacheDir(), fileName);
                     try {
                         InputStream inputStream = getContext().getContentResolver().openInputStream(uri);
