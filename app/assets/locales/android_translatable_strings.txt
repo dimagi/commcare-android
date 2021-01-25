@@ -946,3 +946,6 @@ tts.data.missing.title=Text-To-Speech voice data is missing.
 tts.data.missing.message=CommCare Text-To-Speech feature wants to use ${0} language. Please download voice data for ${0} language.
 tts.init.failed=Text-To-Speech feature will not work.
 tts.speak.failed=Couldn't speak now. Please try again!
+
+file.oversized.error.title=File Too Large
+file.oversized.error.message=Selected file exceeds the file size limit of 15 MB. Please select a file whose size is less than 15 MB.

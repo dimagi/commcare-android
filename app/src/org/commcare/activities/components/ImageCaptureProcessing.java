@@ -103,6 +103,9 @@ public class ImageCaptureProcessing {
         // The intent is empty, but we know we saved the image to the temp file
         File originalImage = ImageWidget.getTempFileForImageCapture();
         try {
+            if (FileUtil.isFileTooLargeToUpload(originalImage)) {
+                activity.showFileOversizedError();
+            }
             File unscaledFinalImage = moveAndScaleImage(originalImage, isImage, instanceFolder, activity);
             activity.saveImageWidgetAnswer(unscaledFinalImage.getAbsolutePath());
             return true;
@@ -128,6 +131,10 @@ public class ImageCaptureProcessing {
 
         if (selectedImage == null) {
             showInvalidImageMessage(activity);
+            return;
+        }
+        if (FileUtil.isFileTooLargeToUpload(activity.getContentResolver(), selectedImage)) {
+            activity.showFileOversizedError();
             return;
         }
 

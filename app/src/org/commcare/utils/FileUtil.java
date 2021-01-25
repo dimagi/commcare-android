@@ -1,14 +1,17 @@
 package org.commcare.utils;
 
 import android.annotation.SuppressLint;
+import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.Build;
 import android.provider.MediaStore;
+import android.provider.OpenableColumns;
 import android.util.Log;
 import android.util.Pair;
 import android.webkit.MimeTypeMap;
@@ -712,6 +715,21 @@ public class FileUtil {
             Log.i("FileUtil", "Inserting audio returned uri = " + (mediaUri == null ? "null" : mediaUri.toString()));
         } else {
             throw new UnsupportedMediaException("Doesn't support file with mimeType: " + mimeType);
+        }
+    }
+
+    /**
+     * Returns true only when we're certain that the file size is too large.
+     * https://developer.android.com/training/secure-file-sharing/retrieve-info.html#RetrieveFileInfo
+     */
+    public static boolean isFileTooLargeToUpload(ContentResolver contentResolver, Uri uri) {
+        try (Cursor returnCursor = contentResolver.query(uri, null, null, null, null)) {
+            if (returnCursor == null || returnCursor.getCount() <= 0) {
+                return false;
+            }
+            int sizeIndex = returnCursor.getColumnIndex(OpenableColumns.SIZE);
+            returnCursor.moveToFirst();
+            return returnCursor.getLong(sizeIndex) > FormUploadUtil.MAX_BYTES;
         }
     }
 

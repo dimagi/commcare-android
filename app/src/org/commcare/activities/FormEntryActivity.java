@@ -71,6 +71,7 @@ import org.commcare.utils.StringUtils;
 import org.commcare.views.QuestionsView;
 import org.commcare.views.ResizingImageView;
 import org.commcare.views.UserfacingErrorHandling;
+import org.commcare.views.dialogs.CommCareAlertDialog;
 import org.commcare.views.dialogs.CustomProgressDialog;
 import org.commcare.views.dialogs.StandardAlertDialog;
 import org.commcare.views.widgets.BarcodeWidget;
@@ -386,6 +387,14 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         saveAndRefresh();
     }
 
+    public void showFileOversizedError() {
+        String title = Localization.get("file.oversized.error.title");
+        String msg = Localization.get("file.oversized.error.message");
+        CommCareAlertDialog dialog = StandardAlertDialog.getBasicAlertDialog(
+                this, title, msg, (dialog1, which) -> dismissAlertDialog());
+        showAlertDialog(dialog);
+    }
+
     private void processChooserResponse(Intent intent) {
         // For audio/video capture/chooser, we get the URI from the content provider
         // then the widget copies the file and makes a new entry in the content provider.
@@ -404,6 +413,8 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             Toast.makeText(FormEntryActivity.this,
                     Localization.get("form.attachment.invalid"),
                     Toast.LENGTH_LONG).show();
+        } else if (FileUtil.isFileTooLargeToUpload(getContentResolver(), media)) {
+            showFileOversizedError();
         } else {
             uiController.questionsView.setBinaryData(media, mFormController);
         }
