@@ -155,7 +155,8 @@ public class ExecuteRecoveryMeasuresPresenter implements BasePresenterContract, 
                     return STATUS_EXECUTED;
                 }
             case MEASURE_TYPE_APP_OFFLINE_REINSTALL_AND_UPDATE:
-                onCCZScanComplete();
+                mActivity.hideReinstall();
+                setCczSelectionVisibility(true);
                 return STATUS_WAITING;
             case MEASURE_TYPE_APP_UPDATE:
                 if (AppUtils.notOnLatestAppVersion()) {
@@ -430,20 +431,6 @@ public class ExecuteRecoveryMeasuresPresenter implements BasePresenterContract, 
         Intent i = new Intent(mActivity, AppManagerActivity.class);
         i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         mActivity.startActivity(i);
-    }
-
-    // CCZ Scan callbacks
-    public void onCCZScanComplete() {
-        mActivity.hideReinstall();
-        if (mAppArchivePath != null) {
-            unZipCcz(mAppArchivePath);
-        } else {
-            // no ccz found, allow user to manually locate ccz or retry
-            updateStatus(StringUtils.getStringRobust(mActivity, R.string.recovery_measure_no_ccz_found));
-            setCczSelectionVisibility(true);
-            mActivity.enableRetry();
-            mActivity.disableLoadingIndicator();
-        }
     }
 
     private void setCczSelectionVisibility(boolean isEnable) {
