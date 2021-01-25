@@ -1,5 +1,6 @@
 package org.commcare.recovery.measures;
 
+import android.net.Uri;
 import android.os.Environment;
 import androidx.annotation.Nullable;
 
@@ -9,6 +10,8 @@ import org.commcare.modern.util.Pair;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.tasks.templates.CommCareTask;
 import org.commcare.util.LogTypes;
+import org.commcare.utils.CczUtils;
+import org.commcare.utils.FileUtil;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.services.Logger;
 import org.javarosa.xml.ElementParser;
@@ -94,7 +97,19 @@ public class ScanCczTask extends CommCareTask<Void, File, File, ExecuteRecoveryM
         String lastKnownCczLocation = HiddenPreferences.getLastKnownCczLocation();
         ArrayList<File> filePathsToScan = new ArrayList<>(3);
         if (!StringUtils.isEmpty(lastKnownCczLocation)) {
-            filePathsToScan.add(new File(lastKnownCczLocation));
+            try {
+                if (lastKnownCczLocation.startsWith("content://")) {
+                    InputStream inputStream = CommCareApplication.instance().getContentResolver().openInputStream(Uri.parse(lastKnownCczLocation));
+                    File destination = new File(CczUtils.getCczTargetPath());
+                    FileUtil.copyFile(inputStream, destination);
+                    filePathsToScan.add(destination);
+                } else {
+                    filePathsToScan.add(new File(lastKnownCczLocation));
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+                Logger.log(LogTypes.TYPE_ERROR_STORAGE, "Last known ccz location failed with : " + e.getMessage());
+            }
         }
         filePathsToScan.add(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS));
         filePathsToScan.add(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS));
