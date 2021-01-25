@@ -3,19 +3,18 @@ package org.commcare.android.tests.caselist;
 import org.commcare.CommCareTestApplication;
 import org.commcare.activities.EntitySelectActivity;
 import org.commcare.adapters.EntityListAdapter;
-import androidx.test.ext.junit.runners.AndroidJUnit4;
+import org.commcare.android.util.ActivityLaunchUtils;
 import org.commcare.android.util.CaseLoadUtils;
 import org.commcare.android.util.TestAppInstaller;
 import org.commcare.android.util.TestUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.Robolectric;
 import org.robolectric.annotation.Config;
 
+import androidx.test.ext.junit.runners.AndroidJUnit4;
+
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 /**
  * Test the cache and index sort property
@@ -37,7 +36,7 @@ public class EntityListCacheIndexTest {
 
     @Test
     public void testCacheAndIndex() {
-        entitySelectActivity = CaseLoadUtils.launchEntitySelectActivity("m1-f0");
+        entitySelectActivity = ActivityLaunchUtils.launchEntitySelectActivity("m1-f0");
         adapter = CaseLoadUtils.loadList(entitySelectActivity);
         assertEquals(8, adapter.getCount());
         // Because the crash happens off the main thread, wait for backgrounds threads to terminate

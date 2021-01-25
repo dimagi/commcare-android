@@ -667,7 +667,7 @@ public class FileUtil {
         }
     }
 
-    private static String getMimeType(String filePath) {
+    public static String getMimeType(String filePath) {
         String extension = MimeTypeMap.getFileExtensionFromUrl(filePath);
         String mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
         return mimeType;

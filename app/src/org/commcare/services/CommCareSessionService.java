@@ -628,12 +628,12 @@ public class CommCareSessionService extends Service {
         if (heartbeatManager == null) {
             heartbeatManager = new HeartbeatLifecycleManager(this);
         }
-        heartbeatManager.startHeartbeatCommunications();
+        heartbeatManager.startHeartbeatCommunications(this);
     }
 
     private void endHeartbeatLifecycle() {
         if (heartbeatManager != null) {
-            heartbeatManager.endHeartbeatCommunications();
+            heartbeatManager.endHeartbeatCommunications(this);
             heartbeatManager = null;
         }
     }

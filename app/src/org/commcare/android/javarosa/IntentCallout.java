@@ -7,6 +7,7 @@ import android.os.BadParcelableException;
 import android.os.Bundle;
 import android.util.Log;
 
+import org.commcare.provider.IdentityCalloutHandler;
 import org.commcare.provider.SimprintsCalloutProcessing;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.FileUtil;
@@ -79,9 +80,9 @@ public class IntentCallout implements Externalizable {
     }
 
     /**
-     * @param buttonLabel Intent callout button text for initially calling the intent.
+     * @param buttonLabel       Intent callout button text for initially calling the intent.
      * @param updateButtonLabel Intent callout button text for re-calling the intent to update the answer
-     * @param appearance if 'quick' then intent is automatically called when question is shown, and advanced when intent answer is received
+     * @param appearance        if 'quick' then intent is automatically called when question is shown, and advanced when intent answer is received
      */
     public IntentCallout(String className, Hashtable<String, XPathExpression> refs,
                          Hashtable<String, Vector<TreeReference>> responseToRefMap, String type,
@@ -124,7 +125,7 @@ public class IntentCallout implements Externalizable {
         }
         if (data != null) {
             String dataString = parseData(ec);
-            
+
             if (dataString != null && !"".equals(dataString) && type != null) {
                 // Weird hack but this call seems specifically to be needed to play video
                 // http://stackoverflow.com/questions/1572107/android-intent-for-playing-video
@@ -147,10 +148,10 @@ public class IntentCallout implements Externalizable {
                 Object xpathResult = refs.get(key).eval(ec);
 
                 if (INTENT_EXTRA_CAN_AGGREGATE.equals(key)) {
-                    if(key != null && !"".equals(key)) {
+                    if (key != null && !"".equals(key)) {
                         i.putExtra(INTENT_EXTRA_CAN_AGGREGATE, FunctionUtils.toBoolean(xpathResult));
                     }
-                } else{
+                } else {
                     String extraVal = FunctionUtils.toString(xpathResult);
                     if (extraVal != null && !"".equals(extraVal)) {
                         i.putExtra(key, extraVal);
@@ -168,6 +169,8 @@ public class IntentCallout implements Externalizable {
     public boolean processResponse(Intent intent, TreeReference intentQuestionRef, File destination) {
         if (intentInvalid(intent)) {
             return false;
+        } else if (IdentityCalloutHandler.isIdentityCalloutResponse(intent)) {
+            return IdentityCalloutHandler.processIdentityCalloutResponse(formDef, intent, intentQuestionRef, responseToRefMap);
         } else if (SimprintsCalloutProcessing.isRegistrationResponse(intent)) {
             return SimprintsCalloutProcessing.processRegistrationResponse(formDef, intent, intentQuestionRef, responseToRefMap);
         } else {
@@ -181,7 +184,7 @@ public class IntentCallout implements Externalizable {
         return "org.commcare.dalvik.action.PRINT".equals(this.className);
     }
 
-    private static boolean intentInvalid(Intent intent) {
+    private boolean intentInvalid(Intent intent) {
         if (intent == null) {
             return true;
         }
@@ -189,11 +192,15 @@ public class IntentCallout implements Externalizable {
             // force unparcelling to check if we are missing classes to
             // correctly process callout response
             intent.hasExtra(INTENT_RESULT_VALUE);
+            if (responseToRefMap != null) {
+                for (String key: responseToRefMap.keySet()) {
+                    intent.hasExtra(key);
+                }
+            }
         } catch (BadParcelableException e) {
             Log.w(TAG, "unable to unparcel intent: " + e.getMessage());
             return true;
         }
-
         return false;
     }
 
@@ -204,26 +211,42 @@ public class IntentCallout implements Externalizable {
         // see if we have a return bundle
         Bundle response = intent.getBundleExtra(INTENT_RESULT_EXTRAS_BUNDLE);
 
-        // Load all of the data from the incoming bundle
-        if (responseToRefMap != null && response != null) {
-            for (String key : responseToRefMap.keySet()) {
-                // See if the value exists at all, if not, skip it
-                if (!response.containsKey(key)) {
-                    continue;
+        if (responseToRefMap != null) {
+            if (response != null) {
+                // Load all of the data from the incoming bundle
+                for (String key : responseToRefMap.keySet()) {
+                    // See if the value exists at all, if not, skip it
+                    if (!response.containsKey(key)) {
+                        continue;
+                    }
+                    setOdkResponseValue(intentQuestionRef, destination, response.getString(key), responseToRefMap.get(key));
                 }
-
-                // Get our response value
-                String responseValue = response.getString(key);
-                if (responseValue == null) {
-                    responseValue = "";
+            } else {
+                // Check if intent has response keys as extras.
+                boolean hasExtra = false;
+                for (String key: responseToRefMap.keySet()) {
+                    if (!intent.hasExtra(key)) {
+                        continue;
+                    }
+                    hasExtra = true;
+                    setOdkResponseValue(intentQuestionRef, destination, intent.getStringExtra(key), responseToRefMap.get(key));
                 }
-
-                for (TreeReference ref : responseToRefMap.get(key)) {
-                    processResponseItem(ref, responseValue, intentQuestionRef, destination);
+                if (hasExtra) {
+                    return true;
                 }
             }
         }
         return (result != null);
+    }
+
+    private void setOdkResponseValue(TreeReference intentQuestionRef, File destination, String responseValue, Vector<TreeReference> responseRefs) {
+        if (responseValue == null) {
+            responseValue = "";
+        }
+
+        for (TreeReference ref : responseRefs) {
+            processResponseItem(ref, responseValue, intentQuestionRef, destination);
+        }
     }
 
     public static void setNodeValue(FormDef formDef, TreeReference reference, String stringValue) {

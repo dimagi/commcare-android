@@ -1,7 +1,10 @@
 package org.commcare.utils;
 
+import android.content.ActivityNotFoundException;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
+import android.net.Uri;
 import android.text.Html;
 import android.text.Spannable;
 import android.text.SpannableString;
@@ -9,19 +12,30 @@ import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.UnderlineSpan;
+import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import androidx.annotation.NonNull;
 
 import net.nightwhistler.htmlspanner.HtmlSpanner;
 import net.nightwhistler.htmlspanner.SpanStack;
 import net.nightwhistler.htmlspanner.TagNodeHandler;
 
 import org.commcare.CommCareApplication;
+import org.commcare.dalvik.R;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commonmark.node.Node;
 import org.htmlcleaner.TagNode;
 import org.javarosa.core.services.locale.Localization;
 
+import java.io.File;
+
+import io.noties.markwon.AbstractMarkwonPlugin;
+import io.noties.markwon.LinkResolverDef;
 import io.noties.markwon.Markwon;
+import io.noties.markwon.MarkwonConfiguration;
+import io.noties.markwon.MarkwonPlugin;
 
 public class MarkupUtil {
 
@@ -170,5 +184,39 @@ public class MarkupUtil {
 
     private static String stripHtml(String html) {
         return Html.fromHtml(html).toString();
+    }
+
+    public static MarkwonPlugin getLinkResolverPlugin() {
+        return new AbstractMarkwonPlugin() {
+            @Override
+            public void configureConfiguration(@NonNull MarkwonConfiguration.Builder builder) {
+                builder.linkResolver(new LinkResolverDef() {
+                    @Override
+                    public void resolve(@NonNull View view, @NonNull String link) {
+                        if (link.startsWith("file:///")) {
+                            File file = new File(org.apache.commons.lang3.StringUtils.removeStart(link, "file://"));
+                            Uri uri = FileUtil.getUriForExternalFile(view.getContext(), file);
+                            String mimeType = FileUtil.getMimeType(file.getAbsolutePath());
+                            Intent i = new Intent();
+                            i.setAction(Intent.ACTION_VIEW);
+                            i.setDataAndType(uri, mimeType);
+                            i.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_ACTIVITY_NEW_TASK);
+                            UriToFilePath.grantPermissionForUri(view.getContext(), i, uri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                            try {
+                                view.getContext().startActivity(i);
+                            } catch (ActivityNotFoundException e) {
+                                Toast.makeText(view.getContext(),
+                                        org.commcare.utils.StringUtils.getStringSpannableRobust(view.getContext(),
+                                                R.string.activity_not_found,
+                                                " this file."),
+                                        Toast.LENGTH_SHORT).show();
+                            }
+                        } else {
+                            super.resolve(view, link);
+                        }
+                    }
+                });
+            }
+        };
     }
 }

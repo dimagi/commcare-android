@@ -40,6 +40,7 @@ import org.hamcrest.Matcher
 import org.hamcrest.Matchers
 import org.hamcrest.Matchers.anything
 import org.hamcrest.Matchers.startsWith
+import org.javarosa.core.io.StreamsUtil
 import java.io.File
 import java.io.IOException
 import java.util.concurrent.TimeUnit
@@ -402,15 +403,16 @@ object InstrumentationUtility {
         if (MediaStore.ACTION_IMAGE_CAPTURE == intent.action) {
             val uri = intent.extras!!.getParcelable<Uri>(MediaStore.EXTRA_OUTPUT)
             val context = InstrumentationRegistry.getInstrumentation().targetContext
-            val icon = BitmapFactory.decodeResource(
-                    context.resources,
-                    R.mipmap.ic_launcher)
+
+            val inputStream = context.classLoader.getResourceAsStream("ic_launcher.png")
+            val outputStream = context.contentResolver.openOutputStream(uri!!)
             try {
-                context.contentResolver.openOutputStream(uri!!).use {
-                    outputStream -> icon.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
-                }
+                StreamsUtil.writeFromInputToOutputUnmanaged(inputStream, outputStream)
             } catch (e: Exception) {
                 e.printStackTrace()
+            } finally {
+                inputStream.close()
+                outputStream!!.close()
             }
         }
     }

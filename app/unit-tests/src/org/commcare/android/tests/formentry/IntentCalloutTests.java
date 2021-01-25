@@ -1,7 +1,8 @@
 package org.commcare.android.tests.formentry;
 
+import android.app.Activity;
 import android.content.Intent;
-import android.os.Environment;
+import android.widget.Button;
 import android.widget.ImageButton;
 
 import junit.framework.Assert;
@@ -12,21 +13,15 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import org.commcare.android.resource.installers.XFormAndroidInstaller;
 import org.commcare.android.util.ActivityLaunchUtils;
 import org.commcare.android.util.TestAppInstaller;
+import org.commcare.android.util.TestUtils;
 import org.commcare.dalvik.R;
-import org.commcare.views.widgets.IntegerWidget;
 import org.commcare.views.widgets.IntentWidget;
 import org.commcare.views.widgets.StringNumberWidget;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.Robolectric;
+import org.robolectric.Shadows;
 import org.robolectric.annotation.Config;
-import org.robolectric.shadows.ShadowActivity;
-import org.robolectric.shadows.ShadowEnvironment;
-
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertNull;
-import static junit.framework.Assert.assertTrue;
 
 /**
  * @author wpride
@@ -48,11 +43,8 @@ public class IntentCalloutTests {
      */
     @Test
     public void testIntentCalloutWithDataXPath() {
-        ShadowActivity shadowActivity =
-                ActivityLaunchUtils.buildHomeActivityForFormEntryLaunch("m0-f0");
-        Intent formEntryIntent = shadowActivity.getNextStartedActivity();
-
-        FormEntryActivity formEntryActivity = navigateFormStructure(formEntryIntent);
+        FormEntryActivity formEntryActivity = ActivityLaunchUtils.launchFormEntry("m0-f0");
+        navigateFormStructure(formEntryActivity);
 
         IntentWidget phoneCallWidget = (IntentWidget) formEntryActivity.getODKView().getWidgets().get(0);
         Intent intent = phoneCallWidget.getIntentCallout().generate(FormEntryActivity.mFormController.getFormEntryController().getModel().getForm().getEvaluationContext());
@@ -60,11 +52,7 @@ public class IntentCalloutTests {
         Assert.assertEquals(intent.getAction(), "android.intent.action.CALL");
     }
 
-    private FormEntryActivity navigateFormStructure(Intent formEntryIntent) {
-        // launch form entry
-        FormEntryActivity formEntryActivity =
-                Robolectric.buildActivity(FormEntryActivity.class, formEntryIntent)
-                        .create().start().resume().get();
+    private FormEntryActivity navigateFormStructure(FormEntryActivity formEntryActivity) {
         StringNumberWidget favoriteNumber = (StringNumberWidget)formEntryActivity.getODKView().getWidgets().get(0);
         favoriteNumber.setAnswer("1234567890");
         ImageButton nextButton = formEntryActivity.findViewById(R.id.nav_btn_next);
@@ -74,12 +62,7 @@ public class IntentCalloutTests {
 
     @Test
     public void testIntentCalloutEmptyData() {
-        ShadowActivity shadowActivity =
-                ActivityLaunchUtils.buildHomeActivityForFormEntryLaunch("m0-f1");
-        Intent formEntryIntent = shadowActivity.getNextStartedActivity();
-        FormEntryActivity formEntryActivity =
-                Robolectric.buildActivity(FormEntryActivity.class, formEntryIntent)
-                        .create().start().resume().get();
+        FormEntryActivity formEntryActivity = ActivityLaunchUtils.launchFormEntry("m0-f1");
         IntentWidget phoneCallWidget = (IntentWidget) formEntryActivity.getODKView().getWidgets().get(0);
         Intent intent = phoneCallWidget.getIntentCallout().generate(FormEntryActivity.mFormController.getFormEntryController().getModel().getForm().getEvaluationContext());
         Assert.assertEquals(intent.getData(), null);
@@ -88,12 +71,7 @@ public class IntentCalloutTests {
 
     @Test
     public void testIntentCalloutNoData() {
-        ShadowActivity shadowActivity =
-                ActivityLaunchUtils.buildHomeActivityForFormEntryLaunch("m0-f2");
-        Intent formEntryIntent = shadowActivity.getNextStartedActivity();
-        FormEntryActivity formEntryActivity =
-                Robolectric.buildActivity(FormEntryActivity.class, formEntryIntent)
-                        .create().start().resume().get();
+        FormEntryActivity formEntryActivity = ActivityLaunchUtils.launchFormEntry("m0-f2");
         IntentWidget phoneCallWidget = (IntentWidget) formEntryActivity.getODKView().getWidgets().get(0);
         Intent intent = phoneCallWidget.getIntentCallout().generate(FormEntryActivity.mFormController.getFormEntryController().getModel().getForm().getEvaluationContext());
         Assert.assertEquals(intent.getData(), null);
@@ -102,15 +80,28 @@ public class IntentCalloutTests {
 
     @Test
     public void testIntentCalloutHardCodedData() {
-        ShadowActivity shadowActivity =
-                ActivityLaunchUtils.buildHomeActivityForFormEntryLaunch("m0-f3");
-        Intent formEntryIntent = shadowActivity.getNextStartedActivity();
-        FormEntryActivity formEntryActivity =
-                Robolectric.buildActivity(FormEntryActivity.class, formEntryIntent)
-                        .create().start().resume().get();
+        FormEntryActivity formEntryActivity = ActivityLaunchUtils.launchFormEntry("m0-f3");
         IntentWidget phoneCallWidget = (IntentWidget) formEntryActivity.getODKView().getWidgets().get(0);
         Intent intent = phoneCallWidget.getIntentCallout().generate(FormEntryActivity.mFormController.getFormEntryController().getModel().getForm().getEvaluationContext());
         Assert.assertEquals(intent.getData().toString(), "tel:3333333333");
         Assert.assertEquals(intent.getAction(), "android.intent.action.CALL");
+    }
+
+    @Test
+    public void testIntentCalloutStringResponse() {
+        FormEntryActivity formEntryActivity = ActivityLaunchUtils.launchFormEntry("m0-f4");
+        IntentWidget calloutWidget = (IntentWidget) formEntryActivity.getODKView().getWidgets().get(0);
+        Intent requestIntent = calloutWidget.getIntentCallout().generate(FormEntryActivity.mFormController.getFormEntryController().getModel().getForm().getEvaluationContext());
+        Assert.assertEquals(requestIntent.getAction(), "callout.commcare.org.dummy");
+
+        // with no response
+        ((Button) calloutWidget.getChildAt(2)).performClick();
+        Shadows.shadowOf(formEntryActivity).receiveResult(requestIntent, Activity.RESULT_OK, null);
+        TestUtils.assertFormValue("/data/display_data", "");
+
+        // with valid response
+        ((Button) calloutWidget.getChildAt(2)).performClick();
+        Shadows.shadowOf(formEntryActivity).receiveResult(requestIntent, Activity.RESULT_OK, new Intent().putExtra("result_data", "test"));
+        TestUtils.assertFormValue("/data/display_data", "test");
     }
 }

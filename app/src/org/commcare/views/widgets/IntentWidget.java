@@ -151,8 +151,8 @@ public class IntentWidget extends QuestionWidget {
         } else {
             try {
                 loadCurrentAnswerToIntent();
-                ((AppCompatActivity) getContext()).startActivityForResult(intent, FormEntryConstants.INTENT_CALLOUT);
                 pendingCalloutInterface.setPendingCalloutFormIndex(mPrompt.getIndex());
+                ((AppCompatActivity) getContext()).startActivityForResult(intent, FormEntryConstants.INTENT_CALLOUT);
             } catch (ActivityNotFoundException e) {
                 Toast.makeText(getContext(),
                         Localization.get(missingCalloutKey), Toast.LENGTH_SHORT).show();

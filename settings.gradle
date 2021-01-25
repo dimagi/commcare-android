@@ -1,3 +1,4 @@
 include ':app'
 include ':commcare-core'
+include ':commcare-support-library'
 project(':commcare-core').projectDir = new File('../commcare-core')

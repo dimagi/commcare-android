@@ -30,19 +30,4 @@ public class CaseLoadUtils {
         shadowListView.populateItems();
         return adapter;
     }
-
-    public static EntitySelectActivity launchEntitySelectActivity(String command) {
-        ShadowActivity shadowHomeActivity =
-                ActivityLaunchUtils.buildHomeActivityForFormEntryLaunch(command);
-
-        Intent entitySelectIntent = shadowHomeActivity.getNextStartedActivity();
-
-        String intentActivityName = entitySelectIntent.getComponent().getClassName();
-        Assert.assertEquals(EntitySelectActivity.class.getName(), intentActivityName);
-
-        // start the entity select activity
-        return Robolectric.buildActivity(EntitySelectActivity.class, entitySelectIntent)
-                .setup().get();
-    }
-
 }
