@@ -73,7 +73,7 @@
         android:allowBackup="false"
         tools:replace="android:label,android:icon,android:theme, android:allowBackup"
         android:name="org.commcare.CommCareApplication"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@mipmap/commcare_launcher"
         android:supportsRtl="true"
         android:label="@string/application_name"
         android:hardwareAccelerated="true"
@@ -205,7 +205,7 @@
                 <data android:host="*"/>
                 <data android:pathPattern=".*\\.ccpr"/>
             </intent-filter>
-            <intent-filter android:icon="@mipmap/ic_launcher">
+            <intent-filter android:icon="@mipmap/commcare_launcher">
                 <action android:name="android.intent.action.VIEW"/>
 
                 <category android:name="android.intent.category.DEFAULT"/>
@@ -217,7 +217,7 @@
                     android:pathPattern=".*\\.ccz"
                     android:scheme="file"/>
             </intent-filter>
-            <intent-filter android:icon="@mipmap/ic_launcher">
+            <intent-filter android:icon="@mipmap/commcare_launcher">
                 <action android:name="android.intent.action.VIEW"/>
 
                 <category android:name="android.intent.category.DEFAULT"/>
