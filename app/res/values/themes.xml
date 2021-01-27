@@ -126,7 +126,7 @@
     <style name="TextAppearance.Custom.WindowTitle.Menu" parent="TextAppearance.Custom.WindowTitle">
     </style>
 
-    <style name="Theme.Dialog.NoTitle" parent="@android:style/Theme.Holo.Light.Dialog">
+    <style name="Theme.Dialog.NoTitle" parent="Theme.AppCompat.Light.Dialog">
         <item name="windowNoTitle">true</item>
     </style>
 
