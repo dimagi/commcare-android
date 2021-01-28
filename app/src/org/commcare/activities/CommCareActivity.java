@@ -146,7 +146,7 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
         persistManagedUiState(fm);
 
         if (getSupportActionBar() != null) {
-            getSupportActionBar().setLogo(org.commcare.dalvik.R.mipmap.ic_launcher);
+            getSupportActionBar().setLogo(org.commcare.dalvik.R.mipmap.commcare_launcher);
         }
 
         if (shouldShowBreadcrumbBar()) {
