@@ -90,7 +90,7 @@ public class RecordingFragment extends DialogFragment {
 
     private void reloadSavedRecording() {
         recordAgain.setVisibility(View.VISIBLE);
-        saveRecording.setVisibility(View.VISIBLE);
+        saveRecording.setVisibility(View.GONE);
         recordingDuration.setVisibility(View.VISIBLE);
         toggleRecording.setBackgroundResource(R.drawable.play);
         toggleRecording.setOnClickListener(v -> playAudio());
