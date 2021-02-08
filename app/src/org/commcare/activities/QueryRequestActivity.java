@@ -142,7 +142,7 @@ public class QueryRequestActivity
         View promptView = LayoutInflater.from(this).inflate(R.layout.query_prompt_layout, promptsLayout, false);
         setLabelText(promptView, queryPrompt.getDisplay());
         View inputView;
-        if (isPromptValid(queryPrompt)) {
+        if (isPromptSupported(queryPrompt)) {
             String input = queryPrompt.getInput();
             if (input != null && input.contentEquals(INPUT_TYPE_SELECT1)) {
                 inputView = buildSpinnerView(promptView, queryPrompt);
