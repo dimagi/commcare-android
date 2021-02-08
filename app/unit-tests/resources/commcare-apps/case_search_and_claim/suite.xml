@@ -308,6 +308,13 @@
             <sort ref="id"/>
           </itemset>
         </prompt>
+        <prompt key="invalid" input="foobar">
+          <display>
+            <text>
+              <locale id="query.district"/>
+            </text>
+          </display>
+        </prompt>
       </query>
       <datum id="case_id" nodeset="instance('patients')/patients/patient" value="./id" detail-select="patient_short" detail-confirm="patient_long"/>
     </session>

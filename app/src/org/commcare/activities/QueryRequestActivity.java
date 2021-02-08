@@ -100,7 +100,7 @@ public class QueryRequestActivity
             remoteQuerySessionManager =
                     RemoteQuerySessionManager.buildQuerySessionManager(sessionWrapper.getSession(),
                             sessionWrapper.getEvaluationContext());
-        } catch(XPathException xpe) {
+        } catch (XPathException xpe) {
             UserfacingErrorHandling.createErrorDialog(this, xpe.getMessage(), true);
             return;
         }
@@ -142,16 +142,22 @@ public class QueryRequestActivity
         View promptView = LayoutInflater.from(this).inflate(R.layout.query_prompt_layout, promptsLayout, false);
         setLabelText(promptView, queryPrompt.getDisplay());
         View inputView;
-        String input = queryPrompt.getInput();
-        if (input != null && input.contentEquals(INPUT_TYPE_SELECT1)) {
-            inputView = buildSpinnerView(promptView, queryPrompt);
-        } else {
-            inputView = buildEditTextView(promptView, queryPrompt, isLastPrompt);
-        }
-        setUpBarCodeScanButton(promptView, promptId, queryPrompt);
+        if (isPromptValid(queryPrompt)) {
+            String input = queryPrompt.getInput();
+            if (input != null && input.contentEquals(INPUT_TYPE_SELECT1)) {
+                inputView = buildSpinnerView(promptView, queryPrompt);
+            } else {
+                inputView = buildEditTextView(promptView, queryPrompt, isLastPrompt);
+            }
+            setUpBarCodeScanButton(promptView, promptId, queryPrompt);
 
-        promptsLayout.addView(promptView);
-        promptsBoxes.put(promptId, inputView);
+            promptsLayout.addView(promptView);
+            promptsBoxes.put(promptId, inputView);
+        }
+    }
+
+    private boolean isPromptSupported(QueryPrompt queryPrompt) {
+        return queryPrompt.getInput() == null || queryPrompt.getInput().contentEquals(INPUT_TYPE_SELECT1);
     }
 
     private void setUpBarCodeScanButton(View promptView, String promptId, QueryPrompt queryPrompt) {
