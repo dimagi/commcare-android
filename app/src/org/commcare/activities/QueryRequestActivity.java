@@ -156,7 +156,7 @@ public class QueryRequestActivity
         }
     }
 
-    private boolean isPromptValid(QueryPrompt queryPrompt) {
+    private boolean isPromptSupported(QueryPrompt queryPrompt) {
         return queryPrompt.getInput() == null || queryPrompt.getInput().contentEquals(INPUT_TYPE_SELECT1);
     }
 
