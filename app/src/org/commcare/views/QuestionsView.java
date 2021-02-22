@@ -129,7 +129,9 @@ public class QuestionsView extends ScrollView
             qw.setId(VIEW_ID + widgetIdCount++);
 
             //Suppress the hint text if we bubbled it
-            qw.hideHintText();
+            if (hintText != null) {
+                qw.hideHintText();
+            }
 
             widgets.add(qw);
             mView.addView(qw, mLayout);
