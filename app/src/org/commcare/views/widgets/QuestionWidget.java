@@ -746,7 +746,7 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
             return true;
         } else if (FileUtil.isFileOversized(file) && !HiddenPreferences.isFileOversizeWarningDisabled()) {
             notifyWarning(StringUtils.getStringRobust(getContext(), R.string.attachment_oversized,
-                    FileUtil.getFileSize(file) + ""));
+                    FileUtil.getFileSizeInMegs(file) + ""));
         }
         return false;
     }

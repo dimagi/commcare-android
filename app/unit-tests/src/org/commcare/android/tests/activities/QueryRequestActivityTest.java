@@ -1,6 +1,7 @@
 package org.commcare.android.tests.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -268,7 +269,7 @@ public class QueryRequestActivityTest {
                 CommCareApplication.instance().getCurrentSessionWrapper();
         CommCareSession session = sessionWrapper.getSession();
         session.setCommand(command);
-        if(session.getNeededDatum() instanceof ComputedDatum) {
+        if (session.getNeededDatum() instanceof ComputedDatum) {
             session.setComputedDatum(sessionWrapper.getEvaluationContext());
         }
     }
@@ -281,6 +282,8 @@ public class QueryRequestActivityTest {
 
         // set views
         LinearLayout promptsLayout = queryRequestActivity.findViewById(R.id.query_prompts);
+
+        assertEquals(promptsLayout.getChildCount(), 4);
 
         EditText patientName = promptsLayout.getChildAt(0).findViewById(R.id.prompt_et);
         patientName.setText("francisco");

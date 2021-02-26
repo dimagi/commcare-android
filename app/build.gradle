@@ -69,7 +69,7 @@ dependencies {
     // this syntax doesn't work for compiling .aar files, so those have to be loaded manually
     implementation fileTree(include: '*.jar', exclude: 'regexp-me.jar', dir: 'libs')
     implementation(name: 'htmlspanner-custom', ext: 'aar')
-    implementation 'com.github.dimagi:zebra-print-android:v1.2'
+    implementation 'com.github.dimagi:zebra-print-android:v1.3'
     implementation 'com.simprints:LibSimprints:1.0.12'
     implementation 'androidx.appcompat:appcompat:1.2.0'
     implementation 'androidx.multidex:multidex:2.0.1'
