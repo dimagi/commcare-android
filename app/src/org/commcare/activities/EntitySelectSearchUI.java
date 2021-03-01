@@ -1,13 +1,11 @@
 package org.commcare.activities;
 
 import android.annotation.TargetApi;
-import android.content.Context;
 import android.os.Build;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
@@ -15,7 +13,6 @@ import android.widget.TextView;
 import org.commcare.activities.components.EntitySelectCalloutSetup;
 import org.commcare.dalvik.R;
 import org.commcare.suite.model.Callout;
-import org.javarosa.core.services.locale.Localization;
 
 import androidx.appcompat.widget.SearchView;
 import androidx.core.view.MenuItemCompat;
@@ -29,7 +26,6 @@ class EntitySelectSearchUI implements TextWatcher {
     private SearchView searchView;
     private MenuItem searchMenuItem;
     private MenuItem barcodeMenuItem;
-    private EditText preHoneycombSearchBox;
     private TextView searchResultStatus;
     private ImageButton clearSearchButton;
     private View searchBanner;
@@ -108,9 +104,8 @@ class EntitySelectSearchUI implements TextWatcher {
     protected CharSequence getSearchText() {
         if (isUsingActionBar()) {
             return searchView.getQuery();
-        } else {
-            return preHoneycombSearchBox.getText();
         }
+        return "";
     }
 
     @SuppressWarnings("NewApi")
@@ -120,8 +115,6 @@ class EntitySelectSearchUI implements TextWatcher {
                 MenuItemCompat.expandActionView(searchMenuItem);
             }
             searchView.setQuery(text, false);
-        } else {
-            preHoneycombSearchBox.setText(text);
         }
     }
 
