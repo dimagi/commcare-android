@@ -6,7 +6,6 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
@@ -33,6 +32,7 @@ class EntitySelectSearchUI implements TextWatcher {
     private final EntitySelectActivity activity;
 
     private String filterString = "";
+    private String searchText;
 
     EntitySelectSearchUI(EntitySelectActivity activity) {
         this.activity = activity;
@@ -52,14 +52,13 @@ class EntitySelectSearchUI implements TextWatcher {
 
     protected CommCareActivity.ActionBarInstantiator getActionBarInstantiator() {
         // again, this should be unnecessary...
-        return (searchItem, searchView, barcodeItem) -> {
-            EntitySelectSearchUI.this.searchMenuItem = searchItem;
-            EntitySelectSearchUI.this.searchView = searchView;
-            EntitySelectSearchUI.this.barcodeMenuItem = barcodeItem;
-
+        return (searchItem, view, barcodeItem) -> {
+            searchMenuItem = searchItem;
+            searchView = view;
+            barcodeMenuItem = barcodeItem;
             restoreLastQuery();
 
-            EntitySelectSearchUI.this.searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
                 @Override
                 public boolean onQueryTextSubmit(String query) {
                     return true;
@@ -75,6 +74,12 @@ class EntitySelectSearchUI implements TextWatcher {
                     return false;
                 }
             });
+
+            if (searchText != null) {
+                searchMenuItem.expandActionView();
+                searchView.setQuery(searchText, false);
+                searchText = null;
+            }
         };
     }
 
@@ -89,9 +94,7 @@ class EntitySelectSearchUI implements TextWatcher {
     private void restoreLastQuery() {
         String lastQueryString = activity.getLastQueryString();
         if (lastQueryString != null && lastQueryString.length() > 0) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-                MenuItemCompat.expandActionView(searchMenuItem);
-            }
+            searchMenuItem.expandActionView();
             filterString = lastQueryString;
             searchView.setQuery(lastQueryString, false);
             if (activity.getAdapter() != null) {
@@ -102,7 +105,7 @@ class EntitySelectSearchUI implements TextWatcher {
 
     @SuppressWarnings("NewApi")
     protected CharSequence getSearchText() {
-        if (isUsingActionBar()) {
+        if (searchView != null) {
             return searchView.getQuery();
         }
         return "";
@@ -110,11 +113,11 @@ class EntitySelectSearchUI implements TextWatcher {
 
     @SuppressWarnings("NewApi")
     protected void setSearchText(CharSequence text) {
-        if (isUsingActionBar()) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-                MenuItemCompat.expandActionView(searchMenuItem);
-            }
+        if (searchView != null) {
+            searchMenuItem.expandActionView();
             searchView.setQuery(text, false);
+        } else {
+            searchText = text.toString();
         }
     }
 
@@ -128,7 +131,7 @@ class EntitySelectSearchUI implements TextWatcher {
                 activity.getAdapter().filterByString(filterString);
             }
         }
-        if (!isUsingActionBar()) {
+        if (searchView == null) {
             activity.setLastQueryString(filterString);
         }
     }
@@ -140,13 +143,6 @@ class EntitySelectSearchUI implements TextWatcher {
 
     @Override
     public void onTextChanged(CharSequence s, int start, int before, int count) {
-    }
-
-    /**
-     * Checks if this activity uses the ActionBar
-     */
-    private boolean isUsingActionBar() {
-        return searchView != null;
     }
 
     protected void restoreSearchString() {
