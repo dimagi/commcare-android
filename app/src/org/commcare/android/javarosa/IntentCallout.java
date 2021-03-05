@@ -319,7 +319,7 @@ public class IntentCallout implements Externalizable {
 
             //That code throws no errors, so we have to manually check whether the copy worked.
             if (newFile.exists() && newFile.length() == src.length()) {
-                formDef.setValue(new StringData(newFile.toString()), ref);
+                formDef.setValue(new StringData(newFile.getName()), ref);
             } else {
                 Log.e(TAG, "CommCare failed to property write a file to " + newFile.toString());
                 formDef.setValue(null, ref);
