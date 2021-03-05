@@ -32,7 +32,6 @@ class EntitySelectSearchUI implements TextWatcher {
     private final EntitySelectActivity activity;
 
     private String filterString = "";
-    private String searchText;
 
     EntitySelectSearchUI(EntitySelectActivity activity) {
         this.activity = activity;
@@ -74,12 +73,6 @@ class EntitySelectSearchUI implements TextWatcher {
                     return false;
                 }
             });
-
-            if (searchText != null) {
-                searchMenuItem.expandActionView();
-                searchView.setQuery(searchText, false);
-                searchText = null;
-            }
         };
     }
 
@@ -117,7 +110,7 @@ class EntitySelectSearchUI implements TextWatcher {
             searchMenuItem.expandActionView();
             searchView.setQuery(text, false);
         } else {
-            searchText = text.toString();
+            activity.setLastQueryString(text.toString());
         }
     }
 
