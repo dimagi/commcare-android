@@ -14,7 +14,6 @@ import org.commcare.dalvik.R;
 import org.commcare.suite.model.Callout;
 
 import androidx.appcompat.widget.SearchView;
-import androidx.core.view.MenuItemCompat;
 
 /**
  * Manages case list activity's search state and UI
@@ -96,7 +95,6 @@ class EntitySelectSearchUI implements TextWatcher {
         }
     }
 
-    @SuppressWarnings("NewApi")
     protected CharSequence getSearchText() {
         if (searchView != null) {
             return searchView.getQuery();
@@ -104,7 +102,6 @@ class EntitySelectSearchUI implements TextWatcher {
         return "";
     }
 
-    @SuppressWarnings("NewApi")
     protected void setSearchText(CharSequence text) {
         if (searchView != null) {
             searchMenuItem.expandActionView();
