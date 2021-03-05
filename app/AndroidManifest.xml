@@ -54,7 +54,7 @@
         android:description="@string/permission_content_provider_description"
         android:label="@string/permission_content_provider_label"
         />
-    
+
     <permission
         android:description="@string/permission_content_provider_description"
         android:label="@string/permission_content_provider_label"
@@ -479,7 +479,7 @@
 
         <!-- Somehow this receiver is getting triggered in Android 8+ devices and causing
             IllegalStateException while trying to start map downloader service from background.
-            Below code removes this receiver's entry from Manifest. 
+            Below code removes this receiver's entry from Manifest.
          -->
         <receiver android:name="io.ona.kujaku.receivers.KujakuNetworkChangeReceiver"
             tools:node="remove"/>
