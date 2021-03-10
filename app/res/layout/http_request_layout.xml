@@ -36,18 +36,17 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical" />
 
+            <Button
+                android:id="@+id/request_button"
+                style="@style/ButtonBottom"
+                android:layout_width="wrap_content"
+                android:layout_gravity="center"
+                android:layout_height="wrap_content"
+                android:background="@color/cc_brand_color"
+                android:paddingBottom="@dimen/content_start"
+                android:paddingTop="@dimen/content_start"
+                android:textColor="@color/cc_neutral_bg"/>
+
         </LinearLayout>
     </ScrollView>
-
-    <Button
-        android:id="@+id/request_button"
-        style="@style/ButtonBottom"
-        android:layout_below="@id/prompt_scroll"
-        android:layout_width="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_height="wrap_content"
-        android:background="@color/cc_brand_color"
-        android:paddingBottom="@dimen/content_start"
-        android:paddingTop="@dimen/content_start"
-        android:textColor="@color/cc_neutral_bg"/>
 </RelativeLayout>
