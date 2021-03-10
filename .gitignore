@@ -35,3 +35,4 @@ build/
 **/*~
 app/google-services.json
 app/fabric.properties
+Gemfile.lock
