@@ -13,8 +13,14 @@ if github.pr_labels.empty?
     failure "Please add labels to this PR"
 end
 
+# Make danger out jira ticket link
 jira.check(
   key: ["SAAS"],
   url: "https://dimagi-dev.atlassian.net/browse",
   fail_on_warning: false
 )
+
+# Output lint issues on PR using 'danger-android_lint'  https://github.com/loadsmart/danger-android_lint
+android_lint.filtering = true
+android_lint.skip_gradle_task = true
+android_lint.lint(inline_mode: true)
