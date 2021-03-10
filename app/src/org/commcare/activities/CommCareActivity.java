@@ -125,8 +125,10 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
         super.onCreate(savedInstanceState);
 
         FragmentManager fm = this.getSupportFragmentManager();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD_MR1) {
+            stateHolder = (TaskConnectorFragment<R>)fm.findFragmentByTag("state");
+        }
 
-        stateHolder = (TaskConnectorFragment<R>)fm.findFragmentByTag("state");
 
         // stateHolder and its previous state aren't null if the activity is
         // being created due to an orientation change.
