@@ -58,6 +58,7 @@ import java.util.Vector;
 import androidx.annotation.NonNull;
 
 import static org.commcare.activities.EntitySelectActivity.BARCODE_FETCH;
+import static org.commcare.session.RemoteQuerySessionManager.isPromptSupported;
 import static org.commcare.suite.model.QueryPrompt.INPUT_TYPE_SELECT1;
 
 /**
@@ -154,10 +155,6 @@ public class QueryRequestActivity
             promptsLayout.addView(promptView);
             promptsBoxes.put(promptId, inputView);
         }
-    }
-
-    private boolean isPromptSupported(QueryPrompt queryPrompt) {
-        return queryPrompt.getInput() == null || queryPrompt.getInput().contentEquals(INPUT_TYPE_SELECT1);
     }
 
     private void setUpBarCodeScanButton(View promptView, String promptId, QueryPrompt queryPrompt) {
