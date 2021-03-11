@@ -257,6 +257,9 @@ public class QueryRequestActivity
             promptEditText.setImeOptions(EditorInfo.IME_ACTION_NEXT);
         }
 
+        Hashtable<String, String> userAnswers = remoteQuerySessionManager.getUserAnswers();
+        promptEditText.setText(userAnswers.get(queryPrompt.getKey()));
+
         promptEditText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
