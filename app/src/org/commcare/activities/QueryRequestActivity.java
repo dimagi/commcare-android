@@ -49,6 +49,7 @@ import org.javarosa.xpath.XPathException;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Hashtable;
@@ -58,7 +59,6 @@ import java.util.Vector;
 import androidx.annotation.NonNull;
 
 import static org.commcare.activities.EntitySelectActivity.BARCODE_FETCH;
-import static org.commcare.session.RemoteQuerySessionManager.isPromptSupported;
 import static org.commcare.suite.model.QueryPrompt.INPUT_TYPE_SELECT1;
 
 /**
@@ -100,7 +100,7 @@ public class QueryRequestActivity
         try {
             remoteQuerySessionManager =
                     RemoteQuerySessionManager.buildQuerySessionManager(sessionWrapper.getSession(),
-                            sessionWrapper.getEvaluationContext());
+                            sessionWrapper.getEvaluationContext(), getSupportedPrompts());
         } catch (XPathException xpe) {
             UserfacingErrorHandling.createErrorDialog(this, xpe.getMessage(), true);
             return;
@@ -113,6 +113,12 @@ public class QueryRequestActivity
         } else {
             setupUI();
         }
+    }
+
+    private ArrayList<String> getSupportedPrompts() {
+        ArrayList<String> supportedPrompts = new ArrayList<>();
+        supportedPrompts.add(INPUT_TYPE_SELECT1);
+        return supportedPrompts;
     }
 
     private void setupUI() {
@@ -143,7 +149,7 @@ public class QueryRequestActivity
         View promptView = LayoutInflater.from(this).inflate(R.layout.query_prompt_layout, promptsLayout, false);
         setLabelText(promptView, queryPrompt.getDisplay());
         View inputView;
-        if (isPromptSupported(queryPrompt)) {
+        if (remoteQuerySessionManager.isPromptSupported(queryPrompt)) {
             String input = queryPrompt.getInput();
             if (input != null && input.contentEquals(INPUT_TYPE_SELECT1)) {
                 inputView = buildSpinnerView(promptView, queryPrompt);
