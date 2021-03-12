@@ -22,6 +22,7 @@ import org.commcare.network.CommcareRequestEndpointsMock;
 import org.commcare.network.LocalReferencePullResponseFactory;
 import org.commcare.session.CommCareSession;
 import org.commcare.session.RemoteQuerySessionManager;
+import org.commcare.suite.model.QueryPrompt;
 import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.xml.util.InvalidStructureException;
@@ -38,6 +39,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import static org.junit.Assert.assertEquals;
@@ -201,9 +203,11 @@ public class PostRequestActivityTest {
         InputStream is =
                 PostRequestActivity.class.getClassLoader().getResourceAsStream("commcare-apps/case_search_and_claim/good-query-result.xml");
 
+        ArrayList<String> supportedPrompts = new ArrayList<>();
+        supportedPrompts.add(QueryPrompt.INPUT_TYPE_SELECT1);
         RemoteQuerySessionManager remoteQuerySessionManager =
                 RemoteQuerySessionManager.buildQuerySessionManager(sessionWrapper.getSession(),
-                        sessionWrapper.getEvaluationContext());
+                        sessionWrapper.getEvaluationContext(),supportedPrompts);
         Pair<ExternalDataInstance, String> instanceOrError =
                 remoteQuerySessionManager.buildExternalDataInstance(is);
         session.setQueryDatum(instanceOrError.first);

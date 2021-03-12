@@ -49,6 +49,7 @@ import org.javarosa.xpath.XPathException;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Hashtable;
@@ -99,7 +100,7 @@ public class QueryRequestActivity
         try {
             remoteQuerySessionManager =
                     RemoteQuerySessionManager.buildQuerySessionManager(sessionWrapper.getSession(),
-                            sessionWrapper.getEvaluationContext());
+                            sessionWrapper.getEvaluationContext(), getSupportedPrompts());
         } catch (XPathException xpe) {
             UserfacingErrorHandling.createErrorDialog(this, xpe.getMessage(), true);
             return;
@@ -112,6 +113,12 @@ public class QueryRequestActivity
         } else {
             setupUI();
         }
+    }
+
+    private ArrayList<String> getSupportedPrompts() {
+        ArrayList<String> supportedPrompts = new ArrayList<>();
+        supportedPrompts.add(INPUT_TYPE_SELECT1);
+        return supportedPrompts;
     }
 
     private void setupUI() {
@@ -142,7 +149,7 @@ public class QueryRequestActivity
         View promptView = LayoutInflater.from(this).inflate(R.layout.query_prompt_layout, promptsLayout, false);
         setLabelText(promptView, queryPrompt.getDisplay());
         View inputView;
-        if (isPromptSupported(queryPrompt)) {
+        if (remoteQuerySessionManager.isPromptSupported(queryPrompt)) {
             String input = queryPrompt.getInput();
             if (input != null && input.contentEquals(INPUT_TYPE_SELECT1)) {
                 inputView = buildSpinnerView(promptView, queryPrompt);
@@ -154,10 +161,6 @@ public class QueryRequestActivity
             promptsLayout.addView(promptView);
             promptsBoxes.put(promptId, inputView);
         }
-    }
-
-    private boolean isPromptSupported(QueryPrompt queryPrompt) {
-        return queryPrompt.getInput() == null || queryPrompt.getInput().contentEquals(INPUT_TYPE_SELECT1);
     }
 
     private void setUpBarCodeScanButton(View promptView, String promptId, QueryPrompt queryPrompt) {
@@ -256,6 +259,9 @@ public class QueryRequestActivity
             // replace 'done' on keyboard with 'next'
             promptEditText.setImeOptions(EditorInfo.IME_ACTION_NEXT);
         }
+
+        Hashtable<String, String> userAnswers = remoteQuerySessionManager.getUserAnswers();
+        promptEditText.setText(userAnswers.get(queryPrompt.getKey()));
 
         promptEditText.addTextChangedListener(new TextWatcher() {
             @Override
