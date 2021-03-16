@@ -30,7 +30,7 @@ public class SessionAwareHelper {
     protected static void onResumeHelper(AppCompatActivity a, SessionAwareInterface sessionAware,
                                          boolean redirectedInOnCreate) {
         boolean redirectedToLogin =
-                SessionActivityRegistration.handleOrListenForSessionExpiration(a) ||
+                SessionActivityRegistration.handleSessionExpiration(a) ||
                         redirectedInOnCreate;
         if (!redirectedToLogin) {
             try {
@@ -44,7 +44,7 @@ public class SessionAwareHelper {
     protected static void onActivityResultHelper(AppCompatActivity a, SessionAwareInterface sessionAware,
                                                  int requestCode, int resultCode, Intent intent) {
         boolean redirectedToLogin =
-                SessionActivityRegistration.handleOrListenForSessionExpiration(a);
+                SessionActivityRegistration.handleSessionExpiration(a);
         if (!redirectedToLogin) {
             sessionAware.onActivityResultSessionSafe(requestCode, resultCode, intent);
         }

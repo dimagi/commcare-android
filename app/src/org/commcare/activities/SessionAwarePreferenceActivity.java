@@ -1,7 +1,5 @@
 package org.commcare.activities;
 
-import android.preference.PreferenceActivity;
-
 import org.commcare.utils.SessionActivityRegistration;
 
 /**
@@ -15,7 +13,7 @@ public class SessionAwarePreferenceActivity extends CommCarePreferenceActivity {
     protected void onResume() {
         super.onResume();
         SessionActivityRegistration.registerSessionExpirationReceiver(this);
-        SessionActivityRegistration.handleOrListenForSessionExpiration(this);
+        SessionActivityRegistration.handleSessionExpiration(this);
     }
 
     @Override
