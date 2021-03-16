@@ -14,14 +14,14 @@ import org.commcare.activities.DispatchActivity;
  *
  * @author Phillip Mates (pmates@dimagi.com)
  */
-public class SessionActivityRegistration {
-    private static final String TAG = SessionActivityRegistration.class.getSimpleName();
+public class SessionRegistrationHelper {
+    private static final String TAG = SessionRegistrationHelper.class.getSimpleName();
 
     public static final String USER_SESSION_EXPIRED =
             "org.commcare.dalvik.application.user_session_expired";
 
     private static final IntentFilter expirationFilter =
-            new IntentFilter(SessionActivityRegistration.USER_SESSION_EXPIRED);
+            new IntentFilter(SessionRegistrationHelper.USER_SESSION_EXPIRED);
 
     private static boolean unredirectedSessionExpiration;
     private static final Object registrationLock = new Object();

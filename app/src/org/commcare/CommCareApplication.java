@@ -36,7 +36,6 @@ import org.commcare.core.network.HTTPMethod;
 import org.commcare.core.network.ModernHttpRequester;
 import org.commcare.core.services.CommCarePreferenceManagerFactory;
 import org.commcare.dalvik.BuildConfig;
-import org.commcare.dalvik.R;
 import org.commcare.engine.references.ArchiveFileRoot;
 import org.commcare.engine.references.AssetFileRoot;
 import org.commcare.engine.references.JavaHttpRoot;
@@ -95,7 +94,7 @@ import org.commcare.utils.GlobalConstants;
 import org.commcare.utils.MarkupUtil;
 import org.commcare.utils.MultipleAppsUtil;
 import org.commcare.utils.PendingCalcs;
-import org.commcare.utils.SessionActivityRegistration;
+import org.commcare.utils.SessionRegistrationHelper;
 import org.commcare.utils.SessionStateUninitException;
 import org.commcare.utils.SessionUnavailableException;
 import org.commcare.views.widgets.CleanRawMedia;
@@ -347,7 +346,7 @@ public class CommCareApplication extends MultiDexApplication {
         synchronized (serviceLock) {
             // if we already have a connection established to
             // CommCareSessionService, close it and open a new one
-            SessionActivityRegistration.unregisterSessionExpiration();
+            SessionRegistrationHelper.unregisterSessionExpiration();
             if (this.sessionServiceIsBound) {
                 releaseUserResourcesAndServices();
             }
@@ -389,8 +388,8 @@ public class CommCareApplication extends MultiDexApplication {
     public void expireUserSession() {
         synchronized (serviceLock) {
             closeUserSession();
-            SessionActivityRegistration.registerSessionExpiration();
-            sendBroadcast(new Intent(SessionActivityRegistration.USER_SESSION_EXPIRED));
+            SessionRegistrationHelper.registerSessionExpiration();
+            sendBroadcast(new Intent(SessionRegistrationHelper.USER_SESSION_EXPIRED));
         }
     }
 

@@ -83,7 +83,7 @@ public class CommCareExceptionHandler implements UncaughtExceptionHandler {
 
         Throwable sessionUnavailableException = getSessionUnavailableException(causes);
         if (sessionUnavailableException != null) {
-            SessionActivityRegistration.redirectToLogin(ctx);
+            SessionRegistrationHelper.redirectToLogin(ctx);
             return true;
         }
         return false;
