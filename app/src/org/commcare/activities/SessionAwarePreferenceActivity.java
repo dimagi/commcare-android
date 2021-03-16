@@ -14,7 +14,7 @@ public class SessionAwarePreferenceActivity extends CommCarePreferenceActivity {
     @Override
     protected void onResume() {
         super.onResume();
-
+        SessionActivityRegistration.registerSessionExpirationReceiver(this);
         SessionActivityRegistration.handleOrListenForSessionExpiration(this);
     }
 

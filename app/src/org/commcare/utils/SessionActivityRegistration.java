@@ -41,8 +41,6 @@ public class SessionActivityRegistration {
      * methods of activities that are session sensitive.
      */
     public static boolean handleOrListenForSessionExpiration(AppCompatActivity activity) {
-        activity.registerReceiver(userSessionExpiredReceiver, expirationFilter);
-
         synchronized (registrationLock) {
             if (unredirectedSessionExpiration) {
                 unredirectedSessionExpiration = false;
@@ -51,6 +49,10 @@ public class SessionActivityRegistration {
             }
             return false;
         }
+    }
+
+    public static void registerSessionExpirationReceiver(AppCompatActivity activity) {
+        activity.registerReceiver(userSessionExpiredReceiver, expirationFilter);
     }
 
     /**

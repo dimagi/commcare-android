@@ -28,6 +28,7 @@ public abstract class SessionAwareListActivity extends CommcareListActivity impl
     @Override
     protected void onResume() {
         super.onResume();
+        SessionActivityRegistration.registerSessionExpirationReceiver(this);
         SessionAwareHelper.onResumeHelper(this, this, redirectedInOnCreate);
     }
 

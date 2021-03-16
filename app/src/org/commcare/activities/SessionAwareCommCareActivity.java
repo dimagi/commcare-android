@@ -27,6 +27,7 @@ public abstract class SessionAwareCommCareActivity<R> extends CommCareActivity<R
     @Override
     protected void onResume() {
         super.onResume();
+        SessionActivityRegistration.registerSessionExpirationReceiver(this);
         SessionAwareHelper.onResumeHelper(this, this, redirectedInOnCreate);
     }
 
