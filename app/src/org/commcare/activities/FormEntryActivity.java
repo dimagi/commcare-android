@@ -332,6 +332,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                     ImageCaptureProcessing.processCaptureResponse(this, FormEntryInstanceState.getInstanceFolder(), true);
                     break;
                 case FormEntryConstants.SIGNATURE_CAPTURE:
+                    Logger.log(LogTypes.SOFT_ASSERT, "Signature captured successfully");
                     boolean saved = ImageCaptureProcessing.processCaptureResponse(this, FormEntryInstanceState.getInstanceFolder(), false);
                     if (saved && !uiController.questionsView.isQuestionList()) {
                         // attempt to auto-advance if a signature was captured

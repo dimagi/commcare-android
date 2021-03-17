@@ -203,6 +203,7 @@ public class DrawActivity extends AppCompatActivity {
 
     private void saveAndClose() {
         try {
+            Logger.log(LogTypes.SOFT_ASSERT, "Attempting to save signature");
             saveFile(output);
             setResult(AppCompatActivity.RESULT_OK);
         } catch (FileNotFoundException e) {
