@@ -5,7 +5,7 @@ import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 
 import org.commcare.CommCareApplication;
-import org.commcare.utils.SessionActivityRegistration;
+import org.commcare.utils.SessionRegistrationHelper;
 import org.commcare.utils.SessionUnavailableException;
 
 /**
@@ -21,7 +21,7 @@ public class SessionAwareHelper {
             sessionAware.onCreateSessionSafe(savedInstanceState);
             return false;
         } catch (SessionUnavailableException e) {
-            SessionActivityRegistration.redirectToLogin(a);
+            SessionRegistrationHelper.redirectToLogin(a);
             a.finish();
             return true;
         }
@@ -30,13 +30,13 @@ public class SessionAwareHelper {
     protected static void onResumeHelper(AppCompatActivity a, SessionAwareInterface sessionAware,
                                          boolean redirectedInOnCreate) {
         boolean redirectedToLogin =
-                SessionActivityRegistration.handleOrListenForSessionExpiration(a) ||
+                SessionRegistrationHelper.handleSessionExpiration(a) ||
                         redirectedInOnCreate;
         if (!redirectedToLogin) {
             try {
                 sessionAware.onResumeSessionSafe();
             } catch (SessionUnavailableException e) {
-                SessionActivityRegistration.redirectToLogin(a);
+                SessionRegistrationHelper.redirectToLogin(a);
             }
         }
     }
@@ -44,7 +44,7 @@ public class SessionAwareHelper {
     protected static void onActivityResultHelper(AppCompatActivity a, SessionAwareInterface sessionAware,
                                                  int requestCode, int resultCode, Intent intent) {
         boolean redirectedToLogin =
-                SessionActivityRegistration.handleOrListenForSessionExpiration(a);
+                SessionRegistrationHelper.handleSessionExpiration(a);
         if (!redirectedToLogin) {
             sessionAware.onActivityResultSessionSafe(requestCode, resultCode, intent);
         }

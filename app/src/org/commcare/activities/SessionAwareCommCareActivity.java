@@ -3,7 +3,7 @@ package org.commcare.activities;
 import android.content.Intent;
 import android.os.Bundle;
 
-import org.commcare.utils.SessionActivityRegistration;
+import org.commcare.utils.SessionRegistrationHelper;
 
 /**
  * Manage redirection to login screen when session expiration occurs.
@@ -27,6 +27,7 @@ public abstract class SessionAwareCommCareActivity<R> extends CommCareActivity<R
     @Override
     protected void onResume() {
         super.onResume();
+        SessionRegistrationHelper.registerSessionExpirationReceiver(this);
         SessionAwareHelper.onResumeHelper(this, this, redirectedInOnCreate);
     }
 
@@ -46,6 +47,6 @@ public abstract class SessionAwareCommCareActivity<R> extends CommCareActivity<R
     @Override
     protected void onPause() {
         super.onPause();
-        SessionActivityRegistration.unregisterSessionExpirationReceiver(this);
+        SessionRegistrationHelper.unregisterSessionExpirationReceiver(this);
     }
 }

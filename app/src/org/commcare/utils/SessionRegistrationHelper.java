@@ -14,14 +14,14 @@ import org.commcare.activities.DispatchActivity;
  *
  * @author Phillip Mates (pmates@dimagi.com)
  */
-public class SessionActivityRegistration {
-    private static final String TAG = SessionActivityRegistration.class.getSimpleName();
+public class SessionRegistrationHelper {
+    private static final String TAG = SessionRegistrationHelper.class.getSimpleName();
 
     public static final String USER_SESSION_EXPIRED =
             "org.commcare.dalvik.application.user_session_expired";
 
     private static final IntentFilter expirationFilter =
-            new IntentFilter(SessionActivityRegistration.USER_SESSION_EXPIRED);
+            new IntentFilter(SessionRegistrationHelper.USER_SESSION_EXPIRED);
 
     private static boolean unredirectedSessionExpiration;
     private static final Object registrationLock = new Object();
@@ -40,9 +40,7 @@ public class SessionActivityRegistration {
      * listen for session expiration broadcasts. Call this method in onResume
      * methods of activities that are session sensitive.
      */
-    public static boolean handleOrListenForSessionExpiration(AppCompatActivity activity) {
-        activity.registerReceiver(userSessionExpiredReceiver, expirationFilter);
-
+    public static boolean handleSessionExpiration(AppCompatActivity activity) {
         synchronized (registrationLock) {
             if (unredirectedSessionExpiration) {
                 unredirectedSessionExpiration = false;
@@ -51,6 +49,10 @@ public class SessionActivityRegistration {
             }
             return false;
         }
+    }
+
+    public static void registerSessionExpirationReceiver(AppCompatActivity activity) {
+        activity.registerReceiver(userSessionExpiredReceiver, expirationFilter);
     }
 
     /**
