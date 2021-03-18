@@ -281,7 +281,6 @@ public class ListMultiWidget extends QuestionWidget {
         TextView questionText = (TextView) LayoutInflater.from(getContext()).inflate(R.layout.question_widget_text, null);
         setQuestionText(questionText, mPrompt);
         questionText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mQuestionFontSize);
-        questionText.setTypeface(null, Typeface.BOLD);
         questionText.setPadding(0, 0, 0, 7);
         questionText.setId(buttonIdBase); // assign random id
 

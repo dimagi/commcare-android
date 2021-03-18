@@ -94,6 +94,13 @@ public class GeoPointActivity extends AppCompatActivity implements TimerListener
     }
 
     @Override
+    protected void onDestroy() {
+        locationController.destroy();
+        mTimer.destroy();
+        super.onDestroy();
+    }
+
+    @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         switch (requestCode) {

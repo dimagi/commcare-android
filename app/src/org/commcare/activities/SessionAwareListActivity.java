@@ -1,10 +1,9 @@
 package org.commcare.activities;
 
-import android.app.ListActivity;
 import android.content.Intent;
 import android.os.Bundle;
 
-import org.commcare.utils.SessionActivityRegistration;
+import org.commcare.utils.SessionRegistrationHelper;
 
 /**
  * Reproduction of SessionAwareCommCareActivity, but for an activity that must extend ListActivity
@@ -28,6 +27,7 @@ public abstract class SessionAwareListActivity extends CommcareListActivity impl
     @Override
     protected void onResume() {
         super.onResume();
+        SessionRegistrationHelper.registerSessionExpirationReceiver(this);
         SessionAwareHelper.onResumeHelper(this, this, redirectedInOnCreate);
     }
 
@@ -38,7 +38,7 @@ public abstract class SessionAwareListActivity extends CommcareListActivity impl
     @Override
     protected void onPause() {
         super.onPause();
-        SessionActivityRegistration.unregisterSessionExpirationReceiver(this);
+        SessionRegistrationHelper.unregisterSessionExpirationReceiver(this);
     }
 
     @Override

@@ -1,8 +1,6 @@
 package org.commcare.activities;
 
-import android.preference.PreferenceActivity;
-
-import org.commcare.utils.SessionActivityRegistration;
+import org.commcare.utils.SessionRegistrationHelper;
 
 /**
  * Manage redirection to login screen when session expiration occurs.
@@ -14,14 +12,14 @@ public class SessionAwarePreferenceActivity extends CommCarePreferenceActivity {
     @Override
     protected void onResume() {
         super.onResume();
-
-        SessionActivityRegistration.handleOrListenForSessionExpiration(this);
+        SessionRegistrationHelper.registerSessionExpirationReceiver(this);
+        SessionRegistrationHelper.handleSessionExpiration(this);
     }
 
     @Override
     protected void onPause() {
         super.onPause();
 
-        SessionActivityRegistration.unregisterSessionExpirationReceiver(this);
+        SessionRegistrationHelper.unregisterSessionExpirationReceiver(this);
     }
 }

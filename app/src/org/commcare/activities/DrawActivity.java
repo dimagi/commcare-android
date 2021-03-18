@@ -23,6 +23,7 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
 import org.commcare.dalvik.R;
+import org.commcare.util.LogTypes;
 import org.commcare.utils.FileUtil;
 import org.commcare.utils.MediaUtil;
 import org.commcare.utils.StringUtils;
@@ -30,6 +31,7 @@ import org.commcare.views.dialogs.DialogChoiceItem;
 import org.commcare.views.dialogs.PaneledChoiceDialog;
 import org.commcare.views.widgets.ImageWidget;
 import org.commcare.views.widgets.SignatureWidget;
+import org.javarosa.core.services.Logger;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -201,10 +203,13 @@ public class DrawActivity extends AppCompatActivity {
 
     private void saveAndClose() {
         try {
+            Logger.log(LogTypes.SOFT_ASSERT, "Attempting to save signature");
             saveFile(output);
             setResult(AppCompatActivity.RESULT_OK);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
+            // We shouldn't have gotten a file not found exception since we're using ImageWidget.getTempFileForImageCapture.
+            Logger.log(LogTypes.TYPE_ERROR_DESIGN, "Couldn't save signature at " + output.toString() + " because of" + e.getMessage());
             setResult(AppCompatActivity.RESULT_CANCELED);
         }
         this.finish();
@@ -215,6 +220,7 @@ public class DrawActivity extends AppCompatActivity {
             // apparently on 4.x, the orientation change notification can occur
             // sometime before the view is rendered. In that case, the view
             // dimensions will not be known.
+            Logger.log(LogTypes.TYPE_ERROR_ASSERTION, "Found 0 width or height of view while saving signature");
             Log.e(t, "view has zero width or zero height");
         } else {
             FileOutputStream fos;

@@ -192,7 +192,6 @@ public class LabelWidget extends QuestionWidget {
         mQuestionText = (TextView) LayoutInflater.from(getContext()).inflate(R.layout.question_widget_text, null);
         setQuestionText(mQuestionText, mPrompt);
         mQuestionText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mQuestionFontSize);
-        mQuestionText.setTypeface(null, Typeface.BOLD);
         mQuestionText.setPadding(0, 0, 0, 7);
         mQuestionText.setId(RANDOM_BUTTON_ID); // assign random id
 
