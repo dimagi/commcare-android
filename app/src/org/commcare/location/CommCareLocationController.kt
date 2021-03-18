@@ -16,7 +16,6 @@ interface CommCareLocationController {
     fun start()
     fun stop()
     fun getLocation(): Location?
-    fun destroy()
 }
 
 fun CommCareLocationController.isLocationPermissionGranted(mContext: Context): Boolean {

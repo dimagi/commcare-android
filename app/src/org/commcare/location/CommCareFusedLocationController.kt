@@ -7,10 +7,10 @@ import com.google.android.gms.location.*
 /**
  * @author $|-|!˅@M
  */
-class CommCareFusedLocationController(private var mContext: Context?,
-                                      private var mListener: CommCareLocationListener?): CommCareLocationController {
+class CommCareFusedLocationController(private val mContext: Context,
+                                      private val mListener: CommCareLocationListener): CommCareLocationController {
 
-    private val mFusedLocationClient = LocationServices.getFusedLocationProviderClient(mContext!!)
+    private val mFusedLocationClient = LocationServices.getFusedLocationProviderClient(mContext)
     private val mLocationRequest = LocationRequest.create().apply {
         priority = LocationRequest.PRIORITY_HIGH_ACCURACY
         interval = LOCATION_UPDATE_INTERVAL
@@ -20,7 +20,7 @@ class CommCareFusedLocationController(private var mContext: Context?,
         override fun onLocationResult(result: LocationResult?) {
             result ?: return
             mCurrentLocation = result.lastLocation
-            mListener?.onLocationResult(mCurrentLocation!!)
+            mListener.onLocationResult(mCurrentLocation!!)
         }
     }
 
@@ -29,10 +29,10 @@ class CommCareFusedLocationController(private var mContext: Context?,
     }
 
     private fun requestUpdates() {
-        if (isLocationPermissionGranted(mContext!!)) {
+        if (isLocationPermissionGranted(mContext)) {
             mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback, null)
         } else {
-            mListener?.missingPermissions()
+            mListener.missingPermissions()
         }
     }
 
@@ -41,14 +41,14 @@ class CommCareFusedLocationController(private var mContext: Context?,
                 .addLocationRequest(mLocationRequest)
                 .setAlwaysShow(true)
                 .build()
-        val settingsClient = LocationServices.getSettingsClient(mContext!!)
+        val settingsClient = LocationServices.getSettingsClient(mContext)
         settingsClient.checkLocationSettings(locationSettingsRequest)
                 .addOnSuccessListener {
-                    mListener?.onLocationRequestStart()
+                    mListener.onLocationRequestStart()
                     requestUpdates()
                 }
                 .addOnFailureListener { exception ->
-                    mListener?.onLocationRequestFailure(CommCareLocationListener.Failure.ApiException(exception))
+                    mListener.onLocationRequestFailure(CommCareLocationListener.Failure.ApiException(exception))
                 }
     }
 
@@ -58,10 +58,5 @@ class CommCareFusedLocationController(private var mContext: Context?,
 
     override fun getLocation(): Location? {
         return mCurrentLocation
-    }
-
-    override fun destroy() {
-        mContext = null
-        mListener = null
     }
 }

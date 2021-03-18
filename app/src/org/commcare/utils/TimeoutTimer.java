@@ -10,7 +10,7 @@ import org.commcare.interfaces.TimerListener;
  * @author wspride
  */
 public class TimeoutTimer extends CountDownTimer {
-    private TimerListener mTimerListener;
+    private final TimerListener mTimerListener;
     private long mUntilFinished;
 
     public TimeoutTimer(long millisInFuture, TimerListener tl) {
@@ -22,12 +22,6 @@ public class TimeoutTimer extends CountDownTimer {
     public void onFinish() {
         mUntilFinished = 0;
         mTimerListener.notifyTimerFinished();
-        mTimerListener = null;
-    }
-
-    public void destroy() {
-        this.cancel();
-        mTimerListener = null;
     }
 
     @Override

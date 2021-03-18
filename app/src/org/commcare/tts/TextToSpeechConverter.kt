@@ -98,7 +98,6 @@ object TextToSpeechConverter {
         }
         mInitialized = false
         mTextToSpeech = null
-        mTTSCallback = null
     }
 
     /**

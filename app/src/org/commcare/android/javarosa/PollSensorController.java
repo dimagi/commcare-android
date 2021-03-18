@@ -145,10 +145,4 @@ public enum PollSensorController implements CommCareLocationListener {
         }
     }
 
-    public void destroy() {
-        if (mLocationController != null) {
-            mLocationController.destroy();
-        }
-    }
-
 }
