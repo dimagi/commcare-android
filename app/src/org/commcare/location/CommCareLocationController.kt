@@ -5,7 +5,7 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.location.Location
 import androidx.core.content.ContextCompat
-import org.commcare.CommCareApplicationg
+import org.commcare.CommCareApplication
 
 /**
  * @author $|-|!˅@M
