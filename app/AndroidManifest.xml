@@ -47,7 +47,8 @@
         android:required="false"/>
 
     <uses-sdk tools:overrideLibrary="com.dimagi.android.zebraprinttool, com.simprints.libsimprints,
-    ru.noties.markwon.il, ru.noties.markwon.view, ru.noties.markwon.renderer, com.google.firebase.crashlytics, com.google.firebase.iid"/>
+    ru.noties.markwon.il, ru.noties.markwon.view, ru.noties.markwon.renderer, 
+    com.google.firebase.crashlytics, com.google.firebase.iid, com.google.zxing.client.android"/>
 
     <permission-group
         android:name="commcare.permission-group.DATABASE"
