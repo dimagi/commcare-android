@@ -4,10 +4,8 @@ import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
 import android.location.Location
-import androidx.core.app.ActivityCompat
-import com.google.android.gms.common.ConnectionResult
-import com.google.android.gms.common.GoogleApiAvailability
-import javax.annotation.Nullable
+import androidx.core.content.ContextCompat
+import org.commcare.CommCareApplicationg
 
 /**
  * @author $|-|!˅@M
@@ -19,7 +17,8 @@ interface CommCareLocationController {
     fun destroy()
 }
 
-fun CommCareLocationController.isLocationPermissionGranted(mContext: Context): Boolean {
-    return ActivityCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED &&
-            ActivityCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
+fun CommCareLocationController.isLocationPermissionGranted(mContext: Context?): Boolean {
+    val context = mContext ?: CommCareApplication.instance()
+    return ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED &&
+            ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
 }

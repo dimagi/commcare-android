@@ -11,6 +11,7 @@ class CommCareFusedLocationController(private var mContext: Context?,
                                       private var mListener: CommCareLocationListener?): CommCareLocationController {
 
     private val mFusedLocationClient = LocationServices.getFusedLocationProviderClient(mContext!!)
+    private val settingsClient = LocationServices.getSettingsClient(mContext!!)
     private val mLocationRequest = LocationRequest.create().apply {
         priority = LocationRequest.PRIORITY_HIGH_ACCURACY
         interval = LOCATION_UPDATE_INTERVAL
@@ -29,7 +30,7 @@ class CommCareFusedLocationController(private var mContext: Context?,
     }
 
     private fun requestUpdates() {
-        if (isLocationPermissionGranted(mContext!!)) {
+        if (isLocationPermissionGranted(mContext)) {
             mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback, null)
         } else {
             mListener?.missingPermissions()
@@ -41,7 +42,6 @@ class CommCareFusedLocationController(private var mContext: Context?,
                 .addLocationRequest(mLocationRequest)
                 .setAlwaysShow(true)
                 .build()
-        val settingsClient = LocationServices.getSettingsClient(mContext!!)
         settingsClient.checkLocationSettings(locationSettingsRequest)
                 .addOnSuccessListener {
                     mListener?.onLocationRequestStart()
