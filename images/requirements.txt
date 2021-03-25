@@ -1,4 +1,4 @@
-PyYAML==5.1
+PyYAML==5.4
 Pillow==6.2.0
 CairoSVG==2.5.1
 numpy==1.9.1
