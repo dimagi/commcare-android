@@ -327,7 +327,7 @@ public class QueryRequestActivity
         clearErrorState();
         ModernHttpTask httpTask = new ModernHttpTask(this,
                 remoteQuerySessionManager.getBaseUrl().toString(),
-                new HashMap(remoteQuerySessionManager.getRawQueryParams()),
+                new HashMap(remoteQuerySessionManager.getRawQueryParams(false)),
                 new HashMap(),
                 new AuthInfo.CurrentAuth());
         httpTask.connect((CommCareTaskConnector)this);
