@@ -22,6 +22,7 @@ import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.session.CommCareSession;
 import org.commcare.session.SessionNavigator;
 import org.commcare.utils.FormUploadUtil;
+import org.commcare.utils.RoboelectricUtil;
 import org.commcare.views.QuestionsView;
 import org.commcare.views.widgets.IntegerWidget;
 import org.javarosa.core.model.condition.EvaluationContext;
@@ -36,6 +37,7 @@ import org.robolectric.Shadows;
 import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowActivity;
 import org.robolectric.shadows.ShadowEnvironment;
+import org.robolectric.shadows.ShadowLooper;
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.ByteArrayInputStream;
@@ -124,6 +126,7 @@ public class FormRecordProcessingTest {
 
         StandardHomeActivity homeActivity =
                 Robolectric.buildActivity(StandardHomeActivity.class).create().get();
+        ShadowLooper.idleMainLooper();
         // make sure we don't actually submit forms by using a fake form submitter
         homeActivity.setFormAndDataSyncer(new FormAndDataSyncerFake());
         SessionNavigator sessionNavigator = homeActivity.getSessionNavigator();
@@ -136,7 +139,7 @@ public class FormRecordProcessingTest {
         FormEntryActivity formEntryActivity =
                 Robolectric.buildActivity(FormEntryActivity.class, formEntryIntent)
                         .create().start().resume().get();
-
+        ShadowLooper.idleMainLooper();
         // enter an answer for the question
         QuestionsView questionsView = formEntryActivity.getODKView();
         IntegerWidget cohort = (IntegerWidget)questionsView.getWidgets().get(0);
@@ -146,7 +149,7 @@ public class FormRecordProcessingTest {
         nextButton.performClick();
         View finishButton = formEntryActivity.findViewById(R.id.nav_btn_finish);
         finishButton.performClick();
-
+        RoboelectricUtil.flushBackgroundThread(formEntryActivity);
         ShadowActivity shadowFormEntryActivity = Shadows.shadowOf(formEntryActivity);
 
         long waitStartTime = new Date().getTime();

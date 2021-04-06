@@ -14,6 +14,7 @@ import org.commcare.android.util.TestAppInstaller;
 import org.commcare.dalvik.R;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.utils.AndroidCommCarePlatform;
+import org.commcare.utils.RoboelectricUtil;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -22,6 +23,7 @@ import org.robolectric.Shadows;
 import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowActivity;
 import org.robolectric.shadows.ShadowEnvironment;
+import org.robolectric.shadows.ShadowLooper;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertFalse;
@@ -83,7 +85,9 @@ public class XFormUpdateInfoTest {
         FormEntryActivity formEntryActivity =
                 Robolectric.buildActivity(FormEntryActivity.class, formEntryIntent)
                         .create().start().resume().get();
+        ShadowLooper.idleMainLooper();
         formEntryActivity.findViewById(R.id.nav_btn_finish).performClick();
+        RoboelectricUtil.flushBackgroundThread(formEntryActivity);
 
         ShadowActivity shadowFormEntryActivity = Shadows.shadowOf(formEntryActivity);
         while (!shadowFormEntryActivity.isFinishing()) {

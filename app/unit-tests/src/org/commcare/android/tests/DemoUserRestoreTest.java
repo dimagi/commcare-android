@@ -25,6 +25,7 @@ import org.robolectric.RuntimeEnvironment;
 import org.robolectric.Shadows;
 import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowActivity;
+import org.robolectric.shadows.ShadowLooper;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
@@ -50,6 +51,7 @@ public class DemoUserRestoreTest {
         LoginActivity loginActivity =
                 Robolectric.buildActivity(LoginActivity.class, loginActivityIntent)
                         .setup().get();
+        ShadowLooper.idleMainLooper();
         ShadowActivity shadowActivity = Shadows.shadowOf(loginActivity);
         shadowActivity.clickMenuItem(LoginActivity.MENU_DEMO);
     }
@@ -61,6 +63,7 @@ public class DemoUserRestoreTest {
         StandardHomeActivity homeActivity =
                 Robolectric.buildActivity(StandardHomeActivity.class, homeActivityIntent)
                         .setup().get();
+        ShadowLooper.idleMainLooper();
         return Shadows.shadowOf(homeActivity);
     }
 
@@ -77,7 +80,7 @@ public class DemoUserRestoreTest {
 
         loginAsDemoUser();
         ShadowActivity shadowActivity = launchHomeActivityForDemoUser();
-
+        ShadowLooper.idleMainLooper();
         checkOptionsMenuVisibility(shadowActivity);
 
         AndroidSandbox sandbox = new AndroidSandbox(CommCareApplication.instance());

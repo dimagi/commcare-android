@@ -24,6 +24,9 @@ import org.robolectric.RuntimeEnvironment;
 import org.robolectric.Shadows;
 import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowActivity;
+import org.robolectric.shadows.ShadowLooper;
+
+import java.util.concurrent.ExecutionException;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -82,9 +85,12 @@ public class UpdateActivityTest {
         referenceIntent.putExtra(InstallArchiveActivity.ARCHIVE_JR_REFERENCE, invalidUpdateReference);
         shadowActivity.receiveResult(shadowActivity.getNextStartedActivity(), AppCompatActivity.RESULT_OK,
                 referenceIntent);
-
-        Robolectric.flushBackgroundThreadScheduler();
-        Robolectric.flushForegroundThreadScheduler();
+        try {
+            updateActivity.updateTask.get();
+        } catch (ExecutionException | InterruptedException e) {
+            e.printStackTrace();
+        }
+        ShadowLooper.idleMainLooper();
 
         // assert that we get the right error message
         String errorMessage = (String)((TextView)updateActivity

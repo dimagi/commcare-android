@@ -257,7 +257,6 @@ public class CommCareTestApplication extends CommCareApplication implements Test
 
     @Override
     public void afterTest(Method method) {
-        Robolectric.flushBackgroundThreadScheduler();
         if (!asyncExceptions.isEmpty()) {
             for (Throwable throwable : asyncExceptions) {
                 throwable.printStackTrace();

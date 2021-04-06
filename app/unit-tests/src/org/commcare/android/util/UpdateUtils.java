@@ -7,6 +7,9 @@ import org.commcare.tasks.TaskListener;
 import org.commcare.tasks.TaskListenerRegistrationException;
 import org.commcare.update.UpdateTask;
 import org.robolectric.Robolectric;
+import org.robolectric.shadows.ShadowLooper;
+
+import java.util.concurrent.ExecutionException;
 
 import static junit.framework.TestCase.assertEquals;
 import static org.junit.Assert.fail;
@@ -33,10 +36,12 @@ public class UpdateUtils {
         } catch (TaskListenerRegistrationException e) {
             fail("failed to register listener for update task");
         }
-        updateTask.execute(profileRef);
-
-        Robolectric.flushBackgroundThreadScheduler();
-        Robolectric.flushForegroundThreadScheduler();
+        try {
+            updateTask.execute(profileRef).get();
+        } catch (ExecutionException | InterruptedException e) {
+            e.printStackTrace();
+        }
+        ShadowLooper.idleMainLooper();
         return updateTask;
     }
 

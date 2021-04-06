@@ -69,7 +69,7 @@ public class IncompleteFormListAdapter extends BaseAdapter implements FormRecord
      */
     private String[] queryPieces = new String[0];
 
-    private FormRecordLoaderTask loader;
+    public FormRecordLoaderTask loader;
 
     /**
      * Maps form namespace (unique id for forms) to their form title

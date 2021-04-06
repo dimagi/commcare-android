@@ -24,7 +24,11 @@ import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowActivity;
 import org.robolectric.shadows.ShadowEnvironment;
 import org.robolectric.shadows.ShadowListView;
+import org.robolectric.shadows.ShadowLooper;
 
+import java.util.concurrent.ExecutionException;
+
+import static android.os.Looper.getMainLooper;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -63,8 +67,7 @@ public class FormRecordListActivityTest {
                         .resume().get();
 
         // wait for saved forms to load
-        Robolectric.flushBackgroundThreadScheduler();
-        Robolectric.flushForegroundThreadScheduler();
+        ShadowLooper.idleMainLooper();
 
         ShadowListView shadowEntityList = assertSavedFormEntries(expectedFormCount, savedFormsActivity);
         shadowEntityList.performItemClick(formIndexToSelect);
@@ -93,6 +96,12 @@ public class FormRecordListActivityTest {
                 (IncompleteFormListAdapter)entityList.getAdapter();
         adapter.setFormFilter(FormRecordListActivity.FormRecordFilter.Submitted);
         adapter.resetRecords();
+        try {
+            adapter.loader.get();
+        } catch (ExecutionException | InterruptedException e) {
+            e.printStackTrace();
+        }
+        ShadowLooper.idleMainLooper();
         assertEquals(expectedFormCount, adapter.getCount());
         return Shadows.shadowOf(entityList);
     }
@@ -109,10 +118,7 @@ public class FormRecordListActivityTest {
                 homeActivityShadow.getNextStartedActivityForResult();
         Robolectric.buildActivity(FormEntryActivity.class, formEntryIntent.intent)
                         .create().start().resume().get();
-
-        Robolectric.flushBackgroundThreadScheduler();
-        Robolectric.flushForegroundThreadScheduler();
-
+        ShadowLooper.idleMainLooper();
         assertNotNull(FormEntryActivity.mFormController);
     }
 }

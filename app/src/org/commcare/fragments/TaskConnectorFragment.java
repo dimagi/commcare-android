@@ -90,4 +90,8 @@ public class TaskConnectorFragment<R> extends Fragment {
         acquireWakeLock(activity);
         this.currentTask = task;
     }
+
+    public CommCareTask getCurrentTask() {
+        return currentTask;
+    }
 }

@@ -5,17 +5,11 @@ import android.os.AsyncTask;
 import org.robolectric.annotation.Implements;
 import org.robolectric.shadows.ShadowAsyncTask;
 import org.robolectric.shadows.ShadowLegacyAsyncTask;
+import org.robolectric.shadows.ShadowPausedAsyncTask;
 
 import java.util.concurrent.Executor;
 
 @Implements(AsyncTask.class)
-public class ShadowAsyncTaskNoExecutor extends ShadowLegacyAsyncTask {
+public class ShadowAsyncTaskNoExecutor extends ShadowPausedAsyncTask {
 
-    /**
-     * Because robolectric doesn't handle executeOnExecutor very well
-     */
-    @Override
-    public AsyncTask executeOnExecutor(Executor executor, Object[] params) {
-        return this.execute(params);
-    }
 }

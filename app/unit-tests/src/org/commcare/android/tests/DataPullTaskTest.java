@@ -15,6 +15,9 @@ import org.junit.runner.RunWith;
 import org.robolectric.Robolectric;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
+import org.robolectric.shadows.ShadowLooper;
+
+import java.util.concurrent.ExecutionException;
 
 /**
  * Coverage for different DataPullTask codepaths.
@@ -178,11 +181,13 @@ public class DataPullTaskTest {
                 };
 
         task.connect(TestAppInstaller.fakeConnector);
-        task.execute();
         pullTask = task;
-
-        Robolectric.flushBackgroundThreadScheduler();
-        Robolectric.flushForegroundThreadScheduler();
+        try {
+            dataPullResult = task.execute().get();
+        } catch (ExecutionException | InterruptedException e) {
+            e.printStackTrace();
+        }
+        ShadowLooper.idleMainLooper();
     }
 
     private void installAndUseLocalKeys() {

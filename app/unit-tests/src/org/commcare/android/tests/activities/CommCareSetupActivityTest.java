@@ -11,6 +11,7 @@ import org.commcare.CommCareTestApplication;
 import org.commcare.activities.CommCareSetupActivity;
 import org.commcare.activities.InstallArchiveActivity;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import org.commcare.utils.RoboelectricUtil;
 import org.javarosa.core.services.locale.Localization;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -19,7 +20,6 @@ import org.robolectric.RuntimeEnvironment;
 import org.robolectric.Shadows;
 import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowActivity;
-
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -69,9 +69,7 @@ public class CommCareSetupActivityTest {
         Intent referenceIntent = new Intent();
         referenceIntent.putExtra(InstallArchiveActivity.ARCHIVE_JR_REFERENCE, invalidUpdateReference);
         shadowActivity.receiveResult(shadowActivity.getNextStartedActivity(), AppCompatActivity.RESULT_OK, referenceIntent);
-
-        Robolectric.flushBackgroundThreadScheduler();
-        Robolectric.flushForegroundThreadScheduler();
+        RoboelectricUtil.flushBackgroundThread(setupActivity);
 
         // assert that we get the right error message
         assertTrue(setupActivity.getErrorMessageToDisplay().contains(Localization.get("notification.install.invalid.title")));

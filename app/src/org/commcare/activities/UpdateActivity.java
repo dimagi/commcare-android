@@ -85,7 +85,7 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
 
     private boolean taskIsCancelling;
     private boolean isApplyingUpdate;
-    private UpdateTask updateTask;
+    public UpdateTask updateTask;
     private UpdateUIController uiController;
 
     private boolean proceedAutomatically;
@@ -390,6 +390,7 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
             profileRef = ResourceInstallUtils.getDefaultProfileRef();
         }
         uiController.downloadingUiState();
+
         updateTask.executeParallel(profileRef);
     }
 

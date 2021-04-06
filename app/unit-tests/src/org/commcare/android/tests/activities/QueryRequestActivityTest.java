@@ -26,6 +26,7 @@ import org.commcare.models.AndroidSessionWrapper;
 import org.commcare.models.database.AndroidSandbox;
 import org.commcare.session.CommCareSession;
 import org.commcare.suite.model.ComputedDatum;
+import org.commcare.utils.RoboelectricUtil;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
@@ -37,10 +38,12 @@ import org.robolectric.Robolectric;
 import org.robolectric.Shadows;
 import org.robolectric.android.controller.ActivityController;
 import org.robolectric.annotation.Config;
+import org.robolectric.shadows.ShadowLooper;
 import org.robolectric.shadows.ShadowToast;
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
+import java.util.concurrent.ExecutionException;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -101,12 +104,10 @@ public class QueryRequestActivityTest {
                 new String[]{"jr://resource/commcare-apps/case_search_and_claim/good-query-result.xml"});
 
         QueryRequestActivity queryRequestActivity = buildActivityAndSetViews().get();
-
-        Button queryButton = queryRequestActivity.findViewById(R.id.request_button);
-        queryButton.performClick();
-
-        assertEquals(AppCompatActivity.RESULT_OK,
-                Shadows.shadowOf(queryRequestActivity).getResultCode());
+        triggerQueryRequest(queryRequestActivity);
+        int resultCode = Shadows.shadowOf(queryRequestActivity).getResultCode();
+        ShadowLooper.idleMainLooper();
+        assertEquals(AppCompatActivity.RESULT_OK, resultCode);
         assertTrue(queryRequestActivity.isFinishing());
     }
 
@@ -124,11 +125,7 @@ public class QueryRequestActivityTest {
 
         ActivityController<QueryRequestActivity> controller = buildActivityAndSetViews();
         QueryRequestActivity queryRequestActivity = controller.get();
-
-        Button queryButton =
-                queryRequestActivity.findViewById(R.id.request_button);
-        queryButton.performClick();
-
+        triggerQueryRequest(queryRequestActivity);
         TextView errorMessage = queryRequestActivity.findViewById(R.id.error_message);
         assertEquals(View.VISIBLE, errorMessage.getVisibility());
         String expectedErrorPart = Localization.get("query.response.format.error", "");
@@ -247,18 +244,16 @@ public class QueryRequestActivityTest {
         EditText patientId = promptsLayout.getChildAt(1).findViewById(R.id.prompt_et);
         patientId.setText("");
 
-        Button queryButton =
-                queryRequestActivity.findViewById(R.id.request_button);
-        queryButton.performClick();
+        triggerQueryRequest(queryRequestActivity);
 
         Assert.assertEquals(Localization.get("query.response.empty"),
                 ShadowToast.getTextOfLatestToast());
 
-        queryButton.performClick();
+        triggerQueryRequest(queryRequestActivity);
         Assert.assertEquals(Localization.get("query.response.empty"),
                 ShadowToast.getTextOfLatestToast());
 
-        queryButton.performClick();
+        triggerQueryRequest(queryRequestActivity);
         assertEquals(AppCompatActivity.RESULT_OK,
                 Shadows.shadowOf(queryRequestActivity).getResultCode());
         assertTrue(queryRequestActivity.isFinishing());
@@ -304,5 +299,11 @@ public class QueryRequestActivityTest {
         ActivityController<QueryRequestActivity> controller =
                 Robolectric.buildActivity(QueryRequestActivity.class, queryActivityIntent).setup();
         return controller;
+    }
+
+    private void triggerQueryRequest(QueryRequestActivity queryRequestActivity) {
+        Button queryButton = queryRequestActivity.findViewById(R.id.request_button);
+        queryButton.performClick();
+        RoboelectricUtil.flushBackgroundThread(queryRequestActivity);
     }
 }

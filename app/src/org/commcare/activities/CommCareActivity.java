@@ -942,4 +942,8 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
     protected String getLocalizedString(int stringResource) {
         return StringUtils.getStringRobust(this, stringResource);
     }
+
+    public CommCareTask getCurrentTask() {
+        return stateHolder.getCurrentTask();
+    }
 }

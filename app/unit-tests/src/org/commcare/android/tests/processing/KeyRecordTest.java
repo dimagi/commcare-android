@@ -24,6 +24,7 @@ import org.junit.runner.RunWith;
 import org.robolectric.Robolectric;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
+import org.robolectric.shadows.ShadowLooper;
 
 import java.util.Date;
 
@@ -140,8 +141,7 @@ public class KeyRecordTest {
                         password, LoginMode.PASSWORD, app, false, false, keyXmlFile);
         keyRecordTest.connect((CommCareTaskConnector)new DataPullControllerMock(expectedMessage));
         keyRecordTest.execute();
-        Robolectric.flushBackgroundThreadScheduler();
-        Robolectric.flushForegroundThreadScheduler();
+        ShadowLooper.idleMainLooper();
     }
 
     private static void markOutOfDate(SqlStorage<UserKeyRecord> recordStorage) {
