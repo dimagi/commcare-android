@@ -1,10 +1,12 @@
 package org.commcare.android.javarosa;
 
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.BadParcelableException;
 import android.os.Bundle;
+import android.os.ParcelFileDescriptor;
 import android.util.Log;
 
 import org.commcare.provider.IdentityCalloutHandler;
@@ -37,7 +39,11 @@ import org.javarosa.xpath.parser.XPathSyntaxException;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.channels.FileChannel;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
@@ -166,7 +172,7 @@ public class IntentCallout implements Externalizable {
     /**
      * @return if answer was set from intent successfully
      */
-    public boolean processResponse(Intent intent, TreeReference intentQuestionRef, File destination) {
+    public boolean processResponse(Intent intent, TreeReference intentQuestionRef, File destination, Context context) {
         if (intentInvalid(intent)) {
             return false;
         } else if (IdentityCalloutHandler.isIdentityCalloutResponse(intent)) {
@@ -174,7 +180,7 @@ public class IntentCallout implements Externalizable {
         } else if (SimprintsCalloutProcessing.isRegistrationResponse(intent)) {
             return SimprintsCalloutProcessing.processRegistrationResponse(formDef, intent, intentQuestionRef, responseToRefMap);
         } else {
-            return processOdkResponse(intent, intentQuestionRef, destination) ||
+            return processOdkResponse(intent, intentQuestionRef, destination, context) ||
                     // because print callouts don't set a result
                     isPrintIntentCallout();
         }
@@ -204,7 +210,7 @@ public class IntentCallout implements Externalizable {
         return false;
     }
 
-    private boolean processOdkResponse(Intent intent, TreeReference intentQuestionRef, File destination) {
+    private boolean processOdkResponse(Intent intent, TreeReference intentQuestionRef, File destination, Context context) {
         String result = intent.getStringExtra(INTENT_RESULT_VALUE);
         setNodeValue(formDef, intentQuestionRef, result);
 
@@ -219,7 +225,7 @@ public class IntentCallout implements Externalizable {
                     if (!response.containsKey(key)) {
                         continue;
                     }
-                    setOdkResponseValue(intentQuestionRef, destination, response.getString(key), responseToRefMap.get(key));
+                    setOdkResponseValue(intentQuestionRef, destination, response.getString(key), responseToRefMap.get(key), context);
                 }
             } else {
                 // Check if intent has response keys as extras.
@@ -229,7 +235,7 @@ public class IntentCallout implements Externalizable {
                         continue;
                     }
                     hasExtra = true;
-                    setOdkResponseValue(intentQuestionRef, destination, intent.getStringExtra(key), responseToRefMap.get(key));
+                    setOdkResponseValue(intentQuestionRef, destination, intent.getStringExtra(key), responseToRefMap.get(key), context);
                 }
                 if (hasExtra) {
                     return true;
@@ -239,13 +245,13 @@ public class IntentCallout implements Externalizable {
         return (result != null);
     }
 
-    private void setOdkResponseValue(TreeReference intentQuestionRef, File destination, String responseValue, Vector<TreeReference> responseRefs) {
+    private void setOdkResponseValue(TreeReference intentQuestionRef, File destination, String responseValue, Vector<TreeReference> responseRefs, Context context) {
         if (responseValue == null) {
             responseValue = "";
         }
 
         for (TreeReference ref : responseRefs) {
-            processResponseItem(ref, responseValue, intentQuestionRef, destination);
+            processResponseItem(ref, responseValue, intentQuestionRef, destination, context);
         }
     }
 
@@ -271,7 +277,7 @@ public class IntentCallout implements Externalizable {
     }
 
     private void processResponseItem(TreeReference ref, String responseValue,
-                                     TreeReference contextRef, File destinationFile) {
+                                     TreeReference contextRef, File destinationFile, Context androidContext) {
         TreeReference fullRef = ref.contextualize(contextRef);
         EvaluationContext context = new EvaluationContext(formDef.getEvaluationContext(), contextRef);
         AbstractTreeElement node = context.resolveReference(fullRef);
@@ -284,13 +290,13 @@ public class IntentCallout implements Externalizable {
 
         //TODO: Handle file system errors in a way that is more visible to the user
         if (dataType == Constants.DATATYPE_BINARY) {
-            storePointerToFileResponse(fullRef, responseValue, destinationFile);
+            storePointerToFileResponse(fullRef, responseValue, destinationFile, androidContext);
         } else {
             setValueInFormDef(formDef, fullRef, responseValue, dataType);
         }
     }
 
-    private void storePointerToFileResponse(TreeReference ref, String responseValue, File destinationFile) {
+    private void storePointerToFileResponse(TreeReference ref, String responseValue, File destinationFile, Context androidContext) {
         //We need to copy the binary data at this address into the appropriate location
         if (responseValue == null || responseValue.equals("")) {
             //If the response was blank, wipe out any data that was present before
@@ -303,10 +309,53 @@ public class IntentCallout implements Externalizable {
         if (!src.exists()) {
             //TODO: How hard should we be failing here?
             Log.w(TAG, "CommCare received a link to a file at " + src.toString() + " to be included in the form, but it was not present on the phone!");
+
+            Uri uri = Uri.parse(responseValue);
+
+            try {
+                ParcelFileDescriptor inFile = androidContext.getContentResolver().openFileDescriptor(uri, "r");
+
+                File newFile = new File(destinationFile, uri.getLastPathSegment());
+
+                long fileLength = -1;
+
+                //Looks like our source file exists, so let's go grab it
+                try {
+                    FileChannel srcFc;
+                    srcFc = new FileInputStream(inFile.getFileDescriptor()).getChannel();
+                    fileLength = srcFc.size();
+                    FileChannel dst = new FileOutputStream(newFile).getChannel();
+                    dst.transferFrom(srcFc, 0, srcFc.size());
+                    srcFc.close();
+                    dst.close();
+                } catch (IOException e) {
+                    Log.e(TAG, "IOExeception copying Intent binary.");
+                    e.printStackTrace();
+                } finally {
+                    try {
+                        inFile.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                //That code throws no errors, so we have to manually check whether the copy worked.
+                if (newFile.exists() && newFile.length() == fileLength) {
+                    formDef.setValue(new StringData(newFile.getName()), ref);
+                } else {
+                    Log.e(TAG, "CommCare failed to property write a file to " + newFile.toString());
+                    formDef.setValue(null, ref);
+                }
+
+            } catch (FileNotFoundException e) {
+                throw new RuntimeException(e);
+            }
+
+
             //Wipe out any reference that exists
+            //CS: Fix this later
             formDef.setValue(null, ref);
         } else {
-
             File newFile = new File(destinationFile, src.getName());
 
             //Looks like our source file exists, so let's go grab it
