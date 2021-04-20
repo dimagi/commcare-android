@@ -10,6 +10,7 @@ import android.graphics.Bitmap;
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.Build;
+import android.os.ParcelFileDescriptor;
 import android.provider.MediaStore;
 import android.provider.OpenableColumns;
 import android.util.Log;
@@ -23,6 +24,7 @@ import org.commcare.resources.model.MissingMediaException;
 import org.commcare.resources.model.Resource;
 import org.commcare.util.LogTypes;
 import org.javarosa.core.io.StreamsUtil;
+import org.javarosa.core.model.data.StringData;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.Reference;
 import org.javarosa.core.reference.ReferenceManager;
@@ -125,6 +127,59 @@ public class FileUtil {
         return input;
     }
 
+    /**
+     * Copies a source file from a FileProvider Content provider into a file directory local
+     * to this application.
+     *
+     * The app needs to already have permissions granted for the external file content.
+     *
+     * @param contentUri A valid uri to a contentprovider backed external file
+     * @param destDir The destination directory for the file to be copied into.
+     *
+     * @return The destination copy of the file
+     */
+    public static File copyContentFileToLocalDir(Uri contentUri, File destDir, Context context) throws IOException {
+        ParcelFileDescriptor inFile = context.getContentResolver().openFileDescriptor(contentUri, "r");
+
+        File newFile = new File(destDir, getContentFileName(contentUri, context));
+
+        long fileLength = -1;
+
+        //Looks like our source file exists, so let's go grab it
+        FileChannel srcFc = null;
+        FileChannel dst = null;
+        try {
+            srcFc = new FileInputStream(inFile.getFileDescriptor()).getChannel();
+            fileLength = srcFc.size();
+            dst = new FileOutputStream(newFile).getChannel();
+            dst.transferFrom(srcFc, 0, fileLength);
+        } finally {
+            try {
+                if(srcFc != null) {
+                    srcFc.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            try {
+                if(dst != null) {
+                    dst.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            try {
+                inFile.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        if (!newFile.exists() || newFile.length() != fileLength) {
+            throw new IOException("Failed to copy file from content path " + contentUri.toString() + " to dest " + newFile);
+        }
+        return newFile;
+    }
+
     public static void copyFile(File oldPath, File newPath) throws IOException {
         if (oldPath.exists()) {
             if (newPath.isDirectory()) {
@@ -140,7 +195,6 @@ public class FileUtil {
         } else {
             Log.e(LOG_TOKEN, "Source file does not exist: " + oldPath.getAbsolutePath());
         }
-
     }
 
     public static void copyFile(File oldPath, File newPath, Cipher oldRead, Cipher newWrite) throws IOException {
@@ -277,6 +331,44 @@ public class FileUtil {
         }
         return out;
     }
+
+    /**
+     * Identifies whether the provided string is a content URI as defined in
+     * https://developer.android.com/reference/android/content/ContentUris
+     */
+    public static boolean isContentUri(String input) {
+        if (input == null) { return false; }
+
+        return "content".equals(Uri.parse(input).getScheme());
+    }
+
+    /**
+     * Retrieves a filename for a FileProvider backed file at a content URI.
+     *
+     * This is a best faith method which will attempt to get a valid filename either from the
+     * content provider or guess from the URI
+     */
+    public static String getContentFileName(Uri uri, Context context) {
+        String result = null;
+        Cursor cursor = context.getContentResolver().query(uri, new String[] {OpenableColumns.DISPLAY_NAME}, null, null, null);
+        try {
+            if (cursor != null && cursor.moveToFirst()) {
+                result = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
+            }
+        } catch(Exception e) {
+            e.printStackTrace();
+        } finally {
+            cursor.close();
+        }
+
+        if (result == null || "".equals(result)) {
+            result = uri.getLastPathSegment();
+        }
+        //We should potentially check this for compatibility with our media types, or at
+        //least confirm it has an extension and fail if not (or add a .bat default)
+        return result;
+    }
+
 
     /**
      * Turn a filepath into a global android URI that can be passed

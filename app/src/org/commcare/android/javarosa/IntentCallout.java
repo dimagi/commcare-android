@@ -307,75 +307,48 @@ public class IntentCallout implements Externalizable {
             return;
         }
 
-        //Otherwise, grab that file
-        File src = new File(responseValue);
-        if (!src.exists()) {
-            //TODO: How hard should we be failing here?
-            Log.w(TAG, "CommCare received a link to a file at " + src.toString() + " to be included in the form, but it was not present on the phone!");
-
-            Uri uri = Uri.parse(responseValue);
-
-            try {
-                ParcelFileDescriptor inFile = CommCareApplication.instance().getApplicationContext().getContentResolver().openFileDescriptor(uri, "r");
-
-                File newFile = new File(destinationFile, uri.getLastPathSegment());
-
-                long fileLength = -1;
-
-                //Looks like our source file exists, so let's go grab it
-                try {
-                    FileChannel srcFc;
-                    srcFc = new FileInputStream(inFile.getFileDescriptor()).getChannel();
-                    fileLength = srcFc.size();
-                    FileChannel dst = new FileOutputStream(newFile).getChannel();
-                    dst.transferFrom(srcFc, 0, srcFc.size());
-                    srcFc.close();
-                    dst.close();
-                } catch (IOException e) {
-                    Log.e(TAG, "IOExeception copying Intent binary.");
-                    e.printStackTrace();
-                } finally {
-                    try {
-                        inFile.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-
-                //That code throws no errors, so we have to manually check whether the copy worked.
-                if (newFile.exists() && newFile.length() == fileLength) {
-                    formDef.setValue(new StringData(newFile.getName()), ref);
-                } else {
-                    Log.e(TAG, "CommCare failed to property write a file to " + newFile.toString());
-                    formDef.setValue(null, ref);
-                }
-
-            } catch (FileNotFoundException e) {
-                throw new RuntimeException(e);
-            }
-
+        try {
+            File localCopy = copyFileToLocalDirectory(responseValue, destinationFile);
+            formDef.setValue(new StringData(localCopy.getName()), ref);
+            return;
+        } catch (FileNotFoundException fnfe) {
+            Log.w(TAG, "CommCare received a link to a file at " + responseValue + " to be included in the form, but it was not present on the phone!");
 
             //Wipe out any reference that exists
-            //CS: Fix this later
             formDef.setValue(null, ref);
+        } catch (IOException ioe) {
+            ioe.printStackTrace();
+            Log.e(TAG,"CommCare failed to copy a binary input from an intent callout from: " + responseValue);
+            //Wipe out any reference that exists
+            formDef.setValue(null, ref);
+        }
+    }
+
+    /**
+     * Copy the provided input source to a local directory. Valid inputs are file paths or content
+     * uris.
+     *
+     * @throws FileNotFoundException If the source file doesn't exist
+     */
+    private File copyFileToLocalDirectory(String inputSource, File destinationFile) throws IOException {
+        if (FileUtil.isContentUri(inputSource)) {
+            Uri uri = Uri.parse(inputSource);
+
+            return FileUtil.copyContentFileToLocalDir(uri, destinationFile, CommCareApplication.instance().getApplicationContext());
         } else {
+            File src = new File(inputSource);
+            if(!src.exists()) {
+                throw new FileNotFoundException(inputSource);
+            }
+
             File newFile = new File(destinationFile, src.getName());
 
             //Looks like our source file exists, so let's go grab it
-            try {
-                FileUtil.copyFile(src, newFile);
-            } catch (IOException e) {
-                Log.e(TAG, "IOExeception copying Intent binary.");
-                e.printStackTrace();
+            FileUtil.copyFile(src, newFile);
+            if (!newFile.exists() || newFile.length() != src.length()) {
+                throw new IOException("Failed to copy file from src " + src.toString() + " to dest " + newFile);
             }
-
-            //That code throws no errors, so we have to manually check whether the copy worked.
-            if (newFile.exists() && newFile.length() == src.length()) {
-                formDef.setValue(new StringData(newFile.getName()), ref);
-            } else {
-                Log.e(TAG, "CommCare failed to property write a file to " + newFile.toString());
-                formDef.setValue(null, ref);
-            }
+            return newFile;
         }
     }
 
