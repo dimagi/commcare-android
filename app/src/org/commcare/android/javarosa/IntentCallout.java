@@ -1,5 +1,6 @@
 package org.commcare.android.javarosa;
 
+import android.app.Application;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -9,6 +10,8 @@ import android.os.Bundle;
 import android.os.ParcelFileDescriptor;
 import android.util.Log;
 
+import org.commcare.CommCareApp;
+import org.commcare.CommCareApplication;
 import org.commcare.provider.IdentityCalloutHandler;
 import org.commcare.provider.SimprintsCalloutProcessing;
 import org.commcare.util.LogTypes;
@@ -172,7 +175,7 @@ public class IntentCallout implements Externalizable {
     /**
      * @return if answer was set from intent successfully
      */
-    public boolean processResponse(Intent intent, TreeReference intentQuestionRef, File destination, Context context) {
+    public boolean processResponse(Intent intent, TreeReference intentQuestionRef, File destination) {
         if (intentInvalid(intent)) {
             return false;
         } else if (IdentityCalloutHandler.isIdentityCalloutResponse(intent)) {
@@ -180,7 +183,7 @@ public class IntentCallout implements Externalizable {
         } else if (SimprintsCalloutProcessing.isRegistrationResponse(intent)) {
             return SimprintsCalloutProcessing.processRegistrationResponse(formDef, intent, intentQuestionRef, responseToRefMap);
         } else {
-            return processOdkResponse(intent, intentQuestionRef, destination, context) ||
+            return processOdkResponse(intent, intentQuestionRef, destination) ||
                     // because print callouts don't set a result
                     isPrintIntentCallout();
         }
@@ -210,7 +213,7 @@ public class IntentCallout implements Externalizable {
         return false;
     }
 
-    private boolean processOdkResponse(Intent intent, TreeReference intentQuestionRef, File destination, Context context) {
+    private boolean processOdkResponse(Intent intent, TreeReference intentQuestionRef, File destination) {
         String result = intent.getStringExtra(INTENT_RESULT_VALUE);
         setNodeValue(formDef, intentQuestionRef, result);
 
@@ -225,7 +228,7 @@ public class IntentCallout implements Externalizable {
                     if (!response.containsKey(key)) {
                         continue;
                     }
-                    setOdkResponseValue(intentQuestionRef, destination, response.getString(key), responseToRefMap.get(key), context);
+                    setOdkResponseValue(intentQuestionRef, destination, response.getString(key), responseToRefMap.get(key));
                 }
             } else {
                 // Check if intent has response keys as extras.
@@ -235,7 +238,7 @@ public class IntentCallout implements Externalizable {
                         continue;
                     }
                     hasExtra = true;
-                    setOdkResponseValue(intentQuestionRef, destination, intent.getStringExtra(key), responseToRefMap.get(key), context);
+                    setOdkResponseValue(intentQuestionRef, destination, intent.getStringExtra(key), responseToRefMap.get(key));
                 }
                 if (hasExtra) {
                     return true;
@@ -245,13 +248,13 @@ public class IntentCallout implements Externalizable {
         return (result != null);
     }
 
-    private void setOdkResponseValue(TreeReference intentQuestionRef, File destination, String responseValue, Vector<TreeReference> responseRefs, Context context) {
+    private void setOdkResponseValue(TreeReference intentQuestionRef, File destination, String responseValue, Vector<TreeReference> responseRefs) {
         if (responseValue == null) {
             responseValue = "";
         }
 
         for (TreeReference ref : responseRefs) {
-            processResponseItem(ref, responseValue, intentQuestionRef, destination, context);
+            processResponseItem(ref, responseValue, intentQuestionRef, destination);
         }
     }
 
@@ -277,7 +280,7 @@ public class IntentCallout implements Externalizable {
     }
 
     private void processResponseItem(TreeReference ref, String responseValue,
-                                     TreeReference contextRef, File destinationFile, Context androidContext) {
+                                     TreeReference contextRef, File destinationFile) {
         TreeReference fullRef = ref.contextualize(contextRef);
         EvaluationContext context = new EvaluationContext(formDef.getEvaluationContext(), contextRef);
         AbstractTreeElement node = context.resolveReference(fullRef);
@@ -290,13 +293,13 @@ public class IntentCallout implements Externalizable {
 
         //TODO: Handle file system errors in a way that is more visible to the user
         if (dataType == Constants.DATATYPE_BINARY) {
-            storePointerToFileResponse(fullRef, responseValue, destinationFile, androidContext);
+            storePointerToFileResponse(fullRef, responseValue, destinationFile);
         } else {
             setValueInFormDef(formDef, fullRef, responseValue, dataType);
         }
     }
 
-    private void storePointerToFileResponse(TreeReference ref, String responseValue, File destinationFile, Context androidContext) {
+    private void storePointerToFileResponse(TreeReference ref, String responseValue, File destinationFile) {
         //We need to copy the binary data at this address into the appropriate location
         if (responseValue == null || responseValue.equals("")) {
             //If the response was blank, wipe out any data that was present before
@@ -313,7 +316,7 @@ public class IntentCallout implements Externalizable {
             Uri uri = Uri.parse(responseValue);
 
             try {
-                ParcelFileDescriptor inFile = androidContext.getContentResolver().openFileDescriptor(uri, "r");
+                ParcelFileDescriptor inFile = CommCareApplication.instance().getApplicationContext().getContentResolver().openFileDescriptor(uri, "r");
 
                 File newFile = new File(destinationFile, uri.getLastPathSegment());
 
