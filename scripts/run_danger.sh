@@ -15,4 +15,4 @@ gem install danger
 gem install danger-jira
 gem install danger-android_lint
 
-danger --fail-on-errors=true
+danger
