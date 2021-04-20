@@ -468,7 +468,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                         // Set our instance destination for binary data if needed
                         String destination = instanceState.getInstanceFolder();
                         wasAnswerSet = pendingIntentWidget.getIntentCallout()
-                                .processResponse(response, contextRef, new File(destination));
+                                .processResponse(response, contextRef, new File(destination), this);
                     }
                 }
 
