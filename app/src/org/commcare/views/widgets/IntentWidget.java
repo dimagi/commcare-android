@@ -1,6 +1,8 @@
 package org.commcare.views.widgets;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.AppCompatButton;
+
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
@@ -91,7 +93,7 @@ public class IntentWidget extends QuestionWidget {
         } else {
             mStringAnswer = new TextView(getContext());
         }
-        launchIntentButton = new Button(getContext());
+        launchIntentButton = new AppCompatButton(getContext());
         setupTextView();
         setupButton();
     }
