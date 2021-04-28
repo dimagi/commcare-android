@@ -10,7 +10,6 @@ import org.commcare.CommCareApplication;
 import org.commcare.android.logging.ForceCloseLogger;
 import org.commcare.android.storage.framework.Persisted;
 import org.commcare.dalvik.R;
-import org.commcare.models.AndroidSessionWrapper;
 import org.commcare.models.FormRecordProcessor;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.models.framework.Persisting;
@@ -37,7 +36,7 @@ import java.util.Date;
 import java.util.NoSuchElementException;
 
 /**
- * @author ctsims
+ * @author $|-|!˅@M
  */
 @Table(FormRecord.STORAGE_KEY)
 public class FormRecord extends Persisted implements EncryptedModel {
@@ -52,6 +51,7 @@ public class FormRecord extends Persisted implements EncryptedModel {
     public static final String META_SUBMISSION_ORDERING_NUMBER = "SUBMISSION_ORDERING_NUMBER";
     public static final String META_DISPLAY_NAME = "displayName";
     public static final String META_FILE_PATH = "instanceFilePath";
+    public static final String META_DESCRIPTOR = "descriptor";
 
 
     /**
@@ -99,7 +99,7 @@ public class FormRecord extends Persisted implements EncryptedModel {
 
     @StringDef({STATUS_UNSTARTED, STATUS_INCOMPLETE, STATUS_COMPLETE, STATUS_UNSENT, STATUS_SAVED, STATUS_QUARANTINED, STATUS_UNINDEXED, STATUS_JUST_DELETED})
     @Retention(RetentionPolicy.SOURCE)
-    private @interface FormRecordStatus {
+    public @interface FormRecordStatus {
     }
 
     public static final String QuarantineReason_LOCAL_PROCESSING_ERROR = "local-processing-error";
@@ -150,6 +150,10 @@ public class FormRecord extends Persisted implements EncryptedModel {
     @MetaField(META_FILE_PATH)
     private String filePath;
 
+    @Persisting(value = 11, nullable = true)
+    @MetaField(META_DESCRIPTOR)
+    private String descriptor;
+
     public FormRecord() {
     }
 
@@ -183,6 +187,7 @@ public class FormRecord extends Persisted implements EncryptedModel {
         displayName = oldRecord.displayName;
         filePath = oldRecord.filePath;
         recordId = oldRecord.recordId;
+        descriptor = oldRecord.descriptor;
     }
 
     /**
@@ -198,6 +203,14 @@ public class FormRecord extends Persisted implements EncryptedModel {
         FormRecord r = new FormRecord();
         r.status = STATUS_JUST_DELETED;
         return r;
+    }
+
+    public String getDescriptor() {
+        return descriptor;
+    }
+
+    public void setDescriptor(String descriptor) {
+        this.descriptor = descriptor;
     }
 
     public byte[] getAesKey() {

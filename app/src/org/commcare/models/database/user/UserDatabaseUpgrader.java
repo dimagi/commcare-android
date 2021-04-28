@@ -216,6 +216,12 @@ class UserDatabaseUpgrader {
                 oldVersion = 26;
             }
         }
+
+        if (oldVersion == 26) {
+            if (updateTwentySixTwentySeven(db)) {
+                oldVersion = 27;
+            }
+        }
     }
 
     private boolean upgradeOneTwo(final SQLiteDatabase db) {
@@ -724,6 +730,21 @@ class UserDatabaseUpgrader {
                     INDEXED_FIXTURE_PATHS_COL_ATTRIBUTES,
                     "BLOB"));
 
+            db.setTransactionSuccessful();
+            return true;
+        } finally {
+            db.endTransaction();
+        }
+    }
+
+    private boolean updateTwentySixTwentySeven(SQLiteDatabase db) {
+        db.beginTransaction();
+        try {
+            db.execSQL(DbUtil.addColumnToTable(
+                    FormRecord.STORAGE_KEY,
+                    FormRecord.META_DESCRIPTOR,
+                    "TEXT"));
+            UserDbUpgradeUtils.migrateV5FormRecords(c, db);
             db.setTransactionSuccessful();
             return true;
         } finally {

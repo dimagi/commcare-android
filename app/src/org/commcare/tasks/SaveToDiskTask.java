@@ -185,6 +185,7 @@ public class SaveToDiskTask extends
         if (formRecord != null) {
             try {
                 formRecord.setDisplayName(recordName);
+                formRecord.setDescriptor(FormEntryActivity.mFormController.getFormDescriptor());
                 formRecord.updateStatus(formRecordStorage, status);
             } catch (IllegalStateException e) {
                 throw new FormInstanceTransactionException(e);

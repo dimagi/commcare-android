@@ -1,6 +1,7 @@
 package org.commcare.tasks;
 
 import android.content.Context;
+import android.text.TextUtils;
 import android.text.format.DateUtils;
 import android.util.Pair;
 
@@ -151,6 +152,9 @@ public class FormRecordLoaderTask extends ManagedAsyncTask<FormRecord, Pair<Form
         recordTextDesc.add(DateUtils.formatDateTime(context, current.lastModified().getTime(), DateUtils.FORMAT_NO_MONTH_DAY | DateUtils.FORMAT_NO_YEAR).toLowerCase());
 
         String dataTitle = loadDataTitle(current.getID());
+        if (TextUtils.isEmpty(dataTitle) && current.getDescriptor() != null) {
+            dataTitle = current.getDescriptor();
+        }
         recordTextDesc.add(dataTitle);
 
         if (formNames.containsKey(current.getFormNamespace())) {

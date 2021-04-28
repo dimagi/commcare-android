@@ -15,6 +15,7 @@ import org.commcare.android.database.user.models.FormRecordV1;
 import org.commcare.android.database.user.models.FormRecordV2;
 import org.commcare.android.database.user.models.FormRecordV3;
 import org.commcare.android.database.user.models.FormRecordV4;
+import org.commcare.android.database.user.models.FormRecordV5;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.cases.ledger.Ledger;
 import org.commcare.models.database.ConcreteAndroidDbHelper;
@@ -206,10 +207,10 @@ public class UserDbUpgradeUtils {
         SqlStorage<FormRecordV4> oldStorage = getFormRecordStorage(c, db, FormRecordV4.class);
 
         Vector<Uri> migratedInstances = new Vector<>();
-        Vector<Pair<FormRecord, Uri>> newRecords = new Vector<>();
+        Vector<Pair<FormRecordV5, Uri>> newRecords = new Vector<>();
 
         for (FormRecordV4 oldRecord : oldStorage) {
-            FormRecord newRecord = new FormRecord(
+            FormRecordV5 newRecord = new FormRecordV5(
                     oldRecord.getStatus(),
                     oldRecord.getFormNamespace(),
                     oldRecord.getAesKey(),
@@ -242,13 +243,13 @@ public class UserDbUpgradeUtils {
         db.execSQL(builder.getTableCreateString());
 
         // Write to the new table
-        SqlStorage<FormRecord> newStorage = getFormRecordStorage(c, db, FormRecord.class);
+        SqlStorage<FormRecordV5> newStorage = getFormRecordStorage(c, db, FormRecord.class);
         SqlStorage<SessionStateDescriptor> ssdStorage = new SqlStorage<>(
                 SessionStateDescriptor.STORAGE_KEY,
                 SessionStateDescriptor.class,
                 new ConcreteAndroidDbHelper(c, db));
         for (Pair entry : newRecords) {
-            FormRecord newRecord = ((FormRecord)entry.first);
+            FormRecordV5 newRecord = ((FormRecordV5)entry.first);
             int oldId = newRecord.getID();
 
             // Since we are writing in new table, reset the id before write
@@ -268,6 +269,23 @@ public class UserDbUpgradeUtils {
         }
 
         return migratedInstances;
+    }
+
+    protected static void migrateV5FormRecords(Context c, SQLiteDatabase db) {
+        SqlStorage<FormRecordV5> oldStorage = getFormRecordStorage(c, db, FormRecordV5.class);
+        SqlStorage<FormRecord> newStorage = getFormRecordStorage(c, db, FormRecord.class);
+
+        for (FormRecordV5 oldRecord : oldStorage) {
+            FormRecord newRecord = new FormRecord(
+                    oldRecord.getStatus(),
+                    oldRecord.getFormNamespace(),
+                    oldRecord.getAesKey(),
+                    oldRecord.getInstanceID(),
+                    oldRecord.lastModified(),
+                    oldRecord.getAppId());
+            newRecord.setID(oldRecord.getID());
+            newStorage.write(newRecord);
+        }
     }
 
     public static SqlStorage getFormRecordStorage(Context c, SQLiteDatabase db, Class formRecordClass) {
