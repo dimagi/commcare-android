@@ -16,6 +16,7 @@ import static org.commcare.android.database.user.models.FormRecord.META_STATUS;
 import static org.commcare.android.database.user.models.FormRecord.META_SUBMISSION_ORDERING_NUMBER;
 import static org.commcare.android.database.user.models.FormRecord.META_UUID;
 import static org.commcare.android.database.user.models.FormRecord.META_XMLNS;
+import static org.commcare.android.database.user.models.FormRecord.QUARANTINE_REASON_AND_DETAIL_SEPARATOR;
 
 /**
  * @author ctsims
@@ -139,6 +140,23 @@ public class FormRecordV5 extends Persisted implements EncryptedModel {
         return Integer.parseInt(submissionOrderingNumber);
     }
 
+    public String getQuarantineReasonType() {
+        return (quarantineReason == null) ?
+                null :
+                quarantineReason.split(QUARANTINE_REASON_AND_DETAIL_SEPARATOR)[0];
+    }
+
+    public String getQuarantineReasonDetail() {
+        if (quarantineReason == null) {
+            return null;
+        }
+        String[] typeAndDetail = this.quarantineReason.split(QUARANTINE_REASON_AND_DETAIL_SEPARATOR);
+        if (typeAndDetail.length == 2) {
+            return typeAndDetail[1];
+        } else {
+            return null;
+        }
+    }
     /**
      * Get the file system path to the encrypted XML submission file.
      *

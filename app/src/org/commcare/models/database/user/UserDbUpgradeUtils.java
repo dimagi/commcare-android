@@ -283,6 +283,10 @@ public class UserDbUpgradeUtils {
                     oldRecord.getInstanceID(),
                     oldRecord.lastModified(),
                     oldRecord.getAppId());
+            newRecord.setFormNumberForSubmissionOrdering(oldRecord.getSubmissionOrderingNumber());
+            newRecord.setQuarantineReason(oldRecord.getQuarantineReasonType(), oldRecord.getQuarantineReasonDetail());
+            newRecord.setDisplayName(oldRecord.getDisplayName());
+            newRecord.setFilePath(oldRecord.getFilePath());
             newRecord.setID(oldRecord.getID());
             newStorage.write(newRecord);
         }

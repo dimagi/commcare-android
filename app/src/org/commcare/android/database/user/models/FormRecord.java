@@ -108,7 +108,7 @@ public class FormRecord extends Persisted implements EncryptedModel {
     public static final String QuarantineReason_MANUAL = "manual-quarantine";
     public static final String QuarantineReason_FILE_NOT_FOUND = "file-not-found";
 
-    private static final String QUARANTINE_REASON_AND_DETAIL_SEPARATOR = "@@SEP@@";
+    public static final String QUARANTINE_REASON_AND_DETAIL_SEPARATOR = "@@SEP@@";
 
     @Persisting(1)
     @MetaField(META_XMLNS)
