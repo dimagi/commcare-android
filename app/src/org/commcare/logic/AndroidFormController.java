@@ -5,6 +5,7 @@ import androidx.annotation.NonNull;
 import org.commcare.google.services.analytics.FormAnalyticsHelper;
 import org.commcare.utils.FileUtil;
 import org.commcare.views.widgets.WidgetFactory;
+import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.FormIndex;
 import org.javarosa.form.api.FormController;
 import org.javarosa.form.api.FormEntryController;
@@ -82,5 +83,9 @@ public class AndroidFormController extends FormController implements PendingCall
 
     public FormAnalyticsHelper getFormAnalyticsHelper() {
         return formAnalyticsHelper;
+    }
+
+    public FormDef getFormDef() {
+        return mFormEntryController.getModel().getForm();
     }
 }

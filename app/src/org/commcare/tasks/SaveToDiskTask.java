@@ -13,12 +13,14 @@ import org.commcare.logging.XPathErrorLogger;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.models.encryption.EncryptionIO;
 import org.commcare.tasks.templates.CommCareTask;
+import org.commcare.util.FormMetaIndicatorUtil;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.FileUtil;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.FormIndex;
 import org.javarosa.core.model.instance.FormInstance;
+import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.transport.payload.ByteArrayPayload;
@@ -185,7 +187,11 @@ public class SaveToDiskTask extends
         if (formRecord != null) {
             try {
                 formRecord.setDisplayName(recordName);
-                formRecord.setDescriptor(FormEntryActivity.mFormController.getFormDescriptor());
+                String caseName = FormMetaIndicatorUtil.getPragma(
+                        FormMetaIndicatorUtil.CASE_NAME_DESCRIPTOR,
+                        FormEntryActivity.mFormController.getFormDef(),
+                        TreeReference.rootRef());
+                formRecord.setDescriptor(caseName);
                 formRecord.updateStatus(formRecordStorage, status);
             } catch (IllegalStateException e) {
                 throw new FormInstanceTransactionException(e);

@@ -151,9 +151,9 @@ public class FormRecordLoaderTask extends ManagedAsyncTask<FormRecord, Pair<Form
         // Get the date in a searchable format.
         recordTextDesc.add(DateUtils.formatDateTime(context, current.lastModified().getTime(), DateUtils.FORMAT_NO_MONTH_DAY | DateUtils.FORMAT_NO_YEAR).toLowerCase());
 
-        String dataTitle = loadDataTitle(current.getID());
-        if (TextUtils.isEmpty(dataTitle) && current.getDescriptor() != null) {
-            dataTitle = current.getDescriptor();
+        String dataTitle = current.getDescriptor();
+        if (TextUtils.isEmpty(dataTitle)) {
+            dataTitle = loadDataTitle(current.getID());
         }
         recordTextDesc.add(dataTitle);
 
