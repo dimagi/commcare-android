@@ -1,12 +1,9 @@
 apply plugin: 'com.android.library'
 apply plugin: 'maven-publish'
+group = 'com.github.dimagi'
 
 version '12.4'
 
-ext {
-    BINTRAY_USERNAME = project.properties['BINTRAY_USERNAME'] ?: ""
-    BINTRAY_PASSWORD = project.properties['BINTRAY_PASSWORD'] ?: ""
-}
 
 afterEvaluate {
     publishing {
@@ -38,16 +35,6 @@ afterEvaluate {
                         url = 'https://github.com/dimagi/commcare-support-library.git'
                     }
                 }
-            }
-        }
-        repositories {
-            maven {
-                credentials {
-                    username project.ext.BINTRAY_USERNAME
-                    password project.ext.BINTRAY_PASSWORD
-                }
-                name = 'dimagi-commcare-support-library'
-                url = 'https://api.bintray.com/maven/dimagi/commcare-support-library/commcare-support-library/;publish=1'
             }
         }
     }
