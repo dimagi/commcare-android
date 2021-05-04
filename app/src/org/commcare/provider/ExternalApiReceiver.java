@@ -97,11 +97,12 @@ public class ExternalApiReceiver extends BroadcastReceiver {
     }
 
     private void performAction(final Context context, Bundle b) {
-        if ("login".equals(b.getString("commcareaction"))) {
+        String ccAction = b.getString("commcareaction", "");
+        if ("login".equals(ccAction)) {
             String username = b.getString("username");
             String password = b.getString("password");
             tryLocalLogin(context, username, password);
-        } else if ("sync".equals(b.getString("commcareaction"))) {
+        } else if ("sync".equals(ccAction)) {
             checkAndStartUnsentTask(context);
         }
     }
