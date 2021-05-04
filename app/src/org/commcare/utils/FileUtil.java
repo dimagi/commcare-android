@@ -13,6 +13,7 @@ import android.os.Build;
 import android.os.ParcelFileDescriptor;
 import android.provider.MediaStore;
 import android.provider.OpenableColumns;
+import android.text.TextUtils;
 import android.util.Log;
 import android.util.Pair;
 import android.webkit.MimeTypeMap;
@@ -525,22 +526,51 @@ public class FileUtil {
     /**
      * Retrieve a file's name using contentUri.
      * https://developer.android.com/training/secure-file-sharing/retrieve-info.html#RetrieveFileInfo
+     *
+     * @throws FileExtensionNotFoundException
      */
     public static String getFileName(Context context, Uri uri) {
+        String fileName;
         try (Cursor cursor = context.getContentResolver().query(uri, null, null, null, null)) {
             if (cursor == null || cursor.getCount() <= 0) {
                 try {
-                    return getFileName(UriToFilePath.getPathFromUri(context, uri));
+                    fileName = getFileName(UriToFilePath.getPathFromUri(context, uri));
                 } catch (UriToFilePath.NoDataColumnForUriException e) {
-                    return uri.getLastPathSegment();
+                    fileName = uri.getLastPathSegment();
+                }
+            } else {
+                int nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
+                cursor.moveToFirst();
+                fileName = cursor.getString(nameIndex);
+                cursor.close();
+            }
+        }
+        if (TextUtils.isEmpty(getExtension(fileName))) {
+            String ext = getFileExtension(context, uri);
+            fileName = fileName + "." + ext;
+        }
+        return fileName;
+    }
+
+    /**
+     * @return file extension by getting the mimeType from the URI.
+     * @throws FileExtensionNotFoundException if we can't find mimeType from the URI.
+     */
+    private static String getFileExtension(Context context, Uri uri) {
+        String mimeType = context.getContentResolver().getType(uri);
+        if (TextUtils.isEmpty(mimeType)) {
+            try (Cursor cursor = context.getContentResolver().query(
+                    uri, new String[] { MediaStore.MediaColumns.MIME_TYPE }, null, null, null)) {
+                if (cursor != null && cursor.moveToFirst()) {
+                    mimeType = cursor.getString(cursor.getColumnIndex(MediaStore.MediaColumns.MIME_TYPE));
                 }
             }
-            int nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
-            cursor.moveToFirst();
-            String name = cursor.getString(nameIndex);
-            cursor.close();
-            return name;
-        } 
+        }
+        String ext = MimeTypeMap.getSingleton().getExtensionFromMimeType(mimeType);
+        if (TextUtils.isEmpty(ext)) {
+            throw new FileExtensionNotFoundException();
+        }
+        return ext;
     }
 
     public static String getFileName(String filePath) {
