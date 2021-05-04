@@ -15,6 +15,7 @@ import org.commcare.CommCareApplication;
 import org.commcare.provider.IdentityCalloutHandler;
 import org.commcare.provider.SimprintsCalloutProcessing;
 import org.commcare.util.LogTypes;
+import org.commcare.utils.FileExtensionNotFoundException;
 import org.commcare.utils.FileUtil;
 import org.javarosa.core.model.Constants;
 import org.javarosa.core.model.FormDef;
@@ -316,7 +317,10 @@ public class IntentCallout implements Externalizable {
 
             //Wipe out any reference that exists
             formDef.setValue(null, ref);
-        } catch (IOException ioe) {
+        } catch (FileExtensionNotFoundException e) {
+            Logger.exception(LogTypes.TYPE_ERROR_STORAGE, e);
+            formDef.setValue(null, ref);
+        }  catch (IOException ioe) {
             ioe.printStackTrace();
             Log.e(TAG,"CommCare failed to copy a binary input from an intent callout from: " + responseValue);
             //Wipe out any reference that exists

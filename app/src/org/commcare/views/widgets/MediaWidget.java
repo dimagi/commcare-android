@@ -15,6 +15,7 @@ import org.commcare.activities.components.FormEntryInstanceState;
 import org.commcare.dalvik.R;
 import org.commcare.logic.PendingCalloutInterface;
 import org.commcare.util.LogTypes;
+import org.commcare.utils.FileExtensionNotFoundException;
 import org.commcare.utils.FileUtil;
 import org.commcare.utils.FormUploadUtil;
 import org.commcare.utils.StringUtils;
@@ -187,6 +188,10 @@ public abstract class MediaWidget extends QuestionWidget {
         String binaryPath;
         try {
             binaryPath = getBinaryPathWithSizeCheck(binaryuri);
+        } catch (FileExtensionNotFoundException e) {
+            Logger.exception(LogTypes.TYPE_ERROR_STORAGE, e);
+            showToast("form.attachment.copy.fail");
+            return;
         } catch (IOException e) {
             e.printStackTrace();
             showToast("form.attachment.copy.fail");

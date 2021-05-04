@@ -10,6 +10,7 @@ import android.widget.Toast;
 import org.apache.commons.io.FilenameUtils;
 import org.commcare.dalvik.R;
 import org.commcare.util.LogTypes;
+import org.commcare.utils.FileExtensionNotFoundException;
 import org.commcare.utils.FileUtil;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
@@ -60,17 +61,21 @@ public class FilePreferenceDialogFragmentCompat extends EditTextPreferenceDialog
             if (resultCode == RESULT_OK && intent != null) {
                 Uri uri = intent.getData();
                 if (uri != null) {
-                    String fileName = FileUtil.getFileName(getContext(), uri);
-                    File destination = new File(getContext().getExternalCacheDir(), fileName);
                     try {
+                        String fileName = FileUtil.getFileName(getContext(), uri);
+                        File destination = new File(getContext().getExternalCacheDir(), fileName);
                         InputStream inputStream = getContext().getContentResolver().openInputStream(uri);
                         FileUtil.copyFile(inputStream, destination);
+                        validateFile(destination.getAbsolutePath());
+                    } catch (FileExtensionNotFoundException e) {
+                        Logger.exception(LogTypes.TYPE_ERROR_STORAGE, e);
+                        Toast.makeText(getActivity(), Localization.get("file.selection.failed"), Toast.LENGTH_LONG).show();
+                        return;
                     } catch (IOException e) {
                         Logger.exception(LogTypes.TYPE_MAINTENANCE, e);
                         Toast.makeText(getActivity(), Localization.get("file.selection.failed"), Toast.LENGTH_LONG).show();
                         return;
                     }
-                    validateFile(destination.getAbsolutePath());
                 } else {
                     Toast.makeText(getActivity(), Localization.get("file.selection.failed"), Toast.LENGTH_LONG).show();
                 }

@@ -546,7 +546,7 @@ public class FileUtil {
             }
         }
         if (TextUtils.isEmpty(getExtension(fileName))) {
-            String ext = getFileExtension(context, uri);
+            String ext = getFileExtension(context, uri, fileName);
             fileName = fileName + "." + ext;
         }
         return fileName;
@@ -556,7 +556,7 @@ public class FileUtil {
      * @return file extension by getting the mimeType from the URI.
      * @throws FileExtensionNotFoundException if we can't find mimeType from the URI.
      */
-    private static String getFileExtension(Context context, Uri uri) {
+    private static String getFileExtension(Context context, Uri uri, String fileName) {
         String mimeType = context.getContentResolver().getType(uri);
         if (TextUtils.isEmpty(mimeType)) {
             try (Cursor cursor = context.getContentResolver().query(
@@ -568,7 +568,11 @@ public class FileUtil {
         }
         String ext = MimeTypeMap.getSingleton().getExtensionFromMimeType(mimeType);
         if (TextUtils.isEmpty(ext)) {
-            throw new FileExtensionNotFoundException();
+            throw new FileExtensionNotFoundException(
+                    "Can't find extension for URI :: " + uri
+                    + " and mimeType :: " + mimeType
+                    + " and fileName :: " + fileName
+            );
         }
         return ext;
     }
