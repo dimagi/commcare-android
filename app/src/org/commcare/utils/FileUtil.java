@@ -141,7 +141,7 @@ public class FileUtil {
     public static File copyContentFileToLocalDir(Uri contentUri, File destDir, Context context) throws IOException {
         ParcelFileDescriptor inFile = context.getContentResolver().openFileDescriptor(contentUri, "r");
 
-        File newFile = new File(destDir, getContentFileName(contentUri, context));
+        File newFile = new File(destDir, getFileName(context, contentUri));
 
         long fileLength = -1;
 
@@ -343,34 +343,6 @@ public class FileUtil {
     }
 
     /**
-     * Retrieves a filename for a FileProvider backed file at a content URI.
-     *
-     * This is a best faith method which will attempt to get a valid filename either from the
-     * content provider or guess from the URI
-     */
-    public static String getContentFileName(Uri uri, Context context) {
-        String result = null;
-        Cursor cursor = context.getContentResolver().query(uri, new String[] {OpenableColumns.DISPLAY_NAME}, null, null, null);
-        try {
-            if (cursor != null && cursor.moveToFirst()) {
-                result = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
-            }
-        } catch(Exception e) {
-            e.printStackTrace();
-        } finally {
-            cursor.close();
-        }
-
-        if (result == null || "".equals(result)) {
-            result = uri.getLastPathSegment();
-        }
-        //We should potentially check this for compatibility with our media types, or at
-        //least confirm it has an extension and fail if not (or add a .bat default)
-        return result;
-    }
-
-
-    /**
      * Turn a filepath into a global android URI that can be passed
      * to an intent.
      */
@@ -560,7 +532,7 @@ public class FileUtil {
                 try {
                     return getFileName(UriToFilePath.getPathFromUri(context, uri));
                 } catch (UriToFilePath.NoDataColumnForUriException e) {
-                    return "";
+                    return uri.getLastPathSegment();
                 }
             }
             int nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);

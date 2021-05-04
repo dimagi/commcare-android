@@ -36,19 +36,19 @@ class FileUtilTest {
     @Test
     fun getFileName_withNullCursor_returnsUriSegment() {
         every { mockContext.contentResolver.query(any(), any(), any(), any(), any()) } returns null
-        val fileName = FileUtil.getContentFileName(Uri.parse("any"), mockContext)
+        val fileName = FileUtil.getFileName(mockContext, Uri.parse("any"))
         Assert.assertEquals(fileName, "any")
     }
 
     @Test
     fun getFileName_withValidCursor_shouldHaveExtension() {
         mediaCursor.setResults(arrayOf(MEDIA_WITH_EXT))
-        var fileName = FileUtil.getContentFileName(Uri.parse("any"), mockContext)
+        var fileName = FileUtil.getFileName(mockContext, Uri.parse("any"))
         var extension = FileUtil.getExtension(fileName)
         Assert.assertEquals(extension, "mp3")
 
         mediaCursor.setResults(arrayOf(MEDIA_WITHOUT_EXT))
-        fileName = FileUtil.getContentFileName(Uri.parse("any"), mockContext)
+        fileName = FileUtil.getFileName(mockContext, Uri.parse("any"))
         extension = FileUtil.getExtension(fileName)
         Assert.assertEquals(extension, "")
     }
