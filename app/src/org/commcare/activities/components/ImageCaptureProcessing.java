@@ -151,7 +151,7 @@ public class ImageCaptureProcessing {
             processImageGivenFilePath(activity, instanceFolder, finalFile.getAbsolutePath());
         } catch (IOException e) {
             e.printStackTrace();
-            Logger.exception(LogTypes.TYPE_ERROR_STORAGE, e);
+            Logger.exception("Error while processing chosen image ", e);
             Toast.makeText(activity, Localization.get("image.selection.not.saved"), Toast.LENGTH_LONG).show();
             return;
         }

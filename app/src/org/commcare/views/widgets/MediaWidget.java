@@ -189,7 +189,7 @@ public abstract class MediaWidget extends QuestionWidget {
         } catch (IOException e) {
             e.printStackTrace();
             showToast("form.attachment.copy.fail");
-            Logger.exception(LogTypes.TYPE_ERROR_STORAGE, e);
+            Logger.exception("Error while saving media ", e);
             return;
         }
 

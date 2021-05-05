@@ -312,7 +312,7 @@ public class IntentCallout implements Externalizable {
         } catch (IOException ioe) {
             ioe.printStackTrace();
             Log.e(TAG,"CommCare failed to copy a binary input from an intent callout from: " + responseValue);
-            Logger.exception(LogTypes.TYPE_ERROR_STORAGE, ioe);
+            Logger.exception("Failed to copy an attachment from intent callout ", ioe);
             //Wipe out any reference that exists
             formDef.setValue(null, ref);
         }

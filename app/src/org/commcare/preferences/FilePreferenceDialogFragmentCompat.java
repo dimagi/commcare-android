@@ -67,7 +67,7 @@ public class FilePreferenceDialogFragmentCompat extends EditTextPreferenceDialog
                         FileUtil.copyFile(inputStream, destination);
                         validateFile(destination.getAbsolutePath());
                     } catch (IOException e) {
-                        Logger.exception(LogTypes.TYPE_ERROR_STORAGE, e);
+                        Logger.exception("Error while fetching file ", e);
                         Toast.makeText(getActivity(), Localization.get("file.selection.failed"), Toast.LENGTH_LONG).show();
                         return;
                     }
