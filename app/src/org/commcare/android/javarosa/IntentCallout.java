@@ -1,21 +1,16 @@
 package org.commcare.android.javarosa;
 
-import android.app.Application;
 import android.content.ComponentName;
-import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.BadParcelableException;
 import android.os.Bundle;
-import android.os.ParcelFileDescriptor;
 import android.util.Log;
 
-import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.provider.IdentityCalloutHandler;
 import org.commcare.provider.SimprintsCalloutProcessing;
 import org.commcare.util.LogTypes;
-import org.commcare.utils.FileExtensionNotFoundException;
 import org.commcare.utils.FileUtil;
 import org.javarosa.core.model.Constants;
 import org.javarosa.core.model.FormDef;
@@ -43,11 +38,8 @@ import org.javarosa.xpath.parser.XPathSyntaxException;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.channels.FileChannel;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;

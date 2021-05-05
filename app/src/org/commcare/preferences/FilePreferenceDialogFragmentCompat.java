@@ -10,7 +10,6 @@ import android.widget.Toast;
 import org.apache.commons.io.FilenameUtils;
 import org.commcare.dalvik.R;
 import org.commcare.util.LogTypes;
-import org.commcare.utils.FileExtensionNotFoundException;
 import org.commcare.utils.FileUtil;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
