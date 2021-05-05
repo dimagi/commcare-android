@@ -529,7 +529,7 @@ public class FileUtil {
      *
      * @throws FileExtensionNotFoundException
      */
-    public static String getFileName(Context context, Uri uri) {
+    public static String getFileName(Context context, Uri uri) throws FileExtensionNotFoundException {
         String fileName;
         try (Cursor cursor = context.getContentResolver().query(uri, null, null, null, null)) {
             if (cursor == null || cursor.getCount() <= 0) {
@@ -556,7 +556,7 @@ public class FileUtil {
      * @return file extension by getting the mimeType from the URI.
      * @throws FileExtensionNotFoundException if we can't find mimeType from the URI.
      */
-    private static String getFileExtension(Context context, Uri uri, String fileName) {
+    private static String getFileExtension(Context context, Uri uri, String fileName) throws FileExtensionNotFoundException {
         String mimeType = context.getContentResolver().getType(uri);
         if (TextUtils.isEmpty(mimeType)) {
             try (Cursor cursor = context.getContentResolver().query(

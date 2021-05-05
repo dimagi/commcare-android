@@ -188,14 +188,10 @@ public abstract class MediaWidget extends QuestionWidget {
         String binaryPath;
         try {
             binaryPath = getBinaryPathWithSizeCheck(binaryuri);
-        } catch (FileExtensionNotFoundException e) {
-            Logger.exception(LogTypes.TYPE_ERROR_STORAGE, e);
-            showToast("form.attachment.copy.fail");
-            return;
         } catch (IOException e) {
             e.printStackTrace();
             showToast("form.attachment.copy.fail");
-            Logger.exception(LogTypes.TYPE_MAINTENANCE, e);
+            Logger.exception(LogTypes.TYPE_ERROR_STORAGE, e);
             return;
         }
 

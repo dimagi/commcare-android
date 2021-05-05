@@ -150,12 +150,9 @@ public class ImageCaptureProcessing {
                     getExternalTempPath(FileUtil.getFileName(activity, imageUri)));
             FileUtil.copyFile(inputStream, finalFile);
             processImageGivenFilePath(activity, instanceFolder, finalFile.getAbsolutePath());
-        } catch (FileExtensionNotFoundException e) {
-            Logger.exception(LogTypes.TYPE_ERROR_STORAGE, e);
-            Toast.makeText(activity, Localization.get("image.selection.not.saved"), Toast.LENGTH_LONG).show();
-            return;
-        }  catch (IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
+            Logger.exception(LogTypes.TYPE_ERROR_STORAGE, e);
             Toast.makeText(activity, Localization.get("image.selection.not.saved"), Toast.LENGTH_LONG).show();
             return;
         }
