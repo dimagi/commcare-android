@@ -36,7 +36,7 @@ import java.util.Date;
 import java.util.NoSuchElementException;
 
 /**
- * @author $|-|!˅@M
+ * @author ctsims
  */
 @Table(FormRecord.STORAGE_KEY)
 public class FormRecord extends Persisted implements EncryptedModel {
