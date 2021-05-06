@@ -1,16 +1,12 @@
 package org.commcare.android.javarosa;
 
-import android.app.Application;
 import android.content.ComponentName;
-import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.BadParcelableException;
 import android.os.Bundle;
-import android.os.ParcelFileDescriptor;
 import android.util.Log;
 
-import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.provider.IdentityCalloutHandler;
 import org.commcare.provider.SimprintsCalloutProcessing;
@@ -42,11 +38,8 @@ import org.javarosa.xpath.parser.XPathSyntaxException;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.channels.FileChannel;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
@@ -319,6 +312,7 @@ public class IntentCallout implements Externalizable {
         } catch (IOException ioe) {
             ioe.printStackTrace();
             Log.e(TAG,"CommCare failed to copy a binary input from an intent callout from: " + responseValue);
+            Logger.exception("Failed to copy an attachment from intent callout ", ioe);
             //Wipe out any reference that exists
             formDef.setValue(null, ref);
         }
