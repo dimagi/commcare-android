@@ -8,6 +8,7 @@ import org.commcare.CommCareApplication;
 import org.commcare.activities.FormEntryActivity;
 import org.commcare.modern.util.Pair;
 import org.commcare.util.LogTypes;
+import org.commcare.utils.FileExtensionNotFoundException;
 import org.commcare.utils.FileUtil;
 import org.commcare.views.widgets.ImageWidget;
 import org.javarosa.core.services.Logger;
@@ -149,6 +150,10 @@ public class ImageCaptureProcessing {
                     getExternalTempPath(FileUtil.getFileName(activity, imageUri)));
             FileUtil.copyFile(inputStream, finalFile);
             processImageGivenFilePath(activity, instanceFolder, finalFile.getAbsolutePath());
+        } catch (FileExtensionNotFoundException e) {
+            Logger.exception("Error while processing chosen image ", e);
+            Toast.makeText(activity, Localization.get("image.selection.invalid.extension"), Toast.LENGTH_LONG).show();
+            return;
         } catch (IOException e) {
             e.printStackTrace();
             Logger.exception("Error while processing chosen image ", e);

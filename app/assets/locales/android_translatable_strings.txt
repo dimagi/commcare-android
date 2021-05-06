@@ -428,6 +428,7 @@ no.file.browser.title=No File Browser Available
 no.file.browser=Your device does not have a file browser installed. Please download one from the playstore and then try again.
 template.error=Your template is not correctly formatted
 
+file.selection.invalid.extension=CommCare cannot select this file as it doesn't have an extension. Please rename the file to include a valid extension.
 file.selection.failed=Unable to resolve the chosen file. If the issue persists, you may need to delete the file you are targeting and then re-add it to the file system.
 file.copy.failed=A problem occurred while copying file
 file.not.exist=File does not exist
@@ -810,6 +811,7 @@ form.transfer.no.forms=No forms to send.
 form.attachment.invalid=Invalid filetype choosen. Please select a valid multimedia file.
 form.attachment.notfound=Unable to find the choosen file. Please try again.
 form.attachment.copy.fail=Unable to copy the choosen file.
+form.attachment.invalid.extension=The chosen file doesn't have an extension. Please rename the file to include a valid extension.
 form.attachment.success=Successfully added file.
 
 form.hierarchy=Form Hierarchy
@@ -817,6 +819,7 @@ form.hierarchy=Form Hierarchy
 invalid.image.selection=The image you have chosen cannot be located on your device. Please select another image.
 image.capture.not.saved=The image you have taken was not able to be saved properly. Please try again.
 image.selection.not.saved=The image you have chosen was not able to be saved properly. Please select another image.
+image.selection.invalid.extension=The image you have chosen doesn't have an extension, you may need to rename the image to include the proper extension.
 
 odk_perfect_match_color=\#87D13E
 odk_fuzzy_match_color=\#FFE88F

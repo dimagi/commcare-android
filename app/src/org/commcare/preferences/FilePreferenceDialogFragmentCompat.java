@@ -10,6 +10,7 @@ import android.widget.Toast;
 import org.apache.commons.io.FilenameUtils;
 import org.commcare.dalvik.R;
 import org.commcare.util.LogTypes;
+import org.commcare.utils.FileExtensionNotFoundException;
 import org.commcare.utils.FileUtil;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
@@ -66,7 +67,11 @@ public class FilePreferenceDialogFragmentCompat extends EditTextPreferenceDialog
                         InputStream inputStream = getContext().getContentResolver().openInputStream(uri);
                         FileUtil.copyFile(inputStream, destination);
                         validateFile(destination.getAbsolutePath());
-                    } catch (IOException e) {
+                    } catch (FileExtensionNotFoundException e) {
+                        Logger.exception("Error while fetching file ", e);
+                        Toast.makeText(getActivity(), Localization.get("file.selection.invalid.extension"), Toast.LENGTH_LONG).show();
+                        return;
+                    }  catch (IOException e) {
                         Logger.exception("Error while fetching file ", e);
                         Toast.makeText(getActivity(), Localization.get("file.selection.failed"), Toast.LENGTH_LONG).show();
                         return;
