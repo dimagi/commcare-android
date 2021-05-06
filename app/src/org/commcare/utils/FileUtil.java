@@ -531,7 +531,8 @@ public class FileUtil {
      */
     public static String getFileName(Context context, Uri uri) throws FileExtensionNotFoundException {
         String fileName;
-        try (Cursor cursor = context.getContentResolver().query(uri, null, null, null, null)) {
+        try (Cursor cursor = context.getContentResolver().query(
+                uri, new String[] { OpenableColumns.DISPLAY_NAME }, null, null, null)) {
             if (cursor == null || cursor.getCount() <= 0) {
                 try {
                     fileName = getFileName(UriToFilePath.getPathFromUri(context, uri));
