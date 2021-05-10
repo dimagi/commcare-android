@@ -121,7 +121,7 @@
     </style>
 
     <style name="Commcare.Button.Primary" parent="Widget.AppCompat.Button">
-        <item name="textAllCaps">false</item>
+        <item name="textAllCaps">true</item>
         <item name="android:minHeight">@dimen/dp60</item>
         <item name="android:textColor">@color/white</item>
         <item name="backgroundTint">@color/primary_button_background</item>
@@ -129,7 +129,7 @@
     </style>
 
     <style name="CommCare.Button.Default" parent="Widget.AppCompat.Button">
-        <item name="textAllCaps">false</item>
+        <item name="textAllCaps">true</item>
         <item name="backgroundTint">@null</item>
         <item name="android:textColor">@android:color/primary_text_light</item>
     </style>
