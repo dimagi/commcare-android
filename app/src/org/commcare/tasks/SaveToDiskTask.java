@@ -188,7 +188,7 @@ public class SaveToDiskTask extends
             try {
                 formRecord.setDisplayName(recordName);
                 String caseName = FormMetaIndicatorUtil.getPragma(
-                        FormMetaIndicatorUtil.CASE_NAME_DESCRIPTOR,
+                        FormMetaIndicatorUtil.FORM_DESCRIPTOR,
                         FormEntryActivity.mFormController.getFormDef(),
                         TreeReference.rootRef());
                 formRecord.setDescriptor(caseName);

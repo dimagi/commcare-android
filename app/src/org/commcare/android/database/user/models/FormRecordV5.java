@@ -8,21 +8,21 @@ import org.commcare.modern.models.MetaField;
 
 import java.util.Date;
 
-import static org.commcare.android.database.user.models.FormRecord.META_APP_ID;
-import static org.commcare.android.database.user.models.FormRecord.META_DISPLAY_NAME;
-import static org.commcare.android.database.user.models.FormRecord.META_FILE_PATH;
-import static org.commcare.android.database.user.models.FormRecord.META_LAST_MODIFIED;
-import static org.commcare.android.database.user.models.FormRecord.META_STATUS;
-import static org.commcare.android.database.user.models.FormRecord.META_SUBMISSION_ORDERING_NUMBER;
-import static org.commcare.android.database.user.models.FormRecord.META_UUID;
-import static org.commcare.android.database.user.models.FormRecord.META_XMLNS;
-import static org.commcare.android.database.user.models.FormRecord.QUARANTINE_REASON_AND_DETAIL_SEPARATOR;
-
 /**
  * @author ctsims
  */
 @Table(FormRecord.STORAGE_KEY)
 public class FormRecordV5 extends Persisted implements EncryptedModel {
+
+    private static final String META_STATUS = "STATUS";
+    private static final String META_UUID = "UUID";
+    private static final String META_XMLNS = "XMLNS";
+    private static final String META_LAST_MODIFIED = "DATE_MODIFIED";
+    private static final String META_APP_ID = "APP_ID";
+    private static final String META_SUBMISSION_ORDERING_NUMBER = "SUBMISSION_ORDERING_NUMBER";
+    private static final String META_DISPLAY_NAME = "displayName";
+    private static final String META_FILE_PATH = "instanceFilePath";
+    private static final String QUARANTINE_REASON_AND_DETAIL_SEPARATOR = "@@SEP@@";
 
     @Persisting(1)
     @MetaField(META_XMLNS)

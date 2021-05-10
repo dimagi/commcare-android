@@ -10,6 +10,7 @@ import org.commcare.CommCareApplication;
 import org.commcare.android.database.user.models.ACasePreV24Model;
 import org.commcare.android.database.user.models.FormRecordV2;
 import org.commcare.android.database.user.models.FormRecordV3;
+import org.commcare.android.database.user.models.FormRecordV5;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.android.logging.ForceCloseLogEntry;
 import org.commcare.android.javarosa.AndroidLogEntry;
@@ -684,7 +685,7 @@ class UserDatabaseUpgrader {
         db.beginTransaction();
         try {
             boolean strandedRecordObserved = false;
-            SqlStorage<FormRecord> formRecordStorage = UserDbUpgradeUtils.getFormRecordStorage(c, db, FormRecord.class);
+            SqlStorage<FormRecordV5> formRecordStorage = UserDbUpgradeUtils.getFormRecordStorage(c, db, FormRecordV5.class);
             SqlStorage<SessionStateDescriptor> ssdStorage = new SqlStorage<>(
                     SessionStateDescriptor.STORAGE_KEY,
                     SessionStateDescriptor.class,
@@ -693,7 +694,7 @@ class UserDatabaseUpgrader {
                 // we are in invalid state if formRecord with corresponding ssd form id
                 // either doesn't exist or has status unstarted
                 try {
-                    FormRecord formRecord = formRecordStorage.read(ssd.getFormRecordId());
+                    FormRecordV5 formRecord = formRecordStorage.read(ssd.getFormRecordId());
                     if (formRecord.getStatus().contentEquals(FormRecord.STATUS_UNSTARTED)) {
                         strandedRecordObserved = true;
                         break;
@@ -710,8 +711,8 @@ class UserDatabaseUpgrader {
                 // Since we have wiped out SSD records, we won't be able to resume
                 // incomplete forms with their earlier session state. Therfore we are
                 // going to delete all incomplete form records as well
-                Vector<FormRecord> incompleteRecords = formRecordStorage.getRecordsForValue(FormRecord.META_STATUS, FormRecord.STATUS_INCOMPLETE);
-                for (FormRecord incompleteRecord : incompleteRecords) {
+                Vector<FormRecordV5> incompleteRecords = formRecordStorage.getRecordsForValue(FormRecord.META_STATUS, FormRecord.STATUS_INCOMPLETE);
+                for (FormRecordV5 incompleteRecord : incompleteRecords) {
                     formRecordStorage.remove(incompleteRecord);
                 }
             }
@@ -788,10 +789,10 @@ class UserDatabaseUpgrader {
         //Fix for Bug in 2.7.0/1, forms in sense mode weren't being properly marked as complete after entry.
         if (inSenseMode) {
             //Get form record storage
-            SqlStorage<FormRecord> storage = new SqlStorage<>(FormRecord.STORAGE_KEY, FormRecord.class, new ConcreteAndroidDbHelper(c, db));
+            SqlStorage<FormRecordV5> storage = new SqlStorage<>(FormRecord.STORAGE_KEY, FormRecordV5.class, new ConcreteAndroidDbHelper(c, db));
 
             //Iterate through all forms currently saved
-            for (FormRecord record : storage) {
+            for (FormRecordV5 record : storage) {
                 //Update forms marked as incomplete with the appropriate status
                 if (FormRecord.STATUS_INCOMPLETE.equals(record.getStatus())) {
                     //update to complete to process/send.
