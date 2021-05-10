@@ -120,13 +120,15 @@
     <style name="TextAppearance.Custom.WindowTitle.Case" parent="TextAppearance.Custom.WindowTitle">
     </style>
 
-    <style name="Commcare.Button.Primary" parent="Widget.AppCompat.Button">
+    <style name="commcare_primary_button" parent="Widget.AppCompat.Button">
         <item name="textAllCaps">true</item>
         <item name="android:minHeight">@dimen/dp60</item>
         <item name="android:textColor">@color/white</item>
         <item name="backgroundTint">@color/primary_button_background</item>
         <item name="cornerRadius">@dimen/dp6</item>
     </style>
+
+    <style name="Commcare.Button.Primary" parent="commcare_primary_button" />
 
     <style name="CommCare.Button.Default" parent="Widget.AppCompat.Button">
         <item name="textAllCaps">true</item>
