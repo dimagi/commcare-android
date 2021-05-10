@@ -21,6 +21,7 @@ import org.commcare.dalvik.R
 import org.commcare.gis.EntityMapUtils.parseBoundaryCoords
 import org.commcare.interfaces.CommCareActivityUIController
 import org.commcare.interfaces.WithUIController
+import org.commcare.util.LogTypes
 import org.commcare.utils.FileUtil
 import org.commcare.utils.ImageType
 import org.javarosa.core.services.Logger
@@ -187,8 +188,13 @@ class DrawingBoundaryActivity : BaseMapboxActivity(), WithUIController, Location
     }
 
     override fun onLocationChanged(location: Location) {
-        if (location != null && location.accuracy <= locationMinAccuracy) {
-            val addLocation = previousLocation == null ||
+        var addLocation = false
+        var distanceCheck = false
+        var timeCheck = false
+        if (location.accuracy <= locationMinAccuracy) {
+            distanceCheck = location.distanceTo(previousLocation) >= recordingIntervalMeters
+            timeCheck = location.time - previousLocation!!.time >= recordingIntervalMillis
+            addLocation = previousLocation == null ||
                     (location.distanceTo(previousLocation) >= location.accuracy + previousLocation!!.accuracy &&
                             location.time - previousLocation!!.time >= recordingIntervalMillis &&
                             location.distanceTo(previousLocation) >= recordingIntervalMeters)
@@ -199,6 +205,8 @@ class DrawingBoundaryActivity : BaseMapboxActivity(), WithUIController, Location
                 updateMetrics()
             }
         }
+        Logger.log(LogTypes.TYPE_MAINTENANCE, "Location received with accuracy" + location.accuracy + ", add location " + addLocation
+                + ", distance check " + distanceCheck + ", time check " + timeCheck)
     }
 
     private fun returnResult() {
