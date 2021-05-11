@@ -1,6 +1,8 @@
 package org.commcare.views.widgets;
 
 import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.widget.AppCompatButton;
+
 import android.content.Context;
 import android.content.DialogInterface;
 import android.util.TypedValue;
@@ -57,7 +59,7 @@ public class SpinnerMultiWidget extends QuestionWidget {
         selections = new boolean[mItems.size()];
         answerItems = new CharSequence[mItems.size()];
         alert_builder = new AlertDialog.Builder(context);
-        button = new Button(context);
+        button = new AppCompatButton(context);
         selectionText = new TextView(getContext());
 
         // Build View

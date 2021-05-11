@@ -16,6 +16,8 @@ package org.commcare.views.widgets;
 
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.AppCompatButton;
+
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
@@ -85,7 +87,7 @@ public class SignatureWidget extends QuestionWidget {
         mErrorTextView.setText("Selected file is not a valid image");
 
         // setup Blank Image Button
-        mSignButton = new Button(getContext());
+        mSignButton = new AppCompatButton(getContext());
         WidgetUtils.setupButton(mSignButton,
                 StringUtils.getStringSpannableRobust(getContext(), R.string.sign_button),
                 mAnswerFontSize,

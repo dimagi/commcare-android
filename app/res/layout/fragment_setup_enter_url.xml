@@ -69,14 +69,12 @@
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
                     android:paddingTop="@dimen/content_start"
+                    android:enabled="false"
                     android:paddingBottom="@dimen/content_start"
                     android:layout_marginTop="@dimen/content_min_margin"
                     android:layout_gravity="bottom"
-                    android:textColor="@color/cc_neutral_bg"
-                    android:background="@color/cc_brand_color"
                     android:text="Start Install"
-                    android:nextFocusUp="@+id/edit_password"
-                    />
+                    android:nextFocusUp="@+id/edit_password" />
 
             </LinearLayout>
         </LinearLayout>

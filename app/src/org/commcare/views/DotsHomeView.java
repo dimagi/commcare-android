@@ -11,6 +11,8 @@ import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 
+import androidx.appcompat.widget.AppCompatButton;
+
 import org.commcare.dalvik.R;
 import org.commcare.utils.DotsData;
 import org.commcare.utils.DotsData.DotsDay;
@@ -84,7 +86,7 @@ public class DotsHomeView extends RelativeLayout {
             table.addView(row);
         }
 
-        Button done = new Button(this.getContext());
+        Button done = new AppCompatButton(this.getContext());
         done.setId(666);
         done.setText("Finished");
         done.setOnClickListener(v -> listener.doneWithDOTS());

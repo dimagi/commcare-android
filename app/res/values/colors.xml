@@ -142,4 +142,8 @@
     <color name="red_500">#F44336</color>
     <color name="red_700">#D32F2F</color>
     <color name="red_900">#B71C1C</color>
+    
+    <!-- Button colors -->
+    <color name="button_primary">#005ab2</color>
+    <color name="button_disabled">#d0e3ff</color>
 </resources>

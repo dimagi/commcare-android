@@ -138,10 +138,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/see_available_apps"
-                    android:padding="@dimen/standard_spacer"
-                    android:layout_marginTop="@dimen/standard_spacer_double"
-                    android:background="@color/cc_brand_color"
-                    android:textColor="@color/cc_neutral_bg" />
+                    android:paddingHorizontal="@dimen/standard_spacer_double"
+                    android:layout_marginTop="@dimen/standard_spacer_double" />
 
                 <TextView
                     android:id="@+id/error_message"
