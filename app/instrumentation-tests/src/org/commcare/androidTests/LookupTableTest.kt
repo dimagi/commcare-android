@@ -28,7 +28,7 @@ class LookupTableTest: BaseTest() {
     @Test
     fun testLookUpTable_UpdatesOnSync() {
         // Upload lookup table
-        HQApi.uploadFixture("initial_cities_table.xlsx")
+        HQApi.uploadFixture("initial_cities_table.xlsx", 0)
         installApp("Integration Tests", "integration_test_app.ccz")
         InstrumentationUtility.login("test", "123")
         syncAndGoToLookupTableForm()
@@ -36,7 +36,7 @@ class LookupTableTest: BaseTest() {
         InstrumentationUtility.matchChildCount(SelectOneWidget::class.java, RadioButton::class.java, 1)
 
         // Upload another lookup table
-        HQApi.uploadFixture("extended_cities_table.xlsx")
+        HQApi.uploadFixture("extended_cities_table.xlsx", 0)
         pressBack()
         onView(withText(R.string.do_not_save))
                 .perform(click())

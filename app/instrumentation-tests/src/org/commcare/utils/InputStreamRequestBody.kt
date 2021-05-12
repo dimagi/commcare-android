@@ -19,6 +19,11 @@ class InputStreamRequestBody(private val contentType: MediaType,
         return contentType
     }
 
+    override fun contentLength(): Long {
+        val stream = classLoader.getResourceAsStream(fileName)
+        return stream.available().toLong()
+    }
+
     override fun writeTo(sink: BufferedSink) {
         okio.Okio.source(classLoader.getResourceAsStream(fileName)).use {
             sink.writeAll(it)
