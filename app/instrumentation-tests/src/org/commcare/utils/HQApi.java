@@ -169,7 +169,7 @@ public class HQApi {
             } else {
                 Log.d(TAG, "Uploading Fixture " + retryCount + " time, failed :: " +
                         (response.body() != null ? response.body().string() : response.errorBody().string()));
-                if (retryCount < 10) { // In case of failure, retry 10 times.
+                if (retryCount < 5) { // In case of failure, retry 5 times.
                     uploadFixture(fixtureName, retryCount + 1);
                 }
             }
