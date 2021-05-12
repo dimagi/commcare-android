@@ -36,6 +36,18 @@ git clone https://github.com/dimagi/commcare-core.git
 - Download any build dependencies that the SDK Manager tells you you need.
 - Disable _Instant Run_ found in Settings > Build, Execution, Deployment > Instant Run. (It does not play well with multidexing, which we have enabled, or with some of the processes we have set up for Google Services)
 
+### Adding Github Personal Access token
+
+Some of the dependencies we use are hosted on Github packages and requires you to set up github authentication as follows -
+
+1. Create a personal Github Access token as described [here](https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token)
+2. Add a file `github.properties` into root of `commcare-android` and add the following 2 properties to the file - 
+
+````
+gpr.usr=github-user-name
+gpr.key=github-personal-access-token
+````
+
 ## Building
 
 Now you're basically ready to go. To build CommCare Android and get it running on your phone,
