@@ -30,7 +30,7 @@ class LookupTableTest: BaseTest() {
         // Upload lookup table
         HQApi.uploadFixture("initial_cities_table.xlsx", 0)
         installApp("Integration Tests", "integration_test_app.ccz")
-        InstrumentationUtility.login("test", "123")
+        InstrumentationUtility.login("test_user_14", "123")
         syncAndGoToLookupTableForm()
 
         InstrumentationUtility.matchChildCount(SelectOneWidget::class.java, RadioButton::class.java, 1)
@@ -49,7 +49,7 @@ class LookupTableTest: BaseTest() {
     @Test
     fun testLookupTableSorting() {
         installApp("Lookup Table Sorting", "lookup_table_sort_test.ccz")
-        InstrumentationUtility.login("test", "123")
+        InstrumentationUtility.login("test_user_15", "123")
         InstrumentationUtility.openModule("Test Forms")
         onView(withText("Lookup Table Select WITHOUT sorting"))
                 .perform(click())

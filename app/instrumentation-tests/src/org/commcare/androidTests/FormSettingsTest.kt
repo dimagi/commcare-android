@@ -33,11 +33,11 @@ class FormSettingsTest: BaseTest() {
     @Before
     fun setup() {
         installApp(APP_NAME, CCZ_NAME)
-        InstrumentationUtility.login("settings.test", "123")
     }
 
     @Test
     fun testSaveFormSetting() {
+        InstrumentationUtility.login("settings.test.4", "123")
         InstrumentationUtility.openForm(0, 1)
         onView(withId(R.id.nav_btn_next))
                 .perform(click())
@@ -58,6 +58,7 @@ class FormSettingsTest: BaseTest() {
 
     @Test
     fun testGoToPromptSetting() {
+        InstrumentationUtility.login("settings.test.5", "123")
         InstrumentationUtility.openForm(0, 1)
         selectSetting(R.string.view_hierarchy)
 
@@ -80,6 +81,7 @@ class FormSettingsTest: BaseTest() {
 
     @Test
     fun testChangeLanguageSetting() {
+        InstrumentationUtility.login("settings.test.6", "123")
         InstrumentationUtility.openForm(0, 1 )
         selectSetting(R.string.change_language)
         // We see 2 choices::
@@ -109,6 +111,7 @@ class FormSettingsTest: BaseTest() {
 
     @Test
     fun testTextSizeSetting() {
+        InstrumentationUtility.login("settings.test.7", "123")
         InstrumentationUtility.openForm(0, 1 )
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         val fontNames = context.resources.getStringArray(R.array.font_size_entries)

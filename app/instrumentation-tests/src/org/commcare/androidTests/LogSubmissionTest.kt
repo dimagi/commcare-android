@@ -24,7 +24,7 @@ class LogSubmissionTest: BaseTest() {
     @Before
     fun setup() {
         installApp(APP_NAME, CCZ_NAME)
-        InstrumentationUtility.login("test", "123")
+        InstrumentationUtility.login("test_user_13", "123")
     }
 
     @Test

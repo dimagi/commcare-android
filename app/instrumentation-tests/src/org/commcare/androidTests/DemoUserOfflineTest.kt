@@ -28,15 +28,15 @@ class DemoUserOfflineTest: DemoUserTest() {
     }
 
     @Test
-    fun testPracticeMode_online() {
+    fun testPracticeMode_offline() {
         testPracticeMode()
     }
 
     @Test
-    fun testPracticeMode_withUpdatedApp_online() {
+    fun testPracticeMode_withUpdatedApp_offline() {
         // Briefly turn the internet back on to allow us to log in
         InstrumentationUtility.changeWifi(true)
-        updateApp()
+        updateApp("test_user_3", "123")
         // Internet back off
         InstrumentationUtility.changeWifi(false)
         testPracticeMode_withUpdatedApp()
