@@ -153,7 +153,7 @@ public class HQApi {
         }
     }
 
-    public static void uploadFixture(String fixtureName) {
+    public static void uploadFixture(String fixtureName, int retryCount) {
         ClassLoader classLoader = InstrumentationRegistry.getInstrumentation().getTargetContext().getClassLoader();
         RequestBody requestFile = new InputStreamRequestBody(MediaType.parse("text/xlsx"), classLoader, fixtureName);
         List<MultipartBody.Part> parts = new ArrayList<>();
@@ -167,8 +167,11 @@ public class HQApi {
             if (response.isSuccessful()) {
                 Log.d(TAG, "Uploading Fixture succeeded :: " + response.body().string());
             } else {
-                Log.d(TAG, "Uploading Fixture failed :: " +
+                Log.d(TAG, "Uploading Fixture " + retryCount + " time, failed :: " +
                         (response.body() != null ? response.body().string() : response.errorBody().string()));
+                if (retryCount < 10) { // In case of failure, retry 10 times.
+                    uploadFixture(fixtureName, retryCount + 1);
+                }
             }
         } catch (IOException e) {
             e.printStackTrace();
