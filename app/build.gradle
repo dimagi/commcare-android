@@ -19,13 +19,23 @@ apply plugin: 'kotlin-android-extensions'
 apply plugin: 'com.google.firebase.crashlytics'
 apply from: 'jacoco.gradle'
 
+def githubProperties = new Properties()
+githubProperties.load(new FileInputStream(rootProject.file("github.properties")))
+
 repositories {
     // for local aar inclusion
     flatDir {
         dirs 'libs'
     }
     maven { url "https://jitpack.io" }
-    maven { url "http://dl.bintray.com/ona/kujaku" }
+    maven {
+        name = "GitHubPackages"
+        url = uri("https://maven.pkg.github.com/onaio/kujaku")
+        credentials {
+            username = githubProperties['gpr.usr'] ?: System.getenv("GPR_USER")
+            password = githubProperties['gpr.key'] ?: System.getenv("GPR_API_KEY")
+        }
+    }
 }
 
 configurations {
@@ -116,7 +126,7 @@ dependencies {
     implementation "io.noties.markwon:ext-tables:$markwon_version"
     implementation "io.noties.markwon:ext-strikethrough:$markwon_version"
 
-    implementation ('io.ona.kujaku:library:0.8.7'){
+    implementation ('io.ona.kujaku:library:0.9.0'){
         exclude module: 'xpp3'
     }
     implementation "androidx.work:work-runtime:2.4.0"
