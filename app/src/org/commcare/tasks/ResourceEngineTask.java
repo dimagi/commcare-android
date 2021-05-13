@@ -112,9 +112,6 @@ public abstract class ResourceEngineTask<R>
                 ResourceInstallUtils.logInstallError(e,
                         "Couldn't install file to local storage|");
                 return AppInstallStatus.NoLocalStorage;
-            } catch (CaptivePortalRedirectException e) {
-                Logger.log(LogTypes.TYPE_WARNING_NETWORK, "Resource installation failed due to captive portal");
-                return AppInstallStatus.CaptivePortal;
             } catch (UnfullfilledRequirementsException e) {
                 if (e.isReinstallFromInvalidCCZException()) {
                     return AppInstallStatus.ReinstallFromInvalidCcz;

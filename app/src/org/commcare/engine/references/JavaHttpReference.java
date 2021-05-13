@@ -68,7 +68,7 @@ public class JavaHttpReference implements Reference, ReleasedOnTimeSupportedRefe
             response = generator.simpleGet(uri, new HashMap<>(), params);
         } catch (SSLHandshakeException | SSLPeerUnverifiedException e) {
             if(NetworkStatus.isCaptivePortal()) {
-                throw new CaptivePortalRedirectException(e);
+                throw new CaptivePortalRedirectException();
             }
             throw e;
         }
