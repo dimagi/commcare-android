@@ -64,10 +64,11 @@ public class HomeNavDrawerController {
         refreshItems();
 
         ActionBar actionBar = activity.getSupportActionBar();
+        actionBar.setHomeAsUpIndicator(R.drawable.ic_menu_bar);
         actionBar.setHomeButtonEnabled(true);
-        actionBar.setDisplayHomeAsUpEnabled(false);
+        actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setDisplayUseLogoEnabled(false);
-        actionBar.setIcon(R.drawable.ic_menu_bar);
+
 
         if (savedInstanceState != null &&
                 savedInstanceState.getBoolean(KEY_DRAWER_WAS_OPEN)) {
