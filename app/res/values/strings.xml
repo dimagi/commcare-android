@@ -306,6 +306,7 @@
     <string name="keep_changes" cc:translatable="true">SAVE INCOMPLETE</string>
     <string name="go_to_location" cc:translatable="true">Go to Location</string>
     <string name="font_size" cc:translatable="true">Text Font Size</string>
+    <string name="button_font_size" cc:translatable="true">Button Font Size</string>
     <string name="change_font_size" cc:translatable="true">Text Font Size</string>
     <string name="form_scan_starting" cc:translatable="true">Scanning for forms...</string>
     <string name="form_scan_finished" cc:translatable="true">Form scanning completed</string>

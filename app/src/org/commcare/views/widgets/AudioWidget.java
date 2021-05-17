@@ -36,21 +36,18 @@ public class AudioWidget extends MediaWidget {
         mCaptureButton = new AppCompatButton(getContext());
         WidgetUtils.setupButton(mCaptureButton,
                 StringUtils.getStringSpannableRobust(getContext(), R.string.capture_audio),
-                mAnswerFontSize,
                 !mPrompt.isReadOnly());
 
         // setup audio filechooser button
         mChooseButton = new AppCompatButton(getContext());
         WidgetUtils.setupButton(mChooseButton,
                 StringUtils.getStringSpannableRobust(getContext(), R.string.choose_sound),
-                mAnswerFontSize,
                 !mPrompt.isReadOnly());
 
         // setup play button
         mPlayButton = new AppCompatButton(getContext());
         WidgetUtils.setupButton(mPlayButton,
                 StringUtils.getStringSpannableRobust(getContext(), R.string.play_audio),
-                mAnswerFontSize,
                 !mPrompt.isReadOnly());
 
         // launch capture intent on click

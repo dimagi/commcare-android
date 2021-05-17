@@ -41,6 +41,14 @@
         <item>13</item>
     </string-array>
     <string-array
+        name="button_font_size_entry_values">
+        <item>22</item>
+        <item>20</item>
+        <item>18</item>
+        <item>16</item>
+        <item>14</item>
+    </string-array>
+    <string-array
         name="font_size_entries">
         <item>Extra Large</item>
         <item>Large</item>

@@ -8,6 +8,15 @@
         android:key="font_size"
         android:title="@string/font_size"/>
 
+    <androidx.preference.ListPreference
+        android:id="@+id/button_font_size"
+        android:defaultValue="18"
+        android:dialogTitle="@string/button_font_size"
+        android:entries="@array/font_size_entries"
+        android:entryValues="@array/button_font_size_entry_values"
+        android:key="button_font_size"
+        android:title="@string/button_font_size"/>
+
     <CheckBoxPreference
         android:id="@+id/tray_help"
         android:defaultValue="false"

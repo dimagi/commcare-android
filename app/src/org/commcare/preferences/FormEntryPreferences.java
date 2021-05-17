@@ -20,8 +20,10 @@ public class FormEntryPreferences extends CommCarePreferenceFragment
         implements OnSharedPreferenceChangeListener {
 
     public static final String KEY_FONT_SIZE = "font_size";
+    public static final String KEY_BUTTON_FONT_SIZE = "button_font_size";
     public static final String KEY_HELP_MODE_TRAY = "help_mode_tray";
     public static final String DEFAULT_FONTSIZE = "21";
+    public static final String DEFAULT_BUTTON_FONTSIZE = "18";
 
     @NonNull
     @Override
@@ -48,6 +50,7 @@ public class FormEntryPreferences extends CommCarePreferenceFragment
     public void onStart() {
         super.onStart();
         updateFontSize();
+        updateButtonFontSize();
     }
 
     @Override
@@ -56,6 +59,9 @@ public class FormEntryPreferences extends CommCarePreferenceFragment
         if (KEY_FONT_SIZE.equals(key)) {
             updateFontSize();
         }
+        if (KEY_BUTTON_FONT_SIZE.equals(key)) {
+            updateButtonFontSize();
+        }
     }
 
     private void updateFontSize() {
@@ -63,9 +69,20 @@ public class FormEntryPreferences extends CommCarePreferenceFragment
         lp.setSummary(lp.getEntry());
     }
 
+    private void updateButtonFontSize() {
+        ListPreference lp = (ListPreference)findPreference(KEY_BUTTON_FONT_SIZE);
+        lp.setSummary(lp.getEntry());
+    }
+
     public static int getQuestionFontSize() {
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(CommCareApplication.instance());
         String fontString = settings.getString(FormEntryPreferences.KEY_FONT_SIZE, DEFAULT_FONTSIZE);
+        return Integer.parseInt(fontString);
+    }
+
+    public static int getButtonFontSize() {
+        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(CommCareApplication.instance());
+        String fontString = settings.getString(FormEntryPreferences.KEY_BUTTON_FONT_SIZE, DEFAULT_BUTTON_FONTSIZE);
         return Integer.parseInt(fontString);
     }
 }
