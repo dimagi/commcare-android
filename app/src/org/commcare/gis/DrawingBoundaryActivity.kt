@@ -191,9 +191,15 @@ class DrawingBoundaryActivity : BaseMapboxActivity(), WithUIController, Location
         var addLocation = false
         var distanceCheck = false
         var timeCheck = false
+
+        if (location == null) {
+            Logger.log(LogTypes.TYPE_MAINTENANCE, "null Location received")
+            return
+        }
+
         if (location.accuracy <= locationMinAccuracy) {
-            distanceCheck = location.distanceTo(previousLocation) >= recordingIntervalMeters
-            timeCheck = location.time - previousLocation!!.time >= recordingIntervalMillis
+            distanceCheck = previousLocation == null || location.distanceTo(previousLocation) >= recordingIntervalMeters
+            timeCheck =  previousLocation == null || location.time - previousLocation!!.time >= recordingIntervalMillis
             addLocation = previousLocation == null ||
                     (location.distanceTo(previousLocation) >= location.accuracy + previousLocation!!.accuracy &&
                             location.time - previousLocation!!.time >= recordingIntervalMillis &&
@@ -205,6 +211,7 @@ class DrawingBoundaryActivity : BaseMapboxActivity(), WithUIController, Location
                 updateMetrics()
             }
         }
+
         Logger.log(LogTypes.TYPE_MAINTENANCE, "Location received with accuracy" + location.accuracy + ", add location " + addLocation
                 + ", distance check " + distanceCheck + ", time check " + timeCheck)
     }
