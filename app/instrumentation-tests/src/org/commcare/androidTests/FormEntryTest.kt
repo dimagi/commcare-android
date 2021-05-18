@@ -37,7 +37,7 @@ class FormEntryTest: BaseTest() {
     @Test
     @BrowserstackTests
     fun testIncompleteFormCreation() {
-        InstrumentationUtility.login("user_with_no_data", "123")
+        InstrumentationUtility.login("test_user_6", "123")
         // Create an incomplete form.
         InstrumentationUtility.openForm(0, 0)
         saveAsIncomplete()
@@ -92,7 +92,7 @@ class FormEntryTest: BaseTest() {
     @Test
     @BrowserstackTests
     fun testSaveFormMenu() {
-        InstrumentationUtility.login("user_with_no_data", "123")
+        InstrumentationUtility.login("test_user_7", "123")
         // Create an incomplete form.
         InstrumentationUtility.openForm(0, 0)
         closeSoftKeyboard()
@@ -135,7 +135,7 @@ class FormEntryTest: BaseTest() {
     @Test
     @BrowserstackTests
     fun testFormEntryQuirks() {
-        InstrumentationUtility.login("user_with_no_data", "123")
+        InstrumentationUtility.login("test_user_8", "123")
         InstrumentationUtility.openForm(0, 1)
 
         // Trigger constraint violation(require response)

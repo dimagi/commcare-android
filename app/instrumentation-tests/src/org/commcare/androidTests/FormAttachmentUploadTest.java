@@ -40,7 +40,7 @@ public class FormAttachmentUploadTest extends BaseTest {
     @Before
     public void setup() {
         installApp(APP_NAME, CCZ_NAME, false);
-        InstrumentationUtility.login("test", "123");
+        InstrumentationUtility.login("test_user_5", "123");
     }
 
     @Test

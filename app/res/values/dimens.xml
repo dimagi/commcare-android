@@ -142,4 +142,7 @@
     <dimen name="map_info_view_text_padding">4dp</dimen>
     
     <dimen name="dp40">40dp</dimen>
+    <dimen name="dp6">6dp</dimen>
+    <dimen name="dp60">60dp</dimen>
+    <dimen name="dp48">48dp</dimen>
 </resources>

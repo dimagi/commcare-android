@@ -15,6 +15,7 @@ import org.commcare.utils.StringUtils;
 import org.javarosa.form.api.FormEntryPrompt;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.AppCompatButton;
 
 /**
  * Widget that allows user to take pictures, sounds or video and add them to the form.
@@ -31,7 +32,7 @@ public class VideoWidget extends MediaWidget {
     @Override
     protected void initializeButtons() {
         // setup capture button
-        mCaptureButton = new Button(getContext());
+        mCaptureButton = new AppCompatButton(getContext());
         WidgetUtils.setupButton(mCaptureButton,
                 StringUtils.getStringSpannableRobust(getContext(), R.string.capture_video),
                 mAnswerFontSize,
@@ -55,7 +56,7 @@ public class VideoWidget extends MediaWidget {
         });
 
         // setup capture button
-        mChooseButton = new Button(getContext());
+        mChooseButton = new AppCompatButton(getContext());
         WidgetUtils.setupButton(mChooseButton,
                 StringUtils.getStringSpannableRobust(getContext(), R.string.choose_video),
                 mAnswerFontSize,
@@ -78,7 +79,7 @@ public class VideoWidget extends MediaWidget {
         });
 
         // setup play button
-        mPlayButton = new Button(getContext());
+        mPlayButton = new AppCompatButton(getContext());
         WidgetUtils.setupButton(mPlayButton,
                 StringUtils.getStringSpannableRobust(getContext(), R.string.play_video),
                 mAnswerFontSize,

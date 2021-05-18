@@ -102,7 +102,7 @@ public class FileUtil {
 
         File walker = new File(fullPath);
 
-        //technically we shouldn't ever hit the first case here, but also don't wanna get stuck by a weird equality bug. 
+        //technically we shouldn't ever hit the first case here, but also don't wanna get stuck by a weird equality bug.
         while (walker != null && !terminal.equals(walker)) {
             if (walker.isDirectory()) {
                 //only wipe out empty directories.

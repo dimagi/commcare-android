@@ -47,6 +47,7 @@ the License.
             android:textSize="@dimen/text_medium"
             android:textColor="@color/cc_brand_color"
             android:background="@color/cc_core_bg"
+            style="@style/CommCare.Button.Default"
             android:layout_weight="1"/>
 
         <Button
@@ -58,6 +59,7 @@ the License.
             android:textSize="@dimen/text_medium"
             android:textColor="@color/cc_brand_color"
             android:background="@color/cc_core_bg"
+            style="@style/CommCare.Button.Default"
             android:layout_weight="1"/>
 
         <Button
@@ -69,6 +71,7 @@ the License.
             android:textSize="@dimen/text_medium"
             android:textColor="@color/cc_brand_color"
             android:background="@color/cc_core_bg"
+            style="@style/CommCare.Button.Default"
             android:layout_weight="1"/>
     </LinearLayout>
 

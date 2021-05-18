@@ -3,6 +3,8 @@ package org.commcare.fragments;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -46,6 +48,18 @@ public class SetupEnterURLFragment extends Fragment {
         Button installButton = view.findViewById(R.id.start_install);
         installButton.setText(Localization.get("install.button.start"));
         profileLocation = view.findViewById(R.id.edit_profile_location);
+        profileLocation.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) { }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                installButton.setEnabled(s.length() > 0);
+            }
+        });
         TextView appProfile = view.findViewById(R.id.app_profile_txt_view);
         appProfile.setText(Localization.get("install.appprofile"));
 
