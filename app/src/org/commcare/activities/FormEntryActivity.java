@@ -1143,7 +1143,6 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         }
 
         TextToSpeechConverter.INSTANCE.shutDown();
-        PollSensorController.INSTANCE.destroy();
         super.onDestroy();
     }
 

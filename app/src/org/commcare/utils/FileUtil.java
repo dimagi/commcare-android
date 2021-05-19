@@ -13,6 +13,7 @@ import android.os.Build;
 import android.os.ParcelFileDescriptor;
 import android.provider.MediaStore;
 import android.provider.OpenableColumns;
+import android.text.TextUtils;
 import android.util.Log;
 import android.util.Pair;
 import android.webkit.MimeTypeMap;
@@ -101,7 +102,7 @@ public class FileUtil {
 
         File walker = new File(fullPath);
 
-        //technically we shouldn't ever hit the first case here, but also don't wanna get stuck by a weird equality bug. 
+        //technically we shouldn't ever hit the first case here, but also don't wanna get stuck by a weird equality bug.
         while (walker != null && !terminal.equals(walker)) {
             if (walker.isDirectory()) {
                 //only wipe out empty directories.
@@ -141,7 +142,7 @@ public class FileUtil {
     public static File copyContentFileToLocalDir(Uri contentUri, File destDir, Context context) throws IOException {
         ParcelFileDescriptor inFile = context.getContentResolver().openFileDescriptor(contentUri, "r");
 
-        File newFile = new File(destDir, getContentFileName(contentUri, context));
+        File newFile = new File(destDir, getFileName(context, contentUri));
 
         long fileLength = -1;
 
@@ -343,34 +344,6 @@ public class FileUtil {
     }
 
     /**
-     * Retrieves a filename for a FileProvider backed file at a content URI.
-     *
-     * This is a best faith method which will attempt to get a valid filename either from the
-     * content provider or guess from the URI
-     */
-    public static String getContentFileName(Uri uri, Context context) {
-        String result = null;
-        Cursor cursor = context.getContentResolver().query(uri, new String[] {OpenableColumns.DISPLAY_NAME}, null, null, null);
-        try {
-            if (cursor != null && cursor.moveToFirst()) {
-                result = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
-            }
-        } catch(Exception e) {
-            e.printStackTrace();
-        } finally {
-            cursor.close();
-        }
-
-        if (result == null || "".equals(result)) {
-            result = uri.getLastPathSegment();
-        }
-        //We should potentially check this for compatibility with our media types, or at
-        //least confirm it has an extension and fail if not (or add a .bat default)
-        return result;
-    }
-
-
-    /**
      * Turn a filepath into a global android URI that can be passed
      * to an intent.
      */
@@ -553,22 +526,56 @@ public class FileUtil {
     /**
      * Retrieve a file's name using contentUri.
      * https://developer.android.com/training/secure-file-sharing/retrieve-info.html#RetrieveFileInfo
+     *
+     * @throws FileExtensionNotFoundException
      */
-    public static String getFileName(Context context, Uri uri) {
-        try (Cursor cursor = context.getContentResolver().query(uri, null, null, null, null)) {
+    public static String getFileName(Context context, Uri uri) throws FileExtensionNotFoundException {
+        String fileName;
+        try (Cursor cursor = context.getContentResolver().query(
+                uri, new String[] { OpenableColumns.DISPLAY_NAME }, null, null, null)) {
             if (cursor == null || cursor.getCount() <= 0) {
                 try {
-                    return getFileName(UriToFilePath.getPathFromUri(context, uri));
+                    fileName = getFileName(UriToFilePath.getPathFromUri(context, uri));
                 } catch (UriToFilePath.NoDataColumnForUriException e) {
-                    return "";
+                    fileName = uri.getLastPathSegment();
+                }
+            } else {
+                int nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
+                cursor.moveToFirst();
+                fileName = cursor.getString(nameIndex);
+                cursor.close();
+            }
+        }
+        if (TextUtils.isEmpty(getExtension(fileName))) {
+            String ext = getFileExtension(context, uri, fileName);
+            fileName = fileName + "." + ext;
+        }
+        return fileName;
+    }
+
+    /**
+     * @return file extension by getting the mimeType from the URI.
+     * @throws FileExtensionNotFoundException if we can't find mimeType from the URI.
+     */
+    private static String getFileExtension(Context context, Uri uri, String fileName) throws FileExtensionNotFoundException {
+        String mimeType = context.getContentResolver().getType(uri);
+        if (TextUtils.isEmpty(mimeType)) {
+            try (Cursor cursor = context.getContentResolver().query(
+                    uri, new String[] { MediaStore.MediaColumns.MIME_TYPE }, null, null, null)) {
+                if (cursor != null && cursor.moveToFirst()) {
+                    mimeType = cursor.getString(cursor.getColumnIndex(MediaStore.MediaColumns.MIME_TYPE));
                 }
             }
-            int nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
-            cursor.moveToFirst();
-            String name = cursor.getString(nameIndex);
-            cursor.close();
-            return name;
-        } 
+        }
+        String ext = MimeTypeMap.getSingleton().getExtensionFromMimeType(mimeType);
+        if (TextUtils.isEmpty(ext)) {
+            throw new FileExtensionNotFoundException(
+                    "Can't find extension for URI :: " + uri
+                    + " and mimeType :: " + mimeType
+                    + " and fileName :: " + fileName
+            );
+        }
+        return ext;
     }
 
     public static String getFileName(String filePath) {

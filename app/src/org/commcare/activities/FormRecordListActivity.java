@@ -625,7 +625,9 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        adapter.release();
+        if (adapter != null) {
+            adapter.release();
+        }
     }
 
     @Override
