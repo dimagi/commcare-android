@@ -43,7 +43,7 @@ public class RecordingFragment extends DialogFragment {
     public static final String AUDIO_FILE_PATH_ARG_KEY = "audio_file_path";
 
     private String fileName;
-    private static final String FILE_EXT = ".mp4";
+    private static final String FILE_EXT = ".mp3";
 
     private LinearLayout layout;
     private ImageButton toggleRecording;
