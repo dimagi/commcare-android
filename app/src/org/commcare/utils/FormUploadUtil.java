@@ -5,8 +5,10 @@ import android.os.Environment;
 import android.util.Log;
 import android.webkit.MimeTypeMap;
 
+import org.commcare.CommCareApplication;
 import org.commcare.core.network.AuthenticationInterceptor;
 import org.commcare.core.network.CaptivePortalRedirectException;
+import org.commcare.dalvik.BuildConfig;
 import org.commcare.network.CommcareRequestGenerator;
 import org.commcare.network.EncryptedFileBody;
 import org.commcare.tasks.DataSubmissionListener;
@@ -23,6 +25,7 @@ import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -35,6 +38,7 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 import javax.crypto.Cipher;
+import javax.crypto.CipherInputStream;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.SecretKeySpec;
 
@@ -390,6 +394,9 @@ public class FormUploadUtil {
         return MultipartBody.Part.createFormData(partName, file.getName(), requestFile);
     }
 
+    public static boolean isRunningTest() {
+        return CommCareApplication.instance().isRunningTest();
+    }
 
     public static MultipartBody.Part createEncryptedFilePart(String partName, File file, String contentType, SecretKeySpec key) {
 
@@ -398,6 +405,16 @@ public class FormUploadUtil {
                 MediaType.parse(contentType),
                 file,
                 FormUploadUtil.getDecryptCipher(key));
+
+        if (isRunningTest()) {
+            Cipher cipher = FormUploadUtil.getDecryptCipher(key);
+            try (CipherInputStream is = new CipherInputStream(new FileInputStream(file), cipher)) {
+                byte[] arr = StreamsUtil.inputStreamToByteArray(is);
+                requestFile = RequestBody.create(MediaType.parse(contentType), arr);
+            } catch (IOException e) {
+                Logger.exception("Failed to get requestBody", e);
+            }
+        }
 
         // MultipartBody.Part is used to send also the actual file name
         return MultipartBody.Part.createFormData(partName, file.getName(), requestFile);
