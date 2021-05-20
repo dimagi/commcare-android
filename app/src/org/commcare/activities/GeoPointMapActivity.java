@@ -41,6 +41,8 @@ import java.util.List;
 
 import androidx.core.content.ContextCompat;
 
+import static org.commcare.views.widgets.GeoPointWidget.EXTRA_VIEW_ONLY;
+
 /**
  * Allows location to be chosen using a map instead of current gps coordinates
  */
@@ -62,8 +64,6 @@ public class GeoPointMapActivity extends AppCompatActivity
 
     private boolean isGPSOn = false;
     private boolean isNetworkOn = false;
-
-    public static final String EXTRA_VIEW_ONLY = "extra-view-only";
 
 
     @Override

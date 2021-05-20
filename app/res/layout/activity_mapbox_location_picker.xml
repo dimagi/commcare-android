@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="org.commcare.gis.MapboxLocationPickerActivity">
+
+    <io.ona.kujaku.views.KujakuMapView
+        android:id="@+id/mapView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@id/location_detail_box" />
+
+    <ImageView
+        android:id="@+id/switch_map"
+        android:src="@drawable/ic_layers"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:layout_margin="@dimen/map_layer_margin"
+        android:background="@color/map_layer_button_color"
+        android:padding="@dimen/map_layer_padding"
+        android:layout_above="@id/location_detail_box"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
+
+    <ImageView
+        android:id="@+id/current_location"
+        android:src="@drawable/ic_current_location"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:layout_margin="@dimen/map_layer_margin"
+        android:padding="@dimen/map_layer_padding"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true" />
+
+    <LinearLayout
+        android:id="@+id/location_detail_box"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:background="@color/white"
+        android:orientation="vertical"
+        android:padding="@dimen/standard_spacer">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/selected_location" />
+
+        <TextView
+            android:id="@+id/location"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/black"
+            android:maxLines="3"
+            android:minLines="3" />
+
+        <Button
+            android:id="@+id/confirm_location_button"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:enabled="false"
+            style="@style/Commcare.Button.Primary"
+            android:text="@string/confirm_location" />
+
+        <Button
+            android:id="@+id/cancel_button"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            style="@style/Commcare.Button.Primary"
+            android:text="@string/cancel" />
+
+    </LinearLayout>
+
+</RelativeLayout>

@@ -438,4 +438,6 @@
     <string name="session_endpoint_unavailable" cc:translatable="true">No endpoint exist with id %1$s. Valid endpoints are %2$s</string>
     <string name="session_endpoint_invalid_arguments" cc:translatable="true">Incorrect number of arguments supplied for endpoint %1$s. Supplied arguments: %2$s. Expected arguments: %3$s.</string>
     <string name="session_endpoint_no_argument_with_name" cc:translatable="true">%1$s argument needs to be provided for endpoint %2$s</string>
+    <string name="selected_location" cc:translatable="true">Selected Location</string>
+    <string name="confirm_location" cc:translatable="true">Confirm location</string>
 </resources>
