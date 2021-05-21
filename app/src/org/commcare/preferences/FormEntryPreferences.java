@@ -2,10 +2,13 @@ package org.commcare.preferences;
 
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
+import android.content.res.Resources;
+
 import androidx.annotation.NonNull;
 import androidx.preference.ListPreference;
 import androidx.preference.PreferenceManager;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.commcare.CommCareApplication;
 import org.commcare.dalvik.R;
 import org.commcare.fragments.CommCarePreferenceFragment;
@@ -23,7 +26,6 @@ public class FormEntryPreferences extends CommCarePreferenceFragment
     public static final String KEY_BUTTON_FONT_SIZE = "button_font_size";
     public static final String KEY_HELP_MODE_TRAY = "help_mode_tray";
     public static final String DEFAULT_FONTSIZE = "21";
-    public static final String DEFAULT_BUTTON_FONTSIZE = "18";
 
     @NonNull
     @Override
@@ -50,7 +52,6 @@ public class FormEntryPreferences extends CommCarePreferenceFragment
     public void onStart() {
         super.onStart();
         updateFontSize();
-        updateButtonFontSize();
     }
 
     @Override
@@ -59,18 +60,10 @@ public class FormEntryPreferences extends CommCarePreferenceFragment
         if (KEY_FONT_SIZE.equals(key)) {
             updateFontSize();
         }
-        if (KEY_BUTTON_FONT_SIZE.equals(key)) {
-            updateButtonFontSize();
-        }
     }
 
     private void updateFontSize() {
         ListPreference lp = (ListPreference)findPreference(KEY_FONT_SIZE);
-        lp.setSummary(lp.getEntry());
-    }
-
-    private void updateButtonFontSize() {
-        ListPreference lp = (ListPreference)findPreference(KEY_BUTTON_FONT_SIZE);
         lp.setSummary(lp.getEntry());
     }
 
@@ -81,8 +74,11 @@ public class FormEntryPreferences extends CommCarePreferenceFragment
     }
 
     public static int getButtonFontSize() {
-        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(CommCareApplication.instance());
-        String fontString = settings.getString(FormEntryPreferences.KEY_BUTTON_FONT_SIZE, DEFAULT_BUTTON_FONTSIZE);
-        return Integer.parseInt(fontString);
+        Resources res = CommCareApplication.instance().getResources();
+        String[] buttonSizes = res.getStringArray(R.array.button_font_size_entry_values);
+        String[] textSizes = res.getStringArray(R.array.font_size_entry_values);
+        int size = getQuestionFontSize();
+        int index = ArrayUtils.indexOf(textSizes, String.valueOf(size));
+        return Integer.parseInt(buttonSizes[index]);
     }
 }
