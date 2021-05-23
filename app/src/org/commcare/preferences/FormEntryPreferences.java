@@ -23,7 +23,6 @@ public class FormEntryPreferences extends CommCarePreferenceFragment
         implements OnSharedPreferenceChangeListener {
 
     public static final String KEY_FONT_SIZE = "font_size";
-    public static final String KEY_BUTTON_FONT_SIZE = "button_font_size";
     public static final String KEY_HELP_MODE_TRAY = "help_mode_tray";
     public static final String DEFAULT_FONTSIZE = "21";
 
