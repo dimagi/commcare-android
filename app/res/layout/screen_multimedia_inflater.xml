@@ -58,9 +58,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_gravity="bottom"
-        android:background="@color/cc_brand_color"
         android:paddingBottom="@dimen/content_start"
-        android:paddingTop="@dimen/content_start"
-        android:textColor="@color/cc_neutral_bg"/>
+        android:paddingTop="@dimen/content_start" />
 
 </RelativeLayout>

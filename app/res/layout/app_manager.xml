@@ -41,15 +41,9 @@
         android:layout_centerHorizontal="true"
         android:layout_below="@id/manager_instructions"
         android:layout_marginTop="@dimen/standard_spacer"
-        android:paddingLeft="@dimen/standard_spacer_double"
-        android:paddingRight="@dimen/standard_spacer_double"
+        android:paddingHorizontal="@dimen/standard_spacer_double"
         android:onClick="installAppClicked"
-        android:text="@string/install_app"
-        android:background="@color/cc_brand_color"
-        android:textColor="@color/cc_neutral_bg"
-        android:textSize="@dimen/font_size_xlarger"
-        android:paddingStart="@dimen/standard_spacer_double"
-        android:paddingEnd="@dimen/standard_spacer_double" />
+        android:text="@string/install_app" />
 
     <ListView
         android:id="@+id/apps_list_view"

@@ -360,8 +360,6 @@ public class LoginActivityUIController implements CommCareActivityUIController {
 
         username.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.icon_user_attnneg), null, null, null);
         passwordOrPin.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.icon_lock_attnneg), null, null, null);
-        loginButton.setBackgroundColor(getResources().getColor(R.color.cc_attention_negative_bg));
-        loginButton.setTextColor(getResources().getColor(R.color.cc_attention_negative_text));
 
         errorContainer.setVisibility(View.VISIBLE);
         errorTextView.setText(message);
@@ -391,7 +389,6 @@ public class LoginActivityUIController implements CommCareActivityUIController {
             username.setCompoundDrawablesWithIntrinsicBounds(usernameDrawable, null, null, null);
             passwordOrPin.setCompoundDrawablesWithIntrinsicBounds(passwordDrawable, null, null, null);
         }
-        setupLoginButton();
         if (loginButton.isEnabled()) {
             clearErrorMessage();
         }
@@ -429,24 +426,6 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         loginButton.setEnabled(false);
         errorContainer.setVisibility(View.VISIBLE);
         errorTextView.setText(Localization.get("permission.all.denial.message"));
-    }
-
-    private void setupLoginButton() {
-        ColorDrawable colorDrawable = new ColorDrawable(getResources().getColor(R.color.cc_brand_color));
-        ColorDrawable disabledColor = new ColorDrawable(getResources().getColor(R.color.grey));
-
-        StateListDrawable sld = new StateListDrawable();
-
-        sld.addState(new int[]{-android.R.attr.state_enabled}, disabledColor);
-        sld.addState(StateSet.WILD_CARD, colorDrawable);
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            loginButton.setBackground(sld);
-        } else {
-            loginButton.setBackgroundDrawable(sld);
-        }
-
-        loginButton.setTextColor(getResources().getColor(R.color.cc_neutral_bg));
     }
 
     protected void restoreLastUser() {

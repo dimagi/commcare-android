@@ -28,3 +28,7 @@ allprojects {
         mavenCentral()
     }
 }
+
+ext {
+    markwon_version = '4.6.2'
+}

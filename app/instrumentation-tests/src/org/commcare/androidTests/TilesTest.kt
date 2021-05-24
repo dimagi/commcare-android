@@ -29,11 +29,11 @@ class TilesTest: BaseTest() {
     @Before
     fun setup() {
         installApp(APP_NAME, CCZ_NAME)
-        InstrumentationUtility.login("tile.test", "123")
     }
 
     @Test
     fun testNoTile() {
+        InstrumentationUtility.login("tile.test.1", "123")
         InstrumentationUtility.openModule("NoPersist")
 
         caseDetails.areDisplayed()
@@ -55,6 +55,7 @@ class TilesTest: BaseTest() {
 
     @Test
     fun testPersistentTile_withDropDown() {
+        InstrumentationUtility.login("tile.test.2", "123")
         InstrumentationUtility.openModule("PersistentInline")
 
         onView(withText("Sally Ride"))
@@ -113,6 +114,7 @@ class TilesTest: BaseTest() {
 
     @Test
     fun testPersistentTile_withDetail() {
+        InstrumentationUtility.login("tile.test.3", "123")
         InstrumentationUtility.openModule("PersistentWithDetail")
 
         // Clicking this opens all the case details including the expanded ones.
@@ -142,6 +144,7 @@ class TilesTest: BaseTest() {
 
     @Test
     fun testPersistentTile_noDetail_noInline() {
+        InstrumentationUtility.login("tile.test.4", "123")
         InstrumentationUtility.openModule("PersistentNoDetailNoInline")
 
         onView(withText("Sally Ride"))
@@ -163,6 +166,7 @@ class TilesTest: BaseTest() {
 
     @Test
     fun testBreadcrumb() {
+        InstrumentationUtility.login("tile.test", "123")
         InstrumentationUtility.openModule("Breadcrumb")
 
         onView(withText("Sally Ride"))

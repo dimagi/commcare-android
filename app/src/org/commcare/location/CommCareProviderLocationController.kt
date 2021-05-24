@@ -43,7 +43,7 @@ class CommCareProviderLocationController(private var mContext: Context?,
     }
 
     override fun start() {
-        if (!isLocationPermissionGranted(mContext!!)) {
+        if (!isLocationPermissionGranted(mContext)) {
             mListener?.missingPermissions()
             return
         }

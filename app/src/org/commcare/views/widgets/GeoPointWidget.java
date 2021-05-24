@@ -23,6 +23,7 @@ import org.javarosa.form.api.FormEntryPrompt;
 import java.text.DecimalFormat;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.AppCompatButton;
 
 import static org.commcare.activities.GeoPointMapActivity.EXTRA_VIEW_ONLY;
 
@@ -83,10 +84,9 @@ public class GeoPointWidget extends QuestionWidget {
             viewButtonEnabled = false;
         }
 
-        mGetLocationButton = new Button(getContext());
+        mGetLocationButton = new AppCompatButton(getContext());
         WidgetUtils.setupButton(mGetLocationButton,
                 locButtonText,
-                mAnswerFontSize,
                 !prompt.isReadOnly());
 
         mGetLocationButton.setOnClickListener(v -> {
@@ -104,10 +104,9 @@ public class GeoPointWidget extends QuestionWidget {
         });
 
         // setup 'view location' button
-        mViewButton = new Button(getContext());
+        mViewButton = new AppCompatButton(getContext());
         WidgetUtils.setupButton(mViewButton,
                 StringUtils.getStringSpannableRobust(getContext(), R.string.show_location),
-                mAnswerFontSize,
                 viewButtonEnabled);
 
         // launch appropriate map viewer

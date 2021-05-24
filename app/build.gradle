@@ -25,7 +25,6 @@ repositories {
         dirs 'libs'
     }
     maven { url "https://jitpack.io" }
-    maven { url "http://dl.bintray.com/ona/kujaku" }
 }
 
 configurations {
@@ -112,11 +111,11 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
 
     // Markdown
-    implementation 'io.noties.markwon:core:4.4.0'
-    implementation 'io.noties.markwon:ext-tables:4.4.0'
-    implementation 'io.noties.markwon:ext-strikethrough:4.4.0'
+    implementation "io.noties.markwon:core:$markwon_version"
+    implementation "io.noties.markwon:ext-tables:$markwon_version"
+    implementation "io.noties.markwon:ext-strikethrough:$markwon_version"
 
-    implementation ('io.ona.kujaku:library:0.8.7'){
+    implementation ('io.ona.kujaku:library:0.9.0'){
         exclude module: 'xpp3'
     }
     implementation "androidx.work:work-runtime:2.4.0"

@@ -216,6 +216,8 @@
         <item name="android:layout_width">fill_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:background">@color/cc_attention_positive_bg</item>
+        <item name="backgroundTint">@null</item>
+        <item name="android:minHeight">@dimen/dp48</item>
         <item name="android:drawableRight">@drawable/icon_chevron_right_attnpos</item>
         <item name="android:textColor">@color/cc_attention_positive_text</item>
         <item name="android:gravity">left|end|center_vertical</item>
@@ -245,6 +247,7 @@
         <item name="android:layout_marginLeft">@dimen/standard_spacer_double</item>
         <item name="android:layout_marginRight">@dimen/standard_spacer_double</item>
         <item name="android:layout_marginBottom">@dimen/standard_spacer_double</item>
+        <item name="backgroundTint">@null</item>
         <item name="android:textColor">@color/cc_neutral_bg</item>
         <item name="android:padding">@dimen/standard_spacer</item>
     </style>
@@ -267,6 +270,7 @@
     </style>
 
     <style name="MapButton">
+        <item name="backgroundTint">@null</item>
         <item name="android:minWidth">@dimen/map_button_min_width</item>
     </style>
 
