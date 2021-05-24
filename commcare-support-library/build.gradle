@@ -15,7 +15,7 @@ afterEvaluate {
                 pom {
                     name = 'CommCare Support Library'
                     description = 'Provides a set of utility functions for using CommCare Android mobile APIs'
-                    url = 'https://github.com/dimagi/commcare-support-library'
+                    url = 'https://github.com/dimagi/commcare-android/tree/master/commcare-support-library'
                     licenses {
                         license {
                             name = 'The Apache Software License, Version 2.0'
@@ -30,7 +30,7 @@ afterEvaluate {
                         }
                     }
                     scm {
-                        url = 'https://github.com/dimagi/commcare-support-library.git'
+                        url = 'https://github.com/dimagi/commcare-android.git'
                     }
                 }
             }
