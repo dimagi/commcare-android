@@ -186,4 +186,13 @@ public class FormRecordV5 extends Persisted implements EncryptedModel {
     public String getXmlns() {
         return xmlns;
     }
+
+    /**
+     * Create a copy of the current form record, with an updated status.
+     */
+    public FormRecordV5 updateStatus(@FormRecord.FormRecordStatus String newStatus) {
+        FormRecordV5 fr = new FormRecordV5(this);
+        fr.status = newStatus;
+        return fr;
+    }
 }
