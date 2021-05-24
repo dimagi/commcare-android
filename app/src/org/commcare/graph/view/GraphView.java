@@ -4,6 +4,7 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
+import android.view.View;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.widget.LinearLayout;
@@ -13,6 +14,7 @@ import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.core.graph.model.GraphData;
 import org.commcare.core.graph.util.GraphUtil;
 import org.commcare.util.LogTypes;
+import org.commcare.views.BarGraphView;
 import org.javarosa.core.services.Logger;
 
 /**
@@ -37,9 +39,9 @@ public class GraphView {
         mIsFullScreen = isFullScreen;
     }
 
-    public Intent getIntent(String html, Class className) {
+    public Intent getIntent(GraphData data, Class className) {
         Intent intent = new Intent(mContext, className);
-        intent.putExtra(HTML, html);
+        intent.putExtra(HTML, data);
         intent.putExtra(TITLE, mTitle);
         return intent;
     }
@@ -49,30 +51,31 @@ public class GraphView {
      * any changes to graph's configuration, title, etc.
      */
     @TargetApi(Build.VERSION_CODES.KITKAT)
-    public WebView getView(String html) {
-        if (BuildConfig.DEBUG) {
-            WebView.setWebContentsDebuggingEnabled(true);
-        }
-
-        WebView webView = new GraphWebView(mContext);
-
-        WebSettings settings = webView.getSettings();
-        settings.setJavaScriptEnabled(true);
-
-        webView.setClickable(true);
-        webView.setFocusable(false);
-        webView.setFocusableInTouchMode(false);
-
-        settings.setBuiltInZoomControls(mIsFullScreen);
-        settings.setSupportZoom(mIsFullScreen);
-        settings.setDisplayZoomControls(mIsFullScreen);
-
-        // Improve performance
-        settings.setCacheMode(WebSettings.LOAD_NO_CACHE);
-
-        this.myHTML = html;
-        webView.loadDataWithBaseURL("file:///android_asset/", html, "text/html", "utf-8", null);
-        return webView;
+    public View getView(GraphData graphData) {
+        return BarGraphView.INSTANCE.createBarGraph(mContext, graphData);
+//        if (BuildConfig.DEBUG) {
+//            WebView.setWebContentsDebuggingEnabled(true);
+//        }
+//
+//        WebView webView = new GraphWebView(mContext);
+//
+//        WebSettings settings = webView.getSettings();
+//        settings.setJavaScriptEnabled(true);
+//
+//        webView.setClickable(true);
+//        webView.setFocusable(false);
+//        webView.setFocusableInTouchMode(false);
+//
+//        settings.setBuiltInZoomControls(mIsFullScreen);
+//        settings.setSupportZoom(mIsFullScreen);
+//        settings.setDisplayZoomControls(mIsFullScreen);
+//
+//        // Improve performance
+//        settings.setCacheMode(WebSettings.LOAD_NO_CACHE);
+//
+//        this.myHTML = html;
+//        webView.loadDataWithBaseURL("file:///android_asset/", html, "text/html", "utf-8", null);
+//        return webView;
     }
 
     private class GraphWebView extends WebView {

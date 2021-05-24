@@ -109,6 +109,7 @@ dependencies {
     }
 
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+    implementation 'com.github.PhilJay:MPAndroidChart:v3.1.0'
 
     // Markdown
     implementation "io.noties.markwon:core:$markwon_version"

@@ -293,12 +293,8 @@ public class EntityView extends LinearLayout {
                 renderedGraphsCache.put(rowId, new Hashtable<Integer, View>());
             }
             if (rendered == null) {
-                try {
-                    rendered = g.getView(((GraphData)field).getGraphHTML(" "));
-                } catch (GraphException ex) {
-                    rendered = new TextView(getContext());
-                    ((TextView)rendered).setText(ex.getMessage());
-                }
+                    rendered = g.getView((GraphData) field);
+
                 renderedGraphsCache.get(rowId).put(orientation, rendered);
             }
             ((LinearLayout)view).removeAllViews();

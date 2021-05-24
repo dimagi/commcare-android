@@ -2,9 +2,10 @@ package org.commcare.graph.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.View;
 import android.view.Window;
-import android.webkit.WebView;
 
+import org.commcare.core.graph.model.GraphData;
 import org.commcare.graph.view.GraphView;
 
 /**
@@ -28,9 +29,9 @@ public class GraphActivityStateHandler {
             activity.setTitle(title);
         }
 
-        String html = extras.getString(GraphView.HTML);
+        GraphData html = (GraphData) extras.getSerializable(GraphView.HTML);
         GraphView graphView = new GraphView(activity, title, true);
-        WebView webView = graphView.getView(html);
+        View webView = graphView.getView(html);
         activity.setContentView(webView);
     }
 }

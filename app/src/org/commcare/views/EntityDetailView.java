@@ -10,6 +10,7 @@ import android.text.method.LinkMovementMethod;
 import android.view.Display;
 import android.view.GestureDetector;
 import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,9 +24,16 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.github.mikephil.charting.charts.BarChart;
+import com.github.mikephil.charting.data.BarData;
+import com.github.mikephil.charting.data.BarEntry;
+import com.github.mikephil.charting.data.Entry;
+
 import org.commcare.activities.CommCareGraphActivity;
 import org.commcare.cases.entity.Entity;
 import org.commcare.core.graph.model.GraphData;
+import org.commcare.core.graph.model.SeriesData;
+import org.commcare.core.graph.model.XYPointData;
 import org.commcare.core.graph.util.GraphException;
 import org.commcare.dalvik.R;
 import org.commcare.graph.view.GraphLoader;
@@ -46,8 +54,10 @@ import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Set;
 import java.util.Timer;
 
@@ -332,14 +342,14 @@ public class EntityDetailView extends FrameLayout {
 
         // Open full-screen graph intent on double tap
         if (!graphsWithErrors.contains(index)) {
-            enableGraphIntent((WebView)graphView, finalIntent);
+            enableGraphIntent(graphView, finalIntent);
         }
 
         // Add graph child views to graph layout
         graphLayout.removeAllViews();
         graphLayout.addView(graphView, GraphView.getLayoutParams());
         if (!cached && !graphsWithErrors.contains(index)) {
-            addSpinnerToGraph((WebView)graphView, graphLayout);
+            addSpinnerToGraph(graphView, graphLayout);
         }
 
         if (current != GRAPH) {
@@ -402,26 +412,26 @@ public class EntityDetailView extends FrameLayout {
     }
 
     @SuppressWarnings("AddJavascriptInterface")
-    private void addSpinnerToGraph(WebView graphView, ViewGroup graphLayout) {
-        // WebView.addJavascriptInterface should not be called with minSdkVersion < 17
-        // for security reasons: JavaScript can use reflection to manipulate application
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
-            return;
-        }
-
-        final ProgressBar spinner = new ProgressBar(this.getContext(), null, android.R.attr.progressBarStyleLarge);
-        spinner.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.CENTER));
-        GraphLoader graphLoader = new GraphLoader((AppCompatActivity)this.getContext(), spinner);
-
-        // Set up interface that JavaScript will call to hide the spinner
-        // once the graph has finished rendering.
-        graphView.addJavascriptInterface(graphLoader, "Android");
-
-        // The above JavaScript interface doesn't load properly 100% of the time.
-        // Worst case, hide the spinner after ten seconds.
-        Timer spinnerTimer = new Timer();
-        spinnerTimer.schedule(graphLoader, 10000);
-        graphLayout.addView(spinner);
+    private void addSpinnerToGraph(View graphView, ViewGroup graphLayout) {
+//        // WebView.addJavascriptInterface should not be called with minSdkVersion < 17
+//        // for security reasons: JavaScript can use reflection to manipulate application
+//        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
+//            return;
+//        }
+//
+//        final ProgressBar spinner = new ProgressBar(this.getContext(), null, android.R.attr.progressBarStyleLarge);
+//        spinner.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.CENTER));
+//        GraphLoader graphLoader = new GraphLoader((AppCompatActivity)this.getContext(), spinner);
+//
+//        // Set up interface that JavaScript will call to hide the spinner
+//        // once the graph has finished rendering.
+//        graphView.addJavascriptInterface(graphLoader, "Android");
+//
+//        // The above JavaScript interface doesn't load properly 100% of the time.
+//        // Worst case, hide the spinner after ten seconds.
+//        Timer spinnerTimer = new Timer();
+//        spinnerTimer.schedule(graphLoader, 10000);
+//        graphLayout.addView(spinner);
     }
 
     private View getGraphViewFromCache(int index, int orientation) {
@@ -436,22 +446,23 @@ public class EntityDetailView extends FrameLayout {
      * Generate graph view. May return WebView displaying graph, or TextView displaying error.
      */
     private View getGraphView(int index, String title, GraphData field, int orientation) {
-        Context context = getContext();
-        View graphView;
-        GraphView g = new GraphView(context, title, false);
-        try {
-            String graphHTML = field.getGraphHTML(title);
-            graphView = g.getView(graphHTML);
-            graphLayout.setRatio((float)g.getRatio(field), (float)1);
-        } catch (GraphException ex) {
-            graphView = new TextView(context);
-            int padding = (int)context.getResources().getDimension(R.dimen.spacer_small);
-            graphView.setPadding(padding, padding, padding, padding);
-            ((TextView)graphView).setText(ex.getMessage());
-            graphsWithErrors.add(index);
-        }
-        graphViewsCache.get(index).put(orientation, graphView);
-        return graphView;
+        return BarGraphView.INSTANCE.createBarGraph(getContext(), field);
+//        Context context = getContext();
+//        View graphView;
+//        GraphView g = new GraphView(context, title, false);
+//        try {
+//            String graphHTML = field.getGraphHTML(title);
+//            graphView = g.getView(graphHTML);
+//            graphLayout.setRatio((float)g.getRatio(field), (float)1);
+//        } catch (GraphException ex) {
+//            graphView = new TextView(context);
+//            int padding = (int)context.getResources().getDimension(R.dimen.spacer_small);
+//            graphView.setPadding(padding, padding, padding, padding);
+//            ((TextView)graphView).setText(ex.getMessage());
+//            graphsWithErrors.add(index);
+//        }
+//        graphViewsCache.get(index).put(orientation, graphView);
+//        return graphView;
     }
 
     /**
@@ -461,22 +472,16 @@ public class EntityDetailView extends FrameLayout {
         Intent graphIntent = graphIntentsCache.get(index);
         if (graphIntent == null && !graphsWithErrors.contains(index)) {
             GraphView g = new GraphView(this.getContext(), title, true);
-            try {
-                String html = field.getGraphHTML(title);
-                graphIntent = g.getIntent(html, CommCareGraphActivity.class);
-                graphIntentsCache.put(index, graphIntent);
-            } catch (GraphException ex) {
-                graphsWithErrors.add(index);
-            }
+            graphIntent = g.getIntent(field, CommCareGraphActivity.class);
+            graphIntentsCache.put(index, graphIntent);
         }
-
         return graphIntent;
     }
 
     /**
      * Set up event handling so that full-screen graph intent opens on double tap of given view.
      */
-    private void enableGraphIntent(WebView graphView, final Intent graphIntent) {
+    private void enableGraphIntent(View graphView, final Intent graphIntent) {
         final Context context = this.getContext();
         final GestureDetector detector = new GestureDetector(context, new GestureDetector.SimpleOnGestureListener() {
             @Override
