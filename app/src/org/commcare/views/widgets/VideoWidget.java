@@ -35,7 +35,6 @@ public class VideoWidget extends MediaWidget {
         mCaptureButton = new AppCompatButton(getContext());
         WidgetUtils.setupButton(mCaptureButton,
                 StringUtils.getStringSpannableRobust(getContext(), R.string.capture_video),
-                mAnswerFontSize,
                 !mPrompt.isReadOnly());
 
         // launch capture intent on click
@@ -59,7 +58,6 @@ public class VideoWidget extends MediaWidget {
         mChooseButton = new AppCompatButton(getContext());
         WidgetUtils.setupButton(mChooseButton,
                 StringUtils.getStringSpannableRobust(getContext(), R.string.choose_video),
-                mAnswerFontSize,
                 !mPrompt.isReadOnly());
 
         // launch capture intent on click
@@ -82,7 +80,6 @@ public class VideoWidget extends MediaWidget {
         mPlayButton = new AppCompatButton(getContext());
         WidgetUtils.setupButton(mPlayButton,
                 StringUtils.getStringSpannableRobust(getContext(), R.string.play_video),
-                mAnswerFontSize,
                 !mPrompt.isReadOnly());
 
         // on play, launch the appropriate viewer

@@ -122,7 +122,6 @@ public class IntentWidget extends QuestionWidget {
 
         WidgetUtils.setupButton(launchIntentButton,
                 getButtonLabel(),
-                mAnswerFontSize,
                 !mPrompt.isReadOnly());
 
         // launch barcode capture intent on click
