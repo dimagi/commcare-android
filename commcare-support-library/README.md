@@ -6,15 +6,17 @@ or as a data backend.
 The CommCare support library provides a set of utility functions for using these APIs [mobile APIs](https://github.com/dimagi/commcare-android/wiki)
 without having to understand and implement the underlying Android Cursors and Intents.
 
+CommCare Support library also provides APIs for a biometric provider to integrate with CommCare. Read more [here](https://github.com/dimagi/commcare-android/blob/master/commcare-support-library/src/main/java/org/commcare/commcaresupportlibrary/identity/identity_integration.md)
+
 ### Installation
 
-The support library is hosted on [JCenter](https://bintray.com/wsp260/commcare-support-library/commcare-support-library).
+The support library is hosted on Maven Central.
 You can include this in Gradle in your `build.gradle`:
 
 ```
 repositories {
     ...
-    jcenter()
+    mavenCentral()
 }
 ```
 
@@ -22,7 +24,7 @@ and:
 ```
 dependencies {
     ...
-    compile 'org.commcare:support-library:12.3'
+    implementation 'org.commcare:support-library:12.4'
 }
 ```
 
@@ -55,3 +57,4 @@ Get a list of IDs of all the fixtures in the current database:
 Then retrieve the XML for a specific fixture from this list:
 
 `FixtureUtils.getFixtureXml(Context context, String fixtureId`
+
