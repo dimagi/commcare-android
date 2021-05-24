@@ -87,7 +87,6 @@ public class GeoPointWidget extends QuestionWidget {
         mGetLocationButton = new AppCompatButton(getContext());
         WidgetUtils.setupButton(mGetLocationButton,
                 locButtonText,
-                mAnswerFontSize,
                 !prompt.isReadOnly());
 
         mGetLocationButton.setOnClickListener(v -> {
@@ -108,7 +107,6 @@ public class GeoPointWidget extends QuestionWidget {
         mViewButton = new AppCompatButton(getContext());
         WidgetUtils.setupButton(mViewButton,
                 StringUtils.getStringSpannableRobust(getContext(), R.string.show_location),
-                mAnswerFontSize,
                 viewButtonEnabled);
 
         // launch appropriate map viewer

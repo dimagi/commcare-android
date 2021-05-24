@@ -95,7 +95,6 @@ public class ImageWidget extends QuestionWidget {
         mCaptureButton = new AppCompatButton(getContext());
         WidgetUtils.setupButton(mCaptureButton,
                 StringUtils.getStringSpannableRobust(getContext(), R.string.capture_image),
-                mAnswerFontSize,
                 !mPrompt.isReadOnly());
 
         // launch capture intent on click
@@ -122,7 +121,6 @@ public class ImageWidget extends QuestionWidget {
         mChooseButton = new AppCompatButton(getContext());
         WidgetUtils.setupButton(mChooseButton,
                 StringUtils.getStringSpannableRobust(getContext(), R.string.choose_image),
-                mAnswerFontSize,
                 !mPrompt.isReadOnly());
 
         // launch capture intent on click
@@ -155,7 +153,6 @@ public class ImageWidget extends QuestionWidget {
         mDiscardButton = new AppCompatButton(getContext());
         WidgetUtils.setupButton(mDiscardButton,
                 StringUtils.getStringSpannableRobust(getContext(), R.string.discard_image),
-                mAnswerFontSize,
                 !mPrompt.isReadOnly());
         mDiscardButton.setOnClickListener(v -> {
             deleteMedia();

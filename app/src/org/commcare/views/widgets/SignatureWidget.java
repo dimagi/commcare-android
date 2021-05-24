@@ -90,7 +90,6 @@ public class SignatureWidget extends QuestionWidget {
         mSignButton = new AppCompatButton(getContext());
         WidgetUtils.setupButton(mSignButton,
                 StringUtils.getStringSpannableRobust(getContext(), R.string.sign_button),
-                mAnswerFontSize,
                 !prompt.isReadOnly());
 
         // launch capture intent on click
