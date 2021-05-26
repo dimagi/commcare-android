@@ -409,7 +409,7 @@ public class FormUploadUtil {
      */
     public static boolean isSupportedMultimediaFile(String filename) {
         for (String ext : SUPPORTED_FILE_EXTS) {
-            if (filename.endsWith(ext)) {
+            if (filename.toLowerCase().endsWith(ext)) {
                 return true;
             }
         }
