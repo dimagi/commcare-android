@@ -724,13 +724,12 @@ public class FileUtil {
         outputStream.close();
     }
 
-    public static boolean isSupportedMultiMediaFile(Uri media) {
+    public static boolean isSupportedMultiMediaFile(Context context, Uri media) {
         try {
-            String binaryPath = UriToFilePath.getPathFromUri(CommCareApplication.instance(), media);
-            return FormUploadUtil.isSupportedMultimediaFile(binaryPath);
-        } catch (UriToFilePath.NoDataColumnForUriException e) {
-            // No file path available, work with the media uri instead
-            return FormUploadUtil.isSupportedMultimediaFile(media.getPath());
+            String fileName = getFileName(context, media);
+            return FormUploadUtil.isSupportedMultimediaFile(fileName);
+        } catch (FileExtensionNotFoundException e) {
+            return false;
         }
     }
 
