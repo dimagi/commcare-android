@@ -517,41 +517,36 @@ public class FileUtil {
     }
 
     public static String getExtension(String filePath) {
-        if (filePath.contains(".")) {
+        if (filePath != null && filePath.contains(".")) {
             return last(filePath.split("\\."));
         }
         return "";
     }
 
     /**
-     * Retrieve a file's name using contentUri.
-     * https://developer.android.com/training/secure-file-sharing/retrieve-info.html#RetrieveFileInfo
+     * Retrieve a file's name from content URI using below process:
+     * - Get fileName using {@link UriToFilePath#getPathFromUri(Context, Uri)}.
+     * - If the fileName doesn't have an extension, then retrieve fileName using file provider. @see https://developer.android.com/training/secure-file-sharing/retrieve-info.html#RetrieveFileInfo
+     * - If the fileName still doesn't have extension, use {@link #getFileExtension(Context, Uri, String)}
      *
      * @throws FileExtensionNotFoundException
+     * @return FileName with extension
      */
     public static String getFileName(Context context, Uri uri) throws FileExtensionNotFoundException {
         String fileName;
-        try (Cursor cursor = context.getContentResolver().query(
-                uri, new String[] { OpenableColumns.DISPLAY_NAME }, null, null, null)) {
-            if (cursor == null || cursor.getCount() <= 0) {
-                try {
-                    fileName = getFileName(UriToFilePath.getPathFromUri(context, uri));
-                } catch (UriToFilePath.NoDataColumnForUriException e) {
-                    fileName = uri.getLastPathSegment();
+        try {
+            fileName = getFileName(UriToFilePath.getPathFromUri(context, uri));
+        } catch (UriToFilePath.NoDataColumnForUriException e) {
+            fileName = uri.getLastPathSegment();
+        }
+        if (TextUtils.isEmpty(getExtension(fileName))) {
+            try (Cursor cursor = context.getContentResolver().query(
+                    uri, new String[] { OpenableColumns.DISPLAY_NAME }, null, null, null)) {
+                if (cursor != null && cursor.moveToFirst()) {
+                    fileName = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
                 }
-            } else {
-                int nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
-                cursor.moveToFirst();
-                fileName = cursor.getString(nameIndex);
-                cursor.close();
-                // If file name doesn't have an extension, we should try UriToFilePath
-                if (TextUtils.isEmpty(getExtension(fileName))) {
-                    try {
-                        fileName = getFileName(UriToFilePath.getPathFromUri(context, uri));
-                    } catch (UriToFilePath.NoDataColumnForUriException e) {
-                        // Do nothing, we already have a fileName.
-                    }
-                }
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         }
         if (TextUtils.isEmpty(getExtension(fileName))) {
