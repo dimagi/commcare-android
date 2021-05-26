@@ -544,6 +544,14 @@ public class FileUtil {
                 cursor.moveToFirst();
                 fileName = cursor.getString(nameIndex);
                 cursor.close();
+                // If file name doesn't have an extension, we should try UriToFilePath
+                if (TextUtils.isEmpty(getExtension(fileName))) {
+                    try {
+                        fileName = getFileName(UriToFilePath.getPathFromUri(context, uri));
+                    } catch (UriToFilePath.NoDataColumnForUriException e) {
+                        // Do nothing, we already have a fileName.
+                    }
+                }
             }
         }
         if (TextUtils.isEmpty(getExtension(fileName))) {
