@@ -25,7 +25,6 @@ import org.commcare.resources.model.MissingMediaException;
 import org.commcare.resources.model.Resource;
 import org.commcare.util.LogTypes;
 import org.javarosa.core.io.StreamsUtil;
-import org.javarosa.core.model.data.StringData;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.Reference;
 import org.javarosa.core.reference.ReferenceManager;
@@ -135,8 +134,7 @@ public class FileUtil {
      * The app needs to already have permissions granted for the external file content.
      *
      * @param contentUri A valid uri to a contentprovider backed external file
-     * @param destDir The destination directory for the file to be copied into.
-     *
+     * @param destDir    The destination directory for the file to be copied into.
      * @return The destination copy of the file
      */
     public static File copyContentFileToLocalDir(Uri contentUri, File destDir, Context context) throws IOException {
@@ -156,14 +154,14 @@ public class FileUtil {
             dst.transferFrom(srcFc, 0, fileLength);
         } finally {
             try {
-                if(srcFc != null) {
+                if (srcFc != null) {
                     srcFc.close();
                 }
             } catch (IOException e) {
                 e.printStackTrace();
             }
             try {
-                if(dst != null) {
+                if (dst != null) {
                     dst.close();
                 }
             } catch (IOException e) {
@@ -338,7 +336,9 @@ public class FileUtil {
      * https://developer.android.com/reference/android/content/ContentUris
      */
     public static boolean isContentUri(String input) {
-        if (input == null) { return false; }
+        if (input == null) {
+            return false;
+        }
 
         return "content".equals(Uri.parse(input).getScheme());
     }
@@ -527,9 +527,8 @@ public class FileUtil {
      * Retrieve a file's name from content URI using below process:
      * - Get fileName using {@link UriToFilePath#getPathFromUri(Context, Uri)}.
      * - If the fileName doesn't have an extension, then retrieve fileName using file provider. @see https://developer.android.com/training/secure-file-sharing/retrieve-info.html#RetrieveFileInfo
-     * - If the fileName still doesn't have extension, use {@link #getFileExtension(Context, Uri, String)}
+     * - If the fileName still doesn't have extension, use {@link #getFileExtensionUsingMimeType(Context, Uri, String)}
      *
-     * @throws FileExtensionNotFoundException
      * @return FileName with extension
      */
     public static String getFileName(Context context, Uri uri) throws FileExtensionNotFoundException {
@@ -541,7 +540,7 @@ public class FileUtil {
         }
         if (TextUtils.isEmpty(getExtension(fileName))) {
             try (Cursor cursor = context.getContentResolver().query(
-                    uri, new String[] { OpenableColumns.DISPLAY_NAME }, null, null, null)) {
+                    uri, new String[]{OpenableColumns.DISPLAY_NAME}, null, null, null)) {
                 if (cursor != null && cursor.moveToFirst()) {
                     fileName = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
                 }
@@ -550,7 +549,7 @@ public class FileUtil {
             }
         }
         if (TextUtils.isEmpty(getExtension(fileName))) {
-            String ext = getFileExtension(context, uri, fileName);
+            String ext = getFileExtensionUsingMimeType(context, uri, fileName);
             fileName = fileName + "." + ext;
         }
         return fileName;
@@ -560,25 +559,33 @@ public class FileUtil {
      * @return file extension by getting the mimeType from the URI.
      * @throws FileExtensionNotFoundException if we can't find mimeType from the URI.
      */
-    private static String getFileExtension(Context context, Uri uri, String fileName) throws FileExtensionNotFoundException {
+    private static String getFileExtensionUsingMimeType(Context context, Uri uri, String fileName) throws FileExtensionNotFoundException {
+        String mimeType = getMimeTypeFromUri(context, uri);
+        String ext = MimeTypeMap.getSingleton().getExtensionFromMimeType(mimeType);
+        if (TextUtils.isEmpty(ext)) {
+            throw new FileExtensionNotFoundException(
+                    "Can't find extension for URI :: " + uri
+                            + " and mimeType :: " + mimeType
+                            + " and fileName :: " + fileName
+            );
+        }
+        return ext;
+    }
+
+    /**
+     * @return mimeType for the file denoted by URI
+     */
+    private static String getMimeTypeFromUri(Context context, Uri uri) {
         String mimeType = context.getContentResolver().getType(uri);
         if (TextUtils.isEmpty(mimeType)) {
             try (Cursor cursor = context.getContentResolver().query(
-                    uri, new String[] { MediaStore.MediaColumns.MIME_TYPE }, null, null, null)) {
+                    uri, new String[]{MediaStore.MediaColumns.MIME_TYPE}, null, null, null)) {
                 if (cursor != null && cursor.moveToFirst()) {
                     mimeType = cursor.getString(cursor.getColumnIndex(MediaStore.MediaColumns.MIME_TYPE));
                 }
             }
         }
-        String ext = MimeTypeMap.getSingleton().getExtensionFromMimeType(mimeType);
-        if (TextUtils.isEmpty(ext)) {
-            throw new FileExtensionNotFoundException(
-                    "Can't find extension for URI :: " + uri
-                    + " and mimeType :: " + mimeType
-                    + " and fileName :: " + fileName
-            );
-        }
-        return ext;
+        return mimeType;
     }
 
     public static String getFileName(String filePath) {
