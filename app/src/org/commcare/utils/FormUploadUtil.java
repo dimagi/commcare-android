@@ -32,6 +32,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 
 import javax.annotation.Nullable;
 import javax.crypto.Cipher;
@@ -409,7 +410,7 @@ public class FormUploadUtil {
      */
     public static boolean isSupportedMultimediaFile(String filename) {
         for (String ext : SUPPORTED_FILE_EXTS) {
-            if (filename.endsWith(ext)) {
+            if (filename.toLowerCase(Locale.US).endsWith(ext)) {
                 return true;
             }
         }
