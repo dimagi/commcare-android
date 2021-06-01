@@ -58,7 +58,7 @@ def isSuccessfulBuild(buildId):
     return status
 
 
-def testResult(buildId):
+def testResult(buildId, retryCount):
     status = isSuccessfulBuild(buildId)
 
     # if test succeeded then we can simply return from here.
@@ -66,6 +66,7 @@ def testResult(buildId):
         return
 
     # Otherwise run the failing test one more time.
+    retryCount = retryCount + 1
 
     # Get the sessionID from test result
     resultCommand = 'curl -u "{}:{}" -X GET "https://api-cloud.browserstack.com/app-automate/espresso/v2/builds/{}"'.format(userName, password, buildId)
@@ -106,10 +107,14 @@ def testResult(buildId):
 
     status = isSuccessfulBuild(buildId)
 
-    if (status != "passed"):
+    if (status != "passed" && retryCount >= 3):
         print("Instrumentation Tests Failed. Visit browserstack dashboard for more details.")
         print("https://app-automate.browserstack.com/dashboard/v2/builds/{}".format(buildId))
         sys.exit(-1)
+    elif status != "passed":
+        testResult(buildId, retryCount)
+    else:
+        print("Instrumentation Tests Passed.")
 
 def shouldSkipAndroidTest():
     gitPRId = os.environ["ghprbPullId"]
@@ -117,17 +122,17 @@ def shouldSkipAndroidTest():
     gitPRCmdOutput = subprocess.Popen(shlex.split(gitPRCmd), stdout=PIPE, stderr=None, shell=False).communicate()
     gitPRLabels = json.loads(gitPRCmdOutput[0])["labels"]
     shouldSkip = False
-    for label in gitPRLabels: 
+    for label in gitPRLabels:
         if label["name"] == "skip-integration-tests":
             shouldSkip = True
             break
     return shouldSkip
 
-def runAndroidTest(): 
+def runAndroidTest():
 
     # Exit if the PR is labelled with `skip-integration-tests`
     if shouldSkipAndroidTest():
-        return 
+        return
 
     if "BROWSERSTACK_USERNAME" in os.environ:
         userName = os.environ["BROWSERSTACK_USERNAME"]
@@ -163,7 +168,7 @@ def runAndroidTest():
     buildId = json.loads(output[0])["build_id"]
 
     # Get the result of the test build
-    testResult(buildId)
+    testResult(buildId, 1)
 
 
 if __name__ == "__main__":
