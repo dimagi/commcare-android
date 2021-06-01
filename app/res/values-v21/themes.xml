@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="Commcare.Button.Primary" parent="commcare_primary_button">
+        <item name="android:stateListAnimator">@xml/cc_button_state_list_animator</item>
+    </style>
+</resources>

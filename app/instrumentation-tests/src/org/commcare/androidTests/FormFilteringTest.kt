@@ -83,7 +83,7 @@ class FormFilteringTest: BaseTest() {
 
     @Test
     fun testFilter_usingUserData_withoutCase() {
-        InstrumentationUtility.login("test_filter", "123")
+        InstrumentationUtility.login("test_filter_without_case", "123")
         onView(withText("Start"))
                 .perform(click())
         onView(withText("Filter Tests"))

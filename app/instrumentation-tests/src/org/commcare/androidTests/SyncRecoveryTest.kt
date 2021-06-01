@@ -37,7 +37,7 @@ class SyncRecoveryTest: BaseTest() {
     @Before
     fun setup() {
         installApp(APP_NAME, CCZ_NAME)
-        InstrumentationUtility.login("test", "123")
+        InstrumentationUtility.login("test_user_17", "123")
         mContext = InstrumentationRegistry.getInstrumentation().targetContext.applicationContext
         LocalBroadcastManager.getInstance(mContext).registerReceiver(mReceiver, IntentFilter(RECOVER_SYNC_ACTION))
     }

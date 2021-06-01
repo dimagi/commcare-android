@@ -33,11 +33,11 @@ class LanguagesTest : BaseTest() {
     @Before
     fun setup() {
         installApp(APP_NAME, CCZ_NAME, true)
-        InstrumentationUtility.login("user_with_no_data", "123")
     }
 
     @Test
     fun testLanguageChanges() {
+        InstrumentationUtility.login("test_user_9", "123")
         InstrumentationUtility.openForm(0, 0)
         onView(withText("Enter a name:"))
                 .check(matches(isDisplayed()))
@@ -78,6 +78,7 @@ class LanguagesTest : BaseTest() {
 
     @Test
     fun testAppUpdate_dontInterfereLanguageChanges() {
+        InstrumentationUtility.login("test_user_10", "123")
         InstrumentationUtility.selectOptionItem(languageOptionItemMatcher)
         checkLanguageOptions()
         // Change language to hindi
@@ -90,7 +91,7 @@ class LanguagesTest : BaseTest() {
                 .perform(click())
         onView(withText("Update to version 103 & log out"))
                 .perform(click())
-        InstrumentationUtility.login("user_with_no_data", "123")
+        InstrumentationUtility.login("test_user_11", "123")
 
         // Confirm app language remains hindi
         onView(withText("Start"))

@@ -1,10 +1,13 @@
 package org.commcare.android.javarosa;
 
+import android.app.Application;
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.BadParcelableException;
 import android.os.Bundle;
+import android.os.ParcelFileDescriptor;
 import android.util.Log;
 
 import org.commcare.CommCareApplication;
@@ -40,6 +43,7 @@ import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.channels.FileChannel;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;

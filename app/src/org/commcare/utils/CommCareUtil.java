@@ -22,8 +22,8 @@ import java.util.Vector;
  */
 public class CommCareUtil {
     public static FormInstance loadFixture(String refId, String userId) {
-        IStorageUtilityIndexed<FormInstance> userFixtureStorage = CommCareApplication.instance().getUserStorage("fixture", FormInstance.class);
-        IStorageUtilityIndexed<FormInstance> appFixtureStorage = CommCareApplication.instance().getAppStorage("fixture", FormInstance.class);
+        IStorageUtilityIndexed<FormInstance> userFixtureStorage = CommCareApplication.instance().getFileBackedUserStorage("fixture", FormInstance.class);
+        IStorageUtilityIndexed<FormInstance> appFixtureStorage = CommCareApplication.instance().getFileBackedAppStorage("fixture", FormInstance.class);
 
         Vector<Integer> userFixtures = userFixtureStorage.getIDsForValue(FormInstance.META_ID, refId);
         ///... Nooooot so clean.

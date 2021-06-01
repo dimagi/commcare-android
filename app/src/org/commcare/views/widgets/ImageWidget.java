@@ -44,6 +44,7 @@ import org.javarosa.form.api.FormEntryPrompt;
 import java.io.File;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.AppCompatButton;
 
 /**
  * Widget that allows user to take pictures, sounds or video and add them to the form.
@@ -91,10 +92,9 @@ public class ImageWidget extends QuestionWidget {
         mErrorTextView.setText("Selected file is not a valid image");
 
         // setup capture button
-        mCaptureButton = new Button(getContext());
+        mCaptureButton = new AppCompatButton(getContext());
         WidgetUtils.setupButton(mCaptureButton,
                 StringUtils.getStringSpannableRobust(getContext(), R.string.capture_image),
-                mAnswerFontSize,
                 !mPrompt.isReadOnly());
 
         // launch capture intent on click
@@ -118,10 +118,9 @@ public class ImageWidget extends QuestionWidget {
         });
 
         // setup chooser button
-        mChooseButton = new Button(getContext());
+        mChooseButton = new AppCompatButton(getContext());
         WidgetUtils.setupButton(mChooseButton,
                 StringUtils.getStringSpannableRobust(getContext(), R.string.choose_image),
-                mAnswerFontSize,
                 !mPrompt.isReadOnly());
 
         // launch capture intent on click
@@ -151,10 +150,9 @@ public class ImageWidget extends QuestionWidget {
         });
 
         // setup discard button
-        mDiscardButton = new Button(getContext());
+        mDiscardButton = new AppCompatButton(getContext());
         WidgetUtils.setupButton(mDiscardButton,
                 StringUtils.getStringSpannableRobust(getContext(), R.string.discard_image),
-                mAnswerFontSize,
                 !mPrompt.isReadOnly());
         mDiscardButton.setOnClickListener(v -> {
             deleteMedia();

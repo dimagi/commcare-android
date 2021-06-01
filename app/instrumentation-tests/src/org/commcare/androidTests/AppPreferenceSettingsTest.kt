@@ -36,11 +36,11 @@ class AppPreferenceSettingsTest: BaseTest() {
     @Before
     fun setup() {
         installApp(APP_NAME, CCZ_NAME)
-        InstrumentationUtility.login("settings.test", "123")
     }
 
     @Test
     fun testFuzzySearchSetting() {
+        InstrumentationUtility.login("settings.test.1", "123")
         val settingName = "Fuzzy Search Matches"
         InstrumentationUtility.openOptionsMenu()
         onView(withText("Settings"))
@@ -64,6 +64,7 @@ class AppPreferenceSettingsTest: BaseTest() {
 
     @Test
     fun testUpdateFrequencySetting() {
+        InstrumentationUtility.login("settings.test.2", "123")
         val settingName = "Auto Update Frequency"
         InstrumentationUtility.openOptionsMenu()
         onView(withText("Settings"))
@@ -87,6 +88,7 @@ class AppPreferenceSettingsTest: BaseTest() {
 
     @Test
     fun testPrintTemplateSetting() {
+        InstrumentationUtility.login("settings.test.3", "123")
         InstrumentationUtility.openOptionsMenu()
         onView(withText("Settings"))
                 .perform(click())

@@ -6,5 +6,6 @@
     android:layout_gravity="right"
     android:textColor="@color/blue"
     android:visibility="gone"
+    style="@style/CommCare.Button.Default"
     android:background="@drawable/blue_outlined_view"
     android:padding="10dp"/>

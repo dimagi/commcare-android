@@ -170,11 +170,9 @@
                                 android:layout_width="fill_parent"
                                 android:layout_height="wrap_content"
                                 android:layout_gravity="bottom"
-                                android:background="@color/cc_brand_color"
                                 android:nextFocusUp="@+id/edit_password"
                                 android:paddingBottom="@dimen/content_start"
-                                android:paddingTop="@dimen/content_start"
-                                android:textColor="@color/cc_neutral_bg" />
+                                android:paddingTop="@dimen/content_start" />
 
                             <LinearLayout
                                 android:id="@+id/screen_login_error_view"
