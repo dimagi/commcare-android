@@ -32,7 +32,13 @@ def buildTestCommand(appToken, testToken, classes=None):
     if classes:
         test["class"] = classes
         classSize = len(classes)
-        test["shards"] = { "numberOfShards": 5 if (classSize > 5) else classSize }
+        if classSize > 5:
+            test["shards"] = { "numberOfShards": 5 }
+        else:
+            mapping = []
+            for index, name in enumerate(classes, start=1):
+                mapping.append({"name" : "Shard " + str(index), "strategy": "class", "values": [name]})
+            test["shards"] = { "numberOfShards": classSize, "mapping": mapping }
     else:
         test["shards"] = { "numberOfShards": 5 }
 
