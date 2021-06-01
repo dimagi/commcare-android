@@ -107,7 +107,7 @@ def testResult(buildId, retryCount):
 
     status = isSuccessfulBuild(buildId)
 
-    if (status != "passed" && retryCount >= 3):
+    if (status != "passed" and retryCount >= 3):
         print("Instrumentation Tests Failed. Visit browserstack dashboard for more details.")
         print("https://app-automate.browserstack.com/dashboard/v2/builds/{}".format(buildId))
         sys.exit(-1)
