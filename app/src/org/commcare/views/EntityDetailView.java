@@ -1,42 +1,28 @@
 package org.commcare.views;
 
-import androidx.appcompat.app.AppCompatActivity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.os.Build;
+
 import androidx.annotation.IdRes;
 import android.text.method.LinkMovementMethod;
 import android.view.Display;
 import android.view.GestureDetector;
-import android.view.Gravity;
-import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.webkit.WebView;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ProgressBar;
 import android.widget.TextView;
-
-import com.github.mikephil.charting.charts.BarChart;
-import com.github.mikephil.charting.data.BarData;
-import com.github.mikephil.charting.data.BarEntry;
-import com.github.mikephil.charting.data.Entry;
 
 import org.commcare.activities.CommCareGraphActivity;
 import org.commcare.cases.entity.Entity;
 import org.commcare.core.graph.model.GraphData;
-import org.commcare.core.graph.model.SeriesData;
-import org.commcare.core.graph.model.XYPointData;
-import org.commcare.core.graph.util.GraphException;
 import org.commcare.dalvik.R;
-import org.commcare.graph.view.GraphLoader;
 import org.commcare.graph.view.GraphView;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.suite.model.CalloutData;
@@ -47,6 +33,7 @@ import org.commcare.utils.FileUtil;
 import org.commcare.utils.GeoUtils;
 import org.commcare.utils.MarkupUtil;
 import org.commcare.utils.MediaUtil;
+import org.commcare.views.graph.GraphViewUtil;
 import org.commcare.views.media.AudioPlaybackButton;
 import org.commcare.views.media.ViewId;
 import org.javarosa.core.reference.InvalidReferenceException;
@@ -54,12 +41,9 @@ import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Hashtable;
-import java.util.List;
 import java.util.Set;
-import java.util.Timer;
 
 /**
  * @author ctsims
@@ -446,7 +430,7 @@ public class EntityDetailView extends FrameLayout {
      * Generate graph view. May return WebView displaying graph, or TextView displaying error.
      */
     private View getGraphView(int index, String title, GraphData field, int orientation) {
-        return BarGraphView.INSTANCE.createBarGraph(getContext(), field);
+        return GraphViewUtil.INSTANCE.createGraph(getContext(), field);
 //        Context context = getContext();
 //        View graphView;
 //        GraphView g = new GraphView(context, title, false);

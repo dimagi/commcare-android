@@ -5,16 +5,14 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.view.View;
-import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.widget.LinearLayout;
 
-import org.commcare.dalvik.BuildConfig;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.core.graph.model.GraphData;
 import org.commcare.core.graph.util.GraphUtil;
 import org.commcare.util.LogTypes;
-import org.commcare.views.BarGraphView;
+import org.commcare.views.graph.GraphViewUtil;
 import org.javarosa.core.services.Logger;
 
 /**
@@ -52,7 +50,7 @@ public class GraphView {
      */
     @TargetApi(Build.VERSION_CODES.KITKAT)
     public View getView(GraphData graphData) {
-        return BarGraphView.INSTANCE.createBarGraph(mContext, graphData);
+        return GraphViewUtil.INSTANCE.createGraph(mContext, graphData);
 //        if (BuildConfig.DEBUG) {
 //            WebView.setWebContentsDebuggingEnabled(true);
 //        }
