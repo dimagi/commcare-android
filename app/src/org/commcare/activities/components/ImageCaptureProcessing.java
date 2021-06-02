@@ -132,6 +132,12 @@ public class ImageCaptureProcessing {
             showInvalidImageMessage(activity);
             return;
         }
+        if (!FileUtil.isSupportedMultiMediaFile(activity, selectedImage)) {
+            Toast.makeText(activity,
+                    Localization.get("form.attachment.invalid"),
+                    Toast.LENGTH_LONG).show();
+            return;
+        }
         processImageGivenFileUri(activity, instanceFolder, selectedImage);
     }
 
