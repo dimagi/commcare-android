@@ -134,15 +134,6 @@ def runAndroidTest():
     if shouldSkipAndroidTest():
         return
 
-    if "BROWSERSTACK_USERNAME" in os.environ:
-        userName = os.environ["BROWSERSTACK_USERNAME"]
-
-    if "BROWSERSTACK_PASSWORD" in os.environ:
-        password = os.environ["BROWSERSTACK_PASSWORD"]
-
-    releaseApp = os.environ["RELEASE_APP_LOCATION"]
-    testApk = os.environ["TEST_APP_LOCATION"]
-
     releaseUrl = "https://api-cloud.browserstack.com/app-automate/upload"
     testUrl = "https://api-cloud.browserstack.com/app-automate/espresso/test-suite"
 
@@ -172,4 +163,9 @@ def runAndroidTest():
 
 
 if __name__ == "__main__":
+    userName = os.environ["BROWSERSTACK_USERNAME"]
+    password = os.environ["BROWSERSTACK_PASSWORD"]
+    releaseApp = os.environ["RELEASE_APP_LOCATION"]
+    testApk = os.environ["TEST_APP_LOCATION"]
+
     runAndroidTest()
