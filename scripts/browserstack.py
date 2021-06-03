@@ -58,7 +58,7 @@ def isSuccessfulBuild(buildId):
     return status
 
 
-def testResult(buildId, retryCount):
+def testResult(appToken, testToken, buildId, retryCount):
     status = isSuccessfulBuild(buildId)
 
     # if test succeeded then we can simply return from here.
@@ -112,7 +112,7 @@ def testResult(buildId, retryCount):
         print("https://app-automate.browserstack.com/dashboard/v2/builds/{}".format(buildId))
         sys.exit(-1)
     elif status != "passed":
-        testResult(buildId, retryCount)
+        testResult(appToken, testToken, buildId, retryCount)
     else:
         print("Instrumentation Tests Passed.")
 
@@ -134,9 +134,6 @@ def runAndroidTest():
     if shouldSkipAndroidTest():
         return
 
-    releaseUrl = "https://api-cloud.browserstack.com/app-automate/upload"
-    testUrl = "https://api-cloud.browserstack.com/app-automate/espresso/test-suite"
-
     command = 'curl -u "{}:{}" -X POST "{}" -F'
 
     releaseUploadCmd = appendData(command.format(userName, password, releaseUrl), releaseApp)
@@ -149,7 +146,6 @@ def runAndroidTest():
 
     # Running the tests
 
-    espressoUrl = "https://api-cloud.browserstack.com/app-automate/espresso/build"
     runConfig = buildTestCommand(appToken, testToken)
     runCmd = 'curl -X POST "{}" -d \ {} -H "Content-Type: application/json" -u "{}:{}"'.format(espressoUrl, runConfig, userName, password)
 
@@ -159,7 +155,7 @@ def runAndroidTest():
     buildId = json.loads(output[0])["build_id"]
 
     # Get the result of the test build
-    testResult(buildId, 1)
+    testResult(appToken, testToken, buildId, 1)
 
 
 if __name__ == "__main__":
@@ -167,5 +163,9 @@ if __name__ == "__main__":
     password = os.environ["BROWSERSTACK_PASSWORD"]
     releaseApp = os.environ["RELEASE_APP_LOCATION"]
     testApk = os.environ["TEST_APP_LOCATION"]
+
+    releaseUrl = "https://api-cloud.browserstack.com/app-automate/upload"
+    testUrl = "https://api-cloud.browserstack.com/app-automate/espresso/test-suite"
+    espressoUrl = "https://api-cloud.browserstack.com/app-automate/espresso/build"
 
     runAndroidTest()
