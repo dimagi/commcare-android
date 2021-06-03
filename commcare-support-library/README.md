@@ -24,7 +24,7 @@ and:
 ```
 dependencies {
     ...
-    implementation 'org.commcare:support-library:12.4'
+    implementation 'org.commcarehq.commcare:support-library:12.4'
 }
 ```
 
