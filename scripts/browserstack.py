@@ -105,8 +105,23 @@ def testResult(buildId):
         print("https://app-automate.browserstack.com/dashboard/v2/builds/{}".format(buildId))
         sys.exit(-1)
 
+def shouldSkipAndroidTest():
+    gitPRId = os.environ["ghprbPullId"]
+    gitPRCmd = 'curl -H "Accept: application/vnd.github.v3+json" https://api.github.com/repos/dimagi/commcare-android/pulls/{}'.format(gitPRId)
+    gitPRCmdOutput = subprocess.Popen(shlex.split(gitPRCmd), stdout=PIPE, stderr=None, shell=False).communicate()
+    gitPRLabels = json.loads(gitPRCmdOutput[0])["labels"]
+    shouldSkip = False
+    for label in gitPRLabels: 
+        if label["name"] == "skip-integration-tests":
+            shouldSkip = True
+            break
+    return shouldSkip
 
-if __name__ == "__main__":
+def runAndroidTest(): 
+
+    # Exit if the PR is labelled with `skip-integration-tests`
+    if shouldSkipAndroidTest():
+        return 
 
     if "BROWSERSTACK_USERNAME" in os.environ:
         userName = os.environ["BROWSERSTACK_USERNAME"]
@@ -143,3 +158,7 @@ if __name__ == "__main__":
 
     # Get the result of the test build
     testResult(buildId)
+
+
+if __name__ == "__main__":
+    runAndroidTest()
