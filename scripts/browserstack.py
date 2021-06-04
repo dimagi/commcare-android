@@ -131,10 +131,6 @@ def shouldSkipAndroidTest():
 
 def runAndroidTest():
 
-    # Exit if the PR is labelled with `skip-integration-tests`
-    if shouldSkipAndroidTest():
-        return
-
     command = 'curl -u "{}:{}" -X POST "{}" -F'
 
     releaseUploadCmd = appendData(command.format(userName, password, releaseUrl), releaseApp)
