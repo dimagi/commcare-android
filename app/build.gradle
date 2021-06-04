@@ -496,6 +496,7 @@ android {
             // enable crashlytics
             buildConfigField "boolean", "USE_CRASHLYTICS", "true"
             ext.enableCrashlytics = true
+            testCoverageEnabled = true
         }
     }
 
