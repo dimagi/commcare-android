@@ -58,9 +58,28 @@ def isSuccessfulBuild(buildId):
 
     return status
 
+def generateCoverageReport(buildId): 
+    resultCommand = 'curl -u "{}:{}" -X GET "https://api-cloud.browserstack.com/app-automate/espresso/v2/builds/{}"'.format(userName, password, buildId)
+    result = subprocess.Popen(shlex.split(resultCommand), stdout=PIPE, stderr=None, shell=False)
+    sessions = json.loads(result.communicate()[0])["devices"][0]["sessions"]
+    coverageDirectory = '../app/build/espresso-coverage'
+    if not os.path.exists(coverageDirectory):
+        os.mkdir(coverageDirectory) 
+    index = 0
+    for session in sessions:
+        sessionId = session["id"]
+        fileName = coverageDirectory + "/coverage_" + str(index) + ".exec"
+        coverageCommand = 'curl -u "{}:{}" -X GET "https://api-cloud.browserstack.com/app-automate/espresso/v2/builds/{}/sessions/{}/coverage" --output {}'.format(userName, password, buildId, sessionId, fileName)
+        subprocess.Popen(shlex.split(coverageCommand), stdout=PIPE, stderr=None, shell=False)
+        index = index + 1
+
 
 def testResult(appToken, testToken, buildId, retryCount):
     status = isSuccessfulBuild(buildId)
+
+    # Generate the code coverage report
+    if (retryCount == 1):
+        generateCoverageReport(buildId)
 
     # if test succeeded then we can simply return from here.
     if (status == "passed"):
