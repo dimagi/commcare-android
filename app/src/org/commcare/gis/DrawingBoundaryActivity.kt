@@ -40,6 +40,7 @@ class DrawingBoundaryActivity : BaseMapboxActivity(), WithUIController, Location
         private const val EXTRA_KEY_TITLE = "title"
         private const val EXTRA_KEY_DETAIL = "detail"
         private const val EXTRA_KEY_MANUAL = "manual"
+        private const val EXTRA_KEY_MINIMUM_DISTANCE_CHECK = "minimum_distance_check"
 
         // Result Intent Extras
         private const val EXTRA_KEY_COORDINATES = "coordinates"
@@ -64,6 +65,7 @@ class DrawingBoundaryActivity : BaseMapboxActivity(), WithUIController, Location
     private var title: String? = null
     private var detail: String? = null
     private var locationMinAccuracy = 35
+    private var doMinimumDistanceCheck = true
 
     private lateinit var uiController: DrawingBoundaryActivityUIController
 
@@ -89,6 +91,7 @@ class DrawingBoundaryActivity : BaseMapboxActivity(), WithUIController, Location
             detail = params.getString(EXTRA_KEY_DETAIL, "")
             isManual = params.getString(EXTRA_KEY_MANUAL, "false")!!.toBoolean()
             boundaryCoords = params.getString(EXTRA_KEY_COORDINATES, "")
+            doMinimumDistanceCheck = params.getString(EXTRA_KEY_MINIMUM_DISTANCE_CHECK, "true").contentEquals("true")
         }
     }
 
@@ -189,7 +192,7 @@ class DrawingBoundaryActivity : BaseMapboxActivity(), WithUIController, Location
     override fun onLocationChanged(location: Location) {
         if (location != null && location.accuracy <= locationMinAccuracy) {
             val addLocation = previousLocation == null ||
-                    (location.distanceTo(previousLocation) >= location.accuracy + previousLocation!!.accuracy &&
+                    ((!doMinimumDistanceCheck || location.distanceTo(previousLocation) >= location.accuracy + previousLocation!!.accuracy) &&
                             location.time - previousLocation!!.time >= recordingIntervalMillis &&
                             location.distanceTo(previousLocation) >= recordingIntervalMeters)
             if (addLocation && isRecording) {
