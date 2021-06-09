@@ -71,7 +71,7 @@
     </permission>
 
     <permission
-        android:name="org.commcare.dalvik.permission.COMMCARE_LOGOUT"
+        android:name="${applicationId}.permission.COMMCARE_LOGOUT"
         android:description="@string/permission_commcare_logout_description"
         android:label="@string/permission_commcare_logout_label"
         android:permissionGroup="commcare.permission-group.EXTERNAL_ACTION"

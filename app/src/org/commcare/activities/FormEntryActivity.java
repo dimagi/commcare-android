@@ -403,7 +403,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             Toast.makeText(FormEntryActivity.this,
                     Localization.get("form.attachment.notfound"),
                     Toast.LENGTH_LONG).show();
-        } else if (!FileUtil.isSupportedMultiMediaFile(media)) {
+        } else if (!FileUtil.isSupportedMultiMediaFile(this, media)) {
             // don't let the user select a file that won't be included in the
             // upload to the server
             uiController.questionsView.clearAnswer();
@@ -1143,7 +1143,6 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         }
 
         TextToSpeechConverter.INSTANCE.shutDown();
-        PollSensorController.INSTANCE.destroy();
         super.onDestroy();
     }
 

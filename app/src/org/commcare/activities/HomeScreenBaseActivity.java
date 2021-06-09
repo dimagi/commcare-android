@@ -225,7 +225,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                     if (intentArgumentsAsBundle != null) {
                         CommCareApplication.instance().getCurrentSessionWrapper()
                                 .executeEndpointStack(endpoint, AndroidUtil.bundleAsMap(intentArgumentsAsBundle));
-                    } else {
+                    } else if (intentArgumentsAsList != null) {
                         CommCareApplication.instance().getCurrentSessionWrapper()
                                 .executeEndpointStack(endpoint, intentArgumentsAsList);
                     }
@@ -842,6 +842,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                 refreshUI();
 
                 if (wasExternal) {
+                    currentState.reset();
                     setResult(RESULT_CANCELED);
                     this.finish();
                     return false;

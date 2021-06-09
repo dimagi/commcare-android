@@ -29,7 +29,7 @@ class DemoUserOnlineTest: DemoUserTest() {
 
     @Test
     fun testPracticeMode_withUpdatedApp_online() {
-        updateApp()
+        updateApp("test_user_2", "123")
         testPracticeMode_withUpdatedApp()
     }
 }

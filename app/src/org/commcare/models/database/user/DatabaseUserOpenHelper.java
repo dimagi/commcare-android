@@ -64,9 +64,10 @@ public class DatabaseUserOpenHelper extends SQLiteOpenHelper {
      * v.24 - Adds and indexes column for Case external_id
      * v.25 - No DB changes, validates SessionStateDescriptor records corrupted due to an earlier bug in v23 migration (In 2.44 and 2.44.1)
      * v.26 - Adds a column for 'last_sync' in IndexedFixtureIndex
+     * v.27 - Adds a column `descriptor` in FormRecord.
      */
 
-    private static final int USER_DB_VERSION = 26;
+    private static final int USER_DB_VERSION = 27;
 
     private static final String USER_DB_LOCATOR = "database_sandbox_";
 

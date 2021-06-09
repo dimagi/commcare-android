@@ -7,8 +7,11 @@ import android.widget.Toast;
 import org.commcare.CommCareApplication;
 import org.commcare.activities.FormEntryActivity;
 import org.commcare.modern.util.Pair;
+import org.commcare.util.LogTypes;
+import org.commcare.utils.FileExtensionNotFoundException;
 import org.commcare.utils.FileUtil;
 import org.commcare.views.widgets.ImageWidget;
+import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 
 import java.io.File;
@@ -129,6 +132,12 @@ public class ImageCaptureProcessing {
             showInvalidImageMessage(activity);
             return;
         }
+        if (!FileUtil.isSupportedMultiMediaFile(activity, selectedImage)) {
+            Toast.makeText(activity,
+                    Localization.get("form.attachment.invalid"),
+                    Toast.LENGTH_LONG).show();
+            return;
+        }
         processImageGivenFileUri(activity, instanceFolder, selectedImage);
     }
 
@@ -141,17 +150,22 @@ public class ImageCaptureProcessing {
             return;
         }
 
-        // First make a copy of the image to operate on and then pass it to the File function
-        File finalFile = new File(CommCareApplication.instance().
-                getExternalTempPath(FileUtil.getFileName(activity, imageUri)));
         try {
+            // First make a copy of the image to operate on and then pass it to the File function
+            File finalFile = new File(CommCareApplication.instance().
+                    getExternalTempPath(FileUtil.getFileName(activity, imageUri)));
             FileUtil.copyFile(inputStream, finalFile);
+            processImageGivenFilePath(activity, instanceFolder, finalFile.getAbsolutePath());
+        } catch (FileExtensionNotFoundException e) {
+            Logger.exception("Error while processing chosen image ", e);
+            Toast.makeText(activity, Localization.get("image.selection.invalid.extension"), Toast.LENGTH_LONG).show();
+            return;
         } catch (IOException e) {
             e.printStackTrace();
+            Logger.exception("Error while processing chosen image ", e);
             Toast.makeText(activity, Localization.get("image.selection.not.saved"), Toast.LENGTH_LONG).show();
             return;
         }
-        processImageGivenFilePath(activity, instanceFolder, finalFile.getAbsolutePath());
     }
 
     private static void processImageGivenFilePath(FormEntryActivity activity, String instanceFolder, String imagePath) {

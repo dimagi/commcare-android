@@ -133,7 +133,9 @@ abstract class FileSystemInstaller implements ResourceInstaller<AndroidCommCareP
             throw mURE;
         } catch (IOException e) {
             e.printStackTrace();
-            throw new UnreliableSourceException(r, e.getMessage());
+            UnreliableSourceException exception = new UnreliableSourceException(r, e.getMessage());
+            exception.initCause(e);
+            throw exception;
         } catch (RateLimitedException e) {
             UnresolvedResourceException mURE = new UnresolvedResourceException(r, "Our servers are unavailable at this time. Please try again later", true);
             mURE.initCause(e);
