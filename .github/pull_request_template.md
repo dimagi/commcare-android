@@ -12,9 +12,9 @@
 
 ## Safety Assurance
 
-- [ ] Risk label is set correctly
+- [ ] If the PR is high rish, "High Risk" label is set
 - [ ] I have confidence that this PR will not introduce a regression for the reasons below
-- [ ] Do we need to enhance manual QA test coverage ? If yes, QA label is set correctly
+- [ ] Do we need to enhance manual QA test coverage ? If yes, "QA Note" label is set correctly
 
 ### Automated test coverage
 
