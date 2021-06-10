@@ -17,6 +17,11 @@ import org.commcare.views.widgets.SignatureWidget;
 import java.io.File;
 
 public class DrawView extends View {
+
+    public interface Callback {
+        void drawn();
+    }
+
     private boolean isSignature;
     private Bitmap mBitmap;
     private Canvas mCanvas;
@@ -26,6 +31,7 @@ public class DrawView extends View {
     private final Paint paint;
     private final Paint pointPaint;
     private float mX, mY;
+    private Callback callback;
 
     public DrawView(final Context c, Paint paint, Paint pointPaint) {
         super(c);
@@ -44,6 +50,14 @@ public class DrawView extends View {
 
         this.isSignature = isSignature;
         mBackgroundBitmapFile = f;
+    }
+
+    public void setCallback(Callback callback) {
+        this.callback = callback;
+    }
+
+    public void removeCallback() {
+        this.callback = null;
     }
 
     public void reset() {
@@ -99,6 +113,10 @@ public class DrawView extends View {
     }
 
     private void touch_move(float x, float y) {
+        double distance = Math.sqrt(Math.pow(x - mX, 2) + Math.pow(y - mY, 2));
+        if (callback != null && distance > 5.0) {
+            callback.drawn();
+        }
         mCurrentPath.quadTo(mX, mY, (x + mX) / 2, (y + mY) / 2);
         mX = x;
         mY = y;
