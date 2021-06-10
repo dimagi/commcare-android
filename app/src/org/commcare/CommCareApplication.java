@@ -28,6 +28,7 @@ import org.commcare.android.javarosa.AndroidLogEntry;
 import org.commcare.android.logging.ForceCloseLogEntry;
 import org.commcare.android.logging.ForceCloseLogger;
 import org.commcare.android.logging.ReportingUtils;
+import org.commcare.core.graph.util.StringWidthUtil;
 import org.commcare.core.interfaces.HttpResponseProcessor;
 import org.commcare.core.network.AuthInfo;
 import org.commcare.core.network.CommCareNetworkService;
@@ -97,6 +98,7 @@ import org.commcare.utils.PendingCalcs;
 import org.commcare.utils.SessionRegistrationHelper;
 import org.commcare.utils.SessionStateUninitException;
 import org.commcare.utils.SessionUnavailableException;
+import org.commcare.utils.StringExtensionImpl;
 import org.commcare.views.widgets.CleanRawMedia;
 import org.conscrypt.Conscrypt;
 import org.javarosa.core.model.User;
@@ -245,6 +247,7 @@ public class CommCareApplication extends MultiDexApplication {
         }
 
         LocalePreferences.saveDeviceLocale(Locale.getDefault());
+        StringWidthUtil.addExtension(new StringExtensionImpl());
     }
 
     protected void attachISRGCert() {
