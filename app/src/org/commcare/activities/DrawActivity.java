@@ -192,6 +192,7 @@ public class DrawActivity extends AppCompatActivity implements DrawView.Callback
         saveAndCloseButton.setOnClickListener(v13 -> saveAndClose());
         if (refImage != null && refImage.exists()) {
             // Means we're editing a saved signature
+            isDrawn = true;
             saveAndCloseButton.setEnabled(true);
         }
 
