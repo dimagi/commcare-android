@@ -62,7 +62,6 @@ public class DrawActivity extends AppCompatActivity implements DrawView.Callback
     private DrawView drawView;
     private String alertTitleString;
     private Button saveAndCloseButton;
-    private boolean isDrawn = false;
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
@@ -192,7 +191,6 @@ public class DrawActivity extends AppCompatActivity implements DrawView.Callback
         saveAndCloseButton.setOnClickListener(v13 -> saveAndClose());
         if (refImage != null && refImage.exists()) {
             // Means we're editing a saved signature
-            isDrawn = true;
             saveAndCloseButton.setEnabled(true);
         }
 
@@ -267,7 +265,6 @@ public class DrawActivity extends AppCompatActivity implements DrawView.Callback
         }
         drawView.reset();
         drawView.invalidate();
-        isDrawn = false;
         saveAndCloseButton.setEnabled(false);
     }
 
@@ -312,7 +309,7 @@ public class DrawActivity extends AppCompatActivity implements DrawView.Callback
         DialogChoiceItem discardOption = new DialogChoiceItem(getString(R.string.do_not_save), -1,
                 discardChangesListener);
 
-        if (isDrawn) {
+        if (saveAndCloseButton.isEnabled()) {
             View.OnClickListener keepChangesListener = v -> saveAndClose();
             DialogChoiceItem keepOption = new DialogChoiceItem(getString(R.string.keep_changes), -1,
                     keepChangesListener);
@@ -328,7 +325,6 @@ public class DrawActivity extends AppCompatActivity implements DrawView.Callback
 
     @Override
     public void drawn() {
-        isDrawn = true;
         saveAndCloseButton.setEnabled(true);
     }
 }
