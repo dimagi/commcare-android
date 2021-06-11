@@ -307,21 +307,18 @@ public class DrawActivity extends AppCompatActivity implements DrawView.Callback
     private void createQuitDrawDialog() {
         final PaneledChoiceDialog dialog = new PaneledChoiceDialog(this, alertTitleString);
 
-        View.OnClickListener keepChangesListener;
-        if (isDrawn) {
-            keepChangesListener = v -> saveAndClose();
-        } else {
-            keepChangesListener = v -> cancelAndClose();
-        }
-
-        DialogChoiceItem keepOption = new DialogChoiceItem(getString(R.string.keep_changes), -1,
-                keepChangesListener);
-
         View.OnClickListener discardChangesListener = v -> cancelAndClose();
         DialogChoiceItem discardOption = new DialogChoiceItem(getString(R.string.do_not_save), -1,
                 discardChangesListener);
 
-        dialog.setChoiceItems(new DialogChoiceItem[]{keepOption, discardOption});
+        if (isDrawn) {
+            View.OnClickListener keepChangesListener = v -> saveAndClose();
+            DialogChoiceItem keepOption = new DialogChoiceItem(getString(R.string.keep_changes), -1,
+                    keepChangesListener);
+            dialog.setChoiceItems(new DialogChoiceItem[]{keepOption, discardOption});
+        } else {
+            dialog.setChoiceItems(new DialogChoiceItem[]{discardOption});
+        }
 
         dialog.addButton(getString(R.string.cancel), v -> dialog.dismiss());
 
