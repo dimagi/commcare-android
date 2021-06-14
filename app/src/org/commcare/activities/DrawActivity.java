@@ -41,7 +41,7 @@ import java.io.IOException;
  *
  * @author BehrAtherton@gmail.com
  */
-public class DrawActivity extends AppCompatActivity {
+public class DrawActivity extends AppCompatActivity implements DrawView.Callback {
     private static final String t = "DrawActivity";
 
     public static final String OPTION = "option";
@@ -61,6 +61,7 @@ public class DrawActivity extends AppCompatActivity {
 
     private DrawView drawView;
     private String alertTitleString;
+    private Button saveAndCloseButton;
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
@@ -185,9 +186,13 @@ public class DrawActivity extends AppCompatActivity {
 
         setContentView(v);
 
-        Button btnFinished = findViewById(R.id.btnFinishDraw);
-        btnFinished.setText(StringUtils.getStringRobust(this, R.string.save_and_close));
-        btnFinished.setOnClickListener(v13 -> saveAndClose());
+        saveAndCloseButton = findViewById(R.id.btnFinishDraw);
+        saveAndCloseButton.setText(StringUtils.getStringRobust(this, R.string.save_and_close));
+        saveAndCloseButton.setOnClickListener(v13 -> saveAndClose());
+        if (refImage != null && refImage.exists()) {
+            // Means we're editing a saved signature
+            saveAndCloseButton.setEnabled(true);
+        }
 
         Button btnReset = findViewById(R.id.btnResetDraw);
         btnReset.setOnClickListener(v12 -> reset());
@@ -196,6 +201,18 @@ public class DrawActivity extends AppCompatActivity {
         Button btnCancel = findViewById(R.id.btnCancelDraw);
         btnCancel.setOnClickListener(v1 -> cancelAndClose());
         btnCancel.setText(StringUtils.getStringRobust(this, R.string.cancel));
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        drawView.setCallback(this);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        drawView.removeCallback();
     }
 
     private void saveAndClose() {
@@ -248,6 +265,7 @@ public class DrawActivity extends AppCompatActivity {
         }
         drawView.reset();
         drawView.invalidate();
+        saveAndCloseButton.setEnabled(false);
     }
 
     private void cancelAndClose() {
@@ -287,18 +305,26 @@ public class DrawActivity extends AppCompatActivity {
     private void createQuitDrawDialog() {
         final PaneledChoiceDialog dialog = new PaneledChoiceDialog(this, alertTitleString);
 
-        View.OnClickListener keepChangesListener = v -> saveAndClose();
-        DialogChoiceItem keepOption = new DialogChoiceItem(getString(R.string.keep_changes), -1,
-                keepChangesListener);
-
         View.OnClickListener discardChangesListener = v -> cancelAndClose();
         DialogChoiceItem discardOption = new DialogChoiceItem(getString(R.string.do_not_save), -1,
                 discardChangesListener);
 
-        dialog.setChoiceItems(new DialogChoiceItem[]{keepOption, discardOption});
+        if (saveAndCloseButton.isEnabled()) {
+            View.OnClickListener keepChangesListener = v -> saveAndClose();
+            DialogChoiceItem keepOption = new DialogChoiceItem(getString(R.string.keep_changes), -1,
+                    keepChangesListener);
+            dialog.setChoiceItems(new DialogChoiceItem[]{keepOption, discardOption});
+        } else {
+            dialog.setChoiceItems(new DialogChoiceItem[]{discardOption});
+        }
 
         dialog.addButton(getString(R.string.cancel), v -> dialog.dismiss());
 
         dialog.showNonPersistentDialog();
+    }
+
+    @Override
+    public void drawn() {
+        saveAndCloseButton.setEnabled(true);
     }
 }
