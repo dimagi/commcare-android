@@ -31,7 +31,7 @@ public class DrawView extends View {
     private final Paint paint;
     private final Paint pointPaint;
     private float mX, mY;
-    private Callback callback;
+    private Callback onViewDrawn;
 
     public DrawView(final Context c, Paint paint, Paint pointPaint) {
         super(c);
@@ -53,11 +53,11 @@ public class DrawView extends View {
     }
 
     public void setCallback(Callback callback) {
-        this.callback = callback;
+        this.onViewDrawn = callback;
     }
 
     public void removeCallback() {
-        this.callback = null;
+        this.onViewDrawn = null;
     }
 
     public void reset() {
@@ -114,8 +114,8 @@ public class DrawView extends View {
 
     private void touch_move(float x, float y) {
         double distance = Math.sqrt(Math.pow(x - mX, 2) + Math.pow(y - mY, 2));
-        if (callback != null && distance > 5.0) {
-            callback.drawn();
+        if (onViewDrawn != null && distance > 5.0) {
+            onViewDrawn.drawn();
         }
         mCurrentPath.quadTo(mX, mY, (x + mX) / 2, (y + mY) / 2);
         mX = x;
