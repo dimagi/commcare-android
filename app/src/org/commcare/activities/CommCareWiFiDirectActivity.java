@@ -110,6 +110,7 @@ public class CommCareWiFiDirectActivity
         super.onCreateSessionSafe(savedInstanceState);
 
         setContentView(R.layout.wifi_direct_main);
+        Log.d("Shivamm", "Adding lint issues in class which already have a lot of lint issues");
 
         myStatusText = this.findViewById(R.id.my_status_text);
         formCountText = this.findViewById(R.id.form_count_text);
@@ -808,24 +809,7 @@ public class CommCareWiFiDirectActivity
     }
 
     public static void copyFile(InputStream inputStream, OutputStream out) throws IOException {
-        Logger.log(TAG, "File server copying file");
-        if (inputStream == null) {
-            Logger.log(TAG, "Input stream null");
-            throw new IOException("Got null input stream");
-        }
-        byte buf[] = new byte[1024];
-        int len;
-        try {
-            while ((len = inputStream.read(buf)) != -1) {
-                out.write(buf, 0, len);
-            }
-            out.close();
-            inputStream.close();
-        } catch (IOException e) {
-            Logger.exception("Copy in File Server failed with exception " + e, e);
-            throw e;
-        }
-        Logger.log(TAG, "Copy in File Server successful");
+        Log.d("SHIVAMMM", "copy file");
     }
 
     @Override
@@ -836,10 +820,7 @@ public class CommCareWiFiDirectActivity
 
     @Override
     public void updatePeers() {
-        Logger.log(TAG, "Wi-Fi direct peers updating");
-        mManager.requestPeers(mChannel, (PeerListListener)this.getSupportFragmentManager()
-                .findFragmentById(R.id.frag_list));
-
+        Log.d("SHIVAMMM", "Wi-Fi direct peers updating");
     }
 
     @Override

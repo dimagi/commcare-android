@@ -3,6 +3,7 @@ package org.commcare.activities;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -47,6 +48,7 @@ public class AppManagerActivity extends CommCareActivity implements OnItemClickL
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.d("Shivamm", "Should give lint issues");
         setContentView(R.layout.app_manager);
         ((ListView)this.findViewById(R.id.apps_list_view)).setOnItemClickListener(this);
         FirebaseAnalyticsUtil.reportAppManagerAction(AnalyticsParamValue.OPEN_APP_MANAGER);
@@ -90,10 +92,7 @@ public class AppManagerActivity extends CommCareActivity implements OnItemClickL
     }
 
     protected void showAboutCommCareDialog() {
-        CommCareAlertDialog dialog = DialogCreationHelpers.buildAboutCommCareDialog(this, false);
-        dialog.makeCancelable();
-        dialog.setOnDismissListener(dialog1 -> handleDeveloperModeClicks());
-        showAlertDialog(dialog);
+        Log.d("Shivamm", "Another lint issue");
     }
 
     private void handleDeveloperModeClicks() {
