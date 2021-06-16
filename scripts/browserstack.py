@@ -123,6 +123,9 @@ def testResult(appToken, testToken, buildId, retryCount):
         print("Instrumentation Tests Passed.")
 
 def shouldSkipAndroidTest():
+    if "ghprbPullId" not in os.environ:
+        return False
+
     gitPRId = os.environ["ghprbPullId"]
     gitPRCmd = 'curl -H "Accept: application/vnd.github.v3+json" https://api.github.com/repos/dimagi/commcare-android/pulls/{}'.format(gitPRId)
     gitPRCmdOutput = subprocess.Popen(shlex.split(gitPRCmd), stdout=PIPE, stderr=None, shell=False).communicate()
