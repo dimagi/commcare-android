@@ -103,7 +103,7 @@ public class NfcWriteActivity extends NfcActivity {
     @Override
     protected void setResultValue(Intent i, boolean success) {
         if (success) {
-            i.putExtra(IntentCallout.INTENT_RESULT_VALUE, payloadToWrite);
+            i.putExtra(IntentCallout.INTENT_RESULT_VALUE, getIntent().getStringExtra(NFC_PAYLOAD_TO_WRITE));
         }
     }
 
