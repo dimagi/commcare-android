@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.util.Pair;
 
 import org.commcare.android.javarosa.IntentCallout;
+import org.commcare.util.EncryptionUtils;
 
 import java.io.IOException;
 
@@ -78,7 +79,7 @@ public class NfcReadActivity extends NfcActivity {
             ndefObject.connect();
             NdefMessage msg = ndefObject.getNdefMessage();
             if (msg == null) {
-                finishWithErrorToast("nfc.read.no.data");
+                finishWithErrorToast("nfc.read.no.data", null);
                 return;
             }
             NdefRecord firstRecord = msg.getRecords()[0];
@@ -86,15 +87,17 @@ public class NfcReadActivity extends NfcActivity {
                     NdefRecordUtil.readValueFromRecord(firstRecord, this.acceptableTypes,
                             this.domainForType);
             if (resultAndSuccess.second) {
-                this.valueRead = resultAndSuccess.first;
+                this.valueRead = decryptValue(resultAndSuccess.first);
                 finishWithToast("nfc.read.success", true);
             } else {
                 finishWithErrorToast(resultAndSuccess.first);
             }
         } catch (IOException e) {
-            finishWithErrorToast("nfc.read.io.error");
+            finishWithErrorToast("nfc.read.io.error", e);
         } catch (FormatException e) {
-            finishWithErrorToast("nfc.read.msg.malformed");
+            finishWithErrorToast("nfc.read.msg.malformed", e);
+        } catch (EncryptionUtils.EncryptionException e) {
+            finishWithErrorToast("nfc.read.msg.decryption.error", e);
         } finally {
             try {
                 ndefObject.close();
@@ -102,6 +105,14 @@ public class NfcReadActivity extends NfcActivity {
                 // nothing we can do
             }
         }
+    }
+
+    private String decryptValue(String message) throws EncryptionUtils.EncryptionException {
+        if (encryptionKey != null && message.startsWith(NFC_ENCRYPTION_SCHEME)) {
+            message = message.replace(NFC_ENCRYPTION_SCHEME,"");
+            message = EncryptionUtils.decrypt(message, encryptionKey);
+        }
+        return message;
     }
 
     @Override

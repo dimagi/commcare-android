@@ -1,5 +1,6 @@
 package org.commcare.android.nfc;
 
+import androidx.annotation.CallSuper;
 import androidx.appcompat.app.AppCompatActivity;
 import android.app.PendingIntent;
 import android.content.Intent;
@@ -13,7 +14,10 @@ import android.widget.Toast;
 
 import org.commcare.android.logging.ReportingUtils;
 import org.commcare.dalvik.R;
+import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
+
+import javax.annotation.Nullable;
 
 /**
  * Parent activity that provides all of the functionality common to any NFC action that CommCare
@@ -25,11 +29,16 @@ public abstract class NfcActivity extends AppCompatActivity {
 
     protected static final String NFC_PAYLOAD_MULT_TYPES_ARG = "types";
     protected static final String NFC_PAYLOAD_SINGLE_TYPE_ARG = "type";
+    protected static final String NFC_ENCRYPTION_KEY_ARG = "encryption_key";
     protected static final String NFC_DOMAIN_ARG = "domain";
+    protected static final String NFC_ENCRYPTION_SCHEME = "encryption_aes_v1";
 
     protected NfcManager nfcManager;
     protected PendingIntent pendingNfcIntent;
     protected String domainForType;
+
+    @Nullable
+    protected String encryptionKey;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,6 +52,7 @@ public abstract class NfcActivity extends AppCompatActivity {
         }
     }
 
+    @CallSuper
     protected void initFields() {
         this.nfcManager = new NfcManager(this);
 
@@ -52,6 +62,7 @@ public abstract class NfcActivity extends AppCompatActivity {
             // set it to be the project's domain name
             this.domainForType = ReportingUtils.getDomain();
         }
+        encryptionKey = getIntent().getStringExtra(NFC_ENCRYPTION_KEY_ARG);
     }
     /**
      * Create an intent for restarting this activity, which will be passed to enableForegroundDispatch(),
@@ -81,9 +92,9 @@ public abstract class NfcActivity extends AppCompatActivity {
             }
             setReadyToHandleTag();
         } catch (NfcManager.NfcNotEnabledException e) {
-            finishWithErrorToast("nfc.not.enabled");
+            finishWithErrorToast("nfc.not.enabled", e);
         } catch (NfcManager.NfcNotSupportedException e) {
-            finishWithErrorToast("nfc.not.supported");
+            finishWithErrorToast("nfc.not.supported", e);
         }
     }
 
@@ -129,6 +140,13 @@ public abstract class NfcActivity extends AppCompatActivity {
     protected abstract void dispatchActionOnTag(Tag tag);
 
     protected void finishWithErrorToast(String errorMessageKey) {
+        finishWithErrorToast(errorMessageKey, null);
+    }
+
+    protected void finishWithErrorToast(String errorMessageKey, @Nullable Exception e) {
+        if (e != null) {
+            Logger.exception("Error encountered while NFC processing", e);
+        }
         finishWithToast(errorMessageKey, false);
     }
 
