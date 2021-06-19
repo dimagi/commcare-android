@@ -263,7 +263,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                     this,
                     R.string.session_endpoint_unavailable,
                     new String[]{
-                            endpoint.getId(),
+                            sessionEndpointId,
                             StringUtils.join(allEndpoints.keySet(), ",")});
             UserfacingErrorHandling.createErrorDialog(this, invalidEndpointError, true);
             return null;
