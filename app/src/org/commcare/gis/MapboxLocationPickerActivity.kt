@@ -34,7 +34,7 @@ class MapboxLocationPickerActivity : BaseMapboxActivity() {
     private var loadedStyle: Style? = null
     private val mapStyles = arrayOf(
             Style.MAPBOX_STREETS,
-            Style.SATELLITE, 
+            Style.SATELLITE,
             Style.SATELLITE_STREETS,
             Style.OUTDOORS
     )
@@ -97,9 +97,11 @@ class MapboxLocationPickerActivity : BaseMapboxActivity() {
         }
         current_location.setOnClickListener {
             mapView.focusOnUserLocation(true)
-            val location = map.locationComponent.lastKnownLocation
-            location?.let {
-                updateMarker(LatLng(it.latitude, it.longitude, it.altitude))
+            if (!inViewMode()) {
+                val location = map.locationComponent.lastKnownLocation
+                location?.let {
+                    updateMarker(LatLng(it.latitude, it.longitude, it.altitude))
+                }
             }
         }
     }
