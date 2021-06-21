@@ -21,6 +21,7 @@ import com.mapbox.mapboxsdk.plugins.annotation.SymbolOptions
 import kotlinx.android.synthetic.main.activity_mapbox_location_picker.*
 import org.commcare.activities.components.FormEntryConstants
 import org.commcare.dalvik.R
+import org.commcare.utils.ConnectivityStatus
 import org.commcare.utils.GeoUtils
 import org.commcare.views.widgets.GeoPointWidget
 
@@ -86,13 +87,15 @@ class MapboxLocationPickerActivity : BaseMapboxActivity() {
             finish()
         }
         switch_map.setOnClickListener {
-            currentMapStyleIndex = (currentMapStyleIndex + 1) % mapStyles.size
-            val style = Style.Builder()
-                    .fromUri(mapStyles[currentMapStyleIndex])
-                    .withImage(MARKER_ICON_IMAGE_ID, ContextCompat.getDrawable(this, R.drawable.marker)!!)
-            map.setStyle(style) {
-                val loc = viewModel.getLocation()
-                updateMarker(LatLng(loc.latitude, loc.longitude, loc.altitude))
+            if (ConnectivityStatus.isNetworkAvailable(this)) {
+                currentMapStyleIndex = (currentMapStyleIndex + 1) % mapStyles.size
+                val style = Style.Builder()
+                        .fromUri(mapStyles[currentMapStyleIndex])
+                        .withImage(MARKER_ICON_IMAGE_ID, ContextCompat.getDrawable(this, R.drawable.marker)!!)
+                map.setStyle(style) {
+                    val loc = viewModel.getLocation()
+                    updateMarker(LatLng(loc.latitude, loc.longitude, loc.altitude))
+                }
             }
         }
         current_location.setOnClickListener {
