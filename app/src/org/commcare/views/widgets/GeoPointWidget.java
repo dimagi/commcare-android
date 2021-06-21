@@ -94,11 +94,7 @@ public class GeoPointWidget extends QuestionWidget {
         mGetLocationButton.setOnClickListener(v -> {
             Intent i;
             if (mUseMaps) {
-                if (HiddenPreferences.shouldUseMapboxMap()) {
-                    i = new Intent(getContext(), MapboxLocationPickerActivity.class);
-                } else {
-                    i = new Intent(getContext(), GeoPointMapActivity.class);
-                }
+                i = getMapActivityIntent();
                 if (mStringAnswer.getText().length() != 0) {
                     i.putExtra(LOCATION, parseLocation());
                 }
@@ -117,12 +113,7 @@ public class GeoPointWidget extends QuestionWidget {
 
         // launch appropriate map viewer
         mViewButton.setOnClickListener(v -> {
-            Intent i;
-            if (HiddenPreferences.shouldUseMapboxMap()) {
-                i = new Intent(getContext(), MapboxLocationPickerActivity.class);
-            } else {
-                i = new Intent(getContext(), GeoPointMapActivity.class);
-            }
+            Intent i = getMapActivityIntent();
             i.putExtra(LOCATION, parseLocation());
             i.putExtra(EXTRA_VIEW_ONLY, true);
             getContext().startActivity(i);
@@ -144,6 +135,14 @@ public class GeoPointWidget extends QuestionWidget {
         gp[2] = Double.valueOf(sa[2]);
         gp[3] = Double.valueOf(sa[3]);
         return gp;
+    }
+
+    private Intent getMapActivityIntent() {
+        if (HiddenPreferences.shouldUseMapboxMap()) {
+            return new Intent(getContext(), MapboxLocationPickerActivity.class);
+        } else {
+            return new Intent(getContext(), GeoPointMapActivity.class);
+        }
     }
 
     @Override
