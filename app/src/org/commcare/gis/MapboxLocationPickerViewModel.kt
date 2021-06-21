@@ -11,8 +11,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.commcare.dalvik.R
+import org.commcare.util.LogTypes
 import org.commcare.utils.GeoUtils
 import org.commcare.utils.StringUtils
+import org.javarosa.core.services.Logger
+import java.lang.IllegalArgumentException
 import java.util.*
 
 /**
@@ -27,7 +30,14 @@ class MapboxLocationPickerViewModel(application: Application): AndroidViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             var addressString = ""
             val geocoder = Geocoder(getApplication(), Locale.getDefault())
-            val geoAddress = geocoder.getFromLocation(latLng.latitude, latLng.longitude, 1)
+            val geoAddress = try {
+                geocoder.getFromLocation(latLng.latitude, latLng.longitude, 1)
+            } catch (e: Exception) {
+                if (e is IllegalArgumentException) {
+                    Logger.exception("Error while fetching location from geocoder", e)
+                }
+                null
+            }
             geoAddress?.let {
                 if (it.isNotEmpty()) {
                     val addr = it[0]
