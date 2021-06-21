@@ -34,7 +34,9 @@ class MapboxLocationPickerActivity : BaseMapboxActivity() {
     private var loadedStyle: Style? = null
     private val mapStyles = arrayOf(
             Style.MAPBOX_STREETS,
-            Style.SATELLITE_STREETS
+            Style.SATELLITE, 
+            Style.SATELLITE_STREETS,
+            Style.OUTDOORS
     )
     private var currentMapStyleIndex = 0
     private var cameraPosition: CameraPosition? = null
