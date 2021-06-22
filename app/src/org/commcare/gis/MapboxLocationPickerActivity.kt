@@ -117,12 +117,6 @@ class MapboxLocationPickerActivity : BaseMapboxActivity(), CommCareLocationListe
         current_location.setOnClickListener {
             isManualSelectedLocation = false
             mapView.focusOnUserLocation(true)
-            if (!inViewMode()) {
-                val location = map.locationComponent.lastKnownLocation
-                location?.let {
-                    updateMarker(LatLng(it.latitude, it.longitude, it.altitude))
-                }
-            }
         }
     }
 
@@ -239,7 +233,7 @@ class MapboxLocationPickerActivity : BaseMapboxActivity(), CommCareLocationListe
     }
 
     override fun onLocationResult(result: Location) {
-        if (isManualSelectedLocation) {
+        if (isManualSelectedLocation || inViewMode()) {
             return
         }
         val point = LatLng(result.latitude, result.longitude, result.altitude)
