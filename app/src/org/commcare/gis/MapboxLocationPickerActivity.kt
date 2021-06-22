@@ -1,10 +1,15 @@
 package org.commcare.gis
 
+import android.Manifest
 import android.content.Intent
+import android.content.IntentSender.SendIntentException
+import android.location.Location
 import android.os.Bundle
 import android.view.View
+import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
+import com.google.android.gms.common.api.ResolvableApiException
 import com.mapbox.android.core.location.LocationEngineCallback
 import com.mapbox.android.core.location.LocationEngineResult
 import com.mapbox.mapboxsdk.camera.CameraPosition
@@ -20,17 +25,27 @@ import com.mapbox.mapboxsdk.plugins.annotation.SymbolManager
 import com.mapbox.mapboxsdk.plugins.annotation.SymbolOptions
 import kotlinx.android.synthetic.main.activity_mapbox_location_picker.*
 import org.commcare.activities.components.FormEntryConstants
+import org.commcare.activities.components.FormEntryDialogs
 import org.commcare.dalvik.R
+import org.commcare.location.CommCareLocationController
+import org.commcare.location.CommCareLocationControllerFactory
+import org.commcare.location.CommCareLocationListener
 import org.commcare.utils.GeoUtils
+import org.commcare.utils.Permissions
 import org.commcare.views.widgets.GeoPointWidget
 
-class MapboxLocationPickerActivity : BaseMapboxActivity() {
+class MapboxLocationPickerActivity : BaseMapboxActivity(), CommCareLocationListener {
 
     companion object {
         const val MARKER_ICON_IMAGE_ID = "marker_icon_image"
+        const val LOCATION_PERMISSION_REQ = 100
+        const val LOCATION_SETTING_REQ = 101
+        private val LOCATION_PERMISSIONS = arrayOf(Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.ACCESS_COARSE_LOCATION)
     }
 
     private lateinit var viewModel: MapboxLocationPickerViewModel
+    private lateinit var locationController: CommCareLocationController
     private var loadedStyle: Style? = null
     private val mapStyles = arrayOf(
             Style.MAPBOX_STREETS,
@@ -43,17 +58,22 @@ class MapboxLocationPickerActivity : BaseMapboxActivity() {
     private var symbolManager: SymbolManager? = null
     private var symbol: Symbol? = null
     private val mapClickListener = MapboxMap.OnMapClickListener { point ->
+        isManualSelectedLocation = true
         // Add marker.
         updateMarker(point)
         viewModel.reverseGeocode(point)
         true
     }
 
+    // don't reset marker to current GPS location if we manually selected a location
+    private var isManualSelectedLocation = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         viewModel = ViewModelProvider(this, ViewModelProvider.AndroidViewModelFactory.getInstance(application))
                 .get(MapboxLocationPickerViewModel::class.java)
         attachListener()
+        locationController = CommCareLocationControllerFactory.getLocationController(this, this)
 
         // Check extras
         if (intent.hasExtra(GeoPointWidget.LOCATION)) {
@@ -96,6 +116,7 @@ class MapboxLocationPickerActivity : BaseMapboxActivity() {
             }
         }
         current_location.setOnClickListener {
+            isManualSelectedLocation = false
             mapView.focusOnUserLocation(true)
             if (!inViewMode()) {
                 val location = map.locationComponent.lastKnownLocation
@@ -111,6 +132,12 @@ class MapboxLocationPickerActivity : BaseMapboxActivity() {
     override fun onResume() {
         super.onResume()
         observeViewModel()
+        requestLocation()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        locationController.stop()
     }
 
     private fun observeViewModel() {
@@ -122,6 +149,7 @@ class MapboxLocationPickerActivity : BaseMapboxActivity() {
 
     override fun onDestroy() {
         map.removeOnMapClickListener(mapClickListener)
+        locationController.destroy()
         super.onDestroy()
     }
 
@@ -205,6 +233,47 @@ class MapboxLocationPickerActivity : BaseMapboxActivity() {
                     .zoom(15.0)
                     .build()
             map.animateCamera(CameraUpdateFactory.newCameraPosition(pos), 10)
+        }
+    }
+
+    override fun onLocationRequestStart() {
+        /// Do nothing
+    }
+
+    override fun onLocationResult(result: Location) {
+        if (isManualSelectedLocation) {
+            return
+        }
+        val point = LatLng(result.latitude, result.longitude, result.altitude)
+        viewModel.reverseGeocode(point)
+        updateMarker(point)
+    }
+
+    override fun missingPermissions() {
+        ActivityCompat.requestPermissions(this, LOCATION_PERMISSIONS, LOCATION_PERMISSION_REQ)
+    }
+
+    override fun onLocationRequestFailure(failure: CommCareLocationListener.Failure) {
+        if (failure is CommCareLocationListener.Failure.ApiException) {
+            val exception = failure.exception
+            if (exception is ResolvableApiException) {
+                try {
+                    exception.startResolutionForResult(this, LOCATION_SETTING_REQ)
+                } catch (e: SendIntentException) {
+                    e.printStackTrace()
+                }
+            }
+        } else {
+            FormEntryDialogs.handleNoGpsProvider(this)
+        }
+    }
+
+    private fun requestLocation() {
+        // Check permissions
+        if (Permissions.missingAppPermission(this, LOCATION_PERMISSIONS)) {
+            missingPermissions()
+        } else {
+            locationController.start()
         }
     }
 }
