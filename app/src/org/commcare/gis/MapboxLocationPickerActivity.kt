@@ -66,6 +66,7 @@ class MapboxLocationPickerActivity : BaseMapboxActivity(), CommCareLocationListe
 
     // don't reset marker to current GPS location if we manually selected a location
     private var isManualSelectedLocation = false
+    private var currentLocation: Location? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -235,10 +236,13 @@ class MapboxLocationPickerActivity : BaseMapboxActivity(), CommCareLocationListe
         if (isManualSelectedLocation || inViewMode()) {
             return
         }
-        val point = LatLng(result.latitude, result.longitude, result.altitude)
-        viewModel.reverseGeocode(point)
-        updateMarker(point)
-        mapView.focusOnUserLocation(true)
+        if (currentLocation == null || currentLocation!!.accuracy == 0f || result.accuracy < currentLocation!!.accuracy) {
+            currentLocation = result
+            val point = LatLng(result.latitude, result.longitude, result.altitude)
+            viewModel.reverseGeocode(point)
+            updateMarker(point)
+            mapView.focusOnUserLocation(true)
+        }
     }
 
     override fun missingPermissions() {
