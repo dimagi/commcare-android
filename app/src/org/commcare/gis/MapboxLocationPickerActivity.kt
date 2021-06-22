@@ -46,7 +46,6 @@ class MapboxLocationPickerActivity : BaseMapboxActivity(), CommCareLocationListe
 
     private lateinit var viewModel: MapboxLocationPickerViewModel
     private lateinit var locationController: CommCareLocationController
-    private var loadedStyle: Style? = null
     private val mapStyles = arrayOf(
             Style.MAPBOX_STREETS,
             Style.SATELLITE,
@@ -173,7 +172,6 @@ class MapboxLocationPickerActivity : BaseMapboxActivity(), CommCareLocationListe
                 .fromUri(mapStyles[currentMapStyleIndex])
                 .withImage(MARKER_ICON_IMAGE_ID, ContextCompat.getDrawable(this, R.drawable.marker)!!)
         map.setStyle(style) {
-            loadedStyle = it
             enableLocationComponent(it)
             addMarker(it, map.cameraPosition.target)
             initialMarkerPosition()
