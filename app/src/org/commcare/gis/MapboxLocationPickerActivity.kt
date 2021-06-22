@@ -116,7 +116,6 @@ class MapboxLocationPickerActivity : BaseMapboxActivity(), CommCareLocationListe
         }
         current_location.setOnClickListener {
             isManualSelectedLocation = false
-            mapView.focusOnUserLocation(true)
         }
     }
 
@@ -239,6 +238,7 @@ class MapboxLocationPickerActivity : BaseMapboxActivity(), CommCareLocationListe
         val point = LatLng(result.latitude, result.longitude, result.altitude)
         viewModel.reverseGeocode(point)
         updateMarker(point)
+        mapView.focusOnUserLocation(true)
     }
 
     override fun missingPermissions() {
