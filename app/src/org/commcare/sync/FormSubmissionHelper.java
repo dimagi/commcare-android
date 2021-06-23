@@ -8,6 +8,7 @@ import net.sqlcipher.database.SQLiteDatabase;
 import org.apache.commons.lang3.StringUtils;
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.user.models.FormRecord;
+import org.commcare.cases.util.InvalidCaseGraphException;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.models.FormRecordProcessor;
@@ -117,6 +118,8 @@ public class FormSubmissionHelper implements DataSubmissionListener {
                 return FormUploadResult.PROGRESS_SDCARD_REMOVED;
             } catch (TaskCancelledException e) {
                 return FormUploadResult.FAILURE;
+            } catch (InvalidCaseGraphException e) {
+                return FormUploadResult.INVALID_CASE_GRAPH;
             }
 
 
@@ -178,7 +181,7 @@ public class FormSubmissionHelper implements DataSubmissionListener {
     }
 
     private boolean checkFormRecordStatus(FormRecord[] records)
-            throws FileNotFoundException, TaskCancelledException {
+            throws FileNotFoundException, TaskCancelledException, InvalidCaseGraphException {
         boolean wroteErrorToLogs = false;
         mProcessor.beginBulkSubmit();
         for (int i = 0; i < records.length; ++i) {
@@ -200,7 +203,7 @@ public class FormSubmissionHelper implements DataSubmissionListener {
                         userDb.endTransaction();
                     }
                 } catch (InvalidStructureException | XmlPullParserException |
-                        UnfullfilledRequirementsException e) {
+                        UnfullfilledRequirementsException | InvalidCaseGraphException e) {
                     records[i] = handleExceptionFromFormProcessing(record, e);
                     wroteErrorToLogs = true;
                 } catch (FileNotFoundException e) {
@@ -450,7 +453,12 @@ public class FormSubmissionHelper implements DataSubmissionListener {
             logMessage =
                     String.format("Quarantining form record with ID %s due to bad requirements|",
                             record.getInstanceID());
+        } else if (e instanceof InvalidCaseGraphException) {
+            logMessage =
+                    String.format("Quarantining form record with ID %s due to a cyclic case relationship|",
+                            record.getInstanceID());
         }
+
         logMessage = logMessage + getExceptionText(e);
 
         CommCareApplication.notificationManager().reportNotificationMessage(

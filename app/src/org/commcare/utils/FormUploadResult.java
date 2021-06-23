@@ -22,48 +22,54 @@ public enum FormUploadResult {
     RECORD_FAILURE(2),
 
     /**
+     * Form processing resulted in introducing an invalid case relationship most probably resulting in cycles into case graph
+     */
+    INVALID_CASE_GRAPH(3),
+
+    /**
      * HQ received the form submission but encountered an error while processing it, so the
      * form has not resulted in any changes to the HQ database
      */
-    PROCESSING_FAILURE(3),
+    PROCESSING_FAILURE(4),
+
 
     /**
      * We attempted an authenticated request over http
      */
-    AUTH_OVER_HTTP(4),
+    AUTH_OVER_HTTP(5),
 
     /**
      * The server returned an authentication error
      */
-    AUTH_FAILURE(5),
+    AUTH_FAILURE(6),
 
     /**
      * There was a problem with the transport layer during transit
      */
-    TRANSPORT_FAILURE(6),
+    TRANSPORT_FAILURE(7),
 
     /**
      * Server has some action directives for user to resolve this error
      */
-    ACTIONABLE_FAILURE(7),
+    ACTIONABLE_FAILURE(8),
 
     /**
      * The user session ended while trying to upload a form
      */
-    PROGRESS_LOGGED_OUT(8),
+    PROGRESS_LOGGED_OUT(9),
 
-    PROGRESS_SDCARD_REMOVED(9),
+    PROGRESS_SDCARD_REMOVED(10),
 
     /**
      * The server can't couldn't handle the submission due to load, we
      * shouldn't keep retrying it
      */
-    RATE_LIMITED(10),
+    RATE_LIMITED(11),
 
     /**
      * User is behind a captive portal, no need to try re-submissions
      */
-    CAPTIVE_PORTAL(11)
+    CAPTIVE_PORTAL(12)
     ;
 
     private final int orderVal;

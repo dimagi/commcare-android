@@ -12,6 +12,7 @@ import org.commcare.android.database.app.models.FormDefRecord;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.cases.ledger.Ledger;
+import org.commcare.cases.util.InvalidCaseGraphException;
 import org.commcare.core.encryption.CryptUtil;
 import org.commcare.core.network.AuthenticationInterceptor;
 import org.commcare.core.network.CaptivePortalRedirectException;
@@ -161,9 +162,20 @@ public abstract class DataPullTask<R>
         }
 
         factory.initUserParser(wrappedEncryptionKey);
+
         if (!loginNeeded) {
             //Only purge cases if we already had a logged in user. Otherwise we probably can't read the DB.
-            CaseUtils.purgeCases();
+            try {
+                CaseUtils.purgeCases();
+            } catch (InvalidCaseGraphException e) {
+                try {
+                    return handleBadLocalState(factory);
+                } catch (UnknownSyncError unknownSyncError) {
+                    e.printStackTrace();
+                    Logger.log(LogTypes.TYPE_WARNING_NETWORK, "Couldn't sync due to Unknown Error|" + e.getMessage());
+                    return new ResultAndError<>(PullTaskResult.UNKNOWN_FAILURE);
+                }
+            }
         }
 
         return getRequestResultOrRetry(factory);

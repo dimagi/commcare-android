@@ -123,6 +123,8 @@ public class RecoveryActivity extends SessionAwareCommCareActivity<RecoveryActiv
                             case RATE_LIMITED:
                                 receiver.updateStatus(Localization.get("form.send.rate.limit.error.toast"));
                                 break;
+                            case INVALID_CASE_GRAPH:
+                                receiver.updateStatus(Localization.get("sync.fail.invalid.case.graph"));
                         }
 
                         if (result != FormUploadResult.FULL_SUCCESS) {

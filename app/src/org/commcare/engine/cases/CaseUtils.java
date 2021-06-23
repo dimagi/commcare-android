@@ -9,6 +9,7 @@ import org.commcare.cases.ledger.LedgerPurgeFilter;
 import org.commcare.cases.model.Case;
 import org.commcare.cases.model.CaseIndex;
 import org.commcare.cases.util.CasePurgeFilter;
+import org.commcare.cases.util.InvalidCaseGraphException;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.models.database.SqlStorageIterator;
 import org.commcare.models.database.user.models.AndroidCaseIndexTable;
@@ -75,7 +76,7 @@ public class CaseUtils {
      *
      * Will fail if the app is not ready for DB operations at the user level.
      */
-    public static void purgeCases() {
+    public static void purgeCases() throws InvalidCaseGraphException {
         long start = System.currentTimeMillis();
         //We need to determine if we're using ownership for purging. For right now, only in sync mode
         Vector<String> owners = new Vector<>();
