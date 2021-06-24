@@ -808,11 +808,11 @@ public class CommCareWiFiDirectActivity
     }
 
     public static void copyFile(InputStream inputStream, OutputStream out) throws IOException {
+        Logger.log(TAG, "File server copying file");
         if (inputStream == null) {
             Logger.log(TAG, "Input stream null");
             throw new IOException("Got null input stream");
         }
-        Log.d("SHIVAMMM", "copy file");
         byte buf[] = new byte[1024];
         int len;
         try {
@@ -836,7 +836,10 @@ public class CommCareWiFiDirectActivity
 
     @Override
     public void updatePeers() {
-        Log.d("SHIVAMMM", "Wi-Fi direct peers updating");
+        Logger.log(TAG, "Wi-Fi direct peers updating");
+        mManager.requestPeers(mChannel, (PeerListListener)this.getSupportFragmentManager()
+                .findFragmentById(R.id.frag_list));
+
     }
 
     @Override
