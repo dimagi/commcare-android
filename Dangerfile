@@ -22,6 +22,6 @@ jira.check(
 
 # Output lint issues on PR using 'danger-android_lint'  https://github.com/loadsmart/danger-android_lint
 android_lint.report_file = "app/build/reports/lint-results-commcareRelease.xml"
-android_lint.filtering = true
+android_lint.filtering_lines = true
 android_lint.skip_gradle_task = true
 android_lint.lint(inline_mode: true)
