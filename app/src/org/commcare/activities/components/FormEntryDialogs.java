@@ -12,6 +12,7 @@ import androidx.core.app.ActivityCompat;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.common.api.ResolvableApiException;
 
+import org.commcare.activities.CommCareActivity;
 import org.commcare.activities.FormEntryActivity;
 import org.commcare.android.javarosa.PollSensorController;
 import org.commcare.dalvik.R;
@@ -141,7 +142,7 @@ public class FormEntryDialogs {
         }
     }
 
-    public static void handleNoGpsProvider(final FormEntryActivity activity) {
+    public static void handleNoGpsProvider(final CommCareActivity activity) {
         LocationManager manager = (LocationManager)activity.getSystemService(Context.LOCATION_SERVICE);
         Set<String> providers = GeoUtils.evaluateProviders(manager);
         if (providers.isEmpty()) {

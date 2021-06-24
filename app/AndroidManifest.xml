@@ -320,6 +320,8 @@
         </activity>
         <activity android:name="org.commcare.activities.InstallFromListActivity">
         </activity>
+        <activity android:name="org.commcare.gis.MapboxLocationPickerActivity"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"/>
 
         <uses-library
             android:name="com.google.android.maps"

@@ -40,12 +40,16 @@ abstract class BaseMapboxActivity : CommCareActivity<BaseMapboxActivity>() {
 
     private fun initMap() {
         mapView.showCurrentLocationBtn(true)
-        mapView.focusOnUserLocation(true)
+        if (shouldFocusUserLocationOnLoad()) {
+            mapView.focusOnUserLocation(true)
+        }
         mapView.getMapAsync { mapBoxMap ->
             map = mapBoxMap
             onMapLoaded()
         }
     }
+
+    open fun shouldFocusUserLocationOnLoad() = true
 
     abstract fun onMapLoaded()
 
