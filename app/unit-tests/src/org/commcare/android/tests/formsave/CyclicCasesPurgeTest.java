@@ -39,7 +39,7 @@ public class CyclicCasesPurgeTest {
     }
 
     @Test
-    public void testFormSaveResultingIntoCaseCycles_ShouldFail() throws InvalidCaseGraphException {
+    public void testFormSaveResultingIntoCaseCycles_ShouldFail() {
         TestUtils.processResourceTransactionIntoAppDb("/inputs/case_create_for_cyclic_case_purge.xml");
         AndroidSessionWrapper sessionWrapper =
                 CommCareApplication.instance().getCurrentSessionWrapper();
@@ -60,6 +60,10 @@ public class CyclicCasesPurgeTest {
         CommCareApplication.instance().getCurrentSessionWrapper().getFormRecord().getStatus().contentEquals(STATUS_QUARANTINED);
 
         // Verify that the normal purge succeeds without error
-        CaseUtils.purgeCases();
+        try {
+            CaseUtils.purgeCases();
+        } catch (InvalidCaseGraphException e) {
+            throw new RuntimeException("CommCare didn't rollback transactions from a form that created an invalid state", e);
+        }
     }
 }

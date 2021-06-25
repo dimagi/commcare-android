@@ -27,9 +27,6 @@
         <update>
             <date_opened>2021-06-25</date_opened>
         </update>
-        <index>
-            <parent case_type="song" relationship="extension">dummy</parent>
-        </index>
     </case>
 
 
