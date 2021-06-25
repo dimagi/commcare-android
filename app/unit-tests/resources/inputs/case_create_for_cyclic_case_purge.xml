@@ -1,0 +1,52 @@
+<OpenRosaResponse xmlns="http://openrosa.org/http/response">
+
+    <case xmlns="http://commcarehq.org/case/transaction/v2" case_id="fe9adf5c-7661-4f8e-a48e-4059fcf1f9dd" user_id="a05fb80ceb35444798f031011320cfef" date_modified="2021-06-25T11:15:15.346000Z">
+        <create>
+            <case_type>song</case_type>
+            <case_name>s1</case_name>
+            <owner_id>a05fb80ceb35444798f031011320cfef</owner_id>
+        </create>
+        <update>
+            <date_opened>2021-06-25</date_opened>
+            <album_case_id>487a122f-d935-478d-90da-11c1f61c9fdc</album_case_id>
+            <album_name>b1</album_name>
+            <artist_case_id>a834a0a0-59f9-4b59-9d30-492fe0140fda</artist_case_id>
+            <artist_name>a1</artist_name>
+        </update>
+        <index>
+            <parent case_type="album" relationship="extension">487a122f-d935-478d-90da-11c1f61c9fdc</parent>
+        </index>
+    </case>
+
+    <case xmlns="http://commcarehq.org/case/transaction/v2" case_id="a834a0a0-59f9-4b59-9d30-492fe0140fda" user_id="a05fb80ceb35444798f031011320cfef" date_modified="2021-06-25T11:15:15.346000Z">
+        <create>
+            <case_type>artist</case_type>
+            <case_name>a1</case_name>
+            <owner_id>a05fb80ceb35444798f031011320cfef</owner_id>
+        </create>
+        <update>
+            <date_opened>2021-06-25</date_opened>
+        </update>
+        <index>
+            <parent case_type="song" relationship="extension">dummy</parent>
+        </index>
+    </case>
+
+
+    <case xmlns="http://commcarehq.org/case/transaction/v2" case_id="487a122f-d935-478d-90da-11c1f61c9fdc" user_id="a05fb80ceb35444798f031011320cfef" date_modified="2021-06-25T10:52:06.222000Z">
+        <create>
+            <case_type>album</case_type>
+            <case_name>b1</case_name>
+            <owner_id>a05fb80ceb35444798f031011320cfef</owner_id>
+        </create>
+        <update>
+            <date_opened>2021-06-25</date_opened>
+            <artist_case_id>a834a0a0-59f9-4b59-9d30-492fe0140fda</artist_case_id>
+            <artist_name>a1</artist_name>
+        </update>
+        <index>
+            <parent case_type="album" relationship="extension">a834a0a0-59f9-4b59-9d30-492fe0140fda</parent>
+        </index>
+    </case>
+
+</OpenRosaResponse>
