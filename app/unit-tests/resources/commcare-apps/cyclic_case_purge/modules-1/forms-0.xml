@@ -1,0 +1,53 @@
+<h:html xmlns:h="http://www.w3.org/1999/xhtml" xmlns:orx="http://openrosa.org/jr/xforms" xmlns="http://www.w3.org/2002/xforms" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:jr="http://openrosa.org/javarosa" xmlns:vellum="http://commcarehq.org/xforms/vellum">
+	<h:head>
+		<h:title>Add Song to Album</h:title>
+		<model>
+			<instance>
+				<data xmlns:jrm="http://dev.commcarehq.org/jr/xforms" xmlns="http://openrosa.org/formdesigner/55F16B48-4E88-48A7-9340-FDB73994ACB7" uiVersion="1" version="7" name="Add Song to Album">
+					<song_title/>
+					<add_song>
+						<case xmlns="http://commcarehq.org/case/transaction/v2" case_id="" date_modified="" user_id="">
+							<create>
+								<case_type/>
+								<case_name/>
+							</create>
+							<update>
+								<artist_name/>
+								<artist_case_id/>
+								<album_name/>
+								<album_case_id/>
+							</update>
+							<index>
+								<parent case_type="album" relationship="extension"/>
+							</index>
+						</case>
+					</add_song>
+				<case xmlns="http://commcarehq.org/case/transaction/v2" case_id="" date_modified="" user_id=""/><orx:meta xmlns:cc="http://commcarehq.org/xforms"><orx:deviceID/><orx:timeStart/><orx:timeEnd/><orx:username/><orx:userID/><orx:instanceID/><cc:appVersion/><orx:drift/></orx:meta></data>
+			</instance><instance id="casedb" src="jr://instance/casedb"/>
+			<instance src="jr://instance/session" id="commcaresession"/>
+			<bind nodeset="/data/song_title" type="xsd:string"/>
+			<bind nodeset="/data/add_song/case/create/case_type" calculate="'song'"/>
+			<bind nodeset="/data/add_song/case/create/case_name" calculate="/data/song_title"/>
+			<bind nodeset="/data/add_song/case/update/artist_name" calculate="instance('casedb')/casedb/case[@case_id = instance('commcaresession')/session/data/case_id]/artist_name"/>
+			<bind nodeset="/data/add_song/case/update/artist_case_id" calculate="instance('casedb')/casedb/case[@case_id = instance('commcaresession')/session/data/case_id]/artist_case_id"/>
+			<bind nodeset="/data/add_song/case/update/album_name" calculate="instance('casedb')/casedb/case[@case_id = instance('commcaresession')/session/data/case_id]/case_name"/>
+			<bind nodeset="/data/add_song/case/update/album_case_id" calculate="instance('commcaresession')/session/data/case_id"/>
+			<bind nodeset="/data/add_song/case/index/parent" calculate="instance('commcaresession')/session/data/case_id"/>
+			<bind nodeset="/data/add_song/case/@date_modified" calculate="/data/meta/timeEnd" type="xsd:dateTime"/>
+			<bind nodeset="/data/add_song/case/@user_id" calculate="instance('commcaresession')/session/context/userid"/>
+			<setvalue event="xforms-ready" ref="/data/add_song/case/@case_id" value="uuid()"/>
+			<itext>
+				<translation lang="en" default="">
+					<text id="song_title-label">
+						<value>Song title</value>
+					</text>
+				</translation>
+			</itext>
+		<bind nodeset="/data/case/@date_modified" type="xsd:dateTime" calculate="/data/meta/timeEnd"/><bind nodeset="/data/case/@user_id" calculate="/data/meta/userID"/><bind nodeset="/data/case/@case_id" calculate="instance('commcaresession')/session/data/case_id"/><setvalue ref="/data/meta/deviceID" value="instance('commcaresession')/session/context/deviceid" event="xforms-ready"/><setvalue ref="/data/meta/timeStart" value="now()" event="xforms-ready"/><bind nodeset="/data/meta/timeStart" type="xsd:dateTime"/><setvalue ref="/data/meta/timeEnd" value="now()" event="xforms-revalidate"/><bind nodeset="/data/meta/timeEnd" type="xsd:dateTime"/><setvalue ref="/data/meta/username" value="instance('commcaresession')/session/context/username" event="xforms-ready"/><setvalue ref="/data/meta/userID" value="instance('commcaresession')/session/context/userid" event="xforms-ready"/><setvalue ref="/data/meta/instanceID" value="uuid()" event="xforms-ready"/><setvalue ref="/data/meta/appVersion" value="instance('commcaresession')/session/context/appversion" event="xforms-ready"/><setvalue ref="/data/meta/drift" value="if(count(instance('commcaresession')/session/context/drift) = 1, instance('commcaresession')/session/context/drift, '')" event="xforms-revalidate"/></model>
+	</h:head>
+	<h:body>
+		<input ref="/data/song_title">
+			<label ref="jr:itext('song_title-label')"/>
+		</input>
+	</h:body>
+</h:html>

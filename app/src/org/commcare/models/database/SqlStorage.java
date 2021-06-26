@@ -95,9 +95,18 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
     @Override
     public Vector<Integer> getIDsForValues(String[] fieldNames, Object[] values, LinkedHashSet returnSet) {
         SQLiteDatabase db = helper.getHandle();
-
         Pair<String, String[]> whereClause = helper.createWhereAndroid(fieldNames, values, em, null);
+        return getIDsForValuesInner(db, whereClause, returnSet);
+    }
 
+    @Override
+    public List<Integer> getIDsForValues(String[] fieldNames, Object[] values, String[] inverseFieldNames, Object[] inverseValues, LinkedHashSet returnSet) {
+        SQLiteDatabase db = helper.getHandle();
+        Pair<String, String[]> whereClause = DatabaseHelper.createWhere(fieldNames, values, inverseFieldNames, inverseValues, em, null);
+        return getIDsForValuesInner(db, whereClause, returnSet);
+    }
+
+    private Vector<Integer> getIDsForValuesInner(SQLiteDatabase db, Pair<String, String[]> whereClause, LinkedHashSet returnSet) {
         if (STORAGE_OUTPUT_DEBUG) {
             String sql = SQLiteQueryBuilder.buildQueryString(false, table, new String[]{DatabaseHelper.ID_COL}, whereClause.first, null, null, null, null);
             DbUtil.explainSql(db, sql, whereClause.second);

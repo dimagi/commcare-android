@@ -7,6 +7,7 @@ import org.commcare.cases.instance.CaseInstanceTreeElement;
 import org.commcare.cases.model.Case;
 import org.commcare.cases.query.IndexedSetMemberLookup;
 import org.commcare.cases.query.IndexedValueLookup;
+import org.commcare.cases.query.NegativeIndexedValueLookup;
 import org.commcare.cases.query.PredicateProfile;
 import org.commcare.cases.query.QueryContext;
 import org.commcare.cases.query.QueryPlanner;
@@ -66,7 +67,6 @@ public class AndroidCaseInstanceTreeElement extends CaseInstanceTreeElement impl
     }
 
 
-
     @Override
     protected synchronized void loadElements() {
         if (elements != null) {
@@ -113,7 +113,8 @@ public class AndroidCaseInstanceTreeElement extends CaseInstanceTreeElement impl
             //If the current key is an index fetch, we actually can't do it in bulk,
             //so we need to stop
             if (profiles.elementAt(i).getKey().startsWith(Case.INDEX_CASE_INDEX_PRE) ||
-                    !(profiles.elementAt(i) instanceof IndexedValueLookup)) {
+                    !(profiles.elementAt(i) instanceof IndexedValueLookup ||
+                            profiles.elementAt(i) instanceof NegativeIndexedValueLookup)) {
                 break;
             }
             keysToBatch++;
@@ -150,20 +151,20 @@ public class AndroidCaseInstanceTreeElement extends CaseInstanceTreeElement impl
             if (mIndexCache.containsKey(indexCacheKey)) {
                 //remove the match from the inputs
                 optimizations.removeElementAt(0);
-                ;
                 return mIndexCache.get(indexCacheKey);
             }
 
             matchingCases = mCaseIndexTable.getCasesMatchingIndex(indexName, value);
-        }
-        if (op instanceof IndexedSetMemberLookup) {
+        } else if (op instanceof IndexedSetMemberLookup) {
             IndexedSetMemberLookup sop = (IndexedSetMemberLookup)op;
             matchingCases = mCaseIndexTable.getCasesMatchingValueSet(indexName, sop.valueSet);
+        } else {
+            throw new IllegalArgumentException("No optimization path found for optimization type");
         }
 
         //Clear the most recent index and wipe it, because there is no way it is going to be useful
         //after this
-        mMostRecentBatchFetch = new String[2][];
+        mMostRecentBatchFetch = new String[4][];
 
         //remove the match from the inputs
         optimizations.removeElementAt(0);

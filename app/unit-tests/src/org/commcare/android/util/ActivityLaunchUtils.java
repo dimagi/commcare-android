@@ -20,25 +20,33 @@ import javax.annotation.Nullable;
 import static org.junit.Assert.assertTrue;
 
 /**
- *  utility functions to launch common activities on a particular session path
+ * utility functions to launch common activities on a particular session path
  *
  * @author Phillip Mates (pmates@dimagi.com)
  */
 public class ActivityLaunchUtils {
 
-    public static FormEntryActivity launchFormEntry(String command) {
-        ShadowActivity shadowActivity = buildHomeActivityForFormEntryLaunch(command);
+    /**
+     * Launch form entry assuming the current session state points to a form
+     * @return instance to the FormEntryActivity acquired using the current session state
+     */
+    public static FormEntryActivity launchFormEntry() {
+        ShadowActivity shadowActivity = buildHomeActivity();
 
         Intent formEntryIntent = shadowActivity.getNextStartedActivity();
         // make sure the form entry activity should be launched
         String intentActivityName = formEntryIntent.getComponent().getClassName();
         assertTrue(intentActivityName.equals(FormEntryActivity.class.getName()));
 
-
         FormEntryActivity formEntryActivity =
                 Robolectric.buildActivity(FormEntryActivity.class, formEntryIntent)
                         .create().start().resume().get();
         return formEntryActivity;
+    }
+
+    public static FormEntryActivity launchFormEntry(String command) {
+        addCommandToSession(command);
+        return launchFormEntry();
     }
 
     public static EntitySelectActivity launchEntitySelectActivity(String command) {
@@ -54,11 +62,15 @@ public class ActivityLaunchUtils {
                 .setup().get();
     }
 
-    public static ShadowActivity buildHomeActivityForFormEntryLaunch(String sessionCommand) {
+    public static void addCommandToSession(String sessionCommand) {
         AndroidSessionWrapper sessionWrapper =
                 CommCareApplication.instance().getCurrentSessionWrapper();
         CommCareSession session = sessionWrapper.getSession();
         session.setCommand(sessionCommand);
+    }
+
+    public static ShadowActivity buildHomeActivityForFormEntryLaunch(String sessionCommand) {
+        addCommandToSession(sessionCommand);
         return buildHomeActivity();
     }
 

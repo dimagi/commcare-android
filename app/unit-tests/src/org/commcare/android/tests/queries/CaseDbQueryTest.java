@@ -61,6 +61,11 @@ public class CaseDbQueryTest {
         evaluate("instance('casedb')/casedb/case[@case_id = 'test_case_id']/case_name", "Test Case", ec);
         evaluate("instance('casedb')/casedb/case[@case_id = 'test_case_id']/test_value", "initial", ec);
         evaluate("instance('casedb')/casedb/case[@case_id = 'test_case_id']/missing_value", "", ec);
+
+        evaluate("instance('casedb')/casedb/case[@state = 'state2']/case_name", "Test Case 2", ec);
+        evaluate("instance('casedb')/casedb/case[@category = 'category1']/case_name", "Test Case", ec);
+        evaluate("instance('casedb')/casedb/case[@state != 'state2']/case_name", "Test Case", ec);
+        evaluate("instance('casedb')/casedb/case[@category != 'category1']/case_name", "Test Case 2", ec);
     }
 
     /**

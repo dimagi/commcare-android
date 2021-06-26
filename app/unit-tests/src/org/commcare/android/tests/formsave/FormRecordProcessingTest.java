@@ -13,6 +13,7 @@ import org.commcare.activities.FormEntryActivity;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import org.commcare.android.mocks.FormAndDataSyncerFake;
 import org.commcare.android.tests.queries.CaseDbQueryTest;
+import org.commcare.android.util.ActivityLaunchUtils;
 import org.commcare.android.util.TestAppInstaller;
 import org.commcare.android.util.TestUtils;
 import org.commcare.dalvik.R;
@@ -97,9 +98,7 @@ public class FormRecordProcessingTest {
     }
 
     private void fillOutFormWithCaseUpdate() {
-        StandardHomeActivity homeActivity = buildHomeActivityForFormEntryLaunch();
-
-        ShadowActivity shadowActivity = Shadows.shadowOf(homeActivity);
+        ShadowActivity shadowActivity = ActivityLaunchUtils.buildHomeActivityForFormEntryLaunch("m0-f0");
         Intent formEntryIntent = shadowActivity.getNextStartedActivity();
 
         // make sure the form entry activity should be launched
@@ -114,21 +113,6 @@ public class FormRecordProcessingTest {
                 shadowFormEntryActivity.getResultCode(),
                 shadowFormEntryActivity.getResultIntent());
         assertStoredFroms();
-    }
-
-    private StandardHomeActivity buildHomeActivityForFormEntryLaunch() {
-        AndroidSessionWrapper sessionWrapper =
-                CommCareApplication.instance().getCurrentSessionWrapper();
-        CommCareSession session = sessionWrapper.getSession();
-        session.setCommand("m0-f0");
-
-        StandardHomeActivity homeActivity =
-                Robolectric.buildActivity(StandardHomeActivity.class).create().get();
-        // make sure we don't actually submit forms by using a fake form submitter
-        homeActivity.setFormAndDataSyncer(new FormAndDataSyncerFake());
-        SessionNavigator sessionNavigator = homeActivity.getSessionNavigator();
-        sessionNavigator.startNextSessionStep();
-        return homeActivity;
     }
 
     private ShadowActivity navigateFormEntry(Intent formEntryIntent) {

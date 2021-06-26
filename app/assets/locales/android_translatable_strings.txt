@@ -130,6 +130,7 @@ sync.fail.session.expire=Failed to set up data encryption. Login again and retry
 sync.fail.recovery.failure=There was an error trying to recover from a bad local state. Please try again later. If the problem persists, contact help desk.
 sync.fail.unsent=Having issues communicating with the server to send forms. Will try again later.
 sync.fail.individual=1 or more forms failed to send due to individual problems. See quarantined forms for details.
+sync.fail.invalid.case.graph=1 or more forms introduced an invalid case relationship.
 
 form.send.rate.limit.error.toast=Form submission rate limit reached. Your forms are being saved locally and will be submitted to the server later.
 form.send.rate.limit.error.title=You've reached your form submission rate limit

@@ -9,6 +9,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.logging.ForceCloseLogger;
+import org.commcare.cases.util.InvalidCaseGraphException;
 import org.commcare.core.process.XmlFormRecordProcessor;
 import org.commcare.data.xml.TransactionParser;
 import org.commcare.engine.cases.CaseUtils;
@@ -65,7 +66,7 @@ public class FormRecordProcessor {
      */
     public FormRecord process(FormRecord record)
             throws InvalidStructureException, IOException, XmlPullParserException,
-            UnfullfilledRequirementsException {
+            UnfullfilledRequirementsException, InvalidCaseGraphException {
         String form = record.getFilePath();
 
         final File f = new File(form);
@@ -153,7 +154,7 @@ public class FormRecordProcessor {
         return storage.read(dbId);
     }
 
-    private void performPurge() {
+    private void performPurge() throws InvalidCaseGraphException {
         if(DeveloperPreferences.isAutoPurgeEnabled()) {
             CaseUtils.purgeCases();
         }
@@ -164,7 +165,7 @@ public class FormRecordProcessor {
         isPurgePending = false;
     }
 
-    public void closeBulkSubmit() {
+    public void closeBulkSubmit() throws InvalidCaseGraphException {
         isBulkProcessing = false;
         if(isPurgePending) {
             performPurge();

@@ -9,6 +9,7 @@ import net.sqlcipher.database.SQLiteDatabase;
 import org.commcare.CommCareApplication;
 import org.commcare.android.logging.ForceCloseLogger;
 import org.commcare.android.storage.framework.Persisted;
+import org.commcare.cases.util.InvalidCaseGraphException;
 import org.commcare.dalvik.R;
 import org.commcare.models.FormRecordProcessor;
 import org.commcare.models.database.SqlStorage;
@@ -396,6 +397,12 @@ public class FormRecord extends Persisted implements EncryptedModel {
                     // Record will be wiped when form entry is exited
                     Logger.log(LogTypes.TYPE_ERROR_WORKFLOW, e.getMessage());
                     throw new IllegalStateException(e.getMessage());
+                } catch (InvalidCaseGraphException e) {
+                    Logger.log(LogTypes.TYPE_ERROR_WORKFLOW, e.getMessage());
+                    throw new IllegalStateException(
+                            StringUtils.getStringRobust(
+                                    CommCareApplication.instance(),
+                                    R.string.invalid_case_graph_error));
                 } catch (Exception e) {
                     NotificationMessage message =
                             NotificationMessageFactory.message(NotificationMessageFactory.StockMessages.FormEntry_Save_Error,

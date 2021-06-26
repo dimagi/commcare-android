@@ -4,6 +4,7 @@ import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
+import androidx.annotation.VisibleForTesting;
 import androidx.fragment.app.DialogFragment;
 
 /**
@@ -67,5 +68,11 @@ public class AlertDialogFragment extends DialogFragment {
             getDialog().setDismissMessage(null);
         }
         super.onDestroyView();
+    }
+
+
+    @VisibleForTesting
+    public CommCareAlertDialog getUnderlyingDialog() {
+        return underlyingDialog;
     }
 }

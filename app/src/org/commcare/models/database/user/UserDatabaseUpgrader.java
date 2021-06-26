@@ -223,6 +223,12 @@ class UserDatabaseUpgrader {
                 oldVersion = 27;
             }
         }
+
+        if (oldVersion == 27) {
+            if (updateTwentySevenTwentyEight(db)) {
+                oldVersion = 28;
+            }
+        }
     }
 
     private boolean upgradeOneTwo(final SQLiteDatabase db) {
@@ -746,6 +752,37 @@ class UserDatabaseUpgrader {
                     FormRecord.META_DESCRIPTOR,
                     "TEXT"));
             UserDbUpgradeUtils.migrateV5FormRecords(c, db);
+            db.setTransactionSuccessful();
+            return true;
+        } finally {
+            db.endTransaction();
+        }
+    }
+
+    /**
+     * Add category and state index to Case table
+     */
+    private boolean updateTwentySevenTwentyEight(SQLiteDatabase db) {
+        db.beginTransaction();
+        try {
+            db.execSQL(DbUtil.addColumnToTable(
+                    ACase.STORAGE_KEY,
+                    Case.CATEGORY_KEY,
+                    "TEXT"));
+
+            db.execSQL(DbUtil.addColumnToTable(
+                    ACase.STORAGE_KEY,
+                    Case.STATE_KEY,
+                    "TEXT"));
+
+            SqlStorage<ACase> caseStorage = new SqlStorage<>(ACase.STORAGE_KEY, ACase.class,
+                    new ConcreteAndroidDbHelper(c, db));
+            updateModels(caseStorage);
+
+            db.execSQL(DatabaseIndexingUtils.indexOnTableCommand(
+                    "case_category_index", "AndroidCase", TableBuilder.scrubName(Case.INDEX_CATEGORY)));
+            db.execSQL(DatabaseIndexingUtils.indexOnTableCommand(
+                    "case_state_index", "AndroidCase", TableBuilder.scrubName(Case.INDEX_STATE)));
             db.setTransactionSuccessful();
             return true;
         } finally {
