@@ -34,12 +34,10 @@
         android:singleLine="true" />
 
     <ImageView
-        android:id="@+id/barcode_scanner"
+        android:id="@+id/assist_view"
         android:layout_height="match_parent"
         android:layout_marginLeft="4dp"
         android:layout_marginStart="4dp"
-        android:layout_width="32dp"
-        android:background="@color/blue"
-        app:srcCompat="@drawable/startup_barcode" />
+        android:layout_width="32dp" />
 
 </LinearLayout>

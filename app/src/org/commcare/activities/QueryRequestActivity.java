@@ -20,6 +20,8 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.material.datepicker.MaterialDatePicker;
+
 import org.commcare.CommCareApplication;
 import org.commcare.core.interfaces.HttpResponseProcessor;
 import org.commcare.core.network.AuthInfo;
@@ -29,7 +31,6 @@ import org.commcare.models.AndroidSessionWrapper;
 import org.commcare.modern.util.Pair;
 import org.commcare.session.RemoteQuerySessionManager;
 import org.commcare.suite.model.DisplayData;
-import org.commcare.suite.model.DisplayUnit;
 import org.commcare.suite.model.QueryPrompt;
 import org.commcare.tasks.ModernHttpTask;
 import org.commcare.tasks.templates.CommCareTaskConnector;
@@ -49,6 +50,7 @@ import org.javarosa.xpath.XPathException;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -57,9 +59,15 @@ import java.util.Map;
 import java.util.Vector;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.res.ResourcesCompat;
 
 import static org.commcare.activities.EntitySelectActivity.BARCODE_FETCH;
+import static org.commcare.suite.model.QueryPrompt.INPUT_TYPE_DATERANGE;
 import static org.commcare.suite.model.QueryPrompt.INPUT_TYPE_SELECT1;
+import static org.commcare.utils.DateRangeUtils.formatDateRangeAnswer;
+import static org.commcare.utils.DateRangeUtils.getDateFromTime;
+import static org.commcare.utils.DateRangeUtils.getHumanReadableDateRange;
+import static org.commcare.utils.DateRangeUtils.parseHumanReadableDate;
 
 /**
  * Collects 'query datum' in the current session. Prompts user for query
@@ -79,6 +87,8 @@ public class QueryRequestActivity
     private static final String IN_ERROR_STATE_KEY = "in-error-state-key";
     private static final String ERROR_MESSAGE_KEY = "error-message-key";
     private static final String APPEARANCE_BARCODE_SCAN = "barcode_scan";
+    private static final String DATE_PICKER_FRAGMENT_TAG = "date_picker_dialog";
+
 
     @UiElement(value = R.id.request_button, locale = "query.button")
     private Button queryButton;
@@ -118,12 +128,12 @@ public class QueryRequestActivity
     private ArrayList<String> getSupportedPrompts() {
         ArrayList<String> supportedPrompts = new ArrayList<>();
         supportedPrompts.add(INPUT_TYPE_SELECT1);
+        supportedPrompts.add(INPUT_TYPE_DATERANGE);
         return supportedPrompts;
     }
 
     private void setupUI() {
         buildPromptUI();
-
         queryButton.setOnClickListener(v -> {
             ViewUtil.hideVirtualKeyboard(QueryRequestActivity.this);
             makeQueryRequest();
@@ -147,12 +157,14 @@ public class QueryRequestActivity
     private void buildPromptEntry(LinearLayout promptsLayout, String promptId,
                                   QueryPrompt queryPrompt, boolean isLastPrompt) {
         View promptView = LayoutInflater.from(this).inflate(R.layout.query_prompt_layout, promptsLayout, false);
-        setLabelText(promptView, queryPrompt.getDisplay());
+        setLabelText(promptView, queryPrompt);
         View inputView;
         if (remoteQuerySessionManager.isPromptSupported(queryPrompt)) {
             String input = queryPrompt.getInput();
             if (input != null && input.contentEquals(INPUT_TYPE_SELECT1)) {
                 inputView = buildSpinnerView(promptView, queryPrompt);
+            } else if (input != null && input.contentEquals(INPUT_TYPE_DATERANGE)) {
+                inputView = buildDateRangeView(promptView, queryPrompt);
             } else {
                 inputView = buildEditTextView(promptView, queryPrompt, isLastPrompt);
             }
@@ -163,13 +175,65 @@ public class QueryRequestActivity
         }
     }
 
+    private View buildDateRangeView(View promptView, QueryPrompt queryPrompt) {
+        EditText promptEditText = promptView.findViewById(R.id.prompt_et);
+        promptEditText.setVisibility(View.VISIBLE);
+        promptEditText.setFocusable(false);
+        promptView.findViewById(R.id.prompt_spinner).setVisibility(View.GONE);
+
+        Hashtable<String, String> userAnswers = remoteQuerySessionManager.getUserAnswers();
+        String humanReadableDateRange = getHumanReadableDateRange(userAnswers.get(queryPrompt.getKey()));
+        promptEditText.setText(humanReadableDateRange);
+
+        // Setup edit button to show date picker
+        ImageView editDateIcon = promptView.findViewById(R.id.assist_view);
+        editDateIcon.setVisibility(View.VISIBLE);
+        editDateIcon.setImageDrawable(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_create, null));
+        editDateIcon.setOnClickListener(view -> {
+            showDateRangePicker(promptEditText, queryPrompt);
+        });
+
+        return promptEditText;
+    }
+
+    private void showDateRangePicker(EditText promptEditText, QueryPrompt queryPrompt) {
+        MaterialDatePicker.Builder<androidx.core.util.Pair<Long, Long>> dateRangePickerBuilder = MaterialDatePicker.Builder.dateRangePicker()
+                .setTitleText(getLabel(queryPrompt))
+                .setInputMode(MaterialDatePicker.INPUT_MODE_CALENDAR);
+
+        // Set Current Range
+        String currentDateRangeText = promptEditText.getText().toString();
+        if (!TextUtils.isEmpty(currentDateRangeText)) {
+            try {
+                dateRangePickerBuilder.setSelection(parseHumanReadableDate(currentDateRangeText));
+            } catch (ParseException e) {
+                // do nothing
+                e.printStackTrace();
+            }
+        }
+
+        MaterialDatePicker<androidx.core.util.Pair<Long, Long>> dateRangePicker = dateRangePickerBuilder.build();
+        dateRangePicker.addOnPositiveButtonClickListener(selection -> {
+            String startDate = getDateFromTime(selection.first);
+            String endDate = getDateFromTime(selection.second);
+            remoteQuerySessionManager.answerUserPrompt(queryPrompt.getKey(), formatDateRangeAnswer(startDate, endDate));
+            promptEditText.setText(getHumanReadableDateRange(startDate, endDate));
+        });
+        dateRangePicker.show(getSupportFragmentManager(), DATE_PICKER_FRAGMENT_TAG);
+    }
+
     private void setUpBarCodeScanButton(View promptView, String promptId, QueryPrompt queryPrompt) {
-        ImageView barcodeScannerView = promptView.findViewById(R.id.barcode_scanner);
-        barcodeScannerView.setVisibility(isBarcodeEnabled(queryPrompt) ? View.VISIBLE : View.INVISIBLE);
-        barcodeScannerView.setTag(promptId);
-        barcodeScannerView.setOnClickListener(v ->
-                callBarcodeScanIntent((String)v.getTag())
-        );
+        // Only show for free text input
+        if (queryPrompt.getInput() == null) {
+            ImageView barcodeScannerView = promptView.findViewById(R.id.assist_view);
+            barcodeScannerView.setVisibility(isBarcodeEnabled(queryPrompt) ? View.VISIBLE : View.INVISIBLE);
+            barcodeScannerView.setBackgroundColor(getResources().getColor(R.color.blue));
+            barcodeScannerView.setImageDrawable(ResourcesCompat.getDrawable(getResources(), R.drawable.startup_barcode, null));
+            barcodeScannerView.setTag(promptId);
+            barcodeScannerView.setOnClickListener(v ->
+                    callBarcodeScanIntent((String)v.getTag())
+            );
+        }
     }
 
     private Spinner buildSpinnerView(View promptView, QueryPrompt queryPrompt) {
@@ -316,11 +380,13 @@ public class QueryRequestActivity
         }
     }
 
-    private void setLabelText(View promptView, DisplayUnit display) {
-        DisplayData displayData = display.evaluate();
-        String promptText =
-                Localizer.processArguments(displayData.getName(), new String[]{""}).trim();
-        ((TextView)promptView.findViewById(R.id.prompt_label)).setText(promptText);
+    private void setLabelText(View promptView, QueryPrompt queryPrompt) {
+        ((TextView)promptView.findViewById(R.id.prompt_label)).setText(getLabel(queryPrompt));
+    }
+
+    private String getLabel(QueryPrompt queryPrompt) {
+        DisplayData displayData = queryPrompt.getDisplay().evaluate();
+        return Localizer.processArguments(displayData.getName(), new String[]{""}).trim();
     }
 
     private void makeQueryRequest() {
