@@ -156,7 +156,9 @@ public class HeartbeatRequester extends GetAndParseActor {
                     if (latestVersionInfo.has("force")) {
                         forceString = latestVersionInfo.getString("force");
                     }
-                    HiddenPreferences.setLatestCommcareVersion(versionValue);
+                    if (updateType == UpdateToPrompt.Type.APK_UPDATE) {
+                        HiddenPreferences.setLatestCommcareVersion(versionValue);
+                    }
                     UpdateToPrompt updateToPrompt = new UpdateToPrompt(versionValue, forceString, updateType);
                     updateToPrompt.registerWithSystem();
                 }
