@@ -102,6 +102,8 @@
             android:layout_gravity="end"
             android:layout_marginBottom="10dp"
             android:enabled="false"
+            style="@style/CommCare.Button.Default"
+            android:minHeight="@dimen/dp60"
             android:background="@color/cc_attention_positive_color"
             android:textColor="@color/white"
             android:visibility="invisible"
