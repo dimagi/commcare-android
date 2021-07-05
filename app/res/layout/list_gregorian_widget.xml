@@ -49,6 +49,7 @@
                 android:text="+"
                 android:textSize="@dimen/text_largest"
                 android:textColor="@color/white"
+                style="@style/CommCare.Button.Default"
                 android:background="@color/bright_blue_grad_start"
                 android:elevation="@dimen/button_elevation"/>
 
@@ -70,6 +71,7 @@
                 android:layout_height="wrap_content"
                 android:text="-"
                 android:textSize="@dimen/text_largest"
+                style="@style/CommCare.Button.Default"
                 android:textColor="@color/white"
                 android:background="@color/dark_blue"
                 android:elevation="@dimen/button_elevation" />
@@ -92,6 +94,7 @@
                 android:layout_marginLeft="5dp"
                 android:text="+"
                 android:textSize="@dimen/text_largest"
+                style="@style/CommCare.Button.Default"
                 android:textColor="@color/white"
                 android:background="@color/bright_blue_grad_start"
                 android:elevation="@dimen/button_elevation"
@@ -110,6 +113,7 @@
                 android:layout_marginLeft="5dp"
                 android:text="-"
                 android:textSize="@dimen/text_largest"
+                style="@style/CommCare.Button.Default"
                 android:textColor="@color/white"
                 android:background="@color/dark_blue"
                 android:elevation="@dimen/button_elevation"
@@ -132,6 +136,7 @@
                 android:layout_marginLeft="5dp"
                 android:text="+"
                 android:textSize="@dimen/text_largest"
+                style="@style/CommCare.Button.Default"
                 android:textColor="@color/white"
                 android:background="@color/bright_blue_grad_start"
                 android:elevation="@dimen/button_elevation"
@@ -159,6 +164,7 @@
                 android:layout_marginLeft="5dp"
                 android:text="-"
                 android:textSize="@dimen/text_largest"
+                style="@style/CommCare.Button.Default"
                 android:textColor="@color/white"
                 android:background="@color/dark_blue"
                 android:elevation="@dimen/button_elevation"
