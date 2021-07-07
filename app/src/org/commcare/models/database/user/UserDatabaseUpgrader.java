@@ -8,6 +8,7 @@ import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.user.models.ACasePreV24Model;
+import org.commcare.android.database.user.models.ACasePreV28Model;
 import org.commcare.android.database.user.models.FormRecordV2;
 import org.commcare.android.database.user.models.FormRecordV3;
 import org.commcare.android.database.user.models.FormRecordV5;
@@ -673,7 +674,7 @@ class UserDatabaseUpgrader {
                     Case.EXTERNAL_ID_KEY,
                     "TEXT"));
 
-            SqlStorage<ACase> caseStorage = new SqlStorage<>(ACase.STORAGE_KEY, ACase.class,
+            SqlStorage<ACasePreV28Model> caseStorage = new SqlStorage<>(ACase.STORAGE_KEY, ACasePreV28Model.class,
                     new ConcreteAndroidDbHelper(c, db));
             updateModels(caseStorage);
 
