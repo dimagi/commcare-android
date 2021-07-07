@@ -369,13 +369,13 @@ public class AndroidSessionWrapper implements SessionWrapperInterface {
 
     public void executeEndpointStack(Endpoint endpoint, ArrayList<String> args) {
         EvaluationContext evaluationContext = getEvaluationContext();
-        Endpoint.populateEndpointArgumentsToEvaluaionContext(endpoint, args, evaluationContext);
+        Endpoint.populateEndpointArgumentsToEvaluationContext(endpoint, args, evaluationContext);
         executeStackActions(endpoint.getStackOperations(), evaluationContext);
     }
 
     public void executeEndpointStack(Endpoint endpoint, HashMap args) {
         EvaluationContext evaluationContext = getEvaluationContext();
-        Endpoint.populateEndpointArgumentsToEvaluaionContext(endpoint, args, evaluationContext);
+        Endpoint.populateEndpointArgumentsToEvaluationContext(endpoint, args, evaluationContext);
         executeStackActions(endpoint.getStackOperations(), evaluationContext);
     }
 }
