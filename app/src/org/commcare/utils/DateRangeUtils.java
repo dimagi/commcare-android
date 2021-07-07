@@ -7,6 +7,8 @@ import java.util.Locale;
 
 import javax.annotation.Nullable;
 
+import androidx.core.util.Pair;
+
 /**
  * Utility functions for DateRangePicker widget
  */
@@ -24,14 +26,14 @@ public class DateRangeUtils {
      * @throws ParseException if the given humanReadableDateRange is not in 'yyyy-mm-dd to yyyy-mm-dd' format
      */
     @Nullable
-    public static androidx.core.util.Pair<Long, Long> parseHumanReadableDate(String humanReadableDateRange) throws ParseException {
+    public static Pair<Long, Long> parseHumanReadableDate(String humanReadableDateRange) throws ParseException {
         if (humanReadableDateRange.contains(DATE_RANGE_ANSWER_HUMAN_READABLE_DELIMITER)) {
             String[] humanReadableDateRangeSplit = humanReadableDateRange.split(DATE_RANGE_ANSWER_HUMAN_READABLE_DELIMITER);
             if (humanReadableDateRangeSplit.length == 2) {
                 SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT, Locale.US);
                 Date startDate = sdf.parse(humanReadableDateRangeSplit[0]);
                 Date endDate = sdf.parse(humanReadableDateRangeSplit[1]);
-                return new androidx.core.util.Pair<>(getTimeFromDateOffsettingTz(startDate), getTimeFromDateOffsettingTz(endDate));
+                return new Pair<>(getTimeFromDateOffsettingTz(startDate), getTimeFromDateOffsettingTz(endDate));
             }
         }
         throw new ParseException("Argument " + humanReadableDateRange + " should be formatted as 'yyyy-mm-dd to yyyy-mm-dd'", 0);
