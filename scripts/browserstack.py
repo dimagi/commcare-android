@@ -71,7 +71,9 @@ def testResult(appToken, testToken, buildId, retryCount):
     # Get the sessionID from test result
     resultCommand = 'curl -u "{}:{}" -X GET "https://api-cloud.browserstack.com/app-automate/espresso/v2/builds/{}"'.format(userName, password, buildId)
     result = subprocess.Popen(shlex.split(resultCommand), stdout=PIPE, stderr=None, shell=False)
-    sessions = json.loads(result.communicate()[0])["devices"][0]["sessions"]
+    jsonResult = json.loads(result.communicate()[0])
+    print(jsonResult)
+    sessions = jsonResult["devices"][0]["sessions"]
 
     # Loop over all the sessions and Create an array of failing classes.
 
@@ -85,7 +87,9 @@ def testResult(appToken, testToken, buildId, retryCount):
         # Gather the sessionDetails
         testDetailsCommand = 'curl -u "{}:{}" -X GET "https://api-cloud.browserstack.com/app-automate/espresso/v2/builds/{}/sessions/{}"'.format(userName, password, buildId, sessionId)
         testDetailsResult = subprocess.Popen(shlex.split(testDetailsCommand), stdout=PIPE, stderr=None, shell=False)
-        testcases = json.loads(testDetailsResult.communicate()[0])["testcases"]["data"]
+        jsonResult = json.loads(testDetailsResult.communicate()[0])
+        print(jsonResult)
+        testcases = jsonResult["testcases"]["data"]
 
         # Collect the failed classes
         for testcase in testcases:
@@ -103,7 +107,9 @@ def testResult(appToken, testToken, buildId, retryCount):
     runConfig = buildTestCommand(appToken, testToken, classes)
     runCmd = 'curl -X POST "{}" -d \ {} -H "Content-Type: application/json" -u "{}:{}"'.format(espressoUrl, runConfig, userName, password)
     output = subprocess.Popen(shlex.split(runCmd), stdout=PIPE, stderr=None, shell=False).communicate()
-    buildId = json.loads(output[0])["build_id"]
+    jsonResult = json.loads(output[0])
+    print(jsonResult)
+    buildId = jsonResult["build_id"]
 
     status = isSuccessfulBuild(buildId)
 
