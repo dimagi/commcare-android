@@ -82,6 +82,7 @@ class MapboxLocationPickerActivity : BaseMapboxActivity(), CommCareLocationListe
                     .zoom(10.0)
                     .tilt(20.0)
                     .build()
+            isManualSelectedLocation = true
         }
         mapView.showCurrentLocationBtn(false)
     }
