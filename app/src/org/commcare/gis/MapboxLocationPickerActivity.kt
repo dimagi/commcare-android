@@ -6,7 +6,6 @@ import android.content.IntentSender.SendIntentException
 import android.location.Location
 import android.os.Bundle
 import android.view.View
-import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.gms.common.api.ResolvableApiException
@@ -38,10 +37,8 @@ class MapboxLocationPickerActivity : BaseMapboxActivity(), CommCareLocationListe
 
     companion object {
         const val MARKER_ICON_IMAGE_ID = "marker_icon_image"
-        const val LOCATION_PERMISSION_REQ = 100
         const val LOCATION_SETTING_REQ = 101
-        private val LOCATION_PERMISSIONS = arrayOf(Manifest.permission.ACCESS_FINE_LOCATION,
-                Manifest.permission.ACCESS_COARSE_LOCATION)
+        private val LOCATION_PERMISSIONS = arrayOf(Manifest.permission.ACCESS_FINE_LOCATION)
     }
 
     private lateinit var viewModel: MapboxLocationPickerViewModel
@@ -57,10 +54,12 @@ class MapboxLocationPickerActivity : BaseMapboxActivity(), CommCareLocationListe
     private var symbolManager: SymbolManager? = null
     private var symbol: Symbol? = null
     private val mapClickListener = MapboxMap.OnMapClickListener { point ->
-        isManualSelectedLocation = true
-        // Add marker.
-        updateMarker(point)
-        viewModel.reverseGeocode(point)
+        if (!Permissions.missingAppPermission(this, LOCATION_PERMISSIONS)) {
+            isManualSelectedLocation = true
+            // Add marker.
+            updateMarker(point)
+            viewModel.reverseGeocode(point)
+        }
         true
     }
 
@@ -249,7 +248,8 @@ class MapboxLocationPickerActivity : BaseMapboxActivity(), CommCareLocationListe
     }
 
     override fun missingPermissions() {
-        ActivityCompat.requestPermissions(this, LOCATION_PERMISSIONS, LOCATION_PERMISSION_REQ)
+        // Do nothing. Kujaku handles requesting permissions internally.
+        // https://github.com/onaio/kujaku/blob/4d737b89b23fb9eafe0850e83671034121c10e1d/library/src/main/java/io/ona/kujaku/helpers/PermissionsHelper.java#L17-L24
     }
 
     override fun onLocationRequestFailure(failure: CommCareLocationListener.Failure) {
@@ -268,10 +268,7 @@ class MapboxLocationPickerActivity : BaseMapboxActivity(), CommCareLocationListe
     }
 
     private fun requestLocation() {
-        // Check permissions
-        if (Permissions.missingAppPermission(this, LOCATION_PERMISSIONS)) {
-            missingPermissions()
-        } else {
+        if (!Permissions.missingAppPermission(this, LOCATION_PERMISSIONS)) {
             locationController.start()
         }
     }
