@@ -117,6 +117,9 @@ class MapboxLocationPickerActivity : BaseMapboxActivity(), CommCareLocationListe
         }
         current_location.setOnClickListener {
             isManualSelectedLocation = false
+            currentLocation?.let {
+                onLocationResult(it)
+            }
         }
     }
 
@@ -236,7 +239,7 @@ class MapboxLocationPickerActivity : BaseMapboxActivity(), CommCareLocationListe
         if (isManualSelectedLocation || inViewMode()) {
             return
         }
-        if (currentLocation == null || currentLocation!!.accuracy == 0f || result.accuracy < currentLocation!!.accuracy) {
+        if (currentLocation == null || currentLocation!!.accuracy == 0f || result.accuracy <= currentLocation!!.accuracy) {
             currentLocation = result
             val point = LatLng(result.latitude, result.longitude, result.altitude)
             viewModel.reverseGeocode(point)
