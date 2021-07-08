@@ -6,6 +6,7 @@ import android.content.IntentSender.SendIntentException
 import android.location.Location
 import android.os.Bundle
 import android.view.View
+import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.gms.common.api.ResolvableApiException
@@ -32,6 +33,7 @@ import org.commcare.location.CommCareLocationListener
 import org.commcare.utils.GeoUtils
 import org.commcare.utils.Permissions
 import org.commcare.views.widgets.GeoPointWidget
+import org.javarosa.core.services.locale.Localization
 
 class MapboxLocationPickerActivity : BaseMapboxActivity(), CommCareLocationListener {
 
@@ -59,6 +61,10 @@ class MapboxLocationPickerActivity : BaseMapboxActivity(), CommCareLocationListe
             // Add marker.
             updateMarker(point)
             viewModel.reverseGeocode(point)
+        } else {
+            Toast.makeText(this,
+                    Localization.get("permission.location.denial.message"),
+                    Toast.LENGTH_LONG).show()
         }
         true
     }
