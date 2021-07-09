@@ -44,7 +44,7 @@ public class NfcReadActivity extends NfcActivity {
             if (singleType == null || singleType.equals("")) {
                 return null;
             } else {
-                return new String[]{ singleType };
+                return new String[]{singleType};
             }
         } else {
             return typesString.split(" ");
@@ -87,7 +87,7 @@ public class NfcReadActivity extends NfcActivity {
                     NdefRecordUtil.readValueFromRecord(firstRecord, this.acceptableTypes,
                             this.domainForType);
             if (resultAndSuccess.second) {
-                this.valueRead = decryptValue(resultAndSuccess.first);
+                this.valueRead = nfcManager.decryptValue(resultAndSuccess.first);
                 finishWithToast("nfc.read.success", true);
             } else {
                 finishWithErrorToast(resultAndSuccess.first);
@@ -98,6 +98,9 @@ public class NfcReadActivity extends NfcActivity {
             finishWithErrorToast("nfc.read.msg.malformed", e);
         } catch (EncryptionUtils.EncryptionException e) {
             finishWithErrorToast("nfc.read.msg.decryption.error", e);
+        } catch (NfcManager.InvalidPayloadTagException e) {
+            // payload doesn't have our tag attached, so we should not let the app read this message
+            finishWithErrorToast("nfc.read.msg.payload.tag.error");
         } finally {
             try {
                 ndefObject.close();
@@ -105,14 +108,6 @@ public class NfcReadActivity extends NfcActivity {
                 // nothing we can do
             }
         }
-    }
-
-    private String decryptValue(String message) throws EncryptionUtils.EncryptionException {
-        if (encryptionKey != null && message.startsWith(NFC_ENCRYPTION_SCHEME)) {
-            message = message.replace(NFC_ENCRYPTION_SCHEME,"");
-            message = EncryptionUtils.decrypt(message, encryptionKey);
-        }
-        return message;
     }
 
     @Override

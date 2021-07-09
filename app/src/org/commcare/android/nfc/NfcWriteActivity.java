@@ -39,19 +39,11 @@ public class NfcWriteActivity extends NfcActivity {
     @Override
     protected void initFields() {
         super.initFields();
-        this.payloadToWrite = getIntent().getStringExtra(NFC_PAYLOAD_TO_WRITE);
-        this.typeForPayload = getIntent().getStringExtra(NFC_PAYLOAD_SINGLE_TYPE_ARG);
-        encryptPayload();
-    }
-
-    private void encryptPayload() {
-        if (encryptionKey != null) {
-            try {
-                String encryptedMessage = EncryptionUtils.encrypt(payloadToWrite, encryptionKey);
-                payloadToWrite = NFC_ENCRYPTION_SCHEME + encryptedMessage;
-            } catch (EncryptionUtils.EncryptionException e) {
-                finishWithErrorToast("nfc.write.encryption.error", e);
-            }
+        typeForPayload = getIntent().getStringExtra(NFC_PAYLOAD_SINGLE_TYPE_ARG);
+        try {
+            payloadToWrite = nfcManager.tagAndEncryptPayload(getIntent().getStringExtra(NFC_PAYLOAD_TO_WRITE));
+        } catch (EncryptionUtils.EncryptionException e) {
+            finishWithErrorToast("nfc.write.encryption.error", e);
         }
     }
 
