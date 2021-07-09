@@ -1,8 +1,5 @@
 package org.commcare.utils;
 
-import android.graphics.Paint;
-import android.graphics.Rect;
-
 import org.commcare.core.graph.util.AbsStringExtension;
 
 /**
@@ -11,10 +8,15 @@ import org.commcare.core.graph.util.AbsStringExtension;
 public class StringExtensionImpl implements AbsStringExtension {
     @Override
     public int getWidth(String text) {
-        Paint paint = new Paint();
-        paint.setTextSize(16);
-        Rect rect = new Rect();
-        paint.getTextBounds(text, 0, text.length(), rect);
-        return rect.width();
+        // Tried https://c3js.org/samples/axes_x_tick_rotate.html.
+        // A string of length 1, needs 45 height to not overlap
+        // And for every additional character, height needs an increase in +5 to not overlap.
+
+        // We have put a cap at 15 characters. See graph.max.js line - 95
+        if (text.length() > 15) {
+            return 115;
+        } else {
+            return 40 + 5 * text.length();
+        }
     }
 }
