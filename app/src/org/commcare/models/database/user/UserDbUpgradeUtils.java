@@ -239,11 +239,11 @@ public class UserDbUpgradeUtils {
 
         // Drop old Table and create it again with new definition
         db.execSQL("DROP TABLE IF EXISTS " + FormRecord.STORAGE_KEY);
-        TableBuilder builder = new TableBuilder(FormRecord.class);
+        TableBuilder builder = new TableBuilder(FormRecordV5.class);
         db.execSQL(builder.getTableCreateString());
 
         // Write to the new table
-        SqlStorage<FormRecordV5> newStorage = getFormRecordStorage(c, db, FormRecord.class);
+        SqlStorage<FormRecordV5> newStorage = getFormRecordStorage(c, db, FormRecordV5.class);
         SqlStorage<SessionStateDescriptor> ssdStorage = new SqlStorage<>(
                 SessionStateDescriptor.STORAGE_KEY,
                 SessionStateDescriptor.class,
