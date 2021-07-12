@@ -255,7 +255,7 @@
 
   <remote-request>
     <post url="https://www.fake.com/claim_patient/"
-          relevant="count(instance('casedb')/casedb/case[@case_id=instance('session')/session/data/case_id]) = 0">
+        relevant="count(instance('casedb')/casedb/case[@case_id=instance('session')/session/data/case_id]) = 0">
       <data key="selected_case_id" ref="instance('session')/session/data/case_id"/>
     </post>
     <command id="patient-search">
@@ -381,6 +381,20 @@
             <value ref="id"/>
             <sort ref="id"/>
           </itemset>
+        </prompt>
+        <prompt key="date" input="daterange">
+          <display>
+            <text>
+              <locale id="query.date"/>
+            </text>
+          </display>
+        </prompt>
+        <prompt key="invalid" input="foobar">
+          <display>
+            <text>
+              <locale id="query.district"/>
+            </text>
+          </display>
         </prompt>
       </query>
       <datum id="case_id" nodeset="instance('patients')/patients/patient" value="./id" detail-select="patient_short" detail-confirm="patient_long"/>
