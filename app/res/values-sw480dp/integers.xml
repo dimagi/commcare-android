@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <integer name="locale_mirror_flip">0</integer>
     <integer name="graph_label_char_limit">16</integer>
 </resources>
