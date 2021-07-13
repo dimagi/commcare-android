@@ -61,10 +61,16 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
 
     public XFormAndroidInstaller(String localDestination, String upgradeDestination) {
         super(localDestination, upgradeDestination);
+        Logger.log("SHIVAMMM", "empty Constructor");
+        StackTraceElement[] stackTraceElements = Thread.currentThread().getStackTrace();
+        Logger.log("SHIVAMMM empty", stackTraceElements.toString());
     }
 
     public XFormAndroidInstaller(String localLocation, String localDestination, String upgradeDestination, String namespace, int formDefId) {
         super(localLocation, localDestination, upgradeDestination);
+        Logger.log("SHIVAMMM", "Constructor: namespace: " + namespace + " formDefId: " + formDefId);
+        StackTraceElement[] stackTraceElements = Thread.currentThread().getStackTrace();
+        Logger.log("SHIVAMMM init", stackTraceElements.toString());
         this.namespace = namespace;
         this.formDefId = formDefId;
     }
@@ -74,13 +80,14 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
             IOException, InvalidReferenceException, InvalidStructureException,
             XmlPullParserException, UnfullfilledRequirementsException {
         super.initialize(platform, isUpgrade);
-
+        Logger.log("SHIVAMMM", "Xform initialize called " + namespace + "  " + formDefId);
         if (platform.getFormDefId(namespace) == -1) {
             platform.registerXmlns(namespace, formDefId);
         } else {
             // Only overwrites the existing form if the resourceVersion of the new form is higher than the existing one
             FormDefRecord existingForm = FormDefRecord.getFormDef(platform.getFormDefStorage(), platform.getFormDefId(namespace));
             FormDefRecord newForm = FormDefRecord.getFormDef(platform.getFormDefStorage(), formDefId);
+            Logger.log("SHIVAMMM", "new And existing Form versions" + existingForm.getResourceVersion() + "   " + newForm.getResourceVersion());
             if (newForm.getResourceVersion() >= existingForm.getResourceVersion()) {
                 platform.registerXmlns(namespace, formDefId);
             }
@@ -106,6 +113,11 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
 
         FormDefRecord formDefRecord = new FormDefRecord("NAME", formDef.getMainInstance().schema, local.getLocalURI(), GlobalConstants.MEDIA_REF, r.getVersion());
         formDefId = formDefRecord.save(platform.getFormDefStorage());
+
+
+        StackTraceElement[] stackTraceElements = Thread.currentThread().getStackTrace();
+        Logger.log("SHIVAMMM custom intall", stackTraceElements.toString());
+        Logger.log("SHIVAMMMM", namespace + "  " + formDefId);
 
         return upgrade ? Resource.RESOURCE_STATUS_UPGRADE : Resource.RESOURCE_STATUS_INSTALLED;
     }
