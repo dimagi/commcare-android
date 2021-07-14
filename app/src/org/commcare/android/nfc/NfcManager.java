@@ -19,7 +19,7 @@ public class NfcManager {
 
     public static final String NFC_ENCRYPTION_SCHEME = "encryption_aes_v1";
     public static final String PAYLOAD_DELIMITER = "\0";
-    private final boolean ignoreTag;
+    private final boolean allowUntaggedRead;
 
     private Context context;
     private NfcAdapter nfcAdapter;
@@ -30,11 +30,11 @@ public class NfcManager {
     @Nullable
     protected String entityId;
 
-    public NfcManager(Context c, @Nullable String encryptionKey, @Nullable String entityId, boolean ignoreTag) {
+    public NfcManager(Context c, @Nullable String encryptionKey, @Nullable String entityId, boolean allowUntaggedRead) {
         this.context = c;
         this.encryptionKey = encryptionKey;
         this.entityId = entityId;
-        this.ignoreTag = ignoreTag;
+        this.allowUntaggedRead = allowUntaggedRead;
     }
 
     public void checkForNFCSupport() throws NfcNotSupportedException, NfcNotEnabledException {
@@ -63,7 +63,7 @@ public class NfcManager {
             if (!StringUtils.isEmpty(encryptionKey)) {
                 message = EncryptionUtils.decrypt(message, encryptionKey);
             }
-        } else if (!ignoreTag && !isEmptyPayloadTag(payloadTag)) {
+        } else if (!allowUntaggedRead && !isEmptyPayloadTag(payloadTag)) {
             throw new InvalidPayloadTagException();
         }
         return message;

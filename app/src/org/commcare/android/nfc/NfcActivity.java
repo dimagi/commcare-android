@@ -34,7 +34,7 @@ public abstract class NfcActivity extends AppCompatActivity {
     protected static final String NFC_ENCRYPTION_KEY_ARG = "encryption_key";
     protected static final String NFC_ENTITY_ID_ARG = "entity_id";
     protected static final String NFC_DOMAIN_ARG = "domain";
-    protected static final String NFC_IGNORE_TAG_ARG = "ignore_tag";
+    protected static final String NFC_ALLOW_UNTAGGED_READ_ARG = "allow_untagged_read";
 
     protected NfcManager nfcManager;
     protected PendingIntent pendingNfcIntent;
@@ -54,12 +54,12 @@ public abstract class NfcActivity extends AppCompatActivity {
 
     @CallSuper
     protected void initFields() {
-        boolean ignoreTag = getIntent().hasExtra(NFC_IGNORE_TAG_ARG) &&
-                getIntent().getStringExtra(NFC_IGNORE_TAG_ARG).contentEquals("true");
+        boolean allowUntaggedRead = getIntent().hasExtra(NFC_ALLOW_UNTAGGED_READ_ARG) &&
+                getIntent().getStringExtra(NFC_ALLOW_UNTAGGED_READ_ARG).contentEquals("true");
         this.nfcManager = new NfcManager(this,
                 getIntent().getStringExtra(NFC_ENCRYPTION_KEY_ARG),
                 getIntent().getStringExtra(NFC_ENTITY_ID_ARG),
-                ignoreTag);
+                allowUntaggedRead);
 
         this.domainForType = getIntent().getStringExtra(NFC_DOMAIN_ARG);
         if (this.domainForType == null) {
