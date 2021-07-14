@@ -15,7 +15,7 @@ public class NfcManagerTest {
 
     @Test
     public void payloadEncryptionTest() throws EncryptionUtils.EncryptionException {
-        NfcManager nfcManager = new NfcManager(CommCareTestApplication.instance(), ENCRYPTION_KEY, ENTITY_ID);
+        NfcManager nfcManager = new NfcManager(CommCareTestApplication.instance(), ENCRYPTION_KEY, ENTITY_ID, false);
 
         // Empty payload should not have any tag attached
         assert nfcManager.tagAndEncryptPayload("").contentEquals("");
@@ -30,7 +30,7 @@ public class NfcManagerTest {
 
     @Test
     public void emptyEncryptionKeyTest() throws EncryptionUtils.EncryptionException {
-        NfcManager nfcManager = new NfcManager(CommCareTestApplication.instance(), "", ENTITY_ID);
+        NfcManager nfcManager = new NfcManager(CommCareTestApplication.instance(), "", ENTITY_ID, false);
         String encryptedMessage = nfcManager.tagAndEncryptPayload(PAYLOAD);
         assert encryptedMessage.startsWith(PAYLOAD_DELIMITER + ENTITY_ID + PAYLOAD_DELIMITER);
         assert nfcManager.decryptValue(encryptedMessage).contentEquals(PAYLOAD);
@@ -38,7 +38,7 @@ public class NfcManagerTest {
 
     @Test
     public void emptyEntityIdTest() throws EncryptionUtils.EncryptionException {
-        NfcManager nfcManager = new NfcManager(CommCareTestApplication.instance(), ENCRYPTION_KEY, "");
+        NfcManager nfcManager = new NfcManager(CommCareTestApplication.instance(), ENCRYPTION_KEY, "", false);
         String encryptedMessage = nfcManager.tagAndEncryptPayload(PAYLOAD);
         assert encryptedMessage.startsWith(NFC_ENCRYPTION_SCHEME + PAYLOAD_DELIMITER + PAYLOAD_DELIMITER);
         assert nfcManager.decryptValue(encryptedMessage).contentEquals(PAYLOAD);
@@ -46,7 +46,7 @@ public class NfcManagerTest {
 
     @Test
     public void emptyEncryptionKeyAndEntityIdTest() throws EncryptionUtils.EncryptionException {
-        NfcManager nfcManager = new NfcManager(CommCareTestApplication.instance(), "", "");
+        NfcManager nfcManager = new NfcManager(CommCareTestApplication.instance(), "", "", false);
         String encryptedMessage = nfcManager.tagAndEncryptPayload(PAYLOAD);
         assert encryptedMessage.startsWith(PAYLOAD_DELIMITER + PAYLOAD_DELIMITER);
         assert nfcManager.decryptValue(encryptedMessage).contentEquals(PAYLOAD);
@@ -54,20 +54,20 @@ public class NfcManagerTest {
 
     @Test(expected = NfcManager.InvalidPayloadTagException.class)
     public void readingPayloadWithDifferentTag_shouldFail() throws EncryptionUtils.EncryptionException {
-        NfcManager nfcManager = new NfcManager(CommCareTestApplication.instance(), ENCRYPTION_KEY, "some_other_id");
+        NfcManager nfcManager = new NfcManager(CommCareTestApplication.instance(), ENCRYPTION_KEY, "some_other_id", false);
         String encryptedMessage = nfcManager.tagAndEncryptPayload(PAYLOAD);
-        new NfcManager(CommCareTestApplication.instance(), ENCRYPTION_KEY, ENTITY_ID)
+        new NfcManager(CommCareTestApplication.instance(), ENCRYPTION_KEY, ENTITY_ID, false)
                 .decryptValue(encryptedMessage).contentEquals(PAYLOAD);
     }
 
     @Test
     public void payloadWithoutTagTest() throws EncryptionUtils.EncryptionException {
         // Decrypt an old payload without specifying encryptionKey and entityId
-        assert new NfcManager(CommCareTestApplication.instance(), "", "")
+        assert new NfcManager(CommCareTestApplication.instance(), "", "", false)
                 .decryptValue(PAYLOAD).contentEquals(PAYLOAD);
 
-        // Decrypt an old payload with some encryptionKey and entityId
-        assert new NfcManager(CommCareTestApplication.instance(), ENCRYPTION_KEY, ENTITY_ID)
+        // Decrypt an old payload with some encryptionKey and entityId by ignoring tag
+        assert new NfcManager(CommCareTestApplication.instance(), ENCRYPTION_KEY, ENTITY_ID, true)
         .decryptValue(PAYLOAD).contentEquals(PAYLOAD);
     }
 
