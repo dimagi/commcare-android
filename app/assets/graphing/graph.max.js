@@ -76,6 +76,11 @@ var intervalID = setInterval(function() {
                 }
                 return 0;
             },
+            focus: {
+                expand: {
+                  enabled: false
+                }
+            },
         };
 
         // Add functions for custom tick label text (where foo-labels was an object).
