@@ -76,12 +76,17 @@ var intervalID = setInterval(function() {
                 }
                 return 0;
             },
+            focus: {
+                expand: {
+                  enabled: false
+                }
+            },
         };
 
         // Add functions for custom tick label text (where foo-labels was an object).
         // Don't do this if the tick format was already set by Java (which will
         // only happen for time-based graphs that are NOT using custom tick text).
-        if (config.axis.x.tick && !config.axis.x.tick.format) {
+        if (config.axis.x.tick && (config.axis.x.tick.values || config.axis.x.tick.count) && !config.axis.x.tick.format) {
             config.axis.x.tick.format = function(d) {
                 var key = String(d);
                 if (type === "time") {
@@ -103,7 +108,7 @@ var intervalID = setInterval(function() {
                 }
             };
         }
-        if (config.axis.y.tick) {
+        if (config.axis.y.tick && (config.axis.y.tick.values || config.axis.y.tick.count)) {
             config.axis.y.tick.format = function(d) {
                 return axis.yLabels[String(d)] || Math.round(d);
             };
