@@ -901,6 +901,7 @@ nfc.not.supported=This Android device does not have NFC capabilities
 nfc.not.enabled=NFC capabilities are not currently enabled on this device. You can enable them in Settings and then try again.
 nfc.write.no.payload=NFC write action requires specifying a payload
 nfc.write.encryption.error=An error occurred while attempting to encrypt the NFC message
+nfc.write.payload.error=The message you are trying to write is invalid. Make sure it doesn't contain ^⸘^
 nfc.write.no.type=NFC write action requires specifying a type for the payload
 nfc.read.no.type=NFC read action requires specifying at least 1 acceptable type
 nfc.write.type.not.supported=The well-known type you tried to write is not supported by CommCare. The only well-known type that CommCare supports is 'text'

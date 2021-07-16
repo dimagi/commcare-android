@@ -18,7 +18,7 @@ import androidx.appcompat.app.AppCompatActivity;
 public class NfcManager {
 
     public static final String NFC_ENCRYPTION_SCHEME = "encryption_aes_v1";
-    public static final String PAYLOAD_DELIMITER = "\0";
+    public static final String PAYLOAD_DELIMITER = "^⸘^";
     private final boolean allowUntaggedRead;
 
     private Context context;
@@ -100,6 +100,9 @@ public class NfcManager {
         if (!StringUtils.isEmpty(encryptionKey)) {
             payload = EncryptionUtils.encrypt(payload, encryptionKey);
         }
+        if (payload.contains(PAYLOAD_DELIMITER)) {
+            throw new InvalidPayloadException();
+        }
         return getPayloadTag() + payload;
     }
 
@@ -109,6 +112,9 @@ public class NfcManager {
 
     public class NfcNotEnabledException extends Exception {
 
+    }
+
+    public class InvalidPayloadException extends RuntimeException {
     }
 
     public class InvalidPayloadTagException extends RuntimeException {

@@ -44,6 +44,8 @@ public class NfcWriteActivity extends NfcActivity {
             payloadToWrite = nfcManager.tagAndEncryptPayload(getIntent().getStringExtra(NFC_PAYLOAD_TO_WRITE));
         } catch (EncryptionUtils.EncryptionException e) {
             finishWithErrorToast("nfc.write.encryption.error", e);
+        } catch (NfcManager.InvalidPayloadException e) {
+            finishWithErrorToast("nfc.write.payload.error", e);
         }
     }
 
