@@ -32,7 +32,7 @@ var intervalID = setInterval(function() {
             return x;
         }
         if (type === "time") {
-            formatXTooltip = d3.time.format(config.axis.x.tick.format);
+            formatXTooltip = d3.timeFormat(config.axis.x.tick.format);
         }
         config.tooltip = {
             show: true,
@@ -76,12 +76,17 @@ var intervalID = setInterval(function() {
                 }
                 return 0;
             },
+            focus: {
+                expand: {
+                  enabled: false
+                }
+            },
         };
 
         // Add functions for custom tick label text (where foo-labels was an object).
         // Don't do this if the tick format was already set by Java (which will
         // only happen for time-based graphs that are NOT using custom tick text).
-        if (config.axis.x.tick && !config.axis.x.tick.format) {
+        if (config.axis.x.tick && (config.axis.x.tick.values || config.axis.x.tick.count) && !config.axis.x.tick.format) {
             config.axis.x.tick.format = function(d) {
                 var key = String(d);
                 if (type === "time") {
@@ -90,10 +95,20 @@ var intervalID = setInterval(function() {
 
                 }
                 var label = axis.xLabels[key] === undefined ? d : axis.xLabels[key];
-                return Math.round(label) || label;
+                var returnVal = String(Math.round(label) || label);
+                if (characterLimit) {
+                    var limit = parseInt(characterLimit);
+                    if (returnVal.length > limit) { // This is coupled with StringExtensionImpl#getWidth()
+                        return String(returnVal).slice(0, limit - 3) + "...";
+                    } else {
+                        return returnVal;
+                    }
+                } else {
+                    return returnVal;
+                }
             };
         }
-        if (config.axis.y.tick) {
+        if (config.axis.y.tick && (config.axis.y.tick.values || config.axis.y.tick.count)) {
             config.axis.y.tick.format = function(d) {
                 return axis.yLabels[String(d)] || Math.round(d);
             };
@@ -141,7 +156,7 @@ var intervalID = setInterval(function() {
             for (var yID in config.data.colors) {
                 // Data itself
                 if (type === "bar") {
-                    var bars = d3.selectAll(".c3-bars-" + yID + " path")[0];
+                    var bars = d3.selectAll(".c3-bars-" + yID + " path")["_groups"][0];
                     for (var i = 0; i < bars.length; i++) {
                         // If there's a bar-specific color, set it
                         if (data.barColors[yID] && data.barColors[yID][i]) {
@@ -156,16 +171,16 @@ var intervalID = setInterval(function() {
                         bars[i].style.opacity = opacity;
                     }
                 } else {
-                    var line = d3.selectAll(".c3-lines-" + yID + " path")[0][0];
+                    var line = d3.selectAll(".c3-lines-" + yID + " path")["_groups"][0][0];
                     if (line) {
                         line.style.opacity = data.lineOpacities[yID];
                     }
                 }
 
                 // Legend
-                var legend = d3.selectAll(".c3-legend-item-" + yID + " path")[0];
+                var legend = d3.selectAll(".c3-legend-item-" + yID + " path")["_groups"][0];
                 if (!legend.length) {
-                    legend = d3.selectAll(".c3-legend-item-" + yID + " line")[0];
+                    legend = d3.selectAll(".c3-legend-item-" + yID + " line")["_groups"][0];
                 }
                 if (legend.length) {
                     legend = legend[0];
@@ -176,16 +191,16 @@ var intervalID = setInterval(function() {
                 }
 
                 // Point shapes
-                var points = d3.selectAll(".c3-circles-" + yID + " path")[0];
+                var points = d3.selectAll(".c3-circles-" + yID + " path")["_groups"][0];
                 if (!points.length) {
-                    points = d3.selectAll(".c3-circles-" + yID + " circle")[0];
+                    points = d3.selectAll(".c3-circles-" + yID + " circle")["_groups"][0];
                 }
                 for (var i = 0; i < points.length; i++) {
                     points[i].style.opacity = data.lineOpacities[yID];
                 }
             }
             for (var yID in data.areaColors) {
-                var area = d3.selectAll(".c3-areas-" + yID + " path")[0][0];
+                var area = d3.selectAll(".c3-areas-" + yID + " path")["_groups"][0][0];
                 if (area) {
                     area.style.fill = data.areaColors[yID];
                     area.style.opacity = data.areaOpacities[yID];
@@ -228,7 +243,7 @@ function applyPointShape(yID, symbol) {
     }
 
     var circleSet = d3.selectAll(".c3-circles-" + yID);
-    var circles = circleSet.selectAll("circle")[0];
+    var circles = circleSet.selectAll("circle")["_groups"][0];
     if (!circles) {
         return;
     }
@@ -240,7 +255,7 @@ function applyPointShape(yID, symbol) {
             circles[j].cx.baseVal.value,
             circles[j].cy.baseVal.value,
             symbol,
-            circles[j].style.fill
+            circles[j].style.color
         );
     }
 }
@@ -254,7 +269,7 @@ function applyPointShape(yID, symbol) {
 function applyLegendShape(yID, symbol) {
     if (symbol !== "none") {
         var legendItem = d3.selectAll(".c3-legend-item-" + yID);
-        var line = legendItem.selectAll("line");    // there will only be one line
+        var line = legendItem.selectAll("line")["_groups"];    // there will only be one line
         if (!line || !line.length) {
             return;
         }
@@ -284,13 +299,42 @@ function appendSymbol(parent, x, y, symbol, color) {
         return;
     }
 
+    // String symbol doesn't work, need to map https://github.com/d3/d3-shape/issues/64
+    var d3Symbol = d3.symbolCircle;
+    switch(symbol) {
+        case "cross":
+            d3Symbol = d3.symbolCross;
+            break;
+        case "diamond":
+            d3Symbol = d3.symbolDiamond;
+            break;
+        case "triangle-up":
+            d3Symbol = d3.symbolTriangle;
+            break;
+        case "triangle-down": // D3 doesn't have a triangle-down anymore
+            d3Symbol = d3.symbolTriangle;
+            break;
+        case "square":
+            d3Symbol = d3.symbolSquare;
+            break;
+        case "star":
+            d3Symbol = d3.symbolStar;
+            break;
+        case "wye":
+            d3Symbol = d3.symbolWye;
+            break;
+        default:
+            d3Symbol = d3.symbolCircle;
+            break;
+    }
+
     parent.append("path")
         .attr("transform", function (d) {
         return "translate(" + x + ", " + y + ")";
     })
         .attr("class", "symbol")
-        .attr("d", d3.svg.symbol()
-              .type(symbol)
+        .attr("d", d3.symbol()
+              .type(d3Symbol)
               .size(50))
         .style("fill", color)
         .style("stroke", color);

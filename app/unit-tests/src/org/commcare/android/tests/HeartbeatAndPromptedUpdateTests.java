@@ -16,6 +16,7 @@ import org.commcare.heartbeat.HeartbeatWorker;
 import org.commcare.heartbeat.TestHeartbeatRequester;
 import org.commcare.heartbeat.UpdatePromptHelper;
 import org.commcare.heartbeat.UpdateToPrompt;
+import org.commcare.preferences.HiddenPreferences;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -24,6 +25,7 @@ import org.robolectric.annotation.Config;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
+import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
 
 /**
@@ -86,6 +88,8 @@ public class HeartbeatAndPromptedUpdateTests {
 
         UpdateToPrompt apkUpdate = UpdatePromptHelper.getCurrentUpdateToPrompt(UpdateToPrompt.Type.APK_UPDATE);
         Assert.assertNull(apkUpdate);
+
+        assertEquals("2.25.0", HiddenPreferences.getLatestCommcareVersion());
     }
 
     @Test

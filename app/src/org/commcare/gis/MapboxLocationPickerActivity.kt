@@ -6,7 +6,7 @@ import android.content.IntentSender.SendIntentException
 import android.location.Location
 import android.os.Bundle
 import android.view.View
-import androidx.core.app.ActivityCompat
+import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.gms.common.api.ResolvableApiException
@@ -33,15 +33,14 @@ import org.commcare.location.CommCareLocationListener
 import org.commcare.utils.GeoUtils
 import org.commcare.utils.Permissions
 import org.commcare.views.widgets.GeoPointWidget
+import org.javarosa.core.services.locale.Localization
 
 class MapboxLocationPickerActivity : BaseMapboxActivity(), CommCareLocationListener {
 
     companion object {
         const val MARKER_ICON_IMAGE_ID = "marker_icon_image"
-        const val LOCATION_PERMISSION_REQ = 100
         const val LOCATION_SETTING_REQ = 101
-        private val LOCATION_PERMISSIONS = arrayOf(Manifest.permission.ACCESS_FINE_LOCATION,
-                Manifest.permission.ACCESS_COARSE_LOCATION)
+        private val LOCATION_PERMISSIONS = arrayOf(Manifest.permission.ACCESS_FINE_LOCATION)
     }
 
     private lateinit var viewModel: MapboxLocationPickerViewModel
@@ -57,10 +56,16 @@ class MapboxLocationPickerActivity : BaseMapboxActivity(), CommCareLocationListe
     private var symbolManager: SymbolManager? = null
     private var symbol: Symbol? = null
     private val mapClickListener = MapboxMap.OnMapClickListener { point ->
-        isManualSelectedLocation = true
-        // Add marker.
-        updateMarker(point)
-        viewModel.reverseGeocode(point)
+        if (!Permissions.missingAppPermission(this, LOCATION_PERMISSIONS)) {
+            isManualSelectedLocation = true
+            // Add marker.
+            updateMarker(point)
+            viewModel.reverseGeocode(point)
+        } else {
+            Toast.makeText(this,
+                    Localization.get("permission.location.denial.message"),
+                    Toast.LENGTH_LONG).show()
+        }
         true
     }
 
@@ -83,6 +88,7 @@ class MapboxLocationPickerActivity : BaseMapboxActivity(), CommCareLocationListe
                     .zoom(10.0)
                     .tilt(20.0)
                     .build()
+            isManualSelectedLocation = true
         }
         mapView.showCurrentLocationBtn(false)
     }
@@ -117,6 +123,9 @@ class MapboxLocationPickerActivity : BaseMapboxActivity(), CommCareLocationListe
         }
         current_location.setOnClickListener {
             isManualSelectedLocation = false
+            currentLocation?.let {
+                onLocationResult(it)
+            }
         }
     }
 
@@ -236,7 +245,7 @@ class MapboxLocationPickerActivity : BaseMapboxActivity(), CommCareLocationListe
         if (isManualSelectedLocation || inViewMode()) {
             return
         }
-        if (currentLocation == null || currentLocation!!.accuracy == 0f || result.accuracy < currentLocation!!.accuracy) {
+        if (currentLocation == null || currentLocation!!.accuracy == 0f || result.accuracy <= currentLocation!!.accuracy) {
             currentLocation = result
             val point = LatLng(result.latitude, result.longitude, result.altitude)
             viewModel.reverseGeocode(point)
@@ -246,7 +255,8 @@ class MapboxLocationPickerActivity : BaseMapboxActivity(), CommCareLocationListe
     }
 
     override fun missingPermissions() {
-        ActivityCompat.requestPermissions(this, LOCATION_PERMISSIONS, LOCATION_PERMISSION_REQ)
+        // Do nothing. Kujaku handles requesting permissions internally.
+        // https://github.com/onaio/kujaku/blob/4d737b89b23fb9eafe0850e83671034121c10e1d/library/src/main/java/io/ona/kujaku/helpers/PermissionsHelper.java#L17-L24
     }
 
     override fun onLocationRequestFailure(failure: CommCareLocationListener.Failure) {
@@ -265,10 +275,7 @@ class MapboxLocationPickerActivity : BaseMapboxActivity(), CommCareLocationListe
     }
 
     private fun requestLocation() {
-        // Check permissions
-        if (Permissions.missingAppPermission(this, LOCATION_PERMISSIONS)) {
-            missingPermissions()
-        } else {
+        if (!Permissions.missingAppPermission(this, LOCATION_PERMISSIONS)) {
             locationController.start()
         }
     }

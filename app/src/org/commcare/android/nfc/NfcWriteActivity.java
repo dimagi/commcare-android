@@ -11,6 +11,7 @@ import android.os.Build;
 import android.os.Bundle;
 
 import org.commcare.android.javarosa.IntentCallout;
+import org.commcare.util.EncryptionUtils;
 
 import java.io.IOException;
 
@@ -20,9 +21,9 @@ import java.io.IOException;
  * consumed by this activity. CommCare will then decide what type of NdefRecord to write to the tag
  * based upon the user-provided 'type' argument:
  *
- *    - If type is 'text', CommCare will write a record of type NdefRecord.RTD_TEXT
- *    - If the type is anything else, CommCare will assume the user is attempting to write a
- *    custom/external record type (which will be qualified by the domain argument)
+ * - If type is 'text', CommCare will write a record of type NdefRecord.RTD_TEXT
+ * - If the type is anything else, CommCare will assume the user is attempting to write a
+ * custom/external record type (which will be qualified by the domain argument)
  *
  * If an error occurs during the write action, an appropriate error toast will be shown.
  *
@@ -38,8 +39,14 @@ public class NfcWriteActivity extends NfcActivity {
     @Override
     protected void initFields() {
         super.initFields();
-        this.payloadToWrite = getIntent().getStringExtra(NFC_PAYLOAD_TO_WRITE);
-        this.typeForPayload = getIntent().getStringExtra(NFC_PAYLOAD_SINGLE_TYPE_ARG);
+        typeForPayload = getIntent().getStringExtra(NFC_PAYLOAD_SINGLE_TYPE_ARG);
+        try {
+            payloadToWrite = nfcManager.tagAndEncryptPayload(getIntent().getStringExtra(NFC_PAYLOAD_TO_WRITE));
+        } catch (EncryptionUtils.EncryptionException e) {
+            finishWithErrorToast("nfc.write.encryption.error", e);
+        } catch (NfcManager.InvalidPayloadException e) {
+            finishWithErrorToast("nfc.write.payload.error", e);
+        }
     }
 
     @Override
@@ -72,11 +79,11 @@ public class NfcWriteActivity extends NfcActivity {
             ndefObject.close();
             finishWithToast("nfc.write.success", true);
         } catch (IOException e) {
-            finishWithErrorToast("nfc.write.io.error");
+            finishWithErrorToast("nfc.write.io.error", e);
         } catch (FormatException e) {
-            finishWithErrorToast("nfc.write.msg.malformed");
+            finishWithErrorToast("nfc.write.msg.malformed", e);
         } catch (IllegalArgumentException e) {
-            finishWithErrorToast("nfc.write.type.not.supported");
+            finishWithErrorToast("nfc.write.type.not.supported", e);
         }
     }
 
@@ -90,7 +97,7 @@ public class NfcWriteActivity extends NfcActivity {
     @Override
     protected void setResultValue(Intent i, boolean success) {
         if (success) {
-            i.putExtra(IntentCallout.INTENT_RESULT_VALUE, payloadToWrite);
+            i.putExtra(IntentCallout.INTENT_RESULT_VALUE, getIntent().getStringExtra(NFC_PAYLOAD_TO_WRITE));
         }
     }
 
@@ -98,6 +105,4 @@ public class NfcWriteActivity extends NfcActivity {
     protected String getInstructionsTextKey() {
         return "nfc.instructions.write";
     }
-
-
 }
