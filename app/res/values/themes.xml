@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <style name="CommonTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+    <style name="CommonTheme" parent="Theme.MaterialComponents.Light.DarkActionBar.Bridge">
         <item name="colorPrimary">@color/cc_brand_color</item>
         <item name="colorPrimaryDark">@color/cc_brand_text</item>
         <item name="colorAccent">@color/cc_dark_cool_accent_color</item>
@@ -31,6 +31,11 @@
         <item name="android:scrollViewStyle">@style/fading_edge</item>
         <item name="android:windowContentOverlay">@null</item>
         <item name="android:dropDownListViewStyle">@style/dropDownListView</item>
+
+        <!--  Material Components styling that can be removed when we migrate to a material component theme from the bridge theme-->
+        <item name="materialCalendarStyle">@style/Widget.MaterialComponents.MaterialCalendar</item>
+        <item name="materialCalendarFullscreenTheme">@style/ThemeOverlay.MaterialComponents.MaterialCalendar.Fullscreen</item>
+        <item name="materialCalendarTheme">@style/ThemeOverlay.MaterialComponents.MaterialCalendar</item>
     </style>
 
     <style name="AppBaseTheme" parent="CommonTheme" />
