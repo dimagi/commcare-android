@@ -1,6 +1,5 @@
 package org.commcare.tasks.templates;
 
-import android.os.AsyncTask;
 import android.util.Log;
 
 import org.commcare.logging.UserCausedRuntimeException;
@@ -168,7 +167,7 @@ public abstract class CommCareTask<Params, Progress, Result, Receiver>
                 return connector;
             }
 
-            if (this.getStatus() == AsyncTask.Status.RUNNING && taskId != -1) {
+            if (this.getStatus() == CoroutinesAsyncTask.Status.RUNNING && taskId != -1) {
                 // If the connector is null and the task is associated with a
                 // dialog/activity (i.e. task id != -1) then cancel because the
                 // task isn't expected to live past the associated

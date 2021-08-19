@@ -1,7 +1,6 @@
 package org.commcare.tasks;
 
 import android.content.SharedPreferences;
-import android.os.AsyncTask;
 
 import org.commcare.CommCareApplication;
 import org.commcare.android.javarosa.AndroidLogEntry;
@@ -17,6 +16,7 @@ import org.commcare.network.CommcareRequestGenerator;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.preferences.ServerUrls;
 import org.commcare.tasks.LogSubmissionTask.LogSubmitOutcomes;
+import org.commcare.tasks.templates.CoroutinesAsyncTask;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.FormUploadUtil;
 import org.commcare.utils.SessionUnavailableException;
@@ -44,7 +44,7 @@ import retrofit2.Response;
 /**
  * @author ctsims
  */
-public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> implements DataSubmissionListener {
+public class LogSubmissionTask extends CoroutinesAsyncTask<Void, Long, LogSubmitOutcomes> implements DataSubmissionListener {
 
     //Stole from the process and send task. See if we can unify a lot of this behavior
     private static final long SUBMISSION_BEGIN = 16;

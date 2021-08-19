@@ -1,7 +1,6 @@
 package org.commcare.fragments;
 
 import android.content.Context;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
@@ -10,6 +9,7 @@ import android.util.Log;
 
 import org.commcare.activities.CommCareActivity;
 import org.commcare.tasks.templates.CommCareTask;
+import org.commcare.tasks.templates.CoroutinesAsyncTask;
 
 /**
  * Hold a reference to current task to report its progress and results The
@@ -47,7 +47,7 @@ public class TaskConnectorFragment<R> extends Fragment {
 
     public boolean isCurrentTaskRunning() {
         return this.currentTask != null &&
-                this.currentTask.getStatus() == AsyncTask.Status.RUNNING;
+                this.currentTask.getStatus() == CoroutinesAsyncTask.Status.RUNNING;
     }
 
     @Override

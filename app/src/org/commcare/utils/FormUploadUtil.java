@@ -1,6 +1,5 @@
 package org.commcare.utils;
 
-import android.os.AsyncTask;
 import android.os.Environment;
 import android.util.Log;
 import android.webkit.MimeTypeMap;

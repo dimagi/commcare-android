@@ -2,8 +2,6 @@ package org.commcare.fragments;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import androidx.fragment.app.Fragment;
 import android.util.Log;
@@ -14,6 +12,7 @@ import android.widget.TextView;
 
 import org.commcare.activities.CommCareWiFiDirectActivity;
 import org.commcare.dalvik.R;
+import org.commcare.tasks.templates.CoroutinesAsyncTask;
 import org.javarosa.core.services.Logger;
 
 import java.io.File;
@@ -82,18 +81,14 @@ public class FileServerFragment extends Fragment {
 
         //Execute on a true multithreaded chain. We should probably replace all of our calls with this
         //but this is the big one for now.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            mFileServer.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-        } else {
-            mFileServer.execute();
-        }
+        mFileServer.executeOnExecutor();
     }
 
     /**
      * A simple server socket that accepts connection and writes some data on
      * the stream.
      */
-    static class FileServerAsyncTask extends AsyncTask<Void, String, String> {
+    static class FileServerAsyncTask extends CoroutinesAsyncTask<Void, String, String> {
 
         private final FileServerFragment mListener;
         private boolean socketOccupied;

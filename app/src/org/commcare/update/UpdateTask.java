@@ -82,8 +82,8 @@ public class UpdateTask extends SingletonTask<String, Integer, ResultAndError<Ap
     }
 
     @Override
-    protected void onCancelled(ResultAndError<AppInstallStatus> resultAndError) {
-        super.onCancelled(resultAndError);
+    protected void onCancelled() {
+        super.onCancelled();
         mUpdateHelper.OnUpdateCancelled();
         mUpdateHelper.clearInstance();
     }

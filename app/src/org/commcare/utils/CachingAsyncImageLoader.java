@@ -10,6 +10,8 @@ import android.os.AsyncTask;
 import android.util.LruCache;
 import android.widget.ImageView;
 
+import org.commcare.tasks.templates.CoroutinesAsyncTask;
+
 /**
  * Class used for managing the LoadImageTasks that load images into a list.
  * Ensures that proper caching occurs and attempts to limit overflows
@@ -40,7 +42,7 @@ public class CachingAsyncImageLoader implements ComponentCallbacks2 {
         if (image != null) {
             imageView.setImageBitmap(image);
         } else {
-            new SetImageTask(imageView, this.context, boundingWidth, boundingHeight).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, url);
+            new SetImageTask(imageView, this.context, boundingWidth, boundingHeight).executeOnExecutor(url);
         }
     }
 
@@ -49,7 +51,7 @@ public class CachingAsyncImageLoader implements ComponentCallbacks2 {
      *
      * @author wspride
      */
-    private class SetImageTask extends AsyncTask<String, Void, Bitmap> {
+    private class SetImageTask extends CoroutinesAsyncTask<String, Void, Bitmap> {
         private final ImageView mImageView;
         private final Context mContext;
         private final int mBoundingWidth;

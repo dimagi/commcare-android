@@ -2,7 +2,6 @@ package org.commcare.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -31,6 +30,7 @@ import org.commcare.tasks.InstallStagedUpdateTask;
 import org.commcare.tasks.ResultAndError;
 import org.commcare.tasks.TaskListener;
 import org.commcare.tasks.TaskListenerRegistrationException;
+import org.commcare.tasks.templates.CoroutinesAsyncTask;
 import org.commcare.update.UpdateTask;
 import org.commcare.update.UpdateWorker;
 import org.commcare.update.UpdateHelper;
@@ -242,7 +242,7 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
         uiController.refreshView();
     }
 
-    private void setUiStateFromTaskStatus(AsyncTask.Status taskStatus) {
+    private void setUiStateFromTaskStatus(CoroutinesAsyncTask.Status taskStatus) {
         switch (taskStatus) {
             case RUNNING:
                 uiController.downloadingUiState();

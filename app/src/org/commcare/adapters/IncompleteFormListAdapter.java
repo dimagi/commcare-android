@@ -3,7 +3,6 @@ package org.commcare.adapters;
 
 import android.content.Context;
 import android.database.DataSetObserver;
-import android.os.AsyncTask.Status;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -18,6 +17,7 @@ import org.commcare.suite.model.Suite;
 import org.commcare.suite.model.Text;
 import org.commcare.tasks.FormRecordLoadListener;
 import org.commcare.tasks.FormRecordLoaderTask;
+import org.commcare.tasks.templates.CoroutinesAsyncTask;
 import org.commcare.utils.AndroidCommCarePlatform;
 import org.commcare.utils.StorageUtils;
 import org.commcare.views.IncompleteFormRecordView;
@@ -144,10 +144,10 @@ public class IncompleteFormListAdapter extends BaseAdapter implements FormRecord
      */
     public void resetRecords() {
         // reload the form records, even if they are currently being loaded
-        if (loader.getStatus() == Status.RUNNING) {
+        if (loader.getStatus() == CoroutinesAsyncTask.Status.RUNNING) {
             loader.cancel(false);
             loader = loader.spawn();
-        } else if (loader.getStatus() == Status.FINISHED) {
+        } else if (loader.getStatus() == CoroutinesAsyncTask.Status.FINISHED) {
             loader = loader.spawn();
         }
 
@@ -376,7 +376,7 @@ public class IncompleteFormListAdapter extends BaseAdapter implements FormRecord
     }
 
     public void release() {
-        if (loader.getStatus() == Status.RUNNING) {
+        if (loader.getStatus() == CoroutinesAsyncTask.Status.RUNNING) {
             loader.cancel(false);
         }
     }

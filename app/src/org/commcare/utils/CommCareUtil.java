@@ -1,7 +1,6 @@
 package org.commcare.utils;
 
 import android.content.Context;
-import android.os.AsyncTask;
 import android.widget.Toast;
 
 import org.commcare.CommCareApplication;
@@ -97,6 +96,6 @@ public class CommCareUtil {
                         url,
                         forceLogs);
         // Execute on a true multithreaded chain, since this is an asynchronous process
-        reportSubmitter.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+        reportSubmitter.executeOnExecutor();
     }
 }

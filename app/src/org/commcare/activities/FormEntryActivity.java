@@ -10,7 +10,6 @@ import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.Rect;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
@@ -59,6 +58,7 @@ import org.commcare.models.FormRecordProcessor;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.tasks.FormLoaderTask;
 import org.commcare.tasks.SaveToDiskTask;
+import org.commcare.tasks.templates.CoroutinesAsyncTask;
 import org.commcare.tts.TextToSpeechCallback;
 import org.commcare.tts.TextToSpeechConverter;
 import org.commcare.util.LogTypes;
@@ -684,11 +684,11 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     @Override
     public Object onRetainCustomNonConfigurationInstance() {
         // if a form is loading, pass the loader task
-        if (mFormLoaderTask != null && mFormLoaderTask.getStatus() != AsyncTask.Status.FINISHED)
+        if (mFormLoaderTask != null && mFormLoaderTask.getStatus() != CoroutinesAsyncTask.Status.FINISHED)
             return mFormLoaderTask;
 
         // if a form is writing to disk, pass the save to disk task
-        if (mSaveToDiskTask != null && mSaveToDiskTask.getStatus() != AsyncTask.Status.FINISHED)
+        if (mSaveToDiskTask != null && mSaveToDiskTask.getStatus() != CoroutinesAsyncTask.Status.FINISHED)
             return mSaveToDiskTask;
 
         // mFormEntryController is static so we don't need to pass it.
@@ -798,7 +798,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
         // If a save task is already running, just let it do its thing
         if ((mSaveToDiskTask != null) &&
-                (mSaveToDiskTask.getStatus() != AsyncTask.Status.FINISHED)) {
+                (mSaveToDiskTask.getStatus() != CoroutinesAsyncTask.Status.FINISHED)) {
             return;
         }
 
@@ -1129,7 +1129,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             // We have to call cancel to terminate the thread, otherwise it
             // lives on and retains the FEC in memory.
             // but only if it's done, otherwise the thread never returns
-            if (mFormLoaderTask.getStatus() == AsyncTask.Status.FINISHED) {
+            if (mFormLoaderTask.getStatus() == CoroutinesAsyncTask.Status.FINISHED) {
                 mFormLoaderTask.cancel(true);
                 mFormLoaderTask.destroy();
             }
@@ -1137,7 +1137,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         if (mSaveToDiskTask != null) {
             // We have to call cancel to terminate the thread, otherwise it
             // lives on and retains the FEC in memory.
-            if (mSaveToDiskTask.getStatus() == AsyncTask.Status.FINISHED) {
+            if (mSaveToDiskTask.getStatus() == CoroutinesAsyncTask.Status.FINISHED) {
                 mSaveToDiskTask.cancel(false);
             }
         }

@@ -1,55 +1,24 @@
 package org.commcare.sync;
 
 import android.content.Context;
-import android.os.AsyncTask;
-
-import net.sqlcipher.database.SQLiteDatabase;
-
-import org.apache.commons.lang3.StringUtils;
 import org.commcare.CommCareApplication;
 import org.commcare.activities.SyncCapableCommCareActivity;
-import org.commcare.android.database.user.models.FormRecord;
-import org.commcare.models.FormRecordProcessor;
-import org.commcare.suite.model.Profile;
 import org.commcare.tasks.DataSubmissionListener;
-import org.commcare.tasks.FormRecordCleanupTask;
 import org.commcare.tasks.FormSubmissionProgressBarListener;
 import org.commcare.tasks.templates.CommCareTask;
 import org.commcare.tasks.templates.CommCareTaskConnector;
-import org.commcare.util.LogTypes;
 import org.commcare.utils.FormUploadResult;
-import org.commcare.utils.FormUploadUtil;
-import org.commcare.utils.QuarantineUtil;
 import org.commcare.utils.SessionUnavailableException;
-import org.commcare.views.notifications.NotificationMessage;
 import org.commcare.views.notifications.NotificationMessageFactory;
 import org.commcare.views.notifications.ProcessIssues;
-import org.javarosa.core.model.User;
-import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
-import org.javarosa.xml.util.InvalidStructureException;
-import org.javarosa.xml.util.UnfullfilledRequirementsException;
-import org.xmlpull.v1.XmlPullParserException;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.PrintStream;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Queue;
-
-import javax.crypto.spec.SecretKeySpec;
 
 import static org.commcare.sync.FormSubmissionHelper.PROGRESS_ALL_PROCESSED;
-import static org.commcare.sync.FormSubmissionHelper.SUBMISSION_BEGIN;
 import static org.commcare.sync.FormSubmissionHelper.SUBMISSION_DONE;
 import static org.commcare.sync.FormSubmissionHelper.SUBMISSION_FAIL;
-import static org.commcare.sync.FormSubmissionHelper.SUBMISSION_NOTIFY;
-import static org.commcare.sync.FormSubmissionHelper.SUBMISSION_START;
-import static org.commcare.sync.FormSubmissionHelper.SUBMISSION_SUCCESS;
 
 /**
  * @author ctsims

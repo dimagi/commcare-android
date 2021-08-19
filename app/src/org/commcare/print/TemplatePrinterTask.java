@@ -1,10 +1,10 @@
 package org.commcare.print;
 
-import android.os.AsyncTask;
 import android.os.Bundle;
 
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
+import org.commcare.tasks.templates.CoroutinesAsyncTask;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.PrintValidationException;
 import org.commcare.utils.TemplatePrinterUtils;
@@ -21,7 +21,7 @@ import java.io.Serializable;
  * @author Richard Lu
  * @author amstone
  */
-public class TemplatePrinterTask extends AsyncTask<Void, Void, TemplatePrinterTask.PrintTaskResult> {
+public class TemplatePrinterTask extends CoroutinesAsyncTask<Void, Void, TemplatePrinterTask.PrintTaskResult> {
 
     public enum PrintTaskResult {
         SUCCESS, IO_ERROR, VALIDATION_ERROR_MUSTACHE, VALIDATION_ERROR_CHEVRON

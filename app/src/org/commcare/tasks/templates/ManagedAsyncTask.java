@@ -1,8 +1,5 @@
 package org.commcare.tasks.templates;
 
-import android.os.AsyncTask;
-import android.os.Build;
-
 import java.util.ArrayList;
 
 /**
@@ -13,7 +10,7 @@ import java.util.ArrayList;
  * @author Phillip Mates (pmates@dimagi.com)
  */
 public abstract class ManagedAsyncTask<Params, Progress, Result>
-        extends AsyncTask<Params, Progress, Result> {
+        extends CoroutinesAsyncTask<Params, Progress, Result> {
 
     /**
      * List of running tasks. Tasks add/remove themselves automatically upon
@@ -27,7 +24,7 @@ public abstract class ManagedAsyncTask<Params, Progress, Result>
      */
     public static void cancelTasks() {
         synchronized (livingTasks) {
-            for (AsyncTask task : livingTasks) {
+            for (CoroutinesAsyncTask task : livingTasks) {
                 task.cancel(true);
             }
             livingTasks.clear();
@@ -75,10 +72,6 @@ public abstract class ManagedAsyncTask<Params, Progress, Result>
      * with data synchronization!
      */
     public void executeParallel(Params... params) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, params);
-        } else {
-            execute(params);
-        }
+        executeOnExecutor(params);
     }
 }
