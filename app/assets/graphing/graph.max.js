@@ -96,7 +96,7 @@ var intervalID = setInterval(function() {
                 }
                 var label = axis.xLabels[key] === undefined ? d : axis.xLabels[key];
                 var returnVal = String(Math.round(label) || label);
-                if (characterLimit) {
+                if (typeof characterLimit === "undefined") {
                     var limit = parseInt(characterLimit);
                     if (returnVal.length > limit) { // This is coupled with StringExtensionImpl#getWidth()
                         return String(returnVal).slice(0, limit - 3) + "...";
