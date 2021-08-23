@@ -27,10 +27,12 @@ abstract class CoroutinesAsyncTask<Params, Progress, Result> {
             TimeUnit.SECONDS,
             SynchronousQueue<Runnable>(),
             threadFactory
-        ).let {
-            it.asCoroutineDispatcher()
-        }
-        private val serialExecutor = Executors.newSingleThreadExecutor().asCoroutineDispatcher()
+        )
+        private val serialExecutor = Executors.newSingleThreadExecutor()
+
+        fun serialDispatcher(): CoroutineDispatcher = serialExecutor.asCoroutineDispatcher()
+
+        fun parallelDispatcher(): CoroutineDispatcher = threadPoolExecutor.asCoroutineDispatcher()
     }
 
     enum class Status {
@@ -93,7 +95,7 @@ abstract class CoroutinesAsyncTask<Params, Progress, Result> {
      */
     @MainThread
     fun execute(vararg params: Params?) {
-        execute(serialExecutor, *params)
+        execute(serialDispatcher(), *params)
     }
 
     /**
@@ -101,7 +103,7 @@ abstract class CoroutinesAsyncTask<Params, Progress, Result> {
      */
     @MainThread
     fun executeOnExecutor(vararg params: Params?) {
-        execute(threadPoolExecutor, *params)
+        execute(parallelDispatcher(), *params)
     }
 
     @MainThread

@@ -11,6 +11,7 @@ import org.commcare.core.parse.ParseUtils;
 import org.commcare.engine.resource.AppInstallStatus;
 import org.commcare.models.database.user.DemoUserBuilder;
 import org.commcare.tasks.ResourceEngineTask;
+import org.commcare.utils.MockUtilsKt;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.reference.ResourceReferenceFactory;
 import org.javarosa.core.util.PropertyUtils;
@@ -45,6 +46,7 @@ public class TestAppInstaller {
     public static void installAppAndLogin(String appPath,
                                           String username,
                                           String password) {
+        MockUtilsKt.mockAsyncTaskDispatchers();
         installAppAndUser(appPath, username, password);
         login(username, password);
     }

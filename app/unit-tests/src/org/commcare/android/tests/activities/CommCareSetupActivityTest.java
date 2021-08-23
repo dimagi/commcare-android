@@ -11,6 +11,8 @@ import org.commcare.CommCareTestApplication;
 import org.commcare.activities.CommCareSetupActivity;
 import org.commcare.activities.InstallArchiveActivity;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+
+import org.commcare.utils.MockUtilsKt;
 import org.javarosa.core.services.locale.Localization;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -44,6 +46,7 @@ public class CommCareSetupActivityTest {
      */
     @Test
     public void invalidAppInstall() {
+        MockUtilsKt.mockAsyncTaskDispatchers();
         String invalidUpdateReference = "jr://resource/commcare-apps/update_tests/invalid_suite_update/profile.ccpr";
 
 
