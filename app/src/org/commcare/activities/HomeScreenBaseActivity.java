@@ -231,12 +231,6 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                     }
                     return true;
                 } catch (Endpoint.InvalidEndpointArgumentsException e) {
-                    String noArgumentWithNameError = org.commcare.utils.StringUtils.getStringRobust(
-                            this,
-                            R.string.session_endpoint_no_argument_with_name,
-                            new String[]{e.getArgumentName(), endpoint.getId()});
-                    UserfacingErrorHandling.createErrorDialog(this, noArgumentWithNameError, true);
-                } catch (Endpoint.InvalidNumberOfEndpointArgumentsException e) {
                     String invalidEndpointArgsError = org.commcare.utils.StringUtils.getStringRobust(
                             this,
                             R.string.session_endpoint_invalid_arguments,
