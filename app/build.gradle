@@ -15,7 +15,8 @@ import java.util.function.BooleanSupplier
 
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-android-extensions' // TODO this is deprecated
+apply plugin: 'com.google.gms.google-services'
 apply plugin: 'com.google.firebase.crashlytics'
 apply from: 'jacoco.gradle'
 
@@ -317,12 +318,12 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
     }
 
     kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_1_8.toString()
+        jvmTarget = JavaVersion.VERSION_11.toString()
     }
 
     signingConfigs {
@@ -415,13 +416,9 @@ android {
             // next to play store version
 
             // grab commcare version from manifest
-            def manifestParser = new DefaultManifestParser(android.sourceSets.main.manifest.srcFile, new BooleanSupplier() {
-                @Override
-                boolean getAsBoolean() {
-                    return true
-                }
-            }, true, null)
-            def ccVersion = manifestParser.getVersionName()
+            // TODO Fix  No signature of method: build_aul2fcabvs6vrsl6qy1mj4j3h.android() is applicable for argument types: (build_aul2fcabvs6vrsl6qy1mj4j3h$_run_closure7) values: [build_aul2fcabvs6vrsl6qy1mj4j3h$_run_closure7@157fe3a8]
+            // for DefaultManifestParser
+            def ccVersion = "2.53"
             // convert numbers to words to use in app id
             def ccVersionSafe = numbersToLetters(ccVersion)
 
@@ -673,9 +670,6 @@ def getConsumerAppPassword(isConsumerApp) {
         return "";
     }
 }
-
-// must be at bottom of file to fix some stupid google bug
-apply plugin: 'com.google.gms.google-services'
 
 downloadLicenses {
     includeProjectDependencies = true
