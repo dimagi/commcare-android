@@ -258,11 +258,6 @@ android {
         exclude 'META-INF/NOTICE.txt'
     }
 
-    dexOptions {
-        preDexLibraries = true
-        jumboMode = true
-    }
-
     defaultConfig {
         minSdkVersion 16
         targetSdkVersion 30
