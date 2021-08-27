@@ -62,6 +62,8 @@ import java.util.Vector;
 
 public class FormEntryActivityUIController implements CommCareActivityUIController,
         Animation.AnimationListener {
+
+    
     private static final String TAG = FormEntryActivityUIController.class.getSimpleName();
     private final FormEntryActivity activity;
     private ViewGroup mViewPane;
