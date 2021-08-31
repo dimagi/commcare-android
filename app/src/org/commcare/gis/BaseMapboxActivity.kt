@@ -4,12 +4,14 @@ import android.os.Bundle
 import com.mapbox.mapboxsdk.Mapbox
 import com.mapbox.mapboxsdk.maps.MapboxMap
 import io.ona.kujaku.KujakuLibrary
-import kotlinx.android.synthetic.main.activity_entity_mapbox.*
+import io.ona.kujaku.views.KujakuMapView
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import org.commcare.activities.CommCareActivity
 import org.commcare.dalvik.BuildConfig
+import org.commcare.dalvik.R
 import org.commcare.interfaces.CommCareActivityUIController
+import org.commcare.views.UiElement
 
 /**
  * Base class for Mapbox based map activites
@@ -18,6 +20,9 @@ abstract class BaseMapboxActivity : CommCareActivity<BaseMapboxActivity>() {
 
     val jobs = ArrayList<Job>()
     lateinit var map: MapboxMap
+
+    @UiElement(value = R.id.mapView)
+    lateinit var mapView: KujakuMapView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         KujakuLibrary.init(this)
@@ -29,7 +34,6 @@ abstract class BaseMapboxActivity : CommCareActivity<BaseMapboxActivity>() {
         } else {
             (uiManager as CommCareActivityUIController).setupUI()
         }
-
         mapView.onCreate(savedInstanceState)
         initMap()
     }

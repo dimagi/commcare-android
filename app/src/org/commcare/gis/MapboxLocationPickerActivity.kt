@@ -23,10 +23,10 @@ import com.mapbox.mapboxsdk.maps.Style
 import com.mapbox.mapboxsdk.plugins.annotation.Symbol
 import com.mapbox.mapboxsdk.plugins.annotation.SymbolManager
 import com.mapbox.mapboxsdk.plugins.annotation.SymbolOptions
-import kotlinx.android.synthetic.main.activity_mapbox_location_picker.*
 import org.commcare.activities.components.FormEntryConstants
 import org.commcare.activities.components.FormEntryDialogs
 import org.commcare.dalvik.R
+import org.commcare.dalvik.databinding.ActivityMapboxLocationPickerBinding
 import org.commcare.location.CommCareLocationController
 import org.commcare.location.CommCareLocationControllerFactory
 import org.commcare.location.CommCareLocationListener
@@ -43,6 +43,7 @@ class MapboxLocationPickerActivity : BaseMapboxActivity(), CommCareLocationListe
         private val LOCATION_PERMISSIONS = arrayOf(Manifest.permission.ACCESS_FINE_LOCATION)
     }
 
+    private lateinit var binding: ActivityMapboxLocationPickerBinding
     private lateinit var viewModel: MapboxLocationPickerViewModel
     private lateinit var locationController: CommCareLocationController
     private val mapStyles = arrayOf(
@@ -75,6 +76,7 @@ class MapboxLocationPickerActivity : BaseMapboxActivity(), CommCareLocationListe
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        binding = ActivityMapboxLocationPickerBinding.inflate(layoutInflater)
         viewModel = ViewModelProvider(this, ViewModelProvider.AndroidViewModelFactory.getInstance(application))
                 .get(MapboxLocationPickerViewModel::class.java)
         attachListener()
@@ -94,12 +96,12 @@ class MapboxLocationPickerActivity : BaseMapboxActivity(), CommCareLocationListe
     }
 
     private fun attachListener() {
-        confirm_location_button.visibility = if (inViewMode()) {
+        binding.confirmLocationButton.visibility = if (inViewMode()) {
             View.GONE
         } else {
             View.VISIBLE
         }
-        confirm_location_button.setOnClickListener {
+        binding.confirmLocationButton.setOnClickListener {
             // Use the map target's coordinates to make a reverse geocoding search
             Intent().apply {
                 putExtra(FormEntryConstants.LOCATION_RESULT, GeoUtils.locationToString(viewModel.getLocation()))
@@ -108,10 +110,10 @@ class MapboxLocationPickerActivity : BaseMapboxActivity(), CommCareLocationListe
                 finish()
             }
         }
-        cancel_button.setOnClickListener {
+        binding.cancelButton.setOnClickListener {
             finish()
         }
-        switch_map.setOnClickListener {
+        binding.switchMap.setOnClickListener {
             currentMapStyleIndex = (currentMapStyleIndex + 1) % mapStyles.size
             val style = Style.Builder()
                     .fromUri(mapStyles[currentMapStyleIndex])
@@ -121,7 +123,7 @@ class MapboxLocationPickerActivity : BaseMapboxActivity(), CommCareLocationListe
                 updateMarker(LatLng(loc.latitude, loc.longitude, loc.altitude))
             }
         }
-        current_location.setOnClickListener {
+        binding.currentLocation.setOnClickListener {
             isManualSelectedLocation = false
             currentLocation?.let {
                 onLocationResult(it)
@@ -144,8 +146,8 @@ class MapboxLocationPickerActivity : BaseMapboxActivity(), CommCareLocationListe
 
     private fun observeViewModel() {
         viewModel.placeName.observe(this, androidx.lifecycle.Observer {
-            confirm_location_button.isEnabled = true
-            location.text = it
+            binding.confirmLocationButton.isEnabled = true
+            binding.location.text = it
         })
     }
 

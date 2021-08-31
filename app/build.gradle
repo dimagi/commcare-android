@@ -13,7 +13,6 @@ import com.android.builder.core.DefaultManifestParser
 
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-android-extensions' // TODO this is deprecated
 apply plugin: 'com.google.gms.google-services'
 apply plugin: 'com.google.firebase.crashlytics'
 apply from: 'jacoco.gradle'
@@ -505,6 +504,9 @@ android {
     testBuildType project.ext.TEST_BUILD_TYPE
     androidResources {
         ignoreAssetsPattern '!*.max.js:!*.max.css'
+    }
+    buildFeatures {
+        viewBinding true
     }
 }
 
