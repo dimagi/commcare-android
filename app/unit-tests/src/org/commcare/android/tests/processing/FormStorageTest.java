@@ -23,6 +23,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -378,8 +379,9 @@ public class FormStorageTest {
 
     @Test
     public void testRegressionXFormSerializations() {
-        FormDef def = XFormUtils.getFormFromResource("/forms/placeholder.xml");
         try {
+            InputStream is = getClass().getResourceAsStream("/forms/placeholder.xml");
+            FormDef def = XFormUtils.getFormFromInputStream(is);
             ExtUtil.deserialize(ExtUtil.serialize(def), FormDef.class,
                     TestUtils.getStaticPrototypeFactory());
         } catch (IOException | DeserializationException e) {
@@ -393,9 +395,9 @@ public class FormStorageTest {
      */
     @Test
     public void testCalloutSerializations() {
-        FormDef def =
-                XFormUtils.getFormFromResource("/forms/intent_callout_serialization_test.xml");
         try {
+            InputStream is = getClass().getResourceAsStream("/forms/intent_callout_serialization_test.xml");
+            FormDef def = XFormUtils.getFormFromInputStream(is);
             ExtUtil.deserialize(ExtUtil.serialize(def), FormDef.class, TestUtils.getStaticPrototypeFactory());
         } catch (IOException | DeserializationException e) {
             e.printStackTrace();
