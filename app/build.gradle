@@ -497,9 +497,6 @@ android {
     }
 
     // Ignore un-minified graphing files
-    aaptOptions {
-        ignoreAssetsPattern "!*.max.js:!*.max.css"
-    }
 
     testOptions {
         unitTests.all {
@@ -515,6 +512,9 @@ android {
 
     // Needed to run espresso tests on release build.
     testBuildType project.ext.TEST_BUILD_TYPE
+    androidResources {
+        ignoreAssetsPattern '!*.max.js:!*.max.css'
+    }
 }
 
 /**

@@ -5,11 +5,11 @@ import android.app.Instrumentation
 import android.content.Intent
 import android.widget.Button
 import android.widget.ImageButton
+import androidx.test.espresso.intent.Intents
 import androidx.test.espresso.intent.Intents.intending
 import androidx.test.espresso.intent.matcher.IntentMatchers.hasAction
-import androidx.test.espresso.intent.rule.IntentsTestRule
+import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import junit.framework.Assert.assertEquals
 import org.commcare.CommCareTestApplication
 import org.commcare.activities.FormEntryActivity
 import org.commcare.android.resource.installers.XFormAndroidInstaller
@@ -22,6 +22,8 @@ import org.commcare.commcaresupportlibrary.identity.model.MatchResult
 import org.commcare.commcaresupportlibrary.identity.model.MatchStrength
 import org.commcare.dalvik.R
 import org.commcare.provider.IdentityCalloutHandler
+import org.junit.After
+import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -34,14 +36,20 @@ class IdentityCalloutTests {
 
     @Rule
     @JvmField
-    var intentsRule = IntentsTestRule(FormEntryActivity::class.java)
+    var intentsRule = ActivityScenarioRule(FormEntryActivity::class.java)
 
     @Before
     fun setup() {
+        Intents.init()
         XFormAndroidInstaller.registerAndroidLevelFormParsers()
         TestAppInstaller.installAppAndLogin(
                 "jr://resource/commcare-apps/identity_callouts/profile.ccpr",
                 "test", "123")
+    }
+
+    @After
+    fun tearDown() {
+        Intents.release()
     }
 
     @Test
