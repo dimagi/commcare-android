@@ -3,23 +3,17 @@ package org.commcare.androidTests
 import android.Manifest
 import androidx.test.espresso.Espresso
 import androidx.test.espresso.IdlingRegistry
-import androidx.test.espresso.idling.concurrent.IdlingThreadPoolExecutor
 import androidx.test.espresso.intent.rule.IntentsTestRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.GrantPermissionRule
-import io.mockk.every
-import io.mockk.mockkObject
-import kotlinx.coroutines.asCoroutineDispatcher
 import org.commcare.CommCareApplication
+import org.commcare.CommCareInstrumentationTestApplication
 import org.commcare.activities.DispatchActivity
-import org.commcare.tasks.templates.CoroutinesAsyncTask
 import org.commcare.utils.InstrumentationUtility
 import org.junit.Rule
 import org.junit.runner.RunWith
-import java.util.concurrent.Executors
-import java.util.concurrent.LinkedBlockingQueue
-import java.util.concurrent.TimeUnit
 
 @RunWith(AndroidJUnit4::class)
 @LargeTest
@@ -43,21 +37,9 @@ abstract class BaseTest {
     )
 
     protected open fun installApp(appName: String, ccz: String, force: Boolean = false) {
-        val executor = IdlingThreadPoolExecutor("testDispatcher",
-                Runtime.getRuntime().availableProcessors(),
-                Runtime.getRuntime().availableProcessors(),
-                0L,
-                TimeUnit.MILLISECONDS,
-                LinkedBlockingQueue(),
-                Executors.defaultThreadFactory())
-        val dispatcher = executor.asCoroutineDispatcher()
-
-        mockkObject(CoroutinesAsyncTask)
-        every { CoroutinesAsyncTask.parallelDispatcher() } returns dispatcher
-        every { CoroutinesAsyncTask.serialDispatcher() } returns dispatcher
-
-        IdlingRegistry.getInstance().register(executor)
-        IdlingRegistry.getInstance().register(executor)
+        val application = InstrumentationRegistry.getInstrumentation().targetContext.applicationContext
+                as CommCareInstrumentationTestApplication
+        IdlingRegistry.getInstance().register(application.idlingThreadPoolExecutor)
 
         if (CommCareApplication.instance().currentApp == null) {
             InstrumentationUtility.installApp(ccz)

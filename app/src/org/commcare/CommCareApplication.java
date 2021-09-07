@@ -81,6 +81,7 @@ import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.DeleteLogs;
 import org.commcare.tasks.LogSubmissionTask;
 import org.commcare.tasks.PurgeStaleArchivedFormsTask;
+import org.commcare.tasks.templates.CoroutineAsyncTaskHelper;
 import org.commcare.tasks.templates.ManagedAsyncTask;
 import org.commcare.update.UpdateHelper;
 import org.commcare.update.UpdateWorker;
@@ -117,6 +118,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Nullable;
@@ -137,6 +140,8 @@ import androidx.work.WorkManager;
 import io.noties.markwon.Markwon;
 import io.noties.markwon.ext.strikethrough.StrikethroughPlugin;
 import io.noties.markwon.ext.tables.TablePlugin;
+import kotlinx.coroutines.CoroutineDispatcher;
+import kotlinx.coroutines.ExecutorsKt;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 
@@ -1178,5 +1183,13 @@ public class CommCareApplication extends MultiDexApplication {
 
     public AsyncRestoreHelper getAsyncRestoreHelper(DataPullTask task) {
         return new AsyncRestoreHelper(task);
+    }
+
+    public CoroutineDispatcher serialDispatcher() {
+        return CoroutineAsyncTaskHelper.INSTANCE.serialDispatcher();
+    }
+
+    public CoroutineDispatcher parallelDispatcher() {
+        return CoroutineAsyncTaskHelper.INSTANCE.parallelDispatcher();
     }
 }

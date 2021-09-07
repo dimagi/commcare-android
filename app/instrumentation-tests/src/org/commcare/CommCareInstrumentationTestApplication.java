@@ -9,7 +9,14 @@ import org.commcare.tasks.DataPullTask;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
+import androidx.test.espresso.idling.concurrent.IdlingThreadPoolExecutor;
+
+import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
+
+import kotlinx.coroutines.CoroutineDispatcher;
+import kotlinx.coroutines.ExecutorsKt;
 
 public class CommCareInstrumentationTestApplication extends CommCareApplication implements Application.ActivityLifecycleCallbacks {
 
@@ -17,6 +24,14 @@ public class CommCareInstrumentationTestApplication extends CommCareApplication 
      * We only wanna store the activity that's currently on top of the screen.
      */
     private Activity currentActivity;
+    public IdlingThreadPoolExecutor idlingThreadPoolExecutor = new IdlingThreadPoolExecutor("testDispatcher",
+            Runtime.getRuntime().availableProcessors(),
+            Runtime.getRuntime().availableProcessors(),
+            0L,
+            TimeUnit.MILLISECONDS,
+            new LinkedBlockingQueue(),
+            Executors.defaultThreadFactory());
+    private CoroutineDispatcher asyncDispatcher = ExecutorsKt.from(idlingThreadPoolExecutor);
 
     @Override
     public void onCreate() {
@@ -66,5 +81,15 @@ public class CommCareInstrumentationTestApplication extends CommCareApplication 
 
     public Activity getCurrentActivity() {
         return currentActivity;
+    }
+
+    @Override
+    public CoroutineDispatcher serialDispatcher() {
+        return asyncDispatcher;
+    }
+
+    @Override
+    public CoroutineDispatcher parallelDispatcher() {
+        return asyncDispatcher;
     }
 }

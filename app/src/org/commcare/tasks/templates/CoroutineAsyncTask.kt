@@ -4,36 +4,13 @@ import androidx.annotation.MainThread
 import androidx.annotation.WorkerThread
 import kotlinx.coroutines.*
 import kotlinx.coroutines.CancellationException
-import java.util.concurrent.*
+import org.commcare.CommCareApplication
 import java.util.concurrent.atomic.AtomicBoolean
-import java.util.concurrent.atomic.AtomicInteger
 
 /**
  * @author $|-|!˅@M
  */
 abstract class CoroutinesAsyncTask<Params, Progress, Result> {
-
-    companion object {
-        private val threadFactory = object : ThreadFactory {
-            private val mCount = AtomicInteger(1)
-            override fun newThread(r: Runnable): Thread {
-                return Thread(r, "CoroutinesAsyncTask #${mCount.getAndIncrement()}")
-            }
-        }
-        private val threadPoolExecutor = ThreadPoolExecutor(
-            1, // core pool size
-            20, // maximum pool size
-            3, // keep alive seconds
-            TimeUnit.SECONDS,
-            SynchronousQueue<Runnable>(),
-            threadFactory
-        )
-        private val serialExecutor = Executors.newSingleThreadExecutor()
-
-        fun serialDispatcher(): CoroutineDispatcher = serialExecutor.asCoroutineDispatcher()
-
-        fun parallelDispatcher(): CoroutineDispatcher = threadPoolExecutor.asCoroutineDispatcher()
-    }
 
     enum class Status {
         PENDING,
@@ -95,7 +72,7 @@ abstract class CoroutinesAsyncTask<Params, Progress, Result> {
      */
     @MainThread
     fun execute(vararg params: Params?) {
-        execute(serialDispatcher(), *params)
+        execute(CommCareApplication.instance().serialDispatcher(), *params)
     }
 
     /**
@@ -103,7 +80,7 @@ abstract class CoroutinesAsyncTask<Params, Progress, Result> {
      */
     @MainThread
     fun executeOnExecutor(vararg params: Params?) {
-        execute(parallelDispatcher(), *params)
+        execute(CommCareApplication.instance().parallelDispatcher(), *params)
     }
 
     @MainThread
