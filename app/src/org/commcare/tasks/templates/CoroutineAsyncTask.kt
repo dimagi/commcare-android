@@ -8,6 +8,7 @@ import org.commcare.CommCareApplication
 import java.util.concurrent.atomic.AtomicBoolean
 
 /**
+ * Inspired by https://github.com/ladrahul25/CoroutineAsyncTask/blob/master/app/src/main/java/com/example/background/CoroutinesAsyncTask.kt
  * @author $|-|!˅@M
  */
 abstract class CoroutinesAsyncTask<Params, Progress, Result> {
