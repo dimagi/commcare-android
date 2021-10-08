@@ -341,7 +341,7 @@ public class FormUploadUtil {
                     numAttachmentsSuccessfullyAdded += addPartToEntity(parts, f, contentType);
                 } else if (isSupportedMultimediaFile(f.getName())) {
                     numAttachmentsInInstanceFolder++;
-                    numAttachmentsSuccessfullyAdded += addPartToEntity(parts, f, "application/octet-stream");
+                    numAttachmentsSuccessfullyAdded += addPartToEntity(parts, f, FileUtil.getMimeType(f.getPath()));
                 } else {
                     Logger.log(LogTypes.TYPE_FORM_SUBMISSION,
                             "Could not add unsupported file type to submission entity: " + f.getName());
