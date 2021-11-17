@@ -33,8 +33,6 @@ import java.util.Date;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.DialogFragment;
 
-import static android.media.MediaFormat.MIMETYPE_AUDIO_AAC;
-
 /**
  * A popup dialog fragment that handles recording_fragment and saving of audio
  * files without external callout.
@@ -44,6 +42,8 @@ import static android.media.MediaFormat.MIMETYPE_AUDIO_AAC;
 public class RecordingFragment extends DialogFragment {
 
     public static final String AUDIO_FILE_PATH_ARG_KEY = "audio_file_path";
+
+    private static final String MIMETYPE_AUDIO_AAC = "audio/mp4a-latm";
 
     private String fileName;
     private static final String FILE_EXT = ".mp3";
