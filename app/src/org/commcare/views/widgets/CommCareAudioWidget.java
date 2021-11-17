@@ -14,7 +14,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import org.commcare.activities.components.FormEntryConstants;
-import org.commcare.activities.components.FormEntryInstanceState;
 import org.commcare.dalvik.R;
 import org.commcare.logic.PendingCalloutInterface;
 import org.commcare.utils.StringUtils;
@@ -22,11 +21,10 @@ import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.form.api.FormEntryPrompt;
 
-import java.util.Date;
-
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentActivity;
 
+import static org.commcare.views.widgets.RecordingFragment.APPEARANCE_ATTR_ARG_KEY;
 import static org.commcare.views.widgets.RecordingFragment.AUDIO_FILE_PATH_ARG_KEY;
 
 /**
@@ -115,11 +113,12 @@ public class CommCareAudioWidget extends AudioWidget
     protected void captureAudio(FormEntryPrompt prompt) {
         RecordingFragment recorder = new RecordingFragment();
         recorder.setListener(this);
+        Bundle args = new Bundle();
         if (!TextUtils.isEmpty(mBinaryName)) {
-            Bundle args = new Bundle();
             args.putString(AUDIO_FILE_PATH_ARG_KEY, mInstanceFolder + mBinaryName);
-            recorder.setArguments(args);
         }
+        args.putString(APPEARANCE_ATTR_ARG_KEY, prompt.getAppearanceHint());
+        recorder.setArguments(args);
         recorder.show(((FragmentActivity)getContext()).getSupportFragmentManager(), "Recorder");
     }
 
