@@ -165,9 +165,6 @@ ext {
 afterEvaluate {
     // Hack to get assets to show up in robolectric tests; try to eventually remove this
     preCommcareDebugUnitTestBuild.dependsOn mergeCommcareDebugAssets
-
-    processQabetaDebugGoogleServices.dependsOn injectGoogleServicesAPIKey
-    processQabetaReleaseGoogleServices.dependsOn injectGoogleServicesAPIKey
     processStandaloneDebugGoogleServices.dependsOn injectGoogleServicesAPIKey
     processStandaloneReleaseGoogleServices.dependsOn injectGoogleServicesAPIKey
     processLtsDebugGoogleServices.dependsOn injectGoogleServicesAPIKey
@@ -356,10 +353,6 @@ android {
             manifest.srcFile 'CommcareAndroidManifest.xml'
         }
 
-        qabeta {
-            manifest.srcFile 'CommcareAndroidManifest.xml'
-        }
-
         standalone {
             res.srcDirs = ['standalone/res']
             assets.srcDirs = ['standalone/assets']
@@ -407,35 +400,6 @@ android {
 
             // set the app name
             def applicationName = "CommCare LTS"
-            resValue "string", "application_name", applicationName
-        }
-
-        qabeta {
-            // app w/ id tied to commcare version, so you can install standalone,
-            // next to play store version
-
-            // grab commcare version from manifest
-            def manifestParser = new DefaultManifestParser(android.sourceSets.main.manifest.srcFile, new BooleanSupplier() {
-                @Override
-                boolean getAsBoolean() {
-                    return true
-                }
-            }, true, null)
-            def ccVersion = manifestParser.getVersionName()
-            // convert numbers to words to use in app id
-            def ccVersionSafe = numbersToLetters(ccVersion)
-
-            applicationId "org.commcare.${ccVersionSafe}"
-            project.ext.QA_BETA_APP_ID = applicationId
-
-            // setup content provider strings correctly to not conflict with other apps
-            def odkProviderStr = "org.commcare.${ccVersionSafe}.provider.odk"
-            manifestPlaceholders = [odkProvider: odkProviderStr]
-            buildConfigField "String", "CC_AUTHORITY", "\"${applicationId}\""
-            buildConfigField "String", "ODK_AUTHORITY", "\"${odkProviderStr}\""
-
-            // set the app name
-            def applicationName = "${ccVersion} QA CommCare"
             resValue "string", "application_name", applicationName
         }
 
