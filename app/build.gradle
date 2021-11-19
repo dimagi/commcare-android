@@ -164,9 +164,6 @@ ext {
 afterEvaluate {
     // Hack to get assets to show up in robolectric tests; try to eventually remove this
     preCommcareDebugUnitTestBuild.dependsOn mergeCommcareDebugAssets
-
-    processQabetaDebugGoogleServices.dependsOn injectGoogleServicesAPIKey
-    processQabetaReleaseGoogleServices.dependsOn injectGoogleServicesAPIKey
     processStandaloneDebugGoogleServices.dependsOn injectGoogleServicesAPIKey
     processStandaloneReleaseGoogleServices.dependsOn injectGoogleServicesAPIKey
     processLtsDebugGoogleServices.dependsOn injectGoogleServicesAPIKey
@@ -343,10 +340,6 @@ android {
             manifest.srcFile 'CommcareAndroidManifest.xml'
         }
 
-        qabeta {
-            manifest.srcFile 'CommcareAndroidManifest.xml'
-        }
-
         standalone {
             res.srcDirs = ['standalone/res']
             assets.srcDirs = ['standalone/assets']
@@ -396,32 +389,7 @@ android {
             def applicationName = "CommCare LTS"
             resValue "string", "application_name", applicationName
         }
-
-        qabeta {
-            // app w/ id tied to commcare version, so you can install standalone,
-            // next to play store version
-
-            // grab commcare version from manifest
-            // TODO Fix  No signature of method: build_aul2fcabvs6vrsl6qy1mj4j3h.android() is applicable for argument types: (build_aul2fcabvs6vrsl6qy1mj4j3h$_run_closure7) values: [build_aul2fcabvs6vrsl6qy1mj4j3h$_run_closure7@157fe3a8]
-            // for DefaultManifestParser
-            def ccVersion = "2.53"
-            // convert numbers to words to use in app id
-            def ccVersionSafe = numbersToLetters(ccVersion)
-
-            applicationId "org.commcare.${ccVersionSafe}"
-            project.ext.QA_BETA_APP_ID = applicationId
-
-            // setup content provider strings correctly to not conflict with other apps
-            def odkProviderStr = "org.commcare.${ccVersionSafe}.provider.odk"
-            manifestPlaceholders = [odkProvider: odkProviderStr]
-            buildConfigField "String", "CC_AUTHORITY", "\"${applicationId}\""
-            buildConfigField "String", "ODK_AUTHORITY", "\"${odkProviderStr}\""
-
-            // set the app name
-            def applicationName = "${ccVersion} QA CommCare"
-            resValue "string", "application_name", applicationName
-        }
-
+        
         standalone {
             // Builds commcare w/ ccz app packaged in the apk.
             // Must be invoked from command-line w/ args pointing to app domain &
