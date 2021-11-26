@@ -5,6 +5,8 @@ import android.content.DialogInterface;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.graphics.Rect;
+import android.media.MediaCodecInfo;
+import android.media.MediaCodecList;
 import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.net.Uri;
@@ -46,6 +48,8 @@ public class RecordingFragment extends DialogFragment {
     private static final CharSequence LONG_APPEARANCE_VALUE = "long";
     private static final String RECORD_AGAIN_TEXT_KEY = "recording.record.again";
     private static final String SAVE_TEXT_KEY = "save";
+
+    private static final String MIMETYPE_AUDIO_AAC = "audio/mp4a-latm";
 
     private String fileName;
     private static final String FILE_EXT = ".mp3";
@@ -191,12 +195,44 @@ public class RecordingFragment extends DialogFragment {
         recorder.setAudioSource(MediaRecorder.AudioSource.MIC);
         recorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
         recorder.setOutputFile(fileName);
-        recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
+        if (isHeAacEncoderSupported()) {
+            recorder.setAudioEncoder(MediaRecorder.AudioEncoder.HE_AAC);
+        } else {
+            recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
+        }
         try {
             recorder.prepare();
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    // Checks whether the device supports High Efficiency AAC (HE-AAC) audio codec
+    private boolean isHeAacEncoderSupported() {
+        int numCodecs = MediaCodecList.getCodecCount();
+
+        for (int i = 0; i < numCodecs; i++) {
+            MediaCodecInfo codecInfo = MediaCodecList.getCodecInfoAt(i);
+
+            if (!codecInfo.isEncoder()) {
+                continue;
+            }
+
+            for (String supportedType : codecInfo.getSupportedTypes()) {
+                if (supportedType.equalsIgnoreCase(MIMETYPE_AUDIO_AAC)) {
+                    MediaCodecInfo.CodecCapabilities cap = codecInfo.getCapabilitiesForType(MIMETYPE_AUDIO_AAC);
+                    MediaCodecInfo.CodecProfileLevel[] profileLevels = cap.profileLevels;
+                    for (MediaCodecInfo.CodecProfileLevel profileLevel : profileLevels) {
+                        int profile = profileLevel.profile;
+                        if (profile == MediaCodecInfo.CodecProfileLevel.AACObjectHE || profile == MediaCodecInfo.CodecProfileLevel.AACObjectHE_PS) {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+
+        return false;
     }
 
     @SuppressLint("NewApi")
