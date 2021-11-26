@@ -449,13 +449,10 @@ during.recording=Tap to stop recording...
 after.recording=Recording complete.
 pause.recording=Recording paused, tap to continue recording
 save=Save
-recording.pause=Pause
 recording.record.again=Record Again
 recording.prompt.with.file.chooser=Record or choose sound below...
 recording.prompt.without.file.chooser=Record sound below...
 recording.custom=Recorded Sound
-recording.dismiss=Delete Recording
-recording.dismiss.detail=Any audio recorded will get deleted. Do you want to continue ?
 
 callout.failure.dialer=Device is not currently configured to make telephone calls
 callout.failure.sms=SMS app not found

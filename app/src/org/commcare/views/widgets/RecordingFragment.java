@@ -24,7 +24,6 @@ import android.widget.TextView;
 
 import org.commcare.CommCareApplication;
 import org.commcare.dalvik.R;
-import org.commcare.views.dialogs.StandardAlertDialog;
 import org.javarosa.core.services.locale.Localization;
 
 import java.io.File;
@@ -45,15 +44,15 @@ public class RecordingFragment extends DialogFragment {
     public static final String AUDIO_FILE_PATH_ARG_KEY = "audio_file_path";
     public static final String APPEARANCE_ATTR_ARG_KEY = "appearance_attr_key";
     private static final CharSequence LONG_APPEARANCE_VALUE = "long";
+    private static final String RECORD_AGAIN_TEXT_KEY = "recording.record.again";
+    private static final String SAVE_TEXT_KEY = "save";
 
     private String fileName;
     private static final String FILE_EXT = ".mp3";
 
     private LinearLayout layout;
     private ImageButton toggleRecording;
-    private Button saveRecording;
-    private Button recordAgain;
-    private Button pauseButton;
+    private Button actionButton;
     private TextView instruction;
     private ProgressBar recordingProgress;
 
@@ -63,8 +62,8 @@ public class RecordingFragment extends DialogFragment {
     private RecordingCompletionListener listener;
     private MediaPlayer player;
     private long mLastStopTime;
-    private boolean wasAnyAudioRecorded = false;
     private boolean inPausedState = false;
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -96,14 +95,17 @@ public class RecordingFragment extends DialogFragment {
     }
 
     private void reloadSavedRecording() {
-        recordAgain.setVisibility(View.VISIBLE);
-        saveRecording.setVisibility(View.GONE);
-        pauseButton.setVisibility(View.GONE);
+        enableRecordAgain();
         recordingDuration.setVisibility(View.VISIBLE);
         toggleRecording.setBackgroundResource(R.drawable.play);
         toggleRecording.setOnClickListener(v -> playAudio());
-        saveRecording.setEnabled(true);
         instruction.setText(Localization.get("after.recording"));
+    }
+
+    private void enableRecordAgain() {
+        actionButton.setVisibility(View.VISIBLE);
+        setActionText(RECORD_AGAIN_TEXT_KEY);
+        actionButton.setOnClickListener(v -> resetRecordingView());
     }
 
     private void setWindowSize() {
@@ -124,51 +126,17 @@ public class RecordingFragment extends DialogFragment {
 
     private void prepareButtons() {
         ImageButton discardRecording = layout.findViewById(R.id.discardrecording);
+        discardRecording.setOnClickListener(v -> dismiss());
         toggleRecording = layout.findViewById(R.id.startrecording);
-        saveRecording = layout.findViewById(R.id.saverecording);
-        recordAgain = layout.findViewById(R.id.recycle);
-        pauseButton = layout.findViewById(R.id.pause);
+        actionButton = layout.findViewById(R.id.action_button);
         recordingProgress = layout.findViewById(R.id.demo_mpc);
-
-        recordAgain.setOnClickListener(v -> showDismissWarning(true));
-        pauseButton.setOnClickListener(v -> pauseRecording());
-        discardRecording.setOnClickListener(v -> showDismissWarning(false));
         toggleRecording.setOnClickListener(v -> startRecording());
-        saveRecording.setOnClickListener(v -> saveRecording());
-
-        saveRecording.setText(Localization.get("save"));
-        recordAgain.setText(Localization.get("recording.record.again"));
-        pauseButton.setText(Localization.get("recording.pause"));
     }
 
-    private void showDismissWarning(boolean resetView) {
-        // only show warning when any audio was recorded
-        if (!wasAnyAudioRecorded) {
-            resetOrDismiss(resetView);
-        } else {
-            StandardAlertDialog dialog = StandardAlertDialog.getBasicAlertDialog(
-                    getContext(),
-                    Localization.get("recording.dismiss"),
-                    Localization.get("recording.dismiss.detail"),
-                    null);
-            dialog.setPositiveButton(Localization.get("dialog.ok"), (dialog1, which) -> {
-                dialog1.dismiss();
-                resetOrDismiss(resetView);
-            });
-            dialog.setNegativeButton(Localization.get("option.cancel"), (dialog1, which) -> {
-                dialog1.dismiss();
-            });
-            dialog.showNonPersistentDialog();
-        }
+    private void setActionText(String textKey) {
+        actionButton.setText(Localization.get(textKey));
     }
 
-    private void resetOrDismiss(boolean resetView) {
-        if (resetView) {
-            resetRecordingView();
-        } else {
-            dismiss();
-        }
-    }
 
     private void resetRecordingView() {
         if (recorder != null) {
@@ -186,9 +154,8 @@ public class RecordingFragment extends DialogFragment {
         toggleRecording.setBackgroundResource(R.drawable.record_start);
         toggleRecording.setOnClickListener(v -> startRecording());
         instruction.setText(Localization.get("before.recording"));
-        saveRecording.setVisibility(View.GONE);
-        recordAgain.setVisibility(View.GONE);
         recordingDuration.setVisibility(View.INVISIBLE);
+        enableSave();
     }
 
     private void startRecording() {
@@ -201,14 +168,18 @@ public class RecordingFragment extends DialogFragment {
     }
 
     private void recordingInProgress() {
-        wasAnyAudioRecorded = true;
-        toggleRecording.setOnClickListener(v -> stopRecording());
-        toggleRecording.setBackgroundResource(R.drawable.record_in_progress);
+        recordingDuration.start();
+        if (isPauseSupported()) {
+            toggleRecording.setBackgroundResource(R.drawable.pause);
+            toggleRecording.setOnClickListener(v -> pauseRecording());
+        } else {
+            toggleRecording.setBackgroundResource(R.drawable.record_in_progress);
+            toggleRecording.setOnClickListener(v -> stopRecording());
+        }
         instruction.setText(Localization.get("during.recording"));
         recordingProgress.setVisibility(View.VISIBLE);
         recordingDuration.setVisibility(View.VISIBLE);
-        recordingDuration.start();
-        enablePause();
+        actionButton.setVisibility(View.INVISIBLE);
     }
 
 
@@ -231,7 +202,6 @@ public class RecordingFragment extends DialogFragment {
     @SuppressLint("NewApi")
     private void stopRecording() {
         recordingDuration.stop();
-        recordAgain.setVisibility(View.VISIBLE);
         recordingProgress.setVisibility(View.INVISIBLE);
 
         // resume first just in case we were paused
@@ -242,10 +212,8 @@ public class RecordingFragment extends DialogFragment {
         recorder.stop();
         toggleRecording.setBackgroundResource(R.drawable.play);
         toggleRecording.setOnClickListener(v -> playAudio());
-        saveRecording.setEnabled(true);
-        saveRecording.setVisibility(View.VISIBLE);
-        pauseButton.setVisibility(View.GONE);
         instruction.setText(Localization.get("after.recording"));
+        enableSave();
     }
 
     @SuppressLint("NewApi")
@@ -254,36 +222,25 @@ public class RecordingFragment extends DialogFragment {
         recordingDuration.stop();
         chronoPause();
         recorder.pause();
-        recordAgain.setVisibility(View.GONE);
         recordingProgress.setVisibility(View.INVISIBLE);
-        saveRecording.setVisibility(View.VISIBLE);
-        saveRecording.setEnabled(true);
-        pauseButton.setVisibility(View.GONE);
-        toggleRecording.setBackgroundResource(R.drawable.record_start);
+        enableSave();
+        toggleRecording.setBackgroundResource(R.drawable.record_add );
         toggleRecording.setOnClickListener(v -> resumeRecording());
         instruction.setText(Localization.get("pause.recording"));
+    }
+
+    private void enableSave() {
+        actionButton.setVisibility(View.VISIBLE);
+        actionButton.setText(SAVE_TEXT_KEY);
+        actionButton.setOnClickListener(v -> saveRecording());
     }
 
     @SuppressLint("NewApi")
     private void resumeRecording() {
         inPausedState = false;
         chronoResume();
-        recordingDuration.start();
-        recordAgain.setVisibility(View.GONE);
-        recordingProgress.setVisibility(View.GONE);
-        saveRecording.setVisibility(View.GONE);
-        try {
-            recorder.resume();
-            recordingInProgress();
-        } catch (IllegalStateException e) {
-            throw new RuntimeException("Recoring resumed before starting or after stopping the recording");
-        }
-    }
-
-    private void enablePause() {
-        if (isPauseSupported()) {
-            pauseButton.setVisibility(View.VISIBLE);
-        }
+        recorder.resume();
+        recordingInProgress();
     }
 
     private boolean isPauseSupported() {
@@ -298,7 +255,7 @@ public class RecordingFragment extends DialogFragment {
 
 
     private void saveRecording() {
-        if(inPausedState) {
+        if (inPausedState) {
             stopRecording();
         }
         if (listener != null) {
