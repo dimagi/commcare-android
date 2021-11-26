@@ -25,6 +25,7 @@ import org.javarosa.core.services.locale.Localization;
 import org.javarosa.form.api.FormEntryPrompt;
 
 import java.io.File;
+import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -191,11 +192,11 @@ public class CommCareAudioWidget extends AudioWidget
         int seconds = (int)(((millis % (1000 * 60 * 60)) % (1000 * 60)) / 1000);
 
         if (hours > 0) {
-            buf.append(String.format("%02d", hours)).append(":");
+            buf.append(String.format(Locale.getDefault(), "%02d", hours)).append(":");
         }
 
-        buf.append(String.format("%02d", minutes)).append(":")
-                .append(String.format("%02d", seconds));
+        buf.append(String.format(Locale.getDefault(), "%02d", minutes)).append(":")
+                .append(String.format(Locale.getDefault(), "%02d", seconds));
 
         return buf.toString();
     }
@@ -251,7 +252,7 @@ public class CommCareAudioWidget extends AudioWidget
         playbackDuration.setText("/" + getTimeString(player.getDuration()));
 
         playbackTime.setVisibility(VISIBLE);
-        playbackTime.setText("00:00");
+        playbackTime.setText(R.string.playback_start_time);
 
         playbackSeekBar.setVisibility(VISIBLE);
         playbackSeekBar.setMax(player.getDuration() / 1000);
@@ -279,7 +280,7 @@ public class CommCareAudioWidget extends AudioWidget
     private void onCompletePlayback() {
         playbackSeekBar.setProgress(100);
         stopPlaybackTimer();
-        playbackTime.setText("00:00");
+        playbackTime.setText(R.string.playback_start_time);
         mPlayButton.setBackgroundResource(R.drawable.play);
         mPlayButton.setOnClickListener(v -> playAudio());
         playbackSeekBar.setVisibility(VISIBLE);

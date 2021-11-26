@@ -440,4 +440,5 @@
     <string name="session_endpoint_invalid_arguments" cc:translatable="true">Incorrect arguments supplied for endpoint %1$s. Supplied arguments: %2$s. Expected arguments: %3$s.</string>
     <string name="selected_location" cc:translatable="true">Selected Location</string>
     <string name="confirm_location" cc:translatable="true">Confirm location</string>
+    <string name="playback_start_time">00:00</string>
 </resources>
