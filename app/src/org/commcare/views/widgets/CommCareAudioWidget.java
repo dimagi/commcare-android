@@ -6,10 +6,13 @@ import android.content.Intent;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -21,6 +24,11 @@ import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.form.api.FormEntryPrompt;
 
+import java.io.File;
+import java.util.Timer;
+import java.util.TimerTask;
+
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentActivity;
 
@@ -38,7 +46,10 @@ public class CommCareAudioWidget extends AudioWidget
 
     private LinearLayout layout;
     private ImageButton mPlayButton;
-    private TextView recordingNameText;
+    private TextView playbackDuration;
+    private TextView playbackTime;
+    private Timer playbackTimer;
+    private SeekBar playbackSeekBar;
     private MediaPlayer player;
     private boolean showFileChooser;
     private static final String ACQUIRE_UPLOAD_FIELD = "acquire-or-upload";
@@ -57,6 +68,9 @@ public class CommCareAudioWidget extends AudioWidget
         mPlayButton = layout.findViewById(R.id.play_audio);
         ImageButton captureButton = layout.findViewById(R.id.capture_button);
         ImageButton chooseButton = layout.findViewById(R.id.choose_file);
+        playbackDuration = layout.findViewById(R.id.playback_duration);
+        playbackTime = layout.findViewById(R.id.playback_time);
+        playbackSeekBar = layout.findViewById(R.id.seekBar);
 
         captureButton.setOnClickListener(v -> captureAudio(mPrompt));
 
@@ -66,7 +80,6 @@ public class CommCareAudioWidget extends AudioWidget
             i.setType("audio/*");
             try {
                 ((AppCompatActivity)getContext()).startActivityForResult(i, FormEntryConstants.AUDIO_VIDEO_FETCH);
-                recordingNameText.setTextColor(getResources().getColor(R.color.black));
                 pendingCalloutInterface.setPendingCalloutFormIndex(mPrompt.getIndex());
             } catch (ActivityNotFoundException e) {
                 Toast.makeText(getContext(),
@@ -77,8 +90,6 @@ public class CommCareAudioWidget extends AudioWidget
             }
         });
 
-
-        mPlayButton.setOnClickListener(v -> playAudio());
         showFileChooser = ACQUIRE_UPLOAD_FIELD.equals(mPrompt.getAppearanceHint());
         chooseButton.setVisibility(showFileChooser ? VISIBLE : GONE);
     }
@@ -103,9 +114,6 @@ public class CommCareAudioWidget extends AudioWidget
 
     @Override
     public void setupLayout() {
-        recordingNameText = layout.findViewById(R.id.recording_text);
-        String text = Localization.get(showFileChooser ? "recording.prompt.with.file.chooser" : "recording.prompt.without.file.chooser");
-        recordingNameText.setText(text);
         addView(layout);
     }
 
@@ -125,67 +133,161 @@ public class CommCareAudioWidget extends AudioWidget
     @Override
     public void setBinaryData(Object binaryuri) {
         super.setBinaryData(binaryuri);
-        if (recordedFileName != null) {
-            recordingNameText.setText(recordedFileName);
-        }
     }
 
     @Override
     public void onRecordingCompletion(String audioFile) {
-        setBinaryData(audioFile);
-        mPlayButton.setEnabled(true);
-        mPlayButton.setBackgroundResource(R.drawable.play);
-        recordingNameText.setTextColor(getResources().getColor(R.color.black));
-        recordingNameText.setText(Localization.get("recording.custom"));
+        if (new File(audioFile).exists()) {
+            setBinaryData(audioFile);
+            togglePlayButton(true);
+        } else {
+            clearAnswer();
+        }
     }
 
     @Override
     protected void playAudio() {
-        Uri filePath = Uri.parse(mInstanceFolder + mBinaryName);
-        player = MediaPlayer.create(getContext(), filePath);
-        player.setOnCompletionListener(mp -> resetAudioPlayer());
-        player.start();
         mPlayButton.setBackgroundResource(R.drawable.pause);
         mPlayButton.setOnClickListener(v -> pauseAudioPlayer());
+        startPlaybackTimer();
+        player.start();
+    }
+
+    private void startPlaybackTimer() {
+        playbackTimer = new Timer();
+        playbackTimer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                ((AppCompatActivity)getContext()).runOnUiThread(() -> {
+                    if (playbackTimer != null) {
+                        updatePlaybackInfo();
+                    }
+                });
+            }
+        }, 1 * 1000, 1 * 1000);
+    }
+
+    private void stopPlaybackTimer() {
+        if (playbackTimer != null) {
+            playbackTimer.cancel();
+            playbackTimer = null;
+        }
+    }
+
+    private void updatePlaybackInfo() {
+        if (player.isPlaying()) {
+            int mCurrentPosition = player.getCurrentPosition();
+            playbackSeekBar.setProgress(mCurrentPosition / 1000);
+            playbackTime.setText(getTimeString(mCurrentPosition));
+        }
+    }
+
+
+    private String getTimeString(long millis) {
+        StringBuffer buf = new StringBuffer();
+
+        int hours = (int)(millis / (1000 * 60 * 60));
+        int minutes = (int)((millis % (1000 * 60 * 60)) / (1000 * 60));
+        int seconds = (int)(((millis % (1000 * 60 * 60)) % (1000 * 60)) / 1000);
+
+        if (hours > 0) {
+            buf.append(String.format("%02d", hours)).append(":");
+        }
+
+        buf.append(String.format("%02d", minutes)).append(":")
+                .append(String.format("%02d", seconds));
+
+        return buf.toString();
     }
 
     private void pauseAudioPlayer() {
         player.pause();
         mPlayButton.setBackgroundResource(R.drawable.play);
         mPlayButton.setOnClickListener(v -> resumeAudioPlayer());
+        stopPlaybackTimer();
     }
 
     private void resumeAudioPlayer() {
         player.start();
         mPlayButton.setBackgroundResource(R.drawable.pause);
         mPlayButton.setOnClickListener(v -> pauseAudioPlayer());
+        startPlaybackTimer();
     }
 
     private void resetAudioPlayer() {
-        player.release();
-        mPlayButton.setBackgroundResource(R.drawable.play);
-        mPlayButton.setOnClickListener(v -> playAudio());
+        if (player != null) {
+            player.release();
+        }
+        stopPlaybackTimer();
     }
 
     @Override
     protected void togglePlayButton(boolean enabled) {
         if (enabled) {
-            mPlayButton.setBackgroundResource(R.drawable.play);
+            initAudioPlayer();
         } else {
-            mPlayButton.setBackgroundResource(R.drawable.play_disabled);
+            resetAudioPlayer();
+            hidePlaybackIndicators();
         }
-        mPlayButton.setEnabled(enabled);
+    }
+
+    private void hidePlaybackIndicators() {
+        mPlayButton.setVisibility(INVISIBLE);
+        playbackSeekBar.setVisibility(INVISIBLE);
+        playbackDuration.setVisibility(INVISIBLE);
+        playbackTime.setVisibility(INVISIBLE);
+    }
+
+    private void initAudioPlayer() {
+        mPlayButton.setVisibility(VISIBLE);
+        mPlayButton.setBackgroundResource(R.drawable.play);
+        mPlayButton.setOnClickListener(v -> playAudio());
+
+        Uri filePath = Uri.parse(mInstanceFolder + mBinaryName);
+        player = MediaPlayer.create(getContext(), filePath);
+        player.setOnCompletionListener(mp -> onCompletePlayback());
+
+        playbackDuration.setVisibility(VISIBLE);
+        playbackDuration.setText("/" + getTimeString(player.getDuration()));
+
+        playbackTime.setVisibility(VISIBLE);
+        playbackTime.setText("00:00");
+
+        playbackSeekBar.setVisibility(VISIBLE);
+        playbackSeekBar.setMax(player.getDuration() / 1000);
+        playbackSeekBar.setProgress(0);
+        playbackSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+            }
+
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                if (player != null && fromUser) {
+                    player.seekTo(progress * 1000);
+                    playbackTime.setText(getTimeString(player.getCurrentPosition()));
+                }
+            }
+        });
+    }
+
+    private void onCompletePlayback() {
+        playbackSeekBar.setProgress(100);
+        stopPlaybackTimer();
+        playbackTime.setText("00:00");
+        mPlayButton.setBackgroundResource(R.drawable.play);
+        mPlayButton.setOnClickListener(v -> playAudio());
+        playbackSeekBar.setVisibility(VISIBLE);
     }
 
     @Override
-    protected void reloadFile() {
-        super.reloadFile();
-        recordingNameText.setTextColor(getResources().getColor(R.color.black));
-        if (mBinaryName.contains(CUSTOM_TAG)) {
-            recordingNameText.setText(Localization.get("recording.custom"));
-        } else {
-            recordingNameText.setText(mBinaryName);
-        }
+    protected void onRestoreInstanceState(Parcelable state) {
+        super.onRestoreInstanceState(state);
     }
 
     @Override
