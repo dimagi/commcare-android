@@ -46,8 +46,9 @@ public class RecordingFragment extends DialogFragment {
     public static final String AUDIO_FILE_PATH_ARG_KEY = "audio_file_path";
     public static final String APPEARANCE_ATTR_ARG_KEY = "appearance_attr_key";
     private static final CharSequence LONG_APPEARANCE_VALUE = "long";
-    private static final String RECORD_AGAIN_TEXT_KEY = "recording.record.again";
     private static final String SAVE_TEXT_KEY = "save";
+    private static final String CANCEL_TEXT_KEY = "recording.cancel";
+    private static final String CLEAR_TEXT_KEY = "recording.clear";
 
     private static final String MIMETYPE_AUDIO_AAC = "audio/mp4a-latm";
 
@@ -56,6 +57,7 @@ public class RecordingFragment extends DialogFragment {
 
     private LinearLayout layout;
     private ImageButton toggleRecording;
+    private ImageButton discardRecording;
     private Button actionButton;
     private TextView instruction;
     private ProgressBar recordingProgress;
@@ -67,6 +69,7 @@ public class RecordingFragment extends DialogFragment {
     private MediaPlayer player;
     private long mLastStopTime;
     private boolean inPausedState = false;
+    private boolean savedRecordingExists = false;
 
 
     @Override
@@ -99,17 +102,14 @@ public class RecordingFragment extends DialogFragment {
     }
 
     private void reloadSavedRecording() {
-        enableRecordAgain();
-        recordingDuration.setVisibility(View.VISIBLE);
-        toggleRecording.setBackgroundResource(R.drawable.play);
-        toggleRecording.setOnClickListener(v -> playAudio());
-        instruction.setText(Localization.get("after.recording"));
-    }
-
-    private void enableRecordAgain() {
+        savedRecordingExists = true;
         actionButton.setVisibility(View.VISIBLE);
-        setActionText(RECORD_AGAIN_TEXT_KEY);
-        actionButton.setOnClickListener(v -> resetRecordingView());
+        setActionText(CANCEL_TEXT_KEY);
+        actionButton.setOnClickListener(v -> dismiss());
+        recordingDuration.setVisibility(View.INVISIBLE);
+        toggleRecording.setBackgroundResource(R.drawable.recording_trash);
+        toggleRecording.setOnClickListener(v -> resetRecordingView());
+        instruction.setText(Localization.get("after.recording"));
     }
 
     private void setWindowSize() {
@@ -129,7 +129,7 @@ public class RecordingFragment extends DialogFragment {
     }
 
     private void prepareButtons() {
-        ImageButton discardRecording = layout.findViewById(R.id.discardrecording);
+        discardRecording = layout.findViewById(R.id.discardrecording);
         discardRecording.setOnClickListener(v -> dismiss());
         toggleRecording = layout.findViewById(R.id.startrecording);
         actionButton = layout.findViewById(R.id.action_button);
@@ -160,6 +160,7 @@ public class RecordingFragment extends DialogFragment {
         instruction.setText(Localization.get("before.recording"));
         recordingDuration.setVisibility(View.INVISIBLE);
         enableSave();
+        setActionText(CLEAR_TEXT_KEY);
     }
 
     private void startRecording() {
@@ -184,6 +185,7 @@ public class RecordingFragment extends DialogFragment {
         recordingProgress.setVisibility(View.VISIBLE);
         recordingDuration.setVisibility(View.VISIBLE);
         actionButton.setVisibility(View.INVISIBLE);
+        discardRecording.setVisibility(View.INVISIBLE);
     }
 
 
@@ -260,14 +262,15 @@ public class RecordingFragment extends DialogFragment {
         recorder.pause();
         recordingProgress.setVisibility(View.INVISIBLE);
         enableSave();
-        toggleRecording.setBackgroundResource(R.drawable.record_add );
+        toggleRecording.setBackgroundResource(R.drawable.record_add);
         toggleRecording.setOnClickListener(v -> resumeRecording());
         instruction.setText(Localization.get("pause.recording"));
     }
 
     private void enableSave() {
+        discardRecording.setVisibility(savedRecordingExists ? View.VISIBLE : View.INVISIBLE);
         actionButton.setVisibility(View.VISIBLE);
-        actionButton.setText(SAVE_TEXT_KEY);
+        setActionText(SAVE_TEXT_KEY);
         actionButton.setOnClickListener(v -> saveRecording());
     }
 

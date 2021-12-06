@@ -21,7 +21,6 @@ import org.commcare.dalvik.R;
 import org.commcare.logic.PendingCalloutInterface;
 import org.commcare.utils.StringUtils;
 import org.javarosa.core.model.data.IAnswerData;
-import org.javarosa.core.services.locale.Localization;
 import org.javarosa.form.api.FormEntryPrompt;
 
 import java.io.File;
@@ -29,7 +28,6 @@ import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentActivity;
 
@@ -54,6 +52,7 @@ public class CommCareAudioWidget extends AudioWidget
     private MediaPlayer player;
     private boolean showFileChooser;
     private static final String ACQUIRE_UPLOAD_FIELD = "acquire-or-upload";
+    private ImageButton captureButton;
 
     public CommCareAudioWidget(Context context, FormEntryPrompt prompt,
                                PendingCalloutInterface pic) {
@@ -67,7 +66,7 @@ public class CommCareAudioWidget extends AudioWidget
         layout = (LinearLayout)vi.inflate(R.layout.audio_prototype, null);
 
         mPlayButton = layout.findViewById(R.id.play_audio);
-        ImageButton captureButton = layout.findViewById(R.id.capture_button);
+        captureButton = layout.findViewById(R.id.capture_button);
         ImageButton chooseButton = layout.findViewById(R.id.choose_file);
         playbackDuration = layout.findViewById(R.id.playback_duration);
         playbackTime = layout.findViewById(R.id.playback_time);
@@ -226,9 +225,11 @@ public class CommCareAudioWidget extends AudioWidget
     protected void togglePlayButton(boolean enabled) {
         if (enabled) {
             initAudioPlayer();
+            captureButton.setBackgroundResource(R.drawable.recording_trash);
         } else {
             resetAudioPlayer();
             hidePlaybackIndicators();
+            captureButton.setBackgroundResource(R.drawable.record);
         }
     }
 
