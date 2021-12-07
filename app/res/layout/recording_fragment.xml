@@ -22,9 +22,9 @@
             android:layout_height="wrap_content"
             android:layout_alignParentStart="true"
             android:layout_alignParentLeft="true"
-            android:layout_marginBottom="10dp"
+            android:layout_margin="10dp"
             android:textColor="@color/grey"
-            android:textSize="@dimen/text_large" />
+            android:textSize="@dimen/text_medium" />
 
         <ImageButton
             android:id="@+id/discardrecording"
@@ -35,12 +35,6 @@
             android:background="@drawable/icon_close_darkwarm" />
 
     </RelativeLayout>
-
-    <TextView
-        android:id="@+id/recording_instruction"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="start" />
 
     <FrameLayout
         android:id="@+id/recording_layout"
@@ -75,6 +69,7 @@
 
     <Button
         android:id="@+id/action_button"
+        style="@style/Commcare.Button.Primary"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:padding="4dp"
@@ -84,9 +79,7 @@
         android:layout_marginRight="15dp"
         android:layout_marginBottom="15dp"
         android:layout_marginTop="15dp"
-        android:background="@color/cc_brand_color"
         android:gravity="center"
-        android:textColor="@color/white"
         tools:text="Finish"
         android:visibility="invisible" />
 

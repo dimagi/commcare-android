@@ -109,7 +109,7 @@ public class RecordingFragment extends DialogFragment {
         recordingDuration.setVisibility(View.INVISIBLE);
         toggleRecording.setBackgroundResource(R.drawable.recording_trash);
         toggleRecording.setOnClickListener(v -> resetRecordingView());
-        instruction.setText(Localization.get("after.recording"));
+        instruction.setText(Localization.get("delete.recording"));
     }
 
     private void setWindowSize() {
@@ -121,9 +121,7 @@ public class RecordingFragment extends DialogFragment {
     }
 
     private void prepareText() {
-        TextView header = layout.findViewById(R.id.recording_header);
-        header.setText(Localization.get("recording.header"));
-        instruction = layout.findViewById(R.id.recording_instruction);
+        instruction = layout.findViewById(R.id.recording_header);
         instruction.setText(Localization.get("before.recording"));
         recordingDuration = layout.findViewById(R.id.recording_time);
     }
@@ -157,7 +155,7 @@ public class RecordingFragment extends DialogFragment {
 
         toggleRecording.setBackgroundResource(R.drawable.record_start);
         toggleRecording.setOnClickListener(v -> startRecording());
-        instruction.setText(Localization.get("before.recording"));
+        instruction.setText(Localization.get("before.overwrite.recording"));
         recordingDuration.setVisibility(View.INVISIBLE);
         enableSave();
         setActionText(CLEAR_TEXT_KEY);

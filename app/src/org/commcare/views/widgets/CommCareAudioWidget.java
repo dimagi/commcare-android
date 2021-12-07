@@ -250,7 +250,8 @@ public class CommCareAudioWidget extends AudioWidget
         player.setOnCompletionListener(mp -> onCompletePlayback());
 
         playbackDuration.setVisibility(VISIBLE);
-        playbackDuration.setText("/" + getTimeString(player.getDuration()));
+        playbackDuration.setText(String.format(Locale.getDefault(),
+                "/%s",getTimeString(player.getDuration())));
 
         playbackTime.setVisibility(VISIBLE);
         playbackTime.setText(R.string.playback_start_time);
