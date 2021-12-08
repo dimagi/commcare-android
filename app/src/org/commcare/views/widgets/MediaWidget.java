@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.util.Log;
+import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.LinearLayout;
@@ -30,6 +31,8 @@ import org.javarosa.form.api.FormEntryPrompt;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+
+import androidx.annotation.NonNull;
 
 /**
  * Generic logic for capturing or choosing audio/video/image media
@@ -68,8 +71,15 @@ public abstract class MediaWidget extends QuestionWidget {
         setOrientation(LinearLayout.VERTICAL);
         initializeButtons();
         setupLayout();
+    }
 
-        loadAnswerFromDataModel();
+
+    @Override
+    protected void onVisibilityChanged(@NonNull View changedView, int visibility) {
+        super.onVisibilityChanged(changedView, visibility);
+        if (visibility == View.VISIBLE) {
+            loadAnswerFromDataModel();
+        }
     }
 
     private void loadAnswerFromDataModel() {
@@ -136,7 +146,6 @@ public abstract class MediaWidget extends QuestionWidget {
     @Override
     public void clearAnswer() {
         deleteMedia();
-
         togglePlayButton(false);
     }
 
@@ -261,7 +270,6 @@ public abstract class MediaWidget extends QuestionWidget {
             destMediaPath = mInstanceFolder + System.currentTimeMillis() + "." + FileUtil.getExtension(recordedFileName);
             FileUtil.copyFile(inputStream, new File(destMediaPath));
             path = destMediaPath;
-
             customFileTag = "";
         } else {
             path = (String)binaryuri;
