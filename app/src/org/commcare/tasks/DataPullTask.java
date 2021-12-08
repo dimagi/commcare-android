@@ -1,5 +1,6 @@
 package org.commcare.tasks;
 
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import androidx.core.util.Pair;
@@ -21,6 +22,7 @@ import org.commcare.data.xml.DataModelPullParser;
 import org.commcare.engine.cases.CaseUtils;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.interfaces.CommcareRequestEndpoints;
+import org.commcare.models.FormRecordProcessor;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.models.database.user.models.AndroidCaseIndexTable;
 import org.commcare.models.database.user.models.EntityStorageCache;
@@ -33,6 +35,7 @@ import org.commcare.preferences.HiddenPreferences;
 import org.commcare.preferences.ServerUrls;
 import org.commcare.resources.model.CommCareOTARestoreListener;
 import org.commcare.services.CommCareSessionService;
+import org.commcare.sync.ExternalDataUpdateHelper;
 import org.commcare.tasks.templates.CommCareTask;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.FormSaveUtil;
@@ -444,8 +447,7 @@ public abstract class DataPullTask<R>
     private void onSuccessfulSync() {
         recordSuccessfulSyncTime(username);
 
-        Intent i = new Intent("org.commcare.dalvik.api.action.data.update");
-        this.context.sendBroadcast(i);
+        ExternalDataUpdateHelper.broadcastDataUpdate(context, null);
 
         if (loginNeeded) {
             CommCareApplication.instance().getAppStorage(UserKeyRecord.class).write(ukrForLogin);
