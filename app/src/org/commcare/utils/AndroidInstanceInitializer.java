@@ -4,14 +4,15 @@ import org.commcare.AppUtils;
 import org.commcare.CommCareApplication;
 import org.commcare.activities.DriftHelper;
 import org.commcare.android.database.user.models.ACase;
+import org.commcare.cases.instance.CaseInstanceTreeElement;
 import org.commcare.cases.ledger.Ledger;
 import org.commcare.core.interfaces.UserSandbox;
 import org.commcare.core.process.CommCareInstanceInitializer;
-import org.commcare.engine.cases.AndroidCaseInstanceTreeElement;
 import org.commcare.engine.cases.AndroidIndexedFixtureInstanceTreeElement;
 import org.commcare.engine.cases.AndroidLedgerInstanceTreeElement;
 import org.commcare.models.database.AndroidSandbox;
 import org.commcare.models.database.SqlStorage;
+import org.commcare.models.database.user.models.AndroidCaseIndexTable;
 import org.commcare.session.CommCareSession;
 import org.commcare.util.CommCarePlatform;
 import org.javarosa.core.model.instance.AbstractTreeElement;
@@ -54,12 +55,12 @@ public class AndroidInstanceInitializer extends CommCareInstanceInitializer {
     protected AbstractTreeElement setupCaseData(ExternalDataInstance instance) {
         if (casebase == null) {
             SqlStorage<ACase> storage = (SqlStorage<ACase>)mSandbox.getCaseStorage();
-            casebase = new AndroidCaseInstanceTreeElement(instance.getBase(), storage);
+            casebase = new CaseInstanceTreeElement(instance.getBase(), storage, new AndroidCaseIndexTable());
         } else {
             //re-use the existing model if it exists.
             casebase.rebase(instance.getBase());
         }
-        instance.setCacheHost((AndroidCaseInstanceTreeElement)casebase);
+        instance.setCacheHost(casebase);
         return casebase;
     }
 

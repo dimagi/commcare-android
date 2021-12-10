@@ -8,11 +8,11 @@ import org.commcare.CommCareTestApplication;
 import org.commcare.activities.FormEntryActivity;
 import org.commcare.android.database.app.models.FormDefRecord;
 import org.commcare.android.database.user.models.ACase;
+import org.commcare.cases.instance.CaseInstanceTreeElement;
 import org.commcare.cases.ledger.Ledger;
 import org.commcare.core.interfaces.UserSandbox;
 import org.commcare.data.xml.DataModelPullParser;
 import org.commcare.data.xml.TransactionParserFactory;
-import org.commcare.engine.cases.AndroidCaseInstanceTreeElement;
 import org.commcare.engine.cases.AndroidLedgerInstanceTreeElement;
 import org.commcare.models.AndroidClassHasher;
 import org.commcare.models.database.AndroidPrototypeFactorySetup;
@@ -293,7 +293,7 @@ public class TestUtils {
             @Override
             public AbstractTreeElement setupCaseData(ExternalDataInstance instance) {
                 SqlStorage<ACase> storage = getCaseStorage(db);
-                AndroidCaseInstanceTreeElement casebase = new AndroidCaseInstanceTreeElement(instance.getBase(), storage, new AndroidCaseIndexTable(db));
+                CaseInstanceTreeElement casebase = new CaseInstanceTreeElement(instance.getBase(), storage, new AndroidCaseIndexTable(db));
                 instance.setCacheHost(casebase);
                 return casebase;
             }
