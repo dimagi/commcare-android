@@ -278,7 +278,7 @@ public class QueryRequestActivityTest {
         // set views
         LinearLayout promptsLayout = queryRequestActivity.findViewById(R.id.query_prompts);
 
-        assertEquals(promptsLayout.getChildCount(), 4);
+        assertEquals(5, promptsLayout.getChildCount());
 
         EditText patientName = promptsLayout.getChildAt(0).findViewById(R.id.prompt_et);
         patientName.setText("francisco");

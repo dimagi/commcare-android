@@ -32,7 +32,7 @@ class ClearButtonTest: BaseTest() {
     @Before
     fun setup() {
         installApp(APP_NAME, CCZ_NAME)
-        InstrumentationUtility.login("user_with_no_data", "123")
+        InstrumentationUtility.login("test_user_1", "123")
     }
 
     @Test

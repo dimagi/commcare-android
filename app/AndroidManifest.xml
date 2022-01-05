@@ -3,7 +3,7 @@
           xmlns:android="http://schemas.android.com/apk/res/android"
           xmlns:tools="http://schemas.android.com/tools"
           android:versionCode="106"
-          android:versionName="2.52">
+          android:versionName="2.53">
 
     <uses-permission android:name="android.permission.NFC"/>
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
@@ -47,7 +47,8 @@
         android:required="false"/>
 
     <uses-sdk tools:overrideLibrary="com.dimagi.android.zebraprinttool, com.simprints.libsimprints,
-    ru.noties.markwon.il, ru.noties.markwon.view, ru.noties.markwon.renderer, com.google.firebase.crashlytics, com.google.firebase.iid"/>
+    ru.noties.markwon.il, ru.noties.markwon.view, ru.noties.markwon.renderer,
+    com.google.firebase.crashlytics, com.google.firebase.iid"/>
 
     <permission-group
         android:name="commcare.permission-group.DATABASE"
@@ -55,11 +56,25 @@
         android:label="@string/permission_content_provider_label"
         />
 
+    <permission-group
+        android:name="commcare.permission-group.EXTERNAL_ACTION"
+        android:description="@string/permission_external_action_description"
+        android:label="@string/permission_external_action_label"
+        />
+
     <permission
         android:description="@string/permission_content_provider_description"
         android:label="@string/permission_content_provider_label"
         android:name="${applicationId}.provider.cases.read"
         android:permissionGroup="commcare.permission-group.DATABASE"
+        android:protectionLevel="dangerous">
+    </permission>
+
+    <permission
+        android:name="${applicationId}.permission.COMMCARE_LOGOUT"
+        android:description="@string/permission_commcare_logout_description"
+        android:label="@string/permission_commcare_logout_label"
+        android:permissionGroup="commcare.permission-group.EXTERNAL_ACTION"
         android:protectionLevel="dangerous">
     </permission>
 
@@ -305,6 +320,8 @@
         </activity>
         <activity android:name="org.commcare.activities.InstallFromListActivity">
         </activity>
+        <activity android:name="org.commcare.gis.MapboxLocationPickerActivity"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"/>
 
         <uses-library
             android:name="com.google.android.maps"
@@ -356,10 +373,18 @@
         <receiver android:name="org.commcare.provider.ExternalApiReceiver">
             <intent-filter>
                 <action android:name="org.commcare.dalvik.api.action.ExternalAction"/>
-
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </receiver>
+
+        <receiver android:name="org.commcare.provider.CommCareLogoutReceiver"
+            android:permission="org.commcare.dalvik.permission.COMMCARE_LOGOUT">
+            <intent-filter>
+                <action android:name="org.commcare.dalvik.api.action.CommCareLogoutAction"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </receiver>
+
         <receiver android:name="org.commcare.provider.RefreshToLatestBuildReceiver">
             <intent-filter>
                 <action android:name="org.commcare.dalvik.api.action.RefreshToLatestBuildAction"/>

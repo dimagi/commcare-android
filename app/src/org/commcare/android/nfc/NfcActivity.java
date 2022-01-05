@@ -1,6 +1,6 @@
 package org.commcare.android.nfc;
 
-import androidx.appcompat.app.AppCompatActivity;
+import android.annotation.SuppressLint;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -13,7 +13,13 @@ import android.widget.Toast;
 
 import org.commcare.android.logging.ReportingUtils;
 import org.commcare.dalvik.R;
+import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
+
+import javax.annotation.Nullable;
+
+import androidx.annotation.CallSuper;
+import androidx.appcompat.app.AppCompatActivity;
 
 /**
  * Parent activity that provides all of the functionality common to any NFC action that CommCare
@@ -25,7 +31,10 @@ public abstract class NfcActivity extends AppCompatActivity {
 
     protected static final String NFC_PAYLOAD_MULT_TYPES_ARG = "types";
     protected static final String NFC_PAYLOAD_SINGLE_TYPE_ARG = "type";
+    protected static final String NFC_ENCRYPTION_KEY_ARG = "encryption_key";
+    protected static final String NFC_ENTITY_ID_ARG = "entity_id";
     protected static final String NFC_DOMAIN_ARG = "domain";
+    protected static final String NFC_ALLOW_UNTAGGED_READ_ARG = "allow_untagged_read";
 
     protected NfcManager nfcManager;
     protected PendingIntent pendingNfcIntent;
@@ -43,8 +52,14 @@ public abstract class NfcActivity extends AppCompatActivity {
         }
     }
 
+    @CallSuper
     protected void initFields() {
-        this.nfcManager = new NfcManager(this);
+        boolean allowUntaggedRead = getIntent().hasExtra(NFC_ALLOW_UNTAGGED_READ_ARG) &&
+                getIntent().getStringExtra(NFC_ALLOW_UNTAGGED_READ_ARG).contentEquals("true");
+        this.nfcManager = new NfcManager(this,
+                getIntent().getStringExtra(NFC_ENCRYPTION_KEY_ARG),
+                getIntent().getStringExtra(NFC_ENTITY_ID_ARG),
+                allowUntaggedRead);
 
         this.domainForType = getIntent().getStringExtra(NFC_DOMAIN_ARG);
         if (this.domainForType == null) {
@@ -53,6 +68,7 @@ public abstract class NfcActivity extends AppCompatActivity {
             this.domainForType = ReportingUtils.getDomain();
         }
     }
+
     /**
      * Create an intent for restarting this activity, which will be passed to enableForegroundDispatch(),
      * thus instructing Android to start the intent when the device detects a new NFC tag. Adding
@@ -81,9 +97,9 @@ public abstract class NfcActivity extends AppCompatActivity {
             }
             setReadyToHandleTag();
         } catch (NfcManager.NfcNotEnabledException e) {
-            finishWithErrorToast("nfc.not.enabled");
+            finishWithErrorToast("nfc.not.enabled", e);
         } catch (NfcManager.NfcNotSupportedException e) {
-            finishWithErrorToast("nfc.not.supported");
+            finishWithErrorToast("nfc.not.supported", e);
         }
     }
 
@@ -118,8 +134,8 @@ public abstract class NfcActivity extends AppCompatActivity {
     /**
      * Once setReadyToHandleTag() has been called in this activity, Android will pass any
      * discovered tags to this activity through this method
-     * @param intent
      */
+    @SuppressLint("MissingSuperCall")
     @Override
     protected void onNewIntent(Intent intent) {
         Tag tag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
@@ -129,6 +145,13 @@ public abstract class NfcActivity extends AppCompatActivity {
     protected abstract void dispatchActionOnTag(Tag tag);
 
     protected void finishWithErrorToast(String errorMessageKey) {
+        finishWithErrorToast(errorMessageKey, null);
+    }
+
+    protected void finishWithErrorToast(String errorMessageKey, @Nullable Exception e) {
+        if (e != null) {
+            Logger.exception("Error encountered while NFC processing", e);
+        }
         finishWithToast(errorMessageKey, false);
     }
 

@@ -201,12 +201,17 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
     private void processFromExternalLaunch(Bundle savedInstanceState) {
         if (savedInstanceState == null && getIntent().hasExtra(DispatchActivity.WAS_EXTERNAL)) {
             wasExternal = true;
-            processSessionEndpoint();
-            sessionNavigator.startNextSessionStep();
+            if (processSessionEndpoint()) {
+                sessionNavigator.startNextSessionStep();
+            }
         }
     }
 
-    private void processSessionEndpoint() {
+    /**
+     * @return If we are launched with a session endpoint, returns whether the endpoint was successfully processed without errors.
+     * If this was not an external launch using session endpoint, returns true
+     */
+    private boolean processSessionEndpoint() {
         if (getIntent().hasExtra(SESSION_ENDPOINT_ID)) {
             Endpoint endpoint = validateIntentForSessionEndpoint(getIntent());
             if (endpoint != null) {
@@ -220,17 +225,12 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                     if (intentArgumentsAsBundle != null) {
                         CommCareApplication.instance().getCurrentSessionWrapper()
                                 .executeEndpointStack(endpoint, AndroidUtil.bundleAsMap(intentArgumentsAsBundle));
-                    } else {
+                    } else if (intentArgumentsAsList != null) {
                         CommCareApplication.instance().getCurrentSessionWrapper()
                                 .executeEndpointStack(endpoint, intentArgumentsAsList);
                     }
+                    return true;
                 } catch (Endpoint.InvalidEndpointArgumentsException e) {
-                    String noArgumentWithNameError = org.commcare.utils.StringUtils.getStringRobust(
-                            this,
-                            R.string.session_endpoint_no_argument_with_name,
-                            new String[]{e.getArgumentName(), endpoint.getId()});
-                    UserfacingErrorHandling.createErrorDialog(this, noArgumentWithNameError, true);
-                } catch (Endpoint.InvalidNumberOfEndpointArgumentsException e) {
                     String invalidEndpointArgsError = org.commcare.utils.StringUtils.getStringRobust(
                             this,
                             R.string.session_endpoint_invalid_arguments,
@@ -243,7 +243,9 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                     UserfacingErrorHandling.createErrorDialog(this, invalidEndpointArgsError, true);
                 }
             }
+            return false;
         }
+        return true;
     }
 
     private Endpoint validateIntentForSessionEndpoint(Intent intent) {
@@ -255,7 +257,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                     this,
                     R.string.session_endpoint_unavailable,
                     new String[]{
-                            endpoint.getId(),
+                            sessionEndpointId,
                             StringUtils.join(allEndpoints.keySet(), ",")});
             UserfacingErrorHandling.createErrorDialog(this, invalidEndpointError, true);
             return null;
@@ -834,6 +836,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                 refreshUI();
 
                 if (wasExternal) {
+                    currentState.reset();
                     setResult(RESULT_CANCELED);
                     this.finish();
                     return false;

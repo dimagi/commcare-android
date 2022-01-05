@@ -734,7 +734,6 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
     @Override
     public boolean dispatchTouchEvent(MotionEvent mv) {
         return !(mGestureDetector == null || !mGestureDetector.onTouchEvent(mv)) || super.dispatchTouchEvent(mv);
-
     }
 
     @Override
@@ -744,6 +743,9 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
 
     @Override
     public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+        if (e1 == null || e2 == null) {
+            return false;
+        }
         if (isHorizontalSwipe(this, e1, e2) && !isMainScreenBlocked) {
             if (LocalePreferences.isLocaleRTL()) {
                 if (velocityX <= 0) {

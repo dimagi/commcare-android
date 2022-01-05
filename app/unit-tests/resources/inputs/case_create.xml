@@ -8,6 +8,8 @@
         </create>
         <update>
             <test_value>initial</test_value>
+            <state>state1</state>
+            <category>category1</category>
         </update>
     </case>
 
@@ -20,6 +22,8 @@
         </create>
         <update>
             <test_value>initial 2</test_value>
+            <state>state2</state>
+            <category>category2</category>
         </update>
     </case>
 </OpenRosaResponse>

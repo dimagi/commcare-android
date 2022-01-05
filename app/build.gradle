@@ -25,7 +25,6 @@ repositories {
         dirs 'libs'
     }
     maven { url "https://jitpack.io" }
-    maven { url "http://dl.bintray.com/ona/kujaku" }
 }
 
 configurations {
@@ -34,6 +33,9 @@ configurations {
 }
 
 dependencies {
+    // debugImplementation because LeakCanary should only run in debug builds.
+    debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.7'
+
     testImplementation 'junit:junit:4.12'
     testImplementation('org.robolectric:robolectric:4.5.1') {
         exclude(group: 'org.bouncycastle', module: 'bcprov-jdk15on')
@@ -80,7 +82,7 @@ dependencies {
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'androidx.legacy:legacy-preference-v14:1.0.0'
     implementation 'androidx.gridlayout:gridlayout:1.0.0'
-    implementation 'org.bouncycastle:bcprov-jdk15to18:1.68'
+    implementation 'org.bouncycastle:bcprov-jdk15to18:1.69'
     implementation 'com.google.android.gms:play-services-maps:17.0.0'
     implementation 'joda-time:joda-time:2.9.4'
     implementation 'net.zetetic:android-database-sqlcipher:3.5.9@aar'
@@ -109,13 +111,14 @@ dependencies {
     }
 
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
 
     // Markdown
-    implementation 'io.noties.markwon:core:4.4.0'
-    implementation 'io.noties.markwon:ext-tables:4.4.0'
-    implementation 'io.noties.markwon:ext-strikethrough:4.4.0'
+    implementation "io.noties.markwon:core:$markwon_version"
+    implementation "io.noties.markwon:ext-tables:$markwon_version"
+    implementation "io.noties.markwon:ext-strikethrough:$markwon_version"
 
-    implementation ('io.ona.kujaku:library:0.8.7'){
+    implementation ('io.ona.kujaku:library:0.9.0'){
         exclude module: 'xpp3'
     }
     implementation "androidx.work:work-runtime:2.4.0"
@@ -129,6 +132,8 @@ dependencies {
     implementation('com.squareup.okhttp3:okhttp-tls:3.12.12') {
         exclude(group: 'org.bouncycastle', module: 'bcprov-jdk15on')
     }
+
+    implementation 'com.google.android.material:material:1.3.0'
 }
 
 ext {
@@ -160,9 +165,6 @@ ext {
 afterEvaluate {
     // Hack to get assets to show up in robolectric tests; try to eventually remove this
     preCommcareDebugUnitTestBuild.dependsOn mergeCommcareDebugAssets
-
-    processQabetaDebugGoogleServices.dependsOn injectGoogleServicesAPIKey
-    processQabetaReleaseGoogleServices.dependsOn injectGoogleServicesAPIKey
     processStandaloneDebugGoogleServices.dependsOn injectGoogleServicesAPIKey
     processStandaloneReleaseGoogleServices.dependsOn injectGoogleServicesAPIKey
     processLtsDebugGoogleServices.dependsOn injectGoogleServicesAPIKey
@@ -351,10 +353,6 @@ android {
             manifest.srcFile 'CommcareAndroidManifest.xml'
         }
 
-        qabeta {
-            manifest.srcFile 'CommcareAndroidManifest.xml'
-        }
-
         standalone {
             res.srcDirs = ['standalone/res']
             assets.srcDirs = ['standalone/assets']
@@ -402,35 +400,6 @@ android {
 
             // set the app name
             def applicationName = "CommCare LTS"
-            resValue "string", "application_name", applicationName
-        }
-
-        qabeta {
-            // app w/ id tied to commcare version, so you can install standalone,
-            // next to play store version
-
-            // grab commcare version from manifest
-            def manifestParser = new DefaultManifestParser(android.sourceSets.main.manifest.srcFile, new BooleanSupplier() {
-                @Override
-                boolean getAsBoolean() {
-                    return true
-                }
-            }, true, null)
-            def ccVersion = manifestParser.getVersionName()
-            // convert numbers to words to use in app id
-            def ccVersionSafe = numbersToLetters(ccVersion)
-
-            applicationId "org.commcare.${ccVersionSafe}"
-            project.ext.QA_BETA_APP_ID = applicationId
-
-            // setup content provider strings correctly to not conflict with other apps
-            def odkProviderStr = "org.commcare.${ccVersionSafe}.provider.odk"
-            manifestPlaceholders = [odkProvider: odkProviderStr]
-            buildConfigField "String", "CC_AUTHORITY", "\"${applicationId}\""
-            buildConfigField "String", "ODK_AUTHORITY", "\"${odkProviderStr}\""
-
-            // set the app name
-            def applicationName = "${ccVersion} QA CommCare"
             resValue "string", "application_name", applicationName
         }
 

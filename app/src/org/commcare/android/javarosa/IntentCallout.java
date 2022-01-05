@@ -1,12 +1,16 @@
 package org.commcare.android.javarosa;
 
+import android.app.Application;
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.BadParcelableException;
 import android.os.Bundle;
+import android.os.ParcelFileDescriptor;
 import android.util.Log;
 
+import org.commcare.CommCareApplication;
 import org.commcare.provider.IdentityCalloutHandler;
 import org.commcare.provider.SimprintsCalloutProcessing;
 import org.commcare.util.LogTypes;
@@ -37,7 +41,9 @@ import org.javarosa.xpath.parser.XPathSyntaxException;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.channels.FileChannel;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
@@ -298,32 +304,49 @@ public class IntentCallout implements Externalizable {
             return;
         }
 
-        //Otherwise, grab that file
-        File src = new File(responseValue);
-        if (!src.exists()) {
-            //TODO: How hard should we be failing here?
-            Log.w(TAG, "CommCare received a link to a file at " + src.toString() + " to be included in the form, but it was not present on the phone!");
+        try {
+            File localCopy = copyFileToLocalDirectory(responseValue, destinationFile);
+            formDef.setValue(new StringData(localCopy.getName()), ref);
+            return;
+        } catch (FileNotFoundException fnfe) {
+            Log.w(TAG, "CommCare received a link to a file at " + responseValue + " to be included in the form, but it was not present on the phone!");
+
             //Wipe out any reference that exists
             formDef.setValue(null, ref);
+        } catch (IOException ioe) {
+            ioe.printStackTrace();
+            Log.e(TAG,"CommCare failed to copy a binary input from an intent callout from: " + responseValue);
+            Logger.exception("Failed to copy an attachment from intent callout ", ioe);
+            //Wipe out any reference that exists
+            formDef.setValue(null, ref);
+        }
+    }
+
+    /**
+     * Copy the provided input source to a local directory. Valid inputs are file paths or content
+     * uris.
+     *
+     * @throws FileNotFoundException If the source file doesn't exist
+     */
+    private File copyFileToLocalDirectory(String inputSource, File destinationFile) throws IOException {
+        if (FileUtil.isContentUri(inputSource)) {
+            Uri uri = Uri.parse(inputSource);
+
+            return FileUtil.copyContentFileToLocalDir(uri, destinationFile, CommCareApplication.instance().getApplicationContext());
         } else {
+            File src = new File(inputSource);
+            if(!src.exists()) {
+                throw new FileNotFoundException(inputSource);
+            }
 
             File newFile = new File(destinationFile, src.getName());
 
             //Looks like our source file exists, so let's go grab it
-            try {
-                FileUtil.copyFile(src, newFile);
-            } catch (IOException e) {
-                Log.e(TAG, "IOExeception copying Intent binary.");
-                e.printStackTrace();
+            FileUtil.copyFile(src, newFile);
+            if (!newFile.exists() || newFile.length() != src.length()) {
+                throw new IOException("Failed to copy file from src " + src.toString() + " to dest " + newFile);
             }
-
-            //That code throws no errors, so we have to manually check whether the copy worked.
-            if (newFile.exists() && newFile.length() == src.length()) {
-                formDef.setValue(new StringData(newFile.getName()), ref);
-            } else {
-                Log.e(TAG, "CommCare failed to property write a file to " + newFile.toString());
-                formDef.setValue(null, ref);
-            }
+            return newFile;
         }
     }
 

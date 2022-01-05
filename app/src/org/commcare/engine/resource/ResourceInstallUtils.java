@@ -4,6 +4,7 @@ import android.content.SharedPreferences;
 
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
+import org.commcare.core.network.CaptivePortalRedirectException;
 import org.commcare.engine.resource.installers.SingleAppInstallation;
 import org.commcare.network.RateLimitedException;
 import org.commcare.preferences.ServerUrls;
@@ -129,6 +130,12 @@ public class ResourceInstallUtils {
         }
 
         if(exception instanceof UnreliableSourceException) {
+            if (exception.getCause() instanceof CaptivePortalRedirectException) {
+                Logger.log(LogTypes.TYPE_WARNING_NETWORK,
+                        "Captive portal detected while installing a resource|" +
+                                exception.getMessage());
+                return AppInstallStatus.CaptivePortal;
+            }
             Logger.log(LogTypes.TYPE_WARNING_NETWORK,
                     "A resource couldn't be found, almost certainly due to the network|" +
                             exception.getMessage());

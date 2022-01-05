@@ -1,20 +1,20 @@
 package org.commcare.models;
 
-import android.content.ComponentName;
 import android.content.Context;
-import android.content.Intent;
 import android.util.Pair;
 
 import org.apache.commons.lang3.StringUtils;
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.logging.ForceCloseLogger;
+import org.commcare.cases.util.InvalidCaseGraphException;
 import org.commcare.core.process.XmlFormRecordProcessor;
 import org.commcare.data.xml.TransactionParser;
 import org.commcare.engine.cases.CaseUtils;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.preferences.DeveloperPreferences;
+import org.commcare.sync.ExternalDataUpdateHelper;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.FormUploadUtil;
 import org.commcare.utils.QuarantineUtil;
@@ -65,7 +65,7 @@ public class FormRecordProcessor {
      */
     public FormRecord process(FormRecord record)
             throws InvalidStructureException, IOException, XmlPullParserException,
-            UnfullfilledRequirementsException {
+            UnfullfilledRequirementsException, InvalidCaseGraphException {
         String form = record.getFilePath();
 
         final File f = new File(form);
@@ -90,7 +90,7 @@ public class FormRecordProcessor {
         XmlFormRecordProcessor.process(is, factory);
 
         //Let anyone who is listening know!
-        broadcastDataUpdate(factory);
+        ExternalDataUpdateHelper.broadcastDataUpdate(c, factory.getCreatedAndUpdatedCases());
 
         //Update the record before trying to purge, so we don't block on this, in case
         //anything weird happens. We don't want to get into a loop
@@ -105,17 +105,6 @@ public class FormRecordProcessor {
         }
 
         return updatedRecord;
-    }
-
-    private void broadcastDataUpdate(AndroidTransactionParserFactory factory) {
-        Intent i = new Intent("org.commcare.dalvik.api.action.data.update");
-        i.putStringArrayListExtra("cases", factory.getCreatedAndUpdatedCases());
-        c.sendBroadcast(i, "org.commcare.dalvik.provider.cases.read");
-
-        // send explicit broadcast to CommCare Reminders App
-        i.setComponent(new ComponentName("org.commcare.dalvik.reminders",
-                "org.commcare.dalvik.reminders.CommCareReceiver"));
-        c.sendBroadcast(i);
     }
 
     public FormRecord updateRecordStatus(FormRecord record, String newStatus) {
@@ -153,7 +142,7 @@ public class FormRecordProcessor {
         return storage.read(dbId);
     }
 
-    private void performPurge() {
+    private void performPurge() throws InvalidCaseGraphException {
         if(DeveloperPreferences.isAutoPurgeEnabled()) {
             CaseUtils.purgeCases();
         }
@@ -164,7 +153,7 @@ public class FormRecordProcessor {
         isPurgePending = false;
     }
 
-    public void closeBulkSubmit() {
+    public void closeBulkSubmit() throws InvalidCaseGraphException {
         isBulkProcessing = false;
         if(isPurgePending) {
             performPurge();

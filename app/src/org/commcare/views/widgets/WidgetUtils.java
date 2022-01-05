@@ -16,6 +16,7 @@ import com.google.zxing.client.android.Intents;
 import com.google.zxing.integration.android.IntentIntegrator;
 
 import org.commcare.dalvik.R;
+import org.commcare.preferences.FormEntryPreferences;
 import org.commcare.preferences.MainConfigurablePreferences;
 
 public class WidgetUtils {
@@ -26,10 +27,10 @@ public class WidgetUtils {
         params.setMargins(7, 5, 7, 5);
     }
 
-    public static void setupButton(Button btn, Spannable text, int fontSize, boolean enabled) {
+    public static void setupButton(Button btn, Spannable text, boolean enabled) {
         btn.setText(text);
         int verticalPadding = (int)btn.getResources().getDimension(R.dimen.widget_button_padding);
-        btn.setTextSize(TypedValue.COMPLEX_UNIT_DIP, fontSize);
+        btn.setTextSize(TypedValue.COMPLEX_UNIT_DIP, FormEntryPreferences.getButtonFontSize());
         btn.setPadding(20, verticalPadding, 20, verticalPadding);
         btn.setEnabled(enabled);
         btn.setLayoutParams(WidgetUtils.params);

@@ -39,7 +39,6 @@ public class SavedFormTest extends BaseTest {
     @Before
     public void login() {
         installApp(APP_NAME, CCZ_NAME, false);
-        InstrumentationUtility.login("check", "123");
     }
 
     @After
@@ -49,6 +48,7 @@ public class SavedFormTest extends BaseTest {
 
     @Test
     public void testIncompleteForm_forMediaChanges() {
+        InstrumentationUtility.login("test_user_18", "123");
         // Create an incomplete form with an image.
         InstrumentationUtility.openForm(0, 0);
         onView(withId(R.id.nav_btn_next))
@@ -93,6 +93,7 @@ public class SavedFormTest extends BaseTest {
 
     @Test
     public void testIncompleteForm_forValidateCondition() {
+        InstrumentationUtility.login("test_user_19", "123");
         // Create an incomplete form.
         InstrumentationUtility.openForm(0, 0);
         onView(withId(R.id.nav_btn_next))
@@ -132,6 +133,7 @@ public class SavedFormTest extends BaseTest {
      */
     @Test
     public void testFinishButtonClick_withValidationFailure() {
+        InstrumentationUtility.login("test_user_20", "123");
         // Navigate to the second form.
         InstrumentationUtility.openForm(1, 0);
 

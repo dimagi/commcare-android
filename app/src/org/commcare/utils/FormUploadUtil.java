@@ -5,6 +5,7 @@ import android.os.Environment;
 import android.util.Log;
 import android.webkit.MimeTypeMap;
 
+import org.apache.commons.lang3.StringUtils;
 import org.commcare.core.network.AuthenticationInterceptor;
 import org.commcare.core.network.CaptivePortalRedirectException;
 import org.commcare.network.CommcareRequestGenerator;
@@ -32,6 +33,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 
 import javax.annotation.Nullable;
 import javax.crypto.Cipher;
@@ -109,7 +111,7 @@ public class FormUploadUtil {
      *                               file-system
      */
     public static FormUploadResult sendInstance(int submissionNumber, File folder,
-                                                @Nullable  SecretKeySpec key, String url,
+                                                @Nullable SecretKeySpec key, String url,
                                                 @Nullable DataSubmissionListener listener, User user)
             throws FileNotFoundException {
 
@@ -340,7 +342,11 @@ public class FormUploadUtil {
                     numAttachmentsSuccessfullyAdded += addPartToEntity(parts, f, contentType);
                 } else if (isSupportedMultimediaFile(f.getName())) {
                     numAttachmentsInInstanceFolder++;
-                    numAttachmentsSuccessfullyAdded += addPartToEntity(parts, f, "application/octet-stream");
+                    String mimeType = FileUtil.getMimeType(f.getPath());
+                    if (StringUtils.isEmpty(mimeType)) {
+                        mimeType = "application/octet-stream";
+                    }
+                    numAttachmentsSuccessfullyAdded += addPartToEntity(parts, f, mimeType);
                 } else {
                     Logger.log(LogTypes.TYPE_FORM_SUBMISSION,
                             "Could not add unsupported file type to submission entity: " + f.getName());
@@ -409,7 +415,7 @@ public class FormUploadUtil {
      */
     public static boolean isSupportedMultimediaFile(String filename) {
         for (String ext : SUPPORTED_FILE_EXTS) {
-            if (filename.endsWith(ext)) {
+            if (filename.toLowerCase(Locale.US).endsWith(ext)) {
                 return true;
             }
         }

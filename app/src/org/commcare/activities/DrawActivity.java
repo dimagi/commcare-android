@@ -7,14 +7,11 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.Path;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Display;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -25,8 +22,8 @@ import android.widget.RelativeLayout;
 import org.commcare.dalvik.R;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.FileUtil;
-import org.commcare.utils.MediaUtil;
 import org.commcare.utils.StringUtils;
+import org.commcare.views.DrawView;
 import org.commcare.views.dialogs.DialogChoiceItem;
 import org.commcare.views.dialogs.PaneledChoiceDialog;
 import org.commcare.views.widgets.ImageWidget;
@@ -44,7 +41,7 @@ import java.io.IOException;
  *
  * @author BehrAtherton@gmail.com
  */
-public class DrawActivity extends AppCompatActivity {
+public class DrawActivity extends AppCompatActivity implements DrawView.Callback {
     private static final String t = "DrawActivity";
 
     public static final String OPTION = "option";
@@ -64,6 +61,7 @@ public class DrawActivity extends AppCompatActivity {
 
     private DrawView drawView;
     private String alertTitleString;
+    private Button saveAndCloseButton;
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
@@ -188,9 +186,13 @@ public class DrawActivity extends AppCompatActivity {
 
         setContentView(v);
 
-        Button btnFinished = findViewById(R.id.btnFinishDraw);
-        btnFinished.setText(StringUtils.getStringRobust(this, R.string.save_and_close));
-        btnFinished.setOnClickListener(v13 -> saveAndClose());
+        saveAndCloseButton = findViewById(R.id.btnFinishDraw);
+        saveAndCloseButton.setText(StringUtils.getStringRobust(this, R.string.save_and_close));
+        saveAndCloseButton.setOnClickListener(v13 -> saveAndClose());
+        if (refImage != null && refImage.exists()) {
+            // Means we're editing a saved signature
+            saveAndCloseButton.setEnabled(true);
+        }
 
         Button btnReset = findViewById(R.id.btnResetDraw);
         btnReset.setOnClickListener(v12 -> reset());
@@ -199,6 +201,18 @@ public class DrawActivity extends AppCompatActivity {
         Button btnCancel = findViewById(R.id.btnCancelDraw);
         btnCancel.setOnClickListener(v1 -> cancelAndClose());
         btnCancel.setText(StringUtils.getStringRobust(this, R.string.cancel));
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        drawView.setCallback(this);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        drawView.removeCallback();
     }
 
     private void saveAndClose() {
@@ -251,6 +265,7 @@ public class DrawActivity extends AppCompatActivity {
         }
         drawView.reset();
         drawView.invalidate();
+        saveAndCloseButton.setEnabled(false);
     }
 
     private void cancelAndClose() {
@@ -290,141 +305,26 @@ public class DrawActivity extends AppCompatActivity {
     private void createQuitDrawDialog() {
         final PaneledChoiceDialog dialog = new PaneledChoiceDialog(this, alertTitleString);
 
-        View.OnClickListener keepChangesListener = v -> saveAndClose();
-        DialogChoiceItem keepOption = new DialogChoiceItem(getString(R.string.keep_changes), -1,
-                keepChangesListener);
-
         View.OnClickListener discardChangesListener = v -> cancelAndClose();
         DialogChoiceItem discardOption = new DialogChoiceItem(getString(R.string.do_not_save), -1,
                 discardChangesListener);
 
-        dialog.setChoiceItems(new DialogChoiceItem[]{keepOption, discardOption});
+        if (saveAndCloseButton.isEnabled()) {
+            View.OnClickListener keepChangesListener = v -> saveAndClose();
+            DialogChoiceItem keepOption = new DialogChoiceItem(getString(R.string.keep_changes), -1,
+                    keepChangesListener);
+            dialog.setChoiceItems(new DialogChoiceItem[]{keepOption, discardOption});
+        } else {
+            dialog.setChoiceItems(new DialogChoiceItem[]{discardOption});
+        }
 
         dialog.addButton(getString(R.string.cancel), v -> dialog.dismiss());
 
         dialog.showNonPersistentDialog();
     }
 
-    public static class DrawView extends View {
-        private boolean isSignature;
-        private Bitmap mBitmap;
-        private Canvas mCanvas;
-        private final Path mCurrentPath;
-        private final Paint mBitmapPaint;
-        private File mBackgroundBitmapFile;
-        private final Paint paint;
-        private final Paint pointPaint;
-        private float mX, mY;
-
-        public DrawView(final Context c, Paint paint, Paint pointPaint) {
-            super(c);
-
-            this.paint = paint;
-            this.pointPaint = pointPaint;
-            isSignature = false;
-            mBitmapPaint = new Paint(Paint.DITHER_FLAG);
-            mCurrentPath = new Path();
-            setBackgroundColor(0xFFFFFFFF);
-            mBackgroundBitmapFile = SignatureWidget.getTempFileForDrawingCapture();
-        }
-
-        public DrawView(Context c, boolean isSignature, File f, Paint paint, Paint pointPaint) {
-            this(c, paint, pointPaint);
-
-            this.isSignature = isSignature;
-            mBackgroundBitmapFile = f;
-        }
-
-        public void reset() {
-            Display display = ((WindowManager)getContext().getSystemService(
-                    Context.WINDOW_SERVICE)).getDefaultDisplay();
-            int screenWidth = display.getWidth();
-            int screenHeight = display.getHeight();
-            resetImage(screenWidth, screenHeight);
-        }
-
-        public void resetImage(int w, int h) {
-            if (mBackgroundBitmapFile.exists()) {
-                mBitmap = MediaUtil.getBitmapScaledToContainer(
-                        mBackgroundBitmapFile, w, h).copy(
-                        Bitmap.Config.RGB_565, true);
-                // mBitmap =
-                // Bitmap.createScaledBitmap(BitmapFactory.decodeFile(mBackgroundBitmapFile.getPath()),
-                // w, h, true);
-                mCanvas = new Canvas(mBitmap);
-            } else {
-                mBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.RGB_565);
-                mCanvas = new Canvas(mBitmap);
-                mCanvas.drawColor(0xFFFFFFFF);
-                if (isSignature) {
-                    drawSignLine();
-                }
-            }
-        }
-
-        @Override
-        protected void onSizeChanged(int w, int h, int oldw, int oldh) {
-            super.onSizeChanged(w, h, oldw, oldh);
-            resetImage(w, h);
-        }
-
-        @Override
-        protected void onDraw(Canvas canvas) {
-            canvas.drawColor(getResources().getColor(R.color.grey));
-            canvas.drawBitmap(mBitmap, 0, 0, mBitmapPaint);
-            canvas.drawPath(mCurrentPath, paint);
-        }
-
-        private void touch_start(float x, float y) {
-            mCurrentPath.reset();
-            mCurrentPath.moveTo(x, y);
-            mX = x;
-            mY = y;
-        }
-
-        public void drawSignLine() {
-            mCanvas.drawLine(0, (int)(mCanvas.getHeight() * .7),
-                    mCanvas.getWidth(), (int)(mCanvas.getHeight() * .7), paint);
-        }
-
-        private void touch_move(float x, float y) {
-            mCurrentPath.quadTo(mX, mY, (x + mX) / 2, (y + mY) / 2);
-            mX = x;
-            mY = y;
-        }
-
-        private void touch_up() {
-            if (mCurrentPath.isEmpty()) {
-                mCanvas.drawPoint(mX, mY, pointPaint);
-            } else {
-                mCurrentPath.lineTo(mX, mY);
-                // commit the path to our offscreen
-                mCanvas.drawPath(mCurrentPath, paint);
-            }
-            // kill this so we don't double draw
-            mCurrentPath.reset();
-        }
-
-        @Override
-        public boolean onTouchEvent(MotionEvent event) {
-            float x = event.getX();
-            float y = event.getY();
-
-            switch (event.getAction()) {
-                case MotionEvent.ACTION_DOWN:
-                    touch_start(x, y);
-                    invalidate();
-                    break;
-                case MotionEvent.ACTION_MOVE:
-                    touch_move(x, y);
-                    invalidate();
-                    break;
-                case MotionEvent.ACTION_UP:
-                    touch_up();
-                    invalidate();
-                    break;
-            }
-            return true;
-        }
+    @Override
+    public void drawn() {
+        saveAndCloseButton.setEnabled(true);
     }
 }

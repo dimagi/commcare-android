@@ -28,6 +28,7 @@ import org.commcare.android.javarosa.AndroidLogEntry;
 import org.commcare.android.logging.ForceCloseLogEntry;
 import org.commcare.android.logging.ForceCloseLogger;
 import org.commcare.android.logging.ReportingUtils;
+import org.commcare.core.graph.util.GraphUtil;
 import org.commcare.core.interfaces.HttpResponseProcessor;
 import org.commcare.core.network.AuthInfo;
 import org.commcare.core.network.CommCareNetworkService;
@@ -36,6 +37,7 @@ import org.commcare.core.network.HTTPMethod;
 import org.commcare.core.network.ModernHttpRequester;
 import org.commcare.core.services.CommCarePreferenceManagerFactory;
 import org.commcare.dalvik.BuildConfig;
+import org.commcare.dalvik.R;
 import org.commcare.engine.references.ArchiveFileRoot;
 import org.commcare.engine.references.AssetFileRoot;
 import org.commcare.engine.references.JavaHttpRoot;
@@ -245,6 +247,7 @@ public class CommCareApplication extends MultiDexApplication {
         }
 
         LocalePreferences.saveDeviceLocale(Locale.getDefault());
+        GraphUtil.setLabelCharacterLimit(getResources().getInteger(R.integer.graph_label_char_limit));
     }
 
     protected void attachISRGCert() {

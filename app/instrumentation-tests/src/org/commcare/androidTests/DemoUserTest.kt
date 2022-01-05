@@ -65,9 +65,9 @@ abstract class DemoUserTest: BaseTest() {
         matchListItems(arrayOf("balloon", "block", "bear"))
     }
 
-    protected fun updateApp() {
+    protected fun updateApp(userName: String, password: String) {
         // Perform an update to an app version with a different demo user
-        InstrumentationUtility.login("test", "123")
+        InstrumentationUtility.login(userName, password)
         InstrumentationUtility.selectOptionItem(withText("Update App"))
         InstrumentationUtility.selectOptionItem(withText("Offline Update"))
 

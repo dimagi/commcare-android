@@ -5,6 +5,7 @@ import android.os.Build;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.CalendarView;
 import android.widget.DatePicker;
 import android.widget.TimePicker;
 import android.widget.TimePicker.OnTimeChangedListener;
@@ -38,6 +39,7 @@ public class DateTimeWidget extends QuestionWidget implements OnTimeChangedListe
         mDatePicker.setFocusable(!prompt.isReadOnly());
         mDatePicker.setEnabled(!prompt.isReadOnly());
         mDatePicker.setCalendarViewShown(true);
+        updateCalendarViewHeight();
 
         mTimePicker = (TimePicker)LayoutInflater.from(getContext()).inflate(R.layout.time_widget, this, false);
         mTimePicker.setFocusable(!prompt.isReadOnly());
@@ -86,6 +88,18 @@ public class DateTimeWidget extends QuestionWidget implements OnTimeChangedListe
         addView(mDatePicker);
         addView(mTimePicker);
 
+    }
+
+    /**
+     * CalendarView bottom line gets cut off in appcompat theme because it's height is fixed here:
+     * https://github.com/aosp-mirror/platform_frameworks_base/blob/master/core/res/res/layout/date_picker_legacy.xml#L78
+     * This workaround updates the calendarview height to wrap content.
+     */
+    private void updateCalendarViewHeight() {
+        CalendarView calendarView = mDatePicker.getCalendarView();
+        LayoutParams params = (LayoutParams) calendarView.getLayoutParams();
+        params.height = LayoutParams.WRAP_CONTENT;
+        calendarView.setLayoutParams(params);
     }
 
     public void setAnswer() {

@@ -6,12 +6,12 @@ import androidx.test.espresso.action.Press;
 import androidx.test.espresso.action.Swipe;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
-import org.commcare.activities.DrawActivity;
 import org.commcare.annotations.BrowserstackTests;
 import org.commcare.dalvik.R;
 import org.commcare.modern.util.Pair;
 import org.commcare.utils.HQApi;
 import org.commcare.utils.InstrumentationUtility;
+import org.commcare.views.DrawView;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -40,7 +40,7 @@ public class FormAttachmentUploadTest extends BaseTest {
     @Before
     public void setup() {
         installApp(APP_NAME, CCZ_NAME, false);
-        InstrumentationUtility.login("test", "123");
+        InstrumentationUtility.login("test_user_5", "123");
     }
 
     @Test
@@ -57,9 +57,9 @@ public class FormAttachmentUploadTest extends BaseTest {
 
         onView(withText("Gather Signature"))
                 .perform(click());
-        onView(instanceOf(DrawActivity.DrawView.class))
+        onView(instanceOf(DrawView.class))
                 .perform(new GeneralSwipeAction(Swipe.SLOW, GeneralLocation.CENTER_LEFT, GeneralLocation.TOP_RIGHT, Press.FINGER));
-        onView(instanceOf(DrawActivity.DrawView.class))
+        onView(instanceOf(DrawView.class))
                 .perform(new GeneralSwipeAction(Swipe.SLOW, GeneralLocation.TOP_LEFT, GeneralLocation.CENTER_RIGHT, Press.FINGER));
 
         onView(withText("Save and Close"))

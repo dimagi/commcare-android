@@ -145,8 +145,14 @@
 
     <string name="hello_world">Please enter your issues below</string>
     <string name="menu_settings">Settings</string>
+
     <string name="permission_content_provider_label">Read Secure CommCare Data</string>
     <string name="permission_content_provider_description">Allows this app to read data from CommCare while a user is logged in</string>
+    <string name="permission_external_action_label">Allow CommCare Actions</string>
+    <string name="permission_external_action_description">Allows this app to trigger operations like login, logout and sync in CommCare</string>
+    <string name="permission_commcare_logout_label">Allow Auto CommCare Logout</string>
+    <string name="permission_commcare_logout_description">Allows this app to logout a user from CommmCare App</string>
+
     <string name="title_activity_report_problem">ReportProblemActivity</string>
     <string name="title_activity_comm_care_verification">CommCareVerificationActivity</string>
     <string name="panes">one</string>
@@ -427,9 +433,12 @@
     <string name="location_provider_disabled" cc:translatable="true">Turn on your location to receive location updates</string>
     <string name="wait_for_location_fix"  cc:translatable="true">CommCare is still trying to get your location. Please wait or click Cancel to abort.</string>
     <string name="invalid_case_property_length" cc:translatable="true">Invalid %1s, value must be 255 characters or less</string>
+    <string name="invalid_case_graph_error" cc:translatable="true">This form introduces an invalid case relationship</string>
     <string name="root_detected_title" cc:translatable="true">Rooted Device Detected</string>
     <string name="root_detected_message" cc:translatable="true">You are not allowed to run CommCare on a rooted device. Please use a non rooted device</string>
     <string name="session_endpoint_unavailable" cc:translatable="true">No endpoint exist with id %1$s. Valid endpoints are %2$s</string>
-    <string name="session_endpoint_invalid_arguments" cc:translatable="true">Incorrect number of arguments supplied for endpoint %1$s. Supplied arguments: %2$s. Expected arguments: %3$s.</string>
-    <string name="session_endpoint_no_argument_with_name" cc:translatable="true">%1$s argument needs to be provided for endpoint %2$s</string>
+    <string name="session_endpoint_invalid_arguments" cc:translatable="true">Incorrect arguments supplied for endpoint %1$s. Supplied arguments: %2$s. Expected arguments: %3$s.</string>
+    <string name="selected_location" cc:translatable="true">Selected Location</string>
+    <string name="confirm_location" cc:translatable="true">Confirm location</string>
+    <string name="playback_start_time">00:00</string>
 </resources>

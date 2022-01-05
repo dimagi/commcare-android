@@ -22,6 +22,7 @@ query.name=Patient Name
 query.id=Patient ID
 query.state=State
 query.district=District
+query.date=Date
 case_sharing.exactly_one_group=The case sharing settings for your user are incorrect. This user must be in exactly one case sharing group. Please contact your supervisor.
 cchq.case=Case
 cchq.referral=Referral

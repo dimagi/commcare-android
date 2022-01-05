@@ -41,9 +41,7 @@
         android:layout_margin="@dimen/standard_spacer"
         android:layout_width="fill_parent"
         android:onClick="rebootAlertDialog"
-        android:text="@string/uninstall_app"
-        android:textColor="@color/blue"
-        style="@style/TextAppearance.AppCompat.Headline"/>
+        android:text="@string/uninstall_app" />
 
     <Button
         android:id="@+id/archive_button"
@@ -51,9 +49,7 @@
         android:layout_margin="@dimen/standard_spacer"
         android:layout_width="fill_parent"
         android:onClick="toggleArchiveClicked"
-        android:text="@string/archive_app"
-        android:textColor="@color/darkest_grey"
-        style="@style/TextAppearance.AppCompat.Headline"/>
+        android:text="@string/archive_app" />
 
     <Button
         android:id="@+id/update_button"
@@ -61,9 +57,7 @@
         android:layout_margin="@dimen/standard_spacer"
         android:layout_width="fill_parent"
         android:onClick="updateClicked"
-        android:text="@string/update_app"
-        android:textColor="@color/blue"
-        style="@style/TextAppearance.AppCompat.Headline"/>
+        android:text="@string/update_app" />
 
     <Button
         android:clickable="true"
@@ -72,9 +66,6 @@
         android:layout_margin="@dimen/standard_spacer"
         android:layout_width="fill_parent"
         android:onClick="verifyResourcesClicked"
-        android:text="@string/verify_resources"
-        android:textColor="@color/darkest_grey"
-        style="@style/TextAppearance.AppCompat.Headline"/>
-        />
+        android:text="@string/verify_resources" />
 
 </LinearLayout>

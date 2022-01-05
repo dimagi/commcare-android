@@ -103,6 +103,9 @@ public class FormAndDataSyncer {
                             case RATE_LIMITED:
                                 receiver.showRateLimitError(userTriggered);
                                 break;
+                            case INVALID_CASE_GRAPH:
+                                receiver.handleFormSendResult(Localization.get("sync.fail.invalid.case.graph"), false);
+                                break;
                             case FAILURE:
                             default:
                                 receiver.handleFormSendResult(Localization.get("sync.fail.unknown"), false);

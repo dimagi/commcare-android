@@ -77,7 +77,6 @@ public class TriggerWidget extends QuestionWidget {
         mTriggerButton = new CheckBox(getContext());
         WidgetUtils.setupButton(mTriggerButton,
                 StringUtils.getStringSpannableRobust(getContext(), R.string.trigger),
-                mAnswerFontSize,
                 !mPrompt.isReadOnly());
 
         mTriggerButton.setOnClickListener(v -> {

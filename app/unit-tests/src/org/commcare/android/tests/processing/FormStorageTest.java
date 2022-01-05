@@ -332,6 +332,10 @@ public class FormStorageTest {
             // Added in 2.51
             , "org.commcare.suite.model.Endpoint"
             , "org.javarosa.xpath.expr.XPathEncryptStringFunc"
+
+            // Added in 2.52
+            , "org.commcare.android.database.user.models.FormRecordV5"
+            , "org.commcare.android.database.user.models.ACasePreV28Model"
     );
 
 

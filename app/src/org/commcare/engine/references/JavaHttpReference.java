@@ -1,9 +1,11 @@
 package org.commcare.engine.references;
 
+import org.commcare.core.network.CaptivePortalRedirectException;
 import org.commcare.interfaces.CommcareRequestEndpoints;
 import org.commcare.network.CommcareRequestGenerator;
 import org.commcare.network.HttpUtils;
 import org.commcare.network.RateLimitedException;
+import org.commcare.util.NetworkStatus;
 import org.javarosa.core.reference.ReleasedOnTimeSupportedReference;
 import org.javarosa.core.reference.Reference;
 import org.javarosa.core.services.locale.Localization;
@@ -17,6 +19,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javax.annotation.Nullable;
+import javax.net.ssl.SSLHandshakeException;
+import javax.net.ssl.SSLPeerUnverifiedException;
 
 import okhttp3.Headers;
 import okhttp3.ResponseBody;
@@ -59,7 +63,15 @@ public class JavaHttpReference implements Reference, ReleasedOnTimeSupportedRefe
 
     @Override
     public InputStream getStream(Map<String, String> params) throws IOException {
-        Response<ResponseBody> response = generator.simpleGet(uri, new HashMap<>(), params);
+        Response<ResponseBody> response;
+        try {
+            response = generator.simpleGet(uri, new HashMap<>(), params);
+        } catch (SSLHandshakeException | SSLPeerUnverifiedException e) {
+            if(NetworkStatus.isCaptivePortal()) {
+                throw new CaptivePortalRedirectException();
+            }
+            throw e;
+        }
         if (response.isSuccessful()) {
             responseHeaders = response.headers();
             return response.body().byteStream();

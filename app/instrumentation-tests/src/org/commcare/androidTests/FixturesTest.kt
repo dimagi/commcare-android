@@ -69,7 +69,7 @@ class FixturesTest: BaseTest() {
 
     @Test
     fun testFixtureFiltering() {
-        InstrumentationUtility.login("fixtures_works", "123")
+        InstrumentationUtility.login("fixture_works_2", "123")
         openFixtureForm_andSelectFirstTwoCheckboxes()
         // Proceed without selecting country
         onView(withId(R.id.nav_btn_next))

@@ -14,7 +14,10 @@ import org.commcare.activities.GeoPointActivity;
 import org.commcare.activities.GeoPointMapActivity;
 import org.commcare.activities.components.FormEntryConstants;
 import org.commcare.dalvik.R;
+import org.commcare.gis.MapboxLocationPickerActivity;
 import org.commcare.logic.PendingCalloutInterface;
+import org.commcare.preferences.HiddenPreferences;
+import org.commcare.utils.GeoUtils;
 import org.commcare.utils.StringUtils;
 import org.javarosa.core.model.data.GeoPointData;
 import org.javarosa.core.model.data.IAnswerData;
@@ -23,8 +26,7 @@ import org.javarosa.form.api.FormEntryPrompt;
 import java.text.DecimalFormat;
 
 import androidx.appcompat.app.AppCompatActivity;
-
-import static org.commcare.activities.GeoPointMapActivity.EXTRA_VIEW_ONLY;
+import androidx.appcompat.widget.AppCompatButton;
 
 /**
  * GeoPointWidget is the widget that allows the user to get GPS readings.
@@ -42,6 +44,7 @@ public class GeoPointWidget extends QuestionWidget {
     public static final String LOCATION = "gp";
 
     private final PendingCalloutInterface pendingCalloutInterface;
+    public static final String EXTRA_VIEW_ONLY = "extra-view-only";
 
     public GeoPointWidget(Context context, final FormEntryPrompt prompt, PendingCalloutInterface pic) {
         super(context, prompt);
@@ -83,16 +86,15 @@ public class GeoPointWidget extends QuestionWidget {
             viewButtonEnabled = false;
         }
 
-        mGetLocationButton = new Button(getContext());
+        mGetLocationButton = new AppCompatButton(getContext());
         WidgetUtils.setupButton(mGetLocationButton,
                 locButtonText,
-                mAnswerFontSize,
                 !prompt.isReadOnly());
 
         mGetLocationButton.setOnClickListener(v -> {
             Intent i;
             if (mUseMaps) {
-                i = new Intent(getContext(), GeoPointMapActivity.class);
+                i = getMapActivityIntent();
                 if (mStringAnswer.getText().length() != 0) {
                     i.putExtra(LOCATION, parseLocation());
                 }
@@ -104,15 +106,14 @@ public class GeoPointWidget extends QuestionWidget {
         });
 
         // setup 'view location' button
-        mViewButton = new Button(getContext());
+        mViewButton = new AppCompatButton(getContext());
         WidgetUtils.setupButton(mViewButton,
                 StringUtils.getStringSpannableRobust(getContext(), R.string.show_location),
-                mAnswerFontSize,
                 viewButtonEnabled);
 
         // launch appropriate map viewer
         mViewButton.setOnClickListener(v -> {
-            Intent i = new Intent(getContext(), GeoPointMapActivity.class);
+            Intent i = getMapActivityIntent();
             i.putExtra(LOCATION, parseLocation());
             i.putExtra(EXTRA_VIEW_ONLY, true);
             getContext().startActivity(i);
@@ -134,6 +135,14 @@ public class GeoPointWidget extends QuestionWidget {
         gp[2] = Double.valueOf(sa[2]);
         gp[3] = Double.valueOf(sa[3]);
         return gp;
+    }
+
+    private Intent getMapActivityIntent() {
+        if (HiddenPreferences.shouldUseMapboxMap()) {
+            return new Intent(getContext(), MapboxLocationPickerActivity.class);
+        } else {
+            return new Intent(getContext(), GeoPointMapActivity.class);
+        }
     }
 
     @Override
@@ -171,33 +180,6 @@ public class GeoPointWidget extends QuestionWidget {
         return df.format(Double.valueOf(s));
     }
 
-    private String formatGps(double coordinates, String type) {
-        String location = Double.toString(coordinates);
-        String degreeSign = "\u00B0";
-        String degree = location.substring(0, location.indexOf(".")) + degreeSign;
-        location = "0." + location.substring(location.indexOf(".") + 1);
-        double temp = Double.valueOf(location) * 60;
-        location = Double.toString(temp);
-        String mins = location.substring(0, location.indexOf(".")) + "'";
-
-        location = "0." + location.substring(location.indexOf(".") + 1);
-        temp = Double.valueOf(location) * 60;
-        location = Double.toString(temp);
-        String secs = location.substring(0, location.indexOf(".")) + '"';
-        if (type.equalsIgnoreCase("lon")) {
-            if (degree.startsWith("-")) {
-                degree = "W " + degree.replace("-", "") + mins + secs;
-            } else
-                degree = "E " + degree.replace("-", "") + mins + secs;
-        } else {
-            if (degree.startsWith("-")) {
-                degree = "S " + degree.replace("-", "") + mins + secs;
-            } else
-                degree = "N " + degree.replace("-", "") + mins + secs;
-        }
-        return degree;
-    }
-
     @Override
     public void setFocus(Context context) {
         // Hide the soft keyboard if it's showing.
@@ -214,9 +196,9 @@ public class GeoPointWidget extends QuestionWidget {
         String[] sa = s.split(" ");
         mAnswerDisplay.setText(
                 StringUtils.getStringSpannableRobust(getContext(), R.string.latitude) +
-                        ": " + formatGps(Double.parseDouble(sa[0]), "lat") + "\n" +
+                        ": " + GeoUtils.formatGps(Double.parseDouble(sa[0]), "lat") + "\n" +
                         StringUtils.getStringSpannableRobust(getContext(), R.string.longitude) +
-                        ": " + formatGps(Double.parseDouble(sa[1]), "lon") + "\n" +
+                        ": " + GeoUtils.formatGps(Double.parseDouble(sa[1]), "lon") + "\n" +
                         StringUtils.getStringSpannableRobust(getContext(), R.string.altitude) +
                         ": " + truncateDouble(sa[2]) + "m\n" +
                         StringUtils.getStringSpannableRobust(getContext(), R.string.accuracy) +
