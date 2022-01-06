@@ -9,7 +9,7 @@ import java.util.concurrent.ExecutionException;
 /**
  * @author $|-|!˅@M
  */
-public class RoboelectricUtil {
+public class RobolectricUtil {
 
     /**
      * A replacement for Robolectric.flushBackgroundThreadScheduler();

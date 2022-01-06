@@ -26,7 +26,7 @@ import org.commcare.models.AndroidSessionWrapper;
 import org.commcare.models.database.AndroidSandbox;
 import org.commcare.session.CommCareSession;
 import org.commcare.suite.model.ComputedDatum;
-import org.commcare.utils.RoboelectricUtil;
+import org.commcare.utils.RobolectricUtil;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
@@ -43,7 +43,6 @@ import org.robolectric.shadows.ShadowToast;
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
-import java.util.concurrent.ExecutionException;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -304,6 +303,6 @@ public class QueryRequestActivityTest {
     private void triggerQueryRequest(QueryRequestActivity queryRequestActivity) {
         Button queryButton = queryRequestActivity.findViewById(R.id.request_button);
         queryButton.performClick();
-        RoboelectricUtil.flushBackgroundThread(queryRequestActivity);
+        RobolectricUtil.flushBackgroundThread(queryRequestActivity);
     }
 }

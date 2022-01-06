@@ -12,7 +12,7 @@ import org.commcare.android.util.ActivityLaunchUtils;
 import org.commcare.android.util.TestAppInstaller;
 import org.commcare.dalvik.R;
 import org.commcare.models.database.SqlStorage;
-import org.commcare.utils.RoboelectricUtil;
+import org.commcare.utils.RobolectricUtil;
 import org.commcare.views.QuestionsView;
 import org.commcare.views.widgets.IntegerWidget;
 import org.junit.Before;
@@ -81,7 +81,7 @@ public class EndOfFormTest {
         favoriteNumber.setAnswer("2");
         View finishButton = formEntryActivity.findViewById(R.id.nav_btn_finish);
         finishButton.performClick();
-        RoboelectricUtil.flushBackgroundThread(formEntryActivity);
+        RobolectricUtil.flushBackgroundThread(formEntryActivity);
         ShadowActivity shadowFormEntryActivity = Shadows.shadowOf(formEntryActivity);
         while (!shadowFormEntryActivity.isFinishing()) {
             Log.d(TAG, "Waiting for the form to save and the form entry activity to finish");

@@ -23,7 +23,7 @@ import org.commcare.network.LocalReferencePullResponseFactory;
 import org.commcare.session.CommCareSession;
 import org.commcare.session.RemoteQuerySessionManager;
 import org.commcare.suite.model.QueryPrompt;
-import org.commcare.utils.RoboelectricUtil;
+import org.commcare.utils.RobolectricUtil;
 import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.xml.util.InvalidStructureException;
@@ -171,7 +171,7 @@ public class PostRequestActivityTest {
         Button retryButton = postRequestActivity.findViewById(R.id.request_button);
         assertEquals(View.VISIBLE, retryButton.getVisibility());
         retryButton.performClick();
-        RoboelectricUtil.flushBackgroundThread(postRequestActivity);
+        RobolectricUtil.flushBackgroundThread(postRequestActivity);
 
         assertErrorMessage(postRequestActivity, false, null);
 
