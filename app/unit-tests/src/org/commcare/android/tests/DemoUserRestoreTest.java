@@ -10,6 +10,7 @@ import org.commcare.activities.LoginActivity;
 import org.commcare.activities.StandardHomeActivity;
 import org.commcare.adapters.EntityListAdapter;
 import org.commcare.android.database.app.models.UserKeyRecord;
+import org.commcare.android.shadows.ShadowAsyncTaskNoExecutor;
 import org.commcare.android.util.ActivityLaunchUtils;
 import org.commcare.android.util.CaseLoadUtils;
 import org.commcare.android.util.TestAppInstaller;
@@ -41,7 +42,7 @@ import static org.junit.Assert.assertTrue;
  *
  * @author Phillip Mates (pmates@dimagi.com)
  */
-@Config(application = CommCareTestApplication.class)
+@Config(application = CommCareTestApplication.class, shadows={ShadowAsyncTaskNoExecutor.class})
 @RunWith(AndroidJUnit4.class)
 @LooperMode(LooperMode.Mode.LEGACY)
 public class DemoUserRestoreTest {
@@ -80,7 +81,10 @@ public class DemoUserRestoreTest {
         CommCareApplication.instance().getCurrentApp().setMMResourcesValidated();
 
         loginAsDemoUser();
+
         Robolectric.flushBackgroundThreadScheduler();
+        Robolectric.flushBackgroundThreadScheduler();
+
         ShadowActivity shadowActivity = launchHomeActivityForDemoUser();
         checkOptionsMenuVisibility(shadowActivity);
 
@@ -105,6 +109,10 @@ public class DemoUserRestoreTest {
                 AppInstallStatus.Installed);
 
         loginAsDemoUser();
+
+        Robolectric.flushBackgroundThreadScheduler();
+        Robolectric.flushBackgroundThreadScheduler();
+
         launchHomeActivityForDemoUser();
 
         // check that the user fixtures were updated
