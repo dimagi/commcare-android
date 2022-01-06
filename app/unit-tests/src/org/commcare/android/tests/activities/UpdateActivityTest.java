@@ -88,7 +88,7 @@ public class UpdateActivityTest {
         try {
             updateActivity.updateTask.get();
         } catch (ExecutionException | InterruptedException e) {
-            e.printStackTrace();
+           throw new RuntimeException("Update failed due to " + e.getMessage(), e);
         }
         ShadowLooper.idleMainLooper();
 

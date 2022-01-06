@@ -6,6 +6,9 @@ import org.robolectric.shadows.ShadowLooper;
 
 import java.util.concurrent.ExecutionException;
 
+import static android.os.Looper.getMainLooper;
+import static org.robolectric.Shadows.shadowOf;
+
 /**
  * @author $|-|!˅@M
  */
@@ -20,7 +23,7 @@ public class RobolectricUtil {
         try {
             task.get();
         } catch (ExecutionException | InterruptedException e) {
-            e.printStackTrace();
+            throw new RuntimeException("Current task failed due to " + e.getMessage(), e);
         }
         ShadowLooper.idleMainLooper();
     }

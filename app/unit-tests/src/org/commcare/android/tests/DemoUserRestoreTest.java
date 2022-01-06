@@ -25,7 +25,9 @@ import org.robolectric.Robolectric;
 import org.robolectric.Shadows;
 import org.robolectric.annotation.Config;
 import org.robolectric.annotation.LooperMode;
+import org.robolectric.shadow.api.Shadow;
 import org.robolectric.shadows.ShadowActivity;
+import org.robolectric.shadows.ShadowLooper;
 
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -64,6 +66,7 @@ public class DemoUserRestoreTest {
         StandardHomeActivity homeActivity =
                 Robolectric.buildActivity(StandardHomeActivity.class, homeActivityIntent)
                         .setup().get();
+        ShadowLooper.idleMainLooper();
         return Shadows.shadowOf(homeActivity);
     }
 
@@ -105,6 +108,9 @@ public class DemoUserRestoreTest {
         UpdateUtils.installUpdate(profileRef,
                 AppInstallStatus.UpdateStaged,
                 AppInstallStatus.Installed);
+
+        Robolectric.flushBackgroundThreadScheduler();
+        Robolectric.flushBackgroundThreadScheduler();
 
         loginAsDemoUser();
 

@@ -39,7 +39,7 @@ public class UpdateUtils {
         try {
             updateTask.execute(profileRef).get();
         } catch (ExecutionException | InterruptedException e) {
-            e.printStackTrace();
+            throw new RuntimeException("Update failed due to " + e.getMessage(), e);
         }
         ShadowLooper.idleMainLooper();
         return updateTask;

@@ -97,7 +97,7 @@ public class FormRecordListActivityTest {
         try {
             adapter.loader.get();
         } catch (ExecutionException | InterruptedException e) {
-            e.printStackTrace();
+            throw new RuntimeException("Loading forms failed due to " + e.getMessage(), e);
         }
         ShadowLooper.idleMainLooper();
         assertEquals(expectedFormCount, adapter.getCount());

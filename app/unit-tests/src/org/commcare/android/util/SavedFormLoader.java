@@ -50,7 +50,7 @@ public class SavedFormLoader {
         try {
             task.execute().get();
         } catch (ExecutionException | InterruptedException e) {
-            e.printStackTrace();
+            throw new RuntimeException("Loading forms failed due to " + e.getMessage(), e);
         }
         Shadows.shadowOf(getMainLooper()).idle();
     }

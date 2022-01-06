@@ -114,7 +114,7 @@ public class TestAppInstaller {
         try {
             task.execute(resourceFilepath).get();
         } catch (ExecutionException | InterruptedException e) {
-            e.printStackTrace();
+            throw new RuntimeException("Install failed due to " + e.getMessage(), e);
         }
         Shadows.shadowOf(getMainLooper()).idle();
     }
