@@ -16,6 +16,7 @@ import org.commcare.android.util.TestAppInstaller;
 import org.commcare.android.util.UpdateUtils;
 import org.commcare.engine.resource.AppInstallStatus;
 import org.commcare.models.database.AndroidSandbox;
+import org.commcare.utils.RoboelectricUtil;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.junit.Test;
@@ -24,6 +25,7 @@ import org.robolectric.Robolectric;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.Shadows;
 import org.robolectric.annotation.Config;
+import org.robolectric.annotation.LooperMode;
 import org.robolectric.shadows.ShadowActivity;
 import org.robolectric.shadows.ShadowLooper;
 
@@ -41,6 +43,7 @@ import static org.junit.Assert.assertTrue;
  */
 @Config(application = CommCareTestApplication.class)
 @RunWith(AndroidJUnit4.class)
+@LooperMode(LooperMode.Mode.LEGACY)
 public class DemoUserRestoreTest {
     private final static String REF_BASE_DIR =
             "jr://resource/commcare-apps/demo_user_restore/";
@@ -51,7 +54,6 @@ public class DemoUserRestoreTest {
         LoginActivity loginActivity =
                 Robolectric.buildActivity(LoginActivity.class, loginActivityIntent)
                         .setup().get();
-        ShadowLooper.idleMainLooper();
         ShadowActivity shadowActivity = Shadows.shadowOf(loginActivity);
         shadowActivity.clickMenuItem(LoginActivity.MENU_DEMO);
     }
@@ -63,7 +65,6 @@ public class DemoUserRestoreTest {
         StandardHomeActivity homeActivity =
                 Robolectric.buildActivity(StandardHomeActivity.class, homeActivityIntent)
                         .setup().get();
-        ShadowLooper.idleMainLooper();
         return Shadows.shadowOf(homeActivity);
     }
 
@@ -79,8 +80,8 @@ public class DemoUserRestoreTest {
         CommCareApplication.instance().getCurrentApp().setMMResourcesValidated();
 
         loginAsDemoUser();
+        Robolectric.flushBackgroundThreadScheduler();
         ShadowActivity shadowActivity = launchHomeActivityForDemoUser();
-        ShadowLooper.idleMainLooper();
         checkOptionsMenuVisibility(shadowActivity);
 
         AndroidSandbox sandbox = new AndroidSandbox(CommCareApplication.instance());

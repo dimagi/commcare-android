@@ -15,9 +15,7 @@ import org.junit.runner.RunWith;
 import org.robolectric.Robolectric;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
-import org.robolectric.shadows.ShadowLooper;
-
-import java.util.concurrent.ExecutionException;
+import org.robolectric.annotation.LooperMode;
 
 /**
  * Coverage for different DataPullTask codepaths.
@@ -27,6 +25,7 @@ import java.util.concurrent.ExecutionException;
  */
 @Config(application = CommCareTestApplication.class)
 @RunWith(AndroidJUnit4.class)
+@LooperMode(LooperMode.Mode.LEGACY)
 public class DataPullTaskTest {
     private final static String APP_BASE = "jr://resource/commcare-apps/form_nav_tests/";
     private final static String GOOD_RESTORE = APP_BASE + "simple_data_restore.xml";
@@ -181,13 +180,11 @@ public class DataPullTaskTest {
                 };
 
         task.connect(TestAppInstaller.fakeConnector);
+        task.execute();
         pullTask = task;
-        try {
-            dataPullResult = task.execute().get();
-        } catch (ExecutionException | InterruptedException e) {
-            e.printStackTrace();
-        }
-        ShadowLooper.idleMainLooper();
+
+        Robolectric.flushBackgroundThreadScheduler();
+        Robolectric.flushForegroundThreadScheduler();
     }
 
     private void installAndUseLocalKeys() {
