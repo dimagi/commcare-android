@@ -1,18 +1,15 @@
 package org.commcare.android.tests.activities;
 
-import androidx.appcompat.app.AppCompatActivity;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
 import android.widget.TextView;
 
-import org.commcare.CommCareApplication;
 import org.commcare.CommCareNoficationManager;
 import org.commcare.CommCareTestApplication;
 import org.commcare.activities.InstallArchiveActivity;
 import org.commcare.activities.UpdateActivity;
-import androidx.test.ext.junit.runners.AndroidJUnit4;
 import org.commcare.android.util.TestAppInstaller;
 import org.commcare.dalvik.R;
 import org.javarosa.core.services.locale.Localization;
@@ -20,13 +17,16 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.Robolectric;
-import org.robolectric.RuntimeEnvironment;
 import org.robolectric.Shadows;
 import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowActivity;
 import org.robolectric.shadows.ShadowLooper;
 
 import java.util.concurrent.ExecutionException;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -61,7 +61,7 @@ public class UpdateActivityTest {
 
         // start the update activity
         Intent updateActivityIntent =
-                new Intent(RuntimeEnvironment.application, UpdateActivity.class);
+                new Intent(ApplicationProvider.getApplicationContext(), UpdateActivity.class);
 
         UpdateActivity updateActivity =
                 Robolectric.buildActivity(UpdateActivity.class, updateActivityIntent)
@@ -73,7 +73,7 @@ public class UpdateActivityTest {
 
         // Make sure there are no pinned notifications before we start
         NotificationManager notificationManager =
-                (NotificationManager)RuntimeEnvironment.application
+                (NotificationManager)ApplicationProvider.getApplicationContext()
                         .getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.cancel(CommCareNoficationManager.MESSAGE_NOTIFICATION);
         Notification notification = Shadows.shadowOf(notificationManager)

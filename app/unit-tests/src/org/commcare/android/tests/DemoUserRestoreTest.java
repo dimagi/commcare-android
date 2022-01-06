@@ -17,19 +17,17 @@ import org.commcare.android.util.TestAppInstaller;
 import org.commcare.android.util.UpdateUtils;
 import org.commcare.engine.resource.AppInstallStatus;
 import org.commcare.models.database.AndroidSandbox;
-import org.commcare.utils.RoboelectricUtil;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.Robolectric;
-import org.robolectric.RuntimeEnvironment;
 import org.robolectric.Shadows;
 import org.robolectric.annotation.Config;
 import org.robolectric.annotation.LooperMode;
 import org.robolectric.shadows.ShadowActivity;
-import org.robolectric.shadows.ShadowLooper;
 
+import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import static org.junit.Assert.assertEquals;
@@ -51,7 +49,7 @@ public class DemoUserRestoreTest {
 
     private static void loginAsDemoUser() {
         Intent loginActivityIntent =
-                new Intent(RuntimeEnvironment.application, LoginActivity.class);
+                new Intent(ApplicationProvider.getApplicationContext(), LoginActivity.class);
         LoginActivity loginActivity =
                 Robolectric.buildActivity(LoginActivity.class, loginActivityIntent)
                         .setup().get();
@@ -61,7 +59,7 @@ public class DemoUserRestoreTest {
 
     private static ShadowActivity launchHomeActivityForDemoUser() {
         Intent homeActivityIntent =
-                new Intent(RuntimeEnvironment.application, StandardHomeActivity.class);
+                new Intent(ApplicationProvider.getApplicationContext(), StandardHomeActivity.class);
         homeActivityIntent.putExtra(DispatchActivity.START_FROM_LOGIN, true);
         StandardHomeActivity homeActivity =
                 Robolectric.buildActivity(StandardHomeActivity.class, homeActivityIntent)

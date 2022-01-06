@@ -6,7 +6,6 @@ import org.commcare.CommCareTestApplication;
 import org.commcare.ManageKeyRecordTaskFake;
 import org.commcare.activities.DataPullControllerMock;
 import org.commcare.activities.LoginMode;
-import androidx.test.ext.junit.runners.AndroidJUnit4;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.tests.activities.FormRecordListActivityTest;
@@ -22,14 +21,15 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.Robolectric;
-import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 import org.robolectric.annotation.LooperMode;
 
 import java.util.Date;
 
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
+
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 
 /**
  * Test various key record setup code paths
@@ -138,7 +138,7 @@ public class KeyRecordTest {
 
     private void runKeyRecordTask(String password, String keyXmlFile, MessageTag expectedMessage) {
         ManageKeyRecordTaskFake keyRecordTest =
-                new ManageKeyRecordTaskFake(RuntimeEnvironment.application, 1, "test",
+                new ManageKeyRecordTaskFake(ApplicationProvider.getApplicationContext(), 1, "test",
                         password, LoginMode.PASSWORD, app, false, false, keyXmlFile);
         keyRecordTest.connect((CommCareTaskConnector)new DataPullControllerMock(expectedMessage));
         keyRecordTest.execute();

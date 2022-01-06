@@ -21,6 +21,8 @@ import org.robolectric.shadows.ShadowLooper;
 
 import java.util.concurrent.ExecutionException;
 
+import androidx.test.core.app.ApplicationProvider;
+
 import static android.os.Looper.getMainLooper;
 
 /**
@@ -119,7 +121,7 @@ public class TestAppInstaller {
 
     private void buildTestUser() {
         CommCareApp ccApp = CommCareApplication.instance().getCurrentApp();
-        DemoUserBuilder.buildTestUser(RuntimeEnvironment.application,
+        DemoUserBuilder.buildTestUser(ApplicationProvider.getApplicationContext(),
                 ccApp,
                 username, password);
     }

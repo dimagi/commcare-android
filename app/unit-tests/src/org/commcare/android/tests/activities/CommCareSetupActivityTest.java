@@ -1,6 +1,5 @@
 package org.commcare.android.tests.activities;
 
-import androidx.appcompat.app.AppCompatActivity;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.content.Context;
@@ -10,7 +9,6 @@ import org.commcare.CommCareNoficationManager;
 import org.commcare.CommCareTestApplication;
 import org.commcare.activities.CommCareSetupActivity;
 import org.commcare.activities.InstallArchiveActivity;
-import androidx.test.ext.junit.runners.AndroidJUnit4;
 import org.commcare.utils.RoboelectricUtil;
 import org.javarosa.core.services.locale.Localization;
 import org.junit.Test;
@@ -20,6 +18,11 @@ import org.robolectric.RuntimeEnvironment;
 import org.robolectric.Shadows;
 import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowActivity;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
+
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -49,7 +52,7 @@ public class CommCareSetupActivityTest {
 
         // start the setup activity
         Intent setupIntent =
-                new Intent(RuntimeEnvironment.application, CommCareSetupActivity.class);
+                new Intent(ApplicationProvider.getApplicationContext(), CommCareSetupActivity.class);
 
         CommCareSetupActivity setupActivity =
                 Robolectric.buildActivity(CommCareSetupActivity.class, setupIntent)
@@ -61,7 +64,7 @@ public class CommCareSetupActivityTest {
 
         // make sure there are no pinned notifications
         NotificationManager notificationManager =
-                (NotificationManager)RuntimeEnvironment.application.getSystemService(Context.NOTIFICATION_SERVICE);
+                (NotificationManager)ApplicationProvider.getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
         Notification notification = Shadows.shadowOf(notificationManager).getNotification(CommCareNoficationManager.MESSAGE_NOTIFICATION);
         assertNull(notification);
 
