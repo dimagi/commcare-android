@@ -17,7 +17,9 @@ import org.commcare.session.CommCareSession;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.robolectric.Robolectric;
 import org.robolectric.annotation.Config;
+import org.robolectric.shadows.ShadowLooper;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
@@ -51,7 +53,7 @@ public class CyclicCasesPurgeTest {
         FormEntryActivity formEntryActivity = ActivityLaunchUtils.launchFormEntry();
         View finishButton = formEntryActivity.findViewById(R.id.nav_btn_finish);
         finishButton.performClick();
-
+        ShadowLooper.idleMainLooper();
         // verify that form save results into an error
         String message = ((TextView)formEntryActivity.getCurrentAlertDialog().getUnderlyingDialog().getDialog().findViewById(R.id.dialog_message)).getText().toString();
         assert message.contentEquals(formEntryActivity.getString(R.string.invalid_case_graph_error));
