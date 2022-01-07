@@ -17,8 +17,10 @@ import org.commcare.android.util.TestAppInstaller;
 import org.commcare.android.util.UpdateUtils;
 import org.commcare.engine.resource.AppInstallStatus;
 import org.commcare.models.database.AndroidSandbox;
+import org.commcare.preferences.MainConfigurablePreferences;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.Robolectric;
@@ -49,6 +51,11 @@ public class DemoUserRestoreTest {
     private final static String REF_BASE_DIR =
             "jr://resource/commcare-apps/demo_user_restore/";
 
+    @Before
+    public void setup() {
+        MainConfigurablePreferences.disableAnalytics();
+    }
+
     private static void loginAsDemoUser() {
         Intent loginActivityIntent =
                 new Intent(ApplicationProvider.getApplicationContext(), LoginActivity.class);
@@ -57,6 +64,7 @@ public class DemoUserRestoreTest {
                         .setup().get();
         ShadowActivity shadowActivity = Shadows.shadowOf(loginActivity);
         shadowActivity.clickMenuItem(LoginActivity.MENU_DEMO);
+        ShadowLooper.idleMainLooper();
     }
 
     private static ShadowActivity launchHomeActivityForDemoUser() {

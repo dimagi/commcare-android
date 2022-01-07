@@ -54,7 +54,7 @@ public class FirebaseAnalyticsUtil {
     }
 
     private static void reportEvent(String eventName, Bundle params) {
-        if (analyticsDisabled() || versionIncompatible()) {
+        if (analyticsDisabled()) {
             return;
         }
 
@@ -233,11 +233,19 @@ public class FirebaseAnalyticsUtil {
     }
 
     public static void reportFeatureUsage(String feature) {
+        if (analyticsDisabled()) {
+            return;
+        }
+
         reportEvent(CCAnalyticsEvent.FEATURE_USAGE,
                 FirebaseAnalytics.Param.ITEM_CATEGORY, feature);
     }
 
     private static void reportFeatureUsage(String feature, String mode) {
+        if (analyticsDisabled()) {
+            return;
+        }
+
         reportEvent(CCAnalyticsEvent.FEATURE_USAGE,
                 new String[]{FirebaseAnalytics.Param.ITEM_CATEGORY, CCAnalyticsParam.MODE},
                 new String[]{feature, mode});
@@ -266,12 +274,8 @@ public class FirebaseAnalyticsUtil {
         }
     }
 
-    private static double roundToOneDecimal(double d) {
-        return new BigDecimal(d).setScale(1, RoundingMode.HALF_DOWN).doubleValue();
-    }
-
     private static boolean analyticsDisabled() {
-        return !MainConfigurablePreferences.isAnalyticsEnabled();
+        return !MainConfigurablePreferences.isAnalyticsEnabled() || versionIncompatible();
     }
 
     private static boolean versionIncompatible() {
