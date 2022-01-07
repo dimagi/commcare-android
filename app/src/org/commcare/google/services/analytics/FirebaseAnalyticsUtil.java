@@ -236,7 +236,6 @@ public class FirebaseAnalyticsUtil {
         if (analyticsDisabled()) {
             return;
         }
-
         reportEvent(CCAnalyticsEvent.FEATURE_USAGE,
                 FirebaseAnalytics.Param.ITEM_CATEGORY, feature);
     }
