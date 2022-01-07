@@ -84,6 +84,8 @@ public class DemoUserRestoreTest {
                 "app_with_demo_user_restore/profile.ccpr");
         CommCareApplication.instance().getCurrentApp().setMMResourcesValidated();
 
+        // Having Analytics enabled seems to cause this test to run infinitely
+        // possibly due to a bug with deprecated robolectric legacy mode
         MainConfigurablePreferences.disableAnalytics();
         loginAsDemoUser();
 
@@ -120,7 +122,6 @@ public class DemoUserRestoreTest {
         Robolectric.flushBackgroundThreadScheduler();
         Robolectric.flushBackgroundThreadScheduler();
 
-        MainConfigurablePreferences.disableAnalytics();
         loginAsDemoUser();
 
         Robolectric.flushBackgroundThreadScheduler();
