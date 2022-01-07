@@ -238,9 +238,9 @@ public class FirebaseAnalyticsUtil {
     }
 
     private static void reportFeatureUsage(String feature, String mode) {
-//        reportEvent(CCAnalyticsEvent.FEATURE_USAGE,
-//                new String[]{FirebaseAnalytics.Param.ITEM_CATEGORY, CCAnalyticsParam.MODE},
-//                new String[]{feature, mode});
+        reportEvent(CCAnalyticsEvent.FEATURE_USAGE,
+                new String[]{FirebaseAnalytics.Param.ITEM_CATEGORY, CCAnalyticsParam.MODE},
+                new String[]{feature, mode});
     }
 
     public static void reportPracticeModeUsage(OfflineUserRestore currentOfflineUserRestoreResource) {
