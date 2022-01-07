@@ -55,9 +55,8 @@ public class CyclicCasesPurgeTest {
         View finishButton = formEntryActivity.findViewById(R.id.nav_btn_finish);
         finishButton.performClick();
         ShadowLooper.idleMainLooper();
+        ShadowLooper.idleMainLooper();
         // verify that form save results into an error
-        assert ShadowDialog.getLatestDialog().findViewById(R.id.dialog_message) != null;
-        assert formEntryActivity.getCurrentAlertDialog() != null;
         String message = ((TextView)formEntryActivity.getCurrentAlertDialog().getUnderlyingDialog().getDialog().findViewById(R.id.dialog_message)).getText().toString();
         assert message.contentEquals(formEntryActivity.getString(R.string.invalid_case_graph_error));
 
