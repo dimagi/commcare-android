@@ -116,6 +116,7 @@ public abstract class ManageKeyRecordTask<R extends DataPullController> extends 
     @Override
     protected void deliverResult(R receiver, HttpCalloutOutcomes result) {
         // If this task completed and we logged in.
+        System.out.println("shubham result");
         if (result == HttpCalloutOutcomes.Success) {
             if (loggedIn == null) {
                 //If we got here, we didn't "log in" fully. IE: We have a key record and a
@@ -144,6 +145,7 @@ public abstract class ManageKeyRecordTask<R extends DataPullController> extends 
 
     @Override
     protected void deliverError(R receiver, Exception e) {
+        System.out.println("shubham error");
         Logger.log(LogTypes.TYPE_ERROR_WORKFLOW, "Error executing ManageKeyRecordTask: " + e.getMessage());
         keysDoneOther(receiver, HttpCalloutOutcomes.UnknownError);
     }
@@ -333,6 +335,7 @@ public abstract class ManageKeyRecordTask<R extends DataPullController> extends 
 
     @Override
     protected Response<ResponseBody> doHttpRequest() throws IOException {
+        System.out.println("shubham http");
         CommcareRequestGenerator requestor = new CommcareRequestGenerator(username, password);
         return requestor.makeKeyFetchRequest(keyServerUrl, null);
     }
@@ -368,6 +371,7 @@ public abstract class ManageKeyRecordTask<R extends DataPullController> extends 
 
     @Override
     protected boolean processSuccessfulRequest() {
+        System.out.println("shubham http success");
         if (keyRecords == null || keyRecords.size() == 0) {
             Logger.log(LogTypes.TYPE_USER, "No key records received on server request!");
             return false;

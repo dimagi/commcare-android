@@ -57,6 +57,7 @@ public class DemoUserRestoreTest {
                         .setup().get();
         ShadowActivity shadowActivity = Shadows.shadowOf(loginActivity);
         shadowActivity.clickMenuItem(LoginActivity.MENU_DEMO);
+        ShadowLooper.idleMainLooper();
     }
 
     private static ShadowActivity launchHomeActivityForDemoUser() {
@@ -102,6 +103,10 @@ public class DemoUserRestoreTest {
         EntityListAdapter adapter = CaseLoadUtils.loadList(entitySelectActivity);
         assertEquals(2, adapter.getCount());
 
+        updatingAppShouldUpdateRecords(sandbox);
+    }
+
+    private void updatingAppShouldUpdateRecords(AndroidSandbox sandbox) {
         // update the app to a version with a new demo user restore
         String profileRef = UpdateUtils.buildResourceRef(REF_BASE_DIR,
                 "update_user_restore", "profile.ccpr");
@@ -111,24 +116,25 @@ public class DemoUserRestoreTest {
 
         Robolectric.flushBackgroundThreadScheduler();
         Robolectric.flushBackgroundThreadScheduler();
-
+        System.out.println("shubham1");
         loginAsDemoUser();
-
+        System.out.println("shubham2");
         Robolectric.flushBackgroundThreadScheduler();
         Robolectric.flushBackgroundThreadScheduler();
-
+        System.out.println("shubham3");
         launchHomeActivityForDemoUser();
+        System.out.println("shubham4");
 
         // check that the user fixtures were updated
-        userFixtureStorage = sandbox.getUserFixtureStorage();
+        IStorageUtilityIndexed<FormInstance> userFixtureStorage = sandbox.getUserFixtureStorage();
         assertEquals(0, userFixtureStorage.getNumRecords());
 
         assertEquals(1, CommCareApplication.instance().getCurrentApp().getStorage(UserKeyRecord.class).getNumRecords());
 
         // make sure there is only 1 case after updating the demo user restore
-        entitySelectActivity = ActivityLaunchUtils.launchEntitySelectActivity("m0-f0");
+        EntitySelectActivity entitySelectActivity = ActivityLaunchUtils.launchEntitySelectActivity("m0-f0");
 
-        adapter = CaseLoadUtils.loadList(entitySelectActivity);
+        EntityListAdapter adapter = CaseLoadUtils.loadList(entitySelectActivity);
         assertEquals(1, adapter.getCount());
     }
 
