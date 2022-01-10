@@ -12,6 +12,7 @@ import org.commcare.android.util.ActivityLaunchUtils;
 import org.commcare.android.util.TestAppInstaller;
 import org.commcare.dalvik.R;
 import org.commcare.models.database.SqlStorage;
+import org.commcare.utils.RobolectricUtil;
 import org.commcare.views.QuestionsView;
 import org.commcare.views.widgets.IntegerWidget;
 import org.junit.Before;
@@ -21,9 +22,9 @@ import org.robolectric.Robolectric;
 import org.robolectric.Shadows;
 import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowActivity;
+import org.robolectric.shadows.ShadowLooper;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
 
@@ -73,16 +74,14 @@ public class EndOfFormTest {
         FormEntryActivity formEntryActivity =
                 Robolectric.buildActivity(FormEntryActivity.class, formEntryIntent)
                         .create().start().resume().get();
-
-
-
+        ShadowLooper.idleMainLooper();
         // enter an answer for the question
         QuestionsView questionsView = formEntryActivity.getODKView();
         IntegerWidget favoriteNumber = (IntegerWidget)questionsView.getWidgets().get(0);
         favoriteNumber.setAnswer("2");
         View finishButton = formEntryActivity.findViewById(R.id.nav_btn_finish);
         finishButton.performClick();
-
+        RobolectricUtil.flushBackgroundThread(formEntryActivity);
         ShadowActivity shadowFormEntryActivity = Shadows.shadowOf(formEntryActivity);
         while (!shadowFormEntryActivity.isFinishing()) {
             Log.d(TAG, "Waiting for the form to save and the form entry activity to finish");

@@ -23,6 +23,7 @@ import org.commcare.network.LocalReferencePullResponseFactory;
 import org.commcare.session.CommCareSession;
 import org.commcare.session.RemoteQuerySessionManager;
 import org.commcare.suite.model.QueryPrompt;
+import org.commcare.utils.RobolectricUtil;
 import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.xml.util.InvalidStructureException;
@@ -33,6 +34,7 @@ import org.junit.runner.RunWith;
 import org.robolectric.Robolectric;
 import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowActivity;
+import org.robolectric.shadows.ShadowLooper;
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
@@ -99,8 +101,10 @@ public class PostRequestActivityTest {
             postLaunchIntent.putExtra(PostRequestActivity.PARAMS_KEY,
                     new HashMap<String, String>());
         }
-        return Robolectric.buildActivity(PostRequestActivity.class, postLaunchIntent)
+        PostRequestActivity activity = Robolectric.buildActivity(PostRequestActivity.class, postLaunchIntent)
                 .create().start().resume().get();
+        ShadowLooper.idleMainLooper();
+        return activity;
     }
 
     @Test
@@ -167,6 +171,7 @@ public class PostRequestActivityTest {
         Button retryButton = postRequestActivity.findViewById(R.id.request_button);
         assertEquals(View.VISIBLE, retryButton.getVisibility());
         retryButton.performClick();
+        RobolectricUtil.flushBackgroundThread(postRequestActivity);
 
         assertErrorMessage(postRequestActivity, false, null);
 
@@ -229,6 +234,7 @@ public class PostRequestActivityTest {
         PostRequestActivity postRequestActivity =
                 Robolectric.buildActivity(PostRequestActivity.class, postActivityIntent)
                         .create().start().resume().get();
+        ShadowLooper.idleMainLooper();
 
         assertTrue(postRequestActivity.isFinishing());
     }

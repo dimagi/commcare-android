@@ -27,6 +27,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
+import org.robolectric.shadows.ShadowLooper
 
 @Config(application = CommCareTestApplication::class)
 @RunWith(AndroidJUnit4::class)
@@ -49,8 +50,7 @@ class IdentityCalloutTests {
         val formEntryActivity = ActivityLaunchUtils.launchFormEntry("m0-f0")
 
         intendRegistrationIntent()
-        (formEntryActivity.odkView.widgets[0].getChildAt(2) as Button).performClick()
-
+        performIntentCallout(formEntryActivity)
         TestUtils.assertFormValue("/data/identity_guid", "test-case-unique-guid")
         TestUtils.assertFormValue("/data/duplicate_guid", "")
         TestUtils.assertFormValue("/data/duplicate_score", "")
@@ -58,7 +58,7 @@ class IdentityCalloutTests {
 
         // Dupicate
         intendDuplicatesDuringRegistration()
-        (formEntryActivity.odkView.widgets[0].getChildAt(2) as Button).performClick()
+        performIntentCallout(formEntryActivity)
         TestUtils.assertFormValue("/data/identity_guid", "")
         TestUtils.assertFormValue("/data/duplicate_guid", "guid-2")
         TestUtils.assertFormValue("/data/duplicate_score", "90")
@@ -70,7 +70,7 @@ class IdentityCalloutTests {
 
         // verification
         intendVerificationIntent()
-        (formEntryActivity.odkView.widgets[0].getChildAt(2) as Button).performClick()
+        performIntentCallout(formEntryActivity)
         TestUtils.assertFormValue("/data/verify_guid", "test-case-unique-guid")
         TestUtils.assertFormValue("/data/verify_score", "90")
         TestUtils.assertFormValue("/data/verify_strength", "five_stars")
@@ -115,5 +115,10 @@ class IdentityCalloutTests {
     private fun intendDuplicatesDuringRegistration() {
         val result = Instrumentation.ActivityResult(Activity.RESULT_OK, getIdentificationIntent())
         intending(hasAction("org.commcare.identity.bioenroll")).respondWith(result)
+    }
+
+    private fun performIntentCallout(formEntryActivity: FormEntryActivity) {
+        (formEntryActivity.odkView.widgets[0].getChildAt(2) as Button).performClick()
+        ShadowLooper.shadowMainLooper().idle()
     }
 }

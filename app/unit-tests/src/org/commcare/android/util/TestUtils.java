@@ -53,6 +53,8 @@ import java.io.InputStream;
 import java.util.Collections;
 import java.util.Hashtable;
 
+import androidx.test.core.app.ApplicationProvider;
+
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -207,12 +209,12 @@ public class TestUtils {
      * @return The hook for the test user-db
      */
     private static SQLiteDatabase getTestDb() {
-        DatabaseUserOpenHelper helper = new DatabaseUserOpenHelper(RuntimeEnvironment.application, "Test");
+        DatabaseUserOpenHelper helper = new DatabaseUserOpenHelper(ApplicationProvider.getApplicationContext(), "Test");
         return helper.getWritableDatabase("Test");
     }
 
     public static PrototypeFactory getStaticPrototypeFactory() {
-        return CommCareTestApplication.instance().getPrototypeFactory(RuntimeEnvironment.application);
+        return CommCareTestApplication.instance().getPrototypeFactory(ApplicationProvider.getApplicationContext());
     }
 
     /**
@@ -237,7 +239,7 @@ public class TestUtils {
         String tableCreate = builder.getTableCreateString();
         db.execSQL(tableCreate);
 
-        return new SqlStorage<T>(storageKey, prototypeModel, new ConcreteAndroidDbHelper(RuntimeEnvironment.application, db) {
+        return new SqlStorage<T>(storageKey, prototypeModel, new ConcreteAndroidDbHelper(ApplicationProvider.getApplicationContext(), db) {
             @Override
             public PrototypeFactory getPrototypeFactory() {
                 return getStaticPrototypeFactory();
@@ -250,7 +252,7 @@ public class TestUtils {
      * @return The case storage object for the provided db
      */
     private static SqlStorage<ACase> getCaseStorage(SQLiteDatabase db) {
-        return new SqlStorage<>(ACase.STORAGE_KEY, ACase.class, new ConcreteAndroidDbHelper(RuntimeEnvironment.application, db) {
+        return new SqlStorage<>(ACase.STORAGE_KEY, ACase.class, new ConcreteAndroidDbHelper(ApplicationProvider.getApplicationContext(), db) {
             @Override
             public PrototypeFactory getPrototypeFactory() {
                 return getStaticPrototypeFactory();
@@ -259,7 +261,7 @@ public class TestUtils {
     }
 
     private static SqlStorage<Ledger> getLedgerStorage(SQLiteDatabase db) {
-        return new SqlStorage<>(Ledger.STORAGE_KEY, Ledger.class, new ConcreteAndroidDbHelper(RuntimeEnvironment.application, db) {
+        return new SqlStorage<>(Ledger.STORAGE_KEY, Ledger.class, new ConcreteAndroidDbHelper(ApplicationProvider.getApplicationContext(), db) {
             @Override
             public PrototypeFactory getPrototypeFactory() {
                 return getStaticPrototypeFactory();

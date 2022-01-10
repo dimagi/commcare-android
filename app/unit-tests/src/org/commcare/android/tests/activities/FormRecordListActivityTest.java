@@ -1,15 +1,13 @@
 package org.commcare.android.tests.activities;
 
 import android.content.Intent;
-import android.os.Environment;
 import android.widget.ListView;
 
 import org.commcare.CommCareTestApplication;
-import org.commcare.activities.StandardHomeActivity;
 import org.commcare.activities.FormEntryActivity;
 import org.commcare.activities.FormRecordListActivity;
+import org.commcare.activities.StandardHomeActivity;
 import org.commcare.adapters.IncompleteFormListAdapter;
-import androidx.test.ext.junit.runners.AndroidJUnit4;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.util.SavedFormLoader;
 import org.commcare.android.util.TestAppInstaller;
@@ -18,12 +16,16 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.Robolectric;
-import org.robolectric.RuntimeEnvironment;
 import org.robolectric.Shadows;
 import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowActivity;
-import org.robolectric.shadows.ShadowEnvironment;
 import org.robolectric.shadows.ShadowListView;
+import org.robolectric.shadows.ShadowLooper;
+
+import java.util.concurrent.ExecutionException;
+
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -54,7 +56,7 @@ public class FormRecordListActivityTest {
 
     public static void openASavedForm(int expectedFormCount, int formIndexToSelect) {
         Intent savedFormsIntent =
-                new Intent(RuntimeEnvironment.application, FormRecordListActivity.class);
+                new Intent(ApplicationProvider.getApplicationContext(), FormRecordListActivity.class);
         ShadowActivity homeActivityShadow = prepSavedFormsActivity(savedFormsIntent);
 
         FormRecordListActivity savedFormsActivity =
@@ -63,8 +65,7 @@ public class FormRecordListActivityTest {
                         .resume().get();
 
         // wait for saved forms to load
-        Robolectric.flushBackgroundThreadScheduler();
-        Robolectric.flushForegroundThreadScheduler();
+        ShadowLooper.idleMainLooper();
 
         ShadowListView shadowEntityList = assertSavedFormEntries(expectedFormCount, savedFormsActivity);
         shadowEntityList.performItemClick(formIndexToSelect);
@@ -93,6 +94,12 @@ public class FormRecordListActivityTest {
                 (IncompleteFormListAdapter)entityList.getAdapter();
         adapter.setFormFilter(FormRecordListActivity.FormRecordFilter.Submitted);
         adapter.resetRecords();
+        try {
+            adapter.getLoader().get();
+        } catch (ExecutionException | InterruptedException e) {
+            throw new RuntimeException("Loading forms failed due to " + e.getMessage(), e);
+        }
+        ShadowLooper.idleMainLooper();
         assertEquals(expectedFormCount, adapter.getCount());
         return Shadows.shadowOf(entityList);
     }
@@ -109,10 +116,7 @@ public class FormRecordListActivityTest {
                 homeActivityShadow.getNextStartedActivityForResult();
         Robolectric.buildActivity(FormEntryActivity.class, formEntryIntent.intent)
                         .create().start().resume().get();
-
-        Robolectric.flushBackgroundThreadScheduler();
-        Robolectric.flushForegroundThreadScheduler();
-
+        ShadowLooper.idleMainLooper();
         assertNotNull(FormEntryActivity.mFormController);
     }
 }

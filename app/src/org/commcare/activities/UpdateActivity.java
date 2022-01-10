@@ -390,6 +390,7 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
             profileRef = ResourceInstallUtils.getDefaultProfileRef();
         }
         uiController.downloadingUiState();
+
         updateTask.executeParallel(profileRef);
     }
 
