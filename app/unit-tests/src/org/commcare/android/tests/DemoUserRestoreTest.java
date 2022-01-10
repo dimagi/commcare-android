@@ -90,7 +90,6 @@ public class DemoUserRestoreTest {
         loginAsDemoUser();
 
         Robolectric.flushBackgroundThreadScheduler();
-        Robolectric.flushBackgroundThreadScheduler();
 
         ShadowActivity shadowActivity = launchHomeActivityForDemoUser();
         checkOptionsMenuVisibility(shadowActivity);
@@ -120,11 +119,9 @@ public class DemoUserRestoreTest {
                 AppInstallStatus.Installed);
 
         Robolectric.flushBackgroundThreadScheduler();
-        Robolectric.flushBackgroundThreadScheduler();
 
         loginAsDemoUser();
 
-        Robolectric.flushBackgroundThreadScheduler();
         Robolectric.flushBackgroundThreadScheduler();
 
         launchHomeActivityForDemoUser();
