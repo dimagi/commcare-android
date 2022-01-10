@@ -12,6 +12,8 @@ import org.commcare.activities.InstallArchiveActivity;
 import org.commcare.activities.UpdateActivity;
 import org.commcare.android.util.TestAppInstaller;
 import org.commcare.dalvik.R;
+import org.commcare.update.UpdateTask;
+import org.commcare.utils.RobolectricUtil;
 import org.javarosa.core.services.locale.Localization;
 import org.junit.Before;
 import org.junit.Test;
@@ -86,9 +88,9 @@ public class UpdateActivityTest {
         shadowActivity.receiveResult(shadowActivity.getNextStartedActivity(), AppCompatActivity.RESULT_OK,
                 referenceIntent);
         try {
-            updateActivity.updateTask.get();
+            UpdateTask.getRunningInstance().get();
         } catch (ExecutionException | InterruptedException e) {
-           throw new RuntimeException("Update failed due to " + e.getMessage(), e);
+            throw new RuntimeException("Update failed due to " + e.getMessage(), e);
         }
         ShadowLooper.idleMainLooper();
 

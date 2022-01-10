@@ -85,7 +85,7 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
 
     private boolean taskIsCancelling;
     private boolean isApplyingUpdate;
-    public UpdateTask updateTask;
+    private UpdateTask updateTask;
     private UpdateUIController uiController;
 
     private boolean proceedAutomatically;

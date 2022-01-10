@@ -95,7 +95,7 @@ public class FormRecordListActivityTest {
         adapter.setFormFilter(FormRecordListActivity.FormRecordFilter.Submitted);
         adapter.resetRecords();
         try {
-            adapter.loader.get();
+            adapter.getLoader().get();
         } catch (ExecutionException | InterruptedException e) {
             throw new RuntimeException("Loading forms failed due to " + e.getMessage(), e);
         }

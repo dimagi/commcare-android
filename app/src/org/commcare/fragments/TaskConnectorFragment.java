@@ -5,6 +5,8 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
+
+import androidx.annotation.VisibleForTesting;
 import androidx.fragment.app.Fragment;
 import android.util.Log;
 
@@ -91,6 +93,7 @@ public class TaskConnectorFragment<R> extends Fragment {
         this.currentTask = task;
     }
 
+    @VisibleForTesting
     public CommCareTask getCurrentTask() {
         return currentTask;
     }

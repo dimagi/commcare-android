@@ -30,6 +30,8 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Vector;
 
+import androidx.annotation.VisibleForTesting;
+
 /**
  * Responsible for delegating the loading of form lists and performing filtering over them.
  *
@@ -69,7 +71,7 @@ public class IncompleteFormListAdapter extends BaseAdapter implements FormRecord
      */
     private String[] queryPieces = new String[0];
 
-    public FormRecordLoaderTask loader;
+    private FormRecordLoaderTask loader;
 
     /**
      * Maps form namespace (unique id for forms) to their form title
@@ -379,6 +381,11 @@ public class IncompleteFormListAdapter extends BaseAdapter implements FormRecord
         if (loader.getStatus() == Status.RUNNING) {
             loader.cancel(false);
         }
+    }
+
+    @VisibleForTesting
+    public FormRecordLoaderTask getLoader() {
+        return loader;
     }
 
     public boolean isValid(int i) {
