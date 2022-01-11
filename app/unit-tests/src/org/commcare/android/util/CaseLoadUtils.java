@@ -11,6 +11,7 @@ import org.robolectric.Robolectric;
 import org.robolectric.Shadows;
 import org.robolectric.shadows.ShadowActivity;
 import org.robolectric.shadows.ShadowListView;
+import org.robolectric.shadows.ShadowLooper;
 
 /**
  * @author Phillip Mates (pmates@dimagi.com)
@@ -19,8 +20,7 @@ public class CaseLoadUtils {
 
     public static EntityListAdapter loadList(EntitySelectActivity entitySelectActivity) {
         // wait for entities to load
-        Robolectric.flushBackgroundThreadScheduler();
-        Robolectric.flushForegroundThreadScheduler();
+        ShadowLooper.idleMainLooper();
 
         ListView entityList =
                 entitySelectActivity.findViewById(R.id.screen_entity_select_list);

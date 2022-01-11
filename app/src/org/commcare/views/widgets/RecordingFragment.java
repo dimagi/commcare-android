@@ -1,5 +1,6 @@
 package org.commcare.views.widgets;
 
+import android.annotation.SuppressLint;
 import android.content.DialogInterface;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
@@ -9,6 +10,7 @@ import android.media.MediaCodecList;
 import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.view.LayoutInflater;
@@ -42,6 +44,11 @@ import androidx.fragment.app.DialogFragment;
 public class RecordingFragment extends DialogFragment {
 
     public static final String AUDIO_FILE_PATH_ARG_KEY = "audio_file_path";
+    public static final String APPEARANCE_ATTR_ARG_KEY = "appearance_attr_key";
+    private static final CharSequence LONG_APPEARANCE_VALUE = "long";
+    private static final String SAVE_TEXT_KEY = "save";
+    private static final String CANCEL_TEXT_KEY = "recording.cancel";
+    private static final String CLEAR_TEXT_KEY = "recording.clear";
 
     private static final String MIMETYPE_AUDIO_AAC = "audio/mp4a-latm";
 
@@ -50,17 +57,20 @@ public class RecordingFragment extends DialogFragment {
 
     private LinearLayout layout;
     private ImageButton toggleRecording;
-    private Button saveRecording;
-    private Button recordAgain;
+    private ImageButton discardRecording;
+    private Button actionButton;
     private TextView instruction;
     private ProgressBar recordingProgress;
 
     private Chronometer recordingDuration;
-    private long currentTimeMillis;
 
     private MediaRecorder recorder;
     private RecordingCompletionListener listener;
     private MediaPlayer player;
+    private long mLastStopTime;
+    private boolean inPausedState = false;
+    private boolean savedRecordingExists = false;
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -92,13 +102,14 @@ public class RecordingFragment extends DialogFragment {
     }
 
     private void reloadSavedRecording() {
-        recordAgain.setVisibility(View.VISIBLE);
-        saveRecording.setVisibility(View.GONE);
-        recordingDuration.setVisibility(View.VISIBLE);
-        toggleRecording.setBackgroundResource(R.drawable.play);
-        toggleRecording.setOnClickListener(v -> playAudio());
-        saveRecording.setEnabled(true);
-        instruction.setText(Localization.get("after.recording"));
+        savedRecordingExists = true;
+        actionButton.setVisibility(View.VISIBLE);
+        setActionText(CANCEL_TEXT_KEY);
+        actionButton.setOnClickListener(v -> dismiss());
+        recordingDuration.setVisibility(View.INVISIBLE);
+        toggleRecording.setBackgroundResource(R.drawable.recording_trash);
+        toggleRecording.setOnClickListener(v -> resetRecordingView());
+        instruction.setText(Localization.get("delete.recording"));
     }
 
     private void setWindowSize() {
@@ -110,28 +121,24 @@ public class RecordingFragment extends DialogFragment {
     }
 
     private void prepareText() {
-        TextView header = layout.findViewById(R.id.recording_header);
-        header.setText(Localization.get("recording.header"));
-        instruction = layout.findViewById(R.id.recording_instruction);
+        instruction = layout.findViewById(R.id.recording_header);
         instruction.setText(Localization.get("before.recording"));
         recordingDuration = layout.findViewById(R.id.recording_time);
     }
 
     private void prepareButtons() {
-        ImageButton discardRecording = layout.findViewById(R.id.discardrecording);
-        toggleRecording = layout.findViewById(R.id.startrecording);
-        saveRecording = layout.findViewById(R.id.saverecording);
-        recordAgain = layout.findViewById(R.id.recycle);
-
-        recordAgain.setOnClickListener(v -> resetRecordingView());
-
+        discardRecording = layout.findViewById(R.id.discardrecording);
         discardRecording.setOnClickListener(v -> dismiss());
-
-        toggleRecording.setOnClickListener(v -> startRecording());
-        saveRecording.setOnClickListener(v -> saveRecording());
-        saveRecording.setText(Localization.get("save"));
+        toggleRecording = layout.findViewById(R.id.startrecording);
+        actionButton = layout.findViewById(R.id.action_button);
         recordingProgress = layout.findViewById(R.id.demo_mpc);
+        toggleRecording.setOnClickListener(v -> startRecording());
     }
+
+    private void setActionText(String textKey) {
+        actionButton.setText(Localization.get(textKey));
+    }
+
 
     private void resetRecordingView() {
         if (recorder != null) {
@@ -148,29 +155,37 @@ public class RecordingFragment extends DialogFragment {
 
         toggleRecording.setBackgroundResource(R.drawable.record_start);
         toggleRecording.setOnClickListener(v -> startRecording());
-        instruction.setText(Localization.get("before.recording"));
-        saveRecording.setVisibility(View.INVISIBLE);
-        recordAgain.setVisibility(View.INVISIBLE);
+        instruction.setText(Localization.get("before.overwrite.recording"));
         recordingDuration.setVisibility(View.INVISIBLE);
+        enableSave();
+        setActionText(CLEAR_TEXT_KEY);
     }
 
     private void startRecording() {
         disableScreenRotation((AppCompatActivity)getContext());
         setCancelable(false);
-
         setupRecorder();
         recorder.start();
+        recordingDuration.setBase(SystemClock.elapsedRealtime());
+        recordingInProgress();
+    }
 
-        toggleRecording.setOnClickListener(v -> stopRecording());
-        toggleRecording.setBackgroundResource(R.drawable.record_in_progress);
+    private void recordingInProgress() {
+        recordingDuration.start();
+        if (isPauseSupported()) {
+            toggleRecording.setBackgroundResource(R.drawable.pause);
+            toggleRecording.setOnClickListener(v -> pauseRecording());
+        } else {
+            toggleRecording.setBackgroundResource(R.drawable.record_in_progress);
+            toggleRecording.setOnClickListener(v -> stopRecording());
+        }
         instruction.setText(Localization.get("during.recording"));
-
         recordingProgress.setVisibility(View.VISIBLE);
         recordingDuration.setVisibility(View.VISIBLE);
-
-        recordingDuration.setBase(SystemClock.elapsedRealtime());
-        recordingDuration.start();
+        actionButton.setVisibility(View.INVISIBLE);
+        discardRecording.setVisibility(View.INVISIBLE);
     }
+
 
     private void setupRecorder() {
         if (recorder == null) {
@@ -220,20 +235,66 @@ public class RecordingFragment extends DialogFragment {
         return false;
     }
 
+    @SuppressLint("NewApi")
     private void stopRecording() {
-
         recordingDuration.stop();
-        recordAgain.setVisibility(View.VISIBLE);
         recordingProgress.setVisibility(View.INVISIBLE);
+
+        // resume first just in case we were paused
+        if (inPausedState) {
+            recorder.resume();
+        }
+
         recorder.stop();
         toggleRecording.setBackgroundResource(R.drawable.play);
         toggleRecording.setOnClickListener(v -> playAudio());
-        saveRecording.setEnabled(true);
-        saveRecording.setVisibility(View.VISIBLE);
         instruction.setText(Localization.get("after.recording"));
+        enableSave();
     }
 
+    @SuppressLint("NewApi")
+    private void pauseRecording() {
+        inPausedState = true;
+        recordingDuration.stop();
+        chronoPause();
+        recorder.pause();
+        recordingProgress.setVisibility(View.INVISIBLE);
+        enableSave();
+        toggleRecording.setBackgroundResource(R.drawable.record_add);
+        toggleRecording.setOnClickListener(v -> resumeRecording());
+        instruction.setText(Localization.get("pause.recording"));
+    }
+
+    private void enableSave() {
+        discardRecording.setVisibility(savedRecordingExists ? View.VISIBLE : View.INVISIBLE);
+        actionButton.setVisibility(View.VISIBLE);
+        setActionText(SAVE_TEXT_KEY);
+        actionButton.setOnClickListener(v -> saveRecording());
+    }
+
+    @SuppressLint("NewApi")
+    private void resumeRecording() {
+        inPausedState = false;
+        chronoResume();
+        recorder.resume();
+        recordingInProgress();
+    }
+
+    private boolean isPauseSupported() {
+        Bundle args = getArguments();
+        if (args != null) {
+            String appearance = args.getString(APPEARANCE_ATTR_ARG_KEY);
+            return LONG_APPEARANCE_VALUE.equals(appearance) &&
+                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.N;
+        }
+        return false;
+    }
+
+
     private void saveRecording() {
+        if (inPausedState) {
+            stopRecording();
+        }
         if (listener != null) {
             listener.onRecordingCompletion(fileName);
         }
@@ -281,7 +342,6 @@ public class RecordingFragment extends DialogFragment {
     }
 
     private void playAudio() {
-
         Uri myPath = Uri.parse(fileName);
         player = MediaPlayer.create(getContext(), myPath);
         player.setOnCompletionListener(mp -> resetAudioPlayer());
@@ -294,15 +354,13 @@ public class RecordingFragment extends DialogFragment {
 
     private void pauseAudioPlayer() {
         player.pause();
-        recordingDuration.stop();
-        currentTimeMillis = recordingDuration.getBase();
+        chronoPause();
         toggleRecording.setBackgroundResource(R.drawable.play);
         toggleRecording.setOnClickListener(v -> resumeAudioPlayer());
     }
 
     private void resumeAudioPlayer() {
-        recordingDuration.setBase(currentTimeMillis);
-        recordingDuration.start();
+        chronoResume();
         player.start();
         toggleRecording.setBackgroundResource(R.drawable.pause);
         toggleRecording.setOnClickListener(v -> pauseAudioPlayer());
@@ -313,5 +371,20 @@ public class RecordingFragment extends DialogFragment {
         recordingDuration.stop();
         toggleRecording.setBackgroundResource(R.drawable.play);
         toggleRecording.setOnClickListener(v -> playAudio());
+    }
+
+    private void chronoPause() {
+        recordingDuration.stop();
+        mLastStopTime = SystemClock.elapsedRealtime();
+    }
+
+    private void chronoResume() {
+        if (mLastStopTime == 0) {
+            recordingDuration.setBase(SystemClock.elapsedRealtime());
+        } else {
+            long intervalOnPause = SystemClock.elapsedRealtime() - mLastStopTime;
+            recordingDuration.setBase(recordingDuration.getBase() + intervalOnPause);
+        }
+        recordingDuration.start();
     }
 }

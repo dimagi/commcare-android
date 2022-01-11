@@ -1,65 +1,84 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
 
-    android:orientation="vertical"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:layout_gravity="center_horizontal"
     android:gravity="center_horizontal"
-    android:paddingTop="10dp"
-    android:paddingLeft="10dp"
-    android:paddingRight="10dp"
+    android:orientation="vertical"
     android:paddingStart="10dp"
-    android:paddingEnd="10dp">
+    android:paddingLeft="10dp"
+    android:paddingTop="10dp"
+    android:paddingEnd="10dp"
+    android:paddingRight="10dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_gravity="center"
-        android:gravity="center"
-        android:layout_marginTop="10dp">
+        android:layout_marginTop="10dp"
+        android:orientation="horizontal">
 
         <ImageButton
+            android:id="@+id/play_audio"
             android:layout_width="65dp"
             android:layout_height="65dp"
-            android:background="@drawable/play_disabled"
-            android:id="@+id/play_audio"
+            android:layout_marginEnd="10dp"
             android:layout_marginRight="10dp"
-            android:elevation="10dp"
-            android:layout_marginEnd="10dp" />
+            android:background="@drawable/play_disabled"
+            android:elevation="10dp" />
+
+        <SeekBar
+            android:id="@+id/seekBar"
+            android:layout_width="match_parent"
+            android:layout_height="65dp" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end"
+        android:layout_marginTop="10dp"
+        android:orientation="horizontal">
 
         <TextView
+            android:id="@+id/playback_time"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="@color/grey"
-            android:id="@+id/recording_text"/>
+            tools:text="00:20" />
+
+        <TextView
+            android:id="@+id/playback_duration"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tools:text="/00:30" />
 
     </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
         android:layout_gravity="center"
+        android:layout_marginTop="30dp"
         android:gravity="center"
-        android:layout_marginTop="10dp">
+        android:orientation="horizontal">
 
         <ImageButton
+            android:id="@+id/capture_button"
             android:layout_width="80dp"
             android:layout_height="80dp"
-            android:background="@drawable/record"
-            android:id="@+id/capture_button"
+            android:layout_marginEnd="30dp"
             android:layout_marginRight="30dp"
-            android:elevation="10dp"
-            android:layout_marginEnd="30dp" />
+            android:background="@drawable/record"
+            android:elevation="10dp" />
 
         <ImageButton
+            android:id="@+id/choose_file"
             android:layout_width="80dp"
             android:layout_height="80dp"
             android:background="@drawable/open_file"
-            android:id="@+id/choose_file"
-            android:elevation="10dp"/>
+            android:elevation="10dp" />
 
     </LinearLayout>
 

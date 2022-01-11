@@ -14,6 +14,7 @@ import org.junit.Assert;
 import org.robolectric.Robolectric;
 import org.robolectric.Shadows;
 import org.robolectric.shadows.ShadowActivity;
+import org.robolectric.shadows.ShadowLooper;
 
 import javax.annotation.Nullable;
 
@@ -41,6 +42,7 @@ public class ActivityLaunchUtils {
         FormEntryActivity formEntryActivity =
                 Robolectric.buildActivity(FormEntryActivity.class, formEntryIntent)
                         .create().start().resume().get();
+        ShadowLooper.idleMainLooper();
         return formEntryActivity;
     }
 
@@ -58,8 +60,10 @@ public class ActivityLaunchUtils {
         Assert.assertEquals(EntitySelectActivity.class.getName(), intentActivityName);
 
         // start the entity select activity
-        return Robolectric.buildActivity(EntitySelectActivity.class, entitySelectIntent)
+        EntitySelectActivity activity = Robolectric.buildActivity(EntitySelectActivity.class, entitySelectIntent)
                 .setup().get();
+        ShadowLooper.idleMainLooper();
+        return activity;
     }
 
     public static void addCommandToSession(String sessionCommand) {
@@ -81,6 +85,7 @@ public class ActivityLaunchUtils {
     public static ShadowActivity buildHomeActivity(boolean startSession, @Nullable Intent intent) {
         StandardHomeActivity homeActivity =
                 Robolectric.buildActivity(StandardHomeActivity.class, intent).create().get();
+        ShadowLooper.idleMainLooper();
         // make sure we don't actually submit forms by using a fake form submitter
         homeActivity.setFormAndDataSyncer(new FormAndDataSyncerFake());
 

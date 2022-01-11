@@ -6,8 +6,6 @@ import android.os.Environment;
 import android.os.StrictMode;
 import android.util.Log;
 
-import androidx.annotation.NonNull;
-
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.mocks.ModernHttpRequesterMock;
 import org.commcare.android.util.TestUtils;
@@ -35,7 +33,6 @@ import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.junit.Assert;
 import org.robolectric.Robolectric;
-import org.robolectric.RuntimeEnvironment;
 import org.robolectric.TestLifecycleApplication;
 import org.robolectric.android.controller.ServiceController;
 
@@ -47,6 +44,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
+import androidx.annotation.NonNull;
+import androidx.test.core.app.ApplicationProvider;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 
@@ -223,7 +222,7 @@ public class CommCareTestApplication extends CommCareApplication implements Test
 
     private static CommCareSessionService startRoboCommCareService() {
         Intent startIntent =
-                new Intent(RuntimeEnvironment.application, CommCareSessionService.class);
+                new Intent(ApplicationProvider.getApplicationContext(), CommCareSessionService.class);
         ServiceController<CommCareSessionService> serviceController =
                 Robolectric.buildService(CommCareSessionService.class, startIntent);
         serviceController
@@ -257,7 +256,6 @@ public class CommCareTestApplication extends CommCareApplication implements Test
 
     @Override
     public void afterTest(Method method) {
-        Robolectric.flushBackgroundThreadScheduler();
         if (!asyncExceptions.isEmpty()) {
             for (Throwable throwable : asyncExceptions) {
                 throwable.printStackTrace();

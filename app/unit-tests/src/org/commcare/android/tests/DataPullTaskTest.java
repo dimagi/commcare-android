@@ -3,9 +3,8 @@ package org.commcare.android.tests;
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.CommCareTestApplication;
-import androidx.test.ext.junit.runners.AndroidJUnit4;
-import org.commcare.network.CommcareRequestEndpointsMock;
 import org.commcare.android.util.TestAppInstaller;
+import org.commcare.network.CommcareRequestEndpointsMock;
 import org.commcare.network.LocalReferencePullResponseFactory;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.ResultAndError;
@@ -13,8 +12,11 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.Robolectric;
-import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
+import org.robolectric.annotation.LooperMode;
+
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 /**
  * Coverage for different DataPullTask codepaths.
@@ -24,6 +26,7 @@ import org.robolectric.annotation.Config;
  */
 @Config(application = CommCareTestApplication.class)
 @RunWith(AndroidJUnit4.class)
+@LooperMode(LooperMode.Mode.LEGACY)
 public class DataPullTaskTest {
     private final static String APP_BASE = "jr://resource/commcare-apps/form_nav_tests/";
     private final static String GOOD_RESTORE = APP_BASE + "simple_data_restore.xml";
@@ -160,7 +163,7 @@ public class DataPullTaskTest {
         LocalReferencePullResponseFactory.setRequestPayloads(payloadResources);
 
         DataPullTask<Object> task =
-                new DataPullTask<Object>("test", "123", null, "fake.server.com", RuntimeEnvironment.application, LocalReferencePullResponseFactory.INSTANCE, false) {
+                new DataPullTask<Object>("test", "123", null, "fake.server.com", ApplicationProvider.getApplicationContext(), LocalReferencePullResponseFactory.INSTANCE, false) {
                     @Override
                     protected void deliverResult(Object o, ResultAndError<PullTaskResult> pullTaskResultResultAndError) {
                         dataPullResult = pullTaskResultResultAndError;

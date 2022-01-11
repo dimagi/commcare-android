@@ -5,7 +5,11 @@ import org.commcare.android.mocks.CommCareTaskConnectorFake;
 import org.commcare.tasks.FormRecordCleanupTask;
 import org.commcare.util.CommCarePlatform;
 import org.robolectric.Robolectric;
+import org.robolectric.Shadows;
 
+import java.util.concurrent.ExecutionException;
+
+import static android.os.Looper.getMainLooper;
 import static org.junit.Assert.fail;
 
 /**
@@ -43,8 +47,11 @@ public class SavedFormLoader {
 
         };
         task.connect(fakeConnector);
-        task.execute();
-        Robolectric.flushBackgroundThreadScheduler();
-        Robolectric.flushForegroundThreadScheduler();
+        try {
+            task.execute().get();
+        } catch (ExecutionException | InterruptedException e) {
+            throw new RuntimeException("Loading forms failed due to " + e.getMessage(), e);
+        }
+        Shadows.shadowOf(getMainLooper()).idle();
     }
 }

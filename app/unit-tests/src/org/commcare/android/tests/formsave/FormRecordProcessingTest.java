@@ -1,28 +1,24 @@
 package org.commcare.android.tests.formsave;
 
 import android.content.Intent;
-import android.os.Environment;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 
 import org.commcare.CommCareApplication;
 import org.commcare.CommCareTestApplication;
-import org.commcare.activities.StandardHomeActivity;
 import org.commcare.activities.FormEntryActivity;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import org.commcare.android.mocks.FormAndDataSyncerFake;
+
 import org.commcare.android.tests.queries.CaseDbQueryTest;
 import org.commcare.android.util.ActivityLaunchUtils;
 import org.commcare.android.util.TestAppInstaller;
 import org.commcare.android.util.TestUtils;
 import org.commcare.dalvik.R;
-import org.commcare.models.AndroidSessionWrapper;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.android.database.user.models.FormRecord;
-import org.commcare.session.CommCareSession;
-import org.commcare.session.SessionNavigator;
 import org.commcare.utils.FormUploadUtil;
+import org.commcare.utils.RobolectricUtil;
 import org.commcare.views.QuestionsView;
 import org.commcare.views.widgets.IntegerWidget;
 import org.javarosa.core.model.condition.EvaluationContext;
@@ -36,7 +32,7 @@ import org.robolectric.Robolectric;
 import org.robolectric.Shadows;
 import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowActivity;
-import org.robolectric.shadows.ShadowEnvironment;
+import org.robolectric.shadows.ShadowLooper;
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.ByteArrayInputStream;
@@ -120,7 +116,7 @@ public class FormRecordProcessingTest {
         FormEntryActivity formEntryActivity =
                 Robolectric.buildActivity(FormEntryActivity.class, formEntryIntent)
                         .create().start().resume().get();
-
+        ShadowLooper.idleMainLooper();
         // enter an answer for the question
         QuestionsView questionsView = formEntryActivity.getODKView();
         IntegerWidget cohort = (IntegerWidget)questionsView.getWidgets().get(0);
@@ -130,7 +126,7 @@ public class FormRecordProcessingTest {
         nextButton.performClick();
         View finishButton = formEntryActivity.findViewById(R.id.nav_btn_finish);
         finishButton.performClick();
-
+        RobolectricUtil.flushBackgroundThread(formEntryActivity);
         ShadowActivity shadowFormEntryActivity = Shadows.shadowOf(formEntryActivity);
 
         long waitStartTime = new Date().getTime();

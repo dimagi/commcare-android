@@ -1,8 +1,6 @@
 package org.commcare.models;
 
-import android.content.ComponentName;
 import android.content.Context;
-import android.content.Intent;
 import android.util.Pair;
 
 import org.apache.commons.lang3.StringUtils;
@@ -16,6 +14,7 @@ import org.commcare.engine.cases.CaseUtils;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.preferences.DeveloperPreferences;
+import org.commcare.sync.ExternalDataUpdateHelper;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.FormUploadUtil;
 import org.commcare.utils.QuarantineUtil;
@@ -91,7 +90,7 @@ public class FormRecordProcessor {
         XmlFormRecordProcessor.process(is, factory);
 
         //Let anyone who is listening know!
-        broadcastDataUpdate(factory);
+        ExternalDataUpdateHelper.broadcastDataUpdate(c, factory.getCreatedAndUpdatedCases());
 
         //Update the record before trying to purge, so we don't block on this, in case
         //anything weird happens. We don't want to get into a loop
@@ -106,17 +105,6 @@ public class FormRecordProcessor {
         }
 
         return updatedRecord;
-    }
-
-    private void broadcastDataUpdate(AndroidTransactionParserFactory factory) {
-        Intent i = new Intent("org.commcare.dalvik.api.action.data.update");
-        i.putStringArrayListExtra("cases", factory.getCreatedAndUpdatedCases());
-        c.sendBroadcast(i, "org.commcare.dalvik.provider.cases.read");
-
-        // send explicit broadcast to CommCare Reminders App
-        i.setComponent(new ComponentName("org.commcare.dalvik.reminders",
-                "org.commcare.dalvik.reminders.CommCareReceiver"));
-        c.sendBroadcast(i);
     }
 
     public FormRecord updateRecordStatus(FormRecord record, String newStatus) {

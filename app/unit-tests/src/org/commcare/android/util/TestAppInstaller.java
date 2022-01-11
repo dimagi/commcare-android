@@ -16,6 +16,14 @@ import org.javarosa.core.reference.ResourceReferenceFactory;
 import org.javarosa.core.util.PropertyUtils;
 import org.robolectric.Robolectric;
 import org.robolectric.RuntimeEnvironment;
+import org.robolectric.Shadows;
+import org.robolectric.shadows.ShadowLooper;
+
+import java.util.concurrent.ExecutionException;
+
+import androidx.test.core.app.ApplicationProvider;
+
+import static android.os.Looper.getMainLooper;
 
 /**
  * Functionality to install an app from local storage, create a test user, log
@@ -103,15 +111,17 @@ public class TestAppInstaller {
                     }
                 };
         task.connect(fakeConnector);
-        task.execute(resourceFilepath);
-
-        Robolectric.flushBackgroundThreadScheduler();
-        Robolectric.flushForegroundThreadScheduler();
+        try {
+            task.execute(resourceFilepath).get();
+        } catch (ExecutionException | InterruptedException e) {
+            throw new RuntimeException("Install failed due to " + e.getMessage(), e);
+        }
+        Shadows.shadowOf(getMainLooper()).idle();
     }
 
     private void buildTestUser() {
         CommCareApp ccApp = CommCareApplication.instance().getCurrentApp();
-        DemoUserBuilder.buildTestUser(RuntimeEnvironment.application,
+        DemoUserBuilder.buildTestUser(ApplicationProvider.getApplicationContext(),
                 ccApp,
                 username, password);
     }
