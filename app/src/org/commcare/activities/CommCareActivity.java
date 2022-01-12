@@ -820,6 +820,10 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
      * @return True iff the movement is a definitive horizontal swipe.
      */
     private static boolean isHorizontalSwipe(AppCompatActivity activity, MotionEvent e1, MotionEvent e2) {
+        if (e1 == null || e2 == null) {
+            return false;
+        }
+
         DisplayMetrics dm = new DisplayMetrics();
         activity.getWindowManager().getDefaultDisplay().getMetrics(dm);
 
