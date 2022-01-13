@@ -11,6 +11,7 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import org.commcare.CommCareApplication;
 import org.commcare.activities.components.FormEntryInstanceState;
 import org.commcare.dalvik.R;
 import org.commcare.logic.PendingCalloutInterface;
@@ -49,6 +50,7 @@ public abstract class MediaWidget extends QuestionWidget {
     protected Button mChooseButton;
     protected String mBinaryName;
 
+
     protected final PendingCalloutInterface pendingCalloutInterface;
     protected final String mInstanceFolder;
 
@@ -56,7 +58,7 @@ public abstract class MediaWidget extends QuestionWidget {
 
     protected String recordedFileName;
     protected String customFileTag;
-    protected String destMediaPath;
+    private String destMediaPath;
 
     public MediaWidget(Context context, FormEntryPrompt prompt,
                        PendingCalloutInterface pendingCalloutInterface) {
@@ -225,21 +227,13 @@ public abstract class MediaWidget extends QuestionWidget {
             return;
         }
 
-        if(!ifMediaSizeChecks(binaryPath) && !ifMediaExtensionChecks(binaryPath)){
-            // if file check fails and we have already copied the file to destMediaPath, delete it
-            if (!destMediaPath.isEmpty()) {
-                new File(destMediaPath).delete();
-            }
+        if (!ifMediaSizeChecks(binaryPath) && !ifMediaExtensionChecks(binaryPath)) {
             return;
         }
 
         File newMedia;
-
-        // otherwise we have already copied the file at newPath during createFilePath
-        if (destMediaPath.isEmpty()) {
-            recordedFileName = FileUtil.getFileName(binaryPath);
-            copyRecordedFileToDestination(binaryPath);
-        }
+        recordedFileName = FileUtil.getFileName(binaryPath);
+        copyRecordedFileToDestination(binaryPath);
 
         newMedia = new File(destMediaPath);
         if (newMedia.exists()) {
@@ -270,15 +264,14 @@ public abstract class MediaWidget extends QuestionWidget {
      * Set value of customFileTag if the file is a recent recording from the RecordingFragment
      */
     private String createFilePath(Object binaryuri) throws IOException {
-        String path = "";
-        destMediaPath = "";
+        String path;
         if (binaryuri instanceof Uri) {
-            // Need to make a copy of file using uri, so might as well copy to final destination path directly
+            // Make a copy to a temporary location
             InputStream inputStream = getContext().getContentResolver().openInputStream((Uri)binaryuri);
-            recordedFileName = FileUtil.getFileName(getContext(), (Uri)binaryuri);
-            destMediaPath = mInstanceFolder + System.currentTimeMillis() + "." + FileUtil.getExtension(recordedFileName);
-            FileUtil.copyFile(inputStream, new File(destMediaPath));
-            path = destMediaPath;
+            String fileName = FileUtil.getFileName(getContext(), (Uri)binaryuri);
+            path = CommCareApplication.instance().getAndroidFsTemp() + System.currentTimeMillis() + "."
+                    + FileUtil.getExtension(fileName);
+            FileUtil.copyFile(inputStream, new File(path));
             customFileTag = "";
         } else {
             path = (String)binaryuri;
