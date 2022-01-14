@@ -56,7 +56,6 @@ public abstract class MediaWidget extends QuestionWidget {
 
     private int oversizedMediaSize;
 
-    protected String recordedFileName;
     protected String customFileTag;
     private String destMediaPath;
 
@@ -143,7 +142,7 @@ public abstract class MediaWidget extends QuestionWidget {
      * @return whether the media file has a valid extension
      */
     private boolean ifMediaExtensionChecks(String binaryPath) {
-        String extension = FileUtil.getExtension(recordedFileName);
+        String extension = FileUtil.getExtension(binaryPath);
         if (!FormUploadUtil.isSupportedMultimediaFile(binaryPath)) {
             Toast.makeText(getContext(),
                     Localization.get("form.attachment.invalid"),
@@ -231,11 +230,8 @@ public abstract class MediaWidget extends QuestionWidget {
             return;
         }
 
-        File newMedia;
-        recordedFileName = FileUtil.getFileName(binaryPath);
         copyRecordedFileToDestination(binaryPath);
-
-        newMedia = new File(destMediaPath);
+        File newMedia = new File(destMediaPath);
         if (newMedia.exists()) {
             showToast("form.attachment.success");
         }
@@ -244,7 +240,7 @@ public abstract class MediaWidget extends QuestionWidget {
     }
 
     private void copyRecordedFileToDestination(String binaryPath) {
-        String extension = FileUtil.getExtension(recordedFileName);
+        String extension = FileUtil.getExtension(binaryPath);
         destMediaPath = mInstanceFolder + System.currentTimeMillis() + customFileTag + "." + extension;
 
         // Copy to destMediaPath
