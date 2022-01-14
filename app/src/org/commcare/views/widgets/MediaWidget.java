@@ -12,9 +12,11 @@ import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import org.commcare.CommCareApplication;
+import org.commcare.activities.FormEntryActivity;
 import org.commcare.activities.components.FormEntryInstanceState;
 import org.commcare.dalvik.R;
 import org.commcare.logic.PendingCalloutInterface;
+import org.commcare.models.encryption.EncryptionIO;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.FileExtensionNotFoundException;
 import org.commcare.utils.FileUtil;
@@ -32,6 +34,8 @@ import org.javarosa.form.api.FormEntryPrompt;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+
+import javax.crypto.spec.SecretKeySpec;
 
 import androidx.annotation.NonNull;
 
@@ -233,7 +237,7 @@ public abstract class MediaWidget extends QuestionWidget {
 
         File newMedia;
         recordedFileName = FileUtil.getFileName(binaryPath);
-        copyRecordedFileToDestination(binaryPath);
+        encryptRecordedFileToDestination(binaryPath);
 
         newMedia = new File(destMediaPath);
         if (newMedia.exists()) {
@@ -243,14 +247,12 @@ public abstract class MediaWidget extends QuestionWidget {
         mBinaryName = newMedia.getName();
     }
 
-    private void copyRecordedFileToDestination(String binaryPath) {
+    private void encryptRecordedFileToDestination(String binaryPath) {
         String extension = FileUtil.getExtension(recordedFileName);
-        destMediaPath = mInstanceFolder + System.currentTimeMillis() + customFileTag + "." + extension;
-
-        // Copy to destMediaPath
-        File source = new File(binaryPath);
+        destMediaPath = mInstanceFolder + System.currentTimeMillis() + customFileTag + "." + extension + ".aes";
+        SecretKeySpec key = ((FormEntryActivity)getContext()).getSymetricKey();
         try {
-            FileUtil.copyFile(source, new File(destMediaPath));
+            EncryptionIO.encryptFile(binaryPath, destMediaPath, key);
         } catch (IOException e) {
             showToast("form.attachment.copy.fail");
             Logger.exception(LogTypes.TYPE_MAINTENANCE, e);
