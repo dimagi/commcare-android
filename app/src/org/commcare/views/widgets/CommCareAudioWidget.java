@@ -122,8 +122,8 @@ public class CommCareAudioWidget extends AudioWidget
         RecordingFragment recorder = new RecordingFragment();
         recorder.setListener(this);
         Bundle args = new Bundle();
-        if (!TextUtils.isEmpty(mBinaryName)) {
-            args.putString(AUDIO_FILE_PATH_ARG_KEY, mInstanceFolder + mBinaryName);
+        if (!TextUtils.isEmpty(mTempBinaryPath)) {
+            args.putString(AUDIO_FILE_PATH_ARG_KEY, mTempBinaryPath);
         }
         args.putString(APPEARANCE_ATTR_ARG_KEY, prompt.getAppearanceHint());
         recorder.setArguments(args);
@@ -245,7 +245,7 @@ public class CommCareAudioWidget extends AudioWidget
         mPlayButton.setBackgroundResource(R.drawable.play);
         mPlayButton.setOnClickListener(v -> playAudio());
 
-        Uri filePath = Uri.parse(mInstanceFolder + mBinaryName);
+        Uri filePath = Uri.parse(mTempBinaryPath);
         player = MediaPlayer.create(getContext(), filePath);
         player.setOnCompletionListener(mp -> onCompletePlayback());
 
