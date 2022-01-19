@@ -322,7 +322,7 @@ public abstract class MediaWidget extends QuestionWidget {
     }
 
     protected void playMedia(String mediaType) {
-        Intent i = new Intent("android.intent.action.VIEW");
+        Intent i = new Intent(Intent.ACTION_VIEW);
         File mediaFile = new File(mTempBinaryPath);
         Uri mediaUri = FileUtil.getUriForExternalFile(getContext(), mediaFile);
         i.setDataAndType(mediaUri, mediaType);

@@ -18,8 +18,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatButton;
 
 /**
- * Widget that allows user to take pictures, sounds or video and add them to
- * the form.
+ * Legacy Audio Widget that allows user to capture sounds by performing an intent callout
  *
  * @author Carl Hartung (carlhartung@gmail.com)
  * @author Yaw Anokwa (yanokwa@gmail.com)
