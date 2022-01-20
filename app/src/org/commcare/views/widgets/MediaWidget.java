@@ -106,24 +106,23 @@ public abstract class MediaWidget extends QuestionWidget {
         File f = new File(mInstanceFolder + mBinaryName + AES_EXTENSION);
         checkFileSize(f);
         if (mTempBinaryPath == null) {
-            decryptMedia(f);
+            mTempBinaryPath = decryptMedia(f, getSecretKey());
         }
         togglePlayButton(true);
     }
 
-    private void decryptMedia(File f) {
-        mTempBinaryPath = createTempMediaPath(FileUtil.getExtension(f.getName()));
+    // decrypt the given file to a temp path
+    public static String decryptMedia(File f, SecretKeySpec secretKey) {
+        String tempMediaPath = createTempMediaPath(FileUtil.getExtension(f.getName()));
         try {
-            FileOutputStream fos = new FileOutputStream(mTempBinaryPath);
-            InputStream is = EncryptionIO.getFileInputStream(f.getPath(), getSecretKey());
+            FileOutputStream fos = new FileOutputStream(tempMediaPath);
+            InputStream is = EncryptionIO.getFileInputStream(f.getPath(), secretKey);
             StreamsUtil.writeFromInputToOutputNew(is, fos);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (StreamsUtil.InputIOException e) {
-            e.printStackTrace();
-        } catch (StreamsUtil.OutputIOException e) {
-            e.printStackTrace();
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to decrypt media at path " + f.getAbsolutePath()
+                    + " due to " + e.getMessage(), e);
         }
+        return tempMediaPath;
     }
 
     private SecretKeySpec getSecretKey() {
@@ -291,7 +290,6 @@ public abstract class MediaWidget extends QuestionWidget {
         } catch (IOException e) {
             showToast("form.attachment.copy.fail");
             Logger.exception(LogTypes.TYPE_MAINTENANCE, e);
-            e.printStackTrace();
         }
     }
 
@@ -316,7 +314,7 @@ public abstract class MediaWidget extends QuestionWidget {
         return path;
     }
 
-    private String createTempMediaPath(String fileExtension) {
+    private static String createTempMediaPath(String fileExtension) {
         return CommCareApplication.instance().getAndroidFsTemp() +
                 System.currentTimeMillis() + "." + fileExtension;
     }
