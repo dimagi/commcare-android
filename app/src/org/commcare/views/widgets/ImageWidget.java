@@ -27,6 +27,7 @@ import org.commcare.activities.components.ImageCaptureProcessing;
 import org.commcare.dalvik.R;
 import org.commcare.interfaces.RuntimePermissionRequester;
 import org.commcare.logic.PendingCalloutInterface;
+import org.commcare.util.LogTypes;
 import org.commcare.utils.FileUtil;
 import org.commcare.utils.GlobalConstants;
 import org.commcare.utils.MediaUtil;
@@ -38,6 +39,7 @@ import org.javarosa.core.model.QuestionDataExtension;
 import org.javarosa.core.model.UploadQuestionExtension;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.data.StringData;
+import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.form.api.FormEntryPrompt;
 
@@ -186,15 +188,24 @@ public class ImageWidget extends QuestionWidget {
             int screenHeight = display.getHeight();
 
             File imageBeingSubmitted = new File(mInstanceFolder + "/" + mBinaryName);
+            checkFileSize(imageBeingSubmitted);
+
 
             // If there is an image in the raw folder, use that as the display image, since it is
             // better quality
-            File toDisplay = new File(ImageCaptureProcessing.getRawDirectoryPath(mInstanceFolder) + mBinaryName);
+            File toDisplay = new File(ImageCaptureProcessing.getRawDirectoryPath(mInstanceFolder) + "/" + mBinaryName);
             if (!toDisplay.exists()) {
-                toDisplay = imageBeingSubmitted;
+                // look for the encrypted file and decrypt if available
+                File encryptedFile = new File(imageBeingSubmitted.getAbsolutePath() + MediaWidget.AES_EXTENSION);
+                if(encryptedFile.exists()) {
+                    // we need to decrypt the file and store it in a temp path to display
+                    String mTempPath = MediaWidget.decryptMedia(encryptedFile,
+                            ((FormEntryActivity)getContext()).getSymetricKey());
+                    toDisplay = new File(mTempPath);
+                } else {
+                    toDisplay = imageBeingSubmitted;
+                }
             }
-
-            checkFileSize(imageBeingSubmitted);
 
             if (toDisplay.exists()) {
                 Bitmap bmp = MediaUtil.getBitmapScaledToContainer(toDisplay,
@@ -278,11 +289,16 @@ public class ImageWidget extends QuestionWidget {
     }
 
     private void deleteMedia() {
-        // get the file path and delete the file
-        File f = new File(mInstanceFolder + "/" + mBinaryName);
-        if (!f.delete()) {
-            Log.e(t, "Failed to delete " + f);
+        // get the file path and delete the file or corresponding encrypted file
+        String filePath = mInstanceFolder + "/" + mBinaryName;
+        if(!FileUtil.deleteFileOrDir(filePath)){
+            Logger.log(LogTypes.TYPE_FORM_ENTRY, "Failed to delete image at path " + filePath);
         }
+        String encryptedFilePath = filePath + MediaWidget.AES_EXTENSION;
+        if(!FileUtil.deleteFileOrDir(encryptedFilePath)){
+            Logger.log(LogTypes.TYPE_FORM_ENTRY, "Failed to delete image at path " + encryptedFilePath);
+        }
+
         // clean up variables
         mBinaryName = null;
 
