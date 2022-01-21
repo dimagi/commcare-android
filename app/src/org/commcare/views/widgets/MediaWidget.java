@@ -33,7 +33,6 @@ import org.javarosa.core.services.locale.Localization;
 import org.javarosa.form.api.FormEntryPrompt;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -74,9 +73,7 @@ public abstract class MediaWidget extends QuestionWidget {
 
         this.pendingCalloutInterface = pendingCalloutInterface;
 
-        mInstanceFolder =
-                FormEntryInstanceState.mFormRecordPath.substring(0,
-                        FormEntryInstanceState.mFormRecordPath.lastIndexOf("/") + 1);
+        mInstanceFolder = FormEntryInstanceState.getInstanceFolder();
 
         setOrientation(LinearLayout.VERTICAL);
         initializeButtons();

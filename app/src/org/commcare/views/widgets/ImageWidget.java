@@ -45,6 +45,8 @@ import org.javarosa.form.api.FormEntryPrompt;
 
 import java.io.File;
 
+import javax.crypto.spec.SecretKeySpec;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatButton;
 
@@ -84,9 +86,7 @@ public class ImageWidget extends QuestionWidget {
         this.pendingCalloutInterface = pic;
 
         mMaxDimen = -1;
-        mInstanceFolder =
-                FormEntryInstanceState.mFormRecordPath.substring(0,
-                        FormEntryInstanceState.mFormRecordPath.lastIndexOf("/") + 1);
+        mInstanceFolder = FormEntryInstanceState.getInstanceFolder();
 
         setOrientation(LinearLayout.VERTICAL);
 
@@ -188,24 +188,16 @@ public class ImageWidget extends QuestionWidget {
             int screenHeight = display.getHeight();
 
             File imageBeingSubmitted = new File(mInstanceFolder + "/" + mBinaryName);
-            checkFileSize(imageBeingSubmitted);
+            File encryptedFile = new File(imageBeingSubmitted.getAbsolutePath() + MediaWidget.AES_EXTENSION);
 
-
-            // If there is an image in the raw folder, use that as the display image, since it is
-            // better quality
-            File toDisplay = new File(ImageCaptureProcessing.getRawDirectoryPath(mInstanceFolder) + "/" + mBinaryName);
-            if (!toDisplay.exists()) {
-                // look for the encrypted file and decrypt if available
-                File encryptedFile = new File(imageBeingSubmitted.getAbsolutePath() + MediaWidget.AES_EXTENSION);
-                if(encryptedFile.exists()) {
-                    // we need to decrypt the file and store it in a temp path to display
-                    String mTempPath = MediaWidget.decryptMedia(encryptedFile,
-                            ((FormEntryActivity)getContext()).getSymetricKey());
-                    toDisplay = new File(mTempPath);
-                } else {
-                    toDisplay = imageBeingSubmitted;
-                }
+            if (imageBeingSubmitted.exists()) {
+                checkFileSize(imageBeingSubmitted);
+            } else if (encryptedFile.exists()) {
+                checkFileSize(encryptedFile);
             }
+
+            File toDisplay = getFileToDisplay(mInstanceFolder, mBinaryName,
+                    ((FormEntryActivity)getContext()).getSymetricKey());
 
             if (toDisplay.exists()) {
                 Bitmap bmp = MediaUtil.getBitmapScaledToContainer(toDisplay,
@@ -220,6 +212,7 @@ public class ImageWidget extends QuestionWidget {
 
             mImageView.setPadding(10, 10, 10, 10);
             mImageView.setAdjustViewBounds(true);
+
             mImageView.setOnClickListener(v -> {
                 Intent i = new Intent("android.intent.action.VIEW");
                 String[] projection = {
@@ -229,7 +222,7 @@ public class ImageWidget extends QuestionWidget {
                 try {
                     c = getContext().getContentResolver().query(
                             android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                            projection, "_data='" + mInstanceFolder + mBinaryName + "'",
+                            projection, "_data='" + toDisplay.getAbsolutePath() + "'",
                             null, null);
                     if (c != null && c.getCount() > 0) {
                         c.moveToFirst();
@@ -262,6 +255,26 @@ public class ImageWidget extends QuestionWidget {
         }
     }
 
+    // If there is an image in the raw folder, use that as the display image, since it is better quality
+    // otherwise checks if the file to be uploaded exists and decrypt if needed
+    public static File getFileToDisplay(String instanceFolder, String binaryName, SecretKeySpec secretKey) {
+        File imageBeingSubmitted = new File(instanceFolder + "/" + binaryName);
+        File toDisplay = new File(ImageCaptureProcessing.getRawDirectoryPath(instanceFolder) + "/" + binaryName);
+        if (!toDisplay.exists()) {
+            if (imageBeingSubmitted.exists()) {
+                toDisplay = imageBeingSubmitted;
+            } else {
+                File encryptedFile = new File(imageBeingSubmitted.getAbsolutePath() + MediaWidget.AES_EXTENSION);
+                if (encryptedFile.exists()) {
+                    // we need to decrypt the file and store it in a temp path to display
+                    String mTempPath = MediaWidget.decryptMedia(encryptedFile, secretKey);
+                    toDisplay = new File(mTempPath);
+                }
+            }
+        }
+        return toDisplay;
+    }
+
     private void takePicture() {
         Intent i = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
         Uri uri = FileUtil.getUriForExternalFile(getContext(), getTempFileForImageCapture());
@@ -289,21 +302,23 @@ public class ImageWidget extends QuestionWidget {
     }
 
     private void deleteMedia() {
-        // get the file path and delete the file or corresponding encrypted file
-        String filePath = mInstanceFolder + "/" + mBinaryName;
-        if(!FileUtil.deleteFileOrDir(filePath)){
+        deleteImageFiles(mInstanceFolder, mBinaryName);
+        // clean up variables
+        mBinaryName = null;
+        removeView(mImageView);
+        mDiscardButton.setVisibility(View.GONE);
+    }
+
+    // get the file path and delete the file along with the corresponding encrypted file
+    public static void deleteImageFiles(String instanceFolder, String binaryName) {
+        String filePath = instanceFolder + "/" + binaryName;
+        if (!FileUtil.deleteFileOrDir(filePath)) {
             Logger.log(LogTypes.TYPE_FORM_ENTRY, "Failed to delete image at path " + filePath);
         }
         String encryptedFilePath = filePath + MediaWidget.AES_EXTENSION;
-        if(!FileUtil.deleteFileOrDir(encryptedFilePath)){
+        if (!FileUtil.deleteFileOrDir(encryptedFilePath)) {
             Logger.log(LogTypes.TYPE_FORM_ENTRY, "Failed to delete image at path " + encryptedFilePath);
         }
-
-        // clean up variables
-        mBinaryName = null;
-
-        removeView(mImageView);
-        mDiscardButton.setVisibility(View.GONE);
     }
 
     @Override
