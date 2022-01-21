@@ -11,6 +11,7 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import org.commcare.CommCareApplication;
 import org.commcare.activities.components.FormEntryInstanceState;
 import org.commcare.dalvik.R;
 import org.commcare.logic.PendingCalloutInterface;
@@ -49,14 +50,14 @@ public abstract class MediaWidget extends QuestionWidget {
     protected Button mChooseButton;
     protected String mBinaryName;
 
+
     protected final PendingCalloutInterface pendingCalloutInterface;
     protected final String mInstanceFolder;
 
     private int oversizedMediaSize;
 
-    protected String recordedFileName;
     protected String customFileTag;
-    protected String destMediaPath;
+    private String destMediaPath;
 
     public MediaWidget(Context context, FormEntryPrompt prompt,
                        PendingCalloutInterface pendingCalloutInterface) {
@@ -123,24 +124,37 @@ public abstract class MediaWidget extends QuestionWidget {
     }
 
     /**
-     * @return resolved filepath or null if the target is too big to upload
+     * @return whether the media file passes the size check
      */
-    private String getBinaryPathWithSizeCheck(Object binaryURI) throws IOException {
-        String binaryPath = createFilePath(binaryURI);
+    private boolean ifMediaSizeChecks(String binaryPath) {
         File source = new File(binaryPath);
         boolean isTooLargeToUpload = checkFileSize(source);
-
-        if (mBinaryName != null) {
-            deleteMedia();
-        }
-
         if (isTooLargeToUpload) {
             oversizedMediaSize = (int)source.length() / (1024 * 1024);
-            return null;
+            return false;
         } else {
             oversizedMediaSize = -1;
-            return binaryPath;
+            return true;
         }
+    }
+
+    /**
+     * @return whether the media file has a valid extension
+     */
+    private boolean ifMediaExtensionChecks(String binaryPath) {
+        String extension = FileUtil.getExtension(binaryPath);
+        if (!FormUploadUtil.isSupportedMultimediaFile(binaryPath)) {
+            Toast.makeText(getContext(),
+                    Localization.get("form.attachment.invalid"),
+                    Toast.LENGTH_LONG).show();
+            Log.e(TAG, String.format(
+                    "Could not save file with URI %s because of bad extension %s.",
+                    binaryPath,
+                    extension
+            ));
+            return false;
+        }
+        return true;
     }
 
     @Override
@@ -192,10 +206,15 @@ public abstract class MediaWidget extends QuestionWidget {
     }
 
     @Override
-    public void setBinaryData(Object binaryuri) {
+    public void setBinaryData(Object binaryURI) {
+        // delete any existing media
+        if (mBinaryName != null) {
+            deleteMedia();
+        }
+
         String binaryPath;
         try {
-            binaryPath = getBinaryPathWithSizeCheck(binaryuri);
+            binaryPath = createFilePath(binaryURI);
         } catch (FileExtensionNotFoundException e) {
             showToast("form.attachment.invalid.extension");
             Logger.exception("Error while saving media ", e);
@@ -207,52 +226,32 @@ public abstract class MediaWidget extends QuestionWidget {
             return;
         }
 
-        if (binaryPath == null) {
-            // if file is too large and we have already copied the file to destMediaPath, delete it
-            if (!destMediaPath.isEmpty()) {
-                new File(destMediaPath).delete();
-            }
+        if (!ifMediaSizeChecks(binaryPath) && !ifMediaExtensionChecks(binaryPath)) {
             return;
         }
 
-        File newMedia;
-
-        if (!destMediaPath.isEmpty()) {
-            // we have already copied the file at newPath during createFilePath
-            newMedia = new File(destMediaPath);
-        } else {
-            recordedFileName = FileUtil.getFileName(binaryPath);
-            String extension = FileUtil.getExtension(binaryPath);
-            if (!FormUploadUtil.isSupportedMultimediaFile(binaryPath)) {
-                Toast.makeText(getContext(),
-                        Localization.get("form.attachment.invalid"),
-                        Toast.LENGTH_LONG).show();
-                Log.e(TAG, String.format(
-                        "Could not save file with URI %s because of bad extension %s.",
-                        binaryPath,
-                        extension
-                ));
-                return;
-            }
-            destMediaPath = mInstanceFolder + System.currentTimeMillis() + customFileTag + "." + extension;
-
-            // Copy to destMediaPath
-            File source = new File(binaryPath);
-            newMedia = new File(destMediaPath);
-            try {
-                FileUtil.copyFile(source, newMedia);
-            } catch (IOException e) {
-                showToast("form.attachment.copy.fail");
-                Logger.exception(LogTypes.TYPE_MAINTENANCE, e);
-                e.printStackTrace();
-            }
-        }
-
+        copyRecordedFileToDestination(binaryPath);
+        File newMedia = new File(destMediaPath);
         if (newMedia.exists()) {
             showToast("form.attachment.success");
         }
 
         mBinaryName = newMedia.getName();
+    }
+
+    private void copyRecordedFileToDestination(String binaryPath) {
+        String extension = FileUtil.getExtension(binaryPath);
+        destMediaPath = mInstanceFolder + System.currentTimeMillis() + customFileTag + "." + extension;
+
+        // Copy to destMediaPath
+        File source = new File(binaryPath);
+        try {
+            FileUtil.copyFile(source, new File(destMediaPath));
+        } catch (IOException e) {
+            showToast("form.attachment.copy.fail");
+            Logger.exception(LogTypes.TYPE_MAINTENANCE, e);
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -261,15 +260,14 @@ public abstract class MediaWidget extends QuestionWidget {
      * Set value of customFileTag if the file is a recent recording from the RecordingFragment
      */
     private String createFilePath(Object binaryuri) throws IOException {
-        String path = "";
-        destMediaPath = "";
+        String path;
         if (binaryuri instanceof Uri) {
-            // Need to make a copy of file using uri, so might as well copy to final destination path directly
+            // Make a copy to a temporary location
             InputStream inputStream = getContext().getContentResolver().openInputStream((Uri)binaryuri);
-            recordedFileName = FileUtil.getFileName(getContext(), (Uri)binaryuri);
-            destMediaPath = mInstanceFolder + System.currentTimeMillis() + "." + FileUtil.getExtension(recordedFileName);
-            FileUtil.copyFile(inputStream, new File(destMediaPath));
-            path = destMediaPath;
+            String fileName = FileUtil.getFileName(getContext(), (Uri)binaryuri);
+            path = CommCareApplication.instance().getAndroidFsTemp() + System.currentTimeMillis() + "."
+                    + FileUtil.getExtension(fileName);
+            FileUtil.copyFile(inputStream, new File(path));
             customFileTag = "";
         } else {
             path = (String)binaryuri;
