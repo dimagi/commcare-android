@@ -131,7 +131,7 @@ public abstract class MediaWidget extends QuestionWidget {
             return null;
         }
 
-        String tempMediaPath = createTempMediaPath(FileUtil.getExtension(f.getName()));
+        String tempMediaPath = createTempMediaPath(FileUtil.getExtension(removeAESExtension(f.getName())));
         try {
             FileOutputStream fos = new FileOutputStream(tempMediaPath);
             InputStream is = EncryptionIO.getFileInputStream(f.getPath(), secretKey);
