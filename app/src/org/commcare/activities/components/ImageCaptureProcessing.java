@@ -8,6 +8,7 @@ import org.commcare.CommCareApplication;
 import org.commcare.activities.FormEntryActivity;
 import org.commcare.models.encryption.EncryptionIO;
 import org.commcare.modern.util.Pair;
+import org.commcare.preferences.HiddenPreferences;
 import org.commcare.utils.FileExtensionNotFoundException;
 import org.commcare.utils.FileUtil;
 import org.commcare.views.widgets.ImageWidget;
@@ -59,16 +60,26 @@ public class ImageCaptureProcessing {
                 }
             }
         }
+        String sourcePath = savedScaledImage ? tempFilePathForScaledImage : originalImage.getAbsolutePath();
+        String finalFilePath = instanceFolder + imageFilename;
 
         // Encrypt the scaled or original image to final path
-        String finalFilePath = instanceFolder + imageFilename + MediaWidget.AES_EXTENSION;
-        String sourcePath = savedScaledImage ? tempFilePathForScaledImage : originalImage.getAbsolutePath();
-        try {
-            EncryptionIO.encryptFile(sourcePath, finalFilePath, formEntryActivity.getSymetricKey());
-        } catch (Exception e) {
-            throw new IOException("Failed to encrypt " + originalImage.getAbsolutePath() +
-                    " to " + finalFilePath, e);
+        if (HiddenPreferences.isMediaCaptureEncryptionEnabled()) {
+            finalFilePath = finalFilePath + MediaWidget.AES_EXTENSION;
+            try {
+                EncryptionIO.encryptFile(sourcePath, finalFilePath, formEntryActivity.getSymetricKey());
+            } catch (Exception e) {
+                throw new IOException("Failed to encrypt " + sourcePath +
+                        " to " + finalFilePath, e);
+            }
+        } else {
+            try {
+                FileUtil.copyFile(sourcePath, finalFilePath);
+            } catch (Exception e) {
+                throw new IOException("Failed to rename " + sourcePath + " to " + finalFilePath);
+            }
         }
+
         return new Pair<>(rawImageFile, finalFilePath);
     }
 

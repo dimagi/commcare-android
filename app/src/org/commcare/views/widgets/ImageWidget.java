@@ -27,7 +27,6 @@ import org.commcare.activities.components.ImageCaptureProcessing;
 import org.commcare.dalvik.R;
 import org.commcare.interfaces.RuntimePermissionRequester;
 import org.commcare.logic.PendingCalloutInterface;
-import org.commcare.util.LogTypes;
 import org.commcare.utils.FileUtil;
 import org.commcare.utils.GlobalConstants;
 import org.commcare.utils.MediaUtil;
@@ -39,7 +38,6 @@ import org.javarosa.core.model.QuestionDataExtension;
 import org.javarosa.core.model.UploadQuestionExtension;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.data.StringData;
-import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.form.api.FormEntryPrompt;
 
@@ -302,23 +300,11 @@ public class ImageWidget extends QuestionWidget {
     }
 
     private void deleteMedia() {
-        deleteImageFiles(mInstanceFolder, mBinaryName);
+        MediaWidget.deleteMediaFiles(mInstanceFolder, mBinaryName);
         // clean up variables
         mBinaryName = null;
         removeView(mImageView);
         mDiscardButton.setVisibility(View.GONE);
-    }
-
-    // get the file path and delete the file along with the corresponding encrypted file
-    public static void deleteImageFiles(String instanceFolder, String binaryName) {
-        String filePath = instanceFolder + "/" + binaryName;
-        if (!FileUtil.deleteFileOrDir(filePath)) {
-            Logger.log(LogTypes.TYPE_FORM_ENTRY, "Failed to delete image at path " + filePath);
-        }
-        String encryptedFilePath = filePath + MediaWidget.AES_EXTENSION;
-        if (!FileUtil.deleteFileOrDir(encryptedFilePath)) {
-            Logger.log(LogTypes.TYPE_FORM_ENTRY, "Failed to delete image at path " + encryptedFilePath);
-        }
     }
 
     @Override

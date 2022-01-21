@@ -121,17 +121,13 @@ public class CommCareAudioWidget extends AudioWidget
         RecordingFragment recorder = new RecordingFragment();
         recorder.setListener(this);
         Bundle args = new Bundle();
-        if (!TextUtils.isEmpty(mTempBinaryPath)) {
-            args.putString(AUDIO_FILE_PATH_ARG_KEY, mTempBinaryPath);
+        String sourceFilePath = getSourceFilePathToDisplay();
+        if (!TextUtils.isEmpty(sourceFilePath)) {
+            args.putString(AUDIO_FILE_PATH_ARG_KEY, sourceFilePath);
         }
         args.putString(APPEARANCE_ATTR_ARG_KEY, prompt.getAppearanceHint());
         recorder.setArguments(args);
         recorder.show(((FragmentActivity)getContext()).getSupportFragmentManager(), "Recorder");
-    }
-
-    @Override
-    public void setBinaryData(Object binaryuri) {
-        super.setBinaryData(binaryuri);
     }
 
     @Override
@@ -174,10 +170,14 @@ public class CommCareAudioWidget extends AudioWidget
     }
 
     private void updatePlaybackInfo() {
-        if (player.isPlaying()) {
-            int mCurrentPosition = player.getCurrentPosition();
-            playbackSeekBar.setProgress(mCurrentPosition / 1000);
-            playbackTime.setText(getTimeString(mCurrentPosition));
+        try {
+            if (player.isPlaying()) {
+                int mCurrentPosition = player.getCurrentPosition();
+                playbackSeekBar.setProgress(mCurrentPosition / 1000);
+                playbackTime.setText(getTimeString(mCurrentPosition));
+            }
+        } catch (IllegalStateException e){
+            // ignore, can happen if this method is triggered after player has stopped
         }
     }
 
@@ -244,13 +244,14 @@ public class CommCareAudioWidget extends AudioWidget
         mPlayButton.setBackgroundResource(R.drawable.play);
         mPlayButton.setOnClickListener(v -> playAudio());
 
-        Uri filePath = Uri.parse(mTempBinaryPath);
+        String sourceFilePath = getSourceFilePathToDisplay();
+        Uri filePath = Uri.parse(sourceFilePath);
         player = MediaPlayer.create(getContext(), filePath);
         player.setOnCompletionListener(mp -> onCompletePlayback());
 
         playbackDuration.setVisibility(VISIBLE);
         playbackDuration.setText(String.format(Locale.getDefault(),
-                "/%s",getTimeString(player.getDuration())));
+                "/%s", getTimeString(player.getDuration())));
 
         playbackTime.setVisibility(VISIBLE);
         playbackTime.setText(R.string.playback_start_time);

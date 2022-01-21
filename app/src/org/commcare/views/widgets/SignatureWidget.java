@@ -165,7 +165,7 @@ public class SignatureWidget extends QuestionWidget {
     }
 
     private void deleteMedia() {
-        ImageWidget.deleteImageFiles(mInstanceFolder, mBinaryName);
+        MediaWidget.deleteMediaFiles(mInstanceFolder, mBinaryName);
         // clean up variables
         mBinaryName = null;
     }

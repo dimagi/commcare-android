@@ -17,6 +17,7 @@ import org.commcare.activities.components.FormEntryInstanceState;
 import org.commcare.dalvik.R;
 import org.commcare.logic.PendingCalloutInterface;
 import org.commcare.models.encryption.EncryptionIO;
+import org.commcare.preferences.HiddenPreferences;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.FileExtensionNotFoundException;
 import org.commcare.utils.FileUtil;
@@ -56,7 +57,7 @@ public abstract class MediaWidget extends QuestionWidget {
     protected Button mPlayButton;
     protected Button mChooseButton;
     protected String mBinaryName;
-    protected String mTempBinaryPath;
+    private String mTempBinaryPath;
 
 
     protected final PendingCalloutInterface pendingCalloutInterface;
@@ -100,16 +101,36 @@ public abstract class MediaWidget extends QuestionWidget {
     }
 
     private void reloadFile() {
-        File f = new File(mInstanceFolder + mBinaryName + AES_EXTENSION);
-        checkFileSize(f);
-        if (mTempBinaryPath == null) {
-            mTempBinaryPath = decryptMedia(f, getSecretKey());
+        File f = new File(mInstanceFolder + mBinaryName);
+        if (f.exists()) {
+            checkFileSize(f);
+        } else if (mTempBinaryPath == null) {
+            File encryptedFile = new File(mInstanceFolder + mBinaryName + AES_EXTENSION);
+            checkFileSize(encryptedFile);
+            mTempBinaryPath = decryptMedia(encryptedFile, getSecretKey());
+        } else {
+            checkFileSize(new File(mTempBinaryPath));
         }
+
         togglePlayButton(true);
+    }
+
+    protected String getSourceFilePathToDisplay() {
+        File f = new File(mInstanceFolder + mBinaryName);
+        if (f.exists()) {
+            return f.getAbsolutePath();
+        } else {
+            // file should have been decrypted at the temp path
+            return mTempBinaryPath;
+        }
     }
 
     // decrypt the given file to a temp path
     public static String decryptMedia(File f, SecretKeySpec secretKey) {
+        if (!f.getName().endsWith(AES_EXTENSION)) {
+            return null;
+        }
+
         String tempMediaPath = createTempMediaPath(FileUtil.getExtension(f.getName()));
         try {
             FileOutputStream fos = new FileOutputStream(tempMediaPath);
@@ -191,13 +212,21 @@ public abstract class MediaWidget extends QuestionWidget {
     }
 
     private void deleteMedia() {
-        File f = new File(mInstanceFolder + mBinaryName);
-        if (!f.delete()) {
-            Log.e(TAG, "Failed to delete " + f);
-        }
-
+        deleteMediaFiles(mInstanceFolder, mBinaryName);
         mBinaryName = null;
         mTempBinaryPath = null;
+    }
+
+    // get the file path and delete the file along with the corresponding encrypted file
+    public static void deleteMediaFiles(String instanceFolder, String binaryName) {
+        String filePath = instanceFolder + "/" + binaryName;
+        if (!FileUtil.deleteFileOrDir(filePath)) {
+            Logger.log(LogTypes.TYPE_FORM_ENTRY, "Failed to delete media at path " + filePath);
+        }
+        String encryptedFilePath = filePath + MediaWidget.AES_EXTENSION;
+        if (!FileUtil.deleteFileOrDir(encryptedFilePath)) {
+            Logger.log(LogTypes.TYPE_FORM_ENTRY, "Failed to delete media at path " + encryptedFilePath);
+        }
     }
 
     @Override
@@ -266,7 +295,7 @@ public abstract class MediaWidget extends QuestionWidget {
         }
 
         mTempBinaryPath = binaryPath;
-        mBinaryName = newMedia.getName();
+        mBinaryName = removeAESExtension(newMedia.getName());
     }
 
     // removes ".aes" from file name if exists
@@ -280,10 +309,14 @@ public abstract class MediaWidget extends QuestionWidget {
     private void encryptRecordedFileToDestination(String binaryPath) {
         String extension = FileUtil.getExtension(binaryPath);
         destMediaPath = mInstanceFolder + System.currentTimeMillis() +
-                customFileTag + "." + extension + AES_EXTENSION;
-        SecretKeySpec key = getSecretKey();
+                customFileTag + "." + extension;
         try {
-            EncryptionIO.encryptFile(binaryPath, destMediaPath, key);
+            if (HiddenPreferences.isMediaCaptureEncryptionEnabled()) {
+                destMediaPath = destMediaPath + AES_EXTENSION;
+                EncryptionIO.encryptFile(binaryPath, destMediaPath, getSecretKey());
+            } else {
+                FileUtil.copyFile(binaryPath, destMediaPath);
+            }
         } catch (IOException e) {
             showToast("form.attachment.copy.fail");
             Logger.exception(LogTypes.TYPE_MAINTENANCE, e);
@@ -318,7 +351,7 @@ public abstract class MediaWidget extends QuestionWidget {
 
     protected void playMedia(String mediaType) {
         Intent i = new Intent(Intent.ACTION_VIEW);
-        File mediaFile = new File(mTempBinaryPath);
+        File mediaFile = new File(getSourceFilePathToDisplay());
         Uri mediaUri = FileUtil.getUriForExternalFile(getContext(), mediaFile);
         i.setDataAndType(mediaUri, mediaType);
 
