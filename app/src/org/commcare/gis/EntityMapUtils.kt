@@ -1,8 +1,9 @@
 package org.commcare.gis
 
 import com.mapbox.mapboxsdk.geometry.LatLng
-import java.util.*
+import java.util.Vector
 import javax.annotation.Nullable
+import kotlin.collections.ArrayList
 import org.commcare.CommCareApplication
 import org.commcare.activities.EntitySelectActivity
 import org.commcare.cases.entity.Entity

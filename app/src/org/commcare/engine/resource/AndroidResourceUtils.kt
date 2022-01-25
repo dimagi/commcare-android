@@ -1,7 +1,7 @@
 package org.commcare.engine.resource
 
 import java.io.File
-import java.util.*
+import java.util.Vector
 import org.commcare.android.resource.installers.MediaFileAndroidInstaller
 import org.commcare.resources.model.MissingMediaException
 import org.commcare.resources.model.Resource

@@ -8,7 +8,9 @@ import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.io.IOException
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Date
+import kotlin.collections.ArrayList
+import kotlin.collections.LinkedHashMap
 import org.apache.commons.lang3.StringUtils
 import org.commcare.CommCareApplication
 import org.commcare.android.logging.ReportingUtils

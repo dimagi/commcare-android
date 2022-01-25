@@ -1,6 +1,6 @@
 package org.commcare.network
 
-import java.util.*
+import java.util.Date
 import org.commcare.CommCareApp
 import org.commcare.CommCareApplication
 import org.commcare.resources.model.InstallRequestSource
