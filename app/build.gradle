@@ -17,7 +17,8 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'com.google.firebase.crashlytics'
-apply from: 'jacoco.gradle'
+apply from: "gradle-helpers/jacoco.gradle"
+apply from: "gradle-helpers/ktlint.gradle"
 
 repositories {
     // for local aar inclusion
