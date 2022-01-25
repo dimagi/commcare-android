@@ -3,6 +3,12 @@ package org.commcare.logging
 import android.content.Context
 import android.net.Uri
 import android.os.Environment
+import java.io.File
+import java.io.FileInputStream
+import java.io.FileOutputStream
+import java.io.IOException
+import java.text.SimpleDateFormat
+import java.util.*
 import org.apache.commons.lang3.StringUtils
 import org.commcare.CommCareApplication
 import org.commcare.android.logging.ReportingUtils
@@ -11,12 +17,6 @@ import org.commcare.utils.CrashUtil
 import org.commcare.utils.FileUtil
 import org.javarosa.core.io.StreamsUtil
 import org.javarosa.core.services.Logger
-import java.io.File
-import java.io.FileInputStream
-import java.io.FileOutputStream
-import java.io.IOException
-import java.text.SimpleDateFormat
-import java.util.*
 
 /**
  *  Used to log some crtitical platform events like DB migrations, Clear user data,
@@ -40,7 +40,7 @@ object DataChangeLogger {
 
     private fun initLogFiles(context: Context) {
         if (!isExternalStorageWritable()) {
-            Logger.log(LogTypes.TYPE_ERROR_STORAGE, "External Storage unavialable to write logs");
+            Logger.log(LogTypes.TYPE_ERROR_STORAGE, "External Storage unavialable to write logs")
             return
         }
 
@@ -71,15 +71,14 @@ object DataChangeLogger {
         return file
     }
 
-
     /**
      * Logs a given message to the fileSystem
      */
     @JvmStatic
     fun log(dataChangeLog: DataChangeLog) {
         // Include this info as part of any crash reports and the normal device logs
-        CrashUtil.log(dataChangeLog.message);
-        Logger.log(LogTypes.TYPE_DATA_CHANGE, dataChangeLog.message);
+        CrashUtil.log(dataChangeLog.message)
+        Logger.log(LogTypes.TYPE_DATA_CHANGE, dataChangeLog.message)
 
         // Write to local storage
         if (primaryFile != null && primaryFile!!.exists()) {
@@ -111,7 +110,7 @@ object DataChangeLogger {
         val fileUris: ArrayList<Uri> = arrayListOf()
         primaryFile?.let { fileUris.add(FileUtil.getUriForExternalFile(CommCareApplication.instance(), primaryFile)) }
         secondaryFile?.let { fileUris.add(FileUtil.getUriForExternalFile(CommCareApplication.instance(), secondaryFile)) }
-        return fileUris;
+        return fileUris
     }
 
     private fun appendMetaData(dataChangeLog: DataChangeLog): String {

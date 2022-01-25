@@ -1,13 +1,11 @@
 package org.commcare.engine.resource
 
+import java.io.File
+import java.util.*
 import org.commcare.android.resource.installers.MediaFileAndroidInstaller
 import org.commcare.resources.model.MissingMediaException
 import org.commcare.resources.model.Resource
-import org.javarosa.core.reference.InvalidReferenceException
 import org.javarosa.core.reference.ReferenceManager
-import java.io.File
-import java.io.IOException
-import java.util.*
 
 object AndroidResourceUtils {
 

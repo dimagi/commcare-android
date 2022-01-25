@@ -1,6 +1,8 @@
 package org.commcare.gis
 
 import com.mapbox.mapboxsdk.geometry.LatLng
+import java.util.*
+import javax.annotation.Nullable
 import org.commcare.CommCareApplication
 import org.commcare.activities.EntitySelectActivity
 import org.commcare.cases.entity.Entity
@@ -11,8 +13,6 @@ import org.commcare.utils.AndroidInstanceInitializer
 import org.javarosa.core.model.data.GeoPointData
 import org.javarosa.core.model.data.UncastData
 import org.javarosa.core.model.instance.TreeReference
-import java.util.*
-import javax.annotation.Nullable
 
 object EntityMapUtils {
 
@@ -25,19 +25,17 @@ object EntityMapUtils {
         return null
     }
 
-
     @Nullable
     private fun getLatLngFromAddress(address: String): GeoPointData? {
         try {
             if (!address.contentEquals("")) {
                 val data = GeoPointData().cast(UncastData(address))
-                return  data
+                return data
             }
         } catch (ignored: IllegalArgumentException) {
         }
         return null
     }
-
 
     @JvmStatic
     fun getNeededEntityDatum(): EntityDatum? {
@@ -86,5 +84,4 @@ object EntityMapUtils {
         }
         return latLngs
     }
-
 }

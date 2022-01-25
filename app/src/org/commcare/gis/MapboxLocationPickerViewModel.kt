@@ -7,21 +7,20 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.mapbox.mapboxsdk.geometry.LatLng
+import java.lang.IllegalArgumentException
+import java.util.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.commcare.dalvik.R
-import org.commcare.util.LogTypes
 import org.commcare.utils.GeoUtils
 import org.commcare.utils.StringUtils
 import org.javarosa.core.services.Logger
-import java.lang.IllegalArgumentException
-import java.util.*
 
 /**
  * @author $|-|!˅@M
  */
-class MapboxLocationPickerViewModel(application: Application): AndroidViewModel(application) {
+class MapboxLocationPickerViewModel(application: Application) : AndroidViewModel(application) {
 
     val placeName = MutableLiveData<String>()
     private var location = Location("XForm")

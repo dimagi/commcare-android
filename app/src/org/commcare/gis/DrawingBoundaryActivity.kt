@@ -1,6 +1,5 @@
 package org.commcare.gis
 
-import androidx.appcompat.app.AppCompatActivity
 import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.content.res.Configuration
@@ -9,11 +8,13 @@ import android.location.Location
 import android.location.LocationListener
 import android.os.Build
 import android.os.Bundle
+import androidx.appcompat.app.AppCompatActivity
 import com.mapbox.geojson.Polygon
 import com.mapbox.mapboxsdk.geometry.LatLng
 import com.mapbox.mapboxsdk.maps.MapboxMap
 import com.mapbox.mapboxsdk.maps.Style
 import io.ona.kujaku.manager.DrawingManager
+import java.io.File
 import kotlinx.android.synthetic.main.activity_entity_mapbox.*
 import org.commcare.activities.components.FormEntryInstanceState
 import org.commcare.android.javarosa.IntentCallout
@@ -24,7 +25,6 @@ import org.commcare.interfaces.WithUIController
 import org.commcare.utils.FileUtil
 import org.commcare.utils.ImageType
 import org.javarosa.core.services.Logger
-import java.io.File
 
 /**
  * Used to draw or walk a boundary on mapbox based map
@@ -47,7 +47,6 @@ class DrawingBoundaryActivity : BaseMapboxActivity(), WithUIController, Location
 
         private const val LOCATION_MIN_MAX_ACCURACY = 50
         private const val LOCATION_MIN_MIN_ACCURACY = 10
-
     }
 
     private var mapSnapshotPath: String? = null
@@ -80,7 +79,6 @@ class DrawingBoundaryActivity : BaseMapboxActivity(), WithUIController, Location
             locationMinAccuracy = LOCATION_MIN_MIN_ACCURACY.coerceAtLeast(
                     LOCATION_MIN_MAX_ACCURACY.coerceAtMost(
                             Integer.valueOf(params.getString(EXTRA_KEY_ACCURACY, LOCATION_MIN_MIN_ACCURACY.toString()))))
-
 
             recordingIntervalMeters = Integer.valueOf(params.getString(EXTRA_KEY_INTERVAL_METERS, "0"))
             recordingIntervalMillis = Integer.valueOf(params.getString(EXTRA_KEY_INTERVAL_MILLIS, "0"))
@@ -118,11 +116,11 @@ class DrawingBoundaryActivity : BaseMapboxActivity(), WithUIController, Location
         mapView.isWarmGps = true
         drawingManager = DrawingManager(mapView, map, loadedStyle)
         map.addOnMapClickListener {
-            updateMetrics();
+            updateMetrics()
             false
         }
         setUiFromBoundaryCoords()
-        uiController.readyToTrack();
+        uiController.readyToTrack()
     }
 
     // updates the polygon and refresh the UI

@@ -61,7 +61,6 @@ class EntityMapboxActivity : BaseMapboxActivity() {
 
         private const val MAX_ICON_SIZE = 60
 
-
         private fun viewToBitmap(view: View): Bitmap {
             val measureSpec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
             view.measure(measureSpec, measureSpec)
@@ -76,17 +75,14 @@ class EntityMapboxActivity : BaseMapboxActivity() {
         }
     }
 
-
     private var detail: Detail? = null
     private lateinit var source: GeoJsonSource
     private var iconset = java.util.HashSet<String>()
     private lateinit var mapEntities: java.util.ArrayList<MapEntity>
 
-
     override fun getMapLayout(): Int {
         return R.layout.activity_entity_mapbox
     }
-
 
     override fun onMapLoaded() {
         jobs.add(GlobalScope.launch(Dispatchers.Default) {
@@ -120,7 +116,6 @@ class EntityMapboxActivity : BaseMapboxActivity() {
                     }
         }
     }
-
 
     private fun toMapEntity(entity: Entity<TreeReference>, detail: Detail, headers: Array<String?>): MapEntity? {
         var location: GeoPointData? = null
@@ -166,7 +161,7 @@ class EntityMapboxActivity : BaseMapboxActivity() {
                         PropertyFactory.iconImage(INFO_IMAGE_ID),
                         PropertyFactory.iconAnchor(Property.ICON_ANCHOR_BOTTOM),
                         PropertyFactory.iconAllowOverlap(true),
-                        PropertyFactory.iconIgnorePlacement(false),  // offset the info window to be above the marker
+                        PropertyFactory.iconIgnorePlacement(false), // offset the info window to be above the marker
                         PropertyFactory.iconOffset(arrayOf(-2f, -28f))
                 ))
     }
@@ -203,7 +198,6 @@ class EntityMapboxActivity : BaseMapboxActivity() {
                     .withFillOpacity(java.lang.Float.valueOf("0.5")))
         }
     }
-
 
     private fun addEntitiesOnMap(loadedStyle: Style) {
         val symbolManager = SymbolManager(mapView, map, loadedStyle)
@@ -243,7 +237,6 @@ class EntityMapboxActivity : BaseMapboxActivity() {
         }
     }
 
-
     private fun generateEntityInfoView(mapEntity: MapEntity): Bitmap {
 
         val inflater = LayoutInflater.from(this)
@@ -270,5 +263,4 @@ class EntityMapboxActivity : BaseMapboxActivity() {
         bubbleLayout.arrowPosition = measuredWidth / 2 - 5
         return viewToBitmap(bubbleLayout)
     }
-
 }

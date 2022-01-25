@@ -1,8 +1,8 @@
 package org.commcare.google.services.analytics
 
-import org.commcare.utils.FileUtil
 import java.io.File
 import java.util.*
+import org.commcare.utils.FileUtil
 
 class FormAnalyticsHelper {
 

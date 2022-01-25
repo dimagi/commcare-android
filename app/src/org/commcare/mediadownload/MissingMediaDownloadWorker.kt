@@ -6,8 +6,8 @@ import androidx.work.WorkerParameters
 import org.commcare.engine.resource.AppInstallStatus
 import org.commcare.resources.model.InstallCancelled
 
-class MissingMediaDownloadWorker(appContext: Context, workerParams: WorkerParameters)
-    : CoroutineWorker(appContext, workerParams), InstallCancelled {
+class MissingMediaDownloadWorker(appContext: Context, workerParams: WorkerParameters) :
+    CoroutineWorker(appContext, workerParams), InstallCancelled {
 
     override suspend fun doWork(): Result {
         val result = MissingMediaDownloadHelper.downloadAllLazyMedia(this)

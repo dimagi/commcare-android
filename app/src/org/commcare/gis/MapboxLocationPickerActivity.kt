@@ -238,7 +238,7 @@ class MapboxLocationPickerActivity : BaseMapboxActivity(), CommCareLocationListe
     }
 
     override fun onLocationRequestStart() {
-        /// Do nothing
+        // / Do nothing
     }
 
     override fun onLocationResult(result: Location) {

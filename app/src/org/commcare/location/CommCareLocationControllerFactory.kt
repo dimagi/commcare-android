@@ -24,5 +24,4 @@ class CommCareLocationControllerFactory {
             return GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(context) == ConnectionResult.SUCCESS
         }
     }
-
 }

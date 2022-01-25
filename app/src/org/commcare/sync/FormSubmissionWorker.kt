@@ -8,8 +8,8 @@ import org.commcare.CommCareApplication
 import org.commcare.tasks.DataSubmissionListener
 import org.commcare.utils.FormUploadResult
 
-class FormSubmissionWorker(appContext: Context, workerParams: WorkerParameters)
-    : CoroutineWorker(appContext, workerParams), CancellationChecker, FormSubmissionProgressListener {
+class FormSubmissionWorker(appContext: Context, workerParams: WorkerParameters) :
+    CoroutineWorker(appContext, workerParams), CancellationChecker, FormSubmissionProgressListener {
 
     private lateinit var formSubmissionHelper: FormSubmissionHelper
 
@@ -36,7 +36,6 @@ class FormSubmissionWorker(appContext: Context, workerParams: WorkerParameters)
         formSubmissionHelper.dispatchProgress(formSubmissionListeners)
         setProgressAsync(workDataOf(Progress to progress))
     }
-
 
     override fun wasProcessCancelled(): Boolean {
         return isStopped

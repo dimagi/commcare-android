@@ -1,11 +1,11 @@
 package org.commcare.network
 
+import java.util.*
 import org.commcare.CommCareApp
 import org.commcare.CommCareApplication
 import org.commcare.resources.model.InstallRequestSource
 import org.commcare.utils.SyncDetailCalculations.getDaysBetweenJavaDatetimes
 import org.commcare.utils.TimeProvider
-import java.util.*
 
 /**
  *  Used to keep track of metrics like time since last suceess for various resource install requests
@@ -21,7 +21,7 @@ object RequestStats {
 
     @JvmStatic
     fun register(app: CommCareApp, installRequestSource: InstallRequestSource) {
-        val firstAttempt = getFirstRequestAttempt(app, installRequestSource);
+        val firstAttempt = getFirstRequestAttempt(app, installRequestSource)
         if (firstAttempt == -1L) {
             // this is the first Attempt
             app.appPreferences

@@ -39,5 +39,4 @@ class AreaCalculator(val polygon: Polygon) {
 
         return result
     }
-
 }
