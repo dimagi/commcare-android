@@ -77,7 +77,7 @@ public class AudioWidget extends MediaWidget {
     }
 
     protected void playAudio() {
-        playMedia("audio/*");
+        playMedia(getContext(),"audio/*", getSourceFilePathToDisplay());
     }
 
     protected void captureAudio(FormEntryPrompt prompt) {

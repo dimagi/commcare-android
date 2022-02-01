@@ -23,7 +23,6 @@ import org.commcare.utils.FileExtensionNotFoundException;
 import org.commcare.utils.FileUtil;
 import org.commcare.utils.FormUploadUtil;
 import org.commcare.utils.StringUtils;
-import org.commcare.utils.UriToFilePath;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.data.IntegerData;
@@ -349,18 +348,18 @@ public abstract class MediaWidget extends QuestionWidget {
                 System.currentTimeMillis() + "." + fileExtension;
     }
 
-    protected void playMedia(String mediaType) {
+    // launches an ACTION_VIEW Intent for the given file
+    public static void playMedia(Context context, String mediaType, String filePath) {
         Intent i = new Intent(Intent.ACTION_VIEW);
-        File mediaFile = new File(getSourceFilePathToDisplay());
-        Uri mediaUri = FileUtil.getUriForExternalFile(getContext(), mediaFile);
+        File mediaFile = new File(filePath);
+        Uri mediaUri = FileUtil.getUriForExternalFile(context, mediaFile);
         i.setDataAndType(mediaUri, mediaType);
-
-        UriToFilePath.grantPermissionForUri(getContext(), i, mediaUri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        i.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
         try {
-            getContext().startActivity(i);
+            context.startActivity(i);
         } catch (ActivityNotFoundException e) {
-            Toast.makeText(getContext(),
-                    StringUtils.getStringSpannableRobust(getContext(),
+            Toast.makeText(context,
+                    StringUtils.getStringSpannableRobust(context,
                             R.string.activity_not_found,
                             "play " + mediaType.substring(0, mediaType.indexOf("/"))),
                     Toast.LENGTH_SHORT).show();
