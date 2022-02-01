@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_margin="@dimen/activity_horizontal_margin"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
 
     <RelativeLayout
         android:layout_width="fill_parent"
@@ -13,7 +15,7 @@
             android:id="@+id/screen_permission_grant_text_message"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Permission grant? Message"
+            tools:text="Permission grant? A potentially multiline message"
             android:layout_centerInParent="true"/>
 
     </RelativeLayout>
