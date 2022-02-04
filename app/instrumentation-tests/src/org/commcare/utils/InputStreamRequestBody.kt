@@ -3,7 +3,6 @@ package org.commcare.utils
 import okhttp3.MediaType
 import okhttp3.RequestBody
 import okio.BufferedSink
-import okio.source
 
 /**
  * A utility that's a wrapper around OkHttp's RequestBody which provides initialization of RequestBody
@@ -26,7 +25,7 @@ class InputStreamRequestBody(private val contentType: MediaType,
     }
 
     override fun writeTo(sink: BufferedSink) {
-        classLoader.getResourceAsStream(fileName).source().use {
+        okio.Okio.source(classLoader.getResourceAsStream(fileName)).use {
             sink.writeAll(it)
         }
     }
