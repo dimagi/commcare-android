@@ -59,7 +59,7 @@ public class ImageWidget extends QuestionWidget {
 
     public static final int REQUEST_CAMERA_PERMISSION = 1001;
 
-    private final static String t = "MediaWidget";
+    public static final Object IMAGE_VIEW_TAG = "image_view_tag";
 
     private final Button mCaptureButton;
     private final Button mChooseButton;
@@ -180,6 +180,8 @@ public class ImageWidget extends QuestionWidget {
         // Only add the imageView if the user has taken a picture
         if (mBinaryName != null) {
             mImageView = new ImageView(getContext());
+            //to identify the view in tests
+            mImageView.setTag(IMAGE_VIEW_TAG);
             Display display =
                     ((WindowManager)getContext().getSystemService(Context.WINDOW_SERVICE))
                             .getDefaultDisplay();
