@@ -15,6 +15,7 @@ import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
 import junit.framework.TestCase.assertFalse
 import junit.framework.TestCase.assertTrue
+import org.apache.commons.lang3.StringUtils
 import org.commcare.CommCareApplication
 import org.commcare.activities.components.FormEntryInstanceState
 import org.commcare.annotations.BrowserstackTests
@@ -24,7 +25,6 @@ import org.commcare.utils.FileUtil
 import org.commcare.utils.InstrumentationUtility
 import org.commcare.utils.InstrumentationUtility.chooseImage
 import org.commcare.utils.InstrumentationUtility.login
-import org.commcare.utils.InstrumentationUtility.logout
 import org.commcare.utils.InstrumentationUtility.nextPage
 import org.commcare.utils.InstrumentationUtility.openForm
 import org.commcare.views.widgets.ImageWidget
@@ -119,15 +119,15 @@ class MediaEncryptionTest : BaseTest() {
         IntentSubject.assertThat(receivedIntent).hasAction(Intent.ACTION_VIEW)
         IntentSubject.assertThat(receivedIntent).hasFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
         assertFalse("Intent Action View should not launch with encrypted file",
-                receivedIntent.data.toString().endsWith(MediaWidget.AES_EXTENSION))
+                StringUtils.endsWith(receivedIntent.data.toString(), MediaWidget.AES_EXTENSION))
     }
 
     private fun getEncryptedFileList(): Array<out File>? {
         val formInstance = File(FormEntryInstanceState.getInstanceFolder())
-        return formInstance.listFiles { pathname: File -> pathname.path.endsWith(MediaWidget.AES_EXTENSION) }
+        return formInstance.listFiles { file: File -> StringUtils.endsWith(file.path, MediaWidget.AES_EXTENSION) }
     }
 
-    fun chooseAudio() {
+    private fun chooseAudio() {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         val audio = File(context.externalCacheDir.toString() + "/test.mp3")
         val inputStream = context.classLoader.getResourceAsStream("test.mp3")
@@ -136,7 +136,7 @@ class MediaEncryptionTest : BaseTest() {
             StreamsUtil.writeFromInputToOutputUnmanaged(inputStream, outputStream)
         } finally {
             inputStream.close()
-            outputStream!!.close()
+            outputStream.close()
         }
 
         // Create intent with copied file and return it
