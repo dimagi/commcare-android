@@ -15,7 +15,6 @@ import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
 import junit.framework.TestCase.assertFalse
 import junit.framework.TestCase.assertTrue
-import org.apache.commons.lang3.StringUtils
 import org.commcare.CommCareApplication
 import org.commcare.activities.components.FormEntryInstanceState
 import org.commcare.annotations.BrowserstackTests
@@ -76,7 +75,7 @@ class MediaEncryptionTest : BaseTest() {
         chooseImage()
 
         // confirm there is an .aes file present for the choses image
-        assertTrue("No encrypted file found for the chosen media", getEncryptedFileList()!!.isNotEmpty())
+        assertTrue("No encrypted file found for the chosen media", isEncryptedFilePresent())
         InstrumentationUtility.stubIntentWithAction(Intent.ACTION_VIEW)
         Espresso.onView(ViewMatchers.withTagValue(CoreMatchers.`is`(ImageWidget.IMAGE_VIEW_TAG)))
                 .perform(ViewActions.click())
@@ -87,7 +86,7 @@ class MediaEncryptionTest : BaseTest() {
                 .putString(HiddenPreferences.ENCRYPT_CAPTURED_MEDIA, "no")
                 .apply()
         chooseImage()
-        assertTrue("Encrypted file found even when encryption is off", getEncryptedFileList()!!.isEmpty())
+        assertTrue("Encrypted file found even when encryption is off", !isEncryptedFilePresent())
     }
 
     @Test
@@ -98,7 +97,7 @@ class MediaEncryptionTest : BaseTest() {
         chooseAudio()
 
         // confirm there is an .aes file present for the choses audio
-        assertTrue("No encrypted file found for the chosen media", getEncryptedFileList()!!.isNotEmpty())
+        assertTrue("No encrypted file found for the chosen media", isEncryptedFilePresent())
         InstrumentationUtility.stubIntentWithAction(Intent.ACTION_VIEW)
         Espresso.onView(ViewMatchers.withText(R.string.play_audio))
                 .perform(ViewActions.click())
@@ -109,7 +108,7 @@ class MediaEncryptionTest : BaseTest() {
                 .putString(HiddenPreferences.ENCRYPT_CAPTURED_MEDIA, "no")
                 .apply()
         chooseAudio()
-        assertTrue("Encrypted file found even when encryption is off", getEncryptedFileList()!!.isEmpty())
+        assertTrue("Encrypted file found even when encryption is off", !isEncryptedFilePresent())
     }
 
     // confirm that action view intent is fired
@@ -119,12 +118,20 @@ class MediaEncryptionTest : BaseTest() {
         IntentSubject.assertThat(receivedIntent).hasAction(Intent.ACTION_VIEW)
         IntentSubject.assertThat(receivedIntent).hasFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
         assertFalse("Intent Action View should not launch with encrypted file",
-                StringUtils.endsWith(receivedIntent.data.toString(), MediaWidget.AES_EXTENSION))
+                receivedIntent.data.toString().endsWith(MediaWidget.AES_EXTENSION))
     }
 
-    private fun getEncryptedFileList(): Array<out File>? {
+    private fun isEncryptedFilePresent(): Boolean {
         val formInstance = File(FormEntryInstanceState.getInstanceFolder())
-        return formInstance.listFiles { file: File -> StringUtils.endsWith(file.path, MediaWidget.AES_EXTENSION) }
+        val files = formInstance.listFiles()
+        files?.let {
+            for (file in files) {
+                if(file.path.endsWith(MediaWidget.AES_EXTENSION)){
+                    return true
+                }
+            }
+        }
+        return false
     }
 
     private fun chooseAudio() {
