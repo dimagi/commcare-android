@@ -83,7 +83,7 @@ public class VideoWidget extends MediaWidget {
                 !mPrompt.isReadOnly());
 
         // on play, launch the appropriate viewer
-        mPlayButton.setOnClickListener(v -> playMedia("video/*"));
+        mPlayButton.setOnClickListener(v -> playMedia(getContext(),"video/*", getSourceFilePathToDisplay()));
 
         String acq = mPrompt.getAppearanceHint();
         if (QuestionWidget.ACQUIREFIELD.equalsIgnoreCase(acq)) {
