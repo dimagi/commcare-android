@@ -1,5 +1,15 @@
 package org.commcare.activities;
 
+import static org.commcare.activities.DispatchActivity.EXIT_AFTER_FORM_SUBMISSION;
+import static org.commcare.activities.DispatchActivity.SESSION_ENDPOINT_ARGUMENTS_BUNDLE;
+import static org.commcare.activities.DispatchActivity.SESSION_ENDPOINT_ARGUMENTS_LIST;
+import static org.commcare.activities.DispatchActivity.SESSION_ENDPOINT_ID;
+import static org.commcare.activities.DriftHelper.getCurrentDrift;
+import static org.commcare.activities.DriftHelper.getDriftDialog;
+import static org.commcare.activities.DriftHelper.shouldShowDriftWarning;
+import static org.commcare.activities.DriftHelper.updateLastDriftWarningTime;
+import static org.commcare.appupdate.AppUpdateController.IN_APP_UPDATE_REQUEST_CODE;
+
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -9,6 +19,10 @@ import android.os.Bundle;
 import android.util.Base64;
 import android.widget.AdapterView;
 import android.widget.Toast;
+
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.preference.PreferenceManager;
 
 import com.google.android.play.core.install.model.InstallErrorCode;
 
@@ -92,22 +106,9 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Vector;
 
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.preference.PreferenceManager;
-
-import static org.commcare.activities.DispatchActivity.SESSION_ENDPOINT_ARGUMENTS_BUNDLE;
-import static org.commcare.activities.DispatchActivity.SESSION_ENDPOINT_ARGUMENTS_LIST;
-import static org.commcare.activities.DispatchActivity.SESSION_ENDPOINT_ID;
-import static org.commcare.activities.DriftHelper.getCurrentDrift;
-import static org.commcare.activities.DriftHelper.getDriftDialog;
-import static org.commcare.activities.DriftHelper.shouldShowDriftWarning;
-import static org.commcare.activities.DriftHelper.updateLastDriftWarningTime;
-import static org.commcare.appupdate.AppUpdateController.IN_APP_UPDATE_REQUEST_CODE;
-
 /**
- * Manages all of the shared (mostly non-UI) components of a CommCare home screen:
- * activity lifecycle, implementation of available actions, session navigation, etc.
+ * Manages all of the shared (mostly non-UI) components of a CommCare home screen: activity
+ * lifecycle, implementation of available actions, session navigation, etc.
  */
 public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActivity<T>
         implements SessionNavigationResponder {
@@ -117,8 +118,8 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
      */
     public static final int GET_COMMAND = 1;
     /**
-     * Request code for launching EntitySelectActivity (to allow user to select a case),
-     * or EntityDetailActivity (to allow user to confirm an auto-selected case)
+     * Request code for launching EntitySelectActivity (to allow user to select a case), or
+     * EntityDetailActivity (to allow user to confirm an auto-selected case)
      */
     protected static final int GET_CASE = 2;
     protected static final int GET_REMOTE_DATA = 3;
@@ -177,14 +178,17 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
         processFromExternalLaunch(savedInstanceState);
         processFromShortcutLaunch();
         processFromLoginLaunch();
-        appUpdateController = AppUpdateControllerFactory.create(this::handleAppUpdate, getApplicationContext());
+        appUpdateController = AppUpdateControllerFactory.create(this::handleAppUpdate,
+                getApplicationContext());
         appUpdateController.register();
     }
 
     private void updateLastSuccessfulCommCareVersion() {
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(CommCareApplication.instance());
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(
+                CommCareApplication.instance());
         SharedPreferences.Editor editor = preferences.edit();
-        editor.putString(HiddenPreferences.LAST_SUCCESSFUL_CC_VERSION, ReportingUtils.getCommCareVersionString());
+        editor.putString(HiddenPreferences.LAST_SUCCESSFUL_CC_VERSION,
+                ReportingUtils.getCommCareVersionString());
         editor.apply();
     }
 
@@ -208,38 +212,44 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
     }
 
     /**
-     * @return If we are launched with a session endpoint, returns whether the endpoint was successfully processed without errors.
-     * If this was not an external launch using session endpoint, returns true
+     * @return If we are launched with a session endpoint, returns whether the endpoint was
+     * successfully processed without errors. If this was not an external launch using session
+     * endpoint, returns true
      */
     private boolean processSessionEndpoint() {
         if (getIntent().hasExtra(SESSION_ENDPOINT_ID)) {
             Endpoint endpoint = validateIntentForSessionEndpoint(getIntent());
             if (endpoint != null) {
-                Bundle intentArgumentsAsBundle = getIntent().getBundleExtra(SESSION_ENDPOINT_ARGUMENTS_BUNDLE);
-                ArrayList<String> intentArgumentsAsList = getIntent().getStringArrayListExtra(SESSION_ENDPOINT_ARGUMENTS_LIST);
+                Bundle intentArgumentsAsBundle = getIntent().getBundleExtra(
+                        SESSION_ENDPOINT_ARGUMENTS_BUNDLE);
+                ArrayList<String> intentArgumentsAsList = getIntent().getStringArrayListExtra(
+                        SESSION_ENDPOINT_ARGUMENTS_LIST);
 
-                // Reset the Session to make sure we don't carry forward any session state to the endpoint launch
+                // Reset the Session to make sure we don't carry forward any session state to the
+                // endpoint launch
                 CommCareApplication.instance().getCurrentSessionWrapper().reset();
 
                 try {
                     if (intentArgumentsAsBundle != null) {
                         CommCareApplication.instance().getCurrentSessionWrapper()
-                                .executeEndpointStack(endpoint, AndroidUtil.bundleAsMap(intentArgumentsAsBundle));
+                                .executeEndpointStack(endpoint,
+                                        AndroidUtil.bundleAsMap(intentArgumentsAsBundle));
                     } else if (intentArgumentsAsList != null) {
                         CommCareApplication.instance().getCurrentSessionWrapper()
                                 .executeEndpointStack(endpoint, intentArgumentsAsList);
                     }
                     return true;
                 } catch (Endpoint.InvalidEndpointArgumentsException e) {
-                    String invalidEndpointArgsError = org.commcare.utils.StringUtils.getStringRobust(
-                            this,
-                            R.string.session_endpoint_invalid_arguments,
-                            new String[]{
-                                    endpoint.getId(),
-                                    intentArgumentsAsBundle != null ?
-                                            StringUtils.join(intentArgumentsAsBundle, ",") :
-                                            String.valueOf(intentArgumentsAsList.size()),
-                                    StringUtils.join(endpoint.getArguments(), ",")});
+                    String invalidEndpointArgsError =
+                            org.commcare.utils.StringUtils.getStringRobust(
+                                    this,
+                                    R.string.session_endpoint_invalid_arguments,
+                                    new String[]{
+                                            endpoint.getId(),
+                                            intentArgumentsAsBundle != null ?
+                                                    StringUtils.join(intentArgumentsAsBundle, ",") :
+                                                    String.valueOf(intentArgumentsAsList.size()),
+                                            StringUtils.join(endpoint.getArguments(), ",")});
                     UserfacingErrorHandling.createErrorDialog(this, invalidEndpointArgsError, true);
                 }
             }
@@ -250,9 +260,11 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
 
     private Endpoint validateIntentForSessionEndpoint(Intent intent) {
         String sessionEndpointId = intent.getStringExtra(SESSION_ENDPOINT_ID);
-        Endpoint endpoint = CommCareApplication.instance().getCommCarePlatform().getEndpoint(sessionEndpointId);
+        Endpoint endpoint = CommCareApplication.instance().getCommCarePlatform().getEndpoint(
+                sessionEndpointId);
         if (endpoint == null) {
-            Hashtable<String, Endpoint> allEndpoints = CommCareApplication.instance().getCommCarePlatform().getAllEndpoints();
+            Hashtable<String, Endpoint> allEndpoints =
+                    CommCareApplication.instance().getCommCarePlatform().getAllEndpoints();
             String invalidEndpointError = org.commcare.utils.StringUtils.getStringRobust(
                     this,
                     R.string.session_endpoint_unavailable,
@@ -287,17 +299,13 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
 
     /**
      * The order of operations in this method is very deliberate, and the logic for it is as
-     * follows:
-     * - If we're in demo mode, then we don't want to do any of the other checks because they're
-     * not relevant
-     * - Form and session restorations need to happen before we try to sync, because once we sync
-     * it could invalidate those states
-     * - Restoring a form that was interrupted by session expiration comes before restoring a saved
-     * session because it is of higher importance
-     * - Check for a post-update sync before doing a standard background form-send, since a sync
-     * action will include a form-send action
-     * - Check if we need to show an Update Prompt
-     * - Once we're past that point, starting a background form-send process is safe, and we can
+     * follows: - If we're in demo mode, then we don't want to do any of the other checks because
+     * they're not relevant - Form and session restorations need to happen before we try to sync,
+     * because once we sync it could invalidate those states - Restoring a form that was interrupted
+     * by session expiration comes before restoring a saved session because it is of higher
+     * importance - Check for a post-update sync before doing a standard background form-send, since
+     * a sync action will include a form-send action - Check if we need to show an Update Prompt -
+     * Once we're past that point, starting a background form-send process is safe, and we can
      * safely do checkForPinLaunchConditions() at the same time
      */
     private boolean doLoginLaunchChecksInOrder() {
@@ -318,7 +326,8 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
             return true;
         }
 
-        if (CommCareApplication.instance().isPostUpdateSyncNeeded() || UpdateActivity.isUpdateBlockedOnSync()) {
+        if (CommCareApplication.instance().isPostUpdateSyncNeeded()
+                || UpdateActivity.isUpdateBlockedOnSync()) {
             HiddenPreferences.setPostUpdateSyncNeeded(false);
             triggerSync(false);
             return true;
@@ -346,7 +355,8 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
     private boolean showUpdateInfoForm() {
         if (HiddenPreferences.shouldShowXformUpdateInfo()) {
             HiddenPreferences.setShowXformUpdateInfo(false);
-            String updateInfoFormXmlns = CommCareApplication.instance().getCommCarePlatform().getUpdateInfoFormXmlns();
+            String updateInfoFormXmlns =
+                    CommCareApplication.instance().getCommCarePlatform().getUpdateInfoFormXmlns();
             if (!StringUtils.isEmpty(updateInfoFormXmlns)) {
                 CommCareSession session = CommCareApplication.instance().getCurrentSession();
                 FormEntry formEntry = session.getEntryForNameSpace(updateInfoFormXmlns);
@@ -361,9 +371,9 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
     }
 
     /**
-     * Regardless of what action(s) we ended up executing in doLoginLaunchChecksInOrder(), we
-     * don't want to end up trying the actions associated with these flags again at a later point.
-     * They either need to happen the first time on login, or not at all.
+     * Regardless of what action(s) we ended up executing in doLoginLaunchChecksInOrder(), we don't
+     * want to end up trying the actions associated with these flags again at a later point. They
+     * either need to happen the first time on login, or not at all.
      */
     private void clearOneTimeLoginActionFlags() {
         HiddenPreferences.setPostUpdateSyncNeeded(false);
@@ -371,7 +381,8 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
     }
 
     private boolean tryRestoringFormFromSessionExpiration() {
-        SessionStateDescriptor existing = AndroidSessionWrapper.getFormStateForInterruptedUserSession();
+        SessionStateDescriptor existing =
+                AndroidSessionWrapper.getFormStateForInterruptedUserSession();
         if (existing != null) {
             AndroidSessionWrapper state = CommCareApplication.instance().getCurrentSessionWrapper();
             state.loadFromStateDescription(existing);
@@ -402,7 +413,8 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
         LoginMode loginMode = (LoginMode)getIntent().getSerializableExtra(LoginActivity.LOGIN_MODE);
         if (loginMode == LoginMode.PRIMED) {
             launchPinCreateScreen(loginMode);
-        } else if (loginMode == LoginMode.PASSWORD && DeveloperPreferences.shouldOfferPinForLogin()) {
+        } else if (loginMode == LoginMode.PASSWORD
+                && DeveloperPreferences.shouldOfferPinForLogin()) {
             boolean userManuallyEnteredPasswordMode = getIntent()
                     .getBooleanExtra(LoginActivity.MANUAL_SWITCH_TO_PW_MODE, false);
             boolean alreadyDismissedPinCreation =
@@ -445,7 +457,8 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
         });
 
 
-        dialog.setChoiceItems(new DialogChoiceItem[]{createPinChoice, nextTimeChoice, notAgainChoice});
+        dialog.setChoiceItems(
+                new DialogChoiceItem[]{createPinChoice, nextTimeChoice, notAgainChoice});
         dialog.addCollapsibleInfoPane(Localization.get("pin.dialog.extra.info"));
         showAlertDialog(dialog);
     }
@@ -535,7 +548,8 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
         if (resultCode == RESULT_RESTART) {
             sessionNavigator.startNextSessionStep();
         } else {
-            // if handling new return code (want to return to home screen) but a return at the end of your statement
+            // if handling new return code (want to return to home screen) but a return at the
+            // end of your statement
             switch (requestCode) {
                 case PREFERENCES_ACTIVITY:
                     if (resultCode == AdvancedActionsPreferences.RESULT_DATA_RESET) {
@@ -558,20 +572,26 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                             //Hm, what to do here?
                             break;
                         }
-                        FormRecord r = CommCareApplication.instance().getUserStorage(FormRecord.class).read(record);
+                        FormRecord r = CommCareApplication.instance().getUserStorage(
+                                FormRecord.class).read(record);
 
                         //Retrieve and load the appropriate ssd
-                        SqlStorage<SessionStateDescriptor> ssdStorage = CommCareApplication.instance().getUserStorage(SessionStateDescriptor.class);
-                        Vector<Integer> ssds = ssdStorage.getIDsForValue(SessionStateDescriptor.META_FORM_RECORD_ID, r.getID());
+                        SqlStorage<SessionStateDescriptor> ssdStorage =
+                                CommCareApplication.instance().getUserStorage(
+                                        SessionStateDescriptor.class);
+                        Vector<Integer> ssds = ssdStorage.getIDsForValue(
+                                SessionStateDescriptor.META_FORM_RECORD_ID, r.getID());
                         AndroidSessionWrapper currentState =
                                 CommCareApplication.instance().getCurrentSessionWrapper();
                         if (ssds.size() == 1) {
-                            currentState.loadFromStateDescription(ssdStorage.read(ssds.firstElement()));
+                            currentState.loadFromStateDescription(
+                                    ssdStorage.read(ssds.firstElement()));
                         } else {
                             currentState.setFormRecordId(r.getID());
                         }
 
-                        AndroidCommCarePlatform platform = CommCareApplication.instance().getCommCarePlatform();
+                        AndroidCommCarePlatform platform =
+                                CommCareApplication.instance().getCommCarePlatform();
                         formEntry(platform.getFormDefId(r.getFormNamespace()), r);
                         return;
                     }
@@ -590,7 +610,8 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                     }
                     break;
                 case MODEL_RESULT:
-                    if (intent != null && intent.getBooleanExtra(FormEntryConstants.WAS_INTERRUPTED, false)) {
+                    if (intent != null && intent.getBooleanExtra(FormEntryConstants.WAS_INTERRUPTED,
+                            false)) {
                         tryRestoringFormFromSessionExpiration();
                         return;
                     }
@@ -613,13 +634,16 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                     }
                     return;
                 case CREATE_PIN:
-                    boolean choseRememberPassword = intent != null && intent.getBooleanExtra(CreatePinActivity.CHOSE_REMEMBER_PASSWORD, false);
+                    boolean choseRememberPassword = intent != null && intent.getBooleanExtra(
+                            CreatePinActivity.CHOSE_REMEMBER_PASSWORD, false);
                     if (choseRememberPassword) {
                         CommCareApplication.instance().closeUserSession();
                     } else if (resultCode == RESULT_OK) {
-                        Toast.makeText(this, Localization.get("pin.set.success"), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(this, Localization.get("pin.set.success"),
+                                Toast.LENGTH_SHORT).show();
                     } else {
-                        Toast.makeText(this, Localization.get("pin.not.set"), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(this, Localization.get("pin.not.set"),
+                                Toast.LENGTH_SHORT).show();
                     }
                     return;
                 case MAKE_REMOTE_POST:
@@ -632,9 +656,11 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                     stepBackIfCancelled(resultCode);
                     break;
                 case IN_APP_UPDATE_REQUEST_CODE:
-                    if (resultCode == RESULT_CANCELED && appUpdateController.availableVersionCode() != null) {
+                    if (resultCode == RESULT_CANCELED
+                            && appUpdateController.availableVersionCode() != null) {
                         // An update was available for CommCare but user denied updating.
-                        HiddenPreferences.incrementCommCareUpdateCancellationCounter(String.valueOf(appUpdateController.availableVersionCode()));
+                        HiddenPreferences.incrementCommCareUpdateCancellationCounter(
+                                String.valueOf(appUpdateController.availableVersionCode()));
                         // User might be busy right now, so let's not ask him again in this session.
                         CommCareApplication.instance().getSession().hideInAppUpdate();
                     }
@@ -653,10 +679,12 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                 if (f.exists()) {
                     formAndDataSyncer.performCustomRestoreFromFile(this, f);
                 } else {
-                    Toast.makeText(this, Localization.get("custom.restore.file.not.exist"), Toast.LENGTH_LONG).show();
+                    Toast.makeText(this, Localization.get("custom.restore.file.not.exist"),
+                            Toast.LENGTH_LONG).show();
                 }
             } else {
-                Toast.makeText(this, Localization.get("custom.restore.file.not.set"), Toast.LENGTH_LONG).show();
+                Toast.makeText(this, Localization.get("custom.restore.file.not.set"),
+                        Toast.LENGTH_LONG).show();
             }
         } catch (Exception e) {
             Toast.makeText(this, Localization.get("custom.restore.error"),
@@ -716,7 +744,8 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                 CommCareApplication.instance().getCurrentSessionWrapper();
         String currentCommand = currentState.getSession().getCommand();
         if (currentCommand == null || currentCommand.equals(Menu.TRAINING_MENU_ROOT)) {
-            // We're stepping back from either the root module menu or the training root menu, so go home
+            // We're stepping back from either the root module menu or the training root menu, so
+            // go home
             currentState.reset();
             refreshUI();
             return false;
@@ -728,8 +757,10 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
 
     private void handleAdvancedActionResult(int resultCode, Intent intent) {
         if (resultCode == AdvancedActionsPreferences.RESULT_FORMS_PROCESSED) {
-            int formProcessCount = intent.getIntExtra(AdvancedActionsPreferences.FORM_PROCESS_COUNT_KEY, 0);
-            String localizationKey = intent.getStringExtra(AdvancedActionsPreferences.FORM_PROCESS_MESSAGE_KEY);
+            int formProcessCount = intent.getIntExtra(
+                    AdvancedActionsPreferences.FORM_PROCESS_COUNT_KEY, 0);
+            String localizationKey = intent.getStringExtra(
+                    AdvancedActionsPreferences.FORM_PROCESS_MESSAGE_KEY);
             displayToast(Localization.get(localizationKey, new String[]{"" + formProcessCount}));
             refreshUI();
         }
@@ -773,25 +804,25 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                 || (pendingSessionData != null && pendingSessionData.equals(sessionNeededData));
 
         String intentDatum = intent.getStringExtra(KEY_PENDING_SESSION_DATUM_ID);
-        boolean datumIdsUnchanged = intentDatum == null || intentDatum.equals(session.getNeededDatum().getDataId());
+        boolean datumIdsUnchanged = intentDatum == null || intentDatum.equals(
+                session.getNeededDatum().getDataId());
         return neededDataUnchanged && datumIdsUnchanged;
     }
 
     /**
-     * Process user returning home from the form entry activity.
-     * Triggers form submission cycle, cleans up some session state.
+     * Process user returning home from the form entry activity. Triggers form submission cycle,
+     * cleans up some session state.
      *
      * @param resultCode exit code of form entry activity
-     * @param intent     The intent of the returning activity, with the
-     *                   saved form provided as the intent URI data. Null if
-     *                   the form didn't exit cleanly
-     * @return Flag signifying that caller should fetch the next activity in
-     * the session to launch. If false then caller should exit or spawn home
-     * activity.
+     * @param intent     The intent of the returning activity, with the saved form provided as the
+     *                   intent URI data. Null if the form didn't exit cleanly
+     * @return Flag signifying that caller should fetch the next activity in the session to launch.
+     * If false then caller should exit or spawn home activity.
      */
     private boolean processReturnFromFormEntry(int resultCode, Intent intent) {
         // TODO: We might need to load this from serialized state?
-        AndroidSessionWrapper currentState = CommCareApplication.instance().getCurrentSessionWrapper();
+        AndroidSessionWrapper currentState =
+                CommCareApplication.instance().getCurrentSessionWrapper();
 
         // This is the state we were in when we _Started_ form entry
         FormRecord current = currentState.getFormRecord();
@@ -808,14 +839,16 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
         }
 
         // TODO: This should be the default unless we're in some "Uninit" or "incomplete" state
-        if ((intent != null && intent.getBooleanExtra(FormEntryConstants.IS_ARCHIVED_FORM, false)) ||
+        if ((intent != null && intent.getBooleanExtra(FormEntryConstants.IS_ARCHIVED_FORM, false))
+                ||
                 FormRecord.STATUS_COMPLETE.equals(current.getStatus()) ||
                 FormRecord.STATUS_SAVED.equals(current.getStatus())) {
             // Viewing an old form, so don't change the historical record
             // regardless of the exit code
             currentState.reset();
-            if (wasExternal ||
-                    (intent != null && intent.getBooleanExtra(FormEntryActivity.KEY_IS_RESTART_AFTER_EXPIRATION, false))) {
+            if (exitFromExternalLaunch() ||
+                    (intent != null && intent.getBooleanExtra(
+                            FormEntryActivity.KEY_IS_RESTART_AFTER_EXPIRATION, false))) {
                 setResult(RESULT_CANCELED);
                 this.finish();
             } else {
@@ -828,14 +861,15 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
         if (resultCode == RESULT_OK) {
             String formRecordStatus = current.getStatus();
             // was the record marked complete?
-            boolean complete = FormRecord.STATUS_COMPLETE.equals(formRecordStatus) || FormRecord.STATUS_UNSENT.equals(formRecordStatus);
+            boolean complete = FormRecord.STATUS_COMPLETE.equals(formRecordStatus)
+                    || FormRecord.STATUS_UNSENT.equals(formRecordStatus);
 
             // The form is either ready for processing, or not, depending on how it was saved
             if (complete) {
                 startUnsentFormsTask(false, false);
                 refreshUI();
 
-                if (wasExternal) {
+                if (exitFromExternalLaunch()) {
                     currentState.reset();
                     setResult(RESULT_CANCELED);
                     this.finish();
@@ -872,13 +906,14 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                 FormRecordCleanupTask.wipeRecord(currentState);
             }
 
-            if (wasExternal) {
+            if (exitFromExternalLaunch()) {
                 currentState.reset();
                 setResult(RESULT_CANCELED);
                 this.finish();
                 return false;
             } else if (current.getStatus().equals(FormRecord.STATUS_INCOMPLETE) &&
-                    intent != null && !intent.getBooleanExtra(FormEntryActivity.KEY_IS_RESTART_AFTER_EXPIRATION, false)) {
+                    intent != null && !intent.getBooleanExtra(
+                    FormEntryActivity.KEY_IS_RESTART_AFTER_EXPIRATION, false)) {
                 currentState.reset();
                 // We should head back to the incomplete forms screen
                 goToFormArchive(true, current);
@@ -894,9 +929,14 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
         return true;
     }
 
+    private boolean exitFromExternalLaunch() {
+        return wasExternal && getIntent() != null &&
+                getIntent().getBooleanExtra(EXIT_AFTER_FORM_SUBMISSION, true);
+    }
+
     private void clearSessionAndExit(AndroidSessionWrapper currentState, boolean shouldWarnUser) {
         currentState.reset();
-        if (wasExternal) {
+        if (exitFromExternalLaunch()) {
             setResult(RESULT_CANCELED);
             this.finish();
         }
@@ -961,7 +1001,8 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                 asw.reset();
                 break;
             case SessionNavigator.REPORT_CASE_AUTOSELECT:
-                FirebaseAnalyticsUtil.reportFeatureUsage(AnalyticsParamValue.FEATURE_CASE_AUTOSELECT);
+                FirebaseAnalyticsUtil.reportFeatureUsage(
+                        AnalyticsParamValue.FEATURE_CASE_AUTOSELECT);
                 break;
         }
     }
@@ -1054,7 +1095,8 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
     }
 
     void enterTrainingModule() {
-        CommCareApplication.instance().getCurrentSession().setCommand(org.commcare.suite.model.Menu.TRAINING_MENU_ROOT);
+        CommCareApplication.instance().getCurrentSession().setCommand(
+                org.commcare.suite.model.Menu.TRAINING_MENU_ROOT);
         startNextSessionStepSafe();
     }
 
@@ -1066,7 +1108,8 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
             EntityDatum entityDatum = (EntityDatum)selectDatum;
             TreeReference contextRef = sessionNavigator.getCurrentAutoSelection();
             if (this.getString(R.string.panes).equals("two")
-                    && getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                    && getResources().getConfiguration().orientation
+                    == Configuration.ORIENTATION_LANDSCAPE) {
                 // Large tablet in landscape: send to entity select activity
                 // (awesome mode, with case pre-selected) instead of entity detail
                 Intent i = getSelectIntent(session);
@@ -1076,7 +1119,8 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                 startActivityForResult(i, GET_CASE);
             } else {
                 // Launch entity detail activity
-                Intent detailIntent = new Intent(getApplicationContext(), EntityDetailActivity.class);
+                Intent detailIntent = new Intent(getApplicationContext(),
+                        EntityDetailActivity.class);
                 EntityDetailUtils.populateDetailIntent(
                         detailIntent, contextRef, entityDatum, asw);
                 addPendingDataExtra(detailIntent, session);
@@ -1097,9 +1141,9 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
     }
 
     /**
-     * Create (or re-use) a form record and pass it to the form entry activity
-     * launcher. If there is an existing incomplete form that uses the same
-     * case, ask the user if they want to edit or delete that one.
+     * Create (or re-use) a form record and pass it to the form entry activity launcher. If there is
+     * an existing incomplete form that uses the same case, ask the user if they want to edit or
+     * delete that one.
      *
      * @param state Needed for FormRecord manipulations
      */
@@ -1121,7 +1165,8 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
             // Generate a stub form record and commit it
             state.commitStub();
         } else {
-            Logger.log(LogTypes.TYPE_FORM_ENTRY, "Somehow ended up starting form entry with old state?");
+            Logger.log(LogTypes.TYPE_FORM_ENTRY,
+                    "Somehow ended up starting form entry with old state?");
         }
 
         FormRecord record = state.getFormRecord();
@@ -1135,19 +1180,21 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
     }
 
     private void formEntry(int formDefId, FormRecord r, String headerTitle,
-                           boolean isRestartAfterSessionExpiration) {
+            boolean isRestartAfterSessionExpiration) {
         Logger.log(LogTypes.TYPE_FORM_ENTRY, "Form Entry Starting|" +
                 (r.getInstanceID() == null ? "" : r.getInstanceID() + "|") +
                 r.getFormNamespace());
 
         //TODO: This is... just terrible. Specify where external instance data should come from
-        FormLoaderTask.iif = new AndroidInstanceInitializer(CommCareApplication.instance().getCurrentSession());
+        FormLoaderTask.iif = new AndroidInstanceInitializer(
+                CommCareApplication.instance().getCurrentSession());
 
         // Create our form entry activity callout
         Intent i = new Intent(getApplicationContext(), FormEntryActivity.class);
         i.setAction(Intent.ACTION_EDIT);
         i.putExtra(FormEntryInstanceState.KEY_FORM_RECORD_DESTINATION,
-                CommCareApplication.instance().getCurrentApp().fsPath((GlobalConstants.FILE_CC_FORMS)));
+                CommCareApplication.instance().getCurrentApp().fsPath(
+                        (GlobalConstants.FILE_CC_FORMS)));
 
         // See if there's existing form data that we want to continue entering
         if (!StringUtils.isEmpty(r.getFilePath())) {
@@ -1157,10 +1204,14 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
         }
 
         i.putExtra(FormEntryActivity.KEY_RESIZING_ENABLED, HiddenPreferences.getResizeMethod());
-        i.putExtra(FormEntryActivity.KEY_INCOMPLETE_ENABLED, HiddenPreferences.isIncompleteFormsEnabled());
-        i.putExtra(FormEntryActivity.KEY_AES_STORAGE_KEY, Base64.encodeToString(r.getAesKey(), Base64.DEFAULT));
-        i.putExtra(FormEntrySessionWrapper.KEY_RECORD_FORM_ENTRY_SESSION, DeveloperPreferences.isSessionSavingEnabled());
-        i.putExtra(FormEntryActivity.KEY_IS_RESTART_AFTER_EXPIRATION, isRestartAfterSessionExpiration);
+        i.putExtra(FormEntryActivity.KEY_INCOMPLETE_ENABLED,
+                HiddenPreferences.isIncompleteFormsEnabled());
+        i.putExtra(FormEntryActivity.KEY_AES_STORAGE_KEY,
+                Base64.encodeToString(r.getAesKey(), Base64.DEFAULT));
+        i.putExtra(FormEntrySessionWrapper.KEY_RECORD_FORM_ENTRY_SESSION,
+                DeveloperPreferences.isSessionSavingEnabled());
+        i.putExtra(FormEntryActivity.KEY_IS_RESTART_AFTER_EXPIRATION,
+                isRestartAfterSessionExpiration);
         if (headerTitle != null) {
             i.putExtra(FormEntryActivity.KEY_HEADER_STRING, headerTitle);
         }
@@ -1168,7 +1219,8 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
             isRestoringSession = false;
             SharedPreferences prefs =
                     CommCareApplication.instance().getCurrentApp().getAppPreferences();
-            String formEntrySession = prefs.getString(DevSessionRestorer.CURRENT_FORM_ENTRY_SESSION, "");
+            String formEntrySession = prefs.getString(DevSessionRestorer.CURRENT_FORM_ENTRY_SESSION,
+                    "");
             if (!"".equals(formEntrySession)) {
                 i.putExtra(FormEntrySessionWrapper.KEY_FORM_ENTRY_SESSION, formEntrySession);
             }
@@ -1227,7 +1279,8 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
         if (RecoveryMeasuresHelper.recoveryMeasuresPending()) {
             finishWithExecutionIntent();
             kickedOff = true;
-        } else if (UpdateActivity.isUpdateBlockedOnSync() && UpdateActivity.sBlockedUpdateWorkflowInProgress) {
+        } else if (UpdateActivity.isUpdateBlockedOnSync()
+                && UpdateActivity.sBlockedUpdateWorkflowInProgress) {
             triggerSync(true);
             kickedOff = true;
         } else if (CommCareApplication.instance().isSyncPending()) {
@@ -1246,8 +1299,10 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
     }
 
     @Override
-    public void handlePullTaskResult(ResultAndError<DataPullTask.PullTaskResult> resultAndError, boolean userTriggeredSync, boolean formsToSend, boolean usingRemoteKeyManagement) {
-        super.handlePullTaskResult(resultAndError, userTriggeredSync, formsToSend, usingRemoteKeyManagement);
+    public void handlePullTaskResult(ResultAndError<DataPullTask.PullTaskResult> resultAndError,
+            boolean userTriggeredSync, boolean formsToSend, boolean usingRemoteKeyManagement) {
+        super.handlePullTaskResult(resultAndError, userTriggeredSync, formsToSend,
+                usingRemoteKeyManagement);
         if (UpdateActivity.sBlockedUpdateWorkflowInProgress) {
             Intent i = new Intent(getApplicationContext(), UpdateActivity.class);
             i.putExtra(UpdateActivity.KEY_PROCEED_AUTOMATICALLY, true);
@@ -1268,8 +1323,10 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
         finish();
     }
 
-    private void createAskUseOldDialog(final AndroidSessionWrapper state, final SessionStateDescriptor existing) {
-        final AndroidCommCarePlatform platform = CommCareApplication.instance().getCommCarePlatform();
+    private void createAskUseOldDialog(final AndroidSessionWrapper state,
+            final SessionStateDescriptor existing) {
+        final AndroidCommCarePlatform platform =
+                CommCareApplication.instance().getCommCarePlatform();
         String title = Localization.get("app.workflow.incomplete.continue.title");
         String msg = Localization.get("app.workflow.incomplete.continue");
         StandardAlertDialog d = new StandardAlertDialog(this, title, msg);
@@ -1278,7 +1335,8 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                 case DialogInterface.BUTTON_POSITIVE:
                     // use the old form instance and load the it's state from the descriptor
                     state.loadFromStateDescription(existing);
-                    formEntry(platform.getFormDefId(state.getSession().getForm()), state.getFormRecord());
+                    formEntry(platform.getFormDefId(state.getSession().getForm()),
+                            state.getFormRecord());
                     break;
                 case DialogInterface.BUTTON_NEGATIVE:
                     // delete the old incomplete form
@@ -1287,12 +1345,14 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                 case DialogInterface.BUTTON_NEUTRAL:
                     // create a new form record and begin form entry
                     state.commitStub();
-                    formEntry(platform.getFormDefId(state.getSession().getForm()), state.getFormRecord());
+                    formEntry(platform.getFormDefId(state.getSession().getForm()),
+                            state.getFormRecord());
             }
             dismissAlertDialog();
         };
         d.setPositiveButton(Localization.get("option.yes"), listener);
-        d.setNegativeButton(Localization.get("app.workflow.incomplete.continue.option.delete"), listener);
+        d.setNegativeButton(Localization.get("app.workflow.incomplete.continue.option.delete"),
+                listener);
         d.setNeutralButton(Localization.get("option.no"), listener);
         showAlertDialog(d);
     }
@@ -1310,13 +1370,15 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
 
     public static void createPreferencesMenu(AppCompatActivity activity) {
         Intent i = new Intent(activity, SessionAwarePreferenceActivity.class);
-        i.putExtra(CommCarePreferenceActivity.EXTRA_PREF_TYPE, CommCarePreferenceActivity.PREF_TYPE_COMMCARE);
+        i.putExtra(CommCarePreferenceActivity.EXTRA_PREF_TYPE,
+                CommCarePreferenceActivity.PREF_TYPE_COMMCARE);
         activity.startActivityForResult(i, PREFERENCES_ACTIVITY);
     }
 
     protected void showAdvancedActionsPreferences() {
         Intent intent = new Intent(this, SessionAwarePreferenceActivity.class);
-        intent.putExtra(CommCarePreferenceActivity.EXTRA_PREF_TYPE, CommCarePreferenceActivity.PREF_TYPE_ADVANCED_ACTIONS);
+        intent.putExtra(CommCarePreferenceActivity.EXTRA_PREF_TYPE,
+                CommCarePreferenceActivity.PREF_TYPE_ADVANCED_ACTIONS);
         startActivityForResult(intent, ADVANCED_ACTIONS_ACTIVITY);
     }
 
@@ -1390,7 +1452,9 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                 }
                 break;
             case AVAILABLE:
-                if (HiddenPreferences.getCommCareUpdateCancellationCounter(String.valueOf(appUpdateController.availableVersionCode())) > MAX_CC_UPDATE_CANCELLATION) {
+                if (HiddenPreferences.getCommCareUpdateCancellationCounter(
+                        String.valueOf(appUpdateController.availableVersionCode()))
+                        > MAX_CC_UPDATE_CANCELLATION) {
                     showCommCareUpdateMenu = true;
                     refreshCCUpdateOption();
                     return;
@@ -1398,9 +1462,11 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                 startCommCareUpdate();
                 break;
             case DOWNLOADING:
-                // Native downloads app gives a notification regarding the current download in progress.
+                // Native downloads app gives a notification regarding the current download in
+                // progress.
                 NotificationMessage message = NotificationMessageFactory.message(
-                        NotificationMessageFactory.StockMessages.InApp_Update, APP_UPDATE_NOTIFICATION);
+                        NotificationMessageFactory.StockMessages.InApp_Update,
+                        APP_UPDATE_NOTIFICATION);
                 CommCareApplication.notificationManager().reportNotificationMessage(message);
                 if (showCommCareUpdateMenu) {
                     // Once downloading is started, we shouldn't show the update menu anymore.
@@ -1409,20 +1475,24 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                 }
                 break;
             case DOWNLOADED:
-                CommCareApplication.notificationManager().clearNotifications(APP_UPDATE_NOTIFICATION);
+                CommCareApplication.notificationManager().clearNotifications(
+                        APP_UPDATE_NOTIFICATION);
                 StandardAlertDialog dialog = StandardAlertDialog.getBasicAlertDialog(this,
                         Localization.get("in.app.update.installed.title"),
                         Localization.get("in.app.update.installed.detail"),
                         null);
-                dialog.setPositiveButton(Localization.get("in.app.update.dialog.restart"), (dialog1, which) -> {
-                    appUpdateController.completeUpdate();
-                    dismissAlertDialog();
-                });
-                dialog.setNegativeButton(Localization.get("in.app.update.dialog.cancel"), (dialog1, which) -> {
-                    dismissAlertDialog();
-                });
+                dialog.setPositiveButton(Localization.get("in.app.update.dialog.restart"),
+                        (dialog1, which) -> {
+                            appUpdateController.completeUpdate();
+                            dismissAlertDialog();
+                        });
+                dialog.setNegativeButton(Localization.get("in.app.update.dialog.cancel"),
+                        (dialog1, which) -> {
+                            dismissAlertDialog();
+                        });
                 showAlertDialog(dialog);
-                FirebaseAnalyticsUtil.reportInAppUpdateResult(true, AnalyticsParamValue.IN_APP_UPDATE_SUCCESS);
+                FirebaseAnalyticsUtil.reportInAppUpdateResult(true,
+                        AnalyticsParamValue.IN_APP_UPDATE_SUCCESS);
                 break;
             case FAILED:
                 String errorReason = "in.app.update.error.unknown";
@@ -1446,8 +1516,10 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                         errorReason = "in.app.update.error.internal.error";
                         break;
                 }
-                Logger.log(LogTypes.TYPE_CC_UPDATE, "CommCare In App Update failed because : " + errorReason);
-                CommCareApplication.notificationManager().clearNotifications(APP_UPDATE_NOTIFICATION);
+                Logger.log(LogTypes.TYPE_CC_UPDATE,
+                        "CommCare In App Update failed because : " + errorReason);
+                CommCareApplication.notificationManager().clearNotifications(
+                        APP_UPDATE_NOTIFICATION);
                 Toast.makeText(this, Localization.get(errorReason), Toast.LENGTH_LONG).show();
                 FirebaseAnalyticsUtil.reportInAppUpdateResult(false, errorReason);
                 break;
