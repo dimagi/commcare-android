@@ -51,7 +51,7 @@ public class CaseClaimTest extends BaseTest {
         HQApi.closeExistingCases(name, "human", "d58f7a55dbe2bf22d0b6838311ada205");
 
         // Waiting here cuz, HQ sometimes is out of sync and might give stale data.
-        InstrumentationUtility.sleep(15);
+        InstrumentationUtility.sleep(30);
 
         InstrumentationUtility.login("claim_test1", "123");
 
