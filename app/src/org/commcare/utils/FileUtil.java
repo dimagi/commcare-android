@@ -179,6 +179,10 @@ public class FileUtil {
         return newFile;
     }
 
+    public static void copyFile(String oldPath, String newPath) throws IOException {
+        copyFile(new File(oldPath), new File(newPath));
+    }
+
     public static void copyFile(File oldPath, File newPath) throws IOException {
         if (oldPath.exists()) {
             if (newPath.isDirectory()) {

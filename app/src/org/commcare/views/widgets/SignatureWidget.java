@@ -2,21 +2,18 @@ package org.commcare.views.widgets;
 
 /*
  * Copyright (C) 2012 University of Washington
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software distributed under the License
  * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
 
-
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.AppCompatButton;
 
 import android.content.ActivityNotFoundException;
 import android.content.Context;
@@ -36,6 +33,7 @@ import android.widget.Toast;
 
 import org.commcare.CommCareApplication;
 import org.commcare.activities.DrawActivity;
+import org.commcare.activities.FormEntryActivity;
 import org.commcare.activities.components.FormEntryConstants;
 import org.commcare.activities.components.FormEntryInstanceState;
 import org.commcare.dalvik.R;
@@ -43,13 +41,19 @@ import org.commcare.logic.PendingCalloutInterface;
 import org.commcare.utils.GlobalConstants;
 import org.commcare.utils.MediaUtil;
 import org.commcare.utils.StringUtils;
-import org.commcare.utils.UrlUtils;
 import org.javarosa.core.model.FormIndex;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.data.StringData;
 import org.javarosa.form.api.FormEntryPrompt;
 
 import java.io.File;
+
+import javax.annotation.Nullable;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.AppCompatButton;
+
+import static org.commcare.views.widgets.ImageWidget.getFileToDisplay;
 
 /**
  * Signature widget.
@@ -77,9 +81,7 @@ public class SignatureWidget extends QuestionWidget {
 
         this.pendingCalloutInterface = pic;
 
-        mInstanceFolder =
-                FormEntryInstanceState.mFormRecordPath.substring(0,
-                        FormEntryInstanceState.mFormRecordPath.lastIndexOf("/") + 1);
+        mInstanceFolder = FormEntryInstanceState.getInstanceFolder();
 
         setOrientation(LinearLayout.VERTICAL);
 
@@ -94,8 +96,7 @@ public class SignatureWidget extends QuestionWidget {
 
         // launch capture intent on click
         final FormIndex questionIndex = prompt.getIndex();
-        mSignButton.setOnClickListener(v -> launchSignatureActivity(questionIndex));
-
+        mSignButton.setOnClickListener(v -> launchSignatureActivity(questionIndex, null));
 
         // finish complex layout
         addView(mSignButton);
@@ -119,10 +120,10 @@ public class SignatureWidget extends QuestionWidget {
             int screenWidth = display.getWidth();
             int screenHeight = display.getHeight();
 
-            File f = new File(mInstanceFolder + File.separator + mBinaryName);
-
-            if (f.exists()) {
-                Bitmap bmp = MediaUtil.getBitmapScaledToContainer(f, screenHeight, screenWidth);
+            File toDisplay = getFileToDisplay(mInstanceFolder, mBinaryName,
+                    ((FormEntryActivity)getContext()).getSymetricKey());
+            if (toDisplay.exists()) {
+                Bitmap bmp = MediaUtil.getBitmapScaledToContainer(toDisplay, screenHeight, screenWidth);
                 if (bmp == null) {
                     mErrorTextView.setVisibility(View.VISIBLE);
                 }
@@ -133,21 +134,21 @@ public class SignatureWidget extends QuestionWidget {
 
             mImageView.setPadding(10, 10, 10, 10);
             mImageView.setAdjustViewBounds(true);
-            mImageView.setOnClickListener(v -> launchSignatureActivity(questionIndex));
-
+            mImageView.setOnClickListener(v -> launchSignatureActivity(questionIndex, toDisplay));
             addView(mImageView);
+
+            mSignButton.setOnClickListener(v -> launchSignatureActivity(questionIndex, toDisplay));
         }
     }
 
-    private void launchSignatureActivity(FormIndex questionIndex) {
+    private void launchSignatureActivity(FormIndex questionIndex, @Nullable File toDisplay) {
         mErrorTextView.setVisibility(View.GONE);
         Intent i = new Intent(getContext(), DrawActivity.class);
         i.putExtra(DrawActivity.OPTION, DrawActivity.OPTION_SIGNATURE);
 
         // If a signature has already been captured for this question, will want to display it
-        if (mBinaryName != null) {
-            File f = new File(mInstanceFolder + File.separator + mBinaryName);
-            i.putExtra(DrawActivity.REF_IMAGE, Uri.fromFile(f));
+        if (toDisplay != null) {
+            i.putExtra(DrawActivity.REF_IMAGE, Uri.fromFile(toDisplay));
         }
 
         i.putExtra(DrawActivity.EXTRA_OUTPUT,
@@ -164,18 +165,9 @@ public class SignatureWidget extends QuestionWidget {
     }
 
     private void deleteMedia() {
-        // get the file path and delete the file
-        File f = new File(mInstanceFolder + "/" + mBinaryName);
-        if (!f.delete()) {
-            Log.e(t, "Failed to delete " + f);
-        }
+        MediaWidget.deleteMediaFiles(mInstanceFolder, mBinaryName);
         // clean up variables
         mBinaryName = null;
-
-        //TODO: Possibly switch back to this implementation, but causes NullPointerException right now 
-        /*int del = MediaUtils.deleteImageFileFromMediaProvider(mInstanceFolder + File.separator + mBinaryName);
-        Log.i(t, "Deleted " + del + " rows from media content provider");
-        mBinaryName = null;*/
     }
 
 

@@ -1,6 +1,5 @@
 package org.commcare.utils;
 
-import android.os.AsyncTask;
 import android.os.Environment;
 import android.util.Log;
 import android.webkit.MimeTypeMap;
@@ -12,6 +11,7 @@ import org.commcare.network.CommcareRequestGenerator;
 import org.commcare.network.EncryptedFileBody;
 import org.commcare.tasks.DataSubmissionListener;
 import org.commcare.util.LogTypes;
+import org.commcare.views.widgets.MediaWidget;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.io.StreamsUtil.InputIOException;
 import org.javarosa.core.model.User;
@@ -336,17 +336,18 @@ public class FormUploadUtil {
                     parts.add(createFilePart("xml_submission_file", f, "text/xml"));
                 }
             } else {
-                String contentType = getFileContentType(f);
+                String fileName = MediaWidget.removeAESExtension(f.getName());
+                String contentType = getFileContentType(fileName);
                 if (contentType != null) {
                     numAttachmentsInInstanceFolder++;
-                    numAttachmentsSuccessfullyAdded += addPartToEntity(parts, f, contentType);
-                } else if (isSupportedMultimediaFile(f.getName())) {
+                    numAttachmentsSuccessfullyAdded += addPartToEntity(parts, f, contentType, key);
+                } else if (isSupportedMultimediaFile(fileName)) {
                     numAttachmentsInInstanceFolder++;
                     String mimeType = FileUtil.getMimeType(f.getPath());
                     if (StringUtils.isEmpty(mimeType)) {
                         mimeType = "application/octet-stream";
                     }
-                    numAttachmentsSuccessfullyAdded += addPartToEntity(parts, f, mimeType);
+                    numAttachmentsSuccessfullyAdded += addPartToEntity(parts, f, mimeType, key);
                 } else {
                     Logger.log(LogTypes.TYPE_FORM_SUBMISSION,
                             "Could not add unsupported file type to submission entity: " + f.getName());
@@ -360,9 +361,15 @@ public class FormUploadUtil {
         return true;
     }
 
-    private static int addPartToEntity(List<MultipartBody.Part> parts, File f, String contentType) {
+    private static int addPartToEntity(List<MultipartBody.Part> parts, File f, String contentType, SecretKeySpec key) {
         if (f.length() <= MAX_BYTES) {
-            parts.add(createFilePart(f.getName(), f, contentType));
+            MultipartBody.Part part;
+            if (f.getName().endsWith(MediaWidget.AES_EXTENSION)) {
+                part = createEncryptedFilePart(MediaWidget.removeAESExtension(f.getName()), f, contentType, key);
+            } else {
+                part = createFilePart(f.getName(), f, contentType);
+            }
+            parts.add(part);
             return 1;
         } else {
             Logger.log(LogTypes.TYPE_FORM_SUBMISSION,
@@ -372,14 +379,14 @@ public class FormUploadUtil {
     }
 
 
-    private static String getFileContentType(File f) {
-        if (f.getName().endsWith(".xml")) {
+    private static String getFileContentType(String fileName) {
+        if (fileName.endsWith(".xml")) {
             return "text/xml";
-        } else if (f.getName().endsWith(".jpg")) {
+        } else if (fileName.endsWith(".jpg")) {
             return "image/jpeg";
-        } else if (f.getName().endsWith(".3gpp")) {
+        } else if (fileName.endsWith(".3gpp")) {
             return "audio/3gpp";
-        } else if (f.getName().endsWith(".3gp")) {
+        } else if (fileName.endsWith(".3gp")) {
             return "video/3gpp";
         }
         return null;
