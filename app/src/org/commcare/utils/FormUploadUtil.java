@@ -343,7 +343,7 @@ public class FormUploadUtil {
                     numAttachmentsSuccessfullyAdded += addPartToEntity(parts, f, contentType, key);
                 } else if (isSupportedMultimediaFile(fileName)) {
                     numAttachmentsInInstanceFolder++;
-                    String mimeType = FileUtil.getMimeType(f.getPath());
+                    String mimeType = FileUtil.getMimeType(fileName);
                     if (StringUtils.isEmpty(mimeType)) {
                         mimeType = "application/octet-stream";
                     }
