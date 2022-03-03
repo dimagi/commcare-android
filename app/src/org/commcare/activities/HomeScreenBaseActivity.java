@@ -1,5 +1,6 @@
 package org.commcare.activities;
 
+import static org.commcare.activities.DispatchActivity.EXIT_AFTER_FORM_SUBMISSION;
 import static org.commcare.activities.DispatchActivity.SESSION_ENDPOINT_ARGUMENTS_BUNDLE;
 import static org.commcare.activities.DispatchActivity.SESSION_ENDPOINT_ARGUMENTS_LIST;
 import static org.commcare.activities.DispatchActivity.SESSION_ENDPOINT_ID;
@@ -845,7 +846,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
             // Viewing an old form, so don't change the historical record
             // regardless of the exit code
             currentState.reset();
-            if (wasExternal ||
+            if (exitFromExternalLaunch() ||
                     (intent != null && intent.getBooleanExtra(
                             FormEntryActivity.KEY_IS_RESTART_AFTER_EXPIRATION, false))) {
                 setResult(RESULT_CANCELED);
@@ -868,7 +869,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                 startUnsentFormsTask(false, false);
                 refreshUI();
 
-                if (wasExternal) {
+                if (exitFromExternalLaunch()) {
                     currentState.reset();
                     setResult(RESULT_CANCELED);
                     this.finish();
@@ -905,7 +906,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                 FormRecordCleanupTask.wipeRecord(currentState);
             }
 
-            if (wasExternal) {
+            if (exitFromExternalLaunch()) {
                 currentState.reset();
                 setResult(RESULT_CANCELED);
                 this.finish();
@@ -928,9 +929,14 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
         return true;
     }
 
+    private boolean exitFromExternalLaunch() {
+        return wasExternal && getIntent() != null &&
+                getIntent().getBooleanExtra(EXIT_AFTER_FORM_SUBMISSION, true);
+    }
+
     private void clearSessionAndExit(AndroidSessionWrapper currentState, boolean shouldWarnUser) {
         currentState.reset();
-        if (wasExternal) {
+        if (exitFromExternalLaunch()) {
             setResult(RESULT_CANCELED);
             this.finish();
         }
