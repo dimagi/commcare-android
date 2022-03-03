@@ -6,11 +6,13 @@ import android.widget.Toast;
 
 import org.commcare.CommCareApplication;
 import org.commcare.activities.FormEntryActivity;
+import org.commcare.models.encryption.EncryptionIO;
 import org.commcare.modern.util.Pair;
-import org.commcare.util.LogTypes;
+import org.commcare.preferences.HiddenPreferences;
 import org.commcare.utils.FileExtensionNotFoundException;
 import org.commcare.utils.FileUtil;
 import org.commcare.views.widgets.ImageWidget;
+import org.commcare.views.widgets.MediaWidget;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 
@@ -32,58 +34,74 @@ public class ImageCaptureProcessing {
      * @param shouldScale   if false, indicates that the image is from a signature capture, so should
      *                      not attempt to scale
      * @return A pair containing raw image and scaled imagePath. The first entry is the raw image
-     *          while the second one is path to scaled image.
+     * while the second one is path to scaled image.
      */
     private static Pair<File, String> moveAndScaleImage(File originalImage, boolean shouldScale,
                                                         String instanceFolder,
                                                         FormEntryActivity formEntryActivity) throws IOException {
         String extension = FileUtil.getExtension(originalImage.getAbsolutePath());
         String imageFilename = System.currentTimeMillis() + "." + extension;
-        String finalFilePath = instanceFolder + imageFilename;
+        String tempFilePathForScaledImage = CommCareApplication.instance().getAndroidFsTemp() + imageFilename;
 
+        // clear any existing file at the temp path
+        FileUtil.deleteFileOrDir(tempFilePathForScaledImage);
+
+        // Create a raw copy of original image to be displayed on the question view
+        File rawImageFile = makeRawCopy(originalImage, instanceFolder, imageFilename);
+
+        // Scale image if required and save it to tempFilePathForScaledImage
         boolean savedScaledImage = false;
         if (shouldScale) {
             ImageWidget currentWidget = (ImageWidget)formEntryActivity.getPendingWidget();
             if (currentWidget != null) {
                 int maxDimen = currentWidget.getMaxDimen();
                 if (maxDimen != -1) {
-                    savedScaledImage = FileUtil.scaleAndSaveImage(originalImage, finalFilePath, maxDimen);
+                    savedScaledImage = FileUtil.scaleAndSaveImage(originalImage, tempFilePathForScaledImage, maxDimen);
                 }
             }
         }
-        if (!savedScaledImage) {
-            // If we didn't create a scaled image and save it to the final path, then relocate the
-            // original image from the temp filepath to our final path
-            File finalFile = new File(finalFilePath);
+        String sourcePath = savedScaledImage ? tempFilePathForScaledImage : originalImage.getAbsolutePath();
+        String finalFilePath = instanceFolder + imageFilename;
 
+        // Encrypt the scaled or original image to final path
+        if (HiddenPreferences.isMediaCaptureEncryptionEnabled()) {
+            finalFilePath = finalFilePath + MediaWidget.AES_EXTENSION;
             try {
-                FileUtil.copyFile(originalImage, finalFile);
+                EncryptionIO.encryptFile(sourcePath, finalFilePath, formEntryActivity.getSymetricKey());
             } catch (Exception e) {
-                throw new IOException("Failed to rename " + originalImage.getAbsolutePath() +
-                        " to " + finalFile.getAbsolutePath());
+                throw new IOException("Failed to encrypt " + sourcePath +
+                        " to " + finalFilePath, e);
             }
-            return new Pair<>(finalFile, finalFilePath);
         } else {
-            // Otherwise, relocate the original image to a raw/ folder, so that we still have access
-            // to the unmodified version
-            String rawDirPath = getRawDirectoryPath(instanceFolder);
-            File rawDir = new File(rawDirPath);
-            if (!rawDir.exists()) {
-                rawDir.mkdir();
-            }
-            File rawImageFile = new File(rawDirPath + "/" + imageFilename);
             try {
-                FileUtil.copyFile(originalImage, rawImageFile);
+                FileUtil.copyFile(sourcePath, finalFilePath);
             } catch (Exception e) {
-                throw new IOException("Failed to rename " + originalImage.getAbsolutePath() +
-                        " to " + rawImageFile.getAbsolutePath());
+                throw new IOException("Failed to rename " + sourcePath + " to " + finalFilePath);
             }
-            return new Pair<>(rawImageFile, finalFilePath);
         }
+
+        return new Pair<>(rawImageFile, finalFilePath);
+    }
+
+    private static File makeRawCopy(File originalImage, String instanceFolder, String imageFilename)
+            throws IOException {
+        String rawDirPath = getRawDirectoryPath(instanceFolder);
+        File rawDir = new File(rawDirPath);
+        if (!rawDir.exists()) {
+            rawDir.mkdir();
+        }
+        File rawImageFile = new File(rawDirPath + "/" + imageFilename);
+        try {
+            FileUtil.copyFile(originalImage, rawImageFile);
+        } catch (Exception e) {
+            throw new IOException("Failed to rename " + originalImage.getAbsolutePath() +
+                    " to " + rawImageFile.getAbsolutePath());
+        }
+        return rawImageFile;
     }
 
     // Returns path for the raw folder used to store the original images for a form
-    public static String getRawDirectoryPath(String instanceFolderPath){
+    public static String getRawDirectoryPath(String instanceFolderPath) {
         return instanceFolderPath + "/raw";
     }
 

@@ -1,6 +1,7 @@
 package org.commcare.models.encryption;
 
 import org.commcare.util.LogTypes;
+import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.services.Logger;
 
 import java.io.BufferedInputStream;
@@ -26,6 +27,16 @@ import javax.crypto.spec.SecretKeySpec;
  * @author Phillip Mates (pmates@dimagi.com).
  */
 public class EncryptionIO {
+
+    public static void encryptFile(String sourceFilePath, String destPath, SecretKeySpec symetricKey) throws FileNotFoundException,
+            StreamsUtil.InputIOException, StreamsUtil.OutputIOException {
+        OutputStream os;
+        FileInputStream is;
+        os = createFileOutputStream(destPath, symetricKey);
+        is = new FileInputStream(sourceFilePath);
+        StreamsUtil.writeFromInputToOutputNew(is, os);
+    }
+
     public static OutputStream createFileOutputStream(String filename,
                                                       SecretKeySpec symetricKey)
             throws FileNotFoundException {

@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.Display;
 import android.view.View;
@@ -43,6 +44,8 @@ import org.javarosa.form.api.FormEntryPrompt;
 
 import java.io.File;
 
+import javax.crypto.spec.SecretKeySpec;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatButton;
 
@@ -56,7 +59,7 @@ public class ImageWidget extends QuestionWidget {
 
     public static final int REQUEST_CAMERA_PERMISSION = 1001;
 
-    private final static String t = "MediaWidget";
+    public static final Object IMAGE_VIEW_TAG = "image_view_tag";
 
     private final Button mCaptureButton;
     private final Button mChooseButton;
@@ -82,9 +85,7 @@ public class ImageWidget extends QuestionWidget {
         this.pendingCalloutInterface = pic;
 
         mMaxDimen = -1;
-        mInstanceFolder =
-                FormEntryInstanceState.mFormRecordPath.substring(0,
-                        FormEntryInstanceState.mFormRecordPath.lastIndexOf("/") + 1);
+        mInstanceFolder = FormEntryInstanceState.getInstanceFolder();
 
         setOrientation(LinearLayout.VERTICAL);
 
@@ -179,6 +180,8 @@ public class ImageWidget extends QuestionWidget {
         // Only add the imageView if the user has taken a picture
         if (mBinaryName != null) {
             mImageView = new ImageView(getContext());
+            //to identify the view in tests
+            mImageView.setTag(IMAGE_VIEW_TAG);
             Display display =
                     ((WindowManager)getContext().getSystemService(Context.WINDOW_SERVICE))
                             .getDefaultDisplay();
@@ -186,15 +189,16 @@ public class ImageWidget extends QuestionWidget {
             int screenHeight = display.getHeight();
 
             File imageBeingSubmitted = new File(mInstanceFolder + "/" + mBinaryName);
+            File encryptedFile = new File(imageBeingSubmitted.getAbsolutePath() + MediaWidget.AES_EXTENSION);
 
-            // If there is an image in the raw folder, use that as the display image, since it is
-            // better quality
-            File toDisplay = new File(ImageCaptureProcessing.getRawDirectoryPath(mInstanceFolder) + mBinaryName);
-            if (!toDisplay.exists()) {
-                toDisplay = imageBeingSubmitted;
+            if (imageBeingSubmitted.exists()) {
+                checkFileSize(imageBeingSubmitted);
+            } else if (encryptedFile.exists()) {
+                checkFileSize(encryptedFile);
             }
 
-            checkFileSize(imageBeingSubmitted);
+            File toDisplay = getFileToDisplay(mInstanceFolder, mBinaryName,
+                    ((FormEntryActivity)getContext()).getSymetricKey());
 
             if (toDisplay.exists()) {
                 Bitmap bmp = MediaUtil.getBitmapScaledToContainer(toDisplay,
@@ -209,46 +213,33 @@ public class ImageWidget extends QuestionWidget {
 
             mImageView.setPadding(10, 10, 10, 10);
             mImageView.setAdjustViewBounds(true);
-            mImageView.setOnClickListener(v -> {
-                Intent i = new Intent("android.intent.action.VIEW");
-                String[] projection = {
-                        "_id"
-                };
-                Cursor c = null;
-                try {
-                    c = getContext().getContentResolver().query(
-                            android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                            projection, "_data='" + mInstanceFolder + mBinaryName + "'",
-                            null, null);
-                    if (c != null && c.getCount() > 0) {
-                        c.moveToFirst();
-                        String id = c.getString(c.getColumnIndex("_id"));
 
-                        Log.i(t, "setting view path to: " +
-                                Uri.withAppendedPath(android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id));
-
-                        i.setDataAndType(Uri.withAppendedPath(
-                                android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id),
-                                "image/*");
-                        try {
-                            getContext().startActivity(i);
-                        } catch (ActivityNotFoundException e) {
-                            Toast.makeText(getContext(),
-                                    StringUtils.getStringSpannableRobust(getContext(),
-                                            R.string.activity_not_found, "view image"),
-                                    Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                } finally {
-                    if (c != null) {
-                        c.close();
-                    }
-                }
-            });
+            mImageView.setOnClickListener(v ->
+                    MediaWidget.playMedia(getContext(), "image/*", toDisplay.getAbsolutePath()));
 
             addView(mImageView);
             mDiscardButton.setVisibility(View.VISIBLE);
         }
+    }
+
+    // If there is an image in the raw folder, use that as the display image, since it is better quality
+    // otherwise checks if the file to be uploaded exists and decrypt if needed
+    public static File getFileToDisplay(String instanceFolder, String binaryName, SecretKeySpec secretKey) {
+        File imageBeingSubmitted = new File(instanceFolder + "/" + binaryName);
+        File toDisplay = new File(ImageCaptureProcessing.getRawDirectoryPath(instanceFolder) + "/" + binaryName);
+        if (!toDisplay.exists()) {
+            if (imageBeingSubmitted.exists()) {
+                toDisplay = imageBeingSubmitted;
+            } else {
+                File encryptedFile = new File(imageBeingSubmitted.getAbsolutePath() + MediaWidget.AES_EXTENSION);
+                if (encryptedFile.exists()) {
+                    // we need to decrypt the file and store it in a temp path to display
+                    String mTempPath = MediaWidget.decryptMedia(encryptedFile, secretKey);
+                    toDisplay = new File(mTempPath);
+                }
+            }
+        }
+        return toDisplay;
     }
 
     private void takePicture() {
@@ -278,14 +269,9 @@ public class ImageWidget extends QuestionWidget {
     }
 
     private void deleteMedia() {
-        // get the file path and delete the file
-        File f = new File(mInstanceFolder + "/" + mBinaryName);
-        if (!f.delete()) {
-            Log.e(t, "Failed to delete " + f);
-        }
+        MediaWidget.deleteMediaFiles(mInstanceFolder, mBinaryName);
         // clean up variables
         mBinaryName = null;
-
         removeView(mImageView);
         mDiscardButton.setVisibility(View.GONE);
     }

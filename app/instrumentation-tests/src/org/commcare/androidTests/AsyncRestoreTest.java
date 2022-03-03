@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+import androidx.test.espresso.IdlingPolicies;
 import androidx.test.espresso.IdlingRegistry;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
@@ -27,6 +28,8 @@ import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.util.concurrent.TimeUnit;
+
 /**
  * @author $|-|!˅@M
  */
@@ -45,6 +48,10 @@ public class AsyncRestoreTest extends BaseTest {
     public void setup() {
         mContext = InstrumentationRegistry.getInstrumentation().getTargetContext().getApplicationContext();
         LocalBroadcastManager.getInstance(mContext).registerReceiver(mReceiver, new IntentFilter(CLEAR_CACHE_ACTION));
+
+        // The first sync takes a long time, make sure we don't time out
+        IdlingPolicies.setMasterPolicyTimeout(180, TimeUnit.SECONDS);
+        IdlingPolicies.setIdlingResourceTimeout(180, TimeUnit.SECONDS);
     }
 
     @After
