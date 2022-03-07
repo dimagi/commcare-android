@@ -44,6 +44,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.locks.ReentrantLock;
 
+import javax.annotation.Nullable;
 import javax.crypto.Cipher;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
@@ -122,6 +123,7 @@ public class CommCareSessionService extends Service {
     // done at least once during this session?
     private boolean appHealthChecksCompleted;
     public static final String LOG_SUBMISSION_RESULT_PREF = "log_submission_result";
+
     /**
      * Class for clients to access.  Because we know this service always
      * runs in the same process as its clients, we don't need to deal with
@@ -195,7 +197,7 @@ public class CommCareSessionService extends Service {
     /**
      * Show a notification while this service is running.
      */
-    private void showLoggedInNotification(User user) {
+    public void showLoggedInNotification(@Nullable User user) {
         //We always want this click to simply bring the live stack back to the top
         Intent callable = new Intent(this, DispatchActivity.class);
         callable.setAction("android.intent.action.MAIN");
@@ -217,17 +219,18 @@ public class CommCareSessionService extends Service {
         }
 
         // Set the icon, scrolling text and timestamp
-        Notification notification = new NotificationCompat.Builder(this, CommCareNoficationManager.NOTIFICATION_CHANNEL_ERRORS_ID)
+        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, CommCareNoficationManager.NOTIFICATION_CHANNEL_ERRORS_ID)
                 .setContentTitle(notificationText)
-                .setContentText("Session Expires: " + DateFormat.format("MMM dd h:mmaa", sessionExpireDate))
-                .setSmallIcon(org.commcare.dalvik.R.drawable.notification)
-                .setContentIntent(contentIntent)
-                .build();
+                .setSmallIcon(R.drawable.notification)
+                .setContentIntent(contentIntent);
 
         if (user != null) {
-            //Send the notification.
-            this.startForeground(NOTIFICATION, notification);
+            String contentText = "Session Expires: " + DateFormat.format("MMM dd h:mmaa", sessionExpireDate);
+            notificationBuilder.setContentText(contentText);
         }
+
+        //Send the notification.
+        this.startForeground(NOTIFICATION, notificationBuilder.build());
     }
 
     /**
@@ -531,7 +534,7 @@ public class CommCareSessionService extends Service {
                 callable.addCategory("android.intent.category.LAUNCHER");
 
                 // The PendingIntent to launch our activity if the user selects this notification
-                //TODO: Put something here that will, I dunno, cancel submission or something? Maybe show it live? 
+                //TODO: Put something here that will, I dunno, cancel submission or something? Maybe show it live?
                 PendingIntent contentIntent = PendingIntent.getActivity(CommCareSessionService.this, 0, callable, 0);
 
                 submissionNotification = new NotificationCompat.Builder(CommCareSessionService.this,
