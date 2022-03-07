@@ -726,6 +726,7 @@ public class CommCareApplication extends MultiDexApplication {
                     mCurrentServiceBindTimeout = MAX_BIND_TIMEOUT;
 
                     mBoundService = ((CommCareSessionService.LocalBinder)service).getService();
+                    mBoundService.showLoggedInNotification(null);
 
                     // Don't let anyone touch this until it's logged in
                     // Open user database
