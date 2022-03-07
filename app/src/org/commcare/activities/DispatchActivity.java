@@ -39,6 +39,7 @@ public class DispatchActivity extends AppCompatActivity {
     public static final String SESSION_ENDPOINT_ARGUMENTS_LIST = "ccodk_session_endpoint_arguments_list";
     public static final String WAS_EXTERNAL = "launch_from_external";
     public static final String EXIT_AFTER_FORM_SUBMISSION = "ccodk_exit_after_form_submission";
+    public static final Boolean EXIT_AFTER_FORM_SUBMISSION_DEFAULT = true;
     public static final String WAS_SHORTCUT_LAUNCH = "launch_from_shortcut";
     public static final String START_FROM_LOGIN = "process_successful_login";
     public static final String EXECUTE_RECOVERY_MEASURES = "execute_recovery_measures";
@@ -353,7 +354,7 @@ public class DispatchActivity extends AppCompatActivity {
                     if (i != null) {
                         i.putExtra(WAS_EXTERNAL, true);
                         i.putExtra(EXIT_AFTER_FORM_SUBMISSION,
-                                getIntent().getBooleanExtra(EXIT_AFTER_FORM_SUBMISSION, true));
+                                getIntent().getBooleanExtra(EXIT_AFTER_FORM_SUBMISSION, EXIT_AFTER_FORM_SUBMISSION_DEFAULT));
                         startActivityForResult(i, HOME_SCREEN);
                     }
                 }
