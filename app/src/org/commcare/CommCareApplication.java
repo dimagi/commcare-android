@@ -16,6 +16,18 @@ import android.os.StrictMode;
 import android.text.format.DateUtils;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+import androidx.multidex.MultiDexApplication;
+import androidx.preference.PreferenceManager;
+import androidx.work.BackoffPolicy;
+import androidx.work.Constraints;
+import androidx.work.ExistingPeriodicWorkPolicy;
+import androidx.work.ExistingWorkPolicy;
+import androidx.work.NetworkType;
+import androidx.work.OneTimeWorkRequest;
+import androidx.work.PeriodicWorkRequest;
+import androidx.work.WorkManager;
+
 import com.google.firebase.analytics.FirebaseAnalytics;
 
 import net.sqlcipher.database.SQLiteDatabase;
@@ -121,18 +133,6 @@ import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Nullable;
 import javax.crypto.SecretKey;
-
-import androidx.annotation.NonNull;
-import androidx.multidex.MultiDexApplication;
-import androidx.preference.PreferenceManager;
-import androidx.work.BackoffPolicy;
-import androidx.work.Constraints;
-import androidx.work.ExistingPeriodicWorkPolicy;
-import androidx.work.ExistingWorkPolicy;
-import androidx.work.NetworkType;
-import androidx.work.OneTimeWorkRequest;
-import androidx.work.PeriodicWorkRequest;
-import androidx.work.WorkManager;
 
 import io.noties.markwon.Markwon;
 import io.noties.markwon.ext.strikethrough.StrikethroughPlugin;
@@ -805,7 +805,12 @@ public class CommCareApplication extends MultiDexApplication {
         // class name because we want a specific service implementation that
         // we know will be running in our own process (and thus won't be
         // supporting component replacement by other applications).
-        startService(new Intent(this, CommCareSessionService.class));
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            startForegroundService(new Intent(this, CommCareSessionService.class));
+        } else {
+            startService(new Intent(this, CommCareSessionService.class));
+        }
+
         bindService(new Intent(this, CommCareSessionService.class), mConnection, Context.BIND_AUTO_CREATE);
         sessionServiceIsBinding = true;
     }
