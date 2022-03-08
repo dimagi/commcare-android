@@ -81,6 +81,7 @@ public class HiddenPreferences {
     private final static String RELEASED_ON_TIME_FOR_ONGOING_APP_DOWNLOAD = "released-on-time-for-ongoing-app-download";
     private final static String FILE_OVERSIZE_WARNING = "cc-disable-file-oversize-warning";
     private final static String ALLOW_RUN_ON_ROOTED_DEVICE = "cc-allow-run-on-rooted-device";
+    public final static String ENCRYPT_CAPTURED_MEDIA = "cc-encrypt-captured-media";
 
 
     // Boolean pref to determine whether user has already been through the update information form
@@ -525,6 +526,11 @@ public class HiddenPreferences {
     public static boolean isLazyMediaDownloadComplete() {
         return CommCareApplication.instance().getCurrentApp().getAppPreferences()
                 .getBoolean(LAZY_MEDIA_DOWNLOAD_COMPLETE, false);
+    }
+
+    public static boolean isMediaCaptureEncryptionEnabled() {
+        SharedPreferences properties = CommCareApplication.instance().getCurrentApp().getAppPreferences();
+        return PrefValues.YES.equals(properties.getString(ENCRYPT_CAPTURED_MEDIA, PrefValues.YES));
     }
 
     public static boolean isFileOversizeWarningDisabled() {

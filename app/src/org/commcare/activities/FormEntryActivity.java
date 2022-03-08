@@ -1507,7 +1507,6 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 }
                 break;
         }
-
     }
 
 
@@ -1566,5 +1565,9 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     @Override
     public CommCareActivityUIController getUIController() {
         return uiController;
+    }
+
+    public SecretKeySpec getSymetricKey() {
+        return symetricKey;
     }
 }
