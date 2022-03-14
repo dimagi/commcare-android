@@ -19,6 +19,7 @@ import org.commcare.utils.SessionUnavailableException;
 import org.javarosa.core.model.FormIndex;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.form.api.FormEntryController;
+import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathTypeMismatchException;
 
 import java.util.ArrayList;
@@ -170,6 +171,12 @@ public class FormHierarchyActivity extends SessionAwareListActivity {
 
             final String errorMsg = "Encounted xpath error: " + e.getMessage();
             Toast.makeText(this, errorMsg, Toast.LENGTH_LONG).show();
+            setResult(RESULT_XPATH_ERROR);
+            finish();
+            return;
+        }
+        catch (XPathException e) {
+            Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
             setResult(RESULT_XPATH_ERROR);
             finish();
             return;
