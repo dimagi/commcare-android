@@ -8,7 +8,6 @@ import org.commcare.interfaces.CommCareActivityUIController
 import org.commcare.utils.StringUtils
 import org.commcare.views.ManagedUi
 import org.commcare.views.UiElement
-import org.javarosa.core.services.locale.Localization
 
 @ManagedUi(R.layout.activity_drawing_boundary)
 class DrawingBoundaryActivityUIController(private val drawingBoundaryActivity: DrawingBoundaryActivity) : CommCareActivityUIController {
@@ -71,5 +70,4 @@ class DrawingBoundaryActivityUIController(private val drawingBoundaryActivity: D
     fun readyToTrack() {
         startTrackingButton.visibility = View.VISIBLE
     }
-
 }

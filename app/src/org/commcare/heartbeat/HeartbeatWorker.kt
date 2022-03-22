@@ -3,17 +3,17 @@ package org.commcare.heartbeat
 import android.content.Context
 import androidx.work.Worker
 import androidx.work.WorkerParameters
-import org.commcare.CommCareApplication
-import org.commcare.util.LogTypes
-import org.javarosa.core.services.Logger
 import java.io.IOException
 import java.lang.IllegalStateException
 import java.net.UnknownHostException
+import org.commcare.CommCareApplication
+import org.commcare.util.LogTypes
+import org.javarosa.core.services.Logger
 
 /**
  * @author $|-|!˅@M
  */
-class HeartbeatWorker(context: Context, workerParams: WorkerParameters):
+class HeartbeatWorker(context: Context, workerParams: WorkerParameters) :
         Worker(context, workerParams) {
     private val requester = CommCareApplication.instance().heartbeatRequester
     override fun doWork(): Result {
@@ -30,8 +30,8 @@ class HeartbeatWorker(context: Context, workerParams: WorkerParameters):
                 }
                 else -> {
                     Logger.log(LogTypes.TYPE_ERROR_SERVER_COMMS,
-                            "Encountered unexpected exception during heartbeat communications: "
-                                    + e.message + ". Stopping the heartbeat thread.")
+                            "Encountered unexpected exception during heartbeat communications: " +
+                                    e.message + ". Stopping the heartbeat thread.")
                     Result.failure()
                 }
             }

@@ -13,15 +13,17 @@ import org.commcare.utils.GeoUtils
 /**
  * @author $|-|!˅@M
  */
-class CommCareProviderLocationController(private var mContext: Context?,
-                                         private var mListener: CommCareLocationListener?): CommCareLocationController {
+class CommCareProviderLocationController(
+    private var mContext: Context?,
+    private var mListener: CommCareLocationListener?
+) : CommCareLocationController {
 
     private val mLocationManager = mContext?.getSystemService(Context.LOCATION_SERVICE) as LocationManager
     private var mCurrentLocation: Location? = null
     private var mProviders = GeoUtils.evaluateProviders(mLocationManager)
     private val mReceiver = ProviderChangedReceiver()
     private var mLocationRequestStarted = false
-    private val mLocationListener = object: LocationListener {
+    private val mLocationListener = object : LocationListener {
         override fun onLocationChanged(location: Location) {
             location ?: return
             mCurrentLocation = location
@@ -29,17 +31,14 @@ class CommCareProviderLocationController(private var mContext: Context?,
         }
 
         override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {
-            //This callback will never be invoked.
+            // This callback will never be invoked.
         }
 
         override fun onProviderEnabled(provider: String) {
-
         }
 
         override fun onProviderDisabled(provider: String) {
-
         }
-
     }
 
     override fun start() {
@@ -92,10 +91,9 @@ class CommCareProviderLocationController(private var mContext: Context?,
         mListener = null
     }
 
-    inner class ProviderChangedReceiver: BroadcastReceiver() {
+    inner class ProviderChangedReceiver : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             checkProviderAndRequestLocation()
         }
     }
-
 }

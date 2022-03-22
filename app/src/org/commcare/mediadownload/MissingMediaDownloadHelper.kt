@@ -1,8 +1,20 @@
 package org.commcare.mediadownload
 
 import androidx.annotation.WorkerThread
-import androidx.work.*
-import kotlinx.coroutines.*
+import androidx.work.BackoffPolicy
+import androidx.work.Constraints
+import androidx.work.ExistingWorkPolicy
+import androidx.work.NetworkType
+import androidx.work.OneTimeWorkRequest
+import androidx.work.WorkManager
+import java.util.concurrent.TimeUnit
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import org.commcare.CommCareApplication
 import org.commcare.android.resource.installers.MediaFileAndroidInstaller
 import org.commcare.dalvik.R
@@ -13,7 +25,14 @@ import org.commcare.engine.resource.installers.LocalStorageUnavailableException
 import org.commcare.network.RequestStats
 import org.commcare.preferences.HiddenPreferences
 import org.commcare.resources.ResourceInstallContext
-import org.commcare.resources.model.*
+import org.commcare.resources.model.InstallCancelled
+import org.commcare.resources.model.InstallCancelledException
+import org.commcare.resources.model.InstallRequestSource
+import org.commcare.resources.model.InvalidResourceException
+import org.commcare.resources.model.Resource
+import org.commcare.resources.model.ResourceTable
+import org.commcare.resources.model.TableStateListener
+import org.commcare.resources.model.UnresolvedResourceException
 import org.commcare.tasks.ResultAndError
 import org.commcare.utils.AndroidCommCarePlatform
 import org.commcare.utils.FileUtil
@@ -22,7 +41,6 @@ import org.commcare.views.dialogs.PinnedNotificationWithProgress
 import org.commcare.views.notifications.NotificationMessage
 import org.commcare.views.notifications.NotificationMessageFactory
 import org.javarosa.core.services.Logger
-import java.util.concurrent.TimeUnit
 
 // Contains helper functions to download lazy or missing media resources
 object MissingMediaDownloadHelper : TableStateListener {
@@ -70,7 +88,6 @@ object MissingMediaDownloadHelper : TableStateListener {
         return REQUEST_NAME + "_" + appId
     }
 
-
     /**
      *
      * Downloads any missing lazy resources
@@ -105,7 +122,6 @@ object MissingMediaDownloadHelper : TableStateListener {
                     RequestStats.markSuccess(InstallRequestSource.BACKGROUND_LAZY_RESOURCE)
                     AppInstallStatus.Installed
                 }
-
             } catch (e: Exception) {
                 return handleRecoverResourceFailure(e).data
             } finally {
@@ -156,8 +172,11 @@ object MissingMediaDownloadHelper : TableStateListener {
      * Downloads a resource with it's location represented by {@param mediaUri}
      */
     @JvmStatic
-    fun requestMediaDownload(mediaUri: String, defaultDispatcher: CoroutineDispatcher,
-                             missingMediaDownloadListener: MissingMediaDownloadListener) {
+    fun requestMediaDownload(
+        mediaUri: String,
+        defaultDispatcher: CoroutineDispatcher,
+        missingMediaDownloadListener: MissingMediaDownloadListener
+    ) {
         jobs.add(
                 CoroutineScope(defaultDispatcher).launch {
                     var result: MissingMediaDownloadResult = MissingMediaDownloadResult.Error("Unknown Error")
@@ -179,7 +198,6 @@ object MissingMediaDownloadHelper : TableStateListener {
         )
     }
 
-
     private fun downloadMissingMediaResource(uri: String): MissingMediaDownloadResult {
         val platform = CommCareApplication.instance().commCarePlatform
         val global = platform.globalResourceTable
@@ -189,7 +207,7 @@ object MissingMediaDownloadHelper : TableStateListener {
                 .filter { it != null }
                 .filter { AndroidResourceUtils.matchFileUriToResource(it, uri) }
                 .take(1)
-                .map { runBlocking { downloadResource(it) }}
+                .map { runBlocking { downloadResource(it) } }
                 .firstOrNull()
 
         if (result == null) {
@@ -241,7 +259,6 @@ object MissingMediaDownloadHelper : TableStateListener {
         }
         return result
     }
-
 
     private fun getMissingMediaResult(result: ResultAndError<AppInstallStatus>): MissingMediaDownloadResult {
         return if (result.data == AppInstallStatus.Installed) {

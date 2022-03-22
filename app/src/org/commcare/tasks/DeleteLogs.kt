@@ -3,6 +3,9 @@ package org.commcare.tasks
 import android.content.Context
 import androidx.work.Worker
 import androidx.work.WorkerParameters
+import java.io.File
+import java.util.Date
+import java.util.Vector
 import org.commcare.CommCareApplication
 import org.commcare.android.javarosa.AndroidLogEntry
 import org.commcare.android.javarosa.DeviceReportRecord
@@ -11,18 +14,14 @@ import org.commcare.logging.XPathErrorEntry
 import org.commcare.models.database.SqlStorage
 import org.commcare.preferences.HiddenPreferences
 import org.javarosa.core.model.utils.DateUtils
-import java.io.File
-import java.util.Date
-import java.util.Vector
-
 
 // A Worker class used for deleting any logs older than 3 months
-class DeleteLogs(appContext: Context, workerParams: WorkerParameters)
-    : Worker(appContext, workerParams) {
+class DeleteLogs(appContext: Context, workerParams: WorkerParameters) :
+    Worker(appContext, workerParams) {
 
     override fun doWork(): Result {
         val today = Date().time
-        val threeMonthsAgo = Date(today - (90L * DateUtils.DAY_IN_MS));
+        val threeMonthsAgo = Date(today - (90L * DateUtils.DAY_IN_MS))
 
         // Clear logs older than 3 month stored in DB
         purge(CommCareApplication.instance().getUserStorage(AndroidLogEntry.STORAGE_KEY, AndroidLogEntry::class.java), threeMonthsAgo)
@@ -59,5 +58,4 @@ class DeleteLogs(appContext: Context, workerParams: WorkerParameters)
         }
         logsStorage.removeAll(toDeleteLogs)
     }
-
 }

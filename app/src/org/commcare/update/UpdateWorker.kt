@@ -20,8 +20,8 @@ import org.commcare.tasks.ResultAndError
  * actual update.
  *
  */
-class UpdateWorker(appContext: Context, workerParams: WorkerParameters)
-    : CoroutineWorker(appContext, workerParams), InstallCancelled, UpdateProgressListener {
+class UpdateWorker(appContext: Context, workerParams: WorkerParameters) :
+    CoroutineWorker(appContext, workerParams), InstallCancelled, UpdateProgressListener {
 
     companion object {
         const val Progress_Complete = "complete"
@@ -48,7 +48,6 @@ class UpdateWorker(appContext: Context, workerParams: WorkerParameters)
 
             job.await()
         }
-
     }
 
     private fun doUpdateWork(): Result {
@@ -87,7 +86,6 @@ class UpdateWorker(appContext: Context, workerParams: WorkerParameters)
         updateHelper.clearInstance()
     }
 
-
     override fun publishUpdateProgress(complete: Int, total: Int) {
         updateHelper.updateNotification(complete, total)
         setProgressAsync(workDataOf(
@@ -98,5 +96,4 @@ class UpdateWorker(appContext: Context, workerParams: WorkerParameters)
     override fun wasInstallCancelled(): Boolean {
         return isStopped
     }
-
 }

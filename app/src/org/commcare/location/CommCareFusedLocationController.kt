@@ -2,13 +2,19 @@ package org.commcare.location
 
 import android.content.Context
 import android.location.Location
-import com.google.android.gms.location.*
+import com.google.android.gms.location.LocationCallback
+import com.google.android.gms.location.LocationRequest
+import com.google.android.gms.location.LocationResult
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.LocationSettingsRequest
 
 /**
  * @author $|-|!˅@M
  */
-class CommCareFusedLocationController(private var mContext: Context?,
-                                      private var mListener: CommCareLocationListener?): CommCareLocationController {
+class CommCareFusedLocationController(
+    private var mContext: Context?,
+    private var mListener: CommCareLocationListener?
+) : CommCareLocationController {
 
     private val mFusedLocationClient = LocationServices.getFusedLocationProviderClient(mContext!!)
     private val settingsClient = LocationServices.getSettingsClient(mContext!!)
@@ -17,7 +23,7 @@ class CommCareFusedLocationController(private var mContext: Context?,
         interval = LOCATION_UPDATE_INTERVAL
     }
     private var mCurrentLocation: Location? = null
-    private val mLocationCallback = object: LocationCallback() {
+    private val mLocationCallback = object : LocationCallback() {
         override fun onLocationResult(result: LocationResult?) {
             result ?: return
             mCurrentLocation = result.lastLocation

@@ -3,20 +3,20 @@ package org.commcare.views.widgets
 import android.content.Context
 import androidx.work.Worker
 import androidx.work.WorkerParameters
+import java.io.File
 import org.commcare.CommCareApplication
 import org.commcare.activities.components.ImageCaptureProcessing
 import org.commcare.android.database.user.models.FormRecord
 import org.commcare.preferences.HiddenPreferences
 import org.commcare.utils.CrashUtil
 import org.commcare.utils.StorageUtils.getUnsentCompleteOrSavedFormIdsForCurrentApp
-import java.io.File
 
-class CleanRawMedia(appContext: Context, workerParams: WorkerParameters)
-    : Worker(appContext, workerParams) {
+class CleanRawMedia(appContext: Context, workerParams: WorkerParameters) :
+    Worker(appContext, workerParams) {
 
     override fun doWork(): Result {
         var success = true
-        if(HiddenPreferences.isRawMediaCleanUpPending()) {
+        if (HiddenPreferences.isRawMediaCleanUpPending()) {
             val storage = CommCareApplication.instance().getUserStorage(FormRecord::class.java)
             val recordsToRemove = getUnsentCompleteOrSavedFormIdsForCurrentApp(storage)
             for (formId in recordsToRemove) {

@@ -57,7 +57,6 @@ abstract class BaseMapboxActivity : CommCareActivity<BaseMapboxActivity>() {
         return false
     }
 
-
     override fun onResume() {
         super.onResume()
         mapView.onResume()

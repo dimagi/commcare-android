@@ -7,13 +7,10 @@ import android.os.Looper
 import android.speech.tts.TextToSpeech
 import android.speech.tts.UtteranceProgressListener
 import android.text.TextUtils
-
-import org.javarosa.core.services.locale.Localization
-
-import java.util.Locale
 import java.util.LinkedList
-
+import java.util.Locale
 import kotlin.collections.HashMap
+import org.javarosa.core.services.locale.Localization
 
 /**
  * Utility for Android's {@link android.speech.tts.TextToSpeech} that handles initialization, shutdown,
@@ -29,7 +26,7 @@ object TextToSpeechConverter {
     private var mTextToSpeech: TextToSpeech? = null
     private var mInitialized: Boolean = false
     private var mTTSCallback: TextToSpeechCallback? = null
-    private val mUtteranceProgressListener = object: UtteranceProgressListener() {
+    private val mUtteranceProgressListener = object : UtteranceProgressListener() {
         // The callbacks specified here can be called from multiple threads.
         override fun onDone(utteranceId: String?) { }
 
@@ -156,9 +153,9 @@ object TextToSpeechConverter {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 if (tts.voice != null) {
                     val features = tts.voice.features
-                    if (features == null
-                            || features.contains(TextToSpeech.Engine.KEY_FEATURE_NOT_INSTALLED)
-                            || tts.voice.isNetworkConnectionRequired) {
+                    if (features == null ||
+                            features.contains(TextToSpeech.Engine.KEY_FEATURE_NOT_INSTALLED) ||
+                            tts.voice.isNetworkConnectionRequired) {
                         return Pair(true, tts.voice.locale.displayLanguage)
                     }
                 }
@@ -204,5 +201,4 @@ object TextToSpeechConverter {
             }
         }
     }
-
 }
