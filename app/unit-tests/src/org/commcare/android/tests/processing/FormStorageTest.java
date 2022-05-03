@@ -337,6 +337,9 @@ public class FormStorageTest {
             // Added in 2.52
             , "org.commcare.android.database.user.models.FormRecordV5"
             , "org.commcare.android.database.user.models.ACasePreV28Model"
+
+            // Added in 2.53
+            , "org.javarosa.xpath.expr.XPathDecryptStringFunc"
     );
 
 

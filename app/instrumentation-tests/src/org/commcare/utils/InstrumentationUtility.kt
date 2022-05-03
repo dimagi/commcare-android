@@ -1,10 +1,9 @@
 package org.commcare.utils
 
+import android.app.Activity
 import android.app.Instrumentation
 import android.content.Context
 import android.content.Intent
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.net.Uri
 import android.net.wifi.WifiManager
 import android.os.Build
@@ -22,7 +21,9 @@ import androidx.test.espresso.UiController
 import androidx.test.espresso.ViewAction
 import androidx.test.espresso.action.ViewActions.*
 import androidx.test.espresso.assertion.ViewAssertions.matches
+import androidx.test.espresso.intent.Intents
 import androidx.test.espresso.intent.Intents.intending
+import androidx.test.espresso.intent.matcher.IntentMatchers
 import androidx.test.espresso.intent.matcher.IntentMatchers.hasAction
 import androidx.test.espresso.matcher.RootMatchers
 import androidx.test.espresso.matcher.ViewMatchers.*
@@ -50,6 +51,8 @@ import java.util.concurrent.TimeUnit
  */
 object InstrumentationUtility {
 
+    const val IMAGE_CAPTURE_FILE_NAME = "ic_launcher.png"
+
     @JvmStatic
     fun stubCcz(cczName: String) {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
@@ -64,6 +67,7 @@ object InstrumentationUtility {
         }
         stubFileSelection(file.absolutePath)
     }
+
     /**
      * Installs the ccz by copying it into app-specific cache directory.
      * @param cczName
@@ -196,10 +200,20 @@ object InstrumentationUtility {
     @JvmStatic
     fun chooseImage() {
         stubCamera()
-        IntentMonitorRegistry.getInstance().addIntentCallback(onImageCaptureIntentSent())
+        var intentCallback = onImageCaptureIntentSent()
+        IntentMonitorRegistry.getInstance().addIntentCallback(intentCallback)
         onView(withText(R.string.capture_image))
                 .perform(click())
-        IntentMonitorRegistry.getInstance().removeIntentCallback(onImageCaptureIntentSent())
+        IntentMonitorRegistry.getInstance().removeIntentCallback(intentCallback)
+    }
+
+    /**
+     * Click next button in the form
+     */
+    @JvmStatic
+    fun nextPage() {
+        onView(withId(R.id.nav_btn_next))
+                .perform(click())
     }
 
     /**
@@ -336,12 +350,18 @@ object InstrumentationUtility {
                 .perform(click())
     }
 
+    @JvmStatic
+    fun stubIntentWithAction(action : String) {
+        Intents.intending(IntentMatchers.hasAction(action))
+                .respondWith(Instrumentation.ActivityResult(Activity.RESULT_OK, Intent()))
+    }
+
     fun didLastLogSubmissionSucceed(): Boolean {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
         return sharedPreferences.getBoolean(CommCareSessionService.LOG_SUBMISSION_RESULT_PREF, false)
     }
-    
+
     @JvmStatic
     fun <T> assertCurrentActivity(clazz: Class<T>) {
         val application = InstrumentationRegistry.getInstrumentation().targetContext.applicationContext
@@ -399,21 +419,16 @@ object InstrumentationUtility {
         intending(hasAction(Intent.ACTION_GET_CONTENT)).respondWith(result)
     }
 
-    private fun onImageCaptureIntentSent() = IntentCallback { intent ->
-        if (MediaStore.ACTION_IMAGE_CAPTURE == intent.action) {
-            val uri = intent.extras!!.getParcelable<Uri>(MediaStore.EXTRA_OUTPUT)
-            val context = InstrumentationRegistry.getInstrumentation().targetContext
-
-            val inputStream = context.classLoader.getResourceAsStream("ic_launcher.png")
-            val outputStream = context.contentResolver.openOutputStream(uri!!)
-            try {
-                StreamsUtil.writeFromInputToOutputUnmanaged(inputStream, outputStream)
-            } catch (e: Exception) {
-                e.printStackTrace()
-            } finally {
-                inputStream.close()
-                outputStream!!.close()
-            }
+    fun onImageCaptureIntentSent() = IntentCallback { intent ->
+        val uri = intent.extras!!.getParcelable<Uri>(MediaStore.EXTRA_OUTPUT)
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        val inputStream = context.classLoader.getResourceAsStream(IMAGE_CAPTURE_FILE_NAME)
+        val outputStream = context.contentResolver.openOutputStream(uri!!)
+        try {
+            StreamsUtil.writeFromInputToOutputUnmanaged(inputStream, outputStream)
+        } finally {
+            inputStream.close()
+            outputStream!!.close()
         }
     }
     //endregion

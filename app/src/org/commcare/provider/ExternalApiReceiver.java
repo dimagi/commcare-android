@@ -20,8 +20,10 @@ import org.commcare.sync.ProcessAndSendTask;
 import org.commcare.tasks.ResultAndError;
 import org.commcare.tasks.templates.CommCareTask;
 import org.commcare.tasks.templates.CommCareTaskConnector;
+import org.commcare.util.LogTypes;
 import org.commcare.utils.FormUploadResult;
 import org.javarosa.core.model.User;
+import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 
 import java.math.BigInteger;
@@ -87,7 +89,7 @@ public class ExternalApiReceiver extends BroadcastReceiver {
         try {
             sharingKey = storage.getRecordForValue(AndroidSharedKeyRecord.META_KEY_ID, keyId);
         } catch (NoSuchElementException nsee) {
-            //No valid key record;
+            Logger.log(LogTypes.TYPE_MAINTENANCE, "Invalid key encountered for intent " + intent.getAction());
             return;
         }
 

@@ -54,7 +54,7 @@ public class AndroidSharedKeyRecord extends Persisted {
     public static AndroidSharedKeyRecord generateNewSharingKey() {
         try {
             KeyPairGenerator generator = KeyPairGenerator.getInstance("RSA");
-            generator.initialize(256, new SecureRandom());
+            generator.initialize(512, new SecureRandom());
             KeyPair pair = generator.genKeyPair();
             byte[] encodedPrivate = pair.getPrivate().getEncoded();
             String privateEncoding = pair.getPrivate().getFormat();

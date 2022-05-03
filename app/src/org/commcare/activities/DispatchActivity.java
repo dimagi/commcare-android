@@ -38,6 +38,8 @@ public class DispatchActivity extends AppCompatActivity {
     public static final String SESSION_ENDPOINT_ARGUMENTS_BUNDLE = "ccodk_session_endpoint_arguments_bundle";
     public static final String SESSION_ENDPOINT_ARGUMENTS_LIST = "ccodk_session_endpoint_arguments_list";
     public static final String WAS_EXTERNAL = "launch_from_external";
+    public static final String EXIT_AFTER_FORM_SUBMISSION = "ccodk_exit_after_form_submission";
+    public static final Boolean EXIT_AFTER_FORM_SUBMISSION_DEFAULT = true;
     public static final String WAS_SHORTCUT_LAUNCH = "launch_from_shortcut";
     public static final String START_FROM_LOGIN = "process_successful_login";
     public static final String EXECUTE_RECOVERY_MEASURES = "execute_recovery_measures";
@@ -333,23 +335,26 @@ public class DispatchActivity extends AppCompatActivity {
     private void handleExternalLaunch() {
         //First off, make sure the incoming session is clear
         CommCareApplication.instance().getSession().proceedWithSavedSessionIfNeeded(() -> {
+                    Intent i = null;
                     if (getIntent().hasExtra(SESSION_REQUEST)) {
                         String sessionRequest = this.getIntent().getStringExtra(SESSION_REQUEST);
                         SessionStateDescriptor ssd = new SessionStateDescriptor();
                         ssd.fromBundle(sessionRequest);
                         CommCareApplication.instance().getCurrentSessionWrapper().loadFromStateDescription(ssd);
-                        Intent i = new Intent(this, StandardHomeActivity.class);
-                        i.putExtra(WAS_EXTERNAL, true);
-                        startActivityForResult(i, HOME_SCREEN);
+                        i = new Intent(this, StandardHomeActivity.class);
                     } else if (getIntent().hasExtra(SESSION_ENDPOINT_ID)) {
                         String sessionEndpointId = this.getIntent().getStringExtra(SESSION_ENDPOINT_ID);
                         Bundle args = this.getIntent().getBundleExtra(SESSION_ENDPOINT_ARGUMENTS_BUNDLE);
                         ArrayList<String> argsList = this.getIntent().getStringArrayListExtra(SESSION_ENDPOINT_ARGUMENTS_LIST);
-                        Intent i = new Intent(this, StandardHomeActivity.class);
-                        i.putExtra(WAS_EXTERNAL, true);
+                        i = new Intent(this, StandardHomeActivity.class);
                         i.putExtra(SESSION_ENDPOINT_ID, sessionEndpointId);
                         i.putExtra(SESSION_ENDPOINT_ARGUMENTS_BUNDLE, args);
                         i.putStringArrayListExtra(SESSION_ENDPOINT_ARGUMENTS_LIST, argsList);
+                    }
+                    if (i != null) {
+                        i.putExtra(WAS_EXTERNAL, true);
+                        i.putExtra(EXIT_AFTER_FORM_SUBMISSION,
+                                getIntent().getBooleanExtra(EXIT_AFTER_FORM_SUBMISSION, EXIT_AFTER_FORM_SUBMISSION_DEFAULT));
                         startActivityForResult(i, HOME_SCREEN);
                     }
                 }

@@ -11,15 +11,19 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import org.commcare.CommCareApplication;
+import org.commcare.activities.FormEntryActivity;
 import org.commcare.activities.components.FormEntryInstanceState;
 import org.commcare.dalvik.R;
 import org.commcare.logic.PendingCalloutInterface;
+import org.commcare.models.encryption.EncryptionIO;
+import org.commcare.preferences.HiddenPreferences;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.FileExtensionNotFoundException;
 import org.commcare.utils.FileUtil;
 import org.commcare.utils.FormUploadUtil;
 import org.commcare.utils.StringUtils;
-import org.commcare.utils.UriToFilePath;
+import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.data.IntegerData;
 import org.javarosa.core.model.data.InvalidData;
@@ -29,8 +33,11 @@ import org.javarosa.core.services.locale.Localization;
 import org.javarosa.form.api.FormEntryPrompt;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+
+import javax.crypto.spec.SecretKeySpec;
 
 import androidx.annotation.NonNull;
 
@@ -43,20 +50,22 @@ public abstract class MediaWidget extends QuestionWidget {
     private static final String TAG = MediaWidget.class.getSimpleName();
 
     protected static final String CUSTOM_TAG = "custom";
+    public static final String AES_EXTENSION = ".aes";
 
     protected Button mCaptureButton;
     protected Button mPlayButton;
     protected Button mChooseButton;
     protected String mBinaryName;
+    private String mTempBinaryPath;
+
 
     protected final PendingCalloutInterface pendingCalloutInterface;
     protected final String mInstanceFolder;
 
     private int oversizedMediaSize;
 
-    protected String recordedFileName;
     protected String customFileTag;
-    protected String destMediaPath;
+    private String destMediaPath;
 
     public MediaWidget(Context context, FormEntryPrompt prompt,
                        PendingCalloutInterface pendingCalloutInterface) {
@@ -64,9 +73,7 @@ public abstract class MediaWidget extends QuestionWidget {
 
         this.pendingCalloutInterface = pendingCalloutInterface;
 
-        mInstanceFolder =
-                FormEntryInstanceState.mFormRecordPath.substring(0,
-                        FormEntryInstanceState.mFormRecordPath.lastIndexOf("/") + 1);
+        mInstanceFolder = FormEntryInstanceState.getInstanceFolder();
 
         setOrientation(LinearLayout.VERTICAL);
         initializeButtons();
@@ -92,10 +99,51 @@ public abstract class MediaWidget extends QuestionWidget {
         }
     }
 
-    protected void reloadFile() {
-        togglePlayButton(true);
+    private void reloadFile() {
         File f = new File(mInstanceFolder + mBinaryName);
-        checkFileSize(f);
+        if (f.exists()) {
+            checkFileSize(f);
+        } else if (mTempBinaryPath == null) {
+            File encryptedFile = new File(mInstanceFolder + mBinaryName + AES_EXTENSION);
+            checkFileSize(encryptedFile);
+            mTempBinaryPath = decryptMedia(encryptedFile, getSecretKey());
+        } else {
+            checkFileSize(new File(mTempBinaryPath));
+        }
+
+        togglePlayButton(true);
+    }
+
+    protected String getSourceFilePathToDisplay() {
+        File f = new File(mInstanceFolder + mBinaryName);
+        if (f.exists()) {
+            return f.getAbsolutePath();
+        } else {
+            // file should have been decrypted at the temp path
+            return mTempBinaryPath;
+        }
+    }
+
+    // decrypt the given file to a temp path
+    public static String decryptMedia(File f, SecretKeySpec secretKey) {
+        if (!f.getName().endsWith(AES_EXTENSION)) {
+            return null;
+        }
+
+        String tempMediaPath = createTempMediaPath(FileUtil.getExtension(removeAESExtension(f.getName())));
+        try {
+            FileOutputStream fos = new FileOutputStream(tempMediaPath);
+            InputStream is = EncryptionIO.getFileInputStream(f.getPath(), secretKey);
+            StreamsUtil.writeFromInputToOutputNew(is, fos);
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to decrypt media at path " + f.getAbsolutePath()
+                    + " due to " + e.getMessage(), e);
+        }
+        return tempMediaPath;
+    }
+
+    private SecretKeySpec getSecretKey() {
+        return ((FormEntryActivity)getContext()).getSymetricKey();
     }
 
     protected void togglePlayButton(boolean enabled) {
@@ -117,30 +165,43 @@ public abstract class MediaWidget extends QuestionWidget {
             // allow showing the user a proper warning message.
             return new InvalidData("", new IntegerData(oversizedMediaSize));
         } else if (mBinaryName != null) {
-            return new StringData(mBinaryName);
+            return new StringData(removeAESExtension(mBinaryName));
         }
         return null;
     }
 
     /**
-     * @return resolved filepath or null if the target is too big to upload
+     * @return whether the media file passes the size check
      */
-    private String getBinaryPathWithSizeCheck(Object binaryURI) throws IOException {
-        String binaryPath = createFilePath(binaryURI);
+    private boolean ifMediaSizeChecks(String binaryPath) {
         File source = new File(binaryPath);
         boolean isTooLargeToUpload = checkFileSize(source);
-
-        if (mBinaryName != null) {
-            deleteMedia();
-        }
-
         if (isTooLargeToUpload) {
             oversizedMediaSize = (int)source.length() / (1024 * 1024);
-            return null;
+            return false;
         } else {
             oversizedMediaSize = -1;
-            return binaryPath;
+            return true;
         }
+    }
+
+    /**
+     * @return whether the media file has a valid extension
+     */
+    private boolean ifMediaExtensionChecks(String binaryPath) {
+        String extension = FileUtil.getExtension(binaryPath);
+        if (!FormUploadUtil.isSupportedMultimediaFile(binaryPath)) {
+            Toast.makeText(getContext(),
+                    Localization.get("form.attachment.invalid"),
+                    Toast.LENGTH_LONG).show();
+            Log.e(TAG, String.format(
+                    "Could not save file with URI %s because of bad extension %s.",
+                    binaryPath,
+                    extension
+            ));
+            return false;
+        }
+        return true;
     }
 
     @Override
@@ -150,12 +211,21 @@ public abstract class MediaWidget extends QuestionWidget {
     }
 
     private void deleteMedia() {
-        File f = new File(mInstanceFolder + mBinaryName);
-        if (!f.delete()) {
-            Log.e(TAG, "Failed to delete " + f);
-        }
-
+        deleteMediaFiles(mInstanceFolder, mBinaryName);
         mBinaryName = null;
+        mTempBinaryPath = null;
+    }
+
+    // get the file path and delete the file along with the corresponding encrypted file
+    public static void deleteMediaFiles(String instanceFolder, String binaryName) {
+        String filePath = instanceFolder + "/" + binaryName;
+        if (!FileUtil.deleteFileOrDir(filePath)) {
+            Logger.log(LogTypes.TYPE_FORM_ENTRY, "Failed to delete media at path " + filePath);
+        }
+        String encryptedFilePath = filePath + MediaWidget.AES_EXTENSION;
+        if (!FileUtil.deleteFileOrDir(encryptedFilePath)) {
+            Logger.log(LogTypes.TYPE_FORM_ENTRY, "Failed to delete media at path " + encryptedFilePath);
+        }
     }
 
     @Override
@@ -192,10 +262,15 @@ public abstract class MediaWidget extends QuestionWidget {
     }
 
     @Override
-    public void setBinaryData(Object binaryuri) {
+    public void setBinaryData(Object binaryURI) {
+        // delete any existing media
+        if (mBinaryName != null) {
+            deleteMedia();
+        }
+
         String binaryPath;
         try {
-            binaryPath = getBinaryPathWithSizeCheck(binaryuri);
+            binaryPath = createFilePath(binaryURI);
         } catch (FileExtensionNotFoundException e) {
             showToast("form.attachment.invalid.extension");
             Logger.exception("Error while saving media ", e);
@@ -207,52 +282,44 @@ public abstract class MediaWidget extends QuestionWidget {
             return;
         }
 
-        if (binaryPath == null) {
-            // if file is too large and we have already copied the file to destMediaPath, delete it
-            if (!destMediaPath.isEmpty()) {
-                new File(destMediaPath).delete();
-            }
+        if (!ifMediaSizeChecks(binaryPath) && !ifMediaExtensionChecks(binaryPath)) {
             return;
         }
 
-        File newMedia;
-
-        if (!destMediaPath.isEmpty()) {
-            // we have already copied the file at newPath during createFilePath
-            newMedia = new File(destMediaPath);
-        } else {
-            recordedFileName = FileUtil.getFileName(binaryPath);
-            String extension = FileUtil.getExtension(binaryPath);
-            if (!FormUploadUtil.isSupportedMultimediaFile(binaryPath)) {
-                Toast.makeText(getContext(),
-                        Localization.get("form.attachment.invalid"),
-                        Toast.LENGTH_LONG).show();
-                Log.e(TAG, String.format(
-                        "Could not save file with URI %s because of bad extension %s.",
-                        binaryPath,
-                        extension
-                ));
-                return;
-            }
-            destMediaPath = mInstanceFolder + System.currentTimeMillis() + customFileTag + "." + extension;
-
-            // Copy to destMediaPath
-            File source = new File(binaryPath);
-            newMedia = new File(destMediaPath);
-            try {
-                FileUtil.copyFile(source, newMedia);
-            } catch (IOException e) {
-                showToast("form.attachment.copy.fail");
-                Logger.exception(LogTypes.TYPE_MAINTENANCE, e);
-                e.printStackTrace();
-            }
-        }
+        encryptRecordedFileToDestination(binaryPath);
+        File newMedia = new File(destMediaPath);
 
         if (newMedia.exists()) {
             showToast("form.attachment.success");
         }
 
-        mBinaryName = newMedia.getName();
+        mTempBinaryPath = binaryPath;
+        mBinaryName = removeAESExtension(newMedia.getName());
+    }
+
+    // removes ".aes" from file name if exists
+    public static String removeAESExtension(String fileName) {
+        if (fileName.endsWith(AES_EXTENSION)) {
+            return fileName.replace(AES_EXTENSION, "");
+        }
+        return fileName;
+    }
+
+    private void encryptRecordedFileToDestination(String binaryPath) {
+        String extension = FileUtil.getExtension(binaryPath);
+        destMediaPath = mInstanceFolder + System.currentTimeMillis() +
+                customFileTag + "." + extension;
+        try {
+            if (HiddenPreferences.isMediaCaptureEncryptionEnabled()) {
+                destMediaPath = destMediaPath + AES_EXTENSION;
+                EncryptionIO.encryptFile(binaryPath, destMediaPath, getSecretKey());
+            } else {
+                FileUtil.copyFile(binaryPath, destMediaPath);
+            }
+        } catch (IOException e) {
+            showToast("form.attachment.copy.fail");
+            Logger.exception(LogTypes.TYPE_MAINTENANCE, e);
+        }
     }
 
     /**
@@ -261,15 +328,13 @@ public abstract class MediaWidget extends QuestionWidget {
      * Set value of customFileTag if the file is a recent recording from the RecordingFragment
      */
     private String createFilePath(Object binaryuri) throws IOException {
-        String path = "";
-        destMediaPath = "";
+        String path;
         if (binaryuri instanceof Uri) {
-            // Need to make a copy of file using uri, so might as well copy to final destination path directly
+            // Make a copy to a temporary location
             InputStream inputStream = getContext().getContentResolver().openInputStream((Uri)binaryuri);
-            recordedFileName = FileUtil.getFileName(getContext(), (Uri)binaryuri);
-            destMediaPath = mInstanceFolder + System.currentTimeMillis() + "." + FileUtil.getExtension(recordedFileName);
-            FileUtil.copyFile(inputStream, new File(destMediaPath));
-            path = destMediaPath;
+            String fileName = FileUtil.getFileName(getContext(), (Uri)binaryuri);
+            path = createTempMediaPath(FileUtil.getExtension(fileName));
+            FileUtil.copyFile(inputStream, new File(path));
             customFileTag = "";
         } else {
             path = (String)binaryuri;
@@ -278,18 +343,23 @@ public abstract class MediaWidget extends QuestionWidget {
         return path;
     }
 
-    protected void playMedia(String mediaType) {
-        Intent i = new Intent("android.intent.action.VIEW");
-        File mediaFile = new File(mInstanceFolder + mBinaryName);
-        Uri mediaUri = FileUtil.getUriForExternalFile(getContext(), mediaFile);
-        i.setDataAndType(mediaUri, mediaType);
+    private static String createTempMediaPath(String fileExtension) {
+        return CommCareApplication.instance().getAndroidFsTemp() +
+                System.currentTimeMillis() + "." + fileExtension;
+    }
 
-        UriToFilePath.grantPermissionForUri(getContext(), i, mediaUri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
+    // launches an ACTION_VIEW Intent for the given file
+    public static void playMedia(Context context, String mediaType, String filePath) {
+        Intent i = new Intent(Intent.ACTION_VIEW);
+        File mediaFile = new File(filePath);
+        Uri mediaUri = FileUtil.getUriForExternalFile(context, mediaFile);
+        i.setDataAndType(mediaUri, mediaType);
+        i.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
         try {
-            getContext().startActivity(i);
+            context.startActivity(i);
         } catch (ActivityNotFoundException e) {
-            Toast.makeText(getContext(),
-                    StringUtils.getStringSpannableRobust(getContext(),
+            Toast.makeText(context,
+                    StringUtils.getStringSpannableRobust(context,
                             R.string.activity_not_found,
                             "play " + mediaType.substring(0, mediaType.indexOf("/"))),
                     Toast.LENGTH_SHORT).show();

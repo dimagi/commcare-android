@@ -40,23 +40,24 @@ dependencies {
         exclude(group: 'org.bouncycastle', module: 'bcprov-jdk15on')
     }
     testImplementation 'org.robolectric:shadows-multidex:4.3.1'
-    testImplementation 'androidx.test:core:1.3.0'
-    testImplementation 'androidx.test:runner:1.3.0'
-    testImplementation 'androidx.test.ext:junit:1.1.2'
+    testImplementation 'androidx.test:core:1.4.0'
+    testImplementation 'androidx.test:runner:1.4.0'
+    testImplementation 'androidx.test.ext:junit:1.1.3'
     testImplementation 'androidx.work:work-testing:2.4.0'
-    testImplementation 'androidx.test.espresso:espresso-core:3.3.0'
-    testImplementation 'androidx.test.espresso:espresso-intents:3.3.0'
+    testImplementation 'androidx.test.espresso:espresso-core:3.4.0'
+    testImplementation 'androidx.test.espresso:espresso-intents:3.4.0'
     testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:1.3.2"
     testImplementation "io.mockk:mockk:1.10.0"
     testImplementation 'org.json:json:20140107'
     testImplementation project(path: ':commcare-core', configuration: 'testsAsJar')
 
-    androidTestImplementation 'androidx.test:runner:1.2.0'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.1'
-    androidTestImplementation 'androidx.test:rules:1.2.0'
-    androidTestImplementation 'androidx.test.espresso:espresso-intents:3.2.0'
-    androidTestImplementation 'androidx.test.espresso:espresso-contrib:3.2.0'
+    androidTestImplementation 'androidx.test:runner:1.4.0'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.3'
+    androidTestImplementation 'androidx.test.ext:truth:1.4.0'
+    androidTestImplementation 'androidx.test:rules:1.4.0'
+    androidTestImplementation 'androidx.test.espresso:espresso-intents:3.4.0'
+    androidTestImplementation 'androidx.test.espresso:espresso-contrib:3.4.0'
 
     // need uiautomator to rotate the device.
     // this only works with API >=18
