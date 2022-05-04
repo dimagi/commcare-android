@@ -100,7 +100,7 @@ public class FormCacheEligibilityTester {
     }
 
     private static List<XPathExpression> getXPathExpressions(String resourcePath) throws IOException {
-        InputStream is = System.class.getResourceAsStream(resourcePath);
+        InputStream is = FormCacheEligibilityTester.class.getResourceAsStream(resourcePath);
         BufferedReader br = new BufferedReader(new InputStreamReader(is, "UTF-8"));
         List<XPathExpression> expressions = new ArrayList<>();
 
@@ -140,7 +140,7 @@ public class FormCacheEligibilityTester {
 
     private static List<String> getAllFormsToTest() throws URISyntaxException {
         List<String> resourcePaths = new ArrayList<>();
-        URI uri = System.class.getResource(PATH_TO_CCZ_RESOURCES).toURI();
+        URI uri = FormCacheEligibilityTester.class.getResource(PATH_TO_CCZ_RESOURCES).toURI();
         File directory = new File(uri);
         for (File f : directory.listFiles()) {
             if (f.getName().contains("modules-")) {

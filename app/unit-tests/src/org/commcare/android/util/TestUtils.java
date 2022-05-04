@@ -158,7 +158,7 @@ public class TestUtils {
         DataModelPullParser parser;
 
         try {
-            InputStream is = System.class.getResourceAsStream(resourcePath);
+            InputStream is = TestUtils.class.getResourceAsStream(resourcePath);
 
             parser = new DataModelPullParser(is, getFactory(db, bulkProcessingEnabled), true, true);
             parser.parse();
@@ -188,7 +188,7 @@ public class TestUtils {
         }
 
         try {
-            InputStream is = System.class.getResourceAsStream(resourcePath);
+            InputStream is = TestUtils.class.getResourceAsStream(resourcePath);
 
             parser = new DataModelPullParser(is, androidTransactionFactory, true, true);
             parser.parse();

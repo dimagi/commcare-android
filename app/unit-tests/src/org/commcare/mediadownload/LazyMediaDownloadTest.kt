@@ -8,6 +8,7 @@ import androidx.work.testing.TestListenableWorkerBuilder
 import io.mockk.every
 import io.mockk.mockkObject
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
 import org.commcare.CommCareApplication
 import org.commcare.CommCareTestApplication
@@ -35,6 +36,7 @@ class LazyMediaDownloadTest {
 
     private lateinit var context: Context
 
+    @ExperimentalCoroutinesApi
     @get:Rule
     var mainCoroutineRule = MainCoroutineRule()
 
@@ -75,6 +77,7 @@ class LazyMediaDownloadTest {
         runAndCheckForDownloadWorkerResult(ListenableWorker.Result.success())
     }
 
+    @ExperimentalCoroutinesApi
     @Test
     fun testLazyMediaDownloadInForeground() = mainCoroutineRule.runBlockingTest {
         updateToAnAppWithLazyMedia()
