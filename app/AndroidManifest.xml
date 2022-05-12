@@ -82,6 +82,7 @@
         <intent>
             <action android:name="android.intent.action.TTS_SERVICE" />
         </intent>
+        <package android:name="com.google.android.apps.maps" />
     </queries>
 
     <application
@@ -493,9 +494,6 @@
 
 
         <activity android:name="org.commcare.activities.CommcareListActivity"/>
-
-        <meta-data android:name="android.content.APP_RESTRICTIONS"
-            android:resource="@xml/app_restrictions" />
 
         <!-- This is to disable fabric for debug builds properly - https://stackoverflow.com/a/49836972/3811963 -->
         <meta-data

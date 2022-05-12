@@ -1,8 +1,6 @@
 import org.apache.tools.ant.filters.ReplaceTokens
 import com.android.builder.core.DefaultManifestParser
 
-import java.util.function.BooleanSupplier
-
 ////////////
 // README //
 ////////////
@@ -15,7 +13,8 @@ import java.util.function.BooleanSupplier
 
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-android-extensions' // TODO this is deprecated
+apply plugin: 'com.google.gms.google-services'
 apply plugin: 'com.google.firebase.crashlytics'
 apply from: 'jacoco.gradle'
 
@@ -174,25 +173,18 @@ afterEvaluate {
     processCommcareReleaseGoogleServices.dependsOn injectGoogleServicesAPIKey
 }
 
-task injectGoogleServicesAPIKey(type: Copy) {
+/**
+ * https://discuss.gradle.org/t/gradle-7-0-seems-to-take-an-overzealous-approach-to-inter-task-dependencies/39656/2
+ * Gradle 7.0 treats any copy tasks as having an implicit dependencies with each other.
+ */
+task injectGoogleServicesAPIKey {
     description = 'Injects the Google Services API key into the google-services.json file at runtime'
 
-    /**
-     * This is an awkward workaround for a Windows build error that occurs when you try
-     * to copy something into the root directory (containing the .gradle folder). Don't
-     * change it without testing on a windows machine
-     */
-    if (isBelowGradleThree()) {
-        outputs.files.setFrom(file("$projectDir/google-services.json"))
+    copy {
+        from 'templates/google-services.json'
+        filter(ReplaceTokens, tokens: [apiKey: project.ext.GOOGLE_SERVICES_API_KEY])
+        into projectDir
     }
-
-    from file("templates/google-services.json")
-    filter(ReplaceTokens, tokens: [apiKey: project.ext.GOOGLE_SERVICES_API_KEY])
-    into projectDir
-}
-
-def isBelowGradleThree() {
-    return (gradle.gradleVersion.split("\\.")[0] as double) < 3
 }
 
 def ccAppId = project.hasProperty('cc_app_id') ? cc_app_id : ""
@@ -255,11 +247,6 @@ android {
         exclude 'META-INF/NOTICE.txt'
     }
 
-    dexOptions {
-        preDexLibraries = true
-        jumboMode = true
-    }
-
     defaultConfig {
         minSdkVersion 16
         targetSdkVersion 30
@@ -315,12 +302,12 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
     }
 
     kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_1_8.toString()
+        jvmTarget = JavaVersion.VERSION_11.toString()
     }
 
     signingConfigs {
@@ -380,7 +367,7 @@ android {
         release.setRoot('build-types/release')
     }
 
-    // Our flavours doesn't differ on a particular dimension yet, so just speicfy a dummy
+    // Our flavours doesn't differ on a particular dimension yet, so just specify a dummy
     flavorDimensions "dummy"
     productFlavors {
         commcare {
@@ -403,7 +390,7 @@ android {
             def applicationName = "CommCare LTS"
             resValue "string", "application_name", applicationName
         }
-
+        
         standalone {
             // Builds commcare w/ ccz app packaged in the apk.
             // Must be invoked from command-line w/ args pointing to app domain &
@@ -471,7 +458,7 @@ android {
 
     // Ignore un-minified graphing files
     aaptOptions {
-        ignoreAssetsPattern "!*.max.js:!*.max.css"
+        ignoreAssetsPattern '!*.max.js:!*.max.css'
     }
 
     testOptions {
@@ -514,10 +501,10 @@ downloadCCApp {
 // dynamic check at task execution time
 downloadCCApp {
     doLast {
-        if (ccAppId.equals("")) {
+        if (ccAppId == "") {
             throw new InvalidUserDataException("Please provide cc_app_id property (CommCare App ID) to be packaged with apk")
         }
-        if (ccDomain.equals("")) {
+        if (ccDomain == "") {
             throw new InvalidUserDataException("Please provide cc_domain property (CommCare App Domain) to be packaged with apk")
         }
     }
@@ -544,10 +531,10 @@ downloadRestoreFile {
 // dynamic check at task execution time
 downloadRestoreFile {
     doLast {
-        if (consumerAppUsername.equals("")) {
+        if (consumerAppUsername == "") {
             throw new InvalidUserDataException("Please provide username for restore to be packaged with apk")
         }
-        if (consumerAppPassword.equals("")) {
+        if (consumerAppPassword == "") {
             throw new InvalidUserDataException("Please provide password for restore to be packaged with apk")
         }
     }
@@ -556,12 +543,12 @@ downloadRestoreFile {
 // dynamically inject commcare app download into standalone build process
 tasks.whenTaskAdded { task ->
     if ((task.name == 'processStandaloneDebugResources' ||
-            task.name == 'processStandaloneReleaseResources') && "true".equals(runDownloadScripts)) {
+            task.name == 'processStandaloneReleaseResources') && "true" == runDownloadScripts) {
         task.dependsOn downloadCCApp
     }
     if ((task.name == 'processStandaloneDebugResources' ||
             task.name == 'processStandaloneReleaseResources')
-            && "true".equals(isConsumerApp) && "true".equals(runDownloadScripts)) {
+            && "true" == isConsumerApp && "true" == runDownloadScripts) {
         task.dependsOn downloadRestoreFile
     }
 }
@@ -570,77 +557,74 @@ tasks.whenTaskAdded { task ->
  * convert version code to english words for use in application id.
  * example: 2.26 -> twotwosix
  */
-def numbersToLetters(String version) {
-    String[] chars = version.split('');
-    StringBuilder words = new StringBuilder();
+static def numbersToLetters(String version) {
+    String[] chars = version.split('')
+    StringBuilder words = new StringBuilder()
     for (String num : chars) {
         switch (num) {
-            case "1": words.append("one"); break;
-            case "2": words.append("two"); break;
-            case "3": words.append("three"); break;
-            case "4": words.append("four"); break;
-            case "5": words.append("five"); break;
-            case "6": words.append("six"); break;
-            case "7": words.append("seven"); break;
-            case "8": words.append("eight"); break;
-            case "9": words.append("nine"); break;
-            case "0": words.append("zero"); break;
-            default: break; // skip non-numeric
+            case "1": words.append("one"); break
+            case "2": words.append("two"); break
+            case "3": words.append("three"); break
+            case "4": words.append("four"); break
+            case "5": words.append("five"); break
+            case "6": words.append("six"); break
+            case "7": words.append("seven"); break
+            case "8": words.append("eight"); break
+            case "9": words.append("nine"); break
+            case "0": words.append("zero"); break
+            default: break // skip non-numeric
         }
     }
-    return words.toString();
+    return words.toString()
 }
 
-def fixEscaping(String s) {
-    return s.replaceAll("\\\\", "\\\\\\\\");
+static def fixEscaping(String s) {
+    return s.replaceAll("\\\\", "\\\\\\\\")
 }
 
 def getStandalonePackageIdentifier(ccDomainSafe, isConsumerApp) {
     if (project.hasProperty('application_name')) {
         return ccDomainSafe + "." + cleanseAppNameForPackageIdentifier(application_name)
-    } else if ("true".equals(isConsumerApp)) {
+    } else if ("true" == isConsumerApp) {
         throw new InvalidUserDataException("An application_name property must be provided for consumer app standalone builds")
     } else {
-        return ccDomainSafe;
+        return ccDomainSafe
     }
 }
 
-def cleanseAppNameForPackageIdentifier(appName) {
+static def cleanseAppNameForPackageIdentifier(appName) {
     return appName.replaceAll("[ '.:]", "").replaceAll("\\\\", "").toLowerCase()
 }
 
 def getStandaloneApplicationName(ccDomainSafe, isConsumerApp) {
     if (project.hasProperty('application_name')) {
-        return application_name;
-    } else if ("true".equals(isConsumerApp)) {
+        return application_name
+    } else if ("true" == isConsumerApp) {
         throw new InvalidUserDataException("An application_name property must be provided for consumer app standalone builds")
     } else {
-        return ccDomainSafe;
+        return ccDomainSafe
     }
 }
 
 def getConsumerAppUsername(isConsumerApp) {
     if (project.hasProperty('username')) {
-        return username;
-    } else if ("true".equals(isConsumerApp)) {
+        return username
+    } else if ("true" == isConsumerApp) {
         throw new InvalidUserDataException("A username property must be provided for consumer app standalone builds")
     } else {
-        return "";
+        return ""
     }
 }
 
 def getConsumerAppPassword(isConsumerApp) {
     if (project.hasProperty('password')) {
-        return password;
-    } else if ("true".equals(isConsumerApp)) {
+        return password
+    } else if ("true" == isConsumerApp) {
         throw new InvalidUserDataException("A password property must be provided for consumer app standalone builds")
     } else {
-        return "";
+        return ""
     }
 }
-
-// must be at bottom of file to fix some stupid google bug
-apply plugin: 'com.google.gms.google-services'
 
 downloadLicenses {
     includeProjectDependencies = true

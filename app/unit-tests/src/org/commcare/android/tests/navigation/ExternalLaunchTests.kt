@@ -3,7 +3,6 @@ package org.commcare.android.tests.navigation
 import android.content.Intent
 import android.os.Bundle
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import junit.framework.Assert.assertEquals
 import org.commcare.CommCareTestApplication
 import org.commcare.activities.DispatchActivity
 import org.commcare.activities.FormEntryActivity
@@ -11,6 +10,7 @@ import org.commcare.activities.StandardHomeActivity
 import org.commcare.android.util.TestAppInstaller
 import org.commcare.android.util.TestUtils
 import org.junit.Assert
+import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith

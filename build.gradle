@@ -3,16 +3,15 @@ buildscript {
     repositories {
         google()
         mavenCentral()
-        google()
         jcenter()
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:4.0.0'
-        classpath 'com.google.gms:google-services:4.3.3'
-        classpath 'com.google.firebase:firebase-crashlytics-gradle:2.2.1'
+        classpath 'com.android.tools.build:gradle:7.0.3'
+        classpath 'com.google.gms:google-services:4.3.10'
+        classpath 'com.google.firebase:firebase-crashlytics-gradle:2.7.1'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-        classpath 'org.jacoco:org.jacoco.core:0.8.5'
+        classpath 'org.jacoco:org.jacoco.core:0.8.7'
         classpath 'com.vanniktech:gradle-maven-publish-plugin:0.15.1'
     }
 }
@@ -25,8 +24,8 @@ plugins {
 allprojects {
     repositories {
         google()
-        jcenter()
         mavenCentral()
+        jcenter()
     }
 }
 

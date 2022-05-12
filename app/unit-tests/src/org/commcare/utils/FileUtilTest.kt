@@ -59,7 +59,7 @@ class FileUtilTest {
     @Test(expected = FileExtensionNotFoundException::class)
     fun getFileName_withNullCursorAndNullType_throwsException() {
         every { mockContext.contentResolver.query(any(), any(), any(), any(), any()) } returns null
-        val fileName = FileUtil.getFileName(mockContext, Uri.parse("any"))
+        FileUtil.getFileName(mockContext, Uri.parse("any"))
     }
 
     @Test

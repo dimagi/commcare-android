@@ -34,7 +34,7 @@ public class ManageKeyRecordTaskFake extends ManageKeyRecordTask<DataPullControl
 
     @Override
     protected Response<ResponseBody> doHttpRequest() throws IOException {
-        InputStream is = System.class.getResourceAsStream(resourcePath);
+        InputStream is = getClass().getResourceAsStream(resourcePath);
         ResponseBody responseBody = new FakeResponseBody(is);
         return Response.success(responseBody);
     }
