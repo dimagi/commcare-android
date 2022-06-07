@@ -28,7 +28,7 @@ git clone https://github.com/dimagi/commcare-core.git
 
 - Open Android Studio
 - If this is your first time using Android Studio, click "Config" and setup the Android SDK.
-- Download the Android 7 (API 24) SDK Platform and the Google APIs for 24.
+- Download the Android 11 (API 30) SDK Platform and the Google APIs for 30.
 - Now go back to the Android Studio Welcome dashboard and click "Import project (Eclipse ADT, Gradle, etc.)"
 - Select AndroidStudioProjects > CommCare > commcare-android and hit OK
 - Click "OK" to use the Gradle wrapper
