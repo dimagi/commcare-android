@@ -73,6 +73,7 @@ import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.FormLoaderTask;
 import org.commcare.tasks.FormRecordCleanupTask;
 import org.commcare.tasks.ResultAndError;
+import org.commcare.util.DatumUtil;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.AndroidCommCarePlatform;
 import org.commcare.utils.AndroidInstanceInitializer;
@@ -730,9 +731,8 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
         AndroidSessionWrapper asw = CommCareApplication.instance().getCurrentSessionWrapper();
         CommCareSession currentSession = asw.getSession();
         if (sessionStateUnchangedSinceCallout(currentSession, intent)) {
-            String sessionDatumId = currentSession.getNeededDatum().getDataId();
             String chosenCaseId = intent.getStringExtra(SessionFrame.STATE_DATUM_VAL);
-            currentSession.setDatum(sessionDatumId, chosenCaseId);
+            currentSession.setEntityDatum(currentSession.getNeededDatum(), chosenCaseId);
             return true;
         } else {
             clearSessionAndExit(asw, true);
@@ -1115,7 +1115,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                 // Large tablet in landscape: send to entity select activity
                 // (awesome mode, with case pre-selected) instead of entity detail
                 Intent i = getSelectIntent(session);
-                String caseId = EntityDatum.getCaseIdFromReference(
+                String caseId = DatumUtil.getReturnValueFromSelection(
                         contextRef, entityDatum, asw.getEvaluationContext());
                 i.putExtra(EntitySelectActivity.EXTRA_ENTITY_KEY, caseId);
                 startActivityForResult(i, GET_CASE);

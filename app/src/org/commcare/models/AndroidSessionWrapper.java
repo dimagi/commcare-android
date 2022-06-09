@@ -309,7 +309,7 @@ public class AndroidSessionWrapper implements SessionWrapperInterface {
                         wrapper = new AndroidSessionWrapper(platform);
                         wrapper.session.setCommand(platform.getModuleNameForEntry((FormEntry)e));
                         wrapper.session.setCommand(e.getCommandId());
-                        wrapper.session.setDatum(entityDatum.getDataId(), selectedValue);
+                        wrapper.session.setEntityDatum(entityDatum, selectedValue);
                     }
                 }
 
