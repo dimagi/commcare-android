@@ -5,6 +5,7 @@ import android.util.Log;
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
+import org.commcare.core.interfaces.RemoteInstanceFetcher;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.modern.session.SessionWrapperInterface;
 import org.commcare.preferences.HiddenPreferences;
@@ -17,6 +18,7 @@ import org.commcare.suite.model.EntityDatum;
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.FormEntry;
 import org.commcare.suite.model.SessionDatum;
+import org.commcare.suite.model.StackFrameStep;
 import org.commcare.suite.model.StackOperation;
 import org.commcare.util.CommCarePlatform;
 import org.commcare.utils.AndroidInstanceInitializer;
@@ -237,6 +239,16 @@ public class AndroidSessionWrapper implements SessionWrapperInterface {
         Set<String> instancesNeededForTextCalculation =
                 (new InstanceNameAccumulatingAnalyzer()).accumulate(xPathAnalyzable);
         return getRestrictedEvaluationContext(commandID, instancesNeededForTextCalculation);
+    }
+
+    @Override
+    public void prepareExternalSources(RemoteInstanceFetcher fetcher)
+            throws RemoteInstanceFetcher.RemoteInstanceException {
+        for(StackFrameStep step : session.getFrame().getSteps()) {
+            if (step.hasXmlInstance() && step.getXmlInstanceSource().needsInit()) {
+                step.getXmlInstanceSource().remoteInit(fetcher);
+            }
+        }
     }
 
     /**
