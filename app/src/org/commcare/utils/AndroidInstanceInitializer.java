@@ -16,7 +16,9 @@ import org.commcare.models.database.user.models.AndroidCaseIndexTable;
 import org.commcare.session.CommCareSession;
 import org.commcare.util.CommCarePlatform;
 import org.javarosa.core.model.instance.AbstractTreeElement;
+import org.javarosa.core.model.instance.ConcreteInstanceRoot;
 import org.javarosa.core.model.instance.ExternalDataInstance;
+import org.javarosa.core.model.instance.InstanceRoot;
 
 /**
  * @author ctsims
@@ -40,7 +42,7 @@ public class AndroidInstanceInitializer extends CommCareInstanceInitializer {
     }
 
     @Override
-    protected AbstractTreeElement setupLedgerData(ExternalDataInstance instance) {
+    protected InstanceRoot setupLedgerData(ExternalDataInstance instance) {
         if (stockbase == null) {
             SqlStorage<Ledger> storage = (SqlStorage<Ledger>)mSandbox.getLedgerStorage();
             stockbase = new AndroidLedgerInstanceTreeElement(instance.getBase(), storage);
@@ -48,11 +50,11 @@ public class AndroidInstanceInitializer extends CommCareInstanceInitializer {
             //re-use the existing model if it exists.
             stockbase.rebase(instance.getBase());
         }
-        return stockbase;
+        return new ConcreteInstanceRoot(stockbase);
     }
 
     @Override
-    protected AbstractTreeElement setupCaseData(ExternalDataInstance instance) {
+    protected InstanceRoot setupCaseData(ExternalDataInstance instance) {
         if (casebase == null) {
             SqlStorage<ACase> storage = (SqlStorage<ACase>)mSandbox.getCaseStorage();
             casebase = new CaseInstanceTreeElement(instance.getBase(), storage, new AndroidCaseIndexTable());
@@ -61,20 +63,20 @@ public class AndroidInstanceInitializer extends CommCareInstanceInitializer {
             casebase.rebase(instance.getBase());
         }
         instance.setCacheHost(casebase);
-        return casebase;
+        return new ConcreteInstanceRoot(casebase);
     }
 
     @Override
-    protected AbstractTreeElement setupFixtureData(ExternalDataInstance instance) {
+    protected InstanceRoot setupFixtureData(ExternalDataInstance instance) {
         AbstractTreeElement indexedFixture = AndroidIndexedFixtureInstanceTreeElement.get(
                 mSandbox,
                 getRefId(instance.getReference()),
                 instance.getBase());
 
         if (indexedFixture != null) {
-            return indexedFixture;
+            return new ConcreteInstanceRoot(indexedFixture);
         } else {
-            return loadFixtureRoot(instance, instance.getReference());
+            return new ConcreteInstanceRoot(loadFixtureRoot(instance, instance.getReference()));
         }
     }
 
