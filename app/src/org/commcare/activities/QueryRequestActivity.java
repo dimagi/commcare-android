@@ -269,7 +269,7 @@ public class QueryRequestActivity
         String oldAnswer = userAnswers.get(queryPrompt.getKey());
         if (oldAnswer == null || !oldAnswer.contentEquals(answer)) {
             remoteQuerySessionManager.answerUserPrompt(queryPrompt.getKey(), answer);
-            remoteQuerySessionManager.refreshItemSetChoices(remoteQuerySessionManager.getUserAnswers());
+            remoteQuerySessionManager.refreshItemSetChoices();
             refreshUI();
         }
     }
