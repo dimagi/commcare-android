@@ -245,9 +245,7 @@ public class AndroidSessionWrapper implements SessionWrapperInterface {
     public void prepareExternalSources(RemoteInstanceFetcher fetcher)
             throws RemoteInstanceFetcher.RemoteInstanceException {
         for(StackFrameStep step : session.getFrame().getSteps()) {
-            if (step.hasXmlInstance() && step.getXmlInstanceSource().needsInit()) {
-                step.getXmlInstanceSource().remoteInit(fetcher);
-            }
+            step.initDataInstanceSources(fetcher);
         }
     }
 
