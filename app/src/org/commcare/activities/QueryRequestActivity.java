@@ -1,5 +1,13 @@
 package org.commcare.activities;
 
+import static org.commcare.activities.EntitySelectActivity.BARCODE_FETCH;
+import static org.commcare.suite.model.QueryPrompt.INPUT_TYPE_DATERANGE;
+import static org.commcare.suite.model.QueryPrompt.INPUT_TYPE_SELECT1;
+import static org.commcare.utils.DateRangeUtils.formatDateRangeAnswer;
+import static org.commcare.utils.DateRangeUtils.getDateFromTime;
+import static org.commcare.utils.DateRangeUtils.getHumanReadableDateRange;
+import static org.commcare.utils.DateRangeUtils.parseHumanReadableDate;
+
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.os.Bundle;
@@ -19,6 +27,9 @@ import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.core.content.res.ResourcesCompat;
 
 import com.google.android.material.datepicker.MaterialDatePicker;
 
@@ -57,17 +68,6 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.Vector;
-
-import androidx.annotation.NonNull;
-import androidx.core.content.res.ResourcesCompat;
-
-import static org.commcare.activities.EntitySelectActivity.BARCODE_FETCH;
-import static org.commcare.suite.model.QueryPrompt.INPUT_TYPE_DATERANGE;
-import static org.commcare.suite.model.QueryPrompt.INPUT_TYPE_SELECT1;
-import static org.commcare.utils.DateRangeUtils.formatDateRangeAnswer;
-import static org.commcare.utils.DateRangeUtils.getDateFromTime;
-import static org.commcare.utils.DateRangeUtils.getHumanReadableDateRange;
-import static org.commcare.utils.DateRangeUtils.parseHumanReadableDate;
 
 /**
  * Collects 'query datum' in the current session. Prompts user for query
@@ -461,8 +461,11 @@ public class QueryRequestActivity
 
     @Override
     public void processSuccess(int responseCode, InputStream responseData) {
-        Pair<ExternalDataInstance, String> instanceOrError =
-                remoteQuerySessionManager.buildExternalDataInstance(responseData);
+        // todo pass url and requestData to this callback
+        Pair<ExternalDataInstance, String> instanceOrError = remoteQuerySessionManager.buildExternalDataInstance(
+                responseData,
+                remoteQuerySessionManager.getBaseUrl().toString(),
+                remoteQuerySessionManager.getRawQueryParams(false));
         if (instanceOrError.first == null) {
             enterErrorState(Localization.get("query.response.format.error",
                     instanceOrError.second));
