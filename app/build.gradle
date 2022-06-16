@@ -1,5 +1,4 @@
 import org.apache.tools.ant.filters.ReplaceTokens
-import com.android.builder.core.DefaultManifestParser
 
 ////////////
 // README //
