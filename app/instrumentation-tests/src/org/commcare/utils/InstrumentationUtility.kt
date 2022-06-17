@@ -19,16 +19,13 @@ import androidx.test.espresso.Espresso
 import androidx.test.espresso.Espresso.*
 import androidx.test.espresso.UiController
 import androidx.test.espresso.ViewAction
-import androidx.test.espresso.action.ViewActions
 import androidx.test.espresso.action.ViewActions.*
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.intent.Intents
 import androidx.test.espresso.intent.Intents.intending
 import androidx.test.espresso.intent.matcher.IntentMatchers
 import androidx.test.espresso.intent.matcher.IntentMatchers.hasAction
-import androidx.test.espresso.intent.matcher.IntentMatchers.hasData
 import androidx.test.espresso.matcher.RootMatchers
-import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.runner.intent.IntentCallback
@@ -288,7 +285,7 @@ object InstrumentationUtility {
     }
 
     /**
-     *
+     * A utility to match the text present in a textfield
      */
     fun matchTypedText(@IdRes editTextId: Int, text: String){
         onView(withId(editTextId)).check(matches(withText(text)))
@@ -321,20 +318,17 @@ object InstrumentationUtility {
         }
     }
 
-    /**
-     * A utility to hide the keyboard
-     */
-    fun hideKeyboard(){
-        onView(ViewMatchers.isRoot()).perform(ViewActions.closeSoftKeyboard())
-    }
-
-    fun verifyIntentText(text : String){
-        IntentCallback { intent ->
-            val extraText = intent.extras!!.getString(Intent.EXTRA_TEXT)
+    fun verifyIntentTextOnSubmitReport(text : String){
+        var intentcallback = IntentCallback { intent ->
+            var extraText = intent.extras!!.getString(Intent.EXTRA_TEXT)
             assertTrue(extraText!!.contains(text))
         }
-
+        IntentMonitorRegistry.getInstance().addIntentCallback(intentcallback)
+        onView(withText("Submit Report")).perform(click())
+        IntentMonitorRegistry.getInstance().removeIntentCallback(intentcallback)
     }
+
+
 
     /**
      * A utility to pressBack until Home screen is reached at most 6 times.

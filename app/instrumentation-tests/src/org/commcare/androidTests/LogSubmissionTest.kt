@@ -1,15 +1,12 @@
 package org.commcare.androidTests
 
-import android.content.Intent
-import androidx.test.espresso.Espresso
 import androidx.test.espresso.Espresso.onView
+import androidx.test.espresso.action.ViewActions
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
-import androidx.test.platform.app.InstrumentationRegistry
-import androidx.test.uiautomator.UiDevice
 import junit.framework.TestCase.assertTrue
 import org.commcare.annotations.BrowserstackTests
 import org.commcare.dalvik.R
@@ -54,21 +51,20 @@ class LogSubmissionTest: BaseTest() {
 
     @Test
     fun testReportProblem() {
+        val reportText = "This is a test for Report Problem"
         InstrumentationUtility.selectOptionItem(withText("Advanced"))
         onView(withText("Report Problem"))
             .perform(click())
-        InstrumentationUtility.enterText(R.id.ReportText01,"This is a test for Report Problem")
-        InstrumentationUtility.hideKeyboard()
+        InstrumentationUtility.enterText(R.id.ReportText01,reportText)
+        onView(ViewMatchers.isRoot()).perform(ViewActions.closeSoftKeyboard())
         onView(withText("Submit Report")).isPresent()
         InstrumentationUtility.rotateLeft()
-        InstrumentationUtility.matchTypedText(R.id.ReportText01,"This is a test for Report Problem")
-        InstrumentationUtility.hideKeyboard()
+        InstrumentationUtility.matchTypedText(R.id.ReportText01,reportText)
+        onView(ViewMatchers.isRoot()).perform(ViewActions.closeSoftKeyboard())
         onView(withText("Submit Report")).isPresent()
         InstrumentationUtility.rotatePortrait()
-        InstrumentationUtility.hideKeyboard()
-        onView(withText("Submit Report")).perform(click())
-        InstrumentationUtility.stubIntentWithAction(Intent.ACTION_SEND)
-        InstrumentationUtility.verifyIntentText("This is a test for Report Problem")
+        onView(ViewMatchers.isRoot()).perform(ViewActions.closeSoftKeyboard())
+        InstrumentationUtility.verifyIntentTextOnSubmitReport(reportText)
         InstrumentationUtility.hardPressBack()
         assertTrue("Returned to Home page",onView(ViewMatchers.withId(R.id.home_gridview_buttons)).isPresent())
     }
