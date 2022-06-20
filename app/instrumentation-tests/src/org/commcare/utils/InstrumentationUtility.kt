@@ -33,7 +33,6 @@ import androidx.test.runner.intent.IntentMonitorRegistry
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
 import junit.framework.Assert
-import junit.framework.Assert.assertTrue
 import org.commcare.CommCareInstrumentationTestApplication
 import org.commcare.dalvik.R
 import org.commcare.services.CommCareSessionService
@@ -317,18 +316,6 @@ object InstrumentationUtility {
             Assert.fail("Assertion Failed: $failMsg")
         }
     }
-
-    fun verifyIntentTextOnSubmitReport(text : String){
-        var intentcallback = IntentCallback { intent ->
-            var extraText = intent.extras!!.getString(Intent.EXTRA_TEXT)
-            assertTrue(extraText!!.contains(text))
-        }
-        IntentMonitorRegistry.getInstance().addIntentCallback(intentcallback)
-        onView(withText("Submit Report")).perform(click())
-        IntentMonitorRegistry.getInstance().removeIntentCallback(intentcallback)
-    }
-
-
 
     /**
      * A utility to pressBack until Home screen is reached at most 6 times.

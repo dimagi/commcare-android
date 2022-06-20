@@ -1,12 +1,18 @@
 package org.commcare.androidTests
 
+import android.content.Intent
+import android.util.Log
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions
 import androidx.test.espresso.action.ViewActions.click
+import androidx.test.espresso.intent.matcher.IntentMatchers
 import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import androidx.test.runner.intent.IntentCallback
+import androidx.test.runner.intent.IntentMonitorRegistry
+import junit.framework.Assert
 import junit.framework.TestCase.assertTrue
 import org.commcare.annotations.BrowserstackTests
 import org.commcare.dalvik.R
@@ -64,7 +70,16 @@ class LogSubmissionTest: BaseTest() {
         onView(withText("Submit Report")).isPresent()
         InstrumentationUtility.rotatePortrait()
         onView(ViewMatchers.isRoot()).perform(ViewActions.closeSoftKeyboard())
-        InstrumentationUtility.verifyIntentTextOnSubmitReport(reportText)
+
+        var intentcallback = IntentCallback { intent ->
+            var extraText = intent.extras!!.getString(Intent.EXTRA_TEXT)
+            assertTrue(extraText!!.contains(reportText))
+        }
+        IntentMonitorRegistry.getInstance().addIntentCallback(intentcallback)
+        onView(withText("Submit Report")).perform(click())
+
+        IntentMonitorRegistry.getInstance().removeIntentCallback(intentcallback)
+
         InstrumentationUtility.hardPressBack()
         assertTrue("Returned to Home page",onView(ViewMatchers.withId(R.id.home_gridview_buttons)).isPresent())
     }
