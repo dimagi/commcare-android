@@ -204,7 +204,7 @@ public class CommCareSessionService extends Service {
         callable.addCategory("android.intent.category.LAUNCHER");
 
         // The PendingIntent to launch our activity if the user selects this notification
-        PendingIntent contentIntent = PendingIntent.getActivity(this, 0, callable, 0);
+        PendingIntent contentIntent = PendingIntent.getActivity(this, 0, callable, PendingIntent.FLAG_IMMUTABLE);
 
         String notificationText;
         if (AppUtils.getInstalledAppRecords().size() > 1) {
@@ -535,7 +535,7 @@ public class CommCareSessionService extends Service {
 
                 // The PendingIntent to launch our activity if the user selects this notification
                 //TODO: Put something here that will, I dunno, cancel submission or something? Maybe show it live?
-                PendingIntent contentIntent = PendingIntent.getActivity(CommCareSessionService.this, 0, callable, 0);
+                PendingIntent contentIntent = PendingIntent.getActivity(CommCareSessionService.this, 0, callable, PendingIntent.FLAG_IMMUTABLE);
 
                 submissionNotification = new NotificationCompat.Builder(CommCareSessionService.this,
                         CommCareNoficationManager.NOTIFICATION_CHANNEL_SERVER_COMMUNICATIONS_ID)

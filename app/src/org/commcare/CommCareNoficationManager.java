@@ -63,7 +63,7 @@ public class CommCareNoficationManager {
             // The PendingIntent to launch our activity if the user selects this notification
             Intent i = new Intent(context, MessageActivity.class);
 
-            PendingIntent contentIntent = PendingIntent.getActivity(context, 0, i, 0);
+            PendingIntent contentIntent = PendingIntent.getActivity(context, 0, i, PendingIntent.FLAG_IMMUTABLE);
 
             String additional = pendingMessages.size() > 1 ? Localization.get("notifications.prompt.more", new String[]{String.valueOf(pendingMessages.size() - 1)}) : "";
 

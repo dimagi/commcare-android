@@ -78,7 +78,7 @@ public abstract class NfcActivity extends AppCompatActivity {
     protected void createPendingRestartIntent() {
         Intent i = new Intent(this, getClass());
         i.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-        this.pendingNfcIntent = PendingIntent.getActivity(this, 0, i, 0);
+        this.pendingNfcIntent = PendingIntent.getActivity(this, 0, i, PendingIntent.FLAG_IMMUTABLE);
     }
 
     @Override
