@@ -520,6 +520,15 @@
         <receiver android:name="io.ona.kujaku.receivers.KujakuNetworkChangeReceiver"
             tools:node="remove"/>
 
+        <!-- The zebra-print-android library is not yet targeting Android 12 and at least one
+            Activity doesn't have the required attribute exported. The entry below adds the
+            attribute to the final Manifest.
+        -->
+        <activity
+            android:exported="true"
+            android:name="com.dimagi.android.zebraprinttool.PrintReceiverActivity"
+            tools:node="merge"/>
+
     </application>
 
 </manifest>
