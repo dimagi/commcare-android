@@ -10,6 +10,7 @@ import android.os.Build
 import android.os.RemoteException
 import android.provider.MediaStore
 import android.view.View
+import android.widget.DatePicker
 import android.widget.ListView
 import androidx.annotation.IdRes
 import androidx.appcompat.app.AppCompatActivity
@@ -21,11 +22,13 @@ import androidx.test.espresso.UiController
 import androidx.test.espresso.ViewAction
 import androidx.test.espresso.action.ViewActions.*
 import androidx.test.espresso.assertion.ViewAssertions.matches
+import androidx.test.espresso.contrib.PickerActions
 import androidx.test.espresso.intent.Intents
 import androidx.test.espresso.intent.Intents.intending
 import androidx.test.espresso.intent.matcher.IntentMatchers
 import androidx.test.espresso.intent.matcher.IntentMatchers.hasAction
 import androidx.test.espresso.matcher.RootMatchers
+import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.runner.intent.IntentCallback
@@ -44,6 +47,7 @@ import org.hamcrest.Matchers.startsWith
 import org.javarosa.core.io.StreamsUtil
 import java.io.File
 import java.io.IOException
+import java.util.*
 import java.util.concurrent.TimeUnit
 
 /**
@@ -441,6 +445,54 @@ object InstrumentationUtility {
             inputStream.close()
             outputStream!!.close()
         }
+    }
+
+    fun setDateTo(days: Int, past_present_future : String){
+        val calendar = Calendar.getInstance()
+        if (past_present_future == "Past"){
+            calendar.add(Calendar.DATE, -days);
+        }
+        else if(past_present_future == "Future"){
+            calendar.add(Calendar.DATE, +days)
+        }
+        else{
+            calendar.add(Calendar.DATE, 0)
+        }
+        val year: Int = calendar.get(Calendar.YEAR)
+        val month: Int = calendar.get(Calendar.MONTH) + 1
+        val day: Int = calendar.get(Calendar.DAY_OF_MONTH)
+        onView(
+            withClassName(
+                Matchers.equalTo(
+                    DatePicker::class.java.name
+                )
+            )
+        ).perform(PickerActions.setDate(year, month, day))
+    }
+
+    /**
+     * A utility to verify Form Fields with their values
+     */
+
+    fun verifyFormCellAndValue(cellData: String, value: String): Boolean {
+        val result : Boolean = onView(
+            Matchers.allOf(
+                withId(R.id.detail_type_text),
+                withText(cellData),
+                hasSibling(
+                    Matchers.allOf(
+                        withId(R.id.detail_value_pane),
+                        withChild(
+                            Matchers.allOf(
+                                withId(R.id.detail_value_text),
+                                withText(value)
+                            )
+                        )
+                    )
+                )
+            )
+        ).isPresent()
+        return result
     }
     //endregion
 }
