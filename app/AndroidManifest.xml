@@ -98,6 +98,7 @@
 
         <activity
             android:label="@string/application_name"
+            android:exported="true"
             android:name="org.commcare.activities.DispatchActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
@@ -112,6 +113,7 @@
         </activity>
         <activity
             android:label="@string/manager_activity_name"
+            android:exported="true"
             android:name="org.commcare.activities.AppManagerActivity"
             android:taskAffinity="org.commcare.Manage">
             <intent-filter>
@@ -169,7 +171,9 @@
             android:name="org.commcare.activities.SessionAwarePreferenceActivity"
             android:theme="@style/PreferenceTheme">
         </activity>
-        <activity android:name="org.commcare.activities.DotsEntryActivity">
+        <activity
+            android:exported="false"
+            android:name="org.commcare.activities.DotsEntryActivity">
             <intent-filter>
                 <action android:name="org.commcare.dalvik.action.DotsEntry"/>
 
@@ -180,6 +184,7 @@
         </activity>
         <activity
             android:name="org.commcare.activities.CommCareSetupActivity"
+            android:exported="true"
             android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW"/>
@@ -304,7 +309,9 @@
             android:theme="@style/Theme.AppCompat.Light.NoActionBar">
         </activity>
 
-        <activity android:name="org.commcare.gis.DrawingBoundaryActivity"
+        <activity
+            android:name="org.commcare.gis.DrawingBoundaryActivity"
+            android:exported="false"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar">
             <intent-filter>
                 <action android:name="org.commcare.dalvik.action.DrawBoundary"/>
@@ -356,14 +363,18 @@
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </activity>
-        <activity android:name="org.commcare.android.nfc.NfcWriteActivity">
+        <activity
+            android:exported="false"
+            android:name="org.commcare.android.nfc.NfcWriteActivity">
             <intent-filter>
                 <action android:name="org.commcare.nfc.WRITE"/>
 
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </activity>
-        <activity android:name="org.commcare.android.nfc.NfcReadActivity">
+        <activity
+            android:exported="false"
+            android:name="org.commcare.android.nfc.NfcReadActivity">
             <intent-filter>
                 <action android:name="org.commcare.nfc.READ"/>
 
@@ -449,6 +460,7 @@
         </activity>
         <activity
             android:name="org.commcare.print.TemplatePrinterActivity"
+            android:exported="false"
             android:theme="@style/Theme.Dialog.NoTitle">
             <intent-filter>
                 <action android:name="org.commcare.dalvik.action.PRINT"/>
@@ -472,6 +484,7 @@
         <activity android:name="org.commcare.activities.PromptCczUpdateActivity"/>
         <activity
             android:label="@string/title_data_change_logs_activity"
+            android:exported="true"
             android:name="org.commcare.activities.DataChangeLogsActivity">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW"/>
