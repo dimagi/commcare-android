@@ -32,7 +32,6 @@ import java.util.*
 @RunWith(AndroidJUnit4::class)
 @LargeTest
 @BrowserstackTests
-@FixMethodOrder(MethodSorters.NAME_ASCENDING)  //executes the tests in order
 class ConditionalEnumInCaseListTests: BaseTest() {
     companion object {
         const val CCZ_NAME = "conditional_enum_in_case_list.ccz"
@@ -54,17 +53,12 @@ class ConditionalEnumInCaseListTests: BaseTest() {
     /**
      * Adding the teardown method so the tests doesnot fail after only thefirst execution, when executed as a whole.
      */
-    @After
-    fun tearDown(){
-        InstrumentationUtility.logout()
-        InstrumentationUtility.uninstallCurrentApp()
-    }
+
     @Test
     fun testCreateCases(){
         for (caseList in listOfCases) {
-            InstrumentationUtility.openForm(0,0)
-            onView(ViewMatchers.withClassName(Matchers.endsWith("EditText")))
-                .perform(ViewActions.typeText((caseList[0])))
+            InstrumentationUtility.openForm(0, 0)
+            InstrumentationUtility.enterText(caseList[0])
             InstrumentationUtility.nextPage()
             if (caseList[2] == "Yesterday") {
                 setDateTo(-1)
@@ -74,21 +68,14 @@ class ConditionalEnumInCaseListTests: BaseTest() {
                 setDateTo(0)
             }
             InstrumentationUtility.nextPage()
-            onView(ViewMatchers.withClassName(Matchers.endsWith("EditText")))
-                .perform(ViewActions.typeText((caseList[1])))
+            InstrumentationUtility.enterText(caseList[1])
             InstrumentationUtility.submitForm()
             assertTrue(onView(ViewMatchers.withText("1 form sent to server!")).isPresent())
         }
-    }
-
-    @Test
-    fun testUpdateCases(){
+        // code to update the cases
         for (caseList in listOfCases) {
             InstrumentationUtility.openForm(0,1)
-            onView(ViewMatchers.withId(R.id.search_action_bar)).perform(ViewActions.click())
-            onView(ViewMatchers.withId(R.id.search_src_text)).perform(ViewActions.typeText(caseList[0]))
-            onView(ViewMatchers.withId(R.id.screen_entity_detail_list)).isPresent()
-            InstrumentationUtility.clickListItem(R.id.screen_entity_select_list, 0)
+            InstrumentationUtility.searchCaseAndSelect(caseList[0])
             Thread.sleep(2000)
             if (caseList[1].toInt() < 20){
                 InstrumentationUtility.verifyFormCellAndValue("Case Age","Child")
@@ -117,25 +104,16 @@ class ConditionalEnumInCaseListTests: BaseTest() {
             InstrumentationUtility.submitForm()
             assertTrue(onView(ViewMatchers.withText("1 form sent to server!")).isPresent())
         }
-    }
-
-
-    @Test
-    fun testVerifyChanges(){
-        InstrumentationUtility.openForm(0,1)
-        onView(ViewMatchers.withId(R.id.search_action_bar)).perform(ViewActions.click())
+            //code to verify the updates made
         for (caseList in listOfCases) {
-            onView(ViewMatchers.withId(R.id.search_src_text)).perform(ViewActions.clearText())
-            onView(ViewMatchers.withId(R.id.search_src_text)).perform(ViewActions.typeText(caseList[0]))
-            onView(ViewMatchers.withId(R.id.screen_entity_detail_list)).isPresent()
-            InstrumentationUtility.clickListItem(R.id.screen_entity_select_list, 0)
+            InstrumentationUtility.openForm(0,1)
+            InstrumentationUtility.searchCaseAndSelect(caseList[0])
             if (caseList[3] == "yes") {
                 InstrumentationUtility.verifyFormCellAndValue("Appointment Attended?","Seen by doctor")
             }else {
                 InstrumentationUtility.verifyFormCellAndValue("Appointment Attended?","Needs followup")
             }
-            pressBack()
-
+            InstrumentationUtility.gotoHome()
         }
 
     }
