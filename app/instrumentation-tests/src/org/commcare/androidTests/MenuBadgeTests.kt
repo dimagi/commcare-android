@@ -33,14 +33,12 @@ class MenuBadgeTests: BaseTest() {
         InstrumentationUtility.login("case_load", "123")
     }
 
-
     @Test
     fun testMenuBadge(){
         onView(withText("Start"))
             .perform(ViewActions.click())
         assertTrue(onView(withText("Child Management (Update)")).isPresent())
         onView(isRoot()).perform(waitForView(withText("553")))
-        assertTrue(onView(withText("553")).isPresent())
         InstrumentationUtility.logout()
     }
 
