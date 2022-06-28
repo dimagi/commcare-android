@@ -1,23 +1,20 @@
 package org.commcare.androidTests
 
-import android.util.Log
+
 import android.widget.DatePicker
 import androidx.test.espresso.Espresso.*
 import androidx.test.espresso.action.ViewActions
-
 import androidx.test.espresso.contrib.PickerActions
 import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
-
 import org.commcare.annotations.BrowserstackTests
 import org.commcare.dalvik.R
 import org.commcare.utils.InstrumentationUtility
 import org.commcare.utils.isPresent
 import org.hamcrest.Matchers
 import org.hamcrest.Matchers.allOf
-
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
@@ -44,7 +41,6 @@ class DateWidgetsTests: BaseTest() {
                 "Mäskäräm","T’ïk’ïmt","Hïdar","Tahsas","T’ïr","Yäkatit",
                 "Mägabit","Miyaziya"))
 
-
     }
 
     @Before
@@ -69,11 +65,16 @@ class DateWidgetsTests: BaseTest() {
 
             InstrumentationUtility.nextPage()
             InstrumentationUtility.nextPage()
-            for (i in 1..12){
-                val month_text = InstrumentationUtility.getText(onView(withId(R.id.monthtxt)))
-                if (month_text != null) {
-                    assertTrue(list.contains(month_text))
-                }
+
+            // reads the current month, gets the current index in the list, rotates the list starting from current month
+            val month_text = InstrumentationUtility.getText(onView(withId(R.id.monthtxt)))
+            list.toMutableList()
+            val index = list.indexOf(month_text)
+            Collections.rotate(list,-index)
+
+            //asserts if months are present in order
+            for (listItem in list){
+                assertTrue(onView(withText(listItem)).isPresent())
                 onView(withId(R.id.monthupbtn)).perform(ViewActions.click())
             }
 
@@ -89,6 +90,7 @@ class DateWidgetsTests: BaseTest() {
         }
 
     }
+
 
     @Test
     fun testStandardWidget(){
@@ -181,6 +183,3 @@ class DateWidgetsTests: BaseTest() {
         return newdate
     }
 }
-
-
-
