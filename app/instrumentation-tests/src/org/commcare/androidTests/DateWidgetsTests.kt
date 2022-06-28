@@ -37,12 +37,13 @@ class DateWidgetsTests: BaseTest() {
     companion object {
         const val CCZ_NAME = "date_widgets_tests.ccz"
         const val APP_NAME = "Date Widgets"
-        val listOfNepaliMonths = listOf("Baishakh","Jestha","Ashadh","Shrawan",
+        val listOfMonths = listOf(listOf("Baishakh","Jestha","Ashadh","Shrawan",
                             "Bhadra","Ashwin","Kartik","Mangsir","Poush","Magh",
-                            "Falgun","Chaitra")
-        val listOfEthiopianMonths = listOf("Säne","Hämle","Nähäse","P’agume",
-            "Mäskäräm","T’ïk’ïmt","Hïdar","Tahsas","T’ïr","Yäkatit",
-            "Mägabit","Miyaziya")
+                            "Falgun","Chaitra"),
+            listOf("Säne","Hämle","Nähäse","P’agume",
+                "Mäskäräm","T’ïk’ïmt","Hïdar","Tahsas","T’ïr","Yäkatit",
+                "Mägabit","Miyaziya"))
+
 
     }
 
@@ -57,86 +58,57 @@ class DateWidgetsTests: BaseTest() {
      */
 
     @Test
-    fun testNepalDateWidgets(){
-
-        InstrumentationUtility.openModule(0)
-        onView(withSubstring("This form will test the Nepal date widget.")).isPresent()
-        InstrumentationUtility.nextPage()
-        InstrumentationUtility.nextPage()
-
-        for (i in 1..12){
-            val month_text = InstrumentationUtility.getText(onView(withId(R.id.monthtxt)))
-            if (month_text != null) {
-                assertTrue(listOfNepaliMonths.contains(month_text))
+    fun testDateWidgets(){
+        for (list in listOfMonths){
+            InstrumentationUtility.openModule(listOfMonths.indexOf(list))
+            if (listOfMonths.indexOf(list) == 0){
+                onView(withSubstring("This form will test the Nepal date widget.")).isPresent()
+            }else{
+                onView(withSubstring("This form will test the Ethiopian date widget.")).isPresent()
             }
-            onView(withId(R.id.monthupbtn)).perform(ViewActions.click())
-        }
-        onView(withId(R.id.yeardownbtn)).perform(ViewActions.click())
-        val date_selected = setDateToUniversalCalender(-10,0,0)
-        val gregorian_date = InstrumentationUtility.getText(onView(withId(R.id.dateGregorian)))
-        val formatted_date = formatGregorianDate(gregorian_date.drop(1).dropLast(1))
 
-        InstrumentationUtility.nextPage()
-        Log.i("Nepali date:", date_selected)
-        Log.i("Gregorian date:", formatted_date)
-        assertTrue(onView(withSubstring(formatted_date)).isPresent())
-        assertTrue(onView(withSubstring(date_selected)).isPresent())
-        InstrumentationUtility.submitForm()
-        assertTrue(onView(ViewMatchers.withText("1 form sent to server!")).isPresent())
-    }
-
-
-    @Test
-    fun testEthiopianDateWidgets(){
-
-        InstrumentationUtility.openModule(1)
-        onView(withSubstring("This form will test the Ethiopian date widget.")).isPresent()
-        InstrumentationUtility.nextPage()
-        InstrumentationUtility.nextPage()
-        for (i in 1..12){
-            val month_text = InstrumentationUtility.getText(onView(withId(R.id.monthtxt)))
-            if (month_text != null) {
-                assertTrue(listOfEthiopianMonths.contains(month_text))
+            InstrumentationUtility.nextPage()
+            InstrumentationUtility.nextPage()
+            for (i in 1..12){
+                val month_text = InstrumentationUtility.getText(onView(withId(R.id.monthtxt)))
+                if (month_text != null) {
+                    assertTrue(list.contains(month_text))
+                }
+                onView(withId(R.id.monthupbtn)).perform(ViewActions.click())
             }
-            onView(withId(R.id.monthupbtn)).perform(ViewActions.click())
+
+            onView(withId(R.id.yeardownbtn)).perform(ViewActions.click())
+            val date_selected = setDateToUniversalCalender(-10,0,0)
+            val gregorian_date = InstrumentationUtility.getText(onView(withId(R.id.dateGregorian)))
+            val formatted_date = formatGregorianDate(gregorian_date.drop(1).dropLast(1))
+            InstrumentationUtility.nextPage()
+            assertTrue(onView(withSubstring(formatted_date)).isPresent())
+            assertTrue(onView(withSubstring(date_selected)).isPresent())
+            InstrumentationUtility.submitForm()
+            assertTrue(onView(ViewMatchers.withText("1 form sent to server!")).isPresent())
         }
 
-        onView(withId(R.id.yeardownbtn)).perform(ViewActions.click())
-        val date_selected = setDateToUniversalCalender(-10,0,0)
-        val gregorian_date = InstrumentationUtility.getText(onView(withId(R.id.dateGregorian)))
-        val formatted_date = formatGregorianDate(gregorian_date.drop(1).dropLast(1))
-
-        InstrumentationUtility.nextPage()
-        Log.i("Ethiopian date:", date_selected)
-        Log.i("Gregorian date:", formatted_date)
-        assertTrue(onView(withSubstring(formatted_date)).isPresent())
-        assertTrue(onView(withSubstring(date_selected)).isPresent())
-        InstrumentationUtility.submitForm()
-        assertTrue(onView(ViewMatchers.withText("1 form sent to server!")).isPresent())
     }
 
     @Test
     fun testStandardWidget(){
-
         InstrumentationUtility.openModule(4)
         InstrumentationUtility.rotateLeft()
-        val dateList = setDateTo(-10)
-//        Thread.sleep(1000)
+        val date = setDateTo(-10)
+        val dateFormates = getDateInDifferentFormats(date)
         InstrumentationUtility.rotatePortrait()
         InstrumentationUtility.nextPage()
-
-        for (formats in dateList){
+        for (formats in dateFormates){
             assertTrue(onView(allOf(withSubstring(formats))).isPresent())
         }
-
         InstrumentationUtility.submitForm()
         assertTrue(onView(ViewMatchers.withText("1 form sent to server!")).isPresent())
     }
 
     /**
-     * function to set date in the date picker and return different format of the selected date
+     * function to set date in the date picker
      */
-    fun setDateTo(days: Int): Array<String> {
+    fun setDateTo(days: Int) : Date {
         val calendar = Calendar.getInstance()
         calendar.add(Calendar.DATE, +days)
 
@@ -151,12 +123,18 @@ class DateWidgetsTests: BaseTest() {
             )
         ).perform(PickerActions.setDate(year, month, day))
 
-        val long_format = SimpleDateFormat("EE, MMM dd, yyyy").format(calendar.time)
-        val short_format = SimpleDateFormat("d/M/yy").format(calendar.time)
-        val unformatted_date = SimpleDateFormat("yyyy-MM-dd").format(calendar.time)
-        return arrayOf(long_format.toString(),short_format.toString(),unformatted_date.toString())
+        return calendar.time
     }
 
+    /**
+     * function returns different format of the selected date
+     */
+    fun getDateInDifferentFormats(date : Date) : Array<String>{
+        val long_format = SimpleDateFormat("EE, MMM dd, yyyy").format(date)
+        val short_format = SimpleDateFormat("d/M/yy").format(date)
+        val unformatted_date = SimpleDateFormat("yyyy-MM-dd").format(date)
+        return arrayOf(long_format.toString(),short_format.toString(),unformatted_date.toString())
+    }
     /**
      * function to set date in the date universal picker
      */
