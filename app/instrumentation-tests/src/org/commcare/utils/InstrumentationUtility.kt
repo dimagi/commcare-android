@@ -11,6 +11,7 @@ import android.os.RemoteException
 import android.provider.MediaStore
 import android.view.View
 import android.widget.ListView
+import android.widget.TextView
 import androidx.annotation.IdRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.preference.PreferenceManager
@@ -537,5 +538,27 @@ object InstrumentationUtility {
         }
     }
 
+    /**
+     * utility to get text of any TextView Object
+     */
+    fun getText(matcher: ViewInteraction): String {
+        var text = String()
+        matcher.perform(object : ViewAction {
+            override fun getConstraints(): Matcher<View> {
+                return isAssignableFrom(TextView::class.java)
+            }
+
+            override fun getDescription(): String {
+                return "Text of the view"
+            }
+
+            override fun perform(uiController: UiController, view: View) {
+                val tv = view as TextView
+                text = tv.text.toString()
+            }
+        })
+
+        return text
+    }
     //endregion
 }
