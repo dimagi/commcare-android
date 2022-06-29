@@ -79,7 +79,7 @@ class DateWidgetsTests: BaseTest() {
             }
 
             onView(withId(R.id.yeardownbtn)).perform(ViewActions.click())
-            val date_selected = setDateToUniversalCalender(-10,0,0)
+            val date_selected = setDateToUniversalCalender(-10)
             val gregorian_date = InstrumentationUtility.getText(onView(withId(R.id.dateGregorian)))
             val formatted_date = formatGregorianDate(gregorian_date.drop(1).dropLast(1))
             InstrumentationUtility.nextPage()
@@ -88,7 +88,7 @@ class DateWidgetsTests: BaseTest() {
             InstrumentationUtility.submitForm()
             assertTrue(onView(ViewMatchers.withText("1 form sent to server!")).isPresent())
         }
-
+        InstrumentationUtility.logout()
     }
 
 
@@ -105,6 +105,7 @@ class DateWidgetsTests: BaseTest() {
         }
         InstrumentationUtility.submitForm()
         assertTrue(onView(ViewMatchers.withText("1 form sent to server!")).isPresent())
+        InstrumentationUtility.logout()
     }
 
     /**
@@ -140,7 +141,7 @@ class DateWidgetsTests: BaseTest() {
     /**
      * function to set date in the date universal picker
      */
-    fun setDateToUniversalCalender(days: Int, months: Int, years: Int) : String{
+    fun setDateToUniversalCalender(days: Int) : String{
 
         for (day in 1..days.absoluteValue){
             if (days > 0) {
@@ -150,21 +151,6 @@ class DateWidgetsTests: BaseTest() {
             }
         }
 
-        for (month in 1..months.absoluteValue){
-            if (months > 0) {
-                onView(withId(R.id.monthupbtn)).perform(ViewActions.click())
-            }else if (months < 0){
-                onView(withId(R.id.monthdownbtn)).perform(ViewActions.click())
-            }
-        }
-
-        for (year in 1..years.absoluteValue){
-            if (years > 0) {
-                onView(withId(R.id.yearupbtn)).perform(ViewActions.click())
-            }else if (years < 0){
-                onView(withId(R.id.yeardownbtn)).perform(ViewActions.click())
-            }
-        }
         var selectedDay = InstrumentationUtility.getText(onView(withId(R.id.daytxt)))
         val selectedMonth = InstrumentationUtility.getText(onView(withId(R.id.monthtxt)))
         val selectedYear = InstrumentationUtility.getText(onView(withId(R.id.yeartxt)))
