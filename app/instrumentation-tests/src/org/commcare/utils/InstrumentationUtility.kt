@@ -26,6 +26,7 @@ import androidx.test.espresso.intent.Intents.intending
 import androidx.test.espresso.intent.matcher.IntentMatchers
 import androidx.test.espresso.intent.matcher.IntentMatchers.hasAction
 import androidx.test.espresso.matcher.RootMatchers
+import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.runner.intent.IntentCallback
@@ -39,11 +40,12 @@ import org.commcare.services.CommCareSessionService
 import org.commcare.utils.CustomMatchers.withChildViewCount
 import org.hamcrest.Matcher
 import org.hamcrest.Matchers
-import org.hamcrest.Matchers.anything
-import org.hamcrest.Matchers.startsWith
+import org.hamcrest.Matchers.*
 import org.javarosa.core.io.StreamsUtil
+import org.junit.Assert.assertTrue
 import java.io.File
 import java.io.IOException
+import java.util.*
 import java.util.concurrent.TimeUnit
 
 /**
@@ -217,6 +219,15 @@ object InstrumentationUtility {
     }
 
     /**
+     * Click finish button in the form
+     */
+    @JvmStatic
+    fun submitForm() {
+        onView(withId(R.id.nav_btn_finish))
+            .perform(click())
+    }
+
+    /**
      * Sleep the testing thread for the specific number of seconds.
      */
     @JvmStatic
@@ -283,6 +294,18 @@ object InstrumentationUtility {
         Espresso.closeSoftKeyboard()
     }
 
+    fun enterText(text: String) {
+        onView(withClassName(Matchers.endsWith("EditText")))
+                .perform(typeText((text)))
+        Espresso.closeSoftKeyboard()
+    }
+    /**
+     * A utility to match the text present in a textfield
+     */
+    fun matchTypedText(@IdRes editTextId: Int, text: String){
+        onView(withId(editTextId)).check(matches(withText(text)))
+    }
+
     @JvmStatic
     @Throws(RemoteException::class)
     fun rotatePortrait() {
@@ -324,6 +347,10 @@ object InstrumentationUtility {
         }
     }
 
+    fun hardPressBack() {
+        val mDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+        mDevice.pressBack()
+    }
     /**
      * The method does following in order:
      * 1. Closes keyboard.
@@ -431,5 +458,44 @@ object InstrumentationUtility {
             outputStream!!.close()
         }
     }
+
+
+
+    /**
+     * A utility to verify Form Fields with their values
+     */
+
+    fun verifyFormCellAndValue(cellData: String, value: String) {
+        val result : Boolean = onView(
+            Matchers.allOf(
+                withId(R.id.detail_type_text),
+                withText(cellData),
+                hasSibling(
+                    Matchers.allOf(
+                        withId(R.id.detail_value_pane),
+                        withChild(
+                            Matchers.allOf(
+                                withId(R.id.detail_value_text),
+                                withText(value)
+                            )
+                        )
+                    )
+                )
+            )
+        ).isPresent()
+        assertTrue(result)
+    }
+
+    /**
+     * utility to search a case in Form list and select the same
+     */
+    fun searchCaseAndSelect(text: String){
+        onView(withId(R.id.search_action_bar)).perform(click())
+        enterText(R.id.search_src_text,text)
+        onView(withId(R.id.screen_entity_detail_list)).isPresent()
+        clickListItem(R.id.screen_entity_select_list, 0)
+    }
+
+
     //endregion
 }
