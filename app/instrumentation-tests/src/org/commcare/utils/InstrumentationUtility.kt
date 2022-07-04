@@ -14,11 +14,8 @@ import android.widget.ListView
 import androidx.annotation.IdRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.preference.PreferenceManager
-import androidx.test.espresso.DataInteraction
-import androidx.test.espresso.Espresso
+import androidx.test.espresso.*
 import androidx.test.espresso.Espresso.*
-import androidx.test.espresso.UiController
-import androidx.test.espresso.ViewAction
 import androidx.test.espresso.action.ViewActions.*
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.intent.Intents
@@ -28,6 +25,8 @@ import androidx.test.espresso.intent.matcher.IntentMatchers.hasAction
 import androidx.test.espresso.matcher.RootMatchers
 import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.espresso.matcher.ViewMatchers.*
+import androidx.test.espresso.util.HumanReadables
+import androidx.test.espresso.util.TreeIterables
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.runner.intent.IntentCallback
 import androidx.test.runner.intent.IntentMonitorRegistry
@@ -41,12 +40,14 @@ import org.commcare.utils.CustomMatchers.withChildViewCount
 import org.hamcrest.Matcher
 import org.hamcrest.Matchers
 import org.hamcrest.Matchers.*
+import org.hamcrest.StringDescription
 import org.javarosa.core.io.StreamsUtil
 import org.junit.Assert.assertTrue
 import java.io.File
 import java.io.IOException
 import java.util.*
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.TimeoutException
 
 /**
  * @author $|-|!˅@M
@@ -496,6 +497,45 @@ object InstrumentationUtility {
         clickListItem(R.id.screen_entity_select_list, 0)
     }
 
+    /**
+     * A utility to wait until a certain view appears
+     * usage: onView(isRoot()).perform(waitForView(withText("<text>")))
+     */
+    fun waitForView(viewMatcher: Matcher<View>, timeout: Long = 10000, waitForDisplayed: Boolean = true): ViewAction {
+        return object : ViewAction {
+            override fun getConstraints(): Matcher<View> {
+                return Matchers.any(View::class.java)
+            }
+
+            override fun getDescription(): String {
+                val matcherDescription = StringDescription()
+                viewMatcher.describeTo(matcherDescription)
+                return "wait for a specific view <$matcherDescription> to be ${if (waitForDisplayed) "displayed" else "not displayed during $timeout millis."}"
+            }
+
+            override fun perform(uiController: UiController, view: View) {
+                uiController.loopMainThreadUntilIdle()
+                val startTime = System.currentTimeMillis()
+                val endTime = startTime + timeout
+                val visibleMatcher = isDisplayed()
+
+                do {
+                    val viewVisible = TreeIterables.breadthFirstViewTraversal(view)
+                        .any { viewMatcher.matches(it) && visibleMatcher.matches(it) }
+
+                    if (viewVisible == waitForDisplayed) return
+                    uiController.loopMainThreadForAtLeast(50)
+                } while (System.currentTimeMillis() < endTime)
+
+                // Timeout happens.
+                throw PerformException.Builder()
+                    .withActionDescription(this.description)
+                    .withViewDescription(HumanReadables.describe(view))
+                    .withCause(TimeoutException())
+                    .build()
+            }
+        }
+    }
 
     //endregion
 }
