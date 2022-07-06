@@ -61,26 +61,26 @@ class DateWidgetsTests: BaseTest() {
 
     @Test
     fun testDateWidgets(){
-        testNepaliDateWidgets()
-        testEthiopianDateWidgets()
+        testDateWidgetMonths(listOfNepaliMonths, 0)
+        testDateWidgetMonths(listOfEthiopianMonths, 1)
     }
 
 
-    fun testNepaliDateWidgets(){
+    fun testDateWidgetMonths(listOfMonths: List<String>, module: Int){
 
-        InstrumentationUtility.openModule(0)
+        InstrumentationUtility.openModule(module)
         InstrumentationUtility.nextPage()
         InstrumentationUtility.nextPage()
 
             // reads the current month, gets the current index in the list, rotates the list starting from current month
         val monthText = InstrumentationUtility.getText(onView(withId(R.id.monthtxt)))
-        listOfNepaliMonths.toMutableList()
-        val index = listOfNepaliMonths.indexOf(monthText)
+        listOfMonths.toMutableList()
+        val index = listOfMonths.indexOf(monthText)
         assertTrue(index != -1)
-        Collections.rotate(listOfNepaliMonths, -index)
+        Collections.rotate(listOfMonths, -index)
 
             //asserts if months are present in order
-        for (listItem in listOfNepaliMonths){
+        for (listItem in listOfMonths){
             assertTrue(onView(withText(listItem)).isPresent())
             onView(withId(R.id.monthupbtn)).perform(ViewActions.click())
         }
@@ -94,43 +94,7 @@ class DateWidgetsTests: BaseTest() {
         assertTrue(onView(withSubstring(dateSelected)).isPresent())
         InstrumentationUtility.submitForm()
         assertTrue(onView(ViewMatchers.withText("1 form sent to server!")).isPresent())
-
-
     }
-
-
-    fun testEthiopianDateWidgets(){
-
-        InstrumentationUtility.openModule(1)
-        InstrumentationUtility.nextPage()
-        InstrumentationUtility.nextPage()
-
-        // reads the current month, gets the current index in the list, rotates the list starting from current month
-        val monthText = InstrumentationUtility.getText(onView(withId(R.id.monthtxt)))
-        listOfEthiopianMonths.toMutableList()
-        val index = listOfEthiopianMonths.indexOf(monthText)
-        assertTrue(index != -1)
-        Collections.rotate(listOfEthiopianMonths, -index)
-
-        //asserts if months are present in order
-        for (listItem in listOfEthiopianMonths){
-            assertTrue(onView(withText(listItem)).isPresent())
-            onView(withId(R.id.monthupbtn)).perform(ViewActions.click())
-        }
-
-        onView(withId(R.id.yeardownbtn)).perform(ViewActions.click())
-        val dateSelected = setDateToUniversalCalender(-10)
-        val gregorianDate = InstrumentationUtility.getText(onView(withId(R.id.dateGregorian)))
-        val formattedDate = formatGregorianDate(gregorianDate.drop(1).dropLast(1))
-        InstrumentationUtility.nextPage()
-        assertTrue(onView(withSubstring(formattedDate)).isPresent())
-        assertTrue(onView(withSubstring(dateSelected)).isPresent())
-        InstrumentationUtility.submitForm()
-        assertTrue(onView(ViewMatchers.withText("1 form sent to server!")).isPresent())
-
-
-    }
-
 
     @Test
     fun testStandardWidget(){
