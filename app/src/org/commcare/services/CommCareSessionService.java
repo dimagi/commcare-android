@@ -242,7 +242,9 @@ public class CommCareSessionService extends Service {
 
         Intent i = new Intent(this, DispatchActivity.class);
         i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+
         PendingIntent contentIntent = null;
+        // The FLAG_IMMUTABLE flag was added in API level 23
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
             contentIntent = PendingIntent.getActivity(this, 0, i, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
         else
