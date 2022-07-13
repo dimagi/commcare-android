@@ -1,5 +1,6 @@
 package org.commcare.services;
 
+import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -198,6 +199,7 @@ public class CommCareSessionService extends Service {
     /**
      * Show a notification while this service is running.
      */
+    @SuppressLint("UnspecifiedImmutableFlag")
     public void showLoggedInNotification(@Nullable User user) {
         //We always want this click to simply bring the live stack back to the top
         Intent callable = new Intent(this, DispatchActivity.class);
@@ -205,7 +207,12 @@ public class CommCareSessionService extends Service {
         callable.addCategory("android.intent.category.LAUNCHER");
 
         // The PendingIntent to launch our activity if the user selects this notification
-        PendingIntent contentIntent = PendingIntent.getActivity(this, 0, callable, PendingIntent.FLAG_IMMUTABLE);
+        // The FLAG_IMMUTABLE flag was added in API level 23
+        PendingIntent contentIntent;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+            contentIntent = PendingIntent.getActivity(this, 0, callable, PendingIntent.FLAG_IMMUTABLE);
+        else
+            contentIntent = PendingIntent.getActivity(this, 0, callable,0);
 
         String notificationText;
         if (AppUtils.getInstalledAppRecords().size() > 1) {
@@ -237,6 +244,7 @@ public class CommCareSessionService extends Service {
     /**
      * Notify the user that they've been timed out and need to relog in
      */
+    @SuppressLint("UnspecifiedImmutableFlag")
     private void showLoggedOutNotification() {
         this.stopForeground(true);
 
@@ -531,6 +539,7 @@ public class CommCareSessionService extends Service {
             int lastUpdate = 0;
 
             @Override
+            @SuppressLint("UnspecifiedImmutableFlag")
             public void beginSubmissionProcess(int totalItems) {
                 this.totalItems = totalItems;
 
@@ -540,9 +549,14 @@ public class CommCareSessionService extends Service {
                 callable.setAction("android.intent.action.MAIN");
                 callable.addCategory("android.intent.category.LAUNCHER");
 
-                // The PendingIntent to launch our activity if the user selects this notification
-                //TODO: Put something here that will, I dunno, cancel submission or something? Maybe show it live?
-                PendingIntent contentIntent = PendingIntent.getActivity(CommCareSessionService.this, 0, callable, PendingIntent.FLAG_IMMUTABLE);
+               // The PendingIntent to launch our activity if the user selects this notification
+               // The FLAG_IMMUTABLE flag was added in API level 23
+               //TODO: Put something here that will, I dunno, cancel submission or something? Maybe show it live?
+               PendingIntent contentIntent;
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+                    contentIntent = PendingIntent.getActivity(CommCareSessionService.this, 0, callable, PendingIntent.FLAG_IMMUTABLE);
+                else
+                    contentIntent = PendingIntent.getActivity(CommCareSessionService.this, 0, callable,0);
 
                 submissionNotification = new NotificationCompat.Builder(CommCareSessionService.this,
                         CommCareNoficationManager.NOTIFICATION_CHANNEL_SERVER_COMMUNICATIONS_ID)
