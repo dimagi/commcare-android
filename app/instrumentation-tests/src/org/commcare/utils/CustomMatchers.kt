@@ -1,10 +1,15 @@
 package org.commcare.utils
 
+import android.content.Context
 import android.content.Intent
+import android.content.res.Resources
+import android.graphics.drawable.Drawable
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.ListView
 import android.widget.TextView
+import androidx.appcompat.view.menu.ActionMenuItemView
 import androidx.test.espresso.matcher.BoundedMatcher
 import androidx.test.espresso.util.TreeIterables
 import org.commcare.android.database.global.models.AppAvailableToInstall
@@ -145,4 +150,27 @@ object CustomMatchers {
         }
     }
 
+    fun withDrawable(targetContext: Context, expectedId: Int): Matcher<View> {
+        return object : TypeSafeMatcher<View>(View::class.java) {
+
+            override fun describeTo(description: Description?) {
+                description!!.appendText("with drawable from resource id: $expectedId")
+                targetContext.resources.getResourceEntryName(expectedId)?.let { description.appendText("[$it]") }
+            }
+
+            override fun matchesSafely(view: View?): Boolean {
+                val drawable: Drawable? = when (view) {
+                    is ActionMenuItemView -> view.itemData.icon
+                    is ImageView -> view.drawable
+                    else -> null
+                }
+                requireNotNull(drawable)
+
+                val resources: Resources = view!!.context.resources
+                val expectedDrawable: Drawable? = resources.getDrawable(expectedId, targetContext.theme)
+                return expectedDrawable?.constantState?.let { it == drawable.constantState } ?: false
+            }
+
+        }
+    }
 }

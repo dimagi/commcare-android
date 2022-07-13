@@ -19,8 +19,10 @@ import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.BySelector
 import androidx.test.uiautomator.UiDevice
+import org.commcare.CommCareApplication
 import org.commcare.annotations.BrowserstackTests
 import org.commcare.dalvik.R
+import org.commcare.utils.CustomMatchers
 import org.commcare.utils.InstrumentationUtility
 import org.commcare.utils.isPresent
 import org.hamcrest.Matchers.allOf
@@ -56,7 +58,7 @@ class LazyVideosTests: BaseTest() {
 
     @Test
     fun testVideosWithReferences() {
-        testVideosWithValidReference()
+//        testVideosWithValidReference()
         testVideosWithNoReferences()
     }
 
@@ -90,6 +92,7 @@ class LazyVideosTests: BaseTest() {
         InstrumentationUtility.login("test1", "123")
         InstrumentationUtility.openForm(1,1)
         onView(withText("Video file is missing for this question, click the download button above to download")).isPresent()
+        onView(CustomMatchers.withDrawable(CommCareApplication.instance(), R.drawable.update_download_icon)).isPresent();
 //        assertTrue(uiDevice.hasObject(By.text("Video file is missing for this question, click the download button above to download")))
 //        InstrumentationUtility.checkToast("Video file is missing for this question, click the download button above to download")
         InstrumentationUtility.stubIntentWithAction(Intent.ACTION_SEND)
