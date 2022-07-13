@@ -40,7 +40,7 @@ class DateWidgetsTests: BaseTest() {
                             "Falgun","Chaitra")
         val listOfEthiopianMonths = listOf("Säne","Hämle","Nähäse","P’agume",
                 "Mäskäräm","T’ïk’ïmt","Hïdar","Tahsas","T’ïr","Yäkatit",
-                "Mägabit","Miyaziya")
+                "Mägabit","Miyaziya","Gïnbot")
 
     }
 
@@ -137,7 +137,7 @@ class DateWidgetsTests: BaseTest() {
      * function returns different format of the selected date
      */
     fun getDateInDifferentFormats(date : Date) : Array<String>{
-        val longFormat = SimpleDateFormat("EE, MMM dd, yyyy").format(date)
+        val longFormat = SimpleDateFormat("EE, MMM d, yyyy").format(date)
         val shortFormat = SimpleDateFormat("d/M/yy").format(date)
         val unformattedDate = SimpleDateFormat("yyyy-MM-dd").format(date)
         return arrayOf(longFormat.toString(),shortFormat.toString(),unformattedDate.toString())
