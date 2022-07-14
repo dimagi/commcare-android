@@ -164,13 +164,15 @@ object CustomMatchers {
                     is ImageView -> view.drawable
                     else -> null
                 }
-                requireNotNull(drawable)
+
+                if (drawable != null) {
+                    return false
+                }
 
                 val resources: Resources = view!!.context.resources
                 val expectedDrawable: Drawable? = resources.getDrawable(expectedId, targetContext.theme)
-                return expectedDrawable?.constantState?.let { it == drawable.constantState } ?: false
+                return expectedDrawable?.constantState?.let { it == drawable?.constantState } ?: false
             }
-
         }
     }
 }
