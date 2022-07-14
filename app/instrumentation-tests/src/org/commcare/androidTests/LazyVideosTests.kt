@@ -58,7 +58,7 @@ class LazyVideosTests: BaseTest() {
 
     @Test
     fun testVideosWithReferences() {
-//        testVideosWithValidReference()
+        testVideosWithValidReference()
         testVideosWithNoReferences()
     }
 
@@ -66,12 +66,14 @@ class LazyVideosTests: BaseTest() {
         InstrumentationUtility.login("test1", "123")
         InstrumentationUtility.openForm(1, 0)
         InstrumentationUtility.waitForView(withId(R.id.video_button))
+        onView(CustomMatchers.withDrawable(CommCareApplication.instance(), R.drawable.update_download_icon)).isPresent();
 //        var idImageButton = findViewById(R.id.video_button) as ImageButton
 //        Log.i("Image Tag:", idImageButton.tag.toString())
         if(onView(withText(R.string.video_download_prompt)).isPresent()){
             onView(withId(R.id.video_button)).perform(ViewActions.click())
             onView(withSubstring("Download started")).isPresent()
             InstrumentationUtility.waitForView(withText("Download complete"))
+            onView(CustomMatchers.withDrawable(CommCareApplication.instance(), android.R.drawable.ic_media_play)).isPresent();
         }
         else{
             InstrumentationUtility.stubIntentWithAction(Intent.ACTION_VIEW)

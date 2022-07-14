@@ -6,6 +6,7 @@ import android.content.res.Resources
 import android.graphics.drawable.Drawable
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.ListView
 import android.widget.TextView
@@ -162,6 +163,7 @@ object CustomMatchers {
                 val drawable: Drawable? = when (view) {
                     is ActionMenuItemView -> view.itemData.icon
                     is ImageView -> view.drawable
+                    is ImageButton -> view.drawable
                     else -> null
                 }
 
