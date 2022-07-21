@@ -83,7 +83,6 @@
             <action android:name="android.intent.action.TTS_SERVICE" />
         </intent>
         <package android:name="com.google.android.apps.maps" />
-        <package android:name="org.commcare.dalvik.reminders" />
     </queries>
 
     <application
@@ -495,7 +494,6 @@
 
 
         <activity android:name="org.commcare.activities.CommcareListActivity"/>
-        <activity android:name="org.commcare.activities.AppDependenciesActivity"/>
 
         <!-- This is to disable fabric for debug builds properly - https://stackoverflow.com/a/49836972/3811963 -->
         <meta-data

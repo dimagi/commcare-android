@@ -441,8 +441,4 @@
     <string name="selected_location" cc:translatable="true">Selected Location</string>
     <string name="confirm_location" cc:translatable="true">Confirm location</string>
     <string name="playback_start_time">00:00</string>
-    <string name="app_dependency_required" cc:translatable="true">(Required)</string>
-    <string name="app_dependency_optional" cc:translatable="true">(Optional)</string>
-    <string name="app_dependency_no_playstore_found">No Play Store found on your device</string>
-    <string name="app_dependency_install">Install</string>
 </resources>
