@@ -83,6 +83,7 @@
             <action android:name="android.intent.action.TTS_SERVICE" />
         </intent>
         <package android:name="com.google.android.apps.maps" />
+        <package android:name="org.commcare.dalvik.reminders" />
     </queries>
 
     <application
