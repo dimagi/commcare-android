@@ -441,4 +441,8 @@
     <string name="selected_location" cc:translatable="true">Selected Location</string>
     <string name="confirm_location" cc:translatable="true">Confirm location</string>
     <string name="playback_start_time">00:00</string>
+    <string name="dependency_missing_dialog_title" cc:translatable="true">Missing Application</string>
+    <string name="dependency_missing_dialog_message" cc:translatable="true">You are missing an application required for functioning of this CommCare app</string>
+    <string name="dependency_missing_dialog_go_to_store" cc:translatable="true">Go to Store</string>
+    <string name="dependency_missing_dialog_playstore_not_found" cc:translatable="true">No Play Store found on your device</string>
 </resources>
