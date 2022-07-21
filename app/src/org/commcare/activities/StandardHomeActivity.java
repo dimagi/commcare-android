@@ -51,9 +51,21 @@ public class StandardHomeActivity
     }
 
     void enterRootModule() {
-        Intent i = new Intent(this, MenuActivity.class);
-        addPendingDataExtra(i, CommCareApplication.instance().getCurrentSessionWrapper().getSession());
-        startActivityForResult(i, GET_COMMAND);
+        if(doStartChecksInOrder()) {
+            Intent i = new Intent(this, MenuActivity.class);
+            addPendingDataExtra(i, CommCareApplication.instance().getCurrentSessionWrapper().getSession());
+            startActivityForResult(i, GET_COMMAND);
+        }
+    }
+
+    private boolean doStartChecksInOrder() {
+        launchAppDependenciesActivity();
+        return false;
+    }
+
+    private void launchAppDependenciesActivity() {
+        Intent i = new Intent(this, AppDependenciesActivity.class);
+        startActivity(i);
     }
 
     @Override

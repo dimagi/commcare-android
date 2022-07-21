@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:padding="@dimen/activity_horizontal_margin"
+    android:layout_height="match_parent">
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/dependencies_recycler_view"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:paddingBottom="@dimen/activity_horizontal_margin"
+        android:listSelector="@drawable/selector">
+    </androidx.recyclerview.widget.RecyclerView>
+
+    <Button
+        android:id="@+id/"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/dependencies_recycler_view"
+        android:layout_centerHorizontal="true"
+        android:visibility="gone"
+        tools:text="Continue" />
+
+    <TextView
+        style="@style/TextAppearance.AppCompat.Body2"
+        android:textColor="@color/cc_attention_negative_color"
+        android:layout_below="@+id/dependencies_recycler_view"
+        tools:text="Install all required applications in order to continue"
+        android:visibility="gone"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+</RelativeLayout>
+
