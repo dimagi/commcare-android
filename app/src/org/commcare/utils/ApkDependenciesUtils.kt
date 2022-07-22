@@ -15,7 +15,7 @@ import org.commcare.views.dialogs.StandardAlertDialog
 /**
  * Utility methods to handle missing app dependencies
  */
-object DependenciesUtils {
+object ApkDependenciesUtils {
 
     /**
      * Checks whether all dependencies are satisfied and trigger the Dependency Install Workflow if not
@@ -55,6 +55,7 @@ object DependenciesUtils {
                 dialog.dismiss()
             }
         }
+        alertDialog.dismissOnBackPress()
         return alertDialog
     }
 

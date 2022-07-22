@@ -15,7 +15,7 @@ import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.ResultAndError;
 import org.commcare.utils.ConnectivityStatus;
-import org.commcare.utils.DependenciesUtils;
+import org.commcare.utils.ApkDependenciesUtils;
 import org.commcare.utils.SessionUnavailableException;
 import org.commcare.views.notifications.NotificationMessageFactory;
 import org.javarosa.core.services.locale.Localization;
@@ -61,7 +61,7 @@ public class StandardHomeActivity
     }
 
     private boolean doPreStartChecks() {
-        return DependenciesUtils.performDependencyCheckFlow(this);
+        return ApkDependenciesUtils.performDependencyCheckFlow(this);
     }
 
     @Override
