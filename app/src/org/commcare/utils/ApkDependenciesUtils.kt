@@ -4,12 +4,12 @@ import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.net.Uri
 import org.commcare.CommCareApplication
 import org.commcare.activities.CommCareActivity
 import org.commcare.dalvik.R
 import org.commcare.suite.model.AndroidPackageDependency
+import org.commcare.utils.PlaystoreUtils.isApkInstalled
 import org.commcare.views.dialogs.StandardAlertDialog
 
 /**
@@ -59,20 +59,9 @@ object ApkDependenciesUtils {
         return alertDialog
     }
 
-
-    private fun isApkInstalled(packageName: String): Boolean {
-        return try {
-            val packageManager = CommCareApplication.instance().packageManager
-            packageManager.getPackageInfo(packageName, PackageManager.GET_ACTIVITIES)
-            true
-        } catch (e: PackageManager.NameNotFoundException) {
-            false
-        }
-    }
-
     private fun launchPlayStore(context: Context, dialog: StandardAlertDialog, packageName: String): Boolean {
         return try {
-            context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=$packageName")))
+            PlaystoreUtils.launchPlayStore(context,packageName)
             true
         } catch (e: ActivityNotFoundException) {
             showNoPlaystoreFoundError(context, dialog)
