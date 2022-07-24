@@ -58,6 +58,7 @@ dependencies {
     androidTestImplementation 'androidx.test:rules:1.4.0'
     androidTestImplementation 'androidx.test.espresso:espresso-intents:3.4.0'
     androidTestImplementation 'androidx.test.espresso:espresso-contrib:3.4.0'
+    androidTestImplementation "io.mockk:mockk-android:1.10.0"
 
     // need uiautomator to rotate the device.
     // this only works with API >=18
