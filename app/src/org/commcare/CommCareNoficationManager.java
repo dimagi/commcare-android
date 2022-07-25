@@ -64,7 +64,6 @@ public class CommCareNoficationManager {
             // The PendingIntent to launch our activity if the user selects this notification
             Intent i = new Intent(context, MessageActivity.class);
 
-            // The FLAG_IMMUTABLE flag was added in API level 23
             PendingIntent contentIntent;
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
                 contentIntent = PendingIntent.getActivity(context, 0, i, PendingIntent.FLAG_IMMUTABLE);

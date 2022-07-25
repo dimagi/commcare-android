@@ -207,7 +207,6 @@ public class CommCareSessionService extends Service {
         callable.addCategory("android.intent.category.LAUNCHER");
 
         // The PendingIntent to launch our activity if the user selects this notification
-        // The FLAG_IMMUTABLE flag was added in API level 23
         PendingIntent contentIntent;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
             contentIntent = PendingIntent.getActivity(this, 0, callable, PendingIntent.FLAG_IMMUTABLE);
@@ -252,7 +251,6 @@ public class CommCareSessionService extends Service {
         i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
 
         PendingIntent contentIntent = null;
-        // The FLAG_IMMUTABLE flag was added in API level 23
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
             contentIntent = PendingIntent.getActivity(this, 0, i, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
         else
@@ -550,7 +548,6 @@ public class CommCareSessionService extends Service {
                 callable.addCategory("android.intent.category.LAUNCHER");
 
                // The PendingIntent to launch our activity if the user selects this notification
-               // The FLAG_IMMUTABLE flag was added in API level 23
                //TODO: Put something here that will, I dunno, cancel submission or something? Maybe show it live?
                PendingIntent contentIntent;
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
