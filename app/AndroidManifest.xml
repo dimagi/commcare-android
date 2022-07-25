@@ -392,7 +392,7 @@
         </receiver>
 
         <receiver
-            android:exported="false"
+            android:exported="true"
             android:name="org.commcare.provider.CommCareLogoutReceiver"
             android:permission="org.commcare.dalvik.permission.COMMCARE_LOGOUT">
             <intent-filter>
