@@ -1,0 +1,14 @@
+version: 2
+updates:
+  - package-ecosystem: gradle
+    directory: "/"
+    schedule:
+      interval: daily
+    labels:
+      - dependencies
+  - package-ecosystem: gradle
+    directory: "/app"
+    schedule:
+      interval: daily
+    labels:
+      - dependencies
