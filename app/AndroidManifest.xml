@@ -492,7 +492,7 @@
         <activity android:name="org.commcare.activities.PromptCczUpdateActivity"/>
         <activity
             android:label="@string/title_data_change_logs_activity"
-            android:exported="true"
+            android:exported="false"
             android:name="org.commcare.activities.DataChangeLogsActivity">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW"/>
