@@ -28,10 +28,10 @@ import org.junit.runner.RunWith
 @LargeTest
 @BrowserstackTests
 class LazyVideosTests : BaseTest() {
+
     companion object {
         const val CCZ_NAME = "lazy_videos_tests.ccz"
         const val APP_NAME = "Lazy Videos"
-
     }
 
     @Before
