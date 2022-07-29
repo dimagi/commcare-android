@@ -2,11 +2,8 @@ package org.commcare.androidTests
 
 
 import android.content.Intent
-import android.view.View.*
-
-import androidx.test.espresso.Espresso.*
+import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions
-
 import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -21,19 +18,16 @@ import org.commcare.utils.InstrumentationUtility
 import org.commcare.utils.isPresent
 import org.hamcrest.Matchers.allOf
 import org.junit.After
-
-import org.junit.Assert.*
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
-
 import org.junit.runner.RunWith
-import java.util.*
 
 
 @RunWith(AndroidJUnit4::class)
 @LargeTest
 @BrowserstackTests
-class LazyVideosTests: BaseTest() {
+class LazyVideosTests : BaseTest() {
     companion object {
         const val CCZ_NAME = "lazy_videos_tests.ccz"
         const val APP_NAME = "Lazy Videos"
@@ -46,7 +40,7 @@ class LazyVideosTests: BaseTest() {
     }
 
     @After
-    fun tearDown(){
+    fun tearDown() {
         InstrumentationUtility.logout()
     }
 
@@ -60,15 +54,24 @@ class LazyVideosTests: BaseTest() {
         InstrumentationUtility.login("test1", "123")
         InstrumentationUtility.openForm(1, 0)
         InstrumentationUtility.waitForView(withId(R.id.video_button))
-        onView(CustomMatchers.withDrawable(CommCareApplication.instance(), R.drawable.update_download_icon)).isPresent()
+        onView(
+            CustomMatchers.withDrawable(
+                CommCareApplication.instance(),
+                R.drawable.update_download_icon
+            )
+        ).isPresent()
 
-        if(onView(withText(R.string.video_download_prompt)).isPresent()){
+        if (onView(withText(R.string.video_download_prompt)).isPresent()) {
             onView(withId(R.id.video_button)).perform(ViewActions.click())
             onView(withSubstring("Download started")).isPresent()
             InstrumentationUtility.waitForView(withText("Download complete"))
-            onView(CustomMatchers.withDrawable(CommCareApplication.instance(), android.R.drawable.ic_media_play)).isPresent();
-        }
-        else{
+            onView(
+                CustomMatchers.withDrawable(
+                    CommCareApplication.instance(),
+                    android.R.drawable.ic_media_play
+                )
+            ).isPresent();
+        } else {
             InstrumentationUtility.stubIntentWithAction(Intent.ACTION_VIEW)
             onView(withId(R.id.video_button)).perform(ViewActions.click())
             InstrumentationUtility.nextPage()
@@ -85,9 +88,14 @@ class LazyVideosTests: BaseTest() {
     fun testVideosWithNoReferences() {
         val uiDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
         InstrumentationUtility.login("test1", "123")
-        InstrumentationUtility.openForm(1,1)
+        InstrumentationUtility.openForm(1, 1)
         onView(withText("Video file is missing for this question, click the download button above to download")).isPresent()
-        onView(CustomMatchers.withDrawable(CommCareApplication.instance(), R.drawable.update_download_icon)).isPresent()
+        onView(
+            CustomMatchers.withDrawable(
+                CommCareApplication.instance(),
+                R.drawable.update_download_icon
+            )
+        ).isPresent()
         InstrumentationUtility.stubIntentWithAction(Intent.ACTION_SEND)
         onView(withId(R.id.video_button)).perform(ViewActions.click())
         InstrumentationUtility.waitForView(withText(R.string.download_complete))
