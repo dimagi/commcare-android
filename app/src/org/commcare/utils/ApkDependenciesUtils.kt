@@ -3,14 +3,14 @@ package org.commcare.utils
 import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.DialogInterface
-import android.content.Intent
-import android.net.Uri
 import org.commcare.CommCareApplication
 import org.commcare.activities.CommCareActivity
 import org.commcare.dalvik.R
 import org.commcare.suite.model.AndroidPackageDependency
 import org.commcare.utils.PlaystoreUtils.isApkInstalled
+import org.commcare.utils.StringUtils.getStringRobust
 import org.commcare.views.dialogs.StandardAlertDialog
+import java.util.*
 
 /**
  * Utility methods to handle missing app dependencies
@@ -23,35 +23,47 @@ object ApkDependenciesUtils {
      */
     @JvmStatic
     fun performDependencyCheckFlow(commCareActivity: CommCareActivity<*>): Boolean {
-        val dependency = getUnsatisfiedDependency()
-        if (dependency != null) {
-            val dependencyInstallDialog = getDependencyInstallDialog(commCareActivity, dependency)
+        val unsatisfiedDependencies = getUnsatisfiedDependencies()
+        if (!unsatisfiedDependencies.isEmpty()) {
+            val dependencyInstallDialog = getDependencyInstallDialog(commCareActivity, unsatisfiedDependencies)
             commCareActivity.showAlertDialog(dependencyInstallDialog)
             return false
         }
         return true
     }
 
-    private fun getUnsatisfiedDependency(): AndroidPackageDependency? {
+    private fun getUnsatisfiedDependencies(): ArrayList<AndroidPackageDependency> {
+        val unsatisfiedDependencies = ArrayList<AndroidPackageDependency>()
         val dependencies = CommCareApplication.instance().commCarePlatform.currentProfile.dependencies
         for (dependency in dependencies) {
             if (!isApkInstalled(dependency.id)) {
-                return dependency
+                unsatisfiedDependencies.add(dependency)
             }
         }
-        return null
+        return unsatisfiedDependencies
     }
 
-    private fun getDependencyInstallDialog(context: Context, dependency: AndroidPackageDependency): StandardAlertDialog {
-        val title = StringUtils.getStringRobust(context, R.string.dependency_missing_dialog_title)
-        val message = StringUtils.getStringRobust(context, R.string.dependency_missing_dialog_message)
+    private fun getDependencyInstallDialog(
+        context: Context,
+        unsatisfiedDependencies: ArrayList<AndroidPackageDependency>
+    ): StandardAlertDialog {
+        var title = getStringRobust(context, R.string.dependency_missing_dialog_title)
+        var message = getStringRobust(context, R.string.dependency_missing_dialog_message)
+        if (unsatisfiedDependencies.size > 1) {
+            title = getStringRobust(context, R.string.dependency_missing_dialog_title_plural)
+            message = getStringRobust(context, R.string.dependency_missing_dialog_message_plural)
+            message += "\n"
+            unsatisfiedDependencies.forEachIndexed{index, dependency ->
+                message += "\n" + (index+1) + ". " + dependency.name
+            }
+        }
         val alertDialog = StandardAlertDialog(context, title, message)
-        val buttonText = StringUtils.getStringRobust(
+        val buttonText = getStringRobust(
             context,
             R.string.dependency_missing_dialog_go_to_store
         )
         alertDialog.setPositiveButton(buttonText) { dialog: DialogInterface, _: Int ->
-            if(launchPlayStore(context, alertDialog, dependency.id)) {
+            if (launchPlayStore(context, alertDialog, unsatisfiedDependencies[0].id)) {
                 dialog.dismiss()
             }
         }
@@ -61,7 +73,7 @@ object ApkDependenciesUtils {
 
     private fun launchPlayStore(context: Context, dialog: StandardAlertDialog, packageName: String): Boolean {
         return try {
-            PlaystoreUtils.launchPlayStore(context,packageName)
+            PlaystoreUtils.launchPlayStore(context, packageName)
             true
         } catch (e: ActivityNotFoundException) {
             showNoPlaystoreFoundError(context, dialog)
@@ -70,7 +82,7 @@ object ApkDependenciesUtils {
     }
 
     private fun showNoPlaystoreFoundError(context: Context, dialog: StandardAlertDialog) {
-        val error = StringUtils.getStringRobust(context, R.string.dependency_missing_dialog_playstore_not_found)
+        val error = getStringRobust(context, R.string.dependency_missing_dialog_playstore_not_found)
         dialog.addEmphasizedMessage(error)
     }
 }

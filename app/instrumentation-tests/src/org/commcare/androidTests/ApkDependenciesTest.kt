@@ -6,16 +6,17 @@ import androidx.test.espresso.Espresso.pressBack
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.doesNotExist
 import androidx.test.espresso.intent.Intents
-import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.google.common.collect.ImmutableList
 import io.mockk.every
 import io.mockk.mockkObject
-import io.mockk.spyk
 import junit.framework.TestCase.assertEquals
 import org.commcare.annotations.BrowserstackTests
 import org.commcare.dalvik.R
-import org.commcare.utils.*
+import org.commcare.utils.InstrumentationUtility
+import org.commcare.utils.PlaystoreUtils
+import org.commcare.utils.isPresent
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -32,15 +33,23 @@ class ApkDependenciesTest : BaseTest() {
     @Test
     fun testAppDependenciesCheck() {
         InstrumentationUtility.installApp(CCZ_NAME)
-        veirfyDependencyDialog()
+        val unstatisfiedDependencies = ImmutableList.of("Reminders", "Test")
+        verifyDependencyDialog(unstatisfiedDependencies)
         InstrumentationUtility.login("test", "123");
         onView(withText("Start"))
             .perform(click())
-        veirfyDependencyDialog()
+        verifyDependencyDialog(unstatisfiedDependencies)
         verifyDialogDisimissOnBack()
 
-        // mock such that all dependencies are satisfied, and check dialog doesn't appear
         mockkObject(PlaystoreUtils)
+        // mock as only one dependency is unsatisfied
+        every { PlaystoreUtils.isApkInstalled("org.commcare.test") } returns true
+        onView(withText("Start"))
+            .perform(click())
+        verifyDependencyDialog(unstatisfiedDependencies)
+        verifyDialogDisimissOnBack()
+
+        // mock as all dependencies are satisfied and check dialog doesn't app
         every { PlaystoreUtils.isApkInstalled(any()) } returns true
         onView(withText("Start"))
             .perform(click())
@@ -57,9 +66,15 @@ class ApkDependenciesTest : BaseTest() {
         onView(withText(R.string.dependency_missing_dialog_title)).check(doesNotExist())
     }
 
-    private fun veirfyDependencyDialog() {
-        onView(withText(R.string.dependency_missing_dialog_title)).isPresent()
-        onView(withText(R.string.dependency_missing_dialog_message)).isPresent()
+    private fun verifyDependencyDialog(unstatisfiedDependencies: ImmutableList<String>) {
+        if (unstatisfiedDependencies.size == 1) {
+            onView(withText(R.string.dependency_missing_dialog_title)).isPresent()
+            onView(withText(R.string.dependency_missing_dialog_message)).isPresent()
+        } else {
+            onView(withText(R.string.dependency_missing_dialog_title_plural)).isPresent()
+            onView(withText(R.string.dependency_missing_dialog_message_plural)).isPresent()
+            unstatisfiedDependencies.forEach { onView(withText(it)).isPresent() }
+        }
         InstrumentationUtility.stubIntentWithAction(Intent.ACTION_VIEW)
         onView(withText(R.string.dependency_missing_dialog_go_to_store)).perform(click())
         verifyPlaystoreIntent()
