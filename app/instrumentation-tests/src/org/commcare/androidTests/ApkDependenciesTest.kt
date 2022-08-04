@@ -1,6 +1,8 @@
 package org.commcare.androidTests
 
+import android.content.Context
 import android.content.Intent
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.Espresso.pressBack
 import androidx.test.espresso.action.ViewActions.click
@@ -69,7 +71,9 @@ class ApkDependenciesTest : BaseTest() {
     private fun verifyDependencyDialog(unstatisfiedDependencies: ImmutableList<String>) {
         if (unstatisfiedDependencies.size == 1) {
             onView(withText(R.string.dependency_missing_dialog_title)).isPresent()
-            onView(withText(R.string.dependency_missing_dialog_message)).isPresent()
+            val expectedMsg = ApplicationProvider.getApplicationContext<Context>()
+                .getString(R.string.dependency_missing_dialog_message, unstatisfiedDependencies[0])
+            onView(withText(expectedMsg)).isPresent()
         } else {
             onView(withText(R.string.dependency_missing_dialog_title_plural)).isPresent()
             onView(withText(R.string.dependency_missing_dialog_message_plural)).isPresent()

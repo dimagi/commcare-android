@@ -48,7 +48,7 @@ object ApkDependenciesUtils {
         unsatisfiedDependencies: ArrayList<AndroidPackageDependency>
     ): StandardAlertDialog {
         var title = getStringRobust(context, R.string.dependency_missing_dialog_title)
-        var message = getStringRobust(context, R.string.dependency_missing_dialog_message)
+        var message = getStringRobust(context, R.string.dependency_missing_dialog_message, unsatisfiedDependencies[0].name)
         if (unsatisfiedDependencies.size > 1) {
             title = getStringRobust(context, R.string.dependency_missing_dialog_title_plural)
             message = getStringRobust(context, R.string.dependency_missing_dialog_message_plural)
