@@ -283,7 +283,7 @@ public class AdvancedActionsPreferences extends CommCarePreferenceFragment {
             }
             dialog.dismiss();
         };
-        d.setPositiveButton(StringUtils.getStringRobust(activity, R.string.ok), listener);
+        d.setPositiveButton(StringUtils.getStringRobust(activity, R.string.delete_yes), listener);
         d.setNegativeButton(StringUtils.getStringRobust(activity, R.string.cancel), listener);
         d.showNonPersistentDialog();
     }
