@@ -6,6 +6,7 @@ import android.os.Bundle;
 
 import org.commcare.tasks.AsyncRestoreHelper;
 import org.commcare.tasks.DataPullTask;
+import org.commcare.utils.AndroidPackageUtils;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -66,5 +67,10 @@ public class CommCareInstrumentationTestApplication extends CommCareApplication 
 
     public Activity getCurrentActivity() {
         return currentActivity;
+    }
+
+    @Override
+    public AndroidPackageUtils getAndroidPackageUtils() {
+        return new AndroidPackageUtilsMock();
     }
 }

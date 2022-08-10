@@ -11,13 +11,12 @@ import androidx.test.espresso.intent.Intents
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.collect.ImmutableList
-import io.mockk.every
-import io.mockk.mockkObject
 import junit.framework.TestCase.assertEquals
+import org.commcare.AndroidPackageUtilsMock
+import org.commcare.CommCareApplication
 import org.commcare.annotations.BrowserstackTests
 import org.commcare.dalvik.R
 import org.commcare.utils.InstrumentationUtility
-import org.commcare.utils.PlaystoreUtils
 import org.commcare.utils.isPresent
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -43,16 +42,16 @@ class ApkDependenciesTest : BaseTest() {
         verifyDependencyDialog(unstatisfiedDependencies)
         verifyDialogDisimissOnBack()
 
-        mockkObject(PlaystoreUtils)
+        val mockAndroidUtils = CommCareApplication.instance().androidPackageUtils as AndroidPackageUtilsMock
         // mock as only one dependency is unsatisfied
-        every { PlaystoreUtils.isApkInstalled("org.commcare.test") } returns true
+        mockAndroidUtils.addInstalledPackage("org.commcare.test")
         onView(withText("Start"))
             .perform(click())
         verifyDependencyDialog(unstatisfiedDependencies)
         verifyDialogDisimissOnBack()
 
         // mock as all dependencies are satisfied and check dialog doesn't app
-        every { PlaystoreUtils.isApkInstalled(any()) } returns true
+        mockAndroidUtils.addInstalledPackage("org.commcare.dalvik.reminders")
         onView(withText("Start"))
             .perform(click())
         onView(withText(R.string.dependency_missing_dialog_title)).check(doesNotExist())

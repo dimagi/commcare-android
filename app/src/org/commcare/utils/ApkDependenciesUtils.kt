@@ -7,7 +7,6 @@ import org.commcare.CommCareApplication
 import org.commcare.activities.CommCareActivity
 import org.commcare.dalvik.R
 import org.commcare.suite.model.AndroidPackageDependency
-import org.commcare.utils.PlaystoreUtils.isApkInstalled
 import org.commcare.utils.StringUtils.getStringRobust
 import org.commcare.views.dialogs.StandardAlertDialog
 import java.util.*
@@ -36,7 +35,7 @@ object ApkDependenciesUtils {
         val unsatisfiedDependencies = ArrayList<AndroidPackageDependency>()
         val dependencies = CommCareApplication.instance().commCarePlatform.currentProfile.dependencies
         for (dependency in dependencies) {
-            if (!isApkInstalled(dependency.id)) {
+            if (!CommCareApplication.instance().androidPackageUtils.isApkInstalled(dependency.id)) {
                 unsatisfiedDependencies.add(dependency)
             }
         }
