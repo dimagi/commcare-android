@@ -4,6 +4,7 @@ package org.commcare.androidTests
 import android.content.Intent
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions
+import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -16,6 +17,7 @@ import org.commcare.dalvik.R
 import org.commcare.utils.CustomMatchers
 import org.commcare.utils.InstrumentationUtility
 import org.commcare.utils.isPresent
+import org.hamcrest.Matchers.`is`
 import org.hamcrest.Matchers.allOf
 import org.junit.After
 import org.junit.Assert.assertTrue
@@ -62,7 +64,7 @@ class LazyVideosTests : BaseTest() {
         ).isPresent()
 
         if (onView(withText(R.string.video_download_prompt)).isPresent()) {
-            onView(withId(R.id.video_button)).perform(ViewActions.click())
+            onView(withId(R.id.video_button)).perform(click())
             onView(withSubstring("Download started")).isPresent()
             InstrumentationUtility.waitForView(withText("Download complete"))
             onView(
@@ -73,13 +75,21 @@ class LazyVideosTests : BaseTest() {
             ).isPresent();
         } else {
             InstrumentationUtility.stubIntentWithAction(Intent.ACTION_VIEW)
-            onView(withId(R.id.video_button)).perform(ViewActions.click())
+            onView(withId(R.id.video_button)).perform(click())
             InstrumentationUtility.nextPage()
         }
         Thread.sleep(5000)
         assertTrue(onView(allOf(withId(R.id.inline_video_view))).isPresent())
         InstrumentationUtility.nextPage()
         InstrumentationUtility.nextPage()
+
+        onView(
+            CustomMatchers.withDrawable(
+                CommCareApplication.instance(),
+                R.drawable.icon_info_outline_lightcool
+            )
+        ).perform(click())
+
         InstrumentationUtility.submitForm()
         assertTrue(onView(withText("1 form sent to server!")).isPresent())
         InstrumentationUtility.logout()
@@ -97,7 +107,7 @@ class LazyVideosTests : BaseTest() {
             )
         ).isPresent()
         InstrumentationUtility.stubIntentWithAction(Intent.ACTION_SEND)
-        onView(withId(R.id.video_button)).perform(ViewActions.click())
+        onView(withId(R.id.video_button)).perform(click())
         InstrumentationUtility.waitForView(withText(R.string.download_complete))
         InstrumentationUtility.waitForView(withText("Media not found in the application"))
         InstrumentationUtility.nextPage()

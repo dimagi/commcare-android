@@ -160,20 +160,16 @@ object CustomMatchers {
             }
 
             override fun matchesSafely(view: View?): Boolean {
-                val drawable: Drawable? = when (view) {
+                val drawable: Drawable = when (view) {
                     is ActionMenuItemView -> view.itemData.icon
                     is ImageView -> view.drawable
                     is ImageButton -> view.drawable
                     else -> null
-                }
-
-                if (drawable != null) {
-                    return false
-                }
+                } ?: return false
 
                 val resources: Resources = view!!.context.resources
                 val expectedDrawable: Drawable? = resources.getDrawable(expectedId, targetContext.theme)
-                return expectedDrawable?.constantState?.let { it == drawable?.constantState } ?: false
+                return expectedDrawable?.constantState?.let { it == drawable.constantState } ?: false
             }
         }
     }
