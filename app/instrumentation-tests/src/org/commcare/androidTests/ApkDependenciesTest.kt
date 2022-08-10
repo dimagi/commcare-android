@@ -16,6 +16,7 @@ import org.commcare.AndroidPackageUtilsMock
 import org.commcare.CommCareApplication
 import org.commcare.annotations.BrowserstackTests
 import org.commcare.dalvik.R
+import org.commcare.utils.AndroidPackageUtils
 import org.commcare.utils.InstrumentationUtility
 import org.commcare.utils.isPresent
 import org.junit.Test
@@ -71,12 +72,12 @@ class ApkDependenciesTest : BaseTest() {
         if (unstatisfiedDependencies.size == 1) {
             onView(withText(R.string.dependency_missing_dialog_title)).isPresent()
             val expectedMsg = ApplicationProvider.getApplicationContext<Context>()
-                .getString(R.string.dependency_missing_dialog_message, unstatisfiedDependencies[0])
+                .getString(R.string.dependency_missing_dialog_message, AndroidPackageUtils().getPackageName(unstatisfiedDependencies[0]))
             onView(withText(expectedMsg)).isPresent()
         } else {
             onView(withText(R.string.dependency_missing_dialog_title_plural)).isPresent()
             onView(withText(R.string.dependency_missing_dialog_message_plural)).isPresent()
-            unstatisfiedDependencies.forEach { onView(withText(it)).isPresent() }
+            unstatisfiedDependencies.forEach { onView(withText(AndroidPackageUtils().getPackageName(it))).isPresent() }
         }
         InstrumentationUtility.stubIntentWithAction(Intent.ACTION_VIEW)
         onView(withText(R.string.dependency_missing_dialog_go_to_store)).perform(click())

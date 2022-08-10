@@ -14,4 +14,13 @@ open class AndroidPackageUtils {
             false
         }
     }
+
+    fun getPackageName(id: String): String? {
+        return try {
+            val pm = CommCareApplication.instance().packageManager
+            return pm.getApplicationLabel(pm.getApplicationInfo(id, 0)).toString()
+        } catch (e: PackageManager.NameNotFoundException) {
+            null
+        }
+    }
 }

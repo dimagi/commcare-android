@@ -962,3 +962,7 @@ tts.speak.failed=Couldn't speak now. Please try again!
 
 file.oversize.error.title=File Too Large
 file.oversize.error.message=Selected file exceeds the file size limit of 15 MB. Please select a file whose size is less than 15 MB.
+
+android.package.name.org.commcare.dalvik.reminders=CommCare Reminders
+android.package.name.callout.commcare.org.sendussd=Commcare USSD
+android.package.name.org.commcare.dalvik.abha=CommCare ABHA

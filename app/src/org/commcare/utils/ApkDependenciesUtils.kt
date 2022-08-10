@@ -9,7 +9,8 @@ import org.commcare.dalvik.R
 import org.commcare.suite.model.AndroidPackageDependency
 import org.commcare.utils.StringUtils.getStringRobust
 import org.commcare.views.dialogs.StandardAlertDialog
-import java.util.*
+import org.javarosa.core.services.locale.Localization
+import org.javarosa.core.util.NoLocalizedTextException
 
 /**
  * Utility methods to handle missing app dependencies
@@ -47,13 +48,13 @@ object ApkDependenciesUtils {
         unsatisfiedDependencies: ArrayList<AndroidPackageDependency>
     ): StandardAlertDialog {
         var title = getStringRobust(context, R.string.dependency_missing_dialog_title)
-        var message = getStringRobust(context, R.string.dependency_missing_dialog_message, unsatisfiedDependencies[0].name)
+        var message = getStringRobust(context, R.string.dependency_missing_dialog_message, getDependencyName(unsatisfiedDependencies[0]))
         if (unsatisfiedDependencies.size > 1) {
             title = getStringRobust(context, R.string.dependency_missing_dialog_title_plural)
             message = getStringRobust(context, R.string.dependency_missing_dialog_message_plural)
             message += "\n"
             unsatisfiedDependencies.forEachIndexed{index, dependency ->
-                message += "\n" + (index+1) + ". " + dependency.name
+                message += "\n" + (index+1) + ". " + getDependencyName(dependency)
             }
         }
         val alertDialog = StandardAlertDialog(context, title, message)
@@ -68,6 +69,18 @@ object ApkDependenciesUtils {
         }
         alertDialog.dismissOnBackPress()
         return alertDialog
+    }
+
+    private fun getDependencyName(androidPackageDependency: AndroidPackageDependency): String {
+        try {
+            return Localization.get("android.package.name.${androidPackageDependency.id}")
+        } catch (e: NoLocalizedTextException) {
+            val name = AndroidPackageUtils().getPackageName(androidPackageDependency.id)
+            if (!name.isNullOrEmpty()) {
+                return name
+            }
+        }
+        return androidPackageDependency.id
     }
 
     private fun launchPlayStore(context: Context, dialog: StandardAlertDialog, packageName: String): Boolean {
