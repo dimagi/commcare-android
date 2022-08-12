@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+
 import org.commcare.CommCareApplication;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
@@ -14,6 +15,7 @@ import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.ResultAndError;
 import org.commcare.utils.ConnectivityStatus;
+import org.commcare.utils.ApkDependenciesUtils;
 import org.commcare.utils.SessionUnavailableException;
 import org.commcare.views.notifications.NotificationMessageFactory;
 import org.javarosa.core.services.locale.Localization;
@@ -51,9 +53,15 @@ public class StandardHomeActivity
     }
 
     void enterRootModule() {
-        Intent i = new Intent(this, MenuActivity.class);
-        addPendingDataExtra(i, CommCareApplication.instance().getCurrentSessionWrapper().getSession());
-        startActivityForResult(i, GET_COMMAND);
+        if (doPreStartChecks()) {
+            Intent i = new Intent(this, MenuActivity.class);
+            addPendingDataExtra(i, CommCareApplication.instance().getCurrentSessionWrapper().getSession());
+            startActivityForResult(i, GET_COMMAND);
+        }
+    }
+
+    private boolean doPreStartChecks() {
+        return ApkDependenciesUtils.performDependencyCheckFlow(this);
     }
 
     @Override

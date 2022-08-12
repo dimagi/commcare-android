@@ -1,7 +1,9 @@
 package org.commcare.views.dialogs;
 
+import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
@@ -103,4 +105,12 @@ public class StandardAlertDialog extends CommCareAlertDialog {
         tv.setText(text);
     }
 
+    public void dismissOnBackPress() {
+        dialog.setOnKeyListener((dialog, keyCode, event) -> {
+            if (keyCode == KeyEvent.KEYCODE_BACK) {
+                dialog.dismiss();
+            }
+            return true;
+        });
+    }
 }
