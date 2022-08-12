@@ -272,10 +272,11 @@ public class AdvancedActionsPreferences extends CommCarePreferenceFragment {
     }
 
     public static void clearUserData(final AppCompatActivity activity) {
+        int numUnsentAndIncompleteForms = StorageUtils.getNumUnsentAndIncompleteForms();
         StandardAlertDialog d =
                 new StandardAlertDialog(activity,
                         Localization.get("clear.user.data.warning.title"),
-                        getClearUserDataMessage());
+                        getClearUserDataMessage(numUnsentAndIncompleteForms));
         DialogInterface.OnClickListener listener = (dialog, which) -> {
             if (which == AlertDialog.BUTTON_POSITIVE) {
                 AppUtils.clearUserData();
@@ -286,22 +287,20 @@ public class AdvancedActionsPreferences extends CommCarePreferenceFragment {
         };
         d.setPositiveButton(
                 StringUtils.getStringRobust(activity,
-                        getClearUserDataPositiveOption()),
+                        getClearUserDataPositiveOption(numUnsentAndIncompleteForms)),
                 listener);
         d.setNegativeButton(StringUtils.getStringRobust(activity, R.string.cancel), listener);
         d.showNonPersistentDialog();
     }
 
-    private static String getClearUserDataMessage(){
-        int numUnsentAndIncompleteForms = StorageUtils.getNumUnsentAndIncompleteForms();
+    private static String getClearUserDataMessage(int numUnsentAndIncompleteForms){
         if (numUnsentAndIncompleteForms > 0)
             return Localization.get("clear.user.data.warning.message.delete.forms",String.valueOf(numUnsentAndIncompleteForms));
         else
-            return Localization.get("clear.user.data.warning.message.generic");
+            return Localization.get("clear.user.data.warning.message");
     }
 
-    private static int getClearUserDataPositiveOption(){
-        int numUnsentAndIncompleteForms = StorageUtils.getNumUnsentAndIncompleteForms();
+    private static int getClearUserDataPositiveOption(int numUnsentAndIncompleteForms){
         if (numUnsentAndIncompleteForms > 0)
             return R.string.clear_user_data_delete_form;
         else
