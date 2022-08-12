@@ -868,7 +868,8 @@ settings.main.title=CommCare > Settings
 settings.advanced.title=CommCare > Advanced
 clear.user.data=Clear User Data
 clear.user.data.warning.title=WARNING!
-clear.user.data.warning.message=You are about to delete all unsent and incomplete forms. This is a PERMANENT action and you will NOT be able to recover these deleted forms. Make sure this is what you want to happen before continuing.
+clear.user.data.warning.message.generic=Are you sure you want to clear all mobile user data? Once you clear user data, you will need to sync with the server to get all your data again.
+clear.user.data.warning.message.delete.forms=You are about to delete ${0} unsent and/or incomplete form(s). This is a PERMANENT action and you will NOT be able to recover any deleted forms. Make sure this is what you want to happen before continuing.
 force.log.submit=Force Log Submission
 recovery.mode=Recovery Mode
 
