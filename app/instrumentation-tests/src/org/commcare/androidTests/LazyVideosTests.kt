@@ -56,8 +56,8 @@ class LazyVideosTests : BaseTest() {
         InstrumentationUtility.login("test1", "123")
         InstrumentationUtility.openForm(1, 0)
         InstrumentationUtility.waitForView(withId(R.id.video_button))
-        onView(
-            CustomMatchers.withDrawable(
+
+        onView(CustomMatchers.withDrawable(
                 CommCareApplication.instance(),
                 R.drawable.update_download_icon
             )
@@ -81,6 +81,15 @@ class LazyVideosTests : BaseTest() {
         Thread.sleep(5000)
         assertTrue(onView(allOf(withId(R.id.inline_video_view))).isPresent())
         InstrumentationUtility.nextPage()
+        onView(
+            CustomMatchers.withDrawable(
+                CommCareApplication.instance(),
+                R.drawable.icon_info_outline_lightcool
+            )
+        ).perform(click())
+        InstrumentationUtility.stubIntentWithAction(Intent.ACTION_VIEW)
+        onView(withId(R.id.video_button)).perform(click())
+        onView(withText("OK")).perform(click())
         InstrumentationUtility.nextPage()
 
         onView(
@@ -89,7 +98,9 @@ class LazyVideosTests : BaseTest() {
                 R.drawable.icon_info_outline_lightcool
             )
         ).perform(click())
-
+        InstrumentationUtility.stubIntentWithAction(Intent.ACTION_VIEW)
+        onView(withId(R.id.video_button)).perform(click())
+        onView(withText("OK")).perform(click())
         InstrumentationUtility.submitForm()
         assertTrue(onView(withText("1 form sent to server!")).isPresent())
         InstrumentationUtility.logout()
