@@ -6,6 +6,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.Build;
+
 import androidx.core.app.NotificationCompat;
 
 import org.commcare.CommCareNoficationManager;
@@ -60,9 +62,13 @@ public class PinnedNotificationWithProgress
     }
 
     private PendingIntent buildPendingIntent(Context ctx) {
+        int intentFlags = PendingIntent.FLAG_UPDATE_CURRENT;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+            intentFlags = intentFlags | PendingIntent.FLAG_IMMUTABLE;
+
         Intent i = new Intent(ctx, UpdateActivity.class);
         i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-        return PendingIntent.getActivity(ctx, 0, i, PendingIntent.FLAG_UPDATE_CURRENT);
+        return PendingIntent.getActivity(ctx, 0, i, intentFlags);
     }
 
     @Override
