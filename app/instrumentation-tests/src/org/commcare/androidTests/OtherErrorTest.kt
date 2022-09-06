@@ -6,15 +6,18 @@ import android.view.KeyEvent
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
-import androidx.test.espresso.Espresso.*
+import androidx.test.espresso.Espresso.onView
+import androidx.test.espresso.action.ViewActions
 import androidx.test.espresso.action.ViewActions.*
 import androidx.test.espresso.contrib.RecyclerViewActions
+import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import junit.framework.Assert.assertTrue
 import org.commcare.annotations.BrowserstackTests
 import org.commcare.dalvik.R
+import org.commcare.utils.CustomMatchers
 import org.commcare.utils.InstrumentationUtility
 import org.commcare.utils.isPresent
 import org.hamcrest.Matcher
@@ -50,27 +53,100 @@ class OtherErrorTest: BaseTest() {
             .perform(click())
         assertTrue(KeyCharacterMap.deviceHasKey(KeyEvent.KEYCODE_ENTER))
         onView(withClassName(endsWith("EditText")))
-            .perform(typeText("Test for"),pressKey(KeyEvent.KEYCODE_ENTER),
+            .perform(typeText("Test for"),
+                pressKey(KeyEvent.KEYCODE_ENTER),
                 typeTextIntoFocusedView("Enter Key"))
         InstrumentationUtility.nextPage()
         onView(withClassName(endsWith("EditText"))).
-            perform(typeText("123"),pressKey(EditorInfo.IME_ACTION_DONE))
+            perform(typeText("123"))
+        assertTrue(KeyCharacterMap.deviceHasKey(EditorInfo.IME_ACTION_DONE))
+        onView(withClassName(endsWith("EditText"))).
+        perform(pressKey(EditorInfo.IME_ACTION_DONE))
         InstrumentationUtility.nextPage()
+        var first = onView(
+            CustomMatchers.find(
+                allOf(withClassName(endsWith("EditText"))),
+                1
+            ))
+        first.perform(typeText("Test 1 for Enter Key"))
+        assertTrue(KeyCharacterMap.deviceHasKey(KeyEvent.KEYCODE_ENTER))
+        onView(isRoot()).perform(closeSoftKeyboard())
+        var second = onView(
+            CustomMatchers.find(
+                allOf(withClassName(endsWith("EditText"))),
+                2
+            ))
+        second.perform(scrollTo(),typeText("Test 2 for Enter Key"))
+        assertTrue(KeyCharacterMap.deviceHasKey(KeyEvent.KEYCODE_ENTER))
+        onView(isRoot()).perform(closeSoftKeyboard())
+        var third = onView(
+            CustomMatchers.find(
+                allOf(withClassName(endsWith("EditText"))),
+                3
+            ))
+        third.perform(scrollTo(), typeText("Test 3 for Enter Key"))
+        assertTrue(KeyCharacterMap.deviceHasKey(KeyEvent.KEYCODE_ENTER))
         InstrumentationUtility.nextPage()
+        onView(
+            CustomMatchers.find(
+                allOf(withClassName(endsWith("EditText"))),
+                1
+            )).perform(typeText("1"),
+            pressKey(EditorInfo.IME_ACTION_NEXT),
+            typeTextIntoFocusedView("2"),
+            pressKey(EditorInfo.IME_ACTION_NEXT),
+            typeTextIntoFocusedView("3"),
+            pressKey(EditorInfo.IME_ACTION_DONE))
         InstrumentationUtility.nextPage()
+        onView(
+            CustomMatchers.find(
+                allOf(withClassName(endsWith("EditText"))),
+                1
+            )).perform(typeText("1.1"),
+            pressKey(EditorInfo.IME_ACTION_NEXT),
+            typeTextIntoFocusedView("2.2"),
+            pressKey(EditorInfo.IME_ACTION_NEXT),
+            typeTextIntoFocusedView("3.3"),
+            pressKey(EditorInfo.IME_ACTION_DONE))
         InstrumentationUtility.nextPage()
+        first = onView(
+            CustomMatchers.find(
+                allOf(withClassName(endsWith("EditText"))),
+                1
+            ))
+        first.perform(typeText("Test 1 for Enter Key"))
+        assertTrue(KeyCharacterMap.deviceHasKey(KeyEvent.KEYCODE_ENTER))
+        onView(isRoot()).perform(closeSoftKeyboard())
+        second = onView(
+            CustomMatchers.find(
+                allOf(withClassName(endsWith("EditText"))),
+                2
+            ))
+        second.perform(scrollTo(),typeText("Test 2 for Enter Key"))
+        assertTrue(KeyCharacterMap.deviceHasKey(KeyEvent.KEYCODE_ENTER))
+        onView(isRoot()).perform(closeSoftKeyboard())
+        third = onView(
+            CustomMatchers.find(
+                allOf(withClassName(endsWith("EditText"))),
+                3
+            ))
+        third.perform(scrollTo(), typeText("Test 3 for Enter Key"), pressKey(EditorInfo.IME_ACTION_DONE))
         InstrumentationUtility.nextPage()
+
         InstrumentationUtility.nextPage()
         onView(withText("A")).perform(click())
-        onView(allOf(withClassName(endsWith("Edittext")))).
-        perform(typeText("1"),
+
+        onView(
+            CustomMatchers.find(
+            allOf(withClassName(endsWith("EditText"))),
+            1
+        )).perform(scrollTo(), typeText("1"),
             pressKey(EditorInfo.IME_ACTION_NEXT),
         typeTextIntoFocusedView("2"),
         pressKey(EditorInfo.IME_ACTION_NEXT),
         typeTextIntoFocusedView("3"),
         pressKey(EditorInfo.IME_ACTION_DONE))
-        InstrumentationUtility.submitForm()
-
+//        InstrumentationUtility.submitForm()
 //            perform(click(),typeText("Second"),pressKey(KeyEvent.KEYCODE_ENTER),
 //            typeTextIntoFocusedView("Enter Key"))
 
