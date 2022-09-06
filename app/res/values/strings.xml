@@ -347,6 +347,9 @@
     <string name="title_data_change_logs_activity" cc:translatable="true">Data Change Logs</string>
     <string name="commcare_logs" cc:translatable="true">CommCare Data Change Logs</string>
 
+    <!--Clear User Data-->
+    <string name="clear_user_data_delete_form" cc:translatable="true">Delete Forms</string>
+
     <!--Incorrect Target Screen-->
     <string name="target_mismatch_lts_required" cc:translatable="true">App Requires CommCare LTS</string>
     <string name="target_mismatch_lts_required_install" cc:translatable="true">Install CommCare LTS</string>
@@ -441,4 +444,10 @@
     <string name="selected_location" cc:translatable="true">Selected Location</string>
     <string name="confirm_location" cc:translatable="true">Confirm location</string>
     <string name="playback_start_time">00:00</string>
+    <string name="dependency_missing_dialog_title" cc:translatable="true">Get Required App</string>
+    <string name="dependency_missing_dialog_title_plural" cc:translatable="true">Get Required Apps</string>
+    <string name="dependency_missing_dialog_message" cc:translatable="true">CommCare needs %s application to be installed on your device before you can continue</string>
+    <string name="dependency_missing_dialog_message_plural" cc:translatable="true">CommCare needs below applications to be installed on your device before you can continue-</string>
+    <string name="dependency_missing_dialog_go_to_store" cc:translatable="true">Install from Store</string>
+    <string name="dependency_missing_dialog_playstore_not_found" cc:translatable="true">No Play Store found on your device</string>
 </resources>

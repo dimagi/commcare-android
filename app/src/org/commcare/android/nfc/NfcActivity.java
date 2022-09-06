@@ -75,10 +75,15 @@ public abstract class NfcActivity extends AppCompatActivity {
      * FLAG_ACTIVITY_SINGLE_TOP makes it so that onNewIntent() can be called in this activity when
      * the intent is started.
      **/
+    @SuppressLint("UnspecifiedImmutableFlag")
     protected void createPendingRestartIntent() {
         Intent i = new Intent(this, getClass());
         i.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-        this.pendingNfcIntent = PendingIntent.getActivity(this, 0, i, 0);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+            this.pendingNfcIntent = PendingIntent.getActivity(this, 0, i, PendingIntent.FLAG_IMMUTABLE);
+        else
+            this.pendingNfcIntent = PendingIntent.getActivity(this, 0, i,0);
     }
 
     @Override
