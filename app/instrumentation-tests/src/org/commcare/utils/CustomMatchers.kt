@@ -52,15 +52,15 @@ object CustomMatchers {
      * NOTE:- position is 1 based.
      */
     @JvmStatic
-    fun <T> find(matcher: Matcher<T>, position: Int): Matcher<T> {
+    fun <T>  find(matcher: Matcher<T>, position: Int): Matcher<T> {
         return object : BaseMatcher<T>() {
             var count = 0
+            var viewHash: Int? = null
             override fun matches(item: Any): Boolean {
-                if (matcher.matches(item)) {
-                    count++
-                    return count == position
+                if (matcher.matches(item) && ++count == position) {
+                    viewHash = item.hashCode()
                 }
-                return false
+                return item.hashCode() == viewHash
             }
 
             override fun describeTo(description: Description) {
