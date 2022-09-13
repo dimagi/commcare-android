@@ -2,13 +2,16 @@ package org.commcare.androidTests
 
 
 import android.content.Intent
+import android.os.Build
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions
 import androidx.test.espresso.action.ViewActions.click
+import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
 import org.commcare.CommCareApplication
@@ -17,6 +20,7 @@ import org.commcare.dalvik.R
 import org.commcare.utils.CustomMatchers
 import org.commcare.utils.InstrumentationUtility
 import org.commcare.utils.isPresent
+import org.hamcrest.CoreMatchers
 import org.hamcrest.Matchers.`is`
 import org.hamcrest.Matchers.allOf
 import org.junit.After
@@ -48,39 +52,28 @@ class LazyVideosTests : BaseTest() {
 
     @Test
     fun testVideosWithReferences() {
-        testVideosWithValidReference()
+//        testVideosWithValidReference()
         testVideosWithNoReferences()
     }
 
-    fun testVideosWithValidReference() {
+    private fun testVideosWithValidReference() {
         InstrumentationUtility.login("test1", "123")
         InstrumentationUtility.openForm(1, 0)
         InstrumentationUtility.waitForView(withId(R.id.video_button))
-
-        onView(CustomMatchers.withDrawable(
-                CommCareApplication.instance(),
-                R.drawable.update_download_icon
-            )
-        ).isPresent()
-
+        onView(withTagValue(CoreMatchers.`is`(R.drawable.update_download_icon))).check(matches(isDisplayed()))
         if (onView(withText(R.string.video_download_prompt)).isPresent()) {
             onView(withId(R.id.video_button)).perform(click())
-            onView(withSubstring("Download started")).isPresent()
+            onView(withSubstring("Download started")).check(matches(isDisplayed()))
             InstrumentationUtility.waitForView(withText("Download complete"))
-            onView(
-                CustomMatchers.withDrawable(
-                    CommCareApplication.instance(),
-                    android.R.drawable.ic_media_play
-                )
-            ).isPresent();
+            onView(withTagValue(CoreMatchers.`is`(android.R.drawable.ic_media_play))).check(matches(isDisplayed()))
         } else {
             InstrumentationUtility.stubIntentWithAction(Intent.ACTION_VIEW)
             onView(withId(R.id.video_button)).perform(click())
             InstrumentationUtility.nextPage()
         }
-        Thread.sleep(5000)
         assertTrue(onView(allOf(withId(R.id.inline_video_view))).isPresent())
         InstrumentationUtility.nextPage()
+        onView(withTagValue(CoreMatchers.`is`(android.R.drawable.ic_media_play))).check(matches(isDisplayed()))
         onView(
             CustomMatchers.withDrawable(
                 CommCareApplication.instance(),
@@ -106,17 +99,12 @@ class LazyVideosTests : BaseTest() {
         InstrumentationUtility.logout()
     }
 
-    fun testVideosWithNoReferences() {
-        val uiDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+    private fun testVideosWithNoReferences() {
+        UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
         InstrumentationUtility.login("test1", "123")
         InstrumentationUtility.openForm(1, 1)
-        onView(withText("Video file is missing for this question, click the download button above to download")).isPresent()
-        onView(
-            CustomMatchers.withDrawable(
-                CommCareApplication.instance(),
-                R.drawable.update_download_icon
-            )
-        ).isPresent()
+        InstrumentationUtility.waitForView(withText(R.string.video_download_prompt))
+        onView(withTagValue(CoreMatchers.`is`(R.drawable.update_download_icon))).check(matches(isDisplayed()))
         InstrumentationUtility.stubIntentWithAction(Intent.ACTION_SEND)
         onView(withId(R.id.video_button)).perform(click())
         InstrumentationUtility.waitForView(withText(R.string.download_complete))
@@ -124,7 +112,6 @@ class LazyVideosTests : BaseTest() {
         InstrumentationUtility.nextPage()
         assertTrue(onView(withId(R.id.missing_media_view)).isPresent())
         InstrumentationUtility.submitForm()
-        assertTrue(onView(ViewMatchers.withText("1 form sent to server!")).isPresent())
-
+        assertTrue(onView(withText("1 form sent to server!")).isPresent())
     }
 }
