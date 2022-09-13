@@ -395,7 +395,7 @@
 
         <receiver
             android:name="org.commcare.provider.ExternalApiReceiver"
-            android:exported="false">
+            android:exported="true">
             <intent-filter>
                 <action android:name="org.commcare.dalvik.api.action.ExternalAction"/>
                 <category android:name="android.intent.category.DEFAULT"/>
