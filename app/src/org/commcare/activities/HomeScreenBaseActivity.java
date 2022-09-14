@@ -1060,7 +1060,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
             Intent i = new Intent(getApplicationContext(), PostRequestActivity.class);
             i.putExtra(PostRequestActivity.URL_KEY, postRequest.getUrl());
             i.putExtra(PostRequestActivity.PARAMS_KEY,
-                    new HashMap<>(postRequest.getEvaluatedParams(asw.getEvaluationContext())));
+                    new HashMap<>(postRequest.getEvaluatedParams(asw.getEvaluationContext(), false)));
 
             startActivityForResult(i, MAKE_REMOTE_POST);
         } else {
