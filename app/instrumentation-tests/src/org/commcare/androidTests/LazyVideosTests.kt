@@ -97,7 +97,6 @@ class LazyVideosTests : BaseTest() {
         InstrumentationUtility.waitForView(withSubstring("Download in Progress"))
         InstrumentationUtility.waitForView(withSubstring("Download complete"))
         InstrumentationUtility.waitForView(withTagValue(CoreMatchers.`is`(android.R.drawable.ic_media_play)))
-//        }
         InstrumentationUtility.stubIntentWithAction(Intent.ACTION_VIEW)
         onView(withId(R.id.video_button)).perform(click())
         InstrumentationUtility.nextPage()
