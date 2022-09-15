@@ -140,7 +140,6 @@ class LazyVideosTests : BaseTest() {
         InstrumentationUtility.openForm(1, 1)
         InstrumentationUtility.waitForView(withText(R.string.video_download_prompt))
         onView(withTagValue(CoreMatchers.`is`(R.drawable.update_download_icon))).check(matches(isDisplayed()))
-        InstrumentationUtility.stubIntentWithAction(Intent.ACTION_SEND)
         onView(withId(R.id.video_button)).perform(click())
         InstrumentationUtility.waitForView(withText(R.string.download_complete))
         InstrumentationUtility.waitForView(withText("Media not found in the application"))
