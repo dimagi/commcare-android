@@ -39,17 +39,20 @@ import org.junit.runner.RunWith
 class LazyVideosTests : BaseTest() {
 
     companion object {
-        const val CCZ_NAME = "lazy_videos_tests.ccz"
+        const val CCZ_NAME = "lazy_videos_no_videos.ccz"
         const val APP_NAME = "Lazy Videos"
     }
 
     @Before
     fun setup() {
-        InstrumentationUtility.uninstallCurrentApp()
-        InstrumentationUtility.installApp(CCZ_NAME)
+        if (CommCareApplication.instance().currentApp == null) {
+            InstrumentationUtility.installApp(CCZ_NAME)
+        } else {
+            InstrumentationUtility.uninstallCurrentApp()
+            InstrumentationUtility.installApp(CCZ_NAME)
+        }
         Espresso.pressBack()
         updateApp()
-
     }
 
     @After
@@ -87,15 +90,14 @@ class LazyVideosTests : BaseTest() {
         InstrumentationUtility.login("test1", "123")
         InstrumentationUtility.openForm(1, 0)
         InstrumentationUtility.waitForView(withId(R.id.video_button))
-        if ((onView(withTagValue(CoreMatchers.`is`(R.drawable.update_download_icon))).isPresent())
-            or (onView(withText(R.string.video_download_prompt)).isPresent())) {
-            InstrumentationUtility.stubIntentWithAction(Intent.ACTION_SEND)
-            onView(withTagValue(CoreMatchers.`is`(R.drawable.update_download_icon))).perform(click())
-            onView(withId(R.id.video_button)).perform(click())
-            InstrumentationUtility.waitForView(withSubstring("Download in Progress"))
-            InstrumentationUtility.waitForView(withSubstring("Download complete"))
-            InstrumentationUtility.waitForView(withTagValue(CoreMatchers.`is`(android.R.drawable.ic_media_play)))
-        }
+        onView(withTagValue(CoreMatchers.`is`(R.drawable.update_download_icon))).check(matches(isDisplayed()))
+        InstrumentationUtility.stubIntentWithAction(Intent.ACTION_SEND)
+        onView(withTagValue(CoreMatchers.`is`(R.drawable.update_download_icon))).perform(click())
+        onView(withId(R.id.video_button)).perform(click())
+        InstrumentationUtility.waitForView(withSubstring("Download in Progress"))
+        InstrumentationUtility.waitForView(withSubstring("Download complete"))
+        InstrumentationUtility.waitForView(withTagValue(CoreMatchers.`is`(android.R.drawable.ic_media_play)))
+//        }
         InstrumentationUtility.stubIntentWithAction(Intent.ACTION_VIEW)
         onView(withId(R.id.video_button)).perform(click())
         InstrumentationUtility.nextPage()
