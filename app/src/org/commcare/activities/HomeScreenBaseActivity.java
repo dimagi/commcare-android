@@ -26,6 +26,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.preference.PreferenceManager;
 
 import com.google.android.play.core.install.model.InstallErrorCode;
+import com.google.common.collect.ArrayListMultimap;
 
 import org.apache.commons.lang3.StringUtils;
 import org.commcare.CommCareApplication;
@@ -104,7 +105,6 @@ import org.javarosa.xpath.XPathTypeMismatchException;
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Vector;
 
@@ -1060,7 +1060,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
             Intent i = new Intent(getApplicationContext(), PostRequestActivity.class);
             i.putExtra(PostRequestActivity.URL_KEY, postRequest.getUrl());
             i.putExtra(PostRequestActivity.PARAMS_KEY,
-                    new HashMap<>(postRequest.getEvaluatedParams(asw.getEvaluationContext(), false)));
+                    (ArrayListMultimap)postRequest.getEvaluatedParams(asw.getEvaluationContext(), false));
 
             startActivityForResult(i, MAKE_REMOTE_POST);
         } else {
