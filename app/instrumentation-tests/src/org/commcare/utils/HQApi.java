@@ -2,6 +2,9 @@ package org.commcare.utils;
 
 import android.util.Log;
 import androidx.test.platform.app.InstrumentationRegistry;
+
+import com.google.common.collect.ArrayListMultimap;
+
 import org.commcare.core.network.AuthInfo;
 import org.commcare.core.network.CommCareNetworkService;
 import org.commcare.core.network.CommCareNetworkServiceGenerator;
@@ -320,7 +323,8 @@ public class HQApi {
                 CommCareNetworkServiceGenerator.createCommCareNetworkService(
                         HttpUtils.getCredential(authInfo),
                         true,
-                        true);
+                        true,
+                        ArrayListMultimap.create());
         return networkService;
     }
 }

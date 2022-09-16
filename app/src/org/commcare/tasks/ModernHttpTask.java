@@ -2,6 +2,9 @@ package org.commcare.tasks;
 
 import android.content.Context;
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
+
 import org.commcare.CommCareApplication;
 import org.commcare.core.interfaces.HttpResponseProcessor;
 import org.commcare.core.interfaces.ResponseStreamAccessor;
@@ -38,21 +41,39 @@ public class ModernHttpTask
 
     // Use for GET request
     public ModernHttpTask(Context context, String url, HashMap<String, String> params,
+                          Multimap<String, String> multiParams,
                           HashMap<String, String> headers,
                           AuthInfo authInfo) {
-        this(context, url, params, headers, null, HTTPMethod.GET, authInfo);
+        this(context, url, params, multiParams, headers, null, HTTPMethod.GET, authInfo);
+    }
+
+    // Use for GET request without multi-valued params
+    public ModernHttpTask(Context context, String url, HashMap<String, String> params,
+            HashMap<String, String> headers,
+            AuthInfo authInfo) {
+        this(context, url, params, ArrayListMultimap.create(), headers, null, HTTPMethod.GET, authInfo);
     }
 
     public ModernHttpTask(Context context, String url, HashMap<String, String> params,
-                          HashMap<String, String> headers,
-                          @Nullable RequestBody requestBody,
-                          HTTPMethod method,
-                          AuthInfo authInfo) {
+            HashMap<String, String> headers,
+            @Nullable RequestBody requestBody,
+            HTTPMethod method,
+            AuthInfo authInfo) {
+        this(context, url, params, ArrayListMultimap.create(), headers, requestBody, method, authInfo);
+    }
+
+    public ModernHttpTask(Context context, String url, HashMap<String, String> params,
+            Multimap<String, String> multiParams,
+            HashMap<String, String> headers,
+            @Nullable RequestBody requestBody,
+            HTTPMethod method,
+            AuthInfo authInfo) {
         taskId = SIMPLE_HTTP_TASK_ID;
         requester = CommCareApplication.instance().buildHttpRequester(
                 context,
                 url,
                 params,
+                multiParams,
                 headers,
                 requestBody,
                 null,

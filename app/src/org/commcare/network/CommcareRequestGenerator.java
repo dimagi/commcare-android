@@ -1,9 +1,9 @@
 package org.commcare.network;
 
-import android.content.pm.PackageManager;
 import android.net.Uri;
 
-import org.commcare.AppUtils;
+import com.google.common.collect.ArrayListMultimap;
+
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.core.network.AuthInfo;
@@ -225,6 +225,7 @@ public class CommcareRequestGenerator implements CommcareRequestEndpoints {
                 CommCareApplication.instance(),
                 url,
                 queryParams,
+                ArrayListMultimap.create(),
                 getHeaders(getSyncToken(username)),
                 null,
                 parts,
