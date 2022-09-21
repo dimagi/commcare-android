@@ -24,8 +24,7 @@ import org.commcare.utils.CustomMatchers
 import org.commcare.utils.InstrumentationUtility
 import org.commcare.utils.isPresent
 import org.hamcrest.CoreMatchers
-import org.hamcrest.Matchers.`is`
-import org.hamcrest.Matchers.allOf
+import org.hamcrest.Matchers.*
 import org.junit.After
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -93,12 +92,12 @@ class LazyVideosTests : BaseTest() {
         onView(withTagValue(CoreMatchers.`is`(R.drawable.update_download_icon))).check(matches(isDisplayed()))
         InstrumentationUtility.stubIntentWithAction(Intent.ACTION_SEND)
         onView(withTagValue(CoreMatchers.`is`(R.drawable.update_download_icon))).perform(click())
-        InstrumentationUtility.sleep(1)
-        InstrumentationUtility.waitForView(withSubstring("Download started"))
-        InstrumentationUtility.sleep(2)
-        InstrumentationUtility.waitForView(withSubstring("Download in Progress"))
-        InstrumentationUtility.sleep(5)
-        InstrumentationUtility.waitForView(withSubstring("Download complete"))
+//        InstrumentationUtility.sleep(1)
+        InstrumentationUtility.waitForView(withSubstring("Download started"),5000)
+//        InstrumentationUtility.sleep(2)
+        InstrumentationUtility.waitForView(withSubstring("Download in Progress"), 5000)
+//        InstrumentationUtility.sleep(2)
+        InstrumentationUtility.waitForView(withSubstring("Download complete"), 5000)
         InstrumentationUtility.waitForView(withTagValue(CoreMatchers.`is`(android.R.drawable.ic_media_play)))
         InstrumentationUtility.stubIntentWithAction(Intent.ACTION_VIEW)
         onView(withId(R.id.video_button)).perform(click())
@@ -117,15 +116,15 @@ class LazyVideosTests : BaseTest() {
                 R.drawable.icon_info_outline_lightcool
             )
         ).perform(click())
-        if(onView(withTagValue(CoreMatchers.`is`(R.drawable.update_download_icon))).isPresent()){
-            onView(withTagValue(CoreMatchers.`is`(R.drawable.update_download_icon))).perform(click())
-            InstrumentationUtility.sleep(1)
-            InstrumentationUtility.waitForView(withSubstring("Download started"))
-            InstrumentationUtility.sleep(2)
-            InstrumentationUtility.waitForView(withSubstring("Download in Progress"))
-            InstrumentationUtility.sleep(2)
-            InstrumentationUtility.waitForView(withSubstring("Download complete"))
-        }
+//        if(onView(withTagValue(CoreMatchers.`is`(R.drawable.update_download_icon))).isPresent()){
+        onView(withTagValue(CoreMatchers.`is`(R.drawable.update_download_icon))).perform(click())
+//        InstrumentationUtility.sleep(1)
+        InstrumentationUtility.waitForView(withSubstring("Download started"),5000)
+//        InstrumentationUtility.sleep(2)
+        InstrumentationUtility.waitForView(withSubstring("Download in Progress"), 5000)
+//        InstrumentationUtility.sleep(2)
+        InstrumentationUtility.waitForView(withSubstring("Download complete"), 5000)
+//        }
         onView(withTagValue(CoreMatchers.`is`(android.R.drawable.ic_media_play))).check(matches(isDisplayed()))
         InstrumentationUtility.stubIntentWithAction(Intent.ACTION_VIEW)
         onView(withId(R.id.video_button)).perform(click())
@@ -138,15 +137,15 @@ class LazyVideosTests : BaseTest() {
                 R.drawable.icon_info_outline_lightcool
             )
         ).perform(click())
-        if(onView(withTagValue(CoreMatchers.`is`(R.drawable.update_download_icon))).isPresent()){
-            onView(withTagValue(CoreMatchers.`is`(R.drawable.update_download_icon))).perform(click())
-            InstrumentationUtility.sleep(1)
-            InstrumentationUtility.waitForView(withSubstring("Download started"))
-            InstrumentationUtility.sleep(2)
-            InstrumentationUtility.waitForView(withSubstring("Download in Progress"))
-            InstrumentationUtility.sleep(2)
-            InstrumentationUtility.waitForView(withSubstring("Download complete"))
-        }
+//        if(onView(withTagValue(CoreMatchers.`is`(R.drawable.update_download_icon))).isPresent()){
+        onView(withTagValue(CoreMatchers.`is`(R.drawable.update_download_icon))).perform(click())
+//        InstrumentationUtility.sleep(1)
+        InstrumentationUtility.waitForView(withSubstring("Download started"),5000)
+//        InstrumentationUtility.sleep(2)
+        InstrumentationUtility.waitForView(withSubstring("Download in Progress"), 5000)
+//        InstrumentationUtility.sleep(2)
+        InstrumentationUtility.waitForView(withSubstring("Download complete"), 5000)
+//        }
         onView(withTagValue(CoreMatchers.`is`(android.R.drawable.ic_media_play))).check(matches(isDisplayed()))
         InstrumentationUtility.stubIntentWithAction(Intent.ACTION_VIEW)
         onView(withId(R.id.video_button)).perform(click())
