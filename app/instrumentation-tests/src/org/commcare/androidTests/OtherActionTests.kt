@@ -51,14 +51,14 @@ class OtherActionTests: BaseTest() {
         InstrumentationUtility.openForm(0, 3)
         onView(withClassName(endsWith("EditText")))
             .perform(click())
-         assertTrue(KeyCharacterMap.deviceHasKey(KeyEvent.KEYCODE_ENTER))
+        assertTrue(KeyCharacterMap.deviceHasKey(KeyEvent.KEYCODE_ENTER))
         onView(withClassName(endsWith("EditText")))
             .perform(typeText("Test for"),
                 pressKey(KeyEvent.KEYCODE_ENTER),
                 typeTextIntoFocusedView("Enter Key"))
         InstrumentationUtility.nextPage()
         onView(withClassName(endsWith("EditText"))).
-            perform(typeText("123"))
+        perform(typeText("123"))
         assertTrue(KeyCharacterMap.deviceHasKey(EditorInfo.IME_ACTION_DONE))
         onView(withClassName(endsWith("EditText"))).
         perform(pressKey(EditorInfo.IME_ACTION_DONE))
@@ -210,9 +210,9 @@ class OtherActionTests: BaseTest() {
 
         first = onView(
             CustomMatchers.find(
-            allOf(withClassName(endsWith("EditText"))),
-            1
-        ))
+                allOf(withClassName(endsWith("EditText"))),
+                1
+            ))
         first.perform(scrollTo(), typeText("1"))
         assertTrue(KeyCharacterMap.deviceHasKey(EditorInfo.IME_ACTION_NEXT))
         onView(isRoot()).perform(closeSoftKeyboard())
