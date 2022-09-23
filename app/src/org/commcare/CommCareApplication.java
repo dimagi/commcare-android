@@ -1149,16 +1149,15 @@ public class CommCareApplication extends MultiDexApplication {
     }
 
 
-    public ModernHttpRequester createGetRequester(Context context, String url, Map<String, String> params,
+    public ModernHttpRequester createGetRequester(Context context, String url, Multimap<String, String> params,
                                                   HashMap headers, AuthInfo authInfo,
                                                   @Nullable HttpResponseProcessor responseProcessor) {
-        return buildHttpRequester(context, url, params, ArrayListMultimap.create(), headers, null, null,
+        return buildHttpRequester(context, url, params, headers, null, null,
                 HTTPMethod.GET, authInfo, responseProcessor, true);
     }
 
     public ModernHttpRequester buildHttpRequester(Context context, String url,
-                                                  Map<String, String> params,
-                                                  Multimap<String, String> multiParams,
+                                                  Multimap<String, String> params,
                                                   HashMap headers, RequestBody requestBody,
                                                   List<MultipartBody.Part> parts,
                                                   HTTPMethod method,
@@ -1171,12 +1170,11 @@ public class CommCareApplication extends MultiDexApplication {
         } else {
             networkService = CommCareNetworkServiceGenerator.createCommCareNetworkService(
                     HttpUtils.getCredential(authInfo),
-                    DeveloperPreferences.isEnforceSecureEndpointEnabled(), retry, multiParams);
+                    DeveloperPreferences.isEnforceSecureEndpointEnabled(), retry, params);
         }
 
         return new ModernHttpRequester(new AndroidCacheDirSetup(context),
                 url,
-                params,
                 headers,
                 requestBody,
                 parts,

@@ -25,6 +25,9 @@ import java.util.TimeZone;
 
 import androidx.work.WorkManager;
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
+
 /**
  * Responsible for making a heartbeat request to the server when signaled to do so by the current
  * session's HeartbeatLifecycleManager, and then parsing and handling the response. Currently,
@@ -53,8 +56,8 @@ public class HeartbeatRequester extends GetAndParseActor {
     }
 
     @Override
-    public HashMap<String, String> getRequestParams() {
-        HashMap<String, String> params = new HashMap<>();
+    public Multimap<String, String> getRequestParams() {
+        Multimap<String, String> params = ArrayListMultimap.create();
         params.put(APP_ID, CommCareApplication.instance().getCurrentApp().getUniqueId());
         params.put(DEVICE_ID, CommCareApplication.instance().getPhoneId());
         params.put(APP_VERSION, String.valueOf(ReportingUtils.getAppBuildNumber()));

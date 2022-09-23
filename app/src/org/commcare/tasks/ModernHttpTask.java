@@ -40,30 +40,13 @@ public class ModernHttpTask
     private Response<ResponseBody> mResponse;
 
     // Use for GET request
-    public ModernHttpTask(Context context, String url, HashMap<String, String> params,
-                          Multimap<String, String> multiParams,
+    public ModernHttpTask(Context context, String url, Multimap<String, String> params,
                           HashMap<String, String> headers,
                           AuthInfo authInfo) {
-        this(context, url, params, multiParams, headers, null, HTTPMethod.GET, authInfo);
+        this(context, url, params, headers, null, HTTPMethod.GET, authInfo);
     }
 
-    // Use for GET request without multi-valued params
-    public ModernHttpTask(Context context, String url, HashMap<String, String> params,
-            HashMap<String, String> headers,
-            AuthInfo authInfo) {
-        this(context, url, params, ArrayListMultimap.create(), headers, null, HTTPMethod.GET, authInfo);
-    }
-
-    public ModernHttpTask(Context context, String url, HashMap<String, String> params,
-            HashMap<String, String> headers,
-            @Nullable RequestBody requestBody,
-            HTTPMethod method,
-            AuthInfo authInfo) {
-        this(context, url, params, ArrayListMultimap.create(), headers, requestBody, method, authInfo);
-    }
-
-    public ModernHttpTask(Context context, String url, HashMap<String, String> params,
-            Multimap<String, String> multiParams,
+    public ModernHttpTask(Context context, String url, Multimap<String, String> params,
             HashMap<String, String> headers,
             @Nullable RequestBody requestBody,
             HTTPMethod method,
@@ -73,7 +56,6 @@ public class ModernHttpTask
                 context,
                 url,
                 params,
-                multiParams,
                 headers,
                 requestBody,
                 null,

@@ -4,6 +4,8 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 
+import com.google.common.collect.Multimap;
+
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.core.interfaces.HttpResponseProcessor;
@@ -53,7 +55,7 @@ public abstract class GetAndParseActor {
         requester.makeRequestAndProcess();
     }
 
-    public abstract HashMap<String, String> getRequestParams();
+    public abstract Multimap<String, String> getRequestParams();
 
     public abstract AuthInfo getAuth();
 

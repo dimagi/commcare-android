@@ -1,5 +1,8 @@
 package org.commcare.android.javarosa;
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
+
 import org.commcare.CommCareApplication;
 import org.commcare.network.CommcareRequestGenerator;
 import org.commcare.services.CommCareSessionService;
@@ -27,7 +30,7 @@ import retrofit2.Response;
 public class AndroidXFormHttpRequester implements FormSendCalloutHandler {
 
     @Override
-    public String performHttpCalloutForResponse(String url, Map<String, String> paramMap) {
+    public String performHttpCalloutForResponse(String url, Multimap<String, String> paramMap) {
         CommcareRequestGenerator generator;
         try {
             CommCareSessionService session = CommCareApplication.instance().getSession();
@@ -39,7 +42,7 @@ public class AndroidXFormHttpRequester implements FormSendCalloutHandler {
         }
 
         if (paramMap == null) {
-            paramMap = new HashMap<>();
+            paramMap = ArrayListMultimap.create();
         }
 
         try {

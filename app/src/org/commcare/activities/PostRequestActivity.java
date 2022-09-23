@@ -7,6 +7,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.google.common.collect.ImmutableMultimap;
+
 import org.commcare.core.network.AuthInfo;
 import org.commcare.core.network.AuthenticationInterceptor;
 import org.commcare.core.network.HTTPMethod;
@@ -111,7 +113,7 @@ public class PostRequestActivity
             if (!hasTaskLaunched && !inErrorState) {
                 RequestBody requestBody = ModernHttpRequester.getPostBody(params);
                 ModernHttpTask postTask =
-                        new ModernHttpTask(this, url.toString(), new HashMap(),
+                        new ModernHttpTask(this, url.toString(), ImmutableMultimap.of(),
                                 getContentHeadersForXFormPost(requestBody), requestBody,
                                 HTTPMethod.POST, new AuthInfo.CurrentAuth());
                 postTask.connect((CommCareTaskConnector)this);
