@@ -4,6 +4,7 @@ import android.util.Log;
 import androidx.test.platform.app.InstrumentationRegistry;
 
 import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.ImmutableMultimap;
 
 import org.commcare.core.network.AuthInfo;
 import org.commcare.core.network.CommCareNetworkService;
@@ -324,7 +325,7 @@ public class HQApi {
                         HttpUtils.getCredential(authInfo),
                         true,
                         true,
-                        ArrayListMultimap.create());
+                        ImmutableMultimap.of());
         return networkService;
     }
 }
