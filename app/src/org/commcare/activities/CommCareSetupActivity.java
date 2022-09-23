@@ -163,9 +163,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         fromManager = getIntent().getBooleanExtra(AppManagerActivity.KEY_LAUNCH_FROM_MANAGER, false);
-
         if (checkForMultipleAppsViolation()) {
             return;
         }
@@ -760,6 +758,9 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             Intent i = new Intent(getIntent());
             setResult(RESULT_OK, i);
         }
+        else
+            fail(Localization.get("install.invalid.launch"));
+
         finish();
     }
 
