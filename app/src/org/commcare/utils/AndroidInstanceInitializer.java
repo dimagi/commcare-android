@@ -8,6 +8,7 @@ import org.commcare.cases.instance.CaseInstanceTreeElement;
 import org.commcare.cases.ledger.Ledger;
 import org.commcare.core.interfaces.UserSandbox;
 import org.commcare.core.process.CommCareInstanceInitializer;
+import org.commcare.data.xml.VirtualInstances;
 import org.commcare.engine.cases.AndroidIndexedFixtureInstanceTreeElement;
 import org.commcare.engine.cases.AndroidLedgerInstanceTreeElement;
 import org.commcare.models.database.AndroidSandbox;
@@ -70,7 +71,7 @@ public class AndroidInstanceInitializer extends CommCareInstanceInitializer {
     protected InstanceRoot setupFixtureData(ExternalDataInstance instance) {
         AbstractTreeElement indexedFixture = AndroidIndexedFixtureInstanceTreeElement.get(
                 mSandbox,
-                getRefId(instance.getReference()),
+                VirtualInstances.getReferenceId(instance.getReference()),
                 instance.getBase());
 
         if (indexedFixture != null) {

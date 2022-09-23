@@ -219,7 +219,7 @@ public class PostRequestActivityTest {
         Pair<ExternalDataInstance, String> instanceOrError =
                 remoteQuerySessionManager.buildExternalDataInstance(is, resultsPath, ArrayListMultimap.create());
         session.setQueryDatum(instanceOrError.first);
-        session.setDatum("case_id", "321");
+        session.setEntityDatum("case_id", "321");
 
         ShadowActivity shadowActivity =
                 ActivityLaunchUtils.buildHomeActivity();

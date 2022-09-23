@@ -47,7 +47,7 @@ public class CyclicCasesPurgeTest {
         AndroidSessionWrapper sessionWrapper =
                 CommCareApplication.instance().getCurrentSessionWrapper();
         CommCareSession session = sessionWrapper.getSession();
-        session.setDatum("case_id", "fe9adf5c-7661-4f8e-a48e-4059fcf1f9dd");
+        session.setEntityDatum("case_id", "fe9adf5c-7661-4f8e-a48e-4059fcf1f9dd");
         session.setCommand("m2-f0");
 
         // Completes a form that create a cycle in case indices
