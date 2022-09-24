@@ -754,7 +754,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                 Intent i = new Intent(getApplicationContext(), DispatchActivity.class);
                 startActivity(i);
             }
-        } else if (getCallingActivity().getPackageName().startsWith(BuildConfig.APPLICATION_ID)){
+        } else if (getCallingActivity()!= null && getCallingActivity().getPackageName().equals(BuildConfig.APPLICATION_ID)){
             Intent i = new Intent(getIntent());
             setResult(RESULT_OK, i);
         }
