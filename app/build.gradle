@@ -32,9 +32,6 @@ configurations {
 }
 
 dependencies {
-    // debugImplementation because LeakCanary should only run in debug builds.
-    debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.7'
-
     testImplementation 'junit:junit:4.12'
     testImplementation('org.robolectric:robolectric:4.5.1') {
         exclude(group: 'org.bouncycastle', module: 'bcprov-jdk15on')
