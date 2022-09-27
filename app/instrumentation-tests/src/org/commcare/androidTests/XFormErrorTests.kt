@@ -34,7 +34,7 @@ import java.util.*
 @RunWith(AndroidJUnit4::class)
 @LargeTest
 @BrowserstackTests
-class OtherErrorTests: BaseTest() {
+class XFormErrorTests: BaseTest() {
     companion object {
         const val CCZ_NAME = "other.ccz"
         const val APP_NAME = "Other Test"
