@@ -108,7 +108,7 @@ class DeveloperOptionsTests : BaseTest() {
         InstrumentationUtility.openForm(0,0)
         onView(withId(R.id.image)).check(isAbove(withSubstring("Enter a Name")))
         onView(withClassName(endsWith("EditText"))).perform(typeText("Image above text"))
-        InstrumentationUtility.submitForm()
+        InstrumentationUtility.exitForm(R.string.do_not_save)
         InstrumentationUtility.gotoHome()
     }
     fun testImageBelowText(){
@@ -125,7 +125,7 @@ class DeveloperOptionsTests : BaseTest() {
         InstrumentationUtility.openForm(0,0)
         onView(withId(R.id.image)).check(isBelow(withSubstring("Enter a Name")))
         onView(withClassName(endsWith("EditText"))).perform(typeText("Image below text"))
-        InstrumentationUtility.submitForm()
+        InstrumentationUtility.exitForm(R.string.do_not_save)
         InstrumentationUtility.gotoHome()
     }
 
