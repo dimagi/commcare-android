@@ -28,6 +28,10 @@
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+<!--    <uses-permission-->
+<!--        xmlns:android="http://schemas.android.com/apk/res/android"-->
+<!--        android:name="android.permission.WRITE_SETTINGS"-->
+<!--        tools:ignore="ProtectedPermissions"/>-->
 
 
     <uses-feature

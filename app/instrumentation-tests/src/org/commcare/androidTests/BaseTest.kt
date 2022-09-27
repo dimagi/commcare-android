@@ -30,7 +30,9 @@ abstract class BaseTest {
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
             Manifest.permission.READ_EXTERNAL_STORAGE,
             Manifest.permission.RECORD_AUDIO,
-            Manifest.permission.CAMERA
+            Manifest.permission.CAMERA,
+            Manifest.permission.WRITE_SETTINGS,
+            Manifest.permission.WRITE_SECURE_SETTINGS
     )
 
     protected open fun installApp(appName: String, ccz: String, force: Boolean = false) {
