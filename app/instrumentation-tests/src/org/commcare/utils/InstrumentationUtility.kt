@@ -9,12 +9,14 @@ import android.net.wifi.WifiManager
 import android.os.Build
 import android.os.RemoteException
 import android.provider.MediaStore
+import android.view.KeyEvent
 import android.view.View
 import android.widget.ListView
 import android.widget.TextView
 import androidx.annotation.IdRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.preference.PreferenceManager
+
 import androidx.test.espresso.*
 import androidx.test.espresso.Espresso.*
 import androidx.test.espresso.action.ViewActions.*
@@ -24,7 +26,7 @@ import androidx.test.espresso.intent.Intents.intending
 import androidx.test.espresso.intent.matcher.IntentMatchers
 import androidx.test.espresso.intent.matcher.IntentMatchers.hasAction
 import androidx.test.espresso.matcher.RootMatchers
-import androidx.test.espresso.matcher.ViewMatchers
+
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.espresso.util.HumanReadables
 import androidx.test.espresso.util.TreeIterables
@@ -131,6 +133,19 @@ object InstrumentationUtility {
     fun openForm(module: Int, form: Int) {
         openModule(module)
         clickListItem(R.id.screen_suite_menu_list, form)
+    }
+
+    @JvmStatic
+    fun openGridModule(module: Int) {
+        onView(withText("Start"))
+            .perform(click())
+        clickListItem(R.id.grid_menu_grid, module)
+    }
+
+    @JvmStatic
+    fun openGridForm(module: Int, form: Int) {
+        openGridModule(module)
+        clickListItem(R.id.grid_menu_grid, form)
     }
 
     @JvmStatic
