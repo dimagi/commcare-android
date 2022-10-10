@@ -215,6 +215,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             loadStateFromBundle(savedInstanceState);
         }
 
+
         // Check to see if this is a screen flip or a new form load.
         Object data = this.getLastCustomNonConfigurationInstance();
         if (data instanceof FormLoaderTask) {
@@ -231,6 +232,8 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             uiController.refreshView();
         }
         TextToSpeechConverter.INSTANCE.setListener(mTTSCallback);
+
+        throw new RuntimeException("Oh no, something really bad happened");
     }
 
     @Override
