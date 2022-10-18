@@ -82,6 +82,14 @@
         <intent>
             <action android:name="android.intent.action.TTS_SERVICE" />
         </intent>
+        <intent>
+            <action android:name="android.intent.action.SEND" />
+            <data android:mimeType="*/*" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:mimeType="*/*" android:scheme="*" />
+        </intent>
         <package android:name="com.google.android.apps.maps" />
         <package android:name="org.commcare.dalvik.reminders" />
         <package android:name="callout.commcare.org.sendussd" />
@@ -387,7 +395,7 @@
 
         <receiver
             android:name="org.commcare.provider.ExternalApiReceiver"
-            android:exported="false">
+            android:exported="true">
             <intent-filter>
                 <action android:name="org.commcare.dalvik.api.action.ExternalAction"/>
                 <category android:name="android.intent.category.DEFAULT"/>
