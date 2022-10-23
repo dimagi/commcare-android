@@ -33,9 +33,7 @@ configurations {
 
 dependencies {
     testImplementation 'junit:junit:4.12'
-    testImplementation('org.robolectric:robolectric:4.5.1') {
-        exclude(group: 'org.bouncycastle', module: 'bcprov-jdk15on')
-    }
+    testImplementation 'org.robolectric:robolectric:4.7.1'
     testImplementation 'org.robolectric:shadows-multidex:4.3.1'
     testImplementation 'androidx.test:core:1.4.0'
     testImplementation 'androidx.test:runner:1.4.0'
@@ -134,6 +132,7 @@ dependencies {
 }
 
 ext {
+    // Obtained from ~/.gradle/gradle.properties on build server (mobile agent), or your local
     // Obtained from ~/.gradle/gradle.properties on build server (mobile agent), or your local
     // ~/.gradle/gradle.properties file, or loads default empty strings if neither is present
     MAPBOX_SDK_API_KEY = project.properties['MAPBOX_SDK_API_KEY'] ?: ""
@@ -249,6 +248,8 @@ android {
         targetSdkVersion 31
         multiDexEnabled true
         applicationId "org.commcare.dalvik"
+        testNamespace "org.commcare.dalvik.test"
+
         project.ext.COMMCARE_APP_ID = applicationId
         // set the app name
         def applicationName = "CommCare"
