@@ -52,7 +52,7 @@ public class AndroidLogger implements ILogger {
     @Override
     public void serializeLogs(StreamLogSerializer serializer) throws IOException {
         for (AndroidLogEntry entry : storage) {
-            serializer.serializeLog(entry.getID(), entry);
+            serializer.addLog(entry.getID());
         }
     }
 
@@ -60,7 +60,7 @@ public class AndroidLogger implements ILogger {
     public void serializeLogs(StreamLogSerializer serializer, int limit) throws IOException {
         int count = 0;
         for (AndroidLogEntry entry : storage) {
-            serializer.serializeLog(entry.getID(), entry);
+            serializer.addLog(entry.getID());
             count++;
             if (count > limit) {
                 break;

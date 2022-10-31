@@ -1,19 +1,14 @@
 package org.commcare.logging;
 
-import org.commcare.AppUtils;
-import org.commcare.CommCareApplication;
 import org.commcare.android.javarosa.DeviceReportRecord;
-import org.commcare.models.database.SqlStorage;
-import org.javarosa.core.model.User;
-import org.javarosa.core.model.utils.DateUtils;
-import org.javarosa.core.util.PropertyUtils;
-import org.kxml2.io.KXmlSerializer;
-import org.xmlpull.v1.XmlSerializer;
+import org.commcare.util.JsonUtil;
+import org.javarosa.core.log.LogEntry;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.util.ArrayList;
-import java.util.Date;
+import java.util.PriorityQueue;
 
 /**
  * This class generates and serializes a device report to either a byte array
@@ -22,9 +17,7 @@ import java.util.Date;
  * @author ctsims
  */
 public class DeviceReportWriter {
-    public static final String XMLNS = "http://code.javarosa.org/devicereport";
 
-    private final XmlSerializer serializer;
     private final OutputStream os;
     private final ArrayList<DeviceReportElement> elements = new ArrayList<>();
 
@@ -34,12 +27,6 @@ public class DeviceReportWriter {
 
     public DeviceReportWriter(OutputStream outputStream) throws IOException {
         os = outputStream;
-
-        serializer = new KXmlSerializer();
-        serializer.setOutput(os, "UTF-8");
-        serializer.setPrefix("", XMLNS);
-
-        serializer.setFeature("http://xmlpull.org/v1/doc/features.html#indent-output", true);
     }
 
 
@@ -47,92 +34,60 @@ public class DeviceReportWriter {
         this.elements.add(element);
     }
 
+    class LogEntryModel implements Comparable<LogEntryModel> {
+        LogEntry entry;
+        int index; // Denotes the index of array.
+        LogEntryModel(LogEntry entry, int index) {
+            this.entry = entry;
+            this.index = index;
+        }
+
+        @Override
+        public int compareTo(LogEntryModel logEntryModel) {
+            if (this.entry == null || logEntryModel.entry == null) {
+                return 0;
+            }
+            return this.entry.getTime().compareTo(logEntryModel.entry.getTime());
+        }
+    }
+
     public void write() throws IllegalArgumentException, IllegalStateException, IOException {
         try {
-            serializer.startDocument("UTF-8", null);
-            serializer.startTag(XMLNS, "device_report");
-            try {
-                //All inner elements are supposed to catch their errors and wrap them, so we
-                //can safely catch any of the processing issues
-                try {
-                    writeHeader();
-                } catch (Exception e) {
-                }
-                try {
-                    writeUserReport();
-                } catch (Exception e) {
-                }
-
-                for (DeviceReportElement element : elements) {
-                    try {
-                        element.writeToDeviceReport(serializer);
-                    } catch (Exception e) {
-                    }
-                }
-
-                writeMetaBlock();
-            } finally {
-                serializer.endTag(XMLNS, "device_report");
+            PriorityQueue<LogEntryModel> logEntries = new PriorityQueue<>(elements.size());
+            for (int i = 0; i < elements.size(); i++) {
+                LogEntry entry = elements.get(i).getLogEntry();
+                if (entry == null) { continue; }
+                logEntries.add(new LogEntryModel(entry, i));
             }
 
-            serializer.endDocument();
+            OutputStreamWriter writer = new OutputStreamWriter(os);
+            try {
+                while (!logEntries.isEmpty()) {
+                    LogEntryModel model = logEntries.poll();
+                    if (model == null || model.entry == null) {
+                        continue;
+                    }
+                    writer.write(JsonUtil.getJsonFromObject(model.entry, model.entry.getClass()));
+                    writer.write("\n");
+                    int index = model.index;
+                    LogEntry entry = elements.get(index).getLogEntry();
+                    if (entry == null) {
+                        continue;
+                    }
+                    logEntries.add(new LogEntryModel(entry, index));
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                try {
+                    writer.close();
+                } catch (IOException e) { }
+            }
         } finally {
             try {
                 os.close();
             } catch (IOException e) {
             }
-        }
-    }
-
-    private void writeMetaBlock() throws IllegalArgumentException, IllegalStateException, IOException {
-        serializer.startTag(XMLNS, "meta");
-        writeText("instanceID", PropertyUtils.genUUID());
-        serializer.endTag(XMLNS, "meta");
-    }
-
-    private void writeHeader() throws IllegalArgumentException, IllegalStateException, IOException {
-        CommCareApplication application = CommCareApplication.instance();
-
-        String did = application.getPhoneId();
-        writeText("device_id", did);
-        writeText("report_date", DateUtils.formatDateTime(new Date(), DateUtils.FORMAT_ISO8601));
-        writeText("app_version", AppUtils.getCurrentVersionString());
-    }
-
-    private void writeUserReport() throws IllegalArgumentException, IllegalStateException, IOException {
-        SqlStorage<User> storage = CommCareApplication.instance().getUserStorage(User.STORAGE_KEY, User.class);
-
-        serializer.startTag(XMLNS, "user_subreport");
-
-        try {
-            for (User u : storage) {
-                writeUser(u);
-            }
-        } finally {
-            serializer.endTag(XMLNS, "user_subreport");
-        }
-    }
-
-    private void writeUser(User user) throws IllegalArgumentException, IllegalStateException, IOException {
-        serializer.startTag(XMLNS, "user");
-
-        try {
-            writeText("username", user.getUsername());
-            writeText("user_id", user.getUniqueId());
-            writeText("sync_token", user.getLastSyncToken());
-        } finally {
-            serializer.endTag(XMLNS, "user");
-        }
-    }
-
-    private void writeText(String element, String text) throws IllegalArgumentException, IllegalStateException, IOException {
-        serializer.startTag(XMLNS, element);
-        try {
-            serializer.text(text);
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            serializer.endTag(XMLNS, element);
         }
     }
 }

@@ -51,6 +51,8 @@ public class CommcareRequestGenerator implements CommcareRequestEndpoints {
     private static final String SUBMIT_MODE = "submit_mode";
     private static final String SUBMIT_MODE_DEMO = "demo";
     private static final String QUERY_PARAM_FORCE_LOGS = "force_logs";
+    public static final String LOG_VERSION_KEY = "log_version";
+    public static final String LOG_VERSION_VALUE = "2";
 
     // headers
     private static final String X_OPENROSA_VERSION = "X-OpenRosa-Version";
@@ -272,6 +274,7 @@ public class CommcareRequestGenerator implements CommcareRequestEndpoints {
     public Response<ResponseBody> postLogs(String submissionUrl, List<MultipartBody.Part> parts, boolean forceLogs) throws IOException {
         HashMap<String, String> queryParams = new HashMap<>();
         queryParams.put(QUERY_PARAM_FORCE_LOGS, String.valueOf(forceLogs));
+        queryParams.put(LOG_VERSION_KEY, LOG_VERSION_VALUE);
         return postMultipart(submissionUrl, parts, queryParams);
     }
 }

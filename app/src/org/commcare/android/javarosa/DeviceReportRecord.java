@@ -12,6 +12,7 @@ import org.javarosa.core.model.utils.DateUtils;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.util.Date;
 
@@ -50,7 +51,7 @@ public class DeviceReportRecord extends Persisted implements EncryptedModel {
         slr.fileName = new File(
                 CommCareApplication.instance().getCurrentApp().fsPath((GlobalConstants.FILE_CC_LOGS))
                         + FileUtil.SanitizeFileName(File.separator
-                        + DateUtils.formatDateTime(new Date(), DateUtils.FORMAT_ISO8601)) + ".xml").getAbsolutePath();
+                        + DateUtils.formatDateTime(new Date(), DateUtils.FORMAT_ISO8601)) + ".txt").getAbsolutePath();
         slr.aesKey = CommCareApplication.instance().createNewSymmetricKey().getEncoded();
         return slr;
     }

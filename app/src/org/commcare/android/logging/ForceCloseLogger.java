@@ -29,6 +29,9 @@ import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import retrofit2.Response;
 
+import static org.commcare.network.CommcareRequestGenerator.LOG_VERSION_KEY;
+import static org.commcare.network.CommcareRequestGenerator.LOG_VERSION_VALUE;
+
 /**
  * Catch exceptions that are going to crash the phone, grab the stack trace,
  * and upload to device logs.
@@ -72,7 +75,13 @@ public class ForceCloseLogger {
             e.printStackTrace();
             // Couldn't create a report writer, so just manually create the data we want to send
             String fsDate = new Date().toString();
-            byte[] data = ("<?xml version='1.0' ?><n0:device_report xmlns:n0=\"http://code.javarosa.org/devicereport\"><device_id>FAILSAFE</device_id><report_date>" + fsDate + "</report_date><log_subreport><log_entry date=\"" + fsDate + "\"><entry_type>forceclose</entry_type><entry_message>" + exceptionText + "</entry_message></log_entry></log_subreport></device_report>").getBytes();
+            byte[] data = ("{\"androidVersion\":" + entry.getAndroidVersion()
+                    + ",\"appBuildNumber\":" + entry.getAppBuildNumber()
+                    + ",\"appId\":" + entry.getAppId()
+                    + ",\"deviceModel\":" + entry.getDeviceModel()
+                    + ",\"message\":" + exceptionText
+                    + ",\"time\":" + fsDate
+                    + ",\"type\":\"forceclose\"}").getBytes();
             if (!sendErrorToServer(data, submissionUri)) {
                 writeErrorToStorage(entry);
             }
@@ -110,7 +119,9 @@ public class ForceCloseLogger {
         }
 
         try {
-            Response<ResponseBody> response = generator.postMultipart(submissionUri, parts, new HashMap<>());
+            HashMap<String, String> queryParams = new HashMap<>();
+            queryParams.put(LOG_VERSION_KEY, LOG_VERSION_VALUE);
+            Response<ResponseBody> response = generator.postMultipart(submissionUri, parts, queryParams);
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
             if (response.body() != null) {
                 StreamsUtil.writeFromInputToOutput(response.body().byteStream(), bos);
