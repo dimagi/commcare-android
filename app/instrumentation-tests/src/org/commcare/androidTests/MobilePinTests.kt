@@ -1,11 +1,11 @@
 package org.commcare.androidTests
 
 import androidx.test.espresso.Espresso
-import androidx.test.espresso.Espresso.*
+import androidx.test.espresso.Espresso.onView
+import androidx.test.espresso.Espresso.pressBack
 import androidx.test.espresso.action.ViewActions
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.action.ViewActions.typeText
-import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.RootMatchers
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -16,7 +16,8 @@ import org.commcare.dalvik.R
 import org.commcare.utils.InstrumentationUtility
 import org.commcare.utils.isPresent
 import org.hamcrest.Matchers
-import org.junit.Assert.*
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -25,7 +26,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 @LargeTest
 @BrowserstackTests
-class MobilePinTests: BaseTest() {
+class MobilePinTests : BaseTest() {
     companion object {
         const val CCZ_NAME_1 = "basic_tests_latest.ccz"
         const val CCZ_NAME_2 = "case_managements_tests.ccz"
@@ -40,20 +41,19 @@ class MobilePinTests: BaseTest() {
         } else {
             InstrumentationUtility.uninstallCurrentApp()
             InstrumentationUtility.installApp(CCZ_NAME_1)
-            Espresso.pressBack()
+            pressBack()
         }
         InstrumentationUtility.login("test1", "123")
     }
 
 
-
     @Test
-    fun testMobilePINSetup(){
+    fun testMobilePINSetup() {
         testMobilePINForSingleApp()
         testMobilePINForMultipleApps()
     }
 
-    fun testMobilePINForSingleApp(){
+    fun testMobilePINForSingleApp() {
         enablePIN()
 
         InstrumentationUtility.login("test1", "123")
@@ -161,7 +161,7 @@ class MobilePinTests: BaseTest() {
 
     }
 
-    private fun verifyCreatePINWindow(){
+    private fun verifyCreatePINWindow() {
         assertTrue(onView(withText("YES, SET MY PIN NOW")).isPresent())
         assertTrue(onView(withText("NO, BUT ASK AGAIN ON NEXT LOGIN")).isPresent())
         assertTrue(onView(withText("NO, AND DON'T ASK AGAIN")).isPresent())
@@ -169,7 +169,7 @@ class MobilePinTests: BaseTest() {
     }
 
 
-    private fun enablePIN(){
+    private fun enablePIN() {
         InstrumentationUtility.enableDeveloperMode()
         InstrumentationUtility.openOptionsMenu()
         onView(withText("Settings"))
@@ -192,7 +192,8 @@ class MobilePinTests: BaseTest() {
         InstrumentationUtility.logout()
 
     }
-    private fun setPIN(pin: String){
+
+    private fun setPIN(pin: String) {
         onView(withText("YES, SET MY PIN NOW")).perform(click())
         assertTrue(onView(withText("Enter a 4-digit PIN")).isPresent())
         onView(withClassName(Matchers.endsWith("EditText")))
@@ -205,7 +206,7 @@ class MobilePinTests: BaseTest() {
         InstrumentationUtility.waitForView(withText("PIN set successfully"))
     }
 
-    private fun setNewPIN(newpin: String){
+    private fun setNewPIN(newpin: String) {
         assertTrue(onView(withText("Enter a new 4-digit PIN")).isPresent())
         onView(withId(R.id.pin_entry))
             .perform(ViewActions.typeText((newpin)))
@@ -216,6 +217,7 @@ class MobilePinTests: BaseTest() {
         onView(withText("CONFIRM")).perform(click())
         InstrumentationUtility.waitForView(withText("PIN set successfully"))
     }
+
     fun uninstallApp(cczName: String) {
         InstrumentationUtility.openOptionsMenu()
         onView(withText("Go To App Manager"))
@@ -228,10 +230,8 @@ class MobilePinTests: BaseTest() {
             onView(withText("OK"))
                 .inRoot(RootMatchers.isDialog())
                 .perform(click())
-        }
-        else{
-            Espresso.pressBack()
+        } else {
+            pressBack()
         }
     }
-
 }
