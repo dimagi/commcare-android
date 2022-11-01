@@ -34,7 +34,7 @@ class ApkDependenciesTest : BaseTest() {
 
     @Test
     fun testAppDependenciesCheck() {
-        InstrumentationUtility.installApp(CCZ_NAME)
+        installApp(APP_NAME, CCZ_NAME)
         val unstatisfiedDependencies = ImmutableList.of("Reminders", "Test")
         verifyDependencyDialog(unstatisfiedDependencies)
         InstrumentationUtility.login("test", "123");

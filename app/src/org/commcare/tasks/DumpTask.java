@@ -18,6 +18,7 @@ import org.commcare.utils.SessionUnavailableException;
 import org.commcare.utils.StorageUtils;
 import org.commcare.views.notifications.NotificationMessageFactory;
 import org.commcare.views.notifications.ProcessIssues;
+import org.commcare.views.widgets.MediaWidget;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 
@@ -111,25 +112,22 @@ public abstract class DumpTask extends CommCareTask<String, String, Boolean, Com
 
         final Cipher decrypter = FormUploadUtil.getDecryptCipher(key);
 
+        /* Encrypted files need to copied to the SD Card in their original form, reason
+         * being the decryption key is associated with to the user and device and therefore
+         * not available in the target device
+         */
         for (File file : files) {
-
-            // This is not the ideal long term solution for determining whether we need decryption, but works
-            if (file.getName().endsWith(".xml")) {
-                try {
+            try {
+                if (file.getName().endsWith(".xml"))
                     FileUtil.copyFile(file, new File(myDir, file.getName()), decrypter, null);
-                } catch (IOException ie) {
-                    Logger.log(TAG, "Error copying file: " + file + " exception: " + ie.getMessage());
-                    publishProgress(("File writing failed: " + ie.getMessage()));
-                    return FormUploadResult.FAILURE;
-                }
-            } else {
-                try {
+                else if (file.getName().endsWith(MediaWidget.AES_EXTENSION))
+                    FileUtil.copyFile(file, new File(myDir, MediaWidget.removeAESExtension(file.getName())), decrypter, null);
+                else
                     FileUtil.copyFile(file, new File(myDir, file.getName()));
-                } catch (IOException ie) {
-                    Logger.log(TAG, "Error copying file: " + file + " exception: " + ie.getMessage());
-                    publishProgress(("File writing failed: " + ie.getMessage()));
-                    return FormUploadResult.FAILURE;
-                }
+            } catch (IOException ie) {
+                Logger.log(TAG, "Error copying file: " + file + " exception: " + ie.getMessage());
+                publishProgress(("File writing failed: " + ie.getMessage()));
+                return FormUploadResult.FAILURE;
             }
         }
         return FormUploadResult.FULL_SUCCESS;
