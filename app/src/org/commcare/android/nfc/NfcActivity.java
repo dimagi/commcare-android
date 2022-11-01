@@ -80,8 +80,8 @@ public abstract class NfcActivity extends AppCompatActivity {
         Intent i = new Intent(this, getClass());
         i.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
-            this.pendingNfcIntent = PendingIntent.getActivity(this, 0, i, PendingIntent.FLAG_IMMUTABLE);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
+            this.pendingNfcIntent = PendingIntent.getActivity(this, 0, i, PendingIntent.FLAG_MUTABLE);
         else
             this.pendingNfcIntent = PendingIntent.getActivity(this, 0, i,0);
     }
