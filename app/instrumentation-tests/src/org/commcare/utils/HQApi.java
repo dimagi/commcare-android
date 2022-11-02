@@ -1,9 +1,9 @@
 package org.commcare.utils;
 
 import android.util.Log;
+
 import androidx.test.platform.app.InstrumentationRegistry;
 
-import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableMultimap;
 
 import org.commcare.core.network.AuthInfo;
@@ -16,6 +16,7 @@ import org.joda.time.DateTime;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -28,6 +29,7 @@ import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import retrofit2.Response;
+
 /**
  * @author $|-|!˅@M
  */
@@ -159,7 +161,8 @@ public class HQApi {
 
     public static void uploadFixture(String fixtureName, int retryCount) {
         ClassLoader classLoader = InstrumentationRegistry.getInstrumentation().getTargetContext().getClassLoader();
-        RequestBody requestFile = new InputStreamRequestBody(MediaType.parse("text/xlsx"), classLoader, fixtureName);
+        RequestBody requestFile = new InputStreamRequestBody(MediaType.parse("text/xlsx"), classLoader,
+                fixtureName);
         List<MultipartBody.Part> parts = new ArrayList<>();
         parts.add(MultipartBody.Part.createFormData("file-to-upload", fixtureName, requestFile));
         parts.add(MultipartBody.Part.createFormData("replace", "true"));
@@ -167,7 +170,8 @@ public class HQApi {
         CommCareNetworkService networkService = createTestNetworkService();
         Response<ResponseBody> response;
         try {
-            response = networkService.makeMultipartPostRequest(FIXTURE_UPLOAD_URL, new HashMap<>(), parts).execute();
+            response = networkService.makeMultipartPostRequest(FIXTURE_UPLOAD_URL, new HashMap<>(),
+                    parts).execute();
             if (response.isSuccessful()) {
                 Log.d(TAG, "Uploading Fixture succeeded :: " + response.body().string());
             } else {
@@ -283,23 +287,25 @@ public class HQApi {
         String userName = BuildConfig.HQ_API_USERNAME;
         String uid = UUID.randomUUID().toString();
         return "<?xml version='1.0' ?>" + "\n" +
-                        "<system version=\"1\" uiVersion=\"1\" xmlns=\"http://commcarehq.org/case\" xmlns:orx=\"http://openrosa.org/jr/xforms\">" + "\n" + "\t" +
-                        "<orx:meta xmlns:cc=\"http://commcarehq.org/xforms\">" + "\n" + "\t" + "\t" +
-                        "<orx:deviceID />" + "\n" + "\t" + "\t" +
-                        "<orx:timeStart>" + time + "</orx:timeStart>" + "\n" + "\t" + "\t" +
-                        "<orx:timeEnd>" + time + "</orx:timeEnd>" + "\n" + "\t" + "\t" +
-                        "<orx:username>" + userName + "</orx:username>" + "\n" + "\t" + "\t" +
-                        "<orx:userID>" + userId + "</orx:userID>" + "\n" + "\t" + "\t" +
-                        "<orx:instanceID>" + uid + "</orx:instanceID>" + "\n" + "\t" + "\t" +
-                        "<cc:appVersion />" + "\n" + "\t" +
-                        "</orx:meta>" + "\n" + "\t" +
-                        "<case case_id=\"" + caseId + "\"" + "\n" + "\t" + "\t" +
-                        "date_modified=\"" + time + "\"" + "\n" + "\t" + "\t" +
-                        "user_id=\"" + userId + "\"" + "\n" + "\t" + "\t" +
-                        "xmlns=\"http://commcarehq.org/case/transaction/v2\">" + "\n" + "\t" + "\t" + "\t" +
-                        "<close/>" + "\n" + "\t" +
-                        "</case>" + "\n" +
-                        "</system>";
+                "<system version=\"1\" uiVersion=\"1\" xmlns=\"http://commcarehq.org/case\" "
+                + "xmlns:orx=\"http://openrosa.org/jr/xforms\">"
+                + "\n" + "\t" +
+                "<orx:meta xmlns:cc=\"http://commcarehq.org/xforms\">" + "\n" + "\t" + "\t" +
+                "<orx:deviceID />" + "\n" + "\t" + "\t" +
+                "<orx:timeStart>" + time + "</orx:timeStart>" + "\n" + "\t" + "\t" +
+                "<orx:timeEnd>" + time + "</orx:timeEnd>" + "\n" + "\t" + "\t" +
+                "<orx:username>" + userName + "</orx:username>" + "\n" + "\t" + "\t" +
+                "<orx:userID>" + userId + "</orx:userID>" + "\n" + "\t" + "\t" +
+                "<orx:instanceID>" + uid + "</orx:instanceID>" + "\n" + "\t" + "\t" +
+                "<cc:appVersion />" + "\n" + "\t" +
+                "</orx:meta>" + "\n" + "\t" +
+                "<case case_id=\"" + caseId + "\"" + "\n" + "\t" + "\t" +
+                "date_modified=\"" + time + "\"" + "\n" + "\t" + "\t" +
+                "user_id=\"" + userId + "\"" + "\n" + "\t" + "\t" +
+                "xmlns=\"http://commcarehq.org/case/transaction/v2\">" + "\n" + "\t" + "\t" + "\t" +
+                "<close/>" + "\n" + "\t" +
+                "</case>" + "\n" +
+                "</system>";
     }
 
     private static Response<ResponseBody> getRequest(String url, String query) throws IOException {
@@ -310,7 +316,8 @@ public class HQApi {
         return networkService.makeGetRequest(url, new HashMap<>()).execute();
     }
 
-    private static Response<ResponseBody> postRequest(String url, String query, RequestBody body) throws IOException {
+    private static Response<ResponseBody> postRequest(String url, String query, RequestBody body)
+            throws IOException {
         if (query != null) {
             url += query;
         }

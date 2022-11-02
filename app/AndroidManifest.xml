@@ -3,7 +3,7 @@
           xmlns:android="http://schemas.android.com/apk/res/android"
           xmlns:tools="http://schemas.android.com/tools"
           android:versionCode="106"
-          android:versionName="2.53">
+          android:versionName="2.54">
 
     <uses-permission android:name="android.permission.NFC"/>
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
@@ -82,7 +82,18 @@
         <intent>
             <action android:name="android.intent.action.TTS_SERVICE" />
         </intent>
+        <intent>
+            <action android:name="android.intent.action.SEND" />
+            <data android:mimeType="*/*" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:mimeType="*/*" android:scheme="*" />
+        </intent>
         <package android:name="com.google.android.apps.maps" />
+        <package android:name="org.commcare.dalvik.reminders" />
+        <package android:name="callout.commcare.org.sendussd" />
+        <package android:name="org.commcare.dalvik.abha" />
     </queries>
 
     <application
@@ -98,6 +109,7 @@
 
         <activity
             android:label="@string/application_name"
+            android:exported="true"
             android:name="org.commcare.activities.DispatchActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
@@ -112,6 +124,7 @@
         </activity>
         <activity
             android:label="@string/manager_activity_name"
+            android:exported="true"
             android:name="org.commcare.activities.AppManagerActivity"
             android:taskAffinity="org.commcare.Manage">
             <intent-filter>
@@ -169,7 +182,9 @@
             android:name="org.commcare.activities.SessionAwarePreferenceActivity"
             android:theme="@style/PreferenceTheme">
         </activity>
-        <activity android:name="org.commcare.activities.DotsEntryActivity">
+        <activity
+            android:exported="false"
+            android:name="org.commcare.activities.DotsEntryActivity">
             <intent-filter>
                 <action android:name="org.commcare.dalvik.action.DotsEntry"/>
 
@@ -180,6 +195,7 @@
         </activity>
         <activity
             android:name="org.commcare.activities.CommCareSetupActivity"
+            android:exported="true"
             android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW"/>
@@ -304,7 +320,9 @@
             android:theme="@style/Theme.AppCompat.Light.NoActionBar">
         </activity>
 
-        <activity android:name="org.commcare.gis.DrawingBoundaryActivity"
+        <activity
+            android:name="org.commcare.gis.DrawingBoundaryActivity"
+            android:exported="false"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar">
             <intent-filter>
                 <action android:name="org.commcare.dalvik.action.DrawBoundary"/>
@@ -356,14 +374,18 @@
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </activity>
-        <activity android:name="org.commcare.android.nfc.NfcWriteActivity">
+        <activity
+            android:exported="false"
+            android:name="org.commcare.android.nfc.NfcWriteActivity">
             <intent-filter>
                 <action android:name="org.commcare.nfc.WRITE"/>
 
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </activity>
-        <activity android:name="org.commcare.android.nfc.NfcReadActivity">
+        <activity
+            android:exported="false"
+            android:name="org.commcare.android.nfc.NfcReadActivity">
             <intent-filter>
                 <action android:name="org.commcare.nfc.READ"/>
 
@@ -371,14 +393,18 @@
             </intent-filter>
         </activity>
 
-        <receiver android:name="org.commcare.provider.ExternalApiReceiver">
+        <receiver
+            android:name="org.commcare.provider.ExternalApiReceiver"
+            android:exported="true">
             <intent-filter>
                 <action android:name="org.commcare.dalvik.api.action.ExternalAction"/>
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </receiver>
 
-        <receiver android:name="org.commcare.provider.CommCareLogoutReceiver"
+        <receiver
+            android:exported="true"
+            android:name="org.commcare.provider.CommCareLogoutReceiver"
             android:permission="org.commcare.dalvik.permission.COMMCARE_LOGOUT">
             <intent-filter>
                 <action android:name="org.commcare.dalvik.api.action.CommCareLogoutAction"/>
@@ -386,14 +412,18 @@
             </intent-filter>
         </receiver>
 
-        <receiver android:name="org.commcare.provider.RefreshToLatestBuildReceiver">
+        <receiver
+            android:name="org.commcare.provider.RefreshToLatestBuildReceiver"
+            android:exported="false">
             <intent-filter>
                 <action android:name="org.commcare.dalvik.api.action.RefreshToLatestBuildAction"/>
 
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </receiver>
-        <receiver android:name="org.commcare.provider.DebugControlsReceiver">
+        <receiver
+            android:name="org.commcare.provider.DebugControlsReceiver"
+            android:exported="false">
             <intent-filter>
                 <action android:name="org.commcare.dalvik.api.action.SessionCaptureAction"/>
 
@@ -449,6 +479,7 @@
         </activity>
         <activity
             android:name="org.commcare.print.TemplatePrinterActivity"
+            android:exported="false"
             android:theme="@style/Theme.Dialog.NoTitle">
             <intent-filter>
                 <action android:name="org.commcare.dalvik.action.PRINT"/>
@@ -472,6 +503,7 @@
         <activity android:name="org.commcare.activities.PromptCczUpdateActivity"/>
         <activity
             android:label="@string/title_data_change_logs_activity"
+            android:exported="false"
             android:name="org.commcare.activities.DataChangeLogsActivity">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW"/>
@@ -506,6 +538,15 @@
          -->
         <receiver android:name="io.ona.kujaku.receivers.KujakuNetworkChangeReceiver"
             tools:node="remove"/>
+
+        <!-- The zebra-print-android library is not yet targeting Android 12 and at least one
+            Activity doesn't have the required attribute exported. The entry below adds the
+            attribute to the final Manifest.
+        -->
+        <activity
+            android:exported="true"
+            android:name="com.dimagi.android.zebraprinttool.PrintReceiverActivity"
+            tools:node="merge"/>
 
     </application>
 

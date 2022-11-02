@@ -340,6 +340,8 @@ public class FormStorageTest {
 
             // Added in 2.53
             , "org.javarosa.xpath.expr.XPathDecryptStringFunc"
+            , "org.javarosa.xpath.expr.XPathJsonPropertyFunc"
+            , "org.commcare.suite.model.AndroidPackageDependency"
     );
 
 

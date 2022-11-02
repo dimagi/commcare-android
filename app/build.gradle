@@ -32,9 +32,6 @@ configurations {
 }
 
 dependencies {
-    // debugImplementation because LeakCanary should only run in debug builds.
-    debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.7'
-
     testImplementation 'junit:junit:4.12'
     testImplementation('org.robolectric:robolectric:4.5.1') {
         exclude(group: 'org.bouncycastle', module: 'bcprov-jdk15on')
@@ -43,7 +40,7 @@ dependencies {
     testImplementation 'androidx.test:core:1.4.0'
     testImplementation 'androidx.test:runner:1.4.0'
     testImplementation 'androidx.test.ext:junit:1.1.3'
-    testImplementation 'androidx.work:work-testing:2.4.0'
+    testImplementation 'androidx.work:work-testing:2.7.1'
     testImplementation 'androidx.test.espresso:espresso-core:3.4.0'
     testImplementation 'androidx.test.espresso:espresso-intents:3.4.0'
     testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:1.3.2"
@@ -121,8 +118,8 @@ dependencies {
     implementation ('io.ona.kujaku:library:0.9.0'){
         exclude module: 'xpp3'
     }
-    implementation "androidx.work:work-runtime:2.4.0"
-    implementation "androidx.work:work-runtime-ktx:2.4.0"
+    implementation "androidx.work:work-runtime:2.7.0"
+    implementation "androidx.work:work-runtime-ktx:2.7.0"
 
     implementation 'com.google.android.play:core:1.7.3'
     implementation 'android.arch.lifecycle:common-java8:1.1.1'
@@ -227,7 +224,7 @@ static def getDate() {
 }
 
 android {
-    compileSdkVersion 30
+    compileSdkVersion 31
 
     lintOptions {
         abortOnError false
@@ -250,7 +247,7 @@ android {
 
     defaultConfig {
         minSdkVersion 16
-        targetSdkVersion 30
+        targetSdkVersion 31
         multiDexEnabled true
         applicationId "org.commcare.dalvik"
         project.ext.COMMCARE_APP_ID = applicationId

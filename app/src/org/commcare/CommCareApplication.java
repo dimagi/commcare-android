@@ -101,6 +101,7 @@ import org.commcare.update.UpdateWorker;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.AndroidCacheDirSetup;
 import org.commcare.utils.AndroidCommCarePlatform;
+import org.commcare.utils.AndroidPackageUtils;
 import org.commcare.utils.CommCareExceptionHandler;
 import org.commcare.utils.CommCareUtil;
 import org.commcare.utils.CrashUtil;
@@ -1185,5 +1186,9 @@ public class CommCareApplication extends MultiDexApplication {
 
     public AsyncRestoreHelper getAsyncRestoreHelper(DataPullTask task) {
         return new AsyncRestoreHelper(task);
+    }
+
+    public AndroidPackageUtils getAndroidPackageUtils() {
+        return new AndroidPackageUtils();
     }
 }

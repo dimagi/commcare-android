@@ -11,14 +11,12 @@ import android.os.RemoteException
 import android.provider.MediaStore
 import android.view.View
 import android.widget.ListView
+import android.widget.TextView
 import androidx.annotation.IdRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.preference.PreferenceManager
-import androidx.test.espresso.DataInteraction
-import androidx.test.espresso.Espresso
+import androidx.test.espresso.*
 import androidx.test.espresso.Espresso.*
-import androidx.test.espresso.UiController
-import androidx.test.espresso.ViewAction
 import androidx.test.espresso.action.ViewActions.*
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.intent.Intents
@@ -26,7 +24,10 @@ import androidx.test.espresso.intent.Intents.intending
 import androidx.test.espresso.intent.matcher.IntentMatchers
 import androidx.test.espresso.intent.matcher.IntentMatchers.hasAction
 import androidx.test.espresso.matcher.RootMatchers
+import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.espresso.matcher.ViewMatchers.*
+import androidx.test.espresso.util.HumanReadables
+import androidx.test.espresso.util.TreeIterables
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.runner.intent.IntentCallback
 import androidx.test.runner.intent.IntentMonitorRegistry
@@ -39,12 +40,15 @@ import org.commcare.services.CommCareSessionService
 import org.commcare.utils.CustomMatchers.withChildViewCount
 import org.hamcrest.Matcher
 import org.hamcrest.Matchers
-import org.hamcrest.Matchers.anything
-import org.hamcrest.Matchers.startsWith
+import org.hamcrest.Matchers.*
+import org.hamcrest.StringDescription
 import org.javarosa.core.io.StreamsUtil
+import org.junit.Assert.assertTrue
 import java.io.File
 import java.io.IOException
+import java.util.*
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.TimeoutException
 
 /**
  * @author $|-|!˅@M
@@ -217,6 +221,15 @@ object InstrumentationUtility {
     }
 
     /**
+     * Click finish button in the form
+     */
+    @JvmStatic
+    fun submitForm() {
+        onView(withId(R.id.nav_btn_finish))
+            .perform(click())
+    }
+
+    /**
      * Sleep the testing thread for the specific number of seconds.
      */
     @JvmStatic
@@ -283,6 +296,18 @@ object InstrumentationUtility {
         Espresso.closeSoftKeyboard()
     }
 
+    fun enterText(text: String) {
+        onView(withClassName(Matchers.endsWith("EditText")))
+                .perform(typeText((text)))
+        Espresso.closeSoftKeyboard()
+    }
+    /**
+     * A utility to match the text present in a textfield
+     */
+    fun matchTypedText(@IdRes editTextId: Int, text: String){
+        onView(withId(editTextId)).check(matches(withText(text)))
+    }
+
     @JvmStatic
     @Throws(RemoteException::class)
     fun rotatePortrait() {
@@ -324,6 +349,10 @@ object InstrumentationUtility {
         }
     }
 
+    fun hardPressBack() {
+        val mDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+        mDevice.pressBack()
+    }
     /**
      * The method does following in order:
      * 1. Closes keyboard.
@@ -430,6 +459,106 @@ object InstrumentationUtility {
             inputStream.close()
             outputStream!!.close()
         }
+    }
+
+
+
+    /**
+     * A utility to verify Form Fields with their values
+     */
+
+    fun verifyFormCellAndValue(cellData: String, value: String) {
+        val result : Boolean = onView(
+            Matchers.allOf(
+                withId(R.id.detail_type_text),
+                withText(cellData),
+                hasSibling(
+                    Matchers.allOf(
+                        withId(R.id.detail_value_pane),
+                        withChild(
+                            Matchers.allOf(
+                                withId(R.id.detail_value_text),
+                                withText(value)
+                            )
+                        )
+                    )
+                )
+            )
+        ).isPresent()
+        assertTrue(result)
+    }
+
+    /**
+     * utility to search a case in Form list and select the same
+     */
+    fun searchCaseAndSelect(text: String){
+        onView(withId(R.id.search_action_bar)).perform(click())
+        enterText(R.id.search_src_text,text)
+        onView(withId(R.id.screen_entity_detail_list)).isPresent()
+        clickListItem(R.id.screen_entity_select_list, 0)
+    }
+
+    /**
+     * A utility to wait until a certain view appears
+     * usage: onView(isRoot()).perform(waitForView(withText("<text>")))
+     */
+    fun waitForView(viewMatcher: Matcher<View>, timeout: Long = 10000, waitForDisplayed: Boolean = true): ViewAction {
+        return object : ViewAction {
+            override fun getConstraints(): Matcher<View> {
+                return Matchers.any(View::class.java)
+            }
+
+            override fun getDescription(): String {
+                val matcherDescription = StringDescription()
+                viewMatcher.describeTo(matcherDescription)
+                return "wait for a specific view <$matcherDescription> to be ${if (waitForDisplayed) "displayed" else "not displayed during $timeout millis."}"
+            }
+
+            override fun perform(uiController: UiController, view: View) {
+                uiController.loopMainThreadUntilIdle()
+                val startTime = System.currentTimeMillis()
+                val endTime = startTime + timeout
+                val visibleMatcher = isDisplayed()
+
+                do {
+                    val viewVisible = TreeIterables.breadthFirstViewTraversal(view)
+                        .any { viewMatcher.matches(it) && visibleMatcher.matches(it) }
+
+                    if (viewVisible == waitForDisplayed) return
+                    uiController.loopMainThreadForAtLeast(50)
+                } while (System.currentTimeMillis() < endTime)
+
+                // Timeout happens.
+                throw PerformException.Builder()
+                    .withActionDescription(this.description)
+                    .withViewDescription(HumanReadables.describe(view))
+                    .withCause(TimeoutException())
+                    .build()
+            }
+        }
+    }
+
+    /**
+     * utility to get text of any TextView Object
+     */
+    fun getText(matcher: ViewInteraction): String {
+        var text = String()
+        matcher.perform(object : ViewAction {
+            override fun getConstraints(): Matcher<View> {
+                return isAssignableFrom(TextView::class.java)
+            }
+
+            override fun getDescription(): String {
+                return "Text of the view"
+            }
+
+            override fun perform(uiController: UiController, view: View) {
+                val tv = view as TextView
+                text = tv.text.toString()
+            }
+        })
+
+        return text
     }
     //endregion
 }
