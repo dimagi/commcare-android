@@ -2,6 +2,10 @@ package org.commcare.utils;
 
 import android.util.Log;
 import androidx.test.platform.app.InstrumentationRegistry;
+
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.ImmutableMultimap;
+
 import org.commcare.core.network.AuthInfo;
 import org.commcare.core.network.CommCareNetworkService;
 import org.commcare.core.network.CommCareNetworkServiceGenerator;
@@ -163,7 +167,7 @@ public class HQApi {
         CommCareNetworkService networkService = createTestNetworkService();
         Response<ResponseBody> response;
         try {
-            response = networkService.makeMultipartPostRequest(FIXTURE_UPLOAD_URL, new HashMap<>(), new HashMap<>(), parts).execute();
+            response = networkService.makeMultipartPostRequest(FIXTURE_UPLOAD_URL, new HashMap<>(), parts).execute();
             if (response.isSuccessful()) {
                 Log.d(TAG, "Uploading Fixture succeeded :: " + response.body().string());
             } else {
@@ -204,7 +208,7 @@ public class HQApi {
         String url = String.format(USER_URL, userId);
         CommCareNetworkService networkService = createTestNetworkService();
         try {
-            Response<ResponseBody> response = networkService.makeDeleteRequest(url, new HashMap<>(), new HashMap<>()).execute();
+            Response<ResponseBody> response = networkService.makeDeleteRequest(url, new HashMap<>()).execute();
             return response.isSuccessful();
         } catch (IOException e) {
             e.printStackTrace();
@@ -262,7 +266,7 @@ public class HQApi {
         CommCareNetworkService networkService = createTestNetworkService();
         Response<ResponseBody> response = null;
         try {
-            response = networkService.makeMultipartPostRequest(FORM_UPLOAD_URL, new HashMap<>(), new HashMap<>(), parts).execute();
+            response = networkService.makeMultipartPostRequest(FORM_UPLOAD_URL, new HashMap<>(), parts).execute();
             return response.isSuccessful();
         } catch (IOException e) {
             e.printStackTrace();
@@ -303,7 +307,7 @@ public class HQApi {
             url += query;
         }
         CommCareNetworkService networkService = createTestNetworkService();
-        return networkService.makeGetRequest(url, new HashMap<>(), new HashMap<>()).execute();
+        return networkService.makeGetRequest(url, new HashMap<>()).execute();
     }
 
     private static Response<ResponseBody> postRequest(String url, String query, RequestBody body) throws IOException {
@@ -311,7 +315,7 @@ public class HQApi {
             url += query;
         }
         CommCareNetworkService networkService = createTestNetworkService();
-        return networkService.makePostRequest(url, new HashMap<>(), new HashMap<>(), body).execute();
+        return networkService.makePostRequest(url, new HashMap<>(), body).execute();
     }
 
     private static CommCareNetworkService createTestNetworkService() {
@@ -320,7 +324,8 @@ public class HQApi {
                 CommCareNetworkServiceGenerator.createCommCareNetworkService(
                         HttpUtils.getCredential(authInfo),
                         true,
-                        true);
+                        true,
+                        ImmutableMultimap.of());
         return networkService;
     }
 }

@@ -53,6 +53,8 @@ import java.util.List;
 
 import androidx.appcompat.widget.SwitchCompat;
 
+import com.google.common.collect.ImmutableMultimap;
+
 /**
  * Created by amstone326 on 2/3/17.
  */
@@ -234,7 +236,7 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
             this.lastUsernameUsed = username;
             this.lastPasswordUsed = password;
             final View processingRequestView = findViewById(R.id.processing_request_view);
-            ModernHttpTask task = new ModernHttpTask(this, urlToTry, new HashMap(),
+            ModernHttpTask task = new ModernHttpTask(this, urlToTry, ImmutableMultimap.of(),
                     CommcareRequestGenerator.getHeaders(""),
                     new AuthInfo.ProvidedAuth(username, password)) {
 

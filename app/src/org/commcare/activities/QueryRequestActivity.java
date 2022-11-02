@@ -32,6 +32,7 @@ import androidx.annotation.NonNull;
 import androidx.core.content.res.ResourcesCompat;
 
 import com.google.android.material.datepicker.MaterialDatePicker;
+import com.google.common.collect.ImmutableMultimap;
 
 import org.commcare.CommCareApplication;
 import org.commcare.core.interfaces.HttpResponseProcessor;
@@ -393,7 +394,7 @@ public class QueryRequestActivity
         clearErrorState();
         ModernHttpTask httpTask = new ModernHttpTask(this,
                 remoteQuerySessionManager.getBaseUrl().toString(),
-                new HashMap(remoteQuerySessionManager.getRawQueryParams(false)),
+                remoteQuerySessionManager.getRawQueryParams(false),
                 new HashMap(),
                 new AuthInfo.CurrentAuth());
         httpTask.connect((CommCareTaskConnector)this);

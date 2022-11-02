@@ -48,6 +48,8 @@ import retrofit2.Response;
 
 import static org.commcare.network.HttpUtils.parseUserVisibleError;
 
+import com.google.common.collect.ImmutableMultimap;
+
 public class FormUploadUtil {
     private static final String TAG = FormUploadUtil.class.getSimpleName();
 
@@ -162,7 +164,7 @@ public class FormUploadUtil {
         Response<ResponseBody> response;
 
         try {
-            response = generator.postMultipart(url, parts, new HashMap<>());
+            response = generator.postMultipart(url, parts, ImmutableMultimap.of());
         } catch (InputIOException ioe) {
             // This implies that there was a problem with the _source_ of the
             // transmission, not the processing or receiving end.

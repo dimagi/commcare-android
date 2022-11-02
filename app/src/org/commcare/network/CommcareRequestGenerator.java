@@ -1,9 +1,11 @@
 package org.commcare.network;
 
-import android.content.pm.PackageManager;
 import android.net.Uri;
 
-import org.commcare.AppUtils;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.ImmutableMultimap;
+import com.google.common.collect.Multimap;
+
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.core.network.AuthInfo;
@@ -93,7 +95,7 @@ public class CommcareRequestGenerator implements CommcareRequestEndpoints {
 
     @Override
     public Response<ResponseBody> makeCaseFetchRequest(String baseUri, boolean includeStateFlags) throws IOException {
-        HashMap<String, String> params = new HashMap<>();
+        Multimap<String, String> params = ArrayListMultimap.create();
 
         Uri serverUri = Uri.parse(baseUri);
         String vparam = serverUri.getQueryParameter("version");
@@ -161,7 +163,7 @@ public class CommcareRequestGenerator implements CommcareRequestEndpoints {
 
     @Override
     public Response<ResponseBody> makeKeyFetchRequest(String baseUri, @Nullable Date lastRequest) throws IOException {
-        HashMap params = new HashMap<>();
+        Multimap params = ArrayListMultimap.create();
 
         if (lastRequest != null) {
             params.put("last_issued", DateUtils.formatTime(lastRequest, DateUtils.FORMAT_ISO8601));
@@ -207,9 +209,9 @@ public class CommcareRequestGenerator implements CommcareRequestEndpoints {
     }
 
     @Override
-    public Response<ResponseBody> postMultipart(String url, List<MultipartBody.Part> parts, HashMap<String, String> params) throws IOException {
+    public Response<ResponseBody> postMultipart(String url, List<MultipartBody.Part> parts, Multimap<String, String> params) throws IOException {
 
-        HashMap<String, String> queryParams = new HashMap<>(params);
+        Multimap<String, String> queryParams = ArrayListMultimap.create(params);
 
         //If we're going to try to post with no credentials, we need to be explicit about the fact that we're not ready
         if (username == null || password == null) {
@@ -238,11 +240,11 @@ public class CommcareRequestGenerator implements CommcareRequestEndpoints {
 
     @Override
     public Response<ResponseBody> simpleGet(String uri) throws IOException {
-        return simpleGet(uri, new HashMap<>(), new HashMap<>());
+        return simpleGet(uri, ImmutableMultimap.of(), new HashMap<>());
     }
 
     @Override
-    public Response<ResponseBody> simpleGet(String uri, Map<String, String> httpParams, Map<String, String> httpHeaders) throws IOException {
+    public Response<ResponseBody> simpleGet(String uri, Multimap<String, String> httpParams, Map<String, String> httpHeaders) throws IOException {
         HashMap<String, String> headers = new HashMap<>(getHeaders(null));
         headers.putAll(httpHeaders);
 
@@ -270,7 +272,7 @@ public class CommcareRequestGenerator implements CommcareRequestEndpoints {
 
     @Override
     public Response<ResponseBody> postLogs(String submissionUrl, List<MultipartBody.Part> parts, boolean forceLogs) throws IOException {
-        HashMap<String, String> queryParams = new HashMap<>();
+        Multimap<String, String> queryParams = ArrayListMultimap.create();
         queryParams.put(QUERY_PARAM_FORCE_LOGS, String.valueOf(forceLogs));
         return postMultipart(submissionUrl, parts, queryParams);
     }
