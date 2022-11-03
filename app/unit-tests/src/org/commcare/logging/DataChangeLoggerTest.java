@@ -18,11 +18,6 @@ import static junit.framework.Assert.assertTrue;
 @RunWith(AndroidJUnit4.class)
 public class DataChangeLoggerTest {
 
-    @Before
-    public void setupTests() {
-        DataChangeLogger.init(CommCareTestApplication.instance());
-    }
-
     @Test
     public void getLogs_shouldContainLoggedMessages() {
         assertTrue(DataChangeLogger.getLogs().contains(new DataChangeLog.CommCareInstall().getMessage()));
