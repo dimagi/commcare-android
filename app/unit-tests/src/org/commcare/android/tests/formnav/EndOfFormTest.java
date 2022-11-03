@@ -83,7 +83,7 @@ public class EndOfFormTest {
         finishButton.performClick();
         RobolectricUtil.flushBackgroundThread(formEntryActivity);
         ShadowActivity shadowFormEntryActivity = Shadows.shadowOf(formEntryActivity);
-        while (!shadowFormEntryActivity.isFinishing()) {
+        while (!formEntryActivity.isFinishing()) {
             Log.d(TAG, "Waiting for the form to save and the form entry activity to finish");
         }
 
