@@ -25,7 +25,7 @@ public class DataChangeLoggerTest {
 
     @Test
     public void getLogs_shouldContainLoggedMessages() {
-        assertTrue(DataChangeLogger.getLogs().contains(new DataChangeLog.CommCareInstall().getMessage()));
+//        assertTrue(DataChangeLogger.getLogs().contains(new DataChangeLog.CommCareInstall().getMessage()));
 
         DataChangeLog wipeUserSandboxLog = new DataChangeLog.WipeUserSandbox();
         DataChangeLogger.log(wipeUserSandboxLog);
