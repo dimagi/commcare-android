@@ -87,7 +87,7 @@ dependencies {
         exclude module: 'commons-io'
     }
     implementation('org.apache.httpcomponents:httpmime:4.5.6')
-    implementation 'net.sourceforge.htmlcleaner:htmlcleaner:2.16'
+    implementation 'net.sourceforge.htmlcleaner:htmlcleaner:2.26'
     implementation 'org.jsoup:jsoup:1.8.3'
     implementation 'com.scottyab:rootbeer-lib:0.0.8'
 
