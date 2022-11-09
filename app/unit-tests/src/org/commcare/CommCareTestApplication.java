@@ -17,6 +17,7 @@ import org.commcare.core.network.ModernHttpRequester;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.heartbeat.HeartbeatRequester;
 import org.commcare.heartbeat.TestHeartbeatRequester;
+import org.commcare.logging.DataChangeLogger;
 import org.commcare.models.AndroidPrototypeFactory;
 import org.commcare.models.database.AndroidPrototypeFactorySetup;
 import org.commcare.models.database.HybridFileBackedSqlStorage;
@@ -68,6 +69,9 @@ public class CommCareTestApplication extends CommCareApplication implements Test
 
     @Override
     public void onCreate() {
+        // set if before calling super to initialte the dataChangeLogger correctly
+        setExternalStorageState(Environment.MEDIA_MOUNTED);
+
         super.onCreate();
 
         // allow "jr://resource" references
@@ -77,7 +81,6 @@ public class CommCareTestApplication extends CommCareApplication implements Test
             asyncExceptions.add(ex);
             Assert.fail(ex.getMessage());
         });
-        setExternalStorageState(Environment.MEDIA_MOUNTED);
     }
 
     protected void attachISRGCert() {

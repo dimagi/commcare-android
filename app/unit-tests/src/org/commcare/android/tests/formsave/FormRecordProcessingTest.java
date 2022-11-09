@@ -130,7 +130,7 @@ public class FormRecordProcessingTest {
         ShadowActivity shadowFormEntryActivity = Shadows.shadowOf(formEntryActivity);
 
         long waitStartTime = new Date().getTime();
-        while (!shadowFormEntryActivity.isFinishing()) {
+        while (!formEntryActivity.isFinishing()) {
             Log.d(TAG, "Waiting for the form to save and the form entry activity to finish");
             if ((new Date().getTime()) - waitStartTime > 5000) {
                 Assert.fail("form entry activity took too long to finish");
