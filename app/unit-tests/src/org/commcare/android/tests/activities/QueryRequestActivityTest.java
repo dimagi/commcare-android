@@ -61,9 +61,6 @@ public class QueryRequestActivityTest {
 
         try {
             ParseUtils.parseIntoSandbox(
-                    this.getClass().getResourceAsStream("/commcare-apps/case_search_and_claim/fixtures.xml"),
-                    new AndroidSandbox(CommCareApplication.instance()));
-            ParseUtils.parseIntoSandbox(
                     this.getClass().getResourceAsStream("/commcare-apps/case_search_and_claim/user_restore.xml"),
                     new AndroidSandbox(CommCareApplication.instance()));
         } catch (InvalidStructureException e) {
