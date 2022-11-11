@@ -13,6 +13,8 @@ import android.widget.TextView;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.ImmutableMultimap;
+import com.google.common.collect.Multimap;
 
 import org.commcare.CommCareApplication;
 import org.commcare.CommCareTestApplication;
@@ -50,6 +52,7 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 
 /**
@@ -101,8 +104,7 @@ public class PostRequestActivityTest {
         Intent postLaunchIntent = new Intent();
         if (url != null) {
             postLaunchIntent.putExtra(PostRequestActivity.URL_KEY, url);
-            postLaunchIntent.putExtra(PostRequestActivity.PARAMS_KEY,
-                    new HashMap<String, String>());
+            postLaunchIntent.putExtra(PostRequestActivity.PARAMS_KEY, ImmutableMultimap.of());
         }
         PostRequestActivity activity = Robolectric.buildActivity(PostRequestActivity.class, postLaunchIntent)
                 .create().start().resume().get();
@@ -230,9 +232,11 @@ public class PostRequestActivityTest {
         assertTrue(intentActivityName.equals(PostRequestActivity.class.getName()));
 
         assertEquals("https://www.fake.com/claim_patient/", postActivityIntent.getSerializableExtra(PostRequestActivity.URL_KEY).toString());
-        HashMap<String, String> postUrlParams =
-                (HashMap<String, String>)postActivityIntent.getSerializableExtra(PostRequestActivity.PARAMS_KEY);
-        assertEquals("321", postUrlParams.get("selected_case_id"));
+        Multimap<String, String> postUrlParams =
+                (Multimap<String, String>)postActivityIntent.getSerializableExtra(PostRequestActivity.PARAMS_KEY);
+        Collection<String> selectedCaseIds = postUrlParams.get("selected_case_id");
+        assertEquals(1, selectedCaseIds.size());
+        assertTrue(selectedCaseIds.contains("321"));
 
         PostRequestActivity postRequestActivity =
                 Robolectric.buildActivity(PostRequestActivity.class, postActivityIntent)
