@@ -267,6 +267,7 @@
     <instance id="casedb" src="jr://instance/casedb"/>
     <instance id="district" src="jr://fixture/item-list:district"/>
     <instance id="state" src="jr://fixture/item-list:state"/>
+    <instance id="my-search-input" src="jr://instance/search-input/patients"/>
     <session>
       <query url="https://www.fake.com/patient_search/" storage-instance="patients">
         <data key="device_id" ref="instance('session')/session/context/deviceid"/>
@@ -302,7 +303,7 @@
               <locale id="query.district"/>
             </text>
           </display>
-          <itemset nodeset="instance('district')/district_list/district[state_id = $state]">
+          <itemset nodeset="instance('district')/district_list/district[state_id = if(count(instance('my-search-input')/input/field[@name='state'])>0,instance('my-search-input')/input/field[@name='state'], '')]">
             <label ref="name"/>
             <value ref="id"/>
             <sort ref="id"/>
@@ -340,6 +341,7 @@
     <instance id="casedb" src="jr://instance/casedb"/>
     <instance id="district" src="jr://fixture/item-list:district"/>
     <instance id="state" src="jr://fixture/item-list:state"/>
+    <instance id="my-search-input" src="jr://instance/search-input/patients"/>
     <session>
       <datum id="reference_case_id" function="'521bdbb17001bade54aa23dcb7ff48f9'"/>
       <query url="https://www.fake.com/patient_search/" storage-instance="patients">
@@ -376,7 +378,7 @@
               <locale id="query.district"/>
             </text>
           </display>
-          <itemset nodeset="instance('district')/district_list/district[state_id = $state]">
+          <itemset nodeset="instance('district')/district_list/district[state_id = if(count(instance('my-search-input')/input/field[@name='state'])>0,instance('my-search-input')/input/field[@name='state'], '')]">
             <label ref="name"/>
             <value ref="id"/>
             <sort ref="id"/>
