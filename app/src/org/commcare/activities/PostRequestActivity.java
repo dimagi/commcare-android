@@ -91,6 +91,7 @@ public class PostRequestActivity
             url = (URL)intent.getSerializableExtra(URL_KEY);
             Object o = intent.getSerializableExtra(PARAMS_KEY);
             params = (Multimap<String, String>)o;
+            Logger.log("shubham", "params after parcelling size: " + params.size() + " params: " + params);
         } else {
             enterErrorState(Localization.get("post.generic.error"));
         }
@@ -113,7 +114,6 @@ public class PostRequestActivity
     private void makePostRequest() {
         try {
             if (!hasTaskLaunched && !inErrorState) {
-                Logger.log("shubham", "params is " + params);
                 RequestBody requestBody = ModernHttpRequester.getPostBody(params);
                 ModernHttpTask postTask =
                         new ModernHttpTask(this, url.toString(), ImmutableMultimap.of(),

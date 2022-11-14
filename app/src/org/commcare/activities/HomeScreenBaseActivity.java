@@ -26,6 +26,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.preference.PreferenceManager;
 
 import com.google.android.play.core.install.model.InstallErrorCode;
+import com.google.common.collect.Multimap;
 
 import org.apache.commons.lang3.StringUtils;
 import org.commcare.CommCareApplication;
@@ -1059,8 +1060,10 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
             PostRequest postRequest = ((RemoteRequestEntry)commandEntry).getPostRequest();
             Intent i = new Intent(getApplicationContext(), PostRequestActivity.class);
             i.putExtra(PostRequestActivity.URL_KEY, postRequest.getUrl());
-            i.putExtra(PostRequestActivity.PARAMS_KEY,
-                    (Serializable)postRequest.getEvaluatedParams(asw.getEvaluationContext(), false));
+            Multimap<String, String> params = postRequest.getEvaluatedParams(
+                    asw.getEvaluationContext(), false);
+            Logger.log("shubham", "params before parcelling size: " + params.size() + " params: " + params);
+            i.putExtra(PostRequestActivity.PARAMS_KEY, (Serializable)params);
 
             startActivityForResult(i, MAKE_REMOTE_POST);
         } else {
