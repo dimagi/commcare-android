@@ -112,6 +112,7 @@ public class PostRequestActivity
     private void makePostRequest() {
         try {
             if (!hasTaskLaunched && !inErrorState) {
+                Log.e("shubham", "params is " + params);
                 RequestBody requestBody = ModernHttpRequester.getPostBody(params);
                 ModernHttpTask postTask =
                         new ModernHttpTask(this, url.toString(), ImmutableMultimap.of(),
