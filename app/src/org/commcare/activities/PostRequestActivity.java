@@ -22,6 +22,7 @@ import org.commcare.tasks.templates.CommCareTaskConnector;
 import org.commcare.views.ManagedUi;
 import org.commcare.views.UiElement;
 import org.commcare.views.dialogs.CustomProgressDialog;
+import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 
 import java.io.IOException;
@@ -112,7 +113,7 @@ public class PostRequestActivity
     private void makePostRequest() {
         try {
             if (!hasTaskLaunched && !inErrorState) {
-                Log.e("shubham", "params is " + params);
+                Logger.log("shubham", "params is " + params);
                 RequestBody requestBody = ModernHttpRequester.getPostBody(params);
                 ModernHttpTask postTask =
                         new ModernHttpTask(this, url.toString(), ImmutableMultimap.of(),
