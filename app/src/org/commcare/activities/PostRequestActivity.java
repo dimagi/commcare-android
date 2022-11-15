@@ -91,7 +91,12 @@ public class PostRequestActivity
             url = (URL)intent.getSerializableExtra(URL_KEY);
             Object o = intent.getSerializableExtra(PARAMS_KEY);
             params = (Multimap<String, String>)o;
-            Logger.log("shubham", "params after parcelling size: " + params.size() + " params: " + params);
+            if (params != null && params.size() > 0) {
+                Logger.log("shubham", "params after parcelling size: " + params.size() + " params: " + params);
+            } else {
+                Logger.log("shubham", "params null or empty after parcelling");
+            }
+
         } else {
             enterErrorState(Localization.get("post.generic.error"));
         }
