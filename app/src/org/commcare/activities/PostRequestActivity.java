@@ -7,6 +7,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
 
@@ -59,7 +60,7 @@ public class PostRequestActivity
     private TextView errorMessageBox;
 
     private URL url;
-    private Multimap<String, String> params;
+    private ArrayListMultimap<String, String> params;
     private String errorMessage;
     private boolean hasTaskLaunched;
     private boolean inErrorState;
@@ -90,7 +91,8 @@ public class PostRequestActivity
         if (intent.hasExtra(URL_KEY) && intent.hasExtra(PARAMS_KEY)) {
             url = (URL)intent.getSerializableExtra(URL_KEY);
             Object o = intent.getSerializableExtra(PARAMS_KEY);
-            params = (Multimap<String, String>)o;
+            Logger.log("shubham", "Object o " + o);
+            params = (ArrayListMultimap<String, String>)o;
             if (params != null && params.size() > 0) {
                 Logger.log("shubham", "params after parcelling size: " + params.size() + " params: " + params);
             } else {
