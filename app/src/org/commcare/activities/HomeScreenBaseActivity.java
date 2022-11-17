@@ -1061,7 +1061,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
             PostRequest postRequest = ((RemoteRequestEntry)commandEntry).getPostRequest();
             Intent i = new Intent(getApplicationContext(), PostRequestActivity.class);
             i.putExtra(PostRequestActivity.URL_KEY, postRequest.getUrl());
-            ArrayListMultimap<String, String> params = postRequest.getEvaluatedParams(
+            Multimap<String, String> params = postRequest.getEvaluatedParams(
                     asw.getEvaluationContext(), false);
             Logger.log("shubham", "params before parcelling size: " + params.size() + " params: " + params);
             i.putExtra(PostRequestActivity.PARAMS_KEY, (Serializable)params);

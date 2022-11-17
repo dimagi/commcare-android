@@ -60,7 +60,7 @@ public class PostRequestActivity
     private TextView errorMessageBox;
 
     private URL url;
-    private ArrayListMultimap<String, String> params;
+    private Multimap<String, String> params;
     private String errorMessage;
     private boolean hasTaskLaunched;
     private boolean inErrorState;
@@ -92,7 +92,7 @@ public class PostRequestActivity
             url = (URL)intent.getSerializableExtra(URL_KEY);
             Object o = intent.getSerializableExtra(PARAMS_KEY);
             Logger.log("shubham", "Object o " + o);
-            params = (ArrayListMultimap<String, String>)o;
+            params = (Multimap<String, String>)o;
             if (params != null && params.size() > 0) {
                 Logger.log("shubham", "params after parcelling size: " + params.size() + " params: " + params);
             } else {
