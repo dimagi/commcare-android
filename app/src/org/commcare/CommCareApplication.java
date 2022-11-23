@@ -28,6 +28,8 @@ import androidx.work.OneTimeWorkRequest;
 import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkManager;
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
 import com.google.firebase.analytics.FirebaseAnalytics;
 
 import net.sqlcipher.database.SQLiteDatabase;
@@ -1148,7 +1150,7 @@ public class CommCareApplication extends MultiDexApplication {
     }
 
 
-    public ModernHttpRequester createGetRequester(Context context, String url, Map<String, String> params,
+    public ModernHttpRequester createGetRequester(Context context, String url, Multimap<String, String> params,
                                                   HashMap headers, AuthInfo authInfo,
                                                   @Nullable HttpResponseProcessor responseProcessor) {
         return buildHttpRequester(context, url, params, headers, null, null,
@@ -1156,7 +1158,7 @@ public class CommCareApplication extends MultiDexApplication {
     }
 
     public ModernHttpRequester buildHttpRequester(Context context, String url,
-                                                  Map<String, String> params,
+                                                  Multimap<String, String> params,
                                                   HashMap headers, RequestBody requestBody,
                                                   List<MultipartBody.Part> parts,
                                                   HTTPMethod method,
@@ -1169,12 +1171,11 @@ public class CommCareApplication extends MultiDexApplication {
         } else {
             networkService = CommCareNetworkServiceGenerator.createCommCareNetworkService(
                     HttpUtils.getCredential(authInfo),
-                    DeveloperPreferences.isEnforceSecureEndpointEnabled(), retry);
+                    DeveloperPreferences.isEnforceSecureEndpointEnabled(), retry, params);
         }
 
         return new ModernHttpRequester(new AndroidCacheDirSetup(context),
                 url,
-                params,
                 headers,
                 requestBody,
                 parts,

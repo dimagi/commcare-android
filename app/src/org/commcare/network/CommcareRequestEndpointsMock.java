@@ -1,5 +1,7 @@
 package org.commcare.network;
 
+import com.google.common.collect.Multimap;
+
 import org.commcare.core.network.OkHTTPResponseMockFactory;
 import org.commcare.interfaces.CommcareRequestEndpoints;
 
@@ -71,7 +73,7 @@ public class CommcareRequestEndpointsMock implements CommcareRequestEndpoints {
     }
 
     @Override
-    public Response<ResponseBody> postMultipart(String url, List<MultipartBody.Part> parts, HashMap<String, String> queryParams) throws IOException {
+    public Response<ResponseBody> postMultipart(String url, List<MultipartBody.Part> parts, Multimap<String, String> queryParams) throws IOException {
         throw new RuntimeException("Not yet mocked");
     }
 
@@ -80,7 +82,7 @@ public class CommcareRequestEndpointsMock implements CommcareRequestEndpoints {
         throw new RuntimeException("Not yet mocked");
     }
     @Override
-    public Response<ResponseBody> simpleGet(String uri, Map<String, String> params, Map<String, String> httpHeaders) throws IOException {
+    public Response<ResponseBody> simpleGet(String uri, Multimap<String, String> params, Map<String, String> httpHeaders) throws IOException {
         throw new RuntimeException("Not yet mocked");
     }
 

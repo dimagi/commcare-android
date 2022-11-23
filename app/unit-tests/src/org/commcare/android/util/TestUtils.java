@@ -35,10 +35,12 @@ import org.commcare.xml.LedgerXmlParsers;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.AbstractTreeElement;
+import org.javarosa.core.model.instance.ConcreteInstanceRoot;
 import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.InstanceInitializationFactory;
+import org.javarosa.core.model.instance.InstanceRoot;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
@@ -293,17 +295,17 @@ public class TestUtils {
 
         return new AndroidInstanceInitializer() {
             @Override
-            public AbstractTreeElement setupCaseData(ExternalDataInstance instance) {
+            public InstanceRoot setupCaseData(ExternalDataInstance instance) {
                 SqlStorage<ACase> storage = getCaseStorage(db);
                 CaseInstanceTreeElement casebase = new CaseInstanceTreeElement(instance.getBase(), storage, new AndroidCaseIndexTable(db));
                 instance.setCacheHost(casebase);
-                return casebase;
+                return new ConcreteInstanceRoot(casebase);
             }
 
             @Override
-            protected AbstractTreeElement setupLedgerData(ExternalDataInstance instance) {
+            protected InstanceRoot setupLedgerData(ExternalDataInstance instance) {
                 SqlStorage<Ledger> storage = getLedgerStorage(db);
-                return new AndroidLedgerInstanceTreeElement(instance.getBase(), storage);
+                return new ConcreteInstanceRoot(new AndroidLedgerInstanceTreeElement(instance.getBase(), storage));
             }
         };
     }

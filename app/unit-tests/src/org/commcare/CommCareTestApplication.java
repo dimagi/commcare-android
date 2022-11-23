@@ -53,6 +53,8 @@ import okhttp3.RequestBody;
 import static junit.framework.Assert.fail;
 import static org.robolectric.shadows.ShadowEnvironment.setExternalStorageState;
 
+import com.google.common.collect.Multimap;
+
 /**
  * @author Phillip Mates (pmates@dimagi.com).
  */
@@ -284,7 +286,7 @@ public class CommCareTestApplication extends CommCareApplication implements Test
     }
 
     @Override
-    public ModernHttpRequester buildHttpRequester(Context context, String url, Map<String, String> params,
+    public ModernHttpRequester buildHttpRequester(Context context, String url, Multimap<String, String> params,
                                                   HashMap headers, RequestBody requestBody, List<MultipartBody.Part> parts,
                                                   HTTPMethod method, AuthInfo authInfo, HttpResponseProcessor responseProcessor, boolean b) {
         return new ModernHttpRequesterMock(new AndroidCacheDirSetup(context),

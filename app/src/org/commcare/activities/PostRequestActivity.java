@@ -7,6 +7,9 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.google.common.collect.ImmutableMultimap;
+import com.google.common.collect.Multimap;
+
 import org.commcare.core.network.AuthInfo;
 import org.commcare.core.network.AuthenticationInterceptor;
 import org.commcare.core.network.HTTPMethod;
@@ -55,7 +58,7 @@ public class PostRequestActivity
     private TextView errorMessageBox;
 
     private URL url;
-    private HashMap<String, String> params;
+    private Multimap<String, String> params;
     private String errorMessage;
     private boolean hasTaskLaunched;
     private boolean inErrorState;
@@ -86,7 +89,7 @@ public class PostRequestActivity
         if (intent.hasExtra(URL_KEY) && intent.hasExtra(PARAMS_KEY)) {
             url = (URL)intent.getSerializableExtra(URL_KEY);
             Object o = intent.getSerializableExtra(PARAMS_KEY);
-            params = (HashMap<String, String>)o;
+            params = (Multimap<String, String>)o;
         } else {
             enterErrorState(Localization.get("post.generic.error"));
         }
@@ -111,7 +114,7 @@ public class PostRequestActivity
             if (!hasTaskLaunched && !inErrorState) {
                 RequestBody requestBody = ModernHttpRequester.getPostBody(params);
                 ModernHttpTask postTask =
-                        new ModernHttpTask(this, url.toString(), new HashMap(),
+                        new ModernHttpTask(this, url.toString(), ImmutableMultimap.of(),
                                 getContentHeadersForXFormPost(requestBody), requestBody,
                                 HTTPMethod.POST, new AuthInfo.CurrentAuth());
                 postTask.connect((CommCareTaskConnector)this);

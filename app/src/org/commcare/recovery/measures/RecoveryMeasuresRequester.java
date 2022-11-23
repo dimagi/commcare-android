@@ -1,5 +1,8 @@
 package org.commcare.recovery.measures;
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
+
 import org.commcare.CommCareApplication;
 import org.commcare.core.network.AuthInfo;
 import org.commcare.network.GetAndParseActor;
@@ -27,8 +30,8 @@ public class RecoveryMeasuresRequester extends GetAndParseActor {
     }
 
     @Override
-    public HashMap<String, String> getRequestParams() {
-        HashMap<String, String> params = new HashMap<>();
+    public Multimap<String, String> getRequestParams() {
+        Multimap<String, String> params = ArrayListMultimap.create();
         params.put(APP_ID, CommCareApplication.instance().getCurrentApp().getUniqueId());
         return params;
     }
