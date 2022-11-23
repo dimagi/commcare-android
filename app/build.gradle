@@ -82,7 +82,7 @@ dependencies {
     implementation 'org.bouncycastle:bcprov-jdk15to18:1.69'
     implementation 'com.google.android.gms:play-services-maps:17.0.0'
     implementation 'joda-time:joda-time:2.9.4'
-    implementation 'net.zetetic:android-database-sqlcipher:3.5.9@aar'
+    implementation 'net.zetetic:android-database-sqlcipher:4.5.2@aar'
     implementation('org.apache.james:apache-mime4j:0.7.2') {
         exclude module: 'commons-io'
     }
