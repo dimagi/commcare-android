@@ -127,7 +127,7 @@ dependencies {
 
     //Robust TLS 1.2 ciphers on Android 9-19
     implementation "org.conscrypt:conscrypt-android:2.4.0"
-    implementation('com.squareup.okhttp3:okhttp-tls:3.12.12') {
+    implementation('com.squareup.okhttp3:okhttp-tls:4.10.0') {
         exclude(group: 'org.bouncycastle', module: 'bcprov-jdk15on')
     }
 
