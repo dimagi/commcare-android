@@ -89,7 +89,7 @@ dependencies {
     }
     implementation('org.apache.httpcomponents:httpmime:4.5.6')
     implementation 'net.sourceforge.htmlcleaner:htmlcleaner:2.26'
-    implementation 'org.jsoup:jsoup:1.8.3'
+    implementation 'org.jsoup:jsoup:1.15.3'
     implementation 'com.scottyab:rootbeer-lib:0.1.0'
 
     // crashes on update - https://developers.google.com/admob/android/quick-start#update_your_androidmanifestxml
