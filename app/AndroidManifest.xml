@@ -100,6 +100,7 @@
         android:allowBackup="false"
         tools:replace="android:label,android:icon,android:theme, android:allowBackup"
         android:name="org.commcare.CommCareApplication"
+        android:networkSecurityConfig="@xml/advanced_actions"
         android:icon="@mipmap/commcare_launcher"
         android:supportsRtl="true"
         android:label="@string/application_name"
