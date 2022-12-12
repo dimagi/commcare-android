@@ -9,7 +9,7 @@ This repository represents the Android version of CommCare. It depends on the [C
 To set up an Android dev environmnet for commcare-android, do the following:
 
 - Install [Android Studio](https://developer.android.com/sdk/index.html).
-- Install Java 8 if you don't have it yet. For ease of test suite setup ([see below](#tests)) OpenJDK is preferred over Oracle's version of Java.
+- Install Java 11 if you don't have it yet. For ease of test suite setup ([see below](#tests)) OpenJDK is preferred over Oracle's version of Java.
 
 Go ahead and open Android Studio if this is your first time using it;
 it may take you through some sort of setup wizard, and it's nice to get that out of the way.
@@ -167,7 +167,7 @@ cp .android_studio_settings/codestyles/CommCare\ Coding\ Style.xml ~/Library/Pre
 ```
 java.security.InvalidKeyException: Illegal key size or default parameters
 ```
-you will need to upgrade the JCE policy files that are being used. To do so:
+you will need to upgrade the JCE policy files that are being used. Note that this is no longer necessary when using JDK 11, since the stronger cryptographic algorithms are included by default starting with JDK 9. To update JCE for JDK 8:
 
 1. Download the JCE Unlimited Strength policy files for Java 8 (Last we checked they could be found [here](http://www.oracle.com/technetwork/java/javase/downloads/jce8-download-2133166.html), but this can change
 2. Find the java home directory on your machine. On mac you can do so by entering the following into the command line: `echo $(/usr/libexec/java_home)`
