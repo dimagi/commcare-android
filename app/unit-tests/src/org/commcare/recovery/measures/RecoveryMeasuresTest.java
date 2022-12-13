@@ -124,8 +124,7 @@ public class RecoveryMeasuresTest {
         requestRecoveryMeasures(REINSTALL_AND_UPDATE_VALID_FOR_CURRENT_APP_VERSION);
         LoginActivity loginActivity =
                 Robolectric.buildActivity(LoginActivity.class, null).create().resume().get();
-        ShadowActivity shadowActivity = Shadows.shadowOf(loginActivity);
-        assertTrue(shadowActivity.isFinishing());
+        assertTrue(loginActivity.isFinishing());
     }
 
     @Test
@@ -152,7 +151,7 @@ public class RecoveryMeasuresTest {
         ShadowActivity shadowHomeActivity = Shadows.shadowOf(homeActivity);
 
         // Verify HomeActivity finishes since recovery measures are pending
-        assertTrue(shadowHomeActivity.isFinishing());
+        assertTrue(homeActivity.isFinishing());
 
         shadowDispatchActivity.receiveResult(homeActivityIntent,
                 shadowHomeActivity.getResultCode(),

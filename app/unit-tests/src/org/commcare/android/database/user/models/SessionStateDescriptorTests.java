@@ -1,15 +1,20 @@
 package org.commcare.android.database.user.models;
 
+import static org.junit.Assert.assertEquals;
+
+import com.google.common.collect.ImmutableMultimap;
+
 import org.commcare.models.AndroidSessionWrapper;
 import org.commcare.modern.session.SessionWrapper;
 import org.commcare.session.CommCareSession;
+import org.commcare.session.RemoteQuerySessionManager;
 import org.commcare.test.utilities.MockApp;
 import org.commcare.util.CommCarePlatform;
-import org.javarosa.core.model.instance.ExternalDataInstance;
+import org.javarosa.core.model.instance.ExternalDataInstanceSource;
 import org.javarosa.core.model.instance.TreeElement;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
+import java.util.ArrayList;
 
 /**
  * @author Phillip Mates (pmates@dimagi.com)
@@ -21,14 +26,20 @@ public class SessionStateDescriptorTests {
         MockApp app = new MockApp("/commcare-apps/case_search_and_claim/");
         SessionWrapper session = app.getSession();
         session.setCommand("patient-search");
-        session.setQueryDatum(ExternalDataInstance.buildFromRemote("foo", new TreeElement(), false));
-        session.setDatum("case_id", "case_two");
+        RemoteQuerySessionManager remoteQuerySessionManager =
+                RemoteQuerySessionManager.buildQuerySessionManager(session,
+                        session.getEvaluationContext(), new ArrayList<>());
+        ExternalDataInstanceSource queryInstanceSource = ExternalDataInstanceSource.buildRemote("foo",
+                new TreeElement(), false, "uri",
+                ImmutableMultimap.of());
+        session.setQueryDatum(queryInstanceSource.toInstance());
+        session.setEntityDatum("case_id", "case_two");
         serializeSessionOutToDescriptor(session);
 
         session.clearAllState();
         session.setCommand("m0");
         session.setCommand("m0-f0");
-        session.setDatum("case_id", "case_two");
+        session.setEntityDatum("case_id", "case_two");
         session.setComputedDatum(session.getEvaluationContext());
 
         serializeSessionOutToDescriptor(session);

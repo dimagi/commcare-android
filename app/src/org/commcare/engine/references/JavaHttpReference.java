@@ -1,5 +1,7 @@
 package org.commcare.engine.references;
 
+import com.google.common.collect.ImmutableMultimap;
+
 import org.commcare.core.network.CaptivePortalRedirectException;
 import org.commcare.interfaces.CommcareRequestEndpoints;
 import org.commcare.network.CommcareRequestGenerator;
@@ -65,7 +67,7 @@ public class JavaHttpReference implements Reference, ReleasedOnTimeSupportedRefe
     public InputStream getStream(Map<String, String> params) throws IOException {
         Response<ResponseBody> response;
         try {
-            response = generator.simpleGet(uri, new HashMap<>(), params);
+            response = generator.simpleGet(uri, ImmutableMultimap.of(), params);
         } catch (SSLHandshakeException | SSLPeerUnverifiedException e) {
             if(NetworkStatus.isCaptivePortal()) {
                 throw new CaptivePortalRedirectException();

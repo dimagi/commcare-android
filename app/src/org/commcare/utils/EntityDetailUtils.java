@@ -7,6 +7,7 @@ import org.commcare.activities.EntityDetailActivity;
 import org.commcare.models.AndroidSessionWrapper;
 import org.commcare.session.SessionFrame;
 import org.commcare.suite.model.EntityDatum;
+import org.commcare.util.DatumUtil;
 import org.javarosa.core.model.instance.TreeReference;
 
 /**
@@ -44,7 +45,7 @@ public class EntityDetailUtils {
                                               EntityDatum entityDatum,
                                               AndroidSessionWrapper asw) {
 
-        String caseId = EntityDatum.getCaseIdFromReference(
+        String caseId = DatumUtil.getReturnValueFromSelection(
                 contextRef, entityDatum, asw.getEvaluationContext());
         detailIntent.putExtra(SessionFrame.STATE_DATUM_VAL, caseId);
 

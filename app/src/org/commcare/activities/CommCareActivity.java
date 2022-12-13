@@ -29,6 +29,7 @@ import org.commcare.fragments.TaskConnectorFragment;
 import org.commcare.interfaces.WithUIController;
 import org.commcare.logic.DetailCalloutListenerDefaultImpl;
 import org.commcare.preferences.LocalePreferences;
+import org.commcare.session.CommCareSession;
 import org.commcare.session.SessionFrame;
 import org.commcare.session.SessionInstanceBuilder;
 import org.commcare.suite.model.CalloutData;
@@ -446,7 +447,9 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
     }
 
     protected void saveLastQueryString() {
-        CommCareApplication.instance().getCurrentSession().addExtraToCurrentFrameStep(SessionInstanceBuilder.KEY_LAST_QUERY_STRING, lastQueryString);
+        CommCareSession ccSession = CommCareApplication.instance().getCurrentSession();
+        ccSession.removeExtraFromCurrentFrameStep(SessionInstanceBuilder.KEY_LAST_QUERY_STRING);
+        ccSession.addExtraToCurrentFrameStep(SessionInstanceBuilder.KEY_LAST_QUERY_STRING, lastQueryString);
     }
 
     //Graphical stuff below, needs to get modularized

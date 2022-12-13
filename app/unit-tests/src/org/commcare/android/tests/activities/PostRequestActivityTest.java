@@ -1,14 +1,24 @@
 package org.commcare.android.tests.activities;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import android.content.Intent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import androidx.test.ext.junit.runners.AndroidJUnit4;
+
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.ImmutableMultimap;
+import com.google.common.collect.Multimap;
+
 import org.commcare.CommCareApplication;
 import org.commcare.CommCareTestApplication;
 import org.commcare.activities.PostRequestActivity;
-import androidx.test.ext.junit.runners.AndroidJUnit4;
 import org.commcare.android.mocks.HttpURLConnectionMock;
 import org.commcare.android.mocks.ModernHttpRequesterMock;
 import org.commcare.android.util.ActivityLaunchUtils;
@@ -42,12 +52,8 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 /**
  * @author Phillip Mates (pmates@dimagi.com)
@@ -98,8 +104,7 @@ public class PostRequestActivityTest {
         Intent postLaunchIntent = new Intent();
         if (url != null) {
             postLaunchIntent.putExtra(PostRequestActivity.URL_KEY, url);
-            postLaunchIntent.putExtra(PostRequestActivity.PARAMS_KEY,
-                    new HashMap<String, String>());
+            postLaunchIntent.putExtra(PostRequestActivity.PARAMS_KEY, ImmutableMultimap.of());
         }
         PostRequestActivity activity = Robolectric.buildActivity(PostRequestActivity.class, postLaunchIntent)
                 .create().start().resume().get();
@@ -205,8 +210,8 @@ public class PostRequestActivityTest {
                 CommCareApplication.instance().getCurrentSessionWrapper();
         CommCareSession session = sessionWrapper.getSession();
         session.setCommand("patient-search");
-        InputStream is =
-                PostRequestActivity.class.getClassLoader().getResourceAsStream("commcare-apps/case_search_and_claim/good-query-result.xml");
+        String resultsPath = "commcare-apps/case_search_and_claim/good-query-result.xml";
+        InputStream is = PostRequestActivity.class.getClassLoader().getResourceAsStream(resultsPath);
 
         ArrayList<String> supportedPrompts = new ArrayList<>();
         supportedPrompts.add(QueryPrompt.INPUT_TYPE_SELECT1);
@@ -214,9 +219,9 @@ public class PostRequestActivityTest {
                 RemoteQuerySessionManager.buildQuerySessionManager(sessionWrapper.getSession(),
                         sessionWrapper.getEvaluationContext(),supportedPrompts);
         Pair<ExternalDataInstance, String> instanceOrError =
-                remoteQuerySessionManager.buildExternalDataInstance(is);
+                remoteQuerySessionManager.buildExternalDataInstance(is, resultsPath, ArrayListMultimap.create());
         session.setQueryDatum(instanceOrError.first);
-        session.setDatum("case_id", "321");
+        session.setEntityDatum("case_id", "321");
 
         ShadowActivity shadowActivity =
                 ActivityLaunchUtils.buildHomeActivity();
@@ -227,9 +232,11 @@ public class PostRequestActivityTest {
         assertTrue(intentActivityName.equals(PostRequestActivity.class.getName()));
 
         assertEquals("https://www.fake.com/claim_patient/", postActivityIntent.getSerializableExtra(PostRequestActivity.URL_KEY).toString());
-        HashMap<String, String> postUrlParams =
-                (HashMap<String, String>)postActivityIntent.getSerializableExtra(PostRequestActivity.PARAMS_KEY);
-        assertEquals("321", postUrlParams.get("selected_case_id"));
+        Multimap<String, String> postUrlParams =
+                (Multimap<String, String>)postActivityIntent.getSerializableExtra(PostRequestActivity.PARAMS_KEY);
+        Collection<String> selectedCaseIds = postUrlParams.get("selected_case_id");
+        assertEquals(1, selectedCaseIds.size());
+        assertTrue(selectedCaseIds.contains("321"));
 
         PostRequestActivity postRequestActivity =
                 Robolectric.buildActivity(PostRequestActivity.class, postActivityIntent)
