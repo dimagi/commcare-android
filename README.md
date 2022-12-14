@@ -6,13 +6,13 @@ This repository represents the Android version of CommCare. It depends on the [C
 
 ## Setup
 
-To set up an Android dev environmnet for commcare-android, do the following:
+To set up an Android dev environment for commcare-android, do the following:
 
 - Install [Android Studio](https://developer.android.com/sdk/index.html).
-- Install Java 17 if you don't have it yet. For ease of test suite setup ([see below](#tests)) OpenJDK is preferred over Oracle's version of Java.
+- Install Java 17 if you don't have it yet. For ease of test suite setup ([see below](#tests)) OpenJDK is preferred over Oracle's version of Java. 
 
 Go ahead and open Android Studio if this is your first time using it;
-it may take you through some sort of setup wizard, and it's nice to get that out of the way.
+it may take you through some sort of setup wizard, and it's nice to get that out of the way. If it's not the first time, ensure that there are no references to [removed Java options](https://docs.oracle.com/en/java/javase/17/docs/specs/man/java.html#removed-java-options) in your environment, most commonly found are *MaxPermSize* and *PermSize*
 
 Android Studio's default project space is `~/AndroidStudioProjects` so I'm going to use that in the example.
 CommCare Android depends on CommCare Core, and CommCare Android expects the core directory to live side by side
