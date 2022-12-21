@@ -1,9 +1,11 @@
 package org.commcare.android.tests.backend;
 
 import org.commcare.cases.model.Case;
+import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.commcare.models.AndroidClassHasher;
 import org.commcare.models.AndroidPrototypeFactory;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import static junit.framework.Assert.assertEquals;
@@ -14,6 +16,11 @@ import static junit.framework.Assert.assertEquals;
 public class PrototypeTest {
 
     private AndroidPrototypeFactory mFactory;
+
+    @BeforeClass
+    public static void reset() {
+        PrototypeFactory.setStaticHasher(null);
+    }
 
     @Before
     public void setupTests() {
