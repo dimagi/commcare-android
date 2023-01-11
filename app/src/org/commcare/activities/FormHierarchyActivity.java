@@ -20,7 +20,6 @@ import org.javarosa.core.model.FormIndex;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.form.api.FormEntryController;
 import org.javarosa.xpath.XPathException;
-import org.javarosa.xpath.XPathTypeMismatchException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -166,17 +165,11 @@ public class FormHierarchyActivity extends SessionAwareListActivity {
         String hierarchyPath;
         try {
             hierarchyPath = FormHierarchyBuilder.populateHierarchyList(this, formList);
-        } catch (XPathTypeMismatchException e) {
+        } catch (XPathException e) {
             XPathErrorLogger.INSTANCE.logErrorToCurrentApp(e);
 
             final String errorMsg = "Encounted xpath error: " + e.getMessage();
             Toast.makeText(this, errorMsg, Toast.LENGTH_LONG).show();
-            setResult(RESULT_XPATH_ERROR);
-            finish();
-            return;
-        }
-        catch (XPathException e) {
-            Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
             setResult(RESULT_XPATH_ERROR);
             finish();
             return;
