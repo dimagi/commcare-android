@@ -83,7 +83,7 @@ dependencies {
     implementation 'com.google.android.gms:play-services-maps:17.0.0'
     implementation 'joda-time:joda-time:2.9.4'
     implementation 'net.zetetic:android-database-sqlcipher:4.5.2@aar'
-    implementation "androidx.sqlite:sqlite:2.2.0"
+    implementation "androidx.sqlite:sqlite:2.3.0"
     implementation('org.apache.james:apache-mime4j:0.7.2') {
         exclude module: 'commons-io'
     }
