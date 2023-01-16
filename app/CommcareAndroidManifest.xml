@@ -5,6 +5,7 @@
         <!-- Enable Shortcuts for Command Actions -->
         <activity
             android:name="org.commcare.utils.AndroidShortcuts"
+            android:exported="true"
             android:theme="@android:style/Theme.Translucent.NoTitleBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
@@ -13,7 +14,8 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="org.commcare.utils.ManagerShortcut">
+            android:name="org.commcare.utils.ManagerShortcut"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.DEFAULT"/>
@@ -22,6 +24,7 @@
 
         <activity-alias
             android:name=".application.ShortcutGenerator"
+            android:exported="true"
             android:label="CommCare Action"
             android:targetActivity="org.commcare.utils.AndroidShortcuts">
 
@@ -35,6 +38,7 @@
 
         <activity-alias
             android:name=".application.ManagerGenerator"
+            android:exported="true"
             android:label="App Manager"
             android:targetActivity="org.commcare.utils.ManagerShortcut">
 

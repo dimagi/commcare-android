@@ -340,6 +340,16 @@ public class FormStorageTest {
 
             // Added in 2.53
             , "org.javarosa.xpath.expr.XPathDecryptStringFunc"
+            , "org.javarosa.xpath.expr.XPathJsonPropertyFunc"
+            , "org.commcare.suite.model.AndroidPackageDependency"
+
+            // Added in 2.54
+            , "org.commcare.suite.model.QueryPromptCondition"
+            , "org.commcare.suite.model.MultiSelectEntityDatum"
+            , "org.commcare.suite.model.ListQueryData"
+            , "org.commcare.suite.model.ValueQueryData"
+            , "org.javarosa.core.util.externalizable.ExtWrapMultiMap"
+            , "org.javarosa.core.model.instance.ExternalDataInstanceSource"
     );
 
 

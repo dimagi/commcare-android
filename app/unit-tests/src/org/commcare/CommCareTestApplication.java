@@ -17,6 +17,7 @@ import org.commcare.core.network.ModernHttpRequester;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.heartbeat.HeartbeatRequester;
 import org.commcare.heartbeat.TestHeartbeatRequester;
+import org.commcare.logging.DataChangeLogger;
 import org.commcare.models.AndroidPrototypeFactory;
 import org.commcare.models.database.AndroidPrototypeFactorySetup;
 import org.commcare.models.database.HybridFileBackedSqlStorage;
@@ -52,6 +53,8 @@ import okhttp3.RequestBody;
 import static junit.framework.Assert.fail;
 import static org.robolectric.shadows.ShadowEnvironment.setExternalStorageState;
 
+import com.google.common.collect.Multimap;
+
 /**
  * @author Phillip Mates (pmates@dimagi.com).
  */
@@ -66,6 +69,9 @@ public class CommCareTestApplication extends CommCareApplication implements Test
 
     @Override
     public void onCreate() {
+        // set if before calling super to initialte the dataChangeLogger correctly
+        setExternalStorageState(Environment.MEDIA_MOUNTED);
+
         super.onCreate();
 
         // allow "jr://resource" references
@@ -75,7 +81,6 @@ public class CommCareTestApplication extends CommCareApplication implements Test
             asyncExceptions.add(ex);
             Assert.fail(ex.getMessage());
         });
-        setExternalStorageState(Environment.MEDIA_MOUNTED);
     }
 
     protected void attachISRGCert() {
@@ -281,7 +286,7 @@ public class CommCareTestApplication extends CommCareApplication implements Test
     }
 
     @Override
-    public ModernHttpRequester buildHttpRequester(Context context, String url, Map<String, String> params,
+    public ModernHttpRequester buildHttpRequester(Context context, String url, Multimap<String, String> params,
                                                   HashMap headers, RequestBody requestBody, List<MultipartBody.Part> parts,
                                                   HTTPMethod method, AuthInfo authInfo, HttpResponseProcessor responseProcessor, boolean b) {
         return new ModernHttpRequesterMock(new AndroidCacheDirSetup(context),

@@ -74,6 +74,10 @@ public class StorageUtils {
         return getNumFormsWithStatus(FormRecord.STATUS_UNSENT);
     }
 
+    public static int getNumUnsentAndIncompleteForms(){
+        return getNumUnsentForms() + getNumIncompleteForms();
+    }
+
     private static int getNumFormsWithStatus(String status) {
         SqlStorage<FormRecord> formsStorage =
                 CommCareApplication.instance().getUserStorage(FormRecord.class);

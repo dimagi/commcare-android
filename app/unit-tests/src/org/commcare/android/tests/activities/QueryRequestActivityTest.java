@@ -61,9 +61,6 @@ public class QueryRequestActivityTest {
 
         try {
             ParseUtils.parseIntoSandbox(
-                    this.getClass().getResourceAsStream("/commcare-apps/case_search_and_claim/fixtures.xml"),
-                    new AndroidSandbox(CommCareApplication.instance()));
-            ParseUtils.parseIntoSandbox(
                     this.getClass().getResourceAsStream("/commcare-apps/case_search_and_claim/user_restore.xml"),
                     new AndroidSandbox(CommCareApplication.instance()));
         } catch (InvalidStructureException e) {
@@ -226,7 +223,7 @@ public class QueryRequestActivityTest {
     public void receiveEmptyQueryResultTest() {
         ModernHttpRequesterMock.setResponseCodes(new Integer[]{200, 200, 200});
         ModernHttpRequesterMock.setExpectedUrls(
-                new String[]{"https://www.fake.com/patient_search/?name=francisco&device_id=000000000000000"});
+                new String[]{"https://www.fake.com/patient_search/?name=francisco&state=&device_id=000000000000000&patient_id=&district="});
         ModernHttpRequesterMock.setRequestPayloads(
                 new String[]{"jr://resource/commcare-apps/case_search_and_claim/empty-query-result-one-tag.xml",
                         "jr://resource/commcare-apps/case_search_and_claim/empty-query-result-two-tags.xml",

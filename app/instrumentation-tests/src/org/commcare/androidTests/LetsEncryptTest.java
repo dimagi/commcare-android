@@ -53,7 +53,7 @@ public class LetsEncryptTest {
     }
 
     private void makeGetRequest(String url, int expectedCode) throws IOException {
-        Response<ResponseBody> response = commCareNetworkService.makeGetRequest(url, new HashMap<>(), new HashMap<>()).execute();
+        Response<ResponseBody> response = commCareNetworkService.makeGetRequest(url, new HashMap<>()).execute();
         assertTrue(response.code() == expectedCode);
         assertEquals(Protocol.HTTP_2, response.raw().protocol());
         if (response.body() != null) {

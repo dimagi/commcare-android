@@ -13,6 +13,15 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
+
 import org.commcare.AppUtils;
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
@@ -40,6 +49,7 @@ import org.commcare.tasks.ResourceEngineTask;
 import org.commcare.tasks.RetrieveParseVerifyMessageListener;
 import org.commcare.tasks.RetrieveParseVerifyMessageTask;
 import org.commcare.utils.ConsumerAppsUtil;
+import org.commcare.utils.ApkDependenciesUtils;
 import org.commcare.utils.MultipleAppsUtil;
 import org.commcare.utils.Permissions;
 import org.commcare.views.ManagedUi;
@@ -55,15 +65,6 @@ import org.javarosa.core.util.PropertyUtils;
 import java.io.IOException;
 import java.security.SignatureException;
 import java.util.List;
-
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
 
 /**
  * Responsible for identifying the state of the application (uninstalled,
@@ -104,7 +105,8 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         CHOOSE_INSTALL_ENTRY_METHOD,
         READY_TO_INSTALL,
         NEEDS_PERMS,
-        BLANK
+        BLANK,
+        DEPENDENCY_DIALOG
     }
 
     private UiState uiState = UiState.CHOOSE_INSTALL_ENTRY_METHOD;
@@ -161,9 +163,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         fromManager = getIntent().getBooleanExtra(AppManagerActivity.KEY_LAUNCH_FROM_MANAGER, false);
-
         if (checkForMultipleAppsViolation()) {
             return;
         }
@@ -290,6 +290,12 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             setResult(RESULT_OK);
             finish();
         }
+
+        // if we were in dependency dialog state and resumed CC, take the next step
+        // that we otherwise would have taken on a successful app install
+        if(uiState.equals(UiState.DEPENDENCY_DIALOG)){
+            launchNextActivityOnAppInstall();
+        }
     }
 
     @Override
@@ -338,6 +344,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                 fragment = permFragment;
                 break;
             case BLANK:
+            case DEPENDENCY_DIALOG:
                 fragment = new Fragment();
                 break;
             default:
@@ -726,6 +733,15 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             Toast.makeText(this, Localization.get("updates.success"), Toast.LENGTH_LONG).show();
         }
 
+        if (ApkDependenciesUtils.performDependencyCheckFlow(this)) {
+            launchNextActivityOnAppInstall();
+        } else {
+            uiState = UiState.DEPENDENCY_DIALOG;
+            uiStateScreenTransition();
+        }
+    }
+
+    private void launchNextActivityOnAppInstall() {
         if (Intent.ACTION_VIEW.equals(CommCareSetupActivity.this.getIntent().getAction())) {
             // app installed from external action
             if (getIntent().getBooleanExtra(FORCE_VALIDATE_KEY, false)) {
@@ -738,10 +754,13 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                 Intent i = new Intent(getApplicationContext(), DispatchActivity.class);
                 startActivity(i);
             }
-        } else {
+        } else if (getCallingActivity()!= null && getCallingActivity().getPackageName().equals(BuildConfig.APPLICATION_ID)){
             Intent i = new Intent(getIntent());
             setResult(RESULT_OK, i);
         }
+        else
+            fail(Localization.get("install.invalid.launch"));
+
         finish();
     }
 

@@ -747,4 +747,8 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
         return returnSet;
     }
 
+    @Override
+    public Class<?> getPrototype() {
+        return ctype;
+    }
 }

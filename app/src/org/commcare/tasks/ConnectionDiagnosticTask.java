@@ -127,7 +127,7 @@ public abstract class ConnectionDiagnosticTask<R> extends CommCareTask<Void, Str
         CommCareNetworkService commCareNetworkService = CommCareNetworkServiceGenerator.createNoAuthCommCareNetworkService();
         String htmlLine = "";
         try {
-            Response<ResponseBody> response = commCareNetworkService.makeGetRequest(url, new HashMap<>(), new HashMap<>()).execute();
+            Response<ResponseBody> response = commCareNetworkService.makeGetRequest(url, new HashMap<>()).execute();
             if (response.isSuccessful()) {
                 htmlLine = response.body().string();
             } else {
