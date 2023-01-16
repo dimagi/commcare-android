@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.DialogInterface;
 
 import org.commcare.activities.CommCareActivity;
+import org.commcare.activities.FormHierarchyActivity;
 import org.commcare.logging.XPathErrorLogger;
 import org.commcare.utils.StringUtils;
 import org.commcare.views.dialogs.StandardAlertDialog;
@@ -45,8 +46,37 @@ public class UserfacingErrorHandling {
         activity.showAlertDialog(factory);
     }
 
-    public static StandardAlertDialog getErrorDialog(final Activity activity, String errorMsg,
-                                      String dialogTitle, final boolean shouldExit) {
+    public static StandardAlertDialog getErrorDialog(final CommCareActivity activity, String errorMsg,
+                                                     String dialogTitle, final boolean shouldExit) {
+        StandardAlertDialog factory = new StandardAlertDialog(activity, dialogTitle, errorMsg);
+        factory.setIcon(android.R.drawable.ic_dialog_info);
+
+        DialogInterface.OnCancelListener cancelListener =
+                dialog -> {
+                    if (shouldExit) {
+                        activity.setResult(AppCompatActivity.RESULT_CANCELED);
+                        activity.finish();
+                    }
+                    activity.dismissAlertDialog();
+                };
+        factory.setOnCancelListener(cancelListener);
+
+        CharSequence buttonDisplayText =
+                StringUtils.getStringSpannableRobust(activity, org.commcare.dalvik.R.string.ok);
+        DialogInterface.OnClickListener buttonListener =
+                (dialog, i) -> {
+                    if (shouldExit) {
+                        activity.setResult(AppCompatActivity.RESULT_CANCELED);
+                        activity.finish();
+                    }
+                    activity.dismissAlertDialog();
+                };
+        factory.setPositiveButton(buttonDisplayText, buttonListener);
+        return factory;
+    }
+
+    public static StandardAlertDialog getErrorDialog(final FormHierarchyActivity activity, String errorMsg,
+                                                     String dialogTitle, final boolean shouldExit) {
         StandardAlertDialog factory = new StandardAlertDialog(activity, dialogTitle, errorMsg);
         factory.setIcon(android.R.drawable.ic_dialog_info);
 

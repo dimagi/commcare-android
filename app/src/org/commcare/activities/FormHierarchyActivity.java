@@ -23,6 +23,7 @@ import org.javarosa.core.services.locale.Localization;
 import org.javarosa.form.api.FormEntryController;
 import org.javarosa.xpath.XPathException;
 import org.commcare.views.UserfacingErrorHandling;
+import androidx.fragment.app.DialogFragment;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -159,6 +160,18 @@ public class FormHierarchyActivity extends SessionAwareListActivity {
         return path.substring(0, path.length() - 2);
     }
 
+    public void dismissAlertDialog() {
+        DialogFragment alertDialog = getCurrentAlertDialog();
+        if (alertDialog != null) {
+            alertDialog.dismiss();
+        }
+    }
+
+    public AlertDialogFragment getCurrentAlertDialog() {
+        return (AlertDialogFragment)getSupportFragmentManager().
+                findFragmentByTag("error-dialog");
+    }
+
     private void refreshView() {
         // Record the current index so we can return to the same place if the user hits 'back'.
         FormIndex currentIndex = FormEntryActivity.mFormController.getFormIndex();
@@ -169,20 +182,17 @@ public class FormHierarchyActivity extends SessionAwareListActivity {
         try {
             hierarchyPath = FormHierarchyBuilder.populateHierarchyList(this, formList);
         } catch (XPathException e) {
+            XPathErrorLogger.INSTANCE.logErrorToCurrentApp(e);
+
             final String title = StringUtils.getStringRobust(this, org.commcare.dalvik.R.string.error_occured);
             final String errorMsg = e.getMessage();
+
             AlertDialogFragment.fromCommCareAlertDialog(
                     UserfacingErrorHandling.getErrorDialog(
                             this, errorMsg, title, true
                     )
             ).show(getSupportFragmentManager(), "error-dialog");
 
-//            XPathErrorLogger.INSTANCE.logErrorToCurrentApp(e);
-//
-//            final String errorMsg = "Encounted xpath error: " + e.getMessage();
-//            Toast.makeText(this, errorMsg, Toast.LENGTH_LONG).show();
-//            setResult(RESULT_XPATH_ERROR);
-//            finish();
             return;
         }
 
