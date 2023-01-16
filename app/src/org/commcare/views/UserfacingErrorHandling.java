@@ -1,5 +1,6 @@
 package org.commcare.views;
 
+import android.app.Activity;
 import android.content.DialogInterface;
 
 import org.commcare.activities.CommCareActivity;
@@ -40,6 +41,12 @@ public class UserfacingErrorHandling {
 
     public static void createErrorDialog(final CommCareActivity activity, String errorMsg,
                                          String dialogTitle, final boolean shouldExit) {
+        StandardAlertDialog factory = getErrorDialog(activity, errorMsg, dialogTitle, shouldExit);
+        activity.showAlertDialog(factory);
+    }
+
+    public static StandardAlertDialog getErrorDialog(final Activity activity, String errorMsg,
+                                      String dialogTitle, final boolean shouldExit) {
         StandardAlertDialog factory = new StandardAlertDialog(activity, dialogTitle, errorMsg);
         factory.setIcon(android.R.drawable.ic_dialog_info);
 
@@ -64,6 +71,6 @@ public class UserfacingErrorHandling {
                     activity.dismissAlertDialog();
                 };
         factory.setPositiveButton(buttonDisplayText, buttonListener);
-        activity.showAlertDialog(factory);
+        return factory;
     }
 }

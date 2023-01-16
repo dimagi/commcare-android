@@ -7,7 +7,9 @@ import android.widget.Button;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
+
+import org.commcare.utils.StringUtils;
+import org.commcare.views.dialogs.AlertDialogFragment;
 
 import org.commcare.adapters.HierarchyListAdapter;
 import org.commcare.dalvik.R;
@@ -20,6 +22,7 @@ import org.javarosa.core.model.FormIndex;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.form.api.FormEntryController;
 import org.javarosa.xpath.XPathException;
+import org.commcare.views.UserfacingErrorHandling;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -166,12 +169,20 @@ public class FormHierarchyActivity extends SessionAwareListActivity {
         try {
             hierarchyPath = FormHierarchyBuilder.populateHierarchyList(this, formList);
         } catch (XPathException e) {
-            XPathErrorLogger.INSTANCE.logErrorToCurrentApp(e);
+            final String title = StringUtils.getStringRobust(this, org.commcare.dalvik.R.string.error_occured);
+            final String errorMsg = e.getMessage();
+            AlertDialogFragment.fromCommCareAlertDialog(
+                    UserfacingErrorHandling.getErrorDialog(
+                            this, errorMsg, title, true
+                    )
+            ).show(getSupportFragmentManager(), "error-dialog");
 
-            final String errorMsg = "Encounted xpath error: " + e.getMessage();
-            Toast.makeText(this, errorMsg, Toast.LENGTH_LONG).show();
-            setResult(RESULT_XPATH_ERROR);
-            finish();
+//            XPathErrorLogger.INSTANCE.logErrorToCurrentApp(e);
+//
+//            final String errorMsg = "Encounted xpath error: " + e.getMessage();
+//            Toast.makeText(this, errorMsg, Toast.LENGTH_LONG).show();
+//            setResult(RESULT_XPATH_ERROR);
+//            finish();
             return;
         }
 
