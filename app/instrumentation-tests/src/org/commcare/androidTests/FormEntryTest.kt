@@ -265,6 +265,31 @@ class FormEntryTest: BaseTest() {
                 .check(matches(isDisplayed()))
     }
 
+    @Test
+    @BrowserstackTests
+    fun testQuestionHintVisible() {
+        InstrumentationUtility.login("test_user_7", "123")
+        // Open first form
+        InstrumentationUtility.openForm(0, 0)
+        closeSoftKeyboard()
+
+        //Confirm the hint is visible
+        onView(withClassName(endsWith("ShrinkingTextView")))
+            .check(matches(isDisplayed()))
+
+        //Input some text to the first question
+        onView(withClassName(endsWith("EditText")))
+            .perform(typeText("hello"))
+
+        //Proceed to second question
+        onView(withId(R.id.nav_btn_next))
+            .perform(click())
+
+        //Verify hint text does not exist
+        onView(withClassName(endsWith("ShrinkingTextView")))
+            .check(doesNotExist())
+    }
+
     private fun openCase(caseName: String) {
         onView(withText(caseName))
                 .perform(click())
