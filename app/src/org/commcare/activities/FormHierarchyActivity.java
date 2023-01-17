@@ -23,14 +23,16 @@ import org.javarosa.core.services.locale.Localization;
 import org.javarosa.form.api.FormEntryController;
 import org.javarosa.xpath.XPathException;
 import org.commcare.views.UserfacingErrorHandling;
+import org.commcare.views.dialogs.CommCareAlertDialog;
 import androidx.fragment.app.DialogFragment;
+import org.commcare.views.dialogs.AlertDialogController;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import androidx.appcompat.app.ActionBar;
 
-public class FormHierarchyActivity extends SessionAwareListActivity {
+public class FormHierarchyActivity extends SessionAwareListActivity implements AlertDialogController {
     private Button jumpPreviousButton;
     private List<HierarchyElement> formList;
     private TextView mPath;
@@ -160,6 +162,10 @@ public class FormHierarchyActivity extends SessionAwareListActivity {
         return path.substring(0, path.length() - 2);
     }
 
+    @Override
+    public void showAlertDialog(CommCareAlertDialog dialog) {}
+
+    @Override
     public void dismissAlertDialog() {
         DialogFragment alertDialog = getCurrentAlertDialog();
         if (alertDialog != null) {
@@ -188,7 +194,7 @@ public class FormHierarchyActivity extends SessionAwareListActivity {
             final String errorMsg = e.getMessage();
 
             AlertDialogFragment.fromCommCareAlertDialog(
-                    UserfacingErrorHandling.getErrorDialog(
+                    new UserfacingErrorHandling<>().getErrorDialog(
                             this, errorMsg, title, true
                     )
             ).show(getSupportFragmentManager(), "error-dialog");

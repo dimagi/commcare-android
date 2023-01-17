@@ -113,7 +113,7 @@ public class QueryRequestActivity
                     RemoteQuerySessionManager.buildQuerySessionManager(sessionWrapper.getSession(),
                             sessionWrapper.getEvaluationContext(), getSupportedPrompts());
         } catch (XPathException xpe) {
-            UserfacingErrorHandling.createErrorDialog(this, xpe.getMessage(), true);
+            new UserfacingErrorHandling<>().createErrorDialog(this, xpe.getMessage(), true);
             return;
         }
 

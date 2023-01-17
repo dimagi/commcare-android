@@ -8,6 +8,7 @@ import org.commcare.activities.FormHierarchyActivity;
 import org.commcare.logging.XPathErrorLogger;
 import org.commcare.utils.StringUtils;
 import org.commcare.views.dialogs.StandardAlertDialog;
+import org.commcare.views.dialogs.AlertDialogController;
 import org.javarosa.xpath.XPathException;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -17,9 +18,9 @@ import androidx.appcompat.app.AppCompatActivity;
  *
  * @author Phillip Mates (pmates@dimagi.com).
  */
-public class UserfacingErrorHandling {
+public class UserfacingErrorHandling<T extends AppCompatActivity & AlertDialogController> {
 
-    public static void logErrorAndShowDialog(final CommCareActivity activity,
+    public void logErrorAndShowDialog(final T activity,
                                              XPathException exception,
                                              final boolean shouldExit) {
         XPathErrorLogger.INSTANCE.logErrorToCurrentApp(exception);
@@ -34,48 +35,19 @@ public class UserfacingErrorHandling {
      * @param activity   Activity to which to attach the dialog.
      * @param shouldExit If true, cancel activity when user exits dialog.
      */
-    public static void createErrorDialog(final CommCareActivity activity, String errorMsg,
+    public void createErrorDialog(final T activity, String errorMsg,
                                          final boolean shouldExit) {
         String title = StringUtils.getStringRobust(activity, org.commcare.dalvik.R.string.error_occured);
         createErrorDialog(activity, errorMsg, title, shouldExit);
     }
 
-    public static void createErrorDialog(final CommCareActivity activity, String errorMsg,
+    public void createErrorDialog(final T activity, String errorMsg,
                                          String dialogTitle, final boolean shouldExit) {
         StandardAlertDialog factory = getErrorDialog(activity, errorMsg, dialogTitle, shouldExit);
         activity.showAlertDialog(factory);
     }
 
-    public static StandardAlertDialog getErrorDialog(final CommCareActivity activity, String errorMsg,
-                                                     String dialogTitle, final boolean shouldExit) {
-        StandardAlertDialog factory = new StandardAlertDialog(activity, dialogTitle, errorMsg);
-        factory.setIcon(android.R.drawable.ic_dialog_info);
-
-        DialogInterface.OnCancelListener cancelListener =
-                dialog -> {
-                    if (shouldExit) {
-                        activity.setResult(AppCompatActivity.RESULT_CANCELED);
-                        activity.finish();
-                    }
-                    activity.dismissAlertDialog();
-                };
-        factory.setOnCancelListener(cancelListener);
-
-        CharSequence buttonDisplayText =
-                StringUtils.getStringSpannableRobust(activity, org.commcare.dalvik.R.string.ok);
-        DialogInterface.OnClickListener buttonListener =
-                (dialog, i) -> {
-                    if (shouldExit) {
-                        activity.setResult(AppCompatActivity.RESULT_CANCELED);
-                        activity.finish();
-                    }
-                    activity.dismissAlertDialog();
-                };
-        factory.setPositiveButton(buttonDisplayText, buttonListener);
-        return factory;
-    }
-
-    public static StandardAlertDialog getErrorDialog(final FormHierarchyActivity activity, String errorMsg,
+    public StandardAlertDialog getErrorDialog(final T activity, String errorMsg,
                                                      String dialogTitle, final boolean shouldExit) {
         StandardAlertDialog factory = new StandardAlertDialog(activity, dialogTitle, errorMsg);
         factory.setIcon(android.R.drawable.ic_dialog_info);

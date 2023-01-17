@@ -486,7 +486,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
             return wasAnswerSet;
         } catch (XPathException e) {
-            UserfacingErrorHandling.logErrorAndShowDialog(this, e, true);
+            new UserfacingErrorHandling<>().logErrorAndShowDialog(this, e, true);
             return false;
         }
     }
@@ -638,7 +638,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                     }
                 }
             } catch (XPathException e) {
-                UserfacingErrorHandling.createErrorDialog(this, e.getLocalizedMessage(), true);
+                new UserfacingErrorHandling<>().createErrorDialog(this, e.getLocalizedMessage(), true);
             }
         }
         return success;
@@ -975,13 +975,13 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                     formId = intent.getIntExtra(KEY_FORM_DEF_ID, -1);
                     instanceState.setFormDefPath(FormFileSystemHelpers.getFormDefPath(formDefStorage, formId));
                 } else {
-                    UserfacingErrorHandling.createErrorDialog(this,
+                    new UserfacingErrorHandling<>().createErrorDialog(this,
                             "Intent to start FormEntryActivity must contain either instance id or form def id",
                             FormEntryConstants.EXIT);
                     return;
                 }
             } catch (FormQueryException e) {
-                UserfacingErrorHandling.createErrorDialog(this, e.getMessage(), FormEntryConstants.EXIT);
+                new UserfacingErrorHandling<>().createErrorDialog(this, e.getMessage(), FormEntryConstants.EXIT);
                 return;
             }
 
@@ -1001,9 +1001,9 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                     receiver.dismissProgressDialogForTask(taskId);
 
                     if (e != null) {
-                        UserfacingErrorHandling.createErrorDialog(receiver, e.getMessage(), FormEntryConstants.EXIT);
+                        new UserfacingErrorHandling<>().createErrorDialog(receiver, e.getMessage(), FormEntryConstants.EXIT);
                     } else {
-                        UserfacingErrorHandling.createErrorDialog(receiver, StringUtils.getStringRobust(receiver, R.string.parse_error), FormEntryConstants.EXIT);
+                        new UserfacingErrorHandling<>().createErrorDialog(receiver, StringUtils.getStringRobust(receiver, R.string.parse_error), FormEntryConstants.EXIT);
                     }
 
                     if (intent.hasExtra(KEY_FORM_RECORD_ID)) {
@@ -1062,7 +1062,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     }
 
     private void handleXpathErrorBroadcast() {
-        UserfacingErrorHandling.createErrorDialog(FormEntryActivity.this,
+        new UserfacingErrorHandling<>().createErrorDialog(FormEntryActivity.this,
                 "There is a bug in one of your form's XPath Expressions \n" + badLocationXpath, FormEntryConstants.EXIT);
     }
 
@@ -1203,7 +1203,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                     return;
                 case SAVE_ERROR:
                     if (!CommCareApplication.instance().isConsumerApp()) {
-                        UserfacingErrorHandling.createErrorDialog(this, errorMessage,
+                        new UserfacingErrorHandling<>().createErrorDialog(this, errorMessage,
                                 Localization.get("notification.formentry.save_error.title"), FormEntryConstants.EXIT);
                     }
                     quarantineRecordOnError(errorMessage);
@@ -1255,7 +1255,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             }
         } catch (XPathException e) {
             //this is where runtime exceptions get triggered after the form has loaded
-            UserfacingErrorHandling.logErrorAndShowDialog(this, e, FormEntryConstants.EXIT);
+            new UserfacingErrorHandling<>().logErrorAndShowDialog(this, e, FormEntryConstants.EXIT);
             //We're exiting anyway
             return FormEntryController.ANSWER_OK;
         }
@@ -1353,7 +1353,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             uiController.recordLastChangedWidgetIndex(changedWidget);
             uiController.updateFormRelevancies();
         } catch (XPathTypeMismatchException e) {
-            UserfacingErrorHandling.logErrorAndShowDialog(this, e, FormEntryConstants.EXIT);
+            new UserfacingErrorHandling<>().logErrorAndShowDialog(this, e, FormEntryConstants.EXIT);
             return;
         }
 

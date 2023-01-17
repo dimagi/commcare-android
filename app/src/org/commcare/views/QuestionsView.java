@@ -312,7 +312,7 @@ public class QuestionsView extends ScrollView
                 }
             }
         } catch (XPathException exception) {
-            UserfacingErrorHandling.createErrorDialog((CommCareActivity)getContext(), exception.getLocalizedMessage(), true);
+            new UserfacingErrorHandling<>().createErrorDialog((CommCareActivity)getContext(), exception.getLocalizedMessage(), true);
         }
 
         return hintText;

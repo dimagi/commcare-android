@@ -84,7 +84,7 @@ public class FormEntrySessionWrapper {
                     formEntryRestoreSession);
             formEntryRestoreSession = null;
         } catch (FormEntrySessionReplayer.ReplayError e) {
-            UserfacingErrorHandling.createErrorDialog(activity, e.getMessage(), FormEntryConstants.EXIT);
+            new UserfacingErrorHandling<>().createErrorDialog(activity, e.getMessage(), FormEntryConstants.EXIT);
         }
 
     }

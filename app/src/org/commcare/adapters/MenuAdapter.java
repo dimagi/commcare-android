@@ -93,7 +93,7 @@ public class MenuAdapter extends BaseAdapter {
 
     public void showAnyLoadErrors(CommCareActivity activity) {
         if (loadError != null) {
-            UserfacingErrorHandling.createErrorDialog(activity, errorMessage, true);
+            new UserfacingErrorHandling<>().createErrorDialog(activity, errorMessage, true);
         }
     }
 
@@ -197,7 +197,7 @@ public class MenuAdapter extends BaseAdapter {
             }
             textView.setText(mQuestionText);
         } catch (XPathException e) {
-            UserfacingErrorHandling.createErrorDialog(context, e.getLocalizedMessage(), true);
+            new UserfacingErrorHandling<>().createErrorDialog(context, e.getLocalizedMessage(), true);
         }
     }
 
@@ -236,7 +236,7 @@ public class MenuAdapter extends BaseAdapter {
                                                 updateBadgeView(badgeView, badgeText);
                                             }
                                         },
-                                        throwable -> UserfacingErrorHandling.createErrorDialog(context, throwable.getLocalizedMessage(), true)
+                                        throwable -> new UserfacingErrorHandling<>().createErrorDialog(context, throwable.getLocalizedMessage(), true)
                                 )
                 );
             } else {
