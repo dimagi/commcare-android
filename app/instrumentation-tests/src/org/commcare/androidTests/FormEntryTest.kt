@@ -73,6 +73,14 @@ class FormEntryTest: BaseTest() {
         onView(withClassName(endsWith("EditText")))
                 .check(matches(withText("test")))
 
+        //Proceed to second question
+        onView(withId(R.id.nav_btn_next))
+            .perform(click())
+
+        //Input some text to the second question
+        onView(withClassName(endsWith("EditText")))
+            .perform(typeText("hello"))
+
         // Confirm that we can submit the form.
         onView(withId(R.id.nav_btn_finish))
                 .perform(click())
@@ -165,6 +173,10 @@ class FormEntryTest: BaseTest() {
         InstrumentationUtility.openForm(0, 0)
         onView(withClassName(endsWith("EditText")))
                 .perform(typeText("hello"))
+        onView(withId(R.id.nav_btn_next))
+            .perform(click())
+        onView(withClassName(endsWith("EditText")))
+            .perform(typeText("hello"))
         onView(withId(R.id.nav_btn_finish))
                 .perform(click())
         // Confirm unsent form.
