@@ -6,13 +6,13 @@ This repository represents the Android version of CommCare. It depends on the [C
 
 ## Setup
 
-To set up an Android dev environmnet for commcare-android, do the following:
+To set up an Android dev environment for commcare-android, do the following:
 
 - Install [Android Studio](https://developer.android.com/sdk/index.html).
-- Install Java 8 if you don't have it yet. For ease of test suite setup ([see below](#tests)) OpenJDK is preferred over Oracle's version of Java.
+- Install Java 17 if you don't have it yet. For ease of test suite setup ([see below](#tests)) OpenJDK is preferred over Oracle's version of Java. 
 
 Go ahead and open Android Studio if this is your first time using it;
-it may take you through some sort of setup wizard, and it's nice to get that out of the way.
+it may take you through some sort of setup wizard, and it's nice to get that out of the way. If it's not the first time, ensure that there are no references to [removed Java options](https://docs.oracle.com/en/java/javase/17/docs/specs/man/java.html#removed-java-options) in your environment, most commonly found are *MaxPermSize* and *PermSize*
 
 Android Studio's default project space is `~/AndroidStudioProjects` so I'm going to use that in the example.
 CommCare Android depends on CommCare Core, and CommCare Android expects the core directory to live side by side
@@ -162,18 +162,6 @@ cp .android_studio_settings/codestyles/CommCare\ Coding\ Style.xml ~/Library/Pre
 3.  Go to AS preferences -> Editor -> Code Style  and select Scheme as 'Commcare Coding Style' and to AS preferences -> Editor -> Inspections and select Profile as 'Commcare Inspection Profile'
 
 ### Common Errors
-
-#### If you experience the following exception when running the tests:
-```
-java.security.InvalidKeyException: Illegal key size or default parameters
-```
-you will need to upgrade the JCE policy files that are being used. To do so:
-
-1. Download the JCE Unlimited Strength policy files for Java 8 (Last we checked they could be found [here](http://www.oracle.com/technetwork/java/javase/downloads/jce8-download-2133166.html), but this can change
-2. Find the java home directory on your machine. On mac you can do so by entering the following into the command line: `echo $(/usr/libexec/java_home)`
-3. From there, cd into `jre/lib/security`, and replace the local\_policy.jar and US\_export\_policy.jar files found there with the ones in the zip file you downloaded
-
-NOTE that if you are running the tests from Android Studio, it may be using a different version of Java than that in your java home directory. The first line of the test output will usually show the directory from which Android Studio is running Java (Usually `/Applications/Android Studio.app/Contents/jre/jdk/Contents/Home/jre/lib/security`). If it is indeed different, you should follow the steps above for that directory as well.
 
 #### If you experience the following exception when running individual tests from Android Studio Editor on Mac
 
