@@ -279,15 +279,16 @@ class FormEntryTest: BaseTest() {
 
     @Test
     @BrowserstackTests
-    fun testQuestionHintVisible() {
+    fun testQuestionHint() {
         InstrumentationUtility.login("test_user_7", "123")
         // Open first form
         InstrumentationUtility.openForm(0, 0)
         closeSoftKeyboard()
 
-        //Confirm the hint is visible
+        //Confirm the hint is visible and contains the correct text
         onView(withClassName(endsWith("ShrinkingTextView")))
             .check(matches(isDisplayed()))
+            .check(matches(withText("Name hint")))
 
         //Input some text to the first question
         onView(withClassName(endsWith("EditText")))
