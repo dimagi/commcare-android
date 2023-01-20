@@ -285,7 +285,7 @@ mult.install.bad=The selected ZIP file is not valid. Please choose a valid zip f
 mult.install.progress.baddest=Couldn't write multimedia to the local filesystem at: ${0}
 mult.install.progress.badentry=There was a bad entry in the zip file: ${0}
 mult.install.progress.errormoving=There was a problem copying the multimedia from the zip file, please try again.
-mult.install.progress.invalid.entry=The path of the entry ${0} doesn't match the parent folder, review the content of the ZIP file and try again!
+mult.install.progress.invalid.ccz=The selected CCZ file is invalid, please verify it and try again!
 
 mult.install.prompt=From here you can install your app multimedia from a ZIP file on the local filesystem
 mult.install.button=Install Multimedia

@@ -87,7 +87,7 @@ public class UnzipTask extends CommCareTask<String, String, Integer, UnZipTaskLi
                 String outputCanonicalPath = entryOutput.getCanonicalPath();
                 // Check if the entry path aligns with the destination folder
                 if (!outputCanonicalPath.startsWith(destCanonicalPath)) {
-                    throw new SecurityException(Localization.get("mult.install.progress.invalid.entry", new String[]{entry.getName()}));
+                    throw new SecurityException(Localization.get("mult.install.progress.invalid.ccz"));
                 }
 
                 if (entry.isDirectory()) {
