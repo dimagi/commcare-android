@@ -37,7 +37,7 @@ public class FormHierarchyActivity extends SessionAwareListActivity implements A
     private List<HierarchyElement> formList;
     private TextView mPath;
 
-    public final static int RESULT_XPATH_ERROR = RESULT_FIRST_USER + 1;
+    public final static String ERROR_DIALOG = "error-dialog";
 
     @Override
     public void onCreateSessionSafe(Bundle savedInstanceState) {
@@ -163,7 +163,10 @@ public class FormHierarchyActivity extends SessionAwareListActivity implements A
     }
 
     @Override
-    public void showAlertDialog(CommCareAlertDialog dialog) {}
+    public void showAlertDialog(CommCareAlertDialog dialog) {
+        AlertDialogFragment.fromCommCareAlertDialog(dialog)
+                .show(getSupportFragmentManager(), ERROR_DIALOG);
+    }
 
     @Override
     public void dismissAlertDialog() {
@@ -175,7 +178,7 @@ public class FormHierarchyActivity extends SessionAwareListActivity implements A
 
     public AlertDialogFragment getCurrentAlertDialog() {
         return (AlertDialogFragment)getSupportFragmentManager().
-                findFragmentByTag("error-dialog");
+                findFragmentByTag(ERROR_DIALOG);
     }
 
     private void refreshView() {
@@ -188,17 +191,7 @@ public class FormHierarchyActivity extends SessionAwareListActivity implements A
         try {
             hierarchyPath = FormHierarchyBuilder.populateHierarchyList(this, formList);
         } catch (XPathException e) {
-            XPathErrorLogger.INSTANCE.logErrorToCurrentApp(e);
-
-            final String title = StringUtils.getStringRobust(this, org.commcare.dalvik.R.string.error_occured);
-            final String errorMsg = e.getMessage();
-
-            AlertDialogFragment.fromCommCareAlertDialog(
-                    new UserfacingErrorHandling<>().getErrorDialog(
-                            this, errorMsg, title, true
-                    )
-            ).show(getSupportFragmentManager(), "error-dialog");
-
+            new UserfacingErrorHandling().logErrorAndShowDialog(this, e, true);
             return;
         }
 
