@@ -352,12 +352,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                     break;
                 case FormEntryConstants.HIERARCHY_ACTIVITY:
                 case FormEntryConstants.HIERARCHY_ACTIVITY_FIRST_START:
-                    if (resultCode == FormHierarchyActivity.RESULT_XPATH_ERROR) {
-                        finish();
-                    } else {
-                        // We may have jumped to a new index in hierarchy activity, so refresh
-                        uiController.refreshCurrentView(false);
-                    }
+                    uiController.refreshCurrentView(false);
                     break;
                 case FormEntryConstants.INTENT_LOCATION_EXCEPTION:
                     if (resultCode == RESULT_OK) {
