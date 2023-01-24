@@ -4,7 +4,6 @@ import android.os.Bundle
 import com.mapbox.mapboxsdk.Mapbox
 import com.mapbox.mapboxsdk.maps.MapboxMap
 import io.ona.kujaku.KujakuLibrary
-import kotlinx.android.synthetic.main.activity_entity_mapbox.*
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import org.commcare.activities.CommCareActivity

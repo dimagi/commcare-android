@@ -23,7 +23,6 @@ import com.mapbox.mapboxsdk.maps.Style
 import com.mapbox.mapboxsdk.plugins.annotation.Symbol
 import com.mapbox.mapboxsdk.plugins.annotation.SymbolManager
 import com.mapbox.mapboxsdk.plugins.annotation.SymbolOptions
-import kotlinx.android.synthetic.main.activity_mapbox_location_picker.*
 import org.commcare.activities.components.FormEntryConstants
 import org.commcare.activities.components.FormEntryDialogs
 import org.commcare.dalvik.R
