@@ -294,6 +294,10 @@ android {
         testInstrumentationRunner "org.commcare.CommCareJUnitRunner"
     }
 
+    buildFeatures {
+        viewBinding true
+    }
+
     applicationVariants.all { variant ->
         if (variant.buildType.name == "release") {
             variant.outputs.each { output ->
