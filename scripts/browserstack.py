@@ -144,10 +144,7 @@ def runAndroidTest():
 
     releaseUploadCmd = appendData(command.format(userName, password, releaseUrl), releaseApp)
     output = subprocess.Popen(shlex.split(releaseUploadCmd), stdout=PIPE, stderr=None, shell=False)
-
-    resp = json.loads(output.communicate()[0])
-    print(resp)
-    appToken = resp["app_url"]
+    appToken = json.loads(output.communicate()[0])["app_url"]
 
     testUploadCmd = appendData(command.format(userName, password, testUrl), testApk)
     output = subprocess.Popen(shlex.split(testUploadCmd), stdout=PIPE, stderr=None, shell=False)
