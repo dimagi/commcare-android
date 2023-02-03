@@ -542,7 +542,7 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
             try {
                 text.setText(mPrompt.getHelpText());
             } catch (XPathException exception) {
-                UserfacingErrorHandling.createErrorDialog((CommCareActivity)getContext(), exception.getLocalizedMessage(), true);
+                new UserfacingErrorHandling<>().createErrorDialog((CommCareActivity)getContext(), exception.getLocalizedMessage(), true);
             }
         }
         text.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mQuestionFontSize);
@@ -630,7 +630,7 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
         try {
             s = mPrompt.getHintText();
         } catch (XPathException e) {
-            UserfacingErrorHandling.createErrorDialog((CommCareActivity)getContext(), e.getLocalizedMessage(), true);
+            new UserfacingErrorHandling<>().createErrorDialog((CommCareActivity)getContext(), e.getLocalizedMessage(), true);
         }
         if (s != null && !s.equals("")) {
             mHintText = new ShrinkingTextView(getContext(), this.getMaxHintHeight());

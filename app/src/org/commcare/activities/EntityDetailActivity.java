@@ -281,7 +281,7 @@ public class EntityDetailActivity
             }
             startActivityForResult(i, PRINT_DETAIL);
         } catch (XPathException xe) {
-            UserfacingErrorHandling.logErrorAndShowDialog(this, xe, true);
+            new UserfacingErrorHandling<>().logErrorAndShowDialog(this, xe, true);
         }
     }
 }

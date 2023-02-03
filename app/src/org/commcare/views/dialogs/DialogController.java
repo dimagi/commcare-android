@@ -3,7 +3,7 @@ package org.commcare.views.dialogs;
 /**
  * @author amstone326
  */
-public interface DialogController {
+public interface DialogController extends AlertDialogController {
     /**
      * Should call generateProgressDialog to obtain an instance of a dialog
      * for the given taskId, and then call show on that dialog fragment
@@ -53,11 +53,6 @@ public interface DialogController {
     CustomProgressDialog generateProgressDialog(int taskId);
 
     /**
-     * Show the alert dialog provided by the given AlertDialogFactory
-     */
-    void showAlertDialog(CommCareAlertDialog dialog);
-
-    /**
      * @return the alert dialog that is currently on screen (possibly null)
      */
     AlertDialogFragment getCurrentAlertDialog();
@@ -68,8 +63,4 @@ public interface DialogController {
      */
     void showPendingAlertDialog();
 
-    /**
-     * Dismiss the current alert dialog
-     */
-    void dismissAlertDialog();
 }
