@@ -7,9 +7,6 @@ import static org.commcare.suite.model.QueryPrompt.INPUT_TYPE_SELECT1;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
-import android.widget.Button;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -18,17 +15,17 @@ import org.commcare.CommCareApplication;
 import org.commcare.core.interfaces.HttpResponseProcessor;
 import org.commcare.core.network.AuthInfo;
 import org.commcare.core.network.AuthenticationInterceptor;
-import org.commcare.dalvik.R;
+import org.commcare.interfaces.CommCareActivityUIController;
+import org.commcare.interfaces.WithUIController;
 import org.commcare.models.AndroidSessionWrapper;
 import org.commcare.modern.util.Pair;
 import org.commcare.session.RemoteQuerySessionManager;
 import org.commcare.tasks.ModernHttpTask;
 import org.commcare.tasks.templates.CommCareTaskConnector;
-import org.commcare.views.ManagedUi;
+import org.commcare.utils.SessionRegistrationHelper;
+import org.commcare.utils.SessionUnavailableException;
 import org.commcare.views.QueryRequestUiController;
-import org.commcare.views.UiElement;
 import org.commcare.views.UserfacingErrorHandling;
-import org.commcare.views.ViewUtil;
 import org.commcare.views.dialogs.CustomProgressDialog;
 import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.services.locale.Localization;
@@ -48,21 +45,14 @@ import java.util.Map;
  *
  * @author Phillip Mates (pmates@dimagi.com).
  */
-@ManagedUi(R.layout.http_request_layout)
 public class QueryRequestActivity
         extends SaveSessionCommCareActivity<QueryRequestActivity>
-        implements HttpResponseProcessor {
+        implements HttpResponseProcessor, WithUIController {
     private static final String TAG = QueryRequestActivity.class.getSimpleName();
 
     private static final String ANSWERED_USER_PROMPTS_KEY = "answered_user_prompts";
     private static final String IN_ERROR_STATE_KEY = "in-error-state-key";
     private static final String ERROR_MESSAGE_KEY = "error-message-key";
-
-    @UiElement(value = R.id.request_button, locale = "query.button")
-    private Button queryButton;
-
-    @UiElement(value = R.id.error_message)
-    private TextView errorTextView;
 
     private boolean inErrorState;
     private String errorMessage;
@@ -73,24 +63,7 @@ public class QueryRequestActivity
     @Override
     public void onCreateSessionSafe(Bundle savedInstanceState) {
         super.onCreateSessionSafe(savedInstanceState);
-        AndroidSessionWrapper sessionWrapper = CommCareApplication.instance().getCurrentSessionWrapper();
-
-        try {
-            remoteQuerySessionManager =
-                    RemoteQuerySessionManager.buildQuerySessionManager(sessionWrapper.getSession(),
-                            sessionWrapper.getEvaluationContext(), getSupportedPrompts());
-        } catch (XPathException xpe) {
-            new UserfacingErrorHandling<>().createErrorDialog(this, xpe.getMessage(), true);
-            return;
-        }
-
-        if (remoteQuerySessionManager == null) {
-            Log.e(TAG, "Tried to launch remote query activity at wrong time in session.");
-            setResult(RESULT_CANCELED);
-            finish();
-        } else {
-            setupUI();
-        }
+        mRequestUiController.setupUI();
     }
 
     private ArrayList<String> getSupportedPrompts() {
@@ -98,15 +71,6 @@ public class QueryRequestActivity
         supportedPrompts.add(INPUT_TYPE_SELECT1);
         supportedPrompts.add(INPUT_TYPE_DATERANGE);
         return supportedPrompts;
-    }
-
-    private void setupUI() {
-        mRequestUiController = new QueryRequestUiController(this, remoteQuerySessionManager);
-        mRequestUiController.setUpUi();
-        queryButton.setOnClickListener(v -> {
-            ViewUtil.hideVirtualKeyboard(this);
-            makeQueryRequest();
-        });
     }
 
     @Override
@@ -138,6 +102,7 @@ public class QueryRequestActivity
     private void clearErrorState() {
         errorMessage = "";
         inErrorState = false;
+        mRequestUiController.hideError();
     }
 
     private void enterErrorState(String message) {
@@ -148,8 +113,7 @@ public class QueryRequestActivity
     private void enterErrorState() {
         inErrorState = true;
         Log.e(TAG, errorMessage);
-        errorTextView.setText(errorMessage);
-        errorTextView.setVisibility(View.VISIBLE);
+        mRequestUiController.showError(errorMessage);
     }
 
     @Override
@@ -243,5 +207,37 @@ public class QueryRequestActivity
                 return null;
         }
         return CustomProgressDialog.newInstance(title, message, taskId);
+    }
+
+    @Override
+    public CommCareActivityUIController getUIController() {
+        return mRequestUiController;
+    }
+
+    @Override
+    public void initUIController() {
+        try {
+            AndroidSessionWrapper sessionWrapper = CommCareApplication.instance().getCurrentSessionWrapper();
+
+            try {
+                remoteQuerySessionManager =
+                        RemoteQuerySessionManager.buildQuerySessionManager(sessionWrapper.getSession(),
+                                sessionWrapper.getEvaluationContext(), getSupportedPrompts());
+            } catch (XPathException xpe) {
+                new UserfacingErrorHandling<>().createErrorDialog(this, xpe.getMessage(), true);
+                return;
+            }
+
+            if (remoteQuerySessionManager == null) {
+                Log.e(TAG, "Tried to launch remote query activity at wrong time in session.");
+                setResult(RESULT_CANCELED);
+                finish();
+            } else {
+                mRequestUiController = new QueryRequestUiController(this, remoteQuerySessionManager);
+            }
+        } catch (SessionUnavailableException e) {
+            SessionRegistrationHelper.redirectToLogin(this);
+            finish();
+        }
     }
 }

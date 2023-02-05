@@ -14,6 +14,7 @@ import com.google.android.material.datepicker.MaterialDatePicker
 import org.commcare.activities.EntitySelectActivity
 import org.commcare.activities.QueryRequestActivity
 import org.commcare.dalvik.R
+import org.commcare.interfaces.CommCareActivityUIController
 import org.commcare.session.RemoteQuerySessionManager
 import org.commcare.suite.model.QueryPrompt
 import org.commcare.utils.DateRangeUtils
@@ -23,10 +24,11 @@ import org.javarosa.core.services.locale.Localizer
 import java.text.ParseException
 import java.util.*
 
+@ManagedUi(R.layout.http_request_layout)
 class QueryRequestUiController(
     private val queryRequestActivity: QueryRequestActivity,
     private val remoteQuerySessionManager: RemoteQuerySessionManager
-) {
+) : CommCareActivityUIController {
 
     companion object {
         private const val APPEARANCE_BARCODE_SCAN = "barcode_scan"
@@ -35,6 +37,12 @@ class QueryRequestUiController(
 
     private var mPendingPromptId: String? = null
     private val promptsBoxes = Hashtable<String, View>()
+
+    @UiElement(value = R.id.request_button, locale = "query.button")
+    private lateinit var queryButton: Button
+
+    @UiElement(value = R.id.error_message)
+    private lateinit var errorTextView: TextView
 
 
     private fun buildPromptUI() {
@@ -49,18 +57,6 @@ class QueryRequestUiController(
                 promptsLayout, promptId,
                 userInputDisplays[promptId]!!, isLastPrompt
             )
-        }
-    }
-
-    private fun refreshUI() {
-        promptsBoxes.forEach { entry ->
-            val input = entry.value
-            if (input is Spinner) {
-                setSpinnerData(
-                    remoteQuerySessionManager.neededUserInputDisplays[entry.key]!!,
-                    input
-                )
-            }
         }
     }
 
@@ -216,7 +212,7 @@ class QueryRequestUiController(
         if (oldAnswer == null || !oldAnswer.contentEquals(answer)) {
             remoteQuerySessionManager.answerUserPrompt(queryPrompt.key, answer)
             remoteQuerySessionManager.refreshItemSetChoices()
-            refreshUI()
+            refreshView()
         }
     }
 
@@ -277,10 +273,6 @@ class QueryRequestUiController(
         return Localizer.processArguments(displayData.name, arrayOf("")).trim { it <= ' ' }
     }
 
-    fun setUpUi() {
-        buildPromptUI()
-    }
-
     fun setPendingPromptResult(result: String) {
         if (!TextUtils.isEmpty(mPendingPromptId)) {
             val input: View = promptsBoxes[mPendingPromptId]!!
@@ -302,6 +294,35 @@ class QueryRequestUiController(
                 setSpinnerData(queryPrompt!!, (promptView as Spinner?)!!)
             }
         }
+    }
+
+    override fun setupUI() {
+        buildPromptUI()
+        queryButton.setOnClickListener { v ->
+            ViewUtil.hideVirtualKeyboard(queryRequestActivity)
+            queryRequestActivity.makeQueryRequest()
+        }
+    }
+
+    override fun refreshView() {
+        promptsBoxes.forEach { entry ->
+            val input = entry.value
+            if (input is Spinner) {
+                setSpinnerData(
+                    remoteQuerySessionManager.neededUserInputDisplays[entry.key]!!,
+                    input
+                )
+            }
+        }
+    }
+
+    fun showError(errorMessage: String) {
+        errorTextView.text = errorMessage
+        errorTextView.visibility = View.VISIBLE
+    }
+
+    fun hideError() {
+        errorTextView.visibility = View.GONE
     }
 
 }
