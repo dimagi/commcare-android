@@ -215,13 +215,16 @@ public class QueryRequestActivity
 
     @Override
     public void initUIController() {
+        initRemoteQuerySessionManager();
+        mRequestUiController = new QueryRequestUiController(this, remoteQuerySessionManager);
+    }
+
+    private void initRemoteQuerySessionManager() {
         try {
             AndroidSessionWrapper sessionWrapper = CommCareApplication.instance().getCurrentSessionWrapper();
-
             try {
-                remoteQuerySessionManager =
-                        RemoteQuerySessionManager.buildQuerySessionManager(sessionWrapper.getSession(),
-                                sessionWrapper.getEvaluationContext(), getSupportedPrompts());
+                remoteQuerySessionManager = RemoteQuerySessionManager.buildQuerySessionManager(
+                        sessionWrapper.getSession(), sessionWrapper.getEvaluationContext(), getSupportedPrompts());
             } catch (XPathException xpe) {
                 new UserfacingErrorHandling<>().createErrorDialog(this, xpe.getMessage(), true);
                 return;
@@ -231,8 +234,6 @@ public class QueryRequestActivity
                 Log.e(TAG, "Tried to launch remote query activity at wrong time in session.");
                 setResult(RESULT_CANCELED);
                 finish();
-            } else {
-                mRequestUiController = new QueryRequestUiController(this, remoteQuerySessionManager);
             }
         } catch (SessionUnavailableException e) {
             SessionRegistrationHelper.redirectToLogin(this);
