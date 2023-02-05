@@ -1,4 +1,4 @@
-package org.commcare.views
+package org.commcare.activities
 
 import android.content.ActivityNotFoundException
 import android.text.Editable
@@ -11,13 +11,14 @@ import android.widget.*
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.util.Pair
 import com.google.android.material.datepicker.MaterialDatePicker
-import org.commcare.activities.EntitySelectActivity
-import org.commcare.activities.QueryRequestActivity
 import org.commcare.dalvik.R
 import org.commcare.interfaces.CommCareActivityUIController
 import org.commcare.session.RemoteQuerySessionManager
 import org.commcare.suite.model.QueryPrompt
 import org.commcare.utils.DateRangeUtils
+import org.commcare.views.ManagedUi
+import org.commcare.views.UiElement
+import org.commcare.views.ViewUtil
 import org.commcare.views.widgets.SpinnerWidget
 import org.commcare.views.widgets.WidgetUtils
 import org.javarosa.core.services.locale.Localizer

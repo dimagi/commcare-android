@@ -24,7 +24,6 @@ import org.commcare.tasks.ModernHttpTask;
 import org.commcare.tasks.templates.CommCareTaskConnector;
 import org.commcare.utils.SessionRegistrationHelper;
 import org.commcare.utils.SessionUnavailableException;
-import org.commcare.views.QueryRequestUiController;
 import org.commcare.views.UserfacingErrorHandling;
 import org.commcare.views.dialogs.CustomProgressDialog;
 import org.javarosa.core.model.instance.ExternalDataInstance;
