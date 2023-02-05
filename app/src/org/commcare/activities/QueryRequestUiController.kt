@@ -89,18 +89,24 @@ class QueryRequestUiController(
                 LayoutInflater.from(queryRequestActivity)
                     .inflate(R.layout.query_prompt_layout, promptsLayout, false)
             setLabelText(promptView, queryPrompt)
-            val input = queryPrompt.input
-            val inputView = if (input != null && input.contentEquals(QueryPrompt.INPUT_TYPE_SELECT1)) {
-                buildSpinnerView(promptView, queryPrompt)
-            } else if (input != null && input.contentEquals(QueryPrompt.INPUT_TYPE_DATERANGE)) {
-                buildDateRangeView(promptView, queryPrompt)
-            } else {
-                buildEditTextView(promptView, queryPrompt, isLastPrompt)
-            }
+            val inputView = buildPromptInputView(promptView, queryPrompt, isLastPrompt)
             setUpBarCodeScanButton(promptView, promptId, queryPrompt)
             promptsLayout.addView(promptView)
             promptsBoxes[promptId] = inputView
         }
+    }
+
+    private fun buildPromptInputView(promptView: View, queryPrompt: QueryPrompt, isLastPrompt: Boolean): View? {
+        val input = queryPrompt.input
+        var inputView: View? = null
+        if (input == null) {
+            inputView = buildEditTextView(promptView, queryPrompt, isLastPrompt)
+        } else if (input.contentEquals(QueryPrompt.INPUT_TYPE_SELECT1)) {
+            inputView = buildSpinnerView(promptView, queryPrompt)
+        } else if (input.contentEquals(QueryPrompt.INPUT_TYPE_DATERANGE)) {
+            inputView = buildDateRangeView(promptView, queryPrompt)
+        }
+        return inputView
     }
 
     private fun buildDateRangeView(promptView: View, queryPrompt: QueryPrompt): View? {
