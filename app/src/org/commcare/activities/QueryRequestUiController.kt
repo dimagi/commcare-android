@@ -84,13 +84,13 @@ class QueryRequestUiController(
         promptsLayout: LinearLayout, promptId: String,
         queryPrompt: QueryPrompt, isLastPrompt: Boolean
     ) {
-        val promptView: View =
-            LayoutInflater.from(queryRequestActivity).inflate(R.layout.query_prompt_layout, promptsLayout, false)
-        setLabelText(promptView, queryPrompt)
-        val inputView: View?
         if (remoteQuerySessionManager.isPromptSupported(queryPrompt)) {
+            val promptView: View =
+                LayoutInflater.from(queryRequestActivity)
+                    .inflate(R.layout.query_prompt_layout, promptsLayout, false)
+            setLabelText(promptView, queryPrompt)
             val input = queryPrompt.input
-            inputView = if (input != null && input.contentEquals(QueryPrompt.INPUT_TYPE_SELECT1)) {
+            val inputView = if (input != null && input.contentEquals(QueryPrompt.INPUT_TYPE_SELECT1)) {
                 buildSpinnerView(promptView, queryPrompt)
             } else if (input != null && input.contentEquals(QueryPrompt.INPUT_TYPE_DATERANGE)) {
                 buildDateRangeView(promptView, queryPrompt)
