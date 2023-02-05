@@ -45,6 +45,25 @@ class QueryRequestUiController(
     @UiElement(value = R.id.error_message)
     private lateinit var errorTextView: TextView
 
+    override fun setupUI() {
+        buildPromptUI()
+        queryButton.setOnClickListener { v ->
+            ViewUtil.hideVirtualKeyboard(queryRequestActivity)
+            queryRequestActivity.makeQueryRequest()
+        }
+    }
+
+    override fun refreshView() {
+        promptsBoxes.forEach { entry ->
+            val input = entry.value
+            if (input is Spinner) {
+                setSpinnerData(
+                    remoteQuerySessionManager.neededUserInputDisplays[entry.key]!!,
+                    input
+                )
+            }
+        }
+    }
 
     private fun buildPromptUI() {
         val promptsLayout: LinearLayout = queryRequestActivity.findViewById(R.id.query_prompts)
@@ -293,26 +312,6 @@ class QueryRequestUiController(
                 val queryPrompt = remoteQuerySessionManager.neededUserInputDisplays[entry.key]
                 remoteQuerySessionManager.populateItemSetChoices(queryPrompt)
                 setSpinnerData(queryPrompt!!, (promptView as Spinner?)!!)
-            }
-        }
-    }
-
-    override fun setupUI() {
-        buildPromptUI()
-        queryButton.setOnClickListener { v ->
-            ViewUtil.hideVirtualKeyboard(queryRequestActivity)
-            queryRequestActivity.makeQueryRequest()
-        }
-    }
-
-    override fun refreshView() {
-        promptsBoxes.forEach { entry ->
-            val input = entry.value
-            if (input is Spinner) {
-                setSpinnerData(
-                    remoteQuerySessionManager.neededUserInputDisplays[entry.key]!!,
-                    input
-                )
             }
         }
     }
