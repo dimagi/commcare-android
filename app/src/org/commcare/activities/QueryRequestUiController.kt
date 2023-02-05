@@ -64,6 +64,37 @@ class QueryRequestUiController(
             }
         }
     }
+    fun reloadStateUsingAnswers(answeredPrompts: MutableMap<String, String>) {
+        answeredPrompts.forEach { entry ->
+            remoteQuerySessionManager.answerUserPrompt(entry.key, entry.value)
+            val promptView = promptsBoxes[entry.key]
+            if (promptView is EditText) {
+                promptView.setText(entry.value)
+            } else if (promptView is Spinner) {
+                val queryPrompt = remoteQuerySessionManager.neededUserInputDisplays[entry.key]
+                remoteQuerySessionManager.populateItemSetChoices(queryPrompt)
+                setSpinnerData(queryPrompt!!, (promptView as Spinner?)!!)
+            }
+        }
+    }
+
+    fun setPendingPromptResult(result: String) {
+        if (!TextUtils.isEmpty(mPendingPromptId)) {
+            val input: View = promptsBoxes[mPendingPromptId]!!
+            if (input is EditText) {
+                input.setText(result)
+            }
+        }
+    }
+
+    fun showError(errorMessage: String) {
+        errorTextView.text = errorMessage
+        errorTextView.visibility = View.VISIBLE
+    }
+
+    fun hideError() {
+        errorTextView.visibility = View.GONE
+    }
 
     private fun buildPromptUI() {
         val promptsLayout: LinearLayout = queryRequestActivity.findViewById(R.id.query_prompts)
@@ -107,6 +138,90 @@ class QueryRequestUiController(
             inputView = buildDateRangeView(promptView, queryPrompt)
         }
         return inputView
+    }
+
+    private fun buildEditTextView(
+        promptView: View, queryPrompt: QueryPrompt,
+        isLastPrompt: Boolean
+    ): EditText? {
+        val promptEditText = promptView.findViewById<EditText>(R.id.prompt_et)
+        promptEditText.visibility = View.VISIBLE
+        promptView.findViewById<View>(R.id.prompt_spinner).visibility = View.GONE
+
+        // needed to allow 'done' and 'next' keyboard action
+        if (isLastPrompt) {
+            promptEditText.imeOptions = EditorInfo.IME_ACTION_DONE
+        } else {
+            // replace 'done' on keyboard with 'next'
+            promptEditText.imeOptions = EditorInfo.IME_ACTION_NEXT
+        }
+        val userAnswers = remoteQuerySessionManager.userAnswers
+        promptEditText.setText(userAnswers[queryPrompt.key])
+        promptEditText.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {}
+            override fun afterTextChanged(s: Editable) {
+                remoteQuerySessionManager.answerUserPrompt(queryPrompt.key, s.toString())
+                updateAnswerAndRefresh(queryPrompt, s.toString())
+            }
+        })
+        return promptEditText
+    }
+
+    private fun updateAnswerAndRefresh(queryPrompt: QueryPrompt, answer: String) {
+        val userAnswers = remoteQuerySessionManager.userAnswers
+        val oldAnswer = userAnswers[queryPrompt.key]
+        if (oldAnswer == null || !oldAnswer.contentEquals(answer)) {
+            remoteQuerySessionManager.answerUserPrompt(queryPrompt.key, answer)
+            remoteQuerySessionManager.refreshItemSetChoices()
+            refreshView()
+        }
+    }
+
+    private fun buildSpinnerView(promptView: View, queryPrompt: QueryPrompt): Spinner? {
+        val promptSpinner = promptView.findViewById<Spinner>(R.id.prompt_spinner)
+        promptSpinner.visibility = View.VISIBLE
+        promptView.findViewById<View>(R.id.prompt_et).visibility = View.GONE
+        promptSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View, position: Int, id: Long) {
+                var value = ""
+                if (position > 0) {
+                    val choices = queryPrompt.itemsetBinding!!.choices
+                    val selectChoice = choices[position - 1]
+                    value = selectChoice.value
+                }
+                updateAnswerAndRefresh(queryPrompt, value)
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>?) {}
+        }
+        remoteQuerySessionManager.populateItemSetChoices(queryPrompt)
+        setSpinnerData(queryPrompt, promptSpinner)
+        return promptSpinner
+    }
+
+    private fun setSpinnerData(queryPrompt: QueryPrompt, promptSpinner: Spinner) {
+        val items = queryPrompt.itemsetBinding!!.choices
+        val choices = arrayOfNulls<String>(items.size)
+        var selectedPosition = -1
+        val userAnswers: Hashtable<String, String> = remoteQuerySessionManager.userAnswers
+        val answer = userAnswers[queryPrompt.key]
+        for (i in items.indices) {
+            val item = items[i]
+            choices[i] = item.labelInnerText
+            if (item.value == answer) {
+                selectedPosition = i + 1 // first choice is blank in adapter
+            }
+        }
+        val adapter: ArrayAdapter<String> = ArrayAdapter<String>(
+            queryRequestActivity,
+            android.R.layout.simple_spinner_item,
+            SpinnerWidget.getChoicesWithEmptyFirstSlot(choices)
+        )
+        promptSpinner.adapter = adapter
+        if (selectedPosition != -1) {
+            promptSpinner.setSelection(selectedPosition)
+        }
     }
 
     private fun buildDateRangeView(promptView: View, queryPrompt: QueryPrompt): View? {
@@ -186,90 +301,6 @@ class QueryRequestUiController(
         }
     }
 
-    private fun buildSpinnerView(promptView: View, queryPrompt: QueryPrompt): Spinner? {
-        val promptSpinner = promptView.findViewById<Spinner>(R.id.prompt_spinner)
-        promptSpinner.visibility = View.VISIBLE
-        promptView.findViewById<View>(R.id.prompt_et).visibility = View.GONE
-        promptSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>?, view: View, position: Int, id: Long) {
-                var value = ""
-                if (position > 0) {
-                    val choices = queryPrompt.itemsetBinding!!.choices
-                    val selectChoice = choices[position - 1]
-                    value = selectChoice.value
-                }
-                updateAnswerAndRefresh(queryPrompt, value)
-            }
-
-            override fun onNothingSelected(parent: AdapterView<*>?) {}
-        }
-        remoteQuerySessionManager.populateItemSetChoices(queryPrompt)
-        setSpinnerData(queryPrompt, promptSpinner)
-        return promptSpinner
-    }
-
-    private fun setSpinnerData(queryPrompt: QueryPrompt, promptSpinner: Spinner) {
-        val items = queryPrompt.itemsetBinding!!.choices
-        val choices = arrayOfNulls<String>(items.size)
-        var selectedPosition = -1
-        val userAnswers: Hashtable<String, String> = remoteQuerySessionManager.userAnswers
-        val answer = userAnswers[queryPrompt.key]
-        for (i in items.indices) {
-            val item = items[i]
-            choices[i] = item.labelInnerText
-            if (item.value == answer) {
-                selectedPosition = i + 1 // first choice is blank in adapter
-            }
-        }
-        val adapter: ArrayAdapter<String> = ArrayAdapter<String>(
-            queryRequestActivity,
-            android.R.layout.simple_spinner_item,
-            SpinnerWidget.getChoicesWithEmptyFirstSlot(choices)
-        )
-        promptSpinner.adapter = adapter
-        if (selectedPosition != -1) {
-            promptSpinner.setSelection(selectedPosition)
-        }
-    }
-
-    private fun updateAnswerAndRefresh(queryPrompt: QueryPrompt, answer: String) {
-        val userAnswers = remoteQuerySessionManager.userAnswers
-        val oldAnswer = userAnswers[queryPrompt.key]
-        if (oldAnswer == null || !oldAnswer.contentEquals(answer)) {
-            remoteQuerySessionManager.answerUserPrompt(queryPrompt.key, answer)
-            remoteQuerySessionManager.refreshItemSetChoices()
-            refreshView()
-        }
-    }
-
-    private fun buildEditTextView(
-        promptView: View, queryPrompt: QueryPrompt,
-        isLastPrompt: Boolean
-    ): EditText? {
-        val promptEditText = promptView.findViewById<EditText>(R.id.prompt_et)
-        promptEditText.visibility = View.VISIBLE
-        promptView.findViewById<View>(R.id.prompt_spinner).visibility = View.GONE
-
-        // needed to allow 'done' and 'next' keyboard action
-        if (isLastPrompt) {
-            promptEditText.imeOptions = EditorInfo.IME_ACTION_DONE
-        } else {
-            // replace 'done' on keyboard with 'next'
-            promptEditText.imeOptions = EditorInfo.IME_ACTION_NEXT
-        }
-        val userAnswers = remoteQuerySessionManager.userAnswers
-        promptEditText.setText(userAnswers[queryPrompt.key])
-        promptEditText.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
-            override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {}
-            override fun afterTextChanged(s: Editable) {
-                remoteQuerySessionManager.answerUserPrompt(queryPrompt.key, s.toString())
-                updateAnswerAndRefresh(queryPrompt, s.toString())
-            }
-        })
-        return promptEditText
-    }
-
     private fun isBarcodeEnabled(queryPrompt: QueryPrompt): Boolean {
         return APPEARANCE_BARCODE_SCAN == queryPrompt.appearance
     }
@@ -298,37 +329,4 @@ class QueryRequestUiController(
         val displayData = queryPrompt.display.evaluate()
         return Localizer.processArguments(displayData.name, arrayOf("")).trim { it <= ' ' }
     }
-
-    fun setPendingPromptResult(result: String) {
-        if (!TextUtils.isEmpty(mPendingPromptId)) {
-            val input: View = promptsBoxes[mPendingPromptId]!!
-            if (input is EditText) {
-                input.setText(result)
-            }
-        }
-    }
-
-    fun reloadStateUsingAnswers(answeredPrompts: MutableMap<String, String>) {
-        answeredPrompts.forEach { entry ->
-            remoteQuerySessionManager.answerUserPrompt(entry.key, entry.value)
-            val promptView = promptsBoxes[entry.key]
-            if (promptView is EditText) {
-                promptView.setText(entry.value)
-            } else if (promptView is Spinner) {
-                val queryPrompt = remoteQuerySessionManager.neededUserInputDisplays[entry.key]
-                remoteQuerySessionManager.populateItemSetChoices(queryPrompt)
-                setSpinnerData(queryPrompt!!, (promptView as Spinner?)!!)
-            }
-        }
-    }
-
-    fun showError(errorMessage: String) {
-        errorTextView.text = errorMessage
-        errorTextView.visibility = View.VISIBLE
-    }
-
-    fun hideError() {
-        errorTextView.visibility = View.GONE
-    }
-
 }
