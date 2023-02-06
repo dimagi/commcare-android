@@ -62,7 +62,9 @@ public class QueryRequestActivity
     @Override
     public void onCreateSessionSafe(Bundle savedInstanceState) {
         super.onCreateSessionSafe(savedInstanceState);
-        mRequestUiController.setupUI();
+        if (!isFinishing()) {
+            mRequestUiController.setupUI();
+        }
     }
 
     private ArrayList<String> getSupportedPrompts() {
@@ -216,7 +218,9 @@ public class QueryRequestActivity
     @Override
     public void initUIController() {
         initRemoteQuerySessionManager();
-        mRequestUiController = new QueryRequestUiController(this, remoteQuerySessionManager);
+        if (remoteQuerySessionManager != null) {
+            mRequestUiController = new QueryRequestUiController(this, remoteQuerySessionManager);
+        }
     }
 
     private void initRemoteQuerySessionManager() {
