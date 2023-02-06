@@ -183,7 +183,7 @@ class QueryRequestUiController(
         promptSpinner.visibility = View.VISIBLE
         promptView.findViewById<View>(R.id.prompt_et).visibility = View.GONE
         promptSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>?, view: View, position: Int, id: Long) {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                 var value = ""
                 if (position > 0) {
                     val choices = queryPrompt.itemsetBinding!!.choices
