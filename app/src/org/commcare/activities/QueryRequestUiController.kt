@@ -201,6 +201,21 @@ class QueryRequestUiController(
     }
 
     private fun setSpinnerData(queryPrompt: QueryPrompt, promptSpinner: Spinner) {
+        var selectedPosAndChoices = calculateItemChoices(queryPrompt);
+        val  selectedPosition = selectedPosAndChoices.first
+        val choices = selectedPosAndChoices.second
+        val adapter: ArrayAdapter<String> = ArrayAdapter<String>(
+            queryRequestActivity,
+            android.R.layout.simple_spinner_item,
+            SpinnerWidget.getChoicesWithEmptyFirstSlot(choices)
+        )
+        promptSpinner.adapter = adapter
+        if (selectedPosition != -1) {
+            promptSpinner.setSelection(selectedPosition)
+        }
+    }
+
+    private fun calculateItemChoices(queryPrompt: QueryPrompt): Pair<Int, Array<String?>> {
         val items = queryPrompt.itemsetBinding!!.choices
         val choices = arrayOfNulls<String>(items.size)
         var selectedPosition = -1
@@ -213,15 +228,7 @@ class QueryRequestUiController(
                 selectedPosition = i + 1 // first choice is blank in adapter
             }
         }
-        val adapter: ArrayAdapter<String> = ArrayAdapter<String>(
-            queryRequestActivity,
-            android.R.layout.simple_spinner_item,
-            SpinnerWidget.getChoicesWithEmptyFirstSlot(choices)
-        )
-        promptSpinner.adapter = adapter
-        if (selectedPosition != -1) {
-            promptSpinner.setSelection(selectedPosition)
-        }
+        return Pair(selectedPosition, choices)
     }
 
     private fun buildDateRangeView(promptView: View, queryPrompt: QueryPrompt): View? {
