@@ -252,7 +252,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                                                     StringUtils.join(intentArgumentsAsBundle, ",") :
                                                     String.valueOf(intentArgumentsAsList.size()),
                                             StringUtils.join(endpoint.getArguments(), ",")});
-                    UserfacingErrorHandling.createErrorDialog(this, invalidEndpointArgsError, true);
+                    new UserfacingErrorHandling<>().createErrorDialog(this, invalidEndpointArgsError, true);
                 }
             }
             return false;
@@ -273,7 +273,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                     new String[]{
                             sessionEndpointId,
                             StringUtils.join(allEndpoints.keySet(), ",")});
-            UserfacingErrorHandling.createErrorDialog(this, invalidEndpointError, true);
+            new UserfacingErrorHandling<>().createErrorDialog(this, invalidEndpointError, true);
             return null;
         }
         return endpoint;
@@ -782,11 +782,11 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
             sessionNavigator.stepBack();
             if (isDemoUser()) {
                 // most likely crashing due to data not being available in demo mode
-                UserfacingErrorHandling.createErrorDialog(this,
+                new UserfacingErrorHandling<>().createErrorDialog(this,
                         Localization.get("demo.mode.feature.unavailable"),
                         false);
             } else {
-                UserfacingErrorHandling.createErrorDialog(this, e.getMessage(), false);
+                new UserfacingErrorHandling<>().createErrorDialog(this, e.getMessage(), false);
             }
         }
     }
@@ -883,7 +883,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                 try {
                     terminateSuccessful = currentState.terminateSession();
                 } catch (XPathException e) {
-                    UserfacingErrorHandling.logErrorAndShowDialog(this, e, true);
+                    new UserfacingErrorHandling<>().logErrorAndShowDialog(this, e, true);
                     return false;
                 }
                 if (!terminateSuccessful) {
@@ -998,7 +998,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                 launchRemoteSync(asw);
                 break;
             case SessionNavigator.XPATH_EXCEPTION_THROWN:
-                UserfacingErrorHandling
+                new UserfacingErrorHandling<>()
                         .logErrorAndShowDialog(this, sessionNavigator.getCurrentException(), false);
                 asw.reset();
                 break;
@@ -1034,7 +1034,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
         try {
             terminateSuccesful = asw.terminateSession();
         } catch (XPathTypeMismatchException e) {
-            UserfacingErrorHandling.logErrorAndShowDialog(this, e, true);
+            new UserfacingErrorHandling<>().logErrorAndShowDialog(this, e, true);
             return;
         }
         if (terminateSuccesful) {
