@@ -3,72 +3,38 @@ package org.commcare.activities;
 import static org.commcare.activities.EntitySelectActivity.BARCODE_FETCH;
 import static org.commcare.suite.model.QueryPrompt.INPUT_TYPE_DATERANGE;
 import static org.commcare.suite.model.QueryPrompt.INPUT_TYPE_SELECT1;
-import static org.commcare.utils.DateRangeUtils.formatDateRangeAnswer;
-import static org.commcare.utils.DateRangeUtils.getDateFromTime;
-import static org.commcare.utils.DateRangeUtils.getHumanReadableDateRange;
-import static org.commcare.utils.DateRangeUtils.parseHumanReadableDate;
 
-import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextUtils;
-import android.text.TextWatcher;
 import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.inputmethod.EditorInfo;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.Spinner;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.core.content.res.ResourcesCompat;
-
-import com.google.android.material.datepicker.MaterialDatePicker;
-import com.google.common.collect.ImmutableMultimap;
 
 import org.commcare.CommCareApplication;
 import org.commcare.core.interfaces.HttpResponseProcessor;
 import org.commcare.core.network.AuthInfo;
 import org.commcare.core.network.AuthenticationInterceptor;
-import org.commcare.dalvik.R;
+import org.commcare.interfaces.CommCareActivityUIController;
+import org.commcare.interfaces.WithUIController;
 import org.commcare.models.AndroidSessionWrapper;
 import org.commcare.modern.util.Pair;
 import org.commcare.session.RemoteQuerySessionManager;
-import org.commcare.suite.model.DisplayData;
-import org.commcare.suite.model.QueryPrompt;
 import org.commcare.tasks.ModernHttpTask;
 import org.commcare.tasks.templates.CommCareTaskConnector;
-import org.commcare.views.ManagedUi;
-import org.commcare.views.UiElement;
+import org.commcare.utils.SessionRegistrationHelper;
+import org.commcare.utils.SessionUnavailableException;
 import org.commcare.views.UserfacingErrorHandling;
-import org.commcare.views.ViewUtil;
 import org.commcare.views.dialogs.CustomProgressDialog;
-import org.commcare.views.widgets.SpinnerWidget;
-import org.commcare.views.widgets.WidgetUtils;
-import org.javarosa.core.model.SelectChoice;
 import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.services.locale.Localization;
-import org.javarosa.core.services.locale.Localizer;
-import org.javarosa.core.util.OrderedHashtable;
 import org.javarosa.xpath.XPathException;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.Map;
-import java.util.Vector;
 
 /**
  * Collects 'query datum' in the current session. Prompts user for query
@@ -78,51 +44,26 @@ import java.util.Vector;
  *
  * @author Phillip Mates (pmates@dimagi.com).
  */
-@ManagedUi(R.layout.http_request_layout)
 public class QueryRequestActivity
         extends SaveSessionCommCareActivity<QueryRequestActivity>
-        implements HttpResponseProcessor {
+        implements HttpResponseProcessor, WithUIController {
     private static final String TAG = QueryRequestActivity.class.getSimpleName();
 
     private static final String ANSWERED_USER_PROMPTS_KEY = "answered_user_prompts";
     private static final String IN_ERROR_STATE_KEY = "in-error-state-key";
     private static final String ERROR_MESSAGE_KEY = "error-message-key";
-    private static final String APPEARANCE_BARCODE_SCAN = "barcode_scan";
-    private static final String DATE_PICKER_FRAGMENT_TAG = "date_picker_dialog";
-
-
-    @UiElement(value = R.id.request_button, locale = "query.button")
-    private Button queryButton;
-
-    @UiElement(value = R.id.error_message)
-    private TextView errorTextView;
 
     private boolean inErrorState;
     private String errorMessage;
     private RemoteQuerySessionManager remoteQuerySessionManager;
-    private final Hashtable<String, View> promptsBoxes = new Hashtable<>();
-    private String mPendingPromptId;
+
+    private QueryRequestUiController mRequestUiController;
 
     @Override
     public void onCreateSessionSafe(Bundle savedInstanceState) {
         super.onCreateSessionSafe(savedInstanceState);
-        AndroidSessionWrapper sessionWrapper = CommCareApplication.instance().getCurrentSessionWrapper();
-
-        try {
-            remoteQuerySessionManager =
-                    RemoteQuerySessionManager.buildQuerySessionManager(sessionWrapper.getSession(),
-                            sessionWrapper.getEvaluationContext(), getSupportedPrompts());
-        } catch (XPathException xpe) {
-            new UserfacingErrorHandling<>().createErrorDialog(this, xpe.getMessage(), true);
-            return;
-        }
-
-        if (remoteQuerySessionManager == null) {
-            Log.e(TAG, "Tried to launch remote query activity at wrong time in session.");
-            setResult(RESULT_CANCELED);
-            finish();
-        } else {
-            setupUI();
+        if (!isFinishing()) {
+            mRequestUiController.setupUI();
         }
     }
 
@@ -133,247 +74,14 @@ public class QueryRequestActivity
         return supportedPrompts;
     }
 
-    private void setupUI() {
-        buildPromptUI();
-        queryButton.setOnClickListener(v -> {
-            ViewUtil.hideVirtualKeyboard(QueryRequestActivity.this);
-            makeQueryRequest();
-        });
-    }
-
-    private void buildPromptUI() {
-        LinearLayout promptsLayout = findViewById(R.id.query_prompts);
-        OrderedHashtable<String, QueryPrompt> userInputDisplays =
-                remoteQuerySessionManager.getNeededUserInputDisplays();
-        int promptCount = 1;
-
-        for (Enumeration en = userInputDisplays.keys(); en.hasMoreElements(); ) {
-            String promptId = (String)en.nextElement();
-            boolean isLastPrompt = promptCount++ == userInputDisplays.size();
-            buildPromptEntry(promptsLayout, promptId,
-                    userInputDisplays.get(promptId), isLastPrompt);
-        }
-    }
-
-    private void buildPromptEntry(LinearLayout promptsLayout, String promptId,
-                                  QueryPrompt queryPrompt, boolean isLastPrompt) {
-        View promptView = LayoutInflater.from(this).inflate(R.layout.query_prompt_layout, promptsLayout, false);
-        setLabelText(promptView, queryPrompt);
-        View inputView;
-        if (remoteQuerySessionManager.isPromptSupported(queryPrompt)) {
-            String input = queryPrompt.getInput();
-            if (input != null && input.contentEquals(INPUT_TYPE_SELECT1)) {
-                inputView = buildSpinnerView(promptView, queryPrompt);
-            } else if (input != null && input.contentEquals(INPUT_TYPE_DATERANGE)) {
-                inputView = buildDateRangeView(promptView, queryPrompt);
-            } else {
-                inputView = buildEditTextView(promptView, queryPrompt, isLastPrompt);
-            }
-            setUpBarCodeScanButton(promptView, promptId, queryPrompt);
-
-            promptsLayout.addView(promptView);
-            promptsBoxes.put(promptId, inputView);
-        }
-    }
-
-    private View buildDateRangeView(View promptView, QueryPrompt queryPrompt) {
-        EditText promptEditText = promptView.findViewById(R.id.prompt_et);
-        promptEditText.setVisibility(View.VISIBLE);
-        promptEditText.setFocusable(false);
-        promptView.findViewById(R.id.prompt_spinner).setVisibility(View.GONE);
-
-        Hashtable<String, String> userAnswers = remoteQuerySessionManager.getUserAnswers();
-        String humanReadableDateRange = getHumanReadableDateRange(userAnswers.get(queryPrompt.getKey()));
-        promptEditText.setText(humanReadableDateRange);
-
-        // Setup edit button to show date picker
-        ImageView editDateIcon = promptView.findViewById(R.id.assist_view);
-        editDateIcon.setVisibility(View.VISIBLE);
-        editDateIcon.setImageDrawable(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_create, null));
-        editDateIcon.setOnClickListener(view -> {
-            showDateRangePicker(promptEditText, queryPrompt);
-        });
-
-        return promptEditText;
-    }
-
-    private void showDateRangePicker(EditText promptEditText, QueryPrompt queryPrompt) {
-        MaterialDatePicker.Builder<androidx.core.util.Pair<Long, Long>> dateRangePickerBuilder = MaterialDatePicker.Builder.dateRangePicker()
-                .setTitleText(getLabel(queryPrompt))
-                .setInputMode(MaterialDatePicker.INPUT_MODE_CALENDAR);
-
-        // Set Current Range
-        String currentDateRangeText = promptEditText.getText().toString();
-        if (!TextUtils.isEmpty(currentDateRangeText)) {
-            try {
-                dateRangePickerBuilder.setSelection(parseHumanReadableDate(currentDateRangeText));
-            } catch (ParseException e) {
-                // do nothing
-                e.printStackTrace();
-            }
-        }
-
-        MaterialDatePicker<androidx.core.util.Pair<Long, Long>> dateRangePicker = dateRangePickerBuilder.build();
-        dateRangePicker.addOnPositiveButtonClickListener(selection -> {
-            String startDate = getDateFromTime(selection.first);
-            String endDate = getDateFromTime(selection.second);
-            remoteQuerySessionManager.answerUserPrompt(queryPrompt.getKey(), formatDateRangeAnswer(startDate, endDate));
-            promptEditText.setText(getHumanReadableDateRange(startDate, endDate));
-        });
-        dateRangePicker.show(getSupportFragmentManager(), DATE_PICKER_FRAGMENT_TAG);
-    }
-
-    private void setUpBarCodeScanButton(View promptView, String promptId, QueryPrompt queryPrompt) {
-        // Only show for free text input
-        if (queryPrompt.getInput() == null) {
-            ImageView barcodeScannerView = promptView.findViewById(R.id.assist_view);
-            barcodeScannerView.setVisibility(isBarcodeEnabled(queryPrompt) ? View.VISIBLE : View.INVISIBLE);
-            barcodeScannerView.setBackgroundColor(getResources().getColor(R.color.blue));
-            barcodeScannerView.setImageDrawable(ResourcesCompat.getDrawable(getResources(), R.drawable.startup_barcode, null));
-            barcodeScannerView.setTag(promptId);
-            barcodeScannerView.setOnClickListener(v ->
-                    callBarcodeScanIntent((String)v.getTag())
-            );
-        }
-    }
-
-    private Spinner buildSpinnerView(View promptView, QueryPrompt queryPrompt) {
-        Spinner promptSpinner = promptView.findViewById(R.id.prompt_spinner);
-        promptSpinner.setVisibility(View.VISIBLE);
-        promptView.findViewById(R.id.prompt_et).setVisibility(View.GONE);
-
-        promptSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                String value = "";
-                if (position > 0) {
-                    Vector<SelectChoice> choices = queryPrompt.getItemsetBinding().getChoices();
-                    SelectChoice selectChoice = choices.get(position - 1);
-                    value = selectChoice.getValue();
-                }
-                updateAnswerAndRefresh(queryPrompt, value);
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
-            }
-        });
-
-        remoteQuerySessionManager.populateItemSetChoices(queryPrompt);
-        setSpinnerData(queryPrompt, promptSpinner);
-        return promptSpinner;
-    }
-
-    private void updateAnswerAndRefresh(QueryPrompt queryPrompt, String answer) {
-        Hashtable<String, String> userAnswers = remoteQuerySessionManager.getUserAnswers();
-        String oldAnswer = userAnswers.get(queryPrompt.getKey());
-        if (oldAnswer == null || !oldAnswer.contentEquals(answer)) {
-            remoteQuerySessionManager.answerUserPrompt(queryPrompt.getKey(), answer);
-            remoteQuerySessionManager.refreshItemSetChoices();
-            refreshUI();
-        }
-    }
-
-
-    private void setSpinnerData(QueryPrompt queryPrompt, Spinner promptSpinner) {
-        Vector<SelectChoice> items = queryPrompt.getItemsetBinding().getChoices();
-        String[] choices = new String[items.size()];
-
-        int selectedPosition = -1;
-        Hashtable<String, String> userAnswers = remoteQuerySessionManager.getUserAnswers();
-        String answer = userAnswers.get(queryPrompt.getKey());
-        for (int i = 0; i < items.size(); i++) {
-            SelectChoice item = items.get(i);
-            choices[i] = item.getLabelInnerText();
-            if (item.getValue().equals(answer)) {
-                selectedPosition = i + 1; // first choice is blank in adapter
-            }
-        }
-
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(
-                this,
-                android.R.layout.simple_spinner_item,
-                SpinnerWidget.getChoicesWithEmptyFirstSlot(choices));
-        promptSpinner.setAdapter(adapter);
-        if (selectedPosition != -1) {
-            promptSpinner.setSelection(selectedPosition);
-        }
-    }
-
-    private void refreshUI() {
-        for (Map.Entry<String, View> promptEntry : promptsBoxes.entrySet()) {
-            View input = promptEntry.getValue();
-            if (input instanceof Spinner) {
-                String key = promptEntry.getKey();
-                setSpinnerData(remoteQuerySessionManager.getNeededUserInputDisplays().get(key), ((Spinner)input));
-            }
-        }
-    }
-
-    private EditText buildEditTextView(View promptView, QueryPrompt queryPrompt,
-                                       boolean isLastPrompt) {
-        EditText promptEditText = promptView.findViewById(R.id.prompt_et);
-        promptEditText.setVisibility(View.VISIBLE);
-        promptView.findViewById(R.id.prompt_spinner).setVisibility(View.GONE);
-
-        // needed to allow 'done' and 'next' keyboard action
-        if (isLastPrompt) {
-            promptEditText.setImeOptions(EditorInfo.IME_ACTION_DONE);
-        } else {
-            // replace 'done' on keyboard with 'next'
-            promptEditText.setImeOptions(EditorInfo.IME_ACTION_NEXT);
-        }
-
-        Hashtable<String, String> userAnswers = remoteQuerySessionManager.getUserAnswers();
-        promptEditText.setText(userAnswers.get(queryPrompt.getKey()));
-
-        promptEditText.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                remoteQuerySessionManager.answerUserPrompt(queryPrompt.getKey(), s.toString());
-                updateAnswerAndRefresh(queryPrompt, s.toString());
-            }
-        });
-        return promptEditText;
-    }
-
-    private boolean isBarcodeEnabled(QueryPrompt queryPrompt) {
-        return APPEARANCE_BARCODE_SCAN.equals(queryPrompt.getAppearance());
-    }
-
-    private void callBarcodeScanIntent(String promptId) {
-        Intent intent = WidgetUtils.createScanIntent(this);
-        mPendingPromptId = promptId;
-        try {
-            startActivityForResult(intent, BARCODE_FETCH);
-        } catch (ActivityNotFoundException anfe) {
-            Toast.makeText(this,
-                    "No barcode reader available! You can install one " +
-                            "from the android market.",
-                    Toast.LENGTH_LONG).show();
-        }
-    }
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         if (requestCode == BARCODE_FETCH) {
-            if (resultCode == RESULT_OK && !TextUtils.isEmpty(mPendingPromptId)) {
+            if (resultCode == RESULT_OK) {
                 String result = intent.getStringExtra("SCAN_RESULT");
                 if (result != null) {
                     result = result.trim();
-                    View input = promptsBoxes.get(mPendingPromptId);
-                    if (input instanceof EditText) {
-                        ((EditText)input).setText(result);
-                    }
+                    mRequestUiController.setPendingPromptResult(result);
                 }
             }
         } else {
@@ -381,16 +89,7 @@ public class QueryRequestActivity
         }
     }
 
-    private void setLabelText(View promptView, QueryPrompt queryPrompt) {
-        ((TextView)promptView.findViewById(R.id.prompt_label)).setText(getLabel(queryPrompt));
-    }
-
-    private String getLabel(QueryPrompt queryPrompt) {
-        DisplayData displayData = queryPrompt.getDisplay().evaluate();
-        return Localizer.processArguments(displayData.getName(), new String[]{""}).trim();
-    }
-
-    private void makeQueryRequest() {
+    public void makeQueryRequest() {
         clearErrorState();
         ModernHttpTask httpTask = new ModernHttpTask(this,
                 remoteQuerySessionManager.getBaseUrl().toString(),
@@ -404,6 +103,7 @@ public class QueryRequestActivity
     private void clearErrorState() {
         errorMessage = "";
         inErrorState = false;
+        mRequestUiController.hideError();
     }
 
     private void enterErrorState(String message) {
@@ -414,8 +114,7 @@ public class QueryRequestActivity
     private void enterErrorState() {
         inErrorState = true;
         Log.e(TAG, errorMessage);
-        errorTextView.setText(errorMessage);
-        errorTextView.setVisibility(View.VISIBLE);
+        mRequestUiController.showError(errorMessage);
     }
 
     @Override
@@ -435,19 +134,7 @@ public class QueryRequestActivity
 
             Map<String, String> answeredPrompts =
                     (Map<String, String>)savedInstanceState.getSerializable(ANSWERED_USER_PROMPTS_KEY);
-            if (answeredPrompts != null) {
-                for (Map.Entry<String, String> entry : answeredPrompts.entrySet()) {
-                    remoteQuerySessionManager.answerUserPrompt(entry.getKey(), entry.getValue());
-                    View promptView = promptsBoxes.get(entry.getKey());
-                    if (promptView instanceof EditText) {
-                        ((EditText)promptView).setText(entry.getValue());
-                    } else if (promptView instanceof Spinner) {
-                        QueryPrompt queryPrompt = remoteQuerySessionManager.getNeededUserInputDisplays().get(entry.getKey());
-                        remoteQuerySessionManager.populateItemSetChoices(queryPrompt);
-                        setSpinnerData(queryPrompt, (Spinner)promptView);
-                    }
-                }
-            }
+            mRequestUiController.reloadStateUsingAnswers(answeredPrompts);
         }
     }
 
@@ -521,5 +208,40 @@ public class QueryRequestActivity
                 return null;
         }
         return CustomProgressDialog.newInstance(title, message, taskId);
+    }
+
+    @Override
+    public CommCareActivityUIController getUIController() {
+        return mRequestUiController;
+    }
+
+    @Override
+    public void initUIController() {
+        initRemoteQuerySessionManager();
+        if (remoteQuerySessionManager != null) {
+            mRequestUiController = new QueryRequestUiController(this, remoteQuerySessionManager);
+        }
+    }
+
+    private void initRemoteQuerySessionManager() {
+        try {
+            AndroidSessionWrapper sessionWrapper = CommCareApplication.instance().getCurrentSessionWrapper();
+            try {
+                remoteQuerySessionManager = RemoteQuerySessionManager.buildQuerySessionManager(
+                        sessionWrapper.getSession(), sessionWrapper.getEvaluationContext(), getSupportedPrompts());
+            } catch (XPathException xpe) {
+                new UserfacingErrorHandling<>().createErrorDialog(this, xpe.getMessage(), true);
+                return;
+            }
+
+            if (remoteQuerySessionManager == null) {
+                Log.e(TAG, "Tried to launch remote query activity at wrong time in session.");
+                setResult(RESULT_CANCELED);
+                finish();
+            }
+        } catch (SessionUnavailableException e) {
+            SessionRegistrationHelper.redirectToLogin(this);
+            finish();
+        }
     }
 }

@@ -144,28 +144,30 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
             ((WithUIController)this).initUIController();
         }
 
-        persistManagedUiState(fm);
+        if(!isFinishing()) {
+            persistManagedUiState(fm);
 
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setLogo(org.commcare.dalvik.R.mipmap.commcare_launcher);
-        }
-
-        if (shouldShowBreadcrumbBar()) {
             if (getSupportActionBar() != null) {
-                getSupportActionBar().setDisplayShowCustomEnabled(true);
+                getSupportActionBar().setLogo(org.commcare.dalvik.R.mipmap.commcare_launcher);
             }
 
-            // Add breadcrumb bar
-            BreadcrumbBarFragment bar = (BreadcrumbBarFragment)fm.findFragmentByTag("breadcrumbs");
+            if (shouldShowBreadcrumbBar()) {
+                if (getSupportActionBar() != null) {
+                    getSupportActionBar().setDisplayShowCustomEnabled(true);
+                }
 
-            // If the state holder is null, create a new one for this activity
-            if (bar == null) {
-                bar = new BreadcrumbBarFragment();
-                fm.beginTransaction().add(bar, "breadcrumbs").commit();
+                // Add breadcrumb bar
+                BreadcrumbBarFragment bar = (BreadcrumbBarFragment)fm.findFragmentByTag("breadcrumbs");
+
+                // If the state holder is null, create a new one for this activity
+                if (bar == null) {
+                    bar = new BreadcrumbBarFragment();
+                    fm.beginTransaction().add(bar, "breadcrumbs").commit();
+                }
             }
+
+            mGestureDetector = new GestureDetector(this, this);
         }
-
-        mGestureDetector = new GestureDetector(this, this);
     }
 
     private void persistManagedUiState(FragmentManager fm) {
