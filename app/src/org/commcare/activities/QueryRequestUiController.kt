@@ -215,7 +215,8 @@ class QueryRequestUiController(
             throw InvalidPromptValueException("Can't set multiple values to Spinner")
         }
         for (selectedPosition in selectedPositions) {
-            promptSpinner.setSelection(selectedPosition)
+            // first choice is blank in adapter
+            promptSpinner.setSelection(selectedPosition + 1)
         }
     }
 
@@ -229,7 +230,7 @@ class QueryRequestUiController(
             val item = items[i]
             choices[i] = item.labelInnerText
             if (item.value in promptAnswers) {
-                selectedPositions.add(i + 1) // first choice is blank in adapter
+                selectedPositions.add(i)
             }
         }
         return Pair(selectedPositions, choices)
