@@ -24,6 +24,7 @@ import org.commcare.views.widgets.WidgetUtils
 import org.javarosa.core.services.locale.Localizer
 import java.text.ParseException
 import java.util.*
+import kotlin.collections.ArrayList
 
 @ManagedUi(R.layout.http_request_layout)
 class QueryRequestUiController(
@@ -202,7 +203,7 @@ class QueryRequestUiController(
 
     private fun setSpinnerData(queryPrompt: QueryPrompt, promptSpinner: Spinner) {
         var selectedPosAndChoices = calculateItemChoices(queryPrompt);
-        val  selectedPosition = selectedPosAndChoices.first
+        val selectedPositions = selectedPosAndChoices.first
         val choices = selectedPosAndChoices.second
         val adapter: ArrayAdapter<String> = ArrayAdapter<String>(
             queryRequestActivity,
@@ -210,25 +211,28 @@ class QueryRequestUiController(
             SpinnerWidget.getChoicesWithEmptyFirstSlot(choices)
         )
         promptSpinner.adapter = adapter
-        if (selectedPosition != -1) {
+        if (selectedPositions.size > 1) {
+            throw InvalidPromptValueException("Can't set multiple values to Spinner")
+        }
+        for (selectedPosition in selectedPositions) {
             promptSpinner.setSelection(selectedPosition)
         }
     }
 
-    private fun calculateItemChoices(queryPrompt: QueryPrompt): Pair<Int, Array<String?>> {
+    private fun calculateItemChoices(queryPrompt: QueryPrompt): Pair<ArrayList<Int>, Array<String?>> {
         val items = queryPrompt.itemsetBinding!!.choices
         val choices = arrayOfNulls<String>(items.size)
-        var selectedPosition = -1
         val userAnswers: Hashtable<String, String> = remoteQuerySessionManager.userAnswers
-        val answer = userAnswers[queryPrompt.key]
+        val promptAnswers = RemoteQuerySessionManager.extractMultipleChoices(userAnswers[queryPrompt.key])
+        val selectedPositions = ArrayList<Int>()
         for (i in items.indices) {
             val item = items[i]
             choices[i] = item.labelInnerText
-            if (item.value == answer) {
-                selectedPosition = i + 1 // first choice is blank in adapter
+            if (item.value in promptAnswers) {
+                selectedPositions.add(i + 1) // first choice is blank in adapter
             }
         }
-        return Pair(selectedPosition, choices)
+        return Pair(selectedPositions, choices)
     }
 
     private fun buildDateRangeView(promptView: View, queryPrompt: QueryPrompt): View? {
@@ -336,4 +340,8 @@ class QueryRequestUiController(
         val displayData = queryPrompt.display.evaluate()
         return Localizer.processArguments(displayData.name, arrayOf("")).trim { it <= ' ' }
     }
+
+    // Thrown when we are setting an invalid value to the prompt,
+    // for ex- trying to set multiple values to a single valued prompt
+    class InvalidPromptValueException(message: String) : Throwable(message)
 }
