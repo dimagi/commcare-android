@@ -22,8 +22,6 @@ import org.commcare.android.javarosa.IntentCallout
 import org.commcare.dalvik.R
 import org.commcare.dalvik.databinding.ActivityDrawingBoundaryBinding
 import org.commcare.gis.EntityMapUtils.parseBoundaryCoords
-import org.commcare.interfaces.CommCareActivityUIController
-import org.commcare.interfaces.WithUIController
 import org.commcare.utils.FileUtil
 import org.commcare.utils.ImageType
 import org.commcare.utils.StringUtils
@@ -33,7 +31,7 @@ import java.io.File
 /**
  * Used to draw or walk a boundary on mapbox based map
  */
-class DrawingBoundaryActivity : BaseMapboxActivity(), WithUIController, LocationListener, MapboxMap.SnapshotReadyCallback {
+class DrawingBoundaryActivity : BaseMapboxActivity(), LocationListener, MapboxMap.SnapshotReadyCallback {
 
     companion object {
         // Incoming Intent Extras
@@ -69,7 +67,6 @@ class DrawingBoundaryActivity : BaseMapboxActivity(), WithUIController, Location
     private var detail: String? = null
     private var locationMinAccuracy = 35
 
-    private lateinit var uiController: DrawingBoundaryActivityUIController
     private lateinit var viewBinding: ActivityDrawingBoundaryBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -138,13 +135,13 @@ class DrawingBoundaryActivity : BaseMapboxActivity(), WithUIController, Location
             false
         }
         setUiFromBoundaryCoords()
-        uiController.readyToTrack();
+        readyToTrack();
     }
 
     // updates the polygon and refresh the UI
     private fun updateMetrics() {
         polygon = drawingManager.currentPolygon
-        uiController.refreshView()
+        refreshView()
     }
 
     private fun setUiFromBoundaryCoords() {
@@ -161,14 +158,14 @@ class DrawingBoundaryActivity : BaseMapboxActivity(), WithUIController, Location
         }
     }
 
-    fun startTracking() {
+    private fun startTracking() {
         requestLocationServices()
     }
 
     private fun requestLocationServices() {
         viewBinding.mapView.setWarmGps(true, null, null) {
             viewBinding.mapView.focusOnUserLocation(true)
-            uiController.trackingUIState()
+            trackingUIState()
             startTrackingInner()
         }
     }
@@ -182,13 +179,13 @@ class DrawingBoundaryActivity : BaseMapboxActivity(), WithUIController, Location
         }
     }
 
-    fun stopTracking() {
+    private fun stopTracking() {
         isRecording = false
         viewBinding.mapView.locationClient!!.removeLocationListener(this)
         updateMetrics()
     }
 
-    fun finishTracking() {
+    private fun finishTracking() {
         polygon = drawingManager.stopDrawingAndDisplayLayer()
         if (isImageReturnRequired) {
             map.snapshot(this)
@@ -197,7 +194,7 @@ class DrawingBoundaryActivity : BaseMapboxActivity(), WithUIController, Location
         }
     }
 
-    fun redoTracking() {
+    private fun redoTracking() {
         drawingManager.clearDrawing()
         startTracking()
     }
@@ -248,15 +245,7 @@ class DrawingBoundaryActivity : BaseMapboxActivity(), WithUIController, Location
         showToast(R.string.location_provider_disabled)
     }
 
-    override fun initUIController() {
-        uiController = DrawingBoundaryActivityUIController(this)
-    }
-
-    override fun getUIController(): CommCareActivityUIController {
-        return uiController
-    }
-
-    fun getArea(): Double {
+    private fun getArea(): Double {
         return if (polygon != null) AreaCalculator(polygon!!).getArea() else 0.0
     }
 
@@ -300,14 +289,14 @@ class DrawingBoundaryActivity : BaseMapboxActivity(), WithUIController, Location
         viewBinding.redoTrackingButton.visibility = View.VISIBLE
     }
 
-    fun trackingUIState() {
+    private fun trackingUIState() {
         viewBinding.startTrackingButton.visibility = View.GONE
         viewBinding.stopTrackingButton.visibility = View.VISIBLE
         viewBinding.okTrackingButton.visibility = View.GONE
         viewBinding.redoTrackingButton.visibility = View.GONE
     }
 
-    fun readyToTrack() {
+    private fun readyToTrack() {
         viewBinding.startTrackingButton.visibility = View.VISIBLE
     }
 }
