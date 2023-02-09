@@ -12,6 +12,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.widget.TextView
 import androidx.appcompat.content.res.AppCompatResources
+import androidx.viewbinding.ViewBinding
 import com.google.gson.JsonObject
 import com.google.gson.JsonPrimitive
 import com.mapbox.geojson.Feature
@@ -34,6 +35,7 @@ import kotlinx.coroutines.withContext
 import org.commcare.CommCareApplication
 import org.commcare.cases.entity.Entity
 import org.commcare.dalvik.R
+import org.commcare.dalvik.databinding.ActivityEntityMapboxBinding
 import org.commcare.gis.EntityMapUtils.getEntities
 import org.commcare.gis.EntityMapUtils.getEntityLocation
 import org.commcare.gis.EntityMapUtils.getNeededEntityDatum
@@ -80,10 +82,13 @@ class EntityMapboxActivity : BaseMapboxActivity() {
     private lateinit var source: GeoJsonSource
     private var iconset = java.util.HashSet<String>()
     private lateinit var mapEntities: java.util.ArrayList<MapEntity>
+    private lateinit var viewBinding: ActivityEntityMapboxBinding
 
-
-    override fun getMapLayout(): Int {
-        return R.layout.activity_entity_mapbox
+    override fun getViewBinding(): ViewBinding {
+        if (!::viewBinding.isInitialized) {
+            viewBinding = ActivityEntityMapboxBinding.inflate(layoutInflater)
+        }
+        return viewBinding
     }
 
 
@@ -193,7 +198,7 @@ class EntityMapboxActivity : BaseMapboxActivity() {
             showToast(R.string.parse_coordinates_failure)
             Logger.exception("Exception while parsing boundary coordinates ", Exception(it))
         }.onSuccess { latlngs ->
-            val fillManager = AnnotationRepositoryManager.getFillManagerInstance(mapView, map, loadedStyle)
+            val fillManager = AnnotationRepositoryManager.getFillManagerInstance(viewBinding.mapView, map, loadedStyle)
             val lists = ArrayList<List<LatLng>>()
             lists.add(latlngs)
             fillManager.create(FillOptions()
@@ -205,7 +210,7 @@ class EntityMapboxActivity : BaseMapboxActivity() {
 
 
     private fun addEntitiesOnMap(loadedStyle: Style) {
-        val symbolManager = SymbolManager(mapView, map, loadedStyle)
+        val symbolManager = SymbolManager(viewBinding.mapView, map, loadedStyle)
         symbolManager.iconAllowOverlap = true
         symbolManager.iconTranslate = arrayOf(-4f, 5f)
 

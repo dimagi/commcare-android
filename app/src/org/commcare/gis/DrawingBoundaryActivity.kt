@@ -9,6 +9,7 @@ import android.location.Location
 import android.location.LocationListener
 import android.os.Build
 import android.os.Bundle
+import androidx.viewbinding.ViewBinding
 import com.mapbox.geojson.Polygon
 import com.mapbox.mapboxsdk.geometry.LatLng
 import com.mapbox.mapboxsdk.maps.MapboxMap
@@ -17,6 +18,7 @@ import io.ona.kujaku.manager.DrawingManager
 import org.commcare.activities.components.FormEntryInstanceState
 import org.commcare.android.javarosa.IntentCallout
 import org.commcare.dalvik.R
+import org.commcare.dalvik.databinding.ActivityDrawingBoundaryBinding
 import org.commcare.gis.EntityMapUtils.parseBoundaryCoords
 import org.commcare.interfaces.CommCareActivityUIController
 import org.commcare.interfaces.WithUIController
@@ -65,11 +67,19 @@ class DrawingBoundaryActivity : BaseMapboxActivity(), WithUIController, Location
     private var locationMinAccuracy = 35
 
     private lateinit var uiController: DrawingBoundaryActivityUIController
+    private lateinit var viewBinding: ActivityDrawingBoundaryBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         freezeOrientation()
         initExtras()
+    }
+
+    override fun getViewBinding(): ViewBinding {
+        if (!::viewBinding.isInitialized) {
+            viewBinding = ActivityDrawingBoundaryBinding.inflate(layoutInflater)
+        }
+        return viewBinding
     }
 
     private fun initExtras() {
@@ -114,8 +124,8 @@ class DrawingBoundaryActivity : BaseMapboxActivity(), WithUIController, Location
     }
 
     private fun onStyleLoaded() {
-        mapView.isWarmGps = true
-        drawingManager = DrawingManager(mapView, map, loadedStyle)
+        viewBinding.mapView.isWarmGps = true
+        drawingManager = DrawingManager(viewBinding.mapView, map, loadedStyle)
         map.addOnMapClickListener {
             updateMetrics();
             false
@@ -149,8 +159,8 @@ class DrawingBoundaryActivity : BaseMapboxActivity(), WithUIController, Location
     }
 
     private fun requestLocationServices() {
-        mapView.setWarmGps(true, null, null) {
-            mapView.focusOnUserLocation(true)
+        viewBinding.mapView.setWarmGps(true, null, null) {
+            viewBinding.mapView.focusOnUserLocation(true)
             uiController.trackingUIState()
             startTrackingInner()
         }
@@ -159,7 +169,7 @@ class DrawingBoundaryActivity : BaseMapboxActivity(), WithUIController, Location
     private fun startTrackingInner() {
         isRecording = true
         if (!isManual) {
-            mapView.locationClient!!.addLocationListener(this)
+            viewBinding.mapView.locationClient!!.addLocationListener(this)
         } else {
             drawingManager.startDrawing(null)
         }
@@ -167,7 +177,7 @@ class DrawingBoundaryActivity : BaseMapboxActivity(), WithUIController, Location
 
     fun stopTracking() {
         isRecording = false
-        mapView.locationClient!!.removeLocationListener(this)
+        viewBinding.mapView.locationClient!!.removeLocationListener(this)
         updateMetrics()
     }
 
