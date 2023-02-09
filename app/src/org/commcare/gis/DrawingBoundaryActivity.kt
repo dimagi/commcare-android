@@ -71,6 +71,7 @@ class DrawingBoundaryActivity : BaseMapboxActivity(), LocationListener, MapboxMa
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        initUI()
         freezeOrientation()
         initExtras()
     }
@@ -131,11 +132,11 @@ class DrawingBoundaryActivity : BaseMapboxActivity(), LocationListener, MapboxMa
         viewBinding.mapView.isWarmGps = true
         drawingManager = DrawingManager(viewBinding.mapView, map, loadedStyle)
         map.addOnMapClickListener {
-            updateMetrics();
+            updateMetrics()
             false
         }
         setUiFromBoundaryCoords()
-        readyToTrack();
+        readyToTrack()
     }
 
     // updates the polygon and refresh the UI
@@ -264,7 +265,7 @@ class DrawingBoundaryActivity : BaseMapboxActivity(), LocationListener, MapboxMa
         return String.format("%.2f", num)
     }
 
-    private fun setupUI() {
+    private fun initUI() {
         viewBinding.startTrackingButton.setOnClickListener {
             this.startTracking()
         }
