@@ -36,6 +36,7 @@ import kotlinx.coroutines.withContext
 import org.commcare.CommCareApplication
 import org.commcare.cases.entity.Entity
 import org.commcare.dalvik.R
+import org.commcare.dalvik.databinding.ActivityEntityKujakuMapInfoViewBinding
 import org.commcare.dalvik.databinding.ActivityEntityMapboxBinding
 import org.commcare.gis.EntityMapUtils.getEntities
 import org.commcare.gis.EntityMapUtils.getEntityLocation
@@ -255,10 +256,9 @@ class EntityMapboxActivity : BaseMapboxActivity() {
 
     private fun generateEntityInfoView(mapEntity: MapEntity): Bitmap {
 
-        val inflater = LayoutInflater.from(this)
-
         val stringBuilder = SpannableStringBuilder()
-        val bubbleLayout = inflater.inflate(R.layout.activity_entity_kujaku_map_info_view, null) as BubbleLayout
+        val binding = ActivityEntityKujakuMapInfoViewBinding.inflate(layoutInflater)
+        val bubbleLayout = binding.root
 
         for ((key, value) in mapEntity.properties.entrySet()) {
             stringBuilder.append(key)
@@ -270,8 +270,7 @@ class EntityMapboxActivity : BaseMapboxActivity() {
             stringBuilder.append(System.getProperty("line.separator"))
         }
 
-        val propertiesListTextView = bubbleLayout.findViewById<TextView>(R.id.info_window_feature_properties_list)
-        propertiesListTextView.text = stringBuilder
+        binding.infoWindowFeaturePropertiesList.text = stringBuilder
 
         val measureSpec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
         bubbleLayout.measure(measureSpec, measureSpec)
