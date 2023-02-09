@@ -9,6 +9,7 @@ import android.location.Location
 import android.location.LocationListener
 import android.os.Build
 import android.os.Bundle
+import android.view.View
 import androidx.viewbinding.ViewBinding
 import com.mapbox.geojson.Polygon
 import com.mapbox.mapboxsdk.geometry.LatLng
@@ -25,6 +26,7 @@ import org.commcare.interfaces.CommCareActivityUIController
 import org.commcare.interfaces.WithUIController
 import org.commcare.utils.FileUtil
 import org.commcare.utils.ImageType
+import org.commcare.utils.StringUtils
 import org.javarosa.core.services.Logger
 import java.io.File
 
@@ -263,5 +265,49 @@ class DrawingBoundaryActivity : BaseMapboxActivity(), WithUIController, Location
         mapSnapshotPath = FormEntryInstanceState.getInstanceFolder() + imageFilename
         FileUtil.writeBitmapToDiskAndCleanupHandles(snapshot, ImageType.PNG, File(mapSnapshotPath!!))
         returnResult()
+    }
+
+    private fun refreshView() {
+        viewBinding.areaTv.text = StringUtils.getStringRobust(this, R.string.area_format, formatArea(getArea()))
+    }
+
+    private fun formatArea(num: Double): String {
+        return String.format("%.2f", num)
+    }
+
+    private fun setupUI() {
+        viewBinding.startTrackingButton.setOnClickListener {
+            this.startTracking()
+        }
+        viewBinding.stopTrackingButton.setOnClickListener {
+            stoppedUIState()
+            this.stopTracking()
+        }
+        viewBinding.okTrackingButton.setOnClickListener {
+            this.finishTracking()
+        }
+        viewBinding.redoTrackingButton.setOnClickListener {
+            trackingUIState()
+            this.redoTracking()
+        }
+        viewBinding.areaTv.text = StringUtils.getStringRobust(this, R.string.area_format, "0.00")
+    }
+
+    private fun stoppedUIState() {
+        viewBinding.startTrackingButton.visibility = View.GONE
+        viewBinding.stopTrackingButton.visibility = View.GONE
+        viewBinding.okTrackingButton.visibility = View.VISIBLE
+        viewBinding.redoTrackingButton.visibility = View.VISIBLE
+    }
+
+    fun trackingUIState() {
+        viewBinding.startTrackingButton.visibility = View.GONE
+        viewBinding.stopTrackingButton.visibility = View.VISIBLE
+        viewBinding.okTrackingButton.visibility = View.GONE
+        viewBinding.redoTrackingButton.visibility = View.GONE
+    }
+
+    fun readyToTrack() {
+        viewBinding.startTrackingButton.visibility = View.VISIBLE
     }
 }
