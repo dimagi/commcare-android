@@ -24,6 +24,7 @@ import com.mapbox.mapboxsdk.maps.Style
 import com.mapbox.mapboxsdk.plugins.annotation.Symbol
 import com.mapbox.mapboxsdk.plugins.annotation.SymbolManager
 import com.mapbox.mapboxsdk.plugins.annotation.SymbolOptions
+import io.ona.kujaku.views.KujakuMapView
 import org.commcare.activities.components.FormEntryConstants
 import org.commcare.activities.components.FormEntryDialogs
 import org.commcare.dalvik.R
@@ -93,6 +94,10 @@ class MapboxLocationPickerActivity : BaseMapboxActivity(), CommCareLocationListe
             isManualSelectedLocation = true
         }
         viewBinding.mapView.showCurrentLocationBtn(false)
+    }
+
+    override fun getMapView(): KujakuMapView {
+        return viewBinding.mapView
     }
 
     override fun getViewBinding(): ViewBinding {

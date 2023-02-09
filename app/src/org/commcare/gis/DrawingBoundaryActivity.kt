@@ -15,6 +15,7 @@ import com.mapbox.mapboxsdk.geometry.LatLng
 import com.mapbox.mapboxsdk.maps.MapboxMap
 import com.mapbox.mapboxsdk.maps.Style
 import io.ona.kujaku.manager.DrawingManager
+import io.ona.kujaku.views.KujakuMapView
 import org.commcare.activities.components.FormEntryInstanceState
 import org.commcare.android.javarosa.IntentCallout
 import org.commcare.dalvik.R
@@ -73,6 +74,10 @@ class DrawingBoundaryActivity : BaseMapboxActivity(), WithUIController, Location
         super.onCreate(savedInstanceState)
         freezeOrientation()
         initExtras()
+    }
+
+    override fun getMapView(): KujakuMapView {
+        return viewBinding.mapView
     }
 
     override fun getViewBinding(): ViewBinding {

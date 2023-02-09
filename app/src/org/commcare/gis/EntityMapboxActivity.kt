@@ -28,6 +28,7 @@ import com.mapbox.mapboxsdk.style.layers.PropertyFactory
 import com.mapbox.mapboxsdk.style.layers.SymbolLayer
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
 import io.ona.kujaku.manager.AnnotationRepositoryManager
+import io.ona.kujaku.views.KujakuMapView
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -89,6 +90,10 @@ class EntityMapboxActivity : BaseMapboxActivity() {
             viewBinding = ActivityEntityMapboxBinding.inflate(layoutInflater)
         }
         return viewBinding
+    }
+
+    override fun getMapView(): KujakuMapView {
+        return viewBinding.mapView
     }
 
 
