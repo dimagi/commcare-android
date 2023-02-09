@@ -23,11 +23,7 @@ abstract class BaseMapboxActivity : CommCareActivity<BaseMapboxActivity>() {
         Mapbox.getInstance(this, BuildConfig.MAPBOX_SDK_API_KEY)
         super.onCreate(savedInstanceState)
 
-        if (!usesUIController()) {
-            setContentView(getMapLayout())
-        } else {
-            (uiManager as CommCareActivityUIController).setupUI()
-        }
+        setContentView(viewBinding.root)
 
         getMapView().onCreate(savedInstanceState)
         initMap()
