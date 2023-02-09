@@ -26,6 +26,7 @@ import org.commcare.utils.FileUtil
 import org.commcare.utils.ImageType
 import org.commcare.utils.StringUtils
 import org.javarosa.core.services.Logger
+import org.javarosa.core.services.locale.Localization
 import java.io.File
 
 /**
@@ -266,16 +267,22 @@ class DrawingBoundaryActivity : BaseMapboxActivity(), LocationListener, MapboxMa
     }
 
     private fun initUI() {
+        viewBinding.startTrackingButton.text =  Localization.get("drawing.boundary.map.start.tracking")
         viewBinding.startTrackingButton.setOnClickListener {
             this.startTracking()
         }
+
+        viewBinding.stopTrackingButton.text =  Localization.get("drawing.boundary.map.stop.tracking")
         viewBinding.stopTrackingButton.setOnClickListener {
             stoppedUIState()
             this.stopTracking()
         }
+
+        viewBinding.okTrackingButton.text =  Localization.get("drawing.boundary.map.ok.tracking")
         viewBinding.okTrackingButton.setOnClickListener {
             this.finishTracking()
         }
+        viewBinding.redoTrackingButton.text =  Localization.get("drawing.boundary.map.redo.tracking")
         viewBinding.redoTrackingButton.setOnClickListener {
             trackingUIState()
             this.redoTracking()
