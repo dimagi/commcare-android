@@ -1,6 +1,7 @@
 package org.commcare.activities;
 
 import static org.commcare.activities.EntitySelectActivity.BARCODE_FETCH;
+import static org.commcare.suite.model.QueryPrompt.INPUT_TYPE_CHECKBOX;
 import static org.commcare.suite.model.QueryPrompt.INPUT_TYPE_DATERANGE;
 import static org.commcare.suite.model.QueryPrompt.INPUT_TYPE_SELECT1;
 
@@ -71,6 +72,7 @@ public class QueryRequestActivity
         ArrayList<String> supportedPrompts = new ArrayList<>();
         supportedPrompts.add(INPUT_TYPE_SELECT1);
         supportedPrompts.add(INPUT_TYPE_DATERANGE);
+        supportedPrompts.add(INPUT_TYPE_CHECKBOX);
         return supportedPrompts;
     }
 
