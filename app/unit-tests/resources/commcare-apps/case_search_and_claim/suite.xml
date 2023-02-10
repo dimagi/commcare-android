@@ -398,6 +398,18 @@
             </text>
           </display>
         </prompt>
+        <prompt key="multi_state" input="checkbox">
+          <display>
+            <text>
+              <locale id="query.state"/>
+            </text>
+          </display>
+          <itemset nodeset="instance('state')/state_list/state">
+            <label ref="name"/>
+            <value ref="id"/>
+            <sort ref="id"/>
+          </itemset>
+        </prompt>
       </query>
       <datum id="case_id" nodeset="instance('patients')/patients/patient" value="./id" detail-select="patient_short" detail-confirm="patient_long"/>
     </session>

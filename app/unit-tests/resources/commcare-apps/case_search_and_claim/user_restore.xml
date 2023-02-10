@@ -57,6 +57,10 @@
                 <id>rj</id>
                 <name>Raj as than</name>
             </state>
+            <state>
+                <id>up</id>
+                <name>Uttar Pradesh</name>
+            </state>
         </state_list>
     </fixture>
 
