@@ -195,6 +195,7 @@ class QueryRequestUiController(
 
     private fun buildCheckboxView(promptView: View, queryPrompt: QueryPrompt): View {
         val checboxView = promptView.findViewById<LinearLayout>(R.id.prompt_checkbox)
+        checboxView.visibility = View.VISIBLE
         checboxView.tag = QueryPrompt.INPUT_TYPE_CHECKBOX
         remoteQuerySessionManager.populateItemSetChoices(queryPrompt)
         var selectedPosAndChoices = calculateItemChoices(queryPrompt)
