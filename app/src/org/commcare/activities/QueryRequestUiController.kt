@@ -249,7 +249,6 @@ class QueryRequestUiController(
     private fun buildSpinnerView(promptView: View, queryPrompt: QueryPrompt): Spinner? {
         val promptSpinner = promptView.findViewById<Spinner>(R.id.prompt_spinner)
         promptSpinner.visibility = View.VISIBLE
-        promptView.findViewById<View>(R.id.prompt_et).visibility = View.GONE
         promptSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                 var value = ""
@@ -307,7 +306,6 @@ class QueryRequestUiController(
         val promptEditText = promptView.findViewById<EditText>(R.id.prompt_et)
         promptEditText.visibility = View.VISIBLE
         promptEditText.isFocusable = false
-        promptView.findViewById<View>(R.id.prompt_spinner).visibility = View.GONE
         val userAnswers = remoteQuerySessionManager.userAnswers
         val humanReadableDateRange = DateRangeUtils.getHumanReadableDateRange(userAnswers[queryPrompt.key])
         promptEditText.setText(humanReadableDateRange)
