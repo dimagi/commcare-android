@@ -14,6 +14,7 @@ import com.google.android.material.datepicker.MaterialDatePicker
 import org.commcare.dalvik.R
 import org.commcare.interfaces.CommCareActivityUIController
 import org.commcare.session.RemoteQuerySessionManager
+import org.commcare.session.RemoteQuerySessionManager.extractMultipleChoices
 import org.commcare.suite.model.QueryPrompt
 import org.commcare.utils.DateRangeUtils
 import org.commcare.views.ManagedUi
@@ -21,6 +22,7 @@ import org.commcare.views.UiElement
 import org.commcare.views.ViewUtil
 import org.commcare.views.widgets.SpinnerWidget
 import org.commcare.views.widgets.WidgetUtils
+import org.javarosa.core.model.SelectChoice
 import org.javarosa.core.services.locale.Localizer
 import java.text.ParseException
 import java.util.*
@@ -69,12 +71,22 @@ class QueryRequestUiController(
         answeredPrompts.forEach { entry ->
             remoteQuerySessionManager.answerUserPrompt(entry.key, entry.value)
             val promptView = promptsBoxes[entry.key]
-            if (promptView is EditText) {
-                promptView.setText(entry.value)
-            } else if (promptView is Spinner) {
-                val queryPrompt = remoteQuerySessionManager.neededUserInputDisplays[entry.key]
+            val queryPrompt = remoteQuerySessionManager.neededUserInputDisplays[entry.key]
+            if (queryPrompt!!.isSelect) {
                 remoteQuerySessionManager.populateItemSetChoices(queryPrompt)
-                setSpinnerData(queryPrompt!!, (promptView as Spinner?)!!)
+            }
+            when (promptView) {
+                is EditText -> {
+                    promptView.setText(entry.value)
+                }
+                is Spinner -> {
+                    setSpinnerData(queryPrompt, promptView)
+                }
+                is LinearLayout -> {
+                    if (promptView.tag == QueryPrompt.INPUT_TYPE_CHECKBOX) {
+                        setCheckboxData(queryPrompt, promptView, entry.value)
+                    }
+                }
             }
         }
     }
@@ -137,6 +149,8 @@ class QueryRequestUiController(
             inputView = buildSpinnerView(promptView, queryPrompt)
         } else if (input.contentEquals(QueryPrompt.INPUT_TYPE_DATERANGE)) {
             inputView = buildDateRangeView(promptView, queryPrompt)
+        } else if (input.contentEquals(QueryPrompt.INPUT_TYPE_CHECKBOX)) {
+            inputView = buildCheckboxView(promptView, queryPrompt)
         }
         return inputView
     }
@@ -176,6 +190,59 @@ class QueryRequestUiController(
             remoteQuerySessionManager.answerUserPrompt(queryPrompt.key, answer)
             remoteQuerySessionManager.refreshItemSetChoices()
             refreshView()
+        }
+    }
+
+    private fun buildCheckboxView(promptView: View, queryPrompt: QueryPrompt): View {
+        val checboxView = promptView.findViewById<LinearLayout>(R.id.prompt_checkbox)
+        checboxView.tag = QueryPrompt.INPUT_TYPE_CHECKBOX
+        checboxView.removeAllViews()
+        remoteQuerySessionManager.populateItemSetChoices(queryPrompt)
+        var selectedPosAndChoices = calculateItemChoices(queryPrompt)
+        val selectedPositions = selectedPosAndChoices.first
+        val choices = selectedPosAndChoices.second
+        val items = queryPrompt.itemsetBinding!!.choices
+        items.forEachIndexed { index, item ->
+            addCheckboxView(checboxView, item, choices[index]!!, index in selectedPositions, items, queryPrompt)
+        }
+        return checboxView
+    }
+
+    private fun addCheckboxView(
+        promptInputView: LinearLayout,
+        item: SelectChoice,
+        choice: String,
+        checked: Boolean,
+        items: Vector<SelectChoice>,
+        queryPrompt: QueryPrompt
+    ) {
+        val checkBox = CheckBox(queryRequestActivity)
+        checkBox.text = choice
+        checkBox.isChecked = checked
+        checkBox.tag = item.index
+        checkBox.setOnCheckedChangeListener { buttonView: CompoundButton, isChecked: Boolean ->
+            val numberOfChoices = promptInputView.childCount
+            val checkboxAnswers = ArrayList<String>()
+            for (i in 0 until numberOfChoices) {
+                val checkbox = promptInputView.getChildAt(i) as CheckBox
+                if(checkbox.isChecked){
+                    checkboxAnswers.add(items[checkbox.tag as Int].value)
+                }
+            }
+            val answer = RemoteQuerySessionManager.joinMultipleChoices(checkboxAnswers)
+            updateAnswerAndRefresh(queryPrompt, answer)
+        }
+        promptInputView.addView(checkBox)
+    }
+
+
+    private fun setCheckboxData(queryPrompt: QueryPrompt, promptView: LinearLayout, answer: String) {
+        val promptAnswers = extractMultipleChoices(answer)
+        val items = queryPrompt.itemsetBinding!!.choices
+        val numberOfChoices = promptView.childCount
+        for (i in 0 until numberOfChoices) {
+            val checkbox = promptView.getChildAt(i) as CheckBox
+            checkbox.isChecked = items[checkbox.tag as Int].value in promptAnswers
         }
     }
 
@@ -224,7 +291,7 @@ class QueryRequestUiController(
         val items = queryPrompt.itemsetBinding!!.choices
         val choices = arrayOfNulls<String>(items.size)
         val userAnswers: Hashtable<String, String> = remoteQuerySessionManager.userAnswers
-        val promptAnswers = RemoteQuerySessionManager.extractMultipleChoices(userAnswers[queryPrompt.key])
+        val promptAnswers = extractMultipleChoices(userAnswers[queryPrompt.key])
         val selectedPositions = ArrayList<Int>()
         for (i in items.indices) {
             val item = items[i]
