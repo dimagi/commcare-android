@@ -129,7 +129,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
         if (!HiddenPreferences.allowRunOnRootedDevice()
                 && new RootBeer(this).isRooted()) {
-            UserfacingErrorHandling.createErrorDialog(this,
+            new UserfacingErrorHandling<>().createErrorDialog(this,
                     StringUtils.getStringRobust(this, R.string.root_detected_message),
                     StringUtils.getStringRobust(this, R.string.root_detected_title),
                     true);

@@ -57,7 +57,7 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
         try {
             addEntityData();
         } catch (XPathException xe) {
-            UserfacingErrorHandling.logErrorAndShowDialog(this, xe, true);
+            new UserfacingErrorHandling<>().logErrorAndShowDialog(this, xe, true);
         }
     }
 

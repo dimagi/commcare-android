@@ -103,7 +103,7 @@ public class BreadcrumbBarFragment extends Fragment {
         try {
             this.tile = findAndLoadCaseTile(activity);
         } catch (XPathException xe) {
-            UserfacingErrorHandling.logErrorAndShowDialog((CommCareActivity)getActivity(), xe, true);
+            new UserfacingErrorHandling<>().logErrorAndShowDialog((CommCareActivity)getActivity(), xe, true);
         }
     }
 

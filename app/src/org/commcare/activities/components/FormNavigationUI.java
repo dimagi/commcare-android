@@ -49,7 +49,7 @@ public class FormNavigationUI {
         try {
             details = FormNavigationController.calculateNavigationStatus(formController, view);
         } catch (XPathException e) {
-            UserfacingErrorHandling.logErrorAndShowDialog(activity, e, true);
+            new UserfacingErrorHandling<>().logErrorAndShowDialog(activity, e, true);
             return;
         }
 

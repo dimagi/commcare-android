@@ -94,7 +94,7 @@ public class EntityDetailFragment extends Fragment {
             );
             ((ListView)rootView.findViewById(R.id.screen_entity_detail_list)).setAdapter((ListAdapter)adapter);
         } catch (XPathException xe) {
-            UserfacingErrorHandling.logErrorAndShowDialog((CommCareActivity)getActivity(), xe, true);
+            new UserfacingErrorHandling<>().logErrorAndShowDialog((CommCareActivity)getActivity(), xe, true);
         }
 
         return rootView;

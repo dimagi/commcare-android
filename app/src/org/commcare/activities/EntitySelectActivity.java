@@ -450,7 +450,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
                 refreshTimer.start(this);
             }
         } catch (RuntimeException re) {
-            UserfacingErrorHandling.createErrorDialog(this, re.getMessage(), true);
+            new UserfacingErrorHandling<>().createErrorDialog(this, re.getMessage(), true);
         }
     }
 
@@ -562,7 +562,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
                     }
                 }
             } catch (XPathException e) {
-                UserfacingErrorHandling.logErrorAndShowDialog(this, e, true);
+                new UserfacingErrorHandling<>().logErrorAndShowDialog(this, e, true);
             }
         }
     }
@@ -792,7 +792,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         try {
             CommCareApplication.instance().getCurrentSessionWrapper().executeStackActions(action.getStackOperations());
         } catch (XPathTypeMismatchException e) {
-            UserfacingErrorHandling.logErrorAndShowDialog(activity, e, true);
+            new UserfacingErrorHandling<>().logErrorAndShowDialog(activity, e, true);
             return;
         }
 
