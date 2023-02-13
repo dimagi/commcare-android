@@ -203,7 +203,7 @@ public class CommCareApplication extends MultiDexApplication {
     public void onCreate() {
         super.onCreate();
 
-        //turnOnStrictMode();
+        turnOnStrictMode();
 
         CommCareApplication.app = this;
         CrashUtil.init();
