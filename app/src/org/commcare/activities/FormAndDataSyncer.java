@@ -23,6 +23,8 @@ import org.commcare.tasks.PullTaskResultReceiver;
 import org.commcare.tasks.ResultAndError;
 import org.commcare.utils.FormUploadResult;
 import org.commcare.utils.StorageUtils;
+import org.commcare.views.notifications.NotificationActionButtonInfo;
+import org.commcare.views.notifications.NotificationMessageFactory;
 import org.javarosa.core.model.User;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
@@ -90,6 +92,12 @@ public class FormAndDataSyncer {
                                 break;
                             case TRANSPORT_FAILURE:
                                 receiver.handleFormSendResult(Localization.get("sync.fail.bad.network"), false);
+                                break;
+                            case BAD_CERTIFICATE:
+                                CommCareApplication.notificationManager().reportNotificationMessage(
+                                        NotificationMessageFactory.message(NotificationMessageFactory.StockMessages.BadSSLCertificate,
+                                                NotificationActionButtonInfo.ButtonAction.LAUNCH_DATE_SETTINGS));
+                                receiver.handleFormSendResult(Localization.get("sync.fail.badcert"), false);
                                 break;
                             case PROCESSING_FAILURE:
                                 receiver.handleFormSendResult(Localization.get("sync.fail.server.error"), false);

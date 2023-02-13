@@ -25,6 +25,8 @@ import org.commcare.tasks.ResultAndError;
 import org.commcare.utils.SyncDetailCalculations;
 import org.commcare.views.dialogs.CustomProgressDialog;
 import org.commcare.views.dialogs.StandardAlertDialog;
+import org.commcare.views.notifications.NotificationActionButtonInfo;
+import org.commcare.views.notifications.NotificationMessageFactory;
 import org.javarosa.core.services.locale.Localization;
 
 import androidx.annotation.AnimRes;
@@ -109,6 +111,7 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
                 updateUiAfterDataPullOrSend(Localization.get("sync.fail.bad.data"), FAIL);
                 break;
             case DOWNLOAD_SUCCESS:
+                CommCareApplication.notificationManager().clearNotifications(NotificationMessageFactory.StockMessages.BadSSLCertificate.getCategory());
                 updateUiAfterDataPullOrSend(Localization.get("sync.success.synced"), SUCCESS);
                 break;
             case SERVER_ERROR:
@@ -146,6 +149,12 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
                 break;
             case CAPTIVE_PORTAL:
                 updateUiAfterDataPullOrSend(Localization.get("connection.captive_portal.action"), FAIL);
+                break;
+            case BAD_CERTIFICATE:
+                CommCareApplication.notificationManager().reportNotificationMessage(
+                        NotificationMessageFactory.message(NotificationMessageFactory.StockMessages.BadSSLCertificate,
+                                NotificationActionButtonInfo.ButtonAction.LAUNCH_DATE_SETTINGS));
+                updateUiAfterDataPullOrSend(Localization.get("sync.fail.badcert"), FAIL);
                 break;
         }
 

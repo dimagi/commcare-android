@@ -183,18 +183,34 @@ public class NotificationMessageFactory {
     }
 
     public static NotificationMessage message(MessageTag message) {
-        return message(message, new String[3]);
+        return message(message, new String[4]);
     }
 
     public static NotificationMessage message(MessageTag message, String customCategory) {
-        return message(message, new String[3], customCategory);
+        return message(message, new String[4], customCategory);
+    }
+
+    public static NotificationMessage message(MessageTag message, NotificationActionButtonInfo.ButtonAction buttonAction) {
+        return message(message, new String[4], message.getCategory(), buttonAction);
+    }
+
+    public static NotificationMessage message(MessageTag message, String customCategory, NotificationActionButtonInfo.ButtonAction buttonAction) {
+        return message(message, new String[4], customCategory, buttonAction);
     }
 
     public static NotificationMessage message(MessageTag message, String[] parameters) {
         return message(message, parameters, message.getCategory());
     }
 
+    public static NotificationMessage message(MessageTag message, String[] parameters, NotificationActionButtonInfo.ButtonAction buttonAction) {
+        return message(message, parameters, message.getCategory(), buttonAction);
+    }
+
     public static NotificationMessage message(MessageTag message, String[] parameters, String customCategory) {
+        return message(message, parameters, customCategory, NotificationActionButtonInfo.ButtonAction.NONE);
+    }
+
+    public static NotificationMessage message(MessageTag message, String[] parameters, String customCategory, NotificationActionButtonInfo.ButtonAction buttonAction) {
         String base = message.getLocaleKeyBase();
         if (base == null) {
             throw new NullPointerException("No Locale Key base for message tag!");
@@ -211,7 +227,18 @@ public class NotificationMessageFactory {
                 //No big deal, key doesn't need to exist
             }
 
-            return new NotificationMessage(customCategory, title, detail, action, new Date());
+            NotificationActionButtonInfo buttonInfo = null;
+            try {
+                String button = parameters[3] == null ? Localization.get(base + ".button") : Localization.get(base + ".button", new String[]{parameters[3]});
+                buttonInfo = new NotificationActionButtonInfo(button, buttonAction);
+            } catch (Exception e) {
+                if(buttonAction != NotificationActionButtonInfo.ButtonAction.NONE) {
+                    //Need text to be defined for the button since an action is defined
+                    throw e;
+                }
+            }
+
+            return new NotificationMessage(customCategory, title, detail, action, new Date(), buttonInfo);
         }
         //TODO: Release v. debug mode for these?
         catch (NoLocalizedTextException e) {

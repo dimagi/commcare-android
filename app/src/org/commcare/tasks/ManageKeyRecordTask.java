@@ -18,6 +18,7 @@ import org.commcare.network.HttpCalloutTask;
 import org.commcare.preferences.ServerUrls;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.SessionUnavailableException;
+import org.commcare.views.notifications.NotificationActionButtonInfo;
 import org.commcare.views.notifications.NotificationMessageFactory;
 import org.commcare.views.notifications.NotificationMessageFactory.StockMessages;
 import org.commcare.xml.KeyRecordParser;
@@ -186,9 +187,9 @@ public abstract class ManageKeyRecordTask<R extends DataPullController> extends 
                 Logger.log(LogTypes.TYPE_USER, "ManageKeyRecordTask error|bad network");
                 receiver.raiseLoginMessage(StockMessages.Remote_NoNetwork_BadPass, true);
                 break;
-            case BadCertificate:
+            case BadSSLCertificate:
                 Logger.log(LogTypes.TYPE_USER, "ManageKeyRecordTask error|bad certificate");
-                receiver.raiseLoginMessage(StockMessages.BadSSLCertificate, false);
+                receiver.raiseLoginMessage(StockMessages.BadSSLCertificate, true, NotificationActionButtonInfo.ButtonAction.LAUNCH_DATE_SETTINGS);
                 break;
             case UnknownError:
                 Logger.log(LogTypes.TYPE_USER, "ManageKeyRecordTask error|unknown error");

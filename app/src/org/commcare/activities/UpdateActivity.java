@@ -42,6 +42,8 @@ import org.commcare.utils.SyncDetailCalculations;
 import org.commcare.views.dialogs.CustomProgressDialog;
 import org.commcare.views.dialogs.DialogChoiceItem;
 import org.commcare.views.dialogs.PaneledChoiceDialog;
+import org.commcare.views.notifications.MessageTag;
+import org.commcare.views.notifications.NotificationActionButtonInfo;
 import org.commcare.views.notifications.NotificationMessage;
 import org.commcare.views.notifications.NotificationMessageFactory;
 import org.javarosa.core.services.Logger;
@@ -314,7 +316,16 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
                 finishWithResult(RefreshToLatestBuildActivity.ALREADY_UP_TO_DATE);
             }
         } else {
-            reportFailureToNotifications(result.errorMessage);
+            switch(result.data) {
+                case BadSSLCertificate:
+                    reportFailureToNotifications(result.data, NotificationActionButtonInfo.ButtonAction.LAUNCH_DATE_SETTINGS);
+                    break;
+                default:
+                    //QUESTION: AppInstallStatus maps to MessageTags, shouldn't we be using that? i.e.
+                    //reportFailureToNotifications(result.data, NotificationActionButtonInfo.ButtonAction.NONE);
+                    reportFailureToNotifications(result.errorMessage, NotificationActionButtonInfo.ButtonAction.NONE);
+                    break;
+            }
             uiController.checkFailedUiState();
             if (proceedAutomatically) {
                 finishWithResult(RefreshToLatestBuildActivity.UPDATE_ERROR);
@@ -325,7 +336,13 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
         uiController.refreshView();
     }
 
-    private void reportFailureToNotifications(String errorMessage) {
+    private void reportFailureToNotifications(MessageTag message, NotificationActionButtonInfo.ButtonAction buttonAction) {
+        CommCareApplication.notificationManager()
+                .reportNotificationMessage(NotificationMessageFactory.message(message, buttonAction), true);
+        uiController.setNotificationsVisible();
+    }
+
+    private void reportFailureToNotifications(String errorMessage, NotificationActionButtonInfo.ButtonAction buttonAction) {
         NotificationMessage notificationMessage = null;
 
         if (UpdateHelper.isCombinedErrorMessage(errorMessage)) {
@@ -333,11 +350,13 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
                     UpdateHelper.splitCombinedErrorMessage(errorMessage);
             notificationMessage =
                     NotificationMessageFactory.message(AppInstallStatus.InvalidResource,
-                            new String[]{null, resourceAndMessage.first, resourceAndMessage.second});
+                            new String[]{null, resourceAndMessage.first, resourceAndMessage.second},
+                            buttonAction);
         } else if (!"".equals(errorMessage)) {
             notificationMessage =
                     NotificationMessageFactory.message(AppInstallStatus.UpdateFailedGeneral,
-                            new String[]{null, errorMessage, null});
+                            new String[]{null, errorMessage, null},
+                            buttonAction);
         }
 
         if (notificationMessage != null) {

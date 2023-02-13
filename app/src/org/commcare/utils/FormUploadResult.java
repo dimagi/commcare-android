@@ -69,7 +69,13 @@ public enum FormUploadResult {
     /**
      * User is behind a captive portal, no need to try re-submissions
      */
-    CAPTIVE_PORTAL(12)
+    CAPTIVE_PORTAL(12),
+
+    /**
+     * Error involving SSL certificate, no need to try re-submission
+     * This is often related to local clock settings
+     */
+    BAD_CERTIFICATE(13)
     ;
 
     private final int orderVal;

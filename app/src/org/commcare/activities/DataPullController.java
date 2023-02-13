@@ -1,6 +1,7 @@
 package org.commcare.activities;
 
 import org.commcare.views.notifications.MessageTag;
+import org.commcare.views.notifications.NotificationActionButtonInfo;
 import org.commcare.views.notifications.NotificationMessage;
 
 /**
@@ -23,6 +24,7 @@ public interface DataPullController {
     void dataPullCompleted();
 
     void raiseLoginMessage(MessageTag messageTag, boolean showTop);
+    void raiseLoginMessage(MessageTag messageTag, boolean showTop, NotificationActionButtonInfo.ButtonAction buttonAction);
 
     void raiseLoginMessageWithInfo(MessageTag messageTag, String additionalInfo, boolean showTop);
 

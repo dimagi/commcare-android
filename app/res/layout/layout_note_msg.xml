@@ -40,4 +40,10 @@
         android:text="What to do about it"
         android:textAppearance="?android:attr/textAppearanceMedium"/>
 
+    <Button
+        android:id="@+id/layout_note_msg_action_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Button" />
+
 </LinearLayout>

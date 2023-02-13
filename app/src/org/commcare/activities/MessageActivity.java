@@ -7,10 +7,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.TextView;
 
 import org.commcare.CommCareApplication;
 import org.commcare.dalvik.R;
+import org.commcare.views.notifications.NotificationActionButtonInfo;
 import org.commcare.views.notifications.NotificationMessage;
 
 import java.text.DateFormat;
@@ -58,6 +60,8 @@ public class MessageActivity extends CommcareListActivity {
                 TextView body = messageView.findViewById(R.id.layout_note_msg_body);
                 TextView date = messageView.findViewById(R.id.layout_note_msg_date);
                 TextView action = messageView.findViewById(R.id.layout_note_msg_action);
+                Button actionButton = messageView.findViewById(R.id.layout_note_msg_action_button);
+
                 title.setText(msg.getTitle());
                 body.setText(msg.getDetails());
                 date.setText(DateUtils.formatSameDayTime(msg.getDate().getTime(), System.currentTimeMillis(), DateFormat.DEFAULT, DateFormat.DEFAULT));
@@ -67,6 +71,19 @@ public class MessageActivity extends CommcareListActivity {
                     action.setVisibility(View.GONE);
                 } else {
                     action.setText(actionText);
+                }
+
+                if(msg.getButtonInfo() == null) {
+                    actionButton.setVisibility(View.GONE);
+                } else {
+                    actionButton.setText(msg.getButtonInfo().getButtonText());
+
+                    actionButton.setOnClickListener(v -> {
+                        switch(msg.getButtonInfo().getButtonAction()) {
+                            case LAUNCH_DATE_SETTINGS -> SettingsHelper.launchDateSettings(getContext());
+                            //Future actions will be added here once implemented
+                        }
+                    });
                 }
 
                 return messageView;

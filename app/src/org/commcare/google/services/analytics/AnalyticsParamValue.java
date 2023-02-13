@@ -57,6 +57,7 @@ public class AnalyticsParamValue {
     public static final String SYNC_FAIL_ACTIONABLE = "actionable_failure";
     public static final String SYNC_FAIL_AUTH_OVER_HTTP = "auth_over_http";
     public static final String SYNC_FAIL_CAPTIVE_PORTAL = "captive_portal";
+    public static final String SYNC_FAIL_BAD_CERTIFICATE = "bad_certificate";
     public static final String SYNC_SUCCESS = "success";
 
     // Param values for feature usage
@@ -85,6 +86,7 @@ public class AnalyticsParamValue {
     public static final String SAVED_FORMS_BUTTON = "saved_forms";
     public static final String INCOMPLETE_FORMS_BUTTON = "incomplete_forms";
     public static final String SYNC_BUTTON = "sync";
+    public static final String SYNC_SUBTEXT = "sync_subtext";
     public static final String REPORT_BUTTON = "report_an_issue";
 
     // Param values for form types

@@ -23,7 +23,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.UnknownHostException;
 
-import javax.net.ssl.SSLPeerUnverifiedException;
+import javax.net.ssl.SSLException;
 
 import okhttp3.ResponseBody;
 import retrofit2.Response;
@@ -38,7 +38,7 @@ public abstract class HttpCalloutTask<R> extends CommCareTask<Object, String, Ht
         BadResponse,
         AuthFailed,
         UnknownError,
-        BadCertificate,
+        BadSSLCertificate,
         Success,
         NetworkFailureBadPassword,
         IncorrectPin,
@@ -86,9 +86,9 @@ public abstract class HttpCalloutTask<R> extends CommCareTask<Object, String, Ht
                 }
             } catch (UnknownHostException e) {
                 outcome = HttpCalloutOutcomes.NetworkFailure;
-            } catch (SSLPeerUnverifiedException e) {
+            } catch (SSLException e) {
                 // Couldn't get a valid SSL certificate
-                outcome = HttpCalloutOutcomes.BadCertificate;
+                outcome = HttpCalloutOutcomes.BadSSLCertificate;
             } catch (AuthenticationInterceptor.PlainTextPasswordException e) {
                 e.printStackTrace();
                 outcome = HttpCalloutOutcomes.AuthOverHttp;

@@ -16,6 +16,7 @@ public class NotificationMessage implements Parcelable {
 
     private String category, title, details, actions;
     private Date date;
+    private NotificationActionButtonInfo buttonInfo;
 
     @Override
     public int describeContents() {
@@ -24,7 +25,9 @@ public class NotificationMessage implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeStringArray(new String[]{category, title, details, actions});
+        String buttonText = buttonInfo != null ? buttonInfo.getButtonText() : "";
+        String buttonAction = buttonInfo != null ? buttonInfo.getButtonAction().name() : "";
+        dest.writeStringArray(new String[]{category, title, details, actions, buttonText, buttonAction});
         dest.writeLong(date.getTime());
     }
 
@@ -32,10 +35,16 @@ public class NotificationMessage implements Parcelable {
 
         @Override
         public NotificationMessage createFromParcel(Parcel source) {
-            String[] array = new String[4];
+            String[] array = new String[6];
             source.readStringArray(array);
             Date date = new Date(source.readLong());
-            return new NotificationMessage(array[0], array[1], array[2], array[3], date);
+
+            NotificationActionButtonInfo buttonInfo = null;
+            if(array[4].length() > 0) {
+                buttonInfo = new NotificationActionButtonInfo(array[4], NotificationActionButtonInfo.ButtonAction.valueOf(array[5]));
+            }
+
+            return new NotificationMessage(array[0], array[1], array[2], array[3], date, buttonInfo);
         }
 
         @Override
@@ -44,15 +53,23 @@ public class NotificationMessage implements Parcelable {
         }
     };
 
-    public NotificationMessage(String context, String title, String details, String action, Date date) {
+    public NotificationMessage(String context, String title, String details, String action, Date date)  {
+        this(context, title, details, action, date, null);
+    }
+
+    public NotificationMessage(String context, String title, String details, String action, Date date, NotificationActionButtonInfo buttonInfo) {
         if (context == null || title == null || details == null || date == null) {
-            throw new NullPointerException("None of the arguments for creating a NotificationMessage may be null except for action");
+            throw new NullPointerException("None of the arguments for creating a NotificationMessage may be null except for action and buttonInfo");
+        }
+        if (buttonInfo != null && buttonInfo.getButtonText() == null) {
+            throw new NullPointerException("NotificationMessage with buttonInfo can not have null button text");
         }
         this.category = context;
         this.title = title;
         this.details = details;
         this.actions = action;
         this.date = date;
+        this.buttonInfo = buttonInfo;
     }
 
     public String getTitle() {
@@ -65,6 +82,10 @@ public class NotificationMessage implements Parcelable {
 
     public String getDetails() {
         return details;
+    }
+
+    public NotificationActionButtonInfo getButtonInfo() {
+        return buttonInfo;
     }
 
     @Override
@@ -81,6 +102,20 @@ public class NotificationMessage implements Parcelable {
         }
         if (nm.actions != null && !nm.actions.equals(this.actions)) {
             return false;
+        }
+
+        if((nm.buttonInfo == null) != (this.buttonInfo == null)) {
+            //One has buttonInfo while the other doesn't
+            return false;
+        }
+        if(nm.buttonInfo != null) {
+            if(!nm.buttonInfo.getButtonText().equals(this.buttonInfo.getButtonText())) {
+                return false;
+            }
+
+            if(!nm.buttonInfo.getButtonAction().equals(this.buttonInfo.getButtonAction())) {
+                return false;
+            }
         }
 
         //Date is excluded from equality
