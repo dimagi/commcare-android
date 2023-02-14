@@ -2,6 +2,7 @@
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:clickable="true"
@@ -14,7 +15,8 @@
     android:paddingEnd="1px"
     android:layout_marginEnd="15px"
     android:layout_marginStart="0px"
-    android:paddingStart="5px">
+    android:paddingStart="5px"
+    tools:viewBindingIgnore="true">
 
     <TextView
         android:layout_width="wrap_content"

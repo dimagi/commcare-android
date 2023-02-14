@@ -5,7 +5,8 @@
                 android:layout_height="match_parent"
                 android:layout_margin="@dimen/standard_spacer"
                 android:layout_width="match_parent"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                tools:viewBindingIgnore="true">
 
     <TextView
         android:id="@+id/error_title"
