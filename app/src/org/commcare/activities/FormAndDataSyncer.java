@@ -79,45 +79,10 @@ public class FormAndDataSyncer {
                             ((WithUIController)receiver).getUIController().refreshView();
                         }
 
-                        switch (result) {
-                            case FULL_SUCCESS:
-                                receiver.handleFormSendResult(getLabelForFormsSent(), true);
+                        receiver.handleFormUploadResult(result, getLabelForFormsSent(), userTriggered);
 
-                                if (syncAfterwards) {
-                                    syncDataForLoggedInUser(receiver, true, userTriggered);
-                                }
-                                break;
-                            case AUTH_FAILURE:
-                                receiver.handleFormSendResult(Localization.get("sync.fail.auth.loggedin"), false);
-                                break;
-                            case TRANSPORT_FAILURE:
-                                receiver.handleFormSendResult(Localization.get("sync.fail.bad.network"), false);
-                                break;
-                            case BAD_CERTIFICATE:
-                                CommCareApplication.notificationManager().reportNotificationMessage(
-                                        NotificationMessageFactory.message(NotificationMessageFactory.StockMessages.BadSSLCertificate,
-                                                NotificationActionButtonInfo.ButtonAction.LAUNCH_DATE_SETTINGS));
-                                receiver.handleFormSendResult(Localization.get("sync.fail.badcert"), false);
-                                break;
-                            case PROCESSING_FAILURE:
-                                receiver.handleFormSendResult(Localization.get("sync.fail.server.error"), false);
-                                break;
-                            case RECORD_FAILURE:
-                                receiver.handleFormSendResult(Localization.get("sync.fail.individual"), false);
-                                break;
-                            case ACTIONABLE_FAILURE:
-                                receiver.handleFormSendResult(result.getErrorMessage(), false);
-                                break;
-                            case RATE_LIMITED:
-                                receiver.showRateLimitError(userTriggered);
-                                break;
-                            case INVALID_CASE_GRAPH:
-                                receiver.handleFormSendResult(Localization.get("sync.fail.invalid.case.graph"), false);
-                                break;
-                            case FAILURE:
-                            default:
-                                receiver.handleFormSendResult(Localization.get("sync.fail.unknown"), false);
-                                break;
+                        if(result == FormUploadResult.FULL_SUCCESS && syncAfterwards) {
+                            syncDataForLoggedInUser(receiver, true, userTriggered);
                         }
                     }
 
@@ -127,14 +92,13 @@ public class FormAndDataSyncer {
 
                     @Override
                     protected void deliverError(SyncCapableCommCareActivity receiver, Exception e) {
-                        receiver.handleFormSendResult(Localization.get("sync.fail.unsent"), false);
+                        receiver.handleFormUploadResult(FormUploadResult.UNSENT, getLabelForFormsSent(), userTriggered);
                     }
 
                     @Override
                     protected void handleCancellation(SyncCapableCommCareActivity receiver) {
                         super.handleCancellation(receiver);
-                        receiver.handleFormSendResult(Localization.get("activity.task.cancelled.message")
-                                + " " + getLabelForFormsSent(), false);
+                        receiver.handleFormUploadResult(FormUploadResult.CANCELLED, getLabelForFormsSent(), userTriggered);
                     }
                 };
 

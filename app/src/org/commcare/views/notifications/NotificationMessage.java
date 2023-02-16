@@ -25,24 +25,22 @@ public class NotificationMessage implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        String buttonText = buttonInfo != null ? buttonInfo.getButtonText() : "";
-        String buttonAction = buttonInfo != null ? buttonInfo.getButtonAction().name() : "";
-        dest.writeStringArray(new String[]{category, title, details, actions, buttonText, buttonAction});
+        dest.writeStringArray(new String[]{category, title, details, actions});
         dest.writeLong(date.getTime());
+        if(buttonInfo != null) {
+            dest.writeParcelable(buttonInfo, flags);
+        }
     }
 
-    public static final Creator<NotificationMessage> CREATOR = new Creator<NotificationMessage>() {
+    public static final Creator<NotificationMessage> CREATOR = new Creator<>() {
 
         @Override
         public NotificationMessage createFromParcel(Parcel source) {
-            String[] array = new String[6];
+            String[] array = new String[4];
             source.readStringArray(array);
             Date date = new Date(source.readLong());
 
-            NotificationActionButtonInfo buttonInfo = null;
-            if(array[4].length() > 0) {
-                buttonInfo = new NotificationActionButtonInfo(array[4], NotificationActionButtonInfo.ButtonAction.valueOf(array[5]));
-            }
+            NotificationActionButtonInfo buttonInfo = source.readParcelable(NotificationActionButtonInfo.class.getClassLoader());
 
             return new NotificationMessage(array[0], array[1], array[2], array[3], date, buttonInfo);
         }
@@ -61,9 +59,7 @@ public class NotificationMessage implements Parcelable {
         if (context == null || title == null || details == null || date == null) {
             throw new NullPointerException("None of the arguments for creating a NotificationMessage may be null except for action and buttonInfo");
         }
-        if (buttonInfo != null && buttonInfo.getButtonText() == null) {
-            throw new NullPointerException("NotificationMessage with buttonInfo can not have null button text");
-        }
+
         this.category = context;
         this.title = title;
         this.details = details;
@@ -90,13 +86,14 @@ public class NotificationMessage implements Parcelable {
 
     @Override
     public boolean equals(Object o) {
-        if (!(o instanceof NotificationMessage)) {
+        if (!(o instanceof NotificationMessage nm)) {
             return false;
         }
-        NotificationMessage nm = (NotificationMessage)o;
+
         if (!nm.category.equals(category) && nm.title.equals(title) && nm.details.equals(details)) {
             return false;
         }
+
         if (nm.actions == null && this.actions != null) {
             return false;
         }
@@ -108,14 +105,8 @@ public class NotificationMessage implements Parcelable {
             //One has buttonInfo while the other doesn't
             return false;
         }
-        if(nm.buttonInfo != null) {
-            if(!nm.buttonInfo.getButtonText().equals(this.buttonInfo.getButtonText())) {
-                return false;
-            }
-
-            if(!nm.buttonInfo.getButtonAction().equals(this.buttonInfo.getButtonAction())) {
-                return false;
-            }
+        if(nm.buttonInfo != null && !nm.buttonInfo.equals(this.buttonInfo)) {
+            return false;
         }
 
         //Date is excluded from equality

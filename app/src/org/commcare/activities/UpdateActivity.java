@@ -316,16 +316,8 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
                 finishWithResult(RefreshToLatestBuildActivity.ALREADY_UP_TO_DATE);
             }
         } else {
-            switch(result.data) {
-                case BadSSLCertificate:
-                    reportFailureToNotifications(result.data, NotificationActionButtonInfo.ButtonAction.LAUNCH_DATE_SETTINGS);
-                    break;
-                default:
-                    //QUESTION: AppInstallStatus maps to MessageTags, shouldn't we be using that? i.e.
-                    //reportFailureToNotifications(result.data, NotificationActionButtonInfo.ButtonAction.NONE);
-                    reportFailureToNotifications(result.errorMessage, NotificationActionButtonInfo.ButtonAction.NONE);
-                    break;
-            }
+            reportFailureToNotifications(result.data, result.errorMessage);
+
             uiController.checkFailedUiState();
             if (proceedAutomatically) {
                 finishWithResult(RefreshToLatestBuildActivity.UPDATE_ERROR);
@@ -336,34 +328,40 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
         uiController.refreshView();
     }
 
-    private void reportFailureToNotifications(MessageTag message, NotificationActionButtonInfo.ButtonAction buttonAction) {
-        CommCareApplication.notificationManager()
-                .reportNotificationMessage(NotificationMessageFactory.message(message, buttonAction), true);
-        uiController.setNotificationsVisible();
-    }
-
-    private void reportFailureToNotifications(String errorMessage, NotificationActionButtonInfo.ButtonAction buttonAction) {
+    private void reportFailureToNotifications(AppInstallStatus status, String errorMessage) {
         NotificationMessage notificationMessage = null;
 
-        if (UpdateHelper.isCombinedErrorMessage(errorMessage)) {
-            Pair<String, String> resourceAndMessage =
-                    UpdateHelper.splitCombinedErrorMessage(errorMessage);
-            notificationMessage =
-                    NotificationMessageFactory.message(AppInstallStatus.InvalidResource,
-                            new String[]{null, resourceAndMessage.first, resourceAndMessage.second},
-                            buttonAction);
-        } else if (!"".equals(errorMessage)) {
-            notificationMessage =
-                    NotificationMessageFactory.message(AppInstallStatus.UpdateFailedGeneral,
-                            new String[]{null, errorMessage, null},
-                            buttonAction);
+        switch (status) {
+            case BadSslCertificate:
+                notificationMessage = NotificationMessageFactory.message(status,
+                        NotificationActionButtonInfo.ButtonAction.LAUNCH_DATE_SETTINGS);
+                break;
+            //Other special handlers will go here when implemented
+            default:
+                if (UpdateHelper.isCombinedErrorMessage(errorMessage)) {
+                    Pair<String, String> resourceAndMessage =
+                            UpdateHelper.splitCombinedErrorMessage(errorMessage);
+                    notificationMessage =
+                            NotificationMessageFactory.message(AppInstallStatus.InvalidResource,
+                                    new String[]{null, resourceAndMessage.first, resourceAndMessage.second},
+                                    NotificationActionButtonInfo.ButtonAction.NONE);
+                } else if (!"".equals(errorMessage)) {
+                    notificationMessage =
+                            NotificationMessageFactory.message(AppInstallStatus.UpdateFailedGeneral,
+                                    new String[]{null, errorMessage, null},
+                                    NotificationActionButtonInfo.ButtonAction.NONE);
+                } else {
+                    notificationMessage =
+                            NotificationMessageFactory.message(status,
+                                    NotificationActionButtonInfo.ButtonAction.NONE);
+                }
+
+                break;
         }
 
-        if (notificationMessage != null) {
-            CommCareApplication.notificationManager()
-                    .reportNotificationMessage(notificationMessage, true);
-            uiController.setNotificationsVisible();
-        }
+        CommCareApplication.notificationManager()
+                .reportNotificationMessage(notificationMessage, true);
+        uiController.setNotificationsVisible();
     }
 
     private void finishWithResult(String result) {
@@ -672,6 +670,7 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        super.onActivityResult(requestCode, resultCode, intent);
         switch (requestCode) {
             case OFFLINE_UPDATE:
                 if (resultCode == AppCompatActivity.RESULT_OK) {

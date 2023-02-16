@@ -38,7 +38,7 @@ public abstract class HttpCalloutTask<R> extends CommCareTask<Object, String, Ht
         BadResponse,
         AuthFailed,
         UnknownError,
-        BadSSLCertificate,
+        BadSslCertificate,
         Success,
         NetworkFailureBadPassword,
         IncorrectPin,
@@ -88,7 +88,7 @@ public abstract class HttpCalloutTask<R> extends CommCareTask<Object, String, Ht
                 outcome = HttpCalloutOutcomes.NetworkFailure;
             } catch (SSLException e) {
                 // Couldn't get a valid SSL certificate
-                outcome = HttpCalloutOutcomes.BadSSLCertificate;
+                outcome = HttpCalloutOutcomes.BadSslCertificate;
             } catch (AuthenticationInterceptor.PlainTextPasswordException e) {
                 e.printStackTrace();
                 outcome = HttpCalloutOutcomes.AuthOverHttp;

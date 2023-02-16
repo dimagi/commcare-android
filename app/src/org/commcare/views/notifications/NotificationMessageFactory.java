@@ -162,7 +162,7 @@ public class NotificationMessageFactory {
         /**
          * Bad SSL Certificate *
          */
-        BadSSLCertificate("notification.bad.certificate");
+        BadSslCertificate("notification.bad.certificate");
 
         StockMessages(String root) {
             this.root = root;
@@ -183,19 +183,19 @@ public class NotificationMessageFactory {
     }
 
     public static NotificationMessage message(MessageTag message) {
-        return message(message, new String[4]);
+        return message(message, new String[3]);
     }
 
     public static NotificationMessage message(MessageTag message, String customCategory) {
-        return message(message, new String[4], customCategory);
+        return message(message, new String[3], customCategory);
     }
 
     public static NotificationMessage message(MessageTag message, NotificationActionButtonInfo.ButtonAction buttonAction) {
-        return message(message, new String[4], message.getCategory(), buttonAction);
+        return message(message, new String[3], message.getCategory(), buttonAction);
     }
 
     public static NotificationMessage message(MessageTag message, String customCategory, NotificationActionButtonInfo.ButtonAction buttonAction) {
-        return message(message, new String[4], customCategory, buttonAction);
+        return message(message, new String[3], customCategory, buttonAction);
     }
 
     public static NotificationMessage message(MessageTag message, String[] parameters) {
@@ -228,14 +228,8 @@ public class NotificationMessageFactory {
             }
 
             NotificationActionButtonInfo buttonInfo = null;
-            try {
-                String button = parameters[3] == null ? Localization.get(base + ".button") : Localization.get(base + ".button", new String[]{parameters[3]});
-                buttonInfo = new NotificationActionButtonInfo(button, buttonAction);
-            } catch (Exception e) {
-                if(buttonAction != NotificationActionButtonInfo.ButtonAction.NONE) {
-                    //Need text to be defined for the button since an action is defined
-                    throw e;
-                }
+            if(buttonAction != NotificationActionButtonInfo.ButtonAction.NONE) {
+                buttonInfo = new NotificationActionButtonInfo(Localization.get(base + ".button"), buttonAction);
             }
 
             return new NotificationMessage(customCategory, title, detail, action, new Date(), buttonInfo);

@@ -139,7 +139,7 @@ public class ResourceInstallUtils {
         }
 
         if(exception.getCause() instanceof SSLException){
-            return AppInstallStatus.BadSSLCertificate;
+            return AppInstallStatus.BadSslCertificate;
         }
 
         if(exception.getCause() instanceof RateLimitedException){

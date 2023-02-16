@@ -187,9 +187,9 @@ public abstract class ManageKeyRecordTask<R extends DataPullController> extends 
                 Logger.log(LogTypes.TYPE_USER, "ManageKeyRecordTask error|bad network");
                 receiver.raiseLoginMessage(StockMessages.Remote_NoNetwork_BadPass, true);
                 break;
-            case BadSSLCertificate:
+            case BadSslCertificate:
                 Logger.log(LogTypes.TYPE_USER, "ManageKeyRecordTask error|bad certificate");
-                receiver.raiseLoginMessage(StockMessages.BadSSLCertificate, true, NotificationActionButtonInfo.ButtonAction.LAUNCH_DATE_SETTINGS);
+                receiver.raiseLoginMessage(StockMessages.BadSslCertificate, true, NotificationActionButtonInfo.ButtonAction.LAUNCH_DATE_SETTINGS);
                 break;
             case UnknownError:
                 Logger.log(LogTypes.TYPE_USER, "ManageKeyRecordTask error|unknown error");

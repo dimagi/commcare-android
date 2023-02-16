@@ -132,7 +132,7 @@ public abstract class ResourceEngineTask<R>
             } catch (UnresolvedResourceException e) {
                 AppInstallStatus outcome =
                         ResourceInstallUtils.processUnresolvedResource(e);
-                if (outcome != AppInstallStatus.BadSSLCertificate) {
+                if (outcome != AppInstallStatus.BadSslCertificate) {
                     missingResourceException = e;
                 }
                 return outcome;

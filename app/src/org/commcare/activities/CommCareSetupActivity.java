@@ -530,8 +530,8 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             case NoConnection:
                 receiver.failWithNotification(AppInstallStatus.NoConnection);
                 break;
-            case BadSSLCertificate:
-                receiver.failWithNotification(AppInstallStatus.BadSSLCertificate, NotificationActionButtonInfo.ButtonAction.LAUNCH_DATE_SETTINGS);
+            case BadSslCertificate:
+                receiver.failWithNotification(AppInstallStatus.BadSslCertificate, NotificationActionButtonInfo.ButtonAction.LAUNCH_DATE_SETTINGS);
                 break;
             case DuplicateApp:
                 receiver.failWithNotification(AppInstallStatus.DuplicateApp);

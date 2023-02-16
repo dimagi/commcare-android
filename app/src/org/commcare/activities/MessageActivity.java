@@ -73,15 +73,15 @@ public class MessageActivity extends CommcareListActivity {
                     action.setText(actionText);
                 }
 
-                if(msg.getButtonInfo() == null) {
-                    actionButton.setVisibility(View.GONE);
-                } else {
+                if(msg.getButtonInfo() != null) {
+                    actionButton.setVisibility(View.VISIBLE);
                     actionButton.setText(msg.getButtonInfo().getButtonText());
 
                     actionButton.setOnClickListener(v -> {
                         switch(msg.getButtonInfo().getButtonAction()) {
                             case LAUNCH_DATE_SETTINGS -> SettingsHelper.launchDateSettings(getContext());
                             //Future actions will be added here once implemented
+                            default -> throw new RuntimeException("Unhandled button action: " + msg.getButtonInfo().getButtonAction());
                         }
                     });
                 }
