@@ -70,7 +70,7 @@ jobs:
           RELEASE_KEY_ALIAS: ${{ secrets.ALIAS }}
           RELEASE_KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
           RELEASE_STORE_PASSWORD: ${{ secrets.KEY_STORE_PASSWORD }}
-          RELEASE_STORE_FILE: "˜/.gradle/commcare-odk-keys.keystore"
+          RELEASE_STORE_FILE: "~/.gradle/commcare-odk-keys.keystore"
       - name: Upload CommCare apk
         uses: actions/upload-artifact@v3
         with:
