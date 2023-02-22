@@ -130,7 +130,7 @@ class DrawingBoundaryActivity : BaseMapboxActivity(), LocationListener, MapboxMa
     }
 
     private fun onStyleLoaded() {
-        viewBinding.mapView.isWarmGps = true
+        getMapView().isWarmGps = true
         drawingManager = DrawingManager(viewBinding.mapView, map, loadedStyle)
         map.addOnMapClickListener {
             updateMetrics()
