@@ -26,15 +26,17 @@ jobs:
           curl https://raw.githubusercontent.com/dimagi/mobile-deploy/master/requirements.txt -o requirements.txt
           curl https://raw.githubusercontent.com/dimagi/mobile-deploy/master/checkout_cross_request_repo.py -o checkout_cross_request_repo.py
           pwd
+          ls -l
       - name: Install Python dependencies
         uses: py-actions/py-dependency-install@v4
         with:
-          path: "requirements.txt"
+          path: "../requirements.txt"
       - name: List python
         run: |
           pip list
       - name: Run cross request script
         run: |
+          cd ..
           python3 checkout_cross_request_repo.py commcare-android ${{env.PR_NUM}} commcare-core
       - name: Setup JDK
         uses: actions/setup-java@v3
