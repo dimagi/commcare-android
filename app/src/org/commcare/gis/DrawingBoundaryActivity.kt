@@ -269,23 +269,22 @@ class DrawingBoundaryActivity : BaseMapboxActivity(), LocationListener, MapboxMa
     private fun initUI() {
         viewBinding.startTrackingButton.text =  Localization.get("drawing.boundary.map.start.tracking")
         viewBinding.startTrackingButton.setOnClickListener {
-            this.startTracking()
+            startTracking()
         }
 
         viewBinding.stopTrackingButton.text =  Localization.get("drawing.boundary.map.stop.tracking")
         viewBinding.stopTrackingButton.setOnClickListener {
             stoppedUIState()
-            this.stopTracking()
+            stopTracking()
         }
-
         viewBinding.okTrackingButton.text =  Localization.get("drawing.boundary.map.ok.tracking")
         viewBinding.okTrackingButton.setOnClickListener {
-            this.finishTracking()
+            finishTracking()
         }
         viewBinding.redoTrackingButton.text =  Localization.get("drawing.boundary.map.redo.tracking")
         viewBinding.redoTrackingButton.setOnClickListener {
             trackingUIState()
-            this.redoTracking()
+            redoTracking()
         }
         viewBinding.areaTv.text = StringUtils.getStringRobust(this, R.string.area_format, "0.00")
     }
