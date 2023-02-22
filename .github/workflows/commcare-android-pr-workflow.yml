@@ -1,28 +1,39 @@
 name: commcare-android PR CI
 
+env:
+  PR_NUM: ${{github.event.issue.number || github.event.number }}
 on:
   pull_request:
-    types:
-      - created
+    types: [opened, edited]
   issue_comment:
 jobs:
   build-test-assemble:
-    if: ${{ github.event.issue.pull_request || (!github.event.issue.pull_request && contains(github.event.comment.body, 'retest this please'))}}
+    if: ${{ github.event_name == 'pull_request' || (github.event_name == 'issue_comment' && contains(github.event.comment.body, 'retest this please'))}}
     name: Build
     runs-on: macos-latest
     steps:
       - name: Checkout commcare-android
         uses: actions/checkout@v3
+        with:
+          ref: refs/pull/${{env.PR_NUM}}/head
       - name: Install python
         uses: actions/setup-python@v4
         with:
           python-version: '3.x'
       - name: Download cross request script
         run: |
+          curl https://raw.githubusercontent.com/dimagi/mobile-deploy/master/requirements.txt -o requirements.txt
           curl https://raw.githubusercontent.com/dimagi/mobile-deploy/master/checkout_cross_request_repo.py -o checkout_cross_request_repo.py
+      - name: Install Python dependencies
+        uses: py-actions/py-dependency-install@v4
+        with:
+          path: "requirements.txt"
+      - name: List python
+        run: |
+          pip list
       - name: Run cross request script
         run: |
-          python3 checkout_cross_request_repo commcare-android ${{ github.event.pull_request.number }} commcare-core
+          python3 checkout_cross_request_repo.py commcare-android ${{env.PR_NUM}} commcare-core
       - name: Setup JDK
         uses: actions/setup-java@v3
         with:
