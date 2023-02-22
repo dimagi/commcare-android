@@ -22,8 +22,10 @@ jobs:
           python-version: '3.9'
       - name: Download cross request script
         run: |
+          cd ..
           curl https://raw.githubusercontent.com/dimagi/mobile-deploy/master/requirements.txt -o requirements.txt
           curl https://raw.githubusercontent.com/dimagi/mobile-deploy/master/checkout_cross_request_repo.py -o checkout_cross_request_repo.py
+          pwd
       - name: Install Python dependencies
         uses: py-actions/py-dependency-install@v4
         with:
