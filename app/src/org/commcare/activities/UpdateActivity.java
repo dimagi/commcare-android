@@ -350,10 +350,6 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
                             NotificationMessageFactory.message(AppInstallStatus.UpdateFailedGeneral,
                                     new String[]{null, errorMessage, null},
                                     NotificationActionButtonInfo.ButtonAction.NONE);
-                } else {
-                    notificationMessage =
-                            NotificationMessageFactory.message(status,
-                                    NotificationActionButtonInfo.ButtonAction.NONE);
                 }
 
                 break;
