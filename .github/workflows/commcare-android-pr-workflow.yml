@@ -22,7 +22,12 @@ jobs:
           python-version: '3.x'
       - name: Download cross request script
         run: |
+          curl https://raw.githubusercontent.com/dimagi/mobile-deploy/master/requirements.txt -o requirements.txt
           curl https://raw.githubusercontent.com/dimagi/mobile-deploy/master/checkout_cross_request_repo.py -o checkout_cross_request_repo.py
+      - name: Install Python dependencies
+        uses: py-actions/py-dependency-install@v4
+        with:
+          path: "requirements.txt"
       - name: Run cross request script
         run: |
           python3 checkout_cross_request_repo.py commcare-android ${{env.PR_NUM}} commcare-core
