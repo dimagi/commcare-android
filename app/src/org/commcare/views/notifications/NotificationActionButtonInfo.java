@@ -3,8 +3,6 @@ package org.commcare.views.notifications;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import java.util.Date;
-
 public class NotificationActionButtonInfo implements Parcelable {
     private final String text;
     private final ButtonAction action;
@@ -21,18 +19,14 @@ public class NotificationActionButtonInfo implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        String buttonText = getButtonText();
-        String buttonAction = getButtonAction().name();
-        dest.writeStringArray(new String[]{buttonText, buttonAction});
+        dest.writeString(text);
+        dest.writeString(action.name());
     }
 
     public static final Creator<NotificationActionButtonInfo> CREATOR = new Creator<>() {
         @Override
         public NotificationActionButtonInfo createFromParcel(Parcel source) {
-            String[] array = new String[2];
-            source.readStringArray(array);
-
-            return new NotificationActionButtonInfo(array[0], ButtonAction.valueOf(array[1]));
+            return new NotificationActionButtonInfo(source.readString(), ButtonAction.valueOf(source.readString()));
         }
 
         @Override
