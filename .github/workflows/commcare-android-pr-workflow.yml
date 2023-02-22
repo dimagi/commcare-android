@@ -27,10 +27,11 @@ jobs:
           curl https://raw.githubusercontent.com/dimagi/mobile-deploy/master/checkout_cross_request_repo.py -o checkout_cross_request_repo.py
           pwd
           ls -l
-      - name: Install Python dependencies
-        uses: py-actions/py-dependency-install@v4
-        with:
-          path: "../requirements.txt"
+          pip install 'github3.py==1.0.0a4'
+      #- name: Install Python dependencies
+      #  uses: py-actions/py-dependency-install@v4
+      #  with:
+      #    path: "../requirements.txt"
       - name: List python
         run: |
           pip list
