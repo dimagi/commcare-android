@@ -2,8 +2,7 @@ name: commcare-android PR CI
 
 on:
   pull_request:
-    types:
-      - created
+    types: [opened, edited]
   issue_comment:
 jobs:
   build-test-assemble:
