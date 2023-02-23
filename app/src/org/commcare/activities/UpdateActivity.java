@@ -355,9 +355,11 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
                 break;
         }
 
-        CommCareApplication.notificationManager()
-                .reportNotificationMessage(notificationMessage, true);
-        uiController.setNotificationsVisible();
+        if(notificationMessage != null) {
+            CommCareApplication.notificationManager()
+                    .reportNotificationMessage(notificationMessage, true);
+            uiController.setNotificationsVisible();
+        }
     }
 
     private void finishWithResult(String result) {
