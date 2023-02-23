@@ -27,12 +27,11 @@ jobs:
           curl https://raw.githubusercontent.com/dimagi/mobile-deploy/master/checkout_cross_request_repo.py -o checkout_cross_request_repo.py
           pwd
           ls -l
-          pip install 'github3.py==1.0.0a4'
-      #- name: Install Python dependencies
-      #  uses: py-actions/py-dependency-install@v4
-      #  with:
-      #    path: "../requirements.txt"
-      - name: List python
+      - name: Install Python dependencies
+        uses: py-actions/py-dependency-install@v4
+        with:
+          path: "../requirements.txt"
+      - name: List python packages
         run: |
           pip list
       - name: Run cross request script
@@ -61,7 +60,7 @@ jobs:
         with:
           arguments: assembleCommcareDebug
       - name: Restore Keystore
-        run: echo $SIGNING_KEY | base64 -d > ~/.gradle/commcare-odk-keys.keystore
+        run: echo ${{secrets.SIGNING_KEY}} | base64 -d > ~/.gradle/commcare-odk-keys.keystore
       - name: Assemble Release apk
         uses: gradle/gradle-build-action@v2
         with:
