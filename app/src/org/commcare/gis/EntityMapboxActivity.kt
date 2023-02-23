@@ -204,7 +204,7 @@ class EntityMapboxActivity : BaseMapboxActivity() {
             showToast(R.string.parse_coordinates_failure)
             Logger.exception("Exception while parsing boundary coordinates ", Exception(it))
         }.onSuccess { latlngs ->
-            val fillManager = AnnotationRepositoryManager.getFillManagerInstance(viewBinding.mapView, map, loadedStyle)
+            val fillManager = AnnotationRepositoryManager.getFillManagerInstance(getMapView(), map, loadedStyle)
             val lists = ArrayList<List<LatLng>>()
             lists.add(latlngs)
             fillManager.create(FillOptions()
@@ -216,7 +216,7 @@ class EntityMapboxActivity : BaseMapboxActivity() {
 
 
     private fun addEntitiesOnMap(loadedStyle: Style) {
-        val symbolManager = SymbolManager(viewBinding.mapView, map, loadedStyle)
+        val symbolManager = SymbolManager(getMapView(), map, loadedStyle)
         symbolManager.iconAllowOverlap = true
         symbolManager.iconTranslate = arrayOf(-4f, 5f)
 

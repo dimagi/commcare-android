@@ -131,7 +131,7 @@ class DrawingBoundaryActivity : BaseMapboxActivity(), LocationListener, MapboxMa
 
     private fun onStyleLoaded() {
         getMapView().isWarmGps = true
-        drawingManager = DrawingManager(viewBinding.mapView, map, loadedStyle)
+        drawingManager = DrawingManager(getMapView(), map, loadedStyle)
         map.addOnMapClickListener {
             updateMetrics()
             false
@@ -165,8 +165,8 @@ class DrawingBoundaryActivity : BaseMapboxActivity(), LocationListener, MapboxMa
     }
 
     private fun requestLocationServices() {
-        viewBinding.mapView.setWarmGps(true, null, null) {
-            viewBinding.mapView.focusOnUserLocation(true)
+        getMapView().setWarmGps(true, null, null) {
+            getMapView().focusOnUserLocation(true)
             trackingUIState()
             startTrackingInner()
         }
@@ -175,7 +175,7 @@ class DrawingBoundaryActivity : BaseMapboxActivity(), LocationListener, MapboxMa
     private fun startTrackingInner() {
         isRecording = true
         if (!isManual) {
-            viewBinding.mapView.locationClient!!.addLocationListener(this)
+            getMapView().locationClient!!.addLocationListener(this)
         } else {
             drawingManager.startDrawing(null)
         }
@@ -183,7 +183,7 @@ class DrawingBoundaryActivity : BaseMapboxActivity(), LocationListener, MapboxMa
 
     private fun stopTracking() {
         isRecording = false
-        viewBinding.mapView.locationClient!!.removeLocationListener(this)
+        getMapView().locationClient!!.removeLocationListener(this)
         updateMetrics()
     }
 

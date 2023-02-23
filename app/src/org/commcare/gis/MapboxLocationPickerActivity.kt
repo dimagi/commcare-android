@@ -93,7 +93,7 @@ class MapboxLocationPickerActivity : BaseMapboxActivity(), CommCareLocationListe
                     .build()
             isManualSelectedLocation = true
         }
-        viewBinding.mapView.showCurrentLocationBtn(false)
+        getMapView().showCurrentLocationBtn(false)
     }
 
     override fun getMapView(): KujakuMapView {
@@ -208,7 +208,7 @@ class MapboxLocationPickerActivity : BaseMapboxActivity(), CommCareLocationListe
     }
 
     private fun addMarker(style: Style, point: LatLng) {
-        symbolManager = SymbolManager(viewBinding.mapView, map, style)
+        symbolManager = SymbolManager(getMapView(), map, style)
         symbolManager?.let { symbolManager ->
             symbolManager.iconAllowOverlap = true
             val symbolOptions = SymbolOptions()
@@ -266,7 +266,7 @@ class MapboxLocationPickerActivity : BaseMapboxActivity(), CommCareLocationListe
             val point = LatLng(result.latitude, result.longitude, result.altitude)
             viewModel.reverseGeocode(point)
             updateMarker(point)
-            viewBinding.mapView.focusOnUserLocation(true)
+            getMapView().focusOnUserLocation(true)
         }
     }
 
