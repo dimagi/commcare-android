@@ -5,7 +5,8 @@
     android:layout_margin="8dp"
     android:layout_width="match_parent"
     xmlns:tools="http://schemas.android.com/tools"
-    android:orientation="horizontal">
+    android:orientation="horizontal"
+    tools:viewBindingIgnore="true">
 
     <TextView
         android:id="@+id/prompt_label"

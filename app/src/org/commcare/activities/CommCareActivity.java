@@ -59,6 +59,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.FragmentManager;
+import androidx.viewbinding.ViewBinding;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 
@@ -168,6 +169,10 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
 
             mGestureDetector = new GestureDetector(this, this);
         }
+    }
+
+    public ViewBinding getViewBinding(){
+        return null;
     }
 
     private void persistManagedUiState(FragmentManager fm) {

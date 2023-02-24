@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_centerHorizontal="true"
@@ -9,4 +10,5 @@
     android:layout_marginBottom="@dimen/standard_spacer"
     android:textSize="@dimen/font_size_xlarge"
     android:layout_marginEnd="@dimen/standard_spacer_large"
-    android:layout_marginStart="@dimen/standard_spacer_large" />
+    android:layout_marginStart="@dimen/standard_spacer_large"
+    tools:viewBindingIgnore="true"/>

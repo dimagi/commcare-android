@@ -13,7 +13,6 @@ import com.android.builder.core.DefaultManifestParser
 
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-android-extensions' // TODO this is deprecated
 apply plugin: 'com.google.gms.google-services'
 apply plugin: 'com.google.firebase.crashlytics'
 apply from: 'jacoco.gradle'
@@ -293,6 +292,10 @@ android {
         buildConfigField "String", "HQ_API_PASSWORD", "\"${project.ext.HQ_API_PASSWORD}\""
 
         testInstrumentationRunner "org.commcare.CommCareJUnitRunner"
+    }
+
+    buildFeatures {
+        viewBinding true
     }
 
     applicationVariants.all { variant ->

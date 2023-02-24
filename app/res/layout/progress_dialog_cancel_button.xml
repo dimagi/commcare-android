@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Button xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="wrap_content"
     android:layout_height="@dimen/min_button_height"
     android:layout_below="@+id/main_content_holder"
@@ -13,4 +14,5 @@
     style="@style/CommCare.Button.Default"
     android:text="STOP"
     android:textSize="@dimen/font_size_dp_medium"
-    android:visibility="gone"/>
+    android:visibility="gone"
+    tools:viewBindingIgnore="true"/>

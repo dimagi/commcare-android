@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:id="@+id/file_server_view"
-              android:layout_width="match_parent"
-              android:layout_height="wrap_content"
-              android:layout_gravity="bottom"
-              android:layout_marginBottom="3dp"
-              android:orientation="vertical"
-              android:visibility="gone">
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/file_server_view"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_gravity="bottom"
+    android:layout_marginBottom="3dp"
+    android:orientation="vertical"
+    android:visibility="gone"
+    tools:viewBindingIgnore="true">
 
     <View
         android:layout_width="fill_parent"

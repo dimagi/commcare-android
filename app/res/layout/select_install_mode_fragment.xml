@@ -3,10 +3,12 @@
     android:id="@+id/screen_first_start_main"
     xmlns:SquareButtonWithText="http://schemas.android.com/apk/res-auto"
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:background="@color/cc_core_bg"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    tools:viewBindingIgnore="true">
 
     <ScrollView
         android:layout_width="fill_parent"
