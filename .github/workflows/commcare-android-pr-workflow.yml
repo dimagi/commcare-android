@@ -71,20 +71,18 @@ jobs:
           cat gradle.properties
           ls -l
           pwd
-
       - name: Assemble Release apk
         uses: gradle/gradle-build-action@v2
         with:
           arguments: assembleCommcareRelease
-        env:
-          RELEASE_KEY_ALIAS: ${{ secrets.ALIAS }}
-          RELEASE_KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
-          RELEASE_STORE_PASSWORD: ${{ secrets.KEY_STORE_PASSWORD }}
-          RELEASE_STORE_FILE: ~/.gradle/commcare-odk-keys.keystore
+      - name: Print curr dir
+        run: |
+          ls -l
+          pwd
       - name: Upload CommCare apk
         uses: actions/upload-artifact@v3
         with:
-          name: commcare-arelease-pk
+          name: commcare-release-apk
           path: commcare-android/app/build/outputs/apk/commcare/release/app-commcare-release.apk
       - name: Assemble LTS apk
         uses: gradle/gradle-build-action@v2
