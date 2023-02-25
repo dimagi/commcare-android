@@ -79,15 +79,15 @@ jobs:
         uses: gradle/gradle-build-action@v2
         with:
           arguments: assembleCommcareRelease
-      - name: Print curr dir
-        run: |
-          ls -l
-          pwd
       - name: Upload CommCare apk
         uses: actions/upload-artifact@v3
         with:
           name: commcare-release-apk
-          path: commcare-android/app/build/outputs/apk/commcare/release/app-commcare-release.apk
+          path: app/build/outputs/apk/commcare/release/app-commcare-release.apk
+      - name: Print curr dir
+        run: |
+          ls -l
+          pwd
       - name: Assemble LTS apk
         uses: gradle/gradle-build-action@v2
         with:
@@ -96,7 +96,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: app-lts-release
-          path: commcare-android/app/build/outputs/apk/lts/release/app-lts-release.apk
+          path: /Users/runner/work/commcare-android/commcare-android/app/build/outputs/apk/lts/release/app-lts-release.apk
       - name: CommCare apk for Instrumentation Testing
         uses: gradle/gradle-build-action@v2
         with:
