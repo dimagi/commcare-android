@@ -51,6 +51,10 @@ jobs:
         uses: gradle/gradle-build-action@v2
         with:
           arguments: lintCommcareRelease
+      - name: Print curr dir
+        run: |
+          ls -l
+          pwd
       - name: Run Tests
         uses: gradle/gradle-build-action@v2
         with:
