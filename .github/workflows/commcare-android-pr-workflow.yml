@@ -96,7 +96,11 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: app-lts-release
-          path: /Users/runner/work/commcare-android/commcare-android/app/build/outputs/apk/lts/release/app-lts-release.apk
+          path: app/build/outputs/apk/lts/release/app-lts-release.apk
+      - name: CommCare release bundle
+        uses: gradle/gradle-build-action@v2
+        with:
+          arguments: bundleCommcareRelease
       - name: CommCare apk for Instrumentation Testing
         uses: gradle/gradle-build-action@v2
         with:
@@ -105,7 +109,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: commcare-release-androidTest-apk
-          path: commcare-android/app/build/outputs/apk/androidTest/commcare/release/app-commcare-release-androidTest.apk
+          path: app/build/outputs/apk/androidTest/commcare/release/app-commcare-release-androidTest.apk
       - name: CommCare apk for Instrumentation Testing
         uses: gradle/gradle-build-action@v2
         with:
