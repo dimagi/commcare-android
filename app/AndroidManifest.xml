@@ -349,8 +349,9 @@
         <activity android:name="org.commcare.activities.MessageActivity">
         </activity>
 
-        <receiver android:name="org.commcare.views.notifications.NotificationClearReceiver">
-        </receiver>
+        <receiver android:name="org.commcare.views.notifications.NotificationClearReceiver"/>
+
+        <receiver android:name="org.commcare.services.CommCareSessionInitiatorReceiver"/>
 
         <activity
             android:label="@string/title_activity_report_problem"
