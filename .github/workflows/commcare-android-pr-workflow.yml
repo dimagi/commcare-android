@@ -101,10 +101,10 @@ jobs:
         uses: gradle/gradle-build-action@v2
         with:
           arguments: bundleCommcareRelease
+      - name: List Gradle tasks
+        run: ./gradlew tasks --all
       - name: CommCare apk for Instrumentation Testing
-        uses: gradle/gradle-build-action@v2
-        with:
-          arguments: assembleCommcareReleaseAndroidTest
+        run: ./gradlew assembleCommcareReleaseAndroidTest
       - name: Upload CommCare apk for Instrumentation Testing
         uses: actions/upload-artifact@v3
         with:
