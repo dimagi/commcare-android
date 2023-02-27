@@ -808,13 +808,28 @@ public class CommCareApplication extends MultiDexApplication {
         // we know will be running in our own process (and thus won't be
         // supporting component replacement by other applications).
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            startForegroundService(new Intent(this, CommCareSessionService.class));
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && isAppInTheBackground())
+                startForegroundServiceWithAlarmManager();
+            else
+                startForegroundService(new Intent(this, CommCareSessionService.class));
         } else {
             startService(new Intent(this, CommCareSessionService.class));
         }
 
         bindService(new Intent(this, CommCareSessionService.class), mConnection, Context.BIND_AUTO_CREATE);
         sessionServiceIsBinding = true;
+    }
+
+    /**
+     * From Android 12, it's not allowed for an app to start a Foreground Service while
+     * running in the background. This method leverages AlarmManager to initiate the Service
+     */
+    private void startForegroundServiceWithAlarmManager() {
+
+    }
+
+    private boolean isAppInTheBackground() {
+        return false;
     }
 
     private void cleanRawMedia() {
