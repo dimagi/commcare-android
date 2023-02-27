@@ -105,20 +105,20 @@ jobs:
         with:
           name: app-lts-release
           path: app/build/outputs/apk/lts/release/app-lts-release.apk
-      - name: CommCare release bundle
+      - name: Assemple CommCare bundle
         uses: gradle/gradle-build-action@v2
         with:
           arguments: bundleCommcareRelease
-      - name: List Gradle tasks
-        run: ./gradlew tasks --all
       - name: CommCare apk for Instrumentation Testing
-        run: ./gradlew assembleCommcareReleaseAndroidTest
+        uses: gradle/gradle-build-action@v2
+        with:
+          arguments: assembleCommcareReleaseAndroidTest
       - name: Upload CommCare apk for Instrumentation Testing
         uses: actions/upload-artifact@v3
         with:
           name: commcare-release-androidTest-apk
           path: app/build/outputs/apk/androidTest/commcare/release/app-commcare-release-androidTest.apk
-      - name: CommCare apk for Instrumentation Testing
+      - name: Generate JaCoCo Report
         uses: gradle/gradle-build-action@v2
         with:
           arguments: JacocoTestReport
@@ -126,6 +126,6 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: jacoco-report
-          path: commcare-android/app/build/reports
+          path: app/build/reports
 
 
