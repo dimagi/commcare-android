@@ -25,15 +25,10 @@ jobs:
           cd ..
           curl https://raw.githubusercontent.com/dimagi/mobile-deploy/master/requirements.txt -o requirements.txt
           curl https://raw.githubusercontent.com/dimagi/mobile-deploy/master/checkout_cross_request_repo.py -o checkout_cross_request_repo.py
-          pwd
-          ls -l
       - name: Install Python dependencies
         uses: py-actions/py-dependency-install@v4
         with:
           path: "../requirements.txt"
-      - name: List python packages
-        run: |
-          pip list
       - name: Run cross request script
         run: |
           cd ..
@@ -51,10 +46,6 @@ jobs:
         uses: gradle/gradle-build-action@v2
         with:
           arguments: lintCommcareRelease
-      - name: Print curr dir
-        run: |
-          ls -l
-          pwd
       - name: Run Tests
         uses: gradle/gradle-build-action@v2
         with:
@@ -80,9 +71,6 @@ jobs:
           echo "MAPBOX_SDK_API_KEY=${{ secrets.MAPBOX_SDK_API_KEY }}" >> ~/.gradle/gradle.properties
           echo "${{ secrets.JVM_ARGS }}" >> ~/.gradle/gradle.properties
           echo "${{ secrets.GRADLE_DAEMON }}" >> ~/.gradle/gradle.properties
-          cat gradle.properties
-          ls -l
-          pwd
       - name: Assemble Release apk
         uses: gradle/gradle-build-action@v2
         with:
@@ -92,10 +80,6 @@ jobs:
         with:
           name: commcare-release-apk
           path: app/build/outputs/apk/commcare/release/app-commcare-release.apk
-      - name: Print curr dir
-        run: |
-          ls -l
-          pwd
       - name: Assemble LTS apk
         uses: gradle/gradle-build-action@v2
         with:
