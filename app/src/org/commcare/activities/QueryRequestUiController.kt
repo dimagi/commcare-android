@@ -194,18 +194,18 @@ class QueryRequestUiController(
     }
 
     private fun buildCheckboxView(promptView: View, queryPrompt: QueryPrompt): View {
-        val checboxView = promptView.findViewById<LinearLayout>(R.id.prompt_checkbox)
-        checboxView.visibility = View.VISIBLE
-        checboxView.tag = QueryPrompt.INPUT_TYPE_CHECKBOX
+        val checkboxView = promptView.findViewById<LinearLayout>(R.id.prompt_checkbox)
+        checkboxView.visibility = View.VISIBLE
+        checkboxView.tag = QueryPrompt.INPUT_TYPE_CHECKBOX
         remoteQuerySessionManager.populateItemSetChoices(queryPrompt)
         var selectedPosAndChoices = calculateItemChoices(queryPrompt)
         val selectedPositions = selectedPosAndChoices.first
         val choices = selectedPosAndChoices.second
         val items = queryPrompt.itemsetBinding!!.choices
         items.forEachIndexed { index, item ->
-            addCheckboxView(checboxView, item, choices[index]!!, index in selectedPositions, items, queryPrompt)
+            addCheckboxView(checkboxView, item, choices[index]!!, index in selectedPositions, items, queryPrompt)
         }
-        return checboxView
+        return checkboxView
     }
 
     private fun addCheckboxView(
@@ -268,7 +268,7 @@ class QueryRequestUiController(
     }
 
     private fun setSpinnerData(queryPrompt: QueryPrompt, promptSpinner: Spinner) {
-        var selectedPosAndChoices = calculateItemChoices(queryPrompt);
+        var selectedPosAndChoices = calculateItemChoices(queryPrompt)
         val selectedPositions = selectedPosAndChoices.first
         val choices = selectedPosAndChoices.second
         val adapter: ArrayAdapter<String> = ArrayAdapter<String>(
