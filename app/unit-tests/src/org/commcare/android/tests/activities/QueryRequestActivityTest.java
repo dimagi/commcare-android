@@ -56,8 +56,8 @@ import static org.junit.Assert.assertTrue;
 @RunWith(AndroidJUnit4.class)
 public class QueryRequestActivityTest {
     private static final String EXPECTED_CASE_SEARCH_URL =
-            "https://www.fake.com/patient_search/?device_id=000000000000000&multi_state=ka#,"
-                    + "#up&patient_id=123&district=baran&name=francisco&state=rj";
+            "https://www.fake.com/patient_search/?device_id=000000000000000&multi_state=ka&"
+                    + "multi_state=up&patient_id=123&district=baran&name=francisco&state=rj";
 
     @Before
     public void setup() {
