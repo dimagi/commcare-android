@@ -48,7 +48,7 @@ public class DriftHelper {
                 context.getResources().getString(R.string.incorrect_time_dialog_message),
                 null);
         driftDialog.setPositiveButton(context.getResources().getString(R.string.incorrect_time_dialog_correct_time), (dialog, which) -> {
-            context.startActivity(new Intent(android.provider.Settings.ACTION_DATE_SETTINGS));
+            SettingsHelper.launchDateSettings(context);
             dialog.dismiss();
         });
         driftDialog.setNegativeButton(context.getResources().getString(R.string.incorrect_time_dialog_cancel), ((dialog, which) -> dialog.dismiss()));

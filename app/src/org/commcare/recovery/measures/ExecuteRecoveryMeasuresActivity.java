@@ -21,6 +21,7 @@ import org.commcare.tasks.UnZipTaskListener;
 import org.commcare.utils.StringUtils;
 import org.commcare.views.ManagedUi;
 import org.commcare.views.UiElement;
+import org.commcare.views.notifications.NotificationActionButtonInfo;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.services.locale.Localization;
 
@@ -184,6 +185,11 @@ public class ExecuteRecoveryMeasuresActivity extends CommCareActivity<ExecuteRec
 
     @Override
     public void failWithNotification(AppInstallStatus status) {
+        mPresenter.appInstallExecutionFailed(status, "notification");
+    }
+
+    @Override
+    public void failWithNotification(AppInstallStatus status, NotificationActionButtonInfo.ButtonAction buttonAction) {
         mPresenter.appInstallExecutionFailed(status, "notification");
     }
 

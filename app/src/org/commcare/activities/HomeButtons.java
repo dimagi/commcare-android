@@ -63,6 +63,7 @@ public class HomeButtons {
                         R.drawable.home_incomplete,
                         R.color.solid_dark_orange,
                         getIncompleteButtonListener(activity),
+                        null,
                         getIncompleteButtonTextSetter(activity)),
                 HomeCardDisplayData.homeCardDataWithNotification(Localization.get(syncKey), R.color.white,
                         R.color.white,
@@ -70,6 +71,7 @@ public class HomeButtons {
                         R.color.cc_brand_color,
                         R.color.cc_brand_text,
                         getSyncButtonListener(activity),
+                        getSyncButtonSubTextListener(activity),
                         getSyncButtonTextSetter(activity)),
                 HomeCardDisplayData.homeCardDataWithStaticText(Localization.get("home.report"), R.color.white,
                         R.drawable.home_report, R.color.cc_attention_negative_color,
@@ -78,6 +80,7 @@ public class HomeButtons {
                         R.color.white,
                         R.drawable.home_logout, R.color.cc_neutral_color, R.color.cc_neutral_text,
                         getLogoutButtonListener(activity),
+                        null,
                         getLogoutButtonTextSetter(activity)),
         };
 
@@ -109,6 +112,13 @@ public class HomeButtons {
         return v -> {
             reportButtonClick(AnalyticsParamValue.SYNC_BUTTON);
             activity.syncButtonPressed();
+        };
+    }
+
+    private static View.OnClickListener getSyncButtonSubTextListener(final StandardHomeActivity activity) {
+        return v -> {
+            reportButtonClick(AnalyticsParamValue.SYNC_SUBTEXT);
+            activity.syncSubTextPressed();
         };
     }
 

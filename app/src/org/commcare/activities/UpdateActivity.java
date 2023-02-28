@@ -42,6 +42,8 @@ import org.commcare.utils.SyncDetailCalculations;
 import org.commcare.views.dialogs.CustomProgressDialog;
 import org.commcare.views.dialogs.DialogChoiceItem;
 import org.commcare.views.dialogs.PaneledChoiceDialog;
+import org.commcare.views.notifications.MessageTag;
+import org.commcare.views.notifications.NotificationActionButtonInfo;
 import org.commcare.views.notifications.NotificationMessage;
 import org.commcare.views.notifications.NotificationMessageFactory;
 import org.javarosa.core.services.Logger;
@@ -314,7 +316,8 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
                 finishWithResult(RefreshToLatestBuildActivity.ALREADY_UP_TO_DATE);
             }
         } else {
-            reportFailureToNotifications(result.errorMessage);
+            reportFailureToNotifications(result.data, result.errorMessage);
+
             uiController.checkFailedUiState();
             if (proceedAutomatically) {
                 finishWithResult(RefreshToLatestBuildActivity.UPDATE_ERROR);
@@ -325,22 +328,34 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
         uiController.refreshView();
     }
 
-    private void reportFailureToNotifications(String errorMessage) {
+    private void reportFailureToNotifications(AppInstallStatus status, String errorMessage) {
         NotificationMessage notificationMessage = null;
 
-        if (UpdateHelper.isCombinedErrorMessage(errorMessage)) {
-            Pair<String, String> resourceAndMessage =
-                    UpdateHelper.splitCombinedErrorMessage(errorMessage);
-            notificationMessage =
-                    NotificationMessageFactory.message(AppInstallStatus.InvalidResource,
-                            new String[]{null, resourceAndMessage.first, resourceAndMessage.second});
-        } else if (!"".equals(errorMessage)) {
-            notificationMessage =
-                    NotificationMessageFactory.message(AppInstallStatus.UpdateFailedGeneral,
-                            new String[]{null, errorMessage, null});
+        switch (status) {
+            case BadSslCertificate:
+                notificationMessage = NotificationMessageFactory.message(status,
+                        NotificationActionButtonInfo.ButtonAction.LAUNCH_DATE_SETTINGS);
+                break;
+            //Other special handlers will go here when implemented
+            default:
+                if (UpdateHelper.isCombinedErrorMessage(errorMessage)) {
+                    Pair<String, String> resourceAndMessage =
+                            UpdateHelper.splitCombinedErrorMessage(errorMessage);
+                    notificationMessage =
+                            NotificationMessageFactory.message(AppInstallStatus.InvalidResource,
+                                    new String[]{null, resourceAndMessage.first, resourceAndMessage.second},
+                                    NotificationActionButtonInfo.ButtonAction.NONE);
+                } else if (!"".equals(errorMessage)) {
+                    notificationMessage =
+                            NotificationMessageFactory.message(AppInstallStatus.UpdateFailedGeneral,
+                                    new String[]{null, errorMessage, null},
+                                    NotificationActionButtonInfo.ButtonAction.NONE);
+                }
+
+                break;
         }
 
-        if (notificationMessage != null) {
+        if(notificationMessage != null) {
             CommCareApplication.notificationManager()
                     .reportNotificationMessage(notificationMessage, true);
             uiController.setNotificationsVisible();
@@ -653,6 +668,7 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        super.onActivityResult(requestCode, resultCode, intent);
         switch (requestCode) {
             case OFFLINE_UPDATE:
                 if (resultCode == AppCompatActivity.RESULT_OK) {

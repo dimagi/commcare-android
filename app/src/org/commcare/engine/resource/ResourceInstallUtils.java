@@ -27,7 +27,7 @@ import java.net.URL;
 import java.security.cert.CertificateException;
 import java.util.Date;
 
-import javax.net.ssl.SSLHandshakeException;
+import javax.net.ssl.SSLException;
 
 /**
  * Helpers to track app state and handle errors for installation and updates.
@@ -125,10 +125,6 @@ public class ResourceInstallUtils {
         // couldn't find a resource, which isn't good.
         exception.printStackTrace();
 
-        if (ResourceInstallUtils.isBadCertificateError(exception)) {
-            return AppInstallStatus.BadCertificate;
-        }
-
         if(exception instanceof UnreliableSourceException) {
             if (exception.getCause() instanceof CaptivePortalRedirectException) {
                 Logger.log(LogTypes.TYPE_WARNING_NETWORK,
@@ -142,26 +138,19 @@ public class ResourceInstallUtils {
             return AppInstallStatus.NetworkFailure;
         }
 
+        if(exception.getCause() instanceof SSLException){
+            return AppInstallStatus.BadSslCertificate;
+        }
+
         if(exception.getCause() instanceof RateLimitedException){
             return AppInstallStatus.RateLimited;
         }
+
         if (exception.isMessageUseful()) {
             return AppInstallStatus.MissingResourcesWithMessage;
         } else {
             return AppInstallStatus.MissingResources;
         }
-    }
-
-    private static boolean isBadCertificateError(UnresolvedResourceException e) {
-        Throwable mExceptionCause = e.getCause();
-
-        if (mExceptionCause instanceof SSLHandshakeException) {
-            Throwable mSecondExceptionCause = mExceptionCause.getCause();
-            if (mSecondExceptionCause instanceof CertificateException) {
-                return true;
-            }
-        }
-        return false;
     }
 
     /**

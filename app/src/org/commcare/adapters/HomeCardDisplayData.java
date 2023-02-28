@@ -19,6 +19,7 @@ public class HomeCardDisplayData {
     public final int subTextColor;
     public final int subTextBgColor;
     public final View.OnClickListener listener;
+    public final View.OnClickListener subTextListener;
     public final HomeButtons.TextSetter textSetter;
 
     public static HomeCardDisplayData homeCardDataWithStaticText(String text,
@@ -28,7 +29,7 @@ public class HomeCardDisplayData {
                                                                  View.OnClickListener listener) {
         return new HomeCardDisplayData(text, textColor, R.color.white,
                 imageResource, bgColor, R.color.cc_brand_color,
-                listener, new DefaultTextSetter());
+                listener, null, new DefaultTextSetter());
     }
 
     /**
@@ -39,10 +40,11 @@ public class HomeCardDisplayData {
                                                                   int imageResource,
                                                                   int bgColor,
                                                                   View.OnClickListener listener,
+                                                                  View.OnClickListener subTextListener,
                                                                   HomeButtons.TextSetter textSetter) {
         return new HomeCardDisplayData(text, textColor, R.color.white,
                 imageResource, bgColor, R.color.cc_brand_color,
-                listener, textSetter);
+                listener, subTextListener, textSetter);
     }
 
     /**
@@ -55,15 +57,17 @@ public class HomeCardDisplayData {
                                                                    int bgColor,
                                                                    int subTextBgColor,
                                                                    View.OnClickListener listener,
+                                                                   View.OnClickListener subTextListener,
                                                                    HomeButtons.TextSetter textSetter) {
         return new HomeCardDisplayData(text, textColor, subTextColor,
-                imageResource, bgColor, subTextBgColor, listener, textSetter);
+                imageResource, bgColor, subTextBgColor, listener, subTextListener, textSetter);
     }
 
     private HomeCardDisplayData(String text, int textColor,
                                 int subTextColor, int imageResource,
                                 int bgColor, int subTextBgColor,
                                 View.OnClickListener listener,
+                                View.OnClickListener subTextListener,
                                 HomeButtons.TextSetter textSetter) {
         this.bgColor = bgColor;
         this.textColor = textColor;
@@ -72,6 +76,7 @@ public class HomeCardDisplayData {
         this.subTextColor = subTextColor;
         this.subTextBgColor = subTextBgColor;
         this.listener = listener;
+        this.subTextListener = subTextListener;
         this.textSetter = textSetter;
     }
 

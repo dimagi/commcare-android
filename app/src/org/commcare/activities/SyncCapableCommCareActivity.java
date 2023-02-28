@@ -22,9 +22,12 @@ import org.commcare.sync.ProcessAndSendTask;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.PullTaskResultReceiver;
 import org.commcare.tasks.ResultAndError;
+import org.commcare.utils.FormUploadResult;
 import org.commcare.utils.SyncDetailCalculations;
 import org.commcare.views.dialogs.CustomProgressDialog;
 import org.commcare.views.dialogs.StandardAlertDialog;
+import org.commcare.views.notifications.NotificationActionButtonInfo;
+import org.commcare.views.notifications.NotificationMessageFactory;
 import org.javarosa.core.services.locale.Localization;
 
 import androidx.annotation.AnimRes;
@@ -109,6 +112,7 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
                 updateUiAfterDataPullOrSend(Localization.get("sync.fail.bad.data"), FAIL);
                 break;
             case DOWNLOAD_SUCCESS:
+                CommCareApplication.notificationManager().clearNotifications(NotificationMessageFactory.StockMessages.BadSslCertificate.getCategory());
                 updateUiAfterDataPullOrSend(Localization.get("sync.success.synced"), SUCCESS);
                 break;
             case SERVER_ERROR:
@@ -146,6 +150,12 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
                 break;
             case CAPTIVE_PORTAL:
                 updateUiAfterDataPullOrSend(Localization.get("connection.captive_portal.action"), FAIL);
+                break;
+            case BAD_CERTIFICATE:
+                CommCareApplication.notificationManager().reportNotificationMessage(
+                        NotificationMessageFactory.message(NotificationMessageFactory.StockMessages.BadSslCertificate,
+                                NotificationActionButtonInfo.ButtonAction.LAUNCH_DATE_SETTINGS));
+                updateUiAfterDataPullOrSend(Localization.get("sync.fail.badcert"), FAIL);
                 break;
         }
 
@@ -219,6 +229,40 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
         displayToast(message);
     }
 
+    public void handleFormUploadResult(FormUploadResult result, String formLabel, boolean userTriggered) {
+        switch (result) {
+            case FULL_SUCCESS:
+                handleFormSendResult(formLabel, true);
+                break;
+            case BAD_CERTIFICATE:
+                CommCareApplication.notificationManager().reportNotificationMessage(
+                        NotificationMessageFactory.message(NotificationMessageFactory.StockMessages.BadSslCertificate,
+                                NotificationActionButtonInfo.ButtonAction.LAUNCH_DATE_SETTINGS));
+
+                handleFormSendResult(Localization.get(result.getLocaleKeyBase()), false);
+                break;
+            case ACTIONABLE_FAILURE:
+                handleFormSendResult(result.getErrorMessage(), false);
+                break;
+            case RATE_LIMITED:
+                showRateLimitError(userTriggered);
+                break;
+            case CANCELLED:
+                handleFormSendResult(Localization.get(result.getLocaleKeyBase())
+                        + " " + formLabel, false);
+                break;
+            case AUTH_FAILURE:
+            case TRANSPORT_FAILURE:
+            case PROCESSING_FAILURE:
+            case RECORD_FAILURE:
+            case INVALID_CASE_GRAPH:
+            case FAILURE:
+            default:
+                handleFormSendResult(Localization.get(result.getLocaleKeyBase()), false);
+                break;
+        }
+    }
+
     public void handleFormSendResult(String message, boolean success) {
         updateUiAfterDataPullOrSend(message, success);
         if (success) {
@@ -228,9 +272,8 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
     }
 
     public void showRateLimitError(boolean userTriggered) {
-
         if (HiddenPreferences.isRateLimitPopupDisabled() || !userTriggered) {
-            handleFormSendResult(Localization.get("form.send.rate.limit.error.toast"), false);
+            handleFormUploadResult(FormUploadResult.RATE_LIMITED, null, userTriggered);
             return;
         }
         String title = Localization.get("form.send.rate.limit.error.title");
