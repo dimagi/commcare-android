@@ -2,6 +2,7 @@ name: commcare-android PR CI
 
 env:
   PR_NUM: ${{github.event.issue.number || github.event.number }}
+  RELEASE_STORE_FILE: /Users/runner/.gradle/commcare-odk-keys.keystore
 on:
   pull_request:
     types: [opened, edited]
@@ -60,7 +61,6 @@ jobs:
           echo ${{secrets.SIGNING_KEY}} | base64 -d > commcare-odk-keys.keystore
           echo "RELEASE_KEY_ALIAS= ${{ secrets.ALIAS }}" >> ~/.gradle/gradle.properties
           echo "RELEASE_KEY_PASSWORD= ${{ secrets.KEY_PASSWORD }}" >> ~/.gradle/gradle.properties
-          echo "RELEASE_STORE_FILE= /Users/runner/.gradle/commcare-odk-keys.keystore" >> ~/.gradle/gradle.properties
           echo "RELEASE_STORE_PASSWORD= ${{ secrets.KEY_STORE_PASSWORD }}" >> ~/.gradle/gradle.properties
           
           echo "GOOGLE_PLAY_MAPS_API_KEY= ${{ secrets.GOOGLE_PLAY_MAPS_API_KEY }}" >> ~/.gradle/gradle.properties
