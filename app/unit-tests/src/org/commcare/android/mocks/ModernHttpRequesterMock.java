@@ -86,7 +86,7 @@ public class ModernHttpRequesterMock extends ModernHttpRequester {
         }
 
         if (!expectedUrlStack.isEmpty()) {
-            assertUrlsEqual(expectedUrlStack.remove(0), buildUrlWithParams());
+            assertUrlsEqual(expectedUrlStack.remove(0), Uri.decode(buildUrlWithParams()));
         }
 
         if (requestPayloadStack.isEmpty()) {

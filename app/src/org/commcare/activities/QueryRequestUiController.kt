@@ -14,6 +14,7 @@ import com.google.android.material.datepicker.MaterialDatePicker
 import org.commcare.dalvik.R
 import org.commcare.interfaces.CommCareActivityUIController
 import org.commcare.session.RemoteQuerySessionManager
+import org.commcare.session.RemoteQuerySessionManager.extractMultipleChoices
 import org.commcare.suite.model.QueryPrompt
 import org.commcare.utils.DateRangeUtils
 import org.commcare.views.ManagedUi
@@ -21,9 +22,11 @@ import org.commcare.views.UiElement
 import org.commcare.views.ViewUtil
 import org.commcare.views.widgets.SpinnerWidget
 import org.commcare.views.widgets.WidgetUtils
+import org.javarosa.core.model.SelectChoice
 import org.javarosa.core.services.locale.Localizer
 import java.text.ParseException
 import java.util.*
+import kotlin.collections.ArrayList
 
 @ManagedUi(R.layout.http_request_layout)
 class QueryRequestUiController(
@@ -68,12 +71,22 @@ class QueryRequestUiController(
         answeredPrompts.forEach { entry ->
             remoteQuerySessionManager.answerUserPrompt(entry.key, entry.value)
             val promptView = promptsBoxes[entry.key]
-            if (promptView is EditText) {
-                promptView.setText(entry.value)
-            } else if (promptView is Spinner) {
-                val queryPrompt = remoteQuerySessionManager.neededUserInputDisplays[entry.key]
+            val queryPrompt = remoteQuerySessionManager.neededUserInputDisplays[entry.key]
+            if (queryPrompt!!.isSelect) {
                 remoteQuerySessionManager.populateItemSetChoices(queryPrompt)
-                setSpinnerData(queryPrompt!!, (promptView as Spinner?)!!)
+            }
+            when (promptView) {
+                is EditText -> {
+                    promptView.setText(entry.value)
+                }
+                is Spinner -> {
+                    setSpinnerData(queryPrompt, promptView)
+                }
+                is LinearLayout -> {
+                    if (promptView.tag == QueryPrompt.INPUT_TYPE_CHECKBOX) {
+                        setCheckboxData(queryPrompt, promptView, entry.value)
+                    }
+                }
             }
         }
     }
@@ -136,6 +149,8 @@ class QueryRequestUiController(
             inputView = buildSpinnerView(promptView, queryPrompt)
         } else if (input.contentEquals(QueryPrompt.INPUT_TYPE_DATERANGE)) {
             inputView = buildDateRangeView(promptView, queryPrompt)
+        } else if (input.contentEquals(QueryPrompt.INPUT_TYPE_CHECKBOX)) {
+            inputView = buildCheckboxView(promptView, queryPrompt)
         }
         return inputView
     }
@@ -178,10 +193,62 @@ class QueryRequestUiController(
         }
     }
 
+    private fun buildCheckboxView(promptView: View, queryPrompt: QueryPrompt): View {
+        val checkboxView = promptView.findViewById<LinearLayout>(R.id.prompt_checkbox)
+        checkboxView.visibility = View.VISIBLE
+        checkboxView.tag = QueryPrompt.INPUT_TYPE_CHECKBOX
+        remoteQuerySessionManager.populateItemSetChoices(queryPrompt)
+        var selectedPosAndChoices = calculateItemChoices(queryPrompt)
+        val selectedPositions = selectedPosAndChoices.first
+        val choices = selectedPosAndChoices.second
+        val items = queryPrompt.itemsetBinding!!.choices
+        items.forEachIndexed { index, item ->
+            addCheckboxView(checkboxView, item, choices[index]!!, index in selectedPositions, items, queryPrompt)
+        }
+        return checkboxView
+    }
+
+    private fun addCheckboxView(
+        promptInputView: LinearLayout,
+        item: SelectChoice,
+        choice: String,
+        checked: Boolean,
+        items: Vector<SelectChoice>,
+        queryPrompt: QueryPrompt
+    ) {
+        val checkBox = CheckBox(queryRequestActivity)
+        checkBox.text = choice
+        checkBox.isChecked = checked
+        checkBox.tag = item.index
+        checkBox.setOnCheckedChangeListener { buttonView: CompoundButton, isChecked: Boolean ->
+            val numberOfChoices = promptInputView.childCount
+            val checkboxAnswers = ArrayList<String>()
+            for (i in 0 until numberOfChoices) {
+                val checkbox = promptInputView.getChildAt(i) as CheckBox
+                if(checkbox.isChecked){
+                    checkboxAnswers.add(items[checkbox.tag as Int].value)
+                }
+            }
+            val answer = RemoteQuerySessionManager.joinMultipleChoices(checkboxAnswers)
+            updateAnswerAndRefresh(queryPrompt, answer)
+        }
+        promptInputView.addView(checkBox)
+    }
+
+
+    private fun setCheckboxData(queryPrompt: QueryPrompt, promptView: LinearLayout, answer: String) {
+        val promptAnswers = extractMultipleChoices(answer)
+        val items = queryPrompt.itemsetBinding!!.choices
+        val numberOfChoices = promptView.childCount
+        for (i in 0 until numberOfChoices) {
+            val checkbox = promptView.getChildAt(i) as CheckBox
+            checkbox.isChecked = items[checkbox.tag as Int].value in promptAnswers
+        }
+    }
+
     private fun buildSpinnerView(promptView: View, queryPrompt: QueryPrompt): Spinner? {
         val promptSpinner = promptView.findViewById<Spinner>(R.id.prompt_spinner)
         promptSpinner.visibility = View.VISIBLE
-        promptView.findViewById<View>(R.id.prompt_et).visibility = View.GONE
         promptSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                 var value = ""
@@ -201,34 +268,44 @@ class QueryRequestUiController(
     }
 
     private fun setSpinnerData(queryPrompt: QueryPrompt, promptSpinner: Spinner) {
-        val items = queryPrompt.itemsetBinding!!.choices
-        val choices = arrayOfNulls<String>(items.size)
-        var selectedPosition = -1
-        val userAnswers: Hashtable<String, String> = remoteQuerySessionManager.userAnswers
-        val answer = userAnswers[queryPrompt.key]
-        for (i in items.indices) {
-            val item = items[i]
-            choices[i] = item.labelInnerText
-            if (item.value == answer) {
-                selectedPosition = i + 1 // first choice is blank in adapter
-            }
-        }
+        var selectedPosAndChoices = calculateItemChoices(queryPrompt)
+        val selectedPositions = selectedPosAndChoices.first
+        val choices = selectedPosAndChoices.second
         val adapter: ArrayAdapter<String> = ArrayAdapter<String>(
             queryRequestActivity,
             android.R.layout.simple_spinner_item,
             SpinnerWidget.getChoicesWithEmptyFirstSlot(choices)
         )
         promptSpinner.adapter = adapter
-        if (selectedPosition != -1) {
-            promptSpinner.setSelection(selectedPosition)
+        if (selectedPositions.size > 1) {
+            throw InvalidPromptValueException("Can't set multiple values to Spinner")
         }
+        for (selectedPosition in selectedPositions) {
+            // first choice is blank in adapter
+            promptSpinner.setSelection(selectedPosition + 1)
+        }
+    }
+
+    private fun calculateItemChoices(queryPrompt: QueryPrompt): Pair<ArrayList<Int>, Array<String?>> {
+        val items = queryPrompt.itemsetBinding!!.choices
+        val choices = arrayOfNulls<String>(items.size)
+        val userAnswers: Hashtable<String, String> = remoteQuerySessionManager.userAnswers
+        val promptAnswers = extractMultipleChoices(userAnswers[queryPrompt.key])
+        val selectedPositions = ArrayList<Int>()
+        for (i in items.indices) {
+            val item = items[i]
+            choices[i] = item.labelInnerText
+            if (item.value in promptAnswers) {
+                selectedPositions.add(i)
+            }
+        }
+        return Pair(selectedPositions, choices)
     }
 
     private fun buildDateRangeView(promptView: View, queryPrompt: QueryPrompt): View? {
         val promptEditText = promptView.findViewById<EditText>(R.id.prompt_et)
         promptEditText.visibility = View.VISIBLE
         promptEditText.isFocusable = false
-        promptView.findViewById<View>(R.id.prompt_spinner).visibility = View.GONE
         val userAnswers = remoteQuerySessionManager.userAnswers
         val humanReadableDateRange = DateRangeUtils.getHumanReadableDateRange(userAnswers[queryPrompt.key])
         promptEditText.setText(humanReadableDateRange)
@@ -329,4 +406,8 @@ class QueryRequestUiController(
         val displayData = queryPrompt.display.evaluate()
         return Localizer.processArguments(displayData.name, arrayOf("")).trim { it <= ' ' }
     }
+
+    // Thrown when we are setting an invalid value to the prompt,
+    // for ex- trying to set multiple values to a single valued prompt
+    class InvalidPromptValueException(message: String) : Throwable(message)
 }
