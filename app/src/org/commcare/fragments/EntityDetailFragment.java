@@ -40,6 +40,7 @@ public class EntityDetailFragment extends Fragment {
     public static final String DETAIL_ID = "edf_detail_id";
     public static final String DETAIL_INDEX = "edf_detail_index";
     public static final String CHILD_REFERENCE = "edf_detail_reference";
+    public static final String SHOW_LABELS = "show_labels";
 
     protected ListItemViewModifier modifier;
 
@@ -87,9 +88,11 @@ public class EntityDetailFragment extends Fragment {
             final Entity entity = factory.getEntity(referenceToDisplay);
             final DetailCalloutListener detailCalloutListener =
                     thisActivity instanceof DetailCalloutListener ? ((DetailCalloutListener)thisActivity) : null;
+            final boolean showLabels = getArguments().getBoolean(SHOW_LABELS);
             adapter = new EntityDetailAdapter(
                     thisActivity, detailForDisplay, entity,
                     detailCalloutListener, getArguments().getInt(DETAIL_INDEX),
+                    showLabels,
                     modifier
             );
             ((ListView)rootView.findViewById(R.id.screen_entity_detail_list)).setAdapter((ListAdapter)adapter);

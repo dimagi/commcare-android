@@ -26,16 +26,18 @@ public class EntityDetailAdapter implements ListAdapter, ModifiableEntityDetailA
     private final DetailCalloutListener listener;
     private final List<Integer> valid;
     private final int detailIndex;
+    private final boolean showLabel;
 
     private ListItemViewModifier modifier;
 
     public EntityDetailAdapter(Context context, Detail detail, Entity entity,
                                DetailCalloutListener listener, int detailIndex,
-                               ListItemViewModifier modifier) {
+                               boolean showLabel, ListItemViewModifier modifier) {
         this.context = context;
         this.detail = detail;
         this.entity = entity;
         this.listener = listener;
+        this.showLabel = showLabel;
         valid = new ArrayList<>();
         for (int i = 0; i < entity.getNumFields(); ++i) {
             if (entity.isValidField(i)) {
@@ -81,10 +83,10 @@ public class EntityDetailAdapter implements ListAdapter, ModifiableEntityDetailA
         EntityDetailView dv = (EntityDetailView)convertView;
         if (dv == null) {
             dv = new EntityDetailView(context, detail, entity,
-                    valid.get(position), detailIndex);
+                    valid.get(position), detailIndex, this.showLabel);
             dv.setCallListener(listener);
         } else {
-            dv.setParams(detail, entity, valid.get(position), detailIndex);
+            dv.setParams(detail, entity, valid.get(position), detailIndex, this.showLabel);
             dv.setCallListener(listener);
         }
         if (modifier != null) {

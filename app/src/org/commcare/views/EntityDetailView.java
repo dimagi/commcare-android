@@ -112,7 +112,7 @@ public class EntityDetailView extends FrameLayout {
     private DetailCalloutListener listener;
 
     public EntityDetailView(Context context, Detail d, Entity e,
-                            int index, int detailNumber) {
+                            int index, int detailNumber, boolean showLabel) {
         super(context);
 
         detailRow = (LinearLayout)View.inflate(context, R.layout.component_entity_detail_item, null);
@@ -160,16 +160,27 @@ public class EntityDetailView extends FrameLayout {
 
         fill = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
         this.addView(detailRow, FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT);
-        setParams(d, e, index, detailNumber);
+        setParams(d, e, index, detailNumber, showLabel);
     }
 
     public void setCallListener(final DetailCalloutListener listener) {
         this.listener = listener;
     }
 
-    public void setParams(Detail d, Entity e, int index, int detailNumber) {
+    public void setParams(Detail d, Entity e, int index, int detailNumber, boolean showLabel) {
         String labelText = d.getFields()[index].getHeader().evaluate();
-        label.setText(labelText);
+        if(showLabel) {
+            label.setText(labelText);
+        }
+        else {
+            //ISSUE: line below does not hide the label TextView
+            //In each cell, I see "Text" (i.e. the default label text)
+            label.setVisibility(View.GONE);
+
+            //Note if I call the next line, I no longer see "Text" in each cell
+            //label.setText("");
+        }
+
         spacer.setText(labelText);
 
         Object field = e.getField(index);

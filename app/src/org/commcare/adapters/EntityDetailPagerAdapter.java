@@ -10,6 +10,7 @@ import org.commcare.cases.entity.EntityUtil;
 import org.commcare.fragments.EntityDetailFragment;
 import org.commcare.fragments.EntitySubnodeDetailFragment;
 import org.commcare.suite.model.Detail;
+import org.commcare.suite.model.DetailField;
 import org.commcare.utils.SerializationUtil;
 import org.javarosa.core.model.instance.TreeReference;
 
@@ -52,6 +53,20 @@ public class EntityDetailPagerAdapter extends FragmentStatePagerAdapter {
         if (detail.isCompound()) {
             args.putInt(EntityDetailFragment.CHILD_DETAIL_INDEX, i);
         }
+
+        boolean showLabels = false;
+        for (DetailField curField : detail.getDetails()[i].getFields()) {
+            String labelText = curField.getHeader().evaluate();
+            //ISSUE: When the header isn't in the localization dictionary,
+            //we still get a string back with length 3.
+            //It looks like whitespace but trim doesn't get rid of it
+            if (labelText != null && labelText.trim().length() > 3) {
+                showLabels = true;
+                break;
+            }
+        }
+        args.putBoolean(EntityDetailFragment.SHOW_LABELS, showLabels);
+
         args.putInt(EntityDetailFragment.DETAIL_INDEX, detailIndex);
         SerializationUtil.serializeToBundle(args, EntityDetailFragment.CHILD_REFERENCE, mEntityReference);
         fragment.setArguments(args);
