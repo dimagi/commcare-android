@@ -70,8 +70,8 @@ jobs:
           echo "HQ_API_USERNAME= ${{ secrets.HQ_API_USERNAME }}" >> ~/.gradle/gradle.properties
           echo "TEST_BUILD_TYPE=${{ secrets.TEST_BUILD_TYPE }}" >> ~/.gradle/gradle.properties
           echo "MAPBOX_SDK_API_KEY=${{ secrets.MAPBOX_SDK_API_KEY }}" >> ~/.gradle/gradle.properties
-          echo "${{ var.JVM_ARGS }}" >> ~/.gradle/gradle.properties
-          echo "${{ var.GRADLE_DAEMON }}" >> ~/.gradle/gradle.properties
+          echo "${{ vars.JVM_ARGS }}" >> ~/.gradle/gradle.properties
+          echo "${{ vars.GRADLE_DAEMON }}" >> ~/.gradle/gradle.properties
       - name: Assemble Release apk
         uses: gradle/gradle-build-action@v2
         with:
