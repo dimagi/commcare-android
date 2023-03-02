@@ -11,8 +11,6 @@ jobs:
     if: ${{ github.event_name == 'pull_request' || (github.event_name == 'issue_comment' && contains(github.event.comment.body, 'retest this please'))}}
     name: Build
     runs-on: macos-latest
-    env:
-        RELEASE_STORE_FILE: /Users/runner/.gradle/commcare-odk-keys.keystore
     steps:
       - name: Checkout commcare-android
         uses: actions/checkout@v3
@@ -109,7 +107,7 @@ jobs:
           api-level: 31
           arch: x86_64
           profile: Nexus 6
-          script: ./gradlew connectedCommcareDebugAndroidTest
+          script: ./gradlew connectedCommcareReleaseAndroidTest
       - name: Generate JaCoCo Report
         uses: gradle/gradle-build-action@v2
         with:
