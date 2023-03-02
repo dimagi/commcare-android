@@ -2,7 +2,6 @@ name: commcare-android PR CI
 
 env:
   PR_NUM: ${{github.event.issue.number || github.event.number }}
-  RELEASE_STORE_FILE: /Users/runner/.gradle/commcare-odk-keys.keystore
 on:
   pull_request:
     types: [opened, edited]
@@ -12,6 +11,8 @@ jobs:
     if: ${{ github.event_name == 'pull_request' || (github.event_name == 'issue_comment' && contains(github.event.comment.body, 'retest this please'))}}
     name: Build
     runs-on: macos-latest
+    env:
+        RELEASE_STORE_FILE: /Users/runner/.gradle/commcare-odk-keys.keystore
     steps:
       - name: Checkout commcare-android
         uses: actions/checkout@v3
