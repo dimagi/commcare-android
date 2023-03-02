@@ -63,15 +63,15 @@ jobs:
           echo "RELEASE_KEY_ALIAS= ${{ secrets.ALIAS }}" >> ~/.gradle/gradle.properties
           echo "RELEASE_KEY_PASSWORD= ${{ secrets.KEY_PASSWORD }}" >> ~/.gradle/gradle.properties
           echo "RELEASE_STORE_PASSWORD= ${{ secrets.KEY_STORE_PASSWORD }}" >> ~/.gradle/gradle.properties
-          
+          echo "RELEASE_STORE_FILE= /Users/runner/.gradle/commcare-odk-keys.keystore" >> ~/.gradle/gradle.properties
           echo "GOOGLE_PLAY_MAPS_API_KEY= ${{ secrets.GOOGLE_PLAY_MAPS_API_KEY }}" >> ~/.gradle/gradle.properties
           echo "GOOGLE_SERVICES_API_KEY= ${{ secrets.GOOGLE_SERVICES_API_KEY }}" >> ~/.gradle/gradle.properties
           echo "HQ_API_PASSWORD= ${{ secrets.HQ_API_PASSWORD }}" >> ~/.gradle/gradle.properties
           echo "HQ_API_USERNAME= ${{ secrets.HQ_API_USERNAME }}" >> ~/.gradle/gradle.properties
           echo "TEST_BUILD_TYPE=${{ secrets.TEST_BUILD_TYPE }}" >> ~/.gradle/gradle.properties
           echo "MAPBOX_SDK_API_KEY=${{ secrets.MAPBOX_SDK_API_KEY }}" >> ~/.gradle/gradle.properties
-          echo "${{ secrets.JVM_ARGS }}" >> ~/.gradle/gradle.properties
-          echo "${{ secrets.GRADLE_DAEMON }}" >> ~/.gradle/gradle.properties
+          echo "${{ var.JVM_ARGS }}" >> ~/.gradle/gradle.properties
+          echo "${{ var.GRADLE_DAEMON }}" >> ~/.gradle/gradle.properties
       - name: Assemble Release apk
         uses: gradle/gradle-build-action@v2
         with:
