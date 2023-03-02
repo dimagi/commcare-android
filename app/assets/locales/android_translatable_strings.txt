@@ -175,6 +175,7 @@ login.password=Password
 login.pin.password=PIN
 login.primed.prompt=Your password has been saved for you! Just press 'Log In'.
 login.button=Log In
+login.button.connect=Sign in with ConnectID
 login.sync=Synchronize with server
 login.bad.password=We couldn't find a user with this password. Please try another!
 login.welcome.single=Welcome back! Please log in.
@@ -184,6 +185,26 @@ login.hide.password=HIDE
 
 login.update.install.success=App update successfully applied!
 login.update.install.failure=App update failed to apply!
+
+connect.title=ConnectID
+connect.message=Don't have an account yet? Create account
+connect.button.fingerprint=Unlock with fingerprint
+connect.button.pin=Unlock with PIN
+connect.trouble.message=Trouble signing in?
+
+connect.register.title=Create Account
+connect.register.id=User ID
+connect.register.name=Name
+connect.register.dob=Date of Birth
+connect.register.phone=Phone Number
+connect.register.phone.alt=Alternate Phone Number
+connect.register.create=Create Account
+
+connect.verify.title=Identity Verification
+connect.verify.message=To verify your identity, complete the steps below
+connect.verify.fingerprint=Fingerprint
+connect.verify.pin=PIN
+connect.verify.button=Continue
 
 query.button=Query
 query.dialog.title=Querying Server
@@ -195,7 +216,7 @@ post.generic.error=An error occurred while preparing the HTTP request
 post.dialog.title=Claiming...
 post.dialog.body=Claiming chosen data from server
 post.io.error=Error reading server response: ${0}
-post.unknown.response=Received unknown resonse code (${0}) from server
+post.unknown.response=Received unknown response code (${0}) from server
 post.client.error=Client-side error (code ${0}) received from network request.
 post.server.error=Server-side error (code ${0}) received from network request.
 post.gone.error=Case is not present on server.
@@ -335,6 +356,8 @@ bulk.form.dump.success=${1} forms dumped successfully
 login.menu.demo=Enter Practice Mode
 login.menu.password.mode=Forgot PIN?
 login.menu.app.manager=Go To App Manager
+login.menu.connect.signin=Sign in to ConnectId
+login.menu.connect.signout=Sign out of ConnectId
 
 main.sync.demo=You cannot sync data down from the server when using practice mode
 main.sync.demo.has.forms=Your forms have been submitted to the server; however, you cannot retrieve forms from the server in practice mode.

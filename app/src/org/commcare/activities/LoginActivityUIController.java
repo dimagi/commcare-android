@@ -65,6 +65,9 @@ public class LoginActivityUIController implements CommCareActivityUIController {
     @UiElement(value = R.id.btn_view_notifications)
     private RectangleButtonWithText notificationButton;
 
+    @UiElement(value = R.id.connect_login_button, locale = "login.button.connect")
+    private Button connectLoginButton;
+
     @UiElement(value = R.id.edit_username, locale = "login.username")
     private AutoCompleteTextView username;
 
@@ -141,6 +144,8 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         setTextChangeListeners();
         setBannerLayoutLogic();
 
+        connectLoginButton.setOnClickListener(arg0 -> activity.goToConnectLogin());
+
         loginButton.setOnClickListener(arg0 -> activity.initiateLoginAttempt(isRestoreSessionChecked()));
 
         passwordOrPin.setOnEditorActionListener((v, actionId, event) -> {
@@ -153,6 +158,14 @@ public class LoginActivityUIController implements CommCareActivityUIController {
 
         notificationButton.setText(Localization.get("error.button.text"));
         notificationButton.setOnClickListener(view -> CommCareNoficationManager.performIntentCalloutToNotificationsView(activity));
+    }
+
+    public void showConnectIdButton() {
+        connectLoginButton.setVisibility(View.VISIBLE);
+    }
+
+    public void setConnectButtonText(String text) {
+        connectLoginButton.setText(text);
     }
 
     private void setTextChangeListeners() {

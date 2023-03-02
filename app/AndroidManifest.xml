@@ -143,6 +143,9 @@
         <activity android:name="org.commcare.activities.StandardHomeActivity"/>
         <activity android:name="org.commcare.activities.RootMenuHomeActivity"/>
         <activity android:name="org.commcare.activities.MenuActivity"/>
+        <activity android:name="org.commcare.activities.ConnectIdLoginActivity"/>
+        <activity android:name="org.commcare.activities.ConnectIdRegistrationActivity"/>
+        <activity android:name="org.commcare.activities.ConnectIdVerificationActivity"/>
 
         <provider
             android:name="org.commcare.provider.FormsProvider"

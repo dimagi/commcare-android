@@ -81,6 +81,16 @@
                                 android:textColor="@color/cc_neutral_color"
                                 android:textSize="@dimen/text_medium" />
 
+                            <Button
+                                android:id="@+id/connect_login_button"
+                                android:layout_width="fill_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="bottom"
+                                android:paddingBottom="@dimen/content_start"
+                                android:paddingTop="@dimen/content_start"
+                                android:visibility="gone"/>
+
+
                             <Spinner
                                 android:id="@+id/app_selection_spinner"
                                 android:layout_width="match_parent"
