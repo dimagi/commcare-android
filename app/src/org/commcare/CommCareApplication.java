@@ -2,6 +2,8 @@ package org.commcare;
 
 import android.annotation.SuppressLint;
 import android.app.ActivityManager;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -17,6 +19,7 @@ import android.text.format.DateUtils;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.multidex.MultiDexApplication;
 import androidx.preference.PreferenceManager;
 import androidx.work.BackoffPolicy;
@@ -84,6 +87,7 @@ import org.commcare.preferences.DevSessionRestorer;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.preferences.LocalePreferences;
+import org.commcare.services.CommCareSessionInitiatorReceiver;
 import org.commcare.services.CommCareSessionService;
 import org.commcare.session.CommCareSession;
 import org.commcare.sync.FormSubmissionHelper;
@@ -125,6 +129,7 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
 
 import java.io.File;
 import java.security.Security;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -807,13 +812,14 @@ public class CommCareApplication extends MultiDexApplication {
         // class name because we want a specific service implementation that
         // we know will be running in our own process (and thus won't be
         // supporting component replacement by other applications).
+        Intent sessionServiceIntent = new Intent(this, CommCareSessionService.class);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && isAppInTheBackground())
                 startForegroundServiceWithAlarmManager();
             else
-                startForegroundService(new Intent(this, CommCareSessionService.class));
+                startForegroundService(sessionServiceIntent);
         } else {
-            startService(new Intent(this, CommCareSessionService.class));
+            startService(sessionServiceIntent);
         }
 
         bindService(new Intent(this, CommCareSessionService.class), mConnection, Context.BIND_AUTO_CREATE);
@@ -824,8 +830,14 @@ public class CommCareApplication extends MultiDexApplication {
      * From Android 12, it's not allowed for an app to start a Foreground Service while
      * running in the background. This method leverages AlarmManager to initiate the Service
      */
+    @RequiresApi(api = Build.VERSION_CODES.M)
     private void startForegroundServiceWithAlarmManager() {
+        Intent receiverIntent = new Intent(this, CommCareSessionInitiatorReceiver.class);
 
+        PendingIntent pendingIntent = new PendingIntent.getBroadcast(this, 0, receiverIntent, PendingIntent.FLAG_IMMUTABLE);
+
+        AlarmManager alarmmanager = (AlarmManager) getSystemService(ALARM_SERVICE);
+        alarmmanager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, Calendar.getInstance().getTimeInMillis(), pendingIntent);
     }
 
     private boolean isAppInTheBackground() {
