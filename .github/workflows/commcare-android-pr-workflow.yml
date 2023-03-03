@@ -57,11 +57,12 @@ jobs:
       - name: Restore Keystore
         run: |
           cd ~/.gradle
+          CURR_DIR = $(pwd)
           echo ${{secrets.SIGNING_KEY}} | base64 -d > commcare-odk-keys.keystore
           echo "RELEASE_KEY_ALIAS= ${{ secrets.ALIAS }}" >> ~/.gradle/gradle.properties
           echo "RELEASE_KEY_PASSWORD= ${{ secrets.KEY_PASSWORD }}" >> ~/.gradle/gradle.properties
           echo "RELEASE_STORE_PASSWORD= ${{ secrets.KEY_STORE_PASSWORD }}" >> ~/.gradle/gradle.properties
-          echo "RELEASE_STORE_FILE= /home/runner/.gradle/commcare-odk-keys.keystore" >> ~/.gradle/gradle.properties
+          echo "RELEASE_STORE_FILE= $CURR_DIR/commcare-odk-keys.keystore" >> ~/.gradle/gradle.properties
           echo "GOOGLE_PLAY_MAPS_API_KEY= ${{ secrets.GOOGLE_PLAY_MAPS_API_KEY }}" >> ~/.gradle/gradle.properties
           echo "GOOGLE_SERVICES_API_KEY= ${{ secrets.GOOGLE_SERVICES_API_KEY }}" >> ~/.gradle/gradle.properties
           echo "HQ_API_PASSWORD= ${{ secrets.HQ_API_PASSWORD }}" >> ~/.gradle/gradle.properties
