@@ -10,7 +10,7 @@ jobs:
   build-test-assemble:
     if: ${{ github.event_name == 'pull_request' || (github.event_name == 'issue_comment' && contains(github.event.comment.body, 'retest this please'))}}
     name: Build
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout commcare-android
         uses: actions/checkout@v3
