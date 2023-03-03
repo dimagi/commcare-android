@@ -102,12 +102,8 @@ jobs:
           name: commcare-release-androidTest-apk
           path: app/build/outputs/apk/androidTest/commcare/release/app-commcare-release-androidTest.apk
       - name: Run Instrumentation Tests
-        uses: reactivecircus/android-emulator-runner@v2
-        with:
-          api-level: 31
-          arch: x86_64
-          profile: Nexus 6
-          script: ./gradlew connectedCommcareReleaseAndroidTest
+        run: |
+          python3 scripts/browserstack.py
       - name: Generate JaCoCo Report
         uses: gradle/gradle-build-action@v2
         with:
