@@ -105,14 +105,15 @@ jobs:
       - name: Run Instrumentation Tests
         env:
           
-          BASE_LOCATION: app/build/outputs/
-          RELEASE_APP_LOCATION: app/build/outputs/apk/commcare/release/app-commcare-release.apk
-          TEST_APP_LOCATION: app/build/outputs/apk/androidTest/commcare/release/app-commcare-release-androidTest.apk
-          BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
-          BROWSERSTACK_PASSWORD: ${{ secrets.BROWSERSTACK_PASSWORD }}
-          BROWSERSTACK_DEVICES: ${{ vars.BROWSERSTACK_DEVICES }}
-          ghprbPullId: ${{env.PR_NUM}}
+          
         run: |
+          echo "BASE_LOCATION=app/build/outputs/" >> $GITHUB_ENV
+          echo "RELEASE_APP_LOCATION=app/build/outputs/apk/commcare/release/app-commcare-release.apk" >> $GITHUB_ENV
+          echo "TEST_APP_LOCATION=app/build/outputs/apk/androidTest/commcare/release/app-commcare-release-androidTest.apk" >> $GITHUB_ENV
+          echo "BROWSERSTACK_USERNAME=${{ secrets.BROWSERSTACK_USERNAME }}" >> $GITHUB_ENV
+          echo "BROWSERSTACK_PASSWORD=${{ secrets.BROWSERSTACK_PASSWORD }}" >> $GITHUB_ENV
+          echo "BROWSERSTACK_DEVICES=${{ vars.BROWSERSTACK_DEVICES }}" >> $GITHUB_ENV
+          echo "ghprbPullId=${{env.PR_NUM}}" >> $GITHUB_ENV
           python3 -c 'import os;print(os.environ)'
           python3 scripts/browserstack.py
       - name: Generate JaCoCo Report
