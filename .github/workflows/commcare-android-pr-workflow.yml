@@ -103,9 +103,6 @@ jobs:
           name: commcare-release-androidTest-apk
           path: app/build/outputs/apk/androidTest/commcare/release/app-commcare-release-androidTest.apk
       - name: Run Instrumentation Tests
-        env:
-          
-          
         run: |
           echo "BASE_LOCATION=app/build/outputs/" >> $GITHUB_ENV
           echo "RELEASE_APP_LOCATION=app/build/outputs/apk/commcare/release/app-commcare-release.apk" >> $GITHUB_ENV
