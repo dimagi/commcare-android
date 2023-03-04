@@ -112,6 +112,7 @@ jobs:
       - name: Run Instrumentation Tests
         run: |
           python3 -c 'import os;print(os.environ)'
+          python3 -c "import os;print(os.environ['BROWSERSTACK_DEVICES'])"
           python3 scripts/browserstack.py
       - name: Generate JaCoCo Report
         uses: gradle/gradle-build-action@v2
