@@ -8,7 +8,7 @@ env:
   BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
   BROWSERSTACK_PASSWORD: ${{ secrets.BROWSERSTACK_PASSWORD }}
   BROWSERSTACK_DEVICES: ${{ vars.BROWSERSTACK_DEVICES }}
-  ghprbPullId: ${{env.PR_NUM}}
+  ghprbPullId: ${{github.event.issue.number || github.event.number }}
 on:
   pull_request:
     types: [opened, edited]
