@@ -110,7 +110,7 @@ jobs:
           TEST_APP_LOCATION: app/build/outputs/apk/androidTest/commcare/release/app-commcare-release-androidTest.apk
           BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
           BROWSERSTACK_PASSWORD: ${{ secrets.BROWSERSTACK_PASSWORD }}
-          BROWSERSTACK_DEVICES: ${{ vars.BROWSERSTACK_PASSWORD }}
+          BROWSERSTACK_DEVICES: ${{ vars.BROWSERSTACK_DEVICES }}
           ghprbPullId: ${{env.PR_NUM}}
         run: |
           python3 scripts/browserstack.py
