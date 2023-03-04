@@ -104,12 +104,14 @@ jobs:
           path: app/build/outputs/apk/androidTest/commcare/release/app-commcare-release-androidTest.apk
       - name: Run Instrumentation Tests
         env:
+          
           BASE_LOCATION: app/build/outputs/
           RELEASE_APP_LOCATION: app/build/outputs/apk/commcare/release/app-commcare-release.apk
           TEST_APP_LOCATION: app/build/outputs/apk/androidTest/commcare/release/app-commcare-release-androidTest.apk
           BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
           BROWSERSTACK_PASSWORD: ${{ secrets.BROWSERSTACK_PASSWORD }}
           BROWSERSTACK_DEVICES: ${{ vars.BROWSERSTACK_PASSWORD }}
+          ghprbPullId: ${{env.PR_NUM}}
         run: |
           python3 scripts/browserstack.py
       - name: Generate JaCoCo Report
