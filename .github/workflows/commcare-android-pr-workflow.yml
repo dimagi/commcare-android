@@ -113,6 +113,7 @@ jobs:
           BROWSERSTACK_DEVICES: ${{ vars.BROWSERSTACK_DEVICES }}
           ghprbPullId: ${{env.PR_NUM}}
         run: |
+          python3 -c 'import os;print(os.environ)'
           python3 scripts/browserstack.py
       - name: Generate JaCoCo Report
         uses: gradle/gradle-build-action@v2
