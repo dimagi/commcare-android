@@ -41,16 +41,16 @@ jobs:
           cd ..
           python3 checkout_cross_request_repo.py commcare-android ${{env.PR_NUM}} commcare-core . ${{ secrets.GITHUB_TOKEN }}
       - name: Cache repos
-        uses: actions/cache@v3
+        uses: actions/cache/save@v3
         env:
           cache-name: cache-repos
         with:
           path: |
             ~/.gradle/caches
             ~/.gradle/wrapper
+            commcare-android
+            commcare-core
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-          restore-keys: |
-            ${{ runner.os }}-gradle-$
   build-test-assemble:
     needs: setup-runner
     runs-on: ubuntu-latest
