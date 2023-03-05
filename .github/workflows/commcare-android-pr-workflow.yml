@@ -50,7 +50,7 @@ jobs:
             ~/.gradle/wrapper
             /home/runner/work/commcare-android/commcare-android
             /home/runner/work/commcare-android/commcare-core
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties', '/home/runner/work/commcare-android/commcare-android', '/home/runner/work/commcare-android/commcare-core') }}
   build-test-assemble:
     needs: setup-runner
     runs-on: ubuntu-latest
