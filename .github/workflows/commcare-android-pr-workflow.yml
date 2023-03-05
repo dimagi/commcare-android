@@ -3,8 +3,8 @@ name: commcare-android PR CI
 env:
   PR_NUM: ${{github.event.issue.number || github.event.number }}
   BASE_LOCATION: app/build/outputs/
-  RELEASE_APP_LOCATION: app/build/outputs/apk/commcare/release/app-commcare-release.apk
-  TEST_APP_LOCATION: app/build/outputs/apk/androidTest/commcare/release/app-commcare-release-androidTest.apk
+  RELEASE_APP_LOCATION: app/build/outputs/apk/commcare/debug/app-commcare-debug.apk
+  TEST_APP_LOCATION: app/build/outputs/apk/androidTest/commcare/debug/app-commcare-debug-androidTest.apk
   BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
   BROWSERSTACK_PASSWORD: ${{ secrets.BROWSERSTACK_PASSWORD }}
   BROWSERSTACK_DEVICES: ${{ vars.BROWSERSTACK_DEVICES }}
