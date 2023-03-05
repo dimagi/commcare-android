@@ -81,10 +81,6 @@ jobs:
         uses: gradle/gradle-build-action@v2
         with:
           arguments: testCommcareDebug
-      - name: Assemble Debug apk
-        uses: gradle/gradle-build-action@v2
-        with:
-          arguments: assembleCommcareDebug
       - name: Restore Keystore
         run: |
           cd ~/.gradle
@@ -151,6 +147,15 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '17'
+      - name: Assemble Debug apk
+        uses: gradle/gradle-build-action@v2
+        with:
+          arguments: assembleCommcareDebug
+      - name: Upload CommCare debug apk 
+        uses: actions/upload-artifact@v3
+        with:
+          name: commcare-debug-apk
+          path: app/build/outputs/apk/commcare/debug/app-commcare-debug.apk
       - name: CommCare apk for Instrumentation Testing
         uses: gradle/gradle-build-action@v2
         with:
