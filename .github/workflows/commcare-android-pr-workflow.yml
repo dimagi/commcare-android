@@ -58,6 +58,11 @@ jobs:
       - name: Cache repos
         uses: actions/cache/restore@v3
         with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+            /home/runner/work/commcare-android/commcare-android
+            /home/runner/work/commcare-android/commcare-core
           key: ${{ runner.os }}-gradle-
       - name: Setup JDK
         uses: actions/setup-java@v3
