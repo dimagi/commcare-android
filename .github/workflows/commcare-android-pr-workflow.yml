@@ -166,5 +166,7 @@ jobs:
           python-version: '3.9'
       - name: Run Instrumentation Tests
         run: |
+          python3 -c 'import os;print(os.environ)'
+          python3 -c "import os;print(os.environ['BROWSERSTACK_DEVICES'])"
           python3 scripts/browserstack.py
 
