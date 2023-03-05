@@ -41,7 +41,7 @@ jobs:
           cd ..
           python3 checkout_cross_request_repo.py commcare-android ${{env.PR_NUM}} commcare-core . ${{ secrets.GITHUB_TOKEN }}
       - name: Cache repos
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         env:
           cache-name: cache-repos
         with:
