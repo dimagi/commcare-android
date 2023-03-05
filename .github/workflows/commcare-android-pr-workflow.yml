@@ -159,7 +159,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: commcare-release-androidTest-apk
-          path: app/build/outputs/apk/androidTest/commcare/release/app-commcare-release-androidTest.apk
+          path: app/build/outputs/apk/androidTest/commcare/debug/app-commcare-debug-androidTest.apk
       - name: Install python
         uses: actions/setup-python@v4
         with:
