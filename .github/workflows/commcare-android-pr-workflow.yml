@@ -160,6 +160,10 @@ jobs:
         with:
           name: commcare-release-androidTest-apk
           path: app/build/outputs/apk/androidTest/commcare/release/app-commcare-release-androidTest.apk
+      - name: Install python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
       - name: Run Instrumentation Tests
         run: |
           python3 scripts/browserstack.py
