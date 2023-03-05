@@ -55,6 +55,10 @@ jobs:
     needs: setup-runner
     runs-on: ubuntu-latest
     steps:
+      - name: Cache repos
+        uses: actions/cache/restore@v3
+        with:
+          key: ${{ runner.os }}-gradle-
       - name: Setup JDK
         uses: actions/setup-java@v3
         with:
