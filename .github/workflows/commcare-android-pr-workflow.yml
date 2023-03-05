@@ -14,9 +14,9 @@ on:
     types: [opened, edited]
   issue_comment:
 jobs:
-  setup-runner:
+  fetch-repos:
     if: ${{ github.event_name == 'pull_request' || (github.event_name == 'issue_comment' && contains(github.event.comment.body, 'retest this please'))}}
-    name: Setup Runner
+    name: Fetch repos
     runs-on: ubuntu-latest
     steps:
       - name: Checkout commcare-android
@@ -52,7 +52,7 @@ jobs:
             /home/runner/work/commcare-android/commcare-core
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties', '/home/runner/work/commcare-android/commcare-android', '/home/runner/work/commcare-android/commcare-core') }}
   build-test-assemble:
-    needs: setup-runner
+    needs: fetch-repos
     runs-on: ubuntu-latest
     steps:
       - name: Cache repos
@@ -124,6 +124,33 @@ jobs:
         uses: gradle/gradle-build-action@v2
         with:
           arguments: bundleCommcareRelease
+      - name: Generate JaCoCo Report
+        uses: gradle/gradle-build-action@v2
+        with:
+          arguments: JacocoTestReport
+      - name: Upload JaCoCo Report
+        uses: actions/upload-artifact@v3
+        with:
+          name: jacoco-report
+          path: app/build/reports
+  run-instrumentation-tests:
+    needs: fetch-repos
+    runs-on: ubuntu-latest
+    steps:
+      - name: Cache repos
+        uses: actions/cache/restore@v3
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+            /home/runner/work/commcare-android/commcare-android
+            /home/runner/work/commcare-android/commcare-core
+          key: ${{ runner.os }}-gradle-
+      - name: Setup JDK
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
       - name: CommCare apk for Instrumentation Testing
         uses: gradle/gradle-build-action@v2
         with:
@@ -135,17 +162,5 @@ jobs:
           path: app/build/outputs/apk/androidTest/commcare/release/app-commcare-release-androidTest.apk
       - name: Run Instrumentation Tests
         run: |
-          python3 -c 'import os;print(os.environ)'
-          python3 -c "import os;print(os.environ['BROWSERSTACK_DEVICES'])"
           python3 scripts/browserstack.py
-      - name: Generate JaCoCo Report
-        uses: gradle/gradle-build-action@v2
-        with:
-          arguments: JacocoTestReport
-      - name: Upload JaCoCo Report
-        uses: actions/upload-artifact@v3
-        with:
-          name: jacoco-report
-          path: app/build/reports
-
 
