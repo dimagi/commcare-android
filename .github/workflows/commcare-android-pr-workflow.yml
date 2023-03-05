@@ -46,13 +46,11 @@ jobs:
           cache-name: cache-repos
         with:
           path: |
-            /commcare-android
-            /commcare-core
-          key: ${{ runner.os }}-build-${{ env.cache-name }}
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
           restore-keys: |
-            ${{ runner.os }}-build-${{ env.cache-name }}-
-            ${{ runner.os }}-build-
-            ${{ runner.os }}-
+            ${{ runner.os }}-gradle-$
   build-test-assemble:
     needs: setup-runner
     runs-on: ubuntu-latest
