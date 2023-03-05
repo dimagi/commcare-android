@@ -14,9 +14,9 @@ on:
     types: [opened, edited]
   issue_comment:
 jobs:
-  build-test-assemble:
+  setup-runner:
     if: ${{ github.event_name == 'pull_request' || (github.event_name == 'issue_comment' && contains(github.event.comment.body, 'retest this please'))}}
-    name: Build
+    name: Setup Runner
     runs-on: ubuntu-latest
     steps:
       - name: Checkout commcare-android
@@ -40,6 +40,23 @@ jobs:
         run: |
           cd ..
           python3 checkout_cross_request_repo.py commcare-android ${{env.PR_NUM}} commcare-core . ${{ secrets.GITHUB_TOKEN }}
+      - name: Cache repos
+        uses: actions/cache@v2
+        env:
+          cache-name: cache-repos
+        with:
+          path: |
+            /commcare-android
+            /commcare-core
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ env.cache-name }}-
+            ${{ runner.os }}-build-
+            ${{ runner.os }}-
+  build-test-assemble:
+    needs: setup-runner
+    runs-on: ubuntu-latest
+    steps:
       - name: Setup JDK
         uses: actions/setup-java@v3
         with:
