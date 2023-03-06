@@ -68,11 +68,12 @@ jobs:
             /home/runner/work/commcare-android/commcare-android
             /home/runner/work/commcare-android/commcare-core
           key: ${{ runner.os }}-gradle-${{ hashFiles('~/.gradle', '/home/runner/work/commcare-android/commcare-android', '/home/runner/work/commcare-android/commcare-core') }}
-  build-test-assemble:
+  check-test-build:
+    name: Check, Test and Build LTS and Bundle
     needs: prep-repos
     runs-on: ubuntu-latest
     steps:
-      - name: Cache repos
+      - name: Restore repos from cache
         uses: actions/cache/restore@v3
         with:
           path: |
@@ -97,7 +98,6 @@ jobs:
         uses: gradle/gradle-build-action@v2
         with:
           arguments: testCommcareDebug
-      
       - name: Assemble LTS apk
         uses: gradle/gradle-build-action@v2
         with:
@@ -107,7 +107,7 @@ jobs:
         with:
           name: app-lts-release
           path: app/build/outputs/apk/lts/release/app-lts-release.apk
-      - name: Assemple CommCare bundle
+      - name: Assemble CommCare bundle
         uses: gradle/gradle-build-action@v2
         with:
           arguments: bundleCommcareRelease
@@ -123,7 +123,8 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           min-coverage-overall: 40
           min-coverage-changed-files: 60
-  run-instrumentation-tests:
+  build-instrumentation-tests:
+    name: Build Release version and Run Instrumentation Tests
     needs: prep-repos
     runs-on: ubuntu-latest
     steps:
