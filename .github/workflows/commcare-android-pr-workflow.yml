@@ -14,9 +14,9 @@ on:
     types: [opened, edited]
   issue_comment:
 jobs:
-  fetch-repos:
+  prep-repos:
     if: ${{ github.event_name == 'pull_request' || (github.event_name == 'issue_comment' && contains(github.event.comment.body, 'retest this please'))}}
-    name: Fetch repos
+    name: Prep repos
     runs-on: ubuntu-latest
     steps:
       - name: Checkout commcare-android
@@ -40,6 +40,23 @@ jobs:
         run: |
           cd ..
           python3 checkout_cross_request_repo.py commcare-android ${{env.PR_NUM}} commcare-core . ${{ secrets.GITHUB_TOKEN }}
+      - name: Restore Gradle properties file
+        run: |
+          cd ~/.gradle
+          CURR_DIR=$(pwd)
+          echo ${{secrets.SIGNING_KEY}} | base64 -d > commcare-odk-keys.keystore
+          echo "RELEASE_KEY_ALIAS= ${{ secrets.ALIAS }}" >> ~/.gradle/gradle.properties
+          echo "RELEASE_KEY_PASSWORD= ${{ secrets.KEY_PASSWORD }}" >> ~/.gradle/gradle.properties
+          echo "RELEASE_STORE_PASSWORD= ${{ secrets.KEY_STORE_PASSWORD }}" >> ~/.gradle/gradle.properties
+          echo "RELEASE_STORE_FILE= $CURR_DIR/commcare-odk-keys.keystore" >> ~/.gradle/gradle.properties
+          echo "GOOGLE_PLAY_MAPS_API_KEY= ${{ secrets.GOOGLE_PLAY_MAPS_API_KEY }}" >> ~/.gradle/gradle.properties
+          echo "GOOGLE_SERVICES_API_KEY= ${{ secrets.GOOGLE_SERVICES_API_KEY }}" >> ~/.gradle/gradle.properties
+          echo "HQ_API_PASSWORD= ${{ secrets.HQ_API_PASSWORD }}" >> ~/.gradle/gradle.properties
+          echo "HQ_API_USERNAME= ${{ secrets.HQ_API_USERNAME }}" >> ~/.gradle/gradle.properties
+          echo "TEST_BUILD_TYPE=${{ secrets.TEST_BUILD_TYPE }}" >> ~/.gradle/gradle.properties
+          echo "MAPBOX_SDK_API_KEY=${{ secrets.MAPBOX_SDK_API_KEY }}" >> ~/.gradle/gradle.properties
+          echo "${{ vars.JVM_ARGS }}" >> ~/.gradle/gradle.properties
+          echo "${{ vars.GRADLE_DAEMON }}" >> ~/.gradle/gradle.properties
       - name: Cache repos
         uses: actions/cache/save@v3
         env:
@@ -52,7 +69,7 @@ jobs:
             /home/runner/work/commcare-android/commcare-core
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties', '/home/runner/work/commcare-android/commcare-android', '/home/runner/work/commcare-android/commcare-core') }}
   build-test-assemble:
-    needs: fetch-repos
+    needs: prep-repos
     runs-on: ubuntu-latest
     steps:
       - name: Cache repos
@@ -81,23 +98,7 @@ jobs:
         uses: gradle/gradle-build-action@v2
         with:
           arguments: testCommcareDebug
-      - name: Restore Keystore
-        run: |
-          cd ~/.gradle
-          CURR_DIR=$(pwd)
-          echo ${{secrets.SIGNING_KEY}} | base64 -d > commcare-odk-keys.keystore
-          echo "RELEASE_KEY_ALIAS= ${{ secrets.ALIAS }}" >> ~/.gradle/gradle.properties
-          echo "RELEASE_KEY_PASSWORD= ${{ secrets.KEY_PASSWORD }}" >> ~/.gradle/gradle.properties
-          echo "RELEASE_STORE_PASSWORD= ${{ secrets.KEY_STORE_PASSWORD }}" >> ~/.gradle/gradle.properties
-          echo "RELEASE_STORE_FILE= $CURR_DIR/commcare-odk-keys.keystore" >> ~/.gradle/gradle.properties
-          echo "GOOGLE_PLAY_MAPS_API_KEY= ${{ secrets.GOOGLE_PLAY_MAPS_API_KEY }}" >> ~/.gradle/gradle.properties
-          echo "GOOGLE_SERVICES_API_KEY= ${{ secrets.GOOGLE_SERVICES_API_KEY }}" >> ~/.gradle/gradle.properties
-          echo "HQ_API_PASSWORD= ${{ secrets.HQ_API_PASSWORD }}" >> ~/.gradle/gradle.properties
-          echo "HQ_API_USERNAME= ${{ secrets.HQ_API_USERNAME }}" >> ~/.gradle/gradle.properties
-          echo "TEST_BUILD_TYPE=${{ secrets.TEST_BUILD_TYPE }}" >> ~/.gradle/gradle.properties
-          echo "MAPBOX_SDK_API_KEY=${{ secrets.MAPBOX_SDK_API_KEY }}" >> ~/.gradle/gradle.properties
-          echo "${{ vars.JVM_ARGS }}" >> ~/.gradle/gradle.properties
-          echo "${{ vars.GRADLE_DAEMON }}" >> ~/.gradle/gradle.properties
+      
       - name: Assemble LTS apk
         uses: gradle/gradle-build-action@v2
         with:
@@ -121,10 +122,10 @@ jobs:
           name: jacoco-report
           path: app/build/reports
   run-instrumentation-tests:
-    needs: fetch-repos
+    needs: prep-repos
     runs-on: ubuntu-latest
     steps:
-      - name: Restore repos cache
+      - name: Restore repos from cache
         uses: actions/cache/restore@v3
         with:
           path: |
