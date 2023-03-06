@@ -98,15 +98,6 @@ jobs:
           echo "MAPBOX_SDK_API_KEY=${{ secrets.MAPBOX_SDK_API_KEY }}" >> ~/.gradle/gradle.properties
           echo "${{ vars.JVM_ARGS }}" >> ~/.gradle/gradle.properties
           echo "${{ vars.GRADLE_DAEMON }}" >> ~/.gradle/gradle.properties
-      - name: Assemble Release apk
-        uses: gradle/gradle-build-action@v2
-        with:
-          arguments: assembleCommcareRelease
-      - name: Upload CommCare apk
-        uses: actions/upload-artifact@v3
-        with:
-          name: commcare-release-apk
-          path: app/build/outputs/apk/commcare/release/app-commcare-release.apk
       - name: Assemble LTS apk
         uses: gradle/gradle-build-action@v2
         with:
@@ -147,8 +138,12 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '17'
-      - name: Dowanload CommCare Release apk 
-        uses: actions/download-artifact@v3
+      - name: Assemble Release apk
+        uses: gradle/gradle-build-action@v2
+        with:
+          arguments: assembleCommcareRelease
+      - name: Upload CommCare apk
+        uses: actions/upload-artifact@v3
         with:
           name: commcare-release-apk
           path: app/build/outputs/apk/commcare/release/app-commcare-release.apk
