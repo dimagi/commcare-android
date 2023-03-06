@@ -115,11 +115,14 @@ jobs:
         uses: gradle/gradle-build-action@v2
         with:
           arguments: JacocoTestReport
-      - name: Upload JaCoCo Report
-        uses: actions/upload-artifact@v3
+      - name: Publish JaCoCo report
+        id: jacoco
+        uses: madrapps/jacoco-report@v1.3
         with:
-          name: jacoco-report
-          path: app/build/reports
+          paths: app/build/reports/jacoco/jacocoTestReport/jacocoTestReport.xml
+          token: ${{ secrets.GITHUB_TOKEN }}
+          min-coverage-overall: 40
+          min-coverage-changed-files: 60
   run-instrumentation-tests:
     needs: prep-repos
     runs-on: ubuntu-latest
