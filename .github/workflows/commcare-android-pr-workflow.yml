@@ -42,6 +42,7 @@ jobs:
           python3 checkout_cross_request_repo.py commcare-android ${{env.PR_NUM}} commcare-core . ${{ secrets.GITHUB_TOKEN }}
       - name: Restore Gradle properties file
         run: |
+          mkdir -p ~/.gradle/
           cd ~/.gradle
           CURR_DIR=$(pwd)
           echo ${{secrets.SIGNING_KEY}} | base64 -d > commcare-odk-keys.keystore
