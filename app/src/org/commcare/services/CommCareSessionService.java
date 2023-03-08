@@ -69,8 +69,8 @@ public class CommCareSessionService extends Service {
     /**
      * Names of the extra data for the CommCareServiceInitiatorReceiver intent
      */
-    private static final String EXTRA_NOTIFICATION_ID = "commcare.intent.extra.notification-id";
-    private static final String EXTRA_NOTIFICATION_OBJ = "commcare.intent.extra.notification";
+    public static final String EXTRA_NOTIFICATION_ID = "commcare.intent.extra.notification-id";
+    public static final String EXTRA_NOTIFICATION_OBJ = "commcare.intent.extra.notification";
 
     private NotificationManager mNM;
 
