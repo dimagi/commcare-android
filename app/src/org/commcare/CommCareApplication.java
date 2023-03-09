@@ -277,7 +277,6 @@ public class CommCareApplication extends MultiDexApplication {
                     .detectLeakedSqlLiteObjects()
                     .detectLeakedClosableObjects()
                     .penaltyLog()
-                    .penaltyDeath()
                     .build());
         }
     }
