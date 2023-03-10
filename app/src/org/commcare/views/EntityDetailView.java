@@ -109,6 +109,8 @@ public class EntityDetailView extends FrameLayout {
 
     private int current = TEXT;
 
+    private boolean showLabel = true;
+
     private DetailCalloutListener listener;
 
     public EntityDetailView(Context context, Detail d, Entity e,
@@ -168,17 +170,13 @@ public class EntityDetailView extends FrameLayout {
     }
 
     public void setParams(Detail d, Entity e, int index, int detailNumber, boolean showLabel) {
+        this.showLabel = showLabel;
         String labelText = d.getFields()[index].getHeader().evaluate();
         if(showLabel) {
             label.setText(labelText);
         }
         else {
-            //ISSUE: line below does not hide the label TextView
-            //In each cell, I see "Text" (i.e. the default label text)
             label.setVisibility(View.GONE);
-
-            //Note if I call the next line, I no longer see "Text" in each cell
-            //label.setText("");
         }
 
         spacer.setText(labelText);
@@ -400,7 +398,7 @@ public class EntityDetailView extends FrameLayout {
         }
 
         if (current != GRAPH) {
-            label.setVisibility(View.VISIBLE);
+            label.setVisibility(showLabel ? View.VISIBLE : View.GONE);
             LinearLayout.LayoutParams graphValueLayout = new LinearLayout.LayoutParams((ViewGroup.LayoutParams)origValue);
             graphValueLayout.weight = 10;
             valuePane.setLayoutParams(origValue);
