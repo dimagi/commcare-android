@@ -75,8 +75,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     public enum ConnectIdStatus {
         NotIntroduced,
         LoggedOut,
-        Locked,
-        Unlocked
+        LoggedIn
     }
     private static final String TAG = LoginActivity.class.getSimpleName();
 
@@ -326,7 +325,8 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
             usernameBeforeRotation = passwordOrPinBeforeRotation = null;
         }
         else if(requestCode == UNLOCK_CONNECT_ACTIVITY && resultCode == RESULT_OK) {
-            connectStatus = ConnectIdStatus.Unlocked;
+            connectStatus = ConnectIdStatus.LoggedIn;
+            uiController.showConnectIdButton();
             updateConnectButton();
         }
         super.onActivityResult(requestCode, resultCode, intent);
@@ -419,38 +419,24 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         finish();
     }
 
-    public void goToConnectLogin() {
-        switch(connectStatus) {
-            case LoggedOut:
-                //Just auto-login for now
-                Toast.makeText(this,
-                        "Logged in!",
-                        Toast.LENGTH_SHORT).show();
-                connectStatus = ConnectIdStatus.Locked;
-                updateConnectButton();
-                break;
-            case Locked:
-                Intent i = new Intent(this,ConnectIdLoginActivity.class);
+    public void handleConnectButtonPress() {
+        switch (connectStatus) {
+            case NotIntroduced, LoggedOut -> {
+                Intent i = new Intent(this, ConnectIdLoginActivity.class);
                 startActivityForResult(i, UNLOCK_CONNECT_ACTIVITY);
-                break;
-            case Unlocked:
+            }
+            case LoggedIn ->
                 //TODO: Go to Connect menu (i.e. educate, verify, etc.)
-                Toast.makeText(this,
-                        "TODO: Go to Connect menu",
+                Toast.makeText(this, "TODO: Go to Connect menu",
                         Toast.LENGTH_SHORT).show();
-                break;
-            case NotIntroduced:
-                //ERROR: Should never get here
-                break;
         }
     }
 
     private void updateConnectButton() {
         String buttonText = "";
         switch(connectStatus) {
-            case Locked -> buttonText = "Unlock Connect ID";
             case LoggedOut -> buttonText = "Login to Connect ID";
-            case Unlocked -> buttonText = "Go to Connect menu";
+            case LoggedIn -> buttonText = "Go to Connect menu";
         }
 
         uiController.setConnectButtonText(buttonText);
@@ -475,7 +461,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         menu.findItem(MENU_PERMISSIONS).setVisible(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M);
         menu.findItem(MENU_PASSWORD_MODE).setVisible(uiController.getLoginMode() == LoginMode.PIN);
         menu.findItem(MENU_CONNECT_SIGNIN).setVisible(connectStatus == ConnectIdStatus.NotIntroduced);
-        menu.findItem(MENU_CONNECT_SIGNOUT).setVisible(connectStatus == ConnectIdStatus.Locked || connectStatus == ConnectIdStatus.Unlocked);
+        menu.findItem(MENU_CONNECT_SIGNOUT).setVisible(connectStatus == ConnectIdStatus.LoggedIn);
 
         return true;
     }
@@ -502,11 +488,8 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                 startActivity(i);
                 return true;
             case MENU_CONNECT_SIGNIN:
-                //TODO: Launch ConnectId signin
-                //For now, just showing the Connect button on the main UI (i.e. skipping to locked)
-                connectStatus = ConnectIdStatus.LoggedOut;
-                uiController.showConnectIdButton();
-                updateConnectButton();
+                //Exactly like pressing the Connect button, but the first time happens this way
+                handleConnectButtonPress();
                 return true;
             case MENU_CONNECT_SIGNOUT:
                 connectStatus = ConnectIdStatus.LoggedOut;

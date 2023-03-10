@@ -188,8 +188,8 @@ login.update.install.failure=App update failed to apply!
 
 connect.title=ConnectID
 connect.message=Don't have an account yet? Create account
-connect.button.fingerprint=Unlock with fingerprint
-connect.button.pin=Unlock with PIN
+connect.button.fingerprint=Sign in with fingerprint
+connect.button.pin=Sign in with PIN
 connect.trouble.message=Trouble signing in?
 
 connect.register.title=Create Account

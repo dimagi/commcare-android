@@ -79,6 +79,8 @@ implements WithUIController {
         }
         else if(requestCode == CONNECT_VERIFY_ACTIVITY && resultCode == RESULT_OK) {
             //TODO: where does phone verification live? New activity?
+            //Jumping to end of workflow for now, user logged in
+            finish(true);
         }
 
         super.onActivityResult(requestCode, resultCode, intent);

@@ -144,7 +144,7 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         setTextChangeListeners();
         setBannerLayoutLogic();
 
-        connectLoginButton.setOnClickListener(arg0 -> activity.goToConnectLogin());
+        connectLoginButton.setOnClickListener(arg0 -> activity.handleConnectButtonPress());
 
         loginButton.setOnClickListener(arg0 -> activity.initiateLoginAttempt(isRestoreSessionChecked()));
 

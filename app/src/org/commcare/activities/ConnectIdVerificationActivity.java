@@ -53,40 +53,39 @@ implements WithUIController {
     }
 
     public void handleActionButton() {
-        boolean biometricConfigured = BiometricsHelper.checkFingerprintStatus(biometricManager) == BiometricsHelper.ConfigurationStatus.Configured ||
-                BiometricsHelper.checkPinStatus(biometricManager) == BiometricsHelper.ConfigurationStatus.Configured;
-
-        if (!biometricConfigured) {
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setTitle("");
-            builder.setMessage("");
-            builder.setCancelable(true);
-            builder.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-                @Override
-                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-
-                }
-
-                @Override
-                public void onNothingSelected(AdapterView<?> parent) {
-
-                }
-            });
-
-            builder.setOnCancelListener(v -> {
-                finish(false);
-            });
-        }
-        else {
+        //Only able to press the button if a biometric was configured
+//        boolean biometricConfigured = BiometricsHelper.checkFingerprintStatus(biometricManager) == BiometricsHelper.ConfigurationStatus.Configured ||
+//                BiometricsHelper.checkPinStatus(biometricManager) == BiometricsHelper.ConfigurationStatus.Configured;
+//
+//        if (!biometricConfigured) {
+//            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+//            builder.setTitle("");
+//            builder.setMessage("");
+//            builder.setCancelable(true);
+//            builder.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+//                @Override
+//                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+//
+//                }
+//
+//                @Override
+//                public void onNothingSelected(AdapterView<?> parent) {
+//
+//                }
+//            });
+//
+//            builder.setOnCancelListener(v -> {
+//                finish(false);
+//            });
+//        }
+//        else {
             finish(true);
-        }
-
-        Intent intent = new Intent(getIntent());
-        setResult(RESULT_OK, intent);
-        finish();
+//        }
     }
 
     public void finish(boolean success) {
-
+        Intent intent = new Intent(getIntent());
+        setResult(success ? RESULT_OK : RESULT_CANCELED, intent);
+        finish();
     }
 }

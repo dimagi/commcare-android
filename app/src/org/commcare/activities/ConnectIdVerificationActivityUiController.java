@@ -61,6 +61,10 @@ public class ConnectIdVerificationActivityUiController implements CommCareActivi
             case Configured -> color = Color.GREEN;
         }
 
+        if(status == BiometricsHelper.ConfigurationStatus.Configured) {
+            actionButton.setEnabled(true);
+        }
+
         textView.setTextColor(color);
         textView.setEnabled(status != BiometricsHelper.ConfigurationStatus.NotAvailable);
     }
