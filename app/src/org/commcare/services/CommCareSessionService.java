@@ -246,7 +246,7 @@ public class CommCareSessionService extends Service {
         }
 
         //Send the notification
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && isAppInTheBackground())
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && CommCareApplication.isAppInBackground())
             startForegroundNotificationWithAlarmManager(NOTIFICATION, notificationBuilder.build());
         else
             this.startForeground(NOTIFICATION, notificationBuilder.build());
@@ -260,10 +260,10 @@ public class CommCareSessionService extends Service {
      * From Android 12, it's not allowed for an app to start a Foreground notification while
      * running in the background. This method leverages AlarmManager to trigger the notification
      */
-    @RequiresApi(api = Build.VERSION_CODES.M)
+    @RequiresApi(api = Build.VERSION_CODES.O)
     private void startForegroundNotificationWithAlarmManager(int notificationId, Notification notification) {
         Intent receiverIntent = new Intent(this, CommCareSessionInitiatorReceiver.class);
-        receiverIntent.putExtra(EXTRA_NOTIFICATION_ID, NOTIFICATION);
+        receiverIntent.putExtra(EXTRA_NOTIFICATION_ID, notificationId);
         receiverIntent.putExtra(EXTRA_NOTIFICATION_OBJ, notification);
 
         PendingIntent pendingIntent = new PendingIntent.getBroadcast(this, 1, receiverIntent, PendingIntent.FLAG_IMMUTABLE);

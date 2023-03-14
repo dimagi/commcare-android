@@ -20,6 +20,11 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
+import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.LifecycleEventObserver;
+import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.ProcessLifecycleOwner;
+
 import androidx.multidex.MultiDexApplication;
 import androidx.preference.PreferenceManager;
 import androidx.work.BackoffPolicy;
@@ -146,7 +151,7 @@ import io.noties.markwon.ext.tables.TablePlugin;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 
-public class CommCareApplication extends MultiDexApplication {
+public class CommCareApplication extends MultiDexApplication implements LifecycleEventObserver {
 
     private static final String TAG = CommCareApplication.class.getSimpleName();
 
@@ -202,6 +207,8 @@ public class CommCareApplication extends MultiDexApplication {
     private boolean invalidateCacheOnRestore;
     private CommCareNoficationManager noficationManager;
 
+    private static boolean appInTheBackground;
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -254,6 +261,8 @@ public class CommCareApplication extends MultiDexApplication {
 
         LocalePreferences.saveDeviceLocale(Locale.getDefault());
         GraphUtil.setLabelCharacterLimit(getResources().getInteger(R.integer.graph_label_char_limit));
+
+        ProcessLifecycleOwner.get().getLifecycle().addObserver(this);
     }
 
     protected void attachISRGCert() {
@@ -814,7 +823,7 @@ public class CommCareApplication extends MultiDexApplication {
         // supporting component replacement by other applications).
         Intent sessionServiceIntent = new Intent(this, CommCareSessionService.class);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && isAppInTheBackground())
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && CommCareApplication.isAppInBackground())
                 startForegroundServiceWithAlarmManager();
             else
                 startForegroundService(sessionServiceIntent);
@@ -830,7 +839,7 @@ public class CommCareApplication extends MultiDexApplication {
      * From Android 12, it's not allowed for an app to start a Foreground Service while
      * running in the background. This method leverages AlarmManager to initiate the Service
      */
-    @RequiresApi(api = Build.VERSION_CODES.M)
+    @RequiresApi(api = Build.VERSION_CODES.O)
     private void startForegroundServiceWithAlarmManager() {
         Intent receiverIntent = new Intent(this, CommCareSessionInitiatorReceiver.class);
 
@@ -838,10 +847,6 @@ public class CommCareApplication extends MultiDexApplication {
 
         AlarmManager alarmmanager = (AlarmManager) getSystemService(ALARM_SERVICE);
         alarmmanager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, Calendar.getInstance().getTimeInMillis(), pendingIntent);
-    }
-
-    private boolean isAppInTheBackground() {
-        return false;
     }
 
     private void cleanRawMedia() {
@@ -1216,5 +1221,21 @@ public class CommCareApplication extends MultiDexApplication {
 
     public AndroidPackageUtils getAndroidPackageUtils() {
         return new AndroidPackageUtils();
+    }
+
+    public static boolean isAppInBackground() {
+        return appInTheBackground;
+    }
+
+    @Override
+    public void onStateChanged(@NonNull LifecycleOwner source, @NonNull Lifecycle.Event event){
+        switch (event) {
+            case ON_RESUME:
+                appInTheBackground = false;
+                break;
+            case ON_PAUSE:
+                appInTheBackground = true;
+                break;
+        }
     }
 }
