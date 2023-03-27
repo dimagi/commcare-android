@@ -94,6 +94,7 @@ import org.commcare.preferences.HiddenPreferences;
 import org.commcare.preferences.LocalePreferences;
 import org.commcare.services.CommCareSessionInitiatorReceiver;
 import org.commcare.services.CommCareSessionService;
+import org.commcare.services.ForegroundComponentType;
 import org.commcare.session.CommCareSession;
 import org.commcare.sync.FormSubmissionHelper;
 import org.commcare.sync.FormSubmissionWorker;
@@ -842,8 +843,14 @@ public class CommCareApplication extends MultiDexApplication implements Lifecycl
     @RequiresApi(api = Build.VERSION_CODES.O)
     private void startForegroundServiceWithAlarmManager() {
         Intent receiverIntent = new Intent(this, CommCareSessionInitiatorReceiver.class);
+        ForegroundComponentType foregroundComponentType = ForegroundComponentType.SERVICE;
+        receiverIntent.putExtra(CommCareSessionService.EXTRA_COMPONENT_TYPE, foregroundComponentType);
 
-        PendingIntent pendingIntent = new PendingIntent.getBroadcast(this, 0, receiverIntent, PendingIntent.FLAG_IMMUTABLE);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(
+                this,
+                foregroundComponentType.ordinal(),
+                receiverIntent,
+                PendingIntent.FLAG_IMMUTABLE);
 
         AlarmManager alarmmanager = (AlarmManager) getSystemService(ALARM_SERVICE);
         alarmmanager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, Calendar.getInstance().getTimeInMillis(), pendingIntent);

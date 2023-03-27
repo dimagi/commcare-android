@@ -11,8 +11,8 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 
-import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
+
 
 /**
  * Broadcast receiver to start foreground services and notifications
@@ -21,18 +21,13 @@ import org.commcare.CommCareApplication;
 @RequiresApi(api = Build.VERSION_CODES.O)
 public class CommCareSessionInitiatorReceiver extends BroadcastReceiver {
 
-    public enum ForegroundComponent {
-        SERVICE,
-        NOTIFICATION
-    }
-
     @Override
     public void onReceive(Context context, Intent intent) {
-        ForegroundComponent component = checkForegroundComponent(intent);
+        ForegroundComponentType componentType = checkForegroundComponent(intent);
 
-        cancelAlarm(intent, component);
+        cancelAlarm(context, intent, componentType);
 
-        switch (component){
+        switch (componentType){
             case SERVICE:
                 context.startForegroundService(new Intent(context, CommCareSessionService.class));
                 break;
@@ -47,18 +42,19 @@ public class CommCareSessionInitiatorReceiver extends BroadcastReceiver {
         }
     }
 
-    private void cancelAlarm(Intent intent, ForegroundComponent component) {
-        int requestCode = component == ForegroundComponent.SERVICE? 0: 1;
-        PendingIntent pendingIntent = new PendingIntent.getBroadcast(this, requestCode, intent, PendingIntent.FLAG_IMMUTABLE);
+    private void cancelAlarm(Context context, Intent intent, ForegroundComponentType componentType) {
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(context, componentType.ordinal(), intent, PendingIntent.FLAG_IMMUTABLE);
 
-        AlarmManager alarmmanager = (AlarmManager) getSystemService(ALARM_SERVICE);
+        AlarmManager alarmmanager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         if (pendingIntent != null)
             alarmmanager.cancel(pendingIntent);
     }
 
-    private ForegroundComponent checkForegroundComponent(Intent intent) {
-        if (intent.hasExtra(CommCareSessionService.EXTRA_NOTIFICATION_ID))
-            return ForegroundComponent.NOTIFICATION;
-        return ForegroundComponent.SERVICE;
+    private ForegroundComponentType checkForegroundComponent(Intent intent) {
+        if (intent.hasExtra(CommCareSessionService.EXTRA_COMPONENT_TYPE))
+            return (ForegroundComponentType) intent.getExtras().get(CommCareSessionService.EXTRA_COMPONENT_TYPE);
+        else
+            // This branch is not expected to be reached in any situation
+            throw new RuntimeException("Invalid CommCareSessionInitiatorReceiver intent!");
     }
 }

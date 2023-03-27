@@ -71,6 +71,7 @@ public class CommCareSessionService extends Service {
      */
     public static final String EXTRA_NOTIFICATION_ID = "commcare.intent.extra.notification-id";
     public static final String EXTRA_NOTIFICATION_OBJ = "commcare.intent.extra.notification";
+    public static final String EXTRA_COMPONENT_TYPE = "commcare.intent.extra.component-type";
 
     private NotificationManager mNM;
 
@@ -262,11 +263,18 @@ public class CommCareSessionService extends Service {
      */
     @RequiresApi(api = Build.VERSION_CODES.O)
     private void startForegroundNotificationWithAlarmManager(int notificationId, Notification notification) {
+        ForegroundComponentType foregroundComponentType = ForegroundComponentType.NOTIFICATION;
+
         Intent receiverIntent = new Intent(this, CommCareSessionInitiatorReceiver.class);
+        receiverIntent.putExtra(EXTRA_COMPONENT_TYPE, foregroundComponentType);
         receiverIntent.putExtra(EXTRA_NOTIFICATION_ID, notificationId);
         receiverIntent.putExtra(EXTRA_NOTIFICATION_OBJ, notification);
 
-        PendingIntent pendingIntent = new PendingIntent.getBroadcast(this, 1, receiverIntent, PendingIntent.FLAG_IMMUTABLE);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(
+                this,
+                foregroundComponentType.ordinal(),
+                receiverIntent,
+                PendingIntent.FLAG_IMMUTABLE);
 
         AlarmManager alarmmanager = (AlarmManager) getSystemService(ALARM_SERVICE);
         alarmmanager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, Calendar.getInstance().getTimeInMillis(), pendingIntent);
