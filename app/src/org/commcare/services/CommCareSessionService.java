@@ -253,10 +253,6 @@ public class CommCareSessionService extends Service {
             this.startForeground(NOTIFICATION, notificationBuilder.build());
     }
 
-    private boolean isAppInTheBackground() {
-        return false;
-    }
-
     /**
      * From Android 12, it's not allowed for an app to start a Foreground notification while
      * running in the background. This method leverages AlarmManager to trigger the notification
