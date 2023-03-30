@@ -5,6 +5,7 @@
     <!-- string name="default_app_server">http://build.dimagi.com/commcare/pact/profile.xml</string -->
     <string name="default_app_server">jr://asset/testing/profile.ccpr</string>
     <string name="PostURL">https://staging.commcarehq.org/receiver/submit/pf</string>
+    <string name="ConnectURL">http://ec2-54-174-77-95.compute-1.amazonaws.com</string>
     <string name="ota_restore_url">https://staging.commcarehq.org/ota_restore</string>
     <!-- string name="PostURL">https://pact.dimagi.com/receiver/submit/pact</string -->
     <!-- string name="ota_restore_url">https://pact.dimagi.com/provider/caselist</string -->

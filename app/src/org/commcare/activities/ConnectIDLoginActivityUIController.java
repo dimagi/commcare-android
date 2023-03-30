@@ -9,7 +9,7 @@ import org.commcare.views.ManagedUi;
 import org.commcare.views.UiElement;
 
 @ManagedUi(R.layout.screen_connect_login)
-public class ConnectIdLoginActivityUIController implements CommCareActivityUIController {
+public class ConnectIDLoginActivityUIController implements CommCareActivityUIController {
 
     @UiElement(value = R.id.connect_login_title, locale = "connect.title")
     private TextView titleTextView;
@@ -26,9 +26,9 @@ public class ConnectIdLoginActivityUIController implements CommCareActivityUICon
     @UiElement(value = R.id.connect_trouble_link, locale = "connect.trouble.message")
     private TextView troubleTextView;
 
-    protected final ConnectIdLoginActivity activity;
+    protected final ConnectIDLoginActivity activity;
 
-    public ConnectIdLoginActivityUIController(ConnectIdLoginActivity activity) {
+    public ConnectIDLoginActivityUIController(ConnectIDLoginActivity activity) {
         this.activity = activity;
     }
 

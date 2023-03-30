@@ -2,14 +2,11 @@ package org.commcare.activities;
 
 import android.content.SharedPreferences;
 import android.content.res.Resources;
-import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.StateListDrawable;
 import android.os.Build;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
-import android.util.StateSet;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.ArrayAdapter;
@@ -160,7 +157,7 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         notificationButton.setOnClickListener(view -> CommCareNoficationManager.performIntentCalloutToNotificationsView(activity));
     }
 
-    public void showConnectIdButton() {
+    public void showConnectIDButton() {
         connectLoginButton.setVisibility(View.VISIBLE);
     }
 

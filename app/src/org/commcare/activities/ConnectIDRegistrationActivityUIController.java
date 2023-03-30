@@ -10,7 +10,7 @@ import org.commcare.views.ManagedUi;
 import org.commcare.views.UiElement;
 
 @ManagedUi(R.layout.screen_connect_registration)
-public class ConnectIdRegistrationActivityUiController implements CommCareActivityUIController {
+public class ConnectIDRegistrationActivityUIController implements CommCareActivityUIController {
 
     @UiElement(value = R.id.connect_register_title, locale = "connect.register.title")
     private TextView titleTextView;
@@ -43,9 +43,9 @@ public class ConnectIdRegistrationActivityUiController implements CommCareActivi
     @UiElement(value = R.id.connect_register_button, locale = "connect.register.create")
     private Button registerButton;
 
-    protected final ConnectIdRegistrationActivity activity;
+    protected final ConnectIDRegistrationActivity activity;
 
-    public ConnectIdRegistrationActivityUiController(ConnectIdRegistrationActivity activity) {
+    public ConnectIDRegistrationActivityUIController(ConnectIDRegistrationActivity activity) {
         this.activity = activity;
     }
 
@@ -62,4 +62,10 @@ public class ConnectIdRegistrationActivityUiController implements CommCareActivi
     public void setUserId(String userId) {
         idInput.setText(userId);
     }
+
+    public String getUserIdText() { return idInput.getText().toString(); }
+    public String getNameText() { return nameInput.getText().toString(); }
+    public String getDOBText() { return dobInput.getText().toString(); }
+    public String getPhoneText() { return phoneInput.getText().toString(); }
+    public String getAltPhoneText() { return altPhoneInput.getText().toString(); }
 }

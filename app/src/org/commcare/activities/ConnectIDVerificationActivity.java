@@ -1,21 +1,17 @@
 package org.commcare.activities;
 
-import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
-import android.widget.AdapterView;
-import android.widget.Toast;
 
 import androidx.biometric.BiometricManager;
 
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.WithUIController;
 
-public class ConnectIdVerificationActivity extends CommCareActivity<ConnectIdVerificationActivity>
+public class ConnectIDVerificationActivity extends CommCareActivity<ConnectIDVerificationActivity>
 implements WithUIController {
 
-    private ConnectIdVerificationActivityUiController uiController;
+    private ConnectIDVerificationActivityUIController uiController;
     private BiometricManager biometricManager;
 
     @Override
@@ -36,7 +32,7 @@ implements WithUIController {
 
     @Override
     public void initUIController() {
-        uiController = new ConnectIdVerificationActivityUiController(this);
+        uiController = new ConnectIDVerificationActivityUIController(this);
     }
 
     public void updateStatus() {

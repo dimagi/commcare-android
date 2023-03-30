@@ -71,12 +71,9 @@ import androidx.work.WorkManager;
 public class LoginActivity extends CommCareActivity<LoginActivity>
         implements OnItemSelectedListener, DataPullController,
         RuntimePermissionRequester, WithUIController, PullTaskResultReceiver {
+    //ConnectID UI elements hidden from user when this is set to false
+    private static final boolean ENABLE_CONNECT_ID = true;
 
-    public enum ConnectIdStatus {
-        NotIntroduced,
-        LoggedOut,
-        LoggedIn
-    }
     private static final String TAG = LoginActivity.class.getSimpleName();
 
     public static final int MENU_DEMO = Menu.FIRST;
@@ -84,8 +81,8 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     private static final int MENU_PERMISSIONS = Menu.FIRST + 2;
     private static final int MENU_PASSWORD_MODE = Menu.FIRST + 3;
     private static final int MENU_APP_MANAGER = Menu.FIRST + 4;
-    private static final int MENU_CONNECT_SIGNIN = Menu.FIRST + 5;
-    private static final int MENU_CONNECT_SIGNOUT = Menu.FIRST + 6;
+    private static final int MENU_CONNECT_SIGN_IN = Menu.FIRST + 5;
+    private static final int MENU_CONNECT_SIGN_OUT = Menu.FIRST + 6;
 
     public static final String NOTIFICATION_MESSAGE_LOGIN = "login_message";
     public final static String KEY_LAST_APP = "id-last-seated-app";
@@ -93,7 +90,6 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     public final static String KEY_ENTERED_PW_OR_PIN = "entered-password-or-pin";
 
     private static final int SEAT_APP_ACTIVITY = 0;
-    private static final int UNLOCK_CONNECT_ACTIVITY = 1;
     public final static String USER_TRIGGERED_LOGOUT = "user-triggered-logout";
 
     public final static String LOGIN_MODE = "login-mode";
@@ -110,8 +106,6 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     private LoginActivityUIController uiController;
     private FormAndDataSyncer formAndDataSyncer;
 
-    private ConnectIdStatus connectStatus = ConnectIdStatus.NotIntroduced;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -127,8 +121,8 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         uiController.setupUI();
         formAndDataSyncer = new FormAndDataSyncer();
 
-        if(connectStatus != ConnectIdStatus.NotIntroduced) {
-            uiController.showConnectIdButton();
+        if(ENABLE_CONNECT_ID && ConnectIDManager.isConnectIDIntroduced()) {
+            uiController.showConnectIDButton();
             updateConnectButton();
         }
 
@@ -324,11 +318,6 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
             invalidateOptionsMenu();
             usernameBeforeRotation = passwordOrPinBeforeRotation = null;
         }
-        else if(requestCode == UNLOCK_CONNECT_ACTIVITY && resultCode == RESULT_OK) {
-            connectStatus = ConnectIdStatus.LoggedIn;
-            uiController.showConnectIdButton();
-            updateConnectButton();
-        }
         super.onActivityResult(requestCode, resultCode, intent);
     }
 
@@ -420,26 +409,16 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     }
 
     public void handleConnectButtonPress() {
-        switch (connectStatus) {
-            case NotIntroduced, LoggedOut -> {
-                Intent i = new Intent(this, ConnectIdLoginActivity.class);
-                startActivityForResult(i, UNLOCK_CONNECT_ACTIVITY);
+        ConnectIDManager.handleConnectButtonPress(this, success -> {
+            if(success) {
+                uiController.showConnectIDButton();
+                updateConnectButton();
             }
-            case LoggedIn ->
-                //TODO: Go to Connect menu (i.e. educate, verify, etc.)
-                Toast.makeText(this, "TODO: Go to Connect menu",
-                        Toast.LENGTH_SHORT).show();
-        }
+        });
     }
 
     private void updateConnectButton() {
-        String buttonText = "";
-        switch(connectStatus) {
-            case LoggedOut -> buttonText = "Login to Connect ID";
-            case LoggedIn -> buttonText = "Go to Connect menu";
-        }
-
-        uiController.setConnectButtonText(buttonText);
+        uiController.setConnectButtonText(ConnectIDManager.getConnectButtonText());
     }
 
     @Override
@@ -450,8 +429,8 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         menu.add(0, MENU_PERMISSIONS, 1, Localization.get("permission.acquire.required")).setIcon(android.R.drawable.ic_menu_manage);
         menu.add(0, MENU_PASSWORD_MODE, 1, Localization.get("login.menu.password.mode"));
         menu.add(0, MENU_APP_MANAGER, 1, Localization.get("login.menu.app.manager"));
-        menu.add(0, MENU_CONNECT_SIGNIN, 1, Localization.get("login.menu.connect.signin"));
-        menu.add(0, MENU_CONNECT_SIGNOUT, 1, Localization.get("login.menu.connect.signout"));
+        menu.add(0, MENU_CONNECT_SIGN_IN, 1, Localization.get("login.menu.connect.signin"));
+        menu.add(0, MENU_CONNECT_SIGN_OUT, 1, Localization.get("login.menu.connect.signout"));
         return true;
     }
 
@@ -460,8 +439,8 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         super.onPrepareOptionsMenu(menu);
         menu.findItem(MENU_PERMISSIONS).setVisible(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M);
         menu.findItem(MENU_PASSWORD_MODE).setVisible(uiController.getLoginMode() == LoginMode.PIN);
-        menu.findItem(MENU_CONNECT_SIGNIN).setVisible(connectStatus == ConnectIdStatus.NotIntroduced);
-        menu.findItem(MENU_CONNECT_SIGNOUT).setVisible(connectStatus == ConnectIdStatus.LoggedIn);
+        menu.findItem(MENU_CONNECT_SIGN_IN).setVisible(ENABLE_CONNECT_ID && ConnectIDManager.shouldShowSignInMenuOption());
+        menu.findItem(MENU_CONNECT_SIGN_OUT).setVisible(ENABLE_CONNECT_ID && ConnectIDManager.shouldShowSignOutMenuOption());
 
         return true;
     }
@@ -487,12 +466,12 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                 i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(i);
                 return true;
-            case MENU_CONNECT_SIGNIN:
+            case MENU_CONNECT_SIGN_IN:
                 //Exactly like pressing the Connect button, but the first time happens this way
                 handleConnectButtonPress();
                 return true;
-            case MENU_CONNECT_SIGNOUT:
-                connectStatus = ConnectIdStatus.LoggedOut;
+            case MENU_CONNECT_SIGN_OUT:
+                ConnectIDManager.signOut();
                 updateConnectButton();
                 return true;
             default:

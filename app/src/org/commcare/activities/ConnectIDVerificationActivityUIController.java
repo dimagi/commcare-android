@@ -1,7 +1,6 @@
 package org.commcare.activities;
 
 import android.graphics.Color;
-import android.os.Build;
 import android.widget.Button;
 import android.widget.TextView;
 
@@ -11,7 +10,7 @@ import org.commcare.views.ManagedUi;
 import org.commcare.views.UiElement;
 
 @ManagedUi(R.layout.screen_connect_verify)
-public class ConnectIdVerificationActivityUiController implements CommCareActivityUIController {
+public class ConnectIDVerificationActivityUIController implements CommCareActivityUIController {
 
     @UiElement(value = R.id.connect_verify_title, locale = "connect.verify.title")
     private TextView titleTextView;
@@ -29,9 +28,9 @@ public class ConnectIdVerificationActivityUiController implements CommCareActivi
     private Button actionButton;
 
 
-    private ConnectIdVerificationActivity activity;
+    private ConnectIDVerificationActivity activity;
 
-    public ConnectIdVerificationActivityUiController(ConnectIdVerificationActivity activity) {
+    public ConnectIDVerificationActivityUIController(ConnectIDVerificationActivity activity) {
         this.activity = activity;
     }
     @Override

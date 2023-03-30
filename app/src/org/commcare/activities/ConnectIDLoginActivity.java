@@ -3,12 +3,8 @@ package org.commcare.activities;
 import static androidx.biometric.BiometricManager.Authenticators.BIOMETRIC_STRONG;
 import static androidx.biometric.BiometricManager.Authenticators.DEVICE_CREDENTIAL;
 
-import static com.google.zxing.integration.android.IntentIntegrator.REQUEST_CODE;
-
 import android.content.Intent;
 import android.os.Bundle;
-import android.provider.Settings;
-import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -19,29 +15,20 @@ import androidx.core.content.ContextCompat;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.WithUIController;
 
-public class ConnectIdLoginActivity extends CommCareActivity<ConnectIdLoginActivity>
+public class ConnectIDLoginActivity extends CommCareActivity<ConnectIDLoginActivity>
 implements WithUIController {
-    public enum RegistrationPhase {
-        Initial, //Collect primary info: name, DOB, etc.
-        Secrets, //Configure fingerprint, PIN, password, etc.
-        Verify //Verify phone number via SMS
-    }
-    private static final String TAG = ConnectIdLoginActivity.class.getSimpleName();
 
-    private static final int CONNECT_REGISTER_ACTIVITY = 0;
-    private static final int CONNECT_VERIFY_ACTIVITY = 1;
+    private static final String TAG = ConnectIDLoginActivity.class.getSimpleName();
+
     private BiometricPrompt biometricPrompt;
     private BiometricPrompt.PromptInfo fingerprintPromptInfo;
     private BiometricPrompt.PromptInfo pinPromptInfo;
 
-    private ConnectIdLoginActivityUIController uiController;
-    private RegistrationPhase phase;
+    private ConnectIDLoginActivityUIController uiController;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        phase = RegistrationPhase.Initial;
 
         uiController.setupUI();
 
@@ -66,28 +53,19 @@ implements WithUIController {
 
     @Override
     public void initUIController() {
-        uiController = new ConnectIdLoginActivityUIController(this);
+        uiController = new ConnectIDLoginActivityUIController(this);
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
-        if(requestCode == CONNECT_REGISTER_ACTIVITY && resultCode == RESULT_OK) {
-            phase = RegistrationPhase.Secrets;
-
-            Intent i = new Intent(this, ConnectIdVerificationActivity.class);
-            startActivityForResult(i, CONNECT_VERIFY_ACTIVITY);
-        }
-        else if(requestCode == CONNECT_VERIFY_ACTIVITY && resultCode == RESULT_OK) {
-            //TODO: where does phone verification live? New activity?
-            //Jumping to end of workflow for now, user logged in
-            finish(true);
+        if(ConnectIDManager.isConnectIDActivity(requestCode)) {
+            ConnectIDManager.handleFinishedActivity(requestCode, resultCode, intent);
         }
 
         super.onActivityResult(requestCode, resultCode, intent);
     }
     public void startNewAccountWorkflow() {
-        Intent i = new Intent(this, ConnectIdRegistrationActivity.class);
-        startActivityForResult(i, CONNECT_REGISTER_ACTIVITY);
+        ConnectIDManager.beginRegistrationWorkflow(this, success -> finish(success));
     }
 
     public void startAccountRecoveryWorkflow() {

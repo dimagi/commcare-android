@@ -195,16 +195,27 @@ connect.trouble.message=Trouble signing in?
 connect.register.title=Create Account
 connect.register.id=User ID
 connect.register.name=Name
-connect.register.dob=Date of Birth
-connect.register.phone=Phone Number
+connect.register.dob=Date of Birth (YYYY-MM-DD)
+connect.register.phone=Phone Number (+18887776666)
 connect.register.phone.alt=Alternate Phone Number
 connect.register.create=Create Account
 
 connect.verify.title=Identity Verification
-connect.verify.message=To verify your identity, complete the steps below
+connect.verify.message=Please configure at least one local verification method. Green means configured, yellow means not configured, red means unavailable.
 connect.verify.fingerprint=Fingerprint
 connect.verify.pin=PIN
 connect.verify.button=Continue
+
+connect.verify.phone.title=Verify Phone
+connect.verify.phone.label=Please enter the code sent via SMS to your primary phone.
+connect.verify.phone.resend=Resend code
+connect.verify.phone.verify=Verify code
+
+connect.pictures.title=Verification Photos
+connect.pictures.label=To help with account recovery, you can optionally take some photos to help identify you.
+connect.pictures.face=Face
+connect.pictures.id=Official ID
+connect.pictures.continue=Continue
 
 query.button=Query
 query.dialog.title=Querying Server
@@ -356,8 +367,8 @@ bulk.form.dump.success=${1} forms dumped successfully
 login.menu.demo=Enter Practice Mode
 login.menu.password.mode=Forgot PIN?
 login.menu.app.manager=Go To App Manager
-login.menu.connect.signin=Sign in to ConnectId
-login.menu.connect.signout=Sign out of ConnectId
+login.menu.connect.signin=Sign in to ConnectID
+login.menu.connect.signout=Sign out of ConnectID
 
 main.sync.demo=You cannot sync data down from the server when using practice mode
 main.sync.demo.has.forms=Your forms have been submitted to the server; however, you cannot retrieve forms from the server in practice mode.
