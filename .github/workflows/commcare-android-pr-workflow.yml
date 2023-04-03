@@ -2,12 +2,6 @@ name: commcare-android PR CI
 
 env:
   PR_NUM: ${{github.event.issue.number || github.event.number }}
-  BASE_LOCATION: app/build/outputs/
-  RELEASE_APP_LOCATION: app/build/outputs/apk/commcare/release/app-commcare-release.apk
-  TEST_APP_LOCATION: app/build/outputs/apk/androidTest/commcare/release/app-commcare-release-androidTest.apk
-  BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
-  BROWSERSTACK_PASSWORD: ${{ secrets.BROWSERSTACK_PASSWORD }}
-  BROWSERSTACK_DEVICES: ${{ vars.BROWSERSTACK_DEVICES }}
   ghprbPullId: ${{github.event.issue.number || github.event.number }}
 on:
   pull_request:
@@ -180,6 +174,13 @@ jobs:
         with:
           python-version: '3.9'
       - name: Run Instrumentation Tests
+        env:
+          BASE_LOCATION: app/build/outputs/
+          RELEASE_APP_LOCATION: app/build/outputs/apk/commcare/release/app-commcare-release.apk
+          TEST_APP_LOCATION: app/build/outputs/apk/androidTest/commcare/release/app-commcare-release-androidTest.apk
+          BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
+          BROWSERSTACK_PASSWORD: ${{ secrets.BROWSERSTACK_PASSWORD }}
+          BROWSERSTACK_DEVICES: ${{ vars.BROWSERSTACK_DEVICES }}
         run: |
           python3 scripts/browserstack.py
 
