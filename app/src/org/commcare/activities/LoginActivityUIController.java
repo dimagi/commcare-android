@@ -165,6 +165,10 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         connectLoginButton.setText(text);
     }
 
+    public void setConnectButtonEnabled(Boolean enabled) {
+        connectLoginButton.setEnabled(enabled);
+    }
+
     private void setTextChangeListeners() {
         username.addTextChangedListener(usernameTextWatcher);
         passwordOrPin.addTextChangedListener(passwordTextWatcher);

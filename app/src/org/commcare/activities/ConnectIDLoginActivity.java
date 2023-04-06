@@ -64,10 +64,6 @@ implements WithUIController {
 
         super.onActivityResult(requestCode, resultCode, intent);
     }
-    public void startNewAccountWorkflow() {
-        ConnectIDManager.beginRegistrationWorkflow(this, success -> finish(success));
-    }
-
     public void startAccountRecoveryWorkflow() {
         Toast.makeText(getApplicationContext(),
                 "Not ready yet", Toast.LENGTH_SHORT).show();

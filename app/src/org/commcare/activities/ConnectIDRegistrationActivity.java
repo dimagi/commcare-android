@@ -120,12 +120,7 @@ implements WithUIController, ConnectorWithHttpResponseProcessor<ConnectIDRegistr
 
     public void finish(boolean success) {
         Intent intent = new Intent(getIntent());
-        intent.putExtra(USERNAME, user.Username);
-        intent.putExtra(PASSWORD, user.Password);
-        intent.putExtra(NAME, user.Name);
-        intent.putExtra(DOB, user.DOB);
-        intent.putExtra(PHONE, user.Phone);
-        intent.putExtra(ALTPHONE, user.AltPhone);
+        user.putUserInIntent(intent);
         setResult(success ? RESULT_OK : RESULT_CANCELED, intent);
         finish();
     }

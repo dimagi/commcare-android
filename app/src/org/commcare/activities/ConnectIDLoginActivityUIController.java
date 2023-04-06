@@ -1,5 +1,6 @@
 package org.commcare.activities;
 
+import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
@@ -36,7 +37,6 @@ public class ConnectIDLoginActivityUIController implements CommCareActivityUICon
     public void setupUI() {
         fingerprintButton.setOnClickListener(arg0 -> activity.performFingerprintUnlock());
         pinButton.setOnClickListener(arg0 -> activity.performPinUnlock());
-        messageTextView.setOnClickListener(arg0 -> activity.startNewAccountWorkflow());
         troubleTextView.setOnClickListener(arg0 -> activity.startAccountRecoveryWorkflow());
     }
 

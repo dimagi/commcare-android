@@ -186,8 +186,16 @@ login.hide.password=HIDE
 login.update.install.success=App update successfully applied!
 login.update.install.failure=App update failed to apply!
 
-connect.title=ConnectID
-connect.message=Don't have an account yet? Create account
+connect.button.logged.in=Go to Connect menu
+connect.button.logged.out=Login to Connect ID
+
+connect.dialog.unrecognized=No prior login detected on this device. Do you need to recover your account or create a new one?
+connect.dialog.new.account=New account
+connect.dialog.same.number=Recover account, same number
+connect.dialog.new.number=Recover account, new number
+
+connect.title=Unlock Connect ID
+connect.message=Please unlock using a configured biometric
 connect.button.fingerprint=Sign in with fingerprint
 connect.button.pin=Sign in with PIN
 connect.trouble.message=Trouble signing in?
@@ -369,6 +377,7 @@ login.menu.password.mode=Forgot PIN?
 login.menu.app.manager=Go To App Manager
 login.menu.connect.signin=Sign in to ConnectID
 login.menu.connect.signout=Sign out of ConnectID
+login.menu.connect.forget=Forget ConnectID user
 
 main.sync.demo=You cannot sync data down from the server when using practice mode
 main.sync.demo.has.forms=Your forms have been submitted to the server; however, you cannot retrieve forms from the server in practice mode.

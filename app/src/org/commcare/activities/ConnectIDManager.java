@@ -2,11 +2,20 @@ package org.commcare.activities;
 
 import static android.app.Activity.RESULT_OK;
 
-import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.widget.Toast;
 
+import org.commcare.CommCareApplication;
+import org.commcare.core.network.AuthInfo;
+import org.commcare.views.dialogs.DialogChoiceItem;
+import org.commcare.views.dialogs.PaneledChoiceDialog;
+import org.javarosa.core.services.locale.Localization;
+
 public class ConnectIDManager {
+    //ConnectID UI elements hidden from user when this is set to false
+    public static final boolean ENABLE_CONNECT_ID = true;
+
     public enum ConnectIDStatus {
         NotIntroduced,
         LoggedOut,
@@ -16,6 +25,7 @@ public class ConnectIDManager {
     public enum RegistrationPhase {
         Initial, //Collect primary info: name, DOB, etc.
         Secrets, //Configure fingerprint, PIN, password, etc.
+        Unlock, //Unlock a secret after configuring them
         Pictures, //Get pictures of face and official ID,
         PhoneVerify, //Verify phone number via SMS code
         Verify //Verify phone number via SMS
@@ -25,23 +35,22 @@ public class ConnectIDManager {
         void connectActivityComplete(boolean success);
     }
 
-    private static final int UNLOCK_CONNECT_ACTIVITY = 1001;
+    private static final int CONNECT_UNLOCK_ACTIVITY = 1001;
     private static final int CONNECT_REGISTER_ACTIVITY = 1002;
     private static final int CONNECT_VERIFY_ACTIVITY = 1003;
-    private static final int CONNECT_PICTURES_ACTIVITY = 1004;
-    private static final int CONNECT_PHONE_VERIFY_ACTIVITY = 1005;
+    private static final int CONNECT_PICTURES_ACTIVITY = 1005;
+    private static final int CONNECT_PHONE_VERIFY_ACTIVITY = 1006;
 
     private static ConnectIDManager manager = null;
     private ConnectIDStatus connectStatus = ConnectIDStatus.NotIntroduced;
-    private Activity parentActivity;
+    private CommCareActivity<?> parentActivity;
     private ConnectActivityCompleteListener loginListener;
     private ConnectActivityCompleteListener registrationListener;
-    private RegistrationPhase phase;
+    private RegistrationPhase phase = RegistrationPhase.Initial;
 
     private ConnectIDUser user = null;
 
     private ConnectIDManager() {
-        phase = RegistrationPhase.Initial;
     }
 
     private static ConnectIDManager getInstance() {
@@ -50,6 +59,29 @@ public class ConnectIDManager {
         }
 
         return manager;
+    }
+
+    public static void loadUserFromPreferences() {
+        ConnectIDManager manager= getInstance();
+        SharedPreferences prefs = CommCareApplication.instance().getCurrentApp().getAppPreferences();
+        manager.user = ConnectIDUser.getUserFromPreferences(prefs);
+        if(manager.user != null && manager.connectStatus == ConnectIDStatus.NotIntroduced) {
+            manager.connectStatus = ConnectIDStatus.LoggedOut;
+        }
+    }
+
+    public static void storeUserInPreferences() {
+        SharedPreferences prefs = CommCareApplication.instance().getCurrentApp().getAppPreferences();
+        ConnectIDUser.storeUserInPreferences(getInstance().user, prefs);
+    }
+
+    public static void loadUserFromIntent(Intent intent) {
+        getInstance().user = ConnectIDUser.getUserFromIntent(intent);
+        storeUserInPreferences();
+    }
+
+    public static ConnectIDUser getUser() {
+        return getInstance().user;
     }
 
     public static boolean isConnectIDIntroduced() {
@@ -67,32 +99,73 @@ public class ConnectIDManager {
     public static boolean isConnectIDActivity(int requestCode) {
         return requestCode == CONNECT_REGISTER_ACTIVITY ||
                 requestCode == CONNECT_VERIFY_ACTIVITY ||
+                requestCode == CONNECT_UNLOCK_ACTIVITY ||
                 requestCode == CONNECT_PICTURES_ACTIVITY ||
                 requestCode == CONNECT_PHONE_VERIFY_ACTIVITY;
     }
 
     public static String getConnectButtonText() {
         return switch (getInstance().connectStatus) {
-            case LoggedOut -> "Login to Connect ID";
-            case LoggedIn -> "Go to Connect menu";
+            case LoggedOut -> Localization.get("connect.button.logged.out");
+            case LoggedIn -> Localization.get("connect.button.logged.in");
             default -> "";
         };
     }
 
-    public static void handleConnectButtonPress(Activity activity, ConnectActivityCompleteListener listener) {
+    public static boolean shouldEnableConnectButton() {
+        return getInstance().connectStatus != ConnectIDStatus.LoggedIn;
+    }
+
+    public static void handleConnectButtonPress(CommCareActivity<?> activity, ConnectActivityCompleteListener listener) {
         ConnectIDManager manager = getInstance();
         manager.parentActivity = activity;
         manager.loginListener = listener;
 
         switch (manager.connectStatus) {
-            case NotIntroduced, LoggedOut -> {
-                Intent i = new Intent(manager.parentActivity, ConnectIDLoginActivity.class);
-                manager.parentActivity.startActivityForResult(i, UNLOCK_CONNECT_ACTIVITY);
-            }
-            case LoggedIn ->
-                //TODO: Go to Connect menu (i.e. educate, verify, etc.)
-                    Toast.makeText(manager.parentActivity, "TODO: Go to Connect menu",
+            case NotIntroduced -> {
+                final PaneledChoiceDialog dialog = new PaneledChoiceDialog(activity, Localization.get("connect.dialog.unrecognized"));
+
+                DialogChoiceItem newAccountChoice = new DialogChoiceItem(
+                        Localization.get("connect.dialog.new.account"), -1, v -> {
+                    //New account
+                    activity.dismissAlertDialog();
+                    beginRegistrationWorkflow(activity, listener);
+                });
+
+                DialogChoiceItem sameNumberChoice = new DialogChoiceItem(
+                        Localization.get("connect.dialog.same.number"), -1, v -> {
+                    //Existing account, same phone number
+                    activity.dismissAlertDialog();
+
+                    //TODO: Handle simple account recovery (same phone number)
+                    Toast.makeText(manager.parentActivity, "Not ready yet",
                             Toast.LENGTH_SHORT).show();
+                });
+
+                DialogChoiceItem newNumberChoice = new DialogChoiceItem(
+                        Localization.get("connect.dialog.new.number"), -1, v -> {
+                    //Existing account, new phone number
+                    activity.dismissAlertDialog();
+
+                    //TODO: Handle advanced account recovery (new phone number)
+                    Toast.makeText(manager.parentActivity, "Not ready yet",
+                            Toast.LENGTH_SHORT).show();
+                });
+
+                dialog.setChoiceItems(
+                        new DialogChoiceItem[]{newAccountChoice, sameNumberChoice, newNumberChoice});
+                //dialog.addCollapsibleInfoPane(Localization.get("pin.dialog.extra.info"));
+                activity.showAlertDialog(dialog);
+            }
+            case LoggedOut -> {
+                Intent i = new Intent(manager.parentActivity, ConnectIDLoginActivity.class);
+                manager.parentActivity.startActivityForResult(i, CONNECT_UNLOCK_ACTIVITY);
+            }
+            case LoggedIn -> {
+                //TODO: Go to Connect menu (i.e. educate, verify, etc.)
+                Toast.makeText(manager.parentActivity, "Not ready yet",
+                        Toast.LENGTH_SHORT).show();
+            }
         }
     }
 
@@ -100,7 +173,13 @@ public class ConnectIDManager {
         getInstance().connectStatus = ConnectIDStatus.LoggedOut;
     }
 
-    public static void beginRegistrationWorkflow(Activity activity, ConnectActivityCompleteListener listener) {
+    public static void forgetUser() {
+        getInstance().connectStatus = ConnectIDStatus.NotIntroduced;
+        getInstance().user = null;
+        storeUserInPreferences();
+    }
+
+    public static void beginRegistrationWorkflow(CommCareActivity<?> activity, ConnectActivityCompleteListener listener) {
         getInstance().parentActivity = activity;
         getInstance().registrationListener = listener;
 
@@ -114,28 +193,28 @@ public class ConnectIDManager {
         RegistrationPhase nextPhase = RegistrationPhase.Initial;
 
         switch (requestCode) {
-            case UNLOCK_CONNECT_ACTIVITY -> {
-                if (success) {
-                    manager.connectStatus = ConnectIDStatus.LoggedIn;
-                    manager.loginListener.connectActivityComplete(true);
-                }
-                return;
-            }
             case CONNECT_REGISTER_ACTIVITY -> {
                 nextPhase = success ? RegistrationPhase.Secrets : RegistrationPhase.Initial;
                 if(success) {
-                    manager.user = new ConnectIDUser();
-                    manager.user.Username = intent.getStringExtra(ConnectIDRegistrationActivity.USERNAME);
-                    manager.user.Password = intent.getStringExtra(ConnectIDRegistrationActivity.PASSWORD);
-                    manager.user.Name = intent.getStringExtra(ConnectIDRegistrationActivity.NAME);
-                    manager.user.DOB = intent.getStringExtra(ConnectIDRegistrationActivity.DOB);
-                    manager.user.Phone = intent.getStringExtra(ConnectIDRegistrationActivity.PHONE);
-                    manager.user.AltPhone = intent.getStringExtra(ConnectIDRegistrationActivity.ALTPHONE);
+                    loadUserFromIntent(intent);
                 }
             }
             case CONNECT_VERIFY_ACTIVITY ->
                 //Backing up here is problematic, we just created a new account...
-                    nextPhase = success ? RegistrationPhase.Pictures : RegistrationPhase.Initial;
+                    nextPhase = success ? RegistrationPhase.Unlock : RegistrationPhase.Initial;
+            case CONNECT_UNLOCK_ACTIVITY -> {
+                if(manager.phase == RegistrationPhase.Unlock) {
+                    nextPhase = success ? RegistrationPhase.Pictures : RegistrationPhase.Secrets;
+                }
+                else {
+                    if (success) {
+                        manager.connectStatus = ConnectIDStatus.LoggedIn;
+                        manager.loginListener.connectActivityComplete(true);
+                    }
+
+                    return;
+                }
+            }
             case CONNECT_PICTURES_ACTIVITY ->
                     nextPhase = success ? RegistrationPhase.PhoneVerify : RegistrationPhase.Secrets;
             case CONNECT_PHONE_VERIFY_ACTIVITY -> {
@@ -143,18 +222,25 @@ public class ConnectIDManager {
                 if(success)
                 {
                     //Finish workflow, user registered and logged in
+                    manager.connectStatus = ConnectIDStatus.LoggedIn;
                     manager.registrationListener.connectActivityComplete(true);
                 }
             }
         }
 
+        manager.phase = nextPhase;
+
         //Determine activity to launch for next phase
         Class<?> nextActivity = null;
         int nextRequestCode = -1;
-        switch (nextPhase) {
+        switch (manager.phase) {
             case Secrets -> {
                 nextActivity = ConnectIDVerificationActivity.class;
                 nextRequestCode = CONNECT_VERIFY_ACTIVITY;
+            }
+            case Unlock -> {
+                nextActivity = ConnectIDLoginActivity.class;
+                nextRequestCode = CONNECT_UNLOCK_ACTIVITY;
             }
             case Pictures -> {
                 nextActivity = ConnectIDPicturesActivity.class;
@@ -166,15 +252,44 @@ public class ConnectIDManager {
             }
         }
 
-        manager.phase = nextPhase;
-
         if(nextActivity != null) {
             Intent i = new Intent(manager.parentActivity, nextActivity);
+
             if(manager.user != null) {
                 i.putExtra(ConnectIDPhoneVerificationActivity.USERNAME, manager.user.Username);
                 i.putExtra(ConnectIDPhoneVerificationActivity.PASSWORD, manager.user.Password);
             }
+
             manager.parentActivity.startActivityForResult(i, nextRequestCode);
         }
+    }
+
+    public static void rememberAppCreds(String appID, String username, String passwordOrPin) {
+        ConnectIDManager manager = getInstance();
+        if(manager.connectStatus == ConnectIDStatus.LoggedIn) {
+            SharedPreferences prefs = CommCareApplication.instance().getCurrentApp().getAppPreferences();
+            SharedPreferences.Editor editor = prefs.edit();
+            boolean wipe = username == null || username.length() == 0;
+            editor.putString("User " + appID, wipe ? "" : username);
+            editor.putString("Pass " + appID, wipe ? "" : passwordOrPin);
+
+            editor.apply();
+        }
+    }
+
+    public static AuthInfo.BasicAuth getCredsForApp(String appID) {
+        if(getInstance().connectStatus != ConnectIDStatus.LoggedIn) {
+            return null;
+        }
+
+        SharedPreferences prefs = CommCareApplication.instance().getCurrentApp().getAppPreferences();
+        String username = prefs.getString("User " + appID, null);
+        String pass = prefs.getString("Pass " + appID, null);
+
+        if(username == null || pass == null || username.length() == 0 || pass.length() == 0) {
+            return null;
+        }
+
+        return new AuthInfo.BasicAuth(username, pass);
     }
 }

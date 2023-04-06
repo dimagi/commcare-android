@@ -22,6 +22,7 @@ import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
+import org.commcare.core.network.AuthInfo;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.engine.resource.AppInstallStatus;
@@ -71,9 +72,6 @@ import androidx.work.WorkManager;
 public class LoginActivity extends CommCareActivity<LoginActivity>
         implements OnItemSelectedListener, DataPullController,
         RuntimePermissionRequester, WithUIController, PullTaskResultReceiver {
-    //ConnectID UI elements hidden from user when this is set to false
-    private static final boolean ENABLE_CONNECT_ID = true;
-
     private static final String TAG = LoginActivity.class.getSimpleName();
 
     public static final int MENU_DEMO = Menu.FIRST;
@@ -83,6 +81,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     private static final int MENU_APP_MANAGER = Menu.FIRST + 4;
     private static final int MENU_CONNECT_SIGN_IN = Menu.FIRST + 5;
     private static final int MENU_CONNECT_SIGN_OUT = Menu.FIRST + 6;
+    private static final int MENU_CONNECT_FORGET = Menu.FIRST + 7;
 
     public static final String NOTIFICATION_MESSAGE_LOGIN = "login_message";
     public final static String KEY_LAST_APP = "id-last-seated-app";
@@ -110,6 +109,8 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        ConnectIDManager.loadUserFromPreferences();
+
         checkManagedConfiguration();
 
         if (shouldFinish()) {
@@ -121,7 +122,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         uiController.setupUI();
         formAndDataSyncer = new FormAndDataSyncer();
 
-        if(ENABLE_CONNECT_ID && ConnectIDManager.isConnectIDIntroduced()) {
+        if(ConnectIDManager.ENABLE_CONNECT_ID && ConnectIDManager.isConnectIDIntroduced()) {
             uiController.showConnectIDButton();
             updateConnectButton();
         }
@@ -318,6 +319,10 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
             invalidateOptionsMenu();
             usernameBeforeRotation = passwordOrPinBeforeRotation = null;
         }
+        else if(ConnectIDManager.isConnectIDActivity(requestCode)) {
+            ConnectIDManager.handleFinishedActivity(requestCode, resultCode, intent);
+        }
+
         super.onActivityResult(requestCode, resultCode, intent);
     }
 
@@ -401,6 +406,11 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         ViewUtil.hideVirtualKeyboard(LoginActivity.this);
         CommCareApplication.notificationManager().clearNotifications(NOTIFICATION_MESSAGE_LOGIN);
 
+        String appId = CommCareApplication.instance().getCurrentApp().getUniqueId();
+        String username = uiController.getEnteredUsername();
+        String pass = uiController.getEnteredPasswordOrPin();
+        ConnectIDManager.rememberAppCreds(appId, username, pass);
+
         Intent i = new Intent();
         i.putExtra(LOGIN_MODE, uiController.getLoginMode());
         i.putExtra(MANUAL_SWITCH_TO_PW_MODE, uiController.userManuallySwitchedToPasswordMode());
@@ -419,6 +429,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
     private void updateConnectButton() {
         uiController.setConnectButtonText(ConnectIDManager.getConnectButtonText());
+        uiController.setConnectButtonEnabled(ConnectIDManager.shouldEnableConnectButton());
     }
 
     @Override
@@ -431,6 +442,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         menu.add(0, MENU_APP_MANAGER, 1, Localization.get("login.menu.app.manager"));
         menu.add(0, MENU_CONNECT_SIGN_IN, 1, Localization.get("login.menu.connect.signin"));
         menu.add(0, MENU_CONNECT_SIGN_OUT, 1, Localization.get("login.menu.connect.signout"));
+        menu.add(0, MENU_CONNECT_FORGET, 1, Localization.get("login.menu.connect.forget"));
         return true;
     }
 
@@ -439,8 +451,9 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         super.onPrepareOptionsMenu(menu);
         menu.findItem(MENU_PERMISSIONS).setVisible(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M);
         menu.findItem(MENU_PASSWORD_MODE).setVisible(uiController.getLoginMode() == LoginMode.PIN);
-        menu.findItem(MENU_CONNECT_SIGN_IN).setVisible(ENABLE_CONNECT_ID && ConnectIDManager.shouldShowSignInMenuOption());
-        menu.findItem(MENU_CONNECT_SIGN_OUT).setVisible(ENABLE_CONNECT_ID && ConnectIDManager.shouldShowSignOutMenuOption());
+        menu.findItem(MENU_CONNECT_SIGN_IN).setVisible(ConnectIDManager.ENABLE_CONNECT_ID && ConnectIDManager.shouldShowSignInMenuOption());
+        menu.findItem(MENU_CONNECT_SIGN_OUT).setVisible(ConnectIDManager.ENABLE_CONNECT_ID && ConnectIDManager.shouldShowSignOutMenuOption());
+        menu.findItem(MENU_CONNECT_FORGET).setVisible(ConnectIDManager.ENABLE_CONNECT_ID && ConnectIDManager.shouldShowSignOutMenuOption());
 
         return true;
     }
@@ -472,6 +485,12 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                 return true;
             case MENU_CONNECT_SIGN_OUT:
                 ConnectIDManager.signOut();
+                uiController.setPasswordOrPin("");
+                updateConnectButton();
+                return true;
+            case MENU_CONNECT_FORGET:
+                ConnectIDManager.forgetUser();
+                uiController.setPasswordOrPin("");
                 updateConnectButton();
                 return true;
             default:
@@ -596,6 +615,13 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
             Intent i = new Intent(this, SeatAppActivity.class);
             i.putExtra(SeatAppActivity.KEY_APP_TO_SEAT, appId);
             this.startActivityForResult(i, SEAT_APP_ACTIVITY);
+        }
+        else {
+            AuthInfo.BasicAuth creds = ConnectIDManager.getCredsForApp(appId);
+            if(creds != null) {
+                uiController.setUsername(creds.username);
+                uiController.setPasswordOrPin(creds.password);
+            }
         }
     }
 
