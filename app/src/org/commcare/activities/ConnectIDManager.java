@@ -14,7 +14,7 @@ import org.javarosa.core.services.locale.Localization;
 
 public class ConnectIDManager {
     //ConnectID UI elements hidden from user when this is set to false
-    public static final boolean ENABLE_CONNECT_ID = true;
+    public static final boolean ENABLE_CONNECT_ID = false;
 
     public enum ConnectIDStatus {
         NotIntroduced,
