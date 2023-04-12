@@ -194,7 +194,7 @@ connect.dialog.new.account=New account
 connect.dialog.same.number=Recover account, same number
 connect.dialog.new.number=Recover account, new number
 
-connect.title=Unlock Connect ID
+connect.title=Connect ID Sign In
 connect.message=Please unlock using a configured biometric
 connect.button.fingerprint=Sign in with fingerprint
 connect.button.pin=Sign in with PIN
@@ -208,7 +208,7 @@ connect.register.phone=Phone Number (+18887776666)
 connect.register.phone.alt=Alternate Phone Number
 connect.register.create=Create Account
 
-connect.verify.title=Identity Verification
+connect.verify.title=Configure Biometrics
 connect.verify.message=Please configure at least one local verification method. Green means configured, yellow means not configured, red means unavailable.
 connect.verify.fingerprint=Fingerprint
 connect.verify.pin=PIN
