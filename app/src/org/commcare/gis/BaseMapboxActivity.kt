@@ -4,12 +4,11 @@ import android.os.Bundle
 import com.mapbox.mapboxsdk.Mapbox
 import com.mapbox.mapboxsdk.maps.MapboxMap
 import io.ona.kujaku.KujakuLibrary
-import kotlinx.android.synthetic.main.activity_entity_mapbox.*
+import io.ona.kujaku.views.KujakuMapView
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import org.commcare.activities.CommCareActivity
 import org.commcare.dalvik.BuildConfig
-import org.commcare.interfaces.CommCareActivityUIController
 
 /**
  * Base class for Mapbox based map activites
@@ -24,26 +23,20 @@ abstract class BaseMapboxActivity : CommCareActivity<BaseMapboxActivity>() {
         Mapbox.getInstance(this, BuildConfig.MAPBOX_SDK_API_KEY)
         super.onCreate(savedInstanceState)
 
-        if (!usesUIController()) {
-            setContentView(getMapLayout())
-        } else {
-            (uiManager as CommCareActivityUIController).setupUI()
-        }
+        setContentView(viewBinding.root)
 
-        mapView.onCreate(savedInstanceState)
+        getMapView().onCreate(savedInstanceState)
         initMap()
     }
 
-    open fun getMapLayout(): Int {
-        return -1
-    }
+    abstract fun getMapView(): KujakuMapView
 
     private fun initMap() {
-        mapView.showCurrentLocationBtn(true)
+        getMapView().showCurrentLocationBtn(true)
         if (shouldFocusUserLocationOnLoad()) {
-            mapView.focusOnUserLocation(true)
+            getMapView().focusOnUserLocation(true)
         }
-        mapView.getMapAsync { mapBoxMap ->
+        getMapView().getMapAsync { mapBoxMap ->
             map = mapBoxMap
             onMapLoaded()
         }
@@ -60,37 +53,37 @@ abstract class BaseMapboxActivity : CommCareActivity<BaseMapboxActivity>() {
 
     override fun onResume() {
         super.onResume()
-        mapView.onResume()
+        getMapView().onResume()
     }
 
     override fun onStart() {
         super.onStart()
-        mapView.onStart()
+        getMapView().onStart()
     }
 
     override fun onStop() {
         super.onStop()
-        mapView.onStop()
+        getMapView().onStop()
     }
 
     override fun onPause() {
         super.onPause()
-        mapView.onPause()
+        getMapView().onPause()
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        mapView.onDestroy()
+        getMapView().onDestroy()
         jobs.map { job -> job.cancel("Activity Destroyed") }
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        mapView.onSaveInstanceState(outState)
+        getMapView().onSaveInstanceState(outState)
     }
 
     override fun onLowMemory() {
         super.onLowMemory()
-        mapView.onLowMemory()
+        getMapView().onLowMemory()
     }
 }

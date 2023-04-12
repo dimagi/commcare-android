@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
@@ -45,6 +46,7 @@ import org.xmlpull.v1.XmlPullParserException;
 import java.io.IOException;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -53,6 +55,10 @@ import static org.junit.Assert.assertTrue;
 @Config(application = CommCareTestApplication.class)
 @RunWith(AndroidJUnit4.class)
 public class QueryRequestActivityTest {
+    private static final String EXPECTED_CASE_SEARCH_URL =
+            "https://www.fake.com/patient_search/?device_id=000000000000000&multi_state=ka&"
+                    + "multi_state=up&patient_id=123&district=baran&name=francisco&state=rj";
+
     @Before
     public void setup() {
         TestAppInstaller.installAppAndLogin(
@@ -95,7 +101,7 @@ public class QueryRequestActivityTest {
     public void makeSuccessfulQueryRequestTest() {
         ModernHttpRequesterMock.setResponseCodes(new Integer[]{200});
         ModernHttpRequesterMock.setExpectedUrls(
-                new String[]{"https://www.fake.com/patient_search/?name=francisco&state=rj&device_id=000000000000000&patient_id=123&district=baran"});
+                new String[]{EXPECTED_CASE_SEARCH_URL});
         ModernHttpRequesterMock.setRequestPayloads(
                 new String[]{"jr://resource/commcare-apps/case_search_and_claim/good-query-result.xml"});
 
@@ -115,7 +121,7 @@ public class QueryRequestActivityTest {
     public void makeQueryWithBadServerPayloadTest() {
         ModernHttpRequesterMock.setResponseCodes(new Integer[]{200});
         ModernHttpRequesterMock.setExpectedUrls(
-                new String[]{"https://www.fake.com/patient_search/?name=francisco&state=rj&device_id=000000000000000&patient_id=123&district=baran"});
+                new String[]{EXPECTED_CASE_SEARCH_URL});
         ModernHttpRequesterMock.setRequestPayloads(
                 new String[]{"jr://resource/commcare-apps/case_search_and_claim/bad-query-result.xml"});
 
@@ -152,10 +158,11 @@ public class QueryRequestActivityTest {
         Spinner districtSpinner = promptsLayout.getChildAt(3).findViewById(R.id.prompt_spinner);
 
         // Confirm Start State
-        assertEquals(3, stateSpinner.getAdapter().getCount());
+        assertEquals(4, stateSpinner.getAdapter().getCount());
         assertEquals("", stateSpinner.getAdapter().getItem(0));
         assertEquals("karnataka", stateSpinner.getAdapter().getItem(1));
         assertEquals("Raj as than", stateSpinner.getAdapter().getItem(2));
+        assertEquals("Uttar Pradesh", stateSpinner.getAdapter().getItem(3));
         assertEquals(1, districtSpinner.getAdapter().getCount());
         assertEquals("", districtSpinner.getAdapter().getItem(0));
 
@@ -174,10 +181,11 @@ public class QueryRequestActivityTest {
 
         // changes to district doesn't affect state
         districtSpinner.setSelection(2);
-        assertEquals(3, stateSpinner.getAdapter().getCount());
+        assertEquals(4, stateSpinner.getAdapter().getCount());
         assertEquals("", stateSpinner.getAdapter().getItem(0));
         assertEquals("karnataka", stateSpinner.getAdapter().getItem(1));
         assertEquals("Raj as than", stateSpinner.getAdapter().getItem(2));
+        assertEquals("Uttar Pradesh", stateSpinner.getAdapter().getItem(3));
         assertEquals(2, stateSpinner.getSelectedItemPosition());
 
     }
@@ -214,6 +222,11 @@ public class QueryRequestActivityTest {
 
         Spinner districtSpinner = promptsLayout.getChildAt(3).findViewById(R.id.prompt_spinner);
         assertEquals(1, districtSpinner.getSelectedItemPosition());
+
+        LinearLayout checkboxView = promptsLayout.getChildAt(5).findViewById(R.id.prompt_checkbox);
+        assertTrue(((CheckBox)checkboxView.getChildAt(0)).isChecked());
+        assertFalse(((CheckBox)checkboxView.getChildAt(1)).isChecked());
+        assertTrue(((CheckBox)checkboxView.getChildAt(2)).isChecked());
     }
 
     /**
@@ -274,7 +287,7 @@ public class QueryRequestActivityTest {
         // set views
         LinearLayout promptsLayout = queryRequestActivity.findViewById(R.id.query_prompts);
 
-        assertEquals(5, promptsLayout.getChildCount());
+        assertEquals(6, promptsLayout.getChildCount());
 
         EditText patientName = promptsLayout.getChildAt(0).findViewById(R.id.prompt_et);
         patientName.setText("francisco");
@@ -286,6 +299,11 @@ public class QueryRequestActivityTest {
 
         Spinner districtSpinner = promptsLayout.getChildAt(3).findViewById(R.id.prompt_spinner);
         districtSpinner.setSelection(1);
+
+        LinearLayout checkboxView = promptsLayout.getChildAt(5).findViewById(R.id.prompt_checkbox);
+        ((CheckBox)checkboxView.getChildAt(0)).setChecked(true);
+        ((CheckBox)checkboxView.getChildAt(2)).setChecked(true);
+
         return controller;
     }
 

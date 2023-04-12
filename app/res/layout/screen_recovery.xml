@@ -8,7 +8,8 @@
                 android:paddingLeft="@dimen/activity_horizontal_margin"
                 android:paddingRight="@dimen/activity_horizontal_margin"
                 android:paddingEnd="@dimen/activity_horizontal_margin"
-                android:paddingStart="@dimen/activity_horizontal_margin">
+                android:paddingStart="@dimen/activity_horizontal_margin"
+    tools:viewBindingIgnore="true">
 
     <TextView
         android:id="@+id/recovery_title"

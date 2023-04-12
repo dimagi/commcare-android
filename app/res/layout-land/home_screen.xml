@@ -2,6 +2,7 @@
 <RelativeLayout
     style="@style/MainPane"
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_alignParentBottom="true"
@@ -14,7 +15,8 @@
     android:paddingStart="@dimen/content_start"
     android:layout_alignParentEnd="true"
     android:paddingEnd="@dimen/content_start"
-    android:layout_alignParentStart="true">
+    android:layout_alignParentStart="true"
+    tools:viewBindingIgnore="true">
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/home_gridview_buttons"
