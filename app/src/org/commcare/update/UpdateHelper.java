@@ -90,7 +90,7 @@ public class UpdateHelper implements TableStateListener {
             return new ResultAndError<>(stageUpdate(profileRef, resourceInstallContext));
         } catch (InvalidResourceException e) {
             ResourceInstallUtils.logInstallError(e,
-                    "Structure error ocurred during install|");
+                    "Structure error occurred during install|");
             return new ResultAndError<>(AppInstallStatus.InvalidResource, buildCombinedErrorMessage(e.resourceName, e.getMessage()));
         } catch (LocalStorageUnavailableException e) {
             ResourceInstallUtils.logInstallError(e,

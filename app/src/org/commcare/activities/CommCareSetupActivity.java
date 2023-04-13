@@ -55,6 +55,7 @@ import org.commcare.utils.Permissions;
 import org.commcare.views.ManagedUi;
 import org.commcare.views.dialogs.CustomProgressDialog;
 import org.commcare.views.dialogs.DialogCreationHelpers;
+import org.commcare.views.notifications.NotificationActionButtonInfo;
 import org.commcare.views.notifications.NotificationMessage;
 import org.commcare.views.notifications.NotificationMessageFactory;
 import org.javarosa.core.reference.InvalidReferenceException;
@@ -529,8 +530,8 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             case NoConnection:
                 receiver.failWithNotification(AppInstallStatus.NoConnection);
                 break;
-            case BadCertificate:
-                receiver.failWithNotification(AppInstallStatus.BadCertificate);
+            case BadSslCertificate:
+                receiver.failWithNotification(AppInstallStatus.BadSslCertificate, NotificationActionButtonInfo.ButtonAction.LAUNCH_DATE_SETTINGS);
                 break;
             case DuplicateApp:
                 receiver.failWithNotification(AppInstallStatus.DuplicateApp);
@@ -815,7 +816,12 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 
     @Override
     public void failWithNotification(AppInstallStatus statusFailState) {
-        fail(NotificationMessageFactory.message(statusFailState), true);
+        failWithNotification(statusFailState, NotificationActionButtonInfo.ButtonAction.NONE);
+    }
+
+    @Override
+    public void failWithNotification(AppInstallStatus statusFailState, NotificationActionButtonInfo.ButtonAction buttonAction) {
+        fail(NotificationMessageFactory.message(statusFailState, buttonAction), true);
     }
 
     @Override

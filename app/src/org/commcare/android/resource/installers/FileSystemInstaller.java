@@ -45,8 +45,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
 
-import javax.net.ssl.SSLHandshakeException;
-import javax.net.ssl.SSLPeerUnverifiedException;
+import javax.net.ssl.SSLException;
 
 import androidx.core.util.Pair;
 
@@ -115,13 +114,7 @@ abstract class FileSystemInstaller implements ResourceInstaller<AndroidCommCareP
             table.commit(r, status);
 
             return true;
-        } catch (SSLHandshakeException | SSLPeerUnverifiedException e) {
-            // SSLHandshakeException is thrown by the CommcareRequestGenerator on
-            // 4.3 devices when the peer certificate is bad.
-            //
-            // SSLPeerUnverifiedException is thrown by the CommcareRequestGenerator
-            // on 2.3 devices when the peer certificate is bad.
-            //
+        } catch (SSLException e) { //Wrap in UnresolvedResourceExcption
             // Deliver these errors upstream to the SetupActivity as an
             // UnresolvedResourceException
             e.printStackTrace();

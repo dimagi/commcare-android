@@ -49,6 +49,7 @@ import org.commcare.views.ViewUtil;
 import org.commcare.views.dialogs.CustomProgressDialog;
 import org.commcare.views.dialogs.DialogCreationHelpers;
 import org.commcare.views.notifications.MessageTag;
+import org.commcare.views.notifications.NotificationActionButtonInfo;
 import org.commcare.views.notifications.NotificationMessage;
 import org.commcare.views.notifications.NotificationMessageFactory;
 import org.commcare.views.notifications.NotificationMessageFactory.StockMessages;
@@ -466,10 +467,14 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         raiseMessage(message, showTop);
     }
 
-    @Override
     public void raiseLoginMessage(MessageTag messageTag, boolean showTop) {
+        raiseLoginMessage(messageTag, showTop, NotificationActionButtonInfo.ButtonAction.NONE);
+    }
+
+    @Override
+    public void raiseLoginMessage(MessageTag messageTag, boolean showTop, NotificationActionButtonInfo.ButtonAction buttonAction) {
         NotificationMessage message = NotificationMessageFactory.message(messageTag,
-                NOTIFICATION_MESSAGE_LOGIN);
+                NOTIFICATION_MESSAGE_LOGIN, buttonAction);
         raiseMessage(message, showTop);
     }
 

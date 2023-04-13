@@ -11,8 +11,6 @@ import org.junit.runner.RunWith;
 import java.io.IOException;
 import java.util.HashMap;
 
-import javax.net.ssl.SSLHandshakeException;
-
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import okhttp3.Protocol;
 import okhttp3.ResponseBody;

@@ -7,6 +7,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import org.commcare.CommCareApplication;
+import org.commcare.CommCareNoficationManager;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.interfaces.CommCareActivityUIController;
@@ -111,6 +112,12 @@ public class StandardHomeActivity
         }
         CommCareApplication.notificationManager().clearNotifications(AIRPLANE_MODE_CATEGORY);
         sendFormsOrSync(true);
+    }
+
+    void syncSubTextPressed() {
+        if(CommCareApplication.notificationManager().messagesForCommCareArePending()) {
+            CommCareNoficationManager.performIntentCalloutToNotificationsView(this);
+        }
     }
 
     @Override

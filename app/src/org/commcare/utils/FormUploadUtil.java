@@ -39,6 +39,7 @@ import javax.annotation.Nullable;
 import javax.crypto.Cipher;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.SecretKeySpec;
+import javax.net.ssl.SSLException;
 
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
@@ -186,6 +187,10 @@ public class FormUploadUtil {
             e.printStackTrace();
             Logger.log(LogTypes.TYPE_WARNING_NETWORK, "Captive portal detected while form submission");
             return FormUploadResult.CAPTIVE_PORTAL;
+        } catch (SSLException e) {
+            e.printStackTrace();
+            Logger.log(LogTypes.TYPE_WARNING_NETWORK, "SSL error during form submission");
+            return FormUploadResult.BAD_CERTIFICATE;
         } catch (IOException | IllegalStateException e) {
             Logger.exception("Error reading form during submission: " + e.getMessage(), e);
             return FormUploadResult.TRANSPORT_FAILURE;

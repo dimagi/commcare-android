@@ -162,7 +162,7 @@ public class NotificationMessageFactory {
         /**
          * Bad SSL Certificate *
          */
-        BadSSLCertificate("notification.bad.certificate");
+        BadSslCertificate("notification.bad.certificate");
 
         StockMessages(String root) {
             this.root = root;
@@ -190,11 +190,27 @@ public class NotificationMessageFactory {
         return message(message, new String[3], customCategory);
     }
 
+    public static NotificationMessage message(MessageTag message, NotificationActionButtonInfo.ButtonAction buttonAction) {
+        return message(message, new String[3], message.getCategory(), buttonAction);
+    }
+
+    public static NotificationMessage message(MessageTag message, String customCategory, NotificationActionButtonInfo.ButtonAction buttonAction) {
+        return message(message, new String[3], customCategory, buttonAction);
+    }
+
     public static NotificationMessage message(MessageTag message, String[] parameters) {
         return message(message, parameters, message.getCategory());
     }
 
+    public static NotificationMessage message(MessageTag message, String[] parameters, NotificationActionButtonInfo.ButtonAction buttonAction) {
+        return message(message, parameters, message.getCategory(), buttonAction);
+    }
+
     public static NotificationMessage message(MessageTag message, String[] parameters, String customCategory) {
+        return message(message, parameters, customCategory, NotificationActionButtonInfo.ButtonAction.NONE);
+    }
+
+    public static NotificationMessage message(MessageTag message, String[] parameters, String customCategory, NotificationActionButtonInfo.ButtonAction buttonAction) {
         String base = message.getLocaleKeyBase();
         if (base == null) {
             throw new NullPointerException("No Locale Key base for message tag!");
@@ -211,7 +227,12 @@ public class NotificationMessageFactory {
                 //No big deal, key doesn't need to exist
             }
 
-            return new NotificationMessage(customCategory, title, detail, action, new Date());
+            NotificationActionButtonInfo buttonInfo = null;
+            if(buttonAction != NotificationActionButtonInfo.ButtonAction.NONE) {
+                buttonInfo = new NotificationActionButtonInfo(Localization.get(base + ".button"), buttonAction);
+            }
+
+            return new NotificationMessage(customCategory, title, detail, action, new Date(), buttonInfo);
         }
         //TODO: Release v. debug mode for these?
         catch (NoLocalizedTextException e) {

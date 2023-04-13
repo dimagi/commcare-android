@@ -2,9 +2,11 @@
 <RelativeLayout xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/mainlayout"
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    tools:viewBindingIgnore="true">
 
     <LinearLayout
         android:id="@+id/location_buttons"

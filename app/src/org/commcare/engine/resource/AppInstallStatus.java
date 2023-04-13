@@ -40,7 +40,7 @@ public enum AppInstallStatus implements MessageTag {
     NoConnection("notification.install.no.connection"),
     NetworkFailure("notification.install.network.failure"),
     RateLimited("notification.install.rate.limited"),
-    BadCertificate("notification.install.badcert"),
+    BadSslCertificate("notification.install.badcert"),
 
 
     /**
@@ -87,7 +87,7 @@ public enum AppInstallStatus implements MessageTag {
     // whether to include in the counter for update reset
     public boolean causeUpdateReset() {
         return !(this == Cancelled ||
-                this == BadCertificate ||
+                this == BadSslCertificate ||
                 this == NoConnection ||
                 this == CaptivePortal ||
                 this == RateLimited ||
@@ -96,7 +96,7 @@ public enum AppInstallStatus implements MessageTag {
 
     public boolean isNonPersistentFailure() {
         return (this == Cancelled ||
-                this == BadCertificate ||
+                this == BadSslCertificate ||
                 this == NoConnection ||
                 this == CaptivePortal ||
                 this == RateLimited ||

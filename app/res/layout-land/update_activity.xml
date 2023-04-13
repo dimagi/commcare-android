@@ -2,10 +2,12 @@
 <ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:RectangleButtonWithText="http://schemas.android.com/tools"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:background="@color/cc_core_bg"
-    android:scrollbars="none">
+    android:scrollbars="none"
+    tools:viewBindingIgnore="true">
 
     <LinearLayout
         xmlns:SquareButtonWithText="http://schemas.android.com/apk/res-auto"

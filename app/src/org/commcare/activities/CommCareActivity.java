@@ -59,6 +59,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.FragmentManager;
+import androidx.viewbinding.ViewBinding;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 
@@ -144,28 +145,34 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
             ((WithUIController)this).initUIController();
         }
 
-        persistManagedUiState(fm);
+        if(!isFinishing()) {
+            persistManagedUiState(fm);
 
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setLogo(org.commcare.dalvik.R.mipmap.commcare_launcher);
-        }
-
-        if (shouldShowBreadcrumbBar()) {
             if (getSupportActionBar() != null) {
-                getSupportActionBar().setDisplayShowCustomEnabled(true);
+                getSupportActionBar().setLogo(org.commcare.dalvik.R.mipmap.commcare_launcher);
             }
 
-            // Add breadcrumb bar
-            BreadcrumbBarFragment bar = (BreadcrumbBarFragment)fm.findFragmentByTag("breadcrumbs");
+            if (shouldShowBreadcrumbBar()) {
+                if (getSupportActionBar() != null) {
+                    getSupportActionBar().setDisplayShowCustomEnabled(true);
+                }
 
-            // If the state holder is null, create a new one for this activity
-            if (bar == null) {
-                bar = new BreadcrumbBarFragment();
-                fm.beginTransaction().add(bar, "breadcrumbs").commit();
+                // Add breadcrumb bar
+                BreadcrumbBarFragment bar = (BreadcrumbBarFragment)fm.findFragmentByTag("breadcrumbs");
+
+                // If the state holder is null, create a new one for this activity
+                if (bar == null) {
+                    bar = new BreadcrumbBarFragment();
+                    fm.beginTransaction().add(bar, "breadcrumbs").commit();
+                }
             }
+
+            mGestureDetector = new GestureDetector(this, this);
         }
+    }
 
-        mGestureDetector = new GestureDetector(this, this);
+    public ViewBinding getViewBinding(){
+        return null;
     }
 
     private void persistManagedUiState(FragmentManager fm) {

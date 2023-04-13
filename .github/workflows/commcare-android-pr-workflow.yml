@@ -1,0 +1,102 @@
+name: commcare-android PR CI
+
+env:
+  PR_NUM: ${{github.event.issue.number || github.event.number }}
+on:
+  pull_request:
+    types: [opened, edited]
+  issue_comment:
+jobs:
+  build-test-assemble:
+    if: ${{ github.event_name == 'pull_request' || (github.event_name == 'issue_comment' && contains(github.event.comment.body, 'retest this please'))}}
+    name: Build
+    runs-on: macos-latest
+    steps:
+      - name: Checkout commcare-android
+        uses: actions/checkout@v3
+        with:
+          ref: refs/pull/${{env.PR_NUM}}/head
+      - name: Install python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+      - name: Download cross request script
+        run: |
+          curl https://raw.githubusercontent.com/dimagi/mobile-deploy/master/requirements.txt -o requirements.txt
+          curl https://raw.githubusercontent.com/dimagi/mobile-deploy/master/checkout_cross_request_repo.py -o checkout_cross_request_repo.py
+      - name: Install Python dependencies
+        uses: py-actions/py-dependency-install@v4
+        with:
+          path: "requirements.txt"
+      - name: List python
+        run: |
+          pip list
+      - name: Run cross request script
+        run: |
+          python3 checkout_cross_request_repo.py commcare-android ${{env.PR_NUM}} commcare-core
+      - name: Setup JDK
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+      - name: Clean with Gradle
+        uses: gradle/gradle-build-action@v2
+        with:
+          arguments: clean
+      - name: Run Linters
+        uses: gradle/gradle-build-action@v2
+        with:
+          arguments: lintCommcareRelease
+      - name: Run Tests
+        uses: gradle/gradle-build-action@v2
+        with:
+          arguments: testCommcareDebug
+      - name: Assemble Debug apk
+        uses: gradle/gradle-build-action@v2
+        with:
+          arguments: assembleCommcareDebug
+      - name: Restore Keystore
+        run: echo $SIGNING_KEY | base64 -d > ˜/.gradle/commcare-odk-keys.keystore
+      - name: Assemble Release apk
+        uses: gradle/gradle-build-action@v2
+        with:
+          arguments: assembleCommcareRelease
+        env:
+          RELEASE_KEY_ALIAS: ${{ secrets.ALIAS }}
+          RELEASE_KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+          RELEASE_STORE_PASSWORD: ${{ secrets.KEY_STORE_PASSWORD }}
+          RELEASE_STORE_FILE: "˜/.gradle/commcare-odk-keys.keystore"
+      - name: Upload CommCare apk
+        uses: actions/upload-artifact@v3
+        with:
+          name: commcare-arelease-pk
+          path: commcare-android/app/build/outputs/apk/commcare/release/app-commcare-release.apk
+      - name: Assemble LTS apk
+        uses: gradle/gradle-build-action@v2
+        with:
+          arguments: assembleLtsRelease
+      - name: Upload CommCare LTS apk
+        uses: actions/upload-artifact@v3
+        with:
+          name: app-lts-release
+          path: commcare-android/app/build/outputs/apk/lts/release/app-lts-release.apk
+      - name: CommCare apk for Instrumentation Testing
+        uses: gradle/gradle-build-action@v2
+        with:
+          arguments: assembleCommcareReleaseAndroidTest
+      - name: Upload CommCare apk for Instrumentation Testing
+        uses: actions/upload-artifact@v3
+        with:
+          name: commcare-release-androidTest-apk
+          path: commcare-android/app/build/outputs/apk/androidTest/commcare/release/app-commcare-release-androidTest.apk
+      - name: CommCare apk for Instrumentation Testing
+        uses: gradle/gradle-build-action@v2
+        with:
+          arguments: JacocoTestReport
+      - name: Upload JaCoCo Report
+        uses: actions/upload-artifact@v3
+        with:
+          name: jacoco-report
+          path: commcare-android/app/build/reports
+
+

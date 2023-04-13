@@ -106,6 +106,10 @@ abstract class SquareButtonAdapter
         squareButtonViewHolder.imageView.setImageDrawable(buttonDrawable);
         squareButtonViewHolder.cardView.setOnClickListener(cardDisplayData.listener);
 
+        if(cardDisplayData.subTextListener != null) {
+            squareButtonViewHolder.subTextView.setOnClickListener(cardDisplayData.subTextListener);
+        }
+
         StateListDrawable bgDrawable = bgDrawStates(context, cardDisplayData.bgColor);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {

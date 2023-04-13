@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="0dp"
     android:layout_height="match_parent"
     android:layout_weight="1"
@@ -9,4 +10,5 @@
     android:textAppearance="@style/TextAppearance.AppCompat.Body1"
     android:scrollHorizontally="false"
     android:text="QuestionWidget placeholder text: there should be a really big question text here, greater than the screen&apos;s size"
-    android:textAlignment="viewStart" />
+    android:textAlignment="viewStart"
+    tools:viewBindingIgnore="true"/>
