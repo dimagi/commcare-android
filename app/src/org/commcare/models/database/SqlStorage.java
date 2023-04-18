@@ -747,8 +747,9 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
      * Retrieves a set of the models in storage based on a list of values matching one of the
      * indexes of this storage
      */
-    public List<T> getBulkRecordsForIndex(String indexName, Collection<String> matchingValues) {
-        List<T> returnSet = new ArrayList<>();
+    @Override
+    public Vector<T> getBulkRecordsForIndex(String indexName, Collection matchingValues) {
+        Vector<T> returnSet = new Vector<>();
         String fieldName = TableBuilder.scrubName(indexName);
         List<Pair<String, String[]>> whereParamList = TableBuilder.sqlList(matchingValues, "?");
         for (Pair<String, String[]> querySet : whereParamList) {
