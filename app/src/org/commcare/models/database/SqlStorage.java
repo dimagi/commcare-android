@@ -516,7 +516,11 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
         db.delete(table, null, null);
     }
 
-
+    /**
+     * Deletes all records for the given table
+     * @param db SqliteDatabase the table is present in
+     * @param table table name for which we want to delete the records
+     */
     public static void wipeTable(SQLiteDatabase db, String table) {
         db.beginTransaction();
         try {
@@ -529,7 +533,29 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
         }
     }
 
-    private static boolean isTableExist(SQLiteDatabase db, String table) {
+    /**
+     * Drops the given table
+     * @param db SqliteDatabase the table is present in
+     * @param table name of the table we want to drop
+     */
+    public static void dropTable(SQLiteDatabase db, String table) {
+        db.beginTransaction();
+        try {
+            String sqlStatement = "DROP TABLE IF EXISTS " + table;
+            db.execSQL(sqlStatement);
+            db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
+        }
+    }
+
+    /**
+     * whether the table exists in the given database
+     * @param db database we should check for the table existence
+     * @param table table name we want to check for
+     * @return true if table exists, false otherwise
+     */
+    public static boolean isTableExist(SQLiteDatabase db, String table) {
         Cursor cursor = db.rawQuery("select DISTINCT tbl_name from sqlite_master where tbl_name = '" + table + "'", null);
         if (cursor != null) {
             if (cursor.getCount() > 0) {
@@ -750,5 +776,20 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
     @Override
     public Class<?> getPrototype() {
         return ctype;
+    }
+
+    @Override
+    public boolean isStorageExists() {
+        return isTableExist(helper.getHandle(), table);
+    }
+
+    @Override
+    public void initStorage() {
+        // nothing to do here as storage is created outside of this class
+    }
+
+    @Override
+    public void deleteStorage() {
+        dropTable(helper.getHandle(), table);
     }
 }
