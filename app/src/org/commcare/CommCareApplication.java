@@ -1179,4 +1179,8 @@ public class CommCareApplication extends MultiDexApplication {
     public AndroidPackageUtils getAndroidPackageUtils() {
         return new AndroidPackageUtils();
     }
+
+    public boolean isNsdServicesEnabled() {
+        return true;
+    }
 }

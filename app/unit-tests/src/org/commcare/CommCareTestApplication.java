@@ -297,4 +297,9 @@ public class CommCareTestApplication extends CommCareApplication implements Test
     public String getPhoneId() {
         return "000000000000000";
     }
+
+    @Override
+    public boolean isNsdServicesEnabled() {
+        return false;
+    }
 }

@@ -7,6 +7,7 @@ import android.net.nsd.NsdServiceInfo;
 import android.os.Build;
 import android.util.Log;
 
+import org.commcare.CommCareApplication;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.TimeBoundOperation;
 import org.javarosa.core.services.Logger;
@@ -48,8 +49,10 @@ public class NSDDiscoveryTools {
     private static NsdState state = NsdState.Init;
 
     public static void registerForNsdServices(Context context, NsdServiceListener listener) {
-        addListener(listener);
-        doDiscovery(context);
+        if(CommCareApplication.instance().isNsdServicesEnabled()) {
+            addListener(listener);
+            doDiscovery(context);
+        }
     }
 
     public static void unregisterForNsdServices(NsdServiceListener listener) {
