@@ -28,7 +28,6 @@ import java.util.Vector;
  *
  * @author Aliza Stone
  */
-@TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
 public class ComboboxWidget extends QuestionWidget {
 
     private Vector<SelectChoice> choices;

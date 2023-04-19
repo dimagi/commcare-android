@@ -84,11 +84,7 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
             @SuppressLint("NewApi")
             @Override
             public void onGlobalLayout() {
-                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
-                    grid.getViewTreeObserver().removeGlobalOnLayoutListener(this);
-                } else {
-                    grid.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-                }
+                grid.getViewTreeObserver().removeOnGlobalLayoutListener(this);
 
                 grid.requestLayout();
                 adapter.notifyDataSetChanged();

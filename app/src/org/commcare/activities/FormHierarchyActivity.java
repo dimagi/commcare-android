@@ -103,12 +103,10 @@ public class FormHierarchyActivity extends SessionAwareListActivity implements A
     }
 
     private void addActionBarBackArrow() {
-        if (android.os.Build.VERSION.SDK_INT >= 11) {
-            ActionBar bar = getSupportActionBar();
-            if (bar != null) {
-                bar.setDisplayShowHomeEnabled(true);
-                bar.setDisplayHomeAsUpEnabled(true);
-            }
+        ActionBar bar = getSupportActionBar();
+        if (bar != null) {
+            bar.setDisplayShowHomeEnabled(true);
+            bar.setDisplayHomeAsUpEnabled(true);
         }
     }
 

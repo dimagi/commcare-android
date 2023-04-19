@@ -48,19 +48,11 @@ public class NSDDiscoveryTools {
     private static NsdState state = NsdState.Init;
 
     public static void registerForNsdServices(Context context, NsdServiceListener listener) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-            return;
-        }
-
         addListener(listener);
         doDiscovery(context);
     }
 
     public static void unregisterForNsdServices(NsdServiceListener listener) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-            return;
-        }
-
         removeListener(listener);
     }
 
@@ -93,7 +85,6 @@ public class NSDDiscoveryTools {
         }
     }
 
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     private static void doDiscovery(Context context) {
         synchronized (nsdToolsLock) {
             if (mNsdManager == null) {
@@ -111,7 +102,6 @@ public class NSDDiscoveryTools {
         }
     }
 
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     private static boolean connectNsdManager(final Context context) {
         synchronized (nsdToolsLock) {
             //sometimes the service fetch  basically times out forever, thanks for the clear
@@ -147,7 +137,6 @@ public class NSDDiscoveryTools {
         }
     }
 
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     private static void initializeDiscoveryListener() {
 
         // Instantiate a new DiscoveryListener
@@ -202,7 +191,6 @@ public class NSDDiscoveryTools {
         };
     }
 
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     private static NsdManager.ResolveListener getResolveListener() {
         return new NsdManager.ResolveListener() {
 

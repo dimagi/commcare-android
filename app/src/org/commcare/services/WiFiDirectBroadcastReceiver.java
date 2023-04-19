@@ -17,8 +17,6 @@ import org.javarosa.core.services.Logger;
 /**
  * A BroadcastReceiver that notifies of important wifi p2p events.
  */
-@SuppressLint("NewApi")
-@TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
 public class WiFiDirectBroadcastReceiver extends BroadcastReceiver {
 
     private static final String TAG = WiFiDirectBroadcastReceiver.class.getSimpleName();
@@ -36,7 +34,6 @@ public class WiFiDirectBroadcastReceiver extends BroadcastReceiver {
         this.activity = activity;
     }
 
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     @Override
     public void onReceive(Context context, Intent intent) {
         Log.d(TAG, "in on receive ");

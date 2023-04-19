@@ -48,7 +48,6 @@ public class GraphView {
      * Get a View object that will display this graph. This should be called after making
      * any changes to graph's configuration, title, etc.
      */
-    @TargetApi(Build.VERSION_CODES.KITKAT)
     public WebView getView(String html) {
         if (BuildConfig.DEBUG) {
             WebView.setWebContentsDebuggingEnabled(true);

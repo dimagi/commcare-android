@@ -86,14 +86,6 @@ public class CommCareTestApplication extends CommCareApplication implements Test
     protected void attachISRGCert() {
         //overrule this custom loader due to issues with bootstrapping the library
     }
-
-
-    @Override
-    public boolean useConscryptSecurity() {
-        return false;
-    }
-
-
     @Override
     protected void turnOnStrictMode() {
         StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder()

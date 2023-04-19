@@ -70,7 +70,6 @@ import java.util.Vector;
  * The application should also register a BroadcastReceiver for notification of
  * WiFi state related events.
  */
-@TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
 public class CommCareWiFiDirectActivity
         extends SessionAwareCommCareActivity<CommCareWiFiDirectActivity>
         implements DeviceActionListener, FileServerListener, WifiDirectManagerListener, WithUIController, UnZipTaskListener {

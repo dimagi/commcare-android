@@ -104,13 +104,7 @@ public class EntityListAdapter extends AndroidSortableEntityAdapter implements L
         this.commCareActivity = activity;
         this.observers = new ArrayList<>();
         this.mNodeFactory = factory;
-
-        if (android.os.Build.VERSION.SDK_INT >= 14) {
-            mImageLoader = new CachingAsyncImageLoader(commCareActivity);
-        } else {
-            mImageLoader = null;
-        }
-
+        mImageLoader = new CachingAsyncImageLoader(commCareActivity);
         this.usesCaseTiles = detail.usesEntityTileView();
         this.mFuzzySearchEnabled = MainConfigurablePreferences.isFuzzySearchEnabled();
 

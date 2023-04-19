@@ -46,10 +46,8 @@ public class DateTimeWidget extends QuestionWidget implements OnTimeChangedListe
         mTimePicker.setEnabled(!prompt.isReadOnly());
         mTimePicker.setPadding(0, 20, 0, 0);
         mTimePicker.setOnTimeChangedListener(this);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            mTimePicker.setSaveFromParentEnabled(false);
-            mTimePicker.setSaveEnabled(true);
-        }
+        mTimePicker.setSaveFromParentEnabled(false);
+        mTimePicker.setSaveEnabled(true);
 
         String clockType =
                 android.provider.Settings.System.getString(context.getContentResolver(),

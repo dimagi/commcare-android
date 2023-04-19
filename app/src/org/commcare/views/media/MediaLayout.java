@@ -158,21 +158,13 @@ public class MediaLayout extends RelativeLayout {
 
         // Adjust media-pane params to display it at the top
         LayoutParams mediaParams = (LayoutParams) mediaContainer.getLayoutParams();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-            mediaParams.removeRule(RelativeLayout.BELOW);
-        } else {
-            mediaParams.addRule(RelativeLayout.BELOW, 0);
-        }
+        mediaParams.removeRule(RelativeLayout.BELOW);
         mediaParams.addRule(RelativeLayout.ALIGN_PARENT_TOP);
         mediaContainer.setLayoutParams(mediaParams);
 
         // Adjust text-container params to display it below media-pane
         LayoutParams textParams = (LayoutParams) textContainer.getLayoutParams();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-            textParams.removeRule(RelativeLayout.ALIGN_PARENT_TOP);
-        } else {
-            textParams.addRule(RelativeLayout.ALIGN_PARENT_TOP, 0);
-        }
+        textParams.removeRule(RelativeLayout.ALIGN_PARENT_TOP);
         textParams.addRule(RelativeLayout.BELOW, R.id.media_pane);
         textContainer.setLayoutParams(textParams);
     }

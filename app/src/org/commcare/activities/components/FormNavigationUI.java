@@ -96,11 +96,7 @@ public class FormNavigationUI {
             setFinishVisible(finishButton);
         } else if (!FormEntryConstants.NAV_STATE_DONE.equals(nextButton.getTag())) {
             nextButton.setTag(FormEntryConstants.NAV_STATE_DONE);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-                expandAndShowFinishButton(context, finishButton);
-            } else {
-                setFinishVisible(finishButton);
-            }
+            expandAndShowFinishButton(context, finishButton);
         }
 
         progressBar.setProgressDrawable(context.getResources().getDrawable(R.drawable.progressbar_full));
@@ -109,7 +105,6 @@ public class FormNavigationUI {
         Log.i("Questions", "Form complete");
     }
 
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     private static void expandAndShowFinishButton(Context context,
                                                   final ClippingFrame finishButton) {
 
@@ -150,9 +145,7 @@ public class FormNavigationUI {
                                               ProgressBar progressBar) {
         if (!FormEntryConstants.NAV_STATE_NEXT.equals(nextButton.getTag())) {
             nextButton.setTag(FormEntryConstants.NAV_STATE_NEXT);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-                finishButton.setVisibility(View.GONE);
-            }
+            finishButton.setVisibility(View.GONE);
         }
 
         progressBar.setProgressDrawable(context.getResources().getDrawable(R.drawable.progressbar_modern));
