@@ -7,6 +7,7 @@ import android.widget.Toast;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.gson.Gson;
 
+import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.core.network.AuthInfo;
 import org.commcare.core.network.HTTPMethod;
 import org.commcare.dalvik.R;
@@ -37,7 +38,7 @@ implements WithUIController, ConnectorWithHttpResponseProcessor<ConnectIDRegistr
 
     private ConnectIDRegistrationActivityUIController uiController;
 
-    private ConnectIDUser user;
+    private ConnectUserRecord user;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,28 +86,25 @@ implements WithUIController, ConnectorWithHttpResponseProcessor<ConnectIDRegistr
     public void createAccount() {
         String url = getString(R.string.ConnectURL) + "/users/register";
 
-        user = new ConnectIDUser();
-        user.Username = uiController.getUserIdText();
-        user.Name = uiController.getNameText();
-        user.DOB = uiController.getDOBText();
-        user.Phone = uiController.getPhoneText();
-        user.AltPhone = uiController.getAltPhoneText();
-        user.Password = generatePassword();
+        user = new ConnectUserRecord(uiController.getUserIdText(),
+                generatePassword(), uiController.getNameText());
+        String dob = uiController.getDOBText();
+        String phone = uiController.getPhoneText();
+        String altPhone = uiController.getAltPhoneText();
 
         HashMap<String, String> params = new HashMap<>();
         //params.put("device_id", CommCareApplication.instance().getPhoneId());
-        params.put("username", user.Username);
-        params.put("password", user.Password);
-        params.put("name", user.Name);
-        params.put("dob", user.DOB);
-        params.put("phone_number", user.Phone);
-        //params.put("recovery_phone", user.AltPhone);
+        params.put("username", user.getUserID());
+        params.put("password", user.getPassword());
+        params.put("name", user.getName());
+        params.put("dob", dob);
+        params.put("phone_number", phone);
+        params.put("recovery_phone", altPhone);
 
         Gson gson = new Gson();
         String json = gson.toJson(params);
 
         RequestBody requestBody = RequestBody.create(MediaType.parse("application/json"), json);
-        //RequestBody requestBody = ModernHttpRequester.getPostBody(params);
         ModernHttpTask postTask =
                 new ModernHttpTask(this, url,
                         ImmutableMultimap.of(),

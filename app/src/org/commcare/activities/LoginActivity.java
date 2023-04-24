@@ -109,8 +109,6 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        ConnectIDManager.loadUserFromPreferences();
-
         checkManagedConfiguration();
 
         if (shouldFinish()) {
@@ -122,6 +120,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         uiController.setupUI();
         formAndDataSyncer = new FormAndDataSyncer();
 
+        ConnectIDManager.init(this);
         if(ConnectIDManager.ENABLE_CONNECT_ID && ConnectIDManager.isConnectIDIntroduced()) {
             uiController.showConnectIDButton();
             updateConnectButton();

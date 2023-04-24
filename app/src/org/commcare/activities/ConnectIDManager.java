@@ -6,15 +6,26 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.widget.Toast;
 
+import net.sqlcipher.database.SQLiteDatabase;
+import net.sqlcipher.database.SQLiteException;
+
 import org.commcare.CommCareApplication;
+import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.core.network.AuthInfo;
+import org.commcare.models.database.AndroidDbHelper;
+import org.commcare.models.database.MigrationException;
+import org.commcare.models.database.SqlStorage;
+import org.commcare.models.database.connect.DatabaseConnectOpenHelper;
+import org.commcare.modern.database.Table;
+import org.commcare.utils.EncryptionUtils;
 import org.commcare.views.dialogs.DialogChoiceItem;
 import org.commcare.views.dialogs.PaneledChoiceDialog;
 import org.javarosa.core.services.locale.Localization;
+import org.javarosa.core.services.storage.Persistable;
 
 public class ConnectIDManager {
     //ConnectID UI elements hidden from user when this is set to false
-    public static final boolean ENABLE_CONNECT_ID = false;
+    public static final boolean ENABLE_CONNECT_ID = true;
 
     public enum ConnectIDStatus {
         NotIntroduced,
@@ -41,14 +52,23 @@ public class ConnectIDManager {
     private static final int CONNECT_PICTURES_ACTIVITY = 1005;
     private static final int CONNECT_PHONE_VERIFY_ACTIVITY = 1006;
 
+    private static final int STATE_UNINSTALLED = 0;
+    private static final int STATE_READY = 2;
+    public static final int STATE_CORRUPTED = 4;
+    public static final int STATE_LEGACY_DETECTED = 8;
+    public static final int STATE_MIGRATION_FAILED = 16;
+    public static final int STATE_MIGRATION_QUESTIONABLE = 32;
+
+
     private static ConnectIDManager manager = null;
+    private final Object connectDbHandleLock = new Object();
+    private SQLiteDatabase connectDatabase;
+//    private int dbState;
     private ConnectIDStatus connectStatus = ConnectIDStatus.NotIntroduced;
     private CommCareActivity<?> parentActivity;
     private ConnectActivityCompleteListener loginListener;
     private ConnectActivityCompleteListener registrationListener;
     private RegistrationPhase phase = RegistrationPhase.Initial;
-
-    private ConnectIDUser user = null;
 
     private ConnectIDManager() {
     }
@@ -61,27 +81,71 @@ public class ConnectIDManager {
         return manager;
     }
 
-    public static void loadUserFromPreferences() {
-        ConnectIDManager manager= getInstance();
-        SharedPreferences prefs = CommCareApplication.instance().getCurrentApp().getAppPreferences();
-        manager.user = ConnectIDUser.getUserFromPreferences(prefs);
-        if(manager.user != null && manager.connectStatus == ConnectIDStatus.NotIntroduced) {
+    public static void init(CommCareActivity<?> parent) {
+        ConnectIDManager manager = getInstance();
+        manager.parentActivity = parent;
+        manager.initConnectDb();
+
+        ConnectUserRecord user = getUser();
+        if(user != null && manager.connectStatus == ConnectIDStatus.NotIntroduced) {
             manager.connectStatus = ConnectIDStatus.LoggedOut;
         }
     }
 
-    public static void storeUserInPreferences() {
-        SharedPreferences prefs = CommCareApplication.instance().getCurrentApp().getAppPreferences();
-        ConnectIDUser.storeUserInPreferences(getInstance().user, prefs);
+    private int initConnectDb() {
+        SQLiteDatabase database;
+        try {
+            database = new DatabaseConnectOpenHelper(parentActivity).getWritableDatabase(EncryptionUtils.GetConnectDbPassphrase(parentActivity));
+            database.close();
+            return STATE_READY;
+        } catch (SQLiteException e) {
+            // Only thrown if DB isn't there
+            return STATE_UNINSTALLED;
+        } catch (MigrationException e) {
+            if (e.isDefiniteFailure()) {
+                return STATE_MIGRATION_FAILED;
+            } else {
+                return STATE_MIGRATION_QUESTIONABLE;
+            }
+        }
+    }
+
+    public <T extends Persistable> SqlStorage<T> getConnectStorage(Class<T> c) {
+        return getConnectStorage(c.getAnnotation(Table.class).value(), c);
+    }
+
+    public <T extends Persistable> SqlStorage<T> getConnectStorage(String table, Class<T> c) {
+        return new SqlStorage<>(table, c, new AndroidDbHelper(parentActivity.getApplicationContext()) {
+            @Override
+            public SQLiteDatabase getHandle() {
+                synchronized (connectDbHandleLock) {
+                    if (connectDatabase == null || !connectDatabase.isOpen()) {
+                        connectDatabase = new DatabaseConnectOpenHelper(this.c).getWritableDatabase(EncryptionUtils.GetConnectDbPassphrase(parentActivity));
+                    }
+                    return connectDatabase;
+                }
+            }
+        });
+    }
+
+    public static ConnectUserRecord getUser() {
+        ConnectUserRecord user = null;
+        ConnectIDManager manager= getInstance();
+        for (ConnectUserRecord r : manager.getConnectStorage(ConnectUserRecord.class)) {
+            user = r;
+            break;
+        }
+
+        return user;
+    }
+
+    public static void storeUser(ConnectUserRecord user) {
+        getInstance().getConnectStorage(ConnectUserRecord.class).write(user);
     }
 
     public static void loadUserFromIntent(Intent intent) {
-        getInstance().user = ConnectIDUser.getUserFromIntent(intent);
-        storeUserInPreferences();
-    }
-
-    public static ConnectIDUser getUser() {
-        return getInstance().user;
+        ConnectUserRecord user = ConnectUserRecord.getUserFromIntent(intent);
+        storeUser(user);
     }
 
     public static boolean isConnectIDIntroduced() {
@@ -174,9 +238,9 @@ public class ConnectIDManager {
     }
 
     public static void forgetUser() {
-        getInstance().connectStatus = ConnectIDStatus.NotIntroduced;
-        getInstance().user = null;
-        storeUserInPreferences();
+        ConnectIDManager manager = getInstance();
+        manager.connectStatus = ConnectIDStatus.NotIntroduced;
+        manager.getConnectStorage(ConnectUserRecord.class).remove(getUser().getID());
     }
 
     public static void beginRegistrationWorkflow(CommCareActivity<?> activity, ConnectActivityCompleteListener listener) {
@@ -255,9 +319,10 @@ public class ConnectIDManager {
         if(nextActivity != null) {
             Intent i = new Intent(manager.parentActivity, nextActivity);
 
-            if(manager.user != null) {
-                i.putExtra(ConnectIDPhoneVerificationActivity.USERNAME, manager.user.Username);
-                i.putExtra(ConnectIDPhoneVerificationActivity.PASSWORD, manager.user.Password);
+            ConnectUserRecord user = getUser();
+            if(user != null) {
+                i.putExtra(ConnectIDPhoneVerificationActivity.USERNAME, user.getUserID());
+                i.putExtra(ConnectIDPhoneVerificationActivity.PASSWORD, user.getPassword());
             }
 
             manager.parentActivity.startActivityForResult(i, nextRequestCode);

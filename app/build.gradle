@@ -31,6 +31,7 @@ configurations {
 }
 
 dependencies {
+    implementation 'androidx.security:security-crypto:1.0.0'
     testImplementation 'junit:junit:4.12'
     testImplementation('org.robolectric:robolectric:4.8.2') {
         exclude(group: 'org.bouncycastle', module: 'bcprov-jdk15on')
@@ -249,7 +250,7 @@ android {
     }
 
     defaultConfig {
-        minSdkVersion 16
+        minSdkVersion 23
         targetSdkVersion 31
         multiDexEnabled true
         applicationId "org.commcare.dalvik"
