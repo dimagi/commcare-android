@@ -262,8 +262,7 @@ public class AdvancedActionsPreferences extends CommCarePreferenceFragment {
     }
 
     private boolean hasP2p() {
-        return Build.VERSION.SDK_INT > Build.VERSION_CODES.ICE_CREAM_SANDWICH
-                && getActivity().getPackageManager().hasSystemFeature(PackageManager.FEATURE_WIFI_DIRECT);
+        return getActivity().getPackageManager().hasSystemFeature(PackageManager.FEATURE_WIFI_DIRECT);
     }
 
     private void startConnectionTest() {

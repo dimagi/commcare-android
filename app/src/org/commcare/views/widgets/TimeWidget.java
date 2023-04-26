@@ -37,10 +37,8 @@ public class TimeWidget extends QuestionWidget implements OnTimeChangedListener 
         mTimePicker.setEnabled(!prompt.isReadOnly());
         mTimePicker.setOnTimeChangedListener(this);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            mTimePicker.setSaveFromParentEnabled(false);
-            mTimePicker.setSaveEnabled(true);
-        }
+        mTimePicker.setSaveFromParentEnabled(false);
+        mTimePicker.setSaveEnabled(true);
 
         String clockType =
                 android.provider.Settings.System.getString(context.getContentResolver(),

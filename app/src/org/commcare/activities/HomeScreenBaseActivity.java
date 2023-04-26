@@ -1245,9 +1245,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
     @Override
     public void onResumeSessionSafe() {
         if (!redirectedInOnCreate && !sessionNavigationProceedingAfterOnResume) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-                refreshActionBar();
-            }
+            refreshActionBar();
             attemptDispatchHomeScreen();
         }
 

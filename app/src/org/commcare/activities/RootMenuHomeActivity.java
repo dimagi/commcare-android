@@ -60,8 +60,7 @@ public class RootMenuHomeActivity extends HomeScreenBaseActivity<RootMenuHomeAct
     private boolean usingNavDrawer() {
         // It's possible that this activity is being used as the home screen without having this flag
         // set explicitly (if this is a consumer app), in which case we don't want to show user actions
-        return DeveloperPreferences.useRootModuleMenuAsHomeScreen() &&
-                Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN;
+        return DeveloperPreferences.useRootModuleMenuAsHomeScreen();
     }
 
     @Override

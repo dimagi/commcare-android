@@ -726,20 +726,18 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     }
 
     private void checkManagedConfiguration() {
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
-            // Check for managed configuration
-            RestrictionsManager restrictionsManager =
-                    (RestrictionsManager)getSystemService(Context.RESTRICTIONS_SERVICE);
-            if (restrictionsManager == null) {
-                return;
-            }
-            Bundle appRestrictions = restrictionsManager.getApplicationRestrictions();
-            if (appRestrictions != null && appRestrictions.containsKey("username") &&
-                    appRestrictions.containsKey("password")) {
-                uiController.setUsername(appRestrictions.getString("username"));
-                uiController.setPasswordOrPin(appRestrictions.getString("password"));
-                initiateLoginAttempt(false);
-            }
+        // Check for managed configuration
+        RestrictionsManager restrictionsManager =
+                (RestrictionsManager)getSystemService(Context.RESTRICTIONS_SERVICE);
+        if (restrictionsManager == null) {
+            return;
+        }
+        Bundle appRestrictions = restrictionsManager.getApplicationRestrictions();
+        if (appRestrictions != null && appRestrictions.containsKey("username") &&
+                appRestrictions.containsKey("password")) {
+            uiController.setUsername(appRestrictions.getString("username"));
+            uiController.setPasswordOrPin(appRestrictions.getString("password"));
+            initiateLoginAttempt(false);
         }
     }
 }

@@ -164,15 +164,10 @@ public class EntityViewTile extends GridLayout {
     private Pair<Integer, Integer> computeTileWidthAndHeight(Context context) {
         double screenWidth, screenHeight;
         Display display = ((AppCompatActivity)context).getWindowManager().getDefaultDisplay();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
-            Point size = new Point();
-            display.getSize(size);
-            screenWidth = size.x;
-            screenHeight = size.y;
-        } else {
-            screenWidth = display.getWidth();
-            screenHeight = display.getHeight();
-        }
+        Point size = new Point();
+        display.getSize(size);
+        screenWidth = size.x;
+        screenHeight = size.y;
 
         if (!tileBeingShownInGridView()) {
             // If we added padding, subtract that space since we can't use it

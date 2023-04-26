@@ -56,7 +56,6 @@ public class HomeNavDrawerController {
         drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
     }
 
-    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     protected void setupNavDrawer(Bundle savedInstanceState) {
         initDrawerItemsMap();
         determineDrawerItemsToInclude();
