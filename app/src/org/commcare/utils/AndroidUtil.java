@@ -25,23 +25,8 @@ public class AndroidUtil {
      *
      * @return a generated ID value
      */
-    @SuppressLint("NewApi")
     public static int generateViewId() {
-        //raw implementation for < API 17
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1) {
-            for (; ; ) {
-                final int result = sNextGeneratedId.get();
-                // aapt-generated IDs have the high byte nonzero; clamp to the range under that.
-                int newValue = result + 1;
-                if (newValue > 0x00FFFFFF) newValue = 1; // Roll over to 1, not 0.
-                if (sNextGeneratedId.compareAndSet(result, newValue)) {
-                    return result;
-                }
-            }
-        } else {
-            //Whatever the current implementation is otherwise
-            return View.generateViewId();
-        }
+        return View.generateViewId();
     }
 
     /**

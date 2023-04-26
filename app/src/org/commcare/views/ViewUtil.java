@@ -69,27 +69,12 @@ public final class ViewUtil {
     public static void setBackgroundRetainPadding(View v, Drawable background) {
         //Need to transplant the padding due to background affecting it
         int[] padding = {v.getPaddingLeft(), v.getPaddingTop(), v.getPaddingRight(), v.getPaddingBottom()};
-
-        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.JELLY_BEAN) {
-            v.setBackground(background);
-        } else {
-            v.setBackgroundDrawable(background);
-        }
+        v.setBackground(background);
         v.setPadding(padding[0], padding[1], padding[2], padding[3]);
     }
 
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     public static int getColorDrawableColor(ColorDrawable drawable) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
-            Bitmap bitmap = Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_4444);
-            Canvas canvas = new Canvas(bitmap);
-            drawable.draw(canvas);
-            int pix = bitmap.getPixel(0, 0);
-            bitmap.recycle();
-            return pix;
-        } else {
-            return drawable.getColor();
-        }
+        return drawable.getColor();
     }
 
 

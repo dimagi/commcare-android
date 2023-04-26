@@ -111,12 +111,7 @@ abstract class SquareButtonAdapter
         }
 
         StateListDrawable bgDrawable = bgDrawStates(context, cardDisplayData.bgColor);
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            squareButtonViewHolder.cardView.setBackground(bgDrawable);
-        } else {
-            squareButtonViewHolder.cardView.setBackgroundDrawable(bgDrawable);
-        }
+        squareButtonViewHolder.cardView.setBackground(bgDrawable);
     }
 
     /**

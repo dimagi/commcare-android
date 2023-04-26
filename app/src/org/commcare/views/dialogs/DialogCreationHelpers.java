@@ -32,11 +32,7 @@ public class DialogCreationHelpers {
         titleView.setText(activity.getString(R.string.about_cc));
         Spannable markdownText = buildAboutMessage(activity, showAppInfo);
         TextView aboutText = view.findViewById(R.id.dialog_text);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-            aboutText.setText(markdownText);
-        } else {
-            aboutText.setText(markdownText.toString());
-        }
+        aboutText.setText(markdownText);
 
         CustomViewAlertDialog dialog = new CustomViewAlertDialog(activity, view);
         dialog.setPositiveButton(Localization.get("dialog.ok"), (dialog1, which) -> dialog1.dismiss());

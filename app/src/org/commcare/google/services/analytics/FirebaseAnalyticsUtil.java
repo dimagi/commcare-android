@@ -274,13 +274,7 @@ public class FirebaseAnalyticsUtil {
     }
 
     private static boolean analyticsDisabled() {
-        return !MainConfigurablePreferences.isAnalyticsEnabled() || versionIncompatible();
-    }
-
-    private static boolean versionIncompatible() {
-        // According to https://firebase.google.com/docs/android/setup,
-        // Firebase should only be used on devices running Android 4.0 and above
-        return Build.VERSION.SDK_INT < Build.VERSION_CODES.ICE_CREAM_SANDWICH;
+        return !MainConfigurablePreferences.isAnalyticsEnabled();
     }
 
     private static boolean rateLimitReporting(double percentOfEventsToReport) {

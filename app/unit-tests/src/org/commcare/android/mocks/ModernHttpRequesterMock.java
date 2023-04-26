@@ -116,7 +116,6 @@ public class ModernHttpRequesterMock extends ModernHttpRequester {
         return b.build().toString();
     }
 
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     private static void assertUrlsEqual(String expected, String request) {
         Uri requestUrl = Uri.parse(request);
         Uri expectedUrl = Uri.parse(expected);

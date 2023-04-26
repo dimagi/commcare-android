@@ -426,12 +426,8 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
         super.onCreateOptionsMenu(menu);
         menu.add(0, RETRIEVE_APPS_FOR_DIFF_USER, 0,
                 Localization.get("menu.app.list.install.other.user"));
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            MenuInflater inflater = getMenuInflater();
-            inflater.inflate(R.menu.install_from_list_menu, menu);
-        }
-
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.install_from_list_menu, menu);
         return true;
     }
 

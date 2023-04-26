@@ -698,13 +698,11 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     public boolean dispatchTouchEvent(MotionEvent mv) {
         //We need to ignore this even if it's processed by the action
         //bar (if one exists)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            ActionBar bar = getSupportActionBar();
-            if (bar != null) {
-                View customView = bar.getCustomView();
-                if (customView != null && customView.dispatchTouchEvent(mv)) {
-                    return true;
-                }
+        ActionBar bar = getSupportActionBar();
+        if (bar != null) {
+            View customView = bar.getCustomView();
+            if (customView != null && customView.dispatchTouchEvent(mv)) {
+                return true;
             }
         }
 
@@ -942,7 +940,6 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
     private void restorePriorStates() {
         if (uiController.questionsView != null) {
-            uiController.questionsView.restoreTimePickerData();
             uiController.restoreFocusToCalloutQuestion();
             restoreInlineVideoState();
         }
@@ -1025,10 +1022,8 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
         mFormController = fc;
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            // Newer menus may have already built the menu, before all data was ready
-            invalidateOptionsMenu();
-        }
+        // Newer menus may have already built the menu, before all data was ready
+        invalidateOptionsMenu();
 
         registerSessionFormSaveCallback();
 

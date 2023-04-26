@@ -109,17 +109,11 @@ class DrawingBoundaryActivity : BaseMapboxActivity(), LocationListener, MapboxMa
 
     private fun freezeOrientation() {
         val orientation = resources.configuration.orientation
-        requestedOrientation = if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR2) {
-            when (orientation) {
-                Configuration.ORIENTATION_PORTRAIT -> ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT
-                else -> ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
-            }
-        } else {
+        requestedOrientation =
             when (orientation) {
                 Configuration.ORIENTATION_PORTRAIT -> ActivityInfo.SCREEN_ORIENTATION_USER_PORTRAIT
                 else -> ActivityInfo.SCREEN_ORIENTATION_USER_LANDSCAPE
             }
-        }
     }
 
     override fun onMapLoaded() {

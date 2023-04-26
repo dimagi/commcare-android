@@ -43,13 +43,11 @@ public abstract class NfcActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            initFields();
-            createPendingRestartIntent();
-            setContentView(R.layout.nfc_instructions_view);
-            ((TextView)findViewById(R.id.nfc_instructions_text_view)).
-                    setText(Localization.get(getInstructionsTextKey()));
-        }
+        initFields();
+        createPendingRestartIntent();
+        setContentView(R.layout.nfc_instructions_view);
+        ((TextView)findViewById(R.id.nfc_instructions_text_view)).
+                setText(Localization.get(getInstructionsTextKey()));
     }
 
     @CallSuper
@@ -89,11 +87,6 @@ public abstract class NfcActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
-            finishWithErrorToast("nfc.min.version.message");
-            return;
-        }
 
         try {
             nfcManager.checkForNFCSupport();

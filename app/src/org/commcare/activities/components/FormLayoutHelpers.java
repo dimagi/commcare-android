@@ -87,8 +87,7 @@ public class FormLayoutHelpers {
     }
 
     private static int getActionBarSize(CommCareActivity activity) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB &&
-                activity.getSupportActionBar() != null) {
+        if (activity.getSupportActionBar() != null) {
             int actionBarHeight = activity.getSupportActionBar().getHeight();
 
             if (actionBarHeight != 0) {

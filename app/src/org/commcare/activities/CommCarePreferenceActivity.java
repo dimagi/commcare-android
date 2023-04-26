@@ -76,12 +76,10 @@ public class CommCarePreferenceActivity extends AppCompatActivity {
     }
 
     public static void addBackButtonToActionBar(@NonNull AppCompatActivity activity) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            ActionBar actionBar = activity.getSupportActionBar();
-            if (actionBar != null) {
-                actionBar.setDisplayShowHomeEnabled(true);
-                actionBar.setDisplayHomeAsUpEnabled(true);
-            }
+        ActionBar actionBar = activity.getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setDisplayShowHomeEnabled(true);
+            actionBar.setDisplayHomeAsUpEnabled(true);
         }
     }
 

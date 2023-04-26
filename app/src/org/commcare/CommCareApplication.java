@@ -223,7 +223,6 @@ public class CommCareApplication extends MultiDexApplication {
         // improperly, so the second https request in a short time period will flop)
         System.setProperty("http.keepAlive", "false");
 
-        initTls12IfNeeded();
         attachISRGCert();
 
         Thread.setDefaultUncaughtExceptionHandler(new CommCareExceptionHandler(Thread.getDefaultUncaughtExceptionHandler(), this));
@@ -259,16 +258,6 @@ public class CommCareApplication extends MultiDexApplication {
 
     protected void loadSqliteLibs() {
         SQLiteDatabase.loadLibs(this);
-    }
-
-    public boolean useConscryptSecurity() {
-        return Build.VERSION.SDK_INT >= 16 && Build.VERSION.SDK_INT < 20;
-    }
-
-    private void initTls12IfNeeded() {
-        if (useConscryptSecurity()) {
-            Security.insertProviderAt(Conscrypt.newProvider(), 1);
-        }
     }
 
     protected void turnOnStrictMode() {
@@ -1189,5 +1178,9 @@ public class CommCareApplication extends MultiDexApplication {
 
     public AndroidPackageUtils getAndroidPackageUtils() {
         return new AndroidPackageUtils();
+    }
+
+    public boolean isNsdServicesEnabled() {
+        return true;
     }
 }

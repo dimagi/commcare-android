@@ -14,7 +14,6 @@ import java.util.Locale;
 /**
  * Created by amstone326 on 9/8/17.
  */
-@TargetApi(Build.VERSION_CODES.JELLY_BEAN)
 public class NdefRecordUtil {
 
     private static final Charset UTF8_CHARSET = Charset.forName("UTF-8");
@@ -121,27 +120,7 @@ public class NdefRecordUtil {
     }
 
     private static NdefRecord createTextRecord(String payload) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            return NdefRecord.createTextRecord(null, payload);
-        } else {
-            return createTextRecordManually(payload, Locale.getDefault());
-        }
-    }
-
-    // Copied from https://developer.android.com/guide/topics/connectivity/nfc/nfc.html#well-known-text
-    public static NdefRecord createTextRecordManually(String payload, Locale locale) {
-        byte[] langBytes = locale.getLanguage().getBytes(Charset.forName("US-ASCII"));
-        byte[] textBytes = payload.getBytes(UTF8_CHARSET);
-
-        int utfBit = 0;
-        char status = (char)(utfBit + langBytes.length);
-        byte[] data = new byte[1 + langBytes.length + textBytes.length];
-        data[0] = (byte)status;
-
-        System.arraycopy(langBytes, 0, data, 1, langBytes.length);
-        System.arraycopy(textBytes, 0, data, 1 + langBytes.length, textBytes.length);
-
-        return new NdefRecord(NdefRecord.TNF_WELL_KNOWN, NdefRecord.RTD_TEXT, new byte[0], data);
+        return NdefRecord.createTextRecord(null, payload);
     }
 
     private static NdefRecord createExternalRecord(String type, String domain, String payload) {
