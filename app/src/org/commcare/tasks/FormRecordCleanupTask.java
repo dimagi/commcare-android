@@ -20,7 +20,7 @@ import org.commcare.util.LogTypes;
 import org.commcare.utils.FileUtil;
 import org.commcare.xml.AndroidCaseXmlParser;
 import org.commcare.xml.BestEffortBlockParser;
-import org.commcare.xml.CaseXmlParser;
+import org.commcare.xml.CaseXmlParserUtil;
 import org.commcare.xml.MetaDataXmlParser;
 import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.services.Logger;
@@ -391,7 +391,7 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
                                                      KXmlParser parser,
                                                      final String[] caseIDs) {
         //If we have a proper 2.0 namespace, good.
-        if (CaseXmlParser.CASE_XML_NAMESPACE.equals(namespace)) {
+        if (CaseXmlParserUtil.CASE_XML_NAMESPACE.equals(namespace)) {
             return new AndroidCaseXmlParser(parser, CommCareApplication.instance().getUserStorage(ACase.STORAGE_KEY, ACase.class)) {
                 @Override
                 public void commit(Case parsed) throws IOException {
