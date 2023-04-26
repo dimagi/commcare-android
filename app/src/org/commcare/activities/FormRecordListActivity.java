@@ -207,12 +207,6 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
                     // on scree-rotation. Hence we defer onCreate record
                     // loading until this gets triggered automatically.
                     adapter.setFilterAndResetRecords(FormRecordFilter.values()[index]);
-
-                    //This is only relevant with the new menu format, old menus have a hard
-                    //button and don't need their menu to be rebuilt
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-                        invalidateOptionsMenu();
-                    }
                 }
 
                 @Override
@@ -497,12 +491,9 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
         return searchView != null;
     }
 
-    @SuppressWarnings("NewApi")
     private void setSearchText(CharSequence text) {
         if (isUsingActionBar()) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-                MenuItemCompat.expandActionView(searchItem);
-            }
+            MenuItemCompat.expandActionView(searchItem);
             searchView.setQuery(text, false);
         }
         searchbox.setText(text);
@@ -516,9 +507,7 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
             FormRecordListActivity.this.searchItem = searchItem;
             FormRecordListActivity.this.searchView = searchView;
             if (lastQueryString != null && lastQueryString.length() > 0) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-                    MenuItemCompat.expandActionView(searchItem);
-                }
+                MenuItemCompat.expandActionView(searchItem);
                 setSearchText(lastQueryString);
                 if (adapter != null) {
                     adapter.applyTextFilter(lastQueryString == null ? "" : lastQueryString);

@@ -52,7 +52,6 @@ import androidx.fragment.app.Fragment;
 /**
  * @author ctsims
  */
-@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 public class BreadcrumbBarFragment extends Fragment {
 
     private TabbedDetailView mInternalDetailView = null;

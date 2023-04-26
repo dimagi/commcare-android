@@ -86,7 +86,6 @@ public abstract class CustomButtonWithText extends RelativeLayout {
         button.setImageDrawable(backgroundImg);
     }
 
-    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     private void setColor(int backgroundColor) {
         ColorDrawable colorDrawable = new ColorDrawable(backgroundColor);
         ColorDrawable disabledColor = new ColorDrawable(getResources().getColor(R.color.grey));
@@ -107,11 +106,7 @@ public abstract class CustomButtonWithText extends RelativeLayout {
         sld.addState(new int[]{-android.R.attr.state_enabled}, disabledColor);
         sld.addState(new int[]{android.R.attr.state_pressed}, pressedBackground);
         sld.addState(StateSet.WILD_CARD, colorDrawable);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            this.setBackground(sld);
-        } else {
-            this.setBackgroundDrawable(sld);
-        }
+        this.setBackground(sld);
     }
 
     private void setTextColor(int textColor) {

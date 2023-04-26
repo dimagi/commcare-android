@@ -403,12 +403,6 @@ public class EntityDetailView extends FrameLayout {
 
     @SuppressWarnings("AddJavascriptInterface")
     private void addSpinnerToGraph(WebView graphView, ViewGroup graphLayout) {
-        // WebView.addJavascriptInterface should not be called with minSdkVersion < 17
-        // for security reasons: JavaScript can use reflection to manipulate application
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
-            return;
-        }
-
         final ProgressBar spinner = new ProgressBar(this.getContext(), null, android.R.attr.progressBarStyleLarge);
         spinner.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.CENTER));
         GraphLoader graphLoader = new GraphLoader((AppCompatActivity)this.getContext(), spinner);

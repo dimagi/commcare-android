@@ -65,7 +65,6 @@ public class NfcReadActivity extends NfcActivity {
         readFromNfcTag(tag);
     }
 
-    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     private void readFromNfcTag(Tag tag) {
         Ndef ndefObject = Ndef.get(tag);
 

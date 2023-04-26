@@ -108,34 +108,29 @@ public class FormSubmissionProgressBarListener implements DataSubmissionListener
     }
 
     private void finishAnimatingProgressBar() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            ObjectAnimator animation = ObjectAnimator.ofInt(submissionProgressBar, "progress",
-                    submissionProgressBar.getProgress(), maxProgress);
-            animation.setDuration(getFinishAnimationDuration());
-            animation.setInterpolator(new DecelerateInterpolator());
-            animation.addListener(new Animator.AnimatorListener() {
-                @Override
-                public void onAnimationStart(Animator animation) {
-                }
+        ObjectAnimator animation = ObjectAnimator.ofInt(submissionProgressBar, "progress",
+                submissionProgressBar.getProgress(), maxProgress);
+        animation.setDuration(getFinishAnimationDuration());
+        animation.setInterpolator(new DecelerateInterpolator());
+        animation.addListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animation) {
+            }
 
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    containingActivity.runOnUiThread(() -> submissionProgressBar.setVisibility(View.GONE));
-                }
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                containingActivity.runOnUiThread(() -> submissionProgressBar.setVisibility(View.GONE));
+            }
 
-                @Override
-                public void onAnimationCancel(Animator animation) {
-                }
+            @Override
+            public void onAnimationCancel(Animator animation) {
+            }
 
-                @Override
-                public void onAnimationRepeat(Animator animation) {
-                }
-            });
-            animation.start();
-        } else {
-            submissionProgressBar.setProgress(maxProgress);
-            submissionProgressBar.setVisibility(View.GONE);
-        }
+            @Override
+            public void onAnimationRepeat(Animator animation) {
+            }
+        });
+        animation.start();
     }
 
     private int getFinishAnimationDuration() {

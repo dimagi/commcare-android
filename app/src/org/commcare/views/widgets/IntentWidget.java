@@ -146,26 +146,15 @@ public class IntentWidget extends QuestionWidget {
     }
 
     protected void performCallout() {
-        if (calloutUnsupportedOnDevice()) {
+        try {
+            loadCurrentAnswerToIntent();
+            pendingCalloutInterface.setPendingCalloutFormIndex(mPrompt.getIndex());
+            ((AppCompatActivity)getContext()).startActivityForResult(intent, FormEntryConstants.INTENT_CALLOUT);
+        } catch (ActivityNotFoundException e) {
             Toast.makeText(getContext(),
-                    Localization.get("intent.callout.not.supported"), Toast.LENGTH_SHORT).show();
-        } else {
-            try {
-                loadCurrentAnswerToIntent();
-                pendingCalloutInterface.setPendingCalloutFormIndex(mPrompt.getIndex());
-                ((AppCompatActivity) getContext()).startActivityForResult(intent, FormEntryConstants.INTENT_CALLOUT);
-            } catch (ActivityNotFoundException e) {
-                Toast.makeText(getContext(),
-                        Localization.get(missingCalloutKey), Toast.LENGTH_SHORT).show();
-            }
+                    Localization.get(missingCalloutKey), Toast.LENGTH_SHORT).show();
         }
     }
-
-    public boolean calloutUnsupportedOnDevice() {
-        return ic != null && ic.isSimprintsCallout() &&
-                Build.VERSION.SDK_INT < Build.VERSION_CODES.ICE_CREAM_SANDWICH;
-    }
-
     protected void loadCurrentAnswerToIntent() {
         String data = mStringAnswer.getText().toString();
         if (!"".equals(data)) {

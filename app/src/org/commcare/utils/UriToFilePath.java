@@ -38,9 +38,8 @@ public class UriToFilePath {
      */
     @SuppressLint("NewApi")
     public static String getPathFromUri(final Context context, final Uri uri) throws NoDataColumnForUriException {
-        final boolean isKitKat = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;
         String filePath = null;
-        if (isKitKat && DocumentsContract.isDocumentUri(context, uri)) {
+        if (DocumentsContract.isDocumentUri(context, uri)) {
             if (isExternalStorageDocument(uri)) {
                 final String docId = DocumentsContract.getDocumentId(uri);
                 final String[] split = docId.split(":");
