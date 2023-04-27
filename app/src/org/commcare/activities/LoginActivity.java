@@ -408,7 +408,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         String appId = CommCareApplication.instance().getCurrentApp().getUniqueId();
         String username = uiController.getEnteredUsername();
         String pass = uiController.getEnteredPasswordOrPin();
-        ConnectIDManager.rememberAppCreds(appId, username, pass);
+        ConnectIDManager.rememberAppCredentials(appId, username, pass);
 
         Intent i = new Intent();
         i.putExtra(LOGIN_MODE, uiController.getLoginMode());
@@ -418,7 +418,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     }
 
     public void handleConnectButtonPress() {
-        ConnectIDManager.handleConnectButtonPress(this, success -> {
+        ConnectIDManager.handleConnectButtonPress(success -> {
             if(success) {
                 uiController.showConnectIDButton();
                 updateConnectButton();
@@ -616,10 +616,10 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
             this.startActivityForResult(i, SEAT_APP_ACTIVITY);
         }
         else {
-            AuthInfo.BasicAuth creds = ConnectIDManager.getCredsForApp(appId);
-            if(creds != null) {
-                uiController.setUsername(creds.username);
-                uiController.setPasswordOrPin(creds.password);
+            AuthInfo.BasicAuth credentials = ConnectIDManager.getCredentialsForApp(appId);
+            if(credentials != null) {
+                uiController.setUsername(credentials.username);
+                uiController.setPasswordOrPin(credentials.password);
             }
         }
     }

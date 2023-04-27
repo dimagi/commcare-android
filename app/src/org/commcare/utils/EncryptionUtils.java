@@ -1,42 +1,42 @@
 package org.commcare.utils;
 
 import android.content.Context;
-import android.os.Build;
-import android.security.keystore.KeyGenParameterSpec;
-import android.security.keystore.KeyProperties;
+//import android.os.Build;
+//import android.security.keystore.KeyGenParameterSpec;
+//import android.security.keystore.KeyProperties;
 
-import androidx.annotation.RequiresApi;
+//import androidx.annotation.RequiresApi;
 import androidx.security.crypto.EncryptedFile;
 import androidx.security.crypto.MasterKeys;
 
 import org.commcare.util.Base64;
-import org.commcare.util.Base64DecoderException;
+//import org.commcare.util.Base64DecoderException;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
+//import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.InvalidKeyException;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
+//import java.security.InvalidAlgorithmParameterException;
+//import java.security.InvalidKeyException;
+//import java.security.KeyStore;
+//import java.security.KeyStoreException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
-import java.security.UnrecoverableEntryException;
-import java.security.cert.CertificateException;
+//import java.security.UnrecoverableEntryException;
+//import java.security.cert.CertificateException;
 import java.util.Random;
 
-import javax.crypto.BadPaddingException;
-import javax.crypto.Cipher;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.KeyGenerator;
-import javax.crypto.NoSuchPaddingException;
-import javax.crypto.SecretKey;
-import javax.crypto.spec.IvParameterSpec;
+//import javax.crypto.BadPaddingException;
+//import javax.crypto.Cipher;
+//import javax.crypto.IllegalBlockSizeException;
+//import javax.crypto.KeyGenerator;
+//import javax.crypto.NoSuchPaddingException;
+//import javax.crypto.SecretKey;
+//import javax.crypto.spec.IvParameterSpec;
 
 /**
  * Utility class for encrypting submissions during the SaveToDiskTask.
@@ -204,7 +204,7 @@ public class EncryptionUtils {
         return result;
     }
 
-    public static byte[] GetConnectDbPassphrase(Context context) {
+    public static byte[] getConnectDBPassphrase(Context context) {
         byte[] passphrase = null;
         try {
             File file = new File(context.getFilesDir(), "connect_phrase.bin");
@@ -231,10 +231,7 @@ public class EncryptionUtils {
                 outputStream.close();
             }
         }
-        catch(GeneralSecurityException e) {
-
-        }
-        catch(IOException e) {
+        catch(GeneralSecurityException | IOException e) {
 
         }
 

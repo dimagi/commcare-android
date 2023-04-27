@@ -31,7 +31,6 @@ configurations {
 }
 
 dependencies {
-    implementation 'androidx.security:security-crypto:1.0.0'
     testImplementation 'junit:junit:4.12'
     testImplementation('org.robolectric:robolectric:4.8.2') {
         exclude(group: 'org.bouncycastle', module: 'bcprov-jdk15on')
@@ -135,6 +134,8 @@ dependencies {
     implementation 'com.google.guava:guava:31.1-jre'
 
     implementation 'androidx.biometric:biometric:1.1.0'
+
+    implementation 'androidx.security:security-crypto:1.0.0'
 }
 
 ext {

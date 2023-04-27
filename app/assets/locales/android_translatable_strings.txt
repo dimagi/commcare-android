@@ -189,10 +189,13 @@ login.update.install.failure=App update failed to apply!
 connect.button.logged.in=Go to Connect menu
 connect.button.logged.out=Login to Connect ID
 
-connect.dialog.unrecognized=No prior login detected on this device. Do you need to recover your account or create a new one?
-connect.dialog.new.account=New account
-connect.dialog.same.number=Recover account, same number
-connect.dialog.new.number=Recover account, new number
+connect.recovery.title=New Sign In
+connect.recovery.decision.new=This is the first time logging into Connect on this device. Do you need to create a new account or recover an existing account?
+connect.recovery.button.new=New
+connect.recovery.button.recover=Existing
+connect.recovery.decision.phone=Please enter the primary phone number you registered with your account.
+connect.recovery.button.phone=Continue
+connect.recovery.button.extended=More Options
 
 connect.title=Connect ID Sign In
 connect.message=Please unlock using a configured biometric
@@ -216,6 +219,7 @@ connect.verify.button=Continue
 
 connect.verify.phone.title=Verify Phone
 connect.verify.phone.label=Please enter the code sent via SMS to your primary phone.
+connect.verify.phone.label.alternate=Almost there! Please enter the code sent via SMS to your alternate phone.
 connect.verify.phone.resend=Resend code
 connect.verify.phone.verify=Verify code
 

@@ -15,7 +15,7 @@ public class ConnectIDPhoneVerificationActivityUIController implements CommCareA
     @UiElement(value = R.id.connect_phone_verify_title, locale = "connect.verify.phone.title")
     private TextView titleTextView;
 
-    @UiElement(value = R.id.connect_phone_verify_label, locale = "connect.verify.phone.label")
+    @UiElement(value = R.id.connect_phone_verify_label)
     private TextView labelTextView;
     @UiElement(value = R.id.connect_phone_verify_code)
     private AutoCompleteTextView codeInput;
@@ -41,6 +41,10 @@ public class ConnectIDPhoneVerificationActivityUIController implements CommCareA
     @Override
     public void refreshView() {
 
+    }
+
+    public void setLabelText(String text) {
+        labelTextView.setText(text);
     }
 
     public String getCode() {

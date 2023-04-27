@@ -3,25 +3,40 @@ package org.commcare.activities;
 import static android.app.Activity.RESULT_OK;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.widget.Toast;
 
-import net.sqlcipher.database.SQLiteDatabase;
-import net.sqlcipher.database.SQLiteException;
+import com.google.common.collect.ImmutableMultimap;
+import com.google.gson.Gson;
 
-import org.commcare.CommCareApplication;
+import net.sqlcipher.database.SQLiteDatabase;
+
+import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
+import org.commcare.core.interfaces.HttpResponseProcessor;
 import org.commcare.core.network.AuthInfo;
+import org.commcare.core.network.HTTPMethod;
+import org.commcare.dalvik.R;
+import org.commcare.interfaces.ConnectorWithHttpResponseProcessor;
 import org.commcare.models.database.AndroidDbHelper;
-import org.commcare.models.database.MigrationException;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.models.database.connect.DatabaseConnectOpenHelper;
 import org.commcare.modern.database.Table;
+import org.commcare.tasks.ModernHttpTask;
+import org.commcare.tasks.templates.CommCareTask;
 import org.commcare.utils.EncryptionUtils;
-import org.commcare.views.dialogs.DialogChoiceItem;
-import org.commcare.views.dialogs.PaneledChoiceDialog;
+import org.javarosa.core.io.StreamsUtil;
+import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.storage.Persistable;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.HashMap;
+
+import okhttp3.MediaType;
+import okhttp3.RequestBody;
 
 public class ConnectIDManager {
     //ConnectID UI elements hidden from user when this is set to false
@@ -39,7 +54,9 @@ public class ConnectIDManager {
         Unlock, //Unlock a secret after configuring them
         Pictures, //Get pictures of face and official ID,
         PhoneVerify, //Verify phone number via SMS code
-        Verify //Verify phone number via SMS
+        Verify, //Verify phone number via SMS
+        RecoverPrimary,
+        RecoverSecondary
     }
 
     public interface ConnectActivityCompleteListener {
@@ -47,18 +64,11 @@ public class ConnectIDManager {
     }
 
     private static final int CONNECT_UNLOCK_ACTIVITY = 1001;
-    private static final int CONNECT_REGISTER_ACTIVITY = 1002;
-    private static final int CONNECT_VERIFY_ACTIVITY = 1003;
+    private static final int CONNECT_RECOVERY_DECISION_ACTIVITY = 1002;
+    private static final int CONNECT_REGISTER_ACTIVITY = 1003;
+    private static final int CONNECT_VERIFY_ACTIVITY = 1004;
     private static final int CONNECT_PICTURES_ACTIVITY = 1005;
     private static final int CONNECT_PHONE_VERIFY_ACTIVITY = 1006;
-
-    private static final int STATE_UNINSTALLED = 0;
-    private static final int STATE_READY = 2;
-    public static final int STATE_CORRUPTED = 4;
-    public static final int STATE_LEGACY_DETECTED = 8;
-    public static final int STATE_MIGRATION_FAILED = 16;
-    public static final int STATE_MIGRATION_QUESTIONABLE = 32;
-
 
     private static ConnectIDManager manager = null;
     private final Object connectDbHandleLock = new Object();
@@ -67,8 +77,9 @@ public class ConnectIDManager {
     private ConnectIDStatus connectStatus = ConnectIDStatus.NotIntroduced;
     private CommCareActivity<?> parentActivity;
     private ConnectActivityCompleteListener loginListener;
-    private ConnectActivityCompleteListener registrationListener;
     private RegistrationPhase phase = RegistrationPhase.Initial;
+    private String recoveryPhone = null;
+    private String recoverySecret = null;
 
     private ConnectIDManager() {
     }
@@ -92,22 +103,10 @@ public class ConnectIDManager {
         }
     }
 
-    private int initConnectDb() {
+    private void initConnectDb() {
         SQLiteDatabase database;
-        try {
-            database = new DatabaseConnectOpenHelper(parentActivity).getWritableDatabase(EncryptionUtils.GetConnectDbPassphrase(parentActivity));
-            database.close();
-            return STATE_READY;
-        } catch (SQLiteException e) {
-            // Only thrown if DB isn't there
-            return STATE_UNINSTALLED;
-        } catch (MigrationException e) {
-            if (e.isDefiniteFailure()) {
-                return STATE_MIGRATION_FAILED;
-            } else {
-                return STATE_MIGRATION_QUESTIONABLE;
-            }
-        }
+        database = new DatabaseConnectOpenHelper(parentActivity).getWritableDatabase(EncryptionUtils.getConnectDBPassphrase(parentActivity));
+        database.close();
     }
 
     public <T extends Persistable> SqlStorage<T> getConnectStorage(Class<T> c) {
@@ -120,7 +119,7 @@ public class ConnectIDManager {
             public SQLiteDatabase getHandle() {
                 synchronized (connectDbHandleLock) {
                     if (connectDatabase == null || !connectDatabase.isOpen()) {
-                        connectDatabase = new DatabaseConnectOpenHelper(this.c).getWritableDatabase(EncryptionUtils.GetConnectDbPassphrase(parentActivity));
+                        connectDatabase = new DatabaseConnectOpenHelper(this.c).getWritableDatabase(EncryptionUtils.getConnectDBPassphrase(parentActivity));
                     }
                     return connectDatabase;
                 }
@@ -130,7 +129,7 @@ public class ConnectIDManager {
 
     public static ConnectUserRecord getUser() {
         ConnectUserRecord user = null;
-        ConnectIDManager manager= getInstance();
+        ConnectIDManager manager = getInstance();
         for (ConnectUserRecord r : manager.getConnectStorage(ConnectUserRecord.class)) {
             user = r;
             break;
@@ -143,9 +142,21 @@ public class ConnectIDManager {
         getInstance().getConnectStorage(ConnectUserRecord.class).write(user);
     }
 
-    public static void loadUserFromIntent(Intent intent) {
-        ConnectUserRecord user = ConnectUserRecord.getUserFromIntent(intent);
-        storeUser(user);
+    public static ConnectLinkedAppRecord getAppData(String appId) {
+        ConnectLinkedAppRecord record = null;
+        ConnectIDManager manager= getInstance();
+        for (ConnectLinkedAppRecord r : manager.getConnectStorage(ConnectLinkedAppRecord.class)) {
+            if(r.getAppID().equals(appId)) {
+                record = r;
+                break;
+            }
+        }
+
+        return record;
+    }
+
+    public static void storeApp(ConnectLinkedAppRecord record) {
+        getInstance().getConnectStorage(ConnectLinkedAppRecord.class).write(record);
     }
 
     public static boolean isConnectIDIntroduced() {
@@ -161,7 +172,8 @@ public class ConnectIDManager {
     }
 
     public static boolean isConnectIDActivity(int requestCode) {
-        return requestCode == CONNECT_REGISTER_ACTIVITY ||
+        return requestCode == CONNECT_RECOVERY_DECISION_ACTIVITY ||
+                requestCode == CONNECT_REGISTER_ACTIVITY ||
                 requestCode == CONNECT_VERIFY_ACTIVITY ||
                 requestCode == CONNECT_UNLOCK_ACTIVITY ||
                 requestCode == CONNECT_PICTURES_ACTIVITY ||
@@ -170,9 +182,8 @@ public class ConnectIDManager {
 
     public static String getConnectButtonText() {
         return switch (getInstance().connectStatus) {
-            case LoggedOut -> Localization.get("connect.button.logged.out");
+            case LoggedOut, NotIntroduced -> Localization.get("connect.button.logged.out");
             case LoggedIn -> Localization.get("connect.button.logged.in");
-            default -> "";
         };
     }
 
@@ -180,46 +191,14 @@ public class ConnectIDManager {
         return getInstance().connectStatus != ConnectIDStatus.LoggedIn;
     }
 
-    public static void handleConnectButtonPress(CommCareActivity<?> activity, ConnectActivityCompleteListener listener) {
+    public static void handleConnectButtonPress(ConnectActivityCompleteListener listener) {
         ConnectIDManager manager = getInstance();
-        manager.parentActivity = activity;
         manager.loginListener = listener;
 
         switch (manager.connectStatus) {
             case NotIntroduced -> {
-                final PaneledChoiceDialog dialog = new PaneledChoiceDialog(activity, Localization.get("connect.dialog.unrecognized"));
-
-                DialogChoiceItem newAccountChoice = new DialogChoiceItem(
-                        Localization.get("connect.dialog.new.account"), -1, v -> {
-                    //New account
-                    activity.dismissAlertDialog();
-                    beginRegistrationWorkflow(activity, listener);
-                });
-
-                DialogChoiceItem sameNumberChoice = new DialogChoiceItem(
-                        Localization.get("connect.dialog.same.number"), -1, v -> {
-                    //Existing account, same phone number
-                    activity.dismissAlertDialog();
-
-                    //TODO: Handle simple account recovery (same phone number)
-                    Toast.makeText(manager.parentActivity, "Not ready yet",
-                            Toast.LENGTH_SHORT).show();
-                });
-
-                DialogChoiceItem newNumberChoice = new DialogChoiceItem(
-                        Localization.get("connect.dialog.new.number"), -1, v -> {
-                    //Existing account, new phone number
-                    activity.dismissAlertDialog();
-
-                    //TODO: Handle advanced account recovery (new phone number)
-                    Toast.makeText(manager.parentActivity, "Not ready yet",
-                            Toast.LENGTH_SHORT).show();
-                });
-
-                dialog.setChoiceItems(
-                        new DialogChoiceItem[]{newAccountChoice, sameNumberChoice, newNumberChoice});
-                //dialog.addCollapsibleInfoPane(Localization.get("pin.dialog.extra.info"));
-                activity.showAlertDialog(dialog);
+                Intent i = new Intent(manager.parentActivity, ConnectIDRecoveryDecisionActivity.class);
+                manager.parentActivity.startActivityForResult(i, CONNECT_RECOVERY_DECISION_ACTIVITY);
             }
             case LoggedOut -> {
                 Intent i = new Intent(manager.parentActivity, ConnectIDLoginActivity.class);
@@ -243,12 +222,110 @@ public class ConnectIDManager {
         manager.getConnectStorage(ConnectUserRecord.class).remove(getUser().getID());
     }
 
-    public static void beginRegistrationWorkflow(CommCareActivity<?> activity, ConnectActivityCompleteListener listener) {
-        getInstance().parentActivity = activity;
-        getInstance().registrationListener = listener;
+    private void resetPassword() {
+        String password = ConnectIDRegistrationActivity.generatePassword();
 
-        Intent i = new Intent(activity, ConnectIDRegistrationActivity.class);
-        activity.startActivityForResult(i, CONNECT_REGISTER_ACTIVITY);
+        HashMap<String, String> params = new HashMap<>();
+        AuthInfo authInfo = new AuthInfo.NoAuth();
+        params.put("phone", recoveryPhone);
+        params.put("secret_key", recoverySecret);
+        params.put("password", password);
+        String url = parentActivity.getString(R.string.ConnectURL) + "/users/recovery/reset_password";
+
+        //params.put("device_id", CommCareApplication.instance().getPhoneId());
+
+        Gson gson = new Gson();
+        String json = gson.toJson(params);
+
+        RequestBody requestBody = RequestBody.create(MediaType.parse("application/json"), json);
+        ModernHttpTask postTask =
+                new ModernHttpTask(parentActivity, url,
+                        ImmutableMultimap.of(),
+                        new HashMap<>(),
+                        requestBody,
+                        HTTPMethod.POST,
+                        authInfo);
+        postTask.connect(new ConnectorWithHttpResponseProcessor<>() {
+            @Override
+            public void processSuccess(int responseCode, InputStream responseData) {
+                String username = "";
+                String displayName = "";
+                try {
+                    String responseAsString = new String(StreamsUtil.inputStreamToByteArray(responseData));
+                    JSONObject json = new JSONObject(responseAsString);
+                    String key = "username";
+                    if (json.has(key)) {
+                        username = json.getString(key);
+                    }
+
+                    key = "name";
+                    if (json.has(key)) {
+                        displayName = json.getString(key);
+                    }
+                }
+                catch(IOException | JSONException e) {
+                    Logger.exception("Parsing return from reset_password", e);
+                }
+                storeUser(new ConnectUserRecord(username, password, displayName));
+
+                //We're done with these, so null them out
+                recoveryPhone = null;
+                recoverySecret = null;
+
+                connectStatus = ConnectIDStatus.LoggedIn;
+                loginListener.connectActivityComplete(true);
+
+                Toast.makeText(parentActivity, "Account recovered!", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void processClientError(int responseCode) {
+                //400 error
+                Toast.makeText(parentActivity, "Password reset: Client error", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void processServerError(int responseCode) {
+                Toast.makeText(parentActivity, "Password reset: Server error", Toast.LENGTH_SHORT).show();
+                //500 error for internal server error
+            }
+
+            @Override
+            public void processOther(int responseCode) {
+                Toast.makeText(parentActivity, "Password reset: Other error", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void handleIOException(IOException exception) {
+                Toast.makeText(parentActivity, "Password reset: Exception", Toast.LENGTH_SHORT).show();
+                //UnknownHostException if host not found
+            }
+
+            @Override
+            public <A, B, C> void connectTask(CommCareTask<A, B, C, HttpResponseProcessor> task) {}
+
+            @Override
+            public void startBlockingForTask(int id) {}
+
+            @Override
+            public void stopBlockingForTask(int id) {}
+
+            @Override
+            public void taskCancelled() {}
+
+            @Override
+            public HttpResponseProcessor getReceiver() { return this; }
+
+            @Override
+            public void startTaskTransition() {}
+
+            @Override
+            public void stopTaskTransition(int taskId) {}
+
+            @Override
+            public void hideTaskCancelButton() {}
+        });
+        postTask.executeParallel();
     }
 
     public static void handleFinishedActivity(int requestCode, int resultCode, Intent intent) {
@@ -257,15 +334,32 @@ public class ConnectIDManager {
         RegistrationPhase nextPhase = RegistrationPhase.Initial;
 
         switch (requestCode) {
+            case CONNECT_RECOVERY_DECISION_ACTIVITY -> {
+                if(success) {
+                    boolean createNew = intent.getBooleanExtra(ConnectIDRecoveryDecisionActivity.CREATE, false);
+                    String phone = intent.getStringExtra(ConnectIDRecoveryDecisionActivity.PHONE);
+
+                    if(createNew) {
+                        Intent i = new Intent(manager.parentActivity, ConnectIDRegistrationActivity.class);
+                        manager.parentActivity.startActivityForResult(i, CONNECT_REGISTER_ACTIVITY);
+                    }
+                    else {
+                        nextPhase = RegistrationPhase.RecoverPrimary;
+                        manager.recoveryPhone = phone;
+                    }
+                }
+            }
             case CONNECT_REGISTER_ACTIVITY -> {
                 nextPhase = success ? RegistrationPhase.Secrets : RegistrationPhase.Initial;
                 if(success) {
-                    loadUserFromIntent(intent);
+                    ConnectUserRecord user = ConnectUserRecord.getUserFromIntent(intent);
+                    storeUser(user);
                 }
             }
-            case CONNECT_VERIFY_ACTIVITY ->
+            case CONNECT_VERIFY_ACTIVITY -> {
                 //Backing up here is problematic, we just created a new account...
-                    nextPhase = success ? RegistrationPhase.Unlock : RegistrationPhase.Initial;
+                nextPhase = success ? RegistrationPhase.Unlock : RegistrationPhase.Initial;
+            }
             case CONNECT_UNLOCK_ACTIVITY -> {
                 if(manager.phase == RegistrationPhase.Unlock) {
                     nextPhase = success ? RegistrationPhase.Pictures : RegistrationPhase.Secrets;
@@ -279,15 +373,35 @@ public class ConnectIDManager {
                     return;
                 }
             }
-            case CONNECT_PICTURES_ACTIVITY ->
-                    nextPhase = success ? RegistrationPhase.PhoneVerify : RegistrationPhase.Secrets;
+            case CONNECT_PICTURES_ACTIVITY -> {
+                nextPhase = success ? RegistrationPhase.PhoneVerify : RegistrationPhase.Secrets;
+            }
             case CONNECT_PHONE_VERIFY_ACTIVITY -> {
-                nextPhase = success ? RegistrationPhase.Initial : RegistrationPhase.Pictures;
-                if(success)
-                {
-                    //Finish workflow, user registered and logged in
-                    manager.connectStatus = ConnectIDStatus.LoggedIn;
-                    manager.registrationListener.connectActivityComplete(true);
+                //Action depends since we use this page several times
+                switch (manager.phase) {
+                    case RecoverPrimary -> {
+                        nextPhase = success ? RegistrationPhase.RecoverSecondary : RegistrationPhase.Initial;
+                        if (success) {
+                            //Remember the secret key for use through the rest of the recovery process
+                            manager.recoverySecret = intent.getStringExtra(ConnectIDPhoneVerificationActivity.PASSWORD);
+                        }
+                    }
+                    case RecoverSecondary -> {
+                        nextPhase = success ? RegistrationPhase.Initial : RegistrationPhase.RecoverPrimary;
+
+                        if(success) {
+                            //Create and set new password
+                            manager.resetPassword();
+                        }
+                    }
+                    default -> {
+                        nextPhase = success ? RegistrationPhase.Initial : RegistrationPhase.Pictures;
+                        if (success) {
+                            //Finish workflow, user registered and logged in
+                            manager.connectStatus = ConnectIDStatus.LoggedIn;
+                            manager.loginListener.connectActivityComplete(true);
+                        }
+                    }
                 }
             }
         }
@@ -310,7 +424,7 @@ public class ConnectIDManager {
                 nextActivity = ConnectIDPicturesActivity.class;
                 nextRequestCode = CONNECT_PICTURES_ACTIVITY;
             }
-            case PhoneVerify -> {
+            case PhoneVerify, RecoverPrimary, RecoverSecondary -> {
                 nextActivity = ConnectIDPhoneVerificationActivity.class;
                 nextRequestCode = CONNECT_PHONE_VERIFY_ACTIVITY;
             }
@@ -324,37 +438,38 @@ public class ConnectIDManager {
                 i.putExtra(ConnectIDPhoneVerificationActivity.USERNAME, user.getUserID());
                 i.putExtra(ConnectIDPhoneVerificationActivity.PASSWORD, user.getPassword());
             }
+            else if(manager.phase == RegistrationPhase.RecoverPrimary) {
+                i.putExtra(ConnectIDPhoneVerificationActivity.METHOD, ConnectIDPhoneVerificationActivity.MethodRecoveryPrimary);
+                i.putExtra(ConnectIDPhoneVerificationActivity.USERNAME, manager.recoveryPhone);
+                i.putExtra(ConnectIDPhoneVerificationActivity.PASSWORD, "");
+            }
+            else if(manager.phase == RegistrationPhase.RecoverSecondary) {
+                i.putExtra(ConnectIDPhoneVerificationActivity.METHOD, ConnectIDPhoneVerificationActivity.MethodRecoveryAlternate);
+                i.putExtra(ConnectIDPhoneVerificationActivity.USERNAME, manager.recoveryPhone);
+                i.putExtra(ConnectIDPhoneVerificationActivity.PASSWORD, manager.recoverySecret);
+            }
 
             manager.parentActivity.startActivityForResult(i, nextRequestCode);
         }
     }
 
-    public static void rememberAppCreds(String appID, String username, String passwordOrPin) {
+    public static void rememberAppCredentials(String appID, String username, String passwordOrPin) {
         ConnectIDManager manager = getInstance();
         if(manager.connectStatus == ConnectIDStatus.LoggedIn) {
-            SharedPreferences prefs = CommCareApplication.instance().getCurrentApp().getAppPreferences();
-            SharedPreferences.Editor editor = prefs.edit();
-            boolean wipe = username == null || username.length() == 0;
-            editor.putString("User " + appID, wipe ? "" : username);
-            editor.putString("Pass " + appID, wipe ? "" : passwordOrPin);
-
-            editor.apply();
+            storeApp(new ConnectLinkedAppRecord(appID, username, passwordOrPin));
         }
     }
 
-    public static AuthInfo.BasicAuth getCredsForApp(String appID) {
+    public static AuthInfo.BasicAuth getCredentialsForApp(String appID) {
         if(getInstance().connectStatus != ConnectIDStatus.LoggedIn) {
             return null;
         }
 
-        SharedPreferences prefs = CommCareApplication.instance().getCurrentApp().getAppPreferences();
-        String username = prefs.getString("User " + appID, null);
-        String pass = prefs.getString("Pass " + appID, null);
-
-        if(username == null || pass == null || username.length() == 0 || pass.length() == 0) {
-            return null;
+        ConnectLinkedAppRecord record = getAppData(appID);
+        if(record != null) {
+            return new AuthInfo.BasicAuth(record.getUserID(), record.getPassword());
         }
 
-        return new AuthInfo.BasicAuth(username, pass);
+        return null;
     }
 }

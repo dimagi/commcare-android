@@ -8,6 +8,7 @@ import com.google.common.collect.ImmutableMultimap;
 import com.google.gson.Gson;
 
 import org.commcare.android.database.connect.models.ConnectUserRecord;
+import org.commcare.core.interfaces.HttpResponseProcessor;
 import org.commcare.core.network.AuthInfo;
 import org.commcare.core.network.HTTPMethod;
 import org.commcare.dalvik.R;
@@ -15,7 +16,7 @@ import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.ConnectorWithHttpResponseProcessor;
 import org.commcare.interfaces.WithUIController;
 import org.commcare.tasks.ModernHttpTask;
-import org.commcare.tasks.templates.CommCareTaskConnector;
+import org.commcare.tasks.templates.CommCareTask;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -26,15 +27,10 @@ import okhttp3.MediaType;
 import okhttp3.RequestBody;
 
 public class ConnectIDRegistrationActivity extends CommCareActivity<ConnectIDRegistrationActivity>
-implements WithUIController, ConnectorWithHttpResponseProcessor<ConnectIDRegistrationActivity> {
-    private static final String TAG = ConnectIDRegistrationActivity.class.getSimpleName();
-
+implements WithUIController {
     public static final String USERNAME = "USERNAME";
     public static final String PASSWORD = "PASSWORD";
     public static final String NAME = "NAME";
-    public static final String DOB = "DOB";
-    public static final String PHONE = "PHONE";
-    public static final String ALTPHONE = "ALTPHONE";
 
     private ConnectIDRegistrationActivityUIController uiController;
 
@@ -63,24 +59,31 @@ implements WithUIController, ConnectorWithHttpResponseProcessor<ConnectIDRegistr
         int idLength = 7;
 
         String charSet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-        String userId = "";
+        StringBuilder userId = new StringBuilder();
         for (int i = 0; i < idLength; i++) {
-            userId += charSet.charAt(new Random().nextInt(charSet.length()));
+            userId.append(charSet.charAt(new Random().nextInt(charSet.length())));
         }
 
-        return userId;
+        return userId.toString();
     }
 
-    private String generatePassword() {
+    public static String generatePassword() {
         int passwordLength = 10;
 
         String charSet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()-_=+,<.>?;:[{]}|~";
-        String password = "";
+        StringBuilder password = new StringBuilder();
         for (int i = 0; i < passwordLength; i++) {
-            password += charSet.charAt(new Random().nextInt(charSet.length()));
+            password.append(charSet.charAt(new Random().nextInt(charSet.length())));
         }
 
-        return password;
+        return password.toString();
+    }
+
+    public void finish(boolean success) {
+        Intent intent = new Intent(getIntent());
+        user.putUserInIntent(intent);
+        setResult(success ? RESULT_OK : RESULT_CANCELED, intent);
+        finish();
     }
 
     public void createAccount() {
@@ -112,46 +115,60 @@ implements WithUIController, ConnectorWithHttpResponseProcessor<ConnectIDRegistr
                         requestBody,
                         HTTPMethod.POST,
                         new AuthInfo.NoAuth());
-        postTask.connect((CommCareTaskConnector)this);
+        final ConnectIDRegistrationActivity self = this;
+        postTask.connect(new ConnectorWithHttpResponseProcessor<>() {
+            @Override
+            public void processSuccess(int responseCode, InputStream responseData) {
+                Toast.makeText(self, "Success!", Toast.LENGTH_SHORT).show();
+                finish(true);
+            }
+
+            @Override
+            public void processClientError(int responseCode) {
+                //400 error
+                Toast.makeText(self, "Client error", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void processServerError(int responseCode) {
+                //500 error for internal server error
+                Toast.makeText(self, "Server error", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void processOther(int responseCode) {
+                finish(false);
+            }
+
+            @Override
+            public void handleIOException(IOException exception) {
+                //UnknownHostException if host not found
+                Toast.makeText(self, "Exception", Toast.LENGTH_SHORT).show();
+            }
+            @Override
+            public <A, B, C> void connectTask(CommCareTask<A, B, C, HttpResponseProcessor> task) {}
+
+            @Override
+            public void startBlockingForTask(int id) {}
+
+            @Override
+            public void stopBlockingForTask(int id) {}
+
+            @Override
+            public void taskCancelled() {}
+
+            @Override
+            public HttpResponseProcessor getReceiver() { return null; }
+
+            @Override
+            public void startTaskTransition() {}
+
+            @Override
+            public void stopTaskTransition(int taskId) {}
+
+            @Override
+            public void hideTaskCancelButton() {}
+        });
         postTask.executeParallel();
-    }
-
-    public void finish(boolean success) {
-        Intent intent = new Intent(getIntent());
-        user.putUserInIntent(intent);
-        setResult(success ? RESULT_OK : RESULT_CANCELED, intent);
-        finish();
-    }
-
-    @Override
-    public void processSuccess(int responseCode, InputStream responseData) {
-        Toast.makeText(this, "Success!", Toast.LENGTH_SHORT).show();
-        finish(true);
-    }
-
-    @Override
-    public void processClientError(int responseCode) {
-        //400 error
-        Toast.makeText(this, "Client error", Toast.LENGTH_SHORT).show();
-        //finish(false);
-    }
-
-    @Override
-    public void processServerError(int responseCode) {
-        Toast.makeText(this, "Server error", Toast.LENGTH_SHORT).show();
-        //500 error for internal server error
-        //finish(false);
-    }
-
-    @Override
-    public void processOther(int responseCode) {
-        finish(false);
-    }
-
-    @Override
-    public void handleIOException(IOException exception) {
-        Toast.makeText(this, "Exception", Toast.LENGTH_SHORT).show();
-        //UnknownHostException if host not found
-        //finish(false);
     }
 }

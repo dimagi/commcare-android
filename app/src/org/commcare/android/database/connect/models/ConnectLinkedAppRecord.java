@@ -19,4 +19,19 @@ public class ConnectLinkedAppRecord extends Persisted {
 
     @Persisting(3)
     private String password;
+
+    public ConnectLinkedAppRecord() {
+
+    }
+
+    public ConnectLinkedAppRecord(String appID, String userID, String password) {
+        this.appID = appID;
+        this.userID = userID;
+        this.password = password;
+    }
+
+    public String getAppID() { return appID; }
+    public String getUserID() { return userID; }
+    public String getPassword() { return password; }
+
 }
