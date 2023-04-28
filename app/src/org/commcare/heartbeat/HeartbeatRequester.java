@@ -1,5 +1,9 @@
 package org.commcare.heartbeat;
 
+
+import static org.commcare.utils.FirebaseMessagingUtil.FCM_TOKEN;
+import static org.commcare.utils.FirebaseMessagingUtil.FCM_TOKEN_TIME;
+
 import android.util.Log;
 
 import org.commcare.CommCareApplication;
@@ -11,6 +15,7 @@ import org.commcare.preferences.HiddenPreferences;
 import org.commcare.preferences.ServerUrls;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.CommCareUtil;
+import org.commcare.utils.FirebaseMessagingUtil;
 import org.commcare.utils.SessionUnavailableException;
 import org.commcare.utils.StorageUtils;
 import org.commcare.utils.SyncDetailCalculations;
@@ -20,7 +25,6 @@ import org.json.JSONObject;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.HashMap;
 import java.util.TimeZone;
 
 import androidx.work.WorkManager;
@@ -67,6 +71,9 @@ public class HeartbeatRequester extends GetAndParseActor {
         params.put(LAST_SYNC_TIME_PARAM, getISO8601FormattedLastSyncTime());
         params.put(CURRENT_DRIFT, String.valueOf(DriftHelper.getCurrentDrift()));
         params.put(MAX_DRIFT_SINCE_LAST_HEARTBEAT, String.valueOf(DriftHelper.getMaxDriftSinceLastHeartbeat()));
+        //TODO: Encode the FCM registration token
+        params.put(FCM_TOKEN, FirebaseMessagingUtil.getFCMToken());
+        params.put(FCM_TOKEN_TIME, String.valueOf(FirebaseMessagingUtil.getFCMTokenTime()));
         return params;
     }
 
