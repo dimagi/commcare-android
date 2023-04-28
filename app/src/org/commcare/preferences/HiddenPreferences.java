@@ -94,8 +94,9 @@ public class HiddenPreferences {
     private static final String BYPASS_PRE_UPDATE_SYNC = "bypass_pre_update_sync";
     private static final String DISABLE_BACKGROUND_WORK_TIME = "disable-background-work-time";
 
-
     private static final long NO_OF_HOURS_TO_WAIT_TO_RESUME_BACKGROUND_WORK = 36;
+    // This is to be used by CommCareFirebaseMessagingService to schedule a sync after the next Login
+    public final static String POST_LOGIN_SYNC_NEEDED = "post-login-sync-needed";
 
 
     /**
@@ -550,5 +551,15 @@ public class HiddenPreferences {
     public static void markRawMediaCleanUpComplete() {
         CommCareApplication.instance().getCurrentApp().getAppPreferences()
                 .edit().putBoolean(RAW_MEDIA_CLEANUP_COMPLETE, true).apply();
+    }
+
+    public static boolean isPostLoginSyncNeeded() {
+        return CommCareApplication.instance().getCurrentApp().getAppPreferences()
+                .getBoolean(POST_LOGIN_SYNC_NEEDED, false);
+    }
+    public static void setPostLoginSyncNeeded(boolean syncNeeded) {
+        CommCareApplication.instance().getCurrentApp().getAppPreferences().edit()
+                .putBoolean(POST_LOGIN_SYNC_NEEDED, syncNeeded)
+                .apply();
     }
 }
