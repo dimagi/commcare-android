@@ -158,7 +158,7 @@ implements WithUIController {
             public void taskCancelled() {}
 
             @Override
-            public HttpResponseProcessor getReceiver() { return null; }
+            public HttpResponseProcessor getReceiver() { return this; }
 
             @Override
             public void startTaskTransition() {}
