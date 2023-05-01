@@ -18,6 +18,15 @@
         android:gravity="center|left"
         android:layout_height="wrap_content" />
 
+    <ImageButton
+        android:id="@+id/prompt_hint_button"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="0.5"
+        android:background="@android:color/transparent"
+        android:singleLine="true"
+        android:visibility="gone"
+        app:srcCompat="@drawable/icon_info_outline_lightcool" />
 
     <Spinner
         android:id="@+id/prompt_spinner"
