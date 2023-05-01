@@ -68,12 +68,13 @@ public class HeartbeatRequester extends GetAndParseActor {
         params.put(CC_VERSION, ReportingUtils.getCommCareVersionString());
         params.put(QUARANTINED_FORMS_PARAM, String.valueOf(StorageUtils.getNumQuarantinedForms()));
         params.put(UNSENT_FORMS_PARAM, String.valueOf(StorageUtils.getNumUnsentForms()));
-        params.put(LAST_SYNC_TIME_PARAM, getISO8601FormattedLastSyncTime());
+        params.put(LAST_SYNC_TIME_PARAM, convertTimeInMsToISO8601(SyncDetailCalculations.getLastSyncTime()));
         params.put(CURRENT_DRIFT, String.valueOf(DriftHelper.getCurrentDrift()));
         params.put(MAX_DRIFT_SINCE_LAST_HEARTBEAT, String.valueOf(DriftHelper.getMaxDriftSinceLastHeartbeat()));
         //TODO: Encode the FCM registration token
         params.put(FCM_TOKEN, FirebaseMessagingUtil.getFCMToken());
-        params.put(FCM_TOKEN_TIME, String.valueOf(FirebaseMessagingUtil.getFCMTokenTime()));
+        // TODO: Convert the Date to ISO 8601 format
+        params.put(FCM_TOKEN_TIME, convertTimeInMsToISO8601(FirebaseMessagingUtil.getFCMTokenTime()));
         return params;
     }
 
@@ -82,14 +83,14 @@ public class HeartbeatRequester extends GetAndParseActor {
         return new AuthInfo.CurrentAuth();
     }
 
-    private static String getISO8601FormattedLastSyncTime() {
-        long lastSyncTime = SyncDetailCalculations.getLastSyncTime();
-        if (lastSyncTime == 0) {
+    // TODO: Move this method to DateUtils
+    private static String convertTimeInMsToISO8601(long ms) {
+        if (ms == 0) {
             return "";
         } else {
             DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'");
             df.setTimeZone(TimeZone.getTimeZone("UTC"));
-            return df.format(lastSyncTime);
+            return df.format(ms);
         }
     }
 
