@@ -176,23 +176,28 @@ login.pin.password=PIN
 login.primed.prompt=Your password has been saved for you! Just press 'Log In'.
 login.button=Log In
 login.button.connect=Sign in with ConnectID
+login.app.direct=Login to your app directly.
 login.sync=Synchronize with server
 login.bad.password=We couldn't find a user with this password. Please try another!
 login.welcome.single=Welcome back! Please log in.
 login.welcome.multiple=Welcome back! Please select an app and log in.
+login.welcome.connect.signedout=Log into ConncetID first and then enter your app.
+login.welcome.connect.signedin=Welcome ${0}!
 login.show.password=SHOW
 login.hide.password=HIDE
 
 login.update.install.success=App update successfully applied!
 login.update.install.failure=App update failed to apply!
 
+choice.or=OR
+
 connect.button.logged.in=Go to Connect menu
 connect.button.logged.out=Login to Connect ID
 
-connect.recovery.title=New Sign In
+connect.recovery.title=ConnectID Account
 connect.recovery.decision.new=This is the first time logging into Connect on this device. Do you need to create a new account or recover an existing account?
-connect.recovery.button.new=New
-connect.recovery.button.recover=Existing
+connect.recovery.button.new=Create New Account
+connect.recovery.button.recover=Recover Existing Account
 connect.recovery.decision.phone=Please enter the primary phone number you registered with your account.
 connect.recovery.button.phone=Continue
 connect.recovery.button.extended=More Options
@@ -211,7 +216,7 @@ connect.register.phone=Phone Number (+18887776666)
 connect.register.phone.alt=Alternate Phone Number
 connect.register.create=Create Account
 
-connect.verify.title=Configure Biometrics
+connect.verify.title=Login Options
 connect.verify.message=Please configure at least one local verification method. Green means configured, yellow means not configured, red means unavailable.
 connect.verify.fingerprint=Fingerprint
 connect.verify.pin=PIN
@@ -223,10 +228,11 @@ connect.verify.phone.label.alternate=Almost there! Please enter the code sent vi
 connect.verify.phone.resend=Resend code
 connect.verify.phone.verify=Verify code
 
-connect.pictures.title=Verification Photos
+connect.pictures.title=Account Recovery
 connect.pictures.label=To help with account recovery, you can optionally take some photos to help identify you.
 connect.pictures.face=Face
 connect.pictures.id=Official ID
+connect.pictures.skip=Skip
 connect.pictures.continue=Continue
 
 query.button=Query

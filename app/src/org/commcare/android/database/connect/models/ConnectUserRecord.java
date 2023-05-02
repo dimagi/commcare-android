@@ -23,17 +23,21 @@ public class ConnectUserRecord extends Persisted {
     @Persisting(3)
     private String name;
 
-    @Persisting(value=4, nullable = true)
-    private String clientID;
+    @Persisting(4)
+    private String registrationPhase;
 
     @Persisting(value=5, nullable = true)
+    private String clientID;
+
+    @Persisting(value=6, nullable = true)
     private String clientSecret;
 
     public ConnectUserRecord() {
-
+        registrationPhase = "";
     }
 
     public ConnectUserRecord(String userID, String password, String displayName) {
+        this();
         this.userID = userID;
         this.password = password;
         this.name = displayName;
@@ -57,6 +61,8 @@ public class ConnectUserRecord extends Persisted {
     public String getUserID() { return userID; }
     public String getPassword() { return password; }
     public String getName() { return name; }
+    public String getRegistrationPhase() { return registrationPhase; }
+    public void setRegistrationPhase(String phase) { registrationPhase = phase; }
     public String getClientID() { return clientID; }
     public String getClientSecret() { return clientSecret; }
 }

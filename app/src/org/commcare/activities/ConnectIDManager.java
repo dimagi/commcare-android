@@ -160,11 +160,15 @@ public class ConnectIDManager {
     }
 
     public static boolean isConnectIDIntroduced() {
-        return getInstance().connectStatus != ConnectIDStatus.NotIntroduced;
+        return ENABLE_CONNECT_ID && getInstance().connectStatus != ConnectIDStatus.NotIntroduced;
+    }
+
+    public static boolean isSignedIn() {
+        return ENABLE_CONNECT_ID && getInstance().connectStatus == ConnectIDStatus.LoggedIn;
     }
 
     public static boolean shouldShowSignInMenuOption() {
-        return getInstance().connectStatus == ConnectIDStatus.NotIntroduced;
+        return ENABLE_CONNECT_ID && getInstance().connectStatus == ConnectIDStatus.NotIntroduced;
     }
 
     public static boolean shouldShowSignOutMenuOption() {
@@ -187,8 +191,8 @@ public class ConnectIDManager {
         };
     }
 
-    public static boolean shouldEnableConnectButton() {
-        return getInstance().connectStatus != ConnectIDStatus.LoggedIn;
+    public static boolean shouldShowConnectButton() {
+        return getInstance().connectStatus != ConnectIDStatus.LoggedIn && getInstance().connectStatus != ConnectIDStatus.NotIntroduced;
     }
 
     public static void handleConnectButtonPress(ConnectActivityCompleteListener listener) {
@@ -201,8 +205,16 @@ public class ConnectIDManager {
                 manager.parentActivity.startActivityForResult(i, CONNECT_RECOVERY_DECISION_ACTIVITY);
             }
             case LoggedOut -> {
-                Intent i = new Intent(manager.parentActivity, ConnectIDLoginActivity.class);
-                manager.parentActivity.startActivityForResult(i, CONNECT_UNLOCK_ACTIVITY);
+                String phase = getUser().getRegistrationPhase();
+                if(phase.length() > 0 && !phase.equals(RegistrationPhase.Initial.toString())) {
+                    //Resume registration workflow
+                    manager.phase = RegistrationPhase.valueOf(phase);
+                    manager.continueRegistrationWorkflow();
+                }
+                else {
+                    Intent i = new Intent(manager.parentActivity, ConnectIDLoginActivity.class);
+                    manager.parentActivity.startActivityForResult(i, CONNECT_UNLOCK_ACTIVITY);
+                }
             }
             case LoggedIn -> {
                 //TODO: Go to Connect menu (i.e. educate, verify, etc.)
@@ -219,7 +231,7 @@ public class ConnectIDManager {
     public static void forgetUser() {
         ConnectIDManager manager = getInstance();
         manager.connectStatus = ConnectIDStatus.NotIntroduced;
-        manager.getConnectStorage(ConnectUserRecord.class).remove(getUser().getID());
+        manager.getConnectStorage(ConnectUserRecord.class).removeAll();//(getUser().getID());
     }
 
     private void resetPassword() {
@@ -408,6 +420,12 @@ public class ConnectIDManager {
 
         manager.phase = nextPhase;
 
+        setRegistrationPhase(manager.phase);
+
+        manager.continueRegistrationWorkflow();
+    }
+
+    private void continueRegistrationWorkflow() {
         //Determine activity to launch for next phase
         Class<?> nextActivity = null;
         int nextRequestCode = -1;
@@ -471,5 +489,13 @@ public class ConnectIDManager {
         }
 
         return null;
+    }
+
+    public static void setRegistrationPhase(RegistrationPhase phase) {
+        ConnectUserRecord user = getUser();
+        if(user != null) {
+            user.setRegistrationPhase(phase.toString());
+            storeUser(user);
+        }
     }
 }

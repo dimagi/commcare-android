@@ -65,6 +65,12 @@ public class LoginActivityUIController implements CommCareActivityUIController {
     @UiElement(value = R.id.connect_login_button, locale = "login.button.connect")
     private Button connectLoginButton;
 
+    @UiElement(value = R.id.login_or, locale = "choice.or")
+    private TextView orLabel;
+
+    @UiElement(value = R.id.login_app_direct, locale = "login.app.direct")
+    private TextView directAppLabel;
+
     @UiElement(value = R.id.edit_username, locale = "login.username")
     private AutoCompleteTextView username;
 
@@ -85,6 +91,9 @@ public class LoginActivityUIController implements CommCareActivityUIController {
 
     @UiElement(R.id.app_selection_spinner)
     private Spinner spinner;
+
+    @UiElement(R.id.app_label)
+    private TextView appLabel;
 
     @UiElement(R.id.welcome_msg)
     private TextView welcomeMessage;
@@ -165,8 +174,8 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         connectLoginButton.setText(text);
     }
 
-    public void setConnectButtonEnabled(Boolean enabled) {
-        connectLoginButton.setEnabled(enabled);
+    public void setConnectButtonVisible(Boolean visible) {
+        connectLoginButton.setVisibility(visible ? View.VISIBLE : View.GONE);
     }
 
     private void setTextChangeListeners() {
@@ -219,6 +228,11 @@ public class LoginActivityUIController implements CommCareActivityUIController {
             prefs.edit().putString(LoginActivity.KEY_LAST_APP, r.getUniqueId()).apply();
 
             setSingleAppUIState();
+
+            if(ConnectIDManager.isConnectIDIntroduced()) {
+                appLabel.setVisibility(View.VISIBLE);
+                appLabel.setText(r.getDisplayName());
+            }
         } else {
             activity.populateAppSpinner(readyApps);
         }
@@ -239,9 +253,30 @@ public class LoginActivityUIController implements CommCareActivityUIController {
             checkEnteredUsernameForMatch();
         }
 
+        updateConnectLoginState();
+
         if (!CommCareApplication.notificationManager().messagesForCommCareArePending()) {
             notificationButtonView.setVisibility(View.GONE);
         }
+    }
+
+    public void updateConnectLoginState() {
+        boolean emphasizeConnectSignin = false;
+        if(ConnectIDManager.isConnectIDIntroduced()) {
+            String connectWelcome;
+            if(ConnectIDManager.isSignedIn()) {
+                connectWelcome = Localization.get("login.welcome.connect.signedin", ConnectIDManager.getUser().getName());
+            }
+            else {
+                connectWelcome = Localization.get("login.welcome.connect.signedout");
+                emphasizeConnectSignin = true;
+            }
+
+            welcomeMessage.setText(connectWelcome);
+        }
+
+        orLabel.setVisibility(emphasizeConnectSignin ? View.VISIBLE : View.GONE);
+        directAppLabel.setVisibility(emphasizeConnectSignin ? View.VISIBLE : View.GONE);
     }
 
     protected void refreshForNewApp() {

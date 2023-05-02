@@ -1,6 +1,9 @@
 package org.commcare.activities;
 
+import android.app.Activity;
+import android.content.Context;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.TextView;
@@ -13,13 +16,16 @@ import org.commcare.views.UiElement;
 @ManagedUi(R.layout.screen_connect_recovery_decision)
 public class ConnectIDRecoveryDecisionActivityUIController implements CommCareActivityUIController {
     @UiElement(value = R.id.connect_recovery_title, locale = "connect.recovery.title")
-    private TextView titleTextCiew;
+    private TextView titleTextView;
     @UiElement(value = R.id.connect_recovery_message)
     private TextView messageTextView;
     @UiElement(value = R.id.connect_recovery_phone)
     private AutoCompleteTextView phoneInput;
     @UiElement(value = R.id.connect_recovery_button_1)
     private Button button1;
+
+    @UiElement(value = R.id.connect_recovery_or, locale = "choice.or")
+    private TextView orTextView;
     @UiElement(value = R.id.connect_recovery_button_2)
     private Button button2;
 
@@ -50,6 +56,13 @@ public class ConnectIDRecoveryDecisionActivityUIController implements CommCareAc
 
     public String getPhoneNumber() {
         return phoneInput.getText().toString();
+    }
+
+    public void requestInputFocus(Activity activity) {
+        phoneInput.requestFocus();
+
+        InputMethodManager inputMethodManager = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
+        inputMethodManager.showSoftInput(phoneInput, InputMethodManager.SHOW_IMPLICIT);
     }
 
     public void setButton1Text(String text) {

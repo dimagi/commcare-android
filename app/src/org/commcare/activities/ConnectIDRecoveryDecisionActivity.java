@@ -34,6 +34,15 @@ implements WithUIController {
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+
+        if(state == ConnectRecoveryState.PhoneOrExtended) {
+            uiController.requestInputFocus(this);
+        }
+    }
+
+    @Override
     public CommCareActivityUIController getUIController() { return this.uiController; }
 
     @Override
@@ -63,6 +72,7 @@ implements WithUIController {
             case NewOrRecover -> {
                 state = ConnectRecoveryState.PhoneOrExtended;
                 uiController.setPhoneInputVisible(true);
+                uiController.requestInputFocus(this);
                 uiController.setMessage(Localization.get("connect.recovery.decision.phone"));
                 uiController.setButton1Text(Localization.get("connect.recovery.button.phone"));
                 uiController.setButton2Text(Localization.get("connect.recovery.button.extended"));

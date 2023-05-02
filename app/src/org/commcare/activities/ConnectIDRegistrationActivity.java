@@ -70,7 +70,7 @@ implements WithUIController {
     public static String generatePassword() {
         int passwordLength = 10;
 
-        String charSet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()-_=+,<.>?;:[{]}|~";
+        String charSet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()-_=+,<.>?;[{]}|~";
         StringBuilder password = new StringBuilder();
         for (int i = 0; i < passwordLength; i++) {
             password.append(charSet.charAt(new Random().nextInt(charSet.length())));
@@ -94,6 +94,43 @@ implements WithUIController {
         String dob = uiController.getDOBText();
         String phone = uiController.getPhoneText();
         String altPhone = uiController.getAltPhoneText();
+
+        //Do some basic input validation
+        boolean dobError = false;
+        try {
+            String[] parts = dob.split("-");
+            if (parts.length != 3) {
+                dobError = true;
+            } else {
+                int[] upperLimits = {3000, 12, 31};
+                for (int i = 0; i < parts.length; i++) {
+                    String part = parts[i];
+                    int num = Integer.parseInt(part);
+                    if (num > upperLimits[i]) {
+                        dobError = true;
+                        break;
+                    }
+                }
+            }
+        }
+        catch(Exception e) {
+            dobError = true;
+        }
+
+        if(dobError) {
+            Toast.makeText(this, "Error: Check DOB!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if(!phone.startsWith("+")) {
+            Toast.makeText(this, "Error: Check Phone!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if(!altPhone.startsWith("+")) {
+            Toast.makeText(this, "Error: Check Alt Phone!", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
         HashMap<String, String> params = new HashMap<>();
         //params.put("device_id", CommCareApplication.instance().getPhoneId());

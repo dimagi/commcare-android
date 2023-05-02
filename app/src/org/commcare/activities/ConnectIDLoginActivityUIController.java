@@ -1,6 +1,5 @@
 package org.commcare.activities;
 
-import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
@@ -20,6 +19,9 @@ public class ConnectIDLoginActivityUIController implements CommCareActivityUICon
 
     @UiElement(value = R.id.connect_fingerprint_button, locale = "connect.button.fingerprint")
     private Button fingerprintButton;
+
+    @UiElement(value = R.id.connect_login_or, locale = "choice.or")
+    private TextView orTextView;
 
     @UiElement(value = R.id.connect_pin_button, locale = "connect.button.pin")
     private Button pinButton;

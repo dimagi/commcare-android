@@ -1,5 +1,8 @@
 package org.commcare.activities;
 
+import android.app.Activity;
+import android.content.Context;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.TextView;
@@ -45,6 +48,13 @@ public class ConnectIDPhoneVerificationActivityUIController implements CommCareA
 
     public void setLabelText(String text) {
         labelTextView.setText(text);
+    }
+
+    public void requestInputFocus(Activity activity) {
+        codeInput.requestFocus();
+
+        InputMethodManager inputMethodManager = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
+        inputMethodManager.showSoftInput(codeInput, InputMethodManager.SHOW_IMPLICIT);
     }
 
     public String getCode() {

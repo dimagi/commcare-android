@@ -65,6 +65,13 @@ implements WithUIController {
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+
+        uiController.requestInputFocus(this);
+    }
+
+    @Override
     public CommCareActivityUIController getUIController() { return uiController; }
 
     @Override

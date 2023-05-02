@@ -36,6 +36,14 @@
         android:paddingBottom="@dimen/content_start"
         android:paddingTop="@dimen/content_start" />
 
+    <TextView
+        android:id="@+id/connect_recovery_or"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/content_min_margin"
+        android:gravity="center"
+        android:textSize="@dimen/text_medium"/>
+
     <Button
         android:id="@+id/connect_recovery_button_2"
         android:layout_width="fill_parent"

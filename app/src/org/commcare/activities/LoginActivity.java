@@ -121,7 +121,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         formAndDataSyncer = new FormAndDataSyncer();
 
         ConnectIDManager.init(this);
-        if(ConnectIDManager.ENABLE_CONNECT_ID && ConnectIDManager.isConnectIDIntroduced()) {
+        if(ConnectIDManager.isConnectIDIntroduced()) {
             uiController.showConnectIDButton();
             updateConnectButton();
         }
@@ -322,6 +322,8 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
             ConnectIDManager.handleFinishedActivity(requestCode, resultCode, intent);
         }
 
+        checkForSavedCredentials();
+
         super.onActivityResult(requestCode, resultCode, intent);
     }
 
@@ -428,7 +430,18 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
     private void updateConnectButton() {
         uiController.setConnectButtonText(ConnectIDManager.getConnectButtonText());
-        uiController.setConnectButtonEnabled(ConnectIDManager.shouldEnableConnectButton());
+        uiController.setConnectButtonVisible(ConnectIDManager.shouldShowConnectButton());
+
+        uiController.updateConnectLoginState();
+    }
+
+    private void checkForSavedCredentials() {
+        String currAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
+        AuthInfo.BasicAuth credentials = ConnectIDManager.getCredentialsForApp(currAppId);
+        if(credentials != null) {
+            uiController.setUsername(credentials.username);
+            uiController.setPasswordOrPin(credentials.password);
+        }
     }
 
     @Override
@@ -450,9 +463,9 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         super.onPrepareOptionsMenu(menu);
         menu.findItem(MENU_PERMISSIONS).setVisible(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M);
         menu.findItem(MENU_PASSWORD_MODE).setVisible(uiController.getLoginMode() == LoginMode.PIN);
-        menu.findItem(MENU_CONNECT_SIGN_IN).setVisible(ConnectIDManager.ENABLE_CONNECT_ID && ConnectIDManager.shouldShowSignInMenuOption());
-        menu.findItem(MENU_CONNECT_SIGN_OUT).setVisible(ConnectIDManager.ENABLE_CONNECT_ID && ConnectIDManager.shouldShowSignOutMenuOption());
-        menu.findItem(MENU_CONNECT_FORGET).setVisible(ConnectIDManager.ENABLE_CONNECT_ID && ConnectIDManager.shouldShowSignOutMenuOption());
+        menu.findItem(MENU_CONNECT_SIGN_IN).setVisible(ConnectIDManager.shouldShowSignInMenuOption());
+        menu.findItem(MENU_CONNECT_SIGN_OUT).setVisible(ConnectIDManager.shouldShowSignOutMenuOption());
+        menu.findItem(MENU_CONNECT_FORGET).setVisible(ConnectIDManager.shouldShowSignOutMenuOption());
 
         return true;
     }
@@ -616,11 +629,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
             this.startActivityForResult(i, SEAT_APP_ACTIVITY);
         }
         else {
-            AuthInfo.BasicAuth credentials = ConnectIDManager.getCredentialsForApp(appId);
-            if(credentials != null) {
-                uiController.setUsername(credentials.username);
-                uiController.setPasswordOrPin(credentials.password);
-            }
+            checkForSavedCredentials();
         }
     }
 
