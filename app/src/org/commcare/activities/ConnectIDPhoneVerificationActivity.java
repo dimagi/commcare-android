@@ -117,10 +117,12 @@ implements WithUIController {
             public void processSuccess(int responseCode, InputStream responseData) {
                 try {
                     String responseAsString = new String(StreamsUtil.inputStreamToByteArray(responseData));
-                    JSONObject json = new JSONObject(responseAsString);
-                    String key = "secret";
-                    if(json.has(key)) {
-                        password = json.getString(key);
+                    if(responseAsString.length() > 0) {
+                        JSONObject json = new JSONObject(responseAsString);
+                        String key = "secret";
+                        if (json.has(key)) {
+                            password = json.getString(key);
+                        }
                     }
                 }
                 catch(IOException | JSONException e) {

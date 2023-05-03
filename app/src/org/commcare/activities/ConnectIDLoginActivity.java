@@ -37,6 +37,15 @@ implements WithUIController {
         BiometricManager biometricManager = BiometricManager.from(this);
         configureFingerprintUnlock(biometricManager);
         configurePinUnlock(biometricManager);
+
+        if(fingerprintPromptInfo != null) {
+            if(pinPromptInfo == null) {
+                performFingerprintUnlock();
+            }
+        }
+        else if(pinPromptInfo != null) {
+            performPinUnlock();
+        }
     }
 
     @Override
@@ -117,6 +126,7 @@ implements WithUIController {
     }
 
     private void configureFingerprintUnlock(BiometricManager biometricManager) {
+        fingerprintPromptInfo = null;
         boolean enableFingerprint = BiometricsHelper.isFingerprintConfigured(biometricManager);
         uiController.setFingerprintEnabled(enableFingerprint);
 
@@ -130,6 +140,7 @@ implements WithUIController {
     }
 
     private void configurePinUnlock(BiometricManager biometricManager) {
+        pinPromptInfo = null;
         boolean enablePin = BiometricsHelper.isPinConfigured(biometricManager);
 
         uiController.setPinEnabled(enablePin);

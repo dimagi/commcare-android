@@ -1,7 +1,7 @@
 package org.commcare.activities;
 
-import android.graphics.Color;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import org.commcare.dalvik.R;
@@ -18,8 +18,13 @@ public class ConnectIDPicturesActivityUIController implements CommCareActivityUI
 
     @UiElement(value = R.id.connect_pictures_label, locale = "connect.pictures.label")
     private TextView labelTextView;
+    @UiElement(value = R.id.connect_pictures_face_icon)
+    private ImageView faceIcon;
     @UiElement(value = R.id.connect_pictures_face, locale = "connect.pictures.face")
     private TextView faceTextView;
+
+    @UiElement(value = R.id.connect_pictures_id_icon)
+    private ImageView idIcon;
     @UiElement(value = R.id.connect_pictures_id, locale = "connect.pictures.id")
     private TextView idTextView;
 
@@ -57,22 +62,22 @@ public class ConnectIDPicturesActivityUIController implements CommCareActivityUI
 
     public void setFaceStatus(boolean completed) {
         faceCompleted = completed;
-        setStatus(faceTextView, completed);
+        setStatus(faceTextView, faceIcon, completed);
 
         updateButtonText();
     }
 
     public void setIdStatus(boolean completed) {
         idCompleted = completed;
-        setStatus(idTextView, completed);
+        setStatus(idTextView, idIcon, completed);
 
         updateButtonText();
     }
 
-    private void setStatus(TextView textView, boolean completed) {
-        int color = completed ? Color.GREEN : Color.RED;
+    private void setStatus(TextView textView, ImageView iconView, boolean completed) {
+        int image = completed ? R.drawable.checkmark : R.drawable.eye;
 
-        textView.setTextColor(color);
+        iconView.setImageResource(image);
         textView.setEnabled(!completed);
     }
 }

@@ -217,7 +217,7 @@ connect.register.phone.alt=Alternate Phone Number
 connect.register.create=Create Account
 
 connect.verify.title=Login Options
-connect.verify.message=Please configure at least one local verification method. Green means configured, yellow means not configured, red means unavailable.
+connect.verify.message=Please configure at least one local verification method. Check means configured, eye means not configured, X means unavailable.
 connect.verify.fingerprint=Fingerprint
 connect.verify.pin=PIN
 connect.verify.button=Continue

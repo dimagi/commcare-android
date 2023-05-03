@@ -534,6 +534,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
 
     protected void userTriggeredLogout() {
         CommCareApplication.instance().closeUserSession();
+        ConnectIDManager.signOut();
         setResult(RESULT_OK);
         finish();
     }

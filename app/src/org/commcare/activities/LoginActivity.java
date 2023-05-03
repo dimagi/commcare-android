@@ -254,6 +254,8 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
         // Otherwise, refresh the activity for current conditions
         uiController.refreshView();
+
+        checkForSavedCredentials();
     }
 
     protected boolean checkForSeatedAppChange() {

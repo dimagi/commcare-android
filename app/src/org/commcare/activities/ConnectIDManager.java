@@ -5,7 +5,9 @@ import static android.app.Activity.RESULT_OK;
 import android.content.Intent;
 import android.widget.Toast;
 
+import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableMultimap;
+import com.google.common.collect.Multimap;
 import com.google.gson.Gson;
 
 import net.sqlcipher.database.SQLiteDatabase;
@@ -471,10 +473,99 @@ public class ConnectIDManager {
         }
     }
 
+    public static void getConnectToken() {
+        ConnectIDManager manager = getInstance();
+        ConnectUserRecord user = getUser();
+
+        String url = manager.parentActivity.getString(R.string.ConnectURL) + "/o/authorize";
+
+        Multimap<String, String> params = ArrayListMultimap.create();
+        params.put("client_id", "zqFUtAAMrxmjnC1Ji74KAa6ZpY1mZly0J0PlalIa");
+        params.put("scope", "openid");
+        params.put("response_type", "id_token");
+        params.put("response_mode", "fragment");
+        params.put("state", "test_state");
+        params.put("nonce", "test_nonce");
+
+        ModernHttpTask postTask =
+                new ModernHttpTask(manager.parentActivity, url,
+                        params,
+                        new HashMap<>(),
+                        null,
+                        HTTPMethod.GET,
+                        new AuthInfo.BasicAuth(user.getUserID(), user.getPassword()));
+        postTask.connect(new ConnectorWithHttpResponseProcessor<>() {
+            @Override
+            public void processSuccess(int responseCode, InputStream responseData) {
+                try {
+                    String responseAsString = new String(StreamsUtil.inputStreamToByteArray(responseData));
+                    JSONObject json = new JSONObject(responseAsString);
+                    String key = "username";
+                    if (json.has(key)) {
+                        //username = json.getString(key);
+                    }
+                }
+                catch(IOException | JSONException e) {
+                    Logger.exception("Parsing return from OIDC call", e);
+                }
+                Toast.makeText(manager.parentActivity, "Call succeeded!", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void processClientError(int responseCode) {
+                //400 error
+                Toast.makeText(manager.parentActivity, "OIDC: Client error", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void processServerError(int responseCode) {
+                Toast.makeText(manager.parentActivity, "OIDC: Server error", Toast.LENGTH_SHORT).show();
+                //500 error for internal server error
+            }
+
+            @Override
+            public void processOther(int responseCode) {
+                Toast.makeText(manager.parentActivity, "OIDC: Other error", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void handleIOException(IOException exception) {
+                Toast.makeText(manager.parentActivity, "OIDC: Exception", Toast.LENGTH_SHORT).show();
+                //UnknownHostException if host not found
+            }
+
+            @Override
+            public <A, B, C> void connectTask(CommCareTask<A, B, C, HttpResponseProcessor> task) {}
+
+            @Override
+            public void startBlockingForTask(int id) {}
+
+            @Override
+            public void stopBlockingForTask(int id) {}
+
+            @Override
+            public void taskCancelled() {}
+
+            @Override
+            public HttpResponseProcessor getReceiver() { return this; }
+
+            @Override
+            public void startTaskTransition() {}
+
+            @Override
+            public void stopTaskTransition(int taskId) {}
+
+            @Override
+            public void hideTaskCancelButton() {}
+        });
+        postTask.executeParallel();
+    }
+
     public static void rememberAppCredentials(String appID, String username, String passwordOrPin) {
         ConnectIDManager manager = getInstance();
         if(manager.connectStatus == ConnectIDStatus.LoggedIn) {
             storeApp(new ConnectLinkedAppRecord(appID, username, passwordOrPin));
+            //getConnectToken();
         }
     }
 

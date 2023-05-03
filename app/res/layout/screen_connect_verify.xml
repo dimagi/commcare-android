@@ -30,9 +30,10 @@
         android:orientation="horizontal">
 
         <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/connect_verify_fingerprint_icon" />
+            android:id="@+id/connect_verify_fingerprint_icon"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_margin="@dimen/content_min_margin" />
 
         <TextView
             android:id="@+id/connect_verify_fingerprint_message"
@@ -52,9 +53,10 @@
         android:orientation="horizontal">
 
         <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/connect_verify_pin_icon" />
+            android:id="@+id/connect_verify_pin_icon"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_margin="@dimen/content_min_margin" />
 
         <TextView
             android:id="@+id/connect_verify_pin_message"

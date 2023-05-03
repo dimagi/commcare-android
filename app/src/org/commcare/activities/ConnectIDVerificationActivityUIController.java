@@ -1,7 +1,7 @@
 package org.commcare.activities;
 
-import android.graphics.Color;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import org.commcare.dalvik.R;
@@ -18,9 +18,13 @@ public class ConnectIDVerificationActivityUIController implements CommCareActivi
     @UiElement(value = R.id.connect_verify_message, locale = "connect.verify.message")
     private TextView messageTextView;
 
+    @UiElement(value = R.id.connect_verify_fingerprint_icon)
+    private ImageView fingerprintIcon;
     @UiElement(value = R.id.connect_verify_fingerprint_message, locale = "connect.verify.fingerprint")
     private TextView fingerprintTextView;
 
+    @UiElement(value = R.id.connect_verify_pin_icon)
+    private ImageView pinIcon;
     @UiElement(value = R.id.connect_verify_pin_message, locale = "connect.verify.pin")
     private TextView pinTextView;
 
@@ -46,25 +50,32 @@ public class ConnectIDVerificationActivityUIController implements CommCareActivi
     }
 
     public void setFingerprintStatus(BiometricsHelper.ConfigurationStatus status) {
-        setStatus(fingerprintTextView, status);
+        setStatus(fingerprintTextView, fingerprintIcon, status);
     }
 
     public void setPinStatus(BiometricsHelper.ConfigurationStatus status) {
-        setStatus(pinTextView, status);
+        setStatus(pinTextView, pinIcon, status);
     }
 
-    private void setStatus(TextView textView, BiometricsHelper.ConfigurationStatus status) {
-        int color = Color.YELLOW;
+    private void setStatus(TextView textView, ImageView iconView, BiometricsHelper.ConfigurationStatus status) {
+        int image = R.drawable.redx;
         switch(status) {
-            case NotAvailable -> color = Color.RED;
-            case Configured -> color = Color.GREEN;
+            case NotAvailable -> {
+                image = R.drawable.redx;
+            }
+            case NotConfigured -> {
+                image = R.drawable.eye;
+            }
+            case Configured -> {
+                image = R.drawable.checkmark;
+            }
         }
 
         if(status == BiometricsHelper.ConfigurationStatus.Configured) {
             actionButton.setEnabled(true);
         }
 
-        textView.setBackgroundColor(color);
+        iconView.setImageResource(image);
         textView.setEnabled(status != BiometricsHelper.ConfigurationStatus.NotAvailable);
     }
 }
