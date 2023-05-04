@@ -215,6 +215,7 @@ static def getDate() {
 }
 
 android {
+    namespace "org.commcare.dalvik"
     compileSdkVersion 33
 
     lintOptions {
@@ -234,6 +235,10 @@ android {
         exclude 'META-INF/DEPENDENCIES'
         exclude 'META-INF/NOTICE'
         exclude 'META-INF/NOTICE.txt'
+    }
+
+    buildFeatures {
+        buildConfig true
     }
 
     defaultConfig {
