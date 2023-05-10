@@ -20,7 +20,7 @@
 
     <ImageButton
         android:id="@+id/prompt_hint_button"
-        android:layout_width="0dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_weight="0.5"
         android:background="@android:color/transparent"
