@@ -418,8 +418,14 @@ class QueryRequestUiController(
             promptHelpButton.visibility = View.VISIBLE
 
             promptHelpButton.setOnClickListener {
-                AlertDialogWrapper.alertDialog(queryRequestActivity, "Hint", hintText)
-                        .showAlertDialog(queryRequestActivity)
+                queryRequestActivity.showAlertDialog(StandardAlertDialog.getBasicAlertDialog(
+                        queryRequestActivity,
+                        "Hint",
+                        hintText,
+                        DialogInterface.OnClickListener { dialog, id ->
+                            dialog.dismiss()
+                        }
+                ))
             }
         }
     }
@@ -434,20 +440,4 @@ class QueryRequestUiController(
     // Thrown when we are setting an invalid value to the prompt,
     // for ex- trying to set multiple values to a single valued prompt
     class InvalidPromptValueException(message: String) : Throwable(message)
-
-    class AlertDialogWrapper(private val standardAlertDialog: StandardAlertDialog) {
-        companion object {
-            fun alertDialog(activity: QueryRequestActivity, title: String, message: String): AlertDialogWrapper {
-                return AlertDialogWrapper(StandardAlertDialog(activity, title, message))
-            }
-        }
-
-        fun showAlertDialog(activity: QueryRequestActivity) {
-            val listener = DialogInterface.OnClickListener { dialog, id ->
-                dialog.dismiss()
-            }
-            standardAlertDialog.setPositiveButton("OK", listener);
-            activity.showAlertDialog(standardAlertDialog);
-        }
-    }
 }
