@@ -357,6 +357,9 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
                             blockingActionsManager);
             Log.i(TAG, "created view for group");
         } catch (RuntimeException e) {
+            if (e instanceof ArithmeticException) {
+                throw e;
+            }
             Logger.exception("Error instantiating QuestionsView", e);
             new UserfacingErrorHandling<>().createErrorDialog(activity, e.getMessage(), FormEntryConstants.EXIT);
             // this is badness to avoid a crash.
