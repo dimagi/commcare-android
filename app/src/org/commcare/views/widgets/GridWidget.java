@@ -81,6 +81,9 @@ public class GridWidget extends QuestionWidget {
         // The max width of an icon in a given column. Used to determine the approximate total
         // height that the entire grid view will take up
         int maxImageHeight = -1;
+        Display display = ((WindowManager)getContext().getSystemService(Context.WINDOW_SERVICE))
+                .getDefaultDisplay();
+        int screenWidth = display.getWidth();
 
         for (int i = 0; i < mItems.size(); i++) {
             imageViews[i] = new ImageView(getContext());
@@ -96,7 +99,7 @@ public class GridWidget extends QuestionWidget {
 
             if (imageURI != null) {
                 choices[i] = imageURI;
-                Bitmap b = MediaUtil.inflateDisplayImage(context, imageURI);
+                Bitmap b = MediaUtil.inflateDisplayImage(context, imageURI, screenWidth, -1);
                 if (b != null) {
                     if (b.getWidth() > maxImageWidth) {
                         maxImageWidth = b.getWidth();
@@ -128,10 +131,6 @@ public class GridWidget extends QuestionWidget {
                 listener.advance();
             }
         });
-
-        Display display = ((WindowManager)getContext().getSystemService(Context.WINDOW_SERVICE))
-                .getDefaultDisplay();
-        int screenWidth = display.getWidth();
 
         // Use the user's choice for num columns, otherwise decide based upon what will fit.
         int maxColumnsThatWillFit = Math.max(screenWidth / maxImageWidth, 1);
