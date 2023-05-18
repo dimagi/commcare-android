@@ -9,6 +9,7 @@ import org.commcare.CommCareApplication;
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.cases.model.Case;
 import org.commcare.cases.model.CaseIndex;
+import org.commcare.cases.query.queryset.DualTableMultiMatchModelQuerySet;
 import org.commcare.cases.query.queryset.DualTableSingleMatchModelQuerySet;
 import org.commcare.modern.database.TableBuilder;
 import org.commcare.models.database.DbUtil;
@@ -322,6 +323,50 @@ public class AndroidCaseIndexTable implements CaseIndexTable {
         return set;
     }
 
+    @Override
+    public DualTableMultiMatchModelQuerySet bulkReadCaseIdToIndexMatch(String indexName, Collection<Integer> cuedCases) {
+        DualTableMultiMatchModelQuerySet set = new DualTableMultiMatchModelQuerySet();
+        String caseIdIndex = TableBuilder.scrubName(Case.INDEX_CASE_ID);
+        List<Pair<String, String[]>> whereParamList = TableBuilder.sqlList(cuedCases, "CAST(? as INT)");
+
+        for (Pair<String, String[]> querySet : whereParamList) {
+
+            String query =String.format(
+                    "SELECT %s,%s " +
+                            "FROM %s " +
+                            "INNER JOIN %s " +
+                            "ON %s = %s " +
+                            "WHERE %s = '%s' " +
+                            "AND " +
+                            "%s IN %s",
+
+                    ACase.STORAGE_KEY + "." + DatabaseHelper.ID_COL, COL_CASE_RECORD_ID,
+                    ACase.STORAGE_KEY,
+                    TABLE_NAME,
+                    COL_INDEX_TARGET, caseIdIndex,
+                    COL_INDEX_NAME, indexName,
+                    ACase.STORAGE_KEY + "." + DatabaseHelper.ID_COL, querySet.first);
+
+            android.database.Cursor c = db.rawQuery(query, querySet.second);
+
+            try {
+                if (c.getCount() == 0) {
+                    return set;
+                } else {
+                    c.moveToFirst();
+                    while (!c.isAfterLast()) {
+                        int caseId = c.getInt(c.getColumnIndex(DatabaseHelper.ID_COL));
+                        int targetCase = c.getInt(c.getColumnIndexOrThrow(COL_CASE_RECORD_ID));
+                        set.loadResult(caseId, targetCase);
+                        c.moveToNext();
+                    }
+                }
+            } finally {
+                c.close();
+            }
+        }
+        return set;
+    }
 
 
     public static String getArgumentBasedVariableSet(int number) {
