@@ -13,7 +13,6 @@ import org.javarosa.core.model.trace.ReducingTraceReporter;
 import org.javarosa.core.model.trace.AccumulatingReporter;
 import org.javarosa.core.model.trace.TraceSerialization;
 import org.javarosa.core.model.utils.InstrumentationUtils;
-import org.javarosa.core.model.utils.InstrumentationUtils;
 import org.javarosa.model.xform.XPathReference;
 import org.javarosa.xpath.XPathParseTool;
 import org.javarosa.xpath.expr.FunctionUtils;
@@ -128,12 +127,18 @@ public class CaseDbQueryTest {
 
     @Test
     public void testModelSelfReference() {
-        TestUtils.processResourceTransaction("/inputs/case_test_model_query_lookups.xml");
+        TestUtils.processResourceTransaction("/inputs/case_parent_child_index_bulk.xml");
         EvaluationContext ec = TestUtils.getEvaluationContextWithoutSession();
+
+        ReducingTraceReporter traceReporter = new ReducingTraceReporter(false);
+        ec.setDebugModeOn(traceReporter);
 
         evaluate("join(',',instance('casedb')/casedb/case[@case_type='unit_test_child'][@status='open'][true() and " +
                 "count(instance('casedb')/casedb/case[index/parent = instance('casedb')/casedb/case[@case_id=current()/@case_id]/index/parent][false = 'true']) > 0]/@case_id)", "", ec);
 
+        String trace = InstrumentationUtils.collectAndClearTraces(
+                traceReporter, "Child Lookups", TraceSerialization.TraceInfoType.FULL_PROFILE);
+        assertTrue("Nested index query should trigger a reverse index optimization", trace.contains("reverse index"));
     }
 
     @Test
