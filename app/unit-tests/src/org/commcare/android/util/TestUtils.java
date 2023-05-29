@@ -29,7 +29,7 @@ import org.commcare.utils.GlobalConstants;
 import org.commcare.xml.AndroidBulkCaseXmlParser;
 import org.commcare.xml.AndroidCaseXmlParser;
 import org.commcare.xml.AndroidTransactionParserFactory;
-import org.commcare.xml.CaseXmlParser;
+import org.commcare.xml.CaseXmlParserUtil;
 import org.commcare.xml.FormInstanceXmlParser;
 import org.commcare.xml.LedgerXmlParsers;
 import org.javarosa.core.model.FormDef;
@@ -107,7 +107,7 @@ public class TestUtils {
                 return new FormInstanceXmlParser(parser,
                         Collections.unmodifiableMap(formInstanceNamespaces),
                         CommCareApplication.instance().getCurrentApp().fsPath(GlobalConstants.FILE_CC_FORMS));
-            } else if (CaseXmlParser.CASE_XML_NAMESPACE.equals(parser.getNamespace()) && "case".equalsIgnoreCase(parser.getName())) {
+            } else if (CaseXmlParserUtil.CASE_XML_NAMESPACE.equals(parser.getNamespace()) && "case".equalsIgnoreCase(parser.getName())) {
 
                 //Note - this isn't even actually bulk processing. since this class is static
                 //there's no good lifecycle to manage the bulk processor in, but at least
