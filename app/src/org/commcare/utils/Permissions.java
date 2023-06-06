@@ -13,6 +13,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Acquire Android permissions needed by CommCare.
  *
@@ -103,7 +106,12 @@ public class Permissions {
                 Manifest.permission.WRITE_EXTERNAL_STORAGE};
     }
 
+    // More Special Permissions can be added to the list when necessary
     private static String[] getSpecialAppPermissions() {
+        List<String> permissions = new ArrayList<>();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
+            permissions.add(Manifest.permission.SCHEDULE_EXACT_ALARM);
+        return permissions.toArray(new String[permissions.size()]);
     }
 
     private static void acquireSpecialAppPermissions(AppCompatActivity activity,
