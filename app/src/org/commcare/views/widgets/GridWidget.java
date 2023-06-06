@@ -134,7 +134,7 @@ public class GridWidget extends QuestionWidget {
         int screenWidth = display.getWidth();
 
         // Use the user's choice for num columns, otherwise decide based upon what will fit.
-        int maxColumnsThatWillFit = screenWidth / maxImageWidth;
+        int maxColumnsThatWillFit = Math.max(screenWidth / maxImageWidth, 1);
         if (numColumns > 0) {
             gridview.setNumColumns(numColumns);
         } else {
