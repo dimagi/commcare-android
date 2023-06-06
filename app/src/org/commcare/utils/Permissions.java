@@ -35,23 +35,20 @@ public class Permissions {
     public static boolean acquireAllAppPermissions(AppCompatActivity activity,
                                                    RuntimePermissionRequester permRequester,
                                                    int permRequestCode) {
-        String[] permissions = getAppPermissions();
-
-        if (missingAppPermission(activity, permissions)) {
-            if (shouldShowPermissionRationale(activity, permissions)) {
-                CommCareAlertDialog dialog =
-                        DialogCreationHelpers.buildPermissionRequestDialog(activity, permRequester,
-                                permRequestCode,
-                                Localization.get("permission.all.title"),
-                                Localization.get("permission.all.message"));
-                dialog.showNonPersistentDialog();
-            } else {
-                permRequester.requestNeededPermissions(permRequestCode);
-            }
-            return true;
-        } else {
-            return false;
+        boolean wasUserAskedForPermissions = false;
+        String[] runtimePermissions = getRuntimeAppPermissions();
+        if (missingAppPermission(activity, runtimePermissions)) {
+            acquireRuntimeAppPermissions(activity, runtimePermissions, permRequester,
+                    permRequestCode);
+            wasUserAskedForPermissions = true;
         }
+
+        String[] specialPermissions = getSpecialAppPermissions();
+        if (missingAppPermission(activity, specialPermissions)) {
+            acquireSpecialAppPermissions(activity, specialPermissions);
+            wasUserAskedForPermissions = true;
+        }
+        return wasUserAskedForPermissions;
     }
 
     public static boolean missingAppPermission(AppCompatActivity activity,
@@ -63,7 +60,6 @@ public class Permissions {
         }
         return false;
     }
-
 
     public static boolean missingAppPermission(AppCompatActivity activity,
                                                String permission) {
@@ -88,7 +84,7 @@ public class Permissions {
     /**
      * @return Permissions needed for _normal_ CommCare functionality
      */
-    public static String[] getAppPermissions() {
+    public static String[] getRuntimeAppPermissions() {
         return new String[]{Manifest.permission.READ_PHONE_STATE,
                 Manifest.permission.CALL_PHONE,
                 Manifest.permission.ACCESS_FINE_LOCATION,
@@ -105,5 +101,28 @@ public class Permissions {
     public static String[] getRequiredPerms() {
         return new String[]{Manifest.permission.READ_EXTERNAL_STORAGE,
                 Manifest.permission.WRITE_EXTERNAL_STORAGE};
+    }
+
+    private static String[] getSpecialAppPermissions() {
+    }
+
+    private static void acquireSpecialAppPermissions(AppCompatActivity activity,
+                                                     String[] specialPermissions) {
+    }
+
+    private static void acquireRuntimeAppPermissions(AppCompatActivity activity,
+                                                     String[] runtimePermissions,
+                                                     RuntimePermissionRequester permRequester,
+                                                     int permRequestCode) {
+        if (shouldShowPermissionRationale(activity, runtimePermissions)) {
+            CommCareAlertDialog dialog =
+                    DialogCreationHelpers.buildPermissionRequestDialog(activity, permRequester,
+                            permRequestCode,
+                            Localization.get("permission.all.title"),
+                            Localization.get("permission.all.message"));
+            dialog.showNonPersistentDialog();
+        } else {
+            permRequester.requestNeededPermissions(permRequestCode);
+        }
     }
 }
