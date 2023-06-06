@@ -96,6 +96,7 @@ public class HiddenPreferences {
 
 
     private static final long NO_OF_HOURS_TO_WAIT_TO_RESUME_BACKGROUND_WORK = 36;
+    private static final String CHECK_SCHEDULE_EXACT_ALARM_PERMISSION = "check-schedule-exact-alarm-permission";
 
 
     /**
@@ -550,5 +551,16 @@ public class HiddenPreferences {
     public static void markRawMediaCleanUpComplete() {
         CommCareApplication.instance().getCurrentApp().getAppPreferences()
                 .edit().putBoolean(RAW_MEDIA_CLEANUP_COMPLETE, true).apply();
+    }
+
+    public static void setCheckScheduleExactAlarmPermission(boolean checkPermission) {
+        PreferenceManager.getDefaultSharedPreferences(CommCareApplication.instance())
+                .edit()
+                .putBoolean(CHECK_SCHEDULE_EXACT_ALARM_PERMISSION, checkPermission).apply();
+    }
+
+    public static boolean getCheckScheduleExactAlarmPermission() {
+        return PreferenceManager.getDefaultSharedPreferences(CommCareApplication.instance())
+                .getBoolean(CHECK_SCHEDULE_EXACT_ALARM_PERMISSION, true);
     }
 }

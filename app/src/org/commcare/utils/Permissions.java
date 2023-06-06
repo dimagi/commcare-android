@@ -1,10 +1,14 @@
 package org.commcare.utils;
 
+import android.content.Context;
+
 import android.Manifest;
+import android.app.AlarmManager;
 import android.content.pm.PackageManager;
 import android.os.Build;
 
 import org.commcare.interfaces.RuntimePermissionRequester;
+import org.commcare.preferences.HiddenPreferences;
 import org.commcare.views.dialogs.CommCareAlertDialog;
 import org.commcare.views.dialogs.DialogCreationHelpers;
 import org.javarosa.core.services.locale.Localization;
@@ -12,6 +16,7 @@ import org.javarosa.core.services.locale.Localization;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.content.PermissionChecker;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -66,7 +71,9 @@ public class Permissions {
 
     public static boolean missingAppPermission(AppCompatActivity activity,
                                                String permission) {
-        return ContextCompat.checkSelfPermission(activity, permission) == PackageManager.PERMISSION_DENIED;
+        int permCheckResult = PermissionChecker.checkSelfPermission(activity, permission);
+        return  (permCheckResult == PermissionChecker.PERMISSION_DENIED) ||
+                (permCheckResult == PermissionChecker.PERMISSION_DENIED_APP_OP);
     }
 
     public static boolean shouldShowPermissionRationale(AppCompatActivity activity,
@@ -116,6 +123,28 @@ public class Permissions {
 
     private static void acquireSpecialAppPermissions(AppCompatActivity activity,
                                                      String[] specialPermissions) {
+        for (String specialPerm : specialPermissions) {
+            if (shouldRequestSpecialPermission(activity, specialPerm)){
+                requestSpecialPermission(activity, specialPerm);
+            }
+        }
+    }
+
+    private static void requestSpecialPermission(AppCompatActivity activity, String specialPerm) {
+    }
+
+    private static boolean shouldRequestSpecialPermission(AppCompatActivity activity, String specialPerm) {
+        switch (specialPerm) {
+            case Manifest.permission.SCHEDULE_EXACT_ALARM:
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    return !(((AlarmManager) activity.getSystemService(Context.ALARM_SERVICE)).canScheduleExactAlarms())
+                            && HiddenPreferences.getCheckScheduleExactAlarmPermission();
+                }
+                break;
+            default:
+                throw new RuntimeException("Invalid special permission " + specialPerm);
+        }
+        return false;
     }
 
     private static void acquireRuntimeAppPermissions(AppCompatActivity activity,
