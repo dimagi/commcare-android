@@ -316,6 +316,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                 if (Permissions.missingAppPermission(this, Manifest.permission.SCHEDULE_EXACT_ALARM)) {
                     Permissions.communicateFeatureDegradation(this, Manifest.permission.SCHEDULE_EXACT_ALARM);
                 }
+                Permissions.requestingSpecialAppPermission = false;
                 break;
         }
         super.onActivityResult(requestCode, resultCode, intent);

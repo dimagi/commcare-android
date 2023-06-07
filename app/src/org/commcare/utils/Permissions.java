@@ -11,6 +11,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.provider.Settings;
 
+import org.commcare.activities.CommCareActivity;
 import org.commcare.interfaces.RuntimePermissionRequester;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.views.dialogs.CommCareAlertDialog;
@@ -35,6 +36,11 @@ import java.util.List;
 public class Permissions {
     public final static int ALL_PERMISSIONS_REQUEST = 1;
     public static final int SCHEDULE_EXACT_ALARM_PERMISSION_REQUEST = 2;
+
+    // This flag is to be used when requesting Special access permissions and prevent triggering
+    // the request when the configuration of the device changes during the process. It should be
+    // switched off on the onActivityResult method of the requesting Activity
+    public static boolean requestingSpecialAppPermission;
 
     /**
      * Ask for Android permissions needed by the app all at once.  This goes
@@ -206,6 +212,7 @@ public class Permissions {
     // TODO: In addition to scrolling to where CommCare app is, we should highlight the item
     // https://stackoverflow.com/questions/62979001/highlighting-a-menu-item-in-system-settings
     private static void startAlarmsAndRemindersActivity(AppCompatActivity activity) {
+        requestingSpecialAppPermission = true;
         Intent intent = new Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM);
 
         intent.setData(Uri.parse("package:"+activity.getPackageName()));
@@ -213,15 +220,17 @@ public class Permissions {
     }
 
     private static boolean shouldRequestSpecialPermission(AppCompatActivity activity, String specialPerm) {
-        switch (specialPerm) {
-            case Manifest.permission.SCHEDULE_EXACT_ALARM:
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                    return !(((AlarmManager) activity.getSystemService(Context.ALARM_SERVICE)).canScheduleExactAlarms())
-                            && HiddenPreferences.getCheckScheduleExactAlarmPermission();
-                }
-                break;
-            default:
-                throw new RuntimeException("Invalid special permission " + specialPerm);
+        if (!requestingSpecialAppPermission) {
+            switch (specialPerm) {
+                case Manifest.permission.SCHEDULE_EXACT_ALARM:
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                        return !(((AlarmManager) activity.getSystemService(Context.ALARM_SERVICE)).canScheduleExactAlarms())
+                                && HiddenPreferences.getCheckScheduleExactAlarmPermission();
+                    }
+                    break;
+                default:
+                    throw new RuntimeException("Invalid special permission " + specialPerm);
+            }
         }
         return false;
     }
