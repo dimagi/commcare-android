@@ -1,5 +1,6 @@
 package org.commcare.activities;
 
+import android.Manifest;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
@@ -303,10 +304,19 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
-        if (requestCode == SEAT_APP_ACTIVITY && resultCode == RESULT_OK) {
-            uiController.refreshForNewApp();
-            invalidateOptionsMenu();
-            usernameBeforeRotation = passwordOrPinBeforeRotation = null;
+        switch(requestCode) {
+            case SEAT_APP_ACTIVITY:
+                if (resultCode == RESULT_OK) {
+                    uiController.refreshForNewApp();
+                    invalidateOptionsMenu();
+                    usernameBeforeRotation = passwordOrPinBeforeRotation = null;
+                }
+                break;
+            case Permissions.SCHEDULE_EXACT_ALARM_PERMISSION_REQUEST:
+                if (Permissions.missingAppPermission(this, Manifest.permission.SCHEDULE_EXACT_ALARM)) {
+                    Permissions.communicateFeatureDegradation(this, Manifest.permission.SCHEDULE_EXACT_ALARM);
+                }
+                break;
         }
         super.onActivityResult(requestCode, resultCode, intent);
     }

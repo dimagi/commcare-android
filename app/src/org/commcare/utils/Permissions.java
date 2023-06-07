@@ -34,7 +34,7 @@ import java.util.List;
  */
 public class Permissions {
     public final static int ALL_PERMISSIONS_REQUEST = 1;
-    private static final int SCHEDULE_EXACT_ALARM_PERMISSION_REQUEST = 2;
+    public static final int SCHEDULE_EXACT_ALARM_PERMISSION_REQUEST = 2;
 
     /**
      * Ask for Android permissions needed by the app all at once.  This goes
@@ -159,7 +159,30 @@ public class Permissions {
         d.showNonPersistentDialog();
     }
 
-    private static void communicateFeatureDegradation(AppCompatActivity activity, String specialPerm) {
+    public static void communicateFeatureDegradation(AppCompatActivity activity, String specialPerm) {
+        // Any other measures should be registered in the switch below
+        switch(specialPerm){
+            case Manifest.permission.SCHEDULE_EXACT_ALARM:
+                // Don't check this permission again, the user will have to go to Apps -> Special access
+                // to grant it
+                HiddenPreferences.setCheckScheduleExactAlarmPermission(false);
+                break;
+            default:
+                throw new RuntimeException("Invalid special permission " + specialPerm);
+        }
+        StandardAlertDialog d = StandardAlertDialog.getBasicAlertDialog(activity,
+                Localization.get(getSpecialPermissionDialogTitle(specialPerm)),
+                Localization.get(getSpecialPermissionDenialDialogMessage(specialPerm)),null);
+        d.showNonPersistentDialog();
+    }
+
+    private static String getSpecialPermissionDenialDialogMessage(String specialPerm) {
+        switch(specialPerm){
+            case Manifest.permission.SCHEDULE_EXACT_ALARM:
+                return "permission.schedule.exact.alarm.denied";
+            default:
+                throw new RuntimeException("Invalid special permission " + specialPerm);
+        }
     }
 
     private static String getSpecialPermissionRequestDialogMessage(String specialPerm) {

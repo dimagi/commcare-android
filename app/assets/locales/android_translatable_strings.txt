@@ -852,6 +852,7 @@ permission.acquire.dialog.allow=Allow
 permission.acquire.dialog.deny=Deny
 permission.schedule.exact.alarm.title=Alarms and Reminders
 permission.schedule.exact.alarm.message=CommCare needs permission to uses the Alarms and Reminders feature. This is required during login when CommCare is not visible to the user
+permission.schedule.exact.alarm.denied=CommCare doesn't have permission to use the Alarms feature, login when CommCare is not visible to the user will be limited. Please enable via Android's settings.
 
 custom.acknowledgement=
 case.error.self.index=Case '${0}' cannot index itself. In order to login you must change the case on the server.
