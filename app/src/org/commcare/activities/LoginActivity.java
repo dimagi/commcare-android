@@ -141,7 +141,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     @Override
     @TargetApi(Build.VERSION_CODES.M)
     public void requestNeededPermissions(int requestCode) {
-        ActivityCompat.requestPermissions(this, Permissions.getAppPermissions(),
+        ActivityCompat.requestPermissions(this, Permissions.getRuntimeAppPermissions(),
                 requestCode);
     }
 
