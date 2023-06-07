@@ -848,6 +848,10 @@ permission.camera.denial.message=CommCare doesn't have the permission to use cam
 permission.location.title=Permission for Location
 permission.location.message=In order to record location, CommCare needs permission to use your device location.
 permission.location.denial.message=CommCare doesn't have the permission to use location. Please enable via Android's settings.
+permission.acquire.dialog.allow=Allow
+permission.acquire.dialog.deny=Deny
+permission.schedule.exact.alarm.title=Alarms and Reminders
+permission.schedule.exact.alarm.message=CommCare needs permission to uses the Alarms and Reminders feature. This is required during login when CommCare is not visible to the user
 
 custom.acknowledgement=
 case.error.self.index=Case '${0}' cannot index itself. In order to login you must change the case on the server.

@@ -4,15 +4,21 @@ import android.content.Context;
 
 import android.Manifest;
 import android.app.AlarmManager;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Build;
+import android.provider.Settings;
 
 import org.commcare.interfaces.RuntimePermissionRequester;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.views.dialogs.CommCareAlertDialog;
 import org.commcare.views.dialogs.DialogCreationHelpers;
+import org.commcare.views.dialogs.StandardAlertDialog;
 import org.javarosa.core.services.locale.Localization;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -28,6 +34,7 @@ import java.util.List;
  */
 public class Permissions {
     public final static int ALL_PERMISSIONS_REQUEST = 1;
+    private static final int SCHEDULE_EXACT_ALARM_PERMISSION_REQUEST = 2;
 
     /**
      * Ask for Android permissions needed by the app all at once.  This goes
@@ -131,6 +138,55 @@ public class Permissions {
     }
 
     private static void requestSpecialPermission(AppCompatActivity activity, String specialPerm) {
+        StandardAlertDialog d = new StandardAlertDialog(activity, Localization.get(getSpecialPermissionDialogTitle(specialPerm)),
+                Localization.get(getSpecialPermissionRequestDialogMessage(specialPerm)));
+        DialogInterface.OnClickListener listener = (dialog, which) -> {
+            if (which == AlertDialog.BUTTON_POSITIVE) {
+                switch(specialPerm) {
+                    case Manifest.permission.SCHEDULE_EXACT_ALARM:
+                        startAlarmsAndRemindersActivity(activity);
+                        break;
+                    default:
+                        throw new RuntimeException("Invalid special permission " + specialPerm);
+                }
+            }
+            else
+                communicateFeatureDegradation(activity, specialPerm);
+            dialog.dismiss();
+        };
+        d.setPositiveButton(Localization.get("permission.acquire.dialog.allow"), listener);
+        d.setNegativeButton(Localization.get("permission.acquire.dialog.deny"), listener);
+        d.showNonPersistentDialog();
+    }
+
+    private static void communicateFeatureDegradation(AppCompatActivity activity, String specialPerm) {
+    }
+
+    private static String getSpecialPermissionRequestDialogMessage(String specialPerm) {
+        switch(specialPerm){
+            case Manifest.permission.SCHEDULE_EXACT_ALARM:
+                return "permission.schedule.exact.alarm.message";
+            default:
+                throw new RuntimeException("Invalid special permission " + specialPerm);
+        }
+    }
+
+    private static String getSpecialPermissionDialogTitle(String specialPerm) {
+        switch(specialPerm){
+            case Manifest.permission.SCHEDULE_EXACT_ALARM:
+                return "permission.schedule.exact.alarm.title";
+            default:
+                throw new RuntimeException("Invalid special permission " + specialPerm);
+        }
+    }
+
+    // TODO: In addition to scrolling to where CommCare app is, we should highlight the item
+    // https://stackoverflow.com/questions/62979001/highlighting-a-menu-item-in-system-settings
+    private static void startAlarmsAndRemindersActivity(AppCompatActivity activity) {
+        Intent intent = new Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM);
+
+        intent.setData(Uri.parse("package:"+activity.getPackageName()));
+        activity.startActivityForResult(intent, SCHEDULE_EXACT_ALARM_PERMISSION_REQUEST);
     }
 
     private static boolean shouldRequestSpecialPermission(AppCompatActivity activity, String specialPerm) {
