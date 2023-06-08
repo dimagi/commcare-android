@@ -41,43 +41,30 @@
         android:inputType="text"/>
 
     <TextView
-        android:id="@+id/connect_label_dob"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="@dimen/content_min_margin"
-        android:gravity="start"
-        android:textSize="@dimen/text_medium"/>
-    <AutoCompleteTextView
-        android:id="@+id/connect_edit_dob"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:inputType="text"/>
-
-    <TextView
-        android:id="@+id/connect_label_phone"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="@dimen/content_min_margin"
-        android:gravity="start"
-        android:textSize="@dimen/text_medium"/>
-    <AutoCompleteTextView
-        android:id="@+id/connect_edit_phone"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:inputType="text"/>
-
-    <TextView
         android:id="@+id/connect_label_alt_phone"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/content_min_margin"
         android:gravity="start"
         android:textSize="@dimen/text_medium"/>
-    <AutoCompleteTextView
-        android:id="@+id/connect_edit_alt_phone"
+
+    <RelativeLayout
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:inputType="text"/>
+        android:layout_height="wrap_content">
+        <AutoCompleteTextView
+            android:id="@+id/connect_alt_phone_country_input"
+            android:layout_width="100sp"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:inputType="text" />
+
+        <AutoCompleteTextView
+            android:id="@+id/connect_alt_phone_input"
+            android:layout_toEndOf="@id/connect_alt_phone_country_input"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:inputType="numberDecimal" />
+    </RelativeLayout>
 
     <Button
         android:id="@+id/connect_register_button"

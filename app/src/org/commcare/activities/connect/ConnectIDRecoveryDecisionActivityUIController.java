@@ -1,4 +1,4 @@
-package org.commcare.activities;
+package org.commcare.activities.connect;
 
 import android.app.Activity;
 import android.content.Context;
@@ -6,6 +6,7 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import org.commcare.dalvik.R;
@@ -19,7 +20,13 @@ public class ConnectIDRecoveryDecisionActivityUIController implements CommCareAc
     private TextView titleTextView;
     @UiElement(value = R.id.connect_recovery_message)
     private TextView messageTextView;
-    @UiElement(value = R.id.connect_recovery_phone)
+
+    @UiElement(R.id.connect_recovery_phone_block)
+    private RelativeLayout phoneBlock;
+
+    @UiElement(value = R.id.connect_recovery_phone_country_input)
+    private AutoCompleteTextView countryCodeInput;
+    @UiElement(value = R.id.connect_recovery_phone_input)
     private AutoCompleteTextView phoneInput;
     @UiElement(value = R.id.connect_recovery_button_1)
     private Button button1;
@@ -51,18 +58,19 @@ public class ConnectIDRecoveryDecisionActivityUIController implements CommCareAc
     }
 
     public void setPhoneInputVisible(boolean visible) {
-        phoneInput.setVisibility(visible ? View.VISIBLE : View.GONE);
+        phoneBlock.setVisibility(visible ? View.VISIBLE : View.GONE);
     }
 
+    public void setCountryCode(String code) { countryCodeInput.setText(code); }
+    public String getCountryCode() {
+        return countryCodeInput.getText().toString();
+    }
     public String getPhoneNumber() {
         return phoneInput.getText().toString();
     }
 
-    public void requestInputFocus(Activity activity) {
-        phoneInput.requestFocus();
-
-        InputMethodManager inputMethodManager = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
-        inputMethodManager.showSoftInput(phoneInput, InputMethodManager.SHOW_IMPLICIT);
+    public void requestInputFocus() {
+        ConnectIDKeyboardHelper.showKeyboardOnInput(activity, phoneInput);
     }
 
     public void setButton1Text(String text) {

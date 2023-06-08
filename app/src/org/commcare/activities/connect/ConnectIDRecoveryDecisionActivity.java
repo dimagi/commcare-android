@@ -1,22 +1,24 @@
-package org.commcare.activities;
+package org.commcare.activities.connect;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Toast;
 
+import org.commcare.activities.CommCareActivity;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.WithUIController;
+import org.commcare.utils.PhoneNumberHelper;
 import org.javarosa.core.services.locale.Localization;
 
-public class ConnectIDRecoveryDecisionActivity extends  CommCareActivity<ConnectIDRecoveryDecisionActivity>
+import java.util.Locale;
+
+public class ConnectIDRecoveryDecisionActivity extends CommCareActivity<ConnectIDRecoveryDecisionActivity>
 implements WithUIController {
     private enum ConnectRecoveryState {
         NewOrRecover,
         PhoneOrExtended
     }
 
-    public static final String CREATE = "CREATE";
-    public static final String PHONE = "PHONE";
     private ConnectIDRecoveryDecisionActivityUIController uiController;
     private ConnectRecoveryState state;
 
@@ -38,7 +40,7 @@ implements WithUIController {
         super.onResume();
 
         if(state == ConnectRecoveryState.PhoneOrExtended) {
-            uiController.requestInputFocus(this);
+            uiController.requestInputFocus();
         }
     }
 
@@ -53,8 +55,8 @@ implements WithUIController {
     public void finish(boolean createNew, String phone) {
         Intent intent = new Intent(getIntent());
 
-        intent.putExtra(CREATE, createNew);
-        intent.putExtra(PHONE, phone);
+        intent.putExtra(ConnectIDConstants.CREATE, createNew);
+        intent.putExtra(ConnectIDConstants.PHONE, phone);
 
         setResult(RESULT_OK, intent);
         finish();
@@ -63,7 +65,7 @@ implements WithUIController {
     public void handleButton1Press() {
         switch(state) {
             case NewOrRecover -> finish(true, null);
-            case PhoneOrExtended -> finish(false, uiController.getPhoneNumber());
+            case PhoneOrExtended -> finish(false, PhoneNumberHelper.buildPhoneNumber(uiController.getCountryCode(), uiController.getPhoneNumber()));
         }
     }
 
@@ -72,7 +74,11 @@ implements WithUIController {
             case NewOrRecover -> {
                 state = ConnectRecoveryState.PhoneOrExtended;
                 uiController.setPhoneInputVisible(true);
-                uiController.requestInputFocus(this);
+
+                int code = PhoneNumberHelper.getCountryCode(this);
+                uiController.setCountryCode(String.format(Locale.getDefault(), "+%d", code));
+
+                uiController.requestInputFocus();
                 uiController.setMessage(Localization.get("connect.recovery.decision.phone"));
                 uiController.setButton1Text(Localization.get("connect.recovery.button.phone"));
                 uiController.setButton2Text(Localization.get("connect.recovery.button.extended"));

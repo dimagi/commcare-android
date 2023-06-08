@@ -1,4 +1,4 @@
-package org.commcare.activities;
+package org.commcare.activities.connect;
 
 import android.widget.Button;
 import android.widget.ImageView;

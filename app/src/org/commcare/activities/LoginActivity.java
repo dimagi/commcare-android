@@ -20,6 +20,7 @@ import com.scottyab.rootbeer.RootBeer;
 
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
+import org.commcare.activities.connect.ConnectIDManager;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.core.network.AuthInfo;
@@ -98,6 +99,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     private static final int TASK_UPGRADE_INSTALL = 2;
 
     private final ArrayList<String> appIdDropdownList = new ArrayList<>();
+    private int selectedAppIndex = -1;
 
     private String usernameBeforeRotation;
     private String passwordOrPinBeforeRotation;
@@ -122,7 +124,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
         ConnectIDManager.init(this);
         if(ConnectIDManager.isConnectIDIntroduced()) {
-            uiController.showConnectIDButton();
+            uiController.setConnectButtonVisible(true);
             updateConnectButton();
         }
 
@@ -324,7 +326,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
             ConnectIDManager.handleFinishedActivity(requestCode, resultCode, intent);
         }
 
-        checkForSavedCredentials();
+        //checkForSavedCredentials();
 
         super.onActivityResult(requestCode, resultCode, intent);
     }
@@ -422,9 +424,10 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     }
 
     public void handleConnectButtonPress() {
+        selectedAppIndex = -1;
         ConnectIDManager.handleConnectButtonPress(success -> {
             if(success) {
-                uiController.showConnectIDButton();
+                uiController.setConnectButtonVisible(true);
                 updateConnectButton();
             }
         });
@@ -438,11 +441,17 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     }
 
     private void checkForSavedCredentials() {
-        String currAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
-        AuthInfo.BasicAuth credentials = ConnectIDManager.getCredentialsForApp(currAppId);
-        if(credentials != null) {
-            uiController.setUsername(credentials.username);
-            uiController.setPasswordOrPin(credentials.password);
+        int appIndex = uiController.getSelectedAppIndex();
+        String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
+        int seatedIndex = appIdDropdownList.indexOf(seatedAppId);
+        if(appIndex == seatedIndex) {
+            AuthInfo.ProvidedAuth credentials = ConnectIDManager.getCredentialsForApp(seatedAppId);
+            if (credentials != null) {
+                uiController.setUsername(credentials.username);
+                uiController.setPasswordOrPin(credentials.password);
+
+                initiateLoginAttempt(uiController.isRestoreSessionChecked());
+            }
         }
     }
 
@@ -499,6 +508,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                 return true;
             case MENU_CONNECT_SIGN_OUT:
                 ConnectIDManager.signOut();
+                uiController.refreshView();
                 uiController.setPasswordOrPin("");
                 updateConnectButton();
                 return true;
@@ -506,6 +516,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                 ConnectIDManager.forgetUser();
                 uiController.setPasswordOrPin("");
                 updateConnectButton();
+                uiController.refreshView();
                 return true;
             default:
                 return otherResult;
@@ -600,9 +611,17 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         }
     }
 
-    protected void populateAppSpinner(ArrayList<ApplicationRecord> readyApps) {
+    protected boolean populateAppSpinner(ArrayList<ApplicationRecord> readyApps) {
         ArrayList<String> appNames = new ArrayList<>();
+
         appIdDropdownList.clear();
+
+        boolean includeDefault = ConnectIDManager.isConnectIDIntroduced();
+        if(includeDefault) {
+            appNames.add(Localization.get("login.app.direct"));
+            appIdDropdownList.add("");
+        }
+
         for (ApplicationRecord r : readyApps) {
             appNames.add(r.getDisplayName());
             appIdDropdownList.add(r.getUniqueId());
@@ -610,28 +629,47 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
         // Want to set the spinner's selection to match whatever the currently seated app is
         String currAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
-        int position = appIdDropdownList.indexOf(currAppId);
+        int position = 0;
+        if(selectedAppIndex >= 0) {
+            position = selectedAppIndex;
+        }
+        else if(!includeDefault) {
+            position = appIdDropdownList.indexOf(currAppId);
+        }
         uiController.setMultipleAppsUIState(appNames, position);
+        selectedAppIndex = -1;
+
+        return includeDefault;
     }
 
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-        // Retrieve the app record corresponding to the app selected
-        String appId = appIdDropdownList.get(position);
+        if(!ConnectIDManager.isConnectIDIntroduced() || position > 0) {
+            // Retrieve the app record corresponding to the app selected
+            selectedAppIndex = position;// - (ConnectIDManager.isConnectIDIntroduced() ? 1 : 0);
+            String appId = appIdDropdownList.get(selectedAppIndex);
 
-        boolean selectedNewApp = !appId.equals(CommCareApplication.instance().getCurrentApp().getUniqueId());
-        if (selectedNewApp) {
-            // Set the id of the last selected app
-            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-            prefs.edit().putString(KEY_LAST_APP, appId).commit();
+            if (appId.length() > 0) {
+                uiController.setLoginInputsVisibility(true);
 
-            // Launch the activity to seat the new app
-            Intent i = new Intent(this, SeatAppActivity.class);
-            i.putExtra(SeatAppActivity.KEY_APP_TO_SEAT, appId);
-            this.startActivityForResult(i, SEAT_APP_ACTIVITY);
+                //TODO: Show user/pass fields
+                boolean selectedNewApp = !appId.equals(CommCareApplication.instance().getCurrentApp().getUniqueId());
+                if (selectedNewApp) {
+                    // Set the id of the last selected app
+                    SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+                    prefs.edit().putString(KEY_LAST_APP, appId).commit();
+
+                    // Launch the activity to seat the new app
+                    Intent i = new Intent(this, SeatAppActivity.class);
+                    i.putExtra(SeatAppActivity.KEY_APP_TO_SEAT, appId);
+                    this.startActivityForResult(i, SEAT_APP_ACTIVITY);
+                } else {
+                    checkForSavedCredentials();
+                }
+            }
         }
         else {
-            checkForSavedCredentials();
+            uiController.setLoginInputsVisibility(false);
         }
     }
 

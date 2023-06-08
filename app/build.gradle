@@ -136,6 +136,9 @@ dependencies {
     implementation 'androidx.biometric:biometric:1.1.0'
 
     implementation 'androidx.security:security-crypto:1.0.0'
+
+    implementation 'io.michaelrocks:libphonenumber-android:8.13.11'
+    implementation 'com.nulab-inc:zxcvbn:1.7.0'
 }
 
 ext {

@@ -20,6 +20,8 @@ import android.widget.TextView;
 
 import org.commcare.CommCareApplication;
 import org.commcare.CommCareNoficationManager;
+import org.commcare.activities.connect.ConnectIDDatabaseHelper;
+import org.commcare.activities.connect.ConnectIDManager;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.dalvik.R;
@@ -67,9 +69,6 @@ public class LoginActivityUIController implements CommCareActivityUIController {
 
     @UiElement(value = R.id.login_or, locale = "choice.or")
     private TextView orLabel;
-
-    @UiElement(value = R.id.login_app_direct, locale = "login.app.direct")
-    private TextView directAppLabel;
 
     @UiElement(value = R.id.edit_username, locale = "login.username")
     private AutoCompleteTextView username;
@@ -166,10 +165,6 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         notificationButton.setOnClickListener(view -> CommCareNoficationManager.performIntentCalloutToNotificationsView(activity));
     }
 
-    public void showConnectIDButton() {
-        connectLoginButton.setVisibility(View.VISIBLE);
-    }
-
     public void setConnectButtonText(String text) {
         connectLoginButton.setText(text);
     }
@@ -219,8 +214,9 @@ public class LoginActivityUIController implements CommCareActivityUIController {
 
         // Decide whether or not to show the app selection spinner based upon # of usable apps
         ArrayList<ApplicationRecord> readyApps = MultipleAppsUtil.getUsableAppRecords();
-
-        if (readyApps.size() == 1) {
+        boolean promptIncluded = false;
+        if (readyApps.size() == 1 && (!ConnectIDManager.isConnectIDIntroduced() || ConnectIDManager.isSignedIn())) {
+            setLoginInputsVisibility(true);
             // Set this app as the last selected app, for use in choosing what app to initialize
             // on first startup
             ApplicationRecord r = readyApps.get(0);
@@ -229,12 +225,13 @@ public class LoginActivityUIController implements CommCareActivityUIController {
 
             setSingleAppUIState();
 
-            if(ConnectIDManager.isConnectIDIntroduced()) {
+            if(ConnectIDManager.isSignedIn()) {
                 appLabel.setVisibility(View.VISIBLE);
                 appLabel.setText(r.getDisplayName());
             }
         } else {
-            activity.populateAppSpinner(readyApps);
+            promptIncluded = activity.populateAppSpinner(readyApps);
+            appLabel.setVisibility(View.GONE);
         }
 
         // Not using this for now, but may turn back on later
@@ -258,25 +255,34 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         if (!CommCareApplication.notificationManager().messagesForCommCareArePending()) {
             notificationButtonView.setVisibility(View.GONE);
         }
+
+        if(ConnectIDManager.isConnectIDIntroduced()) {
+            setLoginInputsVisibility(!promptIncluded);
+        }
+    }
+
+    public void setLoginInputsVisibility(boolean visible) {
+        username.setVisibility(visible ? View.VISIBLE : View.GONE);
+        passwordOrPin.setVisibility(visible ? View.VISIBLE : View.GONE);
+        loginButton.setVisibility(visible ? View.VISIBLE : View.GONE);
     }
 
     public void updateConnectLoginState() {
         boolean emphasizeConnectSignin = false;
         if(ConnectIDManager.isConnectIDIntroduced()) {
-            String connectWelcome;
+            String welcomeText;
             if(ConnectIDManager.isSignedIn()) {
-                connectWelcome = Localization.get("login.welcome.connect.signedin", ConnectIDManager.getUser().getName());
+                welcomeText = Localization.get("login.welcome.connect.signedin", ConnectIDDatabaseHelper.getUser(activity).getName());
             }
             else {
-                connectWelcome = Localization.get("login.welcome.connect.signedout");
+                welcomeText = Localization.get("login.welcome.connect.signedout");
                 emphasizeConnectSignin = true;
             }
 
-            welcomeMessage.setText(connectWelcome);
+            welcomeMessage.setText(welcomeText);
         }
 
         orLabel.setVisibility(emphasizeConnectSignin ? View.VISIBLE : View.GONE);
-        directAppLabel.setVisibility(emphasizeConnectSignin ? View.VISIBLE : View.GONE);
     }
 
     protected void refreshForNewApp() {
@@ -463,6 +469,10 @@ public class LoginActivityUIController implements CommCareActivityUIController {
 
         spinner.setSelection(position);
         spinner.setVisibility(View.VISIBLE);
+    }
+
+    protected int getSelectedAppIndex() {
+        return spinner.getSelectedItemPosition();
     }
 
     protected void setPermissionsGrantedState() {

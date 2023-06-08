@@ -24,11 +24,12 @@
         android:textSize="@dimen/text_medium" />
 
     <Button
-        android:id="@+id/connect_fingerprint_button"
+        android:id="@+id/connect_pin_button"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:paddingBottom="@dimen/content_start"
-        android:paddingTop="@dimen/content_start" />
+        android:paddingTop="@dimen/content_start"
+        android:visibility="gone"/>
 
     <TextView
         android:id="@+id/connect_login_or"
@@ -36,14 +37,16 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_margin="@dimen/content_min_margin"
-        android:textSize="@dimen/text_medium" />
+        android:textSize="@dimen/text_medium"
+        android:visibility="gone"/>
 
     <Button
-        android:id="@+id/connect_pin_button"
+        android:id="@+id/connect_password_button"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:paddingBottom="@dimen/content_start"
-        android:paddingTop="@dimen/content_start" />
+        android:paddingTop="@dimen/content_start"
+        android:visibility="gone"/>
 
     <TextView
         android:id="@+id/connect_trouble_link"
@@ -52,6 +55,7 @@
         android:layout_gravity="center"
         android:layout_margin="@dimen/content_min_margin"
         android:textColor="@color/blue"
-        android:textSize="@dimen/text_medium" />
+        android:textSize="@dimen/text_medium"
+        android:visibility="gone"/>
 
 </LinearLayout>

@@ -1,9 +1,10 @@
-package org.commcare.activities;
+package org.commcare.activities.connect;
 
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import org.commcare.activities.BiometricsHelper;
 import org.commcare.dalvik.R;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.views.ManagedUi;
@@ -28,7 +29,7 @@ public class ConnectIDVerificationActivityUIController implements CommCareActivi
     @UiElement(value = R.id.connect_verify_pin_message, locale = "connect.verify.pin")
     private TextView pinTextView;
 
-    @UiElement(value = R.id.connect_verify_button, locale = "connect.verify.button")
+    @UiElement(value = R.id.connect_verify_button)
     private Button actionButton;
 
 
@@ -55,6 +56,10 @@ public class ConnectIDVerificationActivityUIController implements CommCareActivi
 
     public void setPinStatus(BiometricsHelper.ConfigurationStatus status) {
         setStatus(pinTextView, pinIcon, status);
+    }
+
+    public void setButtonText(String text) {
+        actionButton.setText(text);
     }
 
     private void setStatus(TextView textView, ImageView iconView, BiometricsHelper.ConfigurationStatus status) {

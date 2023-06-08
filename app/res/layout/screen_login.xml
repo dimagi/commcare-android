@@ -101,17 +101,6 @@
                                 android:textSize="@dimen/text_medium"
                                 android:visibility="gone"/>
 
-                            <TextView
-                                android:id="@+id/login_app_direct"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_gravity="center"
-                                android:layout_margin="@dimen/content_min_margin"
-                                android:textColor="@color/cc_neutral_color"
-                                android:textSize="@dimen/text_medium"
-                                android:visibility="gone"/>
-
-
                             <Spinner
                                 android:id="@+id/app_selection_spinner"
                                 android:layout_width="match_parent"

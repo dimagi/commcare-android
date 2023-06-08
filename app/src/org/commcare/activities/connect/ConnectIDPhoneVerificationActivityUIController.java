@@ -1,7 +1,8 @@
-package org.commcare.activities;
+package org.commcare.activities.connect;
 
 import android.app.Activity;
 import android.content.Context;
+import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
@@ -23,6 +24,9 @@ public class ConnectIDPhoneVerificationActivityUIController implements CommCareA
     @UiElement(value = R.id.connect_phone_verify_code)
     private AutoCompleteTextView codeInput;
 
+    @UiElement(value = R.id.connect_phone_verify_change, locale = "connect.verify.phone.change")
+    private TextView changeTextView;
+
     @UiElement(value = R.id.connect_phone_verify_resend, locale = "connect.verify.phone.resend")
     private TextView resendTextView;
 
@@ -38,6 +42,7 @@ public class ConnectIDPhoneVerificationActivityUIController implements CommCareA
     @Override
     public void setupUI() {
         resendTextView.setOnClickListener(arg0 -> activity.requestSMSCode());
+        changeTextView.setOnClickListener(arg0 -> activity.changeNumber());
         verifyButton.setOnClickListener(arg0 -> activity.verifySMSCode());
     }
 
@@ -50,11 +55,12 @@ public class ConnectIDPhoneVerificationActivityUIController implements CommCareA
         labelTextView.setText(text);
     }
 
-    public void requestInputFocus(Activity activity) {
-        codeInput.requestFocus();
+    public void showChangeOption() {
+        changeTextView.setVisibility(View.VISIBLE);
+    }
 
-        InputMethodManager inputMethodManager = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
-        inputMethodManager.showSoftInput(codeInput, InputMethodManager.SHOW_IMPLICIT);
+    public void requestInputFocus() {
+        ConnectIDKeyboardHelper.showKeyboardOnInput(activity, codeInput);
     }
 
     public String getCode() {

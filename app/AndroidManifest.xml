@@ -144,12 +144,17 @@
         <activity android:name="org.commcare.activities.RootMenuHomeActivity"/>
         <activity android:name="org.commcare.activities.MenuActivity"/>
 
-        <activity android:name="org.commcare.activities.ConnectIDRecoveryDecisionActivity"/>
-        <activity android:name="org.commcare.activities.ConnectIDLoginActivity"/>
-        <activity android:name="org.commcare.activities.ConnectIDRegistrationActivity"/>
-        <activity android:name="org.commcare.activities.ConnectIDVerificationActivity"/>
-        <activity android:name="org.commcare.activities.ConnectIDPicturesActivity"/>
-        <activity android:name="org.commcare.activities.ConnectIDPhoneVerificationActivity"/>
+        <activity android:name="org.commcare.activities.connect.ConnectIDRecoveryDecisionActivity"/>
+        <activity android:name="org.commcare.activities.connect.ConnectIDLoginActivity"/>
+        <activity android:name="org.commcare.activities.connect.ConnectIDConsentActivity"/>
+        <activity android:name="org.commcare.activities.connect.ConnectIDPhoneActivity"/>
+        <activity android:name="org.commcare.activities.connect.ConnectIDRegistrationActivity"/>
+        <activity android:name="org.commcare.activities.connect.ConnectIDPasswordActivity"/>
+        <activity android:name="org.commcare.activities.connect.ConnectIDPasswordVerificationActivity"/>
+        <activity android:name="org.commcare.activities.connect.ConnectIDVerificationActivity"/>
+        <activity android:name="org.commcare.activities.connect.ConnectIDPicturesActivity"/>
+        <activity android:name="org.commcare.activities.connect.ConnectIDPhoneVerificationActivity"/>
+        <activity android:name="org.commcare.activities.connect.ConnectIDMessageActivity"/>
 
         <provider
             android:name="org.commcare.provider.FormsProvider"

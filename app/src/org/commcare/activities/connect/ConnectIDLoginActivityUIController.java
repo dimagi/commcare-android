@@ -1,5 +1,6 @@
-package org.commcare.activities;
+package org.commcare.activities.connect;
 
+import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
@@ -11,22 +12,21 @@ import org.commcare.views.UiElement;
 @ManagedUi(R.layout.screen_connect_login)
 public class ConnectIDLoginActivityUIController implements CommCareActivityUIController {
 
-    @UiElement(value = R.id.connect_login_title, locale = "connect.title")
+    @UiElement(value = R.id.connect_login_title, locale = "connect.unlock.title")
     private TextView titleTextView;
 
-    @UiElement(value = R.id.connect_login_message, locale = "connect.message")
+    @UiElement(value = R.id.connect_login_message, locale = "connect.unlock.message")
     private TextView messageTextView;
 
-    @UiElement(value = R.id.connect_fingerprint_button, locale = "connect.button.fingerprint")
-    private Button fingerprintButton;
-
+    @UiElement(value = R.id.connect_pin_button, locale = "connect.unlock.button.pin")
+    private Button pinButton;
     @UiElement(value = R.id.connect_login_or, locale = "choice.or")
     private TextView orTextView;
+    @UiElement(value = R.id.connect_password_button, locale = "connect.unlock.button.password")
+    private Button passwordButton;
 
-    @UiElement(value = R.id.connect_pin_button, locale = "connect.button.pin")
-    private Button pinButton;
 
-    @UiElement(value = R.id.connect_trouble_link, locale = "connect.trouble.message")
+    @UiElement(value = R.id.connect_trouble_link, locale = "connect.unlock.trouble.message")
     private TextView troubleTextView;
 
     protected final ConnectIDLoginActivity activity;
@@ -37,7 +37,7 @@ public class ConnectIDLoginActivityUIController implements CommCareActivityUICon
 
     @Override
     public void setupUI() {
-        fingerprintButton.setOnClickListener(arg0 -> activity.performFingerprintUnlock());
+        passwordButton.setOnClickListener(arg0 -> activity.performPasswordUnlock());
         pinButton.setOnClickListener(arg0 -> activity.performPinUnlock());
         troubleTextView.setOnClickListener(arg0 -> activity.startAccountRecoveryWorkflow());
     }
@@ -47,11 +47,10 @@ public class ConnectIDLoginActivityUIController implements CommCareActivityUICon
         //Nothing to do
     }
 
-    public void setFingerprintEnabled(boolean enabled) {
-        fingerprintButton.setEnabled(enabled);
-    }
-
-    public void setPinEnabled(boolean enabled) {
-        pinButton.setEnabled(enabled);
+    public void showAdditionalOptions() {
+        pinButton.setVisibility(View.VISIBLE);
+        orTextView.setVisibility(View.VISIBLE);
+        passwordButton.setVisibility(View.VISIBLE);
+        troubleTextView.setVisibility(View.VISIBLE);
     }
 }

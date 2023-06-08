@@ -1,4 +1,4 @@
-package org.commcare.activities;
+package org.commcare.activities.connect;
 
 import static org.commcare.views.widgets.ImageWidget.REQUEST_CAMERA_PERMISSION;
 
@@ -11,6 +11,7 @@ import android.widget.Toast;
 
 import androidx.core.app.ActivityCompat;
 
+import org.commcare.activities.CommCareActivity;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.RuntimePermissionRequester;
 import org.commcare.interfaces.WithUIController;

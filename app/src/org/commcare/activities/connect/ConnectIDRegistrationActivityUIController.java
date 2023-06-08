@@ -1,4 +1,4 @@
-package org.commcare.activities;
+package org.commcare.activities.connect;
 
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
@@ -25,20 +25,12 @@ public class ConnectIDRegistrationActivityUIController implements CommCareActivi
     @UiElement(value = R.id.connect_edit_name)
     private AutoCompleteTextView nameInput;
 
-    @UiElement(value = R.id.connect_label_dob, locale = "connect.register.dob")
-    private TextView dobLabelTextView;
-    @UiElement(value = R.id.connect_edit_dob)
-    private AutoCompleteTextView dobInput;
-
-    @UiElement(value = R.id.connect_label_phone, locale = "connect.register.phone")
-    private TextView phoneLabelTextView;
-    @UiElement(value = R.id.connect_edit_phone)
-    private AutoCompleteTextView phoneInput;
-
     @UiElement(value = R.id.connect_label_alt_phone, locale = "connect.register.phone.alt")
     private TextView altPhoneLabelTextView;
-    @UiElement(value = R.id.connect_edit_alt_phone)
-    private AutoCompleteTextView altPhoneInput;
+    @UiElement(value = R.id.connect_alt_phone_country_input)
+    private AutoCompleteTextView countryCodeInput;
+    @UiElement(value = R.id.connect_alt_phone_input)
+    private AutoCompleteTextView phoneInput;
 
     @UiElement(value = R.id.connect_register_button, locale = "connect.register.create")
     private Button registerButton;
@@ -65,7 +57,11 @@ public class ConnectIDRegistrationActivityUIController implements CommCareActivi
 
     public String getUserIdText() { return idInput.getText().toString(); }
     public String getNameText() { return nameInput.getText().toString(); }
-    public String getDOBText() { return dobInput.getText().toString(); }
-    public String getPhoneText() { return phoneInput.getText().toString(); }
-    public String getAltPhoneText() { return altPhoneInput.getText().toString(); }
+    public void setAltCountryCode(String code) { countryCodeInput.setText(code); }
+    public String getAltCountryCode() {
+        return countryCodeInput.getText().toString();
+    }
+    public String getAltPhoneNumber() {
+        return phoneInput.getText().toString();
+    }
 }

@@ -25,7 +25,17 @@
         android:id="@+id/connect_phone_verify_code"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:inputType="text"/>
+        android:inputType="numberDecimal"/>
+
+    <TextView
+        android:id="@+id/connect_phone_verify_change"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/content_min_margin"
+        android:gravity="start"
+        android:textSize="@dimen/text_medium"
+        android:textColor="@color/blue"
+        android:visibility="gone"/>
 
     <TextView
         android:id="@+id/connect_phone_verify_resend"

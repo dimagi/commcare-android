@@ -85,19 +85,10 @@ public class ModernHttpTask
         if (mException != null) {
             httpResponseProcessor.handleIOException(mException);
         } else {
-            String errorMessage = null;
-            try {
-                errorMessage = mResponse.errorBody().string();
-            }
-            catch(Exception e) {
-
-            }
-
             // route to appropriate callback based on http response code
             ModernHttpRequester.processResponse(
                     httpResponseProcessor,
                     mResponse.code(),
-                    errorMessage,
                     this);
         }
     }

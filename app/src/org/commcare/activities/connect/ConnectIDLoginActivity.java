@@ -1,4 +1,4 @@
-package org.commcare.activities;
+package org.commcare.activities.connect;
 
 import static androidx.biometric.BiometricManager.Authenticators.BIOMETRIC_STRONG;
 import static androidx.biometric.BiometricManager.Authenticators.DEVICE_CREDENTIAL;
@@ -12,17 +12,18 @@ import androidx.biometric.BiometricManager;
 import androidx.biometric.BiometricPrompt;
 import androidx.core.content.ContextCompat;
 
+import org.commcare.activities.BiometricsHelper;
+import org.commcare.activities.CommCareActivity;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.WithUIController;
+import org.javarosa.core.services.locale.Localization;
 
 public class ConnectIDLoginActivity extends CommCareActivity<ConnectIDLoginActivity>
 implements WithUIController {
-
-    private static final String TAG = ConnectIDLoginActivity.class.getSimpleName();
-
     private BiometricPrompt biometricPrompt;
     private BiometricPrompt.PromptInfo fingerprintPromptInfo;
     private BiometricPrompt.PromptInfo pinPromptInfo;
+    private boolean attemptingFingerprint = false;
 
     private ConnectIDLoginActivityUIController uiController;
 
@@ -39,12 +40,16 @@ implements WithUIController {
         configurePinUnlock(biometricManager);
 
         if(fingerprintPromptInfo != null) {
-            if(pinPromptInfo == null) {
-                performFingerprintUnlock();
-            }
+            //Automatically try fingerprint first
+            performFingerprintUnlock();
         }
-        else if(pinPromptInfo != null) {
-            performPinUnlock();
+        else if(pinPromptInfo == null) {
+            //Automatically try password, it's the only option
+            performPasswordUnlock();
+        }
+        else {
+            //Show options for PIN or password
+            uiController.showAdditionalOptions();
         }
     }
 
@@ -74,14 +79,17 @@ implements WithUIController {
         super.onActivityResult(requestCode, resultCode, intent);
     }
     public void startAccountRecoveryWorkflow() {
-        Toast.makeText(getApplicationContext(),
-                "Not ready yet", Toast.LENGTH_SHORT).show();
+        finish(false, false, true);
     }
 
     public void performFingerprintUnlock() {
+        attemptingFingerprint = true;
         biometricPrompt.authenticate(fingerprintPromptInfo);
     }
 
+    public void performPasswordUnlock() {
+        finish(false, true, false);
+    }
     public void performPinUnlock() {
         biometricPrompt.authenticate(pinPromptInfo);
     }
@@ -94,24 +102,30 @@ implements WithUIController {
             public void onAuthenticationError(int errorCode,
                                               @NonNull CharSequence errString) {
                 super.onAuthenticationError(errorCode, errString);
-                Toast.makeText(getApplicationContext(),
-                                "Authentication error: " + errString, Toast.LENGTH_SHORT)
-                        .show();
-                finish(false);
+                if(attemptingFingerprint) {
+                    attemptingFingerprint = false;
+                    if(pinPromptInfo == null) {
+                        //Automatically try password, it's the only option
+                        performPasswordUnlock();
+                    }
+                    else {
+                        //Show options for PIN or password
+                        uiController.showAdditionalOptions();
+                    }
+                }
             }
 
             @Override
             public void onAuthenticationSucceeded(
                     @NonNull BiometricPrompt.AuthenticationResult result) {
                 super.onAuthenticationSucceeded(result);
-                Toast.makeText(getApplicationContext(),
-                        "Authentication succeeded!", Toast.LENGTH_SHORT).show();
-                finish(true);
+                finish(true, false, false);
             }
 
             @Override
             public void onAuthenticationFailed() {
                 super.onAuthenticationFailed();
+                //TODO: Change path before Android takes action
                 Toast.makeText(getApplicationContext(), "Authentication failed",
                                 Toast.LENGTH_SHORT)
                         .show();
@@ -119,36 +133,36 @@ implements WithUIController {
         });
     }
 
-    private void finish(boolean success) {
+    private void finish(boolean success, boolean password, boolean recover) {
         Intent intent = new Intent(getIntent());
+
+        intent.putExtra(ConnectIDConstants.PASSWORD, password);
+        intent.putExtra(ConnectIDConstants.RECOVER, recover);
+
         setResult(success ? RESULT_OK : RESULT_CANCELED, intent);
         finish();
     }
 
     private void configureFingerprintUnlock(BiometricManager biometricManager) {
         fingerprintPromptInfo = null;
-        boolean enableFingerprint = BiometricsHelper.isFingerprintConfigured(biometricManager);
-        uiController.setFingerprintEnabled(enableFingerprint);
 
-        if(enableFingerprint) {
+        if(BiometricsHelper.isFingerprintConfigured(biometricManager)) {
             fingerprintPromptInfo = new BiometricPrompt.PromptInfo.Builder()
-                    .setTitle("Biometric unlock for my app")
-                    .setSubtitle("Unlock using your biometric credential")
+                    .setTitle(Localization.get("connect.unlock.fingerprint.title"))
+                    .setSubtitle(Localization.get("connect.unlock.fingerprint.message"))
                     .setAllowedAuthenticators(BIOMETRIC_STRONG)
+                    .setNegativeButtonText(Localization.get("connect.unlock.other.options"))
                     .build();
         }
     }
 
     private void configurePinUnlock(BiometricManager biometricManager) {
         pinPromptInfo = null;
-        boolean enablePin = BiometricsHelper.isPinConfigured(biometricManager);
 
-        uiController.setPinEnabled(enablePin);
-
-        if(enablePin) {
+        if(BiometricsHelper.isPinConfigured(biometricManager)) {
             pinPromptInfo = new BiometricPrompt.PromptInfo.Builder()
-                    .setTitle("PIN unlock for my app")
-                    .setSubtitle("Unlock using your PIN")
+                    .setTitle(Localization.get("connect.unlock.pin.title"))
+                    .setSubtitle(Localization.get("connect.unlock.pin.message"))
                     .setAllowedAuthenticators(DEVICE_CREDENTIAL)
                     .build();
         }
