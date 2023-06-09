@@ -119,7 +119,7 @@ implements WithUIController {
                             password = json.getString(key);
                         }
 
-                        key = "recovery_phone";
+                        key = "secondary_phone";
                         if (json.has(key)) {
                             recoveryPhone = json.getString(key);
                             updateMessage();
