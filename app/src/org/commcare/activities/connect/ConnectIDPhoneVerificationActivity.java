@@ -122,6 +122,7 @@ implements WithUIController {
                         key = "recovery_phone";
                         if (json.has(key)) {
                             recoveryPhone = json.getString(key);
+                            updateMessage();
                         }
                     }
                 }

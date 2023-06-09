@@ -105,6 +105,7 @@ public class AnalyticsParamValue {
     public static final String FORCE_LOG_SUBMISSION = "force_log_submission";
     public static final String RECOVERY_MODE = "recovery_mode";
     public static final String ENABLE_PRIVILEGES = "enable_mobile_privileges";
+    public static final String ENABLE_CONNECT_ID = "enable_connect_id";
     public static final String ENABLE_RATE_LIMIT_POPUP = "enable_rate_limit_popup";
     public static final String ENABLE_MANUAL_FORM_QUARANTINE = "enable_manual_form_quarantine";
     public static final String APP_MANAGER_DEVELOPER_OPTIONS = "app_manager_developer_options";

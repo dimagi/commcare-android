@@ -5,22 +5,13 @@ import static android.app.Activity.RESULT_OK;
 import android.content.Intent;
 import android.widget.Toast;
 
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Multimap;
-
 import org.commcare.activities.CommCareActivity;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.core.network.AuthInfo;
-import org.commcare.dalvik.R;
-import org.javarosa.core.io.StreamsUtil;
-import org.javarosa.core.services.Logger;
+import org.commcare.preferences.AppManagerDeveloperPreferences;
 import org.javarosa.core.services.locale.Localization;
-import org.json.JSONException;
-import org.json.JSONObject;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
@@ -28,9 +19,6 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 public class ConnectIDManager {
-    //ConnectID UI elements hidden from user when this is set to false
-    public static final boolean ENABLE_CONNECT_ID = true;
-
     public enum ConnectIDStatus {
         NotIntroduced,
         LoggedOut,
@@ -76,19 +64,19 @@ public class ConnectIDManager {
     }
 
     public static boolean isConnectIDIntroduced() {
-        return ENABLE_CONNECT_ID && getInstance().connectStatus != ConnectIDStatus.NotIntroduced;
+        return AppManagerDeveloperPreferences.isConnectIDEnabled() && getInstance().connectStatus != ConnectIDStatus.NotIntroduced;
     }
 
     public static boolean isSignedIn() {
-        return ENABLE_CONNECT_ID && getInstance().connectStatus == ConnectIDStatus.LoggedIn;
+        return AppManagerDeveloperPreferences.isConnectIDEnabled() && getInstance().connectStatus == ConnectIDStatus.LoggedIn;
     }
 
     public static boolean shouldShowSignInMenuOption() {
-        return ENABLE_CONNECT_ID && getInstance().connectStatus == ConnectIDStatus.NotIntroduced;
+        return AppManagerDeveloperPreferences.isConnectIDEnabled() && getInstance().connectStatus == ConnectIDStatus.NotIntroduced;
     }
 
     public static boolean shouldShowSignOutMenuOption() {
-        return ENABLE_CONNECT_ID && getInstance().connectStatus == ConnectIDStatus.LoggedIn;
+        return AppManagerDeveloperPreferences.isConnectIDEnabled() && getInstance().connectStatus == ConnectIDStatus.LoggedIn;
     }
 
     public static boolean isConnectIDActivity(int requestCode) {

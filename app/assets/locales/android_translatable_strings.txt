@@ -106,6 +106,8 @@ menu.privilege.claim.disable=Disable Privileges
 menu.data.change.logs=Data Change Logs
 menu.enable.rate.limit.popup=Enable Rate Limit Error Popup
 menu.enable.manual.form.quarantine=Enable Manual Form Quarantine
+menu.enable.connect.id=Enable ConnectID
+connect.id.enabled=ConnectID Enabled
 
 install.fail.error=We encountered an ${0} error processing your request. Please try again later. If the problem persists, contact CommCare Support.
 
