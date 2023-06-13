@@ -11,6 +11,7 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.ImageButton;
 
 import org.commcare.CommCareApplication;
 import org.commcare.CommCareTestApplication;
@@ -216,6 +217,12 @@ public class QueryRequestActivityTest {
 
         EditText patientName = promptsLayout.getChildAt(0).findViewById(R.id.prompt_et);
         assertEquals("francisco", patientName.getText().toString());
+
+        ImageButton imageButtonWithoutHint = promptsLayout.getChildAt(0).findViewById(R.id.prompt_hint_button);
+        assertEquals(8, imageButtonWithoutHint.getVisibility());
+
+        ImageButton imageButtonWithHint = promptsLayout.getChildAt(4).findViewById(R.id.prompt_hint_button);
+        assertEquals(0, imageButtonWithHint.getVisibility());
 
         Spinner stateSpinner = promptsLayout.getChildAt(2).findViewById(R.id.prompt_spinner);
         assertEquals(2, stateSpinner.getSelectedItemPosition());
