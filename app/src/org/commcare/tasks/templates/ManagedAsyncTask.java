@@ -75,10 +75,6 @@ public abstract class ManagedAsyncTask<Params, Progress, Result>
      * with data synchronization!
      */
     public void executeParallel(Params... params) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, params);
-        } else {
-            execute(params);
-        }
+        executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, params);
     }
 }

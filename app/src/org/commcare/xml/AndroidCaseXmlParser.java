@@ -114,7 +114,7 @@ public class AndroidCaseXmlParser extends CaseXmlParser {
         }
 
         //We need to figure out whether or not the attachment is local to the device or in a remote location.
-        if (CaseXmlParser.ATTACHMENT_FROM_LOCAL.equals(from)) {
+        if (CaseXmlParserUtil.ATTACHMENT_FROM_LOCAL.equals(from)) {
             //Parse from the local environment
             if (folder == null) {
                 return null;
@@ -131,7 +131,7 @@ public class AndroidCaseXmlParser extends CaseXmlParser {
             }
 
             return dest.second;
-        } else if (CaseXmlParser.ATTACHMENT_FROM_REMOTE.equals(from)) {
+        } else if (CaseXmlParserUtil.ATTACHMENT_FROM_REMOTE.equals(from)) {
             //The attachment is in remote location.
             try {
                 Reference remote = ReferenceManager.instance().DeriveReference(src);

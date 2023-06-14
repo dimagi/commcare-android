@@ -67,7 +67,6 @@ public class NfcWriteActivity extends NfcActivity {
         writeMessageToNfcTag(tag);
     }
 
-    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     private void writeMessageToNfcTag(Tag tag) {
         Ndef ndefObject = Ndef.get(tag);
         try {

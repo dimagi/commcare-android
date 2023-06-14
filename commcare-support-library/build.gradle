@@ -1,7 +1,7 @@
 apply plugin: 'com.android.library'
 apply plugin: 'com.vanniktech.maven.publish'
 
-version '12.4'
+version '12.5'
 
 afterEvaluate {
     publishing {
@@ -41,7 +41,7 @@ afterEvaluate {
 android {
     compileSdkVersion 30
     defaultConfig {
-        minSdkVersion 16
+        minSdkVersion 21
         targetSdkVersion 30
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }

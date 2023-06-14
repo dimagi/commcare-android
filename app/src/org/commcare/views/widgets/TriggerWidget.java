@@ -61,10 +61,8 @@ public class TriggerWidget extends QuestionWidget {
                 "selectable".equals(appearance));
 
         if ("selectable".equals(appearance)) {
-            if (android.os.Build.VERSION.SDK_INT >= 11) {
-                // Let users to copy form display outputs.
-                mQuestionText.setTextIsSelectable(true);
-            }
+            // Let users to copy form display outputs.
+            mQuestionText.setTextIsSelectable(true);
         }
 
         if (mPrompt.getAppearanceHint() != null &&

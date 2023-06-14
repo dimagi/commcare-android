@@ -60,6 +60,7 @@ import androidx.appcompat.widget.SearchView;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.viewbinding.ViewBinding;
+
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 
@@ -145,7 +146,7 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
             ((WithUIController)this).initUIController();
         }
 
-        if(!isFinishing()) {
+        if (!isFinishing()) {
             persistManagedUiState(fm);
 
             if (getSupportActionBar() != null) {
@@ -171,7 +172,7 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
         }
     }
 
-    public ViewBinding getViewBinding(){
+    public ViewBinding getViewBinding() {
         return null;
     }
 
@@ -283,12 +284,6 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
     @Override
     protected void onResume() {
         super.onResume();
-
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
-            // In honeycomb and above the fragment takes care of this
-            this.setTitle(getTitle(this, getActivityTitle()));
-        }
-
         AudioController.INSTANCE.playPreviousAudio();
     }
 
@@ -450,7 +445,8 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
     }
 
     protected void restoreLastQueryString() {
-        lastQueryString = (String)CommCareApplication.instance().getCurrentSession().getCurrentFrameStepExtra(SessionInstanceBuilder.KEY_LAST_QUERY_STRING);
+        lastQueryString = (String)CommCareApplication.instance().getCurrentSession().getCurrentFrameStepExtra(
+                SessionInstanceBuilder.KEY_LAST_QUERY_STRING);
     }
 
     protected void saveLastQueryString() {
@@ -464,7 +460,8 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
     protected void transplantStyle(TextView target, int resource) {
         //get styles from here
         TextView tv = (TextView)View.inflate(this, resource, null);
-        int[] padding = {target.getPaddingLeft(), target.getPaddingTop(), target.getPaddingRight(), target.getPaddingBottom()};
+        int[] padding = {target.getPaddingLeft(), target.getPaddingTop(), target.getPaddingRight(),
+                target.getPaddingBottom()};
 
         target.setTextColor(tv.getTextColors().getDefaultColor());
         target.setTypeface(tv.getTypeface());
@@ -505,8 +502,10 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
                     if (SessionFrame.STATE_DATUM_VAL.equals(step.getType())) {
                         //Haaack
                         if (step.getId() != null && step.getId().contains("case_id")) {
-                            ACase foundCase = CommCareApplication.instance().getUserStorage(ACase.STORAGE_KEY, ACase.class).getRecordForValue(ACase.INDEX_CASE_ID, step.getValue());
-                            stepTitles[i] = Localization.get("title.datum.wrapper", new String[]{foundCase.getName()});
+                            ACase foundCase = CommCareApplication.instance().getUserStorage(ACase.STORAGE_KEY,
+                                    ACase.class).getRecordForValue(ACase.INDEX_CASE_ID, step.getValue());
+                            stepTitles[i] = Localization.get("title.datum.wrapper",
+                                    new String[]{foundCase.getName()});
                         }
                     }
                 } catch (Exception e) {
@@ -630,7 +629,8 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
     private void dismissProgressDialog(int taskId, boolean dismissAny) {
         taskIdForPendingDismissal = UNDEFINED_TASK_ID;
         CustomProgressDialog progressDialog = getCurrentProgressDialog();
-        if (progressDialog != null && progressDialog.isAdded() && (progressDialog.getTaskId() == taskId || dismissAny)) {
+        if (progressDialog != null && progressDialog.isAdded() && (progressDialog.getTaskId() == taskId
+                || dismissAny)) {
             if (areFragmentsPaused) {
                 taskIdForPendingDismissal = taskId;
             } else {
@@ -712,7 +712,7 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
      * @param instantiator Optional ActionBarInstantiator for additional setup code.
      */
     protected void tryToAddSearchActionToAppBar(AppCompatActivity activity, Menu menu,
-                                                ActionBarInstantiator instantiator) {
+            ActionBarInstantiator instantiator) {
         MenuInflater inflater = activity.getMenuInflater();
         inflater.inflate(org.commcare.dalvik.R.menu.action_bar_search_view, menu);
 
@@ -854,14 +854,9 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
     /**
      * Rebuild the activity's menu options based on the current state of the activity.
      */
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     public void rebuildOptionsMenu() {
         if (CommCareApplication.instance().getCurrentApp() != null) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-                invalidateOptionsMenu();
-            } else {
-                supportInvalidateOptionsMenu();
-            }
+            invalidateOptionsMenu();
         }
     }
 
@@ -878,7 +873,6 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
         return MarkupUtil.localizeStyleSpannable(this, key, args);
     }
 
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     public void refreshActionBar() {
         if (shouldShowBreadcrumbBar()) {
             FragmentManager fm = this.getSupportFragmentManager();

@@ -103,13 +103,6 @@ public class TemplatePrinterActivity extends AppCompatActivity implements Popula
         if (pathToTemplateFile == null) {
             return;
         }
-
-        // Check to make sure we are targeting API 19 or above, which is where print is supported
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
-            showErrorDialog(Localization.get("print.not.supported"));
-            return;
-        }
-
         this.outputPath = CommCareApplication.instance().getTempFilePath() + ".html";
         preparePrintDoc(pathToTemplateFile);
     }
@@ -286,7 +279,6 @@ public class TemplatePrinterActivity extends AppCompatActivity implements Popula
      *
      * @param v the WebView to be printed
      */
-    @TargetApi(Build.VERSION_CODES.KITKAT)
     private void createWebPrintJob(WebView v) {
         // Get a PrintManager instance
         PrintManager printManager = (PrintManager) getSystemService(Context.PRINT_SERVICE);
@@ -304,7 +296,6 @@ public class TemplatePrinterActivity extends AppCompatActivity implements Popula
      *
      * Source: http://stackoverflow.com/questions/30742051/android-printmanager-get-callback
      */
-    @TargetApi(Build.VERSION_CODES.KITKAT)
     class PrintDocumentAdapterWrapper extends PrintDocumentAdapter {
 
         private final PrintDocumentAdapter delegate;

@@ -267,12 +267,10 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     public void onAttachFragment(Fragment fragment) {
         super.onAttachFragment(fragment);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            ActionBar actionBar = getSupportActionBar();
-            if (actionBar != null) {
-                // removes the back button from the action bar
-                actionBar.setDisplayHomeAsUpEnabled(false);
-            }
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            // removes the back button from the action bar
+            actionBar.setDisplayHomeAsUpEnabled(false);
         }
     }
 
@@ -1004,20 +1002,18 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 
     public void checkManagedConfiguration() {
         Log.d(TAG, "Checking managed configuration");
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
-            // Check for managed configuration
-            RestrictionsManager restrictionsManager =
-                    (RestrictionsManager)getSystemService(Context.RESTRICTIONS_SERVICE);
-            Bundle appRestrictions = restrictionsManager.getApplicationRestrictions();
-            if (appRestrictions != null && appRestrictions.containsKey("profileUrl")) {
-                Log.d(TAG, "Found managed configuration install URL "
-                        + appRestrictions.getString("profileUrl"));
-                incomingRef = appRestrictions.getString("profileUrl");
-                lastInstallMode = INSTALL_MODE_MANAGED_CONFIGURATION;
-                uiState = UiState.READY_TO_INSTALL;
-                uiStateScreenTransition();
-                startResourceInstall();
-            }
+        // Check for managed configuration
+        RestrictionsManager restrictionsManager =
+                (RestrictionsManager)getSystemService(Context.RESTRICTIONS_SERVICE);
+        Bundle appRestrictions = restrictionsManager.getApplicationRestrictions();
+        if (appRestrictions != null && appRestrictions.containsKey("profileUrl")) {
+            Log.d(TAG, "Found managed configuration install URL "
+                    + appRestrictions.getString("profileUrl"));
+            incomingRef = appRestrictions.getString("profileUrl");
+            lastInstallMode = INSTALL_MODE_MANAGED_CONFIGURATION;
+            uiState = UiState.READY_TO_INSTALL;
+            uiStateScreenTransition();
+            startResourceInstall();
         }
     }
 }

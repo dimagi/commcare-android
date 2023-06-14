@@ -21,11 +21,7 @@ import kotlin.collections.HashMap
  */
 object TextToSpeechConverter {
 
-    private val MAX_TEXT_LENGTH = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
-        TextToSpeech.getMaxSpeechInputLength()
-    } else {
-        4000
-    }
+    private val MAX_TEXT_LENGTH = TextToSpeech.getMaxSpeechInputLength()
     private var mTextToSpeech: TextToSpeech? = null
     private var mInitialized: Boolean = false
     private var mTTSCallback: TextToSpeechCallback? = null
@@ -112,13 +108,7 @@ object TextToSpeechConverter {
 
     private fun speakInternal(tts: TextToSpeech, text: String, queueMode: Int = TextToSpeech.QUEUE_FLUSH) {
         val utteranceId = System.currentTimeMillis().toString()
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            tts.speak(text, queueMode, null, utteranceId)
-        } else {
-            val params = HashMap<String, String>()
-            params[TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID] = utteranceId
-            tts.speak(text, queueMode, params)
-        }
+        tts.speak(text, queueMode, null, utteranceId)
     }
 
     /**
@@ -153,19 +143,12 @@ object TextToSpeechConverter {
         mTextToSpeech?.let { tts ->
             // Check if voice data is present or not.
             tts.language
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                if (tts.voice != null) {
-                    val features = tts.voice.features
-                    if (features == null
-                            || features.contains(TextToSpeech.Engine.KEY_FEATURE_NOT_INSTALLED)
-                            || tts.voice.isNetworkConnectionRequired) {
-                        return Pair(true, tts.voice.locale.displayLanguage)
-                    }
-                }
-            } else {
-                val features = tts.getFeatures(tts.language)
-                if (features == null || features.contains("notInstalled")) {
-                    return Pair(true, tts.language.displayLanguage)
+            if (tts.voice != null) {
+                val features = tts.voice.features
+                if (features == null
+                        || features.contains(TextToSpeech.Engine.KEY_FEATURE_NOT_INSTALLED)
+                        || tts.voice.isNetworkConnectionRequired) {
+                    return Pair(true, tts.voice.locale.displayLanguage)
                 }
             }
         }

@@ -428,15 +428,7 @@ public class FileUtil {
      * If we're on KitKat use the new OS path
      */
     public static String getDumpDirectory(Context c) {
-        if (android.os.Build.VERSION.SDK_INT >= 19) {
-            return getExternalDirectoryKitKat(c);
-        } else {
-            ArrayList<String> mArrayList = getExternalMounts();
-            if (mArrayList.size() > 0) {
-                return getExternalMounts().get(0);
-            }
-            return null;
-        }
+        return getExternalDirectoryKitKat(c);
     }
 
     public static Properties loadProperties(File file) throws IOException {

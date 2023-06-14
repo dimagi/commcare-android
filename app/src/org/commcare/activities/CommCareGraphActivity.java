@@ -16,7 +16,6 @@ import org.javarosa.core.services.Logger;
  */
 public class CommCareGraphActivity extends CommCareActivity {
 
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

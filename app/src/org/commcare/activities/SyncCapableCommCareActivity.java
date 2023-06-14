@@ -400,7 +400,6 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
         addAnimationToMenuItem(menuItem, R.layout.send_forms_action_view, R.anim.slide_up_repeat);
     }
 
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     private void addAnimationToMenuItem(MenuItem menuItem, @LayoutRes int layoutResource,
                                         @AnimRes int animationId) {
         LayoutInflater inflater = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -410,7 +409,6 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
         menuItem.setActionView(iv);
     }
 
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     private void clearCurrentAnimation(MenuItem item) {
         if (item != null && item.getActionView() != null) {
             item.getActionView().clearAnimation();
