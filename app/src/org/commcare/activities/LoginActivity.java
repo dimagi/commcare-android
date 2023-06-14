@@ -444,13 +444,18 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         int appIndex = uiController.getSelectedAppIndex();
         String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
         int seatedIndex = appIdDropdownList.indexOf(seatedAppId);
-        if(appIndex == seatedIndex) {
+        boolean includeDefault = ConnectIDManager.isConnectIDIntroduced();
+        if(includeDefault) {
+            seatedIndex--;
+        }
+        if(!uiController.isAppSelectorVisible() || appIndex == seatedIndex) {
             AuthInfo.ProvidedAuth credentials = ConnectIDManager.getCredentialsForApp(seatedAppId);
             if (credentials != null) {
                 uiController.setUsername(credentials.username);
                 uiController.setPasswordOrPin(credentials.password);
 
-                initiateLoginAttempt(uiController.isRestoreSessionChecked());
+                //NOTE: This would auto-login, but we decided not to
+                //initiateLoginAttempt(uiController.isRestoreSessionChecked());
             }
         }
     }

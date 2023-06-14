@@ -17,6 +17,7 @@ public class ConnectIDConstants {
     public static final String CONFIGURED = "CONFIGURED";
     public static final String CHANGE = "CHANGE";
     public static final String FORGOT = "FORGOT";
+    public static final String ALLOW_PASSWORD = "ALLOW_PASSWORD";
 
 
     private static final  int activityAssigner = 1000;

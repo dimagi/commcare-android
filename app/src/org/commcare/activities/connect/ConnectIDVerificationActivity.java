@@ -29,6 +29,13 @@ implements WithUIController {
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+
+        updateStatus();
+    }
+
+    @Override
     public CommCareActivityUIController getUIController() {
         return this.uiController;
     }

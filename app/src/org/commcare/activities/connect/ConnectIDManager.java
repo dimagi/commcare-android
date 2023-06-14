@@ -114,7 +114,9 @@ public class ConnectIDManager {
     }
 
     public static void signOut() {
-        getInstance().connectStatus = ConnectIDStatus.LoggedOut;
+        if(getInstance().connectStatus == ConnectIDStatus.LoggedIn) {
+            getInstance().connectStatus = ConnectIDStatus.LoggedOut;
+        };
     }
 
     public static void forgetUser() {
@@ -282,9 +284,15 @@ public class ConnectIDManager {
             case ConnectIDConstants.CONNECT_UNLOCK_PASSWORD-> {
                 nextActivity = ConnectIDPasswordVerificationActivity.class;
             }
-            case ConnectIDConstants.CONNECT_UNLOCK_BIOMETRIC,
-                    ConnectIDConstants.CONNECT_REGISTRATION_UNLOCK_BIOMETRIC -> {
+            case ConnectIDConstants.CONNECT_UNLOCK_BIOMETRIC -> {
                 nextActivity = ConnectIDLoginActivity.class;
+
+                params.put(ConnectIDConstants.ALLOW_PASSWORD, "true");
+            }
+            case ConnectIDConstants.CONNECT_REGISTRATION_UNLOCK_BIOMETRIC -> {
+                nextActivity = ConnectIDLoginActivity.class;
+
+                params.put(ConnectIDConstants.ALLOW_PASSWORD, "false");
             }
         }
 

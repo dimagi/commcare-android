@@ -471,6 +471,10 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         spinner.setVisibility(View.VISIBLE);
     }
 
+    protected boolean isAppSelectorVisible() {
+        return spinner.getVisibility() == View.VISIBLE;
+    }
+
     protected int getSelectedAppIndex() {
         return spinner.getSelectedItemPosition();
     }

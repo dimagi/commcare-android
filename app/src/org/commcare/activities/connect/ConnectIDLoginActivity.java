@@ -24,6 +24,7 @@ implements WithUIController {
     private BiometricPrompt.PromptInfo fingerprintPromptInfo;
     private BiometricPrompt.PromptInfo pinPromptInfo;
     private boolean attemptingFingerprint = false;
+    private boolean allowPassword = false;
 
     private ConnectIDLoginActivityUIController uiController;
 
@@ -32,6 +33,8 @@ implements WithUIController {
         super.onCreate(savedInstanceState);
 
         uiController.setupUI();
+
+        allowPassword = getIntent().getStringExtra(ConnectIDConstants.ALLOW_PASSWORD).equals("true");
 
         biometricPrompt = preparePrompt();
 
@@ -48,8 +51,14 @@ implements WithUIController {
             performPasswordUnlock();
         }
         else {
-            //Show options for PIN or password
-            uiController.showAdditionalOptions();
+            if(allowPassword) {
+                //Show options for PIN or password
+                uiController.showAdditionalOptions();
+            }
+            else {
+                //PIN is the only option
+                performPinUnlock();
+            }
         }
     }
 
