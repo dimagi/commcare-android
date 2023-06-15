@@ -350,6 +350,8 @@ public class FormStorageTest {
             , "org.commcare.suite.model.ValueQueryData"
             , "org.javarosa.core.util.externalizable.ExtWrapMultiMap"
             , "org.javarosa.core.model.instance.ExternalDataInstanceSource"
+            , "org.commcare.android.database.connect.models.ConnectLinkedAppRecord"
+            , "org.commcare.android.database.connect.models.ConnectUserRecord"
     );
 
 
