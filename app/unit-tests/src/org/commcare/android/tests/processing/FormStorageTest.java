@@ -352,6 +352,7 @@ public class FormStorageTest {
             , "org.javarosa.core.model.instance.ExternalDataInstanceSource"
             , "org.commcare.android.database.connect.models.ConnectLinkedAppRecord"
             , "org.commcare.android.database.connect.models.ConnectUserRecord"
+            , "org.commcare.android.database.global.models.ConnectKeyRecord"
     );
 
 
