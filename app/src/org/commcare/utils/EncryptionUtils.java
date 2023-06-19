@@ -82,13 +82,12 @@ public class EncryptionUtils {
     //Generate a random passphrase
     public static byte[] generatePassphrase() {
         Random random;
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            try {
-                random = SecureRandom.getInstanceStrong();
-            } catch (NoSuchAlgorithmException e) {
-                random = new Random();
-            }
-        } else {
+        try {
+            //Use SecureRandom if possible (specifying algorithm for older versions of Android)
+            random = android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O ?
+                    SecureRandom.getInstanceStrong() : SecureRandom.getInstance("SHA1PRNG");
+        } catch (NoSuchAlgorithmException e) {
+            //Fallback to basic Random
             random = new Random();
         }
 
@@ -97,7 +96,10 @@ public class EncryptionUtils {
         while (true) {
             random.nextBytes(result);
 
-            //Make sure there are no zeroes in the passphrase (bad for SQLCipher)
+            //Make sure there are no zeroes in the passphrase
+            //SQLCipher passphrases must not contain any zero byte-values
+            //For more, see "Creating the Passphrase" section here:
+            //https://commonsware.com/Room/pages/chap-passphrase-001.html
             boolean containsZero = false;
             for (byte b : result) {
                 if (b == 0) {

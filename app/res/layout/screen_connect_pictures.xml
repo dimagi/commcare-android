@@ -12,7 +12,8 @@
         android:layout_gravity="center"
         android:layout_margin="@dimen/content_min_margin"
         android:textColor="@color/cc_neutral_color"
-        android:textSize="@dimen/text_largest" />
+        android:textSize="@dimen/text_largest"
+        android:text="@string/connect_pictures_title"/>
 
     <TextView
         android:id="@+id/connect_pictures_label"
@@ -20,7 +21,8 @@
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/content_min_margin"
         android:gravity="start"
-        android:textSize="@dimen/text_medium"/>
+        android:textSize="@dimen/text_medium"
+        android:text="@string/connect_pictures_label"/>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -40,7 +42,8 @@
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/content_min_margin"
             android:gravity="start"
-            android:textSize="@dimen/text_medium"/>
+            android:textSize="@dimen/text_medium"
+            android:text="@string/connect_pictures_face"/>
 
     </LinearLayout>
 
@@ -62,7 +65,8 @@
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/content_min_margin"
             android:gravity="start"
-            android:textSize="@dimen/text_medium"/>
+            android:textSize="@dimen/text_medium"
+            android:text="@string/connect_pictures_id"/>
 
     </LinearLayout>
 

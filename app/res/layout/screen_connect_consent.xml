@@ -12,7 +12,8 @@
         android:layout_gravity="center"
         android:layout_margin="@dimen/content_min_margin"
         android:textColor="@color/cc_neutral_color"
-        android:textSize="@dimen/text_largest" />
+        android:textSize="@dimen/text_largest"
+        android:text="@string/connect_consent_title"/>
 
     <TextView
         android:id="@+id/connect_consent_message"
@@ -20,13 +21,15 @@
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/content_min_margin"
         android:gravity="start"
-        android:textSize="@dimen/text_medium"/>
+        android:textSize="@dimen/text_medium"
+        android:text="@string/connect_consent_message"/>
 
     <Button
         android:id="@+id/connect_consent_button"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:paddingBottom="@dimen/content_start"
-        android:paddingTop="@dimen/content_start" />
+        android:paddingTop="@dimen/content_start"
+        android:text="@string/connect_consent_button"/>
 
 </LinearLayout>

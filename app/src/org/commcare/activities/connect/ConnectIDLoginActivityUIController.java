@@ -11,22 +11,13 @@ import org.commcare.views.UiElement;
 
 @ManagedUi(R.layout.screen_connect_login)
 public class ConnectIDLoginActivityUIController implements CommCareActivityUIController {
-
-    @UiElement(value = R.id.connect_login_title, locale = "connect.unlock.title")
-    private TextView titleTextView;
-
-    @UiElement(value = R.id.connect_login_message, locale = "connect.unlock.message")
-    private TextView messageTextView;
-
-    @UiElement(value = R.id.connect_pin_button, locale = "connect.unlock.button.pin")
+    @UiElement(value = R.id.connect_pin_button)
     private Button pinButton;
-    @UiElement(value = R.id.connect_login_or, locale = "choice.or")
+    @UiElement(value = R.id.connect_login_or)
     private TextView orTextView;
-    @UiElement(value = R.id.connect_password_button, locale = "connect.unlock.button.password")
+    @UiElement(value = R.id.connect_password_button)
     private Button passwordButton;
-
-
-    @UiElement(value = R.id.connect_trouble_link, locale = "connect.unlock.trouble.message")
+    @UiElement(value = R.id.connect_trouble_link)
     private TextView troubleTextView;
 
     protected final ConnectIDLoginActivity activity;

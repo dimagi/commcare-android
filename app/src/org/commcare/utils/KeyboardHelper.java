@@ -1,11 +1,11 @@
-package org.commcare.activities.connect;
+package org.commcare.utils;
 
 import android.app.Activity;
 import android.content.Context;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 
-public class ConnectIDKeyboardHelper {
+public class KeyboardHelper {
     public static void showKeyboardOnInput(Activity activity, View view) {
         view.requestFocus();
 

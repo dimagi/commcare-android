@@ -1,30 +1,22 @@
 package org.commcare.activities.connect;
 
-import android.app.Activity;
-import android.content.Context;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.TextView;
 
 import org.commcare.dalvik.R;
 import org.commcare.interfaces.CommCareActivityUIController;
+import org.commcare.utils.KeyboardHelper;
 import org.commcare.views.ManagedUi;
 import org.commcare.views.UiElement;
 
 @ManagedUi(R.layout.screen_connect_password_verify)
 public class ConnectIDPasswordVerificationActivityUIController implements CommCareActivityUIController {
-    @UiElement(value = R.id.connect_password_verify_title, locale = "connect.password.verify.title")
-    private TextView titleTextView;
-    @UiElement(value = R.id.connect_password_verify_message, locale = "connect.password.verify.message")
-    private TextView messageTextView;
-    @UiElement(value = R.id.connect_password_verify_input, locale = "connect.password.verify")
+    @UiElement(value = R.id.connect_password_verify_input)
     private AutoCompleteTextView passwordInput;
-
-    @UiElement(value = R.id.connect_password_verify_forgot, locale = "connect.password.verify.forgot")
+    @UiElement(value = R.id.connect_password_verify_forgot)
     private TextView forgotLink;
-
-    @UiElement(value = R.id.connect_password_verify_button, locale = "connect.password.verify.button")
+    @UiElement(value = R.id.connect_password_verify_button)
     private Button button;
 
     protected final ConnectIDPasswordVerificationActivity activity;
@@ -49,6 +41,6 @@ public class ConnectIDPasswordVerificationActivityUIController implements CommCa
     }
 
     public void requestInputFocus() {
-        ConnectIDKeyboardHelper.showKeyboardOnInput(activity, passwordInput);
+        KeyboardHelper.showKeyboardOnInput(activity, passwordInput);
     }
 }

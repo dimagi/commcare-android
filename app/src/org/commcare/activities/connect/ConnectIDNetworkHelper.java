@@ -15,11 +15,6 @@ import org.commcare.core.network.ModernHttpRequester;
 import org.commcare.interfaces.ConnectorWithHttpResponseProcessor;
 import org.commcare.tasks.ModernHttpTask;
 import org.commcare.tasks.templates.CommCareTask;
-import org.javarosa.core.io.StreamsUtil;
-import org.javarosa.core.services.Logger;
-import org.javarosa.core.services.locale.Localization;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -199,7 +194,7 @@ public class ConnectIDNetworkHelper {
                 new ModernHttpTask(context, getUrl,
                         ArrayListMultimap.create(),
                         new HashMap<>(),// CommcareRequestGenerator.getHeaders(""),
-                        new AuthInfo.NoAuth());
+                        authInfo);
         getTask.connect(new ConnectorWithHttpResponseProcessor<>() {
             @Override
             public void processSuccess(int responseCode, InputStream responseData) {

@@ -12,26 +12,16 @@ import org.commcare.views.UiElement;
 
 @ManagedUi(R.layout.screen_connect_verify)
 public class ConnectIDVerificationActivityUIController implements CommCareActivityUIController {
-
-    @UiElement(value = R.id.connect_verify_title, locale = "connect.verify.title")
-    private TextView titleTextView;
-
-    @UiElement(value = R.id.connect_verify_message, locale = "connect.verify.message")
-    private TextView messageTextView;
-
     @UiElement(value = R.id.connect_verify_fingerprint_icon)
     private ImageView fingerprintIcon;
-    @UiElement(value = R.id.connect_verify_fingerprint_message, locale = "connect.verify.fingerprint")
+    @UiElement(value = R.id.connect_verify_fingerprint_message)
     private TextView fingerprintTextView;
-
     @UiElement(value = R.id.connect_verify_pin_icon)
     private ImageView pinIcon;
-    @UiElement(value = R.id.connect_verify_pin_message, locale = "connect.verify.pin")
+    @UiElement(value = R.id.connect_verify_pin_message)
     private TextView pinTextView;
-
     @UiElement(value = R.id.connect_verify_button)
     private Button actionButton;
-
 
     private ConnectIDVerificationActivity activity;
 

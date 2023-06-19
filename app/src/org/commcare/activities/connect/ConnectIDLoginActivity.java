@@ -7,6 +7,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Toast;
 
+import org.commcare.dalvik.R;
+
 import androidx.annotation.NonNull;
 import androidx.biometric.BiometricManager;
 import androidx.biometric.BiometricPrompt;
@@ -16,7 +18,6 @@ import org.commcare.activities.BiometricsHelper;
 import org.commcare.activities.CommCareActivity;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.WithUIController;
-import org.javarosa.core.services.locale.Localization;
 
 public class ConnectIDLoginActivity extends CommCareActivity<ConnectIDLoginActivity>
 implements WithUIController {
@@ -81,9 +82,7 @@ implements WithUIController {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
-        if(ConnectIDManager.isConnectIDActivity(requestCode)) {
-            ConnectIDManager.handleFinishedActivity(requestCode, resultCode, intent);
-        }
+        ConnectIDManager.handleFinishedActivity(requestCode, resultCode, intent);
 
         super.onActivityResult(requestCode, resultCode, intent);
     }
@@ -157,10 +156,10 @@ implements WithUIController {
 
         if(BiometricsHelper.isFingerprintConfigured(biometricManager)) {
             fingerprintPromptInfo = new BiometricPrompt.PromptInfo.Builder()
-                    .setTitle(Localization.get("connect.unlock.fingerprint.title"))
-                    .setSubtitle(Localization.get("connect.unlock.fingerprint.message"))
+                    .setTitle(getString(R.string.connect_unlock_fingerprint_title))
+                    .setSubtitle(getString(R.string.connect_unlock_fingerprint_message))
                     .setAllowedAuthenticators(BIOMETRIC_STRONG)
-                    .setNegativeButtonText(Localization.get("connect.unlock.other.options"))
+                    .setNegativeButtonText(getString(R.string.connect_unlock_other_options))
                     .build();
         }
     }
@@ -170,8 +169,8 @@ implements WithUIController {
 
         if(BiometricsHelper.isPinConfigured(biometricManager)) {
             pinPromptInfo = new BiometricPrompt.PromptInfo.Builder()
-                    .setTitle(Localization.get("connect.unlock.pin.title"))
-                    .setSubtitle(Localization.get("connect.unlock.pin.message"))
+                    .setTitle(getString(R.string.connect_unlock_pin_title))
+                    .setSubtitle(getString(R.string.connect_unlock_pin_message))
                     .setAllowedAuthenticators(DEVICE_CREDENTIAL)
                     .build();
         }

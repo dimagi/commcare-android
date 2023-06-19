@@ -12,7 +12,6 @@ import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.WithUIController;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.services.Logger;
-import org.javarosa.core.services.locale.Localization;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -70,9 +69,9 @@ implements WithUIController {
 
     public void updateMessage() {
         boolean alternate = method == MethodRecoveryAlternate;
-        String labelKey = alternate ?
-                "connect.verify.phone.label.alternate" :
-                "connect.verify.phone.label";
+        int labelId = alternate ?
+                R.string.connect_verify_phone_label_alternate :
+                R.string.connect_verify_phone_label;
 
         String phone = alternate ? recoveryPhone : primaryPhone;
         if(phone != null) {
@@ -82,7 +81,7 @@ implements WithUIController {
             phone = "";
         }
 
-        uiController.setLabelText(Localization.get(labelKey, phone));
+        uiController.setLabelText(getString(labelId, phone));
     }
 
     public void requestSMSCode() {

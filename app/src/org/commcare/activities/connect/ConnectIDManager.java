@@ -2,6 +2,7 @@ package org.commcare.activities.connect;
 
 import static android.app.Activity.RESULT_OK;
 
+import android.content.Context;
 import android.content.Intent;
 import android.widget.Toast;
 
@@ -9,8 +10,8 @@ import org.commcare.activities.CommCareActivity;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.core.network.AuthInfo;
+import org.commcare.dalvik.R;
 import org.commcare.preferences.AppManagerDeveloperPreferences;
-import org.javarosa.core.services.locale.Localization;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -79,33 +80,10 @@ public class ConnectIDManager {
         return AppManagerDeveloperPreferences.isConnectIDEnabled() && getInstance().connectStatus == ConnectIDStatus.LoggedIn;
     }
 
-    public static boolean isConnectIDActivity(int requestCode) {
-        return requestCode == ConnectIDConstants.CONNECT_NO_ACTIVITY ||
-        requestCode == ConnectIDConstants.CONNECT_REGISTER_OR_RECOVER_DECISION ||
-        requestCode == ConnectIDConstants.CONNECT_REGISTRATION_PRIMARY_PHONE ||
-        requestCode == ConnectIDConstants.CONNECT_REGISTRATION_CONSENT ||
-        requestCode == ConnectIDConstants.CONNECT_REGISTRATION_MAIN ||
-        requestCode == ConnectIDConstants.CONNECT_REGISTRATION_CONFIGURE_BIOMETRICS ||
-        requestCode == ConnectIDConstants.CONNECT_REGISTRATION_UNLOCK_BIOMETRIC ||
-        requestCode == ConnectIDConstants.CONNECT_REGISTRATION_VERIFY_PRIMARY_PHONE ||
-        requestCode == ConnectIDConstants.CONNECT_REGISTRATION_CHANGE_PRIMARY_PHONE ||
-        requestCode == ConnectIDConstants.CONNECT_REGISTRATION_CONFIGURE_PASSWORD ||
-        requestCode == ConnectIDConstants.CONNECT_REGISTRATION_SUCCESS ||
-        requestCode == ConnectIDConstants.CONNECT_RECOVERY_PRIMARY_PHONE ||
-        requestCode == ConnectIDConstants.CONNECT_RECOVERY_VERIFY_PRIMARY_PHONE ||
-        requestCode == ConnectIDConstants.CONNECT_RECOVERY_VERIFY_PASSWORD ||
-        requestCode == ConnectIDConstants.CONNECT_RECOVERY_ALT_PHONE_MESSAGE ||
-        requestCode == ConnectIDConstants.CONNECT_RECOVERY_VERIFY_ALT_PHONE ||
-        requestCode == ConnectIDConstants.CONNECT_RECOVERY_CHANGE_PASSWORD ||
-        requestCode == ConnectIDConstants.CONNECT_RECOVERY_SUCCESS ||
-        requestCode == ConnectIDConstants.CONNECT_UNLOCK_BIOMETRIC ||
-        requestCode == ConnectIDConstants.CONNECT_UNLOCK_PASSWORD;
-    }
-
-    public static String getConnectButtonText() {
+    public static String getConnectButtonText(Context context) {
         return switch (getInstance().connectStatus) {
-            case LoggedOut, NotIntroduced -> Localization.get("connect.button.logged.out");
-            case LoggedIn -> Localization.get("connect.button.logged.in");
+            case LoggedOut, NotIntroduced -> context.getString(R.string.connect_button_logged_out);
+            case LoggedIn -> context.getString(R.string.connect_button_logged_in);
         };
     }
 
@@ -223,9 +201,9 @@ public class ConnectIDManager {
                 //Show message screen indicating success
                 nextActivity = ConnectIDMessageActivity.class;
 
-                params.put(ConnectIDConstants.TITLE, Localization.get("connect.register.success.title"));
-                params.put(ConnectIDConstants.MESSAGE, Localization.get("connect.register.success.message"));
-                params.put(ConnectIDConstants.BUTTON, Localization.get("connect.register.success.button"));
+                params.put(ConnectIDConstants.TITLE, parentActivity.getString(R.string.connect_register_success_title));
+                params.put(ConnectIDConstants.MESSAGE, parentActivity.getString(R.string.connect_register_success_message));
+                params.put(ConnectIDConstants.BUTTON, parentActivity.getString(R.string.connect_register_success_button));
             }
             case ConnectIDConstants.CONNECT_RECOVERY_PRIMARY_PHONE -> {
                 nextActivity = ConnectIDPhoneActivity.class;
@@ -254,9 +232,9 @@ public class ConnectIDManager {
                 //Show message screen indicating plan to use alt phone
                 nextActivity = ConnectIDMessageActivity.class;
 
-                params.put(ConnectIDConstants.TITLE, Localization.get("connect.recovery.alt.title"));
-                params.put(ConnectIDConstants.MESSAGE, Localization.get("connect.recovery.alt.message"));
-                params.put(ConnectIDConstants.BUTTON, Localization.get("connect.recovery.alt.button"));
+                params.put(ConnectIDConstants.TITLE, parentActivity.getString(R.string.connect_recovery_alt_title));
+                params.put(ConnectIDConstants.MESSAGE, parentActivity.getString(R.string.connect_recovery_alt_message));
+                params.put(ConnectIDConstants.BUTTON, parentActivity.getString(R.string.connect_recovery_alt_button));
             }
             case ConnectIDConstants.CONNECT_RECOVERY_VERIFY_ALT_PHONE-> {
                 nextActivity = ConnectIDPhoneVerificationActivity.class;
@@ -277,9 +255,9 @@ public class ConnectIDManager {
                 //Show message screen indicating success
                 nextActivity = ConnectIDMessageActivity.class;
 
-                params.put(ConnectIDConstants.TITLE, Localization.get("connect.recovery.success.title"));
-                params.put(ConnectIDConstants.MESSAGE, Localization.get("connect.recovery.success.message"));
-                params.put(ConnectIDConstants.BUTTON, Localization.get("connect.recovery.success.button"));
+                params.put(ConnectIDConstants.TITLE, parentActivity.getString(R.string.connect_recovery_success_title));
+                params.put(ConnectIDConstants.MESSAGE, parentActivity.getString(R.string.connect_recovery_success_message));
+                params.put(ConnectIDConstants.BUTTON, parentActivity.getString(R.string.connect_recovery_success_button));
             }
             case ConnectIDConstants.CONNECT_UNLOCK_PASSWORD-> {
                 nextActivity = ConnectIDPasswordVerificationActivity.class;
@@ -307,7 +285,7 @@ public class ConnectIDManager {
         }
     }
 
-    public static void handleFinishedActivity(int requestCode, int resultCode, Intent intent) {
+    public static boolean handleFinishedActivity(int requestCode, int resultCode, Intent intent) {
         ConnectIDManager manager = getInstance();
         boolean success = resultCode == RESULT_OK;
         int nextRequestCode = ConnectIDConstants.CONNECT_NO_ACTIVITY;
@@ -501,6 +479,9 @@ public class ConnectIDManager {
                     }
                 }
             }
+            default -> {
+                return false;
+            }
         }
 
         manager.phase = nextRequestCode;
@@ -510,6 +491,8 @@ public class ConnectIDManager {
         }
 
         manager.continueWorkflow();
+
+        return true;
     }
 
     //TODO: Re-enable this once we're ready for OIDC

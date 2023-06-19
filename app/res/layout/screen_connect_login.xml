@@ -13,7 +13,8 @@
         android:layout_gravity="center"
         android:layout_margin="@dimen/content_min_margin"
         android:textColor="@color/cc_neutral_color"
-        android:textSize="@dimen/text_largest" />
+        android:textSize="@dimen/text_largest"
+        android:text="@string/connect_unlock_title"/>
 
     <TextView
         android:id="@+id/connect_login_message"
@@ -21,7 +22,8 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_margin="@dimen/content_min_margin"
-        android:textSize="@dimen/text_medium" />
+        android:textSize="@dimen/text_medium"
+        android:text="@string/connect_unlock_message"/>
 
     <Button
         android:id="@+id/connect_pin_button"
@@ -29,7 +31,8 @@
         android:layout_height="wrap_content"
         android:paddingBottom="@dimen/content_start"
         android:paddingTop="@dimen/content_start"
-        android:visibility="gone"/>
+        android:visibility="gone"
+        android:text="@string/connect_unlock_button_pin"/>
 
     <TextView
         android:id="@+id/connect_login_or"
@@ -38,6 +41,7 @@
         android:layout_gravity="center"
         android:layout_margin="@dimen/content_min_margin"
         android:textSize="@dimen/text_medium"
+        android:text="@string/choice_or"
         android:visibility="gone"/>
 
     <Button
@@ -46,6 +50,7 @@
         android:layout_height="wrap_content"
         android:paddingBottom="@dimen/content_start"
         android:paddingTop="@dimen/content_start"
+        android:text="@string/connect_unlock_button_password"
         android:visibility="gone"/>
 
     <TextView
@@ -56,6 +61,7 @@
         android:layout_margin="@dimen/content_min_margin"
         android:textColor="@color/blue"
         android:textSize="@dimen/text_medium"
+        android:text="@string/connect_unlock_trouble_message"
         android:visibility="gone"/>
 
 </LinearLayout>

@@ -13,7 +13,6 @@ import org.commcare.dalvik.R;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.WithUIController;
 import org.commcare.utils.PhoneNumberHelper;
-import org.javarosa.core.services.locale.Localization;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -37,9 +36,9 @@ implements WithUIController {
 
         uiController.setupUI();
 
-        uiController.setMessage(Localization.get("connect.recovery.decision.new"));
-        uiController.setButton1Text(Localization.get("connect.recovery.button.new"));
-        uiController.setButton2Text(Localization.get("connect.recovery.button.recover"));
+        uiController.setMessage(getString(R.string.connect_recovery_decision_new));
+        uiController.setButton1Text(getString(R.string.connect_recovery_button_new));
+        uiController.setButton2Text(getString(R.string.connect_recovery_button_recover));
     }
 
     @Override
@@ -87,9 +86,9 @@ implements WithUIController {
                 uiController.setCountryCode(String.format(Locale.getDefault(), "+%d", code));
 
                 uiController.requestInputFocus();
-                uiController.setMessage(Localization.get("connect.recovery.decision.phone"));
-                uiController.setButton1Text(Localization.get("connect.recovery.button.phone"));
-                uiController.setButton2Text(Localization.get("connect.recovery.button.extended"));
+                uiController.setMessage(getString(R.string.connect_recovery_decision_phone));
+                uiController.setButton1Text(getString(R.string.connect_recovery_button_phone));
+                uiController.setButton2Text(getString(R.string.connect_recovery_button_extended));
             }
             case PhoneOrExtended -> {
                 Toast.makeText(this, "Not ready yet!", Toast.LENGTH_SHORT).show();
@@ -104,7 +103,7 @@ implements WithUIController {
 
         if (valid) {
             phone = phone.replaceAll("\\+", "%2b");
-            uiController.setPhoneMessage(Localization.get("connect.phone.checking"));
+            uiController.setPhoneMessage(getString(R.string.connect_phone_checking));
             uiController.setButton1Enabled(false);
 
             Multimap<String, String> params = ArrayListMultimap.create();
@@ -115,7 +114,7 @@ implements WithUIController {
             ConnectIDNetworkHelper.get(this, url, new AuthInfo.NoAuth(), params, new ConnectIDNetworkHelper.INetworkResultHandler() {
                 @Override
                 public void processSuccess(int responseCode, InputStream responseData) {
-                    uiController.setPhoneMessage(Localization.get("connect.phone.not.found"));
+                    uiController.setPhoneMessage(getString(R.string.connect_phone_not_found));
                     uiController.setButton1Enabled(false);
                 }
 
@@ -126,7 +125,7 @@ implements WithUIController {
                 }
             });
         } else {
-            uiController.setPhoneMessage(Localization.get("connect.phone.invalid"));
+            uiController.setPhoneMessage(getString(R.string.connect_phone_invalid));
             uiController.setButton1Enabled(false);
         }
     }

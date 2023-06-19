@@ -11,7 +11,6 @@ import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.WithUIController;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.services.Logger;
-import org.javarosa.core.services.locale.Localization;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -63,9 +62,9 @@ implements WithUIController {
 
     public void showWrongPasswordDialog() {
         Intent messageIntent = new Intent(this, ConnectIDMessageActivity.class);
-        messageIntent.putExtra(ConnectIDConstants.TITLE, Localization.get("connect.password.fail.title"));
-        messageIntent.putExtra(ConnectIDConstants.MESSAGE, Localization.get("connect.password.fail.message"));
-        messageIntent.putExtra(ConnectIDConstants.BUTTON, Localization.get("connect.password.fail.button"));
+        messageIntent.putExtra(ConnectIDConstants.TITLE, getString(R.string.connect_password_fail_title));
+        messageIntent.putExtra(ConnectIDConstants.MESSAGE, getString(R.string.connect_password_fail_message));
+        messageIntent.putExtra(ConnectIDConstants.BUTTON, getString(R.string.connect_password_fail_button));
 
         startActivityForResult(messageIntent, 1);
     }

@@ -1,36 +1,27 @@
 package org.commcare.activities.connect;
 
-import android.app.Activity;
-import android.content.Context;
 import android.view.View;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.TextView;
 
 import org.commcare.dalvik.R;
 import org.commcare.interfaces.CommCareActivityUIController;
+import org.commcare.utils.KeyboardHelper;
 import org.commcare.views.ManagedUi;
 import org.commcare.views.UiElement;
 
 @ManagedUi(R.layout.screen_connect_phone_verify)
 public class ConnectIDPhoneVerificationActivityUIController implements CommCareActivityUIController {
-
-    @UiElement(value = R.id.connect_phone_verify_title, locale = "connect.verify.phone.title")
-    private TextView titleTextView;
-
     @UiElement(value = R.id.connect_phone_verify_label)
     private TextView labelTextView;
     @UiElement(value = R.id.connect_phone_verify_code)
     private AutoCompleteTextView codeInput;
-
-    @UiElement(value = R.id.connect_phone_verify_change, locale = "connect.verify.phone.change")
+    @UiElement(value = R.id.connect_phone_verify_change)
     private TextView changeTextView;
-
-    @UiElement(value = R.id.connect_phone_verify_resend, locale = "connect.verify.phone.resend")
+    @UiElement(value = R.id.connect_phone_verify_resend)
     private TextView resendTextView;
-
-    @UiElement(value = R.id.connect_phone_verify_button, locale = "connect.verify.phone.verify")
+    @UiElement(value = R.id.connect_phone_verify_button)
     private Button verifyButton;
 
     protected final ConnectIDPhoneVerificationActivity activity;
@@ -60,7 +51,7 @@ public class ConnectIDPhoneVerificationActivityUIController implements CommCareA
     }
 
     public void requestInputFocus() {
-        ConnectIDKeyboardHelper.showKeyboardOnInput(activity, codeInput);
+        KeyboardHelper.showKeyboardOnInput(activity, codeInput);
     }
 
     public String getCode() {

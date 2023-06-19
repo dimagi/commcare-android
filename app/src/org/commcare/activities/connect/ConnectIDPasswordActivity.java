@@ -12,7 +12,6 @@ import org.commcare.core.network.AuthInfo;
 import org.commcare.dalvik.R;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.WithUIController;
-import org.javarosa.core.services.locale.Localization;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -76,14 +75,14 @@ implements WithUIController {
             uiController.setButtonEnabled(false);
         }
         else if(!pass1.equals(pass2)) {
-            uiController.setErrorText(Localization.get("connect.password.mismatch"));
+            uiController.setErrorText(getString(R.string.connect_password_mismatch));
             uiController.setButtonEnabled(false);
         }
         else {
             Zxcvbn checker = new Zxcvbn();
             Strength strength = checker.measure(pass1);
             if(strength.getScore() < 2) {
-                uiController.setErrorText(Localization.get("connect.password.weak"));
+                uiController.setErrorText(getString(R.string.connect_password_weak));
                 uiController.setButtonEnabled(false);
             } else {
                 uiController.setErrorText("");

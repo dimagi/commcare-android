@@ -89,7 +89,8 @@
                                 android:layout_gravity="bottom"
                                 android:paddingBottom="@dimen/content_start"
                                 android:paddingTop="@dimen/content_start"
-                                android:visibility="gone"/>
+                                android:visibility="gone"
+                                android:text="@string/login_button_connect"/>
 
                             <TextView
                                 android:id="@+id/login_or"
@@ -99,6 +100,7 @@
                                 android:layout_margin="@dimen/content_min_margin"
                                 android:textColor="@color/cc_neutral_color"
                                 android:textSize="@dimen/text_medium"
+                                android:text="@string/choice_or"
                                 android:visibility="gone"/>
 
                             <Spinner

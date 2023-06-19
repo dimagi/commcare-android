@@ -322,7 +322,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
             invalidateOptionsMenu();
             usernameBeforeRotation = passwordOrPinBeforeRotation = null;
         }
-        else if(ConnectIDManager.isConnectIDActivity(requestCode)) {
+        else {
             ConnectIDManager.handleFinishedActivity(requestCode, resultCode, intent);
         }
 
@@ -434,7 +434,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     }
 
     private void updateConnectButton() {
-        uiController.setConnectButtonText(ConnectIDManager.getConnectButtonText());
+        uiController.setConnectButtonText(ConnectIDManager.getConnectButtonText(this));
         uiController.setConnectButtonVisible(ConnectIDManager.shouldShowConnectButton());
 
         uiController.updateConnectLoginState();
@@ -468,9 +468,9 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         menu.add(0, MENU_PERMISSIONS, 1, Localization.get("permission.acquire.required")).setIcon(android.R.drawable.ic_menu_manage);
         menu.add(0, MENU_PASSWORD_MODE, 1, Localization.get("login.menu.password.mode"));
         menu.add(0, MENU_APP_MANAGER, 1, Localization.get("login.menu.app.manager"));
-        menu.add(0, MENU_CONNECT_SIGN_IN, 1, Localization.get("login.menu.connect.signin"));
-        menu.add(0, MENU_CONNECT_SIGN_OUT, 1, Localization.get("login.menu.connect.signout"));
-        menu.add(0, MENU_CONNECT_FORGET, 1, Localization.get("login.menu.connect.forget"));
+        menu.add(0, MENU_CONNECT_SIGN_IN, 1, getString(R.string.login_menu_connect_sign_in));
+        menu.add(0, MENU_CONNECT_SIGN_OUT, 1, getString(R.string.login_menu_connect_sign_out));
+        menu.add(0, MENU_CONNECT_FORGET, 1, getString(R.string.login_menu_connect_forget));
         return true;
     }
 

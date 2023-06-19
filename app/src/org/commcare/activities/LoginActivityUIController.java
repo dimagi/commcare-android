@@ -64,10 +64,10 @@ public class LoginActivityUIController implements CommCareActivityUIController {
     @UiElement(value = R.id.btn_view_notifications)
     private RectangleButtonWithText notificationButton;
 
-    @UiElement(value = R.id.connect_login_button, locale = "login.button.connect")
+    @UiElement(value = R.id.connect_login_button)
     private Button connectLoginButton;
 
-    @UiElement(value = R.id.login_or, locale = "choice.or")
+    @UiElement(value = R.id.login_or)
     private TextView orLabel;
 
     @UiElement(value = R.id.edit_username, locale = "login.username")
@@ -272,10 +272,10 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         if(ConnectIDManager.isConnectIDIntroduced()) {
             String welcomeText;
             if(ConnectIDManager.isSignedIn()) {
-                welcomeText = Localization.get("login.welcome.connect.signedin", ConnectIDDatabaseHelper.getUser(activity).getName());
+                welcomeText = activity.getString(R.string.login_welcome_connect_signed_in, ConnectIDDatabaseHelper.getUser(activity).getName());
             }
             else {
-                welcomeText = Localization.get("login.welcome.connect.signedout");
+                welcomeText = activity.getString(R.string.login_welcome_connect_signed_out);
                 emphasizeConnectSignin = true;
             }
 

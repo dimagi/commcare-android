@@ -12,7 +12,8 @@
         android:layout_gravity="center"
         android:layout_margin="@dimen/content_min_margin"
         android:textColor="@color/cc_neutral_color"
-        android:textSize="@dimen/text_largest" />
+        android:textSize="@dimen/text_largest"
+        android:text="@string/connect_register_title"/>
 
     <TextView
         android:id="@+id/connect_label_id"
@@ -20,7 +21,8 @@
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/content_min_margin"
         android:gravity="start"
-        android:textSize="@dimen/text_medium"/>
+        android:textSize="@dimen/text_medium"
+        android:text="@string/connect_register_id"/>
     <AutoCompleteTextView
         android:id="@+id/connect_edit_id"
         android:layout_width="fill_parent"
@@ -33,7 +35,8 @@
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/content_min_margin"
         android:gravity="start"
-        android:textSize="@dimen/text_medium"/>
+        android:textSize="@dimen/text_medium"
+        android:text="@string/connect_register_name"/>
     <AutoCompleteTextView
         android:id="@+id/connect_edit_name"
         android:layout_width="fill_parent"
@@ -46,7 +49,8 @@
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/content_min_margin"
         android:gravity="start"
-        android:textSize="@dimen/text_medium"/>
+        android:textSize="@dimen/text_medium"
+        android:text="@string/connect_register_phone_alt"/>
 
     <RelativeLayout
         android:layout_width="fill_parent"
@@ -71,6 +75,7 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:paddingBottom="@dimen/content_start"
-        android:paddingTop="@dimen/content_start" />
+        android:paddingTop="@dimen/content_start"
+        android:text="@string/connect_register_create"/>
 
 </LinearLayout>

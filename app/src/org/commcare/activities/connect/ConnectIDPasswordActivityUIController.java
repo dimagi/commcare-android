@@ -1,34 +1,26 @@
 package org.commcare.activities.connect;
 
-import android.app.Activity;
-import android.content.Context;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.TextView;
 
 import org.commcare.dalvik.R;
 import org.commcare.interfaces.CommCareActivityUIController;
+import org.commcare.utils.KeyboardHelper;
 import org.commcare.views.ManagedUi;
 import org.commcare.views.UiElement;
 
 @ManagedUi(R.layout.screen_connect_password)
 public class ConnectIDPasswordActivityUIController implements CommCareActivityUIController {
-    @UiElement(value = R.id.connect_password_title, locale = "connect.password.title")
-    private TextView titleTextView;
-    @UiElement(value = R.id.connect_password_message, locale = "connect.password.message")
-    private TextView messageTextView;
-    @UiElement(value = R.id.connect_password_input, locale = "connect.password")
+    @UiElement(value = R.id.connect_password_input)
     private AutoCompleteTextView passwordInput;
-    @UiElement(value = R.id.connect_password_repeat_input, locale = "connect.password.repeat")
+    @UiElement(value = R.id.connect_password_repeat_input)
     private AutoCompleteTextView passwordRepeatInput;
-
     @UiElement(value = R.id.connect_password_error_message)
     private TextView errorTextView;
-
-    @UiElement(value = R.id.connect_password_button, locale = "connect.password.button")
+    @UiElement(value = R.id.connect_password_button)
     private Button button;
 
     protected final ConnectIDPasswordActivity activity;
@@ -68,7 +60,7 @@ public class ConnectIDPasswordActivityUIController implements CommCareActivityUI
     }
 
     public void requestInputFocus() {
-        ConnectIDKeyboardHelper.showKeyboardOnInput(activity, passwordInput);
+        KeyboardHelper.showKeyboardOnInput(activity, passwordInput);
     }
 
     public String getPasswordText() {

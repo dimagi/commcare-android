@@ -1,11 +1,8 @@
 package org.commcare.activities.connect;
 
-import android.app.Activity;
-import android.content.Context;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.RelativeLayout;
@@ -13,13 +10,12 @@ import android.widget.TextView;
 
 import org.commcare.dalvik.R;
 import org.commcare.interfaces.CommCareActivityUIController;
+import org.commcare.utils.KeyboardHelper;
 import org.commcare.views.ManagedUi;
 import org.commcare.views.UiElement;
 
 @ManagedUi(R.layout.screen_connect_recovery_decision)
 public class ConnectIDRecoveryDecisionActivityUIController implements CommCareActivityUIController {
-    @UiElement(value = R.id.connect_recovery_title, locale = "connect.recovery.title")
-    private TextView titleTextView;
     @UiElement(value = R.id.connect_recovery_message)
     private TextView messageTextView;
 
@@ -37,8 +33,6 @@ public class ConnectIDRecoveryDecisionActivityUIController implements CommCareAc
     @UiElement(value = R.id.connect_recovery_button_1)
     private Button button1;
 
-    @UiElement(value = R.id.connect_recovery_or, locale = "choice.or")
-    private TextView orTextView;
     @UiElement(value = R.id.connect_recovery_button_2)
     private Button button2;
 
@@ -100,7 +94,7 @@ public class ConnectIDRecoveryDecisionActivityUIController implements CommCareAc
     }
 
     public void requestInputFocus() {
-        ConnectIDKeyboardHelper.showKeyboardOnInput(activity, phoneInput);
+        KeyboardHelper.showKeyboardOnInput(activity, phoneInput);
     }
 
     public void setButton1Text(String text) {

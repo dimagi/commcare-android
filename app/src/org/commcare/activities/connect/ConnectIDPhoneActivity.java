@@ -13,7 +13,6 @@ import org.commcare.dalvik.R;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.WithUIController;
 import org.commcare.utils.PhoneNumberHelper;
-import org.javarosa.core.services.locale.Localization;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -109,7 +108,7 @@ implements WithUIController {
                 }
                 else {
                     phone = phone.replaceAll("\\+", "%2b");
-                    uiController.setAvailabilityText(Localization.get("connect.phone.checking"));
+                    uiController.setAvailabilityText(getString(R.string.connect_phone_checking));
                     uiController.setOkButtonEnabled(false);
 
                     Multimap<String, String> params = ArrayListMultimap.create();
@@ -120,13 +119,13 @@ implements WithUIController {
                     ConnectIDNetworkHelper.get(this, url, new AuthInfo.NoAuth(), params, new ConnectIDNetworkHelper.INetworkResultHandler() {
                         @Override
                         public void processSuccess(int responseCode, InputStream responseData) {
-                            uiController.setAvailabilityText(Localization.get("connect.phone.available"));
+                            uiController.setAvailabilityText(getString(R.string.connect_phone_available));
                             uiController.setOkButtonEnabled(true);
                         }
 
                         @Override
                         public void processFailure(int responseCode, IOException e) {
-                            uiController.setAvailabilityText(Localization.get("connect.phone.unavailable"));
+                            uiController.setAvailabilityText(getString(R.string.connect_phone_unavailable));
                             uiController.setOkButtonEnabled(false);
                         }
                     });
@@ -137,7 +136,7 @@ implements WithUIController {
                 uiController.setOkButtonEnabled(true);
             }
         } else {
-            uiController.setAvailabilityText(Localization.get("connect.phone.invalid"));
+            uiController.setAvailabilityText(getString(R.string.connect_phone_invalid));
             uiController.setOkButtonEnabled(false);
         }
     }

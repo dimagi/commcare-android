@@ -7,9 +7,9 @@ import androidx.biometric.BiometricManager;
 
 import org.commcare.activities.BiometricsHelper;
 import org.commcare.activities.CommCareActivity;
+import org.commcare.dalvik.R;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.WithUIController;
-import org.javarosa.core.services.locale.Localization;
 
 public class ConnectIDVerificationActivity extends CommCareActivity<ConnectIDVerificationActivity>
 implements WithUIController {
@@ -53,7 +53,7 @@ implements WithUIController {
         uiController.setPinStatus(pin);
 
         boolean configured = fingerprint == BiometricsHelper.ConfigurationStatus.Configured || pin == BiometricsHelper.ConfigurationStatus.Configured;
-        String text = configured ? Localization.get("connect.verify.button.configured") : Localization.get("connect.verify.button.password");
+        String text = configured ? getString(R.string.connect_verify_button_configured) : getString(R.string.connect_verify_button_password);
         uiController.setButtonText(text);
     }
 

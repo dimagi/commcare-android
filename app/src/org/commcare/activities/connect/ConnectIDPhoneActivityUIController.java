@@ -1,34 +1,27 @@
 package org.commcare.activities.connect;
 
-import android.app.Activity;
-import android.content.Context;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.TextView;
 
 import org.commcare.dalvik.R;
 import org.commcare.interfaces.CommCareActivityUIController;
+import org.commcare.utils.KeyboardHelper;
 import org.commcare.views.ManagedUi;
 import org.commcare.views.UiElement;
 
 @ManagedUi(R.layout.screen_connect_primary_phone)
 public class ConnectIDPhoneActivityUIController implements CommCareActivityUIController {
-    @UiElement(value = R.id.connect_primary_phone_title, locale = "connect.phone.title")
-    private TextView titleTextView;
-    @UiElement(value = R.id.connect_primary_phone_message, locale = "connect.phone.message")
-    private TextView messageTextView;
     @UiElement(value = R.id.connect_primary_phone_country_input)
     private AutoCompleteTextView countryCodeInput;
     @UiElement(value = R.id.connect_primary_phone_input)
     private AutoCompleteTextView phoneInput;
-
     @UiElement(value = R.id.connect_primary_phone_availability)
     private TextView availabilityTextView;
 
-    @UiElement(value = R.id.connect_primary_phone_button, locale = "connect.phone.button")
+    @UiElement(value = R.id.connect_primary_phone_button)
     private Button button;
 
 
@@ -72,7 +65,7 @@ public class ConnectIDPhoneActivityUIController implements CommCareActivityUICon
     }
 
     public void requestInputFocus() {
-        ConnectIDKeyboardHelper.showKeyboardOnInput(activity, phoneInput);
+        KeyboardHelper.showKeyboardOnInput(activity, phoneInput);
     }
 
     public void setCountryCode(String code) { countryCodeInput.setText(code); }

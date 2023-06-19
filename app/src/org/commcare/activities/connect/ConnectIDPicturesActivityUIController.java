@@ -8,26 +8,17 @@ import org.commcare.dalvik.R;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.views.ManagedUi;
 import org.commcare.views.UiElement;
-import org.javarosa.core.services.locale.Localization;
 
 @ManagedUi(R.layout.screen_connect_pictures)
 public class ConnectIDPicturesActivityUIController implements CommCareActivityUIController {
-
-    @UiElement(value = R.id.connect_pictures_title, locale = "connect.pictures.title")
-    private TextView titleTextView;
-
-    @UiElement(value = R.id.connect_pictures_label, locale = "connect.pictures.label")
-    private TextView labelTextView;
     @UiElement(value = R.id.connect_pictures_face_icon)
     private ImageView faceIcon;
-    @UiElement(value = R.id.connect_pictures_face, locale = "connect.pictures.face")
+    @UiElement(value = R.id.connect_pictures_face)
     private TextView faceTextView;
-
     @UiElement(value = R.id.connect_pictures_id_icon)
     private ImageView idIcon;
-    @UiElement(value = R.id.connect_pictures_id, locale = "connect.pictures.id")
+    @UiElement(value = R.id.connect_pictures_id)
     private TextView idTextView;
-
     @UiElement(value = R.id.connect_pictures_button)
     private Button continueButton;
 
@@ -56,8 +47,8 @@ public class ConnectIDPicturesActivityUIController implements CommCareActivityUI
     }
 
     private void updateButtonText() {
-        continueButton.setText(Localization.get(faceCompleted && idCompleted ?
-                "connect.pictures.continue" : "connect.pictures.skip"));
+        continueButton.setText(activity.getString(faceCompleted && idCompleted ?
+                R.string.connect_pictures_continue : R.string.connect_pictures_skip));
     }
 
     public void setFaceStatus(boolean completed) {
