@@ -191,7 +191,7 @@ login.hide.password=HIDE
 login.update.install.success=App update successfully applied!
 login.update.install.failure=App update failed to apply!
 
-choice.or=OR
+choice.or=-------------    OR    -------------
 
 connect.button.logged.in=Go to Connect menu
 connect.button.logged.out=Login to Connect ID
@@ -207,6 +207,7 @@ connect.phone.checking=Checking...
 connect.phone.available=Phone number is available!
 connect.phone.unavailable=Phone number is already in use
 connect.phone.invalid=Enter a valid phone number
+connect.phone.not.found=Phone number not found
 
 connect.password.title=Recovery Password
 connect.password.message=Please choose a recovery password

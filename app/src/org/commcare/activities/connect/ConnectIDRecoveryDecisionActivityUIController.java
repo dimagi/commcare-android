@@ -2,6 +2,8 @@ package org.commcare.activities.connect;
 
 import android.app.Activity;
 import android.content.Context;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AutoCompleteTextView;
@@ -28,6 +30,10 @@ public class ConnectIDRecoveryDecisionActivityUIController implements CommCareAc
     private AutoCompleteTextView countryCodeInput;
     @UiElement(value = R.id.connect_recovery_phone_input)
     private AutoCompleteTextView phoneInput;
+
+    @UiElement(value = R.id.connect_recovery_phone_message)
+    private TextView phoneMessageTextView;
+
     @UiElement(value = R.id.connect_recovery_button_1)
     private Button button1;
 
@@ -46,6 +52,22 @@ public class ConnectIDRecoveryDecisionActivityUIController implements CommCareAc
     public void setupUI() {
         button1.setOnClickListener(v -> activity.handleButton1Press());
         button2.setOnClickListener(v -> activity.handleButton2Press());
+
+        TextWatcher watcher = new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                activity.checkPhoneNumber();
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) { }
+        };
+
+        countryCodeInput.addTextChangedListener(watcher);
+        phoneInput.addTextChangedListener(watcher);
     }
 
     @Override
@@ -59,6 +81,7 @@ public class ConnectIDRecoveryDecisionActivityUIController implements CommCareAc
 
     public void setPhoneInputVisible(boolean visible) {
         phoneBlock.setVisibility(visible ? View.VISIBLE : View.GONE);
+        phoneMessageTextView.setVisibility(visible ? View.VISIBLE : View.GONE);
     }
 
     public void setCountryCode(String code) { countryCodeInput.setText(code); }
@@ -67,6 +90,13 @@ public class ConnectIDRecoveryDecisionActivityUIController implements CommCareAc
     }
     public String getPhoneNumber() {
         return phoneInput.getText().toString();
+    }
+    public void setButton1Enabled(boolean enabled) {
+        button1.setEnabled(enabled);
+    }
+
+    public void setPhoneMessage(String message) {
+        phoneMessageTextView.setText(message);
     }
 
     public void requestInputFocus() {

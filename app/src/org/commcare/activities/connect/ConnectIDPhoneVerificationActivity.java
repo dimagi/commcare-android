@@ -133,8 +133,8 @@ implements WithUIController {
 
             @Override
             public void processFailure(int responseCode, IOException e) {
-                //TODO: Better error handling
-                Toast.makeText(context, "SMS Request: Error", Toast.LENGTH_SHORT).show();
+                //Fail with indication to change number
+                finish(false, true, null, null);
             }
         });
     }
@@ -205,6 +205,7 @@ implements WithUIController {
         Intent intent = new Intent(getIntent());
         if(method == MethodRecoveryPrimary) {
             intent.putExtra(ConnectIDConstants.SECRET, password);
+            intent.putExtra(ConnectIDConstants.CHANGE, changeNumber);
         }
         else if(method == MethodRecoveryAlternate) {
             intent.putExtra(ConnectIDConstants.USERNAME, username);

@@ -4,12 +4,19 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Toast;
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
+
 import org.commcare.activities.CommCareActivity;
+import org.commcare.core.network.AuthInfo;
+import org.commcare.dalvik.R;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.WithUIController;
 import org.commcare.utils.PhoneNumberHelper;
 import org.javarosa.core.services.locale.Localization;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Locale;
 
 public class ConnectIDRecoveryDecisionActivity extends CommCareActivity<ConnectIDRecoveryDecisionActivity>
@@ -41,6 +48,7 @@ implements WithUIController {
 
         if(state == ConnectRecoveryState.PhoneOrExtended) {
             uiController.requestInputFocus();
+            checkPhoneNumber();
         }
     }
 
@@ -86,6 +94,40 @@ implements WithUIController {
             case PhoneOrExtended -> {
                 Toast.makeText(this, "Not ready yet!", Toast.LENGTH_SHORT).show();
             }
+        }
+    }
+
+    public void checkPhoneNumber() {
+        String phone = PhoneNumberHelper.buildPhoneNumber(uiController.getCountryCode(), uiController.getPhoneNumber());
+
+        boolean valid = PhoneNumberHelper.isValidPhoneNumber(this, phone);
+
+        if (valid) {
+            phone = phone.replaceAll("\\+", "%2b");
+            uiController.setPhoneMessage(Localization.get("connect.phone.checking"));
+            uiController.setButton1Enabled(false);
+
+            Multimap<String, String> params = ArrayListMultimap.create();
+            params.put("phone_number", phone);
+
+            String url = this.getString(R.string.ConnectURL) + "/users/phone_available";
+
+            ConnectIDNetworkHelper.get(this, url, new AuthInfo.NoAuth(), params, new ConnectIDNetworkHelper.INetworkResultHandler() {
+                @Override
+                public void processSuccess(int responseCode, InputStream responseData) {
+                    uiController.setPhoneMessage(Localization.get("connect.phone.not.found"));
+                    uiController.setButton1Enabled(false);
+                }
+
+                @Override
+                public void processFailure(int responseCode, IOException e) {
+                    uiController.setPhoneMessage("");
+                    uiController.setButton1Enabled(true);
+                }
+            });
+        } else {
+            uiController.setPhoneMessage(Localization.get("connect.phone.invalid"));
+            uiController.setButton1Enabled(false);
         }
     }
 }

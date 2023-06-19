@@ -406,6 +406,13 @@ public class ConnectIDManager {
                     //Remember the secret key for use through the rest of the recovery process
                     manager.recoverySecret = intent.getStringExtra(ConnectIDConstants.SECRET);
                 }
+//                else {
+//                    boolean changeNumber = intent != null && intent.getBooleanExtra(ConnectIDConstants.CHANGE, false);
+//                    if(changeNumber) {
+//                        //Means server failed trying to send SMS
+//                        //TODO: What to do when number exists but SMS request fails?
+//                    }
+//                }
             }
             case ConnectIDConstants.CONNECT_RECOVERY_VERIFY_PASSWORD -> {
                 nextRequestCode = success ? ConnectIDConstants.CONNECT_RECOVERY_SUCCESS : ConnectIDConstants.CONNECT_RECOVERY_VERIFY_PRIMARY_PHONE;
