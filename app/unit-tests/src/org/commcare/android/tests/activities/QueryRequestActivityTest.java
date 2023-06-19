@@ -219,10 +219,10 @@ public class QueryRequestActivityTest {
         assertEquals("francisco", patientName.getText().toString());
 
         ImageButton imageButtonWithoutHint = promptsLayout.getChildAt(0).findViewById(R.id.prompt_hint_button);
-        assertEquals(8, imageButtonWithoutHint.getVisibility());
+        assertEquals(View.GONE, imageButtonWithoutHint.getVisibility());
 
         ImageButton imageButtonWithHint = promptsLayout.getChildAt(4).findViewById(R.id.prompt_hint_button);
-        assertEquals(0, imageButtonWithHint.getVisibility());
+        assertEquals(View.VISIBLE, imageButtonWithHint.getVisibility());
 
         Spinner stateSpinner = promptsLayout.getChildAt(2).findViewById(R.id.prompt_spinner);
         assertEquals(2, stateSpinner.getSelectedItemPosition());
