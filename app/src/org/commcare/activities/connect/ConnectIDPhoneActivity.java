@@ -1,5 +1,6 @@
 package org.commcare.activities.connect;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Toast;
@@ -116,6 +117,8 @@ implements WithUIController {
 
                     String url = this.getString(R.string.ConnectURL) + "/users/phone_available";
 
+                    Context context = this;
+                    final String phoneLock = phone;
                     ConnectIDNetworkHelper.get(this, url, new AuthInfo.NoAuth(), params, new ConnectIDNetworkHelper.INetworkResultHandler() {
                         @Override
                         public void processSuccess(int responseCode, InputStream responseData) {
@@ -127,6 +130,8 @@ implements WithUIController {
                         public void processFailure(int responseCode, IOException e) {
                             uiController.setAvailabilityText(getString(R.string.connect_phone_unavailable));
                             uiController.setOkButtonEnabled(false);
+
+                            Toast.makeText(context, String.format("Error code %d when testing number '%s'", responseCode, phoneLock), Toast.LENGTH_LONG).show();
                         }
                     });
                 }
