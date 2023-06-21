@@ -20,10 +20,15 @@ import java.util.HashMap;
 
 public class ConnectIDPasswordVerificationActivity extends CommCareActivity<ConnectIDPasswordVerificationActivity>
 implements WithUIController {
+    public static final int PASSWORD_FAIL = 1;
+    public static final int PASSWORD_LOCK = 2;
     private ConnectIDPasswordVerificationActivityUIController uiController;
 
     private String phone = null;
     private String secretKey = null;
+
+    private static final int MaxFailures = 3;
+    private int failureCount = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,6 +38,8 @@ implements WithUIController {
         secretKey = getIntent().getStringExtra(ConnectIDConstants.SECRET);
 
         uiController.setupUI();
+
+        failureCount = 0;
     }
 
     @Override
@@ -48,6 +55,15 @@ implements WithUIController {
     @Override
     public void initUIController() { uiController = new ConnectIDPasswordVerificationActivityUIController(this); }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        super.onActivityResult(requestCode, resultCode, intent);
+
+        if(requestCode == PASSWORD_LOCK) {
+            finish(true, true, null, null, null);
+        }
+    }
+
     public void finish(boolean success, boolean forgot, String username, String name, String password) {
         Intent intent = new Intent(getIntent());
 
@@ -60,13 +76,24 @@ implements WithUIController {
         finish();
     }
 
-    public void showWrongPasswordDialog() {
+    public void handleWrongPassword() {
+        failureCount++;
+        uiController.clearPassword();
+
+        int requestCode = PASSWORD_FAIL;
+        String message = getString(R.string.connect_password_fail_message);
+
+        if(failureCount >= MaxFailures) {
+            requestCode = PASSWORD_LOCK;
+            message = getString(R.string.connect_password_recovery_message);
+        }
+
         Intent messageIntent = new Intent(this, ConnectIDMessageActivity.class);
         messageIntent.putExtra(ConnectIDConstants.TITLE, getString(R.string.connect_password_fail_title));
-        messageIntent.putExtra(ConnectIDConstants.MESSAGE, getString(R.string.connect_password_fail_message));
+        messageIntent.putExtra(ConnectIDConstants.MESSAGE, message);
         messageIntent.putExtra(ConnectIDConstants.BUTTON, getString(R.string.connect_password_fail_button));
 
-        startActivityForResult(messageIntent, 1);
+        startActivityForResult(messageIntent, requestCode);
     }
 
     public void handleForgotPress() {
@@ -82,7 +109,7 @@ implements WithUIController {
                 finish(true, false, null, null, null);
             }
             else {
-                showWrongPasswordDialog();
+                handleWrongPassword();
             }
         }
         else {
@@ -121,7 +148,7 @@ implements WithUIController {
 
                 @Override
                 public void processFailure(int responseCode, IOException e) {
-                    showWrongPasswordDialog();
+                    handleWrongPassword();
                 }
             });
         }

@@ -33,6 +33,8 @@ public class ConnectIDPasswordActivityUIController implements CommCareActivityUI
     public void setupUI() {
         button.setOnClickListener(v -> activity.handleButtonPress());
 
+        clearPasswordFields();
+
         TextWatcher watcher = new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -63,6 +65,10 @@ public class ConnectIDPasswordActivityUIController implements CommCareActivityUI
         KeyboardHelper.showKeyboardOnInput(activity, passwordInput);
     }
 
+    public void clearPasswordFields() {
+        passwordInput.setText("");
+        passwordRepeatInput.setText("");
+    }
     public String getPasswordText() {
         return passwordInput.getText().toString();
     }

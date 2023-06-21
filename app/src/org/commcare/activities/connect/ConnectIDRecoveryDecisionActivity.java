@@ -88,7 +88,7 @@ implements WithUIController {
                 uiController.requestInputFocus();
                 uiController.setMessage(getString(R.string.connect_recovery_decision_phone));
                 uiController.setButton1Text(getString(R.string.connect_recovery_button_phone));
-                uiController.setButton2Text(getString(R.string.connect_recovery_button_extended));
+                uiController.setButton2Visible(false);
             }
             case PhoneOrExtended -> {
                 Toast.makeText(this, "Not ready yet!", Toast.LENGTH_SHORT).show();

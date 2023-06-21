@@ -14,9 +14,11 @@ import org.commcare.dalvik.R;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.WithUIController;
 import org.commcare.utils.PhoneNumberHelper;
+import org.javarosa.core.services.Logger;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.cert.CertPathValidatorException;
 import java.util.HashMap;
 import java.util.Locale;
 
@@ -128,10 +130,14 @@ implements WithUIController {
 
                         @Override
                         public void processFailure(int responseCode, IOException e) {
-                            uiController.setAvailabilityText(getString(R.string.connect_phone_unavailable));
+                            String text = getString(R.string.connect_phone_unavailable);
                             uiController.setOkButtonEnabled(false);
 
-                            Toast.makeText(context, String.format("Error code %d when testing number '%s'", responseCode, phoneLock), Toast.LENGTH_LONG).show();
+                            if(e != null) {
+                                Logger.exception("Checking phone number", e);
+                            }
+
+                            uiController.setAvailabilityText(text);
                         }
                     });
                 }

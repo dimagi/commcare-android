@@ -459,13 +459,15 @@
     <string name="login_welcome_connect_signed_out" cc:translatable="true">Log into ConnectID first and then enter your app.</string>
     <string name="login_welcome_connect_signed_in" cc:translatable="true">Welcome %s!</string>
 
-    <string name="choice_or" cc:translatable="true">-------------    OR    -------------</string>
+    <string name="choice_or" cc:translatable="true">_____________    Or    _____________</string>
 
     <string name="connect_button_logged_in" cc:translatable="true">Go to Connect menu</string>
     <string name="connect_button_logged_out" cc:translatable="true">Login to Connect ID</string>
 
     <string name="connect_consent_title" cc:translatable="true">Consent</string>
-    <string name="connect_consent_message" cc:translatable="true">Do you give your consent for ConnectID?</string>
+    <string name="connect_consent_message_1" cc:translatable="true">I have read and agree to Dimagi\'s <a href="https://www.dimagi.com/terms/latest/privacy/">Privacy Policy</a>, <a href="https://www.dimagi.com/terms/latest/tos/">Terms of Service</a>, <a href="https://www.dimagi.com/terms/latest/ba/">Business Agreement</a> and <a href="https://www.dimagi.com/terms/latest/aup/">Acceptable Use Policy</a>.</string>
+    <string name="connect_consent_message_2" cc:translatable="true">I acknowledge and understand that I may receive push notifications and SMS messages for the purpose of communication</string>
+    <string name="connect_consent_check" cc:translatable="true">Click here to give consent</string>
     <string name="connect_consent_button" cc:translatable="true">OK</string>
 
     <string name="connect_phone_title" cc:translatable="true">Primary Phone</string>
@@ -477,7 +479,7 @@
     <string name="connect_phone_invalid" cc:translatable="true">Enter a valid phone number</string>
     <string name="connect_phone_not_found" cc:translatable="true">Phone number not found</string>
 
-    <string name="connect_password_title" cc:translatable="true">Recovery Password</string>
+    <string name="connect_password_title" cc:translatable="true">Choose Password</string>
     <string name="connect_password_message" cc:translatable="true">Please choose a recovery password</string>
     <string name="connect_password_button" cc:translatable="true">OK</string>
     <string name="connect_password" cc:translatable="true">Enter Password</string>
@@ -485,21 +487,22 @@
     <string name="connect_password_mismatch" cc:translatable="true">Passwords must match</string>
     <string name="connect_password_weak" cc:translatable="true">Please choose a stronger password</string>
 
-    <string name="connect_password_verify_title" cc:translatable="true">Recovery Password</string>
+    <string name="connect_password_verify_title" cc:translatable="true">Enter Your Password</string>
     <string name="connect_password_verify_message" cc:translatable="true">Please enter your recovery password to continue.</string>
     <string name="connect_password_verify" cc:translatable="true">Enter Password</string>
-    <string name="connect_password_verify_forgot" cc:translatable="true">I forgot my password</string>
+    <string name="connect_password_verify_forgot" cc:translatable="true">Forget your password?</string>
     <string name="connect_password_verify_button" cc:translatable="true">Submit</string>
 
     <string name="connect_password_fail_title" cc:translatable="true">Wrong Password</string>
     <string name="connect_password_fail_message" cc:translatable="true">You entered the wrong password, please try again.</string>
+    <string name="connect_password_recovery_message" cc:translatable="true">You entered the wrong password too many times, you will need to recover your account.</string>
     <string name="connect_password_fail_button" cc:translatable="true">OK</string>
 
     <string name="connect_recovery_title" cc:translatable="true">ConnectID Account</string>
-    <string name="connect_recovery_decision_new" cc:translatable="true">This is the first time logging into Connect on this device. Do you need to create a new account or recover an existing account?</string>
-    <string name="connect_recovery_button_new" cc:translatable="true">Create New Account</string>
+    <string name="connect_recovery_decision_new" cc:translatable="true">Choose a step below</string>
+    <string name="connect_recovery_button_new" cc:translatable="true">Create New ConnectID Account</string>
     <string name="connect_recovery_button_recover" cc:translatable="true">Recover Existing Account</string>
-    <string name="connect_recovery_decision_phone" cc:translatable="true">Please enter the primary phone number you registered with your account.</string>
+    <string name="connect_recovery_decision_phone" cc:translatable="true">Please enter the primary phone number you entered with your account</string>
     <string name="connect_recovery_button_phone" cc:translatable="true">Continue</string>
     <string name="connect_recovery_button_extended" cc:translatable="true">More Options</string>
 
@@ -541,10 +544,10 @@
     <string name="connect_verify_button_configured" cc:translatable="true">Continue</string>
     <string name="connect_verify_button_password" cc:translatable="true">Use Password Only</string>
 
-    <string name="connect_verify_phone_title" cc:translatable="true">Verify Phone</string>
-    <string name="connect_verify_phone_label" cc:translatable="true">Please enter the code sent via SMS to your primary phone%s.</string>
+    <string name="connect_verify_phone_title" cc:translatable="true">Enter verification code</string>
+    <string name="connect_verify_phone_label" cc:translatable="true">We sent you a code on number %s.</string>
     <string name="connect_verify_phone_label_alternate" cc:translatable="true">Almost there! Please enter the code sent via SMS to your alternate phone%s.</string>
-    <string name="connect_verify_phone_resend" cc:translatable="true">Resend code</string>
+    <string name="connect_verify_phone_resend" cc:translatable="true">Didn\'t receive your code? Resend</string>
     <string name="connect_verify_phone_change" cc:translatable="true">Change phone number</string>
     <string name="connect_verify_phone_verify" cc:translatable="true">Verify code</string>
 

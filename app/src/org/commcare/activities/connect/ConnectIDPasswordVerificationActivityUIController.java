@@ -29,6 +29,8 @@ public class ConnectIDPasswordVerificationActivityUIController implements CommCa
     public void setupUI() {
         forgotLink.setOnClickListener(arg0 -> activity.handleForgotPress());
         button.setOnClickListener(arg0 -> activity.handleButtonPress());
+
+        clearPassword();
     }
 
     @Override
@@ -39,6 +41,8 @@ public class ConnectIDPasswordVerificationActivityUIController implements CommCa
     public String getPassword() {
         return passwordInput.getText().toString();
     }
+
+    public void clearPassword() { passwordInput.setText(""); }
 
     public void requestInputFocus() {
         KeyboardHelper.showKeyboardOnInput(activity, passwordInput);

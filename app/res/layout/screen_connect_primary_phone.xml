@@ -3,7 +3,9 @@
     android:layout_width="match_parent"
     android:layout_height="fill_parent"
     android:background="@color/cc_core_bg"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:layout_marginStart="@dimen/content_start"
+    android:layout_marginEnd="@dimen/content_start">
 
     <TextView
         android:id="@+id/connect_primary_phone_title"

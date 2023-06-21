@@ -69,19 +69,12 @@ implements WithUIController {
 
     public void updateMessage() {
         boolean alternate = method == MethodRecoveryAlternate;
-        int labelId = alternate ?
-                R.string.connect_verify_phone_label_alternate :
-                R.string.connect_verify_phone_label;
-
         String phone = alternate ? recoveryPhone : primaryPhone;
-        if(phone != null) {
-            phone = " (" + phone + ")";
-        }
-        else {
-            phone = "";
+        if(phone == null) {
+            phone = "-";
         }
 
-        uiController.setLabelText(getString(labelId, phone));
+        uiController.setLabelText(getString(R.string.connect_verify_phone_label, phone));
     }
 
     public void requestSMSCode() {

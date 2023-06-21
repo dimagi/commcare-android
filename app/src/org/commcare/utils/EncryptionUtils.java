@@ -63,6 +63,7 @@ public class EncryptionUtils {
         }
 
         //Create key
+        SecretKey secretKey;
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
             KeyGenParameterSpec.Builder builder = new KeyGenParameterSpec.Builder(SECRET_NAME,
                     KeyProperties.PURPOSE_ENCRYPT | KeyProperties.PURPOSE_DECRYPT);
@@ -73,10 +74,14 @@ public class EncryptionUtils {
 
             KeyGenerator generator = KeyGenerator.getInstance(ALGORITHM);
             generator.init(builder.build());
-            return generator.generateKey();
+            secretKey = generator.generateKey();
+        } else {
+            KeyGenerator keyGen = KeyGenerator.getInstance("AES");
+            keyGen.init(256);
+            secretKey = keyGen.generateKey();
         }
 
-        return null;
+        return secretKey;
     }
 
     //Generate a random passphrase

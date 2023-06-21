@@ -33,6 +33,9 @@ public class ConnectIDRecoveryDecisionActivityUIController implements CommCareAc
     @UiElement(value = R.id.connect_recovery_button_1)
     private Button button1;
 
+    @UiElement(value = R.id.connect_recovery_or)
+    private TextView orText;
+
     @UiElement(value = R.id.connect_recovery_button_2)
     private Button button2;
 
@@ -107,5 +110,6 @@ public class ConnectIDRecoveryDecisionActivityUIController implements CommCareAc
 
     public void setButton2Visible(boolean visible) {
         button2.setVisibility(visible ? View.VISIBLE : View.GONE);
+        orText.setVisibility(visible ? View.VISIBLE : View.GONE);
     }
 }
