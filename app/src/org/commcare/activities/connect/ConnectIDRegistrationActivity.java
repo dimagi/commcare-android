@@ -1,9 +1,7 @@
 package org.commcare.activities.connect;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.widget.Toast;
 
 import org.commcare.activities.CommCareActivity;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
@@ -38,6 +36,8 @@ implements WithUIController {
         uiController.setAltCountryCode(String.format(Locale.getDefault(), "+%d", code));
 
         uiController.setUserId(generateUserId());
+
+        updateStatus();
     }
 
     @Override
@@ -74,6 +74,25 @@ implements WithUIController {
         return password.toString();
     }
 
+    public void updateStatus() {
+        String error = null;
+        if (uiController.getUserIdText().length() == 0) {
+            error = getString(R.string.connect_register_error_id);
+        } else if (uiController.getNameText().length() == 0) {
+            error = getString(R.string.connect_register_error_name);
+        } else {
+            String altPhone = PhoneNumberHelper.buildPhoneNumber(uiController.getAltCountryCode(), uiController.getAltPhoneNumber());
+            if (!PhoneNumberHelper.isValidPhoneNumber(this, altPhone)) {
+                error = getString(R.string.connect_register_error_phone);
+            } else if (altPhone.equals(phone)) {
+                error = getString(R.string.connect_register_error_same_number);
+            }
+        }
+
+        uiController.setErrorText(error);
+        uiController.setButtonEnabled(error == null);
+    }
+
     public void finish(boolean success) {
         Intent intent = new Intent(getIntent());
         user.putUserInIntent(intent);
@@ -82,17 +101,13 @@ implements WithUIController {
     }
 
     public void createAccount() {
+        uiController.setErrorText(null);
+        
         String url = getString(R.string.ConnectURL) + "/users/register";
 
         user = new ConnectUserRecord(phone, uiController.getUserIdText(), generatePassword(), uiController.getNameText());
 
         String altPhone = PhoneNumberHelper.buildPhoneNumber(uiController.getAltCountryCode(), uiController.getAltPhoneNumber());
-
-        //TODO: Disable button until a valid alt phone is entered
-        if(!PhoneNumberHelper.isValidPhoneNumber(this, phone)) {
-            Toast.makeText(this, "Error: Check Alt Phone!", Toast.LENGTH_SHORT).show();
-            return;
-        }
 
         HashMap<String, String> params = new HashMap<>();
         params.put("username", user.getUserID());
@@ -101,7 +116,6 @@ implements WithUIController {
         params.put("phone_number", phone);
         params.put("recovery_phone", altPhone);
 
-        final Context self = this;
         ConnectIDNetworkHelper.post(this, url, new AuthInfo.NoAuth(), params, new ConnectIDNetworkHelper.INetworkResultHandler() {
             @Override
             public void processSuccess(int responseCode, InputStream responseData) {
@@ -110,7 +124,7 @@ implements WithUIController {
 
             @Override
             public void processFailure(int responseCode, IOException e) {
-                Toast.makeText(self, "Registration error", Toast.LENGTH_SHORT).show();
+                uiController.setErrorText(String.format(Locale.getDefault(), "Registration error: %d", responseCode));
             }
         });
     }

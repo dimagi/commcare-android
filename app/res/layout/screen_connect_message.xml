@@ -14,7 +14,7 @@
         android:layout_gravity="center"
         android:layout_margin="@dimen/content_min_margin"
         android:textColor="@color/cc_neutral_color"
-        android:textSize="@dimen/text_largest" />
+        android:textSize="@dimen/text_larger" />
 
     <TextView
         android:id="@+id/connect_message_message"

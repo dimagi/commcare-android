@@ -474,7 +474,7 @@ public class LoginActivityUIController implements CommCareActivityUIController {
     }
 
     protected int getSelectedAppIndex() {
-        return spinner.getSelectedItemPosition();
+        return  spinner.getSelectedItemPosition();
     }
 
     protected void setPermissionsGrantedState() {

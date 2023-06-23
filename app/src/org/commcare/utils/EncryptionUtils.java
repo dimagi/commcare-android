@@ -1,6 +1,8 @@
 package org.commcare.utils;
 
+import android.content.Context;
 import android.os.Build;
+import android.security.KeyPairGeneratorSpec;
 import android.security.keystore.KeyGenParameterSpec;
 import android.security.keystore.KeyProperties;
 
@@ -10,15 +12,22 @@ import org.commcare.util.Base64;
 import org.commcare.util.Base64DecoderException;
 
 import java.io.IOException;
+import java.math.BigInteger;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
+import java.security.Key;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
 import java.security.SecureRandom;
 import java.security.UnrecoverableEntryException;
 import java.security.cert.CertificateException;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.Random;
 
 import javax.crypto.BadPaddingException;
@@ -28,6 +37,7 @@ import javax.crypto.KeyGenerator;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
+import javax.security.auth.x500.X500Principal;
 
 /**
  * Utility class for encrypting submissions during the SaveToDiskTask.
@@ -38,6 +48,7 @@ import javax.crypto.spec.IvParameterSpec;
 public class EncryptionUtils {
 
     private static final int PASSPHRASE_LENGTH = 32;
+    private static final String KEYSTORE_NAME = "AndroidKeyStore";
     private static final String SECRET_NAME = "secret";
 
     @RequiresApi(api = Build.VERSION_CODES.M)
@@ -46,42 +57,104 @@ public class EncryptionUtils {
     private static final String BLOCK_MODE = KeyProperties.BLOCK_MODE_CBC;
     @RequiresApi(api = Build.VERSION_CODES.M)
     private static final String PADDING = KeyProperties.ENCRYPTION_PADDING_PKCS7;
-    private static KeyStore keystore = null;
+    private static KeyStore keystoreSingleton = null;
 
-    //Gets the SecretKey from the Android KeyStore (creates a new one the first time)
-    private static SecretKey getKey()
-            throws CertificateException, KeyStoreException, IOException, NoSuchAlgorithmException,
-            UnrecoverableEntryException, InvalidAlgorithmParameterException {
-        if(keystore == null) {
-            keystore = KeyStore.getInstance("AndroidKeyStore");
-            keystore.load(null);
+    private static KeyStore getKeystore() throws KeyStoreException, CertificateException,
+            IOException, NoSuchAlgorithmException {
+        if (keystoreSingleton == null) {
+            keystoreSingleton = KeyStore.getInstance(KEYSTORE_NAME);
+            keystoreSingleton.load(null);
         }
 
-        KeyStore.Entry existingKey = keystore.getEntry(SECRET_NAME, null);
-        if (existingKey instanceof KeyStore.SecretKeyEntry) {
-            return ((KeyStore.SecretKeyEntry) existingKey).getSecretKey();
+        return keystoreSingleton;
+    }
+
+    //Gets the SecretKey from the Android KeyStore (creates a new one the first time)
+    private static Key getKey(Context context, boolean trueForEncrypt)
+            throws CertificateException, KeyStoreException, IOException, NoSuchAlgorithmException,
+            UnrecoverableEntryException, InvalidAlgorithmParameterException, NoSuchProviderException {
+        KeyStore keystore = getKeystore();
+
+        if(doesKeystoreContainEncryptionKey()) {
+            KeyStore.Entry existingKey = keystore.getEntry(SECRET_NAME, null);
+            if (existingKey instanceof KeyStore.SecretKeyEntry entry) {
+                return entry.getSecretKey();
+            }
+            if (existingKey instanceof KeyStore.PrivateKeyEntry entry) {
+                return trueForEncrypt ? entry.getCertificate().getPublicKey() : entry.getPrivateKey();
+            }
+            else { return null; }
+        } else {
+            return generateKeyInKeystore(context, trueForEncrypt);
         }
 
         //Create key
-        SecretKey secretKey;
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
-            KeyGenParameterSpec.Builder builder = new KeyGenParameterSpec.Builder(SECRET_NAME,
-                    KeyProperties.PURPOSE_ENCRYPT | KeyProperties.PURPOSE_DECRYPT);
-            builder.setBlockModes(BLOCK_MODE);
-            builder.setEncryptionPaddings(PADDING);
-            builder.setUserAuthenticationRequired(false);
-            builder.setRandomizedEncryptionRequired(true);
+//        SecretKey secretKey;
+//        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+//            KeyGenParameterSpec.Builder builder = new KeyGenParameterSpec.Builder(SECRET_NAME,
+//                    KeyProperties.PURPOSE_ENCRYPT | KeyProperties.PURPOSE_DECRYPT);
+//            builder.setBlockModes(BLOCK_MODE);
+//            builder.setEncryptionPaddings(PADDING);
+//            builder.setUserAuthenticationRequired(false);
+//            builder.setRandomizedEncryptionRequired(true);
+//
+//            KeyGenerator generator = KeyGenerator.getInstance(ALGORITHM);
+//            generator.init(builder.build());
+//            secretKey = generator.generateKey();
+//        } else {
+//            KeyGenerator keyGen = KeyGenerator.getInstance("AES");
+//            keyGen.init(256);
+//            secretKey = keyGen.generateKey();
+//        }
+//
+//        return secretKey;
+    }
 
-            KeyGenerator generator = KeyGenerator.getInstance(ALGORITHM);
-            generator.init(builder.build());
-            secretKey = generator.generateKey();
-        } else {
-            KeyGenerator keyGen = KeyGenerator.getInstance("AES");
-            keyGen.init(256);
-            secretKey = keyGen.generateKey();
+    private static boolean doesKeystoreContainEncryptionKey() throws CertificateException,
+            KeyStoreException, IOException, NoSuchAlgorithmException {
+        KeyStore keystore = getKeystore();
+
+        return  keystore.containsAlias(SECRET_NAME);
+    }
+
+    private static Key generateKeyInKeystore(Context context, boolean trueForEncrypt) throws NoSuchAlgorithmException, NoSuchProviderException, InvalidAlgorithmParameterException {
+        if(android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+            KeyGenerator keyGenerator = KeyGenerator.getInstance(
+                    KeyProperties.KEY_ALGORITHM_AES, KEYSTORE_NAME);
+            KeyGenParameterSpec keySpec = new KeyGenParameterSpec.Builder(SECRET_NAME,
+                    KeyProperties.PURPOSE_ENCRYPT | KeyProperties.PURPOSE_DECRYPT)
+                    .setBlockModes(KeyProperties.BLOCK_MODE_CBC)
+                    .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_PKCS7)
+                    //.setUserAuthenticationValidityDurationSeconds(AUTH_VALID_DURATION_IN_SECOND)
+                    .build();
+
+            keyGenerator.init(keySpec);
+            return keyGenerator.generateKey();
         }
+        else {
+            KeyPairGenerator generator = KeyPairGenerator.getInstance("RSA", KEYSTORE_NAME);
 
-        return secretKey;
+            GregorianCalendar start = new GregorianCalendar();
+            GregorianCalendar end = new GregorianCalendar();
+            end.add(Calendar.YEAR, 100);
+            KeyPairGeneratorSpec keySpec = new KeyPairGeneratorSpec.Builder(context)
+                    // You'll use the alias later to retrieve the key.  It's a key for the key!
+                    .setAlias(SECRET_NAME)
+                    // The subject used for the self-signed certificate of the generated pair
+                    .setSubject(new X500Principal(String.format("CN=%s", SECRET_NAME)))
+                    // The serial number used for the self-signed certificate of the
+                    // generated pair.
+                    .setSerialNumber(BigInteger.valueOf(1337))
+                    // Date range of validity for the generated pair.
+                    .setStartDate(start.getTime())
+                    .setEndDate(end.getTime())
+                    .build();
+
+            generator.initialize(keySpec);
+            KeyPair pair = generator.generateKeyPair();
+
+            return trueForEncrypt ? pair.getPublic() : pair.getPrivate();
+        }
     }
 
     //Generate a random passphrase
@@ -121,26 +194,42 @@ public class EncryptionUtils {
         return result;
     }
 
+    private static String getTransformationString() {
+        String transformation;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+            transformation = String.format("%s/%s/%s", ALGORITHM, BLOCK_MODE, PADDING);
+        }
+        else {
+            transformation = "RSA/ECB/PKCS1Padding";
+        }
+
+        return transformation;
+    }
+
     //Encryption backed by Android KeyStore
-    @RequiresApi(api = Build.VERSION_CODES.M)
-    private static byte[] encrypt(byte[] bytes)
+    private static byte[] encrypt(Context context, byte[] bytes)
             throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException,
             IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException,
-            UnrecoverableEntryException, CertificateException, KeyStoreException, IOException {
-        String transformation = String.format("%s/%s/%s", ALGORITHM, BLOCK_MODE, PADDING);
+            UnrecoverableEntryException, CertificateException, KeyStoreException, IOException, NoSuchProviderException {
+        String transformation = getTransformationString();
         Cipher cipher = Cipher.getInstance(transformation);
-        cipher.init(Cipher.ENCRYPT_MODE, getKey());
+        cipher.init(Cipher.ENCRYPT_MODE, getKey(context, true));
         byte[] encrypted = cipher.doFinal(bytes);
         byte[] iv = cipher.getIV();
+        int ivLength = iv == null ? 0 : iv.length;
 
-        byte[] output = new byte[encrypted.length + iv.length + 2];
+        byte[] output = new byte[encrypted.length + ivLength + 3];
         int writeIndex = 0;
-        output[writeIndex] = (byte) iv.length;
+        output[writeIndex] = (byte) ivLength;
         writeIndex++;
-        System.arraycopy(iv, 0, output, writeIndex, iv.length);
-        writeIndex += iv.length;
+        if(ivLength > 0) {
+            System.arraycopy(iv, 0, output, writeIndex, iv.length);
+            writeIndex += iv.length;
+        }
 
-        output[writeIndex] = (byte) encrypted.length;
+        output[writeIndex] = (byte) (encrypted.length / 256);
+        writeIndex++;
+        output[writeIndex] = (byte) (encrypted.length % 256);
         writeIndex++;
         System.arraycopy(encrypted, 0, output, writeIndex, encrypted.length);
 
@@ -148,70 +237,57 @@ public class EncryptionUtils {
     }
 
     //Decryption backed by Android KeyStore
-    @RequiresApi(api = Build.VERSION_CODES.M)
-    private static byte[] decrypt(byte[] bytes)
+    private static byte[] decrypt(Context context, byte[] bytes)
             throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidAlgorithmParameterException,
             InvalidKeyException, IllegalBlockSizeException, BadPaddingException,
-            UnrecoverableEntryException, CertificateException, KeyStoreException, IOException {
+            UnrecoverableEntryException, CertificateException, KeyStoreException, IOException, NoSuchProviderException {
         int readIndex = 0;
         int ivLength = bytes[readIndex];
-        byte[] iv = new byte[ivLength];
         readIndex++;
-        System.arraycopy(bytes, readIndex, iv, 0, ivLength);
-        readIndex += ivLength;
+        if(ivLength < 0) {
+            //TODO: Early chance to catch decryption error
+        }
+        byte[] iv = null;
+        if(ivLength > 0) {
+            iv = new byte[ivLength];
+            System.arraycopy(bytes, readIndex, iv, 0, ivLength);
+            readIndex += ivLength;
+        }
 
-        int encryptedLength = bytes[readIndex];
+        int encryptedLength = bytes[readIndex] * 256;
+        readIndex++;
+        encryptedLength += bytes[readIndex];
+
         byte[] encrypted = new byte[encryptedLength];
         readIndex++;
         System.arraycopy(bytes, readIndex, encrypted, 0, encryptedLength);
 
-        String transformation = String.format("%s/%s/%s", ALGORITHM, BLOCK_MODE, PADDING);
+        String transformation = getTransformationString();
         Cipher cipher = Cipher.getInstance(transformation);
 
-        cipher.init(Cipher.DECRYPT_MODE, getKey(), new IvParameterSpec(iv));
+        cipher.init(Cipher.DECRYPT_MODE, getKey(context, false), iv != null ? new IvParameterSpec(iv) : null);
 
         return cipher.doFinal(encrypted);
     }
 
     //Encrypts a byte[] and converts to a base64 string for DB storage
-    public static String encryptToBase64String(byte[] input) {
-        try {
-            //If Android version is too old, skip encryption
-            byte[] encrypted = input;
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
-                encrypted = encrypt(input);
-            }
+    public static String encryptToBase64String(Context context, byte[] input) throws
+            InvalidAlgorithmParameterException, NoSuchPaddingException, IllegalBlockSizeException,
+            UnrecoverableEntryException, CertificateException, NoSuchAlgorithmException,
+            BadPaddingException, KeyStoreException, IOException, InvalidKeyException, NoSuchProviderException {
+        byte[] encrypted = encrypt(context, input);
 
-            return Base64.encode(encrypted);
-        }
-        catch(NoSuchPaddingException | NoSuchAlgorithmException | InvalidKeyException |
-              IllegalBlockSizeException | BadPaddingException | InvalidAlgorithmParameterException |
-              UnrecoverableEntryException | CertificateException | KeyStoreException | IOException e) {
-            //TODO: What to do when this fails?
-        }
-
-        return null;
+        return Base64.encode(encrypted);
     }
 
     //Decrypts a base64 string (from DB storage) into a byte[]
-    public static byte[] decryptFromBase64String(String base64) {
-        try {
-            byte[] encrypted = Base64.decode(base64);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                return decrypt(encrypted);
-            }
+    public static byte[] decryptFromBase64String(Context context, String base64) throws Base64DecoderException,
+            InvalidAlgorithmParameterException, NoSuchPaddingException, IllegalBlockSizeException,
+            UnrecoverableEntryException, CertificateException, NoSuchAlgorithmException,
+            BadPaddingException, KeyStoreException, IOException, InvalidKeyException, NoSuchProviderException {
+        byte[] encrypted = Base64.decode(base64);
 
-            //If Android version is too old, skip encryption
-            return encrypted;
-        }
-        catch(Base64DecoderException | NoSuchPaddingException | NoSuchAlgorithmException |
-              InvalidAlgorithmParameterException | InvalidKeyException | IllegalBlockSizeException |
-              BadPaddingException | UnrecoverableEntryException | CertificateException |
-              KeyStoreException | IOException e) {
-            //TODO: What to do when this fails?
-        }
-
-        return null;
+        return decrypt(context, encrypted);
     }
 
     public static String getMD5HashAsString(String plainText) {

@@ -78,6 +78,7 @@ implements WithUIController {
     }
 
     public void requestSMSCode() {
+        uiController.setErrorMessage(null);
         String command;
         HashMap<String, String> params = new HashMap<>();
         AuthInfo authInfo = new AuthInfo.NoAuth();
@@ -98,7 +99,6 @@ implements WithUIController {
         }
         String url = getString(R.string.ConnectURL) + command;
 
-        Context context = this;
         ConnectIDNetworkHelper.post(this, url, authInfo, params, new ConnectIDNetworkHelper.INetworkResultHandler() {
             @Override
             public void processSuccess(int responseCode, InputStream responseData) {
@@ -125,13 +125,21 @@ implements WithUIController {
 
             @Override
             public void processFailure(int responseCode, IOException e) {
-                //Fail with indication to change number
-                finish(false, true, null, null);
+                String message = "";
+                if(responseCode > 0) {
+                    message = String.format("(%d)", responseCode);
+                }
+                else if(e != null) {
+                    message = e.toString();
+                }
+
+                uiController.setErrorMessage(String.format("Error requesting SMS code. %s", message));
             }
         });
     }
 
     public void verifySMSCode() {
+        uiController.setErrorMessage(null);
         String command;
         HashMap<String, String> params = new HashMap<>();
         AuthInfo authInfo = new AuthInfo.NoAuth();
@@ -184,7 +192,15 @@ implements WithUIController {
 
             @Override
             public void processFailure(int responseCode, IOException e) {
-                Toast.makeText(self, "SMS Verify error", Toast.LENGTH_SHORT).show();
+                String message = "";
+                if(responseCode > 0) {
+                    message = String.format("(%d)", responseCode);
+                }
+                else if(e != null) {
+                    message = e.toString();
+                }
+
+                uiController.setErrorMessage(String.format("Error verifying SMS code. %s", message));
             }
         });
     }

@@ -13,6 +13,7 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import org.commcare.CommCareApplication;
+import org.commcare.activities.connect.ConnectIDManager;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
@@ -105,6 +106,9 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
                 updateUiAfterDataPullOrSend(Localization.get("sync.fail.empty.url"), FAIL);
                 break;
             case AUTH_FAILED:
+                String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
+                String userId = CommCareApplication.instance().getCurrentUserId();
+                ConnectIDManager.forgetAppCredentials(seatedAppId, userId);
                 updateUiAfterDataPullOrSend(Localization.get("sync.fail.auth.loggedin"), FAIL);
                 break;
             case BAD_DATA:

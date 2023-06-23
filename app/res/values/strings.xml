@@ -455,14 +455,14 @@
     <!-- ConnectID strings -->
 
     <string name="connect_id_enabled" cc:translatable="true">ConnectID Enabled</string>
-    <string name="login_button_connect" cc:translatable="true">Sign in with ConnectID</string>
-    <string name="login_welcome_connect_signed_out" cc:translatable="true">Log into ConnectID first and then enter your app.</string>
+    <string name="login_button_connect" cc:translatable="true">Unlock ConnectID</string>
+    <string name="login_welcome_connect_signed_out" cc:translatable="true">Unlock ConnectID first and then enter your app.</string>
     <string name="login_welcome_connect_signed_in" cc:translatable="true">Welcome %s!</string>
 
     <string name="choice_or" cc:translatable="true">_____________    Or    _____________</string>
 
     <string name="connect_button_logged_in" cc:translatable="true">Go to Connect menu</string>
-    <string name="connect_button_logged_out" cc:translatable="true">Login to Connect ID</string>
+    <string name="connect_button_logged_out" cc:translatable="true">Unlock ConnectID</string>
 
     <string name="connect_consent_title" cc:translatable="true">Consent</string>
     <string name="connect_consent_message_1" cc:translatable="true">I have read and agree to Dimagi\'s <a href="https://www.dimagi.com/terms/latest/privacy/">Privacy Policy</a>, <a href="https://www.dimagi.com/terms/latest/tos/">Terms of Service</a>, <a href="https://www.dimagi.com/terms/latest/ba/">Business Agreement</a> and <a href="https://www.dimagi.com/terms/latest/aup/">Acceptable Use Policy</a>.</string>
@@ -514,15 +514,15 @@
     <string name="connect_recovery_success_message" cc:translatable="true">You have successfully recovered your account and can now resume using your ConnectID.</string>
     <string name="connect_recovery_success_button" cc:translatable="true">OK</string>
 
-    <string name="connect_unlock_title" cc:translatable="true">ConnectID Sign In</string>
-    <string name="connect_unlock_message" cc:translatable="true">Please sign in to continue</string>
-    <string name="connect_unlock_button_pin" cc:translatable="true">Sign in with PIN</string>
-    <string name="connect_unlock_button_password" cc:translatable="true">Sign in with Password</string>
-    <string name="connect_unlock_trouble_message" cc:translatable="true">Trouble signing in?</string>
-    <string name="connect_unlock_fingerprint_title" cc:translatable="true">Sign in via fingerprint</string>
+    <string name="connect_unlock_title" cc:translatable="true">Unlock ConnectID</string>
+    <string name="connect_unlock_message" cc:translatable="true">Please unlock to continue</string>
+    <string name="connect_unlock_button_pin" cc:translatable="true">Sign Unlock with PIN</string>
+    <string name="connect_unlock_button_password" cc:translatable="true">Unlock with Password</string>
+    <string name="connect_unlock_trouble_message" cc:translatable="true">Trouble unlocking?</string>
+    <string name="connect_unlock_fingerprint_title" cc:translatable="true">Unlock via fingerprint</string>
     <string name="connect_unlock_fingerprint_message" cc:translatable="true">Use your fingerprint to continue</string>
     <string name="connect_unlock_other_options" cc:translatable="true">Other options</string>
-    <string name="connect_unlock_pin_title" cc:translatable="true">Sign in via PIN</string>
+    <string name="connect_unlock_pin_title" cc:translatable="true">Unlock via PIN</string>
     <string name="connect_unlock_pin_message" cc:translatable="true">Enter your PIN to continue</string>
 
     <string name="connect_register_title" cc:translatable="true">Create Account</string>
@@ -532,6 +532,10 @@
     <string name="connect_register_phone" cc:translatable="true">Phone Number (+18887776666)</string>
     <string name="connect_register_phone_alt" cc:translatable="true">Alternate Phone Number</string>
     <string name="connect_register_create" cc:translatable="true">Create Account</string>
+    <string name="connect_register_error_id" cc:translatable="true">ID can not be empty</string>
+    <string name="connect_register_error_name" cc:translatable="true">Name can not be empty</string>
+    <string name="connect_register_error_phone" cc:translatable="true">Valid phone number required</string>
+    <string name="connect_register_error_same_number" cc:translatable="true">Primary and alt phones must be different</string>
 
     <string name="connect_register_success_title" cc:translatable="true">Account Created</string>
     <string name="connect_register_success_message" cc:translatable="true">Your ConnectID account has been successfully created and is now ready for you to use!</string>

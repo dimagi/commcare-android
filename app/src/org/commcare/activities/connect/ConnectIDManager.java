@@ -531,22 +531,29 @@ public class ConnectIDManager {
 //        });
 //    }
 
-    public static void rememberAppCredentials(String appID, String username, String passwordOrPin) {
+    public static void rememberAppCredentials(String appID, String userID, String passwordOrPin) {
         ConnectIDManager manager = getInstance();
         if(manager.connectStatus == ConnectIDStatus.LoggedIn) {
-            ConnectIDDatabaseHelper.storeApp(manager.parentActivity, new ConnectLinkedAppRecord(appID, username, passwordOrPin));
+            ConnectIDDatabaseHelper.storeApp(manager.parentActivity, new ConnectLinkedAppRecord(appID, userID, passwordOrPin));
             //TODO: Re-enable when ready to test OAuth
             //getConnectToken();
         }
     }
 
-    public static AuthInfo.ProvidedAuth getCredentialsForApp(String appID) {
+    public static void forgetAppCredentials(String appID, String userID) {
+        ConnectLinkedAppRecord record = ConnectIDDatabaseHelper.getAppData(manager.parentActivity, appID, userID);
+        if(record != null) {
+            ConnectIDDatabaseHelper.storeApp(manager.parentActivity, new ConnectLinkedAppRecord(appID, record.getUserID(), ""));
+        }
+    }
+
+    public static AuthInfo.ProvidedAuth getCredentialsForApp(String appID, String userID) {
         if(getInstance().connectStatus != ConnectIDStatus.LoggedIn) {
             return null;
         }
 
-        ConnectLinkedAppRecord record = ConnectIDDatabaseHelper.getAppData(manager.parentActivity, appID);
-        if(record != null) {
+        ConnectLinkedAppRecord record = ConnectIDDatabaseHelper.getAppData(manager.parentActivity, appID, userID);
+        if(record != null && record.getPassword().length() > 0) {
             return new AuthInfo.ProvidedAuth(record.getUserID(), record.getPassword(), false);
         }
 
