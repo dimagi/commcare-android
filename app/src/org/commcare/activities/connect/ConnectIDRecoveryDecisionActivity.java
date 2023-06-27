@@ -1,5 +1,6 @@
 package org.commcare.activities.connect;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Toast;
@@ -32,6 +33,8 @@ implements WithUIController {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        setTitle(getString(R.string.connect_recovery_title));
+
         state = ConnectRecoveryState.NewOrRecover;
 
         uiController.setupUI();
@@ -39,6 +42,11 @@ implements WithUIController {
         uiController.setMessage(getString(R.string.connect_recovery_decision_new));
         uiController.setButton1Text(getString(R.string.connect_recovery_button_new));
         uiController.setButton2Text(getString(R.string.connect_recovery_button_recover));
+    }
+
+    @Override
+    protected boolean shouldShowBreadcrumbBar() {
+        return false;
     }
 
     @Override
@@ -81,6 +89,8 @@ implements WithUIController {
             case NewOrRecover -> {
                 state = ConnectRecoveryState.PhoneOrExtended;
                 uiController.setPhoneInputVisible(true);
+
+                setTitle(getString(R.string.connect_recovery_title2));
 
                 int code = PhoneNumberHelper.getCountryCode(this);
                 uiController.setCountryCode(String.format(Locale.getDefault(), "+%d", code));

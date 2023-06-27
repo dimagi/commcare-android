@@ -28,6 +28,8 @@ implements WithUIController {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        setTitle(getString(R.string.connect_register_title));
+
         phone = getIntent().getStringExtra(ConnectIDConstants.PHONE);
 
         uiController.setupUI();
@@ -38,6 +40,11 @@ implements WithUIController {
         uiController.setUserId(generateUserId());
 
         updateStatus();
+    }
+
+    @Override
+    protected boolean shouldShowBreadcrumbBar() {
+        return false;
     }
 
     @Override
@@ -63,9 +70,9 @@ implements WithUIController {
     }
 
     public static String generatePassword() {
-        int passwordLength = 10;
+        int passwordLength = 15;
 
-        String charSet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()-_=+,<.>?;[{]}|~";
+        String charSet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_!.?";
         StringBuilder password = new StringBuilder();
         for (int i = 0; i < passwordLength; i++) {
             password.append(charSet.charAt(new Random().nextInt(charSet.length())));
@@ -105,9 +112,9 @@ implements WithUIController {
         
         String url = getString(R.string.ConnectURL) + "/users/register";
 
-        user = new ConnectUserRecord(phone, uiController.getUserIdText(), generatePassword(), uiController.getNameText());
-
         String altPhone = PhoneNumberHelper.buildPhoneNumber(uiController.getAltCountryCode(), uiController.getAltPhoneNumber());
+
+        user = new ConnectUserRecord(phone, uiController.getUserIdText(), generatePassword(), uiController.getNameText(), altPhone);
 
         HashMap<String, String> params = new HashMap<>();
         params.put("username", user.getUserID());

@@ -19,6 +19,8 @@ implements WithUIController {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        setTitle("");
+
         title = getIntent().getStringExtra(ConnectIDConstants.TITLE);
         message = getIntent().getStringExtra(ConnectIDConstants.MESSAGE);
         button = getIntent().getStringExtra(ConnectIDConstants.BUTTON);
@@ -33,6 +35,11 @@ implements WithUIController {
         uiController.setTitle(title);
         uiController.setMessage(message);
         uiController.setButtonText(button);
+    }
+
+    @Override
+    protected boolean shouldShowBreadcrumbBar() {
+        return false;
     }
 
     @Override

@@ -7,6 +7,7 @@ public class ConnectIDConstants {
     public static final String PASSWORD = "PASSWORD";
     public static final String NAME = "NAME";
     public static final String PHONE = "PHONE";
+    public static final String ALT_PHONE = "ALT_PHONE";
 
     public static final String TITLE = "TITLE";
     public static final String MESSAGE = "MESSAGE";

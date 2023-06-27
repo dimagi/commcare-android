@@ -33,6 +33,8 @@ implements WithUIController {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        setTitle(getString(R.string.connect_unlock_title));
+
         uiController.setupUI();
 
         allowPassword = getIntent().getStringExtra(ConnectIDConstants.ALLOW_PASSWORD).equals("true");
@@ -68,6 +70,11 @@ implements WithUIController {
         super.onResume();
 
         uiController.refreshView();
+    }
+
+    @Override
+    protected boolean shouldShowBreadcrumbBar() {
+        return false;
     }
 
     @Override

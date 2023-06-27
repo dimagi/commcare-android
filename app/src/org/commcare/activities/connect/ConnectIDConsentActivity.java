@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 
 import org.commcare.activities.CommCareActivity;
+import org.commcare.dalvik.R;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.WithUIController;
 
@@ -15,7 +16,14 @@ implements WithUIController {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        setTitle(getString(R.string.connect_consent_title));
+
         uiController.setupUI();
+    }
+
+    @Override
+    protected boolean shouldShowBreadcrumbBar() {
+        return false;
     }
 
     @Override

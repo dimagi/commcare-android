@@ -95,7 +95,20 @@ public class ConnectIDDatabaseHelper {
         return record;
     }
 
-    public static void storeApp(Context context, ConnectLinkedAppRecord record) {
+    public static void deleteAppData(Context context, ConnectLinkedAppRecord record) {
+        SqlStorage<ConnectLinkedAppRecord> storage = getConnectStorage(context, ConnectLinkedAppRecord.class);
+        storage.remove(record);
+    }
+
+    public static void storeApp(Context context, String appID, String userID, String passwordOrPin) {
+        ConnectLinkedAppRecord record = getAppData(context, appID, userID);
+        if(record == null) {
+            record = new ConnectLinkedAppRecord(appID, userID, passwordOrPin);
+        }
+        else if(!record.getPassword().equals(passwordOrPin)) {
+            record.setPassword(passwordOrPin);
+        }
+
         getConnectStorage(context, ConnectLinkedAppRecord.class).write(record);
     }
 

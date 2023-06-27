@@ -107,8 +107,8 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
                 break;
             case AUTH_FAILED:
                 String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
-                String userId = CommCareApplication.instance().getCurrentUserId();
-                ConnectIDManager.forgetAppCredentials(seatedAppId, userId);
+                String username = CommCareApplication.instance().getRecordForCurrentUser().getUsername();
+                ConnectIDManager.forgetAppCredentials(seatedAppId, username);
                 updateUiAfterDataPullOrSend(Localization.get("sync.fail.auth.loggedin"), FAIL);
                 break;
             case BAD_DATA:

@@ -37,6 +37,8 @@ implements WithUIController {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        setTitle(getString(R.string.connect_verify_phone_title));
+
         method = Integer.parseInt(getIntent().getStringExtra(ConnectIDConstants.METHOD));
         primaryPhone = getIntent().getStringExtra(ConnectIDConstants.PHONE);
         allowChange = getIntent().getStringExtra(ConnectIDConstants.CHANGE).equals("true");
@@ -59,6 +61,11 @@ implements WithUIController {
         }
 
         uiController.requestInputFocus();
+    }
+
+    @Override
+    protected boolean shouldShowBreadcrumbBar() {
+        return false;
     }
 
     @Override
@@ -187,7 +194,7 @@ implements WithUIController {
                         Logger.exception("Parsing return from confirm_secondary_otp", e);
                     }
                 }
-                finish(true, false, username, displayName);
+                finish(true, false, username, displayName, recoveryPhone);
             }
 
             @Override
@@ -206,10 +213,10 @@ implements WithUIController {
     }
 
     public void changeNumber() {
-        finish(true, true, null, null);
+        finish(true, true, null, null, null);
     }
 
-    public void finish(boolean success, boolean changeNumber, String username, String name) {
+    public void finish(boolean success, boolean changeNumber, String username, String name, String altPhone) {
         Intent intent = new Intent(getIntent());
         if(method == MethodRecoveryPrimary) {
             intent.putExtra(ConnectIDConstants.SECRET, password);
@@ -218,6 +225,7 @@ implements WithUIController {
         else if(method == MethodRecoveryAlternate) {
             intent.putExtra(ConnectIDConstants.USERNAME, username);
             intent.putExtra(ConnectIDConstants.NAME, name);
+            intent.putExtra(ConnectIDConstants.ALT_PHONE, altPhone);
         }
         else {
             intent.putExtra(ConnectIDConstants.CHANGE, changeNumber);

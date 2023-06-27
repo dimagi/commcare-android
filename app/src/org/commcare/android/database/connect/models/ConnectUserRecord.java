@@ -29,15 +29,18 @@ public class ConnectUserRecord extends Persisted {
     private String primaryPhone;
 
     @Persisting(5)
-    private int registrationPhase;
+    private String alternatePhone;
 
     @Persisting(6)
+    private int registrationPhase;
+
+    @Persisting(7)
     private Date lastPasswordDate;
 
-    @Persisting(value=7, nullable = true)
+    @Persisting(value=8, nullable = true)
     private String clientID;
 
-    @Persisting(value=8, nullable = true)
+    @Persisting(value=9, nullable = true)
     private String clientSecret;
 
     public ConnectUserRecord() {
@@ -45,9 +48,10 @@ public class ConnectUserRecord extends Persisted {
         lastPasswordDate = new Date();
     }
 
-    public ConnectUserRecord(String primaryPhone, String userID, String password, String name) {
+    public ConnectUserRecord(String primaryPhone, String userID, String password, String name, String alternatePhone) {
         this();
         this.primaryPhone = primaryPhone;
+        this.alternatePhone = alternatePhone;
         this.userID = userID;
         this.password = password;
         this.name = name;
@@ -58,7 +62,8 @@ public class ConnectUserRecord extends Persisted {
                 intent.getStringExtra(ConnectIDConstants.PHONE),
                 intent.getStringExtra(ConnectIDConstants.USERNAME),
                 intent.getStringExtra(ConnectIDConstants.PASSWORD),
-                intent.getStringExtra(ConnectIDConstants.NAME));
+                intent.getStringExtra(ConnectIDConstants.NAME),
+                intent.getStringExtra(ConnectIDConstants.ALT_PHONE));
     }
 
     public void putUserInIntent(Intent intent) {
@@ -66,11 +71,13 @@ public class ConnectUserRecord extends Persisted {
         intent.putExtra(ConnectIDConstants.USERNAME, userID);
         intent.putExtra(ConnectIDConstants.PASSWORD, password);
         intent.putExtra(ConnectIDConstants.NAME, name);
+        intent.putExtra(ConnectIDConstants.ALT_PHONE, alternatePhone);
     }
 
     public String getUserID() { return userID; }
     public String getPrimaryPhone() { return primaryPhone; }
     public void setPrimaryPhone(String primaryPhone) { this.primaryPhone = primaryPhone; }
+    public String getAlternatePhone() { return alternatePhone; }
     public String getPassword() { return password; }
     public void setPassword(String password) { this.password = password; }
     public String getName() { return name; }

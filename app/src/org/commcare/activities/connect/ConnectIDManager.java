@@ -7,10 +7,12 @@ import android.content.Intent;
 import android.widget.Toast;
 
 import org.commcare.activities.CommCareActivity;
+import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.core.network.AuthInfo;
 import org.commcare.dalvik.R;
+import org.commcare.models.database.SqlStorage;
 import org.commcare.preferences.AppManagerDeveloperPreferences;
 
 import java.util.Date;
@@ -99,8 +101,17 @@ public class ConnectIDManager {
 
     public static void forgetUser() {
         ConnectIDManager manager = getInstance();
-        manager.connectStatus = ConnectIDStatus.NotIntroduced;
+
         ConnectIDDatabaseHelper.forgetUser(manager.parentActivity);
+
+        manager.connectStatus = ConnectIDStatus.NotIntroduced;
+        manager.parentActivity = null;
+        manager.loginListener = null;
+        manager.phase = ConnectIDConstants.CONNECT_NO_ACTIVITY;
+        manager.primaryPhone = null;
+        manager.recoveryPhone = null;
+        manager.recoverySecret = null;
+        manager.forgotPassword = false;
     }
 
     public static void handleConnectButtonPress(ConnectActivityCompleteListener listener) {
@@ -188,6 +199,7 @@ public class ConnectIDManager {
 
                 params.put(ConnectIDConstants.METHOD, "false");
                 params.put(ConnectIDConstants.PHONE, user.getPrimaryPhone());
+                params.put(ConnectIDConstants.ALT_PHONE, user.getAlternatePhone());
                 params.put(ConnectIDConstants.USERNAME, user.getUserID());
                 params.put(ConnectIDConstants.PASSWORD, user.getPassword());
             }
@@ -285,7 +297,7 @@ public class ConnectIDManager {
         }
     }
 
-    public static boolean handleFinishedActivity(int requestCode, int resultCode, Intent intent) {
+    public static void handleFinishedActivity(int requestCode, int resultCode, Intent intent) {
         ConnectIDManager manager = getInstance();
         boolean success = resultCode == RESULT_OK;
         int nextRequestCode = ConnectIDConstants.CONNECT_NO_ACTIVITY;
@@ -405,7 +417,8 @@ public class ConnectIDManager {
                         String password = intent.getStringExtra(ConnectIDConstants.PASSWORD);
 
                         if (username != null && name != null && password != null) {
-                            ConnectUserRecord user = new ConnectUserRecord(manager.recoveryPhone, username, password, name);
+                            //TODO: Need to get secondary phone from server
+                            ConnectUserRecord user = new ConnectUserRecord(manager.recoveryPhone, username, password, name, "");
                             user.setLastPasswordDate(new Date());
                             ConnectIDDatabaseHelper.storeUser(manager.parentActivity, user);
                         }
@@ -423,9 +436,11 @@ public class ConnectIDManager {
                 if(success) {
                     String username = intent.getStringExtra(ConnectIDConstants.USERNAME);
                     String name = intent.getStringExtra(ConnectIDConstants.NAME);
+                    String altPhone = intent.getStringExtra(ConnectIDConstants.ALT_PHONE);
 
                     if(username != null && name != null) {
-                        ConnectUserRecord user = new ConnectUserRecord(manager.recoveryPhone, username, "", name);
+                        //NOTE: They'll choose a new password next
+                        ConnectUserRecord user = new ConnectUserRecord(manager.recoveryPhone, username, "", name, altPhone);
                         ConnectIDDatabaseHelper.storeUser(manager.parentActivity, user);
                     }
                 }
@@ -480,7 +495,7 @@ public class ConnectIDManager {
                 }
             }
             default -> {
-                return false;
+                return;
             }
         }
 
@@ -491,8 +506,6 @@ public class ConnectIDManager {
         }
 
         manager.continueWorkflow();
-
-        return true;
     }
 
     //TODO: Re-enable this once we're ready for OIDC
@@ -534,7 +547,7 @@ public class ConnectIDManager {
     public static void rememberAppCredentials(String appID, String userID, String passwordOrPin) {
         ConnectIDManager manager = getInstance();
         if(manager.connectStatus == ConnectIDStatus.LoggedIn) {
-            ConnectIDDatabaseHelper.storeApp(manager.parentActivity, new ConnectLinkedAppRecord(appID, userID, passwordOrPin));
+            ConnectIDDatabaseHelper.storeApp(manager.parentActivity, appID, userID, passwordOrPin);
             //TODO: Re-enable when ready to test OAuth
             //getConnectToken();
         }
@@ -543,7 +556,7 @@ public class ConnectIDManager {
     public static void forgetAppCredentials(String appID, String userID) {
         ConnectLinkedAppRecord record = ConnectIDDatabaseHelper.getAppData(manager.parentActivity, appID, userID);
         if(record != null) {
-            ConnectIDDatabaseHelper.storeApp(manager.parentActivity, new ConnectLinkedAppRecord(appID, record.getUserID(), ""));
+            ConnectIDDatabaseHelper.deleteAppData(manager.parentActivity, record);
         }
     }
 

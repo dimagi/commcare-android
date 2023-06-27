@@ -11,11 +11,11 @@
         android:id="@+id/connect_phone_verify_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
+        android:layout_gravity="start"
         android:layout_margin="@dimen/content_min_margin"
         android:textColor="@color/cc_neutral_color"
         android:textSize="@dimen/text_larger"
-        android:text="@string/connect_verify_phone_title"/>
+        android:text="@string/connect_verify_phone_title2"/>
 
     <TextView
         android:id="@+id/connect_phone_verify_label"

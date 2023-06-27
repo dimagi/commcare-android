@@ -21,6 +21,7 @@ implements WithUIController {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        setTitle(getString(R.string.connect_verify_title));
         biometricManager = BiometricManager.from(this);
 
         uiController.setupUI();
@@ -33,6 +34,11 @@ implements WithUIController {
         super.onResume();
 
         updateStatus();
+    }
+
+    @Override
+    protected boolean shouldShowBreadcrumbBar() {
+        return false;
     }
 
     @Override

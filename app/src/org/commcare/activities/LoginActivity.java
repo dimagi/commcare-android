@@ -326,8 +326,6 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
             ConnectIDManager.handleFinishedActivity(requestCode, resultCode, intent);
         }
 
-        //checkForSavedCredentials();
-
         super.onActivityResult(requestCode, resultCode, intent);
     }
 

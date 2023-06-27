@@ -27,6 +27,7 @@ implements WithUIController {
 
     private boolean requireUnusedNumber = false;
     private String existingPhone;
+    private String altPhone;
     private String username;
     private String password;
     private ConnectIDPhoneActivityUIController uiController;
@@ -35,10 +36,13 @@ implements WithUIController {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        setTitle(getString(R.string.connect_phone_page_title));
+
         uiController.setupUI();
 
         requireUnusedNumber = getIntent().getStringExtra(ConnectIDConstants.METHOD).equals("true");
         existingPhone = getIntent().getStringExtra(ConnectIDConstants.PHONE);
+        altPhone = getIntent().getStringExtra(ConnectIDConstants.ALT_PHONE);
         username = getIntent().getStringExtra(ConnectIDConstants.USERNAME);
         password = getIntent().getStringExtra(ConnectIDConstants.PASSWORD);
 
@@ -53,6 +57,11 @@ implements WithUIController {
         checkPhoneNumber();
 
         uiController.requestInputFocus();
+    }
+
+    @Override
+    protected boolean shouldShowBreadcrumbBar() {
+        return false;
     }
 
     @Override
@@ -141,6 +150,10 @@ implements WithUIController {
                         }
                     });
                 }
+            }
+            else if(altPhone != null && altPhone.equals(phone)) {
+                uiController.setAvailabilityText(getString(R.string.connect_phone_not_alt));
+                uiController.setOkButtonEnabled(false);
             }
             else {
                 uiController.setAvailabilityText("");

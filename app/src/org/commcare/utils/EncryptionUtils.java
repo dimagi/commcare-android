@@ -87,27 +87,6 @@ public class EncryptionUtils {
         } else {
             return generateKeyInKeystore(context, trueForEncrypt);
         }
-
-        //Create key
-//        SecretKey secretKey;
-//        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
-//            KeyGenParameterSpec.Builder builder = new KeyGenParameterSpec.Builder(SECRET_NAME,
-//                    KeyProperties.PURPOSE_ENCRYPT | KeyProperties.PURPOSE_DECRYPT);
-//            builder.setBlockModes(BLOCK_MODE);
-//            builder.setEncryptionPaddings(PADDING);
-//            builder.setUserAuthenticationRequired(false);
-//            builder.setRandomizedEncryptionRequired(true);
-//
-//            KeyGenerator generator = KeyGenerator.getInstance(ALGORITHM);
-//            generator.init(builder.build());
-//            secretKey = generator.generateKey();
-//        } else {
-//            KeyGenerator keyGen = KeyGenerator.getInstance("AES");
-//            keyGen.init(256);
-//            secretKey = keyGen.generateKey();
-//        }
-//
-//        return secretKey;
     }
 
     private static boolean doesKeystoreContainEncryptionKey() throws CertificateException,

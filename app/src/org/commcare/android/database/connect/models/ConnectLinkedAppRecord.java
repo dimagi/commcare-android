@@ -33,5 +33,6 @@ public class ConnectLinkedAppRecord extends Persisted {
     public String getAppID() { return appID; }
     public String getUserID() { return userID; }
     public String getPassword() { return password; }
+    public void setPassword(String password) { this.password = password;}
 
 }

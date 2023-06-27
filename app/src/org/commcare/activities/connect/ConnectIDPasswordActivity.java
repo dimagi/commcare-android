@@ -31,6 +31,8 @@ implements WithUIController {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        setTitle(getString(R.string.connect_password_title));
+
         username = getIntent().getStringExtra(ConnectIDConstants.USERNAME);
         oldPassword = getIntent().getStringExtra(ConnectIDConstants.PASSWORD);
 
@@ -47,6 +49,11 @@ implements WithUIController {
         uiController.requestInputFocus();
 
         checkPasswords();
+    }
+
+    @Override
+    protected boolean shouldShowBreadcrumbBar() {
+        return false;
     }
 
     @Override
