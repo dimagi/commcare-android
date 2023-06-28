@@ -225,6 +225,8 @@ public class NotificationMessageFactory {
                 action = parameters[2] == null ? Localization.get(base + ".action") : Localization.get(base + ".action", new String[]{parameters[2]});
             } catch (Exception e) {
                 //No big deal, key doesn't need to exist
+                // pass in parameter value as it is
+                action = parameters[2];
             }
 
             NotificationActionButtonInfo buttonInfo = null;
