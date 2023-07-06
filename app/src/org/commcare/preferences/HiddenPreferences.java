@@ -96,7 +96,7 @@ public class HiddenPreferences {
 
     private static final long NO_OF_HOURS_TO_WAIT_TO_RESUME_BACKGROUND_WORK = 36;
     // This is to be used by CommCareFirebaseMessagingService to schedule a sync after the next Login
-    public final static String POST_LOGIN_SYNC_NEEDED = "post-login-sync-needed";
+    public final static String PENDING_SYNC_REQUEST_FROM_SERVER = "pending-sync-request-from-server";
 
 
     /**
@@ -553,13 +553,13 @@ public class HiddenPreferences {
                 .edit().putBoolean(RAW_MEDIA_CLEANUP_COMPLETE, true).apply();
     }
 
-    public static boolean isPostLoginSyncNeeded() {
-        return CommCareApplication.instance().getCurrentApp().getAppPreferences()
-                .getBoolean(POST_LOGIN_SYNC_NEEDED, false);
+    public static boolean isPendingSyncRequestFromServer() {
+        return PreferenceManager.getDefaultSharedPreferences(CommCareApplication.instance())
+                .getBoolean(PENDING_SYNC_REQUEST_FROM_SERVER, false);
     }
-    public static void setPostLoginSyncNeeded(boolean syncNeeded) {
-        CommCareApplication.instance().getCurrentApp().getAppPreferences().edit()
-                .putBoolean(POST_LOGIN_SYNC_NEEDED, syncNeeded)
+    public static void setPendingSyncRequestFromServer(boolean syncNeeded) {
+        PreferenceManager.getDefaultSharedPreferences(CommCareApplication.instance()).edit()
+                .putBoolean(PENDING_SYNC_REQUEST_FROM_SERVER, syncNeeded)
                 .apply();
     }
 }

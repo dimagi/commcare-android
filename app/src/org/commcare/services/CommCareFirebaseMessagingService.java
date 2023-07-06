@@ -83,7 +83,7 @@ public class CommCareFirebaseMessagingService extends FirebaseMessagingService {
             //  or anyone, in case multiple users are sharing the same device
             // TODO: Decide whether to check if when there is no active session, the recipient has ever
             //  logged in the device, before scheduling a sync post login
-            HiddenPreferences.setPostLoginSyncNeeded(true);
+            HiddenPreferences.setPendingSyncRequestFromServer(true);
             showNotification(payloadNotification);
             return;
         }
