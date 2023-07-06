@@ -954,6 +954,15 @@ public class CommCareApplication extends MultiDexApplication {
         }
     }
 
+    public static boolean isSessionActive() {
+        try {
+            return CommCareApplication.instance().getSession() != null;
+        }
+        catch (SessionUnavailableException e){
+            return false;
+        }
+    }
+
     public UserKeyRecord getRecordForCurrentUser() {
         return getSession().getUserKeyRecord();
     }

@@ -77,7 +77,7 @@ public class CommCareFirebaseMessagingService extends FirebaseMessagingService {
     private void actionSyncData(Map<String, String> payloadData,
                                 RemoteMessage.Notification payloadNotification) {
 
-        if (!isSessionActive()){
+        if (!CommCareApplication.isSessionActive()){
             //  There is no active session at the moment, proceed accordingly
             // TODO: Decide whether to only trigger the Sync when the 'recipient' of the message logs in
             //  or anyone, in case multiple users are sharing the same device
@@ -122,15 +122,6 @@ public class CommCareFirebaseMessagingService extends FirebaseMessagingService {
     */
     private void attemptToTriggerSync() {
 
-    }
-
-    private boolean isSessionActive() {
-        try {
-            return CommCareApplication.instance().getSession() != null;
-        }
-        catch (SessionUnavailableException e){
-            return false;
-        }
     }
 
     private boolean checkUserAndDomain(Map<String, String> payloadData) {
