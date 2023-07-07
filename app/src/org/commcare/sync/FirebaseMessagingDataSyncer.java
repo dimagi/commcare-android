@@ -1,11 +1,23 @@
 package org.commcare.sync;
 
 
+import static org.commcare.sync.FirebaseMessagingDataSyncer.AppNavigationStates.ENTITY_DETAIL;
+import static org.commcare.sync.FirebaseMessagingDataSyncer.AppNavigationStates.ENTITY_SELECTION;
+import static org.commcare.sync.FirebaseMessagingDataSyncer.AppNavigationStates.FORM_ENTRY;
+import static org.commcare.sync.FirebaseMessagingDataSyncer.AppNavigationStates.HOME_SCREEN;
+import static org.commcare.sync.FirebaseMessagingDataSyncer.AppNavigationStates.MENU;
+import static org.commcare.sync.FirebaseMessagingDataSyncer.AppNavigationStates.OTHER;
 import static org.commcare.utils.FirebaseMessagingUtil.removeServerUrlFromUserDomain;
 
 import android.content.Context;
 
 import org.commcare.CommCareApplication;
+import org.commcare.activities.CommCareActivity;
+import org.commcare.activities.EntityDetailActivity;
+import org.commcare.activities.EntitySelectActivity;
+import org.commcare.activities.FormEntryActivity;
+import org.commcare.activities.MenuActivity;
+import org.commcare.activities.StandardHomeActivity;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.preferences.ServerUrls;
 import org.commcare.services.CommCareFirebaseMessagingService;
@@ -22,11 +34,17 @@ public class FirebaseMessagingDataSyncer implements CommCareTaskConnector {
 
     private User user;
     private Context context;
-
     public FirebaseMessagingDataSyncer(Context context){
         this.context = context;
     }
-
+    public enum AppNavigationStates{
+        FORM_ENTRY,
+        ENTITY_SELECTION,
+        ENTITY_DETAIL,
+        MENU,
+        HOME_SCREEN,
+        OTHER
+    }
     /**
      * If we land here is because there is a data payload and the action there is to sync
      * 1) Check if there is an active session.
@@ -46,18 +64,32 @@ public class FirebaseMessagingDataSyncer implements CommCareTaskConnector {
             HiddenPreferences.setPendingSyncRequestFromServer(true);
             return;
         }
-        // Retrieve current User
+
+        // Retrieve the current User
         user = CommCareApplication.instance().getSession().getLoggedInUser();
 
         // Check if the recipient of the message matches the current logged in user
         // TODO: Decide whether we want to check the validity of the message, based on when it was
         //  created and the date/time of the last sync.
         if (checkUserAndDomain(fcmMessageData.getUsername(), fcmMessageData.getDomain())) {
+
             // Attempt to trigger the sync, according to the current state of the app
-            triggerBackgroundSync();
+            //The current state of the app by checking which activity is in the foreground
+            switch (getAppNavigationState()){
+                case FORM_ENTRY:
+                    informUserAboutPendingSync(CommCareActivity.currentActivity);
+                    break;
+                case HOME_SCREEN:
+                case ENTITY_SELECTION:
+                case ENTITY_DETAIL:
+                case MENU:
+                case OTHER:
+                    triggerBackgroundSync();
+                    break;
+            }
         } else {
-            // Username and Domain don't match current user OR payload data doesn't include username
-            // or domain - Action: no actual, just log issue, no need to inform the user
+            // Username and Domain don't match the current user OR payload data doesn't include username
+            // and/or domain - Action: no actual, just log issue, no need to inform the user
             Logger.log(LogTypes.TYPE_FCM, "Invalid data payload");
         }
     }
@@ -110,6 +142,25 @@ public class FirebaseMessagingDataSyncer implements CommCareTaskConnector {
             return payloadUsername.equalsIgnoreCase(loggedInUsername) && payloadDomain.equalsIgnoreCase(userDomain);
         }
         return false;
+    }
+
+    private AppNavigationStates getAppNavigationState() {
+        if (CommCareActivity.currentActivity instanceof FormEntryActivity)
+            return FORM_ENTRY;
+        else if (CommCareActivity.currentActivity instanceof EntitySelectActivity)
+            return ENTITY_SELECTION;
+        else if (CommCareActivity.currentActivity instanceof EntityDetailActivity)
+            return ENTITY_DETAIL;
+        else if (CommCareActivity.currentActivity instanceof StandardHomeActivity)
+            return HOME_SCREEN;
+        else if (CommCareActivity.currentActivity instanceof MenuActivity)
+            return MENU;
+        return OTHER;
+    }
+    private void informUserAboutPendingSync(CommCareActivity activity) {
+        activity.runOnUiThread(() ->
+                activity.alertPendingSync()
+        );
     }
 
     @Override
