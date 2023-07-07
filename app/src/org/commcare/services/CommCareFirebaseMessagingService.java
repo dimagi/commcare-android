@@ -1,5 +1,7 @@
 package org.commcare.services;
 
+import static org.commcare.utils.FirebaseMessagingUtil.removeServerUrlFromUserDomain;
+
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Intent;
@@ -25,7 +27,7 @@ import java.util.Map;
 /**
  * This service responds to any events/messages from Firebase Cloud Messaging. The intention is to
  * offer an entry point for any message from FCM and trigger the necessary steps based on the action
- * key..
+ * key.
  */
 public class CommCareFirebaseMessagingService extends FirebaseMessagingService {
 
@@ -101,7 +103,6 @@ public class CommCareFirebaseMessagingService extends FirebaseMessagingService {
         }
     }
 
-    //
     private ActionTypes getActionType(Map<String, String> payloadData) {
         String action = payloadData.get("action");
         if (action.equalsIgnoreCase("sync"))
@@ -130,7 +131,7 @@ public class CommCareFirebaseMessagingService extends FirebaseMessagingService {
 
         if(payloadUsername != null && payloadDomain != null){
             String loggedInUsername = CommCareApplication.instance().getSession().getLoggedInUser().getUsername();
-            String userDomain = HiddenPreferences.getUserDomain();
+            String userDomain = removeServerUrlFromUserDomain(HiddenPreferences.getUserDomain());
             return payloadUsername.equalsIgnoreCase(loggedInUsername) && payloadDomain.equalsIgnoreCase(userDomain);
         }
         return false;
