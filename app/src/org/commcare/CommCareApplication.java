@@ -28,9 +28,11 @@ import androidx.work.OneTimeWorkRequest;
 import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkManager;
 
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import com.google.firebase.analytics.FirebaseAnalytics;
+import com.google.firebase.messaging.FirebaseMessaging;
 
 import net.sqlcipher.database.SQLiteDatabase;
 import net.sqlcipher.database.SQLiteException;
@@ -250,6 +252,9 @@ public class CommCareApplication extends MultiDexApplication {
 
         LocalePreferences.saveDeviceLocale(Locale.getDefault());
         GraphUtil.setLabelCharacterLimit(getResources().getInteger(R.integer.graph_label_char_limit));
+
+        // Retrieve the current Firebase Cloud Messaging (FCM) registration token^M
+        FirebaseMessaging.getInstance().getToken().addOnCompleteListener(handleFCMTokenRetrieval());
     }
 
     protected void attachISRGCert() {
@@ -1191,5 +1196,14 @@ public class CommCareApplication extends MultiDexApplication {
 
     public boolean isNsdServicesEnabled() {
         return true;
+    }
+
+    private OnCompleteListener handleFCMTokenRetrieval(){
+        return (OnCompleteListener<String>) task -> {
+            if (!task.isSuccessful()) {
+                Logger.log(LogTypes.TYPE_FCM, "Fetching FCM registration token failed:" + task.getException());
+                return;
+            }
+        };
     }
 }
