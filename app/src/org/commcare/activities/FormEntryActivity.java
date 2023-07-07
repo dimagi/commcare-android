@@ -57,6 +57,7 @@ import org.commcare.logic.AndroidFormController;
 import org.commcare.models.AndroidSessionWrapper;
 import org.commcare.models.FormRecordProcessor;
 import org.commcare.models.database.SqlStorage;
+import org.commcare.preferences.HiddenPreferences;
 import org.commcare.tasks.FormLoaderTask;
 import org.commcare.tasks.SaveToDiskTask;
 import org.commcare.tts.TextToSpeechCallback;
@@ -1496,6 +1497,23 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                     PollSensorController.INSTANCE.requestLocationUpdates();
                 }
                 break;
+        }
+    }
+
+    public void alertPendingSync() {
+        if (!HiddenPreferences.isPostFormSubmissionSyncNeeded()) {
+            HiddenPreferences.setPostFormSubmissionSyncNeeded(true);
+            if (!HiddenPreferences.isPendingSyncDialogDisabled()) {
+                StandardAlertDialog dialog = StandardAlertDialog.getBasicAlertDialogWithDisablingCheckbox(this,
+                        Localization.get("fcm.sync.pending.form.entry.title"),
+                        Localization.get("fcm.sync.pending.form.entry.detail"), (buttonView, isChecked) -> {
+                            HiddenPreferences.setPendingSyncDialogDisabled(isChecked);
+                        });
+                dialog.setPositiveButton(Localization.get("dialog.ok"), (dialog1, which) -> {
+                    dialog1.dismiss();
+                });
+                showAlertDialog(dialog);
+            }
         }
     }
 
