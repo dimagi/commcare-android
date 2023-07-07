@@ -451,4 +451,5 @@
     <string name="dependency_missing_dialog_go_to_store" cc:translatable="true">Install from Store</string>
     <string name="dependency_missing_dialog_playstore_not_found" cc:translatable="true">No Play Store found on your device</string>
     <string name="fcm_notification">FCM Notification</string>
+    <string name="fcm_default_notification_channel">notification-channel-server-communications</string>
 </resources>

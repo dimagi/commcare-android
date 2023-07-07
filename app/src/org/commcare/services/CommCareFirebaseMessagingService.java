@@ -1,7 +1,5 @@
 package org.commcare.services;
 
-import static org.commcare.utils.FirebaseMessagingUtil.removeServerUrlFromUserDomain;
-
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Intent;
@@ -12,14 +10,11 @@ import androidx.core.app.NotificationCompat;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
-import org.commcare.CommCareApplication;
 import org.commcare.CommCareNoficationManager;
 import org.commcare.activities.DispatchActivity;
 import org.commcare.dalvik.R;
-import org.commcare.preferences.HiddenPreferences;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.FirebaseMessagingUtil;
-import org.commcare.utils.SessionUnavailableException;
 import org.javarosa.core.services.Logger;
 
 import java.util.Map;
@@ -39,8 +34,11 @@ public class CommCareFirebaseMessagingService extends FirebaseMessagingService {
 
    /**
     * Upon receiving a new message from FCM, CommCare needs to:
-    * 1) Verify if the message contains a data object. There are no more actions if not
-    * 2) Trigger the necessary steps according to the action in the data payload
+    * 1) Trigger the notification if the message contains a Notification object. Note that the
+    *    presence of a Notification object causes the onMessageReceived to not be called when the
+    *    app is in the background, which means that the data object won't be processed from here
+    * 2) Verify if the message contains a data object and trigger the necessary steps according
+    *    to the action it carries
     *
     */
     @Override
@@ -49,13 +47,17 @@ public class CommCareFirebaseMessagingService extends FirebaseMessagingService {
         Map<String, String> payloadData = remoteMessage.getData();
         RemoteMessage.Notification payloadNotification = remoteMessage.getNotification();
 
-        // Check if message contains a data object, there is no further action if not
-        if (payloadData.size() == 0)
-            return;
+        if (payloadNotification != null) {
+            showNotification(payloadNotification);
+        }
 
-        switch(getActionType(payloadData)){
-            case SYNC ->
-                    actionSyncData(payloadData, payloadNotification);
+        // Check if the message contains a data object, there is no further action if not
+        if (payloadData.size() == 0){
+            return;
+        }
+
+        switch(payloadData.get("action")){
+            case "SYNC" -> {} // trigger sync for fcmDataObject
             default ->
                     Logger.log(LogTypes.TYPE_FCM, "Invalid FCM action");
         }
@@ -68,74 +70,6 @@ public class CommCareFirebaseMessagingService extends FirebaseMessagingService {
         FirebaseMessagingUtil.updateFCMToken(token);
     }
 
-    /**
-    * If we land here is because there is a data payload and the action there is to sync
-    * 1) Check if there is an active session.
-    *   - If yes, this will lead to further steps to attempt to trigger a sync
-    *   - If not, a sync will be scheduled after the next successful login
-    * 2) Ensure that the sync is only triggered for the intended 'recipient' of the message
-    *
-    */
-    private void actionSyncData(Map<String, String> payloadData,
-                                RemoteMessage.Notification payloadNotification) {
-
-        if (!CommCareApplication.isSessionActive()){
-            //  There is no active session at the moment, proceed accordingly
-            // TODO: Decide whether to only trigger the Sync when the 'recipient' of the message logs in
-            //  or anyone, in case multiple users are sharing the same device
-            // TODO: Decide whether to check if when there is no active session, the recipient has ever
-            //  logged in the device, before scheduling a sync post login
-            HiddenPreferences.setPendingSyncRequestFromServer(true);
-            showNotification(payloadNotification);
-            return;
-        }
-
-        // Check if the recipient of the message matches the current logged in user
-        // TODO: Decide whether we want to check the validity of the message, based on when it was
-        //  created and the date/time of the last sync.
-        if (checkUserAndDomain(payloadData)) {
-            // Attempt to trigger the sync, according to the current state of the app
-            attemptToTriggerSync();
-        } else {
-            // Username and Domain don't match current user OR payload data doesn't include username
-            // or domain - Action: no actual, just log issue, no need to inform the user
-            Logger.log(LogTypes.TYPE_FCM, "Invalid data payload");
-        }
-    }
-
-    private ActionTypes getActionType(Map<String, String> payloadData) {
-        String action = payloadData.get("action");
-        if (action.equalsIgnoreCase("sync"))
-            return ActionTypes.SYNC;
-        else
-            return ActionTypes.INVALID;
-    }
-
-    /**
-    * At this point, all the conditions are in place to trigger the sync: there is an active session
-     * and the current user has been successfully verified. The principle here is to:
-     * 1) Assess the current state of the app and decide the appropriate course of action, options
-     * being:
-     *  - Trigger a background sync and block the user from initiating any feature that involves
-     *  Database I/O
-     *  - Based on user input, go to the Home screen and trigger a blocking sync
-     *  - Schedule the sync right after the form submission
-    */
-    private void attemptToTriggerSync() {
-
-    }
-
-    private boolean checkUserAndDomain(Map<String, String> payloadData) {
-        String payloadUsername = payloadData.get("username");
-        String payloadDomain = payloadData.get("domain");
-
-        if(payloadUsername != null && payloadDomain != null){
-            String loggedInUsername = CommCareApplication.instance().getSession().getLoggedInUser().getUsername();
-            String userDomain = removeServerUrlFromUserDomain(HiddenPreferences.getUserDomain());
-            return payloadUsername.equalsIgnoreCase(loggedInUsername) && payloadDomain.equalsIgnoreCase(userDomain);
-        }
-        return false;
-    }
 
    /**
     * This method purpose is to show notifications to the user when the app is in the foreground.
@@ -143,34 +77,29 @@ public class CommCareFirebaseMessagingService extends FirebaseMessagingService {
     *
     */
     private void showNotification(RemoteMessage.Notification notification) {
-        if (notification != null) {
-            String notificationTitle = notification.getTitle();
-            String notificationText = notification.getBody();
-            NotificationManager mNM = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        String notificationTitle = notification.getTitle();
+        String notificationText = notification.getBody();
+        NotificationManager mNM = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 
-            Intent i = new Intent(this, DispatchActivity.class);
-            i.setAction(Intent.ACTION_MAIN);
-            i.addCategory(Intent.CATEGORY_LAUNCHER);
+        Intent i = new Intent(this, DispatchActivity.class);
+        i.setAction(Intent.ACTION_MAIN);
+        i.addCategory(Intent.CATEGORY_LAUNCHER);
 
-            PendingIntent contentIntent;
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
-                contentIntent = PendingIntent.getActivity(this, 0, i, PendingIntent.FLAG_IMMUTABLE);
-            else
-                contentIntent = PendingIntent.getActivity(this, 0, i, 0);
-
-            // TODO: Decide whether is justifiable to use a Notification channel with higher importance level
-            NotificationCompat.Builder fcmNotification = new NotificationCompat.Builder(this,
-                    CommCareNoficationManager.NOTIFICATION_CHANNEL_SERVER_COMMUNICATIONS_ID)
-                    .setContentTitle(notificationTitle)
-                    .setContentText(notificationText)
-                    .setContentIntent(contentIntent)
-                    .setSmallIcon(R.drawable.notification)
-                    .setPriority(NotificationCompat.PRIORITY_HIGH)
-                    .setWhen(System.currentTimeMillis());
-
-            mNM.notify(FCM_NOTIFICATION, fcmNotification.build());
-        }
+        PendingIntent contentIntent;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+            contentIntent = PendingIntent.getActivity(this, 0, i, PendingIntent.FLAG_IMMUTABLE);
         else
-            Logger.log(LogTypes.TYPE_FCM, "Message without notification");
+            contentIntent = PendingIntent.getActivity(this, 0, i, 0);
+
+        NotificationCompat.Builder fcmNotification = new NotificationCompat.Builder(this,
+                CommCareNoficationManager.NOTIFICATION_CHANNEL_SERVER_COMMUNICATIONS_ID)
+                .setContentTitle(notificationTitle)
+                .setContentText(notificationText)
+                .setContentIntent(contentIntent)
+                .setSmallIcon(R.drawable.notification)
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setWhen(System.currentTimeMillis());
+
+        mNM.notify(FCM_NOTIFICATION, fcmNotification.build());
     }
 }

@@ -110,7 +110,7 @@
         <!--TODO: We might want to find a better option to reference the notification channel Id-->
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_channel_id"
-            android:value="notification-channel-server-communications" />
+            android:value="@string/fcm_default_notification_channel" />
 
         <activity
             android:label="@string/application_name"
