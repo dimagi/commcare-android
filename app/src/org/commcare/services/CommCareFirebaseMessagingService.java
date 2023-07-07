@@ -16,6 +16,7 @@ import org.commcare.dalvik.R;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.FirebaseMessagingUtil;
 import org.javarosa.core.services.Logger;
+import org.joda.time.DateTime;
 
 import java.util.Map;
 
@@ -56,8 +57,10 @@ public class CommCareFirebaseMessagingService extends FirebaseMessagingService {
             return;
         }
 
-        switch(payloadData.get("action")){
-            case "SYNC" -> {} // trigger sync for fcmDataObject
+        FCMMessageData fcmMessageData = new FCMMessageData(payloadData);
+
+        switch(fcmMessageData.action){
+            case SYNC -> {} // trigger sync for fcmMessageData
             default ->
                     Logger.log(LogTypes.TYPE_FCM, "Invalid FCM action");
         }
@@ -101,5 +104,45 @@ public class CommCareFirebaseMessagingService extends FirebaseMessagingService {
                 .setWhen(System.currentTimeMillis());
 
         mNM.notify(FCM_NOTIFICATION, fcmNotification.build());
+    }
+
+    /**
+     * This class is to facilitate handling the FCM Message Data object. It should contain all the
+     * necessary checks and transformations
+     */
+    public class FCMMessageData {
+        private ActionTypes action;
+        private String username;
+        private String domain;
+        private DateTime creationTime;
+
+        private FCMMessageData(Map<String, String> payloadData){
+            this.action = getActionType(payloadData.get("action"));
+            this.username = payloadData.get("username");
+            this.domain = payloadData.get("domain");
+            this.creationTime = convertISO8601ToDateTime(payloadData.get("created_at"));
+        }
+
+        private DateTime convertISO8601ToDateTime(String timeInISO8601) {
+            if (timeInISO8601 == null){
+                return null;
+            }
+            return new DateTime(timeInISO8601);
+        }
+
+        private ActionTypes getActionType(String action) {
+            if (action == null) {
+                return ActionTypes.INVALID;
+            }
+
+            switch (action.toUpperCase()) {
+                case "SYNC" -> {
+                    return ActionTypes.SYNC;
+                }
+                default -> {
+                    return ActionTypes.INVALID;
+                }
+            }
+        }
     }
 }
