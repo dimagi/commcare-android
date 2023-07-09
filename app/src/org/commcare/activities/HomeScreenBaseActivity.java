@@ -55,6 +55,7 @@ import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.preferences.MainConfigurablePreferences;
 import org.commcare.recovery.measures.RecoveryMeasuresHelper;
+import org.commcare.services.CommCareSessionService;
 import org.commcare.session.CommCareSession;
 import org.commcare.session.SessionFrame;
 import org.commcare.session.SessionNavigationResponder;
@@ -107,6 +108,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Vector;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Manages all of the shared (mostly non-UI) components of a CommCare home screen: activity
@@ -533,6 +535,10 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
     }
 
     protected void userTriggeredLogout() {
+        if (CommCareSessionService.sessionAliveLock.isLocked()) {
+            Toast.makeText(this, Localization.get("fcm.sync.logout.attempt.during.sync"), Toast.LENGTH_LONG).show();
+            return;
+        }
         CommCareApplication.instance().closeUserSession();
         setResult(RESULT_OK);
         finish();
@@ -1006,7 +1012,17 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                 FirebaseAnalyticsUtil.reportFeatureUsage(
                         AnalyticsParamValue.FEATURE_CASE_AUTOSELECT);
                 break;
+            case SessionNavigator.FORM_ENTRY_ATTEMPT_DURING_SYNC:
+                handleFormEntryAttemptDuringSync(asw);
+                break;
         }
+    }
+
+    private void handleFormEntryAttemptDuringSync(AndroidSessionWrapper asw) {
+        EvaluationContext ec = asw.getEvaluationContext();
+        asw.getSession().stepBack(asw.getEvaluationContext());
+        HomeScreenBaseActivity.this.sessionNavigator.startNextSessionStep();
+        Toast.makeText(this, Localization.get("fcm.sync.form.entry.attempt.during.sync"), Toast.LENGTH_LONG).show();
     }
 
     @Override
@@ -1524,5 +1540,10 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                 FirebaseAnalyticsUtil.reportInAppUpdateResult(false, errorReason);
                 break;
         }
+    }
+
+    @Override
+    public ReentrantLock getBackgroundSyncLock() {
+        return CommCareSessionService.sessionAliveLock;
     }
 }

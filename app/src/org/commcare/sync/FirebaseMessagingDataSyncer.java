@@ -21,6 +21,7 @@ import org.commcare.activities.StandardHomeActivity;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.preferences.ServerUrls;
 import org.commcare.services.CommCareFirebaseMessagingService;
+import org.commcare.services.CommCareSessionService;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.ResultAndError;
 import org.commcare.tasks.templates.CommCareTask;
@@ -45,6 +46,8 @@ public class FirebaseMessagingDataSyncer implements CommCareTaskConnector {
         HOME_SCREEN,
         OTHER
     }
+    private CommCareTask currentTask = null;
+
     /**
      * If we land here is because there is a data payload and the action there is to sync
      * 1) Check if there is an active session.
@@ -132,7 +135,7 @@ public class FirebaseMessagingDataSyncer implements CommCareTaskConnector {
             }
         };
         dataPullTask.connect(this);
-        dataPullTask.executeParallel();
+        dataPullTask.execute();
     }
 
     private boolean checkUserAndDomain(String payloadUsername, String payloadDomain) {
@@ -165,12 +168,16 @@ public class FirebaseMessagingDataSyncer implements CommCareTaskConnector {
 
     @Override
     public void connectTask(CommCareTask task) {
-
+        this.currentTask = task;
     }
 
     @Override
     public void startBlockingForTask(int id) {
-
+        // In case a background sync is already ongoing, we ignore the new request silently by
+        // canceling the task
+        if (CommCareSessionService.sessionAliveLock.isLocked()) {
+            currentTask.cancel(true);
+        }
     }
 
     @Override
