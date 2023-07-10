@@ -28,6 +28,7 @@ import org.commcare.tasks.ResultAndError;
 import org.commcare.tasks.templates.CommCareTask;
 import org.commcare.tasks.templates.CommCareTaskConnector;
 import org.commcare.util.LogTypes;
+import org.commcare.utils.SyncDetailCalculations;
 import org.commcare.views.dialogs.PinnedNotificationWithProgress;
 import org.javarosa.core.model.User;
 import org.javarosa.core.services.Logger;
@@ -38,7 +39,6 @@ import java.util.List;
 
 public class FirebaseMessagingDataSyncer implements CommCareTaskConnector {
 
-    private User user;
     private Context context;
     public FirebaseMessagingDataSyncer(Context context){
         this.context = context;
@@ -75,15 +75,16 @@ public class FirebaseMessagingDataSyncer implements CommCareTaskConnector {
 
             return;
         }
-
         // Retrieve the current User
-        user = CommCareApplication.instance().getSession().getLoggedInUser();
+        User user = CommCareApplication.instance().getSession().getLoggedInUser();
 
         // Check if the recipient of the message matches the current logged in user
-        // TODO: Decide whether we want to check the validity of the message, based on when it was
-        //  created and the date/time of the last sync.
-        if (checkUserAndDomain(fcmMessageData.getUsername(), fcmMessageData.getDomain())) {
+        if (checkUserAndDomain(user, fcmMessageData.getUsername(), fcmMessageData.getDomain())) {
 
+            if (fcmMessageData.getCreationDate().getMillis() < SyncDetailCalculations.getLastSyncTime(user.getUsername())){
+                // A sync occurred since the sync request was triggered
+                return;
+            }
             // Attempt to trigger the sync, according to the current state of the app
             //The current state of the app by checking which activity is in the foreground
             switch (getAppNavigationState()){
@@ -95,7 +96,7 @@ public class FirebaseMessagingDataSyncer implements CommCareTaskConnector {
                 case ENTITY_DETAIL:
                 case MENU:
                 case OTHER:
-                    triggerBackgroundSync();
+                    triggerBackgroundSync(user);
                     break;
             }
         } else {
@@ -114,7 +115,7 @@ public class FirebaseMessagingDataSyncer implements CommCareTaskConnector {
      *    during a sync: logouts, syncs and form entries
      *  - Schedule the sync right after the form submission
      */
-    private void triggerBackgroundSync() {
+    private void triggerBackgroundSync(User user) {
         DataPullTask<Object> dataPullTask = new DataPullTask<Object>(
                 user.getUsername(), user.getCachedPwd(), user.getUniqueId(), ServerUrls.getDataServerKey(), context) {
 
@@ -153,7 +154,7 @@ public class FirebaseMessagingDataSyncer implements CommCareTaskConnector {
         dataPullTask.execute();
     }
 
-    private boolean checkUserAndDomain(String payloadUsername, String payloadDomain) {
+    private boolean checkUserAndDomain(User user, String payloadUsername, String payloadDomain) {
         if(payloadUsername != null && payloadDomain != null){
             String loggedInUsername = user.getUsername();
             String userDomain = removeServerUrlFromUserDomain(HiddenPreferences.getUserDomain());
