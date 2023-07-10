@@ -86,6 +86,7 @@ import org.commcare.utils.CrashUtil;
 import org.commcare.utils.EntityDetailUtils;
 import org.commcare.utils.GlobalConstants;
 import org.commcare.utils.SessionUnavailableException;
+import org.commcare.utils.SyncDetailCalculations;
 import org.commcare.views.UserfacingErrorHandling;
 import org.commcare.views.dialogs.CommCareAlertDialog;
 import org.commcare.views.dialogs.DialogChoiceItem;
@@ -337,6 +338,15 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
             return true;
         }
 
+        // In case a sync request from FCM was made while the user was logged out, this will
+        // trigger a blocking sync
+        if (HiddenPreferences.isPendingSyncRequestFromServer() &&
+                HiddenPreferences.getPendingSyncRequestFromServerTime()>SyncDetailCalculations.getLastSyncTime()) {
+            HiddenPreferences.setPendingSyncRequestFromServer(false);
+            sendFormsOrSync(true);
+            return true;
+        }
+
         if (UpdatePromptHelper.promptForUpdateIfNeeded(this)) {
             return true;
         }
@@ -382,6 +392,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
     private void clearOneTimeLoginActionFlags() {
         HiddenPreferences.setPostUpdateSyncNeeded(false);
         HiddenPreferences.clearInterruptedSSD();
+        HiddenPreferences.setPendingSyncRequestFromServer(false);
     }
 
     private boolean tryRestoringFormFromSessionExpiration() {

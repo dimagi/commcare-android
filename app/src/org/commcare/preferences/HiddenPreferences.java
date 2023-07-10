@@ -100,6 +100,7 @@ public class HiddenPreferences {
 
     private static final String ENABLE_ANDROID_WINDOW_SECURE_FLAG = "cc-enable-android-window-secure-flag";
 
+    private static final String PENDING_SYNC_REQUEST_FROM_SERVER_TIME = "pending-sync-request-from-server-time";
     public final static String POST_FOR_SUBMISSION_SYNC_NEEDED = "post-form-submission-sync-needed";
     public final static String DONT_SHOW_PENDING_SYNC_DIALOG = "dont-show-pending-sync-dialog";
 
@@ -570,6 +571,18 @@ public class HiddenPreferences {
 
     public static boolean isFlagSecureEnabled() {
         return DeveloperPreferences.doesPropertyMatch(ENABLE_ANDROID_WINDOW_SECURE_FLAG, PrefValues.NO, PrefValues.YES);
+    }
+    public static long getPendingSyncRequestFromServerTime() {
+        return PreferenceManager.getDefaultSharedPreferences(CommCareApplication.instance())
+                .getLong(PENDING_SYNC_REQUEST_FROM_SERVER_TIME, 0);
+    }
+
+    public static void setPendingSyncRequestFromServerTime(long requestTime) {
+        PreferenceManager.getDefaultSharedPreferences(CommCareApplication.instance()).edit()
+                .putLong(PENDING_SYNC_REQUEST_FROM_SERVER_TIME, requestTime)
+                .apply();
+    }
+
     public static boolean isPostFormSubmissionSyncNeeded() {
         return CommCareApplication.instance().getCurrentApp().getAppPreferences()
                 .getBoolean(POST_FOR_SUBMISSION_SYNC_NEEDED, false);
@@ -590,6 +603,5 @@ public class HiddenPreferences {
         CommCareApplication.instance().getCurrentApp().getAppPreferences().edit()
                 .putBoolean(DONT_SHOW_PENDING_SYNC_DIALOG, dialogDisabled)
                 .apply();
->>>>>>> 3a6b09f3e (Alert user about pending sync)
     }
 }

@@ -65,6 +65,8 @@ public class FirebaseMessagingDataSyncer implements CommCareTaskConnector {
             // TODO: Decide whether to check if when there is no active session, the recipient has ever
             //  logged in the device, before scheduling a sync post login
             HiddenPreferences.setPendingSyncRequestFromServer(true);
+            HiddenPreferences.setPendingSyncRequestFromServerTime(fcmMessageData.getCreationDate().getMillis());
+
             return;
         }
 
