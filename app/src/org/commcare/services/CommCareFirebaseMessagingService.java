@@ -13,6 +13,7 @@ import com.google.firebase.messaging.RemoteMessage;
 import org.commcare.CommCareNoficationManager;
 import org.commcare.activities.DispatchActivity;
 import org.commcare.dalvik.R;
+import org.commcare.sync.FirebaseMessagingDataSyncer;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.FirebaseMessagingUtil;
 import org.javarosa.core.services.Logger;
@@ -123,9 +124,21 @@ public class CommCareFirebaseMessagingService extends FirebaseMessagingService {
             this.creationTime = convertISO8601ToDateTime(payloadData.get("created_at"));
         }
 
+        public String getUsername() {
+            return username;
+        }
+
+        public String getDomain() {
+            return domain;
+        }
+
+        public DateTime getCreationDate() {
+            return creationTime;
+        }
+
         private DateTime convertISO8601ToDateTime(String timeInISO8601) {
             if (timeInISO8601 == null){
-                return null;
+                return new DateTime();
             }
             return new DateTime(timeInISO8601);
         }

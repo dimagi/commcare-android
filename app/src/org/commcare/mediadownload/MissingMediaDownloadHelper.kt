@@ -34,7 +34,7 @@ object MissingMediaDownloadHelper : TableStateListener {
     private var resourceInProgress: Resource? = null
 
     private val jobs = ArrayList<Job>()
-    private lateinit var mPinnedNotificationProgress: PinnedNotificationWithProgress
+    private lateinit var mPinnedNotificationProgress: PinnedNotificationWithProgress<AppInstallStatus>
 
     // constants
     private const val BACK_OFF_DELAY = 5 * 60 * 1000L // 5 mins

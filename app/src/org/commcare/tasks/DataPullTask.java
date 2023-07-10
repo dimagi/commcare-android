@@ -83,7 +83,7 @@ public abstract class DataPullTask<R>
     public static final int PROGRESS_STARTED = 0;
     public static final int PROGRESS_CLEANED = 1;
     public static final int PROGRESS_AUTHED = 2;
-    private static final int PROGRESS_DONE = 4;
+    public static final int PROGRESS_DONE = 4;
     public static final int PROGRESS_RECOVERY_NEEDED = 8;
     public static final int PROGRESS_RECOVERY_STARTED = 16;
     private static final int PROGRESS_RECOVERY_FAIL_SAFE = 32;
