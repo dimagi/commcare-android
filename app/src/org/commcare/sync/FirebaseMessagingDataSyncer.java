@@ -197,6 +197,9 @@ public class FirebaseMessagingDataSyncer implements CommCareTaskConnector {
         }
         mPinnedNotificationProgress = new PinnedNotificationWithProgress(context,
                 "sync.communicating.title","sync.progress.starting", -1);
+
+        // Disable any pending sync
+        HiddenPreferences.setPendingSyncRequestFromServer(false);
     }
 
     @Override
