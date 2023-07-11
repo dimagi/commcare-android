@@ -81,8 +81,18 @@ public class ConnectIDManager {
         return AppManagerDeveloperPreferences.isConnectIDEnabled() && getInstance().connectStatus == ConnectIDStatus.LoggedIn;
     }
 
-    public static boolean shouldShowSignInMenuOption() {
-        return AppManagerDeveloperPreferences.isConnectIDEnabled() && getInstance().connectStatus == ConnectIDStatus.NotIntroduced;
+    public static boolean shouldShowSignInMenuOption(Context context) {
+        if(AppManagerDeveloperPreferences.isConnectIDEnabled()) {
+            if(getInstance().connectStatus == ConnectIDStatus.NotIntroduced) {
+                return true;
+            }
+            else {
+                ConnectUserRecord user = getUser(context);
+                return user != null && user.getRegistrationPhase() != ConnectIDConstants.CONNECT_NO_ACTIVITY;
+            }
+        }
+
+        return false;
     }
 
     public static boolean shouldShowSignOutMenuOption() {
