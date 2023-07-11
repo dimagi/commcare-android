@@ -118,7 +118,6 @@ public class ConnectIDManager {
         ConnectIDDatabaseHelper.forgetUser(manager.parentActivity);
 
         manager.connectStatus = ConnectIDStatus.NotIntroduced;
-        manager.parentActivity = null;
         manager.loginListener = null;
         manager.phase = ConnectIDConstants.CONNECT_NO_ACTIVITY;
         manager.primaryPhone = null;
