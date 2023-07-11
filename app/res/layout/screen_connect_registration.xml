@@ -18,20 +18,6 @@
         android:text="@string/connect_register_title2"/>
 
     <TextView
-        android:id="@+id/connect_label_id"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="@dimen/content_min_margin"
-        android:gravity="start"
-        android:textSize="@dimen/text_medium"
-        android:text="@string/connect_register_id"/>
-    <AutoCompleteTextView
-        android:id="@+id/connect_edit_id"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:inputType="text"/>
-
-    <TextView
         android:id="@+id/connect_label_name"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
@@ -79,6 +65,7 @@
         android:layout_margin="@dimen/content_min_margin"
         android:gravity="start"
         android:textSize="@dimen/text_medium"
+        android:textColor="@color/red"
         android:visibility="gone"/>
 
     <Button

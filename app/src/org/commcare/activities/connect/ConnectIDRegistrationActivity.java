@@ -35,9 +35,25 @@ implements WithUIController {
         uiController.setupUI();
 
         int code = PhoneNumberHelper.getCountryCode(this);
-        uiController.setAltCountryCode(String.format(Locale.getDefault(), "+%d", code));
+        String codeText = String.format(Locale.getDefault(), "+%d", code);
 
-        uiController.setUserId(generateUserId());
+        ConnectUserRecord user = ConnectIDManager.getUser(this);
+        if(user != null) {
+            uiController.setNameText(user.getName());
+
+            String phone = user.getAlternatePhone();
+            int existingCode = PhoneNumberHelper.getCountryCode(this, phone);
+            if(existingCode > 0) {
+                code = existingCode;
+                codeText = String.format(Locale.getDefault(), "+%d", code);
+
+                phone = phone.substring(codeText.length());
+            }
+
+            uiController.setAltPhoneNumber(phone);
+        }
+
+        uiController.setAltCountryCode(codeText);
 
         updateStatus();
     }
@@ -83,9 +99,7 @@ implements WithUIController {
 
     public void updateStatus() {
         String error = null;
-        if (uiController.getUserIdText().length() == 0) {
-            error = getString(R.string.connect_register_error_id);
-        } else if (uiController.getNameText().length() == 0) {
+        if (uiController.getNameText().length() == 0) {
             error = getString(R.string.connect_register_error_name);
         } else {
             String altPhone = PhoneNumberHelper.buildPhoneNumber(uiController.getAltCountryCode(), uiController.getAltPhoneNumber());
@@ -107,6 +121,16 @@ implements WithUIController {
         finish();
     }
 
+    public void continuePressed() {
+        user = ConnectIDManager.getUser(this);
+        if(user == null) {
+            createAccount();
+        }
+        else {
+            updateAccount();
+        }
+    }
+
     public void createAccount() {
         uiController.setErrorText(null);
         
@@ -114,7 +138,7 @@ implements WithUIController {
 
         String altPhone = PhoneNumberHelper.buildPhoneNumber(uiController.getAltCountryCode(), uiController.getAltPhoneNumber());
 
-        user = new ConnectUserRecord(phone, uiController.getUserIdText(), generatePassword(), uiController.getNameText(), altPhone);
+        user = new ConnectUserRecord(phone, generateUserId(), generatePassword(), uiController.getNameText(), altPhone);
 
         HashMap<String, String> params = new HashMap<>();
         params.put("username", user.getUserID());
@@ -134,5 +158,38 @@ implements WithUIController {
                 uiController.setErrorText(String.format(Locale.getDefault(), "Registration error: %d", responseCode));
             }
         });
+    }
+
+    public void updateAccount() {
+        uiController.setErrorText(null);
+
+        String url = getString(R.string.ConnectURL) + "/users/update_profile";
+
+        String newName = uiController.getNameText();
+        String newNumber = PhoneNumberHelper.buildPhoneNumber(uiController.getAltCountryCode(), uiController.getAltPhoneNumber());
+
+        if(newName.equals(user.getName()) && newNumber.equals(user.getAlternatePhone())) {
+            finish(true);
+        }
+        else {
+            user.setName(newName);
+            user.setAlternatePhone(newNumber);
+
+            HashMap<String, String> params = new HashMap<>();
+            params.put("name", user.getName());
+            params.put("secondary_phone", user.getAlternatePhone());
+
+            ConnectIDNetworkHelper.post(this, url, new AuthInfo.ProvidedAuth(user.getUserID(), user.getPassword(), false), params, new ConnectIDNetworkHelper.INetworkResultHandler() {
+                @Override
+                public void processSuccess(int responseCode, InputStream responseData) {
+                    finish(true);
+                }
+
+                @Override
+                public void processFailure(int responseCode, IOException e) {
+                    uiController.setErrorText(String.format(Locale.getDefault(), "Registration error: %d", responseCode));
+                }
+            });
+        }
     }
 }

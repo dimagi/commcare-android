@@ -156,6 +156,8 @@
         <activity android:name="org.commcare.activities.connect.ConnectIDPhoneVerificationActivity"/>
         <activity android:name="org.commcare.activities.connect.ConnectIDMessageActivity"/>
 
+        <activity android:name="org.commcare.activities.AppSelectActivity"/>
+
         <provider
             android:name="org.commcare.provider.FormsProvider"
             android:exported="false"

@@ -14,8 +14,6 @@ import org.commcare.views.UiElement;
 
 @ManagedUi(R.layout.screen_connect_registration)
 public class ConnectIDRegistrationActivityUIController implements CommCareActivityUIController {
-    @UiElement(value = R.id.connect_edit_id)
-    private AutoCompleteTextView idInput;
     @UiElement(value = R.id.connect_edit_name)
     private AutoCompleteTextView nameInput;
     @UiElement(value = R.id.connect_alt_phone_country_input)
@@ -35,7 +33,7 @@ public class ConnectIDRegistrationActivityUIController implements CommCareActivi
 
     @Override
     public void setupUI() {
-        registerButton.setOnClickListener(v -> activity.createAccount());
+        registerButton.setOnClickListener(v -> activity.continuePressed());
 
         TextWatcher watcher = new TextWatcher() {
             @Override
@@ -50,7 +48,6 @@ public class ConnectIDRegistrationActivityUIController implements CommCareActivi
             public void afterTextChanged(Editable s) { }
         };
 
-        idInput.addTextChangedListener(watcher);
         nameInput.addTextChangedListener(watcher);
         countryCodeInput.addTextChangedListener(watcher);
         phoneInput.addTextChangedListener(watcher);
@@ -61,12 +58,9 @@ public class ConnectIDRegistrationActivityUIController implements CommCareActivi
 
     }
 
-    public void setUserId(String userId) {
-        idInput.setText(userId);
-    }
 
-    public String getUserIdText() { return idInput.getText().toString(); }
     public String getNameText() { return nameInput.getText().toString(); }
+    public void setNameText(String name) { nameInput.setText(name); }
     public void setAltCountryCode(String code) { countryCodeInput.setText(code); }
     public String getAltCountryCode() {
         return countryCodeInput.getText().toString();
@@ -74,6 +68,7 @@ public class ConnectIDRegistrationActivityUIController implements CommCareActivi
     public String getAltPhoneNumber() {
         return phoneInput.getText().toString();
     }
+    public void setAltPhoneNumber(String number) { phoneInput.setText(number); }
     public void setButtonEnabled(boolean enabled) { registerButton.setEnabled(enabled); }
 
     public void setErrorText(String text) {

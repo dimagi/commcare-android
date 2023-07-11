@@ -123,7 +123,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         formAndDataSyncer = new FormAndDataSyncer();
 
         ConnectIDManager.init(this);
-        if(ConnectIDManager.isConnectIDIntroduced()) {
+        if(ConnectIDManager.isConnectIDIntroduced(this)) {
             uiController.setConnectButtonVisible(true);
             updateConnectButton();
         }
@@ -424,10 +424,14 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     public void handleConnectButtonPress() {
         selectedAppIndex = -1;
         ConnectIDManager.handleConnectButtonPress(success -> {
-            if(success) {
-                uiController.setConnectButtonVisible(true);
-                updateConnectButton();
-            }
+            updateConnectButton();
+
+            //NOTE: Enable this to launch new app picker activity
+//            if(success) {
+//                Intent i = new Intent(this, AppSelectActivity.class);
+//
+//                startActivityForResult(i, 1);
+//            }
         });
     }
 
@@ -618,7 +622,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
         appIdDropdownList.clear();
 
-        boolean includeDefault = ConnectIDManager.isConnectIDIntroduced() && !ConnectIDManager.isSignedIn();
+        boolean includeDefault = ConnectIDManager.isConnectIDIntroduced(this) && !ConnectIDManager.isSignedIn();
         if(includeDefault) {
             appNames.add(Localization.get("login.app.direct"));
             appIdDropdownList.add("");
@@ -646,7 +650,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-        if(!ConnectIDManager.isConnectIDIntroduced() || ConnectIDManager.isSignedIn() || position > 0) {
+        if(!ConnectIDManager.isConnectIDIntroduced(this) || ConnectIDManager.isSignedIn() || position > 0) {
             // Retrieve the app record corresponding to the app selected
             selectedAppIndex = position;// - (ConnectIDManager.isConnectIDIntroduced() ? 1 : 0);
             String appId = appIdDropdownList.get(selectedAppIndex);

@@ -57,9 +57,11 @@ public class ConnectIDPhoneActivityUIController implements CommCareActivityUICon
 
     }
 
+    public void setCountryCode(String code) { countryCodeInput.setText(code); }
     public String getCountryCode() {
         return countryCodeInput.getText().toString();
     }
+    public void setPhoneNumber(String phone) { phoneInput.setText(phone); }
     public String getPhoneNumber() {
         return phoneInput.getText().toString();
     }
@@ -68,7 +70,7 @@ public class ConnectIDPhoneActivityUIController implements CommCareActivityUICon
         KeyboardHelper.showKeyboardOnInput(activity, phoneInput);
     }
 
-    public void setCountryCode(String code) { countryCodeInput.setText(code); }
+
 
     public void setOkButtonEnabled(boolean enabled) {
         button.setEnabled(enabled);

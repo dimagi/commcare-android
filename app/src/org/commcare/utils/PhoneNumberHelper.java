@@ -43,6 +43,21 @@ public class PhoneNumberHelper {
         return false;
     }
 
+    public static int getCountryCode(Context context, String phone) {
+        PhoneNumberUtil util = getUtil(context);
+        try {
+            Phonenumber.PhoneNumber phoneNumber = util.parse(phone, null);
+            if(util.isValidNumber(phoneNumber)) {
+                return phoneNumber.getCountryCode();
+            }
+        }
+        catch(NumberParseException e) {
+            //Error parsing number means it isn't valid, fall-through to return false
+        }
+
+        return -1;
+    }
+
     public static int getCountryCode(Context context) {
         Locale locale = context.getResources().getConfiguration().locale;
         PhoneNumberUtil util = getUtil(context);

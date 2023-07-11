@@ -16,6 +16,7 @@ implements WithUIController {
 
     private ConnectIDVerificationActivityUIController uiController;
     private BiometricManager biometricManager;
+    private boolean attemptedConfig = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,15 +60,19 @@ implements WithUIController {
         uiController.setPinStatus(pin);
 
         boolean configured = fingerprint == BiometricsHelper.ConfigurationStatus.Configured || pin == BiometricsHelper.ConfigurationStatus.Configured;
-        String text = configured ? getString(R.string.connect_verify_button_configured) : getString(R.string.connect_verify_button_password);
+        String text = (configured || !attemptedConfig) ? getString(R.string.connect_verify_button_configured) : getString(R.string.connect_verify_button_password);
         uiController.setButtonText(text);
+
+        uiController.setButtonEnabled(configured || attemptedConfig);
     }
 
     public void configureFingerprint() {
+        attemptedConfig = true;
         BiometricsHelper.configureFingerprint(this);
     }
 
     public void configurePin() {
+        attemptedConfig = true;
         BiometricsHelper.configurePin(this);
     }
 

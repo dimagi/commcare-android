@@ -78,9 +78,11 @@ public class ConnectUserRecord extends Persisted {
     public String getPrimaryPhone() { return primaryPhone; }
     public void setPrimaryPhone(String primaryPhone) { this.primaryPhone = primaryPhone; }
     public String getAlternatePhone() { return alternatePhone; }
+    public void setAlternatePhone(String alternatePhone) { this.alternatePhone = alternatePhone; }
     public String getPassword() { return password; }
     public void setPassword(String password) { this.password = password; }
     public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
     public int getRegistrationPhase() { return registrationPhase; }
     public void setRegistrationPhase(int phase) { registrationPhase = phase; }
     public Date getLastPasswordDate() { return lastPasswordDate; }

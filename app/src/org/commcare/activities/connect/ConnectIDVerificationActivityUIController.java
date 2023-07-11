@@ -52,6 +52,10 @@ public class ConnectIDVerificationActivityUIController implements CommCareActivi
         actionButton.setText(text);
     }
 
+    public void setButtonEnabled(boolean enabled) {
+        actionButton.setEnabled(enabled);
+    }
+
     private void setStatus(TextView textView, ImageView iconView, BiometricsHelper.ConfigurationStatus status) {
         int image = R.drawable.redx;
         switch(status) {

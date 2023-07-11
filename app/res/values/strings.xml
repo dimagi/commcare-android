@@ -5,7 +5,7 @@
     <!-- string name="default_app_server">http://build.dimagi.com/commcare/pact/profile.xml</string -->
     <string name="default_app_server">jr://asset/testing/profile.ccpr</string>
     <string name="PostURL">https://staging.commcarehq.org/receiver/submit/pf</string>
-    <string name="ConnectURL">https://connect.dimagi.com</string>
+    <string name="ConnectURL">https://connectid.dimagi.com</string>
     <string name="ota_restore_url">https://staging.commcarehq.org/ota_restore</string>
     <!-- string name="PostURL">https://pact.dimagi.com/receiver/submit/pact</string -->
     <!-- string name="ota_restore_url">https://pact.dimagi.com/provider/caselist</string -->
@@ -452,6 +452,8 @@
     <string name="dependency_missing_dialog_go_to_store" cc:translatable="true">Install from Store</string>
     <string name="dependency_missing_dialog_playstore_not_found" cc:translatable="true">No Play Store found on your device</string>
 
+    <string name="app_select_message" cc:translatable="true">Select an app:</string>
+
     <!-- ConnectID strings -->
 
     <string name="connect_id_enabled" cc:translatable="true">ConnectID Enabled</string>
@@ -530,12 +532,11 @@
 
     <string name="connect_register_title" cc:translatable="true">Create Account</string>
     <string name="connect_register_title2" cc:translatable="true">ConnectID</string>
-    <string name="connect_register_id" cc:translatable="true">User ID</string>
     <string name="connect_register_name" cc:translatable="true">Name</string>
     <string name="connect_register_dob" cc:translatable="true">Date of Birth (YYYY-MM-DD)</string>
     <string name="connect_register_phone" cc:translatable="true">Phone Number (+18887776666)</string>
     <string name="connect_register_phone_alt" cc:translatable="true">Alternate Phone Number</string>
-    <string name="connect_register_create" cc:translatable="true">Create Account</string>
+    <string name="connect_register_create" cc:translatable="true">Continue</string>
     <string name="connect_register_error_id" cc:translatable="true">ID can not be empty</string>
     <string name="connect_register_error_name" cc:translatable="true">Name can not be empty</string>
     <string name="connect_register_error_phone" cc:translatable="true">Valid phone number required</string>

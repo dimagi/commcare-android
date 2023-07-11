@@ -223,9 +223,9 @@ public class EncryptionUtils {
         int readIndex = 0;
         int ivLength = bytes[readIndex];
         readIndex++;
-        if(ivLength < 0) {
+        //if(ivLength < 0) {
             //TODO: Early chance to catch decryption error
-        }
+        //}
         byte[] iv = null;
         if(ivLength > 0) {
             iv = new byte[ivLength];

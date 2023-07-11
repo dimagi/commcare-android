@@ -9,6 +9,7 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 
 import org.commcare.activities.CommCareActivity;
+import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.core.network.AuthInfo;
 import org.commcare.dalvik.R;
 import org.commcare.interfaces.CommCareActivityUIController;
@@ -47,7 +48,26 @@ implements WithUIController {
         password = getIntent().getStringExtra(ConnectIDConstants.PASSWORD);
 
         int code = PhoneNumberHelper.getCountryCode(this);
-        uiController.setCountryCode(String.format(Locale.getDefault(), "+%d", code));
+        String codeText = String.format(Locale.getDefault(), "+%d", code);
+
+        ConnectUserRecord user = ConnectIDManager.getUser(this);
+        if(user != null) {
+            username = user.getUserID();
+            password = user.getPassword();
+
+            String phone = user.getPrimaryPhone();
+            int existingCode = PhoneNumberHelper.getCountryCode(this, phone);
+            if(existingCode > 0) {
+                code = existingCode;
+                codeText = String.format(Locale.getDefault(), "+%d", code);
+
+                phone = phone.substring(codeText.length());
+            }
+
+            uiController.setPhoneNumber(phone);
+        }
+
+        uiController.setCountryCode(codeText);
     }
 
     @Override
@@ -83,10 +103,12 @@ implements WithUIController {
 
     public void handleButtonPress() {
         String phone = PhoneNumberHelper.buildPhoneNumber(uiController.getCountryCode(), uiController.getPhoneNumber());
-        if(existingPhone != null && !existingPhone.equals(phone)) {
+        ConnectUserRecord user = ConnectIDManager.getUser(this);
+        String existing = user != null ? user.getPrimaryPhone() : existingPhone;
+        if(existing != null && !existing.equals(phone)) {
             //Update the phone number with the server
             HashMap<String, String> params = new HashMap<>();
-            params.put("old_phone_number", existingPhone);
+            params.put("old_phone_number", existing);
             params.put("new_phone_number", phone);
             String url = getString(R.string.ConnectURL) + "/users/change_phone";
 
@@ -111,10 +133,12 @@ implements WithUIController {
         String phone = PhoneNumberHelper.buildPhoneNumber(uiController.getCountryCode(), uiController.getPhoneNumber());
 
         boolean valid = PhoneNumberHelper.isValidPhoneNumber(this, phone);
+        ConnectUserRecord user = ConnectIDManager.getUser(this);
 
         if (valid) {
             if(requireUnusedNumber) {
-                if(existingPhone != null && existingPhone.equals(phone)) {
+                String existing = user != null ? user.getPrimaryPhone() : existingPhone;
+                if(existing != null && existing.equals(phone)) {
                     uiController.setAvailabilityText("");
                     uiController.setOkButtonEnabled(true);
                 }

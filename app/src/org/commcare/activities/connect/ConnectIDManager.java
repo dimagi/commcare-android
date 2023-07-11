@@ -66,8 +66,15 @@ public class ConnectIDManager {
         }
     }
 
-    public static boolean isConnectIDIntroduced() {
-        return AppManagerDeveloperPreferences.isConnectIDEnabled() && getInstance().connectStatus != ConnectIDStatus.NotIntroduced;
+    public static boolean isConnectIDIntroduced(Context context) {
+        boolean introduced = AppManagerDeveloperPreferences.isConnectIDEnabled() && getInstance().connectStatus != ConnectIDStatus.NotIntroduced;
+
+        if(introduced) {
+            ConnectUserRecord user = getUser(context);
+            introduced = user != null && user.getRegistrationPhase() == ConnectIDConstants.CONNECT_NO_ACTIVITY;
+        }
+
+        return introduced;
     }
 
     public static boolean isSignedIn() {
@@ -97,6 +104,10 @@ public class ConnectIDManager {
         if(getInstance().connectStatus == ConnectIDStatus.LoggedIn) {
             getInstance().connectStatus = ConnectIDStatus.LoggedOut;
         };
+    }
+
+    public static ConnectUserRecord getUser(Context context) {
+        return ConnectIDDatabaseHelper.getUser(context);
     }
 
     public static void forgetUser() {
@@ -342,36 +353,36 @@ public class ConnectIDManager {
                     boolean configured = intent.getBooleanExtra(ConnectIDConstants.CONFIGURED, false);
                     nextRequestCode = configured ? ConnectIDConstants.CONNECT_REGISTRATION_UNLOCK_BIOMETRIC : ConnectIDConstants.CONNECT_REGISTRATION_VERIFY_PRIMARY_PHONE;
                 }
-                rememberPhase = true;
             }
             case ConnectIDConstants.CONNECT_REGISTRATION_UNLOCK_BIOMETRIC -> {
                 nextRequestCode = success ? ConnectIDConstants.CONNECT_REGISTRATION_VERIFY_PRIMARY_PHONE : ConnectIDConstants.CONNECT_REGISTRATION_CONFIGURE_BIOMETRICS;
-                rememberPhase = true;
+                rememberPhase = success;
             }
             case ConnectIDConstants.CONNECT_REGISTRATION_VERIFY_PRIMARY_PHONE -> {
                 nextRequestCode = ConnectIDConstants.CONNECT_REGISTRATION_CONFIGURE_BIOMETRICS;
                 if(success) {
                     boolean changeNumber = intent != null && intent.getBooleanExtra(ConnectIDConstants.CHANGE, false);
                     nextRequestCode = changeNumber ? ConnectIDConstants.CONNECT_REGISTRATION_CHANGE_PRIMARY_PHONE : ConnectIDConstants.CONNECT_REGISTRATION_CONFIGURE_PASSWORD;
+                    rememberPhase = !changeNumber;
                 }
-                rememberPhase = true;
             }
             case ConnectIDConstants.CONNECT_REGISTRATION_CHANGE_PRIMARY_PHONE -> {
                 //Note that we return to primary phone verification (whether they did or didn't change the phone number)
                 nextRequestCode = ConnectIDConstants.CONNECT_REGISTRATION_VERIFY_PRIMARY_PHONE;
                 if(success) {
+                    rememberPhase = true;
                     ConnectUserRecord user = ConnectIDDatabaseHelper.getUser(manager.parentActivity);
                     if(user != null) {
                         user.setPrimaryPhone(intent.getStringExtra(ConnectIDConstants.PHONE));
                         ConnectIDDatabaseHelper.storeUser(manager.parentActivity, user);
                     }
                 }
-                rememberPhase = true;
             }
             case ConnectIDConstants.CONNECT_REGISTRATION_CONFIGURE_PASSWORD -> {
                 nextRequestCode = success ? ConnectIDConstants.CONNECT_REGISTRATION_SUCCESS : ConnectIDConstants.CONNECT_REGISTRATION_VERIFY_PRIMARY_PHONE;
-                rememberPhase = true;
                 if (success) {
+                    rememberPhase = true;
+
                     //Update password
                     manager.forgotPassword = false;
                     ConnectUserRecord user = ConnectIDDatabaseHelper.getUser(manager.parentActivity);

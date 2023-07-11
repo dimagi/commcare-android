@@ -71,7 +71,7 @@ public class AppManagerDeveloperPreferences extends CommCarePreferenceFragment {
 
     private void toggleConnectIDEnabled() {
         AppManagerDeveloperPreferences.setConnectIDEnabled(true);
-        Toast.makeText(getContext(), Localization.get("connect.id.enabled"), Toast.LENGTH_SHORT).show();
+        Toast.makeText(getContext(), getString(R.string.connect_id_enabled), Toast.LENGTH_SHORT).show();
     }
 
     private void launchPrivilegeClaimActivity() {
@@ -98,6 +98,7 @@ public class AppManagerDeveloperPreferences extends CommCarePreferenceFragment {
     }
 
     public static boolean isConnectIDEnabled() {
-        return GlobalPrivilegesManager.getGlobalPrefsRecord().getBoolean(CONNECT_ID_ENABLED, false);
+        //NOTE: Setting default case to true for initial user testing, but production should keep the default false
+        return GlobalPrivilegesManager.getGlobalPrefsRecord().getBoolean(CONNECT_ID_ENABLED, true);
     }
 }
