@@ -82,7 +82,9 @@ public class ConnectIDManager {
     }
 
     public static boolean shouldShowSignInMenuOption() {
-        return AppManagerDeveloperPreferences.isConnectIDEnabled() && getInstance().connectStatus == ConnectIDStatus.NotIntroduced;
+        return AppManagerDeveloperPreferences.isConnectIDEnabled()
+                && (getInstance().connectStatus == ConnectIDStatus.NotIntroduced
+                || getInstance().connectStatus == ConnectIDStatus.LoggedOut);
     }
 
     public static boolean shouldShowSignOutMenuOption() {
