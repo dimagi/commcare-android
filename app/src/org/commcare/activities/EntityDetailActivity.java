@@ -27,9 +27,11 @@ import org.commcare.print.TemplatePrinterActivity;
 import org.commcare.session.CommCareSession;
 import org.commcare.session.SessionFrame;
 import org.commcare.suite.model.Detail;
+import org.commcare.util.DatumUtil;
 import org.commcare.util.DetailFieldPrintInfo;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.SerializationUtil;
+import org.commcare.utils.SessionStateInconsistentException;
 import org.commcare.utils.SessionStateUninitException;
 import org.commcare.views.ManagedUi;
 import org.commcare.views.TabbedDetailView;
@@ -83,10 +85,24 @@ public class EntityDetailActivity
 
         Intent i = getIntent();
         CommCareSession session;
+        mTreeReference =
+                SerializationUtil.deserializeFromIntent(getIntent(),
+                        EntityDetailActivity.CONTEXT_REFERENCE,
+                        TreeReference.class);
         try {
             asw = CommCareApplication.instance().getCurrentSessionWrapper();
             session = asw.getSession();
-        } catch (SessionStateUninitException sue) {
+
+            // Check if the Case Id still match that of the selected entity
+            if (getIntent().hasExtra(SessionFrame.STATE_DATUM_VAL)){
+                String selectedCaseId = DatumUtil.getReturnValueFromSelection(
+                        mTreeReference,asw.getSession().getNeededDatum(), asw.getEvaluationContext());
+                String intentCaseId = getIntent().getStringExtra(SessionFrame.STATE_DATUM_VAL);
+                if (!selectedCaseId.equals(getIntent().getStringExtra(SessionFrame.STATE_DATUM_VAL)))
+                    throw new SessionStateInconsistentException("Invalid Intent data: "+intentCaseId+" "+selectedCaseId);
+            }
+
+        } catch (SessionStateUninitException | SessionStateInconsistentException sue) {
             // The user isn't logged in! bounce this back to where we came from
             this.setResult(RESULT_CANCELED, this.getIntent());
             this.finish();
@@ -105,10 +121,6 @@ public class EntityDetailActivity
 
         detail = session.getDetail(getIntent().getStringExtra(EntityDetailActivity.DETAIL_ID));
 
-        mTreeReference =
-                SerializationUtil.deserializeFromIntent(getIntent(),
-                        EntityDetailActivity.CONTEXT_REFERENCE,
-                        TreeReference.class);
         String shortDetailId = getIntent().getStringExtra(EntityDetailActivity.DETAIL_PERSISTENT_ID);
         if (shortDetailId != null) {
             Detail shortDetail = session.getDetail(shortDetailId);

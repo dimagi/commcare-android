@@ -1,6 +1,7 @@
 package org.commcare.sync;
 
 
+import static android.app.Activity.RESULT_CANCELED;
 import static org.commcare.sync.FirebaseMessagingDataSyncer.AppNavigationStates.ENTITY_DETAIL;
 import static org.commcare.sync.FirebaseMessagingDataSyncer.AppNavigationStates.ENTITY_SELECTION;
 import static org.commcare.sync.FirebaseMessagingDataSyncer.AppNavigationStates.FORM_ENTRY;
@@ -19,10 +20,12 @@ import org.commcare.activities.EntitySelectActivity;
 import org.commcare.activities.FormEntryActivity;
 import org.commcare.activities.MenuActivity;
 import org.commcare.activities.StandardHomeActivity;
+import org.commcare.models.AndroidSessionWrapper;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.preferences.ServerUrls;
 import org.commcare.services.CommCareFirebaseMessagingService;
 import org.commcare.services.CommCareSessionService;
+import org.commcare.session.CommCareSession;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.ResultAndError;
 import org.commcare.tasks.templates.CommCareTask;
@@ -40,10 +43,12 @@ import java.util.List;
 public class FirebaseMessagingDataSyncer implements CommCareTaskConnector {
 
     private Context context;
-    public FirebaseMessagingDataSyncer(Context context){
+
+    public FirebaseMessagingDataSyncer(Context context) {
         this.context = context;
     }
-    public enum AppNavigationStates{
+
+    public enum AppNavigationStates {
         FORM_ENTRY,
         ENTITY_SELECTION,
         ENTITY_DETAIL,
@@ -57,14 +62,13 @@ public class FirebaseMessagingDataSyncer implements CommCareTaskConnector {
     /**
      * If we land here is because there is a data payload and the action there is to sync
      * 1) Check if there is an active session.
-     *   - If yes, this will lead to further steps to attempt to trigger a sync
-     *   - If not, a sync will be scheduled after the next successful login
+     * - If yes, this will lead to further steps to attempt to trigger a sync
+     * - If not, a sync will be scheduled after the next successful login
      * 2) Ensure that the sync is only triggered for the intended 'recipient' of the message
-     *
      */
     public void syncData(CommCareFirebaseMessagingService.FCMMessageData fcmMessageData) {
 
-        if (!CommCareApplication.isSessionActive()){
+        if (!CommCareApplication.isSessionActive()) {
             //  There is no active session at the moment, proceed accordingly
             // TODO: Decide whether to only trigger the Sync when the 'recipient' of the message logs in
             //  or anyone, in case multiple users are sharing the same device
@@ -81,13 +85,13 @@ public class FirebaseMessagingDataSyncer implements CommCareTaskConnector {
         // Check if the recipient of the message matches the current logged in user
         if (checkUserAndDomain(user, fcmMessageData.getUsername(), fcmMessageData.getDomain())) {
 
-            if (fcmMessageData.getCreationDate().getMillis() < SyncDetailCalculations.getLastSyncTime(user.getUsername())){
+            if (fcmMessageData.getCreationDate().getMillis() < SyncDetailCalculations.getLastSyncTime(user.getUsername())) {
                 // A sync occurred since the sync request was triggered
                 return;
             }
             // Attempt to trigger the sync, according to the current state of the app
             //The current state of the app by checking which activity is in the foreground
-            switch (getAppNavigationState()){
+            switch (getAppNavigationState()) {
                 case FORM_ENTRY:
                     informUserAboutPendingSync(CommCareActivity.currentActivity);
                     break;
@@ -111,9 +115,9 @@ public class FirebaseMessagingDataSyncer implements CommCareTaskConnector {
      * and the current user has been successfully verified. The principle here is to:
      * 1) Assess the current state of the app and decide the appropriate course of action, options
      * being:
-     *  - Trigger a background sync and block the user from accessing features that are not safe
-     *    during a sync: logouts, syncs and form entries
-     *  - Schedule the sync right after the form submission
+     * - Trigger a background sync and block the user from accessing features that are not safe
+     * during a sync: logouts, syncs and form entries
+     * - Schedule the sync right after the form submission
      */
     private void triggerBackgroundSync(User user) {
         DataPullTask<Object> dataPullTask = new DataPullTask<Object>(
@@ -130,9 +134,10 @@ public class FirebaseMessagingDataSyncer implements CommCareTaskConnector {
                 PullTaskResult result = resultAndErrorMessage.data;
                 if (result != DataPullTask.PullTaskResult.DOWNLOAD_SUCCESS) {
                     Toast.makeText(context, Localization.get("fcm.sync.fail"), Toast.LENGTH_LONG).show();
-                } else {
-                    Toast.makeText(context, Localization.get("sync.success.synced"), Toast.LENGTH_LONG).show();
+                    return;
                 }
+                Toast.makeText(context, Localization.get("sync.success.synced"), Toast.LENGTH_LONG).show();
+                processReturnFromBackgroundSync();
             }
 
             @Override
@@ -142,6 +147,7 @@ public class FirebaseMessagingDataSyncer implements CommCareTaskConnector {
 
             @Override
             protected void deliverError(Object receiver, Exception e) {
+                Logger.log(LogTypes.TYPE_FCM, Localization.get("fcm.sync.fail")+": " + e.getMessage());
             }
 
             @Override
@@ -152,6 +158,38 @@ public class FirebaseMessagingDataSyncer implements CommCareTaskConnector {
         };
         dataPullTask.connect(this);
         dataPullTask.execute();
+    }
+
+    private void processReturnFromBackgroundSync() {
+        AndroidSessionWrapper aSessWrapper = CommCareApplication.instance().getCurrentSessionWrapper();
+        CommCareSession commcareSession = aSessWrapper.getSession();
+
+        CommCareActivity activity = CommCareActivity.currentActivity;
+        boolean recreateActivity = false;
+
+        try {
+            switch (getAppNavigationState()) {
+                case ENTITY_SELECTION:
+                    aSessWrapper.cleanVolatiles();
+                    ((EntitySelectActivity) activity).loadEntities();
+                    break;
+                case ENTITY_DETAIL:
+                    aSessWrapper.cleanVolatiles();
+                    recreateActivity = true;
+                    break;
+                case MENU:
+                    recreateActivity = true;
+                    break;
+            }
+            commcareSession.syncState();
+            if (recreateActivity) {
+                activity.recreate();
+            }
+        }
+        catch(RuntimeException e){
+            activity.setResult(RESULT_CANCELED);
+            activity.finish();
+        }
     }
 
     private boolean checkUserAndDomain(User user, String payloadUsername, String payloadDomain) {
@@ -205,7 +243,9 @@ public class FirebaseMessagingDataSyncer implements CommCareTaskConnector {
 
     @Override
     public void stopBlockingForTask(int id) {
-
+        // Acquire lock to finalize sync. This is not expected to fail, but in case it happens
+        // we will continue
+        CommCareSessionService.sessionAliveLock.tryLock();
     }
 
     @Override
@@ -225,7 +265,10 @@ public class FirebaseMessagingDataSyncer implements CommCareTaskConnector {
 
     @Override
     public void stopTaskTransition(int taskId) {
-
+        // Release lock
+        if(CommCareSessionService.sessionAliveLock.isLocked()) {
+            CommCareSessionService.sessionAliveLock.unlock();
+        }
     }
 
     @Override
