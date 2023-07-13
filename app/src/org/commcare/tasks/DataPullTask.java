@@ -58,6 +58,7 @@ import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.util.Date;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.NoSuchElementException;
 
 import javax.crypto.SecretKey;
@@ -100,10 +101,11 @@ public abstract class DataPullTask<R>
     private boolean loginNeeded;
     private UserKeyRecord ukrForLogin;
     private boolean wasKeyLoggedIn;
+    private List<String> blocksToSkipParsing;
 
     public DataPullTask(String username, String password, String userId,
                         String server, Context context, DataPullRequester dataPullRequester,
-                        boolean blockRemoteKeyManagement) {
+                        boolean blockRemoteKeyManagement, List<String> blocksToSkipParsing) {
         this.server = server;
         this.username = username;
         this.password = password;
@@ -113,14 +115,14 @@ public abstract class DataPullTask<R>
         this.requestor = dataPullRequester.getHttpGenerator(username, password, userId);
         this.asyncRestoreHelper = CommCareApplication.instance().getAsyncRestoreHelper(this);
         this.blockRemoteKeyManagement = blockRemoteKeyManagement;
-
+        this.blocksToSkipParsing = blocksToSkipParsing;
         TAG = DataPullTask.class.getSimpleName();
     }
 
     public DataPullTask(String username, String password, String userId,
-                        String server, Context context) {
+                        String server, Context context, List<String> blocksToSkipParsing) {
         this(username, password, userId, server, context, CommCareApplication.instance().getDataPullRequester(),
-                false);
+                false, blocksToSkipParsing);
     }
 
     // TODO PLM: once this task is refactored into manageable components, it should use the
@@ -608,7 +610,7 @@ public abstract class DataPullTask<R>
                              AndroidTransactionParserFactory factory)
             throws InvalidStructureException, IOException, XmlPullParserException,
             UnfullfilledRequirementsException {
-        DataModelPullParser parser = new DataModelPullParser(stream, factory, true, false, this);
+        DataModelPullParser parser = new DataModelPullParser(stream, factory, true, false, this, blocksToSkipParsing);
         parser.parse();
     }
 

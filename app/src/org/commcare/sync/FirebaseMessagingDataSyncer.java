@@ -33,11 +33,13 @@ import org.commcare.tasks.templates.CommCareTaskConnector;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.SyncDetailCalculations;
 import org.commcare.views.dialogs.PinnedNotificationWithProgress;
+import org.commcare.xml.FixtureIndexSchemaParser;
 import org.javarosa.core.model.User;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class FirebaseMessagingDataSyncer implements CommCareTaskConnector {
@@ -120,8 +122,14 @@ public class FirebaseMessagingDataSyncer implements CommCareTaskConnector {
      * - Schedule the sync right after the form submission
      */
     private void triggerBackgroundSync(User user) {
+
+        // TODO: Instead of preventing these from being parsed, we should consider having a flag
+        // TODO: to avoid these from being included in the restore file. Similar to the 'Skip
+        // TODO: Fixture Syncs on Restore' FF but not at the domain level
+        List<String> blocksToSkipParsing = Arrays.asList(new String[]{FixtureIndexSchemaParser.INDICE_SCHEMA, "fixture"});
+
         DataPullTask<Object> dataPullTask = new DataPullTask<Object>(
-                user.getUsername(), user.getCachedPwd(), user.getUniqueId(), ServerUrls.getDataServerKey(), context) {
+                user.getUsername(), user.getCachedPwd(), user.getUniqueId(), ServerUrls.getDataServerKey(), context, blocksToSkipParsing) {
 
             @Override
             protected void onPreExecute() {
