@@ -106,6 +106,7 @@ public class HiddenPreferences {
     private static final String PENDING_SYNC_REQUEST_FROM_SERVER_TIME = "pending-sync-request-from-server-time";
     public final static String POST_FOR_SUBMISSION_SYNC_NEEDED = "post-form-submission-sync-needed";
     public final static String DONT_SHOW_PENDING_SYNC_DIALOG = "dont-show-pending-sync-dialog";
+    private static final String POST_FOR_SUBMISSION_SYNC_NEEDED_FCM_MESSAGE_DATA = "post-form-submission-sync-needed-fcm-message-data";
 
 
     /**
@@ -600,13 +601,13 @@ public class HiddenPreferences {
     public static void setPostFormSubmissionSyncNeededFCMMessageData(FCMMessageData fcmMessageData) {
         String serializedMessageData = Base64.encodeToString(SerializationUtil.serialize(fcmMessageData), Base64.DEFAULT);
         CommCareApplication.instance().getCurrentApp().getAppPreferences().edit()
-                .putString(POST_FOR_SUBMISSION_SYNC_NEEDED, serializedMessageData)
+                .putString(POST_FOR_SUBMISSION_SYNC_NEEDED_FCM_MESSAGE_DATA, serializedMessageData)
                 .apply();
     }
 
     public static FCMMessageData getPostFormSubmissionSyncNeededFCMMessageData() {
         String serializedMessageData = CommCareApplication.instance().getCurrentApp().getAppPreferences()
-                .getString(POST_FOR_SUBMISSION_SYNC_NEEDED, null);
+                .getString(POST_FOR_SUBMISSION_SYNC_NEEDED_FCM_MESSAGE_DATA, null);
         if (serializedMessageData != null) {
             return SerializationUtil.deserialize(Base64.decode(serializedMessageData, Base64.DEFAULT), FCMMessageData.class);
         }

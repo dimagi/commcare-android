@@ -69,6 +69,11 @@ public class FirebaseMessagingDataSyncer implements CommCareTaskConnector {
      * 2) Ensure that the sync is only triggered for the intended 'recipient' of the message
      */
     public void syncData(FCMMessageData fcmMessageData) {
+        // Abort if FCM Message data is null
+        if (fcmMessageData == null){
+            disablePendingSyncs();
+            return;
+        }
 
         if (!CommCareApplication.isSessionActive()) {
             //  There is no active session at the moment, proceed accordingly
@@ -237,8 +242,7 @@ public class FirebaseMessagingDataSyncer implements CommCareTaskConnector {
 
     @Override
     public void startBlockingForTask(int id) {
-        // In case a background sync is already ongoing, we ignore the new request silently by
-        // canceling the task
+        // In case a background sync is already ongoing, we ignore the new request silently
         if (CommCareSessionService.sessionAliveLock.isLocked()) {
             currentTask.cancel(true);
         }
@@ -246,7 +250,12 @@ public class FirebaseMessagingDataSyncer implements CommCareTaskConnector {
                 "sync.communicating.title","sync.progress.starting", -1);
 
         // Disable any pending sync
+        disablePendingSyncs();
+    }
+
+    private void disablePendingSyncs() {
         HiddenPreferences.setPendingSyncRequestFromServer(false);
+        HiddenPreferences.setPostFormSubmissionSyncNeeded(false);
     }
 
     @Override

@@ -15,7 +15,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
-import android.os.Build;
 import android.os.Bundle;
 import android.util.Base64;
 import android.widget.AdapterView;
@@ -70,6 +69,7 @@ import org.commcare.suite.model.RemoteRequestEntry;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.StackFrameStep;
 import org.commcare.suite.model.Text;
+import org.commcare.sync.FirebaseMessagingDataSyncer;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.FormLoaderTask;
 import org.commcare.tasks.FormRecordCleanupTask;
@@ -171,6 +171,13 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
     protected boolean showCommCareUpdateMenu = false;
     private static final int MAX_CC_UPDATE_CANCELLATION = 3;
 
+    public static boolean safeToTriggerBackgroundSyncOnResume = true;
+    FirebaseMessagingDataSyncer dataSyncer;
+
+    {
+        dataSyncer = new FirebaseMessagingDataSyncer(this);
+
+    }
     @Override
     public void onCreateSessionSafe(Bundle savedInstanceState) {
         super.onCreateSessionSafe(savedInstanceState);
@@ -1210,6 +1217,10 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
 
     private void formEntry(int formDefId, FormRecord r, String headerTitle,
             boolean isRestartAfterSessionExpiration) {
+
+        // Block any background syncs during a form entry
+        safeToTriggerBackgroundSyncOnResume = false;
+
         Logger.log(LogTypes.TYPE_FORM_ENTRY, "Form Entry Starting|" +
                 (r.getInstanceID() == null ? "" : r.getInstanceID() + "|") +
                 r.getFormNamespace());
@@ -1276,9 +1287,15 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
             attemptDispatchHomeScreen();
         }
 
+        // In case a Sync was blocked because of a form entry, trigger now if it's safe
+        if (HiddenPreferences.isPostFormSubmissionSyncNeeded() && safeToTriggerBackgroundSyncOnResume) {
+            dataSyncer.syncData(HiddenPreferences.getPostFormSubmissionSyncNeededFCMMessageData());
+        }
+
         // reset these
         redirectedInOnCreate = false;
         sessionNavigationProceedingAfterOnResume = false;
+        safeToTriggerBackgroundSyncOnResume = true;
     }
 
     private void attemptDispatchHomeScreen() {
