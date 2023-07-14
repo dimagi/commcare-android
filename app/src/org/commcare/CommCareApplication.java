@@ -1201,8 +1201,7 @@ public class CommCareApplication extends MultiDexApplication {
     private OnCompleteListener handleFCMTokenRetrieval(){
         return (OnCompleteListener<String>) task -> {
             if (!task.isSuccessful()) {
-                Logger.log(LogTypes.TYPE_FCM, "Fetching FCM registration token failed:" + task.getException());
-                return;
+                Logger.exception("Fetching FCM registration token failed", task.getException());
             }
         };
     }
