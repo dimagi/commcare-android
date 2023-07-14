@@ -15,7 +15,7 @@ import java.util.Map;
  * This class is to facilitate handling the FCM Message Data object. It should contain all the
  * necessary checks and transformations
  */
-public class FCMMessageData {
+public class FCMMessageData implements Externalizable{
     private CommCareFirebaseMessagingService.ActionTypes action;
     private String username;
     private String domain;
@@ -27,6 +27,8 @@ public class FCMMessageData {
         this.domain = payloadData.get("domain");
         this.creationTime = convertISO8601ToDateTime(payloadData.get("created_at"));
     }
+
+    public FCMMessageData(){}
 
     public String getUsername() {
         return username;
@@ -64,6 +66,22 @@ public class FCMMessageData {
                 return CommCareFirebaseMessagingService.ActionTypes.INVALID;
             }
         }
+    }
+
+    @Override
+    public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
+        action = CommCareFirebaseMessagingService.ActionTypes.valueOf(ExtUtil.readString(in));
+        username = ExtUtil.readString(in);
+        domain = ExtUtil.readString(in);
+        creationTime = new DateTime(ExtUtil.readLong(in));
+    }
+
+    @Override
+    public void writeExternal(DataOutputStream out) throws IOException {
+        ExtUtil.writeString(out, action.toString());
+        ExtUtil.writeString(out, username);
+        ExtUtil.writeString(out, domain);
+        ExtUtil.writeNumeric(out, creationTime.getMillis());
     }
 }
 
