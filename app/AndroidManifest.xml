@@ -107,7 +107,6 @@
         android:usesCleartextTraffic="true"
         android:theme="@style/AppBaseTheme">
 
-        <!--TODO: We might want to find a better option to reference the notification channel Id-->
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_channel_id"
             android:value="@string/fcm_default_notification_channel" />
@@ -555,7 +554,7 @@
 
         <service
             android:name="org.commcare.services.CommCareFirebaseMessagingService"
-            android:exported="true">
+            android:exported="false">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
