@@ -58,6 +58,7 @@ import org.commcare.models.AndroidSessionWrapper;
 import org.commcare.models.FormRecordProcessor;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.preferences.HiddenPreferences;
+import org.commcare.services.FCMMessageData;
 import org.commcare.tasks.FormLoaderTask;
 import org.commcare.tasks.SaveToDiskTask;
 import org.commcare.tts.TextToSpeechCallback;
@@ -1500,9 +1501,11 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         }
     }
 
-    public void alertPendingSync() {
+    public void alertPendingSync(FCMMessageData fcmMessageData) {
         if (!HiddenPreferences.isPostFormSubmissionSyncNeeded()) {
             HiddenPreferences.setPostFormSubmissionSyncNeeded(true);
+            HiddenPreferences.setPostFormSubmissionSyncNeededFCMMessageData(fcmMessageData);
+
             if (!HiddenPreferences.isPendingSyncDialogDisabled()) {
                 StandardAlertDialog dialog = StandardAlertDialog.getBasicAlertDialogWithDisablingCheckbox(this,
                         Localization.get("fcm.sync.pending.form.entry.title"),

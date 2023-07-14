@@ -1,14 +1,17 @@
 package org.commcare.preferences;
 
 import android.content.SharedPreferences;
+import android.util.Base64;
 
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.activities.GeoPointActivity;
 import org.commcare.android.logging.ReportingUtils;
+import org.commcare.services.FCMMessageData;
 import org.commcare.utils.AndroidCommCarePlatform;
 import org.commcare.utils.GeoUtils;
 import org.commcare.utils.MapLayer;
+import org.commcare.utils.SerializationUtil;
 
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
@@ -592,6 +595,22 @@ public class HiddenPreferences {
         CommCareApplication.instance().getCurrentApp().getAppPreferences().edit()
                 .putBoolean(POST_FOR_SUBMISSION_SYNC_NEEDED, syncNeeded)
                 .apply();
+    }
+
+    public static void setPostFormSubmissionSyncNeededFCMMessageData(FCMMessageData fcmMessageData) {
+        String serializedMessageData = Base64.encodeToString(SerializationUtil.serialize(fcmMessageData), Base64.DEFAULT);
+        CommCareApplication.instance().getCurrentApp().getAppPreferences().edit()
+                .putString(POST_FOR_SUBMISSION_SYNC_NEEDED, serializedMessageData)
+                .apply();
+    }
+
+    public static FCMMessageData getPostFormSubmissionSyncNeededFCMMessageData() {
+        String serializedMessageData = CommCareApplication.instance().getCurrentApp().getAppPreferences()
+                .getString(POST_FOR_SUBMISSION_SYNC_NEEDED, null);
+        if (serializedMessageData != null) {
+            return SerializationUtil.deserialize(Base64.decode(serializedMessageData, Base64.DEFAULT), FCMMessageData.class);
+        }
+        return null;
     }
 
     public static boolean isPendingSyncDialogDisabled() {

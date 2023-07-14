@@ -23,7 +23,6 @@ import org.commcare.activities.StandardHomeActivity;
 import org.commcare.models.AndroidSessionWrapper;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.preferences.ServerUrls;
-import org.commcare.services.CommCareFirebaseMessagingService;
 import org.commcare.services.CommCareSessionService;
 import org.commcare.services.FCMMessageData;
 import org.commcare.session.CommCareSession;
@@ -96,7 +95,7 @@ public class FirebaseMessagingDataSyncer implements CommCareTaskConnector {
             //The current state of the app by checking which activity is in the foreground
             switch (getAppNavigationState()) {
                 case FORM_ENTRY:
-                    informUserAboutPendingSync(CommCareActivity.currentActivity);
+                    informUserAboutPendingSync(CommCareActivity.currentActivity, fcmMessageData);
                     break;
                 case HOME_SCREEN:
                 case ENTITY_SELECTION:
@@ -125,7 +124,7 @@ public class FirebaseMessagingDataSyncer implements CommCareTaskConnector {
     private void triggerBackgroundSync(User user) {
 
         // TODO: Instead of preventing these from being parsed, we should consider having a flag
-        // TODO: to avoid these from being included in the restore file. Similar to the 'Skip
+        // TODO: to avoid them from being included in the restore file. Similar to the 'Skip
         // TODO: Fixture Syncs on Restore' FF but not at the domain level
         List<String> blocksToSkipParsing = Arrays.asList(new String[]{FixtureIndexSchemaParser.INDICE_SCHEMA, "fixture"});
 
@@ -225,9 +224,9 @@ public class FirebaseMessagingDataSyncer implements CommCareTaskConnector {
     }
 
     // This method is responsible for informing the User and scheduling a sync for when it's safe
-    private void informUserAboutPendingSync(CommCareActivity activity) {
+    private void informUserAboutPendingSync(CommCareActivity activity, FCMMessageData fcmMessageData) {
         activity.runOnUiThread(() ->
-                activity.alertPendingSync()
+                activity.alertPendingSync(fcmMessageData)
         );
     }
 

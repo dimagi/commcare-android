@@ -32,6 +32,7 @@ import org.commcare.fragments.TaskConnectorFragment;
 import org.commcare.interfaces.WithUIController;
 import org.commcare.logic.DetailCalloutListenerDefaultImpl;
 import org.commcare.preferences.LocalePreferences;
+import org.commcare.services.FCMMessageData;
 import org.commcare.session.CommCareSession;
 import org.commcare.session.SessionFrame;
 import org.commcare.session.SessionInstanceBuilder;
@@ -705,7 +706,7 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
     }
 
     // Dummy method, should me implemented by each Activity that is not safe for a background sync
-    public void alertPendingSync() {}
+    public void alertPendingSync(FCMMessageData fcmMessageData) {}
 
     /**
      * Interface to perform additional setup code when adding an ActionBar
