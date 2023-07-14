@@ -25,6 +25,7 @@ import org.commcare.preferences.HiddenPreferences;
 import org.commcare.preferences.ServerUrls;
 import org.commcare.services.CommCareFirebaseMessagingService;
 import org.commcare.services.CommCareSessionService;
+import org.commcare.services.FCMMessageData;
 import org.commcare.session.CommCareSession;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.ResultAndError;
@@ -68,7 +69,7 @@ public class FirebaseMessagingDataSyncer implements CommCareTaskConnector {
      * - If not, a sync will be scheduled after the next successful login
      * 2) Ensure that the sync is only triggered for the intended 'recipient' of the message
      */
-    public void syncData(CommCareFirebaseMessagingService.FCMMessageData fcmMessageData) {
+    public void syncData(FCMMessageData fcmMessageData) {
 
         if (!CommCareApplication.isSessionActive()) {
             //  There is no active session at the moment, proceed accordingly
@@ -77,7 +78,7 @@ public class FirebaseMessagingDataSyncer implements CommCareTaskConnector {
             // TODO: Decide whether to check if when there is no active session, the recipient has ever
             //  logged in the device, before scheduling a sync post login
             HiddenPreferences.setPendingSyncRequestFromServer(true);
-            HiddenPreferences.setPendingSyncRequestFromServerTime(fcmMessageData.getCreationDate().getMillis());
+            HiddenPreferences.setPendingSyncRequestFromServerTime(fcmMessageData.getCreationTime().getMillis());
 
             return;
         }
@@ -87,7 +88,7 @@ public class FirebaseMessagingDataSyncer implements CommCareTaskConnector {
         // Check if the recipient of the message matches the current logged in user
         if (checkUserAndDomain(user, fcmMessageData.getUsername(), fcmMessageData.getDomain())) {
 
-            if (fcmMessageData.getCreationDate().getMillis() < SyncDetailCalculations.getLastSyncTime(user.getUsername())) {
+            if (fcmMessageData.getCreationTime().getMillis() < SyncDetailCalculations.getLastSyncTime(user.getUsername())) {
                 // A sync occurred since the sync request was triggered
                 return;
             }
