@@ -13,6 +13,7 @@ import com.google.firebase.messaging.RemoteMessage;
 import org.commcare.CommCareNoficationManager;
 import org.commcare.activities.DispatchActivity;
 import org.commcare.dalvik.R;
+import org.commcare.sync.FirebaseMessagingDataSyncer;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.FirebaseMessagingUtil;
 import org.javarosa.core.services.Logger;
@@ -30,6 +31,10 @@ public class CommCareFirebaseMessagingService extends FirebaseMessagingService {
     enum ActionTypes{
         SYNC,
         INVALID
+    }
+    private FirebaseMessagingDataSyncer dataSyncer;
+    {
+        dataSyncer = new FirebaseMessagingDataSyncer(this);
     }
 
    /**
@@ -59,7 +64,7 @@ public class CommCareFirebaseMessagingService extends FirebaseMessagingService {
         FCMMessageData fcmMessageData = new FCMMessageData(payloadData);
 
         switch(fcmMessageData.getAction()){
-            case SYNC -> {} // trigger sync for fcmMessageData
+            case SYNC -> dataSyncer.syncData(fcmMessageData);
             default ->
                     Logger.log(LogTypes.TYPE_FCM, "Invalid FCM action");
         }
