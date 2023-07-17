@@ -96,6 +96,7 @@ public class HiddenPreferences {
 
 
     private static final long NO_OF_HOURS_TO_WAIT_TO_RESUME_BACKGROUND_WORK = 36;
+    private static final String ENABLE_SECURE_FLAG = "cc-enable-secure-flag";
 
 
     /**
@@ -550,5 +551,10 @@ public class HiddenPreferences {
     public static void markRawMediaCleanUpComplete() {
         CommCareApplication.instance().getCurrentApp().getAppPreferences()
                 .edit().putBoolean(RAW_MEDIA_CLEANUP_COMPLETE, true).apply();
+    }
+
+    public static boolean isFlagSecureEnabled() {
+        SharedPreferences properties = CommCareApplication.instance().getCurrentApp().getAppPreferences();
+        return PrefValues.YES.equals(properties.getString(ENABLE_SECURE_FLAG, PrefValues.NO));
     }
 }
