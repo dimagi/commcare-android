@@ -1,5 +1,7 @@
 package org.commcare.preferences;
 
+import static org.commcare.preferences.HiddenPreferences.ENABLE_CERTIFICATE_TRANSPARENCY;
+
 import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -221,6 +223,9 @@ public class DeveloperPreferences extends CommCarePreferenceFragment {
                     Toast.makeText(this.getContext(), Localization.get("dev.options.code.incorrect"),
                             Toast.LENGTH_SHORT).show();
                 }
+                break;
+            case ENABLE_CERTIFICATE_TRANSPARENCY:
+                CommCareApplication.instance().initCertificateTransparency();
                 break;
         }
     }
