@@ -96,6 +96,7 @@ public class HiddenPreferences {
 
 
     private static final long NO_OF_HOURS_TO_WAIT_TO_RESUME_BACKGROUND_WORK = 36;
+    static final String ENABLE_CERTIFICATE_TRANSPARENCY = "cc-enable-certificate-transparency";
 
 
     /**
@@ -550,5 +551,10 @@ public class HiddenPreferences {
     public static void markRawMediaCleanUpComplete() {
         CommCareApplication.instance().getCurrentApp().getAppPreferences()
                 .edit().putBoolean(RAW_MEDIA_CLEANUP_COMPLETE, true).apply();
+    }
+
+    public static boolean isCertificateTransparencyEnabled() {
+        SharedPreferences properties = CommCareApplication.instance().getCurrentApp().getAppPreferences();
+        return PrefValues.YES.equals(properties.getString(ENABLE_CERTIFICATE_TRANSPARENCY, PrefValues.NO));
     }
 }
