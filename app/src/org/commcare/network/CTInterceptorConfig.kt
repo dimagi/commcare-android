@@ -7,6 +7,8 @@ import com.appmattus.certificatetransparency.certificateTransparencyInterceptor
 import okhttp3.OkHttpClient
 import org.commcare.core.network.HttpBuilderConfig
 import org.commcare.preferences.HiddenPreferences
+import org.commcare.util.LogTypes
+import org.javarosa.core.services.Logger
 
 /**
  * Adds and removes Certificate Transparency (CT) network interceptor
@@ -28,7 +30,7 @@ class CTInterceptorConfig:HttpBuilderConfig  {
     private val getInterceptor = certificateTransparencyInterceptor {
         logger = object : CTLogger {
             override fun log(host: String, result: VerificationResult) {
-                println("$host -> $result")
+                Logger.log(LogTypes.TYPE_NETWORK,"$host -> $result")
             }
         }
     }
