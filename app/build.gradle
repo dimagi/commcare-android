@@ -159,6 +159,7 @@ ext {
     HQ_API_USERNAME = project.properties['HQ_API_USERNAME'] ?: ""
     HQ_API_PASSWORD = project.properties['HQ_API_PASSWORD'] ?: ""
     TEST_BUILD_TYPE = project.properties['TEST_BUILD_TYPE'] ?: "debug"
+    FIREBASE_DATABASE_URL = project.properties['FIREBASE_DATABASE_URL'] ?: ""
 }
 
 afterEvaluate {
@@ -290,7 +291,7 @@ android {
 
         buildConfigField "String", "HQ_API_USERNAME", "\"${project.ext.HQ_API_USERNAME}\""
         buildConfigField "String", "HQ_API_PASSWORD", "\"${project.ext.HQ_API_PASSWORD}\""
-
+        buildConfigField "String", "FIREBASE_DATABASE_URL", "\"${project.ext.FIREBASE_DATABASE_URL}\""
         testInstrumentationRunner "org.commcare.CommCareJUnitRunner"
     }
 
