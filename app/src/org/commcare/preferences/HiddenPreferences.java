@@ -554,7 +554,6 @@ public class HiddenPreferences {
     }
 
     public static boolean isCertificateTransparencyEnabled() {
-        SharedPreferences properties = CommCareApplication.instance().getCurrentApp().getAppPreferences();
-        return PrefValues.YES.equals(properties.getString(ENABLE_CERTIFICATE_TRANSPARENCY, PrefValues.NO));
+        return DeveloperPreferences.doesPropertyMatch(ENABLE_CERTIFICATE_TRANSPARENCY, PrefValues.NO, PrefValues.YES);
     }
 }
