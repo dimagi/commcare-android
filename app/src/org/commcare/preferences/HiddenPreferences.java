@@ -554,7 +554,6 @@ public class HiddenPreferences {
     }
 
     public static boolean isFlagSecureEnabled() {
-        SharedPreferences properties = CommCareApplication.instance().getCurrentApp().getAppPreferences();
-        return PrefValues.YES.equals(properties.getString(ENABLE_SECURE_FLAG, PrefValues.NO));
+        return DeveloperPreferences.doesPropertyMatch(ENABLE_SECURE_FLAG, PrefValues.NO, PrefValues.YES);
     }
 }
