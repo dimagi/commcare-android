@@ -2,7 +2,6 @@ package org.commcare.preferences;
 
 import android.content.SharedPreferences;
 
-import org.commcare.AppUtils;
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.activities.GeoPointActivity;
@@ -96,7 +95,7 @@ public class HiddenPreferences {
 
 
     private static final long NO_OF_HOURS_TO_WAIT_TO_RESUME_BACKGROUND_WORK = 36;
-    private static final String ENABLE_SECURE_FLAG = "cc-enable-secure-flag";
+    private static final String ENABLE_ANDROID_WINDOW_SECURE_FLAG = "cc-enable-android-window-secure-flag";
 
 
     /**
@@ -554,6 +553,6 @@ public class HiddenPreferences {
     }
 
     public static boolean isFlagSecureEnabled() {
-        return DeveloperPreferences.doesPropertyMatch(ENABLE_SECURE_FLAG, PrefValues.NO, PrefValues.YES);
+        return DeveloperPreferences.doesPropertyMatch(ENABLE_ANDROID_WINDOW_SECURE_FLAG, PrefValues.NO, PrefValues.YES);
     }
 }
