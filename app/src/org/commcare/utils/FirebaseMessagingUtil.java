@@ -4,7 +4,12 @@ import android.content.SharedPreferences;
 
 import androidx.preference.PreferenceManager;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.firebase.messaging.FirebaseMessaging;
+
 import org.commcare.CommCareApplication;
+import org.commcare.dalvik.BuildConfig;
+import org.javarosa.core.services.Logger;
 
 public class FirebaseMessagingUtil {
     public static final String FCM_TOKEN = "fcm_token";
@@ -45,5 +50,20 @@ public class FirebaseMessagingUtil {
             return userDomain.replace(USER_DOMAIN_SERVER_URL_SUFFIX, "");
         }
         return userDomain;
+    }
+
+    public static void verifyToken() {
+        if(!BuildConfig.DEBUG) {
+            // Retrieve the current Firebase Cloud Messaging (FCM) registration token
+            FirebaseMessaging.getInstance().getToken().addOnCompleteListener(handleFCMTokenRetrieval());
+        }
+    }
+
+    private static OnCompleteListener handleFCMTokenRetrieval(){
+        return (OnCompleteListener<String>) task -> {
+            if (!task.isSuccessful()) {
+                Logger.exception("Fetching FCM registration token failed", task.getException());
+            }
+        };
     }
 }
