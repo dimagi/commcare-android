@@ -81,18 +81,10 @@ public class ConnectIDManager {
         return AppManagerDeveloperPreferences.isConnectIDEnabled() && getInstance().connectStatus == ConnectIDStatus.LoggedIn;
     }
 
-    public static boolean shouldShowSignInMenuOption(Context context) {
-        if(AppManagerDeveloperPreferences.isConnectIDEnabled()) {
-            if(getInstance().connectStatus == ConnectIDStatus.NotIntroduced) {
-                return true;
-            }
-            else {
-                ConnectUserRecord user = getUser(context);
-                return user != null && user.getRegistrationPhase() != ConnectIDConstants.CONNECT_NO_ACTIVITY;
-            }
-        }
-
-        return false;
+    public static boolean shouldShowSignInMenuOption() {
+        return AppManagerDeveloperPreferences.isConnectIDEnabled()
+                && (getInstance().connectStatus == ConnectIDStatus.NotIntroduced
+                || getInstance().connectStatus == ConnectIDStatus.LoggedOut);
     }
 
     public static boolean shouldShowSignOutMenuOption() {
@@ -126,7 +118,6 @@ public class ConnectIDManager {
         ConnectIDDatabaseHelper.forgetUser(manager.parentActivity);
 
         manager.connectStatus = ConnectIDStatus.NotIntroduced;
-        manager.parentActivity = null;
         manager.loginListener = null;
         manager.phase = ConnectIDConstants.CONNECT_NO_ACTIVITY;
         manager.primaryPhone = null;
