@@ -134,6 +134,9 @@ dependencies {
     implementation 'com.google.guava:guava:31.1-jre'
 
     implementation 'com.appmattus.certificatetransparency:certificatetransparency-android:2.5.4'
+
+    // Dependency required for API desugaring
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.0.3'
 }
 
 ext {
@@ -309,6 +312,9 @@ android {
     }
 
     compileOptions {
+        // Flag to enable support for API desugaring
+        coreLibraryDesugaringEnabled true
+
         sourceCompatibility JavaVersion.VERSION_17
         targetCompatibility JavaVersion.VERSION_17
     }
