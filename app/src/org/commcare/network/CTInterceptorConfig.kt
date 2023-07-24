@@ -32,7 +32,13 @@ class CTInterceptorConfig:HttpBuilderConfig {
             interceptor = certificateTransparencyInterceptor {
                 logger = object : CTLogger {
                     override fun log(host: String, result: VerificationResult) {
-                        Logger.log(LogTypes.TYPE_NETWORK,"$host -> $result")
+                        if (result is VerificationResult.Failure && !previousRequestFailed) {
+                            Logger.log(LogTypes.TYPE_NETWORK, "$host -> $result")
+                            previousRequestFailed = true
+                        } else if (result is VerificationResult.Success && previousRequestFailed) {
+                            previousRequestFailed = false;
+                        }
+
                     }
                 }
             }
@@ -48,6 +54,7 @@ class CTInterceptorConfig:HttpBuilderConfig {
         // Needed as the CertificateTransparencyInterceptor class is internal
         private const val CT_INTERCEPTOR_CLASS_NAME = "CertificateTransparencyInterceptor"
         private var interceptor: Interceptor? = null
+        private var previousRequestFailed = false
     }
 
 
