@@ -12,7 +12,7 @@ import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.WithUIController;
 
 public class ConnectIDVerificationActivity extends CommCareActivity<ConnectIDVerificationActivity>
-implements WithUIController {
+        implements WithUIController {
 
     private ConnectIDVerificationActivityUIController uiController;
     private BiometricManager biometricManager;
@@ -27,7 +27,15 @@ implements WithUIController {
 
         uiController.setupUI();
 
-        updateStatus();
+        BiometricsHelper.ConfigurationStatus fingerprint = BiometricsHelper.checkFingerprintStatus(biometricManager);
+        BiometricsHelper.ConfigurationStatus pin = BiometricsHelper.checkPinStatus(biometricManager);
+        if(fingerprint == BiometricsHelper.ConfigurationStatus.NotAvailable && pin == BiometricsHelper.ConfigurationStatus.NotAvailable) {
+            //Skip to password-only workflow
+            finish(true);
+        }
+        else {
+            updateStatus();
+        }
     }
 
     @Override

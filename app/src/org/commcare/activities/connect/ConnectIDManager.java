@@ -336,12 +336,24 @@ public class ConnectIDManager {
                 nextRequestCode = success ? ConnectIDConstants.CONNECT_REGISTRATION_MAIN : ConnectIDConstants.CONNECT_REGISTRATION_CONSENT;
                 if(success) {
                     manager.primaryPhone = intent.getStringExtra(ConnectIDConstants.PHONE);
+
+                    ConnectUserRecord user = ConnectIDDatabaseHelper.getUser(manager.parentActivity);
+                    if(user != null) {
+                        user.setPrimaryPhone(manager.primaryPhone);
+                        ConnectIDDatabaseHelper.storeUser(manager.parentActivity, user);
+                    }
                 }
             }
             case ConnectIDConstants.CONNECT_REGISTRATION_MAIN -> {
                 nextRequestCode = success ? ConnectIDConstants.CONNECT_REGISTRATION_CONFIGURE_BIOMETRICS : ConnectIDConstants.CONNECT_REGISTRATION_PRIMARY_PHONE;
                 if(success) {
                     ConnectUserRecord user = ConnectUserRecord.getUserFromIntent(intent);
+                    ConnectUserRecord dbUser = ConnectIDDatabaseHelper.getUser(manager.parentActivity);
+                    if(dbUser != null) {
+                        dbUser.setName(user.getName());
+                        dbUser.setAlternatePhone(user.getAlternatePhone());
+                        user = dbUser;
+                    }
                     ConnectIDDatabaseHelper.storeUser(manager.parentActivity, user);
                     rememberPhase = true;
                 }

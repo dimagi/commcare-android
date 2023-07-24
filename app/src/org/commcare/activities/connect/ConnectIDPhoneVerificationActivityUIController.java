@@ -1,5 +1,6 @@
 package org.commcare.activities.connect;
 
+import android.graphics.Color;
 import android.view.View;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
@@ -46,6 +47,15 @@ public class ConnectIDPhoneVerificationActivityUIController implements CommCareA
 
     public void setLabelText(String text) {
         labelTextView.setText(text);
+    }
+
+    public void setResendEnabled(boolean enabled) {
+        resendTextView.setEnabled(enabled);
+        resendTextView.setTextColor(enabled ? Color.BLUE : Color.GRAY);
+    }
+
+    public void setResendText(String text) {
+        resendTextView.setText(text);
     }
 
     public void showChangeOption() {

@@ -558,6 +558,7 @@
     <string name="connect_verify_phone_label" cc:translatable="true">We sent you a code on number %s.</string>
     <string name="connect_verify_phone_label_alternate" cc:translatable="true">Almost there! Please enter the code sent via SMS to your alternate phone%s.</string>
     <string name="connect_verify_phone_resend" cc:translatable="true">Didn\'t receive your code? Resend</string>
+    <string name="connect_verify_phone_resend_wait" cc:translatable="true">Didn\'t receive your code? Resend in %d s</string>
     <string name="connect_verify_phone_change" cc:translatable="true">Change phone number</string>
     <string name="connect_verify_phone_verify" cc:translatable="true">Verify code</string>
 

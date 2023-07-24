@@ -3,6 +3,7 @@ package org.commcare.activities.connect;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.widget.Toast;
 
 import org.commcare.activities.CommCareActivity;
@@ -12,6 +13,7 @@ import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.WithUIController;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.services.Logger;
+import org.joda.time.DateTime;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -20,7 +22,7 @@ import java.io.InputStream;
 import java.util.HashMap;
 
 public class ConnectIDPhoneVerificationActivity extends CommCareActivity<ConnectIDPhoneVerificationActivity>
-implements WithUIController {
+        implements WithUIController {
     public static final int MethodRegistrationPrimary = 1;
     public static final int MethodRecoveryPrimary = 2;
     public static final int MethodRecoveryAlternate = 3;
@@ -32,6 +34,8 @@ implements WithUIController {
     private String recoveryPhone;
     private boolean allowChange;
     private ConnectIDPhoneVerificationActivityUIController uiController;
+
+    private DateTime smsTime = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,6 +54,8 @@ implements WithUIController {
         updateMessage();
 
         requestSMSCode();
+
+        startHandler();
     }
 
     @Override
@@ -74,6 +80,40 @@ implements WithUIController {
     @Override
     public void initUIController() { uiController = new ConnectIDPhoneVerificationActivityUIController(this); }
 
+    private final Handler taskHandler = new android.os.Handler();
+
+    private final Runnable runnable = new Runnable() {
+        @Override
+        public void run() {
+            if (smsTime != null) {
+                double elapsedMinutes = ((new DateTime()).getMillis() - smsTime.getMillis()) / 60000.0;
+                int resendLimitMinutes = 2;
+                boolean allowResend = elapsedMinutes > resendLimitMinutes;
+                uiController.setResendEnabled(allowResend);
+
+                String text = getString(R.string.connect_verify_phone_resend);
+                if (!allowResend) {
+                    text = getString(R.string.connect_verify_phone_resend_wait, (int) Math.ceil((resendLimitMinutes - elapsedMinutes) * 60));
+                }
+                else {
+                    smsTime = null;
+                }
+
+                uiController.setResendText(text);
+            }
+
+            taskHandler.postDelayed(this, 100);
+        }
+    };
+
+    void startHandler() {
+        taskHandler.postDelayed(runnable, 100);
+    }
+
+    void stopHandler() {
+        taskHandler.removeCallbacks(runnable);
+    }
+
     public void updateMessage() {
         boolean alternate = method == MethodRecoveryAlternate;
         String phone = alternate ? recoveryPhone : primaryPhone;
@@ -85,6 +125,8 @@ implements WithUIController {
     }
 
     public void requestSMSCode() {
+        smsTime = new DateTime();
+
         uiController.setErrorMessage(null);
         String command;
         HashMap<String, String> params = new HashMap<>();
@@ -217,6 +259,8 @@ implements WithUIController {
     }
 
     public void finish(boolean success, boolean changeNumber, String username, String name, String altPhone) {
+        stopHandler();
+
         Intent intent = new Intent(getIntent());
         if(method == MethodRecoveryPrimary) {
             intent.putExtra(ConnectIDConstants.SECRET, password);

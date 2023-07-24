@@ -480,7 +480,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         super.onPrepareOptionsMenu(menu);
         menu.findItem(MENU_PERMISSIONS).setVisible(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M);
         menu.findItem(MENU_PASSWORD_MODE).setVisible(uiController.getLoginMode() == LoginMode.PIN);
-        menu.findItem(MENU_CONNECT_SIGN_IN).setVisible(ConnectIDManager.shouldShowSignInMenuOption(this));
+        menu.findItem(MENU_CONNECT_SIGN_IN).setVisible(ConnectIDManager.shouldShowSignInMenuOption());
         menu.findItem(MENU_CONNECT_SIGN_OUT).setVisible(ConnectIDManager.shouldShowSignOutMenuOption());
         menu.findItem(MENU_CONNECT_FORGET).setVisible(ConnectIDManager.shouldShowSignOutMenuOption());
 
