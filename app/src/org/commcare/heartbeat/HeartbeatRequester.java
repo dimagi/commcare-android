@@ -19,6 +19,7 @@ import org.commcare.utils.FirebaseMessagingUtil;
 import org.commcare.utils.SessionUnavailableException;
 import org.commcare.utils.StorageUtils;
 import org.commcare.utils.SyncDetailCalculations;
+import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.services.Logger;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -68,30 +69,18 @@ public class HeartbeatRequester extends GetAndParseActor {
         params.put(CC_VERSION, ReportingUtils.getCommCareVersionString());
         params.put(QUARANTINED_FORMS_PARAM, String.valueOf(StorageUtils.getNumQuarantinedForms()));
         params.put(UNSENT_FORMS_PARAM, String.valueOf(StorageUtils.getNumUnsentForms()));
-        params.put(LAST_SYNC_TIME_PARAM, convertTimeInMsToISO8601(SyncDetailCalculations.getLastSyncTime()));
+        params.put(LAST_SYNC_TIME_PARAM, DateUtils.convertTimeInMsToISO8601(SyncDetailCalculations.getLastSyncTime()));
         params.put(CURRENT_DRIFT, String.valueOf(DriftHelper.getCurrentDrift()));
         params.put(MAX_DRIFT_SINCE_LAST_HEARTBEAT, String.valueOf(DriftHelper.getMaxDriftSinceLastHeartbeat()));
         //TODO: Encode the FCM registration token
         params.put(FCM_TOKEN, FirebaseMessagingUtil.getFCMToken());
-        // TODO: Convert the Date to ISO 8601 format
-        params.put(FCM_TOKEN_TIME, convertTimeInMsToISO8601(FirebaseMessagingUtil.getFCMTokenTime()));
+        params.put(FCM_TOKEN_TIME, DateUtils.convertTimeInMsToISO8601(FirebaseMessagingUtil.getFCMTokenTime()));
         return params;
     }
 
     @Override
     public AuthInfo getAuth() {
         return new AuthInfo.CurrentAuth();
-    }
-
-    // TODO: Move this method to DateUtils
-    private static String convertTimeInMsToISO8601(long ms) {
-        if (ms == 0) {
-            return "";
-        } else {
-            DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'");
-            df.setTimeZone(TimeZone.getTimeZone("UTC"));
-            return df.format(ms);
-        }
     }
 
     @Override
