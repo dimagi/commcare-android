@@ -16,14 +16,17 @@ import org.javarosa.core.services.Logger
  */
 class CTInterceptorConfig:HttpBuilderConfig {
 
-
     override fun performCustomConfig(client: OkHttpClient.Builder): OkHttpClient.Builder {
-        if (HiddenPreferences.isCertificateTransparencyEnabled()) {
+        if (HiddenPreferences.isCertificateTransparencyEnabled() && !interceptorEnabled) {
+            interceptorEnabled = true;
             return client.addNetworkInterceptor(getCTInterceptor())
         }
 
         // In case there are CT Interceptors already attached
-        removeCTInterceptors(client)
+        if (!HiddenPreferences.isCertificateTransparencyEnabled() && interceptorEnabled) {
+            interceptorEnabled = false;
+            removeCTInterceptors(client)
+        }
         return client
     }
 
@@ -47,15 +50,12 @@ class CTInterceptorConfig:HttpBuilderConfig {
     }
 
     private fun removeCTInterceptors(client: OkHttpClient.Builder) {
-        client.networkInterceptors().removeAll { it::class.simpleName?.contains(CT_INTERCEPTOR_CLASS_NAME) == true }
+        client.networkInterceptors().removeAll { it === interceptor }
     }
 
     companion object {
-        // Needed as the CertificateTransparencyInterceptor class is internal
-        private const val CT_INTERCEPTOR_CLASS_NAME = "CertificateTransparencyInterceptor"
         private var interceptor: Interceptor? = null
         private var previousRequestFailed = false
+        private var interceptorEnabled = false
     }
-
-
 }
