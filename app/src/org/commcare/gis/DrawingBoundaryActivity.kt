@@ -198,9 +198,9 @@ class DrawingBoundaryActivity : BaseMapboxActivity(), LocationListener, MapboxMa
     override fun onLocationChanged(location: Location) {
         if (location != null && location.accuracy <= locationMinAccuracy) {
             val addLocation = previousLocation == null ||
-                    (location.distanceTo(previousLocation) >= location.accuracy + previousLocation!!.accuracy &&
+                    (location.distanceTo(previousLocation!!) >= location.accuracy + previousLocation!!.accuracy &&
                             location.time - previousLocation!!.time >= recordingIntervalMillis &&
-                            location.distanceTo(previousLocation) >= recordingIntervalMeters)
+                            location.distanceTo(previousLocation!!) >= recordingIntervalMeters)
             if (addLocation && isRecording) {
                 previousLocation = location
                 val latLng = LatLng(location.latitude, location.longitude)
