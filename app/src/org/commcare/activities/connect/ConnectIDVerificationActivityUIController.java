@@ -58,15 +58,19 @@ public class ConnectIDVerificationActivityUIController implements CommCareActivi
 
     private void setStatus(TextView textView, ImageView iconView, BiometricsHelper.ConfigurationStatus status) {
         int image = R.drawable.redx;
+        boolean enabled = true;
         switch(status) {
             case NotAvailable -> {
                 image = R.drawable.redx;
+                enabled = false;
             }
             case NotConfigured -> {
                 image = R.drawable.eye;
+                enabled = true;
             }
             case Configured -> {
                 image = R.drawable.checkmark;
+                enabled = false;
             }
         }
 
@@ -75,6 +79,6 @@ public class ConnectIDVerificationActivityUIController implements CommCareActivi
         }
 
         iconView.setImageResource(image);
-        textView.setEnabled(status != BiometricsHelper.ConfigurationStatus.NotAvailable);
+        textView.setEnabled(enabled);
     }
 }
