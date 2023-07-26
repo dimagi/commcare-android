@@ -5,7 +5,7 @@ import org.commcare.models.framework.Persisting;
 import org.commcare.modern.database.Table;
 import org.commcare.modern.models.MetaField;
 
-@Table(org.commcare.android.database.connect.models.ConnectUserRecord.STORAGE_KEY)
+@Table(org.commcare.android.database.connect.models.ConnectLinkedAppRecord.STORAGE_KEY)
 public class ConnectLinkedAppRecord extends Persisted {
     /**
      * Name of database that stores Connect user records
