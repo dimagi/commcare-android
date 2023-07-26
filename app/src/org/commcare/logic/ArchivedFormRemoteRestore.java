@@ -2,7 +2,6 @@ package org.commcare.logic;
 
 import android.widget.Toast;
 
-import org.apache.commons.io.FilenameUtils;
 import org.commcare.CommCareApplication;
 import org.commcare.activities.FormRecordListActivity;
 import org.commcare.network.DataPullRequester;
@@ -56,7 +55,7 @@ public class ArchivedFormRemoteRestore {
 
         // We should go digest auth this user on the server and see whether to pull them down.
         DataPullTask<FormRecordListActivity> pull = new DataPullTask<FormRecordListActivity>(u.getUsername(),
-                u.getCachedPwd(), u.getUniqueId(), remoteUrl, activity, dataPullRequester, blockRemoteKeyManagement, null, false) {
+                u.getCachedPwd(), u.getUniqueId(), remoteUrl, activity, dataPullRequester, blockRemoteKeyManagement, false) {
             @Override
             protected void deliverResult(FormRecordListActivity receiver, ResultAndError<PullTaskResult> statusAndErrorMessage) {
                 PullTaskResult status = statusAndErrorMessage.data;

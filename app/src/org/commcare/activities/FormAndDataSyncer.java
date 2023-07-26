@@ -1,15 +1,11 @@
 package org.commcare.activities;
 
 import android.annotation.SuppressLint;
-import android.content.Context;
 import android.content.SharedPreferences;
 
 import org.commcare.CommCareApplication;
-import org.commcare.android.database.user.models.FormRecord;
-import org.commcare.dalvik.R;
 import org.commcare.engine.resource.installers.SingleAppInstallation;
 import org.commcare.interfaces.WithUIController;
-import org.commcare.models.database.SqlStorage;
 import org.commcare.network.DataPullRequester;
 import org.commcare.network.LocalReferencePullResponseFactory;
 import org.commcare.network.mocks.LocalFilePullResponseFactory;
@@ -22,9 +18,6 @@ import org.commcare.sync.ProcessAndSendTask;
 import org.commcare.tasks.PullTaskResultReceiver;
 import org.commcare.tasks.ResultAndError;
 import org.commcare.utils.FormUploadResult;
-import org.commcare.utils.StorageUtils;
-import org.commcare.views.notifications.NotificationActionButtonInfo;
-import org.commcare.views.notifications.NotificationMessageFactory;
 import org.javarosa.core.model.User;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
@@ -196,7 +189,7 @@ public class FormAndDataSyncer {
             DataPullRequester dataPullRequester, boolean blockRemoteKeyManagement) {
 
         DataPullTask<PullTaskResultReceiver> dataPullTask = new DataPullTask<PullTaskResultReceiver>(
-                username, password, userId, server, activity, dataPullRequester, blockRemoteKeyManagement, null, false) {
+                username, password, userId, server, activity, dataPullRequester, blockRemoteKeyManagement, false) {
 
             @Override
             protected void deliverResult(PullTaskResultReceiver receiver,

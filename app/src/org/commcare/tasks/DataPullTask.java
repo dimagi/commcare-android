@@ -1,8 +1,6 @@
 package org.commcare.tasks;
 
-import android.content.ComponentName;
 import android.content.Context;
-import android.content.Intent;
 import androidx.core.util.Pair;
 
 import net.sqlcipher.database.SQLiteDatabase;
@@ -22,7 +20,6 @@ import org.commcare.data.xml.DataModelPullParser;
 import org.commcare.engine.cases.CaseUtils;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.interfaces.CommcareRequestEndpoints;
-import org.commcare.models.FormRecordProcessor;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.models.database.user.models.AndroidCaseIndexTable;
 import org.commcare.models.database.user.models.EntityStorageCache;
@@ -101,12 +98,11 @@ public abstract class DataPullTask<R>
     private boolean loginNeeded;
     private UserKeyRecord ukrForLogin;
     private boolean wasKeyLoggedIn;
-    private List<String> blocksToSkipParsing;
     private boolean skipFixtures;
 
     public DataPullTask(String username, String password, String userId,
                         String server, Context context, DataPullRequester dataPullRequester,
-                        boolean blockRemoteKeyManagement, List<String> blocksToSkipParsing, boolean skipFixtures) {
+                        boolean blockRemoteKeyManagement, boolean skipFixtures) {
         this.skipFixtures = skipFixtures;
         this.server = server;
         this.username = username;
@@ -117,14 +113,13 @@ public abstract class DataPullTask<R>
         this.requestor = dataPullRequester.getHttpGenerator(username, password, userId);
         this.asyncRestoreHelper = CommCareApplication.instance().getAsyncRestoreHelper(this);
         this.blockRemoteKeyManagement = blockRemoteKeyManagement;
-        this.blocksToSkipParsing = blocksToSkipParsing;
         TAG = DataPullTask.class.getSimpleName();
     }
 
     public DataPullTask(String username, String password, String userId,
-                        String server, Context context, List<String> blocksToSkipParsing, boolean skipFixtures) {
+                        String server, Context context, boolean skipFixtures) {
         this(username, password, userId, server, context, CommCareApplication.instance().getDataPullRequester(),
-                false, blocksToSkipParsing, skipFixtures);
+                false, skipFixtures);
     }
 
     // TODO PLM: once this task is refactored into manageable components, it should use the
@@ -612,7 +607,7 @@ public abstract class DataPullTask<R>
                              AndroidTransactionParserFactory factory)
             throws InvalidStructureException, IOException, XmlPullParserException,
             UnfullfilledRequirementsException {
-        DataModelPullParser parser = new DataModelPullParser(stream, factory, true, false, this, blocksToSkipParsing);
+        DataModelPullParser parser = new DataModelPullParser(stream, factory, true, false, this);
         parser.parse();
     }
 

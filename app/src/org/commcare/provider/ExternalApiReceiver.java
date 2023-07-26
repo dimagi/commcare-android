@@ -149,7 +149,6 @@ public class ExternalApiReceiver extends BroadcastReceiver {
                 u.getUniqueId(),
                 ServerUrls.getDataServerKey(),
                 context,
-                null,
                 false) {
 
             @Override
