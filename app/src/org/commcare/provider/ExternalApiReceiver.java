@@ -149,7 +149,8 @@ public class ExternalApiReceiver extends BroadcastReceiver {
                 u.getUniqueId(),
                 ServerUrls.getDataServerKey(),
                 context,
-                null) {
+                null,
+                false) {
 
             @Override
             protected void deliverResult(Object receiver, ResultAndError<PullTaskResult> resultAndErrorMessage) {

@@ -102,10 +102,12 @@ public abstract class DataPullTask<R>
     private UserKeyRecord ukrForLogin;
     private boolean wasKeyLoggedIn;
     private List<String> blocksToSkipParsing;
+    private boolean skipFixtures;
 
     public DataPullTask(String username, String password, String userId,
                         String server, Context context, DataPullRequester dataPullRequester,
-                        boolean blockRemoteKeyManagement, List<String> blocksToSkipParsing) {
+                        boolean blockRemoteKeyManagement, List<String> blocksToSkipParsing, boolean skipFixtures) {
+        this.skipFixtures = skipFixtures;
         this.server = server;
         this.username = username;
         this.password = password;
@@ -120,9 +122,9 @@ public abstract class DataPullTask<R>
     }
 
     public DataPullTask(String username, String password, String userId,
-                        String server, Context context, List<String> blocksToSkipParsing) {
+                        String server, Context context, List<String> blocksToSkipParsing, boolean skipFixtures) {
         this(username, password, userId, server, context, CommCareApplication.instance().getDataPullRequester(),
-                false, blocksToSkipParsing);
+                false, blocksToSkipParsing, skipFixtures);
     }
 
     // TODO PLM: once this task is refactored into manageable components, it should use the
@@ -313,7 +315,7 @@ public abstract class DataPullTask<R>
             throws IOException, UnknownSyncError {
 
         RemoteDataPullResponse pullResponse =
-                dataPullRequester.makeDataPullRequest(this, requestor, server, !loginNeeded);
+                dataPullRequester.makeDataPullRequest(this, requestor, server, !loginNeeded, skipFixtures);
 
         int responseCode = pullResponse.responseCode;
         Logger.log(LogTypes.TYPE_USER,
@@ -516,7 +518,7 @@ public abstract class DataPullTask<R>
         try {
             // Make a new request without all of the flags
             RemoteDataPullResponse pullResponse =
-                    dataPullRequester.makeDataPullRequest(this, requestor, server, false);
+                    dataPullRequester.makeDataPullRequest(this, requestor, server, false, skipFixtures);
 
             if (!(pullResponse.responseCode >= 200 && pullResponse.responseCode < 300)) {
                 return new Pair<>(PROGRESS_RECOVERY_FAIL_SAFE,

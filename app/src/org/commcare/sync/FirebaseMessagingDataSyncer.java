@@ -134,7 +134,7 @@ public class FirebaseMessagingDataSyncer implements CommCareTaskConnector {
         List<String> blocksToSkipParsing = Arrays.asList(new String[]{FixtureIndexSchemaParser.INDICE_SCHEMA, "fixture"});
 
         DataPullTask<Object> dataPullTask = new DataPullTask<Object>(
-                user.getUsername(), user.getCachedPwd(), user.getUniqueId(), ServerUrls.getDataServerKey(), context, blocksToSkipParsing) {
+                user.getUsername(), user.getCachedPwd(), user.getUniqueId(), ServerUrls.getDataServerKey(), context, null, true) {
 
             @Override
             protected void onPreExecute() {
