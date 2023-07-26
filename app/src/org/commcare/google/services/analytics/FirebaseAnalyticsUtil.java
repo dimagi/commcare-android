@@ -75,7 +75,7 @@ public class FirebaseAnalyticsUtil {
         }
 
         String buildProfileID = ReportingUtils.getAppBuildProfileId();
-        if (!TextUtils.isEmpty(appId)) {
+        if (!TextUtils.isEmpty(buildProfileID)) {
             analyticsInstance.setUserProperty(CCAnalyticsParam.CC_APP_BUILD_PROFILE_ID, buildProfileID);
         }
 
