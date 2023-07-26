@@ -112,7 +112,7 @@ implements WithUIController {
             params.put("new_phone_number", phone);
             String url = getString(R.string.ConnectURL) + "/users/change_phone";
 
-            ConnectIDNetworkHelper.post(this, url, new AuthInfo.ProvidedAuth(username, password, false), params, new ConnectIDNetworkHelper.INetworkResultHandler() {
+            ConnectIDNetworkHelper.post(this, url, new AuthInfo.ProvidedAuth(username, password, false), params, false, new ConnectIDNetworkHelper.INetworkResultHandler() {
                 @Override
                 public void processSuccess(int responseCode, InputStream responseData) {
                     finish(true, phone);

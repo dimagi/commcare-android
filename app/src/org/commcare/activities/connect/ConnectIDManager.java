@@ -7,12 +7,10 @@ import android.content.Intent;
 import android.widget.Toast;
 
 import org.commcare.activities.CommCareActivity;
-import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.core.network.AuthInfo;
 import org.commcare.dalvik.R;
-import org.commcare.models.database.SqlStorage;
 import org.commcare.preferences.AppManagerDeveloperPreferences;
 
 import java.util.Date;
@@ -24,6 +22,7 @@ import java.util.concurrent.TimeUnit;
 public class ConnectIDManager {
     public enum ConnectIDStatus {
         NotIntroduced,
+        Registering,
         LoggedOut,
         LoggedIn
     }
@@ -61,20 +60,25 @@ public class ConnectIDManager {
         ConnectIDDatabaseHelper.init(parent);
 
         ConnectUserRecord user = ConnectIDDatabaseHelper.getUser(manager.parentActivity);
-        if(user != null && manager.connectStatus == ConnectIDStatus.NotIntroduced) {
-            manager.connectStatus = ConnectIDStatus.LoggedOut;
+        if(user != null) {
+            if(user.getRegistrationPhase() != ConnectIDConstants.CONNECT_NO_ACTIVITY) {
+                manager.connectStatus = ConnectIDStatus.Registering;
+            }
+            else if(manager.connectStatus == ConnectIDStatus.NotIntroduced) {
+                manager.connectStatus = ConnectIDStatus.LoggedOut;
+            }
         }
     }
 
-    public static boolean isConnectIDIntroduced(Context context) {
-        boolean introduced = AppManagerDeveloperPreferences.isConnectIDEnabled() && getInstance().connectStatus != ConnectIDStatus.NotIntroduced;
-
-        if(introduced) {
-            ConnectUserRecord user = getUser(context);
-            introduced = user != null && user.getRegistrationPhase() == ConnectIDConstants.CONNECT_NO_ACTIVITY;
+    public static boolean isConnectIDIntroduced() {
+        if(!AppManagerDeveloperPreferences.isConnectIDEnabled()) {
+            return false;
         }
 
-        return introduced;
+        return switch(getInstance().connectStatus) {
+            case NotIntroduced, Registering -> false;
+            case LoggedOut, LoggedIn -> true;
+        };
     }
 
     public static boolean isSignedIn() {
@@ -82,30 +86,49 @@ public class ConnectIDManager {
     }
 
     public static boolean shouldShowSignInMenuOption() {
-        return AppManagerDeveloperPreferences.isConnectIDEnabled()
-                && (getInstance().connectStatus == ConnectIDStatus.NotIntroduced
-                || getInstance().connectStatus == ConnectIDStatus.LoggedOut);
+        if(!AppManagerDeveloperPreferences.isConnectIDEnabled()) {
+            return false;
+        }
+
+        return switch(getInstance().connectStatus) {
+            case LoggedOut, LoggedIn -> false;
+            case NotIntroduced, Registering -> true;
+        };
     }
 
     public static boolean shouldShowSignOutMenuOption() {
-        return AppManagerDeveloperPreferences.isConnectIDEnabled() && getInstance().connectStatus == ConnectIDStatus.LoggedIn;
+        if(!AppManagerDeveloperPreferences.isConnectIDEnabled()) {
+            return false;
+        }
+
+        return switch(getInstance().connectStatus) {
+            case NotIntroduced, Registering, LoggedOut -> false;
+            case LoggedIn -> true;
+        };
     }
 
     public static String getConnectButtonText(Context context) {
         return switch (getInstance().connectStatus) {
-            case LoggedOut, NotIntroduced -> context.getString(R.string.connect_button_logged_out);
+            case LoggedOut, Registering, NotIntroduced -> context.getString(R.string.connect_button_logged_out);
             case LoggedIn -> context.getString(R.string.connect_button_logged_in);
         };
     }
 
     public static boolean shouldShowConnectButton() {
-        return getInstance().connectStatus != ConnectIDStatus.LoggedIn && getInstance().connectStatus != ConnectIDStatus.NotIntroduced;
+        if(!AppManagerDeveloperPreferences.isConnectIDEnabled()) {
+            return false;
+        }
+
+        return switch(getInstance().connectStatus) {
+            case NotIntroduced, Registering, LoggedIn -> false;
+            case LoggedOut -> true;
+        };
     }
 
     public static void signOut() {
         if(getInstance().connectStatus == ConnectIDStatus.LoggedIn) {
             getInstance().connectStatus = ConnectIDStatus.LoggedOut;
-        };
+        }
     }
 
     public static ConnectUserRecord getUser(Context context) {
@@ -136,7 +159,7 @@ public class ConnectIDManager {
             case NotIntroduced -> {
                 requestCode = ConnectIDConstants.CONNECT_REGISTER_OR_RECOVER_DECISION;
             }
-            case LoggedOut -> {
+            case LoggedOut, Registering -> {
                 ConnectUserRecord user = ConnectIDDatabaseHelper.getUser(manager.parentActivity);
                 int phase = user.getRegistrationPhase();
                 if(phase != ConnectIDConstants.CONNECT_NO_ACTIVITY) {
@@ -354,6 +377,9 @@ public class ConnectIDManager {
                         dbUser.setAlternatePhone(user.getAlternatePhone());
                         user = dbUser;
                     }
+                    else {
+                        manager.connectStatus = ConnectIDStatus.Registering;
+                    }
                     ConnectIDDatabaseHelper.storeUser(manager.parentActivity, user);
                     rememberPhase = true;
                 }
@@ -535,9 +561,9 @@ public class ConnectIDManager {
     //TODO: Re-enable this once we're ready for OIDC
 //    public static void getConnectToken() {
 //        ConnectIDManager manager = getInstance();
-//        ConnectUserRecord user = ConnectIDDatabaseHelper.getUser();
+//        ConnectUserRecord user = ConnectIDDatabaseHelper.getUser(manager.parentActivity);
 //
-//        Multimap<String, String> params = ArrayListMultimap.create();
+//        HashMap<String, String> params = new HashMap<>();
 //        params.put("client_id", "zqFUtAAMrxmjnC1Ji74KAa6ZpY1mZly0J0PlalIa");
 //        params.put("scope", "openid");
 //        params.put("grant_type", "password");
@@ -546,7 +572,7 @@ public class ConnectIDManager {
 //
 //        String url = manager.parentActivity.getString(R.string.ConnectURL) + "/o/token/";
 //
-//        ConnectIDNetworkHelper.post(manager.parentActivity, url, new AuthInfo.NoAuth(), params, new ConnectIDNetworkHelper.INetworkResultHandler() {
+//        ConnectIDNetworkHelper.post(manager.parentActivity, url, new AuthInfo.NoAuth(), params, true, new ConnectIDNetworkHelper.INetworkResultHandler() {
 //            @Override
 //            public void processSuccess(int responseCode, InputStream responseData) {
 //                try {
@@ -570,7 +596,7 @@ public class ConnectIDManager {
 
     public static void rememberAppCredentials(String appID, String userID, String passwordOrPin) {
         ConnectIDManager manager = getInstance();
-        if(manager.connectStatus == ConnectIDStatus.LoggedIn) {
+        if(isSignedIn()) {
             ConnectIDDatabaseHelper.storeApp(manager.parentActivity, appID, userID, passwordOrPin);
             //TODO: Re-enable when ready to test OAuth
             //getConnectToken();
@@ -585,13 +611,11 @@ public class ConnectIDManager {
     }
 
     public static AuthInfo.ProvidedAuth getCredentialsForApp(String appID, String userID) {
-        if(getInstance().connectStatus != ConnectIDStatus.LoggedIn) {
-            return null;
-        }
-
-        ConnectLinkedAppRecord record = ConnectIDDatabaseHelper.getAppData(manager.parentActivity, appID, userID);
-        if(record != null && record.getPassword().length() > 0) {
-            return new AuthInfo.ProvidedAuth(record.getUserID(), record.getPassword(), false);
+        if(isSignedIn()) {
+            ConnectLinkedAppRecord record = ConnectIDDatabaseHelper.getAppData(manager.parentActivity, appID, userID);
+            if (record != null && record.getPassword().length() > 0) {
+                return new AuthInfo.ProvidedAuth(record.getUserID(), record.getPassword(), false);
+            }
         }
 
         return null;

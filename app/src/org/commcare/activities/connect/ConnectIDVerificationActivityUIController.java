@@ -4,7 +4,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import org.commcare.activities.BiometricsHelper;
+import org.commcare.utils.BiometricsHelper;
 import org.commcare.dalvik.R;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.views.ManagedUi;

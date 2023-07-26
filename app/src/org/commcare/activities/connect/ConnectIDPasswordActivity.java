@@ -119,7 +119,7 @@ implements WithUIController {
         params.put("password", password);
         String url = getString(R.string.ConnectURL) + command;
 
-        ConnectIDNetworkHelper.post(this, url, authInfo, params, new ConnectIDNetworkHelper.INetworkResultHandler() {
+        ConnectIDNetworkHelper.post(this, url, authInfo, params, false, new ConnectIDNetworkHelper.INetworkResultHandler() {
             @Override
             public void processSuccess(int responseCode, InputStream responseData) {
                 finish(true, password);

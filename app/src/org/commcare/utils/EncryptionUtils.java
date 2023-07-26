@@ -70,10 +70,9 @@ public class EncryptionUtils {
     }
 
     //Gets the SecretKey from the Android KeyStore (creates a new one the first time)
-    private static Key getKey(Context context, boolean trueForEncrypt)
+    private static Key getKey(Context context, KeyStore keystore, boolean trueForEncrypt)
             throws CertificateException, KeyStoreException, IOException, NoSuchAlgorithmException,
             UnrecoverableEntryException, InvalidAlgorithmParameterException, NoSuchProviderException {
-        KeyStore keystore = getKeystore();
 
         if(doesKeystoreContainEncryptionKey()) {
             KeyStore.Entry existingKey = keystore.getEntry(SECRET_NAME, null);
@@ -192,7 +191,7 @@ public class EncryptionUtils {
             UnrecoverableEntryException, CertificateException, KeyStoreException, IOException, NoSuchProviderException {
         String transformation = getTransformationString();
         Cipher cipher = Cipher.getInstance(transformation);
-        cipher.init(Cipher.ENCRYPT_MODE, getKey(context, true));
+        cipher.init(Cipher.ENCRYPT_MODE, getKey(context, getKeystore(), true));
         byte[] encrypted = cipher.doFinal(bytes);
         byte[] iv = cipher.getIV();
         int ivLength = iv == null ? 0 : iv.length;
@@ -244,7 +243,7 @@ public class EncryptionUtils {
         String transformation = getTransformationString();
         Cipher cipher = Cipher.getInstance(transformation);
 
-        cipher.init(Cipher.DECRYPT_MODE, getKey(context, false), iv != null ? new IvParameterSpec(iv) : null);
+        cipher.init(Cipher.DECRYPT_MODE, getKey(context, getKeystore(), false), iv != null ? new IvParameterSpec(iv) : null);
 
         return cipher.doFinal(encrypted);
     }

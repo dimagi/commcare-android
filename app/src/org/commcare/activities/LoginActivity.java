@@ -123,10 +123,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         formAndDataSyncer = new FormAndDataSyncer();
 
         ConnectIDManager.init(this);
-        if(ConnectIDManager.isConnectIDIntroduced(this)) {
-            uiController.setConnectButtonVisible(true);
-            updateConnectButton();
-        }
+        updateConnectButton();
 
         if (savedInstanceState == null) {
             // Only restore last user on the initial creation
@@ -409,16 +406,20 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         ViewUtil.hideVirtualKeyboard(LoginActivity.this);
         CommCareApplication.notificationManager().clearNotifications(NOTIFICATION_MESSAGE_LOGIN);
 
-        String appId = CommCareApplication.instance().getCurrentApp().getUniqueId();
-        String username = uiController.getEnteredUsername();
-        String pass = uiController.getEnteredPasswordOrPin();
-        ConnectIDManager.rememberAppCredentials(appId, username, pass);
+        handleConnectSignIn();
 
         Intent i = new Intent();
         i.putExtra(LOGIN_MODE, uiController.getLoginMode());
         i.putExtra(MANUAL_SWITCH_TO_PW_MODE, uiController.userManuallySwitchedToPasswordMode());
         setResult(RESULT_OK, i);
         finish();
+    }
+
+    public void handleConnectSignIn() {
+        String appId = CommCareApplication.instance().getCurrentApp().getUniqueId();
+        String username = uiController.getEnteredUsername();
+        String pass = uiController.getEnteredPasswordOrPin();
+        ConnectIDManager.rememberAppCredentials(appId, username, pass);
     }
 
     public void handleConnectButtonPress() {
@@ -622,7 +623,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
         appIdDropdownList.clear();
 
-        boolean includeDefault = ConnectIDManager.isConnectIDIntroduced(this) && !ConnectIDManager.isSignedIn();
+        boolean includeDefault = ConnectIDManager.isConnectIDIntroduced() && !ConnectIDManager.isSignedIn();
         if(includeDefault) {
             appNames.add(Localization.get("login.app.direct"));
             appIdDropdownList.add("");
@@ -650,7 +651,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-        if(!ConnectIDManager.isConnectIDIntroduced(this) || ConnectIDManager.isSignedIn() || position > 0) {
+        if(!ConnectIDManager.isConnectIDIntroduced() || ConnectIDManager.isSignedIn() || position > 0) {
             // Retrieve the app record corresponding to the app selected
             selectedAppIndex = position;// - (ConnectIDManager.isConnectIDIntroduced() ? 1 : 0);
             String appId = appIdDropdownList.get(selectedAppIndex);

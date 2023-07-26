@@ -18,6 +18,8 @@ import org.commcare.utils.EncryptionUtils;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.storage.Persistable;
 
+import java.util.Vector;
+
 public class ConnectIDDatabaseHelper {
     private static final Object connectDbHandleLock = new Object();
     private static SQLiteDatabase connectDatabase;
@@ -31,7 +33,7 @@ public class ConnectIDDatabaseHelper {
             //If we get here, the passphrase hasn't been created yet
             byte[] passphrase = EncryptionUtils.generatePassphrase();
 
-            ConnectKeyRecord record = new ConnectKeyRecord("", EncryptionUtils.encryptToBase64String(context, passphrase));
+            ConnectKeyRecord record = new ConnectKeyRecord(EncryptionUtils.encryptToBase64String(context, passphrase));
             CommCareApplication.instance().getGlobalStorage(ConnectKeyRecord.class).write(record);
 
             return passphrase;
@@ -80,19 +82,14 @@ public class ConnectIDDatabaseHelper {
     }
 
     public static void forgetUser(Context context) {
-        getConnectStorage(context, ConnectUserRecord.class).removeAll();//(getUser().getID());
+        getConnectStorage(context, ConnectUserRecord.class).removeAll();
     }
 
     public static ConnectLinkedAppRecord getAppData(Context context, String appId, String username) {
-        ConnectLinkedAppRecord record = null;
-        for (ConnectLinkedAppRecord r : getConnectStorage(context, ConnectLinkedAppRecord.class)) {
-            if(r.getAppID().equals(appId) && r.getUserID().equals(username)) {
-                record = r;
-                break;
-            }
-        }
-
-        return record;
+        Vector<ConnectLinkedAppRecord> records = getConnectStorage(context, ConnectLinkedAppRecord.class).getRecordsForValues(
+                new String[] {ConnectLinkedAppRecord.META_APP_ID, ConnectLinkedAppRecord.META_USER_ID},
+                new Object[] {appId, username});
+        return records.isEmpty() ? null : records.firstElement();
     }
 
     public static void deleteAppData(Context context, ConnectLinkedAppRecord record) {

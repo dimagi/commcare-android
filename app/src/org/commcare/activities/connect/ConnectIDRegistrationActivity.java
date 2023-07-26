@@ -147,7 +147,7 @@ implements WithUIController {
         params.put("phone_number", phone);
         params.put("recovery_phone", altPhone);
 
-        ConnectIDNetworkHelper.post(this, url, new AuthInfo.NoAuth(), params, new ConnectIDNetworkHelper.INetworkResultHandler() {
+        ConnectIDNetworkHelper.post(this, url, new AuthInfo.NoAuth(), params, false, new ConnectIDNetworkHelper.INetworkResultHandler() {
             @Override
             public void processSuccess(int responseCode, InputStream responseData) {
                 finish(true);
@@ -179,7 +179,7 @@ implements WithUIController {
             params.put("name", user.getName());
             params.put("secondary_phone", user.getAlternatePhone());
 
-            ConnectIDNetworkHelper.post(this, url, new AuthInfo.ProvidedAuth(user.getUserID(), user.getPassword(), false), params, new ConnectIDNetworkHelper.INetworkResultHandler() {
+            ConnectIDNetworkHelper.post(this, url, new AuthInfo.ProvidedAuth(user.getUserID(), user.getPassword(), false), params, false, new ConnectIDNetworkHelper.INetworkResultHandler() {
                 @Override
                 public void processSuccess(int responseCode, InputStream responseData) {
                     finish(true);

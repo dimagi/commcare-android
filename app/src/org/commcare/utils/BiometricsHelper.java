@@ -1,4 +1,4 @@
-package org.commcare.activities;
+package org.commcare.utils;
 
 import static androidx.biometric.BiometricManager.Authenticators.BIOMETRIC_STRONG;
 import static androidx.biometric.BiometricManager.Authenticators.DEVICE_CREDENTIAL;

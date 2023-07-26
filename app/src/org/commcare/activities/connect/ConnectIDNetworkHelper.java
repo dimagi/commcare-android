@@ -30,80 +30,29 @@ public class ConnectIDNetworkHelper {
         void processFailure(int responseCode, IOException e);
     }
 
-    public static void post(Context context, String url, AuthInfo authInfo, HashMap<String, String> params, INetworkResultHandler handler) {
-        Gson gson = new Gson();
-        String json = gson.toJson(params);
+    public static void post(Context context, String url, AuthInfo authInfo, HashMap<String, String> params, boolean useFormEncoding, INetworkResultHandler handler) {
+        HashMap<String, String> headers = new HashMap<>();
+        RequestBody requestBody;
 
-        RequestBody requestBody = RequestBody.create(MediaType.parse("application/json"), json);
+        if(useFormEncoding) {
+            Multimap<String, String> multimap = ArrayListMultimap.create();
+            for (Map.Entry<String, String> entry : params.entrySet()) {
+                multimap.put(entry.getKey(), entry.getValue());
+            }
+
+            requestBody = ModernHttpRequester.getPostBody(multimap);
+            headers = getContentHeadersForXFormPost(requestBody);
+        }
+        else {
+            Gson gson = new Gson();
+            String json = gson.toJson(params);
+            requestBody = RequestBody.create(MediaType.parse("application/json"), json);
+        }
+
         ModernHttpTask postTask =
                 new ModernHttpTask(context, url,
                         ImmutableMultimap.of(),
-                        new HashMap<>(),
-                        requestBody,
-                        HTTPMethod.POST,
-                        authInfo);
-        postTask.connect(new ConnectorWithHttpResponseProcessor<>() {
-            @Override
-            public void processSuccess(int responseCode, InputStream responseData) {
-                handler.processSuccess(responseCode, responseData);
-            }
-
-            @Override
-            public void processClientError(int responseCode) {
-                //400 error
-                handler.processFailure(responseCode, null);
-            }
-
-            @Override
-            public void processServerError(int responseCode) {
-                //500 error for internal server error
-                handler.processFailure(responseCode, null);
-            }
-
-            @Override
-            public void processOther(int responseCode) {
-                handler.processFailure(responseCode, null);
-            }
-
-            @Override
-            public void handleIOException(IOException exception) {
-                //UnknownHostException if host not found
-                handler.processFailure(-1, exception);
-            }
-
-            @Override
-            public <A, B, C> void connectTask(CommCareTask<A, B, C, HttpResponseProcessor> task) {}
-
-            @Override
-            public void startBlockingForTask(int id) {}
-
-            @Override
-            public void stopBlockingForTask(int id) {}
-
-            @Override
-            public void taskCancelled() {}
-
-            @Override
-            public HttpResponseProcessor getReceiver() { return this; }
-
-            @Override
-            public void startTaskTransition() {}
-
-            @Override
-            public void stopTaskTransition(int taskId) {}
-
-            @Override
-            public void hideTaskCancelButton() {}
-        });
-        postTask.executeParallel();
-    }
-
-    public static void post(Context context, String url, AuthInfo authInfo, Multimap<String, String> params, INetworkResultHandler handler) {
-        RequestBody requestBody = ModernHttpRequester.getPostBody(params);
-        ModernHttpTask postTask =
-                new ModernHttpTask(context, url,
-                        ImmutableMultimap.of(),
-                        getContentHeadersForXFormPost(requestBody),
+                        headers,
                         requestBody,
                         HTTPMethod.POST,
                         authInfo);
