@@ -2,7 +2,6 @@ package org.commcare.preferences;
 
 import android.content.SharedPreferences;
 
-import org.commcare.AppUtils;
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.activities.GeoPointActivity;
@@ -97,6 +96,7 @@ public class HiddenPreferences {
 
     private static final long NO_OF_HOURS_TO_WAIT_TO_RESUME_BACKGROUND_WORK = 36;
     static final String ENABLE_CERTIFICATE_TRANSPARENCY = "cc-enable-certificate-transparency";
+    private static final String ENABLE_ANDROID_WINDOW_SECURE_FLAG = "cc-enable-android-window-secure-flag";
 
 
     /**
@@ -555,5 +555,9 @@ public class HiddenPreferences {
 
     public static boolean isCertificateTransparencyEnabled() {
         return DeveloperPreferences.doesPropertyMatch(ENABLE_CERTIFICATE_TRANSPARENCY, PrefValues.NO, PrefValues.YES);
+    }
+
+    public static boolean isFlagSecureEnabled() {
+        return DeveloperPreferences.doesPropertyMatch(ENABLE_ANDROID_WINDOW_SECURE_FLAG, PrefValues.NO, PrefValues.YES);
     }
 }
