@@ -606,7 +606,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                     requestCode);
         } else {
             ActivityCompat.requestPermissions(this,
-                    Permissions.getAppPermissions(),
+                    Permissions.getRuntimeAppPermissions(),
                     requestCode);
         }
     }

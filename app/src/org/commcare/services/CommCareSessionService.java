@@ -1,6 +1,7 @@
 package org.commcare.services;
 
 import android.annotation.SuppressLint;
+import android.app.AlarmManager;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -41,12 +42,14 @@ import org.javarosa.core.util.NoLocalizedTextException;
 
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.locks.ReentrantLock;
 
 import javax.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import javax.crypto.Cipher;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
@@ -62,6 +65,13 @@ import androidx.preference.PreferenceManager;
  * @author ctsims
  */
 public class CommCareSessionService extends Service {
+
+    /**
+     * Names of the extra data for the CommCareServiceInitiatorReceiver intent
+     */
+    public static final String EXTRA_NOTIFICATION_ID = "commcare.intent.extra.notification-id";
+    public static final String EXTRA_NOTIFICATION_OBJ = "commcare.intent.extra.notification";
+    public static final String EXTRA_COMPONENT_TYPE = "commcare.intent.extra.component-type";
 
     private NotificationManager mNM;
 
@@ -236,8 +246,34 @@ public class CommCareSessionService extends Service {
             notificationBuilder.setContentText(contentText);
         }
 
-        //Send the notification.
-        this.startForeground(NOTIFICATION, notificationBuilder.build());
+        //Send the notification
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && CommCareApplication.isAppInBackground())
+            startForegroundNotificationWithAlarmManager(NOTIFICATION, notificationBuilder.build());
+        else
+            this.startForeground(NOTIFICATION, notificationBuilder.build());
+    }
+
+    /**
+     * From Android 12, it's not allowed for an app to start a Foreground notification while
+     * running in the background. This method leverages AlarmManager to trigger the notification
+     */
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    private void startForegroundNotificationWithAlarmManager(int notificationId, Notification notification) {
+        ForegroundComponentType foregroundComponentType = ForegroundComponentType.NOTIFICATION;
+
+        Intent receiverIntent = new Intent(this, CommCareSessionInitiatorReceiver.class);
+        receiverIntent.putExtra(EXTRA_COMPONENT_TYPE, foregroundComponentType);
+        receiverIntent.putExtra(EXTRA_NOTIFICATION_ID, notificationId);
+        receiverIntent.putExtra(EXTRA_NOTIFICATION_OBJ, notification);
+
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(
+                this,
+                foregroundComponentType.ordinal(),
+                receiverIntent,
+                PendingIntent.FLAG_IMMUTABLE);
+
+        AlarmManager alarmmanager = (AlarmManager) getSystemService(ALARM_SERVICE);
+        alarmmanager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, Calendar.getInstance().getTimeInMillis(), pendingIntent);
     }
 
     /**
