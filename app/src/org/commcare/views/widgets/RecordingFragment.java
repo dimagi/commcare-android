@@ -52,6 +52,9 @@ public class RecordingFragment extends DialogFragment {
 
     private static final String MIMETYPE_AUDIO_AAC = "audio/mp4a-latm";
 
+    private static final int HEAAC_SAMPLE_RATE = 44100;
+    private static final int AMRNB_SAMPLE_RATE = 8000;
+
     private String fileName;
     private static final String FILE_EXT = ".mp3";
 
@@ -192,10 +195,13 @@ public class RecordingFragment extends DialogFragment {
             recorder = new MediaRecorder();
         }
 
+        boolean isHeAacSupported = isHeAacEncoderSupported();
+
         recorder.setAudioSource(MediaRecorder.AudioSource.MIC);
+        recorder.setAudioSamplingRate(isHeAacSupported ? HEAAC_SAMPLE_RATE : AMRNB_SAMPLE_RATE);
         recorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
         recorder.setOutputFile(fileName);
-        if (isHeAacEncoderSupported()) {
+        if (isHeAacSupported) {
             recorder.setAudioEncoder(MediaRecorder.AudioEncoder.HE_AAC);
         } else {
             recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
