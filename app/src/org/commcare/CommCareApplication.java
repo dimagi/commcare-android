@@ -28,7 +28,6 @@ import androidx.work.OneTimeWorkRequest;
 import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkManager;
 
-import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import com.google.firebase.analytics.FirebaseAnalytics;
 
@@ -107,6 +106,7 @@ import org.commcare.utils.CommCareUtil;
 import org.commcare.utils.CrashUtil;
 import org.commcare.utils.DeviceIdentifier;
 import org.commcare.utils.FileUtil;
+import org.commcare.utils.FirebaseMessagingUtil;
 import org.commcare.utils.GlobalConstants;
 import org.commcare.utils.MarkupUtil;
 import org.commcare.utils.MultipleAppsUtil;
@@ -115,7 +115,6 @@ import org.commcare.utils.SessionRegistrationHelper;
 import org.commcare.utils.SessionStateUninitException;
 import org.commcare.utils.SessionUnavailableException;
 import org.commcare.views.widgets.CleanRawMedia;
-import org.conscrypt.Conscrypt;
 import org.javarosa.core.model.User;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.reference.RootTranslator;
@@ -126,12 +125,10 @@ import org.javarosa.core.util.PropertyUtils;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 
 import java.io.File;
-import java.security.Security;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Nullable;
@@ -250,6 +247,8 @@ public class CommCareApplication extends MultiDexApplication {
 
         LocalePreferences.saveDeviceLocale(Locale.getDefault());
         GraphUtil.setLabelCharacterLimit(getResources().getInteger(R.integer.graph_label_char_limit));
+
+        FirebaseMessagingUtil.verifyToken();
     }
 
     protected void attachISRGCert() {
@@ -954,6 +953,15 @@ public class CommCareApplication extends MultiDexApplication {
         }
     }
 
+    public static boolean isSessionActive() {
+        try {
+            return CommCareApplication.instance().getSession() != null;
+        }
+        catch (SessionUnavailableException e){
+            return false;
+        }
+    }
+
     public UserKeyRecord getRecordForCurrentUser() {
         return getSession().getUserKeyRecord();
     }
@@ -1183,4 +1191,5 @@ public class CommCareApplication extends MultiDexApplication {
     public boolean isNsdServicesEnabled() {
         return true;
     }
+
 }
