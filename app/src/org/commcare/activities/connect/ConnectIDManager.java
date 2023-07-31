@@ -12,7 +12,14 @@ import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.core.network.AuthInfo;
 import org.commcare.dalvik.R;
 import org.commcare.preferences.AppManagerDeveloperPreferences;
+import org.commcare.preferences.ServerUrls;
+import org.javarosa.core.io.StreamsUtil;
+import org.javarosa.core.services.Logger;
+import org.json.JSONException;
+import org.json.JSONObject;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
@@ -558,48 +565,126 @@ public class ConnectIDManager {
         manager.continueWorkflow();
     }
 
-    //TODO: Re-enable this once we're ready for OIDC
-//    public static void getConnectToken() {
-//        ConnectIDManager manager = getInstance();
-//        ConnectUserRecord user = ConnectIDDatabaseHelper.getUser(manager.parentActivity);
-//
-//        HashMap<String, String> params = new HashMap<>();
-//        params.put("client_id", "zqFUtAAMrxmjnC1Ji74KAa6ZpY1mZly0J0PlalIa");
-//        params.put("scope", "openid");
+    public static void getConnectToken(String hqUsername, String hqPassword) {
+        ConnectIDManager manager = getInstance();
+        ConnectUserRecord user = ConnectIDDatabaseHelper.getUser(manager.parentActivity);
+
+        HashMap<String, String> params = new HashMap<>();
+        params.put("client_id", "zqFUtAAMrxmjnC1Ji74KAa6ZpY1mZly0J0PlalIa");
+        params.put("scope", "openid");
+        params.put("grant_type", "password");
+        params.put("username", user.getUserID());
+        params.put("password", user.getPassword());
+
+        String url = manager.parentActivity.getString(R.string.ConnectURL) + "/o/token/";
+
+        ConnectIDNetworkHelper.post(manager.parentActivity, url, new AuthInfo.NoAuth(), params, true, new ConnectIDNetworkHelper.INetworkResultHandler() {
+            @Override
+            public void processSuccess(int responseCode, InputStream responseData) {
+                try {
+                    String responseAsString = new String(StreamsUtil.inputStreamToByteArray(responseData));
+                    JSONObject json = new JSONObject(responseAsString);
+                    String key = "access_token";
+                    if (json.has(key)) {
+                        linkHQWorker(hqUsername, hqPassword, json.getString(key));
+                    }
+                } catch (IOException | JSONException e) {
+                    Logger.exception("Parsing return from OIDC call", e);
+                }
+            }
+
+            @Override
+            public void processFailure(int responseCode, IOException e) {
+                Toast.makeText(manager.parentActivity, "OIDC error", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    public static void linkHQWorker(String hqUsername, String hqPassword, String connectToken) {
+        ConnectIDManager manager = getInstance();
+        ConnectUserRecord user = ConnectIDDatabaseHelper.getUser(manager.parentActivity);
+
+        HashMap<String, String> params = new HashMap<>();
+//        params.put("client_id", "4eHlQad1oasGZF0lPiycZIjyL0SY1zx7ZblA6SCV");
+//        params.put("scope", "sync");
 //        params.put("grant_type", "password");
-//        params.put("username", user.getUserID());
-//        params.put("password", user.getPassword());
-//
-//        String url = manager.parentActivity.getString(R.string.ConnectURL) + "/o/token/";
-//
-//        ConnectIDNetworkHelper.post(manager.parentActivity, url, new AuthInfo.NoAuth(), params, true, new ConnectIDNetworkHelper.INetworkResultHandler() {
-//            @Override
-//            public void processSuccess(int responseCode, InputStream responseData) {
+//        params.put("username", hqUsername + "@first-project-2.commcarehq.org");
+        params.put("token", connectToken);
+
+        String url = ServerUrls.getKeyServer().replace("phone/keys/", "settings/users/commcare/link_connectid_user/");
+        //https://www.commcarehq.org/a/dimagi-intro/phone/keys/
+
+        //localhost:8000/oauth/token?grant_type=password&client_id=CLIENT_ID&username=100@commcarehq.commcarehq.org&password=PASS&scope=sync
+        //String url = manager.parentActivity.getString(R.string.ConnectURL) + "/o/token/";
+
+        ConnectIDNetworkHelper.post(manager.parentActivity, url, new AuthInfo.ProvidedAuth(hqUsername, hqPassword), params, true, new ConnectIDNetworkHelper.INetworkResultHandler() {
+            @Override
+            public void processSuccess(int responseCode, InputStream responseData) {
 //                try {
 //                    String responseAsString = new String(StreamsUtil.inputStreamToByteArray(responseData));
 //                    JSONObject json = new JSONObject(responseAsString);
 //                    String key = "access_token";
 //                    if (json.has(key)) {
-//                        //username = json.getString(key);
+                        getHQToken(hqUsername, connectToken);
+//                        username = json.getString(key);
 //                    }
 //                } catch (IOException | JSONException e) {
-//                    Logger.exception("Parsing return from OIDC call", e);
+//                    Logger.exception("Parsing return from HQ Link call", e);
 //                }
-//            }
-//
-//            @Override
-//            public void processFailure(int responseCode, IOException e) {
-//                Toast.makeText(manager.parentActivity, "OIDC error", Toast.LENGTH_SHORT).show();
-//            }
-//        });
-//    }
+            }
+
+            @Override
+            public void processFailure(int responseCode, IOException e) {
+                getHQToken(hqUsername, connectToken);
+                Toast.makeText(manager.parentActivity, "HQ Link error", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    public static void getHQToken(String hqUsername, String connectToken) {
+        ConnectIDManager manager = getInstance();
+        ConnectUserRecord user = ConnectIDDatabaseHelper.getUser(manager.parentActivity);
+
+        HashMap<String, String> params = new HashMap<>();
+        params.put("client_id", "4eHlQad1oasGZF0lPiycZIjyL0SY1zx7ZblA6SCV");
+        params.put("scope", "sync");
+        params.put("grant_type", "password");
+        params.put("username", hqUsername + "@first-project-2.commcarehq.org");
+        params.put("password", connectToken);
+
+        String url = ServerUrls.getKeyServer().replace("a/first-project-2/phone/keys/", "oauth/token/");
+        //https://www.commcarehq.org/a/dimagi-intro/phone/keys/
+
+        //localhost:8000/oauth/token?grant_type=password&client_id=CLIENT_ID&username=100@commcarehq.commcarehq.org&password=PASS&scope=sync
+        //String url = manager.parentActivity.getString(R.string.ConnectURL) + "/o/token/";
+
+        ConnectIDNetworkHelper.post(manager.parentActivity, url, new AuthInfo.NoAuth(), params, true, new ConnectIDNetworkHelper.INetworkResultHandler() {
+            @Override
+            public void processSuccess(int responseCode, InputStream responseData) {
+                try {
+                    String responseAsString = new String(StreamsUtil.inputStreamToByteArray(responseData));
+                    JSONObject json = new JSONObject(responseAsString);
+                    String key = "access_token";
+                    if (json.has(key)) {
+                        //username = json.getString(key);
+                    }
+                } catch (IOException | JSONException e) {
+                    Logger.exception("Parsing return from HQ OIDC call", e);
+                }
+            }
+
+            @Override
+            public void processFailure(int responseCode, IOException e) {
+                Toast.makeText(manager.parentActivity, "HQ OIDC error", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
 
     public static void rememberAppCredentials(String appID, String userID, String passwordOrPin) {
         ConnectIDManager manager = getInstance();
         if(isSignedIn()) {
             ConnectIDDatabaseHelper.storeApp(manager.parentActivity, appID, userID, passwordOrPin);
-            //TODO: Re-enable when ready to test OAuth
-            //getConnectToken();
+            getConnectToken(userID, passwordOrPin);
         }
     }
 
