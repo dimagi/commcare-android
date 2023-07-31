@@ -32,13 +32,10 @@ public class DataChangeLogsActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-            setUpShareActionProvider(menu);
-        }
+        setUpShareActionProvider(menu);
         return true;
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.ICE_CREAM_SANDWICH)
     private void setUpShareActionProvider(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_share, menu);
         MenuItem item = menu.findItem(R.id.menu_item_share);
@@ -47,7 +44,6 @@ public class DataChangeLogsActivity extends AppCompatActivity {
     }
 
     // Call to update the share intent
-    @RequiresApi(api = Build.VERSION_CODES.ICE_CREAM_SANDWICH)
     private void setShareIntent() {
         if (mShareActionProvider != null) {
             Intent shareIntent = new Intent(Intent.ACTION_SEND_MULTIPLE);

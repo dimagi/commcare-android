@@ -9,27 +9,30 @@ import android.location.Location
 import android.location.LocationListener
 import android.os.Build
 import android.os.Bundle
+import android.view.View
+import androidx.viewbinding.ViewBinding
 import com.mapbox.geojson.Polygon
 import com.mapbox.mapboxsdk.geometry.LatLng
 import com.mapbox.mapboxsdk.maps.MapboxMap
 import com.mapbox.mapboxsdk.maps.Style
 import io.ona.kujaku.manager.DrawingManager
-import kotlinx.android.synthetic.main.activity_entity_mapbox.*
+import io.ona.kujaku.views.KujakuMapView
 import org.commcare.activities.components.FormEntryInstanceState
 import org.commcare.android.javarosa.IntentCallout
 import org.commcare.dalvik.R
+import org.commcare.dalvik.databinding.ActivityDrawingBoundaryBinding
 import org.commcare.gis.EntityMapUtils.parseBoundaryCoords
-import org.commcare.interfaces.CommCareActivityUIController
-import org.commcare.interfaces.WithUIController
 import org.commcare.utils.FileUtil
 import org.commcare.utils.ImageType
+import org.commcare.utils.StringUtils
 import org.javarosa.core.services.Logger
+import org.javarosa.core.services.locale.Localization
 import java.io.File
 
 /**
  * Used to draw or walk a boundary on mapbox based map
  */
-class DrawingBoundaryActivity : BaseMapboxActivity(), WithUIController, LocationListener, MapboxMap.SnapshotReadyCallback {
+class DrawingBoundaryActivity : BaseMapboxActivity(), LocationListener, MapboxMap.SnapshotReadyCallback {
 
     companion object {
         // Incoming Intent Extras
@@ -65,12 +68,24 @@ class DrawingBoundaryActivity : BaseMapboxActivity(), WithUIController, Location
     private var detail: String? = null
     private var locationMinAccuracy = 35
 
-    private lateinit var uiController: DrawingBoundaryActivityUIController
+    private lateinit var viewBinding: ActivityDrawingBoundaryBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        initUI()
         freezeOrientation()
         initExtras()
+    }
+
+    override fun getMapView(): KujakuMapView {
+        return viewBinding.mapView
+    }
+
+    override fun getViewBinding(): ViewBinding {
+        if (!::viewBinding.isInitialized) {
+            viewBinding = ActivityDrawingBoundaryBinding.inflate(layoutInflater)
+        }
+        return viewBinding
     }
 
     private fun initExtras() {
@@ -94,17 +109,11 @@ class DrawingBoundaryActivity : BaseMapboxActivity(), WithUIController, Location
 
     private fun freezeOrientation() {
         val orientation = resources.configuration.orientation
-        requestedOrientation = if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR2) {
-            when (orientation) {
-                Configuration.ORIENTATION_PORTRAIT -> ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT
-                else -> ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
-            }
-        } else {
+        requestedOrientation =
             when (orientation) {
                 Configuration.ORIENTATION_PORTRAIT -> ActivityInfo.SCREEN_ORIENTATION_USER_PORTRAIT
                 else -> ActivityInfo.SCREEN_ORIENTATION_USER_LANDSCAPE
             }
-        }
     }
 
     override fun onMapLoaded() {
@@ -115,20 +124,20 @@ class DrawingBoundaryActivity : BaseMapboxActivity(), WithUIController, Location
     }
 
     private fun onStyleLoaded() {
-        mapView.isWarmGps = true
-        drawingManager = DrawingManager(mapView, map, loadedStyle)
+        getMapView().isWarmGps = true
+        drawingManager = DrawingManager(getMapView(), map, loadedStyle)
         map.addOnMapClickListener {
-            updateMetrics();
+            updateMetrics()
             false
         }
         setUiFromBoundaryCoords()
-        uiController.readyToTrack();
+        readyToTrack()
     }
 
     // updates the polygon and refresh the UI
     private fun updateMetrics() {
         polygon = drawingManager.currentPolygon
-        uiController.refreshView()
+        refreshView()
     }
 
     private fun setUiFromBoundaryCoords() {
@@ -145,14 +154,14 @@ class DrawingBoundaryActivity : BaseMapboxActivity(), WithUIController, Location
         }
     }
 
-    fun startTracking() {
+    private fun startTracking() {
         requestLocationServices()
     }
 
     private fun requestLocationServices() {
-        mapView.setWarmGps(true, null, null) {
-            mapView.focusOnUserLocation(true)
-            uiController.trackingUIState()
+        getMapView().setWarmGps(true, null, null) {
+            getMapView().focusOnUserLocation(true)
+            trackingUIState()
             startTrackingInner()
         }
     }
@@ -160,19 +169,19 @@ class DrawingBoundaryActivity : BaseMapboxActivity(), WithUIController, Location
     private fun startTrackingInner() {
         isRecording = true
         if (!isManual) {
-            mapView.locationClient!!.addLocationListener(this)
+            getMapView().locationClient!!.addLocationListener(this)
         } else {
             drawingManager.startDrawing(null)
         }
     }
 
-    fun stopTracking() {
+    private fun stopTracking() {
         isRecording = false
-        mapView.locationClient!!.removeLocationListener(this)
+        getMapView().locationClient!!.removeLocationListener(this)
         updateMetrics()
     }
 
-    fun finishTracking() {
+    private fun finishTracking() {
         polygon = drawingManager.stopDrawingAndDisplayLayer()
         if (isImageReturnRequired) {
             map.snapshot(this)
@@ -181,7 +190,7 @@ class DrawingBoundaryActivity : BaseMapboxActivity(), WithUIController, Location
         }
     }
 
-    fun redoTracking() {
+    private fun redoTracking() {
         drawingManager.clearDrawing()
         startTracking()
     }
@@ -232,15 +241,7 @@ class DrawingBoundaryActivity : BaseMapboxActivity(), WithUIController, Location
         showToast(R.string.location_provider_disabled)
     }
 
-    override fun initUIController() {
-        uiController = DrawingBoundaryActivityUIController(this)
-    }
-
-    override fun getUIController(): CommCareActivityUIController {
-        return uiController
-    }
-
-    fun getArea(): Double {
+    private fun getArea(): Double {
         return if (polygon != null) AreaCalculator(polygon!!).getArea() else 0.0
     }
 
@@ -249,5 +250,54 @@ class DrawingBoundaryActivity : BaseMapboxActivity(), WithUIController, Location
         mapSnapshotPath = FormEntryInstanceState.getInstanceFolder() + imageFilename
         FileUtil.writeBitmapToDiskAndCleanupHandles(snapshot, ImageType.PNG, File(mapSnapshotPath!!))
         returnResult()
+    }
+
+    private fun refreshView() {
+        viewBinding.areaTv.text = StringUtils.getStringRobust(this, R.string.area_format, formatArea(getArea()))
+    }
+
+    private fun formatArea(num: Double): String {
+        return String.format("%.2f", num)
+    }
+
+    private fun initUI() {
+        viewBinding.startTrackingButton.text =  Localization.get("drawing.boundary.map.start.tracking")
+        viewBinding.startTrackingButton.setOnClickListener {
+            startTracking()
+        }
+
+        viewBinding.stopTrackingButton.text =  Localization.get("drawing.boundary.map.stop.tracking")
+        viewBinding.stopTrackingButton.setOnClickListener {
+            stoppedUIState()
+            stopTracking()
+        }
+        viewBinding.okTrackingButton.text =  Localization.get("drawing.boundary.map.ok.tracking")
+        viewBinding.okTrackingButton.setOnClickListener {
+            finishTracking()
+        }
+        viewBinding.redoTrackingButton.text =  Localization.get("drawing.boundary.map.redo.tracking")
+        viewBinding.redoTrackingButton.setOnClickListener {
+            trackingUIState()
+            redoTracking()
+        }
+        viewBinding.areaTv.text = StringUtils.getStringRobust(this, R.string.area_format, "0.00")
+    }
+
+    private fun stoppedUIState() {
+        viewBinding.startTrackingButton.visibility = View.GONE
+        viewBinding.stopTrackingButton.visibility = View.GONE
+        viewBinding.okTrackingButton.visibility = View.VISIBLE
+        viewBinding.redoTrackingButton.visibility = View.VISIBLE
+    }
+
+    private fun trackingUIState() {
+        viewBinding.startTrackingButton.visibility = View.GONE
+        viewBinding.stopTrackingButton.visibility = View.VISIBLE
+        viewBinding.okTrackingButton.visibility = View.GONE
+        viewBinding.redoTrackingButton.visibility = View.GONE
+    }
+
+    private fun readyToTrack() {
+        viewBinding.startTrackingButton.visibility = View.VISIBLE
     }
 }

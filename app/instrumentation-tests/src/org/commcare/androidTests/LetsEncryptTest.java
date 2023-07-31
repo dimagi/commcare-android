@@ -11,8 +11,6 @@ import org.junit.runner.RunWith;
 import java.io.IOException;
 import java.util.HashMap;
 
-import javax.net.ssl.SSLHandshakeException;
-
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import okhttp3.Protocol;
 import okhttp3.ResponseBody;
@@ -53,7 +51,7 @@ public class LetsEncryptTest {
     }
 
     private void makeGetRequest(String url, int expectedCode) throws IOException {
-        Response<ResponseBody> response = commCareNetworkService.makeGetRequest(url, new HashMap<>(), new HashMap<>()).execute();
+        Response<ResponseBody> response = commCareNetworkService.makeGetRequest(url, new HashMap<>()).execute();
         assertTrue(response.code() == expectedCode);
         assertEquals(Protocol.HTTP_2, response.raw().protocol());
         if (response.body() != null) {

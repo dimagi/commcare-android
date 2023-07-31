@@ -211,18 +211,11 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         // On some devices, onCreateOptionsMenu() can get called before onCreate() has completed
         // if the action bar is in use. Since we can't deploy all of the logic in onCreateOptionsMenu
         // until this has happened, we should try to do it again when onCreate is complete
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            invalidateOptionsMenu();
-        }
+        invalidateOptionsMenu();
     }
 
     private Callout initCustomCallout() {
         Callout customCallout = shortSelect.getCallout();
-        if (customCallout != null && customCallout.isSimprintsCallout()
-                && Build.VERSION.SDK_INT < Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-            // If this device can't support the simprints library, don't create the callout
-            return null;
-        }
         if (customCallout != null && ICDS_DOMAIN_NAME.equals(ReportingUtils.getDomain())) {
             customCallout.setAssumePlainTextValues();
         }
@@ -450,7 +443,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
                 refreshTimer.start(this);
             }
         } catch (RuntimeException re) {
-            UserfacingErrorHandling.createErrorDialog(this, re.getMessage(), true);
+            new UserfacingErrorHandling<>().createErrorDialog(this, re.getMessage(), true);
         }
     }
 
@@ -562,7 +555,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
                     }
                 }
             } catch (XPathException e) {
-                UserfacingErrorHandling.logErrorAndShowDialog(this, e, true);
+                new UserfacingErrorHandling<>().logErrorAndShowDialog(this, e, true);
             }
         }
     }
@@ -792,7 +785,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         try {
             CommCareApplication.instance().getCurrentSessionWrapper().executeStackActions(action.getStackOperations());
         } catch (XPathTypeMismatchException e) {
-            UserfacingErrorHandling.logErrorAndShowDialog(activity, e, true);
+            new UserfacingErrorHandling<>().logErrorAndShowDialog(activity, e, true);
             return;
         }
 

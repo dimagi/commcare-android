@@ -40,11 +40,7 @@ public abstract class SingletonTask<Params, Progress, Result>
 
     @Override
     protected void onCancelled(Result result) {
-        if (android.os.Build.VERSION.SDK_INT >= 11) {
-            super.onCancelled(result);
-        } else {
-            super.onCancelled();
-        }
+        super.onCancelled(result);
 
         if (taskListener != null) {
             taskListener.handleTaskCancellation();

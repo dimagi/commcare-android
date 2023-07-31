@@ -352,12 +352,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                     break;
                 case FormEntryConstants.HIERARCHY_ACTIVITY:
                 case FormEntryConstants.HIERARCHY_ACTIVITY_FIRST_START:
-                    if (resultCode == FormHierarchyActivity.RESULT_XPATH_ERROR) {
-                        finish();
-                    } else {
-                        // We may have jumped to a new index in hierarchy activity, so refresh
-                        uiController.refreshCurrentView(false);
-                    }
+                    uiController.refreshCurrentView(false);
                     break;
                 case FormEntryConstants.INTENT_LOCATION_EXCEPTION:
                     if (resultCode == RESULT_OK) {
@@ -486,7 +481,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
             return wasAnswerSet;
         } catch (XPathException e) {
-            UserfacingErrorHandling.logErrorAndShowDialog(this, e, true);
+            new UserfacingErrorHandling<>().logErrorAndShowDialog(this, e, true);
             return false;
         }
     }
@@ -638,7 +633,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                     }
                 }
             } catch (XPathException e) {
-                UserfacingErrorHandling.createErrorDialog(this, e.getLocalizedMessage(), true);
+                new UserfacingErrorHandling<>().createErrorDialog(this, e.getLocalizedMessage(), true);
             }
         }
         return success;
@@ -703,13 +698,11 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     public boolean dispatchTouchEvent(MotionEvent mv) {
         //We need to ignore this even if it's processed by the action
         //bar (if one exists)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            ActionBar bar = getSupportActionBar();
-            if (bar != null) {
-                View customView = bar.getCustomView();
-                if (customView != null && customView.dispatchTouchEvent(mv)) {
-                    return true;
-                }
+        ActionBar bar = getSupportActionBar();
+        if (bar != null) {
+            View customView = bar.getCustomView();
+            if (customView != null && customView.dispatchTouchEvent(mv)) {
+                return true;
             }
         }
 
@@ -947,7 +940,6 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
     private void restorePriorStates() {
         if (uiController.questionsView != null) {
-            uiController.questionsView.restoreTimePickerData();
             uiController.restoreFocusToCalloutQuestion();
             restoreInlineVideoState();
         }
@@ -975,13 +967,13 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                     formId = intent.getIntExtra(KEY_FORM_DEF_ID, -1);
                     instanceState.setFormDefPath(FormFileSystemHelpers.getFormDefPath(formDefStorage, formId));
                 } else {
-                    UserfacingErrorHandling.createErrorDialog(this,
+                    new UserfacingErrorHandling<>().createErrorDialog(this,
                             "Intent to start FormEntryActivity must contain either instance id or form def id",
                             FormEntryConstants.EXIT);
                     return;
                 }
             } catch (FormQueryException e) {
-                UserfacingErrorHandling.createErrorDialog(this, e.getMessage(), FormEntryConstants.EXIT);
+                new UserfacingErrorHandling<>().createErrorDialog(this, e.getMessage(), FormEntryConstants.EXIT);
                 return;
             }
 
@@ -1001,9 +993,9 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                     receiver.dismissProgressDialogForTask(taskId);
 
                     if (e != null) {
-                        UserfacingErrorHandling.createErrorDialog(receiver, e.getMessage(), FormEntryConstants.EXIT);
+                        new UserfacingErrorHandling<>().createErrorDialog(receiver, e.getMessage(), FormEntryConstants.EXIT);
                     } else {
-                        UserfacingErrorHandling.createErrorDialog(receiver, StringUtils.getStringRobust(receiver, R.string.parse_error), FormEntryConstants.EXIT);
+                        new UserfacingErrorHandling<>().createErrorDialog(receiver, StringUtils.getStringRobust(receiver, R.string.parse_error), FormEntryConstants.EXIT);
                     }
 
                     if (intent.hasExtra(KEY_FORM_RECORD_ID)) {
@@ -1030,10 +1022,8 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
         mFormController = fc;
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            // Newer menus may have already built the menu, before all data was ready
-            invalidateOptionsMenu();
-        }
+        // Newer menus may have already built the menu, before all data was ready
+        invalidateOptionsMenu();
 
         registerSessionFormSaveCallback();
 
@@ -1062,7 +1052,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     }
 
     private void handleXpathErrorBroadcast() {
-        UserfacingErrorHandling.createErrorDialog(FormEntryActivity.this,
+        new UserfacingErrorHandling<>().createErrorDialog(FormEntryActivity.this,
                 "There is a bug in one of your form's XPath Expressions \n" + badLocationXpath, FormEntryConstants.EXIT);
     }
 
@@ -1203,7 +1193,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                     return;
                 case SAVE_ERROR:
                     if (!CommCareApplication.instance().isConsumerApp()) {
-                        UserfacingErrorHandling.createErrorDialog(this, errorMessage,
+                        new UserfacingErrorHandling<>().createErrorDialog(this, errorMessage,
                                 Localization.get("notification.formentry.save_error.title"), FormEntryConstants.EXIT);
                     }
                     quarantineRecordOnError(errorMessage);
@@ -1255,7 +1245,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             }
         } catch (XPathException e) {
             //this is where runtime exceptions get triggered after the form has loaded
-            UserfacingErrorHandling.logErrorAndShowDialog(this, e, FormEntryConstants.EXIT);
+            new UserfacingErrorHandling<>().logErrorAndShowDialog(this, e, FormEntryConstants.EXIT);
             //We're exiting anyway
             return FormEntryController.ANSWER_OK;
         }
@@ -1353,7 +1343,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             uiController.recordLastChangedWidgetIndex(changedWidget);
             uiController.updateFormRelevancies();
         } catch (XPathTypeMismatchException e) {
-            UserfacingErrorHandling.logErrorAndShowDialog(this, e, FormEntryConstants.EXIT);
+            new UserfacingErrorHandling<>().logErrorAndShowDialog(this, e, FormEntryConstants.EXIT);
             return;
         }
 

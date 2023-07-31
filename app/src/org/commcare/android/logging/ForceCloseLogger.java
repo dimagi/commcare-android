@@ -2,6 +2,8 @@ package org.commcare.android.logging;
 
 import android.util.Log;
 
+import com.google.common.collect.ImmutableMultimap;
+
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.dalvik.R;
@@ -110,7 +112,7 @@ public class ForceCloseLogger {
         }
 
         try {
-            Response<ResponseBody> response = generator.postMultipart(submissionUri, parts, new HashMap<>());
+            Response<ResponseBody> response = generator.postMultipart(submissionUri, parts, ImmutableMultimap.of());
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
             if (response.body() != null) {
                 StreamsUtil.writeFromInputToOutput(response.body().byteStream(), bos);

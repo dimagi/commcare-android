@@ -121,6 +121,7 @@ sync.fail.empty.url=Sync url is not set. Please contact CommCare Support.
 sync.fail.bad.data=Server provided improperly formatted data, please try again or contact your supervisor.
 sync.fail.bad.local=Your information was fetched, but a problem occurred with the log in. Please try again.
 sync.fail.bad.network=Couldn't contact server. Please make sure an internet connection is available or try again later.
+sync.fail.badcert=Couldn't securely connect to the server.
 sync.fail.server.error=The server encountered an error processing your data. Please try again later. If the problem persists, contact CommCare Support.
 sync.fail.rate.limited.server.error=Our servers are unavailable at this time. Please try again later.
 sync.fail.unknown=An unexpected issue occurred during sync. Please try to sync again.
@@ -411,7 +412,6 @@ seating.app=CommCare is loading your app
 no.print.data=No data has been provided for your print activity. Please see a supervisor to fix this.
 print.error=There was an error while printing. Please try again.
 print.io.error=There was an error reading or writing your file for printing. This may be due to an error in your template. Please see a supervisor for assistance
-print.not.supported=This device does not support printing at this time.
 printjob.started=Your print job is starting
 printjob.queued=Your print job is queued
 printjob.not.started=No print job was started
@@ -539,6 +539,7 @@ notification.restore.nonetwork.badpass.detail=Try re-entering your password. If 
 notification.bad.certificate.title=Couldn't securely connect to the server. 
 notification.bad.certificate.detail=CommCare couldn't validate the security information provided by the remote server. 
 notification.bad.certificate.action=Check your device's time and date to make sure they are correct. If the problem persists, try to connect to a secure server with the phone's browser
+notification.bad.certificate.button=Go to settings
 
 notification.restore.storagefull.title=Couldn't save your application's resources
 notification.restore.storagefull.detail=CommCare was not able to save one or more of your application's resources on the device. This could be because the entire application was too large, or because an individual fixture exceeded 1MB.
@@ -590,9 +591,10 @@ notification.install.missing.withmessage.title=Part of your app is not valid
 notification.install.missing.withmessage.detail=One of your app's resources (${0}) is not valid and must be fixed before it can be installed.
 notification.install.missing.withmessage.action=Installation error: ${0}
 
-notification.install.badcert.title=Bad Certificate
-notification.install.badcert.detail=The certificate you received from the server was invalid. This can be casued by many things, but is often do to a mis-set clock on your phone.
-notification.install.badcert.action=This is often due to your phone's internal clock being incorrect.
+notification.install.badcert.title=Couldn't securely connect to the server.
+notification.install.badcert.detail=CommCare couldn't validate the security information provided by the remote server.
+notification.install.badcert.action=Check your device's time and date to make sure they are correct. If the problem persists, try to connect to a secure server with the phone's browser
+notification.install.badcert.button=Go to settings
 
 notification.install.cancel.title=Update Cancelled
 notification.install.cancel.detail=An app update event was cancelled before it completed.

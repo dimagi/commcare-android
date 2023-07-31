@@ -55,6 +55,7 @@ import org.commcare.utils.Permissions;
 import org.commcare.views.ManagedUi;
 import org.commcare.views.dialogs.CustomProgressDialog;
 import org.commcare.views.dialogs.DialogCreationHelpers;
+import org.commcare.views.notifications.NotificationActionButtonInfo;
 import org.commcare.views.notifications.NotificationMessage;
 import org.commcare.views.notifications.NotificationMessageFactory;
 import org.javarosa.core.reference.InvalidReferenceException;
@@ -266,12 +267,10 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     public void onAttachFragment(Fragment fragment) {
         super.onAttachFragment(fragment);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            ActionBar actionBar = getSupportActionBar();
-            if (actionBar != null) {
-                // removes the back button from the action bar
-                actionBar.setDisplayHomeAsUpEnabled(false);
-            }
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            // removes the back button from the action bar
+            actionBar.setDisplayHomeAsUpEnabled(false);
         }
     }
 
@@ -529,8 +528,8 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             case NoConnection:
                 receiver.failWithNotification(AppInstallStatus.NoConnection);
                 break;
-            case BadCertificate:
-                receiver.failWithNotification(AppInstallStatus.BadCertificate);
+            case BadSslCertificate:
+                receiver.failWithNotification(AppInstallStatus.BadSslCertificate, NotificationActionButtonInfo.ButtonAction.LAUNCH_DATE_SETTINGS);
                 break;
             case DuplicateApp:
                 receiver.failWithNotification(AppInstallStatus.DuplicateApp);
@@ -815,7 +814,12 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 
     @Override
     public void failWithNotification(AppInstallStatus statusFailState) {
-        fail(NotificationMessageFactory.message(statusFailState), true);
+        failWithNotification(statusFailState, NotificationActionButtonInfo.ButtonAction.NONE);
+    }
+
+    @Override
+    public void failWithNotification(AppInstallStatus statusFailState, NotificationActionButtonInfo.ButtonAction buttonAction) {
+        fail(NotificationMessageFactory.message(statusFailState, buttonAction), true);
     }
 
     @Override
@@ -998,20 +1002,18 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 
     public void checkManagedConfiguration() {
         Log.d(TAG, "Checking managed configuration");
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
-            // Check for managed configuration
-            RestrictionsManager restrictionsManager =
-                    (RestrictionsManager)getSystemService(Context.RESTRICTIONS_SERVICE);
-            Bundle appRestrictions = restrictionsManager.getApplicationRestrictions();
-            if (appRestrictions != null && appRestrictions.containsKey("profileUrl")) {
-                Log.d(TAG, "Found managed configuration install URL "
-                        + appRestrictions.getString("profileUrl"));
-                incomingRef = appRestrictions.getString("profileUrl");
-                lastInstallMode = INSTALL_MODE_MANAGED_CONFIGURATION;
-                uiState = UiState.READY_TO_INSTALL;
-                uiStateScreenTransition();
-                startResourceInstall();
-            }
+        // Check for managed configuration
+        RestrictionsManager restrictionsManager =
+                (RestrictionsManager)getSystemService(Context.RESTRICTIONS_SERVICE);
+        Bundle appRestrictions = restrictionsManager.getApplicationRestrictions();
+        if (appRestrictions != null && appRestrictions.containsKey("profileUrl")) {
+            Log.d(TAG, "Found managed configuration install URL "
+                    + appRestrictions.getString("profileUrl"));
+            incomingRef = appRestrictions.getString("profileUrl");
+            lastInstallMode = INSTALL_MODE_MANAGED_CONFIGURATION;
+            uiState = UiState.READY_TO_INSTALL;
+            uiStateScreenTransition();
+            startResourceInstall();
         }
     }
 }

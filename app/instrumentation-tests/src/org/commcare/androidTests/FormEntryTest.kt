@@ -73,6 +73,14 @@ class FormEntryTest: BaseTest() {
         onView(withClassName(endsWith("EditText")))
                 .check(matches(withText("test")))
 
+        //Proceed to second question
+        onView(withId(R.id.nav_btn_next))
+            .perform(click())
+
+        //Input some text to the second question
+        onView(withClassName(endsWith("EditText")))
+            .perform(typeText("hello"))
+
         // Confirm that we can submit the form.
         onView(withId(R.id.nav_btn_finish))
                 .perform(click())
@@ -165,6 +173,10 @@ class FormEntryTest: BaseTest() {
         InstrumentationUtility.openForm(0, 0)
         onView(withClassName(endsWith("EditText")))
                 .perform(typeText("hello"))
+        onView(withId(R.id.nav_btn_next))
+            .perform(click())
+        onView(withClassName(endsWith("EditText")))
+            .perform(typeText("hello"))
         onView(withId(R.id.nav_btn_finish))
                 .perform(click())
         // Confirm unsent form.
@@ -263,6 +275,32 @@ class FormEntryTest: BaseTest() {
                 .perform(click())
         onView(withText("Update a Case"))
                 .check(matches(isDisplayed()))
+    }
+
+    @Test
+    @BrowserstackTests
+    fun testQuestionHint() {
+        InstrumentationUtility.login("test_user_7", "123")
+        // Open first form
+        InstrumentationUtility.openForm(0, 0)
+        closeSoftKeyboard()
+
+        //Confirm the hint is visible and contains the correct text
+        onView(withClassName(endsWith("ShrinkingTextView")))
+            .check(matches(isDisplayed()))
+            .check(matches(withText("Name hint")))
+
+        //Input some text to the first question
+        onView(withClassName(endsWith("EditText")))
+            .perform(typeText("hello"))
+
+        //Proceed to second question
+        onView(withId(R.id.nav_btn_next))
+            .perform(click())
+
+        //Verify hint text does not exist
+        onView(withClassName(endsWith("ShrinkingTextView")))
+            .check(doesNotExist())
     }
 
     private fun openCase(caseName: String) {

@@ -14,7 +14,6 @@ import androidx.appcompat.app.AppCompatActivity;
  */
 public class GraphActivity extends AppCompatActivity {
 
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

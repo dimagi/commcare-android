@@ -3,7 +3,7 @@
           xmlns:android="http://schemas.android.com/apk/res/android"
           xmlns:tools="http://schemas.android.com/tools"
           android:versionCode="106"
-          android:versionName="2.53.1">
+          android:versionName="2.54">
 
     <uses-permission android:name="android.permission.NFC"/>
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
@@ -106,6 +106,10 @@
         android:hardwareAccelerated="true"
         android:usesCleartextTraffic="true"
         android:theme="@style/AppBaseTheme">
+
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_channel_id"
+            android:value="@string/fcm_default_notification_channel" />
 
         <activity
             android:label="@string/application_name"
@@ -547,6 +551,14 @@
             android:exported="true"
             android:name="com.dimagi.android.zebraprinttool.PrintReceiverActivity"
             tools:node="merge"/>
+
+        <service
+            android:name="org.commcare.services.CommCareFirebaseMessagingService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
 
     </application>
 

@@ -25,8 +25,7 @@ public class AppUpdateControllerFactory {
         } catch (SessionUnavailableException e) {
             showInAppUpdate = true;
         }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && showInAppUpdate) {
-            // In-app updates works only with devices running Android 5.0 (API level 21) or higher
+        if (showInAppUpdate) {
             return new CommcareFlexibleAppUpdateManager(callback, AppUpdateManagerFactory.create(context));
         } else {
             return new DummyFlexibleAppUpdateManager();
@@ -37,11 +36,7 @@ public class AppUpdateControllerFactory {
      * Creates an instance of {@link AppUpdateController} used for starting Immediate App Update.
      */
     public static AppUpdateController createImmediateController(CommCareActivity activity) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            // In-app updates works only with devices running Android 5.0 (API level 21) or higher
-            return new CommcareImmediateAppUpdateManager(activity);
-        } else {
-            return new DummyFlexibleAppUpdateManager();
-        }
+        // In-app updates works only with devices running Android 5.0 (API level 21) or higher
+        return new CommcareImmediateAppUpdateManager(activity);
     }
 }

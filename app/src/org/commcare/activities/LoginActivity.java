@@ -49,6 +49,7 @@ import org.commcare.views.ViewUtil;
 import org.commcare.views.dialogs.CustomProgressDialog;
 import org.commcare.views.dialogs.DialogCreationHelpers;
 import org.commcare.views.notifications.MessageTag;
+import org.commcare.views.notifications.NotificationActionButtonInfo;
 import org.commcare.views.notifications.NotificationMessage;
 import org.commcare.views.notifications.NotificationMessageFactory;
 import org.commcare.views.notifications.NotificationMessageFactory.StockMessages;
@@ -128,7 +129,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
         if (!HiddenPreferences.allowRunOnRootedDevice()
                 && new RootBeer(this).isRooted()) {
-            UserfacingErrorHandling.createErrorDialog(this,
+            new UserfacingErrorHandling<>().createErrorDialog(this,
                     StringUtils.getStringRobust(this, R.string.root_detected_message),
                     StringUtils.getStringRobust(this, R.string.root_detected_title),
                     true);
@@ -466,10 +467,14 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         raiseMessage(message, showTop);
     }
 
-    @Override
     public void raiseLoginMessage(MessageTag messageTag, boolean showTop) {
+        raiseLoginMessage(messageTag, showTop, NotificationActionButtonInfo.ButtonAction.NONE);
+    }
+
+    @Override
+    public void raiseLoginMessage(MessageTag messageTag, boolean showTop, NotificationActionButtonInfo.ButtonAction buttonAction) {
         NotificationMessage message = NotificationMessageFactory.message(messageTag,
-                NOTIFICATION_MESSAGE_LOGIN);
+                NOTIFICATION_MESSAGE_LOGIN, buttonAction);
         raiseMessage(message, showTop);
     }
 
@@ -721,20 +726,18 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     }
 
     private void checkManagedConfiguration() {
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
-            // Check for managed configuration
-            RestrictionsManager restrictionsManager =
-                    (RestrictionsManager)getSystemService(Context.RESTRICTIONS_SERVICE);
-            if (restrictionsManager == null) {
-                return;
-            }
-            Bundle appRestrictions = restrictionsManager.getApplicationRestrictions();
-            if (appRestrictions != null && appRestrictions.containsKey("username") &&
-                    appRestrictions.containsKey("password")) {
-                uiController.setUsername(appRestrictions.getString("username"));
-                uiController.setPasswordOrPin(appRestrictions.getString("password"));
-                initiateLoginAttempt(false);
-            }
+        // Check for managed configuration
+        RestrictionsManager restrictionsManager =
+                (RestrictionsManager)getSystemService(Context.RESTRICTIONS_SERVICE);
+        if (restrictionsManager == null) {
+            return;
+        }
+        Bundle appRestrictions = restrictionsManager.getApplicationRestrictions();
+        if (appRestrictions != null && appRestrictions.containsKey("username") &&
+                appRestrictions.containsKey("password")) {
+            uiController.setUsername(appRestrictions.getString("username"));
+            uiController.setPasswordOrPin(appRestrictions.getString("password"));
+            initiateLoginAttempt(false);
         }
     }
 }

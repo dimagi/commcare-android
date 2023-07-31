@@ -3,6 +3,7 @@ package org.commcare.activities;
 import org.commcare.tasks.templates.CommCareTask;
 import org.commcare.tasks.templates.CommCareTaskConnector;
 import org.commcare.views.notifications.MessageTag;
+import org.commcare.views.notifications.NotificationActionButtonInfo;
 import org.commcare.views.notifications.NotificationMessage;
 
 import static org.junit.Assert.assertEquals;
@@ -69,6 +70,11 @@ public class DataPullControllerMock implements DataPullController, CommCareTaskC
 
     @Override
     public void raiseLoginMessage(MessageTag messageTag, boolean showTop) {
+        assertEquals(expectedMessage, messageTag);
+    }
+
+    @Override
+    public void raiseLoginMessage(MessageTag messageTag, boolean showTop, NotificationActionButtonInfo.ButtonAction buttonAction) {
         assertEquals(expectedMessage, messageTag);
     }
 

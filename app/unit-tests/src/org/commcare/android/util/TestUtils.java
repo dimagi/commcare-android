@@ -29,16 +29,18 @@ import org.commcare.utils.GlobalConstants;
 import org.commcare.xml.AndroidBulkCaseXmlParser;
 import org.commcare.xml.AndroidCaseXmlParser;
 import org.commcare.xml.AndroidTransactionParserFactory;
-import org.commcare.xml.CaseXmlParser;
+import org.commcare.xml.CaseXmlParserUtil;
 import org.commcare.xml.FormInstanceXmlParser;
 import org.commcare.xml.LedgerXmlParsers;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.AbstractTreeElement;
+import org.javarosa.core.model.instance.ConcreteInstanceRoot;
 import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.InstanceInitializationFactory;
+import org.javarosa.core.model.instance.InstanceRoot;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
@@ -105,7 +107,7 @@ public class TestUtils {
                 return new FormInstanceXmlParser(parser,
                         Collections.unmodifiableMap(formInstanceNamespaces),
                         CommCareApplication.instance().getCurrentApp().fsPath(GlobalConstants.FILE_CC_FORMS));
-            } else if (CaseXmlParser.CASE_XML_NAMESPACE.equals(parser.getNamespace()) && "case".equalsIgnoreCase(parser.getName())) {
+            } else if (CaseXmlParserUtil.CASE_XML_NAMESPACE.equals(parser.getNamespace()) && "case".equalsIgnoreCase(parser.getName())) {
 
                 //Note - this isn't even actually bulk processing. since this class is static
                 //there's no good lifecycle to manage the bulk processor in, but at least
@@ -293,17 +295,17 @@ public class TestUtils {
 
         return new AndroidInstanceInitializer() {
             @Override
-            public AbstractTreeElement setupCaseData(ExternalDataInstance instance) {
+            public InstanceRoot setupCaseData(ExternalDataInstance instance) {
                 SqlStorage<ACase> storage = getCaseStorage(db);
                 CaseInstanceTreeElement casebase = new CaseInstanceTreeElement(instance.getBase(), storage, new AndroidCaseIndexTable(db));
                 instance.setCacheHost(casebase);
-                return casebase;
+                return new ConcreteInstanceRoot(casebase);
             }
 
             @Override
-            protected AbstractTreeElement setupLedgerData(ExternalDataInstance instance) {
+            protected InstanceRoot setupLedgerData(ExternalDataInstance instance) {
                 SqlStorage<Ledger> storage = getLedgerStorage(db);
-                return new AndroidLedgerInstanceTreeElement(instance.getBase(), storage);
+                return new ConcreteInstanceRoot(new AndroidLedgerInstanceTreeElement(instance.getBase(), storage));
             }
         };
     }

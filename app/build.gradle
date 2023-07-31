@@ -13,7 +13,6 @@ import com.android.builder.core.DefaultManifestParser
 
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-android-extensions' // TODO this is deprecated
 apply plugin: 'com.google.gms.google-services'
 apply plugin: 'com.google.firebase.crashlytics'
 apply from: 'jacoco.gradle'
@@ -32,22 +31,19 @@ configurations {
 }
 
 dependencies {
-    // debugImplementation because LeakCanary should only run in debug builds.
-    debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.7'
-
     testImplementation 'junit:junit:4.12'
-    testImplementation('org.robolectric:robolectric:4.5.1') {
+    testImplementation('org.robolectric:robolectric:4.8.2') {
         exclude(group: 'org.bouncycastle', module: 'bcprov-jdk15on')
     }
-    testImplementation 'org.robolectric:shadows-multidex:4.3.1'
-    testImplementation 'androidx.test:core:1.4.0'
-    testImplementation 'androidx.test:runner:1.4.0'
+    testImplementation 'org.robolectric:shadows-multidex:4.8.2'
+    testImplementation 'androidx.test:core:1.5.0'
+    testImplementation 'androidx.test:runner:1.5.2'
     testImplementation 'androidx.test.ext:junit:1.1.3'
-    testImplementation 'androidx.work:work-testing:2.7.0'
+    testImplementation 'androidx.work:work-testing:2.7.1'
     testImplementation 'androidx.test.espresso:espresso-core:3.4.0'
-    testImplementation 'androidx.test.espresso:espresso-intents:3.4.0'
+    testImplementation 'androidx.test.espresso:espresso-intents:3.5.1'
     testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:1.3.2"
-    testImplementation "io.mockk:mockk:1.10.0"
+    testImplementation "io.mockk:mockk:1.12.7"
     testImplementation 'org.json:json:20140107'
     testImplementation project(path: ':commcare-core', configuration: 'testsAsJar')
 
@@ -55,7 +51,7 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'
     androidTestImplementation 'androidx.test.ext:truth:1.4.0'
-    androidTestImplementation 'androidx.test:rules:1.4.0'
+    androidTestImplementation 'androidx.test:rules:1.5.0'
     androidTestImplementation 'androidx.test.espresso:espresso-intents:3.4.0'
     androidTestImplementation 'androidx.test.espresso:espresso-contrib:3.4.0'
 
@@ -82,30 +78,32 @@ dependencies {
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'androidx.legacy:legacy-preference-v14:1.0.0'
     implementation 'androidx.gridlayout:gridlayout:1.0.0'
-    implementation 'org.bouncycastle:bcprov-jdk15to18:1.69'
+    implementation 'org.bouncycastle:bcprov-jdk15to18:1.72'
     implementation 'com.google.android.gms:play-services-maps:17.0.0'
     implementation 'joda-time:joda-time:2.9.4'
-    implementation 'net.zetetic:android-database-sqlcipher:3.5.9@aar'
+    implementation 'net.zetetic:android-database-sqlcipher:4.5.3@aar'
+    implementation "androidx.sqlite:sqlite:2.2.0"
     implementation('org.apache.james:apache-mime4j:0.7.2') {
         exclude module: 'commons-io'
     }
     implementation('org.apache.httpcomponents:httpmime:4.5.6')
-    implementation 'net.sourceforge.htmlcleaner:htmlcleaner:2.16'
-    implementation 'org.jsoup:jsoup:1.8.3'
-    implementation 'com.scottyab:rootbeer-lib:0.0.8'
+    implementation 'net.sourceforge.htmlcleaner:htmlcleaner:2.26'
+    implementation 'org.jsoup:jsoup:1.15.3'
+    implementation 'com.scottyab:rootbeer-lib:0.1.0'
 
     // crashes on update - https://developers.google.com/admob/android/quick-start#update_your_androidmanifestxml
     // We need to update consumer apps script to inject the right admob id to be able to update this
     implementation 'com.google.firebase:firebase-ads:16.0.1'
 
-    implementation 'com.carrotsearch:hppc:0.7.2'
-    implementation 'io.reactivex.rxjava2:rxandroid:2.0.1'
+    implementation 'com.carrotsearch:hppc:0.9.1'
+    implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
     implementation 'com.jakewharton.rxbinding2:rxbinding:2.0.0'
     implementation 'com.journeyapps:zxing-android-embedded:3.6.0'
     implementation 'com.google.firebase:firebase-analytics:17.5.0'
+    implementation 'com.google.firebase:firebase-messaging:21.1.0'
     implementation 'com.google.firebase:firebase-crashlytics:17.2.1'
     implementation 'androidx.legacy:legacy-support-core-ui:1.0.0'
-    implementation 'com.duolingo.open:rtl-viewpager:1.0.3'
+    implementation 'com.duolingo.open:rtl-viewpager:2.0.0'
     implementation ("com.github.bumptech.glide:glide:4.9.0") {
         exclude group: "com.android.support"
     }
@@ -121,10 +119,10 @@ dependencies {
     implementation ('io.ona.kujaku:library:0.9.0'){
         exclude module: 'xpp3'
     }
-    implementation "androidx.work:work-runtime:2.7.0"
-    implementation "androidx.work:work-runtime-ktx:2.7.0"
+    implementation "androidx.work:work-runtime:2.7.1"
+    implementation "androidx.work:work-runtime-ktx:2.7.1"
 
-    implementation 'com.google.android.play:core:1.7.3'
+    implementation 'com.google.android.play:core:1.10.3'
     implementation 'android.arch.lifecycle:common-java8:1.1.1'
 
     //Robust TLS 1.2 ciphers on Android 9-19
@@ -134,9 +132,11 @@ dependencies {
     }
 
     implementation 'com.google.android.material:material:1.3.0'
+    implementation 'com.google.guava:guava:31.1-jre'
 }
 
 ext {
+    // Obtained from ~/.gradle/gradle.properties on build server (mobile agent), or your local
     // Obtained from ~/.gradle/gradle.properties on build server (mobile agent), or your local
     // ~/.gradle/gradle.properties file, or loads default empty strings if neither is present
     MAPBOX_SDK_API_KEY = project.properties['MAPBOX_SDK_API_KEY'] ?: ""
@@ -248,10 +248,12 @@ android {
     }
 
     defaultConfig {
-        minSdkVersion 16
+        minSdkVersion 21
         targetSdkVersion 31
         multiDexEnabled true
         applicationId "org.commcare.dalvik"
+        testNamespace "org.commcare.dalvik.test"
+
         project.ext.COMMCARE_APP_ID = applicationId
         // set the app name
         def applicationName = "CommCare"
@@ -293,6 +295,10 @@ android {
         testInstrumentationRunner "org.commcare.CommCareJUnitRunner"
     }
 
+    buildFeatures {
+        viewBinding true
+    }
+
     applicationVariants.all { variant ->
         if (variant.buildType.name == "release") {
             variant.outputs.each { output ->
@@ -302,12 +308,12 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_11
-        targetCompatibility JavaVersion.VERSION_11
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
 
     kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_11.toString()
+        jvmTarget = JavaVersion.VERSION_17.toString()
     }
 
     signingConfigs {

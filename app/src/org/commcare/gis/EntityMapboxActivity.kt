@@ -12,6 +12,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.widget.TextView
 import androidx.appcompat.content.res.AppCompatResources
+import androidx.viewbinding.ViewBinding
 import com.google.gson.JsonObject
 import com.google.gson.JsonPrimitive
 import com.mapbox.geojson.Feature
@@ -27,7 +28,7 @@ import com.mapbox.mapboxsdk.style.layers.PropertyFactory
 import com.mapbox.mapboxsdk.style.layers.SymbolLayer
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
 import io.ona.kujaku.manager.AnnotationRepositoryManager
-import kotlinx.android.synthetic.main.activity_entity_mapbox.*
+import io.ona.kujaku.views.KujakuMapView
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -35,6 +36,8 @@ import kotlinx.coroutines.withContext
 import org.commcare.CommCareApplication
 import org.commcare.cases.entity.Entity
 import org.commcare.dalvik.R
+import org.commcare.dalvik.databinding.ActivityEntityKujakuMapInfoViewBinding
+import org.commcare.dalvik.databinding.ActivityEntityMapboxBinding
 import org.commcare.gis.EntityMapUtils.getEntities
 import org.commcare.gis.EntityMapUtils.getEntityLocation
 import org.commcare.gis.EntityMapUtils.getNeededEntityDatum
@@ -81,10 +84,17 @@ class EntityMapboxActivity : BaseMapboxActivity() {
     private lateinit var source: GeoJsonSource
     private var iconset = java.util.HashSet<String>()
     private lateinit var mapEntities: java.util.ArrayList<MapEntity>
+    private lateinit var viewBinding: ActivityEntityMapboxBinding
 
+    override fun getViewBinding(): ViewBinding {
+        if (!::viewBinding.isInitialized) {
+            viewBinding = ActivityEntityMapboxBinding.inflate(layoutInflater)
+        }
+        return viewBinding
+    }
 
-    override fun getMapLayout(): Int {
-        return R.layout.activity_entity_mapbox
+    override fun getMapView(): KujakuMapView {
+        return viewBinding.mapView
     }
 
 
@@ -194,7 +204,7 @@ class EntityMapboxActivity : BaseMapboxActivity() {
             showToast(R.string.parse_coordinates_failure)
             Logger.exception("Exception while parsing boundary coordinates ", Exception(it))
         }.onSuccess { latlngs ->
-            val fillManager = AnnotationRepositoryManager.getFillManagerInstance(mapView, map, loadedStyle)
+            val fillManager = AnnotationRepositoryManager.getFillManagerInstance(getMapView(), map, loadedStyle)
             val lists = ArrayList<List<LatLng>>()
             lists.add(latlngs)
             fillManager.create(FillOptions()
@@ -206,7 +216,7 @@ class EntityMapboxActivity : BaseMapboxActivity() {
 
 
     private fun addEntitiesOnMap(loadedStyle: Style) {
-        val symbolManager = SymbolManager(mapView, map, loadedStyle)
+        val symbolManager = SymbolManager(getMapView(), map, loadedStyle)
         symbolManager.iconAllowOverlap = true
         symbolManager.iconTranslate = arrayOf(-4f, 5f)
 
@@ -246,10 +256,9 @@ class EntityMapboxActivity : BaseMapboxActivity() {
 
     private fun generateEntityInfoView(mapEntity: MapEntity): Bitmap {
 
-        val inflater = LayoutInflater.from(this)
-
         val stringBuilder = SpannableStringBuilder()
-        val bubbleLayout = inflater.inflate(R.layout.activity_entity_kujaku_map_info_view, null) as BubbleLayout
+        val binding = ActivityEntityKujakuMapInfoViewBinding.inflate(layoutInflater)
+        val bubbleLayout = binding.root
 
         for ((key, value) in mapEntity.properties.entrySet()) {
             stringBuilder.append(key)
@@ -261,8 +270,7 @@ class EntityMapboxActivity : BaseMapboxActivity() {
             stringBuilder.append(System.getProperty("line.separator"))
         }
 
-        val propertiesListTextView = bubbleLayout.findViewById<TextView>(R.id.info_window_feature_properties_list)
-        propertiesListTextView.text = stringBuilder
+        binding.infoWindowFeaturePropertiesList.text = stringBuilder
 
         val measureSpec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
         bubbleLayout.measure(measureSpec, measureSpec)

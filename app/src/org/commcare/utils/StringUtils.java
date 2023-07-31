@@ -51,13 +51,7 @@ public class StringUtils {
         //If we're above gingerbread we'll normalize this in NFD form 
         //which helps a lot. Otherwise we won't be able to clear up some of those
         //issues, but we can at least still eliminate diacritics.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
-            normalized = Normalizer.normalize(input, Normalizer.Form.NFD);
-        } else {
-            //TODO: I doubt it's worth it, but in theory we could run
-            //some other normalization for the minority of pre-API9
-            //devices.
-        }
+        normalized = Normalizer.normalize(input, Normalizer.Form.NFD);
 
         String output = diacritics.matcher(normalized).replaceAll("").toLowerCase();
 

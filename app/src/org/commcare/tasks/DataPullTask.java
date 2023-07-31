@@ -61,6 +61,7 @@ import java.util.Hashtable;
 import java.util.NoSuchElementException;
 
 import javax.crypto.SecretKey;
+import javax.net.ssl.SSLException;
 
 /**
  * @author ctsims
@@ -285,6 +286,10 @@ public abstract class DataPullTask<R>
             e.printStackTrace();
             Logger.log(LogTypes.TYPE_WARNING_NETWORK, "Couldn't sync due to presense of captive portal");
             responseError = PullTaskResult.CAPTIVE_PORTAL;
+        } catch(SSLException e) {
+            e.printStackTrace();
+            Logger.log(LogTypes.TYPE_WARNING_NETWORK, "Couldn't sync due to SSL error");
+            responseError = PullTaskResult.BAD_CERTIFICATE;
         } catch (IOException e) {
             e.printStackTrace();
             Logger.log(LogTypes.TYPE_WARNING_NETWORK, "Couldn't sync due to IO Error|" + e.getMessage());
@@ -684,7 +689,8 @@ public abstract class DataPullTask<R>
         RATE_LIMITED_SERVER_ERROR(AnalyticsParamValue.SYNC_FAIL_RATE_LIMITED_SERVER_ERROR),
         STORAGE_FULL(AnalyticsParamValue.SYNC_FAIL_STORAGE_FULL),
         CAPTIVE_PORTAL(AnalyticsParamValue.SYNC_FAIL_CAPTIVE_PORTAL),
-        AUTH_OVER_HTTP(AnalyticsParamValue.SYNC_FAIL_AUTH_OVER_HTTP);
+        AUTH_OVER_HTTP(AnalyticsParamValue.SYNC_FAIL_AUTH_OVER_HTTP),
+        BAD_CERTIFICATE(AnalyticsParamValue.SYNC_FAIL_BAD_CERTIFICATE);
 
         public final String analyticsFailureReasonParam;
 

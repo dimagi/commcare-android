@@ -14,7 +14,6 @@ import javax.annotation.Nullable;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-@TargetApi(Build.VERSION_CODES.JELLY_BEAN)
 public class NfcManager {
 
     public static final String NFC_ENCRYPTION_SCHEME = "encryption_aes_v1";

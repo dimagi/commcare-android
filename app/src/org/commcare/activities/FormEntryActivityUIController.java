@@ -358,7 +358,7 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
             Log.i(TAG, "created view for group");
         } catch (RuntimeException e) {
             Logger.exception("Error instantiating QuestionsView", e);
-            UserfacingErrorHandling.createErrorDialog(activity, e.getMessage(), FormEntryConstants.EXIT);
+            new UserfacingErrorHandling<>().createErrorDialog(activity, e.getMessage(), FormEntryConstants.EXIT);
             // this is badness to avoid a crash.
             // really a next view should increment the formcontroller, create the view
             // if the view is null, then keep the current view and pop an error.
@@ -470,7 +470,7 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
                     }
                 } while (event != FormEntryController.EVENT_END_OF_FORM);
             } catch (XPathException e) {
-                UserfacingErrorHandling.logErrorAndShowDialog(activity, e, FormEntryConstants.EXIT);
+                new UserfacingErrorHandling<>().logErrorAndShowDialog(activity, e, FormEntryConstants.EXIT);
             }
         }
     }
@@ -487,7 +487,7 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
         try {
             details = FormNavigationController.calculateNavigationStatus(FormEntryActivity.mFormController, questionsView);
         } catch (XPathTypeMismatchException e) {
-            UserfacingErrorHandling.logErrorAndShowDialog(activity, e, FormEntryConstants.EXIT);
+            new UserfacingErrorHandling<>().logErrorAndShowDialog(activity, e, FormEntryConstants.EXIT);
             return;
         }
         final boolean backExitsForm = !details.relevantBeforeCurrentScreen;
@@ -539,7 +539,7 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
                 FormEntryActivity.mFormController.newRepeat();
             } catch (XPathUnhandledException | XPathTypeMismatchException e) {
                 Logger.exception("Error creating new repeat", e);
-                UserfacingErrorHandling.logErrorAndShowDialog(activity, e, FormEntryConstants.EXIT);
+                new UserfacingErrorHandling<>().logErrorAndShowDialog(activity, e, FormEntryConstants.EXIT);
                 return;
             }
             showNextView();
@@ -729,7 +729,7 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
         try {
             newValidPrompts = FormEntryActivity.mFormController.getQuestionPrompts();
         } catch (XPathException e) {
-            UserfacingErrorHandling.logErrorAndShowDialog(activity, e, FormEntryConstants.EXIT);
+            new UserfacingErrorHandling<>().logErrorAndShowDialog(activity, e, FormEntryConstants.EXIT);
             return;
         }
         Set<FormEntryPrompt> promptsLeftInView = new HashSet<>();

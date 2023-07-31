@@ -253,9 +253,7 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         passwordOrPin.setText("");
 
         // Refresh the breadcrumb bar for new app name
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            activity.refreshActionBar();
-        }
+        activity.refreshActionBar();
 
         // Refresh UI for potential new language
         ManagedUiFramework.loadUiElements(activity);

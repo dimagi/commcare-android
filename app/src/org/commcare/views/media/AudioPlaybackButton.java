@@ -40,12 +40,10 @@ public class AudioPlaybackButton extends AudioPlaybackButtonBase {
     protected void setupView(Context context) {
         super.setupView(context);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            progressBar = findViewById(R.id.circular_progress_bar);
-            final int startPosition = 0;
-            final int progressBarMax = 500;
-            animation = ObjectAnimator.ofInt(progressBar, "progress", startPosition, progressBarMax);
-        }
+        progressBar = findViewById(R.id.circular_progress_bar);
+        final int startPosition = 0;
+        final int progressBarMax = 500;
+        animation = ObjectAnimator.ofInt(progressBar, "progress", startPosition, progressBarMax);
     }
 
     @Override
@@ -55,30 +53,24 @@ public class AudioPlaybackButton extends AudioPlaybackButtonBase {
 
     @Override
     protected void startProgressBar(int milliPosition, int milliDuration) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            resetProgressBar();
-            animation.setDuration(milliDuration);
-            animation.setCurrentPlayTime(milliPosition);
-            animation.setInterpolator(new LinearInterpolator());
-            animation.start();
-        }
+        resetProgressBar();
+        animation.setDuration(milliDuration);
+        animation.setCurrentPlayTime(milliPosition);
+        animation.setInterpolator(new LinearInterpolator());
+        animation.start();
     }
 
     @Override
     protected void resetProgressBar() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            animation.removeAllListeners();
-            animation.end();
-            animation.cancel();
-            progressBar.clearAnimation();
-            progressBar.setProgress(0);
-        }
+        animation.removeAllListeners();
+        animation.end();
+        animation.cancel();
+        progressBar.clearAnimation();
+        progressBar.setProgress(0);
     }
 
     @Override
     protected void pauseProgressBar() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            animation.cancel();
-        }
+        animation.cancel();
     }
 }

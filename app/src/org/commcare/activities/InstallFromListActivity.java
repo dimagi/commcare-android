@@ -53,6 +53,8 @@ import java.util.List;
 
 import androidx.appcompat.widget.SwitchCompat;
 
+import com.google.common.collect.ImmutableMultimap;
+
 /**
  * Created by amstone326 on 2/3/17.
  */
@@ -234,7 +236,7 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
             this.lastUsernameUsed = username;
             this.lastPasswordUsed = password;
             final View processingRequestView = findViewById(R.id.processing_request_view);
-            ModernHttpTask task = new ModernHttpTask(this, urlToTry, new HashMap(),
+            ModernHttpTask task = new ModernHttpTask(this, urlToTry, ImmutableMultimap.of(),
                     CommcareRequestGenerator.getHeaders(""),
                     new AuthInfo.ProvidedAuth(username, password)) {
 
@@ -345,7 +347,7 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
     public void handleIOException(IOException exception) {
         if (exception instanceof AuthenticationInterceptor.PlainTextPasswordException) {
             Logger.log(LogTypes.TYPE_ERROR_CONFIG_STRUCTURE, "Encountered PlainTextPasswordException while sending get available apps request: Sending password over HTTP");
-            UserfacingErrorHandling.createErrorDialog(this, Localization.get("auth.over.http"), true);
+            new UserfacingErrorHandling<>().createErrorDialog(this, Localization.get("auth.over.http"), true);
         } else if (exception instanceof IOException) {
             Logger.log(LogTypes.TYPE_ERROR_SERVER_COMMS,
                     "An IOException was encountered during get available apps request: " + exception.getMessage());
@@ -424,12 +426,8 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
         super.onCreateOptionsMenu(menu);
         menu.add(0, RETRIEVE_APPS_FOR_DIFF_USER, 0,
                 Localization.get("menu.app.list.install.other.user"));
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            MenuInflater inflater = getMenuInflater();
-            inflater.inflate(R.menu.install_from_list_menu, menu);
-        }
-
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.install_from_list_menu, menu);
         return true;
     }
 

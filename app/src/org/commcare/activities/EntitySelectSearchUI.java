@@ -82,7 +82,6 @@ class EntitySelectSearchUI implements TextWatcher {
         }
     }
 
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     private void restoreLastQuery() {
         String lastQueryString = activity.getLastQueryString();
         if (lastQueryString != null && lastQueryString.length() > 0) {

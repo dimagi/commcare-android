@@ -7,7 +7,9 @@ import android.widget.Button;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
+
+import org.commcare.utils.StringUtils;
+import org.commcare.views.dialogs.AlertDialogFragment;
 
 import org.commcare.adapters.HierarchyListAdapter;
 import org.commcare.dalvik.R;
@@ -19,19 +21,23 @@ import org.commcare.utils.SessionUnavailableException;
 import org.javarosa.core.model.FormIndex;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.form.api.FormEntryController;
-import org.javarosa.xpath.XPathTypeMismatchException;
+import org.javarosa.xpath.XPathException;
+import org.commcare.views.UserfacingErrorHandling;
+import org.commcare.views.dialogs.CommCareAlertDialog;
+import androidx.fragment.app.DialogFragment;
+import org.commcare.views.dialogs.AlertDialogController;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import androidx.appcompat.app.ActionBar;
 
-public class FormHierarchyActivity extends SessionAwareListActivity {
+public class FormHierarchyActivity extends SessionAwareListActivity implements AlertDialogController {
     private Button jumpPreviousButton;
     private List<HierarchyElement> formList;
     private TextView mPath;
 
-    public final static int RESULT_XPATH_ERROR = RESULT_FIRST_USER + 1;
+    public final static String ERROR_DIALOG = "error-dialog";
 
     @Override
     public void onCreateSessionSafe(Bundle savedInstanceState) {
@@ -97,12 +103,10 @@ public class FormHierarchyActivity extends SessionAwareListActivity {
     }
 
     private void addActionBarBackArrow() {
-        if (android.os.Build.VERSION.SDK_INT >= 11) {
-            ActionBar bar = getSupportActionBar();
-            if (bar != null) {
-                bar.setDisplayShowHomeEnabled(true);
-                bar.setDisplayHomeAsUpEnabled(true);
-            }
+        ActionBar bar = getSupportActionBar();
+        if (bar != null) {
+            bar.setDisplayShowHomeEnabled(true);
+            bar.setDisplayHomeAsUpEnabled(true);
         }
     }
 
@@ -156,6 +160,25 @@ public class FormHierarchyActivity extends SessionAwareListActivity {
         return path.substring(0, path.length() - 2);
     }
 
+    @Override
+    public void showAlertDialog(CommCareAlertDialog dialog) {
+        AlertDialogFragment.fromCommCareAlertDialog(dialog)
+                .show(getSupportFragmentManager(), ERROR_DIALOG);
+    }
+
+    @Override
+    public void dismissAlertDialog() {
+        DialogFragment alertDialog = getCurrentAlertDialog();
+        if (alertDialog != null) {
+            alertDialog.dismiss();
+        }
+    }
+
+    public AlertDialogFragment getCurrentAlertDialog() {
+        return (AlertDialogFragment)getSupportFragmentManager().
+                findFragmentByTag(ERROR_DIALOG);
+    }
+
     private void refreshView() {
         // Record the current index so we can return to the same place if the user hits 'back'.
         FormIndex currentIndex = FormEntryActivity.mFormController.getFormIndex();
@@ -165,13 +188,8 @@ public class FormHierarchyActivity extends SessionAwareListActivity {
         String hierarchyPath;
         try {
             hierarchyPath = FormHierarchyBuilder.populateHierarchyList(this, formList);
-        } catch (XPathTypeMismatchException e) {
-            XPathErrorLogger.INSTANCE.logErrorToCurrentApp(e);
-
-            final String errorMsg = "Encounted xpath error: " + e.getMessage();
-            Toast.makeText(this, errorMsg, Toast.LENGTH_LONG).show();
-            setResult(RESULT_XPATH_ERROR);
-            finish();
+        } catch (XPathException e) {
+            new UserfacingErrorHandling().logErrorAndShowDialog(this, e, true);
             return;
         }
 

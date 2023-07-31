@@ -52,7 +52,6 @@ import androidx.fragment.app.Fragment;
 /**
  * @author ctsims
  */
-@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 public class BreadcrumbBarFragment extends Fragment {
 
     private TabbedDetailView mInternalDetailView = null;
@@ -103,7 +102,7 @@ public class BreadcrumbBarFragment extends Fragment {
         try {
             this.tile = findAndLoadCaseTile(activity);
         } catch (XPathException xe) {
-            UserfacingErrorHandling.logErrorAndShowDialog((CommCareActivity)getActivity(), xe, true);
+            new UserfacingErrorHandling<>().logErrorAndShowDialog((CommCareActivity)getActivity(), xe, true);
         }
     }
 

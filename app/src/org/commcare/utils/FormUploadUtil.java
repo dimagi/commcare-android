@@ -39,6 +39,7 @@ import javax.annotation.Nullable;
 import javax.crypto.Cipher;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.SecretKeySpec;
+import javax.net.ssl.SSLException;
 
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
@@ -47,6 +48,8 @@ import okhttp3.ResponseBody;
 import retrofit2.Response;
 
 import static org.commcare.network.HttpUtils.parseUserVisibleError;
+
+import com.google.common.collect.ImmutableMultimap;
 
 public class FormUploadUtil {
     private static final String TAG = FormUploadUtil.class.getSimpleName();
@@ -162,7 +165,7 @@ public class FormUploadUtil {
         Response<ResponseBody> response;
 
         try {
-            response = generator.postMultipart(url, parts, new HashMap<>());
+            response = generator.postMultipart(url, parts, ImmutableMultimap.of());
         } catch (InputIOException ioe) {
             // This implies that there was a problem with the _source_ of the
             // transmission, not the processing or receiving end.
@@ -184,6 +187,10 @@ public class FormUploadUtil {
             e.printStackTrace();
             Logger.log(LogTypes.TYPE_WARNING_NETWORK, "Captive portal detected while form submission");
             return FormUploadResult.CAPTIVE_PORTAL;
+        } catch (SSLException e) {
+            e.printStackTrace();
+            Logger.log(LogTypes.TYPE_WARNING_NETWORK, "SSL error during form submission");
+            return FormUploadResult.BAD_CERTIFICATE;
         } catch (IOException | IllegalStateException e) {
             Logger.exception("Error reading form during submission: " + e.getMessage(), e);
             return FormUploadResult.TRANSPORT_FAILURE;

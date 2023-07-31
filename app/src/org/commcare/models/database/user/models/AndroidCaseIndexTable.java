@@ -166,6 +166,16 @@ public class AndroidCaseIndexTable implements CaseIndexTable {
         }
     }
 
+    @Override
+    public void delete() {
+        SqlStorage.dropTable(db, TABLE_NAME);
+    }
+
+    @Override
+    public boolean isStorageExists() {
+        return SqlStorage.isTableExist(db, TABLE_NAME);
+    }
+
     /**
      * Removes all records from the case index table
      */

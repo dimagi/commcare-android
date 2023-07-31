@@ -28,6 +28,7 @@ import androidx.work.OneTimeWorkRequest;
 import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkManager;
 
+import com.google.common.collect.Multimap;
 import com.google.firebase.analytics.FirebaseAnalytics;
 
 import net.sqlcipher.database.SQLiteDatabase;
@@ -105,6 +106,7 @@ import org.commcare.utils.CommCareUtil;
 import org.commcare.utils.CrashUtil;
 import org.commcare.utils.DeviceIdentifier;
 import org.commcare.utils.FileUtil;
+import org.commcare.utils.FirebaseMessagingUtil;
 import org.commcare.utils.GlobalConstants;
 import org.commcare.utils.MarkupUtil;
 import org.commcare.utils.MultipleAppsUtil;
@@ -113,7 +115,6 @@ import org.commcare.utils.SessionRegistrationHelper;
 import org.commcare.utils.SessionStateUninitException;
 import org.commcare.utils.SessionUnavailableException;
 import org.commcare.views.widgets.CleanRawMedia;
-import org.conscrypt.Conscrypt;
 import org.javarosa.core.model.User;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.reference.RootTranslator;
@@ -124,12 +125,10 @@ import org.javarosa.core.util.PropertyUtils;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 
 import java.io.File;
-import java.security.Security;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Nullable;
@@ -221,7 +220,6 @@ public class CommCareApplication extends MultiDexApplication {
         // improperly, so the second https request in a short time period will flop)
         System.setProperty("http.keepAlive", "false");
 
-        initTls12IfNeeded();
         attachISRGCert();
 
         Thread.setDefaultUncaughtExceptionHandler(new CommCareExceptionHandler(Thread.getDefaultUncaughtExceptionHandler(), this));
@@ -249,6 +247,8 @@ public class CommCareApplication extends MultiDexApplication {
 
         LocalePreferences.saveDeviceLocale(Locale.getDefault());
         GraphUtil.setLabelCharacterLimit(getResources().getInteger(R.integer.graph_label_char_limit));
+
+        FirebaseMessagingUtil.verifyToken();
     }
 
     protected void attachISRGCert() {
@@ -259,23 +259,12 @@ public class CommCareApplication extends MultiDexApplication {
         SQLiteDatabase.loadLibs(this);
     }
 
-    public boolean useConscryptSecurity() {
-        return Build.VERSION.SDK_INT >= 16 && Build.VERSION.SDK_INT < 20;
-    }
-
-    private void initTls12IfNeeded() {
-        if (useConscryptSecurity()) {
-            Security.insertProviderAt(Conscrypt.newProvider(), 1);
-        }
-    }
-
     protected void turnOnStrictMode() {
         if (BuildConfig.DEBUG) {
             StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder()
                     .detectLeakedSqlLiteObjects()
                     .detectLeakedClosableObjects()
                     .penaltyLog()
-                    .penaltyDeath()
                     .build());
         }
     }
@@ -964,6 +953,15 @@ public class CommCareApplication extends MultiDexApplication {
         }
     }
 
+    public static boolean isSessionActive() {
+        try {
+            return CommCareApplication.instance().getSession() != null;
+        }
+        catch (SessionUnavailableException e){
+            return false;
+        }
+    }
+
     public UserKeyRecord getRecordForCurrentUser() {
         return getSession().getUserKeyRecord();
     }
@@ -1148,7 +1146,7 @@ public class CommCareApplication extends MultiDexApplication {
     }
 
 
-    public ModernHttpRequester createGetRequester(Context context, String url, Map<String, String> params,
+    public ModernHttpRequester createGetRequester(Context context, String url, Multimap<String, String> params,
                                                   HashMap headers, AuthInfo authInfo,
                                                   @Nullable HttpResponseProcessor responseProcessor) {
         return buildHttpRequester(context, url, params, headers, null, null,
@@ -1156,7 +1154,7 @@ public class CommCareApplication extends MultiDexApplication {
     }
 
     public ModernHttpRequester buildHttpRequester(Context context, String url,
-                                                  Map<String, String> params,
+                                                  Multimap<String, String> params,
                                                   HashMap headers, RequestBody requestBody,
                                                   List<MultipartBody.Part> parts,
                                                   HTTPMethod method,
@@ -1169,12 +1167,11 @@ public class CommCareApplication extends MultiDexApplication {
         } else {
             networkService = CommCareNetworkServiceGenerator.createCommCareNetworkService(
                     HttpUtils.getCredential(authInfo),
-                    DeveloperPreferences.isEnforceSecureEndpointEnabled(), retry);
+                    DeveloperPreferences.isEnforceSecureEndpointEnabled(), retry, params);
         }
 
         return new ModernHttpRequester(new AndroidCacheDirSetup(context),
                 url,
-                params,
                 headers,
                 requestBody,
                 parts,
@@ -1190,4 +1187,9 @@ public class CommCareApplication extends MultiDexApplication {
     public AndroidPackageUtils getAndroidPackageUtils() {
         return new AndroidPackageUtils();
     }
+
+    public boolean isNsdServicesEnabled() {
+        return true;
+    }
+
 }
