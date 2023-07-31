@@ -107,6 +107,7 @@ import org.commcare.utils.CommCareUtil;
 import org.commcare.utils.CrashUtil;
 import org.commcare.utils.DeviceIdentifier;
 import org.commcare.utils.FileUtil;
+import org.commcare.utils.FirebaseMessagingUtil;
 import org.commcare.utils.GlobalConstants;
 import org.commcare.utils.MarkupUtil;
 import org.commcare.utils.MultipleAppsUtil;
@@ -247,6 +248,8 @@ public class CommCareApplication extends MultiDexApplication {
 
         LocalePreferences.saveDeviceLocale(Locale.getDefault());
         GraphUtil.setLabelCharacterLimit(getResources().getInteger(R.integer.graph_label_char_limit));
+
+        FirebaseMessagingUtil.verifyToken();
 
         initCertificateTransparency();
     }
@@ -950,6 +953,15 @@ public class CommCareApplication extends MultiDexApplication {
             }
         } else {
             throw new SessionUnavailableException();
+        }
+    }
+
+    public static boolean isSessionActive() {
+        try {
+            return CommCareApplication.instance().getSession() != null;
+        }
+        catch (SessionUnavailableException e){
+            return false;
         }
     }
 
