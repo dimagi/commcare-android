@@ -461,7 +461,7 @@
     <string name="login_welcome_connect_signed_out" cc:translatable="true">Unlock ConnectID first and then enter your app.</string>
     <string name="login_welcome_connect_signed_in" cc:translatable="true">Welcome %s!</string>
 
-    <string name="choice_or" cc:translatable="true">_____________    Or    _____________</string>
+    <string name="choice_or" cc:translatable="true">_____________    OR    _____________</string>
 
     <string name="connect_button_logged_in" cc:translatable="true">Go to Connect menu</string>
     <string name="connect_button_logged_out" cc:translatable="true">Unlock ConnectID</string>
@@ -473,14 +473,17 @@
     <string name="connect_consent_button" cc:translatable="true">OK</string>
 
     <string name="connect_phone_page_title" cc:translatable="true">Phone Number</string>
-    <string name="connect_phone_title" cc:translatable="true">Primary Phone</string>
-    <string name="connect_phone_message" cc:translatable="true">Please enter your primary phone number</string>
+    <string name="connect_phone_title_primary" cc:translatable="true">Primary Phone</string>
+    <string name="connect_phone_message_primary" cc:translatable="true">Please enter your primary phone number</string>
+    <string name="connect_phone_title_alternate" cc:translatable="true">Alternate Phone</string>
+    <string name="connect_phone_message_alternate" cc:translatable="true">Please enter an alternate phone number. This will be used in case of account recovery</string>
     <string name="connect_phone_button" cc:translatable="true">OK</string>
     <string name="connect_phone_checking" cc:translatable="true">Checking…</string>
     <string name="connect_phone_available" cc:translatable="true">Phone number is available!</string>
     <string name="connect_phone_unavailable" cc:translatable="true">Phone number is already in use</string>
     <string name="connect_phone_invalid" cc:translatable="true">Enter a valid phone number</string>
     <string name="connect_phone_not_alt" cc:translatable="true">Can not use your alt. number</string>
+    <string name="connect_phone_not_primary" cc:translatable="true">Alt. number must be different than primary</string>
     <string name="connect_phone_not_found" cc:translatable="true">Phone number not found</string>
 
     <string name="connect_password_title" cc:translatable="true">Set Password</string>
@@ -547,7 +550,21 @@
     <string name="connect_register_success_button" cc:translatable="true">OK</string>
 
     <string name="connect_verify_title" cc:translatable="true">Unlock Options</string>
-    <string name="connect_verify_message" cc:translatable="true">Please configure at least one local verification method. Check means configured, eye means not configured, X means unavailable.</string>
+    <string name="connect_verify_message" cc:translatable="true">Please configure a method below to unlock both your device and ConnectID account</string>
+
+    <string name="connect_verify_use_fingerprint" cc:translatable="true">Use Fingerprint</string>
+    <string name="connect_verify_use_fingerprint_long" cc:translatable="true">Use Fingerprint to Connect</string>
+    <string name="connect_verify_fingerprint_configured" cc:translatable="true">Your fingerprint has already been configured and will be used to unlock ConnectID.</string>
+    <string name="connect_verify_configure_fingerprint" cc:translatable="true">Configure Fingerprint</string>
+    <string name="connect_verify_use_pin" cc:translatable="true">Use PIN</string>
+    <string name="connect_verify_use_pin_long" cc:translatable="true">Use PIN to Connect</string>
+    <string name="connect_verify_pin_configured" cc:translatable="true">Your PIN has already been configured and will be used to unlock ConnectID.</string>
+    <string name="connect_verify_configure_pin" cc:translatable="true">Configure PIN</string>
+
+    <string name="connect_verify_agree" cc:translatable="true">Agree &amp; Continue</string>
+    <string name="connect_verify_password_only" cc:translatable="true">Create a password instead</string>
+
+
     <string name="connect_verify_fingerprint" cc:translatable="true">Fingerprint</string>
     <string name="connect_verify_pin" cc:translatable="true">PIN</string>
     <string name="connect_verify_button_configured" cc:translatable="true">Continue</string>

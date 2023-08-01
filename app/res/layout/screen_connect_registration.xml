@@ -32,33 +32,6 @@
         android:inputType="text"/>
 
     <TextView
-        android:id="@+id/connect_label_alt_phone"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="@dimen/content_min_margin"
-        android:gravity="start"
-        android:textSize="@dimen/text_medium"
-        android:text="@string/connect_register_phone_alt"/>
-
-    <RelativeLayout
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content">
-        <AutoCompleteTextView
-            android:id="@+id/connect_alt_phone_country_input"
-            android:layout_width="100sp"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:inputType="text" />
-
-        <AutoCompleteTextView
-            android:id="@+id/connect_alt_phone_input"
-            android:layout_toEndOf="@id/connect_alt_phone_country_input"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:inputType="numberDecimal" />
-    </RelativeLayout>
-
-    <TextView
         android:id="@+id/connect_registration_error"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"

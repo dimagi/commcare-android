@@ -16,7 +16,6 @@ public class ConnectIDVerificationActivity extends CommCareActivity<ConnectIDVer
 
     private ConnectIDVerificationActivityUIController uiController;
     private BiometricManager biometricManager;
-    private boolean attemptedConfig = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,10 +30,10 @@ public class ConnectIDVerificationActivity extends CommCareActivity<ConnectIDVer
         BiometricsHelper.ConfigurationStatus pin = BiometricsHelper.checkPinStatus(biometricManager);
         if(fingerprint == BiometricsHelper.ConfigurationStatus.NotAvailable && pin == BiometricsHelper.ConfigurationStatus.NotAvailable) {
             //Skip to password-only workflow
-            finish(true);
+            finish(true, true);
         }
         else {
-            updateStatus();
+            updateState(fingerprint, pin);
         }
     }
 
@@ -42,7 +41,9 @@ public class ConnectIDVerificationActivity extends CommCareActivity<ConnectIDVer
     protected void onResume() {
         super.onResume();
 
-        updateStatus();
+        BiometricsHelper.ConfigurationStatus fingerprint = BiometricsHelper.checkFingerprintStatus(biometricManager);
+        BiometricsHelper.ConfigurationStatus pin = BiometricsHelper.checkPinStatus(biometricManager);
+        updateState(fingerprint, pin);
     }
 
     @Override
@@ -60,41 +61,81 @@ public class ConnectIDVerificationActivity extends CommCareActivity<ConnectIDVer
         uiController = new ConnectIDVerificationActivityUIController(this);
     }
 
-    public void updateStatus() {
+    public void updateState(BiometricsHelper.ConfigurationStatus fingerprintStatus, BiometricsHelper.ConfigurationStatus pinStatus) {
+        String titleText = getString(R.string.connect_verify_title);
+        String messageText = getString(R.string.connect_verify_message);
+        String fingerprintButtonText = null;
+        String pinButtonText = null;
+        if(fingerprintStatus == BiometricsHelper.ConfigurationStatus.Configured) {
+            //Case #3 in email
+            titleText = getString(R.string.connect_verify_use_fingerprint_long);
+            messageText = getString(R.string.connect_verify_fingerprint_configured);
+            fingerprintButtonText = getString(R.string.connect_verify_agree);
+        }
+        else if(pinStatus == BiometricsHelper.ConfigurationStatus.Configured) {
+            //Case #4 in email
+            titleText = getString(R.string.connect_verify_use_pin_long);
+            messageText = getString(R.string.connect_verify_pin_configured);
+            pinButtonText = getString(R.string.connect_verify_agree);
+        }
+        else {
+            //Case #2 in email
+            if(fingerprintStatus == BiometricsHelper.ConfigurationStatus.NotConfigured) {
+                fingerprintButtonText = getString(R.string.connect_verify_configure_fingerprint);
+            }
+            if(pinStatus == BiometricsHelper.ConfigurationStatus.NotConfigured) {
+                pinButtonText = getString(R.string.connect_verify_configure_pin);
+            }
+        }
+
+        uiController.setTitleText(titleText);
+        uiController.setMessageText(messageText);
+
+        boolean showFingerprint = fingerprintButtonText != null;
+        boolean showPin = pinButtonText != null;
+
+        String fingerprintMessageText = showPin ? getString(R.string.connect_verify_use_fingerprint) : "";
+        String pinMessageText = showFingerprint ? getString(R.string.connect_verify_use_pin) : "";
+
+        uiController.updateFingerprint(fingerprintMessageText, fingerprintButtonText);
+        uiController.updatePin(pinMessageText, pinButtonText);
+
+        uiController.setOrVisibility(showFingerprint && showPin);
+    }
+
+    public void handleFingerprintButton() {
         BiometricsHelper.ConfigurationStatus fingerprint = BiometricsHelper.checkFingerprintStatus(biometricManager);
-        uiController.setFingerprintStatus(fingerprint);
+        if(fingerprint == BiometricsHelper.ConfigurationStatus.Configured) {
+            finish(true, false);
+        }
+        else {
+            BiometricsHelper.configureFingerprint(this);
+        }
+    }
 
+    public void handlePinButton() {
         BiometricsHelper.ConfigurationStatus pin = BiometricsHelper.checkPinStatus(biometricManager);
-        uiController.setPinStatus(pin);
-
-        boolean configured = fingerprint == BiometricsHelper.ConfigurationStatus.Configured || pin == BiometricsHelper.ConfigurationStatus.Configured;
-        String text = (configured || !attemptedConfig) ? getString(R.string.connect_verify_button_configured) : getString(R.string.connect_verify_button_password);
-        uiController.setButtonText(text);
-
-        uiController.setButtonEnabled(configured || attemptedConfig);
+        if(pin == BiometricsHelper.ConfigurationStatus.Configured) {
+            finish(true, false);
+        }
+        else {
+            BiometricsHelper.configurePin(this);
+        }
     }
 
-    public void configureFingerprint() {
-        attemptedConfig = true;
-        BiometricsHelper.configureFingerprint(this);
+    public void handlePasswordButton() {
+        finish(true, true);
     }
 
-    public void configurePin() {
-        attemptedConfig = true;
-        BiometricsHelper.configurePin(this);
-    }
-
-    public void handleActionButton() {
-        finish(true);
-    }
-
-    public void finish(boolean success) {
+    public void finish(boolean success, boolean passwordOnly) {
         Intent intent = new Intent(getIntent());
 
         BiometricsHelper.ConfigurationStatus fingerprint = BiometricsHelper.checkFingerprintStatus(biometricManager);
         BiometricsHelper.ConfigurationStatus pin = BiometricsHelper.checkPinStatus(biometricManager);
         boolean configured = fingerprint == BiometricsHelper.ConfigurationStatus.Configured || pin == BiometricsHelper.ConfigurationStatus.Configured;
         intent.putExtra(ConnectIDConstants.CONFIGURED, configured);
+
+        intent.putExtra(ConnectIDConstants.PASSWORD, passwordOnly);
 
         setResult(success ? RESULT_OK : RESULT_CANCELED, intent);
         finish();

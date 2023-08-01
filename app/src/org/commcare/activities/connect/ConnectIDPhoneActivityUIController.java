@@ -14,6 +14,10 @@ import org.commcare.views.UiElement;
 
 @ManagedUi(R.layout.screen_connect_primary_phone)
 public class ConnectIDPhoneActivityUIController implements CommCareActivityUIController {
+    @UiElement(value = R.id.connect_primary_phone_title)
+    private TextView titleTextView;
+    @UiElement(value = R.id.connect_primary_phone_message)
+    private TextView messageTextView;
     @UiElement(value = R.id.connect_primary_phone_country_input)
     private AutoCompleteTextView countryCodeInput;
     @UiElement(value = R.id.connect_primary_phone_input)
@@ -57,6 +61,8 @@ public class ConnectIDPhoneActivityUIController implements CommCareActivityUICon
 
     }
 
+    public void setTitle(String title) { titleTextView.setText(title); }
+    public void setMessage(String message) { messageTextView.setText(message); }
     public void setCountryCode(String code) { countryCodeInput.setText(code); }
     public String getCountryCode() {
         return countryCodeInput.getText().toString();

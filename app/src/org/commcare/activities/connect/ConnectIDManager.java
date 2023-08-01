@@ -214,10 +214,8 @@ public class ConnectIDManager {
             case ConnectIDConstants.CONNECT_REGISTRATION_PRIMARY_PHONE -> {
                 nextActivity = ConnectIDPhoneActivity.class;
 
-                params.put(ConnectIDConstants.METHOD, "true");
-                params.put(ConnectIDConstants.PHONE, null);
-                params.put(ConnectIDConstants.USERNAME, null);
-                params.put(ConnectIDConstants.PASSWORD, null);
+                params.put(ConnectIDConstants.METHOD, ConnectIDConstants.METHOD_REGISTER_PRIMARY);
+                params.put(ConnectIDConstants.PHONE, primaryPhone);
             }
             case ConnectIDConstants.CONNECT_REGISTRATION_MAIN -> {
                 nextActivity = ConnectIDRegistrationActivity.class;
@@ -239,17 +237,18 @@ public class ConnectIDManager {
             case ConnectIDConstants.CONNECT_REGISTRATION_CHANGE_PRIMARY_PHONE -> {
                 nextActivity = ConnectIDPhoneActivity.class;
 
-                params.put(ConnectIDConstants.METHOD, "false");
-                params.put(ConnectIDConstants.PHONE, user.getPrimaryPhone());
-                params.put(ConnectIDConstants.ALT_PHONE, user.getAlternatePhone());
-                params.put(ConnectIDConstants.USERNAME, user.getUserID());
-                params.put(ConnectIDConstants.PASSWORD, user.getPassword());
+                params.put(ConnectIDConstants.METHOD, ConnectIDConstants.METHOD_CHANGE_PRIMARY);
             }
             case ConnectIDConstants.CONNECT_REGISTRATION_CONFIGURE_PASSWORD -> {
                 nextActivity = ConnectIDPasswordActivity.class;
 
                 params.put(ConnectIDConstants.USERNAME, user.getUserID());
                 params.put(ConnectIDConstants.PASSWORD, user.getPassword());
+            }
+            case ConnectIDConstants.CONNECT_REGISTRATION_ALTERNATE_PHONE -> {
+                nextActivity = ConnectIDPhoneActivity.class;
+
+                params.put(ConnectIDConstants.METHOD, ConnectIDConstants.METHOD_CHANGE_ALTERNATE);
             }
             case ConnectIDConstants.CONNECT_REGISTRATION_SUCCESS -> {
                 //Show message screen indicating success
@@ -262,10 +261,7 @@ public class ConnectIDManager {
             case ConnectIDConstants.CONNECT_RECOVERY_PRIMARY_PHONE -> {
                 nextActivity = ConnectIDPhoneActivity.class;
 
-                params.put(ConnectIDConstants.METHOD, "false");
-                params.put(ConnectIDConstants.PHONE, null);
-                params.put(ConnectIDConstants.USERNAME, null);
-                params.put(ConnectIDConstants.PASSWORD, null);
+                params.put(ConnectIDConstants.METHOD, ConnectIDConstants.METHOD_RECOVER_PRIMARY);
             }
             case ConnectIDConstants.CONNECT_RECOVERY_VERIFY_PRIMARY_PHONE -> {
                 nextActivity = ConnectIDPhoneVerificationActivity.class;
@@ -397,6 +393,8 @@ public class ConnectIDManager {
                 if(success) {
                     //If no biometric configured, proceed with password only
                     boolean configured = intent.getBooleanExtra(ConnectIDConstants.CONFIGURED, false);
+                    boolean passwordOnly = intent.getBooleanExtra(ConnectIDConstants.PASSWORD, false);
+                    //TODO: Use passwordOnly
                     nextRequestCode = configured ? ConnectIDConstants.CONNECT_REGISTRATION_UNLOCK_BIOMETRIC : ConnectIDConstants.CONNECT_REGISTRATION_VERIFY_PRIMARY_PHONE;
                 }
             }
@@ -412,6 +410,17 @@ public class ConnectIDManager {
                     rememberPhase = !changeNumber;
                 }
             }
+            case ConnectIDConstants.CONNECT_REGISTRATION_ALTERNATE_PHONE -> {
+                nextRequestCode = success ? ConnectIDConstants.CONNECT_REGISTRATION_SUCCESS : ConnectIDConstants.CONNECT_REGISTRATION_CONFIGURE_PASSWORD;
+                if(success) {
+                    rememberPhase = true;
+                    ConnectUserRecord user = ConnectIDDatabaseHelper.getUser(manager.parentActivity);
+                    if(user != null) {
+                        user.setAlternatePhone(intent.getStringExtra(ConnectIDConstants.PHONE));
+                        ConnectIDDatabaseHelper.storeUser(manager.parentActivity, user);
+                    }
+                }
+            }
             case ConnectIDConstants.CONNECT_REGISTRATION_CHANGE_PRIMARY_PHONE -> {
                 //Note that we return to primary phone verification (whether they did or didn't change the phone number)
                 nextRequestCode = ConnectIDConstants.CONNECT_REGISTRATION_VERIFY_PRIMARY_PHONE;
@@ -425,7 +434,7 @@ public class ConnectIDManager {
                 }
             }
             case ConnectIDConstants.CONNECT_REGISTRATION_CONFIGURE_PASSWORD -> {
-                nextRequestCode = success ? ConnectIDConstants.CONNECT_REGISTRATION_SUCCESS : ConnectIDConstants.CONNECT_REGISTRATION_VERIFY_PRIMARY_PHONE;
+                nextRequestCode = success ? ConnectIDConstants.CONNECT_REGISTRATION_ALTERNATE_PHONE : ConnectIDConstants.CONNECT_REGISTRATION_VERIFY_PRIMARY_PHONE;
                 if (success) {
                     rememberPhase = true;
 

@@ -15,7 +15,7 @@
         android:layout_margin="@dimen/content_min_margin"
         android:textColor="@color/cc_neutral_color"
         android:textSize="@dimen/text_largest"
-        android:text="@string/connect_phone_title"/>
+        android:text="@string/connect_phone_title_primary"/>
 
     <TextView
         android:id="@+id/connect_primary_phone_message"
@@ -24,7 +24,7 @@
         android:layout_margin="@dimen/content_min_margin"
         android:gravity="start"
         android:textSize="@dimen/text_medium"
-        android:text="@string/connect_phone_message"/>
+        android:text="@string/connect_phone_message_primary"/>
 
     <RelativeLayout
         android:layout_width="fill_parent"

@@ -14,7 +14,8 @@
         android:layout_gravity="center"
         android:layout_margin="@dimen/content_min_margin"
         android:textColor="@color/cc_neutral_color"
-        android:textSize="@dimen/text_largest"
+        android:textSize="@dimen/text_larger"
+        android:textAlignment="center"
         android:text="@string/connect_verify_title"/>
 
     <TextView
@@ -25,61 +26,91 @@
         android:layout_margin="@dimen/content_min_margin"
         android:textColor="@color/cc_neutral_color"
         android:textSize="@dimen/text_medium"
+        android:textAlignment="center"
         android:text="@string/connect_verify_message"/>
 
     <LinearLayout
+        android:id="@+id/connect_verify_fingerprint_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/cc_core_bg"
-        android:orientation="horizontal">
-
-        <ImageView
-            android:id="@+id/connect_verify_fingerprint_icon"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:layout_margin="@dimen/content_min_margin" />
+        android:orientation="vertical" >
 
         <TextView
             android:id="@+id/connect_verify_fingerprint_message"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:layout_margin="@dimen/content_min_margin"
             android:textColor="@color/cc_neutral_color"
             android:textSize="@dimen/text_medium"
-            android:text="@string/connect_verify_fingerprint"/>
+            android:text="@string/connect_verify_use_fingerprint"/>
 
+        <ImageView
+            android:id="@+id/connect_verify_fingerprint_icon"
+            android:layout_width="90dp"
+            android:layout_height="90dp"
+            android:layout_gravity="center"
+            android:src="@drawable/fingerprint"/>
+
+        <Button
+            android:id="@+id/connect_verify_fingerprint_button"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="@string/connect_verify_configure_fingerprint"/>
     </LinearLayout>
 
+    <TextView
+        android:id="@+id/connect_verify_or"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_margin="@dimen/content_min_margin"
+        android:textSize="@dimen/text_medium"
+        android:text="@string/choice_or" />
+
     <LinearLayout
+        android:id="@+id/connect_verify_pin_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/cc_core_bg"
-        android:orientation="horizontal">
-
-        <ImageView
-            android:id="@+id/connect_verify_pin_icon"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:layout_margin="@dimen/content_min_margin" />
+        android:orientation="vertical">
 
         <TextView
             android:id="@+id/connect_verify_pin_message"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:layout_margin="@dimen/content_min_margin"
             android:textColor="@color/cc_neutral_color"
             android:textSize="@dimen/text_medium"
-            android:text="@string/connect_verify_pin"/>
+            android:text="@string/connect_verify_use_pin"/>
+
+        <ImageView
+            android:id="@+id/connect_verify_pin_icon"
+            android:layout_width="90dp"
+            android:layout_height="90dp"
+            android:layout_gravity="center"
+            android:src="@drawable/pattern"/>
+
+        <Button
+            android:id="@+id/connect_verify_pin_button"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="@string/connect_verify_configure_pin"/>
 
     </LinearLayout>
 
-    <Button
-        android:id="@+id/connect_verify_button"
+    <TextView
+        android:id="@+id/connect_verify_password_link"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:paddingBottom="@dimen/content_start"
-        android:paddingTop="@dimen/content_start" />
+        android:paddingTop="@dimen/content_start"
+        android:layout_margin="@dimen/content_min_margin"
+        android:layout_gravity="center"
+        android:textAlignment="center"
+        android:textColor="@color/blue"
+        android:text="@string/connect_verify_password_only"/>
 
 </LinearLayout>

@@ -16,10 +16,6 @@ import org.commcare.views.UiElement;
 public class ConnectIDRegistrationActivityUIController implements CommCareActivityUIController {
     @UiElement(value = R.id.connect_edit_name)
     private AutoCompleteTextView nameInput;
-    @UiElement(value = R.id.connect_alt_phone_country_input)
-    private AutoCompleteTextView countryCodeInput;
-    @UiElement(value = R.id.connect_alt_phone_input)
-    private AutoCompleteTextView phoneInput;
     @UiElement(value = R.id.connect_registration_error)
     private TextView errorText;
     @UiElement(value = R.id.connect_register_button)
@@ -49,8 +45,6 @@ public class ConnectIDRegistrationActivityUIController implements CommCareActivi
         };
 
         nameInput.addTextChangedListener(watcher);
-        countryCodeInput.addTextChangedListener(watcher);
-        phoneInput.addTextChangedListener(watcher);
     }
 
     @Override
@@ -61,14 +55,6 @@ public class ConnectIDRegistrationActivityUIController implements CommCareActivi
 
     public String getNameText() { return nameInput.getText().toString(); }
     public void setNameText(String name) { nameInput.setText(name); }
-    public void setAltCountryCode(String code) { countryCodeInput.setText(code); }
-    public String getAltCountryCode() {
-        return countryCodeInput.getText().toString();
-    }
-    public String getAltPhoneNumber() {
-        return phoneInput.getText().toString();
-    }
-    public void setAltPhoneNumber(String number) { phoneInput.setText(number); }
     public void setButtonEnabled(boolean enabled) { registerButton.setEnabled(enabled); }
 
     public void setErrorText(String text) {

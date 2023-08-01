@@ -9,7 +9,6 @@ import org.commcare.core.network.AuthInfo;
 import org.commcare.dalvik.R;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.WithUIController;
-import org.commcare.utils.PhoneNumberHelper;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -34,26 +33,10 @@ implements WithUIController {
 
         uiController.setupUI();
 
-        int code = PhoneNumberHelper.getCountryCode(this);
-        String codeText = String.format(Locale.getDefault(), "+%d", code);
-
         ConnectUserRecord user = ConnectIDManager.getUser(this);
         if(user != null) {
             uiController.setNameText(user.getName());
-
-            String phone = user.getAlternatePhone();
-            int existingCode = PhoneNumberHelper.getCountryCode(this, phone);
-            if(existingCode > 0) {
-                code = existingCode;
-                codeText = String.format(Locale.getDefault(), "+%d", code);
-
-                phone = phone.substring(codeText.length());
-            }
-
-            uiController.setAltPhoneNumber(phone);
         }
-
-        uiController.setAltCountryCode(codeText);
 
         updateStatus();
     }
@@ -74,7 +57,7 @@ implements WithUIController {
     }
 
     private String generateUserId() {
-        int idLength = 7;
+        int idLength = 20;
 
         String charSet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
         StringBuilder userId = new StringBuilder();
@@ -98,17 +81,8 @@ implements WithUIController {
     }
 
     public void updateStatus() {
-        String error = null;
-        if (uiController.getNameText().length() == 0) {
-            error = getString(R.string.connect_register_error_name);
-        } else {
-            String altPhone = PhoneNumberHelper.buildPhoneNumber(uiController.getAltCountryCode(), uiController.getAltPhoneNumber());
-            if (!PhoneNumberHelper.isValidPhoneNumber(this, altPhone)) {
-                error = getString(R.string.connect_register_error_phone);
-            } else if (altPhone.equals(phone)) {
-                error = getString(R.string.connect_register_error_same_number);
-            }
-        }
+        String error = uiController.getNameText().length() == 0 ?
+                getString(R.string.connect_register_error_name) : null;
 
         uiController.setErrorText(error);
         uiController.setButtonEnabled(error == null);
@@ -136,16 +110,13 @@ implements WithUIController {
         
         String url = getString(R.string.ConnectURL) + "/users/register";
 
-        String altPhone = PhoneNumberHelper.buildPhoneNumber(uiController.getAltCountryCode(), uiController.getAltPhoneNumber());
-
-        user = new ConnectUserRecord(phone, generateUserId(), generatePassword(), uiController.getNameText(), altPhone);
+        user = new ConnectUserRecord(phone, generateUserId(), generatePassword(), uiController.getNameText(), "");
 
         HashMap<String, String> params = new HashMap<>();
         params.put("username", user.getUserID());
         params.put("password", user.getPassword());
         params.put("name", user.getName());
         params.put("phone_number", phone);
-        params.put("recovery_phone", altPhone);
 
         ConnectIDNetworkHelper.post(this, url, new AuthInfo.NoAuth(), params, false, new ConnectIDNetworkHelper.INetworkResultHandler() {
             @Override
@@ -166,18 +137,15 @@ implements WithUIController {
         String url = getString(R.string.ConnectURL) + "/users/update_profile";
 
         String newName = uiController.getNameText();
-        String newNumber = PhoneNumberHelper.buildPhoneNumber(uiController.getAltCountryCode(), uiController.getAltPhoneNumber());
 
-        if(newName.equals(user.getName()) && newNumber.equals(user.getAlternatePhone())) {
+        if(newName.equals(user.getName())) {
             finish(true);
         }
         else {
             user.setName(newName);
-            user.setAlternatePhone(newNumber);
 
             HashMap<String, String> params = new HashMap<>();
             params.put("name", user.getName());
-            params.put("secondary_phone", user.getAlternatePhone());
 
             ConnectIDNetworkHelper.post(this, url, new AuthInfo.ProvidedAuth(user.getUserID(), user.getPassword(), false), params, false, new ConnectIDNetworkHelper.INetworkResultHandler() {
                 @Override
@@ -187,7 +155,7 @@ implements WithUIController {
 
                 @Override
                 public void processFailure(int responseCode, IOException e) {
-                    uiController.setErrorText(String.format(Locale.getDefault(), "Registration error: %d", responseCode));
+                    uiController.setErrorText(String.format(Locale.getDefault(), "Error: %d", responseCode));
                 }
             });
         }
