@@ -5,7 +5,6 @@ import com.appmattus.certificatetransparency.VerificationResult
 import com.appmattus.certificatetransparency.certificateTransparencyInterceptor
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
-import org.commcare.core.network.HttpBuilderConfig
 import org.commcare.preferences.HiddenPreferences
 import org.commcare.util.LogTypes
 import org.javarosa.core.services.Logger
@@ -14,20 +13,22 @@ import org.javarosa.core.services.Logger
  * Adds and removes Certificate Transparency (CT) network interceptor
  *
  */
-class CTInterceptorConfig:HttpBuilderConfig {
+class CTInterceptorConfig {
 
-    override fun performCustomConfig(client: OkHttpClient.Builder): OkHttpClient.Builder {
-        if (HiddenPreferences.isCertificateTransparencyEnabled() && !interceptorEnabled) {
-            interceptorEnabled = true;
-            return client.addNetworkInterceptor(getCTInterceptor())
+    public fun toggleCertificateTransparency(client: OkHttpClient.Builder){
+        if (HiddenPreferences.isCertificateTransparencyEnabled()){
+            if(!interceptorEnabled) {
+                client.addNetworkInterceptor(getCTInterceptor())
+                interceptorEnabled = true;
+            }
         }
-
-        // In case there are CT Interceptors already attached
-        if (!HiddenPreferences.isCertificateTransparencyEnabled() && interceptorEnabled) {
-            interceptorEnabled = false;
-            removeCTInterceptors(client)
+        else {
+            // In case there are CT Interceptors already attached
+            if (interceptorEnabled) {
+                removeCTInterceptors(client)
+                interceptorEnabled = false;
+            }
         }
-        return client
     }
 
     private fun getCTInterceptor(): Interceptor {
