@@ -220,7 +220,7 @@ public class CommCareApplication extends MultiDexApplication {
         // improperly, so the second https request in a short time period will flop)
         System.setProperty("http.keepAlive", "false");
 
-        loadOkHttpBuilderCustomConfig();
+        customiseOkHttp();
 
         Thread.setDefaultUncaughtExceptionHandler(new CommCareExceptionHandler(Thread.getDefaultUncaughtExceptionHandler(), this));
 
@@ -1189,7 +1189,7 @@ public class CommCareApplication extends MultiDexApplication {
         return true;
     }
 
-    public void loadOkHttpBuilderCustomConfig() {
+    public void customiseOkHttp() {
         CommCareNetworkServiceGenerator.customizeRetrofitSetup(new OkHttpBuilderCustomConfig());
     }
 }

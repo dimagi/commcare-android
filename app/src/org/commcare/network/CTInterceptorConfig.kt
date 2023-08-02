@@ -18,22 +18,19 @@ class CTInterceptorConfig {
     companion object {
         private var interceptor: Interceptor? = null
         private var previousRequestFailed = false
-        private var interceptorEnabled = false
+        private var interceptorAttached = false
     }
 
     fun toggleCertificateTransparency(client: OkHttpClient.Builder){
         if (HiddenPreferences.isCertificateTransparencyEnabled()){
-            if(!interceptorEnabled) {
+            if(!interceptorAttached) {
                 client.addNetworkInterceptor(getCTInterceptor())
-                interceptorEnabled = true
+                interceptorAttached = true
             }
         }
-        else {
-            // In case there are CT Interceptors already attached
-            if (interceptorEnabled) {
-                removeCTInterceptors(client)
-                interceptorEnabled = false
-            }
+        else if (interceptorAttached) {
+            removeCTInterceptors(client)
+            interceptorAttached = false
         }
     }
 

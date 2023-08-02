@@ -226,7 +226,7 @@ public class DeveloperPreferences extends CommCarePreferenceFragment {
                 }
                 break;
             case ENABLE_CERTIFICATE_TRANSPARENCY:
-                CommCareApplication.instance().loadOkHttpBuilderCustomConfig();
+                CommCareApplication.instance().customiseOkHttp();
                 break;
         }
     }
