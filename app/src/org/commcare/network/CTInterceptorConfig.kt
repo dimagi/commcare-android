@@ -15,18 +15,24 @@ import org.javarosa.core.services.Logger
  */
 class CTInterceptorConfig {
 
-    public fun toggleCertificateTransparency(client: OkHttpClient.Builder){
+    companion object {
+        private var interceptor: Interceptor? = null
+        private var previousRequestFailed = false
+        private var interceptorEnabled = false
+    }
+
+    fun toggleCertificateTransparency(client: OkHttpClient.Builder){
         if (HiddenPreferences.isCertificateTransparencyEnabled()){
             if(!interceptorEnabled) {
                 client.addNetworkInterceptor(getCTInterceptor())
-                interceptorEnabled = true;
+                interceptorEnabled = true
             }
         }
         else {
             // In case there are CT Interceptors already attached
             if (interceptorEnabled) {
                 removeCTInterceptors(client)
-                interceptorEnabled = false;
+                interceptorEnabled = false
             }
         }
     }
@@ -40,7 +46,7 @@ class CTInterceptorConfig {
                             Logger.log(LogTypes.TYPE_NETWORK, "$host -> $result")
                             previousRequestFailed = true
                         } else if (result is VerificationResult.Success && previousRequestFailed) {
-                            previousRequestFailed = false;
+                            previousRequestFailed = false
                         }
 
                     }
@@ -52,11 +58,5 @@ class CTInterceptorConfig {
 
     private fun removeCTInterceptors(client: OkHttpClient.Builder) {
         client.networkInterceptors().removeAll { it === interceptor }
-    }
-
-    companion object {
-        private var interceptor: Interceptor? = null
-        private var previousRequestFailed = false
-        private var interceptorEnabled = false
     }
 }
