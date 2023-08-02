@@ -140,4 +140,8 @@ public class AnalyticsParamValue {
 
     public static final String IN_APP_UPDATE_SUCCESS = "success";
 
+    public static final String CCC_SIGN_IN_METHOD_PIN = "pin";
+    public static final String CCC_SIGN_IN_METHOD_FINGERPRINT = "fingerprint";
+    public static final String CCC_SIGN_IN_METHOD_PASSWORD = "password";
+
 }

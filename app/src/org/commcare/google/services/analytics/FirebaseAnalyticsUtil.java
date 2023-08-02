@@ -1,6 +1,5 @@
 package org.commcare.google.services.analytics;
 
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.text.TextUtils;
@@ -14,8 +13,6 @@ import org.commcare.preferences.MainConfigurablePreferences;
 import org.commcare.suite.model.OfflineUserRestore;
 import org.commcare.utils.EncryptionUtils;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.Date;
 
 import static org.commcare.google.services.analytics.AnalyticsParamValue.CORRUPT_APP_STATE;
@@ -340,5 +337,11 @@ public class FirebaseAnalyticsUtil {
         reportEvent(CCAnalyticsEvent.FORM_QUARANTINE_EVENT,
                 new String[]{FirebaseAnalytics.Param.ITEM_ID},
                 new String[]{quarantineReasonType});
+    }
+
+    public static void reportCccSignIn(String method) {
+        reportEvent(CCAnalyticsEvent.CCC_SIGN_IN,
+                new String[]{FirebaseAnalytics.Param.METHOD},
+                new String[]{method});
     }
 }
