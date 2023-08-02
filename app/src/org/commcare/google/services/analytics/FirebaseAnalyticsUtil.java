@@ -348,4 +348,11 @@ public class FirebaseAnalyticsUtil {
                 new String[]{FirebaseAnalytics.Param.METHOD},
                 new String[]{method});
     }
+
+    public static void reportCccRecovery(boolean success, String method) {
+        Bundle b = new Bundle();
+        b.putLong(FirebaseAnalytics.Param.SUCCESS, success ? 1 : 0);
+        b.putString(FirebaseAnalytics.Param.METHOD, method);
+        reportEvent(CCAnalyticsEvent.CCC_RECOVERY, b);
+    }
 }

@@ -7,6 +7,8 @@ import org.commcare.activities.CommCareActivity;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.core.network.AuthInfo;
 import org.commcare.dalvik.R;
+import org.commcare.google.services.analytics.AnalyticsParamValue;
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.WithUIController;
 import org.javarosa.core.io.StreamsUtil;
@@ -85,6 +87,7 @@ implements WithUIController {
 
     public void handleWrongPassword() {
         failureCount++;
+        logRecoveryResult(false);
         uiController.clearPassword();
 
         int requestCode = PASSWORD_FAIL;
@@ -103,6 +106,10 @@ implements WithUIController {
         startActivityForResult(messageIntent, requestCode);
     }
 
+    private void logRecoveryResult(boolean success) {
+        FirebaseAnalyticsUtil.reportCccRecovery(success, AnalyticsParamValue.CCC_RECOVERY_METHOD_PASSWORD);
+    }
+
     public void handleForgotPress() {
         finish(true, true, null, null, null);
     }
@@ -113,6 +120,7 @@ implements WithUIController {
         if(user != null) {
             //If we have the password stored locally, no need for network call
             if(password.equals(user.getPassword())) {
+                logRecoveryResult(true);
                 finish(true, false, null, null, null);
             }
             else {
@@ -149,7 +157,7 @@ implements WithUIController {
                     catch(IOException | JSONException e) {
                         Logger.exception("Parsing return from OTP request", e);
                     }
-
+                    logRecoveryResult(true);
                     finish(true, false, username, name, password);
                 }
 
