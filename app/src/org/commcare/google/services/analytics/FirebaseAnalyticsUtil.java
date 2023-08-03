@@ -34,6 +34,11 @@ public class FirebaseAnalyticsUtil {
     // constant to approximate time taken by an user to go to the video playing app after clicking on the video
     private static final long VIDEO_USAGE_ERROR_APPROXIMATION = 3;
 
+
+    private static void reportEvent(String eventName){
+        reportEvent(eventName, new Bundle());
+    }
+
     private static void reportEvent(String eventName, String paramKey, String paramVal) {
         reportEvent(eventName, new String[]{paramKey}, new String[]{paramVal});
     }
@@ -354,5 +359,13 @@ public class FirebaseAnalyticsUtil {
         b.putLong(FirebaseAnalytics.Param.SUCCESS, success ? 1 : 0);
         b.putString(FirebaseAnalytics.Param.METHOD, method);
         reportEvent(CCAnalyticsEvent.CCC_RECOVERY, b);
+    }
+
+    public static void reportCccSignOut() {
+        reportEvent(CCAnalyticsEvent.CCC_SIGN_OUT);
+    }
+
+    public static void reportLoginClicks() {
+        reportEvent(CCAnalyticsEvent.LOGIN_CLICK);
     }
 }
