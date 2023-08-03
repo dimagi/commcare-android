@@ -402,7 +402,6 @@ public class ConnectIDManager {
                     //If no biometric configured, proceed with password only
                     boolean configured = intent.getBooleanExtra(ConnectIDConstants.CONFIGURED, false);
                     manager.passwordOnlyWorkflow = intent.getBooleanExtra(ConnectIDConstants.PASSWORD, false);
-                    //TODO: Use passwordOnly
                     nextRequestCode = !manager.passwordOnlyWorkflow && configured ? ConnectIDConstants.CONNECT_REGISTRATION_UNLOCK_BIOMETRIC : ConnectIDConstants.CONNECT_REGISTRATION_VERIFY_PRIMARY_PHONE;
                 }
             }
@@ -585,7 +584,13 @@ public class ConnectIDManager {
 
     public static AuthInfo.TokenAuth acquireSSOTokenSync() {
         String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
-        String hqUser = CommCareApplication.instance().getRecordForCurrentUser().getUsername();
+        String hqUser;
+        try {
+            hqUser = CommCareApplication.instance().getRecordForCurrentUser().getUsername();
+        } catch(Exception e) {
+            //No token if no session
+            return null;
+        }
 
         ConnectLinkedAppRecord appRecord = ConnectIDDatabaseHelper.getAppData(manager.parentActivity, seatedAppId, hqUser);
         if(appRecord == null) {
@@ -662,21 +667,26 @@ public class ConnectIDManager {
 
     public static void linkHQWorker(String hqUsername, String hqPassword, String connectToken) {
         ConnectIDManager manager = getInstance();
-        ConnectUserRecord user = ConnectIDDatabaseHelper.getUser(manager.parentActivity);
+        String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
+        ConnectLinkedAppRecord appRecord = ConnectIDDatabaseHelper.getAppData(manager.parentActivity, seatedAppId, hqUsername);
+        if(appRecord != null && !appRecord.getWorkerLinked()) {
+            HashMap<String, String> params = new HashMap<>();
+            params.put("token", connectToken);
 
-        HashMap<String, String> params = new HashMap<>();
-        params.put("token", connectToken);
+            String url = ServerUrls.getKeyServer().replace("phone/keys/", "settings/users/commcare/link_connectid_user/");
 
-        String url = ServerUrls.getKeyServer().replace("phone/keys/", "settings/users/commcare/link_connectid_user/");
+            try {
+                ConnectIDNetworkHelper.PostResult postResult = ConnectIDNetworkHelper.postSync(manager.parentActivity, url, new AuthInfo.ProvidedAuth(hqUsername, hqPassword), params, true);
+                if (postResult.e == null && postResult.responseCode == 200) {
+                    postResult.responseStream.close();
 
-        try {
-            ConnectIDNetworkHelper.PostResult postResult = ConnectIDNetworkHelper.postSync(manager.parentActivity, url, new AuthInfo.ProvidedAuth(hqUsername, hqPassword), params, true);
-            if (postResult.e == null && postResult.responseCode == 200) {
-                postResult.responseStream.close();
+                    //Remember that we linked the user successfully
+                    appRecord.setWorkerLinked(true);
+                    ConnectIDDatabaseHelper.storeApp(manager.parentActivity, appRecord);
+                }
+            } catch (IOException e) {
+                //Don't care for now
             }
-        }
-        catch(IOException e) {
-            //Don't care for now
         }
     }
 
@@ -733,8 +743,6 @@ public class ConnectIDManager {
         ConnectIDManager manager = getInstance();
         if(isSignedIn()) {
             ConnectIDDatabaseHelper.storeApp(manager.parentActivity, appID, userID, passwordOrPin);
-            //TODO: Old start of token chain, clean up
-            //getConnectToken(userID, passwordOrPin);
         }
     }
 

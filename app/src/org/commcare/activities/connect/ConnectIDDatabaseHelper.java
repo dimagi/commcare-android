@@ -107,6 +107,10 @@ public class ConnectIDDatabaseHelper {
             record.setPassword(passwordOrPin);
         }
 
+        storeApp(context, record);
+    }
+
+    public static void storeApp(Context context, ConnectLinkedAppRecord record) {
         getConnectStorage(context, ConnectLinkedAppRecord.class).write(record);
     }
 

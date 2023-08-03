@@ -15,7 +15,7 @@ import org.commcare.views.UiElement;
 @ManagedUi(R.layout.screen_connect_password)
 public class ConnectIDPasswordActivityUIController implements CommCareActivityUIController {
     @UiElement(value = R.id.connect_password_message)
-    private AutoCompleteTextView messageTextView;
+    private TextView messageTextView;
     @UiElement(value = R.id.connect_password_input)
     private AutoCompleteTextView passwordInput;
     @UiElement(value = R.id.connect_password_repeat_input)

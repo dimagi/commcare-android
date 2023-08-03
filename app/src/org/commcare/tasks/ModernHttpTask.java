@@ -36,7 +36,13 @@ public class ModernHttpTask
 
     public static final int SIMPLE_HTTP_TASK_ID = 11;
 
-    private final ModernHttpRequester requester;
+    private final Context context;
+    private final String url;
+    private final Multimap<String, String> params;
+    private final HashMap<String, String> headers;
+    private final RequestBody requestBody;
+    private final HTTPMethod method;
+    private final AuthInfo authInfo;
     private InputStream responseDataStream;
     private IOException mException;
     private Response<ResponseBody> mResponse;
@@ -54,22 +60,31 @@ public class ModernHttpTask
             HTTPMethod method,
             AuthInfo authInfo) {
         taskId = SIMPLE_HTTP_TASK_ID;
-        requester = CommCareApplication.instance().buildHttpRequester(
-                context,
-                url,
-                params,
-                headers,
-                requestBody,
-                null,
-                method,
-                authInfo,
-                null,
-                method.equals(HTTPMethod.GET));
+
+        this.context = context;
+        this.url = url;
+        this.params = params;
+        this.headers = headers;
+        this.requestBody = requestBody;
+        this.method = method;
+        this.authInfo = authInfo;
     }
 
     @Override
     protected Void doTaskBackground(Void... params) {
         try {
+            ModernHttpRequester requester = CommCareApplication.instance().buildHttpRequester(
+                    context,
+                    url,
+                    this.params,
+                    headers,
+                    requestBody,
+                    null,
+                    method,
+                    authInfo,
+                    null,
+                    method.equals(HTTPMethod.GET));
+
             mResponse = requester.makeRequest();
             if (mResponse.isSuccessful()) {
                 responseDataStream = requester.getResponseStream(mResponse);
