@@ -514,6 +514,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                 handleConnectButtonPress();
                 return true;
             case MENU_CONNECT_SIGN_OUT:
+                FirebaseAnalyticsUtil.reportCccSignOut();
                 ConnectIDManager.signOut();
                 uiController.refreshView();
                 uiController.setPasswordOrPin("");

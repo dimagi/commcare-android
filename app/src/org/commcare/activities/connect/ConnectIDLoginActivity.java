@@ -14,6 +14,8 @@ import androidx.biometric.BiometricManager;
 import androidx.biometric.BiometricPrompt;
 import androidx.core.content.ContextCompat;
 
+import org.commcare.google.services.analytics.AnalyticsParamValue;
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.utils.BiometricsHelper;
 import org.commcare.activities.CommCareActivity;
 import org.commcare.interfaces.CommCareActivityUIController;
@@ -134,6 +136,7 @@ implements WithUIController {
             public void onAuthenticationSucceeded(
                     @NonNull BiometricPrompt.AuthenticationResult result) {
                 super.onAuthenticationSucceeded(result);
+                logSuccess();
                 finish(true, false, false);
             }
 
@@ -146,6 +149,12 @@ implements WithUIController {
                         .show();
             }
         });
+    }
+
+    private void logSuccess() {
+        String method = attemptingFingerprint ? AnalyticsParamValue.CCC_SIGN_IN_METHOD_FINGERPRINT
+                : AnalyticsParamValue.CCC_SIGN_IN_METHOD_PIN;
+        FirebaseAnalyticsUtil.reportCccSignIn(method);
     }
 
     private void finish(boolean success, boolean password, boolean recover) {

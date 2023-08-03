@@ -1,6 +1,5 @@
 package org.commcare.google.services.analytics;
 
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.text.TextUtils;
@@ -9,13 +8,12 @@ import com.google.firebase.analytics.FirebaseAnalytics;
 
 import org.commcare.CommCareApplication;
 import org.commcare.DiskUtils;
+import org.commcare.activities.connect.ConnectIDManager;
 import org.commcare.android.logging.ReportingUtils;
 import org.commcare.preferences.MainConfigurablePreferences;
 import org.commcare.suite.model.OfflineUserRestore;
 import org.commcare.utils.EncryptionUtils;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.Date;
 
 import static org.commcare.google.services.analytics.AnalyticsParamValue.CORRUPT_APP_STATE;
@@ -35,6 +33,11 @@ public class FirebaseAnalyticsUtil {
 
     // constant to approximate time taken by an user to go to the video playing app after clicking on the video
     private static final long VIDEO_USAGE_ERROR_APPROXIMATION = 3;
+
+
+    private static void reportEvent(String eventName){
+        reportEvent(eventName, new Bundle());
+    }
 
     private static void reportEvent(String eventName, String paramKey, String paramVal) {
         reportEvent(eventName, new String[]{paramKey}, new String[]{paramVal});
@@ -75,7 +78,7 @@ public class FirebaseAnalyticsUtil {
         }
 
         String buildProfileID = ReportingUtils.getAppBuildProfileId();
-        if (!TextUtils.isEmpty(appId)) {
+        if (!TextUtils.isEmpty(buildProfileID)) {
             analyticsInstance.setUserProperty(CCAnalyticsParam.CC_APP_BUILD_PROFILE_ID, buildProfileID);
         }
 
@@ -88,6 +91,9 @@ public class FirebaseAnalyticsUtil {
         if (!TextUtils.isEmpty(freeDiskBucket)) {
             analyticsInstance.setUserProperty(CCAnalyticsParam.FREE_DISK, freeDiskBucket);
         }
+
+        analyticsInstance.setUserProperty(CCAnalyticsParam.CCC_ENABLED,
+                String.valueOf(ConnectIDManager.isConnectIDIntroduced()));
     }
 
     private static String getFreeDiskBucket() {
@@ -340,5 +346,26 @@ public class FirebaseAnalyticsUtil {
         reportEvent(CCAnalyticsEvent.FORM_QUARANTINE_EVENT,
                 new String[]{FirebaseAnalytics.Param.ITEM_ID},
                 new String[]{quarantineReasonType});
+    }
+
+    public static void reportCccSignIn(String method) {
+        reportEvent(CCAnalyticsEvent.CCC_SIGN_IN,
+                new String[]{FirebaseAnalytics.Param.METHOD},
+                new String[]{method});
+    }
+
+    public static void reportCccRecovery(boolean success, String method) {
+        Bundle b = new Bundle();
+        b.putLong(FirebaseAnalytics.Param.SUCCESS, success ? 1 : 0);
+        b.putString(FirebaseAnalytics.Param.METHOD, method);
+        reportEvent(CCAnalyticsEvent.CCC_RECOVERY, b);
+    }
+
+    public static void reportCccSignOut() {
+        reportEvent(CCAnalyticsEvent.CCC_SIGN_OUT);
+    }
+
+    public static void reportLoginClicks() {
+        reportEvent(CCAnalyticsEvent.LOGIN_CLICK);
     }
 }
