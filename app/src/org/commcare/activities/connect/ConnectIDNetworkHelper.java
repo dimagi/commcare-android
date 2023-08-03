@@ -8,6 +8,7 @@ import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
 import com.google.gson.Gson;
 
+import org.commcare.CommCareApplication;
 import org.commcare.core.interfaces.HttpResponseProcessor;
 import org.commcare.core.network.AuthInfo;
 import org.commcare.core.network.HTTPMethod;
@@ -23,11 +24,72 @@ import java.util.Map;
 
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
+import okhttp3.ResponseBody;
+import retrofit2.Response;
 
 public class ConnectIDNetworkHelper {
     public interface INetworkResultHandler {
         void processSuccess(int responseCode, InputStream responseData);
         void processFailure(int responseCode, IOException e);
+    }
+
+    public static class PostResult {
+        public int responseCode;
+        public InputStream responseStream;
+        public IOException e;
+
+        public PostResult(int responseCode, InputStream responseStream, IOException e) {
+            this.responseCode = responseCode;
+            this.responseStream = responseStream;
+            this.e = e;
+        }
+    }
+
+    public static PostResult postSync(Context context, String url, AuthInfo authInfo, HashMap<String, String> params, boolean useFormEncoding) {
+        HashMap<String, String> headers = new HashMap<>();
+        RequestBody requestBody;
+
+        if(useFormEncoding) {
+            Multimap<String, String> multimap = ArrayListMultimap.create();
+            for (Map.Entry<String, String> entry : params.entrySet()) {
+                multimap.put(entry.getKey(), entry.getValue());
+            }
+
+            requestBody = ModernHttpRequester.getPostBody(multimap);
+            headers = getContentHeadersForXFormPost(requestBody);
+        }
+        else {
+            Gson gson = new Gson();
+            String json = gson.toJson(params);
+            requestBody = RequestBody.create(MediaType.parse("application/json"), json);
+        }
+
+        ModernHttpRequester requester = CommCareApplication.instance().buildHttpRequester(
+                context,
+                url,
+                ImmutableMultimap.of(),
+                headers,
+                requestBody,
+                null,
+                HTTPMethod.POST,
+                authInfo,
+                null,
+                false);
+
+        int responseCode = -1;
+        InputStream stream = null;
+        IOException exception = null;
+        try {
+            Response<ResponseBody> response = requester.makeRequest();
+            responseCode = response.code();
+            if (response.isSuccessful()) {
+                stream = requester.getResponseStream(response);
+            }
+        } catch (IOException e) {
+            exception = e;
+        }
+
+        return new PostResult(responseCode, stream, exception);
     }
 
     public static void post(Context context, String url, AuthInfo authInfo, HashMap<String, String> params, boolean useFormEncoding, INetworkResultHandler handler) {
@@ -142,7 +204,7 @@ public class ConnectIDNetworkHelper {
         ModernHttpTask getTask =
                 new ModernHttpTask(context, getUrl,
                         ArrayListMultimap.create(),
-                        new HashMap<>(),// CommcareRequestGenerator.getHeaders(""),
+                        new HashMap<>(),
                         authInfo);
         getTask.connect(new ConnectorWithHttpResponseProcessor<>() {
             @Override

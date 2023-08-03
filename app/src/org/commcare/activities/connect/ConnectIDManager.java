@@ -6,12 +6,14 @@ import android.content.Context;
 import android.content.Intent;
 import android.widget.Toast;
 
+import org.commcare.CommCareApplication;
 import org.commcare.activities.CommCareActivity;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.core.network.AuthInfo;
 import org.commcare.dalvik.R;
 import org.commcare.preferences.AppManagerDeveloperPreferences;
+import org.commcare.preferences.HiddenPreferences;
 import org.commcare.preferences.ServerUrls;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.services.Logger;
@@ -20,6 +22,8 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
@@ -49,6 +53,7 @@ public class ConnectIDManager {
     private String recoveryPhone = null;
     private String recoverySecret = null;
     private boolean forgotPassword = false;
+    private boolean passwordOnlyWorkflow = false;
 
     //Singleton, private constructor
     private ConnectIDManager() {}
@@ -244,6 +249,7 @@ public class ConnectIDManager {
 
                 params.put(ConnectIDConstants.USERNAME, user.getUserID());
                 params.put(ConnectIDConstants.PASSWORD, user.getPassword());
+                params.put(ConnectIDConstants.METHOD, passwordOnlyWorkflow ? "true" : "false");
             }
             case ConnectIDConstants.CONNECT_REGISTRATION_ALTERNATE_PHONE -> {
                 nextActivity = ConnectIDPhoneActivity.class;
@@ -393,9 +399,9 @@ public class ConnectIDManager {
                 if(success) {
                     //If no biometric configured, proceed with password only
                     boolean configured = intent.getBooleanExtra(ConnectIDConstants.CONFIGURED, false);
-                    boolean passwordOnly = intent.getBooleanExtra(ConnectIDConstants.PASSWORD, false);
+                    manager.passwordOnlyWorkflow = intent.getBooleanExtra(ConnectIDConstants.PASSWORD, false);
                     //TODO: Use passwordOnly
-                    nextRequestCode = configured ? ConnectIDConstants.CONNECT_REGISTRATION_UNLOCK_BIOMETRIC : ConnectIDConstants.CONNECT_REGISTRATION_VERIFY_PRIMARY_PHONE;
+                    nextRequestCode = !manager.passwordOnlyWorkflow && configured ? ConnectIDConstants.CONNECT_REGISTRATION_UNLOCK_BIOMETRIC : ConnectIDConstants.CONNECT_REGISTRATION_VERIFY_PRIMARY_PHONE;
                 }
             }
             case ConnectIDConstants.CONNECT_REGISTRATION_UNLOCK_BIOMETRIC -> {
@@ -403,7 +409,7 @@ public class ConnectIDManager {
                 rememberPhase = success;
             }
             case ConnectIDConstants.CONNECT_REGISTRATION_VERIFY_PRIMARY_PHONE -> {
-                nextRequestCode = ConnectIDConstants.CONNECT_REGISTRATION_CONFIGURE_BIOMETRICS;
+                nextRequestCode = manager.passwordOnlyWorkflow ? ConnectIDConstants.CONNECT_REGISTRATION_MAIN : ConnectIDConstants.CONNECT_REGISTRATION_CONFIGURE_BIOMETRICS;
                 if(success) {
                     boolean changeNumber = intent != null && intent.getBooleanExtra(ConnectIDConstants.CHANGE, false);
                     nextRequestCode = changeNumber ? ConnectIDConstants.CONNECT_REGISTRATION_CHANGE_PRIMARY_PHONE : ConnectIDConstants.CONNECT_REGISTRATION_CONFIGURE_PASSWORD;
@@ -574,7 +580,41 @@ public class ConnectIDManager {
         manager.continueWorkflow();
     }
 
-    public static void getConnectToken(String hqUsername, String hqPassword) {
+    public static AuthInfo.TokenAuth acquireSSOTokenSync() {
+        String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
+        String hqUser = CommCareApplication.instance().getRecordForCurrentUser().getUsername();
+
+        ConnectLinkedAppRecord appRecord = ConnectIDDatabaseHelper.getAppData(manager.parentActivity, seatedAppId, hqUser);
+        if(appRecord == null) {
+            return null;
+        }
+
+        //See if we already have a valid token
+        AuthInfo.TokenAuth hqTokenAuth = getTokenCredentialsForApp(seatedAppId, hqUser);
+        if(hqTokenAuth == null) {
+            //First get a valid Connect token
+            AuthInfo.TokenAuth connectToken = getConnectToken();
+            if(connectToken == null) {
+                //Retrieve a new connect token
+                connectToken = retrieveConnectToken();
+            }
+
+            if(connectToken == null) {
+                //If we can't get a valid Connect token there's no point continuing
+                return null;
+            }
+
+            //Link user if necessary
+            linkHQWorker(hqUser, appRecord.getPassword(), connectToken.bearerToken);
+
+            //Retrieve HQ token
+            hqTokenAuth = retrieveHQToken(hqUser, connectToken.bearerToken);
+        }
+
+        return hqTokenAuth;
+    }
+
+    public static AuthInfo.TokenAuth retrieveConnectToken() {
         ConnectIDManager manager = getInstance();
         ConnectUserRecord user = ConnectIDDatabaseHelper.getUser(manager.parentActivity);
 
@@ -587,26 +627,34 @@ public class ConnectIDManager {
 
         String url = manager.parentActivity.getString(R.string.ConnectURL) + "/o/token/";
 
-        ConnectIDNetworkHelper.post(manager.parentActivity, url, new AuthInfo.NoAuth(), params, true, new ConnectIDNetworkHelper.INetworkResultHandler() {
-            @Override
-            public void processSuccess(int responseCode, InputStream responseData) {
-                try {
-                    String responseAsString = new String(StreamsUtil.inputStreamToByteArray(responseData));
-                    JSONObject json = new JSONObject(responseAsString);
-                    String key = "access_token";
-                    if (json.has(key)) {
-                        linkHQWorker(hqUsername, hqPassword, json.getString(key));
-                    }
-                } catch (IOException | JSONException e) {
-                    Logger.exception("Parsing return from OIDC call", e);
-                }
-            }
+        ConnectIDNetworkHelper.PostResult postResult = ConnectIDNetworkHelper.postSync(manager.parentActivity, url, new AuthInfo.NoAuth(), params, true);
+        if(postResult.e != null) {
+            Toast.makeText(manager.parentActivity, "OIDC error", Toast.LENGTH_SHORT).show();
+        } else if(postResult.responseCode != 200) {
+            Toast.makeText(manager.parentActivity, String.format(Locale.getDefault(), "OIDC error: %d", postResult.responseCode), Toast.LENGTH_SHORT).show();
+        } else {
+            try {
+                String responseAsString = new String(StreamsUtil.inputStreamToByteArray(postResult.responseStream));
+                postResult.responseStream.close();
+                JSONObject json = new JSONObject(responseAsString);
+                String key = "access_token";
+                if (json.has(key)) {
+                    String token = json.getString(key);
+                    Date expiration = new Date();
+                    key = "expires_in";
+                    int seconds = json.has(key) ? json.getInt(key) : 0;
+                    expiration.setTime(expiration.getTime() + ((long)seconds * 1000));
+                    user.updateConnectToken(token, expiration);
+                    ConnectIDDatabaseHelper.storeUser(manager.parentActivity, user);
 
-            @Override
-            public void processFailure(int responseCode, IOException e) {
-                Toast.makeText(manager.parentActivity, "OIDC error", Toast.LENGTH_SHORT).show();
+                    return new AuthInfo.TokenAuth(token);
+                }
+            } catch (IOException | JSONException e) {
+                Logger.exception("Parsing return from Connect OIDC call", e);
             }
-        });
+        }
+
+        return null;
     }
 
     public static void linkHQWorker(String hqUsername, String hqPassword, String connectToken) {
@@ -614,86 +662,76 @@ public class ConnectIDManager {
         ConnectUserRecord user = ConnectIDDatabaseHelper.getUser(manager.parentActivity);
 
         HashMap<String, String> params = new HashMap<>();
-//        params.put("client_id", "4eHlQad1oasGZF0lPiycZIjyL0SY1zx7ZblA6SCV");
-//        params.put("scope", "sync");
-//        params.put("grant_type", "password");
-//        params.put("username", hqUsername + "@first-project-2.commcarehq.org");
         params.put("token", connectToken);
 
         String url = ServerUrls.getKeyServer().replace("phone/keys/", "settings/users/commcare/link_connectid_user/");
-        //https://www.commcarehq.org/a/dimagi-intro/phone/keys/
 
-        //localhost:8000/oauth/token?grant_type=password&client_id=CLIENT_ID&username=100@commcarehq.commcarehq.org&password=PASS&scope=sync
-        //String url = manager.parentActivity.getString(R.string.ConnectURL) + "/o/token/";
-
-        ConnectIDNetworkHelper.post(manager.parentActivity, url, new AuthInfo.ProvidedAuth(hqUsername, hqPassword), params, true, new ConnectIDNetworkHelper.INetworkResultHandler() {
-            @Override
-            public void processSuccess(int responseCode, InputStream responseData) {
-//                try {
-//                    String responseAsString = new String(StreamsUtil.inputStreamToByteArray(responseData));
-//                    JSONObject json = new JSONObject(responseAsString);
-//                    String key = "access_token";
-//                    if (json.has(key)) {
-                        getHQToken(hqUsername, connectToken);
-//                        username = json.getString(key);
-//                    }
-//                } catch (IOException | JSONException e) {
-//                    Logger.exception("Parsing return from HQ Link call", e);
-//                }
+        try {
+            ConnectIDNetworkHelper.PostResult postResult = ConnectIDNetworkHelper.postSync(manager.parentActivity, url, new AuthInfo.ProvidedAuth(hqUsername, hqPassword), params, true);
+            if (postResult.e == null && postResult.responseCode == 200) {
+                postResult.responseStream.close();
             }
-
-            @Override
-            public void processFailure(int responseCode, IOException e) {
-                getHQToken(hqUsername, connectToken);
-                Toast.makeText(manager.parentActivity, "HQ Link error", Toast.LENGTH_SHORT).show();
-            }
-        });
+        }
+        catch(IOException e) {
+            //Don't care for now
+        }
     }
 
-    public static void getHQToken(String hqUsername, String connectToken) {
+    public static AuthInfo.TokenAuth retrieveHQToken(String hqUsername, String connectToken) {
         ConnectIDManager manager = getInstance();
-        ConnectUserRecord user = ConnectIDDatabaseHelper.getUser(manager.parentActivity);
 
         HashMap<String, String> params = new HashMap<>();
         params.put("client_id", "4eHlQad1oasGZF0lPiycZIjyL0SY1zx7ZblA6SCV");
         params.put("scope", "sync");
         params.put("grant_type", "password");
-        params.put("username", hqUsername + "@first-project-2.commcarehq.org");
+        params.put("username", hqUsername + "@" + HiddenPreferences.getUserDomain());
         params.put("password", connectToken);
 
-        String url = ServerUrls.getKeyServer().replace("a/first-project-2/phone/keys/", "oauth/token/");
-        //https://www.commcarehq.org/a/dimagi-intro/phone/keys/
+        String host = "";
+        try {
+            host = (new URL(ServerUrls.getKeyServer())).getHost();
+        } catch (MalformedURLException e) {
+            throw new RuntimeException(e);
+        }
 
-        //localhost:8000/oauth/token?grant_type=password&client_id=CLIENT_ID&username=100@commcarehq.commcarehq.org&password=PASS&scope=sync
-        //String url = manager.parentActivity.getString(R.string.ConnectURL) + "/o/token/";
+        String url = "https://" + host + "/oauth/token/";
 
-        ConnectIDNetworkHelper.post(manager.parentActivity, url, new AuthInfo.NoAuth(), params, true, new ConnectIDNetworkHelper.INetworkResultHandler() {
-            @Override
-            public void processSuccess(int responseCode, InputStream responseData) {
-                try {
-                    String responseAsString = new String(StreamsUtil.inputStreamToByteArray(responseData));
-                    JSONObject json = new JSONObject(responseAsString);
-                    String key = "access_token";
-                    if (json.has(key)) {
-                        //username = json.getString(key);
-                    }
-                } catch (IOException | JSONException e) {
-                    Logger.exception("Parsing return from HQ OIDC call", e);
+        ConnectIDNetworkHelper.PostResult postResult = ConnectIDNetworkHelper.postSync(manager.parentActivity, url, new AuthInfo.NoAuth(), params, true);
+        if(postResult.e != null) {
+            Toast.makeText(manager.parentActivity, "HQ OIDC error", Toast.LENGTH_SHORT).show();
+        } else if(postResult.responseCode != 200) {
+            Toast.makeText(manager.parentActivity, String.format(Locale.getDefault(), "HQ OIDC error: %d", postResult.responseCode), Toast.LENGTH_SHORT).show();
+        } else {
+            try {
+                String responseAsString = new String(StreamsUtil.inputStreamToByteArray(postResult.responseStream));
+                JSONObject json = new JSONObject(responseAsString);
+                String key = "access_token";
+                if (json.has(key)) {
+                    String token = json.getString(key);
+                    Date expiration = new Date();
+                    key = "expires_in";
+                    int seconds = json.has(key) ? json.getInt(key) : 0;
+                    expiration.setTime(expiration.getTime() + ((long)seconds * 1000));
+
+                    String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
+                    ConnectIDDatabaseHelper.storeHQToken(manager.parentActivity, seatedAppId, hqUsername, token, expiration);
+
+                    return new AuthInfo.TokenAuth(token);
                 }
+            } catch (IOException | JSONException e) {
+                Logger.exception("Parsing return from HQ OIDC call", e);
             }
+        }
 
-            @Override
-            public void processFailure(int responseCode, IOException e) {
-                Toast.makeText(manager.parentActivity, "HQ OIDC error", Toast.LENGTH_SHORT).show();
-            }
-        });
+        return null;
     }
 
     public static void rememberAppCredentials(String appID, String userID, String passwordOrPin) {
         ConnectIDManager manager = getInstance();
         if(isSignedIn()) {
             ConnectIDDatabaseHelper.storeApp(manager.parentActivity, appID, userID, passwordOrPin);
-            getConnectToken(userID, passwordOrPin);
+            //TODO: Old start of token chain, clean up
+            //getConnectToken(userID, passwordOrPin);
         }
     }
 
@@ -709,6 +747,28 @@ public class ConnectIDManager {
             ConnectLinkedAppRecord record = ConnectIDDatabaseHelper.getAppData(manager.parentActivity, appID, userID);
             if (record != null && record.getPassword().length() > 0) {
                 return new AuthInfo.ProvidedAuth(record.getUserID(), record.getPassword(), false);
+            }
+        }
+
+        return null;
+    }
+
+    public static AuthInfo.TokenAuth getConnectToken() {
+        if(isSignedIn()) {
+            ConnectUserRecord user = ConnectIDDatabaseHelper.getUser(manager.parentActivity);
+            if (user != null && (new Date()).compareTo(user.getConnectTokenExpiration()) < 0) {
+                return new AuthInfo.TokenAuth(user.getConnectToken());
+            }
+        }
+
+        return null;
+    }
+
+    public static AuthInfo.TokenAuth getTokenCredentialsForApp(String appID, String userID) {
+        if(isSignedIn()) {
+            ConnectLinkedAppRecord record = ConnectIDDatabaseHelper.getAppData(manager.parentActivity, appID, userID);
+            if (record != null && (new Date()).compareTo(record.getHQTokenExpiration()) < 0) {
+                return new AuthInfo.TokenAuth(record.getHQToken());
             }
         }
 

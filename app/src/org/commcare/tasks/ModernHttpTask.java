@@ -6,12 +6,14 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 
 import org.commcare.CommCareApplication;
+import org.commcare.activities.connect.ConnectIDManager;
 import org.commcare.core.interfaces.HttpResponseProcessor;
 import org.commcare.core.interfaces.ResponseStreamAccessor;
 import org.commcare.core.network.AuthInfo;
 import org.commcare.core.network.HTTPMethod;
 import org.commcare.core.network.ModernHttpRequester;
 import org.commcare.tasks.templates.CommCareTask;
+import org.javarosa.core.model.User;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -62,7 +64,7 @@ public class ModernHttpTask
                 method,
                 authInfo,
                 null,
-                method.equals(HTTPMethod.GET) ? true : false);
+                method.equals(HTTPMethod.GET));
     }
 
     @Override

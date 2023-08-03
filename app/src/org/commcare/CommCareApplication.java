@@ -36,6 +36,7 @@ import net.sqlcipher.database.SQLiteDatabase;
 import net.sqlcipher.database.SQLiteException;
 
 import org.commcare.activities.LoginActivity;
+import org.commcare.activities.connect.ConnectIDManager;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.javarosa.AndroidLogEntry;
@@ -1153,10 +1154,18 @@ public class CommCareApplication extends MultiDexApplication {
                                                   AuthInfo authInfo,
                                                   @Nullable HttpResponseProcessor responseProcessor, boolean retry) {
 
-        CommCareNetworkService networkService;
+        CommCareNetworkService networkService = null;
         if (authInfo instanceof AuthInfo.NoAuth) {
             networkService = CommCareNetworkServiceGenerator.createNoAuthCommCareNetworkService();
-        } else {
+        } else if(authInfo instanceof AuthInfo.CurrentAuth) {
+            //Try to get SSO token
+            AuthInfo.TokenAuth tokenAuth = ConnectIDManager.acquireSSOTokenSync();
+            if(tokenAuth != null) {
+                authInfo = tokenAuth;
+            }
+        }
+
+        if(networkService == null) {
             networkService = CommCareNetworkServiceGenerator.createCommCareNetworkService(
                     HttpUtils.getCredential(authInfo),
                     DeveloperPreferences.isEnforceSecureEndpointEnabled(), retry, params);

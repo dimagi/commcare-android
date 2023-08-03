@@ -5,6 +5,8 @@ import org.commcare.models.framework.Persisting;
 import org.commcare.modern.database.Table;
 import org.commcare.modern.models.MetaField;
 
+import java.util.Date;
+
 @Table(org.commcare.android.database.connect.models.ConnectLinkedAppRecord.STORAGE_KEY)
 public class ConnectLinkedAppRecord extends Persisted {
     /**
@@ -26,19 +28,35 @@ public class ConnectLinkedAppRecord extends Persisted {
     @Persisting(3)
     private String password;
 
-    public ConnectLinkedAppRecord() {
+    @Persisting(4)
+    private boolean workerLinked;
+    @Persisting(value=5, nullable = true)
+    private String hqToken;
 
+    @Persisting(6)
+    private Date hqTokenExpiration;
+
+    public ConnectLinkedAppRecord() {
+        hqTokenExpiration = new Date();
     }
 
     public ConnectLinkedAppRecord(String appID, String userID, String password) {
         this.app_id = appID;
         this.user_id = userID;
         this.password = password;
+
+        hqTokenExpiration = new Date();
     }
 
-    public String getAppID() { return app_id; }
     public String getUserID() { return user_id; }
     public String getPassword() { return password; }
     public void setPassword(String password) { this.password = password;}
-
+    public boolean getWorkerLinked() { return workerLinked; }
+    public void setWorkerLinked(boolean linked) { workerLinked = linked; }
+    public String getHQToken() { return hqToken; }
+    public Date getHQTokenExpiration() { return hqTokenExpiration; }
+    public void updateHQToken(String token, Date expirationDate) {
+        hqToken = token;
+        hqTokenExpiration = expirationDate;
+    }
 }

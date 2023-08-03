@@ -14,6 +14,8 @@ import org.commcare.views.UiElement;
 
 @ManagedUi(R.layout.screen_connect_password)
 public class ConnectIDPasswordActivityUIController implements CommCareActivityUIController {
+    @UiElement(value = R.id.connect_password_message)
+    private AutoCompleteTextView messageTextView;
     @UiElement(value = R.id.connect_password_input)
     private AutoCompleteTextView passwordInput;
     @UiElement(value = R.id.connect_password_repeat_input)
@@ -69,6 +71,7 @@ public class ConnectIDPasswordActivityUIController implements CommCareActivityUI
         passwordInput.setText("");
         passwordRepeatInput.setText("");
     }
+    public void setMessageText(String text) { messageTextView.setText(text); }
     public String getPasswordText() {
         return passwordInput.getText().toString();
     }

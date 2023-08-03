@@ -18,6 +18,7 @@ import org.commcare.utils.EncryptionUtils;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.storage.Persistable;
 
+import java.util.Date;
 import java.util.Vector;
 
 public class ConnectIDDatabaseHelper {
@@ -105,6 +106,17 @@ public class ConnectIDDatabaseHelper {
         else if(!record.getPassword().equals(passwordOrPin)) {
             record.setPassword(passwordOrPin);
         }
+
+        getConnectStorage(context, ConnectLinkedAppRecord.class).write(record);
+    }
+
+    public static void storeHQToken(Context context, String appID, String userID, String token, Date expiration) {
+        ConnectLinkedAppRecord record = getAppData(context, appID, userID);
+        if(record == null) {
+            record = new ConnectLinkedAppRecord(appID, userID, "");
+        }
+
+        record.updateHQToken(token, expiration);
 
         getConnectStorage(context, ConnectLinkedAppRecord.class).write(record);
     }

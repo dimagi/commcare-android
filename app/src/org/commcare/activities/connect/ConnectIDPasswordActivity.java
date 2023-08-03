@@ -35,11 +35,16 @@ implements WithUIController {
 
         username = getIntent().getStringExtra(ConnectIDConstants.USERNAME);
         oldPassword = getIntent().getStringExtra(ConnectIDConstants.PASSWORD);
+        boolean passwordOnlyWorkflow = getIntent().getStringExtra(ConnectIDConstants.METHOD).equals("true");
 
         phone = getIntent().getStringExtra(ConnectIDConstants.PHONE);
         secret = getIntent().getStringExtra(ConnectIDConstants.SECRET);
 
         uiController.setupUI();
+
+        uiController.setMessageText(passwordOnlyWorkflow ?
+                getString(R.string.connect_password_message) :
+                getString(R.string.connect_password_message_recovery));
     }
 
     @Override

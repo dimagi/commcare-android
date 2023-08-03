@@ -43,7 +43,8 @@ public class DatabaseConnectOpenHelper extends SQLiteOpenHelper {
                 builder = new TableBuilder(ConnectLinkedAppRecord.class);
                 database.execSQL(builder.getTableCreateString());
 
-                DbUtil.createNumbersTable(database);
+                //TODO: Shouldn't need this, remove once verified
+                //DbUtil.createNumbersTable(database);
 
                 database.setVersion(CONNECT_DB_VERSION);
 

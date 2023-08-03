@@ -487,7 +487,8 @@
     <string name="connect_phone_not_found" cc:translatable="true">Phone number not found</string>
 
     <string name="connect_password_title" cc:translatable="true">Set Password</string>
-    <string name="connect_password_message" cc:translatable="true">Please choose a recovery password</string>
+    <string name="connect_password_message" cc:translatable="true">Please choose a password</string>
+    <string name="connect_password_message_recovery" cc:translatable="true">Please choose a password for recovery</string>
     <string name="connect_password_button" cc:translatable="true">OK</string>
     <string name="connect_password" cc:translatable="true">Enter Password</string>
     <string name="connect_password_repeat" cc:translatable="true">Confirm Password</string>

@@ -38,14 +38,15 @@ public class ConnectUserRecord extends Persisted {
     private Date lastPasswordDate;
 
     @Persisting(value=8, nullable = true)
-    private String clientID;
+    private String connectToken;
 
     @Persisting(value=9, nullable = true)
-    private String clientSecret;
+    private Date connectTokenExpiration;
 
     public ConnectUserRecord() {
         registrationPhase = ConnectIDConstants.CONNECT_NO_ACTIVITY;
         lastPasswordDate = new Date();
+        connectTokenExpiration = new Date();
     }
 
     public ConnectUserRecord(String primaryPhone, String userID, String password, String name, String alternatePhone) {
@@ -55,6 +56,8 @@ public class ConnectUserRecord extends Persisted {
         this.userID = userID;
         this.password = password;
         this.name = name;
+
+        connectTokenExpiration = new Date();
     }
 
     public static ConnectUserRecord getUserFromIntent(Intent intent) {
@@ -87,6 +90,10 @@ public class ConnectUserRecord extends Persisted {
     public void setRegistrationPhase(int phase) { registrationPhase = phase; }
     public Date getLastPasswordDate() { return lastPasswordDate; }
     public void setLastPasswordDate(Date date) { lastPasswordDate = date; }
-    public String getClientID() { return clientID; }
-    public String getClientSecret() { return clientSecret; }
+    public void updateConnectToken(String token, Date expirationDate) {
+        connectToken = token;
+        connectTokenExpiration = expirationDate;
+    }
+    public String getConnectToken() { return connectToken; }
+    public Date getConnectTokenExpiration() { return connectTokenExpiration; }
 }
