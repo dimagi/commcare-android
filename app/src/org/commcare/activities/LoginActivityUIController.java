@@ -25,6 +25,7 @@ import org.commcare.activities.connect.ConnectIDManager;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.dalvik.R;
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.preferences.DevSessionRestorer;
@@ -151,7 +152,10 @@ public class LoginActivityUIController implements CommCareActivityUIController {
 
         connectLoginButton.setOnClickListener(arg0 -> activity.handleConnectButtonPress());
 
-        loginButton.setOnClickListener(arg0 -> activity.initiateLoginAttempt(isRestoreSessionChecked()));
+        loginButton.setOnClickListener(arg0 -> {
+            FirebaseAnalyticsUtil.reportLoginClicks();
+            activity.initiateLoginAttempt(isRestoreSessionChecked());
+        });
 
         passwordOrPin.setOnEditorActionListener((v, actionId, event) -> {
             if (actionId == EditorInfo.IME_ACTION_DONE) {

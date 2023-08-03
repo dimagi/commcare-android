@@ -26,5 +26,10 @@ public class CCAnalyticsEvent {
     static final String COMMON_COMMCARE_EVENT = "common_commcare_event";
     static final String FORM_QUARANTINE_EVENT = "form_quarantine_event";
     static final String IN_APP_UPDATE_EVENT = "in_app_update_event";
+    static final String LOGIN_CLICK = "login_click";
+
+    static final String CCC_SIGN_IN = "ccc_sign_in";
+    static final String CCC_SIGN_OUT = "ccc_sign_out";
+    static final String CCC_RECOVERY = "ccc_recovery";
 
 }

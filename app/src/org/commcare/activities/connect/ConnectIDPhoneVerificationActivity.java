@@ -4,11 +4,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
-import android.widget.Toast;
 
 import org.commcare.activities.CommCareActivity;
 import org.commcare.core.network.AuthInfo;
 import org.commcare.dalvik.R;
+import org.commcare.google.services.analytics.AnalyticsParamValue;
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.WithUIController;
 import org.javarosa.core.io.StreamsUtil;
@@ -236,6 +237,7 @@ public class ConnectIDPhoneVerificationActivity extends CommCareActivity<Connect
                         Logger.exception("Parsing return from confirm_secondary_otp", e);
                     }
                 }
+                logRecoveryResult(true);
                 finish(true, false, username, displayName, recoveryPhone);
             }
 
@@ -248,10 +250,20 @@ public class ConnectIDPhoneVerificationActivity extends CommCareActivity<Connect
                 else if(e != null) {
                     message = e.toString();
                 }
-
+                logRecoveryResult(false);
                 uiController.setErrorMessage(String.format("Error verifying SMS code. %s", message));
             }
         });
+    }
+
+    private void logRecoveryResult(boolean success) {
+        if (method != MethodRegistrationPrimary) {
+            String methodParam = AnalyticsParamValue.CCC_RECOVERY_METHOD_PRIMARY_OTP;
+            if (method == MethodRecoveryAlternate) {
+                methodParam = AnalyticsParamValue.CCC_RECOVERY_METHOD_ALTERNATE_OTP;
+            }
+            FirebaseAnalyticsUtil.reportCccRecovery(success, methodParam);
+        }
     }
 
     public void changeNumber() {

@@ -11,6 +11,8 @@ import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.core.network.AuthInfo;
 import org.commcare.dalvik.R;
+import org.commcare.google.services.analytics.AnalyticsParamValue;
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.preferences.AppManagerDeveloperPreferences;
 import org.commcare.preferences.ServerUrls;
 import org.javarosa.core.io.StreamsUtil;
@@ -553,6 +555,7 @@ public class ConnectIDManager {
                         manager.forgotPassword = false;
                         manager.connectStatus = ConnectIDStatus.LoggedIn;
                         manager.loginListener.connectActivityComplete(true);
+                        FirebaseAnalyticsUtil.reportCccSignIn(AnalyticsParamValue.CCC_SIGN_IN_METHOD_PASSWORD);
 
                         ConnectUserRecord user = ConnectIDDatabaseHelper.getUser(manager.parentActivity);
                         user.setLastPasswordDate(new Date());
