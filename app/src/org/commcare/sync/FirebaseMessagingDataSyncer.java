@@ -145,7 +145,6 @@ public class FirebaseMessagingDataSyncer implements CommCareTaskConnector {
                     return;
                 }
                 Toast.makeText(context, Localization.get("sync.success.synced"), Toast.LENGTH_LONG).show();
-                processReturnFromBackgroundSync();
             }
 
             @Override
@@ -166,38 +165,6 @@ public class FirebaseMessagingDataSyncer implements CommCareTaskConnector {
         };
         dataPullTask.connect(this);
         dataPullTask.execute();
-    }
-
-    private void processReturnFromBackgroundSync() {
-        AndroidSessionWrapper aSessWrapper = CommCareApplication.instance().getCurrentSessionWrapper();
-        CommCareSession commcareSession = aSessWrapper.getSession();
-
-        CommCareActivity activity = CommCareActivity.currentActivity;
-        boolean recreateActivity = false;
-
-        try {
-            switch (getAppNavigationState()) {
-                case ENTITY_SELECTION:
-                    aSessWrapper.cleanVolatiles();
-                    ((EntitySelectActivity) activity).loadEntities();
-                    break;
-                case ENTITY_DETAIL:
-                    aSessWrapper.cleanVolatiles();
-                    recreateActivity = true;
-                    break;
-                case MENU:
-                    recreateActivity = true;
-                    break;
-            }
-            commcareSession.syncState();
-            if (recreateActivity) {
-                activity.recreate();
-            }
-        }
-        catch(RuntimeException e){
-            activity.setResult(RESULT_CANCELED);
-            activity.finish();
-        }
     }
 
     private boolean checkUserAndDomain(User user, String payloadUsername, String payloadDomain) {
