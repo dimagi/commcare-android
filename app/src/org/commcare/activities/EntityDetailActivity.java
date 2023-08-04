@@ -89,17 +89,8 @@ public class EntityDetailActivity
             asw = CommCareApplication.instance().getCurrentSessionWrapper();
             session = asw.getSession();
 
-            // Check if the Case Id still match that of the selected entity
-            if (getIntent().hasExtra(SessionFrame.STATE_DATUM_VAL)) {
-                String selectedCaseId = DatumUtil.getReturnValueFromSelection(
-                        mTreeReference, asw.getSession().getNeededDatum(), asw.getEvaluationContext());
-
-                String intentCaseId = getIntent().getStringExtra(SessionFrame.STATE_DATUM_VAL);
-                if (!selectedCaseId.equals(getIntent().getStringExtra(SessionFrame.STATE_DATUM_VAL))) {
-                    throw new SessionStateInconsistentException(
-                            "Invalid Intent data: " + intentCaseId + " " + selectedCaseId);
-                }
-            }
+            // Check if the Case Id of the selected entity is still valid
+            validateCaseSelection();
 
         } catch (SessionStateUninitException | SessionStateInconsistentException sue) {
             // The user isn't logged in! bounce this back to where we came from
@@ -162,6 +153,19 @@ public class EntityDetailActivity
 
         AdMobManager.requestBannerAdForView(this, this.findViewById(R.id.ad_container),
                 AdLocation.EntityDetail);
+    }
+
+    private void validateCaseSelection() throws SessionStateInconsistentException{
+        if (getIntent().hasExtra(SessionFrame.STATE_DATUM_VAL)) {
+            String selectedCaseId = DatumUtil.getReturnValueFromSelection(
+                    mTreeReference, asw.getSession().getNeededDatum(), asw.getEvaluationContext());
+
+            String intentCaseId = getIntent().getStringExtra(SessionFrame.STATE_DATUM_VAL);
+            if (!selectedCaseId.equals(getIntent().getStringExtra(SessionFrame.STATE_DATUM_VAL))) {
+                throw new SessionStateInconsistentException(
+                        "Invalid Intent data: " + intentCaseId + " " + selectedCaseId);
+            }
+        }
     }
 
     @Override
