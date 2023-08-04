@@ -1,6 +1,7 @@
 package org.commcare.utils;
 
 import android.content.SharedPreferences;
+import android.util.Base64;
 
 import androidx.preference.PreferenceManager;
 
@@ -9,6 +10,7 @@ import com.google.firebase.messaging.FirebaseMessaging;
 
 import org.commcare.CommCareApplication;
 import org.commcare.dalvik.BuildConfig;
+import org.commcare.services.FCMMessageData;
 import org.javarosa.core.services.Logger;
 
 public class FirebaseMessagingUtil {
@@ -66,5 +68,19 @@ public class FirebaseMessagingUtil {
                 Logger.exception("Fetching FCM registration token failed", task.getException());
             }
         };
+    }
+
+    public static String serializeFCMMessageData(FCMMessageData fcmMessageData){
+        byte[] serializedMessageData = SerializationUtil.serialize(fcmMessageData);
+        String base64EncodedMessageData = Base64.encodeToString(serializedMessageData, Base64.DEFAULT);
+        return base64EncodedMessageData;
+    }
+
+    public static FCMMessageData deserializeFCMMessageData(String base64EncodedSerializedFCMMessageData){
+        if (base64EncodedSerializedFCMMessageData != null) {
+            byte [] serializedMessageData = Base64.decode(base64EncodedSerializedFCMMessageData, Base64.DEFAULT);
+            return SerializationUtil.deserialize(serializedMessageData, FCMMessageData.class);
+        }
+        return null;
     }
 }

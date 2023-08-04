@@ -11,15 +11,13 @@ import static org.commcare.sync.FirebaseMessagingDataSyncer.AppNavigationStates.
 import static org.commcare.utils.FirebaseMessagingUtil.removeServerUrlFromUserDomain;
 
 import android.content.Context;
+import android.content.Intent;
+import android.os.Bundle;
 import android.widget.Toast;
 
 import org.commcare.CommCareApplication;
 import org.commcare.activities.CommCareActivity;
-import org.commcare.activities.EntityDetailActivity;
 import org.commcare.activities.EntitySelectActivity;
-import org.commcare.activities.FormEntryActivity;
-import org.commcare.activities.MenuActivity;
-import org.commcare.activities.StandardHomeActivity;
 import org.commcare.models.AndroidSessionWrapper;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.preferences.ServerUrls;
@@ -31,6 +29,7 @@ import org.commcare.tasks.ResultAndError;
 import org.commcare.tasks.templates.CommCareTask;
 import org.commcare.tasks.templates.CommCareTaskConnector;
 import org.commcare.util.LogTypes;
+import org.commcare.utils.FirebaseMessagingUtil;
 import org.commcare.utils.SyncDetailCalculations;
 import org.commcare.views.dialogs.PinnedNotificationWithProgress;
 import org.javarosa.core.model.User;
@@ -42,6 +41,9 @@ import java.util.List;
 
 public class FirebaseMessagingDataSyncer implements CommCareTaskConnector {
 
+    public static final String PENGING_SYNC_ALERT_ACTION = "org.commcare.dalvik.action.PENDING_SYNC_ALERT";
+    public static final String FCM_MESSAGE_DATA = "fcm_message_data";
+    public static final String FCM_MESSAGE_DATA_KEY = "fcm_message_data_key";
     private Context context;
 
     public FirebaseMessagingDataSyncer(Context context) {
@@ -98,7 +100,7 @@ public class FirebaseMessagingDataSyncer implements CommCareTaskConnector {
             //The current state of the app by checking which activity is in the foreground
             switch (getAppNavigationState()) {
                 case FORM_ENTRY:
-                    informUserAboutPendingSync(CommCareActivity.currentActivity, fcmMessageData);
+                    informUserAboutPendingSync(fcmMessageData);
                     break;
                 case HOME_SCREEN:
                 case ENTITY_SELECTION:
@@ -208,24 +210,28 @@ public class FirebaseMessagingDataSyncer implements CommCareTaskConnector {
     }
 
     private AppNavigationStates getAppNavigationState() {
-        if (CommCareActivity.currentActivity instanceof FormEntryActivity)
+        if (CommCareActivity.currentActivityName.equals("FormEntryActivity"))
             return FORM_ENTRY;
-        else if (CommCareActivity.currentActivity instanceof EntitySelectActivity)
+        else if (CommCareActivity.currentActivityName.equals("EntitySelectActivity"))
             return ENTITY_SELECTION;
-        else if (CommCareActivity.currentActivity instanceof EntityDetailActivity)
+        else if (CommCareActivity.currentActivityName.equals("EntityDetailActivity"))
             return ENTITY_DETAIL;
-        else if (CommCareActivity.currentActivity instanceof StandardHomeActivity)
+        else if (CommCareActivity.currentActivityName.equals("StandardHomeActivity"))
             return HOME_SCREEN;
-        else if (CommCareActivity.currentActivity instanceof MenuActivity)
+        else if (CommCareActivity.currentActivityName.equals("MenuActivity"))
             return MENU;
         return OTHER;
     }
 
-    // This method is responsible for informing the User and scheduling a sync for when it's safe
-    private void informUserAboutPendingSync(CommCareActivity activity, FCMMessageData fcmMessageData) {
-        activity.runOnUiThread(() ->
-                activity.alertPendingSync(fcmMessageData)
-        );
+    // This method is responsible for informing the User about a pending sync and scheduling
+    // a sync for when it's safe
+    private void informUserAboutPendingSync(FCMMessageData fcmMessageData) {
+        Intent intent = new Intent(PENGING_SYNC_ALERT_ACTION);
+        Bundle b = new Bundle();
+        b.putSerializable(FCM_MESSAGE_DATA, FirebaseMessagingUtil.serializeFCMMessageData(fcmMessageData));
+        intent.putExtra(FCM_MESSAGE_DATA_KEY, b);
+
+        context.sendBroadcast(intent);
     }
 
     @Override

@@ -9,6 +9,7 @@ import org.commcare.activities.GeoPointActivity;
 import org.commcare.android.logging.ReportingUtils;
 import org.commcare.services.FCMMessageData;
 import org.commcare.utils.AndroidCommCarePlatform;
+import org.commcare.utils.FirebaseMessagingUtil;
 import org.commcare.utils.GeoUtils;
 import org.commcare.utils.MapLayer;
 import org.commcare.utils.SerializationUtil;
@@ -599,19 +600,16 @@ public class HiddenPreferences {
     }
 
     public static void setPostFormSubmissionSyncNeededFCMMessageData(FCMMessageData fcmMessageData) {
-        String serializedMessageData = Base64.encodeToString(SerializationUtil.serialize(fcmMessageData), Base64.DEFAULT);
         CommCareApplication.instance().getCurrentApp().getAppPreferences().edit()
-                .putString(POST_FOR_SUBMISSION_SYNC_NEEDED_FCM_MESSAGE_DATA, serializedMessageData)
+                .putString(POST_FOR_SUBMISSION_SYNC_NEEDED_FCM_MESSAGE_DATA,
+                        FirebaseMessagingUtil.serializeFCMMessageData(fcmMessageData))
                 .apply();
     }
 
     public static FCMMessageData getPostFormSubmissionSyncNeededFCMMessageData() {
         String serializedMessageData = CommCareApplication.instance().getCurrentApp().getAppPreferences()
                 .getString(POST_FOR_SUBMISSION_SYNC_NEEDED_FCM_MESSAGE_DATA, null);
-        if (serializedMessageData != null) {
-            return SerializationUtil.deserialize(Base64.decode(serializedMessageData, Base64.DEFAULT), FCMMessageData.class);
-        }
-        return null;
+        return FirebaseMessagingUtil.deserializeFCMMessageData(serializedMessageData);
     }
 
     public static boolean isPendingSyncDialogDisabled() {

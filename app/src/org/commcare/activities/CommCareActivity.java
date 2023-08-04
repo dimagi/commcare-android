@@ -3,7 +3,6 @@ package org.commcare.activities;
 
 import static org.commcare.preferences.HiddenPreferences.isFlagSecureEnabled;
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Rect;
@@ -125,7 +124,7 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
     private int dialogId = -1;
     private ContainerFragment<Bundle> managedUiState;
     private boolean isMainScreenBlocked;
-    public static CommCareActivity currentActivity;
+    public static String currentActivityName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -294,7 +293,7 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
         super.onResume();
         AudioController.INSTANCE.playPreviousAudio();
 
-        currentActivity = this;
+        currentActivityName = this.getClass().getSimpleName();
     }
 
     @Override
@@ -705,7 +704,7 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
         return stateHolder != null && stateHolder.isCurrentTaskRunning();
     }
 
-    // Dummy method, should me implemented by each Activity that is not safe for a background sync
+    // Dummy method, should be implemented by each Activity that is not safe for a background sync
     public void alertPendingSync(FCMMessageData fcmMessageData) {}
 
     /**

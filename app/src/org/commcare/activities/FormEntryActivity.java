@@ -59,6 +59,7 @@ import org.commcare.models.FormRecordProcessor;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.services.FCMMessageData;
+import org.commcare.services.PendingSyncAlertBroadcastReceiver;
 import org.commcare.tasks.FormLoaderTask;
 import org.commcare.tasks.SaveToDiskTask;
 import org.commcare.tts.TextToSpeechCallback;
@@ -104,6 +105,7 @@ import androidx.appcompat.app.ActionBar;
 import androidx.core.app.ActivityCompat;
 
 import static org.commcare.android.database.user.models.FormRecord.QuarantineReason_LOCAL_PROCESSING_ERROR;
+import static org.commcare.sync.FirebaseMessagingDataSyncer.PENGING_SYNC_ALERT_ACTION;
 
 /**
  * Displays questions, animates transitions between
@@ -173,6 +175,9 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
     private boolean fullFormProfilingEnabled = false;
     private EvaluationTraceReporter traceReporter;
+
+    private PendingSyncAlertBroadcastReceiver pendingSyncAlertBroadcastReceiver = new PendingSyncAlertBroadcastReceiver();
+
     private TextToSpeechCallback mTTSCallback = new TextToSpeechCallback() {
         @Override
         public void initFailed() {
@@ -880,6 +885,8 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             PollSensorController.INSTANCE.stopLocationPolling();
         }
         TextToSpeechConverter.INSTANCE.stop();
+
+        unregisterReceiver(pendingSyncAlertBroadcastReceiver);
     }
 
     private void saveInlineVideoState() {
@@ -927,6 +934,9 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         restorePriorStates();
 
         reportVideoUsageIfAny();
+
+        IntentFilter intentFilter = new IntentFilter(PENGING_SYNC_ALERT_ACTION);
+        registerReceiver(pendingSyncAlertBroadcastReceiver, intentFilter);
     }
 
     private void reportVideoUsageIfAny() {
