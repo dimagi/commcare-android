@@ -1501,6 +1501,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         }
     }
 
+    @Override
     public void alertPendingSync(FCMMessageData fcmMessageData) {
         if (!HiddenPreferences.isPostFormSubmissionSyncNeeded()) {
             HiddenPreferences.setPostFormSubmissionSyncNeeded(true);

@@ -6,11 +6,7 @@ import android.os.Bundle;
 import android.util.Pair;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
 
 import org.commcare.CommCareApplication;
@@ -94,12 +90,15 @@ public class EntityDetailActivity
             session = asw.getSession();
 
             // Check if the Case Id still match that of the selected entity
-            if (getIntent().hasExtra(SessionFrame.STATE_DATUM_VAL)){
+            if (getIntent().hasExtra(SessionFrame.STATE_DATUM_VAL)) {
                 String selectedCaseId = DatumUtil.getReturnValueFromSelection(
-                        mTreeReference,asw.getSession().getNeededDatum(), asw.getEvaluationContext());
+                        mTreeReference, asw.getSession().getNeededDatum(), asw.getEvaluationContext());
+
                 String intentCaseId = getIntent().getStringExtra(SessionFrame.STATE_DATUM_VAL);
-                if (!selectedCaseId.equals(getIntent().getStringExtra(SessionFrame.STATE_DATUM_VAL)))
-                    throw new SessionStateInconsistentException("Invalid Intent data: "+intentCaseId+" "+selectedCaseId);
+                if (!selectedCaseId.equals(getIntent().getStringExtra(SessionFrame.STATE_DATUM_VAL))) {
+                    throw new SessionStateInconsistentException(
+                            "Invalid Intent data: " + intentCaseId + " " + selectedCaseId);
+                }
             }
 
         } catch (SessionStateUninitException | SessionStateInconsistentException sue) {
