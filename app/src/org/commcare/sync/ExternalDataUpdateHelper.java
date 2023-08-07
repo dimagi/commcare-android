@@ -19,7 +19,9 @@ public class ExternalDataUpdateHelper {
      * @param c context to send the broadcast with
      * @param updatedCases list of cases updated or created in the update
      */
-    public static void broadcastDataUpdate(Context c, @Nullable ArrayList<String> updatedCases) {
+    public static void broadcastDataUpdate(Context c,
+                                           @Nullable ArrayList<String> updatedCases,
+                                           boolean backgroundSync) {
         Intent i = new Intent(COMMCARE_DATA_UPDATE_ACTION);
         if (updatedCases != null) {
             i.putStringArrayListExtra("cases", updatedCases);
@@ -31,7 +33,10 @@ public class ExternalDataUpdateHelper {
                 "org.commcare.dalvik.reminders.CommCareReceiver"));
         c.sendBroadcast(i);
 
-        broadcastDataUpdateToCommCare(c);
+        // Only broadcast to CommCare when it's a background sync
+        if (backgroundSync) {
+            broadcastDataUpdateToCommCare(c);
+        }
     }
 
     // send explicit broadcast to CommCare

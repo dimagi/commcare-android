@@ -128,8 +128,13 @@ public class FirebaseMessagingDataSyncer implements CommCareTaskConnector {
      */
     private void triggerBackgroundSync(User user) {
 
-        DataPullTask<Object> dataPullTask = new DataPullTask<Object>(
-                user.getUsername(), user.getCachedPwd(), user.getUniqueId(), ServerUrls.getDataServerKey(), context, true) {
+        DataPullTask<Object> dataPullTask = new DataPullTask<Object>(user.getUsername(),
+                user.getCachedPwd(),
+                user.getUniqueId(),
+                ServerUrls.getDataServerKey(),
+                context,
+                true,
+                true) {
 
             @Override
             protected void onPreExecute() {

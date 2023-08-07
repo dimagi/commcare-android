@@ -90,7 +90,7 @@ public class FormRecordProcessor {
         XmlFormRecordProcessor.process(is, factory);
 
         //Let anyone who is listening know!
-        ExternalDataUpdateHelper.broadcastDataUpdate(c, factory.getCreatedAndUpdatedCases());
+        ExternalDataUpdateHelper.broadcastDataUpdate(c, factory.getCreatedAndUpdatedCases(), false);
 
         //Update the record before trying to purge, so we don't block on this, in case
         //anything weird happens. We don't want to get into a loop

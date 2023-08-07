@@ -54,8 +54,9 @@ public class ArchivedFormRemoteRestore {
         User u = CommCareApplication.instance().getSession().getLoggedInUser();
 
         // We should go digest auth this user on the server and see whether to pull them down.
-        DataPullTask<FormRecordListActivity> pull = new DataPullTask<FormRecordListActivity>(u.getUsername(),
-                u.getCachedPwd(), u.getUniqueId(), remoteUrl, activity, dataPullRequester, blockRemoteKeyManagement, false) {
+        DataPullTask<FormRecordListActivity> pull = new DataPullTask<FormRecordListActivity>(
+                u.getUsername(), u.getCachedPwd(), u.getUniqueId(), remoteUrl, activity,
+                dataPullRequester, blockRemoteKeyManagement, false, false) {
             @Override
             protected void deliverResult(FormRecordListActivity receiver, ResultAndError<PullTaskResult> statusAndErrorMessage) {
                 PullTaskResult status = statusAndErrorMessage.data;

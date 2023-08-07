@@ -99,10 +99,11 @@ public abstract class DataPullTask<R>
     private UserKeyRecord ukrForLogin;
     private boolean wasKeyLoggedIn;
     private boolean skipFixtures;
+    private boolean isBackgroundSync;
 
     public DataPullTask(String username, String password, String userId,
                         String server, Context context, DataPullRequester dataPullRequester,
-                        boolean blockRemoteKeyManagement, boolean skipFixtures) {
+                        boolean blockRemoteKeyManagement, boolean skipFixtures, boolean isBackgroundSync) {
         this.skipFixtures = skipFixtures;
         this.server = server;
         this.username = username;
@@ -114,12 +115,13 @@ public abstract class DataPullTask<R>
         this.asyncRestoreHelper = CommCareApplication.instance().getAsyncRestoreHelper(this);
         this.blockRemoteKeyManagement = blockRemoteKeyManagement;
         TAG = DataPullTask.class.getSimpleName();
+        this.isBackgroundSync = isBackgroundSync;
     }
 
     public DataPullTask(String username, String password, String userId,
-                        String server, Context context, boolean skipFixtures) {
+                        String server, Context context, boolean skipFixtures, boolean isBackgroundSync) {
         this(username, password, userId, server, context, CommCareApplication.instance().getDataPullRequester(),
-                false, skipFixtures);
+                false, skipFixtures, isBackgroundSync);
     }
 
     // TODO PLM: once this task is refactored into manageable components, it should use the
@@ -451,7 +453,7 @@ public abstract class DataPullTask<R>
     private void onSuccessfulSync() {
         recordSuccessfulSyncTime(username);
 
-        ExternalDataUpdateHelper.broadcastDataUpdate(context, null);
+        ExternalDataUpdateHelper.broadcastDataUpdate(context, null, isBackgroundSync);
 
         if (loginNeeded) {
             CommCareApplication.instance().getAppStorage(UserKeyRecord.class).write(ukrForLogin);
