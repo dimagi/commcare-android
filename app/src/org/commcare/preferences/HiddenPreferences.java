@@ -108,6 +108,7 @@ public class HiddenPreferences {
     public final static String POST_FOR_SUBMISSION_SYNC_NEEDED = "post-form-submission-sync-needed";
     public final static String DONT_SHOW_PENDING_SYNC_DIALOG = "dont-show-pending-sync-dialog";
     private static final String POST_FOR_SUBMISSION_SYNC_NEEDED_FCM_MESSAGE_DATA = "post-form-submission-sync-needed-fcm-message-data";
+    private static final String ENABLE_BACKGROUND_SYNC = "cc-enable-background-sync";
 
 
     /**
@@ -621,5 +622,13 @@ public class HiddenPreferences {
         CommCareApplication.instance().getCurrentApp().getAppPreferences().edit()
                 .putBoolean(DONT_SHOW_PENDING_SYNC_DIALOG, dialogDisabled)
                 .apply();
+    }
+
+    /**
+     * This custom property is used to enable background syncing and it works in conjunction
+     * conjunction with Firebase Messaging Push Notifications
+     */
+    public static boolean isBackgroundSyncEnabled() {
+        return DeveloperPreferences.doesPropertyMatch(ENABLE_BACKGROUND_SYNC, PrefValues.NO, PrefValues.YES);
     }
 }

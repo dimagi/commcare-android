@@ -1,6 +1,7 @@
 package org.commcare.activities;
 
 
+import static org.commcare.preferences.HiddenPreferences.isBackgroundSyncEnabled;
 import static org.commcare.preferences.HiddenPreferences.isFlagSecureEnabled;
 import static org.commcare.sync.ExternalDataUpdateHelper.COMMCARE_DATA_UPDATE_ACTION;
 
@@ -300,8 +301,9 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
 
         currentActivityName = this.getClass().getSimpleName();
 
-        IntentFilter ifr = new IntentFilter(COMMCARE_DATA_UPDATE_ACTION);
-        registerReceiver(dataSyncCompleteBroadcastReceiver, ifr);
+        if (isBackgroundSyncEnabled()) {
+            registerReceiver(dataSyncCompleteBroadcastReceiver, new IntentFilter(COMMCARE_DATA_UPDATE_ACTION));
+        }
     }
 
     @Override
@@ -326,7 +328,9 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
         areFragmentsPaused = true;
         AudioController.INSTANCE.systemInducedPause();
 
-        unregisterReceiver(dataSyncCompleteBroadcastReceiver);
+        if (isBackgroundSyncEnabled()) {
+            unregisterReceiver(dataSyncCompleteBroadcastReceiver);
+        }
     }
 
     @Override
