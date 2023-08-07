@@ -2,8 +2,8 @@ package org.commcare.utils;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
-import android.os.Build;
 
+import org.commcare.dalvik.BuildConfig;
 import org.commcare.interfaces.RuntimePermissionRequester;
 import org.commcare.views.dialogs.CommCareAlertDialog;
 import org.commcare.views.dialogs.DialogCreationHelpers;
@@ -20,6 +20,7 @@ import androidx.core.content.ContextCompat;
  */
 public class Permissions {
     public final static int ALL_PERMISSIONS_REQUEST = 1;
+    public static final String COMMCARE_CASE_READ_PERMISSION = BuildConfig.APPLICATION_ID + ".provider.cases.read";
 
     /**
      * Ask for Android permissions needed by the app all at once.  This goes

@@ -2,9 +2,11 @@ package org.commcare.activities;
 
 
 import static org.commcare.preferences.HiddenPreferences.isFlagSecureEnabled;
+import static org.commcare.sync.ExternalDataUpdateHelper.COMMCARE_DATA_UPDATE_ACTION;
 
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.IntentFilter;
 import android.graphics.Rect;
 import android.os.Bundle;
 import android.text.Spannable;
@@ -31,6 +33,7 @@ import org.commcare.fragments.TaskConnectorFragment;
 import org.commcare.interfaces.WithUIController;
 import org.commcare.logic.DetailCalloutListenerDefaultImpl;
 import org.commcare.preferences.LocalePreferences;
+import org.commcare.services.DataSyncCompleteBroadcastReceiver;
 import org.commcare.services.FCMMessageData;
 import org.commcare.session.CommCareSession;
 import org.commcare.session.SessionFrame;
@@ -125,6 +128,8 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
     private ContainerFragment<Bundle> managedUiState;
     private boolean isMainScreenBlocked;
     public static String currentActivityName;
+
+    DataSyncCompleteBroadcastReceiver dataSyncCompleteBroadcastReceiver = new DataSyncCompleteBroadcastReceiver();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -294,6 +299,9 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
         AudioController.INSTANCE.playPreviousAudio();
 
         currentActivityName = this.getClass().getSimpleName();
+
+        IntentFilter ifr = new IntentFilter(COMMCARE_DATA_UPDATE_ACTION);
+        registerReceiver(dataSyncCompleteBroadcastReceiver, ifr);
     }
 
     @Override
@@ -317,6 +325,8 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
 
         areFragmentsPaused = true;
         AudioController.INSTANCE.systemInducedPause();
+
+        unregisterReceiver(dataSyncCompleteBroadcastReceiver);
     }
 
     @Override
