@@ -49,4 +49,5 @@ public class ConnectIDConstants {
 
     public static final int CONNECT_UNLOCK_BIOMETRIC = activityAssigner + 20;
     public static final int CONNECT_UNLOCK_PASSWORD = activityAssigner + 21;
+    public static final int CONNECT_UNLOCK_PIN = activityAssigner + 22;
 }

@@ -26,8 +26,8 @@ public class ConnectIDVerificationActivity extends CommCareActivity<ConnectIDVer
 
         uiController.setupUI();
 
-        BiometricsHelper.ConfigurationStatus fingerprint = BiometricsHelper.checkFingerprintStatus(biometricManager);
-        BiometricsHelper.ConfigurationStatus pin = BiometricsHelper.checkPinStatus(biometricManager);
+        BiometricsHelper.ConfigurationStatus fingerprint = BiometricsHelper.checkFingerprintStatus(this, biometricManager);
+        BiometricsHelper.ConfigurationStatus pin = BiometricsHelper.checkPinStatus(this, biometricManager);
         if(fingerprint == BiometricsHelper.ConfigurationStatus.NotAvailable && pin == BiometricsHelper.ConfigurationStatus.NotAvailable) {
             //Skip to password-only workflow
             finish(true, true);
@@ -41,8 +41,8 @@ public class ConnectIDVerificationActivity extends CommCareActivity<ConnectIDVer
     protected void onResume() {
         super.onResume();
 
-        BiometricsHelper.ConfigurationStatus fingerprint = BiometricsHelper.checkFingerprintStatus(biometricManager);
-        BiometricsHelper.ConfigurationStatus pin = BiometricsHelper.checkPinStatus(biometricManager);
+        BiometricsHelper.ConfigurationStatus fingerprint = BiometricsHelper.checkFingerprintStatus(this, biometricManager);
+        BiometricsHelper.ConfigurationStatus pin = BiometricsHelper.checkPinStatus(this, biometricManager);
         updateState(fingerprint, pin);
     }
 
@@ -67,19 +67,20 @@ public class ConnectIDVerificationActivity extends CommCareActivity<ConnectIDVer
         String fingerprintButtonText = null;
         String pinButtonText = null;
         if(fingerprintStatus == BiometricsHelper.ConfigurationStatus.Configured) {
-            //Case #3 in email
+            //Show fingerprint but not PIN
             titleText = getString(R.string.connect_verify_use_fingerprint_long);
             messageText = getString(R.string.connect_verify_fingerprint_configured);
             fingerprintButtonText = getString(R.string.connect_verify_agree);
         }
         else if(pinStatus == BiometricsHelper.ConfigurationStatus.Configured) {
-            //Case #4 in email
+            //Show PIN, and fingerprint if configurable
             titleText = getString(R.string.connect_verify_use_pin_long);
             messageText = getString(R.string.connect_verify_pin_configured);
             pinButtonText = getString(R.string.connect_verify_agree);
+            fingerprintButtonText = fingerprintStatus == BiometricsHelper.ConfigurationStatus.NotConfigured ? getString(R.string.connect_verify_configure_fingerprint) : null;
         }
         else {
-            //Case #2 in email
+            //Show anything configurable
             if(fingerprintStatus == BiometricsHelper.ConfigurationStatus.NotConfigured) {
                 fingerprintButtonText = getString(R.string.connect_verify_configure_fingerprint);
             }
@@ -104,7 +105,7 @@ public class ConnectIDVerificationActivity extends CommCareActivity<ConnectIDVer
     }
 
     public void handleFingerprintButton() {
-        BiometricsHelper.ConfigurationStatus fingerprint = BiometricsHelper.checkFingerprintStatus(biometricManager);
+        BiometricsHelper.ConfigurationStatus fingerprint = BiometricsHelper.checkFingerprintStatus(this, biometricManager);
         if(fingerprint == BiometricsHelper.ConfigurationStatus.Configured) {
             finish(true, false);
         }
@@ -114,7 +115,7 @@ public class ConnectIDVerificationActivity extends CommCareActivity<ConnectIDVer
     }
 
     public void handlePinButton() {
-        BiometricsHelper.ConfigurationStatus pin = BiometricsHelper.checkPinStatus(biometricManager);
+        BiometricsHelper.ConfigurationStatus pin = BiometricsHelper.checkPinStatus(this, biometricManager);
         if(pin == BiometricsHelper.ConfigurationStatus.Configured) {
             finish(true, false);
         }
@@ -130,8 +131,8 @@ public class ConnectIDVerificationActivity extends CommCareActivity<ConnectIDVer
     public void finish(boolean success, boolean passwordOnly) {
         Intent intent = new Intent(getIntent());
 
-        BiometricsHelper.ConfigurationStatus fingerprint = BiometricsHelper.checkFingerprintStatus(biometricManager);
-        BiometricsHelper.ConfigurationStatus pin = BiometricsHelper.checkPinStatus(biometricManager);
+        BiometricsHelper.ConfigurationStatus fingerprint = BiometricsHelper.checkFingerprintStatus(this, biometricManager);
+        BiometricsHelper.ConfigurationStatus pin = BiometricsHelper.checkPinStatus(this, biometricManager);
         boolean configured = fingerprint == BiometricsHelper.ConfigurationStatus.Configured || pin == BiometricsHelper.ConfigurationStatus.Configured;
         intent.putExtra(ConnectIDConstants.CONFIGURED, configured);
 

@@ -3,6 +3,7 @@ package org.commcare.activities.connect;
 import static androidx.biometric.BiometricManager.Authenticators.BIOMETRIC_STRONG;
 import static androidx.biometric.BiometricManager.Authenticators.DEVICE_CREDENTIAL;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Toast;
@@ -23,11 +24,10 @@ import org.commcare.interfaces.WithUIController;
 
 public class ConnectIDLoginActivity extends CommCareActivity<ConnectIDLoginActivity>
 implements WithUIController {
-    private BiometricPrompt biometricPrompt;
-    private BiometricPrompt.PromptInfo fingerprintPromptInfo;
-    private BiometricPrompt.PromptInfo pinPromptInfo;
+    private BiometricPrompt.AuthenticationCallback biometricPromptCallbacks;
     private boolean attemptingFingerprint = false;
     private boolean allowPassword = false;
+    private BiometricManager biometricManager;
 
     private ConnectIDLoginActivityUIController uiController;
 
@@ -41,17 +41,15 @@ implements WithUIController {
 
         allowPassword = getIntent().getStringExtra(ConnectIDConstants.ALLOW_PASSWORD).equals("true");
 
-        biometricPrompt = preparePrompt();
+        biometricPromptCallbacks = preparePromptCallbacks();
 
-        BiometricManager biometricManager = BiometricManager.from(this);
-        configureFingerprintUnlock(biometricManager);
-        configurePinUnlock(biometricManager);
+        biometricManager = BiometricManager.from(this);
 
-        if(fingerprintPromptInfo != null) {
+        if(BiometricsHelper.isFingerprintConfigured(this, biometricManager)) {
             //Automatically try fingerprint first
             performFingerprintUnlock();
         }
-        else if(pinPromptInfo == null) {
+        else if(!BiometricsHelper.isPinConfigured(this, biometricManager)) {
             //Automatically try password, it's the only option
             performPasswordUnlock();
         }
@@ -91,6 +89,7 @@ implements WithUIController {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        BiometricsHelper.handlePinUnlockActivityResult(requestCode, resultCode, intent);
         ConnectIDManager.handleFinishedActivity(requestCode, resultCode, intent);
 
         super.onActivityResult(requestCode, resultCode, intent);
@@ -101,27 +100,26 @@ implements WithUIController {
 
     public void performFingerprintUnlock() {
         attemptingFingerprint = true;
-        biometricPrompt.authenticate(fingerprintPromptInfo);
+        BiometricsHelper.authenticateFingerprint(this, biometricManager, biometricPromptCallbacks);
     }
 
     public void performPasswordUnlock() {
         finish(false, true, false);
     }
     public void performPinUnlock() {
-        biometricPrompt.authenticate(pinPromptInfo);
+        BiometricsHelper.authenticatePin(this, biometricManager, biometricPromptCallbacks);
     }
 
-    private BiometricPrompt preparePrompt() {
-        return new BiometricPrompt(this,
-                ContextCompat.getMainExecutor(this),
-                new BiometricPrompt.AuthenticationCallback() {
+    private BiometricPrompt.AuthenticationCallback preparePromptCallbacks() {
+        final Context context = this;
+        return new BiometricPrompt.AuthenticationCallback() {
             @Override
             public void onAuthenticationError(int errorCode,
                                               @NonNull CharSequence errString) {
                 super.onAuthenticationError(errorCode, errString);
                 if(attemptingFingerprint) {
                     attemptingFingerprint = false;
-                    if(pinPromptInfo == null) {
+                    if(!BiometricsHelper.isPinConfigured(context, biometricManager)) {
                         //Automatically try password, it's the only option
                         performPasswordUnlock();
                     }
@@ -148,7 +146,7 @@ implements WithUIController {
                                 Toast.LENGTH_SHORT)
                         .show();
             }
-        });
+        };
     }
 
     private void logSuccess() {
@@ -165,30 +163,5 @@ implements WithUIController {
 
         setResult(success ? RESULT_OK : RESULT_CANCELED, intent);
         finish();
-    }
-
-    private void configureFingerprintUnlock(BiometricManager biometricManager) {
-        fingerprintPromptInfo = null;
-
-        if(BiometricsHelper.isFingerprintConfigured(biometricManager)) {
-            fingerprintPromptInfo = new BiometricPrompt.PromptInfo.Builder()
-                    .setTitle(getString(R.string.connect_unlock_fingerprint_title))
-                    .setSubtitle(getString(R.string.connect_unlock_fingerprint_message))
-                    .setAllowedAuthenticators(BIOMETRIC_STRONG)
-                    .setNegativeButtonText(getString(R.string.connect_unlock_other_options))
-                    .build();
-        }
-    }
-
-    private void configurePinUnlock(BiometricManager biometricManager) {
-        pinPromptInfo = null;
-
-        if(BiometricsHelper.isPinConfigured(biometricManager)) {
-            pinPromptInfo = new BiometricPrompt.PromptInfo.Builder()
-                    .setTitle(getString(R.string.connect_unlock_pin_title))
-                    .setSubtitle(getString(R.string.connect_unlock_pin_message))
-                    .setAllowedAuthenticators(DEVICE_CREDENTIAL)
-                    .build();
-        }
     }
 }

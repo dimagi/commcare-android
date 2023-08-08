@@ -636,11 +636,7 @@ public class ConnectIDManager {
         String url = manager.parentActivity.getString(R.string.ConnectURL) + "/o/token/";
 
         ConnectIDNetworkHelper.PostResult postResult = ConnectIDNetworkHelper.postSync(manager.parentActivity, url, new AuthInfo.NoAuth(), params, true);
-        if(postResult.e != null) {
-            Toast.makeText(manager.parentActivity, "OIDC error", Toast.LENGTH_SHORT).show();
-        } else if(postResult.responseCode != 200) {
-            Toast.makeText(manager.parentActivity, String.format(Locale.getDefault(), "OIDC error: %d", postResult.responseCode), Toast.LENGTH_SHORT).show();
-        } else {
+        if(postResult.responseCode == 200) {
             try {
                 String responseAsString = new String(StreamsUtil.inputStreamToByteArray(postResult.responseStream));
                 postResult.responseStream.close();
@@ -710,11 +706,7 @@ public class ConnectIDManager {
         String url = "https://" + host + "/oauth/token/";
 
         ConnectIDNetworkHelper.PostResult postResult = ConnectIDNetworkHelper.postSync(manager.parentActivity, url, new AuthInfo.NoAuth(), params, true);
-        if(postResult.e != null) {
-            Toast.makeText(manager.parentActivity, "HQ OIDC error", Toast.LENGTH_SHORT).show();
-        } else if(postResult.responseCode != 200) {
-            Toast.makeText(manager.parentActivity, String.format(Locale.getDefault(), "HQ OIDC error: %d", postResult.responseCode), Toast.LENGTH_SHORT).show();
-        } else {
+        if(postResult.responseCode == 200) {
             try {
                 String responseAsString = new String(StreamsUtil.inputStreamToByteArray(postResult.responseStream));
                 JSONObject json = new JSONObject(responseAsString);
