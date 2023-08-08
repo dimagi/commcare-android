@@ -29,7 +29,10 @@ public class CCAnalyticsEvent {
     static final String LOGIN_CLICK = "login_click";
 
     static final String CCC_SIGN_IN = "ccc_sign_in";
+    static final String PARAM_CCC_SIGN_IN_METHOD = "ccc_sign_in_method";
     static final String CCC_SIGN_OUT = "ccc_sign_out";
     static final String CCC_RECOVERY = "ccc_recovery";
+    static final String PARAM_CCC_RECOVERY_METHOD = "ccc_recovery_method";
+    static final String PARAM_CCC_RECOVERY_SUCCESS = "ccc_recovery_success";
 
 }
