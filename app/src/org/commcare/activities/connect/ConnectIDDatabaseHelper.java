@@ -28,7 +28,10 @@ public class ConnectIDDatabaseHelper {
     private static byte[] getConnectDBPassphrase(Context context) {
         try {
             for (ConnectKeyRecord r : CommCareApplication.instance().getGlobalStorage(ConnectKeyRecord.class)) {
-                return EncryptionUtils.decryptFromBase64String(context, r.getEncryptedPassphrase());
+                String encryptedPassphrase = r.getEncryptedPassphrase();
+                if(encryptedPassphrase != null) {
+                    return EncryptionUtils.decryptFromBase64String(context, encryptedPassphrase);
+                }
             }
 
             //If we get here, the passphrase hasn't been created yet
@@ -125,7 +128,7 @@ public class ConnectIDDatabaseHelper {
         getConnectStorage(context, ConnectLinkedAppRecord.class).write(record);
     }
 
-    public static void setRegistrationPhase(Context context, int phase) {
+    public static void setRegistrationPhase(Context context, ConnectIDTask phase) {
         ConnectUserRecord user = getUser(context);
         if(user != null) {
             user.setRegistrationPhase(phase);

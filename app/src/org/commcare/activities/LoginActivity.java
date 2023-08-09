@@ -444,20 +444,21 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     }
 
     private void checkForSavedCredentials() {
-        int selectorIndex = uiController.getSelectedAppIndex();
-        String selectedAppId = appIdDropdownList.size() > 0 ? appIdDropdownList.get(selectorIndex) : "";
-        String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
-        if(!uiController.isAppSelectorVisible() || selectedAppId.equals(seatedAppId)) {
-            AuthInfo.ProvidedAuth credentials = ConnectIDManager.getCredentialsForApp(seatedAppId, uiController.getEnteredUsername());
-            if (credentials != null) {
-                //uiController.setUsername(credentials.username);
-                uiController.setPasswordOrPin(credentials.password);
+        if(ConnectIDManager.isUnlocked()) {
+            int selectorIndex = uiController.getSelectedAppIndex();
+            String selectedAppId = appIdDropdownList.size() > 0 ? appIdDropdownList.get(selectorIndex) : "";
+            String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
+            if (!uiController.isAppSelectorVisible() || selectedAppId.equals(seatedAppId)) {
+                AuthInfo.ProvidedAuth credentials = ConnectIDManager.getCredentialsForApp(seatedAppId, uiController.getEnteredUsername());
+                if (credentials != null) {
+                    //uiController.setUsername(credentials.username);
+                    uiController.setPasswordOrPin(credentials.password);
 
-                //NOTE: This would auto-login, but we decided not to
-                //initiateLoginAttempt(uiController.isRestoreSessionChecked());
-            }
-            else {
-                uiController.setPasswordOrPin("");
+                    //NOTE: This would auto-login, but we decided not to
+                    //initiateLoginAttempt(uiController.isRestoreSessionChecked());
+                } else {
+                    uiController.setPasswordOrPin("");
+                }
             }
         }
     }
@@ -624,7 +625,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
         appIdDropdownList.clear();
 
-        boolean includeDefault = ConnectIDManager.isConnectIDIntroduced() && !ConnectIDManager.isSignedIn();
+        boolean includeDefault = ConnectIDManager.requiresUnlock();
         if(includeDefault) {
             appNames.add(Localization.get("login.app.direct"));
             appIdDropdownList.add("");
@@ -652,9 +653,9 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-        if(!ConnectIDManager.isConnectIDIntroduced() || ConnectIDManager.isSignedIn() || position > 0) {
+        if(!ConnectIDManager.requiresUnlock() || position > 0) {
             // Retrieve the app record corresponding to the app selected
-            selectedAppIndex = position;// - (ConnectIDManager.isConnectIDIntroduced() ? 1 : 0);
+            selectedAppIndex = position;
             String appId = appIdDropdownList.get(selectedAppIndex);
 
             if (appId.length() > 0) {

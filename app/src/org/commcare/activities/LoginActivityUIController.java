@@ -219,7 +219,7 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         // Decide whether or not to show the app selection spinner based upon # of usable apps
         ArrayList<ApplicationRecord> readyApps = MultipleAppsUtil.getUsableAppRecords();
         boolean promptIncluded = false;
-        if (readyApps.size() == 1 && (!ConnectIDManager.isConnectIDIntroduced() || ConnectIDManager.isSignedIn())) {
+        if (readyApps.size() == 1 && (!ConnectIDManager.isConnectIDIntroduced() || ConnectIDManager.isUnlocked())) {
             setLoginInputsVisibility(true);
             // Set this app as the last selected app, for use in choosing what app to initialize
             // on first startup
@@ -229,7 +229,7 @@ public class LoginActivityUIController implements CommCareActivityUIController {
 
             setSingleAppUIState();
 
-            if(ConnectIDManager.isSignedIn()) {
+            if(ConnectIDManager.isUnlocked()) {
                 appLabel.setVisibility(View.VISIBLE);
                 appLabel.setText(r.getDisplayName());
             }
@@ -275,7 +275,7 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         boolean emphasizeConnectSignin = false;
         if(ConnectIDManager.isConnectIDIntroduced()) {
             String welcomeText;
-            if(ConnectIDManager.isSignedIn()) {
+            if(ConnectIDManager.isUnlocked()) {
                 welcomeText = activity.getString(R.string.login_welcome_connect_signed_in, ConnectIDDatabaseHelper.getUser(activity).getName());
             }
             else {

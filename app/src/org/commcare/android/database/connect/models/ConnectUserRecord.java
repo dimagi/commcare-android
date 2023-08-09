@@ -3,11 +3,13 @@ package org.commcare.android.database.connect.models;
 import android.content.Intent;
 
 import org.commcare.activities.connect.ConnectIDConstants;
+import org.commcare.activities.connect.ConnectIDTask;
 import org.commcare.android.storage.framework.Persisted;
 import org.commcare.models.framework.Persisting;
 import org.commcare.modern.database.Table;
 
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 @Table(ConnectUserRecord.STORAGE_KEY)
 public class ConnectUserRecord extends Persisted {
@@ -32,7 +34,7 @@ public class ConnectUserRecord extends Persisted {
     private String alternatePhone;
 
     @Persisting(6)
-    private int registrationPhase;
+    private ConnectIDTask registrationPhase;
 
     @Persisting(7)
     private Date lastPasswordDate;
@@ -44,7 +46,7 @@ public class ConnectUserRecord extends Persisted {
     private Date connectTokenExpiration;
 
     public ConnectUserRecord() {
-        registrationPhase = ConnectIDConstants.CONNECT_NO_ACTIVITY;
+        registrationPhase = ConnectIDTask.CONNECT_NO_ACTIVITY;
         lastPasswordDate = new Date();
         connectTokenExpiration = new Date();
     }
@@ -86,9 +88,22 @@ public class ConnectUserRecord extends Persisted {
     public void setPassword(String password) { this.password = password; }
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }
-    public int getRegistrationPhase() { return registrationPhase; }
-    public void setRegistrationPhase(int phase) { registrationPhase = phase; }
+    public ConnectIDTask getRegistrationPhase() { return registrationPhase; }
+    public void setRegistrationPhase(ConnectIDTask phase) { registrationPhase = phase; }
     public Date getLastPasswordDate() { return lastPasswordDate; }
+    public boolean shouldForcePassword() {
+        Date passwordDate = getLastPasswordDate();
+        boolean forcePassword = passwordDate == null;
+        if (!forcePassword) {
+            //See how much time has passed since last password login
+            long millis = (new Date()).getTime() - passwordDate.getTime();
+            long days = TimeUnit.DAYS.convert(millis, TimeUnit.MILLISECONDS);
+            forcePassword = days >= 7;
+        }
+
+        return forcePassword;
+    }
+
     public void setLastPasswordDate(Date date) { lastPasswordDate = date; }
     public void updateConnectToken(String token, Date expirationDate) {
         connectToken = token;

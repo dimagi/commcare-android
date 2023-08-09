@@ -21,9 +21,9 @@ implements WithUIController {
 
         setTitle("");
 
-        title = getIntent().getStringExtra(ConnectIDConstants.TITLE);
-        message = getIntent().getStringExtra(ConnectIDConstants.MESSAGE);
-        button = getIntent().getStringExtra(ConnectIDConstants.BUTTON);
+        title = getString(getIntent().getIntExtra(ConnectIDConstants.TITLE, 0));
+        message = getString(getIntent().getIntExtra(ConnectIDConstants.MESSAGE, 0));
+        button = getString(getIntent().getIntExtra(ConnectIDConstants.BUTTON, 0));
 
         uiController.setupUI();
     }

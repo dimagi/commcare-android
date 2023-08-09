@@ -91,17 +91,17 @@ implements WithUIController {
         uiController.clearPassword();
 
         int requestCode = PASSWORD_FAIL;
-        String message = getString(R.string.connect_password_fail_message);
+        int message = R.string.connect_password_fail_message;
 
         if(failureCount >= MaxFailures) {
             requestCode = PASSWORD_LOCK;
-            message = getString(R.string.connect_password_recovery_message);
+            message = R.string.connect_password_recovery_message;
         }
 
         Intent messageIntent = new Intent(this, ConnectIDMessageActivity.class);
-        messageIntent.putExtra(ConnectIDConstants.TITLE, getString(R.string.connect_password_fail_title));
+        messageIntent.putExtra(ConnectIDConstants.TITLE, R.string.connect_password_fail_title);
         messageIntent.putExtra(ConnectIDConstants.MESSAGE, message);
-        messageIntent.putExtra(ConnectIDConstants.BUTTON, getString(R.string.connect_password_fail_button));
+        messageIntent.putExtra(ConnectIDConstants.BUTTON, R.string.connect_password_fail_button);
 
         startActivityForResult(messageIntent, requestCode);
     }
@@ -143,12 +143,12 @@ implements WithUIController {
                         String responseAsString = new String(StreamsUtil.inputStreamToByteArray(responseData));
                         if(responseAsString.length() > 0) {
                             JSONObject json = new JSONObject(responseAsString);
-                            String key = "username";
+                            String key = ConnectIDConstants.CONNECT_KEY_USERNAME;
                             if (json.has(key)) {
                                 username = json.getString(key);
                             }
 
-                            key = "name";
+                            key = ConnectIDConstants.CONNECT_KEY_NAME;
                             if (json.has(key)) {
                                 name = json.getString(key);
                             }

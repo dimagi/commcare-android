@@ -103,7 +103,6 @@ public class EncryptionUtils {
                     KeyProperties.PURPOSE_ENCRYPT | KeyProperties.PURPOSE_DECRYPT)
                     .setBlockModes(KeyProperties.BLOCK_MODE_CBC)
                     .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_PKCS7)
-                    //.setUserAuthenticationValidityDurationSeconds(AUTH_VALID_DURATION_IN_SECOND)
                     .build();
 
             keyGenerator.init(keySpec);

@@ -156,12 +156,12 @@ public class ConnectIDPhoneVerificationActivity extends CommCareActivity<Connect
                     String responseAsString = new String(StreamsUtil.inputStreamToByteArray(responseData));
                     if(responseAsString.length() > 0) {
                         JSONObject json = new JSONObject(responseAsString);
-                        String key = "secret";
+                        String key = ConnectIDConstants.CONNECT_KEY_SECRET;
                         if (json.has(key)) {
                             password = json.getString(key);
                         }
 
-                        key = "secondary_phone";
+                        key = ConnectIDConstants.CONNECT_KEY_SECONDARY_PHONE;
                         if (json.has(key)) {
                             recoveryPhone = json.getString(key);
                             updateMessage();
@@ -224,12 +224,12 @@ public class ConnectIDPhoneVerificationActivity extends CommCareActivity<Connect
                     try {
                         String responseAsString = new String(StreamsUtil.inputStreamToByteArray(responseData));
                         JSONObject json = new JSONObject(responseAsString);
-                        String key = "username";
+                        String key = ConnectIDConstants.CONNECT_KEY_USERNAME;
                         if (json.has(key)) {
                             username = json.getString(key);
                         }
 
-                        key = "name";
+                        key = ConnectIDConstants.CONNECT_KEY_NAME;
                         if (json.has(key)) {
                             displayName = json.getString(key);
                         }
