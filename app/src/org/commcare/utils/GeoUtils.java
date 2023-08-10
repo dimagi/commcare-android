@@ -47,7 +47,11 @@ public class GeoUtils {
      * @return String in format "<latitude> <longitude> <altitude> <accuracy>"
      */
     public static String locationToString(Location location) {
-        return String.format("%s %s %s %s", location.getLatitude(), location.getLongitude(), location.getAltitude(), location.getAccuracy());
+        String latitude = String.valueOf(location.getLatitude()).trim();
+        String longitude = String.valueOf(location.getLongitude()).trim();
+        String altitude = String.valueOf(location.getAltitude()).trim();
+        String accuracy = String.valueOf(location.getAccuracy()).trim();
+        return String.format("%s %s %s %s", latitude, longitude, altitude, accuracy);
     }
 
     /**
