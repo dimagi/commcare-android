@@ -350,14 +350,14 @@ public class FirebaseAnalyticsUtil {
 
     public static void reportCccSignIn(String method) {
         reportEvent(CCAnalyticsEvent.CCC_SIGN_IN,
-                new String[]{FirebaseAnalytics.Param.METHOD},
+                new String[]{CCAnalyticsEvent.PARAM_CCC_SIGN_IN_METHOD},
                 new String[]{method});
     }
 
     public static void reportCccRecovery(boolean success, String method) {
         Bundle b = new Bundle();
-        b.putLong(FirebaseAnalytics.Param.SUCCESS, success ? 1 : 0);
-        b.putString(FirebaseAnalytics.Param.METHOD, method);
+        b.putLong(CCAnalyticsEvent.PARAM_CCC_RECOVERY_SUCCESS, success ? 1 : 0);
+        b.putString(CCAnalyticsEvent.PARAM_CCC_RECOVERY_METHOD, method);
         reportEvent(CCAnalyticsEvent.CCC_RECOVERY, b);
     }
 
