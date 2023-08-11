@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.widget.Toast;
 
 import org.commcare.activities.CommCareActivity;
 import org.commcare.core.network.AuthInfo;
@@ -149,7 +150,7 @@ public class ConnectIDPhoneVerificationActivity extends CommCareActivity<Connect
         }
         String url = getString(R.string.ConnectURL) + command;
 
-        ConnectIDNetworkHelper.post(this, url, authInfo, params, false, new ConnectIDNetworkHelper.INetworkResultHandler() {
+        boolean isBusy = !ConnectIDNetworkHelper.post(this, url, authInfo, params, false, new ConnectIDNetworkHelper.INetworkResultHandler() {
             @Override
             public void processSuccess(int responseCode, InputStream responseData) {
                 try {
@@ -186,6 +187,10 @@ public class ConnectIDPhoneVerificationActivity extends CommCareActivity<Connect
                 uiController.setErrorMessage(String.format("Error requesting SMS code. %s", message));
             }
         });
+
+        if(isBusy) {
+            Toast.makeText(this, R.string.busy_message, Toast.LENGTH_SHORT).show();
+        }
     }
 
     public void verifySMSCode() {
@@ -215,7 +220,7 @@ public class ConnectIDPhoneVerificationActivity extends CommCareActivity<Connect
         params.put("token", uiController.getCode());
 
         final Context self = this;
-        ConnectIDNetworkHelper.post(this, url, authInfo, params, false, new ConnectIDNetworkHelper.INetworkResultHandler() {
+        boolean isBusy = !ConnectIDNetworkHelper.post(this, url, authInfo, params, false, new ConnectIDNetworkHelper.INetworkResultHandler() {
             @Override
             public void processSuccess(int responseCode, InputStream responseData) {
                 String username = "";
@@ -254,6 +259,10 @@ public class ConnectIDPhoneVerificationActivity extends CommCareActivity<Connect
                 uiController.setErrorMessage(String.format("Error verifying SMS code. %s", message));
             }
         });
+
+        if(isBusy) {
+            Toast.makeText(this, R.string.busy_message, Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void logRecoveryResult(boolean success) {

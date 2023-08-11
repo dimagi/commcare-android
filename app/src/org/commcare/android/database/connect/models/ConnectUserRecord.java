@@ -34,7 +34,7 @@ public class ConnectUserRecord extends Persisted {
     private String alternatePhone;
 
     @Persisting(6)
-    private ConnectIDTask registrationPhase;
+    private int registrationPhase;
 
     @Persisting(7)
     private Date lastPasswordDate;
@@ -46,7 +46,7 @@ public class ConnectUserRecord extends Persisted {
     private Date connectTokenExpiration;
 
     public ConnectUserRecord() {
-        registrationPhase = ConnectIDTask.CONNECT_NO_ACTIVITY;
+        registrationPhase = ConnectIDTask.CONNECT_NO_ACTIVITY.getRequestCode();
         lastPasswordDate = new Date();
         connectTokenExpiration = new Date();
     }
@@ -88,8 +88,8 @@ public class ConnectUserRecord extends Persisted {
     public void setPassword(String password) { this.password = password; }
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }
-    public ConnectIDTask getRegistrationPhase() { return registrationPhase; }
-    public void setRegistrationPhase(ConnectIDTask phase) { registrationPhase = phase; }
+    public ConnectIDTask getRegistrationPhase() { return ConnectIDTask.fromRequestCode(registrationPhase); }
+    public void setRegistrationPhase(ConnectIDTask phase) { registrationPhase = phase.getRequestCode(); }
     public Date getLastPasswordDate() { return lastPasswordDate; }
     public boolean shouldForcePassword() {
         Date passwordDate = getLastPasswordDate();

@@ -45,6 +45,8 @@ public class ConnectIDNetworkHelper {
         }
     }
 
+    private static boolean isBusy = false;
+
     public static PostResult postSync(Context context, String url, AuthInfo authInfo, HashMap<String, String> params, boolean useFormEncoding) {
         HashMap<String, String> headers = new HashMap<>();
         RequestBody requestBody;
@@ -92,11 +94,15 @@ public class ConnectIDNetworkHelper {
         return new PostResult(responseCode, stream, exception);
     }
 
-    public static void post(Context context, String url, AuthInfo authInfo, HashMap<String, String> params, boolean useFormEncoding, INetworkResultHandler handler) {
+    public static boolean post(Context context, String url, AuthInfo authInfo, HashMap<String, String> params, boolean useFormEncoding, INetworkResultHandler handler) {
+        if (isBusy) {
+            return false;
+        }
+        isBusy = true;
         HashMap<String, String> headers = new HashMap<>();
         RequestBody requestBody;
 
-        if(useFormEncoding) {
+        if (useFormEncoding) {
             Multimap<String, String> multimap = ArrayListMultimap.create();
             for (Map.Entry<String, String> entry : params.entrySet()) {
                 multimap.put(entry.getKey(), entry.getValue());
@@ -104,8 +110,7 @@ public class ConnectIDNetworkHelper {
 
             requestBody = ModernHttpRequester.getPostBody(multimap);
             headers = getContentHeadersForXFormPost(requestBody);
-        }
-        else {
+        } else {
             Gson gson = new Gson();
             String json = gson.toJson(params);
             requestBody = RequestBody.create(MediaType.parse("application/json"), json);
@@ -121,57 +126,74 @@ public class ConnectIDNetworkHelper {
         postTask.connect(new ConnectorWithHttpResponseProcessor<>() {
             @Override
             public void processSuccess(int responseCode, InputStream responseData) {
+                isBusy = false;
                 handler.processSuccess(responseCode, responseData);
             }
 
             @Override
             public void processClientError(int responseCode) {
+                isBusy = false;
                 //400 error
                 handler.processFailure(responseCode, null);
             }
 
             @Override
             public void processServerError(int responseCode) {
+                isBusy = false;
                 //500 error for internal server error
                 handler.processFailure(responseCode, null);
             }
 
             @Override
             public void processOther(int responseCode) {
+                isBusy = false;
                 handler.processFailure(responseCode, null);
             }
 
             @Override
             public void handleIOException(IOException exception) {
+                isBusy = false;
                 //UnknownHostException if host not found
                 handler.processFailure(-1, exception);
             }
 
             @Override
-            public <A, B, C> void connectTask(CommCareTask<A, B, C, HttpResponseProcessor> task) {}
+            public <A, B, C> void connectTask(CommCareTask<A, B, C, HttpResponseProcessor> task) {
+            }
 
             @Override
-            public void startBlockingForTask(int id) {}
+            public void startBlockingForTask(int id) {
+            }
 
             @Override
-            public void stopBlockingForTask(int id) {}
+            public void stopBlockingForTask(int id) {
+            }
 
             @Override
-            public void taskCancelled() {}
+            public void taskCancelled() {
+            }
 
             @Override
-            public HttpResponseProcessor getReceiver() { return this; }
+            public HttpResponseProcessor getReceiver() {
+                return this;
+            }
 
             @Override
-            public void startTaskTransition() {}
+            public void startTaskTransition() {
+            }
 
             @Override
-            public void stopTaskTransition(int taskId) {}
+            public void stopTaskTransition(int taskId) {
+            }
 
             @Override
-            public void hideTaskCancelButton() {}
+            public void hideTaskCancelButton() {
+            }
         });
+
         postTask.executeParallel();
+
+        return true;
     }
 
     private static HashMap<String, String> getContentHeadersForXFormPost(RequestBody postBody) {
@@ -186,14 +208,18 @@ public class ConnectIDNetworkHelper {
         return headers;
     }
 
-    public static void get(Context context, String url, AuthInfo authInfo, Multimap<String, String> params, INetworkResultHandler handler) {
+    public static boolean get(Context context, String url, AuthInfo authInfo, Multimap<String, String> params, INetworkResultHandler handler) {
+        if (isBusy) {
+            return false;
+        }
+        isBusy = true;
         //TODO: Figure out how to send GET request the right way
         String getUrl = url;
-        if(params.size() > 0) {
+        if (params.size() > 0) {
             boolean first = true;
             for (Map.Entry<String, String> entry : params.entries()) {
                 String delim = "&";
-                if(first) {
+                if (first) {
                     delim = "?";
                     first = false;
                 }
@@ -209,28 +235,33 @@ public class ConnectIDNetworkHelper {
         getTask.connect(new ConnectorWithHttpResponseProcessor<>() {
             @Override
             public void processSuccess(int responseCode, InputStream responseData) {
+                isBusy = false;
                 handler.processSuccess(responseCode, responseData);
             }
 
             @Override
             public void processClientError(int responseCode) {
+                isBusy = false;
                 //400 error
                 handler.processFailure(responseCode, null);
             }
 
             @Override
             public void processServerError(int responseCode) {
+                isBusy = false;
                 //500 error for internal server error
                 handler.processFailure(responseCode, null);
             }
 
             @Override
             public void processOther(int responseCode) {
+                isBusy = false;
                 handler.processFailure(responseCode, null);
             }
 
             @Override
             public void handleIOException(IOException exception) {
+                isBusy = false;
                 //UnknownHostException if host not found
                 handler.processFailure(-1, exception);
             }
@@ -269,5 +300,7 @@ public class ConnectIDNetworkHelper {
             }
         });
         getTask.executeParallel();
+
+        return true;
     }
 }

@@ -121,7 +121,7 @@ implements WithUIController {
 
             String url = this.getString(R.string.ConnectURL) + "/users/phone_available";
 
-            ConnectIDNetworkHelper.get(this, url, new AuthInfo.NoAuth(), params, new ConnectIDNetworkHelper.INetworkResultHandler() {
+            boolean isBusy = !ConnectIDNetworkHelper.get(this, url, new AuthInfo.NoAuth(), params, new ConnectIDNetworkHelper.INetworkResultHandler() {
                 @Override
                 public void processSuccess(int responseCode, InputStream responseData) {
                     uiController.setPhoneMessage(getString(R.string.connect_phone_not_found));
@@ -134,6 +134,10 @@ implements WithUIController {
                     uiController.setButton1Enabled(true);
                 }
             });
+
+            if(isBusy) {
+                Toast.makeText(this, R.string.busy_message, Toast.LENGTH_SHORT).show();
+            }
         } else {
             uiController.setPhoneMessage(getString(R.string.connect_phone_invalid));
             uiController.setButton1Enabled(false);

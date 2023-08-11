@@ -131,7 +131,7 @@ implements WithUIController {
 
             String url = getString(R.string.ConnectURL) + command;
 
-            ConnectIDNetworkHelper.post(this, url, new AuthInfo.ProvidedAuth(user.getUserID(), user.getPassword(), false), params, false, new ConnectIDNetworkHelper.INetworkResultHandler() {
+            boolean isBusy = !ConnectIDNetworkHelper.post(this, url, new AuthInfo.ProvidedAuth(user.getUserID(), user.getPassword(), false), params, false, new ConnectIDNetworkHelper.INetworkResultHandler() {
                 @Override
                 public void processSuccess(int responseCode, InputStream responseData) {
                     finish(true, phone);
@@ -142,6 +142,10 @@ implements WithUIController {
                     Toast.makeText(getApplicationContext(), "Phone change error", Toast.LENGTH_SHORT).show();
                 }
             });
+
+            if(isBusy) {
+                Toast.makeText(this, R.string.busy_message, Toast.LENGTH_SHORT).show();
+            }
         }
         else {
             finish(true, phone);
@@ -177,7 +181,7 @@ implements WithUIController {
 
                         String url = this.getString(R.string.ConnectURL) + "/users/phone_available";
 
-                        ConnectIDNetworkHelper.get(this, url, new AuthInfo.NoAuth(), params, new ConnectIDNetworkHelper.INetworkResultHandler() {
+                        boolean isBusy = !ConnectIDNetworkHelper.get(this, url, new AuthInfo.NoAuth(), params, new ConnectIDNetworkHelper.INetworkResultHandler() {
                             @Override
                             public void processSuccess(int responseCode, InputStream responseData) {
                                 uiController.setAvailabilityText(getString(R.string.connect_phone_available));
@@ -196,6 +200,10 @@ implements WithUIController {
                                 uiController.setAvailabilityText(text);
                             }
                         });
+
+                        if(isBusy) {
+                            Toast.makeText(this, R.string.busy_message, Toast.LENGTH_SHORT).show();
+                        }
                     }
                 }
                 case ConnectIDConstants.METHOD_CHANGE_ALTERNATE -> {

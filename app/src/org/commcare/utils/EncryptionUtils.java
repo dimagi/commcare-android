@@ -25,6 +25,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.SecureRandom;
 import java.security.UnrecoverableEntryException;
+import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
@@ -35,7 +36,6 @@ import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.KeyGenerator;
 import javax.crypto.NoSuchPaddingException;
-import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
 import javax.security.auth.x500.X500Principal;
 
@@ -221,9 +221,10 @@ public class EncryptionUtils {
         int readIndex = 0;
         int ivLength = bytes[readIndex];
         readIndex++;
-        //if(ivLength < 0) {
-            //TODO: Early chance to catch decryption error
-        //}
+        if(ivLength < 0) {
+            //Note: Early chance to catch decryption error
+            throw new UnrecoverableKeyException("Negative IV length");
+        }
         byte[] iv = null;
         if(ivLength > 0) {
             iv = new byte[ivLength];

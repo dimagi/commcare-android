@@ -2,6 +2,7 @@ package org.commcare.activities.connect;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.widget.Toast;
 
 import org.commcare.activities.CommCareActivity;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
@@ -118,7 +119,7 @@ implements WithUIController {
         params.put("name", user.getName());
         params.put("phone_number", phone);
 
-        ConnectIDNetworkHelper.post(this, url, new AuthInfo.NoAuth(), params, false, new ConnectIDNetworkHelper.INetworkResultHandler() {
+        boolean isBusy = !ConnectIDNetworkHelper.post(this, url, new AuthInfo.NoAuth(), params, false, new ConnectIDNetworkHelper.INetworkResultHandler() {
             @Override
             public void processSuccess(int responseCode, InputStream responseData) {
                 finish(true);
@@ -129,6 +130,10 @@ implements WithUIController {
                 uiController.setErrorText(String.format(Locale.getDefault(), "Registration error: %d", responseCode));
             }
         });
+
+        if(isBusy) {
+            Toast.makeText(this, R.string.busy_message, Toast.LENGTH_SHORT).show();
+        }
     }
 
     public void updateAccount() {
@@ -147,7 +152,7 @@ implements WithUIController {
             HashMap<String, String> params = new HashMap<>();
             params.put("name", user.getName());
 
-            ConnectIDNetworkHelper.post(this, url, new AuthInfo.ProvidedAuth(user.getUserID(), user.getPassword(), false), params, false, new ConnectIDNetworkHelper.INetworkResultHandler() {
+            boolean isBusy = !ConnectIDNetworkHelper.post(this, url, new AuthInfo.ProvidedAuth(user.getUserID(), user.getPassword(), false), params, false, new ConnectIDNetworkHelper.INetworkResultHandler() {
                 @Override
                 public void processSuccess(int responseCode, InputStream responseData) {
                     finish(true);
@@ -158,6 +163,10 @@ implements WithUIController {
                     uiController.setErrorText(String.format(Locale.getDefault(), "Error: %d", responseCode));
                 }
             });
+
+            if(isBusy) {
+                Toast.makeText(this, R.string.busy_message, Toast.LENGTH_SHORT).show();
+            }
         }
     }
 }

@@ -462,6 +462,7 @@
     <string name="login_welcome_connect_signed_in" cc:translatable="true">Welcome %s!</string>
 
     <string name="choice_or" cc:translatable="true">_____________    OR    _____________</string>
+    <string name="busy_message" cc:translatable="true">Still busy…</string>
 
     <string name="connect_button_logged_in" cc:translatable="true">Go to Connect menu</string>
     <string name="connect_button_logged_out" cc:translatable="true">Unlock ConnectID</string>

@@ -125,7 +125,7 @@ implements WithUIController {
         params.put("password", password);
         String url = getString(R.string.ConnectURL) + command;
 
-        ConnectIDNetworkHelper.post(this, url, authInfo, params, false, new ConnectIDNetworkHelper.INetworkResultHandler() {
+        boolean isBusy = !ConnectIDNetworkHelper.post(this, url, authInfo, params, false, new ConnectIDNetworkHelper.INetworkResultHandler() {
             @Override
             public void processSuccess(int responseCode, InputStream responseData) {
                 finish(true, password);
@@ -136,5 +136,9 @@ implements WithUIController {
                 Toast.makeText(getApplicationContext(), "Password change error", Toast.LENGTH_SHORT).show();
             }
         });
+
+        if(isBusy) {
+            Toast.makeText(this, R.string.busy_message, Toast.LENGTH_SHORT).show();
+        }
     }
 }
