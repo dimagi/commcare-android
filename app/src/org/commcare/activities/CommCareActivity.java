@@ -128,7 +128,6 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
     private int dialogId = -1;
     private ContainerFragment<Bundle> managedUiState;
     private boolean isMainScreenBlocked;
-    public static String currentActivityName;
 
     DataSyncCompleteBroadcastReceiver dataSyncCompleteBroadcastReceiver = new DataSyncCompleteBroadcastReceiver();
 
@@ -299,7 +298,7 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
         super.onResume();
         AudioController.INSTANCE.playPreviousAudio();
 
-        currentActivityName = this.getClass().getSimpleName();
+        CommCareApplication.currentActivityName = this.getClass().getSimpleName();
 
         if (isBackgroundSyncEnabled()) {
             registerReceiver(dataSyncCompleteBroadcastReceiver, new IntentFilter(COMMCARE_DATA_UPDATE_ACTION));

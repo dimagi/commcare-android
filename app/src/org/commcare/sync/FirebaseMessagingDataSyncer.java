@@ -1,13 +1,6 @@
 package org.commcare.sync;
 
 
-import static android.app.Activity.RESULT_CANCELED;
-import static org.commcare.sync.FirebaseMessagingDataSyncer.AppNavigationStates.ENTITY_DETAIL;
-import static org.commcare.sync.FirebaseMessagingDataSyncer.AppNavigationStates.ENTITY_SELECTION;
-import static org.commcare.sync.FirebaseMessagingDataSyncer.AppNavigationStates.FORM_ENTRY;
-import static org.commcare.sync.FirebaseMessagingDataSyncer.AppNavigationStates.HOME_SCREEN;
-import static org.commcare.sync.FirebaseMessagingDataSyncer.AppNavigationStates.MENU;
-import static org.commcare.sync.FirebaseMessagingDataSyncer.AppNavigationStates.OTHER;
 import static org.commcare.utils.FirebaseMessagingUtil.removeServerUrlFromUserDomain;
 
 import android.content.Context;
@@ -16,14 +9,10 @@ import android.os.Bundle;
 import android.widget.Toast;
 
 import org.commcare.CommCareApplication;
-import org.commcare.activities.CommCareActivity;
-import org.commcare.activities.EntitySelectActivity;
-import org.commcare.models.AndroidSessionWrapper;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.preferences.ServerUrls;
 import org.commcare.services.CommCareSessionService;
 import org.commcare.services.FCMMessageData;
-import org.commcare.session.CommCareSession;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.ResultAndError;
 import org.commcare.tasks.templates.CommCareTask;
@@ -37,6 +26,7 @@ import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class FirebaseMessagingDataSyncer implements CommCareTaskConnector {
@@ -50,14 +40,7 @@ public class FirebaseMessagingDataSyncer implements CommCareTaskConnector {
         this.context = context;
     }
 
-    public enum AppNavigationStates {
-        FORM_ENTRY,
-        ENTITY_SELECTION,
-        ENTITY_DETAIL,
-        MENU,
-        HOME_SCREEN,
-        OTHER
-    }
+    private List<String> syncSafeActivities = Arrays.asList(new String[]{"FormEntryActivity"});
     private CommCareTask currentTask = null;
     private PinnedNotificationWithProgress<DataPullTask.PullTaskResult> mPinnedNotificationProgress = null;
 
@@ -96,19 +79,12 @@ public class FirebaseMessagingDataSyncer implements CommCareTaskConnector {
                 // A sync occurred since the sync request was triggered
                 return;
             }
-            // Attempt to trigger the sync, according to the current state of the app
-            //The current state of the app by checking which activity is in the foreground
-            switch (getAppNavigationState()) {
-                case FORM_ENTRY:
-                    informUserAboutPendingSync(fcmMessageData);
-                    break;
-                case HOME_SCREEN:
-                case ENTITY_SELECTION:
-                case ENTITY_DETAIL:
-                case MENU:
-                case OTHER:
-                    triggerBackgroundSync(user);
-                    break;
+            // Attempt to trigger the sync if the user is currently in a sync safe activity
+            if (isCurrentActivitySyncSafe()){
+                triggerBackgroundSync(user);
+            }
+            else {
+                informUserAboutPendingSync(fcmMessageData);
             }
         } else {
             // Username and Domain don't match the current user OR payload data doesn't include username
@@ -181,18 +157,8 @@ public class FirebaseMessagingDataSyncer implements CommCareTaskConnector {
         return false;
     }
 
-    private AppNavigationStates getAppNavigationState() {
-        if (CommCareActivity.currentActivityName.equals("FormEntryActivity"))
-            return FORM_ENTRY;
-        else if (CommCareActivity.currentActivityName.equals("EntitySelectActivity"))
-            return ENTITY_SELECTION;
-        else if (CommCareActivity.currentActivityName.equals("EntityDetailActivity"))
-            return ENTITY_DETAIL;
-        else if (CommCareActivity.currentActivityName.equals("StandardHomeActivity"))
-            return HOME_SCREEN;
-        else if (CommCareActivity.currentActivityName.equals("MenuActivity"))
-            return MENU;
-        return OTHER;
+    private boolean isCurrentActivitySyncSafe() {
+        return !syncSafeActivities.contains(CommCareApplication.currentActivityName);
     }
 
     // This method is responsible for informing the User about a pending sync and scheduling

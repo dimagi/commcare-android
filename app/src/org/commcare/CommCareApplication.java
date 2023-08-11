@@ -196,6 +196,8 @@ public class CommCareApplication extends MultiDexApplication {
     private boolean invalidateCacheOnRestore;
     private CommCareNoficationManager noficationManager;
 
+    public static String currentActivityName;
+
     @Override
     public void onCreate() {
         super.onCreate();

@@ -7,6 +7,7 @@ import android.widget.AdapterView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 
+import org.commcare.CommCareApplication;
 import org.commcare.dalvik.R;
 
 /**
@@ -33,6 +34,12 @@ public class CommcareListActivity extends AppCompatActivity {
             mListView.setEmptyView(emptyView);
         }
         mListView.setOnItemClickListener(mOnClickListener);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        CommCareApplication.currentActivityName = this.getClass().getSimpleName();
     }
 
     public int getLayoutResource() {
