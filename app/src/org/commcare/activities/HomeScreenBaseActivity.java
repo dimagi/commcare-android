@@ -2,6 +2,7 @@ package org.commcare.activities;
 
 import static org.commcare.activities.DispatchActivity.EXIT_AFTER_FORM_SUBMISSION;
 import static org.commcare.activities.DispatchActivity.EXIT_AFTER_FORM_SUBMISSION_DEFAULT;
+import static org.commcare.activities.DispatchActivity.REBUILD_SESSION;
 import static org.commcare.activities.DispatchActivity.SESSION_ENDPOINT_ARGUMENTS_BUNDLE;
 import static org.commcare.activities.DispatchActivity.SESSION_ENDPOINT_ARGUMENTS_LIST;
 import static org.commcare.activities.DispatchActivity.SESSION_ENDPOINT_ID;
@@ -190,9 +191,16 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
         processFromExternalLaunch(savedInstanceState);
         processFromShortcutLaunch();
         processFromLoginLaunch();
+        processSessionRebuildRequest();
         appUpdateController = AppUpdateControllerFactory.create(this::handleAppUpdate,
                 getApplicationContext());
         appUpdateController.register();
+    }
+
+    private void processSessionRebuildRequest() {
+        if (getIntent().getBooleanExtra(REBUILD_SESSION, false)) {
+            sessionNavigator.startNextSessionStep();
+        }
     }
 
     private void updateLastSuccessfulCommCareVersion() {
