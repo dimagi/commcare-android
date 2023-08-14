@@ -79,7 +79,8 @@ public class AndroidSessionWrapper implements SessionWrapperInterface {
      * Includes any cached info (since the casedb might have changed) and the individual id's
      * and such.
      */
-    public void cleanVolatiles() {
+
+    private void cleanVolatiles() {
         setFormRecordId(-1);
         sessionStateRecordId = -1;
         //CTS - Added to fix bugs where casedb didn't get renewed between sessions (possibly

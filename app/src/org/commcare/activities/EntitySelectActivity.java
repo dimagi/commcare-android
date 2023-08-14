@@ -596,8 +596,6 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
                         }
                         AudioController.INSTANCE.releaseCurrentMediaEntity();
                     }
-                    // Reload entities in case some are no longer available after the sync
-                    loadEntities();
                 }
                 break;
             case MAP_SELECT:
