@@ -197,9 +197,6 @@ public class FirebaseMessagingDataSyncer implements CommCareTaskConnector {
 
     @Override
     public void stopBlockingForTask(int id) {
-        // Acquire lock to finalize sync. This is not expected to fail, but in case it happens
-        // we will continue
-        CommCareSessionService.sessionAliveLock.tryLock();
     }
 
     @Override
@@ -219,10 +216,6 @@ public class FirebaseMessagingDataSyncer implements CommCareTaskConnector {
 
     @Override
     public void stopTaskTransition(int taskId) {
-        // Release lock
-        if(CommCareSessionService.sessionAliveLock.isLocked()) {
-            CommCareSessionService.sessionAliveLock.unlock();
-        }
     }
 
     @Override
