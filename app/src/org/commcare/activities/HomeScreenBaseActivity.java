@@ -358,7 +358,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
         if (HiddenPreferences.isPendingSyncRequestFromServer() &&
                 HiddenPreferences.getPendingSyncRequestFromServerTime()>SyncDetailCalculations.getLastSyncTime()) {
             HiddenPreferences.setPendingSyncRequestFromServer(false);
-            sendFormsOrSync(true);
+            sendFormsOrSync(false);
             return true;
         }
 
