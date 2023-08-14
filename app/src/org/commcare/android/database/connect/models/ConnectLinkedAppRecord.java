@@ -19,11 +19,11 @@ public class ConnectLinkedAppRecord extends Persisted {
 
     @Persisting(1)
     @MetaField(META_APP_ID)
-    private String app_id;
+    private String appId;
 
     @Persisting(2)
     @MetaField(META_USER_ID)
-    private String user_id;
+    private String userId;
 
     @Persisting(3)
     private String password;
@@ -41,14 +41,14 @@ public class ConnectLinkedAppRecord extends Persisted {
     }
 
     public ConnectLinkedAppRecord(String appID, String userID, String password) {
-        this.app_id = appID;
-        this.user_id = userID;
+        this.appId = appID;
+        this.userId = userID;
         this.password = password;
 
         hqTokenExpiration = new Date();
     }
 
-    public String getUserID() { return user_id; }
+    public String getUserID() { return userId; }
     public String getPassword() { return password; }
     public void setPassword(String password) { this.password = password;}
     public boolean getWorkerLinked() { return workerLinked; }

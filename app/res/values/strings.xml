@@ -6,6 +6,7 @@
     <string name="default_app_server">jr://asset/testing/profile.ccpr</string>
     <string name="PostURL">https://staging.commcarehq.org/receiver/submit/pf</string>
     <string name="ConnectURL">https://connectid.dimagi.com</string>
+    <string name="ConnectTokenURL">https://connectid.dimagi.com/o/token/</string>
     <string name="ota_restore_url">https://staging.commcarehq.org/ota_restore</string>
     <!-- string name="PostURL">https://pact.dimagi.com/receiver/submit/pact</string -->
     <!-- string name="ota_restore_url">https://pact.dimagi.com/provider/caselist</string -->

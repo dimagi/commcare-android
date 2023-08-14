@@ -45,9 +45,35 @@ public class ConnectIDNetworkHelper {
         }
     }
 
-    private static boolean isBusy = false;
+    private boolean isBusy = false;
+
+    private static ConnectIDNetworkHelper instance;
+
+    private ConnectIDNetworkHelper() {
+        //Private constructor for singleton
+    }
+
+    private static ConnectIDNetworkHelper getInstance() {
+        if(instance == null) {
+            instance = new ConnectIDNetworkHelper();
+        }
+
+        return instance;
+    }
 
     public static PostResult postSync(Context context, String url, AuthInfo authInfo, HashMap<String, String> params, boolean useFormEncoding) {
+        return getInstance().postSyncInternal(context, url, authInfo, params, useFormEncoding);
+    }
+
+    public static boolean post(Context context, String url, AuthInfo authInfo, HashMap<String, String> params, boolean useFormEncoding, INetworkResultHandler handler) {
+        return getInstance().postInternal(context, url, authInfo, params, useFormEncoding, handler);
+    }
+
+    public static boolean get(Context context, String url, AuthInfo authInfo, Multimap<String, String> params, INetworkResultHandler handler) {
+        return getInstance().getInternal(context, url, authInfo, params, handler);
+    }
+
+    private PostResult postSyncInternal(Context context, String url, AuthInfo authInfo, HashMap<String, String> params, boolean useFormEncoding) {
         HashMap<String, String> headers = new HashMap<>();
         RequestBody requestBody;
 
@@ -94,7 +120,7 @@ public class ConnectIDNetworkHelper {
         return new PostResult(responseCode, stream, exception);
     }
 
-    public static boolean post(Context context, String url, AuthInfo authInfo, HashMap<String, String> params, boolean useFormEncoding, INetworkResultHandler handler) {
+    private boolean postInternal(Context context, String url, AuthInfo authInfo, HashMap<String, String> params, boolean useFormEncoding, INetworkResultHandler handler) {
         if (isBusy) {
             return false;
         }
@@ -196,7 +222,7 @@ public class ConnectIDNetworkHelper {
         return true;
     }
 
-    private static HashMap<String, String> getContentHeadersForXFormPost(RequestBody postBody) {
+    private HashMap<String, String> getContentHeadersForXFormPost(RequestBody postBody) {
         HashMap<String, String> headers = new HashMap<>();
         headers.put("Content-Type", "application/x-www-form-urlencoded");
         try {
@@ -208,7 +234,7 @@ public class ConnectIDNetworkHelper {
         return headers;
     }
 
-    public static boolean get(Context context, String url, AuthInfo authInfo, Multimap<String, String> params, INetworkResultHandler handler) {
+    private boolean getInternal(Context context, String url, AuthInfo authInfo, Multimap<String, String> params, INetworkResultHandler handler) {
         if (isBusy) {
             return false;
         }

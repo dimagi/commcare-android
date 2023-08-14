@@ -43,8 +43,8 @@ public class ConnectIDDatabaseHelper {
             return passphrase;
         } catch (Exception e) {
             Logger.exception("Getting DB passphrase", e);
+            throw new RuntimeException(e);
         }
-        return null;
     }
 
     public static void init(Context context) {
