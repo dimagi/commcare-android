@@ -183,14 +183,13 @@ public class EncryptionUtils {
         return transformation;
     }
 
-    //Encryption backed by Android KeyStore
-    private static byte[] encrypt(Context context, byte[] bytes)
+    public static byte[] encrypt(byte[] bytes, Key key)
             throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException,
             IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException,
             UnrecoverableEntryException, CertificateException, KeyStoreException, IOException, NoSuchProviderException {
         String transformation = getTransformationString();
         Cipher cipher = Cipher.getInstance(transformation);
-        cipher.init(Cipher.ENCRYPT_MODE, getKey(context, getKeystore(), true));
+        cipher.init(Cipher.ENCRYPT_MODE, key);
         byte[] encrypted = cipher.doFinal(bytes);
         byte[] iv = cipher.getIV();
         int ivLength = iv == null ? 0 : iv.length;
@@ -213,11 +212,10 @@ public class EncryptionUtils {
         return output;
     }
 
-    //Decryption backed by Android KeyStore
-    private static byte[] decrypt(Context context, byte[] bytes)
+    public static byte[] decrypt(byte[] bytes, Key key)
             throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidAlgorithmParameterException,
             InvalidKeyException, IllegalBlockSizeException, BadPaddingException,
-            UnrecoverableEntryException, CertificateException, KeyStoreException, IOException, NoSuchProviderException {
+            UnrecoverableEntryException {
         int readIndex = 0;
         int ivLength = bytes[readIndex];
         readIndex++;
@@ -243,7 +241,7 @@ public class EncryptionUtils {
         String transformation = getTransformationString();
         Cipher cipher = Cipher.getInstance(transformation);
 
-        cipher.init(Cipher.DECRYPT_MODE, getKey(context, getKeystore(), false), iv != null ? new IvParameterSpec(iv) : null);
+        cipher.init(Cipher.DECRYPT_MODE, key, iv != null ? new IvParameterSpec(iv) : null);
 
         return cipher.doFinal(encrypted);
     }
@@ -253,8 +251,7 @@ public class EncryptionUtils {
             InvalidAlgorithmParameterException, NoSuchPaddingException, IllegalBlockSizeException,
             UnrecoverableEntryException, CertificateException, NoSuchAlgorithmException,
             BadPaddingException, KeyStoreException, IOException, InvalidKeyException, NoSuchProviderException {
-        byte[] encrypted = encrypt(context, input);
-
+        byte[] encrypted = encrypt(input, getKey(context, getKeystore(), true));
         return Base64.encode(encrypted);
     }
 
@@ -265,7 +262,7 @@ public class EncryptionUtils {
             BadPaddingException, KeyStoreException, IOException, InvalidKeyException, NoSuchProviderException {
         byte[] encrypted = Base64.decode(base64);
 
-        return decrypt(context, encrypted);
+        return decrypt(encrypted, getKey(context, getKeystore(), false));
     }
 
     public static String getMD5HashAsString(String plainText) {

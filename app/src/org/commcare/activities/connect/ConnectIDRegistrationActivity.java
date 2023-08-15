@@ -111,17 +111,18 @@ implements WithUIController {
         
         String url = getString(R.string.ConnectURL) + "/users/register";
 
-        user = new ConnectUserRecord(phone, generateUserId(), generatePassword(), uiController.getNameText(), "");
+        ConnectUserRecord tempUser = new ConnectUserRecord(phone, generateUserId(), generatePassword(), uiController.getNameText(), "");
 
         HashMap<String, String> params = new HashMap<>();
-        params.put("username", user.getUserID());
-        params.put("password", user.getPassword());
-        params.put("name", user.getName());
+        params.put("username", tempUser.getUserID());
+        params.put("password", tempUser.getPassword());
+        params.put("name", tempUser.getName());
         params.put("phone_number", phone);
 
         boolean isBusy = !ConnectIDNetworkHelper.post(this, url, new AuthInfo.NoAuth(), params, false, new ConnectIDNetworkHelper.INetworkResultHandler() {
             @Override
             public void processSuccess(int responseCode, InputStream responseData) {
+                user = tempUser;
                 finish(true);
             }
 
@@ -147,14 +148,13 @@ implements WithUIController {
             finish(true);
         }
         else {
-            user.setName(newName);
-
             HashMap<String, String> params = new HashMap<>();
             params.put("name", user.getName());
 
             boolean isBusy = !ConnectIDNetworkHelper.post(this, url, new AuthInfo.ProvidedAuth(user.getUserID(), user.getPassword(), false), params, false, new ConnectIDNetworkHelper.INetworkResultHandler() {
                 @Override
                 public void processSuccess(int responseCode, InputStream responseData) {
+                    user.setName(newName);
                     finish(true);
                 }
 

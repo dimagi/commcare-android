@@ -149,73 +149,7 @@ public class ConnectIDNetworkHelper {
                         requestBody,
                         HTTPMethod.POST,
                         authInfo);
-        postTask.connect(new ConnectorWithHttpResponseProcessor<>() {
-            @Override
-            public void processSuccess(int responseCode, InputStream responseData) {
-                isBusy = false;
-                handler.processSuccess(responseCode, responseData);
-            }
-
-            @Override
-            public void processClientError(int responseCode) {
-                isBusy = false;
-                //400 error
-                handler.processFailure(responseCode, null);
-            }
-
-            @Override
-            public void processServerError(int responseCode) {
-                isBusy = false;
-                //500 error for internal server error
-                handler.processFailure(responseCode, null);
-            }
-
-            @Override
-            public void processOther(int responseCode) {
-                isBusy = false;
-                handler.processFailure(responseCode, null);
-            }
-
-            @Override
-            public void handleIOException(IOException exception) {
-                isBusy = false;
-                //UnknownHostException if host not found
-                handler.processFailure(-1, exception);
-            }
-
-            @Override
-            public <A, B, C> void connectTask(CommCareTask<A, B, C, HttpResponseProcessor> task) {
-            }
-
-            @Override
-            public void startBlockingForTask(int id) {
-            }
-
-            @Override
-            public void stopBlockingForTask(int id) {
-            }
-
-            @Override
-            public void taskCancelled() {
-            }
-
-            @Override
-            public HttpResponseProcessor getReceiver() {
-                return this;
-            }
-
-            @Override
-            public void startTaskTransition() {
-            }
-
-            @Override
-            public void stopTaskTransition(int taskId) {
-            }
-
-            @Override
-            public void hideTaskCancelButton() {
-            }
-        });
+        postTask.connect(getResponseProcessor(handler));
 
         postTask.executeParallel();
 
@@ -258,7 +192,14 @@ public class ConnectIDNetworkHelper {
                         ArrayListMultimap.create(),
                         new HashMap<>(),
                         authInfo);
-        getTask.connect(new ConnectorWithHttpResponseProcessor<>() {
+        getTask.connect(getResponseProcessor(handler));
+        getTask.executeParallel();
+
+        return true;
+    }
+
+    private ConnectorWithHttpResponseProcessor<HttpResponseProcessor> getResponseProcessor(INetworkResultHandler handler) {
+        return new ConnectorWithHttpResponseProcessor<>() {
             @Override
             public void processSuccess(int responseCode, InputStream responseData) {
                 isBusy = false;
@@ -324,9 +265,6 @@ public class ConnectIDNetworkHelper {
             @Override
             public void hideTaskCancelButton() {
             }
-        });
-        getTask.executeParallel();
-
-        return true;
+        };
     }
 }
