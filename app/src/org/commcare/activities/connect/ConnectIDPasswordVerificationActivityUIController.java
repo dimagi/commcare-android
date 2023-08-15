@@ -42,7 +42,9 @@ public class ConnectIDPasswordVerificationActivityUIController implements CommCa
         return passwordInput.getText().toString();
     }
 
-    public void clearPassword() { passwordInput.setText(""); }
+    public void clearPassword() {
+        passwordInput.setText("");
+    }
 
     public void requestInputFocus() {
         KeyboardHelper.showKeyboardOnInput(activity, passwordInput);

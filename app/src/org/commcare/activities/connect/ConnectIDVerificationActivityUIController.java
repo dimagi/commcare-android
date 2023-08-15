@@ -47,6 +47,7 @@ public class ConnectIDVerificationActivityUIController implements CommCareActivi
     public ConnectIDVerificationActivityUIController(ConnectIDVerificationActivity activity) {
         this.activity = activity;
     }
+
     @Override
     public void setupUI() {
         fingerprintButton.setOnClickListener(v -> activity.handleFingerprintButton());
@@ -59,13 +60,18 @@ public class ConnectIDVerificationActivityUIController implements CommCareActivi
 
     }
 
-    public void setTitleText(String text) { titleTextView.setText(text); }
-    public void setMessageText(String text) { messageTextView.setText(text); }
+    public void setTitleText(String text) {
+        titleTextView.setText(text);
+    }
+
+    public void setMessageText(String text) {
+        messageTextView.setText(text);
+    }
 
     public void updateFingerprint(String fingerprintMessageText, String fingerprintButtonText) {
         boolean showFingerprint = fingerprintButtonText != null;
         fingerprintContainer.setVisibility(showFingerprint ? View.VISIBLE : View.GONE);
-        if(showFingerprint) {
+        if (showFingerprint) {
             fingerprintTextView.setText(fingerprintMessageText);
             fingerprintButton.setText(fingerprintButtonText);
         }
@@ -74,11 +80,13 @@ public class ConnectIDVerificationActivityUIController implements CommCareActivi
     public void updatePin(String pinMessageText, String pinButtonText) {
         boolean showPin = pinButtonText != null;
         pinContainer.setVisibility(showPin ? View.VISIBLE : View.GONE);
-        if(showPin) {
+        if (showPin) {
             pinTextView.setText(pinMessageText);
             pinButton.setText(pinButtonText);
         }
     }
 
-    public void setOrVisibility(boolean visible) { orTextView.setVisibility(visible ? View.VISIBLE : View.GONE); }
+    public void setOrVisibility(boolean visible) {
+        orTextView.setVisibility(visible ? View.VISIBLE : View.GONE);
+    }
 }

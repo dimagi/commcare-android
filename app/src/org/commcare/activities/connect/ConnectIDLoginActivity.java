@@ -23,7 +23,7 @@ import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.WithUIController;
 
 public class ConnectIDLoginActivity extends CommCareActivity<ConnectIDLoginActivity>
-implements WithUIController {
+        implements WithUIController {
     private BiometricPrompt.AuthenticationCallback biometricPromptCallbacks;
     private boolean attemptingFingerprint = false;
     private boolean allowPassword = false;
@@ -45,20 +45,17 @@ implements WithUIController {
 
         biometricManager = BiometricManager.from(this);
 
-        if(BiometricsHelper.isFingerprintConfigured(this, biometricManager)) {
+        if (BiometricsHelper.isFingerprintConfigured(this, biometricManager)) {
             //Automatically try fingerprint first
             performFingerprintUnlock();
-        }
-        else if(!BiometricsHelper.isPinConfigured(this, biometricManager)) {
+        } else if (!BiometricsHelper.isPinConfigured(this, biometricManager)) {
             //Automatically try password, it's the only option
             performPasswordUnlock();
-        }
-        else {
-            if(allowPassword) {
+        } else {
+            if (allowPassword) {
                 //Show options for PIN or password
                 uiController.showAdditionalOptions();
-            }
-            else {
+            } else {
                 //PIN is the only option
                 performPinUnlock();
             }
@@ -66,7 +63,7 @@ implements WithUIController {
     }
 
     @Override
-    protected  void onResume() {
+    protected void onResume() {
         super.onResume();
 
         uiController.refreshView();
@@ -94,6 +91,7 @@ implements WithUIController {
 
         super.onActivityResult(requestCode, resultCode, intent);
     }
+
     public void startAccountRecoveryWorkflow() {
         finish(false, false, true);
     }
@@ -106,6 +104,7 @@ implements WithUIController {
     public void performPasswordUnlock() {
         finish(false, true, false);
     }
+
     public void performPinUnlock() {
         BiometricsHelper.authenticatePin(this, biometricManager, biometricPromptCallbacks);
     }
@@ -117,13 +116,12 @@ implements WithUIController {
             public void onAuthenticationError(int errorCode,
                                               @NonNull CharSequence errString) {
                 super.onAuthenticationError(errorCode, errString);
-                if(attemptingFingerprint) {
+                if (attemptingFingerprint) {
                     attemptingFingerprint = false;
-                    if(!BiometricsHelper.isPinConfigured(context, biometricManager)) {
+                    if (!BiometricsHelper.isPinConfigured(context, biometricManager)) {
                         //Automatically try password, it's the only option
                         performPasswordUnlock();
-                    }
-                    else {
+                    } else {
                         //Show options for PIN or password
                         uiController.showAdditionalOptions();
                     }

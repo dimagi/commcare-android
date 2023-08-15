@@ -52,7 +52,8 @@ public class ConnectIDRecoveryDecisionActivityUIController implements CommCareAc
 
         TextWatcher watcher = new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
@@ -60,7 +61,8 @@ public class ConnectIDRecoveryDecisionActivityUIController implements CommCareAc
             }
 
             @Override
-            public void afterTextChanged(Editable s) { }
+            public void afterTextChanged(Editable s) {
+            }
         };
 
         countryCodeInput.addTextChangedListener(watcher);
@@ -81,13 +83,18 @@ public class ConnectIDRecoveryDecisionActivityUIController implements CommCareAc
         phoneMessageTextView.setVisibility(visible ? View.VISIBLE : View.GONE);
     }
 
-    public void setCountryCode(String code) { countryCodeInput.setText(code); }
+    public void setCountryCode(String code) {
+        countryCodeInput.setText(code);
+    }
+
     public String getCountryCode() {
         return countryCodeInput.getText().toString();
     }
+
     public String getPhoneNumber() {
         return phoneInput.getText().toString();
     }
+
     public void setButton1Enabled(boolean enabled) {
         button1.setEnabled(enabled);
     }

@@ -26,18 +26,23 @@ public enum ConnectIDTask {
 
     private final int requestCode;
     private final Class<?> nextActivity;
+
     ConnectIDTask(int requestCode, Class<?> nextActivity) {
         this.requestCode = requestCode;
         this.nextActivity = nextActivity;
     }
 
-    public int getRequestCode() { return requestCode; }
+    public int getRequestCode() {
+        return requestCode;
+    }
 
-    public Class<?> getNextActivity() { return nextActivity; }
+    public Class<?> getNextActivity() {
+        return nextActivity;
+    }
 
     public static ConnectIDTask fromRequestCode(int code) {
-        for(ConnectIDTask task : ConnectIDTask.values()) {
-            if(task.requestCode == code) {
+        for (ConnectIDTask task : ConnectIDTask.values()) {
+            if (task.requestCode == code) {
                 return task;
             }
         }

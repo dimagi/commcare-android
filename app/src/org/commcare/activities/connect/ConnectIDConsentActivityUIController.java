@@ -13,9 +13,9 @@ import org.commcare.views.UiElement;
 @ManagedUi(R.layout.screen_connect_consent)
 public class ConnectIDConsentActivityUIController implements CommCareActivityUIController {
 
-    @UiElement(value=R.id.connect_consent_message_1)
+    @UiElement(value = R.id.connect_consent_message_1)
     private TextView messageText;
-    @UiElement(value=R.id.connect_consent_check)
+    @UiElement(value = R.id.connect_consent_check)
     private CheckBox checkbox;
     @UiElement(value = R.id.connect_consent_button)
     private Button button;

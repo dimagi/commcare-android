@@ -22,7 +22,7 @@ import java.util.HashMap;
 import java.util.Locale;
 
 public class ConnectIDPhoneActivity extends CommCareActivity<ConnectIDPhoneActivity>
-implements WithUIController {
+        implements WithUIController {
 
     private String method;
     private String existingPhone;
@@ -44,13 +44,12 @@ implements WithUIController {
         String title = getString(R.string.connect_phone_title_primary);
         String message = getString(R.string.connect_phone_message_primary);
         String existing;
-        if(method.equals(ConnectIDConstants.METHOD_CHANGE_ALTERNATE)) {
+        if (method.equals(ConnectIDConstants.METHOD_CHANGE_ALTERNATE)) {
             title = getString(R.string.connect_phone_title_alternate);
             message = getString(R.string.connect_phone_message_alternate);
 
             existing = user != null ? user.getAlternatePhone() : null;
-        }
-        else {
+        } else {
             existing = user != null ? user.getPrimaryPhone() : existingPhone;
         }
 
@@ -58,16 +57,16 @@ implements WithUIController {
         uiController.setMessage(message);
 
         int code = PhoneNumberHelper.getCountryCode(this);
-        if(existing != null && existing.length() > 0) {
+        if (existing != null && existing.length() > 0) {
             code = PhoneNumberHelper.getCountryCode(this, existing);
         }
 
         String codeText = "";
-        if(code > 0) {
+        if (code > 0) {
             codeText = String.format(Locale.getDefault(), "+%d", code);
         }
 
-        if(existing != null && existing.startsWith(codeText)) {
+        if (existing != null && existing.startsWith(codeText)) {
             existing = existing.substring(codeText.length());
         }
 
@@ -90,7 +89,9 @@ implements WithUIController {
     }
 
     @Override
-    public CommCareActivityUIController getUIController() { return this.uiController; }
+    public CommCareActivityUIController getUIController() {
+        return this.uiController;
+    }
 
     @Override
     public void initUIController() {
@@ -110,19 +111,18 @@ implements WithUIController {
         String phone = PhoneNumberHelper.buildPhoneNumber(uiController.getCountryCode(), uiController.getPhoneNumber());
         ConnectUserRecord user = ConnectIDManager.getUser(this);
         String existing = user != null ? user.getPrimaryPhone() : existingPhone;
-        if(method.equals(ConnectIDConstants.METHOD_CHANGE_ALTERNATE)) {
+        if (method.equals(ConnectIDConstants.METHOD_CHANGE_ALTERNATE)) {
             existing = user != null ? user.getAlternatePhone() : null;
         }
-        if(user != null && existing != null && !existing.equals(phone)) {
+        if (user != null && existing != null && !existing.equals(phone)) {
             //Update the phone number with the server
             HashMap<String, String> params = new HashMap<>();
             String command;
-            if(method.equals(ConnectIDConstants.METHOD_CHANGE_ALTERNATE)) {
+            if (method.equals(ConnectIDConstants.METHOD_CHANGE_ALTERNATE)) {
                 command = "/users/update_profile";
 
                 params.put("secondary_phone", phone);
-            }
-            else {
+            } else {
                 command = "/users/change_phone";
 
                 params.put("old_phone_number", existing);
@@ -143,11 +143,10 @@ implements WithUIController {
                 }
             });
 
-            if(isBusy) {
+            if (isBusy) {
                 Toast.makeText(this, R.string.busy_message, Toast.LENGTH_SHORT).show();
             }
-        }
-        else {
+        } else {
             finish(true, phone);
         }
     }
@@ -161,9 +160,9 @@ implements WithUIController {
         if (valid) {
             String existingPrimary = user != null ? user.getPrimaryPhone() : existingPhone;
             String existingAlternate = user != null ? user.getAlternatePhone() : null;
-            switch(method) {
+            switch (method) {
                 case ConnectIDConstants.METHOD_REGISTER_PRIMARY,
-                     ConnectIDConstants.METHOD_CHANGE_PRIMARY -> {
+                        ConnectIDConstants.METHOD_CHANGE_PRIMARY -> {
                     if (existingPrimary != null && existingPrimary.equals(phone)) {
                         uiController.setAvailabilityText("");
                         uiController.setOkButtonEnabled(true);
@@ -201,7 +200,7 @@ implements WithUIController {
                             }
                         });
 
-                        if(isBusy) {
+                        if (isBusy) {
                             Toast.makeText(this, R.string.busy_message, Toast.LENGTH_SHORT).show();
                         }
                     }
@@ -210,8 +209,7 @@ implements WithUIController {
                     if (existingPrimary != null && existingPrimary.equals(phone)) {
                         uiController.setAvailabilityText(getString(R.string.connect_phone_not_primary));
                         uiController.setOkButtonEnabled(false);
-                    }
-                    else {
+                    } else {
                         uiController.setAvailabilityText("");
                         uiController.setOkButtonEnabled(true);
                     }

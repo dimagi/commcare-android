@@ -1,14 +1,12 @@
 package org.commcare.activities.connect;
 
 import android.content.Context;
-import android.os.Build;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
-import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.database.global.models.ConnectKeyRecord;
 import org.commcare.models.database.AndroidDbHelper;
 import org.commcare.models.database.SqlStorage;
@@ -29,7 +27,7 @@ public class ConnectIDDatabaseHelper {
         try {
             for (ConnectKeyRecord r : CommCareApplication.instance().getGlobalStorage(ConnectKeyRecord.class)) {
                 String encryptedPassphrase = r.getEncryptedPassphrase();
-                if(encryptedPassphrase != null) {
+                if (encryptedPassphrase != null) {
                     return EncryptionUtils.decryptFromBase64String(context, encryptedPassphrase);
                 }
             }
@@ -91,8 +89,8 @@ public class ConnectIDDatabaseHelper {
 
     public static ConnectLinkedAppRecord getAppData(Context context, String appId, String username) {
         Vector<ConnectLinkedAppRecord> records = getConnectStorage(context, ConnectLinkedAppRecord.class).getRecordsForValues(
-                new String[] {ConnectLinkedAppRecord.META_APP_ID, ConnectLinkedAppRecord.META_USER_ID},
-                new Object[] {appId, username});
+                new String[]{ConnectLinkedAppRecord.META_APP_ID, ConnectLinkedAppRecord.META_USER_ID},
+                new Object[]{appId, username});
         return records.isEmpty() ? null : records.firstElement();
     }
 
@@ -103,10 +101,9 @@ public class ConnectIDDatabaseHelper {
 
     public static void storeApp(Context context, String appID, String userID, String passwordOrPin) {
         ConnectLinkedAppRecord record = getAppData(context, appID, userID);
-        if(record == null) {
+        if (record == null) {
             record = new ConnectLinkedAppRecord(appID, userID, passwordOrPin);
-        }
-        else if(!record.getPassword().equals(passwordOrPin)) {
+        } else if (!record.getPassword().equals(passwordOrPin)) {
             record.setPassword(passwordOrPin);
         }
 
@@ -119,7 +116,7 @@ public class ConnectIDDatabaseHelper {
 
     public static void storeHQToken(Context context, String appID, String userID, String token, Date expiration) {
         ConnectLinkedAppRecord record = getAppData(context, appID, userID);
-        if(record == null) {
+        if (record == null) {
             record = new ConnectLinkedAppRecord(appID, userID, "");
         }
 
@@ -130,7 +127,7 @@ public class ConnectIDDatabaseHelper {
 
     public static void setRegistrationPhase(Context context, ConnectIDTask phase) {
         ConnectUserRecord user = getUser(context);
-        if(user != null) {
+        if (user != null) {
             user.setRegistrationPhase(phase);
             storeUser(context, user);
         }

@@ -59,10 +59,11 @@ public class ConnectIDManager {
     private boolean passwordOnlyWorkflow = false;
 
     //Singleton, private constructor
-    private ConnectIDManager() {}
+    private ConnectIDManager() {
+    }
 
     private static ConnectIDManager getInstance() {
-        if(manager == null) {
+        if (manager == null) {
             manager = new ConnectIDManager();
         }
 
@@ -75,22 +76,21 @@ public class ConnectIDManager {
         ConnectIDDatabaseHelper.init(parent);
 
         ConnectUserRecord user = ConnectIDDatabaseHelper.getUser(manager.parentActivity);
-        if(user != null) {
-            if(user.getRegistrationPhase() != ConnectIDTask.CONNECT_NO_ACTIVITY) {
+        if (user != null) {
+            if (user.getRegistrationPhase() != ConnectIDTask.CONNECT_NO_ACTIVITY) {
                 manager.connectStatus = ConnectIDStatus.Registering;
-            }
-            else if(manager.connectStatus == ConnectIDStatus.NotIntroduced) {
+            } else if (manager.connectStatus == ConnectIDStatus.NotIntroduced) {
                 manager.connectStatus = ConnectIDStatus.LoggedOut;
             }
         }
     }
 
     public static boolean isConnectIDIntroduced() {
-        if(!AppManagerDeveloperPreferences.isConnectIDEnabled()) {
+        if (!AppManagerDeveloperPreferences.isConnectIDEnabled()) {
             return false;
         }
 
-        return switch(getInstance().connectStatus) {
+        return switch (getInstance().connectStatus) {
             case NotIntroduced, Registering -> false;
             case LoggedOut, LoggedIn -> true;
         };
@@ -105,22 +105,22 @@ public class ConnectIDManager {
     }
 
     public static boolean shouldShowSignInMenuOption() {
-        if(!AppManagerDeveloperPreferences.isConnectIDEnabled()) {
+        if (!AppManagerDeveloperPreferences.isConnectIDEnabled()) {
             return false;
         }
 
-        return switch(getInstance().connectStatus) {
+        return switch (getInstance().connectStatus) {
             case LoggedOut, LoggedIn -> false;
             case NotIntroduced, Registering -> true;
         };
     }
 
     public static boolean shouldShowSignOutMenuOption() {
-        if(!AppManagerDeveloperPreferences.isConnectIDEnabled()) {
+        if (!AppManagerDeveloperPreferences.isConnectIDEnabled()) {
             return false;
         }
 
-        return switch(getInstance().connectStatus) {
+        return switch (getInstance().connectStatus) {
             case NotIntroduced, Registering, LoggedOut -> false;
             case LoggedIn -> true;
         };
@@ -128,24 +128,25 @@ public class ConnectIDManager {
 
     public static String getConnectButtonText(Context context) {
         return switch (getInstance().connectStatus) {
-            case LoggedOut, Registering, NotIntroduced -> context.getString(R.string.connect_button_logged_out);
+            case LoggedOut, Registering, NotIntroduced ->
+                    context.getString(R.string.connect_button_logged_out);
             case LoggedIn -> context.getString(R.string.connect_button_logged_in);
         };
     }
 
     public static boolean shouldShowConnectButton() {
-        if(!AppManagerDeveloperPreferences.isConnectIDEnabled()) {
+        if (!AppManagerDeveloperPreferences.isConnectIDEnabled()) {
             return false;
         }
 
-        return switch(getInstance().connectStatus) {
+        return switch (getInstance().connectStatus) {
             case NotIntroduced, Registering, LoggedIn -> false;
             case LoggedOut -> true;
         };
     }
 
     public static void signOut() {
-        if(getInstance().connectStatus == ConnectIDStatus.LoggedIn) {
+        if (getInstance().connectStatus == ConnectIDStatus.LoggedIn) {
             getInstance().connectStatus = ConnectIDStatus.LoggedOut;
         }
     }
@@ -181,10 +182,9 @@ public class ConnectIDManager {
             case LoggedOut, Registering -> {
                 ConnectUserRecord user = ConnectIDDatabaseHelper.getUser(manager.parentActivity);
                 ConnectIDTask phase = user.getRegistrationPhase();
-                if(phase != ConnectIDTask.CONNECT_NO_ACTIVITY) {
+                if (phase != ConnectIDTask.CONNECT_NO_ACTIVITY) {
                     requestCode = phase;
-                }
-                else {
+                } else {
                     requestCode = user.shouldForcePassword() ?
                             ConnectIDTask.CONNECT_UNLOCK_PASSWORD :
                             ConnectIDTask.CONNECT_UNLOCK_BIOMETRIC;
@@ -197,7 +197,7 @@ public class ConnectIDManager {
             }
         }
 
-        if(requestCode != ConnectIDTask.CONNECT_NO_ACTIVITY) {
+        if (requestCode != ConnectIDTask.CONNECT_NO_ACTIVITY) {
             manager.phase = requestCode;
             manager.continueWorkflow();
         }
@@ -261,7 +261,7 @@ public class ConnectIDManager {
                 params.put(ConnectIDConstants.MESSAGE, R.string.connect_recovery_alt_message);
                 params.put(ConnectIDConstants.BUTTON, R.string.connect_recovery_alt_button);
             }
-            case CONNECT_RECOVERY_VERIFY_ALT_PHONE-> {
+            case CONNECT_RECOVERY_VERIFY_ALT_PHONE -> {
                 params.put(ConnectIDConstants.METHOD, String.format(Locale.getDefault(), "%d", ConnectIDPhoneVerificationActivity.MethodRecoveryAlternate));
                 params.put(ConnectIDConstants.PHONE, null);
                 params.put(ConnectIDConstants.CHANGE, "false");
@@ -286,7 +286,7 @@ public class ConnectIDManager {
             }
         }
 
-        if(nextActivity != null) {
+        if (nextActivity != null) {
             Intent i = new Intent(parentActivity, nextActivity);
 
             for (Map.Entry<String, Serializable> pair : params.entrySet()) {
@@ -306,13 +306,12 @@ public class ConnectIDManager {
         ConnectIDTask task = ConnectIDTask.fromRequestCode(requestCode);
         switch (task) {
             case CONNECT_REGISTER_OR_RECOVER_DECISION -> {
-                if(success) {
+                if (success) {
                     boolean createNew = intent.getBooleanExtra(ConnectIDConstants.CREATE, false);
 
-                    if(createNew) {
+                    if (createNew) {
                         nextRequestCode = ConnectIDTask.CONNECT_REGISTRATION_CONSENT;
-                    }
-                    else {
+                    } else {
                         nextRequestCode = ConnectIDTask.CONNECT_RECOVERY_VERIFY_PRIMARY_PHONE;
                         manager.recoveryPhone = intent.getStringExtra(ConnectIDConstants.PHONE);
                     }
@@ -323,11 +322,11 @@ public class ConnectIDManager {
             }
             case CONNECT_REGISTRATION_PRIMARY_PHONE -> {
                 nextRequestCode = success ? ConnectIDTask.CONNECT_REGISTRATION_MAIN : ConnectIDTask.CONNECT_REGISTRATION_CONSENT;
-                if(success) {
+                if (success) {
                     manager.primaryPhone = intent.getStringExtra(ConnectIDConstants.PHONE);
 
                     ConnectUserRecord user = ConnectIDDatabaseHelper.getUser(manager.parentActivity);
-                    if(user != null) {
+                    if (user != null) {
                         user.setPrimaryPhone(manager.primaryPhone);
                         ConnectIDDatabaseHelper.storeUser(manager.parentActivity, user);
                     }
@@ -335,15 +334,14 @@ public class ConnectIDManager {
             }
             case CONNECT_REGISTRATION_MAIN -> {
                 nextRequestCode = success ? ConnectIDTask.CONNECT_REGISTRATION_CONFIGURE_BIOMETRICS : ConnectIDTask.CONNECT_REGISTRATION_PRIMARY_PHONE;
-                if(success) {
+                if (success) {
                     ConnectUserRecord user = ConnectUserRecord.getUserFromIntent(intent);
                     ConnectUserRecord dbUser = ConnectIDDatabaseHelper.getUser(manager.parentActivity);
-                    if(dbUser != null) {
+                    if (dbUser != null) {
                         dbUser.setName(user.getName());
                         dbUser.setAlternatePhone(user.getAlternatePhone());
                         user = dbUser;
-                    }
-                    else {
+                    } else {
                         manager.connectStatus = ConnectIDStatus.Registering;
                     }
                     ConnectIDDatabaseHelper.storeUser(manager.parentActivity, user);
@@ -353,7 +351,7 @@ public class ConnectIDManager {
             case CONNECT_REGISTRATION_CONFIGURE_BIOMETRICS -> {
                 //Backing up here is problematic, we just created a new account...
                 nextRequestCode = ConnectIDTask.CONNECT_REGISTRATION_MAIN;
-                if(success) {
+                if (success) {
                     //If no biometric configured, proceed with password only
                     boolean configured = intent.getBooleanExtra(ConnectIDConstants.CONFIGURED, false);
                     manager.passwordOnlyWorkflow = intent.getBooleanExtra(ConnectIDConstants.PASSWORD, false);
@@ -366,7 +364,7 @@ public class ConnectIDManager {
             }
             case CONNECT_REGISTRATION_VERIFY_PRIMARY_PHONE -> {
                 nextRequestCode = manager.passwordOnlyWorkflow ? ConnectIDTask.CONNECT_REGISTRATION_MAIN : ConnectIDTask.CONNECT_REGISTRATION_CONFIGURE_BIOMETRICS;
-                if(success) {
+                if (success) {
                     boolean changeNumber = intent != null && intent.getBooleanExtra(ConnectIDConstants.CHANGE, false);
                     nextRequestCode = changeNumber ? ConnectIDTask.CONNECT_REGISTRATION_CHANGE_PRIMARY_PHONE : ConnectIDTask.CONNECT_REGISTRATION_CONFIGURE_PASSWORD;
                     rememberPhase = !changeNumber;
@@ -374,10 +372,10 @@ public class ConnectIDManager {
             }
             case CONNECT_REGISTRATION_ALTERNATE_PHONE -> {
                 nextRequestCode = success ? ConnectIDTask.CONNECT_REGISTRATION_SUCCESS : ConnectIDTask.CONNECT_REGISTRATION_CONFIGURE_PASSWORD;
-                if(success) {
+                if (success) {
                     rememberPhase = true;
                     ConnectUserRecord user = ConnectIDDatabaseHelper.getUser(manager.parentActivity);
-                    if(user != null) {
+                    if (user != null) {
                         user.setAlternatePhone(intent.getStringExtra(ConnectIDConstants.PHONE));
                         ConnectIDDatabaseHelper.storeUser(manager.parentActivity, user);
                     }
@@ -386,10 +384,10 @@ public class ConnectIDManager {
             case CONNECT_REGISTRATION_CHANGE_PRIMARY_PHONE -> {
                 //Note that we return to primary phone verification (whether they did or didn't change the phone number)
                 nextRequestCode = ConnectIDTask.CONNECT_REGISTRATION_VERIFY_PRIMARY_PHONE;
-                if(success) {
+                if (success) {
                     rememberPhase = true;
                     ConnectUserRecord user = ConnectIDDatabaseHelper.getUser(manager.parentActivity);
-                    if(user != null) {
+                    if (user != null) {
                         user.setPrimaryPhone(intent.getStringExtra(ConnectIDConstants.PHONE));
                         ConnectIDDatabaseHelper.storeUser(manager.parentActivity, user);
                     }
@@ -403,7 +401,7 @@ public class ConnectIDManager {
                     //Update password
                     manager.forgotPassword = false;
                     ConnectUserRecord user = ConnectIDDatabaseHelper.getUser(manager.parentActivity);
-                    if(user != null) {
+                    if (user != null) {
                         user.setPassword(intent.getStringExtra(ConnectIDConstants.PASSWORD));
                         user.setLastPasswordDate(new Date());
                         ConnectIDDatabaseHelper.storeUser(manager.parentActivity, user);
@@ -411,7 +409,7 @@ public class ConnectIDManager {
                 }
             }
             case CONNECT_RECOVERY_PRIMARY_PHONE -> {
-                if(success) {
+                if (success) {
                     nextRequestCode = ConnectIDTask.CONNECT_RECOVERY_VERIFY_PRIMARY_PHONE;
                     manager.recoveryPhone = intent.getStringExtra(ConnectIDConstants.PHONE);
                 }
@@ -436,10 +434,9 @@ public class ConnectIDManager {
                 nextRequestCode = success ? ConnectIDTask.CONNECT_RECOVERY_SUCCESS : ConnectIDTask.CONNECT_RECOVERY_VERIFY_PRIMARY_PHONE;
                 if (success) {
                     manager.forgotPassword = intent.getBooleanExtra(ConnectIDConstants.FORGOT, false);
-                    if(manager.forgotPassword) {
+                    if (manager.forgotPassword) {
                         nextRequestCode = ConnectIDTask.CONNECT_RECOVERY_ALT_PHONE_MESSAGE;
-                    }
-                    else {
+                    } else {
                         String username = intent.getStringExtra(ConnectIDConstants.USERNAME);
                         String name = intent.getStringExtra(ConnectIDConstants.NAME);
                         String password = intent.getStringExtra(ConnectIDConstants.PASSWORD);
@@ -454,19 +451,19 @@ public class ConnectIDManager {
                 }
             }
             case CONNECT_RECOVERY_ALT_PHONE_MESSAGE -> {
-                if(success) {
+                if (success) {
                     nextRequestCode = ConnectIDTask.CONNECT_RECOVERY_VERIFY_ALT_PHONE;
                 }
             }
             case CONNECT_RECOVERY_VERIFY_ALT_PHONE -> {
                 nextRequestCode = success ? ConnectIDTask.CONNECT_RECOVERY_CHANGE_PASSWORD : ConnectIDTask.CONNECT_RECOVERY_VERIFY_PRIMARY_PHONE;
 
-                if(success) {
+                if (success) {
                     String username = intent.getStringExtra(ConnectIDConstants.USERNAME);
                     String name = intent.getStringExtra(ConnectIDConstants.NAME);
                     String altPhone = intent.getStringExtra(ConnectIDConstants.ALT_PHONE);
 
-                    if(username != null && name != null) {
+                    if (username != null && name != null) {
                         //NOTE: They'll choose a new password next
                         ConnectUserRecord user = new ConnectUserRecord(manager.recoveryPhone, username, "", name, altPhone);
                         ConnectIDDatabaseHelper.storeUser(manager.parentActivity, user);
@@ -479,7 +476,7 @@ public class ConnectIDManager {
                     //Update password
                     manager.forgotPassword = false;
                     ConnectUserRecord user = ConnectIDDatabaseHelper.getUser(manager.parentActivity);
-                    if(user != null) {
+                    if (user != null) {
                         user.setPassword(intent.getStringExtra(ConnectIDConstants.PASSWORD));
                         user.setLastPasswordDate(new Date());
                         ConnectIDDatabaseHelper.storeUser(manager.parentActivity, user);
@@ -487,7 +484,7 @@ public class ConnectIDManager {
                 }
             }
             case CONNECT_RECOVERY_SUCCESS,
-                 CONNECT_REGISTRATION_SUCCESS -> {
+                    CONNECT_REGISTRATION_SUCCESS -> {
                 //Finish workflow, user registered/recovered and logged in
                 rememberPhase = true;
                 manager.connectStatus = ConnectIDStatus.LoggedIn;
@@ -506,12 +503,11 @@ public class ConnectIDManager {
             case CONNECT_UNLOCK_PASSWORD -> {
                 if (success) {
                     boolean forgot = intent.getBooleanExtra(ConnectIDConstants.FORGOT, false);
-                    if(forgot) {
+                    if (forgot) {
                         //Begin the recovery workflow
                         nextRequestCode = ConnectIDTask.CONNECT_RECOVERY_PRIMARY_PHONE;
                         manager.forgotPassword = true;
-                    }
-                    else {
+                    } else {
                         manager.forgotPassword = false;
                         manager.connectStatus = ConnectIDStatus.LoggedIn;
                         manager.loginListener.connectActivityComplete(true);
@@ -530,7 +526,7 @@ public class ConnectIDManager {
 
         manager.phase = nextRequestCode;
 
-        if(rememberPhase) {
+        if (rememberPhase) {
             ConnectIDDatabaseHelper.setRegistrationPhase(manager.parentActivity, manager.phase);
         }
 
@@ -539,20 +535,20 @@ public class ConnectIDManager {
 
     public static void rememberAppCredentials(String appID, String userID, String passwordOrPin) {
         ConnectIDManager manager = getInstance();
-        if(isUnlocked()) {
+        if (isUnlocked()) {
             ConnectIDDatabaseHelper.storeApp(manager.parentActivity, appID, userID, passwordOrPin);
         }
     }
 
     public static void forgetAppCredentials(String appID, String userID) {
         ConnectLinkedAppRecord record = ConnectIDDatabaseHelper.getAppData(manager.parentActivity, appID, userID);
-        if(record != null) {
+        if (record != null) {
             ConnectIDDatabaseHelper.deleteAppData(manager.parentActivity, record);
         }
     }
 
     public static AuthInfo.ProvidedAuth getCredentialsForApp(String appID, String userID) {
-        if(isUnlocked()) {
+        if (isUnlocked()) {
             ConnectLinkedAppRecord record = ConnectIDDatabaseHelper.getAppData(manager.parentActivity, appID, userID);
             if (record != null && record.getPassword().length() > 0) {
                 return new AuthInfo.ProvidedAuth(record.getUserID(), record.getPassword(), false);
@@ -563,7 +559,7 @@ public class ConnectIDManager {
     }
 
     public static AuthInfo.TokenAuth getConnectToken() {
-        if(isUnlocked()) {
+        if (isUnlocked()) {
             ConnectUserRecord user = ConnectIDDatabaseHelper.getUser(manager.parentActivity);
             if (user != null && (new Date()).compareTo(user.getConnectTokenExpiration()) < 0) {
                 return new AuthInfo.TokenAuth(user.getConnectToken());
@@ -574,7 +570,7 @@ public class ConnectIDManager {
     }
 
     public static AuthInfo.TokenAuth getTokenCredentialsForApp(String appID, String userID) {
-        if(isUnlocked()) {
+        if (isUnlocked()) {
             ConnectLinkedAppRecord record = ConnectIDDatabaseHelper.getAppData(manager.parentActivity, appID, userID);
             if (record != null && (new Date()).compareTo(record.getHQTokenExpiration()) < 0) {
                 return new AuthInfo.TokenAuth(record.getHQToken());

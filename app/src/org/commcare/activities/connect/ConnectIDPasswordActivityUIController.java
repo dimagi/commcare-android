@@ -71,7 +71,11 @@ public class ConnectIDPasswordActivityUIController implements CommCareActivityUI
         passwordInput.setText("");
         passwordRepeatInput.setText("");
     }
-    public void setMessageText(String text) { messageTextView.setText(text); }
+
+    public void setMessageText(String text) {
+        messageTextView.setText(text);
+    }
+
     public String getPasswordText() {
         return passwordInput.getText().toString();
     }

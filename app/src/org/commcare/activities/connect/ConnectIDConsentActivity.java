@@ -9,7 +9,7 @@ import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.WithUIController;
 
 public class ConnectIDConsentActivity extends CommCareActivity<ConnectIDConsentActivity>
-implements WithUIController {
+        implements WithUIController {
     private ConnectIDConsentActivityUIController uiController;
 
     @Override
@@ -27,7 +27,9 @@ implements WithUIController {
     }
 
     @Override
-    public CommCareActivityUIController getUIController() { return this.uiController; }
+    public CommCareActivityUIController getUIController() {
+        return this.uiController;
+    }
 
     @Override
     public void initUIController() {

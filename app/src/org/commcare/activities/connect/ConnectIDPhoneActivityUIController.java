@@ -41,7 +41,8 @@ public class ConnectIDPhoneActivityUIController implements CommCareActivityUICon
 
         TextWatcher watcher = new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
@@ -49,7 +50,8 @@ public class ConnectIDPhoneActivityUIController implements CommCareActivityUICon
             }
 
             @Override
-            public void afterTextChanged(Editable s) { }
+            public void afterTextChanged(Editable s) {
+            }
         };
 
         countryCodeInput.addTextChangedListener(watcher);
@@ -61,13 +63,26 @@ public class ConnectIDPhoneActivityUIController implements CommCareActivityUICon
 
     }
 
-    public void setTitle(String title) { titleTextView.setText(title); }
-    public void setMessage(String message) { messageTextView.setText(message); }
-    public void setCountryCode(String code) { countryCodeInput.setText(code); }
+    public void setTitle(String title) {
+        titleTextView.setText(title);
+    }
+
+    public void setMessage(String message) {
+        messageTextView.setText(message);
+    }
+
+    public void setCountryCode(String code) {
+        countryCodeInput.setText(code);
+    }
+
     public String getCountryCode() {
         return countryCodeInput.getText().toString();
     }
-    public void setPhoneNumber(String phone) { phoneInput.setText(phone); }
+
+    public void setPhoneNumber(String phone) {
+        phoneInput.setText(phone);
+    }
+
     public String getPhoneNumber() {
         return phoneInput.getText().toString();
     }
@@ -75,7 +90,6 @@ public class ConnectIDPhoneActivityUIController implements CommCareActivityUICon
     public void requestInputFocus() {
         KeyboardHelper.showKeyboardOnInput(activity, phoneInput);
     }
-
 
 
     public void setOkButtonEnabled(boolean enabled) {

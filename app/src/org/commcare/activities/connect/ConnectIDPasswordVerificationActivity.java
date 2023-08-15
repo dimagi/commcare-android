@@ -22,7 +22,7 @@ import java.io.InputStream;
 import java.util.HashMap;
 
 public class ConnectIDPasswordVerificationActivity extends CommCareActivity<ConnectIDPasswordVerificationActivity>
-implements WithUIController {
+        implements WithUIController {
     public static final int PASSWORD_FAIL = 1;
     public static final int PASSWORD_LOCK = 2;
     private ConnectIDPasswordVerificationActivityUIController uiController;
@@ -60,16 +60,20 @@ implements WithUIController {
     }
 
     @Override
-    public CommCareActivityUIController getUIController() { return uiController; }
+    public CommCareActivityUIController getUIController() {
+        return uiController;
+    }
 
     @Override
-    public void initUIController() { uiController = new ConnectIDPasswordVerificationActivityUIController(this); }
+    public void initUIController() {
+        uiController = new ConnectIDPasswordVerificationActivityUIController(this);
+    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         super.onActivityResult(requestCode, resultCode, intent);
 
-        if(requestCode == PASSWORD_LOCK) {
+        if (requestCode == PASSWORD_LOCK) {
             finish(true, true, null, null, null);
         }
     }
@@ -94,7 +98,7 @@ implements WithUIController {
         int requestCode = PASSWORD_FAIL;
         int message = R.string.connect_password_fail_message;
 
-        if(failureCount >= MaxFailures) {
+        if (failureCount >= MaxFailures) {
             requestCode = PASSWORD_LOCK;
             message = R.string.connect_password_recovery_message;
         }
@@ -118,17 +122,15 @@ implements WithUIController {
     public void handleButtonPress() {
         String password = uiController.getPassword();
         ConnectUserRecord user = ConnectIDDatabaseHelper.getUser(this);
-        if(user != null) {
+        if (user != null) {
             //If we have the password stored locally, no need for network call
-            if(password.equals(user.getPassword())) {
+            if (password.equals(user.getPassword())) {
                 logRecoveryResult(true);
                 finish(true, false, null, null, null);
-            }
-            else {
+            } else {
                 handleWrongPassword();
             }
-        }
-        else {
+        } else {
             HashMap<String, String> params = new HashMap<>();
             params.put("password", password);
             params.put("phone", phone);
@@ -142,7 +144,7 @@ implements WithUIController {
                     String name = null;
                     try {
                         String responseAsString = new String(StreamsUtil.inputStreamToByteArray(responseData));
-                        if(responseAsString.length() > 0) {
+                        if (responseAsString.length() > 0) {
                             JSONObject json = new JSONObject(responseAsString);
                             String key = ConnectIDConstants.CONNECT_KEY_USERNAME;
                             if (json.has(key)) {
@@ -154,8 +156,7 @@ implements WithUIController {
                                 name = json.getString(key);
                             }
                         }
-                    }
-                    catch(IOException | JSONException e) {
+                    } catch (IOException | JSONException e) {
                         Logger.exception("Parsing return from OTP request", e);
                     }
                     logRecoveryResult(true);
@@ -168,7 +169,7 @@ implements WithUIController {
                 }
             });
 
-            if(isBusy) {
+            if (isBusy) {
                 Toast.makeText(this, R.string.busy_message, Toast.LENGTH_SHORT).show();
             }
         }

@@ -20,7 +20,7 @@ import java.io.InputStream;
 import java.util.Locale;
 
 public class ConnectIDRecoveryDecisionActivity extends CommCareActivity<ConnectIDRecoveryDecisionActivity>
-implements WithUIController {
+        implements WithUIController {
     private enum ConnectRecoveryState {
         NewOrRecover,
         PhoneOrExtended
@@ -53,14 +53,16 @@ implements WithUIController {
     public void onResume() {
         super.onResume();
 
-        if(state == ConnectRecoveryState.PhoneOrExtended) {
+        if (state == ConnectRecoveryState.PhoneOrExtended) {
             uiController.requestInputFocus();
             checkPhoneNumber();
         }
     }
 
     @Override
-    public CommCareActivityUIController getUIController() { return this.uiController; }
+    public CommCareActivityUIController getUIController() {
+        return this.uiController;
+    }
 
     @Override
     public void initUIController() {
@@ -78,14 +80,15 @@ implements WithUIController {
     }
 
     public void handleButton1Press() {
-        switch(state) {
+        switch (state) {
             case NewOrRecover -> finish(true, null);
-            case PhoneOrExtended -> finish(false, PhoneNumberHelper.buildPhoneNumber(uiController.getCountryCode(), uiController.getPhoneNumber()));
+            case PhoneOrExtended ->
+                    finish(false, PhoneNumberHelper.buildPhoneNumber(uiController.getCountryCode(), uiController.getPhoneNumber()));
         }
     }
 
     public void handleButton2Press() {
-        switch(state) {
+        switch (state) {
             case NewOrRecover -> {
                 state = ConnectRecoveryState.PhoneOrExtended;
                 uiController.setPhoneInputVisible(true);
@@ -135,7 +138,7 @@ implements WithUIController {
                 }
             });
 
-            if(isBusy) {
+            if (isBusy) {
                 Toast.makeText(this, R.string.busy_message, Toast.LENGTH_SHORT).show();
             }
         } else {

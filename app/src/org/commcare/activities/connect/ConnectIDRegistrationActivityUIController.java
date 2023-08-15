@@ -33,7 +33,8 @@ public class ConnectIDRegistrationActivityUIController implements CommCareActivi
 
         TextWatcher watcher = new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
@@ -41,7 +42,8 @@ public class ConnectIDRegistrationActivityUIController implements CommCareActivi
             }
 
             @Override
-            public void afterTextChanged(Editable s) { }
+            public void afterTextChanged(Editable s) {
+            }
         };
 
         nameInput.addTextChangedListener(watcher);
@@ -53,15 +55,22 @@ public class ConnectIDRegistrationActivityUIController implements CommCareActivi
     }
 
 
-    public String getNameText() { return nameInput.getText().toString(); }
-    public void setNameText(String name) { nameInput.setText(name); }
-    public void setButtonEnabled(boolean enabled) { registerButton.setEnabled(enabled); }
+    public String getNameText() {
+        return nameInput.getText().toString();
+    }
+
+    public void setNameText(String name) {
+        nameInput.setText(name);
+    }
+
+    public void setButtonEnabled(boolean enabled) {
+        registerButton.setEnabled(enabled);
+    }
 
     public void setErrorText(String text) {
-        if(text == null) {
+        if (text == null) {
             errorText.setVisibility(View.GONE);
-        }
-        else {
+        } else {
             errorText.setVisibility(View.VISIBLE);
             errorText.setText(text);
         }

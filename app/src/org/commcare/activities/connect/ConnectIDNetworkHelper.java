@@ -1,7 +1,6 @@
 package org.commcare.activities.connect;
 
 import android.content.Context;
-import android.widget.Toast;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableMultimap;
@@ -30,6 +29,7 @@ import retrofit2.Response;
 public class ConnectIDNetworkHelper {
     public interface INetworkResultHandler {
         void processSuccess(int responseCode, InputStream responseData);
+
         void processFailure(int responseCode, IOException e);
     }
 
@@ -54,7 +54,7 @@ public class ConnectIDNetworkHelper {
     }
 
     private static ConnectIDNetworkHelper getInstance() {
-        if(instance == null) {
+        if (instance == null) {
             instance = new ConnectIDNetworkHelper();
         }
 
@@ -77,7 +77,7 @@ public class ConnectIDNetworkHelper {
         HashMap<String, String> headers = new HashMap<>();
         RequestBody requestBody;
 
-        if(useFormEncoding) {
+        if (useFormEncoding) {
             Multimap<String, String> multimap = ArrayListMultimap.create();
             for (Map.Entry<String, String> entry : params.entrySet()) {
                 multimap.put(entry.getKey(), entry.getValue());
@@ -85,8 +85,7 @@ public class ConnectIDNetworkHelper {
 
             requestBody = ModernHttpRequester.getPostBody(multimap);
             headers = getContentHeadersForXFormPost(requestBody);
-        }
-        else {
+        } else {
             Gson gson = new Gson();
             String json = gson.toJson(params);
             requestBody = RequestBody.create(MediaType.parse("application/json"), json);
@@ -161,9 +160,8 @@ public class ConnectIDNetworkHelper {
         headers.put("Content-Type", "application/x-www-form-urlencoded");
         try {
             headers.put("Content-Length", String.valueOf(postBody.contentLength()));
-        }
-        catch(IOException e) {
-
+        } catch (IOException e) {
+            //Empty headers if something goes wrong
         }
         return headers;
     }
@@ -174,7 +172,7 @@ public class ConnectIDNetworkHelper {
         }
         isBusy = true;
         //TODO: Figure out how to send GET request the right way
-        String getUrl = url;
+        StringBuilder getUrl = new StringBuilder(url);
         if (params.size() > 0) {
             boolean first = true;
             for (Map.Entry<String, String> entry : params.entries()) {
@@ -183,12 +181,12 @@ public class ConnectIDNetworkHelper {
                     delim = "?";
                     first = false;
                 }
-                getUrl += delim + entry.getKey() + "=" + entry.getValue();
+                getUrl.append(delim).append(entry.getKey()).append("=").append(entry.getValue());
             }
         }
 
         ModernHttpTask getTask =
-                new ModernHttpTask(context, getUrl,
+                new ModernHttpTask(context, getUrl.toString(),
                         ArrayListMultimap.create(),
                         new HashMap<>(),
                         authInfo);

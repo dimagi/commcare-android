@@ -18,7 +18,7 @@ import java.util.Locale;
 import java.util.Random;
 
 public class ConnectIDRegistrationActivity extends CommCareActivity<ConnectIDRegistrationActivity>
-implements WithUIController {
+        implements WithUIController {
     private ConnectIDRegistrationActivityUIController uiController;
 
     private ConnectUserRecord user;
@@ -35,7 +35,7 @@ implements WithUIController {
         uiController.setupUI();
 
         ConnectUserRecord user = ConnectIDManager.getUser(this);
-        if(user != null) {
+        if (user != null) {
             uiController.setNameText(user.getName());
         }
 
@@ -98,17 +98,16 @@ implements WithUIController {
 
     public void continuePressed() {
         user = ConnectIDManager.getUser(this);
-        if(user == null) {
+        if (user == null) {
             createAccount();
-        }
-        else {
+        } else {
             updateAccount();
         }
     }
 
     public void createAccount() {
         uiController.setErrorText(null);
-        
+
         String url = getString(R.string.ConnectURL) + "/users/register";
 
         ConnectUserRecord tempUser = new ConnectUserRecord(phone, generateUserId(), generatePassword(), uiController.getNameText(), "");
@@ -132,7 +131,7 @@ implements WithUIController {
             }
         });
 
-        if(isBusy) {
+        if (isBusy) {
             Toast.makeText(this, R.string.busy_message, Toast.LENGTH_SHORT).show();
         }
     }
@@ -144,10 +143,9 @@ implements WithUIController {
 
         String newName = uiController.getNameText();
 
-        if(newName.equals(user.getName())) {
+        if (newName.equals(user.getName())) {
             finish(true);
-        }
-        else {
+        } else {
             HashMap<String, String> params = new HashMap<>();
             params.put("name", user.getName());
 
@@ -164,7 +162,7 @@ implements WithUIController {
                 }
             });
 
-            if(isBusy) {
+            if (isBusy) {
                 Toast.makeText(this, R.string.busy_message, Toast.LENGTH_SHORT).show();
             }
         }

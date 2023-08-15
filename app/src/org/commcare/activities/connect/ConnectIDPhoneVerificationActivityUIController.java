@@ -18,7 +18,7 @@ public class ConnectIDPhoneVerificationActivityUIController implements CommCareA
     private TextView labelTextView;
     @UiElement(value = R.id.connect_phone_verify_code)
     private AutoCompleteTextView codeInput;
-    @UiElement(value=R.id.connect_phone_verify_error)
+    @UiElement(value = R.id.connect_phone_verify_error)
     private TextView errorMessage;
     @UiElement(value = R.id.connect_phone_verify_change)
     private TextView changeTextView;
@@ -71,10 +71,9 @@ public class ConnectIDPhoneVerificationActivityUIController implements CommCareA
     }
 
     public void setErrorMessage(String message) {
-        if(message == null) {
+        if (message == null) {
             errorMessage.setVisibility(View.GONE);
-        }
-        else {
+        } else {
             errorMessage.setVisibility(View.VISIBLE);
             errorMessage.setText(message);
         }

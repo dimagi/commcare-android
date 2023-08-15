@@ -1,6 +1,5 @@
 package org.commcare.activities.connect;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -22,6 +21,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
+import java.util.Locale;
 
 public class ConnectIDPhoneVerificationActivity extends CommCareActivity<ConnectIDPhoneVerificationActivity>
         implements WithUIController {
@@ -64,7 +64,7 @@ public class ConnectIDPhoneVerificationActivity extends CommCareActivity<Connect
     public void onResume() {
         super.onResume();
 
-        if(allowChange) {
+        if (allowChange) {
             uiController.showChangeOption();
         }
 
@@ -77,10 +77,14 @@ public class ConnectIDPhoneVerificationActivity extends CommCareActivity<Connect
     }
 
     @Override
-    public CommCareActivityUIController getUIController() { return uiController; }
+    public CommCareActivityUIController getUIController() {
+        return uiController;
+    }
 
     @Override
-    public void initUIController() { uiController = new ConnectIDPhoneVerificationActivityUIController(this); }
+    public void initUIController() {
+        uiController = new ConnectIDPhoneVerificationActivityUIController(this);
+    }
 
     private final Handler taskHandler = new android.os.Handler();
 
@@ -95,9 +99,8 @@ public class ConnectIDPhoneVerificationActivity extends CommCareActivity<Connect
 
                 String text = getString(R.string.connect_verify_phone_resend);
                 if (!allowResend) {
-                    text = getString(R.string.connect_verify_phone_resend_wait, (int) Math.ceil((resendLimitMinutes - elapsedMinutes) * 60));
-                }
-                else {
+                    text = getString(R.string.connect_verify_phone_resend_wait, (int)Math.ceil((resendLimitMinutes - elapsedMinutes) * 60));
+                } else {
                     smsTime = null;
                 }
 
@@ -119,7 +122,7 @@ public class ConnectIDPhoneVerificationActivity extends CommCareActivity<Connect
     public void updateMessage() {
         boolean alternate = method == MethodRecoveryAlternate;
         String phone = alternate ? recoveryPhone : primaryPhone;
-        if(phone == null) {
+        if (phone == null) {
             phone = "-";
         }
 
@@ -133,7 +136,7 @@ public class ConnectIDPhoneVerificationActivity extends CommCareActivity<Connect
         String command;
         HashMap<String, String> params = new HashMap<>();
         AuthInfo authInfo = new AuthInfo.NoAuth();
-        switch(method) {
+        switch (method) {
             case MethodRecoveryPrimary -> {
                 command = "/users/recover";
                 params.put("phone", username);
@@ -155,7 +158,7 @@ public class ConnectIDPhoneVerificationActivity extends CommCareActivity<Connect
             public void processSuccess(int responseCode, InputStream responseData) {
                 try {
                     String responseAsString = new String(StreamsUtil.inputStreamToByteArray(responseData));
-                    if(responseAsString.length() > 0) {
+                    if (responseAsString.length() > 0) {
                         JSONObject json = new JSONObject(responseAsString);
                         String key = ConnectIDConstants.CONNECT_KEY_SECRET;
                         if (json.has(key)) {
@@ -168,8 +171,7 @@ public class ConnectIDPhoneVerificationActivity extends CommCareActivity<Connect
                             updateMessage();
                         }
                     }
-                }
-                catch(IOException | JSONException e) {
+                } catch (IOException | JSONException e) {
                     Logger.exception("Parsing return from OTP request", e);
                 }
             }
@@ -177,10 +179,9 @@ public class ConnectIDPhoneVerificationActivity extends CommCareActivity<Connect
             @Override
             public void processFailure(int responseCode, IOException e) {
                 String message = "";
-                if(responseCode > 0) {
-                    message = String.format("(%d)", responseCode);
-                }
-                else if(e != null) {
+                if (responseCode > 0) {
+                    message = String.format(Locale.getDefault(), "(%d)", responseCode);
+                } else if (e != null) {
                     message = e.toString();
                 }
 
@@ -188,7 +189,7 @@ public class ConnectIDPhoneVerificationActivity extends CommCareActivity<Connect
             }
         });
 
-        if(isBusy) {
+        if (isBusy) {
             Toast.makeText(this, R.string.busy_message, Toast.LENGTH_SHORT).show();
         }
     }
@@ -198,7 +199,7 @@ public class ConnectIDPhoneVerificationActivity extends CommCareActivity<Connect
         String command;
         HashMap<String, String> params = new HashMap<>();
         AuthInfo authInfo = new AuthInfo.NoAuth();
-        switch(method) {
+        switch (method) {
             case MethodRecoveryPrimary -> {
                 command = "/users/recover/confirm_otp";
                 params.put("phone", username);
@@ -216,16 +217,14 @@ public class ConnectIDPhoneVerificationActivity extends CommCareActivity<Connect
         }
         String url = getString(R.string.ConnectURL) + command;
 
-        //params.put("device_id", CommCareApplication.instance().getPhoneId());
         params.put("token", uiController.getCode());
 
-        final Context self = this;
         boolean isBusy = !ConnectIDNetworkHelper.post(this, url, authInfo, params, false, new ConnectIDNetworkHelper.INetworkResultHandler() {
             @Override
             public void processSuccess(int responseCode, InputStream responseData) {
                 String username = "";
                 String displayName = "";
-                if(method == MethodRecoveryAlternate) {
+                if (method == MethodRecoveryAlternate) {
                     try {
                         String responseAsString = new String(StreamsUtil.inputStreamToByteArray(responseData));
                         JSONObject json = new JSONObject(responseAsString);
@@ -249,10 +248,9 @@ public class ConnectIDPhoneVerificationActivity extends CommCareActivity<Connect
             @Override
             public void processFailure(int responseCode, IOException e) {
                 String message = "";
-                if(responseCode > 0) {
-                    message = String.format("(%d)", responseCode);
-                }
-                else if(e != null) {
+                if (responseCode > 0) {
+                    message = String.format(Locale.getDefault(), "(%d)", responseCode);
+                } else if (e != null) {
                     message = e.toString();
                 }
                 logRecoveryResult(false);
@@ -260,7 +258,7 @@ public class ConnectIDPhoneVerificationActivity extends CommCareActivity<Connect
             }
         });
 
-        if(isBusy) {
+        if (isBusy) {
             Toast.makeText(this, R.string.busy_message, Toast.LENGTH_SHORT).show();
         }
     }
@@ -283,16 +281,14 @@ public class ConnectIDPhoneVerificationActivity extends CommCareActivity<Connect
         stopHandler();
 
         Intent intent = new Intent(getIntent());
-        if(method == MethodRecoveryPrimary) {
+        if (method == MethodRecoveryPrimary) {
             intent.putExtra(ConnectIDConstants.SECRET, password);
             intent.putExtra(ConnectIDConstants.CHANGE, changeNumber);
-        }
-        else if(method == MethodRecoveryAlternate) {
+        } else if (method == MethodRecoveryAlternate) {
             intent.putExtra(ConnectIDConstants.USERNAME, username);
             intent.putExtra(ConnectIDConstants.NAME, name);
             intent.putExtra(ConnectIDConstants.ALT_PHONE, altPhone);
-        }
-        else {
+        } else {
             intent.putExtra(ConnectIDConstants.CHANGE, changeNumber);
         }
 

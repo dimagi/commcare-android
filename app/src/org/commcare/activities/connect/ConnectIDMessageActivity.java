@@ -8,7 +8,7 @@ import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.WithUIController;
 
 public class ConnectIDMessageActivity extends CommCareActivity<ConnectIDMessageActivity>
-implements WithUIController {
+        implements WithUIController {
     private ConnectIDMessageActivityUIController uiController;
 
     private String title = null;
@@ -43,7 +43,9 @@ implements WithUIController {
     }
 
     @Override
-    public CommCareActivityUIController getUIController() { return this.uiController; }
+    public CommCareActivityUIController getUIController() {
+        return this.uiController;
+    }
 
     @Override
     public void initUIController() {

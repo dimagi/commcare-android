@@ -18,7 +18,7 @@ import java.io.InputStream;
 import java.util.HashMap;
 
 public class ConnectIDPasswordActivity extends CommCareActivity<ConnectIDPasswordActivity>
-implements WithUIController {
+        implements WithUIController {
     private ConnectIDPasswordActivityUIController uiController;
 
     private String username = null;
@@ -63,7 +63,9 @@ implements WithUIController {
     }
 
     @Override
-    public CommCareActivityUIController getUIController() { return this.uiController; }
+    public CommCareActivityUIController getUIController() {
+        return this.uiController;
+    }
 
     @Override
     public void initUIController() {
@@ -83,18 +85,16 @@ implements WithUIController {
         String pass1 = uiController.getPasswordText();
         String pass2 = uiController.getPasswordRepeatText();
 
-        if(pass1.length() == 0 || pass2.length() == 0) {
+        if (pass1.length() == 0 || pass2.length() == 0) {
             uiController.setErrorText("");
             uiController.setButtonEnabled(false);
-        }
-        else if(!pass1.equals(pass2)) {
+        } else if (!pass1.equals(pass2)) {
             uiController.setErrorText(getString(R.string.connect_password_mismatch));
             uiController.setButtonEnabled(false);
-        }
-        else {
+        } else {
             Zxcvbn checker = new Zxcvbn();
             Strength strength = checker.measure(pass1);
-            if(strength.getScore() < 2) {
+            if (strength.getScore() < 2) {
                 uiController.setErrorText(getString(R.string.connect_password_weak));
                 uiController.setButtonEnabled(false);
             } else {
@@ -110,11 +110,10 @@ implements WithUIController {
         HashMap<String, String> params = new HashMap<>();
         AuthInfo authInfo;
         String command;
-        if(username != null && username.length() > 0 && oldPassword != null && oldPassword.length() > 0) {
+        if (username != null && username.length() > 0 && oldPassword != null && oldPassword.length() > 0) {
             authInfo = new AuthInfo.ProvidedAuth(username, oldPassword, false);
             command = "/users/change_password";
-        }
-        else {
+        } else {
             authInfo = new AuthInfo.NoAuth();
             command = "/users/recover/reset_password";
 
@@ -137,7 +136,7 @@ implements WithUIController {
             }
         });
 
-        if(isBusy) {
+        if (isBusy) {
             Toast.makeText(this, R.string.busy_message, Toast.LENGTH_SHORT).show();
         }
     }

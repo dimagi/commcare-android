@@ -37,10 +37,14 @@ public class ConnectIDPicturesActivity extends CommCareActivity<ConnectIDPicture
     }
 
     @Override
-    public CommCareActivityUIController getUIController() { return uiController; }
+    public CommCareActivityUIController getUIController() {
+        return uiController;
+    }
 
     @Override
-    public void initUIController() { uiController = new ConnectIDPicturesActivityUIController(this); }
+    public void initUIController() {
+        uiController = new ConnectIDPicturesActivityUIController(this);
+    }
 
     public void getFacePhoto() {
         getPhoto(FACE_REQUEST);
@@ -108,7 +112,7 @@ public class ConnectIDPicturesActivity extends CommCareActivity<ConnectIDPicture
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
-        if(resultCode == RESULT_OK) {
+        if (resultCode == RESULT_OK) {
             switch (requestCode) {
                 case FACE_REQUEST -> uiController.setFaceStatus(true);
                 case ID_REQUEST -> uiController.setIdStatus(true);
