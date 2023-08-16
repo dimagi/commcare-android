@@ -242,11 +242,9 @@ public class AndroidSessionWrapper implements SessionWrapperInterface {
     }
 
     @Override
-    public void prepareExternalSources(RemoteInstanceFetcher fetcher)
-            throws RemoteInstanceFetcher.RemoteInstanceException {
-        for(StackFrameStep step : session.getFrame().getSteps()) {
-            step.initDataInstanceSources(fetcher);
-        }
+    public void prepareExternalSources() {
+        throw new RuntimeException(
+                "This method is not yet implemented and only here to maintain parity with core interface");
     }
 
     /**
