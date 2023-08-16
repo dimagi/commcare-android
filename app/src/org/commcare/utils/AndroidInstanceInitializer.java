@@ -14,6 +14,7 @@ import org.commcare.engine.cases.AndroidLedgerInstanceTreeElement;
 import org.commcare.models.database.AndroidSandbox;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.models.database.user.models.AndroidCaseIndexTable;
+import org.commcare.modern.session.SessionWrapper;
 import org.commcare.session.CommCareSession;
 import org.commcare.util.CommCarePlatform;
 import org.javarosa.core.model.instance.AbstractTreeElement;
@@ -39,7 +40,7 @@ public class AndroidInstanceInitializer extends CommCareInstanceInitializer {
     }
 
     public AndroidInstanceInitializer(CommCareSession session, UserSandbox sandbox, CommCarePlatform platform) {
-        super(session, sandbox, platform);
+        super(new SessionWrapper(session, platform, sandbox), sandbox, platform);
     }
 
     @Override
