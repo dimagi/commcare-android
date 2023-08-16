@@ -117,21 +117,19 @@ public class ConnectIDPhoneActivity extends CommCareActivity<ConnectIDPhoneActiv
         if (user != null && existing != null && !existing.equals(phone)) {
             //Update the phone number with the server
             HashMap<String, String> params = new HashMap<>();
-            String command;
+            int urlId;
             if (method.equals(ConnectIDConstants.METHOD_CHANGE_ALTERNATE)) {
-                command = "/users/update_profile";
+                urlId = R.string.ConnectUpdateProfileURL;
 
                 params.put("secondary_phone", phone);
             } else {
-                command = "/users/change_phone";
+                urlId = R.string.ConnectChangePhoneURL;
 
                 params.put("old_phone_number", existing);
                 params.put("new_phone_number", phone);
             }
 
-            String url = getString(R.string.ConnectURL) + command;
-
-            boolean isBusy = !ConnectIDNetworkHelper.post(this, url, new AuthInfo.ProvidedAuth(user.getUserID(), user.getPassword(), false), params, false, new ConnectIDNetworkHelper.INetworkResultHandler() {
+            boolean isBusy = !ConnectIDNetworkHelper.post(this, getString(urlId), new AuthInfo.ProvidedAuth(user.getUserID(), user.getPassword(), false), params, false, new ConnectIDNetworkHelper.INetworkResultHandler() {
                 @Override
                 public void processSuccess(int responseCode, InputStream responseData) {
                     finish(true, phone);
@@ -140,6 +138,11 @@ public class ConnectIDPhoneActivity extends CommCareActivity<ConnectIDPhoneActiv
                 @Override
                 public void processFailure(int responseCode, IOException e) {
                     Toast.makeText(getApplicationContext(), "Phone change error", Toast.LENGTH_SHORT).show();
+                }
+
+                @Override
+                public void processNetworkFailure() {
+                    Toast.makeText(getApplicationContext(), getString(R.string.recovery_network_unavailable), Toast.LENGTH_SHORT).show();
                 }
             });
 
@@ -178,9 +181,7 @@ public class ConnectIDPhoneActivity extends CommCareActivity<ConnectIDPhoneActiv
                         Multimap<String, String> params = ArrayListMultimap.create();
                         params.put("phone_number", phone);
 
-                        String url = this.getString(R.string.ConnectURL) + "/users/phone_available";
-
-                        boolean isBusy = !ConnectIDNetworkHelper.get(this, url, new AuthInfo.NoAuth(), params, new ConnectIDNetworkHelper.INetworkResultHandler() {
+                        boolean isBusy = !ConnectIDNetworkHelper.get(this, this.getString(R.string.ConnectPhoneAvailableURL), new AuthInfo.NoAuth(), params, new ConnectIDNetworkHelper.INetworkResultHandler() {
                             @Override
                             public void processSuccess(int responseCode, InputStream responseData) {
                                 uiController.setAvailabilityText(getString(R.string.connect_phone_available));
@@ -197,6 +198,11 @@ public class ConnectIDPhoneActivity extends CommCareActivity<ConnectIDPhoneActiv
                                 }
 
                                 uiController.setAvailabilityText(text);
+                            }
+
+                            @Override
+                            public void processNetworkFailure() {
+                                uiController.setAvailabilityText(getString(R.string.recovery_network_unavailable));
                             }
                         });
 

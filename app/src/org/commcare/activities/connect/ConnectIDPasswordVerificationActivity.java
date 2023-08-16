@@ -135,9 +135,8 @@ public class ConnectIDPasswordVerificationActivity extends CommCareActivity<Conn
             params.put("password", password);
             params.put("phone", phone);
             params.put("secret_key", secretKey);
-            String url = getString(R.string.ConnectURL) + "/users/recover/confirm_password";
 
-            boolean isBusy = !ConnectIDNetworkHelper.post(this, url, new AuthInfo.NoAuth(), params, false, new ConnectIDNetworkHelper.INetworkResultHandler() {
+            boolean isBusy = !ConnectIDNetworkHelper.post(this, getString(R.string.ConnectConfirmPasswordURL), new AuthInfo.NoAuth(), params, false, new ConnectIDNetworkHelper.INetworkResultHandler() {
                 @Override
                 public void processSuccess(int responseCode, InputStream responseData) {
                     String username = null;
@@ -166,6 +165,11 @@ public class ConnectIDPasswordVerificationActivity extends CommCareActivity<Conn
                 @Override
                 public void processFailure(int responseCode, IOException e) {
                     handleWrongPassword();
+                }
+
+                @Override
+                public void processNetworkFailure() {
+                    Toast.makeText(getApplicationContext(), getString(R.string.recovery_network_unavailable), Toast.LENGTH_SHORT).show();
                 }
             });
 

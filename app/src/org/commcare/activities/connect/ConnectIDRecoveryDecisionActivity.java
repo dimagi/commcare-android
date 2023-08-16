@@ -122,9 +122,7 @@ public class ConnectIDRecoveryDecisionActivity extends CommCareActivity<ConnectI
             Multimap<String, String> params = ArrayListMultimap.create();
             params.put("phone_number", phone);
 
-            String url = this.getString(R.string.ConnectURL) + "/users/phone_available";
-
-            boolean isBusy = !ConnectIDNetworkHelper.get(this, url, new AuthInfo.NoAuth(), params, new ConnectIDNetworkHelper.INetworkResultHandler() {
+            boolean isBusy = !ConnectIDNetworkHelper.get(this, getString(R.string.ConnectPhoneAvailableURL), new AuthInfo.NoAuth(), params, new ConnectIDNetworkHelper.INetworkResultHandler() {
                 @Override
                 public void processSuccess(int responseCode, InputStream responseData) {
                     uiController.setPhoneMessage(getString(R.string.connect_phone_not_found));
@@ -135,6 +133,12 @@ public class ConnectIDRecoveryDecisionActivity extends CommCareActivity<ConnectI
                 public void processFailure(int responseCode, IOException e) {
                     uiController.setPhoneMessage("");
                     uiController.setButton1Enabled(true);
+                }
+
+                @Override
+                public void processNetworkFailure() {
+                    uiController.setPhoneMessage(getString(R.string.recovery_network_unavailable));
+                    uiController.setButton1Enabled(false);
                 }
             });
 

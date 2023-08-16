@@ -91,21 +91,25 @@ public class ConnectIDPhoneVerificationActivity extends CommCareActivity<Connect
     private final Runnable runnable = new Runnable() {
         @Override
         public void run() {
+            int secondsToReset = -1;
             if (smsTime != null) {
                 double elapsedMinutes = ((new DateTime()).getMillis() - smsTime.getMillis()) / 60000.0;
                 int resendLimitMinutes = 2;
-                boolean allowResend = elapsedMinutes > resendLimitMinutes;
-                uiController.setResendEnabled(allowResend);
-
-                String text = getString(R.string.connect_verify_phone_resend);
-                if (!allowResend) {
-                    text = getString(R.string.connect_verify_phone_resend_wait, (int)Math.ceil((resendLimitMinutes - elapsedMinutes) * 60));
-                } else {
-                    smsTime = null;
+                double minutesRemaining = resendLimitMinutes - elapsedMinutes;
+                if(minutesRemaining > 0) {
+                    secondsToReset = (int)Math.ceil(minutesRemaining * 60);
                 }
-
-                uiController.setResendText(text);
             }
+
+            boolean allowResend = secondsToReset < 0;
+
+            uiController.setResendEnabled(allowResend);
+
+            String text = allowResend ?
+                    getString(R.string.connect_verify_phone_resend) :
+                    getString(R.string.connect_verify_phone_resend_wait, secondsToReset);
+
+            uiController.setResendText(text);
 
             taskHandler.postDelayed(this, 100);
         }
@@ -133,27 +137,26 @@ public class ConnectIDPhoneVerificationActivity extends CommCareActivity<Connect
         smsTime = new DateTime();
 
         uiController.setErrorMessage(null);
-        String command;
+        int urlId;
         HashMap<String, String> params = new HashMap<>();
         AuthInfo authInfo = new AuthInfo.NoAuth();
         switch (method) {
             case MethodRecoveryPrimary -> {
-                command = "/users/recover";
+                urlId = R.string.ConnectRecoverURL;
                 params.put("phone", username);
             }
             case MethodRecoveryAlternate -> {
-                command = "/users/recover/secondary";
+                urlId = R.string.ConnectRecoverSecondaryURL;
                 params.put("phone", username);
                 params.put("secret_key", password);
             }
             default -> {
-                command = "/users/validate_phone";
+                urlId = R.string.ConnectValidatePhoneURL;
                 authInfo = new AuthInfo.ProvidedAuth(username, password, false);
             }
         }
-        String url = getString(R.string.ConnectURL) + command;
 
-        boolean isBusy = !ConnectIDNetworkHelper.post(this, url, authInfo, params, false, new ConnectIDNetworkHelper.INetworkResultHandler() {
+        boolean isBusy = !ConnectIDNetworkHelper.post(this, getString(urlId), authInfo, params, false, new ConnectIDNetworkHelper.INetworkResultHandler() {
             @Override
             public void processSuccess(int responseCode, InputStream responseData) {
                 try {
@@ -186,6 +189,17 @@ public class ConnectIDPhoneVerificationActivity extends CommCareActivity<Connect
                 }
 
                 uiController.setErrorMessage(String.format("Error requesting SMS code. %s", message));
+
+                //Null out the last-requested time so user can request again immediately
+                smsTime = null;
+            }
+
+            @Override
+            public void processNetworkFailure() {
+                uiController.setErrorMessage(getString(R.string.recovery_network_unavailable));
+
+                //Null out the last-requested time so user can request again immediately
+                smsTime = null;
             }
         });
 
@@ -196,30 +210,29 @@ public class ConnectIDPhoneVerificationActivity extends CommCareActivity<Connect
 
     public void verifySMSCode() {
         uiController.setErrorMessage(null);
-        String command;
+        int urlId;
         HashMap<String, String> params = new HashMap<>();
         AuthInfo authInfo = new AuthInfo.NoAuth();
         switch (method) {
             case MethodRecoveryPrimary -> {
-                command = "/users/recover/confirm_otp";
+                urlId = R.string.ConnectRecoverConfirmOTPURL;
                 params.put("phone", username);
                 params.put("secret_key", password);
             }
             case MethodRecoveryAlternate -> {
-                command = "/users/recover/confirm_secondary_otp";
+                urlId = R.string.ConnectRecoverConfirmSecondaryOTPURL;
                 params.put("phone", username);
                 params.put("secret_key", password);
             }
             default -> {
-                command = "/users/confirm_otp";
+                urlId = R.string.ConnectConfirmOTPURL;
                 authInfo = new AuthInfo.ProvidedAuth(username, password, false);
             }
         }
-        String url = getString(R.string.ConnectURL) + command;
 
         params.put("token", uiController.getCode());
 
-        boolean isBusy = !ConnectIDNetworkHelper.post(this, url, authInfo, params, false, new ConnectIDNetworkHelper.INetworkResultHandler() {
+        boolean isBusy = !ConnectIDNetworkHelper.post(this, getString(urlId), authInfo, params, false, new ConnectIDNetworkHelper.INetworkResultHandler() {
             @Override
             public void processSuccess(int responseCode, InputStream responseData) {
                 String username = "";
@@ -255,6 +268,11 @@ public class ConnectIDPhoneVerificationActivity extends CommCareActivity<Connect
                 }
                 logRecoveryResult(false);
                 uiController.setErrorMessage(String.format("Error verifying SMS code. %s", message));
+            }
+
+            @Override
+            public void processNetworkFailure() {
+                uiController.setErrorMessage(getString(R.string.recovery_network_unavailable));
             }
         });
 

@@ -18,6 +18,7 @@ import org.commcare.tasks.templates.CommCareTask;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -31,6 +32,7 @@ public class ConnectIDNetworkHelper {
         void processSuccess(int responseCode, InputStream responseData);
 
         void processFailure(int responseCode, IOException e);
+        void processNetworkFailure();
     }
 
     public static class PostResult {
@@ -53,12 +55,12 @@ public class ConnectIDNetworkHelper {
         //Private constructor for singleton
     }
 
-    private static ConnectIDNetworkHelper getInstance() {
-        if (instance == null) {
-            instance = new ConnectIDNetworkHelper();
-        }
+    private static class Loader {
+        static final ConnectIDNetworkHelper INSTANCE = new ConnectIDNetworkHelper();
+    }
 
-        return instance;
+    private static ConnectIDNetworkHelper getInstance() {
+        return Loader.INSTANCE;
     }
 
     public static PostResult postSync(Context context, String url, AuthInfo authInfo, HashMap<String, String> params, boolean useFormEncoding) {
@@ -227,8 +229,13 @@ public class ConnectIDNetworkHelper {
             @Override
             public void handleIOException(IOException exception) {
                 isBusy = false;
-                //UnknownHostException if host not found
-                handler.processFailure(-1, exception);
+                if(exception instanceof UnknownHostException) {
+                    handler.processNetworkFailure();
+                }
+                else {
+                    //UnknownHostException if host not found
+                    handler.processFailure(-1, exception);
+                }
             }
 
             @Override

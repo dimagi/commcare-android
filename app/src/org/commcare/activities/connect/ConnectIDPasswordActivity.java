@@ -109,22 +109,21 @@ public class ConnectIDPasswordActivity extends CommCareActivity<ConnectIDPasswor
 
         HashMap<String, String> params = new HashMap<>();
         AuthInfo authInfo;
-        String command;
+        int urlId;
         if (username != null && username.length() > 0 && oldPassword != null && oldPassword.length() > 0) {
             authInfo = new AuthInfo.ProvidedAuth(username, oldPassword, false);
-            command = "/users/change_password";
+            urlId = R.string.ConnectChangePasswordURL;
         } else {
             authInfo = new AuthInfo.NoAuth();
-            command = "/users/recover/reset_password";
+            urlId = R.string.ConnectResetPasswordURL;
 
             params.put("phone", phone);
             params.put("secret_key", secret);
         }
 
         params.put("password", password);
-        String url = getString(R.string.ConnectURL) + command;
 
-        boolean isBusy = !ConnectIDNetworkHelper.post(this, url, authInfo, params, false, new ConnectIDNetworkHelper.INetworkResultHandler() {
+        boolean isBusy = !ConnectIDNetworkHelper.post(this, getString(urlId), authInfo, params, false, new ConnectIDNetworkHelper.INetworkResultHandler() {
             @Override
             public void processSuccess(int responseCode, InputStream responseData) {
                 finish(true, password);
@@ -133,6 +132,11 @@ public class ConnectIDPasswordActivity extends CommCareActivity<ConnectIDPasswor
             @Override
             public void processFailure(int responseCode, IOException e) {
                 Toast.makeText(getApplicationContext(), "Password change error", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void processNetworkFailure() {
+                Toast.makeText(getApplicationContext(), getString(R.string.recovery_network_unavailable), Toast.LENGTH_SHORT).show();
             }
         });
 

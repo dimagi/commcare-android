@@ -5,11 +5,25 @@
     <!-- string name="default_app_server">http://build.dimagi.com/commcare/pact/profile.xml</string -->
     <string name="default_app_server">jr://asset/testing/profile.ccpr</string>
     <string name="PostURL">https://staging.commcarehq.org/receiver/submit/pf</string>
-    <string name="ConnectURL">https://connectid.dimagi.com</string>
-    <string name="ConnectTokenURL">https://connectid.dimagi.com/o/token/</string>
     <string name="ota_restore_url">https://staging.commcarehq.org/ota_restore</string>
     <!-- string name="PostURL">https://pact.dimagi.com/receiver/submit/pact</string -->
     <!-- string name="ota_restore_url">https://pact.dimagi.com/provider/caselist</string -->
+
+    <string name="ConnectTokenURL">https://connectid.dimagi.com/o/token/</string>
+    <string name="ConnectChangePasswordURL">https://connectid.dimagi.com/users/change_password</string>
+    <string name="ConnectResetPasswordURL">https://connectid.dimagi.com/users/reset_password</string>
+    <string name="ConnectConfirmPasswordURL">https://connectid.dimagi.com/users/recover/confirm_password</string>
+    <string name="ConnectUpdateProfileURL">https://connectid.dimagi.com/users/update_profile</string>
+    <string name="ConnectChangePhoneURL">https://connectid.dimagi.com/users/change_phone</string>
+    <string name="ConnectPhoneAvailableURL">https://connectid.dimagi.com/users/phone_available</string>
+    <string name="ConnectRecoverURL">https://connectid.dimagi.com/users/recover</string>
+    <string name="ConnectRecoverSecondaryURL">https://connectid.dimagi.com/users/recover/secondary</string>
+    <string name="ConnectValidatePhoneURL">https://connectid.dimagi.com/users/validate_phone</string>
+    <string name="ConnectRecoverConfirmOTPURL">https://connectid.dimagi.com/users/recover/confirm_otp</string>
+    <string name="ConnectRecoverConfirmSecondaryOTPURL">https://connectid.dimagi.com/users/recover/confirm_secondary_otp</string>
+    <string name="ConnectConfirmOTPURL">https://connectid.dimagi.com/users/confirm_otp</string>
+    <string name="ConnectRegisterURL">https://connectid.dimagi.com/users/register</string>
+
     <string name="key_server">https://pact.dimagi.com/keys/getkey</string>
     <string name="your_comment">Your comment</string>
     <string name="support_email_address_default">commcarehq-support@dimagi.com</string>
@@ -463,7 +477,7 @@
     <string name="login_welcome_connect_signed_in" cc:translatable="true">Welcome %s!</string>
 
     <string name="choice_or" cc:translatable="true">_____________    OR    _____________</string>
-    <string name="busy_message" cc:translatable="true">Still busy…</string>
+    <string name="busy_message" cc:translatable="true">We are still busy processing your previous request. Please try again in some time.</string>
 
     <string name="connect_button_logged_in" cc:translatable="true">Go to Connect menu</string>
     <string name="connect_button_logged_out" cc:translatable="true">Unlock ConnectID</string>
@@ -575,7 +589,7 @@
 
     <string name="connect_verify_phone_title" cc:translatable="true">Verification Code</string>
     <string name="connect_verify_phone_title2" cc:translatable="true">Enter verification code</string>
-    <string name="connect_verify_phone_label" cc:translatable="true">We sent you a code on number %s.</string>
+    <string name="connect_verify_phone_label" cc:translatable="true">We attempted to send you a code on number %s.</string>
     <string name="connect_verify_phone_label_alternate" cc:translatable="true">Almost there! Please enter the code sent via SMS to your alternate phone%s.</string>
     <string name="connect_verify_phone_resend" cc:translatable="true">Didn\'t receive your code? Resend</string>
     <string name="connect_verify_phone_resend_wait" cc:translatable="true">Didn\'t receive your code? Resend in %d s</string>

@@ -108,8 +108,6 @@ public class ConnectIDRegistrationActivity extends CommCareActivity<ConnectIDReg
     public void createAccount() {
         uiController.setErrorText(null);
 
-        String url = getString(R.string.ConnectURL) + "/users/register";
-
         ConnectUserRecord tempUser = new ConnectUserRecord(phone, generateUserId(), generatePassword(), uiController.getNameText(), "");
 
         HashMap<String, String> params = new HashMap<>();
@@ -118,7 +116,7 @@ public class ConnectIDRegistrationActivity extends CommCareActivity<ConnectIDReg
         params.put("name", tempUser.getName());
         params.put("phone_number", phone);
 
-        boolean isBusy = !ConnectIDNetworkHelper.post(this, url, new AuthInfo.NoAuth(), params, false, new ConnectIDNetworkHelper.INetworkResultHandler() {
+        boolean isBusy = !ConnectIDNetworkHelper.post(this, getString(R.string.ConnectRegisterURL), new AuthInfo.NoAuth(), params, false, new ConnectIDNetworkHelper.INetworkResultHandler() {
             @Override
             public void processSuccess(int responseCode, InputStream responseData) {
                 user = tempUser;
@@ -128,6 +126,11 @@ public class ConnectIDRegistrationActivity extends CommCareActivity<ConnectIDReg
             @Override
             public void processFailure(int responseCode, IOException e) {
                 uiController.setErrorText(String.format(Locale.getDefault(), "Registration error: %d", responseCode));
+            }
+
+            @Override
+            public void processNetworkFailure() {
+                uiController.setErrorText(getString(R.string.recovery_network_unavailable));
             }
         });
 
@@ -139,8 +142,6 @@ public class ConnectIDRegistrationActivity extends CommCareActivity<ConnectIDReg
     public void updateAccount() {
         uiController.setErrorText(null);
 
-        String url = getString(R.string.ConnectURL) + "/users/update_profile";
-
         String newName = uiController.getNameText();
 
         if (newName.equals(user.getName())) {
@@ -149,7 +150,7 @@ public class ConnectIDRegistrationActivity extends CommCareActivity<ConnectIDReg
             HashMap<String, String> params = new HashMap<>();
             params.put("name", user.getName());
 
-            boolean isBusy = !ConnectIDNetworkHelper.post(this, url, new AuthInfo.ProvidedAuth(user.getUserID(), user.getPassword(), false), params, false, new ConnectIDNetworkHelper.INetworkResultHandler() {
+            boolean isBusy = !ConnectIDNetworkHelper.post(this, getString(R.string.ConnectUpdateProfileURL), new AuthInfo.ProvidedAuth(user.getUserID(), user.getPassword(), false), params, false, new ConnectIDNetworkHelper.INetworkResultHandler() {
                 @Override
                 public void processSuccess(int responseCode, InputStream responseData) {
                     user.setName(newName);
@@ -159,6 +160,11 @@ public class ConnectIDRegistrationActivity extends CommCareActivity<ConnectIDReg
                 @Override
                 public void processFailure(int responseCode, IOException e) {
                     uiController.setErrorText(String.format(Locale.getDefault(), "Error: %d", responseCode));
+                }
+
+                @Override
+                public void processNetworkFailure() {
+                    uiController.setErrorText(getString(R.string.recovery_network_unavailable));
                 }
             });
 
