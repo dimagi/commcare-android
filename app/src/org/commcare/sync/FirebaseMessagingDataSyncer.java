@@ -6,7 +6,19 @@ import static org.commcare.utils.FirebaseMessagingUtil.removeServerUrlFromUserDo
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.widget.Toast;
+
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.Observer;
+import androidx.work.Constraints;
+import androidx.work.ExistingWorkPolicy;
+import androidx.work.NetworkType;
+import androidx.work.OneTimeWorkRequest;
+import androidx.work.OutOfQuotaPolicy;
+import androidx.work.WorkInfo;
+import androidx.work.WorkManager;
 
 import org.commcare.CommCareApplication;
 import org.commcare.preferences.HiddenPreferences;
@@ -34,6 +46,7 @@ public class FirebaseMessagingDataSyncer implements CommCareTaskConnector {
     public static final String PENGING_SYNC_ALERT_ACTION = "org.commcare.dalvik.action.PENDING_SYNC_ALERT";
     public static final String FCM_MESSAGE_DATA = "fcm_message_data";
     public static final String FCM_MESSAGE_DATA_KEY = "fcm_message_data_key";
+    private static final String SYNC_FORM_SUBMISSION_REQUEST = "background_sync_form_submission_request";
     private Context context;
 
     public FirebaseMessagingDataSyncer(Context context) {
@@ -81,7 +94,7 @@ public class FirebaseMessagingDataSyncer implements CommCareTaskConnector {
             }
             // Attempt to trigger the sync if the user is currently in a sync safe activity
             if (isCurrentActivitySyncSafe()){
-                triggerBackgroundSync(user);
+                uploadForms(user);
             }
             else {
                 informUserAboutPendingSync(fcmMessageData);
@@ -91,6 +104,41 @@ public class FirebaseMessagingDataSyncer implements CommCareTaskConnector {
             // and/or domain - Action: no actual, just log issue, no need to inform the user
             Logger.log(LogTypes.TYPE_FCM, "Invalid data payload");
         }
+    }
+
+    private void uploadForms(User user) {
+        Constraints constraints = new Constraints.Builder()
+                .setRequiredNetworkType(NetworkType.CONNECTED)
+                .build();
+
+        OneTimeWorkRequest formSubmissionRequest = new OneTimeWorkRequest.Builder(FormSubmissionWorker.class)
+                .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
+                .setConstraints(constraints)
+                .build();
+
+        WorkManager wm = WorkManager.getInstance(CommCareApplication.instance());
+        wm.enqueueUniqueWork(SYNC_FORM_SUBMISSION_REQUEST, ExistingWorkPolicy.APPEND,
+                formSubmissionRequest);
+        LiveData<WorkInfo> workInfoLiveData = wm.getWorkInfoByIdLiveData(formSubmissionRequest.getId());
+
+        // observeForever cannot be called from a background thread
+        new Handler(Looper.getMainLooper()).post(() ->
+                workInfoLiveData.observeForever(new Observer<>() {
+                    @Override
+                    public void onChanged(WorkInfo workInfo) {
+                        if (workInfo != null) {
+                            if (workInfo.getState() == WorkInfo.State.SUCCEEDED) {
+                                triggerBackgroundSync(user);
+                            }
+
+                            if (workInfo.getState() == WorkInfo.State.SUCCEEDED
+                                    || workInfo.getState() == WorkInfo.State.FAILED
+                                    || workInfo.getState() == WorkInfo.State.CANCELLED){
+                                workInfoLiveData.removeObserver(this);
+                            }
+                        }
+                    }
+                }));
     }
 
     /**
