@@ -226,7 +226,7 @@ static def getDate() {
 }
 
 android {
-    compileSdkVersion 31
+    compileSdkVersion 33
 
     lintOptions {
         abortOnError false
@@ -249,7 +249,7 @@ android {
 
     defaultConfig {
         minSdkVersion 21
-        targetSdkVersion 31
+        targetSdkVersion 33
         multiDexEnabled true
         applicationId "org.commcare.dalvik"
         testNamespace "org.commcare.dalvik.test"
