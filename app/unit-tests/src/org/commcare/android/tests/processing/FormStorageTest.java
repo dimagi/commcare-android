@@ -351,6 +351,7 @@ public class FormStorageTest {
             , "org.javarosa.core.util.externalizable.ExtWrapMultiMap"
             , "org.javarosa.core.model.instance.ExternalDataInstanceSource"
             , "org.commcare.suite.model.DetailGroup"
+            , "org.commcare.services.FCMMessageData"
     );
 
 
