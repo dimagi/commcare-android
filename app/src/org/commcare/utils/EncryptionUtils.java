@@ -69,18 +69,29 @@ public class EncryptionUtils {
         return keystoreSingleton;
     }
 
+    public static class KeyAndTransform {
+        public Key key;
+        public String transformation;
+
+        public KeyAndTransform(Key key, String transformation) {
+            this.key = key;
+            this.transformation = transformation;
+        }
+    }
+
     //Gets the SecretKey from the Android KeyStore (creates a new one the first time)
-    private static Key getKey(Context context, KeyStore keystore, boolean trueForEncrypt)
+    private static KeyAndTransform getKey(Context context, KeyStore keystore, boolean trueForEncrypt)
             throws CertificateException, KeyStoreException, IOException, NoSuchAlgorithmException,
             UnrecoverableEntryException, InvalidAlgorithmParameterException, NoSuchProviderException {
 
         if(doesKeystoreContainEncryptionKey()) {
             KeyStore.Entry existingKey = keystore.getEntry(SECRET_NAME, null);
             if (existingKey instanceof KeyStore.SecretKeyEntry entry) {
-                return entry.getSecretKey();
+                return new KeyAndTransform(entry.getSecretKey(), getTransformationString(false));
             }
             if (existingKey instanceof KeyStore.PrivateKeyEntry entry) {
-                return trueForEncrypt ? entry.getCertificate().getPublicKey() : entry.getPrivateKey();
+                Key key = trueForEncrypt ? entry.getCertificate().getPublicKey() : entry.getPrivateKey();
+                return new KeyAndTransform(key, getTransformationString(true));
             }
             else { return null; }
         } else {
@@ -95,7 +106,7 @@ public class EncryptionUtils {
         return  keystore.containsAlias(SECRET_NAME);
     }
 
-    private static Key generateKeyInKeystore(Context context, boolean trueForEncrypt) throws NoSuchAlgorithmException, NoSuchProviderException, InvalidAlgorithmParameterException {
+    private static KeyAndTransform generateKeyInKeystore(Context context, boolean trueForEncrypt) throws NoSuchAlgorithmException, NoSuchProviderException, InvalidAlgorithmParameterException {
         if(android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
             KeyGenerator keyGenerator = KeyGenerator.getInstance(
                     KeyProperties.KEY_ALGORITHM_AES, KEYSTORE_NAME);
@@ -106,7 +117,7 @@ public class EncryptionUtils {
                     .build();
 
             keyGenerator.init(keySpec);
-            return keyGenerator.generateKey();
+            return new KeyAndTransform(keyGenerator.generateKey(), getTransformationString(false));
         }
         else {
             KeyPairGenerator generator = KeyPairGenerator.getInstance("RSA", KEYSTORE_NAME);
@@ -130,7 +141,8 @@ public class EncryptionUtils {
             generator.initialize(keySpec);
             KeyPair pair = generator.generateKeyPair();
 
-            return trueForEncrypt ? pair.getPublic() : pair.getPrivate();
+            Key key = trueForEncrypt ? pair.getPublic() : pair.getPrivate();
+            return new KeyAndTransform(key, getTransformationString(true));
         }
     }
 
@@ -171,25 +183,24 @@ public class EncryptionUtils {
         return result;
     }
 
-    private static String getTransformationString() {
+    public static String getTransformationString(boolean forceRSA) {
         String transformation;
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
-            transformation = String.format("%s/%s/%s", ALGORITHM, BLOCK_MODE, PADDING);
+        if (forceRSA || android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.M) {
+            transformation = "RSA/ECB/PKCS1Padding";
         }
         else {
-            transformation = "RSA/ECB/PKCS1Padding";
+            transformation = String.format("%s/%s/%s", ALGORITHM, BLOCK_MODE, PADDING);
         }
 
         return transformation;
     }
 
-    public static byte[] encrypt(byte[] bytes, Key key)
+    public static byte[] encrypt(byte[] bytes, KeyAndTransform keyAndTransform)
             throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException,
             IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException,
             UnrecoverableEntryException, CertificateException, KeyStoreException, IOException, NoSuchProviderException {
-        String transformation = getTransformationString();
-        Cipher cipher = Cipher.getInstance(transformation);
-        cipher.init(Cipher.ENCRYPT_MODE, key);
+        Cipher cipher = Cipher.getInstance(keyAndTransform.transformation);
+        cipher.init(Cipher.ENCRYPT_MODE, keyAndTransform.key);
         byte[] encrypted = cipher.doFinal(bytes);
         byte[] iv = cipher.getIV();
         int ivLength = iv == null ? 0 : iv.length;
@@ -212,7 +223,7 @@ public class EncryptionUtils {
         return output;
     }
 
-    public static byte[] decrypt(byte[] bytes, Key key)
+    public static byte[] decrypt(byte[] bytes, KeyAndTransform keyAndTransform)
             throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidAlgorithmParameterException,
             InvalidKeyException, IllegalBlockSizeException, BadPaddingException,
             UnrecoverableEntryException {
@@ -238,10 +249,9 @@ public class EncryptionUtils {
         readIndex++;
         System.arraycopy(bytes, readIndex, encrypted, 0, encryptedLength);
 
-        String transformation = getTransformationString();
-        Cipher cipher = Cipher.getInstance(transformation);
+        Cipher cipher = Cipher.getInstance(keyAndTransform.transformation);
 
-        cipher.init(Cipher.DECRYPT_MODE, key, iv != null ? new IvParameterSpec(iv) : null);
+        cipher.init(Cipher.DECRYPT_MODE, keyAndTransform.key, iv != null ? new IvParameterSpec(iv) : null);
 
         return cipher.doFinal(encrypted);
     }
