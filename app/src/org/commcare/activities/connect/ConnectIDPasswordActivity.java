@@ -12,6 +12,7 @@ import org.commcare.core.network.AuthInfo;
 import org.commcare.dalvik.R;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.WithUIController;
+import org.commcare.views.dialogs.CustomProgressDialog;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -70,6 +71,11 @@ public class ConnectIDPasswordActivity extends CommCareActivity<ConnectIDPasswor
     @Override
     public void initUIController() {
         uiController = new ConnectIDPasswordActivityUIController(this);
+    }
+
+    @Override
+    public CustomProgressDialog generateProgressDialog(int taskId) {
+        return CustomProgressDialog.newInstance(null, getString(R.string.please_wait), taskId);
     }
 
     public void finish(boolean success, String password) {

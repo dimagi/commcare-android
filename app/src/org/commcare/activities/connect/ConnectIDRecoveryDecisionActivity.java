@@ -14,6 +14,7 @@ import org.commcare.dalvik.R;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.WithUIController;
 import org.commcare.utils.PhoneNumberHelper;
+import org.commcare.views.dialogs.CustomProgressDialog;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -67,6 +68,11 @@ public class ConnectIDRecoveryDecisionActivity extends CommCareActivity<ConnectI
     @Override
     public void initUIController() {
         uiController = new ConnectIDRecoveryDecisionActivityUIController(this);
+    }
+
+    @Override
+    public CustomProgressDialog generateProgressDialog(int taskId) {
+        return CustomProgressDialog.newInstance(null, getString(R.string.please_wait), taskId);
     }
 
     public void finish(boolean createNew, String phone) {

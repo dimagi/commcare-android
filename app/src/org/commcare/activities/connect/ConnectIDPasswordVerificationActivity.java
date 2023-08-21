@@ -12,6 +12,7 @@ import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.WithUIController;
+import org.commcare.views.dialogs.CustomProgressDialog;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.services.Logger;
 import org.json.JSONException;
@@ -76,6 +77,11 @@ public class ConnectIDPasswordVerificationActivity extends CommCareActivity<Conn
         if (requestCode == PASSWORD_LOCK) {
             finish(true, true, null, null, null);
         }
+    }
+
+    @Override
+    public CustomProgressDialog generateProgressDialog(int taskId) {
+        return CustomProgressDialog.newInstance(null, getString(R.string.please_wait), taskId);
     }
 
     public void finish(boolean success, boolean forgot, String username, String name, String password) {

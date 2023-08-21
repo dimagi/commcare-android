@@ -10,6 +10,7 @@ import org.commcare.core.network.AuthInfo;
 import org.commcare.dalvik.R;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.WithUIController;
+import org.commcare.views.dialogs.CustomProgressDialog;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -55,6 +56,11 @@ public class ConnectIDRegistrationActivity extends CommCareActivity<ConnectIDReg
     @Override
     public void initUIController() {
         uiController = new ConnectIDRegistrationActivityUIController(this);
+    }
+
+    @Override
+    public CustomProgressDialog generateProgressDialog(int taskId) {
+        return CustomProgressDialog.newInstance(null, getString(R.string.please_wait), taskId);
     }
 
     private String generateUserId() {

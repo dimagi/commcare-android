@@ -8,6 +8,7 @@ import com.google.common.collect.Multimap;
 import com.google.gson.Gson;
 
 import org.commcare.CommCareApplication;
+import org.commcare.activities.CommCareActivity;
 import org.commcare.core.interfaces.HttpResponseProcessor;
 import org.commcare.core.network.AuthInfo;
 import org.commcare.core.network.HTTPMethod;
@@ -76,6 +77,7 @@ public class ConnectIDNetworkHelper {
     }
 
     private PostResult postSyncInternal(Context context, String url, AuthInfo authInfo, HashMap<String, String> params, boolean useFormEncoding) {
+        showProgressDialog(context);
         HashMap<String, String> headers = new HashMap<>();
         RequestBody requestBody;
 
@@ -118,6 +120,8 @@ public class ConnectIDNetworkHelper {
             exception = e;
         }
 
+        dismissProgressDialog(context);
+
         return new PostResult(responseCode, stream, exception);
     }
 
@@ -126,6 +130,9 @@ public class ConnectIDNetworkHelper {
             return false;
         }
         isBusy = true;
+
+        showProgressDialog(context);
+
         HashMap<String, String> headers = new HashMap<>();
         RequestBody requestBody;
 
@@ -150,7 +157,7 @@ public class ConnectIDNetworkHelper {
                         requestBody,
                         HTTPMethod.POST,
                         authInfo);
-        postTask.connect(getResponseProcessor(handler));
+        postTask.connect(getResponseProcessor(context, handler));
 
         postTask.executeParallel();
 
@@ -173,6 +180,9 @@ public class ConnectIDNetworkHelper {
             return false;
         }
         isBusy = true;
+
+        showProgressDialog(context);
+
         //TODO: Figure out how to send GET request the right way
         StringBuilder getUrl = new StringBuilder(url);
         if (params.size() > 0) {
@@ -192,23 +202,25 @@ public class ConnectIDNetworkHelper {
                         ArrayListMultimap.create(),
                         new HashMap<>(),
                         authInfo);
-        getTask.connect(getResponseProcessor(handler));
+        getTask.connect(getResponseProcessor(context, handler));
         getTask.executeParallel();
 
         return true;
     }
 
-    private ConnectorWithHttpResponseProcessor<HttpResponseProcessor> getResponseProcessor(INetworkResultHandler handler) {
+    private ConnectorWithHttpResponseProcessor<HttpResponseProcessor> getResponseProcessor(Context context, INetworkResultHandler handler) {
         return new ConnectorWithHttpResponseProcessor<>() {
             @Override
             public void processSuccess(int responseCode, InputStream responseData) {
                 isBusy = false;
+                dismissProgressDialog(context);
                 handler.processSuccess(responseCode, responseData);
             }
 
             @Override
             public void processClientError(int responseCode) {
                 isBusy = false;
+                dismissProgressDialog(context);
                 //400 error
                 handler.processFailure(responseCode, null);
             }
@@ -216,6 +228,7 @@ public class ConnectIDNetworkHelper {
             @Override
             public void processServerError(int responseCode) {
                 isBusy = false;
+                dismissProgressDialog(context);
                 //500 error for internal server error
                 handler.processFailure(responseCode, null);
             }
@@ -223,12 +236,14 @@ public class ConnectIDNetworkHelper {
             @Override
             public void processOther(int responseCode) {
                 isBusy = false;
+                dismissProgressDialog(context);
                 handler.processFailure(responseCode, null);
             }
 
             @Override
             public void handleIOException(IOException exception) {
                 isBusy = false;
+                dismissProgressDialog(context);
                 if(exception instanceof UnknownHostException) {
                     handler.processNetworkFailure();
                 }
@@ -271,5 +286,18 @@ public class ConnectIDNetworkHelper {
             public void hideTaskCancelButton() {
             }
         };
+    }
+
+    private static final int NETWORK_ACTIVITY_ID = 7000;
+    private void showProgressDialog(Context context) {
+        if(context instanceof CommCareActivity<?>) {
+            ((CommCareActivity<?>)context).showProgressDialog(NETWORK_ACTIVITY_ID);
+        }
+    }
+
+    private void dismissProgressDialog(Context context) {
+        if(context instanceof CommCareActivity<?>) {
+            ((CommCareActivity<?>)context).dismissProgressDialogForTask(NETWORK_ACTIVITY_ID);
+        }
     }
 }

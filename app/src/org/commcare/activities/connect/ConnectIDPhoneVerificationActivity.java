@@ -12,6 +12,7 @@ import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.WithUIController;
+import org.commcare.views.dialogs.CustomProgressDialog;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.services.Logger;
 import org.joda.time.DateTime;
@@ -84,6 +85,11 @@ public class ConnectIDPhoneVerificationActivity extends CommCareActivity<Connect
     @Override
     public void initUIController() {
         uiController = new ConnectIDPhoneVerificationActivityUIController(this);
+    }
+
+    @Override
+    public CustomProgressDialog generateProgressDialog(int taskId) {
+        return CustomProgressDialog.newInstance(null, getString(R.string.please_wait), taskId);
     }
 
     private final Handler taskHandler = new android.os.Handler();

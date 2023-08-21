@@ -2,6 +2,7 @@ package org.commcare.activities.connect;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.google.common.collect.ArrayListMultimap;
@@ -13,7 +14,14 @@ import org.commcare.core.network.AuthInfo;
 import org.commcare.dalvik.R;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.WithUIController;
+import org.commcare.tasks.FormRecordToFileTask;
+import org.commcare.tasks.FormTransferTask;
+import org.commcare.tasks.SendTask;
+import org.commcare.tasks.UnzipTask;
+import org.commcare.tasks.WipeTask;
+import org.commcare.tasks.ZipTask;
 import org.commcare.utils.PhoneNumberHelper;
+import org.commcare.views.dialogs.CustomProgressDialog;
 import org.javarosa.core.services.Logger;
 
 import java.io.IOException;
@@ -96,6 +104,11 @@ public class ConnectIDPhoneActivity extends CommCareActivity<ConnectIDPhoneActiv
     @Override
     public void initUIController() {
         uiController = new ConnectIDPhoneActivityUIController(this);
+    }
+
+    @Override
+    public CustomProgressDialog generateProgressDialog(int taskId) {
+        return CustomProgressDialog.newInstance(null, getString(R.string.please_wait), taskId);
     }
 
     public void finish(boolean success, String phone) {

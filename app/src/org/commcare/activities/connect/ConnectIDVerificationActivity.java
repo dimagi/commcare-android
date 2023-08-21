@@ -10,6 +10,7 @@ import org.commcare.activities.CommCareActivity;
 import org.commcare.dalvik.R;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.WithUIController;
+import org.commcare.views.dialogs.CustomProgressDialog;
 
 public class ConnectIDVerificationActivity extends CommCareActivity<ConnectIDVerificationActivity>
         implements WithUIController {
@@ -58,6 +59,11 @@ public class ConnectIDVerificationActivity extends CommCareActivity<ConnectIDVer
     @Override
     public void initUIController() {
         uiController = new ConnectIDVerificationActivityUIController(this);
+    }
+
+    @Override
+    public CustomProgressDialog generateProgressDialog(int taskId) {
+        return CustomProgressDialog.newInstance(null, getString(R.string.please_wait), taskId);
     }
 
     public void updateState(BiometricsHelper.ConfigurationStatus fingerprintStatus, BiometricsHelper.ConfigurationStatus pinStatus) {
