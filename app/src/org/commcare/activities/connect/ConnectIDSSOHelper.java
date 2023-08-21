@@ -22,6 +22,10 @@ import java.util.HashMap;
 
 public class ConnectIDSSOHelper {
     public static AuthInfo.TokenAuth acquireSSOTokenSync(Context context) {
+        if(!ConnectIDManager.isUnlocked()) {
+            return null;
+        }
+
         String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
         String hqUser;
         try {

@@ -26,10 +26,7 @@ public class ConnectIDDatabaseHelper {
     private static byte[] getConnectDBPassphrase(Context context) {
         try {
             for (ConnectKeyRecord r : CommCareApplication.instance().getGlobalStorage(ConnectKeyRecord.class)) {
-                String encryptedPassphrase = r.getEncryptedPassphrase();
-                if (encryptedPassphrase != null) {
-                    return EncryptionUtils.decryptFromBase64String(context, encryptedPassphrase);
-                }
+                return EncryptionUtils.decryptFromBase64String(context, r.getEncryptedPassphrase());
             }
 
             //If we get here, the passphrase hasn't been created yet

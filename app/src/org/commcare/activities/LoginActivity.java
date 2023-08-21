@@ -426,13 +426,6 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         selectedAppIndex = -1;
         ConnectIDManager.handleConnectButtonPress(success -> {
             updateConnectButton();
-
-            //NOTE: Enable this to launch new app picker activity
-//            if(success) {
-//                Intent i = new Intent(this, AppSelectActivity.class);
-//
-//                startActivityForResult(i, 1);
-//            }
         });
     }
 
@@ -450,15 +443,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
             String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
             if (!uiController.isAppSelectorVisible() || selectedAppId.equals(seatedAppId)) {
                 AuthInfo.ProvidedAuth credentials = ConnectIDManager.getCredentialsForApp(seatedAppId, uiController.getEnteredUsername());
-                if (credentials != null) {
-                    //uiController.setUsername(credentials.username);
-                    uiController.setPasswordOrPin(credentials.password);
-
-                    //NOTE: This would auto-login, but we decided not to
-                    //initiateLoginAttempt(uiController.isRestoreSessionChecked());
-                } else {
-                    uiController.setPasswordOrPin("");
-                }
+                uiController.setPasswordOrPin(credentials != null ? credentials.password : "");
             }
         }
     }
