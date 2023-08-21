@@ -626,7 +626,7 @@ public class HiddenPreferences {
 
     /**
      * This custom property is used to enable background syncing and it works in conjunction
-     * conjunction with Firebase Messaging Push Notifications
+     * with Firebase Messaging Push Notifications
      */
     public static boolean isBackgroundSyncEnabled() {
         return DeveloperPreferences.doesPropertyMatch(ENABLE_BACKGROUND_SYNC, PrefValues.NO, PrefValues.YES);
