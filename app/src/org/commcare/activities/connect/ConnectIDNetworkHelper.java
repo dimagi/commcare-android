@@ -77,6 +77,7 @@ public class ConnectIDNetworkHelper {
     }
 
     private PostResult postSyncInternal(Context context, String url, AuthInfo authInfo, HashMap<String, String> params, boolean useFormEncoding) {
+        isBusy = true;
         showProgressDialog(context);
         HashMap<String, String> headers = new HashMap<>();
         RequestBody requestBody;
@@ -120,7 +121,7 @@ public class ConnectIDNetworkHelper {
             exception = e;
         }
 
-        dismissProgressDialog(context);
+        onFinishProcessing(context);
 
         return new PostResult(responseCode, stream, exception);
     }
@@ -212,43 +213,37 @@ public class ConnectIDNetworkHelper {
         return new ConnectorWithHttpResponseProcessor<>() {
             @Override
             public void processSuccess(int responseCode, InputStream responseData) {
-                isBusy = false;
-                dismissProgressDialog(context);
+                onFinishProcessing(context);
                 handler.processSuccess(responseCode, responseData);
             }
 
             @Override
             public void processClientError(int responseCode) {
-                isBusy = false;
-                dismissProgressDialog(context);
+                onFinishProcessing(context);
                 //400 error
                 handler.processFailure(responseCode, null);
             }
 
             @Override
             public void processServerError(int responseCode) {
-                isBusy = false;
-                dismissProgressDialog(context);
+                onFinishProcessing(context);
                 //500 error for internal server error
                 handler.processFailure(responseCode, null);
             }
 
             @Override
             public void processOther(int responseCode) {
-                isBusy = false;
-                dismissProgressDialog(context);
+                onFinishProcessing(context);
                 handler.processFailure(responseCode, null);
             }
 
             @Override
             public void handleIOException(IOException exception) {
-                isBusy = false;
-                dismissProgressDialog(context);
+                onFinishProcessing(context);
                 if(exception instanceof UnknownHostException) {
                     handler.processNetworkFailure();
                 }
                 else {
-                    //UnknownHostException if host not found
                     handler.processFailure(-1, exception);
                 }
             }
@@ -286,6 +281,11 @@ public class ConnectIDNetworkHelper {
             public void hideTaskCancelButton() {
             }
         };
+    }
+
+    private void onFinishProcessing(Context context) {
+        isBusy = false;
+        dismissProgressDialog(context);
     }
 
     private static final int NETWORK_ACTIVITY_ID = 7000;

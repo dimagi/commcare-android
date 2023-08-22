@@ -40,7 +40,10 @@ import javax.crypto.spec.IvParameterSpec;
 import javax.security.auth.x500.X500Principal;
 
 /**
- * Utility class for encrypting submissions during the SaveToDiskTask.
+ * Utility class for encryption functionality.
+ * Usages include:
+ * -Generating/storing/retrieving an encrypted, base64-encoded passphrase for the Connect DB
+ * -Encrypting submissions during the SaveToDiskTask.
  *
  * @author mitchellsundt@gmail.com
  */
@@ -69,14 +72,7 @@ public class EncryptionUtils {
         return keystoreSingleton;
     }
 
-    public static class KeyAndTransform {
-        public Key key;
-        public String transformation;
-
-        public KeyAndTransform(Key key, String transformation) {
-            this.key = key;
-            this.transformation = transformation;
-        }
+    public record KeyAndTransform(Key key, String transformation) {
     }
 
     //Gets the SecretKey from the Android KeyStore (creates a new one the first time)
@@ -84,7 +80,7 @@ public class EncryptionUtils {
             throws CertificateException, KeyStoreException, IOException, NoSuchAlgorithmException,
             UnrecoverableEntryException, InvalidAlgorithmParameterException, NoSuchProviderException {
 
-        if(doesKeystoreContainEncryptionKey()) {
+        if (doesKeystoreContainEncryptionKey()) {
             KeyStore.Entry existingKey = keystore.getEntry(SECRET_NAME, null);
             if (existingKey instanceof KeyStore.SecretKeyEntry entry) {
                 return new KeyAndTransform(entry.getSecretKey(), getTransformationString(false));
@@ -92,8 +88,9 @@ public class EncryptionUtils {
             if (existingKey instanceof KeyStore.PrivateKeyEntry entry) {
                 Key key = trueForEncrypt ? entry.getCertificate().getPublicKey() : entry.getPrivateKey();
                 return new KeyAndTransform(key, getTransformationString(true));
+            } else {
+                throw new RuntimeException("Unrecognized key type retrieved from KeyStore");
             }
-            else { return null; }
         } else {
             return generateKeyInKeystore(context, trueForEncrypt);
         }
@@ -103,11 +100,11 @@ public class EncryptionUtils {
             KeyStoreException, IOException, NoSuchAlgorithmException {
         KeyStore keystore = getKeystore();
 
-        return  keystore.containsAlias(SECRET_NAME);
+        return keystore.containsAlias(SECRET_NAME);
     }
 
     private static KeyAndTransform generateKeyInKeystore(Context context, boolean trueForEncrypt) throws NoSuchAlgorithmException, NoSuchProviderException, InvalidAlgorithmParameterException {
-        if(android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
             KeyGenerator keyGenerator = KeyGenerator.getInstance(
                     KeyProperties.KEY_ALGORITHM_AES, KEYSTORE_NAME);
             KeyGenParameterSpec keySpec = new KeyGenParameterSpec.Builder(SECRET_NAME,
@@ -118,8 +115,7 @@ public class EncryptionUtils {
 
             keyGenerator.init(keySpec);
             return new KeyAndTransform(keyGenerator.generateKey(), getTransformationString(false));
-        }
-        else {
+        } else {
             KeyPairGenerator generator = KeyPairGenerator.getInstance("RSA", KEYSTORE_NAME);
 
             GregorianCalendar start = new GregorianCalendar();
@@ -187,8 +183,7 @@ public class EncryptionUtils {
         String transformation;
         if (forceRSA || android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.M) {
             transformation = "RSA/ECB/PKCS1Padding";
-        }
-        else {
+        } else {
             transformation = String.format("%s/%s/%s", ALGORITHM, BLOCK_MODE, PADDING);
         }
 
@@ -207,16 +202,16 @@ public class EncryptionUtils {
 
         byte[] output = new byte[encrypted.length + ivLength + 3];
         int writeIndex = 0;
-        output[writeIndex] = (byte) ivLength;
+        output[writeIndex] = (byte)ivLength;
         writeIndex++;
-        if(ivLength > 0) {
+        if (ivLength > 0) {
             System.arraycopy(iv, 0, output, writeIndex, iv.length);
             writeIndex += iv.length;
         }
 
-        output[writeIndex] = (byte) (encrypted.length / 256);
+        output[writeIndex] = (byte)(encrypted.length / 256);
         writeIndex++;
-        output[writeIndex] = (byte) (encrypted.length % 256);
+        output[writeIndex] = (byte)(encrypted.length % 256);
         writeIndex++;
         System.arraycopy(encrypted, 0, output, writeIndex, encrypted.length);
 
@@ -230,12 +225,12 @@ public class EncryptionUtils {
         int readIndex = 0;
         int ivLength = bytes[readIndex];
         readIndex++;
-        if(ivLength < 0) {
+        if (ivLength < 0) {
             //Note: Early chance to catch decryption error
             throw new UnrecoverableKeyException("Negative IV length");
         }
         byte[] iv = null;
-        if(ivLength > 0) {
+        if (ivLength > 0) {
             iv = new byte[ivLength];
             System.arraycopy(bytes, readIndex, iv, 0, ivLength);
             readIndex += ivLength;
