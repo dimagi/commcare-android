@@ -1,5 +1,9 @@
 package org.commcare.heartbeat;
 
+
+import static org.commcare.utils.FirebaseMessagingUtil.FCM_TOKEN;
+import static org.commcare.utils.FirebaseMessagingUtil.FCM_TOKEN_TIME;
+
 import android.util.Log;
 
 import org.commcare.CommCareApplication;
@@ -11,16 +15,17 @@ import org.commcare.preferences.HiddenPreferences;
 import org.commcare.preferences.ServerUrls;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.CommCareUtil;
+import org.commcare.utils.FirebaseMessagingUtil;
 import org.commcare.utils.SessionUnavailableException;
 import org.commcare.utils.StorageUtils;
 import org.commcare.utils.SyncDetailCalculations;
+import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.services.Logger;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.HashMap;
 import java.util.TimeZone;
 
 import androidx.work.WorkManager;
@@ -64,26 +69,18 @@ public class HeartbeatRequester extends GetAndParseActor {
         params.put(CC_VERSION, ReportingUtils.getCommCareVersionString());
         params.put(QUARANTINED_FORMS_PARAM, String.valueOf(StorageUtils.getNumQuarantinedForms()));
         params.put(UNSENT_FORMS_PARAM, String.valueOf(StorageUtils.getNumUnsentForms()));
-        params.put(LAST_SYNC_TIME_PARAM, getISO8601FormattedLastSyncTime());
+        params.put(LAST_SYNC_TIME_PARAM, DateUtils.convertTimeInMsToISO8601(SyncDetailCalculations.getLastSyncTime()));
         params.put(CURRENT_DRIFT, String.valueOf(DriftHelper.getCurrentDrift()));
         params.put(MAX_DRIFT_SINCE_LAST_HEARTBEAT, String.valueOf(DriftHelper.getMaxDriftSinceLastHeartbeat()));
+        //TODO: Encode the FCM registration token
+        params.put(FCM_TOKEN, FirebaseMessagingUtil.getFCMToken());
+        params.put(FCM_TOKEN_TIME, DateUtils.convertTimeInMsToISO8601(FirebaseMessagingUtil.getFCMTokenTime()));
         return params;
     }
 
     @Override
     public AuthInfo getAuth() {
         return new AuthInfo.CurrentAuth();
-    }
-
-    private static String getISO8601FormattedLastSyncTime() {
-        long lastSyncTime = SyncDetailCalculations.getLastSyncTime();
-        if (lastSyncTime == 0) {
-            return "";
-        } else {
-            DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'");
-            df.setTimeZone(TimeZone.getTimeZone("UTC"));
-            return df.format(lastSyncTime);
-        }
     }
 
     @Override
