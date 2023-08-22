@@ -130,6 +130,7 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
     private boolean isMainScreenBlocked;
 
     DataSyncCompleteBroadcastReceiver dataSyncCompleteBroadcastReceiver = new DataSyncCompleteBroadcastReceiver();
+    private boolean dataSyncCompleteBroadcastReceiverRegistered = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -300,8 +301,9 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
 
         CommCareApplication.currentActivityName = this.getClass().getSimpleName();
 
-        if (isBackgroundSyncEnabled()) {
+        if (isBackgroundSyncEnabled() && !dataSyncCompleteBroadcastReceiverRegistered) {
             registerReceiver(dataSyncCompleteBroadcastReceiver, new IntentFilter(COMMCARE_DATA_UPDATE_ACTION));
+            dataSyncCompleteBroadcastReceiverRegistered = true;
         }
     }
 
@@ -327,8 +329,9 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
         areFragmentsPaused = true;
         AudioController.INSTANCE.systemInducedPause();
 
-        if (isBackgroundSyncEnabled()) {
+        if (isBackgroundSyncEnabled() && dataSyncCompleteBroadcastReceiverRegistered) {
             unregisterReceiver(dataSyncCompleteBroadcastReceiver);
+            dataSyncCompleteBroadcastReceiverRegistered = false;
         }
     }
 
