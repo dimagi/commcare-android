@@ -562,7 +562,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
 
     protected void userTriggeredLogout() {
         if (CommCareSessionService.sessionAliveLock.isLocked()) {
-            Toast.makeText(this, Localization.get("fcm.sync.logout.attempt.during.sync"), Toast.LENGTH_LONG).show();
+            Toast.makeText(this, Localization.get("background.sync.logout.attempt.during.sync"), Toast.LENGTH_LONG).show();
             return;
         }
         CommCareApplication.instance().closeUserSession();
@@ -1048,7 +1048,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
         EvaluationContext ec = asw.getEvaluationContext();
         asw.getSession().stepBack(asw.getEvaluationContext());
         HomeScreenBaseActivity.this.sessionNavigator.startNextSessionStep();
-        Toast.makeText(this, Localization.get("fcm.sync.form.entry.attempt.during.sync"), Toast.LENGTH_LONG).show();
+        Toast.makeText(this, Localization.get("background.sync.form.entry.attempt.during.sync"), Toast.LENGTH_LONG).show();
     }
 
     @Override

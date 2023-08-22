@@ -113,7 +113,7 @@ public class HomeButtons {
     private static View.OnClickListener getSyncButtonListener(final StandardHomeActivity activity) {
         return v -> {
             if (CommCareSessionService.sessionAliveLock.isLocked()) {
-                Toast.makeText(activity, Localization.get("fcm.sync.user.sync.attempt.during.sync"), Toast.LENGTH_LONG).show();
+                Toast.makeText(activity, Localization.get("background.sync.user.sync.attempt.during.sync"), Toast.LENGTH_LONG).show();
                 return;
             }
             reportButtonClick(AnalyticsParamValue.SYNC_BUTTON);

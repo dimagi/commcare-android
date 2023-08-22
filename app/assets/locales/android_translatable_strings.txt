@@ -967,12 +967,12 @@ tts.speak.failed=Couldn't speak now. Please try again!
 file.oversize.error.title=File Too Large
 file.oversize.error.message=Selected file exceeds the file size limit of 15 MB. Please select a file whose size is less than 15 MB.
 
-fcm.sync.pending.form.entry.title=Pending Sync
-fcm.sync.pending.form.entry.detail=There are new cases available but the Sync can't run while a form is open. A Sync will be triggered upon form submission!
-fcm.sync.logout.attempt.during.sync=Can't log out while a Sync is underway!
-fcm.sync.user.sync.attempt.during.sync=Can't trigger a Sync while another is underway!
-fcm.sync.form.entry.attempt.during.sync=A Form can't be open while a Sync is underway!
-fcm.sync.fail=Background sync failed. Please try to trigger a normal Sync
+background.sync.pending.form.entry.title=Pending Sync
+background.sync.pending.form.entry.detail=There are new cases available but the Sync can't run while a form is open. A Sync will be triggered upon form submission!
+background.sync.logout.attempt.during.sync=Can't log out while a Sync is underway!
+background.sync.user.sync.attempt.during.sync=Can't trigger a Sync while another is underway!
+background.sync.form.entry.attempt.during.sync=A Form can't be open while a Sync is underway!
+background.sync.fail=Background sync failed. Please try to trigger a normal Sync
 
 android.package.name.org.commcare.dalvik.reminders=CommCare Reminders
 android.package.name.callout.commcare.org.sendussd=Commcare USSD

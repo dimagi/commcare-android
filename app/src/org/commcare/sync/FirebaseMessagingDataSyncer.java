@@ -170,7 +170,7 @@ public class FirebaseMessagingDataSyncer implements CommCareTaskConnector {
                                          ResultAndError<PullTaskResult> resultAndErrorMessage) {
                 PullTaskResult result = resultAndErrorMessage.data;
                 if (result != DataPullTask.PullTaskResult.DOWNLOAD_SUCCESS) {
-                    Toast.makeText(context, Localization.get("fcm.sync.fail"), Toast.LENGTH_LONG).show();
+                    Toast.makeText(context, Localization.get("background.sync.fail"), Toast.LENGTH_LONG).show();
                     return;
                 }
                 Toast.makeText(context, Localization.get("sync.success.synced"), Toast.LENGTH_LONG).show();
@@ -183,7 +183,7 @@ public class FirebaseMessagingDataSyncer implements CommCareTaskConnector {
 
             @Override
             protected void deliverError(Object receiver, Exception e) {
-                Logger.log(LogTypes.TYPE_FCM, Localization.get("fcm.sync.fail")+": " + e.getMessage());
+                Logger.log(LogTypes.TYPE_FCM, Localization.get("background.sync.fail")+": " + e.getMessage());
             }
 
             @Override

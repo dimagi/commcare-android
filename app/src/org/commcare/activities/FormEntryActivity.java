@@ -1519,8 +1519,8 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
             if (!HiddenPreferences.isPendingSyncDialogDisabled()) {
                 StandardAlertDialog dialog = StandardAlertDialog.getBasicAlertDialogWithDisablingCheckbox(this,
-                        Localization.get("fcm.sync.pending.form.entry.title"),
-                        Localization.get("fcm.sync.pending.form.entry.detail"), (buttonView, isChecked) -> {
+                        Localization.get("background.sync.pending.form.entry.title"),
+                        Localization.get("background.sync.pending.form.entry.detail"), (buttonView, isChecked) -> {
                             HiddenPreferences.setPendingSyncDialogDisabled(isChecked);
                         });
                 dialog.setPositiveButton(Localization.get("dialog.ok"), (dialog1, which) -> {
