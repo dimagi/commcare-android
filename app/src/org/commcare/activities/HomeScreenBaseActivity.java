@@ -191,16 +191,9 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
         processFromExternalLaunch(savedInstanceState);
         processFromShortcutLaunch();
         processFromLoginLaunch();
-        processSessionRebuildRequest();
         appUpdateController = AppUpdateControllerFactory.create(this::handleAppUpdate,
                 getApplicationContext());
         appUpdateController.register();
-    }
-
-    private void processSessionRebuildRequest() {
-        if (getIntent().getBooleanExtra(REBUILD_SESSION, false)) {
-            sessionNavigator.startNextSessionStep();
-        }
     }
 
     private void updateLastSuccessfulCommCareVersion() {

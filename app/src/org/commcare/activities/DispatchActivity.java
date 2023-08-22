@@ -191,8 +191,6 @@ public class DispatchActivity extends AppCompatActivity {
                         !shortcutExtraWasConsumed) {
                     // CommCare was launched from a shortcut
                     handleShortcutLaunch();
-                } else if (this.getIntent().hasExtra(SESSION_REBUILD_REQUEST)){
-                    handleSessionRebuildRequest();
                 }
                 else {
                     launchHomeScreen();
@@ -200,33 +198,6 @@ public class DispatchActivity extends AppCompatActivity {
             } catch (SessionUnavailableException sue) {
                 launchLoginScreen();
             }
-        }
-    }
-
-    private void handleSessionRebuildRequest() {
-        AndroidSessionWrapper asw = CommCareApplication.instance().getCurrentSessionWrapper();
-        String sessionRequest = this.getIntent().getStringExtra(SESSION_REBUILD_REQUEST);
-        SessionStateDescriptor ssd = new SessionStateDescriptor();
-        ssd.fromBundle(sessionRequest);
-        asw.loadFromStateDescription(ssd);
-
-        // In case the user is in a Entity detail screen, this will ensure that the last popped
-        // step refers to the entity on display
-        popSelectedEntityDatumFromSession(asw.getSession(), asw.getEvaluationContext());
-
-        Intent i = new Intent(this, StandardHomeActivity.class);
-        i.putExtra(REBUILD_SESSION, true);
-        startActivityForResult(i, HOME_SCREEN);
-
-        // Session rebuild process has initiated, this is no longer needed
-        this.getIntent().removeExtra(SESSION_REBUILD_REQUEST);
-    }
-
-    private void popSelectedEntityDatumFromSession(CommCareSession commcareSession, EvaluationContext evaluationContext){
-        StackFrameStep topStep = commcareSession.getFrame().getTopStep();
-
-        if(topStep!=null && topStep.getId().equals(EXTRA_ENTITY_KEY)) {
-            commcareSession.popStep(evaluationContext);
         }
     }
 
