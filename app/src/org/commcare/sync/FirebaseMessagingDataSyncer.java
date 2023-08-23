@@ -88,7 +88,7 @@ public class FirebaseMessagingDataSyncer implements CommCareTaskConnector {
         } else {
             // Username and Domain don't match the current user OR payload data doesn't include username
             // and/or domain - Action: no actual, just log issue, no need to inform the user
-            Logger.log(LogTypes.TYPE_FCM, "Invalid data payload");
+            Logger.log(LogTypes.TYPE_FCM, "Ignored sync request for " + fcmMessageData.getUsername() + "@" + fcmMessageData.getDomain());
         }
     }
 
