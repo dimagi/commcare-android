@@ -2,7 +2,6 @@ package org.commcare.activities;
 
 import static org.commcare.activities.DispatchActivity.EXIT_AFTER_FORM_SUBMISSION;
 import static org.commcare.activities.DispatchActivity.EXIT_AFTER_FORM_SUBMISSION_DEFAULT;
-import static org.commcare.activities.DispatchActivity.REBUILD_SESSION;
 import static org.commcare.activities.DispatchActivity.SESSION_ENDPOINT_ARGUMENTS_BUNDLE;
 import static org.commcare.activities.DispatchActivity.SESSION_ENDPOINT_ARGUMENTS_LIST;
 import static org.commcare.activities.DispatchActivity.SESSION_ENDPOINT_ID;
@@ -172,7 +171,8 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
     protected boolean showCommCareUpdateMenu = false;
     private static final int MAX_CC_UPDATE_CANCELLATION = 3;
 
-    public static boolean safeToTriggerBackgroundSyncOnResume = true;
+    // This is to trigger a background sync after a form submission,
+    public static boolean shouldTriggerBackgroundSync = true;
 
     // This is to restore the selected entity when restarting EntityDetailActivity after a
     // background sync
@@ -353,10 +353,9 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
 
         // In case a sync request from FCM was made while the user was logged out, this will
         // trigger a blocking sync
-        if (HiddenPreferences.isPendingSyncRequestFromServer() &&
-                HiddenPreferences.getPendingSyncRequestFromServerTime()>SyncDetailCalculations.getLastSyncTime()) {
-            HiddenPreferences.setPendingSyncRequestFromServer(false);
+        if (HiddenPreferences.isPendingSyncRequestFromServerForUser()) {
             sendFormsOrSync(false);
+
             return true;
         }
 
@@ -405,7 +404,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
     private void clearOneTimeLoginActionFlags() {
         HiddenPreferences.setPostUpdateSyncNeeded(false);
         HiddenPreferences.clearInterruptedSSD();
-        HiddenPreferences.setPendingSyncRequestFromServer(false);
+        HiddenPreferences.clearPendingSyncRequestFromServerForUser();
     }
 
     private boolean tryRestoringFormFromSessionExpiration() {
@@ -1232,7 +1231,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
             boolean isRestartAfterSessionExpiration) {
 
         // Block any background syncs during a form entry
-        safeToTriggerBackgroundSyncOnResume = false;
+        shouldTriggerBackgroundSync = false;
 
         Logger.log(LogTypes.TYPE_FORM_ENTRY, "Form Entry Starting|" +
                 (r.getInstanceID() == null ? "" : r.getInstanceID() + "|") +
@@ -1301,14 +1300,14 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
         }
 
         // In case a Sync was blocked because of a form entry, trigger now if it's safe
-        if (HiddenPreferences.isPostFormSubmissionSyncNeeded() && safeToTriggerBackgroundSyncOnResume) {
+        if (HiddenPreferences.isPostFormSubmissionSyncNeeded() && shouldTriggerBackgroundSync) {
             dataSyncer.syncData(HiddenPreferences.getPostFormSubmissionSyncNeededFCMMessageData());
         }
 
         // reset these
         redirectedInOnCreate = false;
         sessionNavigationProceedingAfterOnResume = false;
-        safeToTriggerBackgroundSyncOnResume = true;
+        shouldTriggerBackgroundSync = true;
     }
 
     private void attemptDispatchHomeScreen() {

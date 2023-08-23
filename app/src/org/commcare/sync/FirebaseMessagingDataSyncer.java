@@ -1,8 +1,6 @@
 package org.commcare.sync;
 
 
-import static org.commcare.utils.FirebaseMessagingUtil.removeServerUrlFromUserDomain;
-
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -53,7 +51,7 @@ public class FirebaseMessagingDataSyncer implements CommCareTaskConnector {
         this.context = context;
     }
 
-    private List<String> syncSafeActivities = Arrays.asList(new String[]{"FormEntryActivity"});
+    private List<String> syncUnsafeActivities = Arrays.asList(new String[]{"FormEntryActivity"});
     private CommCareTask currentTask = null;
     private PinnedNotificationWithProgress<DataPullTask.PullTaskResult> mPinnedNotificationProgress = null;
 
@@ -65,21 +63,9 @@ public class FirebaseMessagingDataSyncer implements CommCareTaskConnector {
      * 2) Ensure that the sync is only triggered for the intended 'recipient' of the message
      */
     public void syncData(FCMMessageData fcmMessageData) {
-        // Abort if FCM Message data is null
-        if (fcmMessageData == null){
-            disablePendingSyncs();
-            return;
-        }
-
         if (!CommCareApplication.isSessionActive()) {
             //  There is no active session at the moment, proceed accordingly
-            // TODO: Decide whether to only trigger the Sync when the 'recipient' of the message logs in
-            //  or anyone, in case multiple users are sharing the same device
-            // TODO: Decide whether to check if when there is no active session, the recipient has ever
-            //  logged in the device, before scheduling a sync post login
-            HiddenPreferences.setPendingSyncRequestFromServer(true);
-            HiddenPreferences.setPendingSyncRequestFromServerTime(fcmMessageData.getCreationTime().getMillis());
-
+            HiddenPreferences.setPendingSyncRequestFromServerForUser(fcmMessageData);
             return;
         }
         // Retrieve the current User
@@ -199,14 +185,14 @@ public class FirebaseMessagingDataSyncer implements CommCareTaskConnector {
     private boolean checkUserAndDomain(User user, String payloadUsername, String payloadDomain) {
         if(payloadUsername != null && payloadDomain != null){
             String loggedInUsername = user.getUsername();
-            String userDomain = removeServerUrlFromUserDomain(HiddenPreferences.getUserDomain());
+            String userDomain = HiddenPreferences.getUserDomainWithoutServerUrl();
             return payloadUsername.equalsIgnoreCase(loggedInUsername) && payloadDomain.equalsIgnoreCase(userDomain);
         }
         return false;
     }
 
     private boolean isCurrentActivitySyncSafe() {
-        return !syncSafeActivities.contains(CommCareApplication.currentActivityName);
+        return !syncUnsafeActivities.contains(CommCareApplication.currentActivityName);
     }
 
     // This method is responsible for informing the User about a pending sync and scheduling
@@ -233,14 +219,6 @@ public class FirebaseMessagingDataSyncer implements CommCareTaskConnector {
         }
         mPinnedNotificationProgress = new PinnedNotificationWithProgress(context,
                 "sync.communicating.title","sync.progress.starting", -1);
-
-        // Disable any pending sync
-        disablePendingSyncs();
-    }
-
-    private void disablePendingSyncs() {
-        HiddenPreferences.setPendingSyncRequestFromServer(false);
-        HiddenPreferences.setPostFormSubmissionSyncNeeded(false);
     }
 
     @Override

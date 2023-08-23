@@ -461,6 +461,11 @@ public abstract class DataPullTask<R>
 
         Logger.log(LogTypes.TYPE_USER, "User Sync Successful|" + username);
         updateCurrentUser(password);
+
+        // Disable pending background syncs
+        HiddenPreferences.clearPendingSyncRequestFromServerForUser();
+        HiddenPreferences.setPostFormSubmissionSyncNeeded(false);
+
         this.publishProgress(PROGRESS_DONE);
     }
 

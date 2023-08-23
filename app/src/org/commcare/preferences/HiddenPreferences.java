@@ -100,7 +100,7 @@ public class HiddenPreferences {
     private static final long NO_OF_HOURS_TO_WAIT_TO_RESUME_BACKGROUND_WORK = 36;
 
     // This is to be used by CommCareFirebaseMessagingService to schedule a sync after the next Login
-    public final static String PENDING_SYNC_REQUEST_FROM_SERVER = "pending-sync-request-from-server";
+    public final static String PENDING_SYNC_REQUEST_FROM_SERVER = "pending-sync-request-from-server-";
 
     private static final String ENABLE_ANDROID_WINDOW_SECURE_FLAG = "cc-enable-android-window-secure-flag";
 
@@ -110,6 +110,12 @@ public class HiddenPreferences {
     private static final String POST_FOR_SUBMISSION_SYNC_NEEDED_FCM_MESSAGE_DATA = "post-form-submission-sync-needed-fcm-message-data";
     private static final String ENABLE_BACKGROUND_SYNC = "cc-enable-background-sync";
 
+    /**
+     * The domain name in the application profile file comes in the <domain>.commcarehq.org form,
+     * this is standard across the different HQ servers. This constant is to store that suffix and
+     * be used to remove it form the user domain name to match how the domain represented in the backend
+     */
+    public static final String USER_DOMAIN_SERVER_URL_SUFFIX = ".commcarehq.org";
 
     /**
      * @return How many seconds should a user session remain open before expiring?
@@ -270,6 +276,18 @@ public class HiddenPreferences {
     public static String getUserDomain() {
         SharedPreferences prefs = CommCareApplication.instance().getCurrentApp().getAppPreferences();
         return prefs.getString(USER_DOMAIN_SUFFIX, null);
+    }
+
+    public static String getUserDomainWithoutServerUrl() {
+        String userDomain = getUserDomain();
+        if (userDomain == null){
+            return null;
+        }
+
+        if (userDomain.contains(USER_DOMAIN_SERVER_URL_SUFFIX)){
+            return userDomain.replace(USER_DOMAIN_SERVER_URL_SUFFIX, "");
+        }
+        return userDomain;
     }
 
     public static void setPostUpdateSyncNeeded(boolean b) {
@@ -565,28 +583,26 @@ public class HiddenPreferences {
                 .edit().putBoolean(RAW_MEDIA_CLEANUP_COMPLETE, true).apply();
     }
 
-    public static boolean isPendingSyncRequestFromServer() {
+    public static boolean isPendingSyncRequestFromServerForUser() {
+        String loggedUsername = CommCareApplication.instance().getSession().getLoggedInUser().getUsername();
         return PreferenceManager.getDefaultSharedPreferences(CommCareApplication.instance())
-                .getBoolean(PENDING_SYNC_REQUEST_FROM_SERVER, false);
+                .contains(PENDING_SYNC_REQUEST_FROM_SERVER + loggedUsername + "@"+ getUserDomainWithoutServerUrl());
     }
-    public static void setPendingSyncRequestFromServer(boolean syncNeeded) {
+    public static void setPendingSyncRequestFromServerForUser(FCMMessageData fcmMessageData) {
         PreferenceManager.getDefaultSharedPreferences(CommCareApplication.instance()).edit()
-                .putBoolean(PENDING_SYNC_REQUEST_FROM_SERVER, syncNeeded)
+                .putBoolean(PENDING_SYNC_REQUEST_FROM_SERVER + fcmMessageData.getUsername() + "@"+ fcmMessageData.getDomain(), true)
+                .apply();
+    }
+
+    public static void clearPendingSyncRequestFromServerForUser() {
+        String loggedUsername = CommCareApplication.instance().getSession().getLoggedInUser().getUsername();
+        PreferenceManager.getDefaultSharedPreferences(CommCareApplication.instance()).edit()
+                .remove(PENDING_SYNC_REQUEST_FROM_SERVER + loggedUsername + "@"+ getUserDomainWithoutServerUrl())
                 .apply();
     }
 
     public static boolean isFlagSecureEnabled() {
         return DeveloperPreferences.doesPropertyMatch(ENABLE_ANDROID_WINDOW_SECURE_FLAG, PrefValues.NO, PrefValues.YES);
-    }
-    public static long getPendingSyncRequestFromServerTime() {
-        return PreferenceManager.getDefaultSharedPreferences(CommCareApplication.instance())
-                .getLong(PENDING_SYNC_REQUEST_FROM_SERVER_TIME, 0);
-    }
-
-    public static void setPendingSyncRequestFromServerTime(long requestTime) {
-        PreferenceManager.getDefaultSharedPreferences(CommCareApplication.instance()).edit()
-                .putLong(PENDING_SYNC_REQUEST_FROM_SERVER_TIME, requestTime)
-                .apply();
     }
 
     public static boolean isPostFormSubmissionSyncNeeded() {
