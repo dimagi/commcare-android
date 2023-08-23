@@ -6,6 +6,7 @@ import org.commcare.modern.database.Table;
 
 /**
  * @author dviggiano
+ * DB model for storing the encrypted/encoded Connect DB passphrase
  */
 @Table(ConnectKeyRecord.STORAGE_KEY)
 public class ConnectKeyRecord extends Persisted {
