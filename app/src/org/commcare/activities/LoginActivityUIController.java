@@ -338,8 +338,8 @@ public class LoginActivityUIController implements CommCareActivityUIController {
 
         // Even though we don't allow multiple users with same username in a domain, there can be
         // multiple UKRs for 1 user (for ex if password changes)
-        Vector<UserKeyRecord> matchingRecords = existingUsers.
-                getRecordsForValue(UserKeyRecord.META_USERNAME, username);
+        Vector<UserKeyRecord> matchingRecords = existingUsers
+                .getRecordsForValue(UserKeyRecord.META_USERNAME, username);
 
         // However, we guarantee that there will be at most 1 record marked ACTIVE per username
         for (UserKeyRecord record : matchingRecords) {

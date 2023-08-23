@@ -11,6 +11,9 @@ import org.commcare.modern.database.Table;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * @author dviggiano
+ */
 @Table(ConnectUserRecord.STORAGE_KEY)
 public class ConnectUserRecord extends Persisted {
     /**
@@ -19,7 +22,7 @@ public class ConnectUserRecord extends Persisted {
     public static final String STORAGE_KEY = "user_info";
 
     @Persisting(1)
-    private String userID;
+    private String userId;
 
     @Persisting(2)
     private String password;
@@ -39,10 +42,10 @@ public class ConnectUserRecord extends Persisted {
     @Persisting(7)
     private Date lastPasswordDate;
 
-    @Persisting(value=8, nullable = true)
+    @Persisting(value = 8, nullable = true)
     private String connectToken;
 
-    @Persisting(value=9, nullable = true)
+    @Persisting(value = 9, nullable = true)
     private Date connectTokenExpiration;
 
     public ConnectUserRecord() {
@@ -51,11 +54,12 @@ public class ConnectUserRecord extends Persisted {
         connectTokenExpiration = new Date();
     }
 
-    public ConnectUserRecord(String primaryPhone, String userID, String password, String name, String alternatePhone) {
+    public ConnectUserRecord(String primaryPhone, String userId, String password, String name,
+                             String alternatePhone) {
         this();
         this.primaryPhone = primaryPhone;
         this.alternatePhone = alternatePhone;
-        this.userID = userID;
+        this.userId = userId;
         this.password = password;
         this.name = name;
 
@@ -73,24 +77,60 @@ public class ConnectUserRecord extends Persisted {
 
     public void putUserInIntent(Intent intent) {
         intent.putExtra(ConnectIDConstants.PHONE, primaryPhone);
-        intent.putExtra(ConnectIDConstants.USERNAME, userID);
+        intent.putExtra(ConnectIDConstants.USERNAME, userId);
         intent.putExtra(ConnectIDConstants.PASSWORD, password);
         intent.putExtra(ConnectIDConstants.NAME, name);
         intent.putExtra(ConnectIDConstants.ALT_PHONE, alternatePhone);
     }
 
-    public String getUserId() { return userID; }
-    public String getPrimaryPhone() { return primaryPhone; }
-    public void setPrimaryPhone(String primaryPhone) { this.primaryPhone = primaryPhone; }
-    public String getAlternatePhone() { return alternatePhone; }
-    public void setAlternatePhone(String alternatePhone) { this.alternatePhone = alternatePhone; }
-    public String getPassword() { return password; }
-    public void setPassword(String password) { this.password = password; }
-    public String getName() { return name; }
-    public void setName(String name) { this.name = name; }
-    public ConnectIDTask getRegistrationPhase() { return ConnectIDTask.fromRequestCode(registrationPhase); }
-    public void setRegistrationPhase(ConnectIDTask phase) { registrationPhase = phase.getRequestCode(); }
-    public Date getLastPasswordDate() { return lastPasswordDate; }
+    public String getUserId() {
+        return userId;
+    }
+
+    public String getPrimaryPhone() {
+        return primaryPhone;
+    }
+
+    public void setPrimaryPhone(String primaryPhone) {
+        this.primaryPhone = primaryPhone;
+    }
+
+    public String getAlternatePhone() {
+        return alternatePhone;
+    }
+
+    public void setAlternatePhone(String alternatePhone) {
+        this.alternatePhone = alternatePhone;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public ConnectIDTask getRegistrationPhase() {
+        return ConnectIDTask.fromRequestCode(registrationPhase);
+    }
+
+    public void setRegistrationPhase(ConnectIDTask phase) {
+        registrationPhase = phase.getRequestCode();
+    }
+
+    public Date getLastPasswordDate() {
+        return lastPasswordDate;
+    }
+
     public boolean shouldForcePassword() {
         Date passwordDate = getLastPasswordDate();
         boolean forcePassword = passwordDate == null;
@@ -104,11 +144,20 @@ public class ConnectUserRecord extends Persisted {
         return forcePassword;
     }
 
-    public void setLastPasswordDate(Date date) { lastPasswordDate = date; }
+    public void setLastPasswordDate(Date date) {
+        lastPasswordDate = date;
+    }
+
     public void updateConnectToken(String token, Date expirationDate) {
         connectToken = token;
         connectTokenExpiration = expirationDate;
     }
-    public String getConnectToken() { return connectToken; }
-    public Date getConnectTokenExpiration() { return connectTokenExpiration; }
+
+    public String getConnectToken() {
+        return connectToken;
+    }
+
+    public Date getConnectTokenExpiration() {
+        return connectTokenExpiration;
+    }
 }

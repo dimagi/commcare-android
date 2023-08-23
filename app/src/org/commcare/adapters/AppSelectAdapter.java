@@ -11,6 +11,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+/**
+ * @author dviggiano
+ */
 public class AppSelectAdapter extends SquareButtonAdapter {
 
     private final HomeCardDisplayData[] buttonData;

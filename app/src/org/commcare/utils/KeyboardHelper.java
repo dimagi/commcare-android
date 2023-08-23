@@ -12,7 +12,8 @@ public class KeyboardHelper {
     public static void showKeyboardOnInput(Activity activity, View view) {
         view.requestFocus();
 
-        InputMethodManager inputMethodManager = (InputMethodManager)activity.getSystemService(Context.INPUT_METHOD_SERVICE);
+        InputMethodManager inputMethodManager = (InputMethodManager)activity.getSystemService(
+                Context.INPUT_METHOD_SERVICE);
         view.postDelayed(new Runnable() {
             @Override
             public void run() {

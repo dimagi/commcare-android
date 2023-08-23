@@ -12,6 +12,9 @@ import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.views.ManagedUi;
 import org.commcare.views.UiElement;
 
+/**
+ * @author dviggiano
+ */
 @ManagedUi(R.layout.screen_app_select)
 public class AppSelectActivityUIController implements CommCareActivityUIController {
     @UiElement(value = R.id.app_select_grid)

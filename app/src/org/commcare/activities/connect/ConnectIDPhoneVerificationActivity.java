@@ -167,51 +167,51 @@ public class ConnectIDPhoneVerificationActivity extends CommCareActivity<Connect
 
         boolean isBusy = !ConnectIDNetworkHelper.post(this, getString(urlId), authInfo, params, false,
                 new ConnectIDNetworkHelper.INetworkResultHandler() {
-            @Override
-            public void processSuccess(int responseCode, InputStream responseData) {
-                try {
-                    String responseAsString = new String(StreamsUtil.inputStreamToByteArray(responseData));
-                    if (responseAsString.length() > 0) {
-                        JSONObject json = new JSONObject(responseAsString);
-                        String key = ConnectIDConstants.CONNECT_KEY_SECRET;
-                        if (json.has(key)) {
-                            password = json.getString(key);
-                        }
+                    @Override
+                    public void processSuccess(int responseCode, InputStream responseData) {
+                        try {
+                            String responseAsString = new String(StreamsUtil.inputStreamToByteArray(responseData));
+                            if (responseAsString.length() > 0) {
+                                JSONObject json = new JSONObject(responseAsString);
+                                String key = ConnectIDConstants.CONNECT_KEY_SECRET;
+                                if (json.has(key)) {
+                                    password = json.getString(key);
+                                }
 
-                        key = ConnectIDConstants.CONNECT_KEY_SECONDARY_PHONE;
-                        if (json.has(key)) {
-                            recoveryPhone = json.getString(key);
-                            updateMessage();
+                                key = ConnectIDConstants.CONNECT_KEY_SECONDARY_PHONE;
+                                if (json.has(key)) {
+                                    recoveryPhone = json.getString(key);
+                                    updateMessage();
+                                }
+                            }
+                        } catch (IOException | JSONException e) {
+                            Logger.exception("Parsing return from OTP request", e);
                         }
                     }
-                } catch (IOException | JSONException e) {
-                    Logger.exception("Parsing return from OTP request", e);
-                }
-            }
 
-            @Override
-            public void processFailure(int responseCode, IOException e) {
-                String message = "";
-                if (responseCode > 0) {
-                    message = String.format(Locale.getDefault(), "(%d)", responseCode);
-                } else if (e != null) {
-                    message = e.toString();
-                }
+                    @Override
+                    public void processFailure(int responseCode, IOException e) {
+                        String message = "";
+                        if (responseCode > 0) {
+                            message = String.format(Locale.getDefault(), "(%d)", responseCode);
+                        } else if (e != null) {
+                            message = e.toString();
+                        }
 
-                uiController.setErrorMessage(String.format("Error requesting SMS code. %s", message));
+                        uiController.setErrorMessage(String.format("Error requesting SMS code. %s", message));
 
-                //Null out the last-requested time so user can request again immediately
-                smsTime = null;
-            }
+                        //Null out the last-requested time so user can request again immediately
+                        smsTime = null;
+                    }
 
-            @Override
-            public void processNetworkFailure() {
-                uiController.setErrorMessage(getString(R.string.recovery_network_unavailable));
+                    @Override
+                    public void processNetworkFailure() {
+                        uiController.setErrorMessage(getString(R.string.recovery_network_unavailable));
 
-                //Null out the last-requested time so user can request again immediately
-                smsTime = null;
-            }
-        });
+                        //Null out the last-requested time so user can request again immediately
+                        smsTime = null;
+                    }
+                });
 
         if (isBusy) {
             Toast.makeText(this, R.string.busy_message, Toast.LENGTH_SHORT).show();
@@ -244,48 +244,48 @@ public class ConnectIDPhoneVerificationActivity extends CommCareActivity<Connect
 
         boolean isBusy = !ConnectIDNetworkHelper.post(this, getString(urlId), authInfo, params, false,
                 new ConnectIDNetworkHelper.INetworkResultHandler() {
-            @Override
-            public void processSuccess(int responseCode, InputStream responseData) {
-                String username = "";
-                String displayName = "";
-                if (method == MethodRecoveryAlternate) {
-                    try {
-                        String responseAsString = new String(StreamsUtil.inputStreamToByteArray(responseData));
-                        JSONObject json = new JSONObject(responseAsString);
-                        String key = ConnectIDConstants.CONNECT_KEY_USERNAME;
-                        if (json.has(key)) {
-                            username = json.getString(key);
-                        }
+                    @Override
+                    public void processSuccess(int responseCode, InputStream responseData) {
+                        String username = "";
+                        String displayName = "";
+                        if (method == MethodRecoveryAlternate) {
+                            try {
+                                String responseAsString = new String(StreamsUtil.inputStreamToByteArray(responseData));
+                                JSONObject json = new JSONObject(responseAsString);
+                                String key = ConnectIDConstants.CONNECT_KEY_USERNAME;
+                                if (json.has(key)) {
+                                    username = json.getString(key);
+                                }
 
-                        key = ConnectIDConstants.CONNECT_KEY_NAME;
-                        if (json.has(key)) {
-                            displayName = json.getString(key);
+                                key = ConnectIDConstants.CONNECT_KEY_NAME;
+                                if (json.has(key)) {
+                                    displayName = json.getString(key);
+                                }
+                            } catch (IOException | JSONException e) {
+                                Logger.exception("Parsing return from confirm_secondary_otp", e);
+                            }
                         }
-                    } catch (IOException | JSONException e) {
-                        Logger.exception("Parsing return from confirm_secondary_otp", e);
+                        logRecoveryResult(true);
+                        finish(true, false, username, displayName, recoveryPhone);
                     }
-                }
-                logRecoveryResult(true);
-                finish(true, false, username, displayName, recoveryPhone);
-            }
 
-            @Override
-            public void processFailure(int responseCode, IOException e) {
-                String message = "";
-                if (responseCode > 0) {
-                    message = String.format(Locale.getDefault(), "(%d)", responseCode);
-                } else if (e != null) {
-                    message = e.toString();
-                }
-                logRecoveryResult(false);
-                uiController.setErrorMessage(String.format("Error verifying SMS code. %s", message));
-            }
+                    @Override
+                    public void processFailure(int responseCode, IOException e) {
+                        String message = "";
+                        if (responseCode > 0) {
+                            message = String.format(Locale.getDefault(), "(%d)", responseCode);
+                        } else if (e != null) {
+                            message = e.toString();
+                        }
+                        logRecoveryResult(false);
+                        uiController.setErrorMessage(String.format("Error verifying SMS code. %s", message));
+                    }
 
-            @Override
-            public void processNetworkFailure() {
-                uiController.setErrorMessage(getString(R.string.recovery_network_unavailable));
-            }
-        });
+                    @Override
+                    public void processNetworkFailure() {
+                        uiController.setErrorMessage(getString(R.string.recovery_network_unavailable));
+                    }
+                });
 
         if (isBusy) {
             Toast.makeText(this, R.string.busy_message, Toast.LENGTH_SHORT).show();

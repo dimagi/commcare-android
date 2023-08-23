@@ -8,6 +8,9 @@ import java.nio.charset.StandardCharsets;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 
+/**
+ * @author dviggiano
+ */
 public class EncryptionUtilsTest {
     @Test
     public void testEncryption() {
@@ -24,8 +27,7 @@ public class EncryptionUtilsTest {
             byte[] decrypted = EncryptionUtils.decrypt(encrypted, provider.getKey(null, false));
             String decryptedString = new String(decrypted);
             Assert.assertEquals(testData, decryptedString);
-        }
-        catch(Exception e) {
+        } catch (Exception e) {
             Assert.fail("Exception: " + e);
         }
     }

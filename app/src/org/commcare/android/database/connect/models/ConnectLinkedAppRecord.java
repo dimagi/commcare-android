@@ -7,6 +7,9 @@ import org.commcare.modern.models.MetaField;
 
 import java.util.Date;
 
+/**
+ * @author dviggiano
+ */
 @Table(org.commcare.android.database.connect.models.ConnectLinkedAppRecord.STORAGE_KEY)
 public class ConnectLinkedAppRecord extends Persisted {
     /**

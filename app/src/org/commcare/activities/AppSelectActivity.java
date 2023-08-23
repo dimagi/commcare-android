@@ -6,8 +6,11 @@ import android.os.Bundle;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.WithUIController;
 
+/**
+ * @author dviggiano
+ */
 public class AppSelectActivity extends CommCareActivity<AppSelectActivity>
-implements WithUIController {
+        implements WithUIController {
     private AppSelectActivityUIController uiController;
 
     @Override
@@ -18,7 +21,9 @@ implements WithUIController {
     }
 
     @Override
-    public CommCareActivityUIController getUIController() { return this.uiController; }
+    public CommCareActivityUIController getUIController() {
+        return this.uiController;
+    }
 
     @Override
     public void initUIController() {
