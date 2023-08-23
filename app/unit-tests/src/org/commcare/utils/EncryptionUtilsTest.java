@@ -14,15 +14,14 @@ public class EncryptionUtilsTest {
         try {
             String testData = "This is a test string";
             byte[] testBytes = testData.getBytes(StandardCharsets.UTF_8);
-            //Create an RSA keypair that we can use to encrypt and decrypt the test string
-            KeyPair keyPair = KeyPairGenerator.getInstance("RSA").generateKeyPair();
-            String transformation = EncryptionUtils.getTransformationString(true);
 
-            byte[] encrypted = EncryptionUtils.encrypt(testBytes, new EncryptionUtils.KeyAndTransform(keyPair.getPrivate(), transformation));
+            EncryptionKeyProvider provider = new MockEncryptionKeyProvider();
+
+            byte[] encrypted = EncryptionUtils.encrypt(testBytes, provider.getKey(null, true));
             String encryptedString = new String(encrypted);
             Assert.assertFalse(testData.equals(encryptedString));
 
-            byte[] decrypted = EncryptionUtils.decrypt(encrypted, new EncryptionUtils.KeyAndTransform(keyPair.getPublic(), transformation));
+            byte[] decrypted = EncryptionUtils.decrypt(encrypted, provider.getKey(null, false));
             String decryptedString = new String(decrypted);
             Assert.assertEquals(testData, decryptedString);
         }

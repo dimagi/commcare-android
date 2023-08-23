@@ -27,6 +27,7 @@ import org.commcare.network.DataPullRequester;
 import org.commcare.network.LocalReferencePullResponseFactory;
 import org.commcare.services.CommCareSessionService;
 import org.commcare.utils.AndroidCacheDirSetup;
+import org.commcare.utils.MockEncryptionKeyProvider;
 import org.javarosa.core.model.User;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.reference.ResourceReferenceFactory;
@@ -71,6 +72,8 @@ public class CommCareTestApplication extends CommCareApplication implements Test
     public void onCreate() {
         // set if before calling super to initialte the dataChangeLogger correctly
         setExternalStorageState(Environment.MEDIA_MOUNTED);
+
+        setEncryptionKeyProvider(new MockEncryptionKeyProvider());
 
         super.onCreate();
 

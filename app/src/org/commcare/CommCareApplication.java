@@ -107,6 +107,7 @@ import org.commcare.utils.CommCareExceptionHandler;
 import org.commcare.utils.CommCareUtil;
 import org.commcare.utils.CrashUtil;
 import org.commcare.utils.DeviceIdentifier;
+import org.commcare.utils.EncryptionKeyProvider;
 import org.commcare.utils.FileUtil;
 import org.commcare.utils.FirebaseMessagingUtil;
 import org.commcare.utils.GlobalConstants;
@@ -197,6 +198,7 @@ public class CommCareApplication extends MultiDexApplication {
 
     private boolean invalidateCacheOnRestore;
     private CommCareNoficationManager noficationManager;
+    private EncryptionKeyProvider encryptionKeyProvider;
 
     @Override
     public void onCreate() {
@@ -251,6 +253,11 @@ public class CommCareApplication extends MultiDexApplication {
         GraphUtil.setLabelCharacterLimit(getResources().getInteger(R.integer.graph_label_char_limit));
 
         FirebaseMessagingUtil.verifyToken();
+
+        if(getEncryptionKeyProvider() == null) {
+            //Create standard provider if no child class provided their own
+            setEncryptionKeyProvider(new EncryptionKeyProvider());
+        }
     }
 
     protected void attachISRGCert() {
@@ -1138,6 +1145,9 @@ public class CommCareApplication extends MultiDexApplication {
     public void setInvalidateCacheFlag(boolean b) {
         invalidateCacheOnRestore = b;
     }
+
+    public void setEncryptionKeyProvider(EncryptionKeyProvider provider) { encryptionKeyProvider = provider; }
+    public EncryptionKeyProvider getEncryptionKeyProvider() { return encryptionKeyProvider; }
 
     public PrototypeFactory getPrototypeFactory(Context c) {
         return AndroidPrototypeFactorySetup.getPrototypeFactory(c);
