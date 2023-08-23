@@ -78,6 +78,7 @@ import org.commcare.models.database.global.DatabaseGlobalOpenHelper;
 import org.commcare.models.database.user.models.EntityStorageCache;
 import org.commcare.models.legacy.LegacyInstallUtils;
 import org.commcare.modern.database.Table;
+import org.commcare.modern.session.SessionWrapper;
 import org.commcare.modern.util.PerformanceTuningUtil;
 import org.commcare.network.DataPullRequester;
 import org.commcare.network.DataPullResponseFactory;
@@ -88,7 +89,6 @@ import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.preferences.LocalePreferences;
 import org.commcare.services.CommCareSessionService;
-import org.commcare.session.CommCareSession;
 import org.commcare.sync.FormSubmissionHelper;
 import org.commcare.sync.FormSubmissionWorker;
 import org.commcare.tasks.AsyncRestoreHelper;
@@ -437,7 +437,7 @@ public class CommCareApplication extends MultiDexApplication {
     /**
      * Get the current CommCare session that's being executed
      */
-    public CommCareSession getCurrentSession() {
+    public SessionWrapper getCurrentSession() {
         return getCurrentSessionWrapper().getSession();
     }
 
