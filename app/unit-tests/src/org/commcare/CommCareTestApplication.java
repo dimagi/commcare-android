@@ -73,9 +73,9 @@ public class CommCareTestApplication extends CommCareApplication implements Test
         // set if before calling super to initialte the dataChangeLogger correctly
         setExternalStorageState(Environment.MEDIA_MOUNTED);
 
-        setEncryptionKeyProvider(new MockEncryptionKeyProvider());
-
         super.onCreate();
+
+        setEncryptionKeyProvider(new MockEncryptionKeyProvider());
 
         // allow "jr://resource" references
         ReferenceManager.instance().addReferenceFactory(new ResourceReferenceFactory());
