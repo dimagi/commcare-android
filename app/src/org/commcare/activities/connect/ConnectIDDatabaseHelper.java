@@ -19,11 +19,14 @@ import org.javarosa.core.services.storage.Persistable;
 import java.util.Date;
 import java.util.Vector;
 
+/**
+ * @author dviggiano
+ */
 public class ConnectIDDatabaseHelper {
     private static final Object connectDbHandleLock = new Object();
     private static SQLiteDatabase connectDatabase;
 
-    private static byte[] getConnectDBPassphrase(Context context) {
+    private static byte[] getConnectDbPassphrase(Context context) {
         try {
             for (ConnectKeyRecord r : CommCareApplication.instance().getGlobalStorage(ConnectKeyRecord.class)) {
                 return EncryptionUtils.decryptFromBase64String(context, r.getEncryptedPassphrase());
@@ -32,7 +35,8 @@ public class ConnectIDDatabaseHelper {
             //If we get here, the passphrase hasn't been created yet
             byte[] passphrase = EncryptionUtils.generatePassphrase();
 
-            ConnectKeyRecord record = new ConnectKeyRecord(EncryptionUtils.encryptToBase64String(context, passphrase));
+            String encoded = EncryptionUtils.encryptToBase64String(context, passphrase);
+            ConnectKeyRecord record = new ConnectKeyRecord(encoded);
             CommCareApplication.instance().getGlobalStorage(ConnectKeyRecord.class).write(record);
 
             return passphrase;
@@ -44,7 +48,7 @@ public class ConnectIDDatabaseHelper {
 
     public static void init(Context context) {
         synchronized (connectDbHandleLock) {
-            byte[] passphrase = getConnectDBPassphrase(context);
+            byte[] passphrase = getConnectDbPassphrase(context);
             SQLiteDatabase database = new DatabaseConnectOpenHelper(context).getWritableDatabase(passphrase);
             database.close();
         }
@@ -56,7 +60,7 @@ public class ConnectIDDatabaseHelper {
             public SQLiteDatabase getHandle() {
                 synchronized (connectDbHandleLock) {
                     if (connectDatabase == null || !connectDatabase.isOpen()) {
-                        byte[] passphrase = getConnectDBPassphrase(context);
+                        byte[] passphrase = getConnectDbPassphrase(context);
 
                         connectDatabase = new DatabaseConnectOpenHelper(this.c).getWritableDatabase(passphrase);
                     }
@@ -85,9 +89,10 @@ public class ConnectIDDatabaseHelper {
     }
 
     public static ConnectLinkedAppRecord getAppData(Context context, String appId, String username) {
-        Vector<ConnectLinkedAppRecord> records = getConnectStorage(context, ConnectLinkedAppRecord.class).getRecordsForValues(
-                new String[]{ConnectLinkedAppRecord.META_APP_ID, ConnectLinkedAppRecord.META_USER_ID},
-                new Object[]{appId, username});
+        Vector<ConnectLinkedAppRecord> records = getConnectStorage(context, ConnectLinkedAppRecord.class)
+                .getRecordsForValues(
+                        new String[]{ConnectLinkedAppRecord.META_APP_ID, ConnectLinkedAppRecord.META_USER_ID},
+                        new Object[]{appId, username});
         return records.isEmpty() ? null : records.firstElement();
     }
 
@@ -96,10 +101,10 @@ public class ConnectIDDatabaseHelper {
         storage.remove(record);
     }
 
-    public static void storeApp(Context context, String appID, String userID, String passwordOrPin) {
-        ConnectLinkedAppRecord record = getAppData(context, appID, userID);
+    public static void storeApp(Context context, String appId, String userId, String passwordOrPin) {
+        ConnectLinkedAppRecord record = getAppData(context, appId, userId);
         if (record == null) {
-            record = new ConnectLinkedAppRecord(appID, userID, passwordOrPin);
+            record = new ConnectLinkedAppRecord(appId, userId, passwordOrPin);
         } else if (!record.getPassword().equals(passwordOrPin)) {
             record.setPassword(passwordOrPin);
         }
@@ -111,13 +116,13 @@ public class ConnectIDDatabaseHelper {
         getConnectStorage(context, ConnectLinkedAppRecord.class).write(record);
     }
 
-    public static void storeHQToken(Context context, String appID, String userID, String token, Date expiration) {
-        ConnectLinkedAppRecord record = getAppData(context, appID, userID);
+    public static void storeHqToken(Context context, String appId, String userId, String token, Date expiration) {
+        ConnectLinkedAppRecord record = getAppData(context, appId, userId);
         if (record == null) {
-            record = new ConnectLinkedAppRecord(appID, userID, "");
+            record = new ConnectLinkedAppRecord(appId, userId, "");
         }
 
-        record.updateHQToken(token, expiration);
+        record.updateHqToken(token, expiration);
 
         getConnectStorage(context, ConnectLinkedAppRecord.class).write(record);
     }

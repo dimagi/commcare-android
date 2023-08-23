@@ -12,6 +12,9 @@ import org.commcare.utils.KeyboardHelper;
 import org.commcare.views.ManagedUi;
 import org.commcare.views.UiElement;
 
+/**
+ * @author dviggiano
+ */
 @ManagedUi(R.layout.screen_connect_primary_phone)
 public class ConnectIDPhoneActivityUIController implements CommCareActivityUIController {
     @UiElement(value = R.id.connect_primary_phone_title)

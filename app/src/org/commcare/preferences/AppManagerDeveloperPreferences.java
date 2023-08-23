@@ -97,7 +97,7 @@ public class AppManagerDeveloperPreferences extends CommCarePreferenceFragment {
                 .apply();
     }
 
-    public static boolean isConnectIDEnabled() {
+    public static boolean isConnectIdEnabled() {
         //NOTE: Setting default case to true for initial user testing, but production should keep the default false
         return GlobalPrivilegesManager.getGlobalPrefsRecord().getBoolean(CONNECT_ID_ENABLED, true);
     }

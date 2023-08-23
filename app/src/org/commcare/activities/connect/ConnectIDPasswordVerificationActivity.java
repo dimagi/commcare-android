@@ -22,6 +22,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 
+/**
+ * @author dviggiano
+ */
 public class ConnectIDPasswordVerificationActivity extends CommCareActivity<ConnectIDPasswordVerificationActivity>
         implements WithUIController {
     public static final int PASSWORD_FAIL = 1;

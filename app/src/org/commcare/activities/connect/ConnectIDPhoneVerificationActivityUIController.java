@@ -12,6 +12,9 @@ import org.commcare.utils.KeyboardHelper;
 import org.commcare.views.ManagedUi;
 import org.commcare.views.UiElement;
 
+/**
+ * @author dviggiano
+ */
 @ManagedUi(R.layout.screen_connect_phone_verify)
 public class ConnectIDPhoneVerificationActivityUIController implements CommCareActivityUIController {
     @UiElement(value = R.id.connect_phone_verify_label)
@@ -35,9 +38,9 @@ public class ConnectIDPhoneVerificationActivityUIController implements CommCareA
 
     @Override
     public void setupUI() {
-        resendTextView.setOnClickListener(arg0 -> activity.requestSMSCode());
+        resendTextView.setOnClickListener(arg0 -> activity.requestSmsCode());
         changeTextView.setOnClickListener(arg0 -> activity.changeNumber());
-        verifyButton.setOnClickListener(arg0 -> activity.verifySMSCode());
+        verifyButton.setOnClickListener(arg0 -> activity.verifySmsCode());
     }
 
     @Override

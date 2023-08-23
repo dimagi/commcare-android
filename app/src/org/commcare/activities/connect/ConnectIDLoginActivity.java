@@ -13,7 +13,6 @@ import org.commcare.dalvik.R;
 import androidx.annotation.NonNull;
 import androidx.biometric.BiometricManager;
 import androidx.biometric.BiometricPrompt;
-import androidx.core.content.ContextCompat;
 
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
@@ -22,6 +21,9 @@ import org.commcare.activities.CommCareActivity;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.WithUIController;
 
+/**
+ * @author dviggiano
+ */
 public class ConnectIDLoginActivity extends CommCareActivity<ConnectIDLoginActivity>
         implements WithUIController {
     private BiometricPrompt.AuthenticationCallback biometricPromptCallbacks;

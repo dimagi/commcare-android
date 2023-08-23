@@ -12,6 +12,9 @@ import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.WithUIController;
 import org.commcare.views.dialogs.CustomProgressDialog;
 
+/**
+ * @author dviggiano
+ */
 public class ConnectIDVerificationActivity extends CommCareActivity<ConnectIDVerificationActivity>
         implements WithUIController {
 

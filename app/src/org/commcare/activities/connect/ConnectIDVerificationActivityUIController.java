@@ -11,6 +11,9 @@ import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.views.ManagedUi;
 import org.commcare.views.UiElement;
 
+/**
+ * @author dviggiano
+ */
 @ManagedUi(R.layout.screen_connect_verify)
 public class ConnectIDVerificationActivityUIController implements CommCareActivityUIController {
     @UiElement(value = R.id.connect_verify_title)

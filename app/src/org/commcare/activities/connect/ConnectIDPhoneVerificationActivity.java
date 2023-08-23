@@ -24,6 +24,9 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Locale;
 
+/**
+ * @author dviggiano
+ */
 public class ConnectIDPhoneVerificationActivity extends CommCareActivity<ConnectIDPhoneVerificationActivity>
         implements WithUIController {
     public static final int MethodRegistrationPrimary = 1;
@@ -56,7 +59,7 @@ public class ConnectIDPhoneVerificationActivity extends CommCareActivity<Connect
 
         updateMessage();
 
-        requestSMSCode();
+        requestSmsCode();
 
         startHandler();
     }
@@ -102,7 +105,7 @@ public class ConnectIDPhoneVerificationActivity extends CommCareActivity<Connect
                 double elapsedMinutes = ((new DateTime()).getMillis() - smsTime.getMillis()) / 60000.0;
                 int resendLimitMinutes = 2;
                 double minutesRemaining = resendLimitMinutes - elapsedMinutes;
-                if(minutesRemaining > 0) {
+                if (minutesRemaining > 0) {
                     secondsToReset = (int)Math.ceil(minutesRemaining * 60);
                 }
             }
@@ -139,7 +142,7 @@ public class ConnectIDPhoneVerificationActivity extends CommCareActivity<Connect
         uiController.setLabelText(getString(R.string.connect_verify_phone_label, phone));
     }
 
-    public void requestSMSCode() {
+    public void requestSmsCode() {
         smsTime = new DateTime();
 
         uiController.setErrorMessage(null);
@@ -162,7 +165,8 @@ public class ConnectIDPhoneVerificationActivity extends CommCareActivity<Connect
             }
         }
 
-        boolean isBusy = !ConnectIDNetworkHelper.post(this, getString(urlId), authInfo, params, false, new ConnectIDNetworkHelper.INetworkResultHandler() {
+        boolean isBusy = !ConnectIDNetworkHelper.post(this, getString(urlId), authInfo, params, false,
+                new ConnectIDNetworkHelper.INetworkResultHandler() {
             @Override
             public void processSuccess(int responseCode, InputStream responseData) {
                 try {
@@ -214,7 +218,7 @@ public class ConnectIDPhoneVerificationActivity extends CommCareActivity<Connect
         }
     }
 
-    public void verifySMSCode() {
+    public void verifySmsCode() {
         uiController.setErrorMessage(null);
         int urlId;
         HashMap<String, String> params = new HashMap<>();
@@ -238,7 +242,8 @@ public class ConnectIDPhoneVerificationActivity extends CommCareActivity<Connect
 
         params.put("token", uiController.getCode());
 
-        boolean isBusy = !ConnectIDNetworkHelper.post(this, getString(urlId), authInfo, params, false, new ConnectIDNetworkHelper.INetworkResultHandler() {
+        boolean isBusy = !ConnectIDNetworkHelper.post(this, getString(urlId), authInfo, params, false,
+                new ConnectIDNetworkHelper.INetworkResultHandler() {
             @Override
             public void processSuccess(int responseCode, InputStream responseData) {
                 String username = "";

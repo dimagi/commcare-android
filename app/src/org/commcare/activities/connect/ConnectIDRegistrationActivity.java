@@ -18,6 +18,9 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Random;
 
+/**
+ * @author dviggiano
+ */
 public class ConnectIDRegistrationActivity extends CommCareActivity<ConnectIDRegistrationActivity>
         implements WithUIController {
     private ConnectIDRegistrationActivityUIController uiController;
@@ -117,7 +120,7 @@ public class ConnectIDRegistrationActivity extends CommCareActivity<ConnectIDReg
         ConnectUserRecord tempUser = new ConnectUserRecord(phone, generateUserId(), generatePassword(), uiController.getNameText(), "");
 
         HashMap<String, String> params = new HashMap<>();
-        params.put("username", tempUser.getUserID());
+        params.put("username", tempUser.getUserId());
         params.put("password", tempUser.getPassword());
         params.put("name", tempUser.getName());
         params.put("phone_number", phone);
@@ -156,7 +159,7 @@ public class ConnectIDRegistrationActivity extends CommCareActivity<ConnectIDReg
             HashMap<String, String> params = new HashMap<>();
             params.put("name", user.getName());
 
-            boolean isBusy = !ConnectIDNetworkHelper.post(this, getString(R.string.ConnectUpdateProfileURL), new AuthInfo.ProvidedAuth(user.getUserID(), user.getPassword(), false), params, false, new ConnectIDNetworkHelper.INetworkResultHandler() {
+            boolean isBusy = !ConnectIDNetworkHelper.post(this, getString(R.string.ConnectUpdateProfileURL), new AuthInfo.ProvidedAuth(user.getUserId(), user.getPassword(), false), params, false, new ConnectIDNetworkHelper.INetworkResultHandler() {
                 @Override
                 public void processSuccess(int responseCode, InputStream responseData) {
                     user.setName(newName);

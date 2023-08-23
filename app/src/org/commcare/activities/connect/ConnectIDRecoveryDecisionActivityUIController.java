@@ -14,6 +14,9 @@ import org.commcare.utils.KeyboardHelper;
 import org.commcare.views.ManagedUi;
 import org.commcare.views.UiElement;
 
+/**
+ * @author dviggiano
+ */
 @ManagedUi(R.layout.screen_connect_recovery_decision)
 public class ConnectIDRecoveryDecisionActivityUIController implements CommCareActivityUIController {
     @UiElement(value = R.id.connect_recovery_message)

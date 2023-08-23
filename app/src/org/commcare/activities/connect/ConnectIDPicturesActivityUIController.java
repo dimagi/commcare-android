@@ -9,6 +9,9 @@ import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.views.ManagedUi;
 import org.commcare.views.UiElement;
 
+/**
+ * @author dviggiano
+ */
 @ManagedUi(R.layout.screen_connect_pictures)
 public class ConnectIDPicturesActivityUIController implements CommCareActivityUIController {
     @UiElement(value = R.id.connect_pictures_face_icon)

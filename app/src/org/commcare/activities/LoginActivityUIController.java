@@ -219,7 +219,7 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         // Decide whether or not to show the app selection spinner based upon # of usable apps
         ArrayList<ApplicationRecord> readyApps = MultipleAppsUtil.getUsableAppRecords();
         boolean promptIncluded = false;
-        if (readyApps.size() == 1 && (!ConnectIDManager.isConnectIDIntroduced() || ConnectIDManager.isUnlocked())) {
+        if (readyApps.size() == 1 && (!ConnectIDManager.isConnectIdIntroduced() || ConnectIDManager.isUnlocked())) {
             setLoginInputsVisibility(true);
             // Set this app as the last selected app, for use in choosing what app to initialize
             // on first startup
@@ -229,7 +229,7 @@ public class LoginActivityUIController implements CommCareActivityUIController {
 
             setSingleAppUIState();
 
-            if(ConnectIDManager.isUnlocked()) {
+            if (ConnectIDManager.isUnlocked()) {
                 appLabel.setVisibility(View.VISIBLE);
                 appLabel.setText(r.getDisplayName());
             }
@@ -260,7 +260,7 @@ public class LoginActivityUIController implements CommCareActivityUIController {
             notificationButtonView.setVisibility(View.GONE);
         }
 
-        if(ConnectIDManager.isConnectIDIntroduced()) {
+        if (ConnectIDManager.isConnectIdIntroduced()) {
             setLoginInputsVisibility(!promptIncluded);
         }
     }
@@ -273,12 +273,11 @@ public class LoginActivityUIController implements CommCareActivityUIController {
 
     public void updateConnectLoginState() {
         boolean emphasizeConnectSignin = false;
-        if(ConnectIDManager.isConnectIDIntroduced()) {
+        if (ConnectIDManager.isConnectIdIntroduced()) {
             String welcomeText;
-            if(ConnectIDManager.isUnlocked()) {
+            if (ConnectIDManager.isUnlocked()) {
                 welcomeText = activity.getString(R.string.login_welcome_connect_signed_in, ConnectIDDatabaseHelper.getUser(activity).getName());
-            }
-            else {
+            } else {
                 welcomeText = activity.getString(R.string.login_welcome_connect_signed_out);
                 emphasizeConnectSignin = true;
             }
@@ -478,7 +477,7 @@ public class LoginActivityUIController implements CommCareActivityUIController {
     }
 
     protected int getSelectedAppIndex() {
-        return  spinner.getSelectedItemPosition();
+        return spinner.getSelectedItemPosition();
     }
 
     protected void setPermissionsGrantedState() {

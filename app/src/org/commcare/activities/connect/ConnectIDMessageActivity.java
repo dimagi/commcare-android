@@ -7,6 +7,9 @@ import org.commcare.activities.CommCareActivity;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.WithUIController;
 
+/**
+ * @author dviggiano
+ */
 public class ConnectIDMessageActivity extends CommCareActivity<ConnectIDMessageActivity>
         implements WithUIController {
     private ConnectIDMessageActivityUIController uiController;

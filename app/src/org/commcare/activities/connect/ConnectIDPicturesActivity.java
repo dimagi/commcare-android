@@ -20,6 +20,9 @@ import org.commcare.views.dialogs.CommCareAlertDialog;
 import org.commcare.views.dialogs.DialogCreationHelpers;
 import org.javarosa.core.services.locale.Localization;
 
+/**
+ * @author dviggiano
+ */
 public class ConnectIDPicturesActivity extends CommCareActivity<ConnectIDPicturesActivity>
         implements WithUIController, RuntimePermissionRequester {
     private static final int FACE_REQUEST = 1;

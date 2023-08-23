@@ -1177,7 +1177,7 @@ public class CommCareApplication extends MultiDexApplication {
             networkService = CommCareNetworkServiceGenerator.createNoAuthCommCareNetworkService();
         } else if(authInfo instanceof AuthInfo.CurrentAuth) {
             //Try to get SSO token
-            AuthInfo.TokenAuth tokenAuth = ConnectIDSSOHelper.acquireSSOTokenSync(context);
+            AuthInfo.TokenAuth tokenAuth = ConnectIDSSOHelper.acquireSsoTokenSync(context);
             if(tokenAuth != null) {
                 authInfo = tokenAuth;
             }

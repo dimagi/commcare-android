@@ -8,14 +8,18 @@ import io.michaelrocks.libphonenumber.android.NumberParseException;
 import io.michaelrocks.libphonenumber.android.PhoneNumberUtil;
 import io.michaelrocks.libphonenumber.android.Phonenumber;
 
+/**
+ * @author dviggiano
+ */
 public class PhoneNumberHelper {
     private static PhoneNumberUtil utilStatic = null;
 
     //Private constructor, class should be used statically
-    private PhoneNumberHelper() {}
+    private PhoneNumberHelper() {
+    }
 
     private static PhoneNumberUtil getUtil(Context context) {
-        if(utilStatic == null) {
+        if (utilStatic == null) {
             utilStatic = PhoneNumberUtil.createInstance(context);
         }
 
@@ -35,8 +39,7 @@ public class PhoneNumberHelper {
         try {
             Phonenumber.PhoneNumber phoneNumber = util.parse(phone, null);
             return util.isValidNumber(phoneNumber);
-        }
-        catch(NumberParseException e) {
+        } catch (NumberParseException e) {
             //Error parsing number means it isn't valid, fall-through to return false
         }
 
@@ -47,11 +50,10 @@ public class PhoneNumberHelper {
         PhoneNumberUtil util = getUtil(context);
         try {
             Phonenumber.PhoneNumber phoneNumber = util.parse(phone, null);
-            if(util.isValidNumber(phoneNumber)) {
+            if (util.isValidNumber(phoneNumber)) {
                 return phoneNumber.getCountryCode();
             }
-        }
-        catch(NumberParseException e) {
+        } catch (NumberParseException e) {
             //Error parsing number means it isn't valid, fall-through to return false
         }
 

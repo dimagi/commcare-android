@@ -12,6 +12,9 @@ import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.views.ManagedUi;
 import org.commcare.views.UiElement;
 
+/**
+ * @author dviggiano
+ */
 @ManagedUi(R.layout.screen_connect_registration)
 public class ConnectIDRegistrationActivityUIController implements CommCareActivityUIController {
     @UiElement(value = R.id.connect_edit_name)

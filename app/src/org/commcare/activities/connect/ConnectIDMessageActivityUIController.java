@@ -8,6 +8,9 @@ import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.views.ManagedUi;
 import org.commcare.views.UiElement;
 
+/**
+ * @author dviggiano
+ */
 @ManagedUi(R.layout.screen_connect_message)
 public class ConnectIDMessageActivityUIController implements CommCareActivityUIController {
     @UiElement(value = R.id.connect_message_title)

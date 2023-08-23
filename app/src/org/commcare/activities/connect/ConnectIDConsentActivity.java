@@ -8,6 +8,9 @@ import org.commcare.dalvik.R;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.WithUIController;
 
+/**
+ * @author dviggiano
+ */
 public class ConnectIDConsentActivity extends CommCareActivity<ConnectIDConsentActivity>
         implements WithUIController {
     private ConnectIDConsentActivityUIController uiController;

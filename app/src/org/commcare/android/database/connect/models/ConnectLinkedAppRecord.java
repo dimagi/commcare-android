@@ -30,7 +30,7 @@ public class ConnectLinkedAppRecord extends Persisted {
 
     @Persisting(4)
     private boolean workerLinked;
-    @Persisting(value=5, nullable = true)
+    @Persisting(value = 5, nullable = true)
     private String hqToken;
 
     @Persisting(6)
@@ -40,22 +40,43 @@ public class ConnectLinkedAppRecord extends Persisted {
         hqTokenExpiration = new Date();
     }
 
-    public ConnectLinkedAppRecord(String appID, String userID, String password) {
-        this.appId = appID;
-        this.userId = userID;
+    public ConnectLinkedAppRecord(String appId, String userId, String password) {
+        this.appId = appId;
+        this.userId = userId;
         this.password = password;
 
         hqTokenExpiration = new Date();
     }
 
-    public String getUserID() { return userId; }
-    public String getPassword() { return password; }
-    public void setPassword(String password) { this.password = password;}
-    public boolean getWorkerLinked() { return workerLinked; }
-    public void setWorkerLinked(boolean linked) { workerLinked = linked; }
-    public String getHQToken() { return hqToken; }
-    public Date getHQTokenExpiration() { return hqTokenExpiration; }
-    public void updateHQToken(String token, Date expirationDate) {
+    public String getUserId() {
+        return userId;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public boolean getWorkerLinked() {
+        return workerLinked;
+    }
+
+    public void setWorkerLinked(boolean linked) {
+        workerLinked = linked;
+    }
+
+    public String getHqToken() {
+        return hqToken;
+    }
+
+    public Date getHqTokenExpiration() {
+        return hqTokenExpiration;
+    }
+
+    public void updateHqToken(String token, Date expirationDate) {
         hqToken = token;
         hqTokenExpiration = expirationDate;
     }

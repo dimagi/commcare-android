@@ -9,6 +9,9 @@ import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.views.ManagedUi;
 import org.commcare.views.UiElement;
 
+/**
+ * @author dviggiano
+ */
 @ManagedUi(R.layout.screen_connect_login)
 public class ConnectIDLoginActivityUIController implements CommCareActivityUIController {
     @UiElement(value = R.id.connect_pin_button)

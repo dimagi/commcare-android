@@ -10,6 +10,9 @@ import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.views.ManagedUi;
 import org.commcare.views.UiElement;
 
+/**
+ * @author dviggiano
+ */
 @ManagedUi(R.layout.screen_connect_consent)
 public class ConnectIDConsentActivityUIController implements CommCareActivityUIController {
 

@@ -318,8 +318,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
             uiController.refreshForNewApp();
             invalidateOptionsMenu();
             usernameBeforeRotation = passwordOrPinBeforeRotation = null;
-        }
-        else {
+        } else {
             ConnectIDManager.handleFinishedActivity(requestCode, resultCode, intent);
         }
 
@@ -437,7 +436,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     }
 
     private void checkForSavedCredentials() {
-        if(ConnectIDManager.isUnlocked()) {
+        if (ConnectIDManager.isUnlocked()) {
             int selectorIndex = uiController.getSelectedAppIndex();
             String selectedAppId = appIdDropdownList.size() > 0 ? appIdDropdownList.get(selectorIndex) : "";
             String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
@@ -611,7 +610,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         appIdDropdownList.clear();
 
         boolean includeDefault = ConnectIDManager.requiresUnlock();
-        if(includeDefault) {
+        if (includeDefault) {
             appNames.add(Localization.get("login.app.direct"));
             appIdDropdownList.add("");
         }
@@ -624,10 +623,9 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         // Want to set the spinner's selection to match whatever the currently seated app is
         String currAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
         int position = 0;
-        if(selectedAppIndex >= 0) {
+        if (selectedAppIndex >= 0) {
             position = selectedAppIndex;
-        }
-        else if(!includeDefault) {
+        } else if (!includeDefault) {
             position = appIdDropdownList.indexOf(currAppId);
         }
         uiController.setMultipleAppsUIState(appNames, position);
@@ -638,7 +636,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-        if(!ConnectIDManager.requiresUnlock() || position > 0) {
+        if (!ConnectIDManager.requiresUnlock() || position > 0) {
             // Retrieve the app record corresponding to the app selected
             selectedAppIndex = position;
             String appId = appIdDropdownList.get(selectedAppIndex);
@@ -661,8 +659,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                     checkForSavedCredentials();
                 }
             }
-        }
-        else {
+        } else {
             uiController.setLoginInputsVisibility(false);
         }
     }

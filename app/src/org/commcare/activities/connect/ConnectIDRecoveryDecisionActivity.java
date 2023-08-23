@@ -1,6 +1,5 @@
 package org.commcare.activities.connect;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Toast;
@@ -20,6 +19,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Locale;
 
+/**
+ * @author dviggiano
+ */
 public class ConnectIDRecoveryDecisionActivity extends CommCareActivity<ConnectIDRecoveryDecisionActivity>
         implements WithUIController {
     private enum ConnectRecoveryState {

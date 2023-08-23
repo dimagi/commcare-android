@@ -29,6 +29,9 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Locale;
 
+/**
+ * @author dviggiano
+ */
 public class ConnectIDPhoneActivity extends CommCareActivity<ConnectIDPhoneActivity>
         implements WithUIController {
 
@@ -142,7 +145,7 @@ public class ConnectIDPhoneActivity extends CommCareActivity<ConnectIDPhoneActiv
                 params.put("new_phone_number", phone);
             }
 
-            boolean isBusy = !ConnectIDNetworkHelper.post(this, getString(urlId), new AuthInfo.ProvidedAuth(user.getUserID(), user.getPassword(), false), params, false, new ConnectIDNetworkHelper.INetworkResultHandler() {
+            boolean isBusy = !ConnectIDNetworkHelper.post(this, getString(urlId), new AuthInfo.ProvidedAuth(user.getUserId(), user.getPassword(), false), params, false, new ConnectIDNetworkHelper.INetworkResultHandler() {
                 @Override
                 public void processSuccess(int responseCode, InputStream responseData) {
                     finish(true, phone);

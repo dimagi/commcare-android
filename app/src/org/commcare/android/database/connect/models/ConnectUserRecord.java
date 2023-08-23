@@ -79,7 +79,7 @@ public class ConnectUserRecord extends Persisted {
         intent.putExtra(ConnectIDConstants.ALT_PHONE, alternatePhone);
     }
 
-    public String getUserID() { return userID; }
+    public String getUserId() { return userID; }
     public String getPrimaryPhone() { return primaryPhone; }
     public void setPrimaryPhone(String primaryPhone) { this.primaryPhone = primaryPhone; }
     public String getAlternatePhone() { return alternatePhone; }

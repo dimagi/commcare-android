@@ -17,8 +17,6 @@ import androidx.biometric.BiometricPrompt;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
 
-import org.commcare.activities.connect.ConnectIDConstants;
-import org.commcare.activities.connect.ConnectIDManager;
 import org.commcare.activities.connect.ConnectIDTask;
 import org.commcare.dalvik.R;
 
@@ -45,7 +43,7 @@ public class BiometricsHelper {
     }
 
     public static void authenticateFingerprint(FragmentActivity activity, BiometricManager biometricManager, BiometricPrompt.AuthenticationCallback biometricPromptCallback) {
-        if(BiometricsHelper.isFingerprintConfigured(activity, biometricManager)) {
+        if (BiometricsHelper.isFingerprintConfigured(activity, biometricManager)) {
             BiometricPrompt prompt = new BiometricPrompt(activity,
                     ContextCompat.getMainExecutor(activity),
                     biometricPromptCallback);
@@ -63,9 +61,8 @@ public class BiometricsHelper {
     public static ConfigurationStatus checkPinStatus(Context context, BiometricManager biometricManager) {
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.Q) {
             return checkStatus(context, biometricManager, PinBiometric);
-        }
-        else {
-            KeyguardManager manager = (KeyguardManager) context.getSystemService(Context.KEYGUARD_SERVICE);
+        } else {
+            KeyguardManager manager = (KeyguardManager)context.getSystemService(Context.KEYGUARD_SERVICE);
             boolean isSecure = Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? manager.isDeviceSecure() : manager.isKeyguardSecure();
 
             return isSecure ? ConfigurationStatus.Configured : ConfigurationStatus.NotConfigured;
@@ -81,9 +78,10 @@ public class BiometricsHelper {
     }
 
     private static BiometricPrompt.AuthenticationCallback biometricPromptCallbackHolder;
+
     public static void authenticatePin(FragmentActivity activity, BiometricManager biometricManager, BiometricPrompt.AuthenticationCallback biometricPromptCallback) {
         if (BiometricsHelper.isPinConfigured(activity, biometricManager)) {
-            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 BiometricPrompt prompt = new BiometricPrompt(activity,
                         ContextCompat.getMainExecutor(activity),
                         biometricPromptCallback);
@@ -95,24 +93,23 @@ public class BiometricsHelper {
                         .build());
             }
             //else if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                //manager.isDeviceSecure()
+            //manager.isDeviceSecure()
             //}
             else {
                 //manager.isKeyguardSecure()
                 biometricPromptCallbackHolder = biometricPromptCallback;
-                KeyguardManager manager = (KeyguardManager) activity.getSystemService(Context.KEYGUARD_SERVICE);
+                KeyguardManager manager = (KeyguardManager)activity.getSystemService(Context.KEYGUARD_SERVICE);
                 activity.startActivityForResult(manager.createConfirmDeviceCredentialIntent(activity.getString(R.string.connect_unlock_pin_title),
-                    activity.getString(R.string.connect_unlock_pin_message)), ConnectIDTask.CONNECT_UNLOCK_PIN.getRequestCode());
+                        activity.getString(R.string.connect_unlock_pin_message)), ConnectIDTask.CONNECT_UNLOCK_PIN.getRequestCode());
             }
         }
     }
 
     public static void handlePinUnlockActivityResult(int requestCode, int resultCode, Intent intent) {
-        if(requestCode == ConnectIDTask.CONNECT_UNLOCK_PIN.getRequestCode()) {
-            if(resultCode == Activity.RESULT_OK) {
+        if (requestCode == ConnectIDTask.CONNECT_UNLOCK_PIN.getRequestCode()) {
+            if (resultCode == Activity.RESULT_OK) {
                 biometricPromptCallbackHolder.onAuthenticationSucceeded(null);
-            }
-            else {
+            } else {
                 biometricPromptCallbackHolder.onAuthenticationFailed();
             }
         }
@@ -120,17 +117,21 @@ public class BiometricsHelper {
 
     public static ConfigurationStatus checkStatus(Context context, BiometricManager biometricManager, int authenticator) {
         int val = canAuthenticate(context, biometricManager, authenticator);
-        switch(val) {
-            case BiometricManager.BIOMETRIC_SUCCESS -> { return ConfigurationStatus.Configured; }
-            case BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED -> { return ConfigurationStatus.NotConfigured; }
+        switch (val) {
+            case BiometricManager.BIOMETRIC_SUCCESS -> {
+                return ConfigurationStatus.Configured;
+            }
+            case BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED -> {
+                return ConfigurationStatus.NotConfigured;
+            }
         }
 
         return ConfigurationStatus.NotAvailable;
     }
 
     private static int canAuthenticate(Context context, BiometricManager biometricManager, int authenticator) {
-        if(authenticator == PinBiometric && Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q) {
-            KeyguardManager manager = (KeyguardManager) context.getSystemService(Context.KEYGUARD_SERVICE);
+        if (authenticator == PinBiometric && Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q) {
+            KeyguardManager manager = (KeyguardManager)context.getSystemService(Context.KEYGUARD_SERVICE);
 
             boolean isSecure = Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? manager.isDeviceSecure() : manager.isKeyguardSecure();
 

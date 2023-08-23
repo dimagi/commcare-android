@@ -10,6 +10,9 @@ import org.commcare.utils.KeyboardHelper;
 import org.commcare.views.ManagedUi;
 import org.commcare.views.UiElement;
 
+/**
+ * @author dviggiano
+ */
 @ManagedUi(R.layout.screen_connect_password_verify)
 public class ConnectIDPasswordVerificationActivityUIController implements CommCareActivityUIController {
     @UiElement(value = R.id.connect_password_verify_input)

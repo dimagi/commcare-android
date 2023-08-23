@@ -1,5 +1,8 @@
 package org.commcare.activities.connect;
 
+/**
+ * @author dviggiano
+ */
 public enum ConnectIDTask {
     CONNECT_NO_ACTIVITY(ConnectIDConstants.ConnectIDTaskIDOffset, null),
     CONNECT_REGISTER_OR_RECOVER_DECISION(ConnectIDConstants.ConnectIDTaskIDOffset + 1, ConnectIDRecoveryDecisionActivity.class),

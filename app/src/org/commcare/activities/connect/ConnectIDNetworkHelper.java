@@ -28,11 +28,15 @@ import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import retrofit2.Response;
 
+/**
+ * @author dviggiano
+ */
 public class ConnectIDNetworkHelper {
     public interface INetworkResultHandler {
         void processSuccess(int responseCode, InputStream responseData);
 
         void processFailure(int responseCode, IOException e);
+
         void processNetworkFailure();
     }
 
@@ -62,19 +66,24 @@ public class ConnectIDNetworkHelper {
         return Loader.INSTANCE;
     }
 
-    public static PostResult postSync(Context context, String url, AuthInfo authInfo, HashMap<String, String> params, boolean useFormEncoding) {
+    public static PostResult postSync(Context context, String url, AuthInfo authInfo,
+                                      HashMap<String, String> params, boolean useFormEncoding) {
         return getInstance().postSyncInternal(context, url, authInfo, params, useFormEncoding);
     }
 
-    public static boolean post(Context context, String url, AuthInfo authInfo, HashMap<String, String> params, boolean useFormEncoding, INetworkResultHandler handler) {
+    public static boolean post(Context context, String url, AuthInfo authInfo,
+                               HashMap<String, String> params, boolean useFormEncoding,
+                               INetworkResultHandler handler) {
         return getInstance().postInternal(context, url, authInfo, params, useFormEncoding, handler);
     }
 
-    public static boolean get(Context context, String url, AuthInfo authInfo, Multimap<String, String> params, INetworkResultHandler handler) {
+    public static boolean get(Context context, String url, AuthInfo authInfo,
+                              Multimap<String, String> params, INetworkResultHandler handler) {
         return getInstance().getInternal(context, url, authInfo, params, handler);
     }
 
-    private PostResult postSyncInternal(Context context, String url, AuthInfo authInfo, HashMap<String, String> params, boolean useFormEncoding) {
+    private PostResult postSyncInternal(Context context, String url, AuthInfo authInfo,
+                                        HashMap<String, String> params, boolean useFormEncoding) {
         isBusy = true;
         showProgressDialog(context);
         HashMap<String, String> headers = new HashMap<>();
@@ -124,7 +133,9 @@ public class ConnectIDNetworkHelper {
         return new PostResult(responseCode, stream, exception);
     }
 
-    private boolean postInternal(Context context, String url, AuthInfo authInfo, HashMap<String, String> params, boolean useFormEncoding, INetworkResultHandler handler) {
+    private boolean postInternal(Context context, String url, AuthInfo authInfo,
+                                 HashMap<String, String> params, boolean useFormEncoding,
+                                 INetworkResultHandler handler) {
         if (isBusy) {
             return false;
         }
@@ -174,7 +185,8 @@ public class ConnectIDNetworkHelper {
         return headers;
     }
 
-    private boolean getInternal(Context context, String url, AuthInfo authInfo, Multimap<String, String> params, INetworkResultHandler handler) {
+    private boolean getInternal(Context context, String url, AuthInfo authInfo,
+                                Multimap<String, String> params, INetworkResultHandler handler) {
         if (isBusy) {
             return false;
         }
@@ -238,10 +250,9 @@ public class ConnectIDNetworkHelper {
             @Override
             public void handleIOException(IOException exception) {
                 onFinishProcessing(context);
-                if(exception instanceof UnknownHostException) {
+                if (exception instanceof UnknownHostException) {
                     handler.processNetworkFailure();
-                }
-                else {
+                } else {
                     handler.processFailure(-1, exception);
                 }
             }
@@ -287,14 +298,15 @@ public class ConnectIDNetworkHelper {
     }
 
     private static final int NETWORK_ACTIVITY_ID = 7000;
+
     private void showProgressDialog(Context context) {
-        if(context instanceof CommCareActivity<?>) {
+        if (context instanceof CommCareActivity<?>) {
             ((CommCareActivity<?>)context).showProgressDialog(NETWORK_ACTIVITY_ID);
         }
     }
 
     private void dismissProgressDialog(Context context) {
-        if(context instanceof CommCareActivity<?>) {
+        if (context instanceof CommCareActivity<?>) {
             ((CommCareActivity<?>)context).dismissProgressDialogForTask(NETWORK_ACTIVITY_ID);
         }
     }
