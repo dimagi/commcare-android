@@ -73,7 +73,13 @@ public class EncryptionUtils {
         return keystoreSingleton;
     }
 
-    public record KeyAndTransform(Key key, String transformation) {
+    public static class KeyAndTransform{
+        public Key key;
+        public String transformation;
+        public KeyAndTransform(Key key, String transformation) {
+            this.key = key;
+            this.transformation = transformation;
+        }
     }
 
     //Gets the SecretKey from the Android KeyStore (creates a new one the first time)
