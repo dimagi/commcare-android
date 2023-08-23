@@ -1,5 +1,6 @@
 package org.commcare.utils;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Build;
 import android.security.KeyPairGeneratorSpec;
@@ -179,9 +180,10 @@ public class EncryptionUtils {
         return result;
     }
 
-    public static String getTransformationString(boolean forceRSA) {
+    @SuppressLint("InlinedApi") //Suppressing since we check the API version elsewhere
+    public static String getTransformationString(boolean useRSA) {
         String transformation;
-        if (forceRSA || android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.M) {
+        if (useRSA) {
             transformation = "RSA/ECB/PKCS1Padding";
         } else {
             transformation = String.format("%s/%s/%s", ALGORITHM, BLOCK_MODE, PADDING);
