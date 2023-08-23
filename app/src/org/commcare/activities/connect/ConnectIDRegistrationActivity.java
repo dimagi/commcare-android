@@ -118,7 +118,8 @@ public class ConnectIDRegistrationActivity extends CommCareActivity<ConnectIDReg
     public void createAccount() {
         uiController.setErrorText(null);
 
-        ConnectUserRecord tempUser = new ConnectUserRecord(phone, generateUserId(), generatePassword(), uiController.getNameText(), "");
+        ConnectUserRecord tempUser = new ConnectUserRecord(phone, generateUserId(), generatePassword(),
+                uiController.getNameText(), "");
 
         HashMap<String, String> params = new HashMap<>();
         params.put("username", tempUser.getUserId());
@@ -126,7 +127,8 @@ public class ConnectIDRegistrationActivity extends CommCareActivity<ConnectIDReg
         params.put("name", tempUser.getName());
         params.put("phone_number", phone);
 
-        boolean isBusy = !ConnectIDNetworkHelper.post(this, getString(R.string.ConnectRegisterURL), new AuthInfo.NoAuth(), params, false, new ConnectIDNetworkHelper.INetworkResultHandler() {
+        boolean isBusy = !ConnectIDNetworkHelper.post(this, getString(R.string.ConnectRegisterURL),
+                new AuthInfo.NoAuth(), params, false, new ConnectIDNetworkHelper.INetworkResultHandler() {
             @Override
             public void processSuccess(int responseCode, InputStream responseData) {
                 user = tempUser;
@@ -135,7 +137,8 @@ public class ConnectIDRegistrationActivity extends CommCareActivity<ConnectIDReg
 
             @Override
             public void processFailure(int responseCode, IOException e) {
-                uiController.setErrorText(String.format(Locale.getDefault(), "Registration error: %d", responseCode));
+                uiController.setErrorText(String.format(Locale.getDefault(), "Registration error: %d",
+                        responseCode));
             }
 
             @Override
@@ -160,7 +163,9 @@ public class ConnectIDRegistrationActivity extends CommCareActivity<ConnectIDReg
             HashMap<String, String> params = new HashMap<>();
             params.put("name", user.getName());
 
-            boolean isBusy = !ConnectIDNetworkHelper.post(this, getString(R.string.ConnectUpdateProfileURL), new AuthInfo.ProvidedAuth(user.getUserId(), user.getPassword(), false), params, false, new ConnectIDNetworkHelper.INetworkResultHandler() {
+            boolean isBusy = !ConnectIDNetworkHelper.post(this, getString(R.string.ConnectUpdateProfileURL),
+                    new AuthInfo.ProvidedAuth(user.getUserId(), user.getPassword(), false),
+                    params, false, new ConnectIDNetworkHelper.INetworkResultHandler() {
                 @Override
                 public void processSuccess(int responseCode, InputStream responseData) {
                     user.setName(newName);
@@ -169,7 +174,8 @@ public class ConnectIDRegistrationActivity extends CommCareActivity<ConnectIDReg
 
                 @Override
                 public void processFailure(int responseCode, IOException e) {
-                    uiController.setErrorText(String.format(Locale.getDefault(), "Error: %d", responseCode));
+                    uiController.setErrorText(String.format(Locale.getDefault(), "Error: %d",
+                            responseCode));
                 }
 
                 @Override
