@@ -80,7 +80,7 @@ public class AndroidSessionWrapper implements SessionWrapperInterface {
      * and such.
      */
 
-    private void cleanVolatiles() {
+    public void cleanVolatiles() {
         setFormRecordId(-1);
         sessionStateRecordId = -1;
         //CTS - Added to fix bugs where casedb didn't get renewed between sessions (possibly

@@ -173,6 +173,11 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
     private static final int MAX_CC_UPDATE_CANCELLATION = 3;
 
     public static boolean safeToTriggerBackgroundSyncOnResume = true;
+
+    // This is to restore the selected entity when restarting EntityDetailActivity after a
+    // background sync
+    public static String selectedEntityPostSync = null;
+
     FirebaseMessagingDataSyncer dataSyncer;
 
     {
@@ -573,7 +578,11 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
     @Override
     public void onActivityResultSessionSafe(int requestCode, int resultCode, Intent intent) {
         if (resultCode == RESULT_RESTART) {
-            sessionNavigator.startNextSessionStep();
+            startNextSessionStepSafe();
+
+            // Reset the AndroidInstanceInitializer to force the eval context to be rebuilt
+            // during restart
+            CommCareApplication.instance().getCurrentSessionWrapper().cleanVolatiles();
         } else {
             // if handling new return code (want to return to home screen) but a return at the
             // end of your statement
@@ -1119,6 +1128,10 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
         StackFrameStep lastPopped = session.getPoppedStep();
         if (lastPopped != null && SessionFrame.STATE_DATUM_VAL.equals(lastPopped.getType())) {
             i.putExtra(EntitySelectActivity.EXTRA_ENTITY_KEY, lastPopped.getValue());
+        }
+        if (selectedEntityPostSync != null) {
+            i.putExtra(EntitySelectActivity.EXTRA_ENTITY_KEY, selectedEntityPostSync);
+            selectedEntityPostSync = null;
         }
         addPendingDataExtra(i, session);
         addPendingDatumIdExtra(i, session);

@@ -1,13 +1,13 @@
 package org.commcare.activities;
 
-import androidx.annotation.StringDef;
+import static org.commcare.activities.HomeScreenBaseActivity.RESULT_RESTART;
+
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.database.DataSetObserver;
-import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -575,6 +575,9 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
                 if (resultCode == RESULT_OK && !mViewMode) {
                     // create intent for return and store path
                     returnWithResult(intent);
+                } else if (resultCode == RESULT_RESTART) {
+                    this.setResult(RESULT_RESTART);
+                    this.finish();
                 } else {
                     //Did we enter the detail from mapping mode? If so, go back to that
                     if (mResultIsMap) {
