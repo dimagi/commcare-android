@@ -73,7 +73,7 @@ public class CommCareFirebaseMessagingService extends FirebaseMessagingService {
     @Override
     public void onNewToken(String token) {
         // TODO: Remove the token from the log
-        Logger.log(LogTypes.TYPE_FCM, "New registration token was generated"+token);
+        Logger.log(LogTypes.TYPE_FCM, "New registration token was generated: "+token);
         FirebaseMessagingUtil.updateFCMToken(token);
     }
 

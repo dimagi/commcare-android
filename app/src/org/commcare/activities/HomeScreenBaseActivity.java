@@ -1047,9 +1047,8 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
     }
 
     private void handleFormEntryAttemptDuringSync(AndroidSessionWrapper asw) {
-        EvaluationContext ec = asw.getEvaluationContext();
-        asw.getSession().stepBack(asw.getEvaluationContext());
-        HomeScreenBaseActivity.this.sessionNavigator.startNextSessionStep();
+        sessionNavigator.stepBack();
+        sessionNavigator.startNextSessionStep();
         Toast.makeText(this, Localization.get("background.sync.form.entry.attempt.during.sync"), Toast.LENGTH_LONG).show();
     }
 
