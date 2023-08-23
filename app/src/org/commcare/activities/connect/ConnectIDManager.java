@@ -6,7 +6,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.widget.Toast;
 
-import org.commcare.CommCareApplication;
 import org.commcare.activities.CommCareActivity;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
@@ -15,23 +14,12 @@ import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.preferences.AppManagerDeveloperPreferences;
-import org.commcare.preferences.HiddenPreferences;
-import org.commcare.preferences.ServerUrls;
-import org.javarosa.core.io.StreamsUtil;
-import org.javarosa.core.services.Logger;
-import org.json.JSONException;
-import org.json.JSONObject;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.io.Serializable;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 public class ConnectIDManager {
     public enum ConnectIDStatus {
@@ -251,7 +239,8 @@ public class ConnectIDManager {
                 params.put(ConnectIDConstants.USERNAME, recoveryPhone);
                 params.put(ConnectIDConstants.PASSWORD, "");
             }
-            case CONNECT_RECOVERY_VERIFY_PASSWORD -> {
+            case CONNECT_RECOVERY_VERIFY_PASSWORD,
+                    CONNECT_RECOVERY_CHANGE_PASSWORD -> {
                 params.put(ConnectIDConstants.PHONE, recoveryPhone);
                 params.put(ConnectIDConstants.SECRET, recoverySecret);
             }
@@ -267,10 +256,6 @@ public class ConnectIDManager {
                 params.put(ConnectIDConstants.CHANGE, "false");
                 params.put(ConnectIDConstants.USERNAME, recoveryPhone);
                 params.put(ConnectIDConstants.PASSWORD, recoverySecret);
-            }
-            case CONNECT_RECOVERY_CHANGE_PASSWORD -> {
-                params.put(ConnectIDConstants.PHONE, recoveryPhone);
-                params.put(ConnectIDConstants.SECRET, recoverySecret);
             }
             case CONNECT_RECOVERY_SUCCESS -> {
                 //Show message screen indicating success
@@ -422,13 +407,6 @@ public class ConnectIDManager {
                     //Remember the secret key for use through the rest of the recovery process
                     manager.recoverySecret = intent.getStringExtra(ConnectIDConstants.SECRET);
                 }
-//                else {
-//                    boolean changeNumber = intent != null && intent.getBooleanExtra(ConnectIDConstants.CHANGE, false);
-//                    if(changeNumber) {
-//                        //Means server failed trying to send SMS
-//                        //TODO: What to do when number exists but SMS request fails?
-//                    }
-//                }
             }
             case CONNECT_RECOVERY_VERIFY_PASSWORD -> {
                 nextRequestCode = success ? ConnectIDTask.CONNECT_RECOVERY_SUCCESS : ConnectIDTask.CONNECT_RECOVERY_VERIFY_PRIMARY_PHONE;

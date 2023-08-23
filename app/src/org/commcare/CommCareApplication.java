@@ -254,10 +254,9 @@ public class CommCareApplication extends MultiDexApplication {
 
         FirebaseMessagingUtil.verifyToken();
 
-        if(getEncryptionKeyProvider() == null) {
-            //Create standard provider if no child class provided their own
-            setEncryptionKeyProvider(new EncryptionKeyProvider());
-        }
+
+        //Create standard provider
+        setEncryptionKeyProvider(new EncryptionKeyProvider());
     }
 
     protected void attachISRGCert() {

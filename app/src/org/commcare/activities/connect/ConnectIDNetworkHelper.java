@@ -50,8 +50,6 @@ public class ConnectIDNetworkHelper {
 
     private boolean isBusy = false;
 
-    private static ConnectIDNetworkHelper instance;
-
     private ConnectIDNetworkHelper() {
         //Private constructor for singleton
     }
