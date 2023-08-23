@@ -249,7 +249,7 @@ android {
 
     defaultConfig {
         minSdkVersion 21
-        targetSdkVersion 33
+        targetSdkVersion 31
         multiDexEnabled true
         applicationId "org.commcare.dalvik"
         testNamespace "org.commcare.dalvik.test"
