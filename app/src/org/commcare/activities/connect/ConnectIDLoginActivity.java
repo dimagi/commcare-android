@@ -23,6 +23,7 @@ import org.commcare.interfaces.WithUIController;
 
 /**
  * @author dviggiano
+ * Gets the user to unlock ConnectID (via fingerprint, PIN, or password)
  */
 public class ConnectIDLoginActivity extends CommCareActivity<ConnectIDLoginActivity>
         implements WithUIController {

@@ -8,6 +8,8 @@ import org.commcare.interfaces.WithUIController;
 
 /**
  * @author dviggiano
+ * Note: Not currently in use
+ * Shows a page with installed apps in a grid view for the user to select from
  */
 public class AppSelectActivity extends CommCareActivity<AppSelectActivity>
         implements WithUIController {

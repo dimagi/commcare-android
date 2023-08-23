@@ -13,6 +13,7 @@ import java.util.List;
 
 /**
  * @author dviggiano
+ * Adapter for retrieving tiles representing installed apps for the user to select
  */
 public class AppSelectAdapter extends SquareButtonAdapter {
 

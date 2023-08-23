@@ -23,6 +23,7 @@ import java.util.Map;
 
 /**
  * @author dviggiano
+ * Manager class for ConnectID, handles workflow navigation and user management
  */
 public class ConnectIDManager {
     public enum ConnectIdStatus {

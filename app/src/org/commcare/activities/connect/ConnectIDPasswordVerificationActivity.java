@@ -24,6 +24,7 @@ import java.util.HashMap;
 
 /**
  * @author dviggiano
+ * Shows the page that prompts the user to enter their password
  */
 public class ConnectIDPasswordVerificationActivity extends CommCareActivity<ConnectIDPasswordVerificationActivity>
         implements WithUIController {

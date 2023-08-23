@@ -20,6 +20,7 @@ import java.util.Random;
 
 /**
  * @author dviggiano
+ * Shows the page that prompts the user to enter their name
  */
 public class ConnectIDRegistrationActivity extends CommCareActivity<ConnectIDRegistrationActivity>
         implements WithUIController {

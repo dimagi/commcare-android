@@ -11,6 +11,7 @@ import org.commcare.views.UiElement;
 
 /**
  * @author dviggiano
+ * UI Controller, handles UI interaction with the owning Activity
  */
 @ManagedUi(R.layout.screen_connect_pictures)
 public class ConnectIDPicturesActivityUIController implements CommCareActivityUIController {

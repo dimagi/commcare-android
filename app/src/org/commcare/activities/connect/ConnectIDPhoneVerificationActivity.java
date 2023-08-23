@@ -26,6 +26,7 @@ import java.util.Locale;
 
 /**
  * @author dviggiano
+ * Shows the page that prompts the user to enter the OTP they received via SMS
  */
 public class ConnectIDPhoneVerificationActivity extends CommCareActivity<ConnectIDPhoneVerificationActivity>
         implements WithUIController {

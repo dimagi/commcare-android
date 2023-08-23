@@ -20,6 +20,7 @@ import java.util.HashMap;
 
 /**
  * @author dviggiano
+ * Shows the page that prompts the user to choose (and repeat) their password
  */
 public class ConnectIDPasswordActivity extends CommCareActivity<ConnectIDPasswordActivity>
         implements WithUIController {

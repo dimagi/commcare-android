@@ -21,6 +21,7 @@ import java.util.Vector;
 
 /**
  * @author dviggiano
+ * Helper class for accessing the Connect DB
  */
 public class ConnectIDDatabaseHelper {
     private static final Object connectDbHandleLock = new Object();

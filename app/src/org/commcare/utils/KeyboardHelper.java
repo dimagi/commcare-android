@@ -7,6 +7,7 @@ import android.view.inputmethod.InputMethodManager;
 
 /**
  * @author dviggiano
+ * Helper class (single method) for showing the keyboard on an input
  */
 public class KeyboardHelper {
     public static void showKeyboardOnInput(Activity activity, View view) {

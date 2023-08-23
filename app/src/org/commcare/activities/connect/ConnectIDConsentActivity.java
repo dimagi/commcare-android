@@ -10,6 +10,7 @@ import org.commcare.interfaces.WithUIController;
 
 /**
  * @author dviggiano
+ * Shows the page that gets the user's consent when registering a new account
  */
 public class ConnectIDConsentActivity extends CommCareActivity<ConnectIDConsentActivity>
         implements WithUIController {

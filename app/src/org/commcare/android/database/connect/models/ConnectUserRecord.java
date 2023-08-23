@@ -13,6 +13,7 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * @author dviggiano
+ * DB model for a ConnectID user and their info
  */
 @Table(ConnectUserRecord.STORAGE_KEY)
 public class ConnectUserRecord extends Persisted {

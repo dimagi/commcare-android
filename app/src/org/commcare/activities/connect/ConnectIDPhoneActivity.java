@@ -31,6 +31,7 @@ import java.util.Locale;
 
 /**
  * @author dviggiano
+ * Shows the page that prompts the user to enter a phone number (during registration or recovery)
  */
 public class ConnectIDPhoneActivity extends CommCareActivity<ConnectIDPhoneActivity>
         implements WithUIController {

@@ -30,6 +30,8 @@ import retrofit2.Response;
 
 /**
  * @author dviggiano
+ * Helper class for making network calls related to Connect
+ * Calls may go to ConnectID server or HQ server (for SSO)
  */
 public class ConnectIDNetworkHelper {
     public interface INetworkResultHandler {
