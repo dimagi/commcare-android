@@ -103,7 +103,7 @@ public class FirebaseMessagingDataSyncer implements CommCareTaskConnector {
                 .build();
 
         WorkManager wm = WorkManager.getInstance(CommCareApplication.instance());
-        wm.enqueueUniqueWork(SYNC_FORM_SUBMISSION_REQUEST, ExistingWorkPolicy.APPEND,
+        wm.enqueueUniqueWork(SYNC_FORM_SUBMISSION_REQUEST, ExistingWorkPolicy.KEEP,
                 formSubmissionRequest);
         LiveData<WorkInfo> workInfoLiveData = wm.getWorkInfoByIdLiveData(formSubmissionRequest.getId());
 
@@ -112,16 +112,11 @@ public class FirebaseMessagingDataSyncer implements CommCareTaskConnector {
                 workInfoLiveData.observeForever(new Observer<>() {
                     @Override
                     public void onChanged(WorkInfo workInfo) {
-                        if (workInfo != null) {
+                        if (workInfo != null && workInfo.getState().isFinished()) {
                             if (workInfo.getState() == WorkInfo.State.SUCCEEDED) {
                                 triggerBackgroundSync(user);
                             }
-
-                            if (workInfo.getState() == WorkInfo.State.SUCCEEDED
-                                    || workInfo.getState() == WorkInfo.State.FAILED
-                                    || workInfo.getState() == WorkInfo.State.CANCELLED){
-                                workInfoLiveData.removeObserver(this);
-                            }
+                            workInfoLiveData.removeObserver(this);
                         }
                     }
                 }));
