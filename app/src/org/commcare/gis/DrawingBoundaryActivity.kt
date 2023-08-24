@@ -1,22 +1,27 @@
 package org.commcare.gis
 
-import androidx.appcompat.app.AppCompatActivity
 import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.location.Location
 import android.location.LocationListener
-import android.os.Build
 import android.os.Bundle
 import android.view.View
+
+import androidx.appcompat.app.AppCompatActivity
 import androidx.viewbinding.ViewBinding
+
 import com.mapbox.geojson.Polygon
 import com.mapbox.mapboxsdk.geometry.LatLng
 import com.mapbox.mapboxsdk.maps.MapboxMap
 import com.mapbox.mapboxsdk.maps.Style
+
 import io.ona.kujaku.manager.DrawingManager
 import io.ona.kujaku.views.KujakuMapView
+
+import java.io.File
+
 import org.commcare.activities.components.FormEntryInstanceState
 import org.commcare.android.javarosa.IntentCallout
 import org.commcare.dalvik.R
@@ -25,9 +30,9 @@ import org.commcare.gis.EntityMapUtils.parseBoundaryCoords
 import org.commcare.utils.FileUtil
 import org.commcare.utils.ImageType
 import org.commcare.utils.StringUtils
+
 import org.javarosa.core.services.Logger
 import org.javarosa.core.services.locale.Localization
-import java.io.File
 
 /**
  * Used to draw or walk a boundary on mapbox based map
@@ -110,10 +115,10 @@ class DrawingBoundaryActivity : BaseMapboxActivity(), LocationListener, MapboxMa
     private fun freezeOrientation() {
         val orientation = resources.configuration.orientation
         requestedOrientation =
-            when (orientation) {
-                Configuration.ORIENTATION_PORTRAIT -> ActivityInfo.SCREEN_ORIENTATION_USER_PORTRAIT
-                else -> ActivityInfo.SCREEN_ORIENTATION_USER_LANDSCAPE
-            }
+                when (orientation) {
+                    Configuration.ORIENTATION_PORTRAIT -> ActivityInfo.SCREEN_ORIENTATION_USER_PORTRAIT
+                    else -> ActivityInfo.SCREEN_ORIENTATION_USER_LANDSCAPE
+                }
     }
 
     override fun onMapLoaded() {
@@ -262,21 +267,21 @@ class DrawingBoundaryActivity : BaseMapboxActivity(), LocationListener, MapboxMa
     }
 
     private fun initUI() {
-        viewBinding.startTrackingButton.text =  Localization.get("drawing.boundary.map.start.tracking")
+        viewBinding.startTrackingButton.text = Localization.get("drawing.boundary.map.start.tracking")
         viewBinding.startTrackingButton.setOnClickListener {
             startTracking()
         }
 
-        viewBinding.stopTrackingButton.text =  Localization.get("drawing.boundary.map.stop.tracking")
+        viewBinding.stopTrackingButton.text = Localization.get("drawing.boundary.map.stop.tracking")
         viewBinding.stopTrackingButton.setOnClickListener {
             stoppedUIState()
             stopTracking()
         }
-        viewBinding.okTrackingButton.text =  Localization.get("drawing.boundary.map.ok.tracking")
+        viewBinding.okTrackingButton.text = Localization.get("drawing.boundary.map.ok.tracking")
         viewBinding.okTrackingButton.setOnClickListener {
             finishTracking()
         }
-        viewBinding.redoTrackingButton.text =  Localization.get("drawing.boundary.map.redo.tracking")
+        viewBinding.redoTrackingButton.text = Localization.get("drawing.boundary.map.redo.tracking")
         viewBinding.redoTrackingButton.setOnClickListener {
             trackingUIState()
             redoTracking()
