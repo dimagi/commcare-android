@@ -420,7 +420,7 @@ public class CommCareApplication extends MultiDexApplication {
 
     public int[] getCommCareVersion() {
         String[] components = BuildConfig.VERSION_NAME.split("\\.");
-        int[] versions = new int[] {0, 0, 0};
+        int[] versions = new int[]{0, 0, 0};
         for (int i = 0; i < components.length; i++) {
             versions[i] = Integer.parseInt(components[i]);
         }
@@ -908,7 +908,7 @@ public class CommCareApplication extends MultiDexApplication {
 
     /**
      * Whether the current login is a "demo" mode login.
-     *
+     * <p>
      * Returns a provided default value if there is no active user login
      */
     public static boolean isInDemoMode(boolean defaultValue) {
@@ -963,8 +963,7 @@ public class CommCareApplication extends MultiDexApplication {
     public static boolean isSessionActive() {
         try {
             return CommCareApplication.instance().getSession() != null;
-        }
-        catch (SessionUnavailableException e){
+        } catch (SessionUnavailableException e) {
             return false;
         }
     }
@@ -1144,8 +1143,13 @@ public class CommCareApplication extends MultiDexApplication {
         invalidateCacheOnRestore = b;
     }
 
-    public void setEncryptionKeyProvider(EncryptionKeyProvider provider) { encryptionKeyProvider = provider; }
-    public EncryptionKeyProvider getEncryptionKeyProvider() { return encryptionKeyProvider; }
+    public void setEncryptionKeyProvider(EncryptionKeyProvider provider) {
+        encryptionKeyProvider = provider;
+    }
+
+    public EncryptionKeyProvider getEncryptionKeyProvider() {
+        return encryptionKeyProvider;
+    }
 
     public PrototypeFactory getPrototypeFactory(Context c) {
         return AndroidPrototypeFactorySetup.getPrototypeFactory(c);
@@ -1174,15 +1178,15 @@ public class CommCareApplication extends MultiDexApplication {
         CommCareNetworkService networkService = null;
         if (authInfo instanceof AuthInfo.NoAuth) {
             networkService = CommCareNetworkServiceGenerator.createNoAuthCommCareNetworkService();
-        } else if(authInfo instanceof AuthInfo.CurrentAuth) {
+        } else if (authInfo instanceof AuthInfo.CurrentAuth) {
             //Try to get SSO token
             AuthInfo.TokenAuth tokenAuth = ConnectIdSsoHelper.acquireSsoTokenSync(context);
-            if(tokenAuth != null) {
+            if (tokenAuth != null) {
                 authInfo = tokenAuth;
             }
         }
 
-        if(networkService == null) {
+        if (networkService == null) {
             networkService = CommCareNetworkServiceGenerator.createCommCareNetworkService(
                     HttpUtils.getCredential(authInfo),
                     DeveloperPreferences.isEnforceSecureEndpointEnabled(), retry, params);

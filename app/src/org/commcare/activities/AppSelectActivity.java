@@ -14,7 +14,7 @@ import org.commcare.interfaces.WithUIController;
  */
 public class AppSelectActivity extends CommCareActivity<AppSelectActivity>
         implements WithUIController {
-    private AppSelectActivityUIController uiController;
+    private AppSelectActivityUiController uiController;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,7 +30,7 @@ public class AppSelectActivity extends CommCareActivity<AppSelectActivity>
 
     @Override
     public void initUIController() {
-        uiController = new AppSelectActivityUIController(this);
+        uiController = new AppSelectActivityUiController(this);
     }
 
     public void finish(boolean accepted) {

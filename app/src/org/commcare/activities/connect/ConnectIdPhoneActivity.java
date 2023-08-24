@@ -144,22 +144,24 @@ public class ConnectIdPhoneActivity extends CommCareActivity<ConnectIdPhoneActiv
             boolean isBusy = !ConnectIdNetworkHelper.post(this, getString(urlId),
                     new AuthInfo.ProvidedAuth(user.getUserId(), user.getPassword(), false), params, false,
                     new ConnectIdNetworkHelper.INetworkResultHandler() {
-                @Override
-                public void processSuccess(int responseCode, InputStream responseData) {
-                    finish(true, phone);
-                }
+                        @Override
+                        public void processSuccess(int responseCode, InputStream responseData) {
+                            finish(true, phone);
+                        }
 
-                @Override
-                public void processFailure(int responseCode, IOException e) {
-                    Toast.makeText(getApplicationContext(), "Phone change error", Toast.LENGTH_SHORT).show();
-                }
+                        @Override
+                        public void processFailure(int responseCode, IOException e) {
+                            Toast.makeText(getApplicationContext(), "Phone change error",
+                                    Toast.LENGTH_SHORT).show();
+                        }
 
-                @Override
-                public void processNetworkFailure() {
-                    Toast.makeText(getApplicationContext(), getString(R.string.recovery_network_unavailable),
-                            Toast.LENGTH_SHORT).show();
-                }
-            });
+                        @Override
+                        public void processNetworkFailure() {
+                            Toast.makeText(getApplicationContext(),
+                                    getString(R.string.recovery_network_unavailable),
+                                    Toast.LENGTH_SHORT).show();
+                        }
+                    });
 
             if (isBusy) {
                 Toast.makeText(this, R.string.busy_message, Toast.LENGTH_SHORT).show();
@@ -170,7 +172,8 @@ public class ConnectIdPhoneActivity extends CommCareActivity<ConnectIdPhoneActiv
     }
 
     public void checkPhoneNumber() {
-        String phone = PhoneNumberHelper.buildPhoneNumber(uiController.getCountryCode(), uiController.getPhoneNumber());
+        String phone = PhoneNumberHelper.buildPhoneNumber(uiController.getCountryCode(),
+                uiController.getPhoneNumber());
 
         boolean valid = PhoneNumberHelper.isValidPhoneNumber(this, phone);
         ConnectUserRecord user = ConnectIdManager.getUser(this);
@@ -200,30 +203,31 @@ public class ConnectIdPhoneActivity extends CommCareActivity<ConnectIdPhoneActiv
                                 this.getString(R.string.ConnectPhoneAvailableURL),
                                 new AuthInfo.NoAuth(), params,
                                 new ConnectIdNetworkHelper.INetworkResultHandler() {
-                            @Override
-                            public void processSuccess(int responseCode, InputStream responseData) {
-                                uiController.setAvailabilityText(getString(R.string.connect_phone_available));
-                                uiController.setOkButtonEnabled(true);
-                            }
+                                    @Override
+                                    public void processSuccess(int responseCode, InputStream responseData) {
+                                        uiController.setAvailabilityText(
+                                                getString(R.string.connect_phone_available));
+                                        uiController.setOkButtonEnabled(true);
+                                    }
 
-                            @Override
-                            public void processFailure(int responseCode, IOException e) {
-                                String text = getString(R.string.connect_phone_unavailable);
-                                uiController.setOkButtonEnabled(false);
+                                    @Override
+                                    public void processFailure(int responseCode, IOException e) {
+                                        String text = getString(R.string.connect_phone_unavailable);
+                                        uiController.setOkButtonEnabled(false);
 
-                                if (e != null) {
-                                    Logger.exception("Checking phone number", e);
-                                }
+                                        if (e != null) {
+                                            Logger.exception("Checking phone number", e);
+                                        }
 
-                                uiController.setAvailabilityText(text);
-                            }
+                                        uiController.setAvailabilityText(text);
+                                    }
 
-                            @Override
-                            public void processNetworkFailure() {
-                                uiController.setAvailabilityText(getString(
-                                        R.string.recovery_network_unavailable));
-                            }
-                        });
+                                    @Override
+                                    public void processNetworkFailure() {
+                                        uiController.setAvailabilityText(getString(
+                                                R.string.recovery_network_unavailable));
+                                    }
+                                });
 
                         if (isBusy) {
                             Toast.makeText(this, R.string.busy_message, Toast.LENGTH_SHORT).show();

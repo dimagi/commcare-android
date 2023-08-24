@@ -1,10 +1,5 @@
 package org.commcare.utils;
 
-import static androidx.biometric.BiometricManager.Authenticators.BIOMETRIC_STRONG;
-import static androidx.biometric.BiometricManager.Authenticators.DEVICE_CREDENTIAL;
-
-import static com.google.zxing.integration.android.IntentIntegrator.REQUEST_CODE;
-
 import android.app.Activity;
 import android.app.KeyguardManager;
 import android.content.Context;
@@ -16,6 +11,8 @@ import androidx.biometric.BiometricManager;
 import androidx.biometric.BiometricPrompt;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
+
+import com.google.zxing.integration.android.IntentIntegrator;
 
 import org.commcare.activities.connect.ConnectIdTask;
 import org.commcare.dalvik.R;
@@ -35,8 +32,8 @@ public class BiometricsHelper {
         Configured
     }
 
-    private static final int StrongBiometric = BIOMETRIC_STRONG;
-    private static final int PinBiometric = DEVICE_CREDENTIAL;
+    private static final int StrongBiometric = BiometricManager.Authenticators.BIOMETRIC_STRONG;
+    private static final int PinBiometric = BiometricManager.Authenticators.DEVICE_CREDENTIAL;
 
     public static ConfigurationStatus checkFingerprintStatus(Context context, BiometricManager biometricManager) {
         return checkStatus(context, biometricManager, StrongBiometric);
@@ -60,7 +57,7 @@ public class BiometricsHelper {
             prompt.authenticate(new BiometricPrompt.PromptInfo.Builder()
                     .setTitle(activity.getString(R.string.connect_unlock_fingerprint_title))
                     .setSubtitle(activity.getString(R.string.connect_unlock_fingerprint_message))
-                    .setAllowedAuthenticators(BIOMETRIC_STRONG)
+                    .setAllowedAuthenticators(BiometricManager.Authenticators.BIOMETRIC_STRONG)
                     .setNegativeButtonText(activity.getString(R.string.connect_unlock_other_options))
                     .build());
         }
@@ -101,14 +98,9 @@ public class BiometricsHelper {
                 prompt.authenticate(new BiometricPrompt.PromptInfo.Builder()
                         .setTitle(activity.getString(R.string.connect_unlock_pin_title))
                         .setSubtitle(activity.getString(R.string.connect_unlock_pin_message))
-                        .setAllowedAuthenticators(DEVICE_CREDENTIAL)
+                        .setAllowedAuthenticators(BiometricManager.Authenticators.DEVICE_CREDENTIAL)
                         .build());
-            }
-            //else if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            //manager.isDeviceSecure()
-            //}
-            else {
-                //manager.isKeyguardSecure()
+            } else {
                 biometricPromptCallbackHolder = biometricPromptCallback;
                 KeyguardManager manager = (KeyguardManager)activity.getSystemService(Context.KEYGUARD_SERVICE);
                 activity.startActivityForResult(
@@ -164,6 +156,6 @@ public class BiometricsHelper {
         final Intent enrollIntent = new Intent(Settings.ACTION_BIOMETRIC_ENROLL);
         enrollIntent.putExtra(Settings.EXTRA_BIOMETRIC_AUTHENTICATORS_ALLOWED,
                 authenticator);
-        activity.startActivityForResult(enrollIntent, REQUEST_CODE);
+        activity.startActivityForResult(enrollIntent, IntentIntegrator.REQUEST_CODE);
     }
 }

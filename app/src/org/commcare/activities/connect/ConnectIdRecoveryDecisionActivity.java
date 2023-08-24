@@ -136,24 +136,24 @@ public class ConnectIdRecoveryDecisionActivity extends CommCareActivity<ConnectI
 
             boolean isBusy = !ConnectIdNetworkHelper.get(this, getString(R.string.ConnectPhoneAvailableURL),
                     new AuthInfo.NoAuth(), params, new ConnectIdNetworkHelper.INetworkResultHandler() {
-                @Override
-                public void processSuccess(int responseCode, InputStream responseData) {
-                    uiController.setPhoneMessage(getString(R.string.connect_phone_not_found));
-                    uiController.setButton1Enabled(false);
-                }
+                        @Override
+                        public void processSuccess(int responseCode, InputStream responseData) {
+                            uiController.setPhoneMessage(getString(R.string.connect_phone_not_found));
+                            uiController.setButton1Enabled(false);
+                        }
 
-                @Override
-                public void processFailure(int responseCode, IOException e) {
-                    uiController.setPhoneMessage("");
-                    uiController.setButton1Enabled(true);
-                }
+                        @Override
+                        public void processFailure(int responseCode, IOException e) {
+                            uiController.setPhoneMessage("");
+                            uiController.setButton1Enabled(true);
+                        }
 
-                @Override
-                public void processNetworkFailure() {
-                    uiController.setPhoneMessage(getString(R.string.recovery_network_unavailable));
-                    uiController.setButton1Enabled(false);
-                }
-            });
+                        @Override
+                        public void processNetworkFailure() {
+                            uiController.setPhoneMessage(getString(R.string.recovery_network_unavailable));
+                            uiController.setButton1Enabled(false);
+                        }
+                    });
 
             if (isBusy) {
                 Toast.makeText(this, R.string.busy_message, Toast.LENGTH_SHORT).show();

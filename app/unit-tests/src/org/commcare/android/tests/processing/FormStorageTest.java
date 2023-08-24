@@ -1,12 +1,21 @@
 package org.commcare.android.tests.processing;
 
-import org.commcare.CommCareTestApplication;
-
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
 
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.resource.installers.XFormAndroidInstaller;
 import org.commcare.android.util.TestUtils;
+import org.commcare.CommCareTestApplication;
 import org.commcare.models.AndroidClassHasher;
 import org.commcare.models.AndroidPrototypeFactory;
 import org.javarosa.core.model.FormDef;
@@ -19,16 +28,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.annotation.Config;
-
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
 
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -368,12 +367,12 @@ public class FormStorageTest {
     @Test
     public void testAllExternalizablesInPrototypeFactory() {
         PrototypeFactory pf = TestUtils.getStaticPrototypeFactory();
-        List<String> extClassesInPF =
+        List<String> extClassesInPf =
                 CommCareTestApplication.getTestPrototypeFactoryClasses();
 
         // Ensure all externalizable classes are present in list of classes.
         // Enforcing this keeps the list up-to-date, which is crucial for the loop check below
-        for (String className : extClassesInPF) {
+        for (String className : extClassesInPf) {
             // Should fail if a new class implementing externalizable is added
             // without updating the list used by this test.
             assertTrue(

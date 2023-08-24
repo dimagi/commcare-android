@@ -136,22 +136,23 @@ public class ConnectIdPasswordActivity extends CommCareActivity<ConnectIdPasswor
 
         boolean isBusy = !ConnectIdNetworkHelper.post(this, getString(urlId), authInfo, params, false,
                 new ConnectIdNetworkHelper.INetworkResultHandler() {
-            @Override
-            public void processSuccess(int responseCode, InputStream responseData) {
-                finish(true, password);
-            }
+                    @Override
+                    public void processSuccess(int responseCode, InputStream responseData) {
+                        finish(true, password);
+                    }
 
-            @Override
-            public void processFailure(int responseCode, IOException e) {
-                Toast.makeText(getApplicationContext(), "Password change error", Toast.LENGTH_SHORT).show();
-            }
+                    @Override
+                    public void processFailure(int responseCode, IOException e) {
+                        Toast.makeText(getApplicationContext(), "Password change error",
+                                Toast.LENGTH_SHORT).show();
+                    }
 
-            @Override
-            public void processNetworkFailure() {
-                Toast.makeText(getApplicationContext(), getString(R.string.recovery_network_unavailable),
-                        Toast.LENGTH_SHORT).show();
-            }
-        });
+                    @Override
+                    public void processNetworkFailure() {
+                        Toast.makeText(getApplicationContext(), getString(R.string.recovery_network_unavailable),
+                                Toast.LENGTH_SHORT).show();
+                    }
+                });
 
         if (isBusy) {
             Toast.makeText(this, R.string.busy_message, Toast.LENGTH_SHORT).show();

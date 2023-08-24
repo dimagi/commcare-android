@@ -89,6 +89,7 @@ public class CommCareTestApplication extends CommCareApplication implements Test
     protected void attachISRGCert() {
         //overrule this custom loader due to issues with bootstrapping the library
     }
+
     @Override
     protected void turnOnStrictMode() {
         StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder()
@@ -145,11 +146,11 @@ public class CommCareTestApplication extends CommCareApplication implements Test
     private static void initFactoryClassList() {
         if (factoryClassNames.isEmpty()) {
             String[] baseODK = new String[]{BuildConfig.BUILD_DIR + "/intermediates/javac/commcareDebug/compileCommcareDebugJavaWithJavac/classes/"
-                        , BuildConfig.BUILD_DIR + "/intermediates/javac/commcareDebug/classes/"};
+                    , BuildConfig.BUILD_DIR + "/intermediates/javac/commcareDebug/classes/"};
             String baseCC = BuildConfig.PROJECT_DIR + "/../../commcare-core/build/classes/java/main/";
 
 
-            for(String variant : baseODK) {
+            for (String variant : baseODK) {
                 addExternalizableClassesFromDir(variant.replace("/", File.separator), factoryClassNames);
             }
             addExternalizableClassesFromDir(baseCC.replace("/", File.separator), factoryClassNames);

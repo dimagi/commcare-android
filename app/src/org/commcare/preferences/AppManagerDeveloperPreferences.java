@@ -21,12 +21,12 @@ import androidx.preference.Preference;
 
 public class AppManagerDeveloperPreferences extends CommCarePreferenceFragment {
 
-    private final static String ENABLE_PRIVILEGE = "enable-mobile-privilege";
-    private final static String ENABLE_CONNECT_ID = "enable-connect-id";
+    private static final String ENABLE_PRIVILEGE = "enable-mobile-privilege";
+    private static final String ENABLE_CONNECT_ID = "enable-connect-id";
     private static final String DEVELOPER_PREFERENCES_ENABLED = "developer-preferences-enabled";
     private static final String CONNECT_ID_ENABLED = "connect_id-enabled";
 
-    private final static Map<String, String> keyToTitleMap = new HashMap<>();
+    private static final Map<String, String> keyToTitleMap = new HashMap<>();
 
     static {
         keyToTitleMap.put(ENABLE_PRIVILEGE, "menu.enable.privileges");
@@ -60,17 +60,17 @@ public class AppManagerDeveloperPreferences extends CommCarePreferenceFragment {
             return true;
         });
 
-        Preference enableConectIDButton = findPreference(ENABLE_CONNECT_ID);
-        enableConectIDButton.setOnPreferenceClickListener(preference -> {
+        Preference enableConectIdButton = findPreference(ENABLE_CONNECT_ID);
+        enableConectIdButton.setOnPreferenceClickListener(preference -> {
             FirebaseAnalyticsUtil.reportAdvancedActionSelected(
                     AnalyticsParamValue.ENABLE_CONNECT_ID);
-            toggleConnectIDEnabled();
+            toggleConnectIdEnabled();
             return true;
         });
     }
 
-    private void toggleConnectIDEnabled() {
-        AppManagerDeveloperPreferences.setConnectIDEnabled(true);
+    private void toggleConnectIdEnabled() {
+        AppManagerDeveloperPreferences.setConnectIdEnabled(true);
         Toast.makeText(getContext(), getString(R.string.connect_id_enabled), Toast.LENGTH_SHORT).show();
     }
 
@@ -90,7 +90,7 @@ public class AppManagerDeveloperPreferences extends CommCarePreferenceFragment {
         return GlobalPrivilegesManager.getGlobalPrefsRecord().getBoolean(DEVELOPER_PREFERENCES_ENABLED, false);
     }
 
-    public static void setConnectIDEnabled(boolean enabled) {
+    public static void setConnectIdEnabled(boolean enabled) {
         GlobalPrivilegesManager.getGlobalPrefsRecord()
                 .edit()
                 .putBoolean(CONNECT_ID_ENABLED, enabled)

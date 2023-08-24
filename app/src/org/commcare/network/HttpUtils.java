@@ -28,7 +28,7 @@ public class HttpUtils {
         } else if (authInfo instanceof AuthInfo.TokenAuth) {
             return getCredential(((AuthInfo.TokenAuth)authInfo).bearerToken);
         } else if (authInfo instanceof AuthInfo.CurrentAuth) {
-			// use the logged in user
+            // use the logged in user
             User user = getUser();
             return getCredential(buildDomainUser(user.getUsername()), user.getCachedPwd());
         } else {
