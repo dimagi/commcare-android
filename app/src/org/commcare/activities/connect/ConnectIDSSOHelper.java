@@ -86,7 +86,8 @@ public class ConnectIDSSOHelper {
                 new AuthInfo.NoAuth(), params, true);
         if (postResult.responseCode == 200) {
             try {
-                String responseAsString = new String(StreamsUtil.inputStreamToByteArray(postResult.responseStream));
+                String responseAsString = new String(StreamsUtil.inputStreamToByteArray(
+                        postResult.responseStream));
                 postResult.responseStream.close();
                 JSONObject json = new JSONObject(responseAsString);
                 String key = ConnectIDConstants.CONNECT_KEY_TOKEN;

@@ -35,7 +35,7 @@ public class FirebaseAnalyticsUtil {
     private static final long VIDEO_USAGE_ERROR_APPROXIMATION = 3;
 
 
-    private static void reportEvent(String eventName){
+    private static void reportEvent(String eventName) {
         reportEvent(eventName, new Bundle());
     }
 
@@ -77,9 +77,9 @@ public class FirebaseAnalyticsUtil {
             analyticsInstance.setUserProperty(CCAnalyticsParam.CC_APP_ID, appId);
         }
 
-        String buildProfileID = ReportingUtils.getAppBuildProfileId();
-        if (!TextUtils.isEmpty(buildProfileID)) {
-            analyticsInstance.setUserProperty(CCAnalyticsParam.CC_APP_BUILD_PROFILE_ID, buildProfileID);
+        String buildProfileId = ReportingUtils.getAppBuildProfileId();
+        if (!TextUtils.isEmpty(buildProfileId)) {
+            analyticsInstance.setUserProperty(CCAnalyticsParam.CC_APP_BUILD_PROFILE_ID, buildProfileId);
         }
 
         String serverName = ReportingUtils.getServerName();
@@ -97,14 +97,15 @@ public class FirebaseAnalyticsUtil {
     }
 
     private static String getFreeDiskBucket() {
-        long freeDiskInMB = DiskUtils.calculateFreeDiskSpaceInBytes(Environment.getDataDirectory().getPath()) / 1000000;
-        if (freeDiskInMB > 1000) {
+        long freeDiskInMb = DiskUtils.calculateFreeDiskSpaceInBytes(
+                Environment.getDataDirectory().getPath())/ 1000000;
+        if (freeDiskInMb > 1000) {
             return "gt_1000";
-        } else if (freeDiskInMB > 500) {
+        } else if (freeDiskInMb > 500) {
             return "lt_1000";
-        } else if (freeDiskInMB > 300) {
+        } else if (freeDiskInMb > 300) {
             return "lt_500";
-        } else if (freeDiskInMB > 100) {
+        } else if (freeDiskInMb > 100) {
             return "lt_300";
         } else {
             return "lt_100";

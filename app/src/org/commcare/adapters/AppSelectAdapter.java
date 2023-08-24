@@ -31,15 +31,16 @@ public class AppSelectAdapter extends SquareButtonAdapter {
                     R.color.white,
                     R.drawable.commcare_logo,
                     R.color.cc_dark_cool_accent_color,
-                    v-> {
+                    v -> {
                         //TODO: Handle button press
                     });
 
             //TODO: Store app image in card and use it
-//            ImageView topBannerImageView = card.findViewById(R.id.main_top_banner);
-//            if (!CustomBanner.useCustomBannerFitToActivity(activity, topBannerImageView, CustomBanner.Banner.LOGIN)) {
-//                topBannerImageView.setImageResource(R.drawable.commcare_logo);
-//            }
+            //ImageView topBannerImageView = card.findViewById(R.id.main_top_banner);
+            //if (!CustomBanner.useCustomBannerFitToActivity(activity, topBannerImageView,
+            //        CustomBanner.Banner.LOGIN)) {
+            //    topBannerImageView.setImageResource(R.drawable.commcare_logo);
+            //}
 
             cards.add(card);
         }

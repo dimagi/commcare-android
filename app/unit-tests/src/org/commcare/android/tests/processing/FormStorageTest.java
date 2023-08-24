@@ -320,7 +320,7 @@ public class FormStorageTest {
             "org.commcare.android.database.user.models.ACasePreV24Model",
 
             // Added in 2.45
-            , "org.commcare.recovery.measures.RecoveryMeasure",
+            "org.commcare.recovery.measures.RecoveryMeasure",
             "org.javarosa.xpath.expr.CacheableExprState",
 
             // Added in 2.47

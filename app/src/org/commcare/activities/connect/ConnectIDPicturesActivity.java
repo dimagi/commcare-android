@@ -1,7 +1,5 @@
 package org.commcare.activities.connect;
 
-import static org.commcare.views.widgets.ImageWidget.REQUEST_CAMERA_PERMISSION;
-
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -18,6 +16,7 @@ import org.commcare.interfaces.WithUIController;
 import org.commcare.utils.Permissions;
 import org.commcare.views.dialogs.CommCareAlertDialog;
 import org.commcare.views.dialogs.DialogCreationHelpers;
+import org.commcare.views.widgets.ImageWidget;
 import org.javarosa.core.services.locale.Localization;
 
 /**
@@ -67,12 +66,12 @@ public class ConnectIDPicturesActivity extends CommCareActivity<ConnectIDPicture
             if (Permissions.shouldShowPermissionRationale(this, Manifest.permission.CAMERA)) {
                 CommCareAlertDialog dialog =
                         DialogCreationHelpers.buildPermissionRequestDialog(this, this,
-                                REQUEST_CAMERA_PERMISSION,
+                                ImageWidget.REQUEST_CAMERA_PERMISSION,
                                 Localization.get("permission.camera.title"),
                                 Localization.get("permission.camera.message"));
                 dialog.showNonPersistentDialog();
             } else {
-                this.requestNeededPermissions(REQUEST_CAMERA_PERMISSION);
+                this.requestNeededPermissions(ImageWidget.REQUEST_CAMERA_PERMISSION);
             }
         } else {
             Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
@@ -82,7 +81,7 @@ public class ConnectIDPicturesActivity extends CommCareActivity<ConnectIDPicture
 
     @Override
     public void requestNeededPermissions(int requestCode) {
-        if (requestCode == REQUEST_CAMERA_PERMISSION) {
+        if (requestCode == ImageWidget.REQUEST_CAMERA_PERMISSION) {
             ActivityCompat.requestPermissions(this,
                     new String[]{Manifest.permission.CAMERA},
                     requestCode);

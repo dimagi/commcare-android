@@ -93,7 +93,8 @@ public class ConnectIDRecoveryDecisionActivity extends CommCareActivity<ConnectI
         switch (state) {
             case NewOrRecover -> finish(true, null);
             case PhoneOrExtended ->
-                    finish(false, PhoneNumberHelper.buildPhoneNumber(uiController.getCountryCode(), uiController.getPhoneNumber()));
+                    finish(false, PhoneNumberHelper.buildPhoneNumber(uiController.getCountryCode(),
+                            uiController.getPhoneNumber()));
         }
     }
 
@@ -120,7 +121,8 @@ public class ConnectIDRecoveryDecisionActivity extends CommCareActivity<ConnectI
     }
 
     public void checkPhoneNumber() {
-        String phone = PhoneNumberHelper.buildPhoneNumber(uiController.getCountryCode(), uiController.getPhoneNumber());
+        String phone = PhoneNumberHelper.buildPhoneNumber(uiController.getCountryCode(),
+                uiController.getPhoneNumber());
 
         boolean valid = PhoneNumberHelper.isValidPhoneNumber(this, phone);
 
@@ -132,7 +134,8 @@ public class ConnectIDRecoveryDecisionActivity extends CommCareActivity<ConnectI
             Multimap<String, String> params = ArrayListMultimap.create();
             params.put("phone_number", phone);
 
-            boolean isBusy = !ConnectIDNetworkHelper.get(this, getString(R.string.ConnectPhoneAvailableURL), new AuthInfo.NoAuth(), params, new ConnectIDNetworkHelper.INetworkResultHandler() {
+            boolean isBusy = !ConnectIDNetworkHelper.get(this, getString(R.string.ConnectPhoneAvailableURL),
+                    new AuthInfo.NoAuth(), params, new ConnectIDNetworkHelper.INetworkResultHandler() {
                 @Override
                 public void processSuccess(int responseCode, InputStream responseData) {
                     uiController.setPhoneMessage(getString(R.string.connect_phone_not_found));

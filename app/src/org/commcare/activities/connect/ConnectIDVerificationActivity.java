@@ -5,11 +5,11 @@ import android.os.Bundle;
 
 import androidx.biometric.BiometricManager;
 
-import org.commcare.utils.BiometricsHelper;
 import org.commcare.activities.CommCareActivity;
 import org.commcare.dalvik.R;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.WithUIController;
+import org.commcare.utils.BiometricsHelper;
 import org.commcare.views.dialogs.CustomProgressDialog;
 
 /**

@@ -252,7 +252,8 @@ public class ConnectIDPhoneVerificationActivity extends CommCareActivity<Connect
                         String displayName = "";
                         if (method == MethodRecoveryAlternate) {
                             try {
-                                String responseAsString = new String(StreamsUtil.inputStreamToByteArray(responseData));
+                                String responseAsString = new String(
+                                        StreamsUtil.inputStreamToByteArray(responseData));
                                 JSONObject json = new JSONObject(responseAsString);
                                 String key = ConnectIDConstants.CONNECT_KEY_USERNAME;
                                 if (json.has(key)) {

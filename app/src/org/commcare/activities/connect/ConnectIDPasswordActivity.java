@@ -39,15 +39,15 @@ public class ConnectIDPasswordActivity extends CommCareActivity<ConnectIDPasswor
 
         setTitle(getString(R.string.connect_password_title));
 
+        uiController.setupUI();
+
         username = getIntent().getStringExtra(ConnectIDConstants.USERNAME);
         oldPassword = getIntent().getStringExtra(ConnectIDConstants.PASSWORD);
-        String method = getIntent().getStringExtra(ConnectIDConstants.METHOD);
-        boolean passwordOnlyWorkflow = method != null && method.equals("true");
-
         phone = getIntent().getStringExtra(ConnectIDConstants.PHONE);
         secret = getIntent().getStringExtra(ConnectIDConstants.SECRET);
 
-        uiController.setupUI();
+        String method = getIntent().getStringExtra(ConnectIDConstants.METHOD);
+        boolean passwordOnlyWorkflow = method != null && method.equals("true");
 
         uiController.setMessageText(passwordOnlyWorkflow ?
                 getString(R.string.connect_password_message) :
@@ -134,7 +134,8 @@ public class ConnectIDPasswordActivity extends CommCareActivity<ConnectIDPasswor
 
         params.put("password", password);
 
-        boolean isBusy = !ConnectIDNetworkHelper.post(this, getString(urlId), authInfo, params, false, new ConnectIDNetworkHelper.INetworkResultHandler() {
+        boolean isBusy = !ConnectIDNetworkHelper.post(this, getString(urlId), authInfo, params, false,
+                new ConnectIDNetworkHelper.INetworkResultHandler() {
             @Override
             public void processSuccess(int responseCode, InputStream responseData) {
                 finish(true, password);
@@ -147,7 +148,8 @@ public class ConnectIDPasswordActivity extends CommCareActivity<ConnectIDPasswor
 
             @Override
             public void processNetworkFailure() {
-                Toast.makeText(getApplicationContext(), getString(R.string.recovery_network_unavailable), Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), getString(R.string.recovery_network_unavailable),
+                        Toast.LENGTH_SHORT).show();
             }
         });
 

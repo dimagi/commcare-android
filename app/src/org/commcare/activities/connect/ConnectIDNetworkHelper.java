@@ -35,6 +35,9 @@ import retrofit2.Response;
  * @author dviggiano
  */
 public class ConnectIDNetworkHelper {
+    /**
+     * Interface for callbacks when network request completes
+     */
     public interface INetworkResultHandler {
         void processSuccess(int responseCode, InputStream responseData);
 
@@ -43,6 +46,9 @@ public class ConnectIDNetworkHelper {
         void processNetworkFailure();
     }
 
+    /**
+     * Helper class to hold the results of a network request
+     */
     public static class PostResult {
         public int responseCode;
         public InputStream responseStream;
@@ -222,7 +228,8 @@ public class ConnectIDNetworkHelper {
         return true;
     }
 
-    private ConnectorWithHttpResponseProcessor<HttpResponseProcessor> getResponseProcessor(Context context, INetworkResultHandler handler) {
+    private ConnectorWithHttpResponseProcessor<HttpResponseProcessor> getResponseProcessor(
+            Context context,INetworkResultHandler handler) {
         return new ConnectorWithHttpResponseProcessor<>() {
             @Override
             public void processSuccess(int responseCode, InputStream responseData) {

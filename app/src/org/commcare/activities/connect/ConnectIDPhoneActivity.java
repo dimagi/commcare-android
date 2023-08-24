@@ -126,7 +126,8 @@ public class ConnectIDPhoneActivity extends CommCareActivity<ConnectIDPhoneActiv
     }
 
     public void handleButtonPress() {
-        String phone = PhoneNumberHelper.buildPhoneNumber(uiController.getCountryCode(), uiController.getPhoneNumber());
+        String phone = PhoneNumberHelper.buildPhoneNumber(uiController.getCountryCode(),
+                uiController.getPhoneNumber());
         ConnectUserRecord user = ConnectIDManager.getUser(this);
         String existing = user != null ? user.getPrimaryPhone() : existingPhone;
         if (method.equals(ConnectIDConstants.METHOD_CHANGE_ALTERNATE)) {
@@ -147,7 +148,9 @@ public class ConnectIDPhoneActivity extends CommCareActivity<ConnectIDPhoneActiv
                 params.put("new_phone_number", phone);
             }
 
-            boolean isBusy = !ConnectIDNetworkHelper.post(this, getString(urlId), new AuthInfo.ProvidedAuth(user.getUserId(), user.getPassword(), false), params, false, new ConnectIDNetworkHelper.INetworkResultHandler() {
+            boolean isBusy = !ConnectIDNetworkHelper.post(this, getString(urlId),
+                    new AuthInfo.ProvidedAuth(user.getUserId(), user.getPassword(), false), params, false,
+                    new ConnectIDNetworkHelper.INetworkResultHandler() {
                 @Override
                 public void processSuccess(int responseCode, InputStream responseData) {
                     finish(true, phone);
@@ -160,7 +163,8 @@ public class ConnectIDPhoneActivity extends CommCareActivity<ConnectIDPhoneActiv
 
                 @Override
                 public void processNetworkFailure() {
-                    Toast.makeText(getApplicationContext(), getString(R.string.recovery_network_unavailable), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), getString(R.string.recovery_network_unavailable),
+                            Toast.LENGTH_SHORT).show();
                 }
             });
 
@@ -199,7 +203,10 @@ public class ConnectIDPhoneActivity extends CommCareActivity<ConnectIDPhoneActiv
                         Multimap<String, String> params = ArrayListMultimap.create();
                         params.put("phone_number", phone);
 
-                        boolean isBusy = !ConnectIDNetworkHelper.get(this, this.getString(R.string.ConnectPhoneAvailableURL), new AuthInfo.NoAuth(), params, new ConnectIDNetworkHelper.INetworkResultHandler() {
+                        boolean isBusy = !ConnectIDNetworkHelper.get(this,
+                                this.getString(R.string.ConnectPhoneAvailableURL),
+                                new AuthInfo.NoAuth(), params,
+                                new ConnectIDNetworkHelper.INetworkResultHandler() {
                             @Override
                             public void processSuccess(int responseCode, InputStream responseData) {
                                 uiController.setAvailabilityText(getString(R.string.connect_phone_available));
@@ -220,7 +227,8 @@ public class ConnectIDPhoneActivity extends CommCareActivity<ConnectIDPhoneActiv
 
                             @Override
                             public void processNetworkFailure() {
-                                uiController.setAvailabilityText(getString(R.string.recovery_network_unavailable));
+                                uiController.setAvailabilityText(getString(
+                                        R.string.recovery_network_unavailable));
                             }
                         });
 
