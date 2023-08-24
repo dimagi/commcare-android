@@ -226,7 +226,7 @@ public class LoginActivityUIController implements CommCareActivityUIController {
             SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(activity);
             prefs.edit().putString(LoginActivity.KEY_LAST_APP, r.getUniqueId()).apply();
 
-            setSingleAppUIState();
+            setSingleAppUiState();
 
             if (ConnectIdManager.isUnlocked()) {
                 appLabel.setVisibility(View.VISIBLE);
@@ -410,7 +410,7 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         return loginMode;
     }
 
-    protected void setErrorMessageUI(String message, boolean showNotificationButton) {
+    protected void setErrorMessageUi(String message, boolean showNotificationButton) {
         setLoginBoxesColorError();
 
         username.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.icon_user_attnneg), null, null, null);
@@ -453,12 +453,12 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         errorContainer.setVisibility(View.GONE);
     }
 
-    private void setSingleAppUIState() {
+    private void setSingleAppUiState() {
         spinner.setVisibility(View.GONE);
         welcomeMessage.setText(Localization.get("login.welcome.single"));
     }
 
-    protected void setMultipleAppsUIState(ArrayList<String> appNames, int position) {
+    protected void setMultipleAppsUiState(ArrayList<String> appNames, int position) {
         welcomeMessage.setText(Localization.get("login.welcome.multiple"));
 
         ArrayAdapter<String> adapter = new ArrayAdapter<>(activity,

@@ -85,15 +85,15 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     private static final int MENU_CONNECT_FORGET = Menu.FIRST + 7;
 
     public static final String NOTIFICATION_MESSAGE_LOGIN = "login_message";
-    public final static String KEY_LAST_APP = "id-last-seated-app";
-    public final static String KEY_ENTERED_USER = "entered-username";
-    public final static String KEY_ENTERED_PW_OR_PIN = "entered-password-or-pin";
+    public static final String KEY_LAST_APP = "id-last-seated-app";
+    public static final String KEY_ENTERED_USER = "entered-username";
+    public static final String KEY_ENTERED_PW_OR_PIN = "entered-password-or-pin";
 
     private static final int SEAT_APP_ACTIVITY = 0;
-    public final static String USER_TRIGGERED_LOGOUT = "user-triggered-logout";
+    public static final String USER_TRIGGERED_LOGOUT = "user-triggered-logout";
 
-    public final static String LOGIN_MODE = "login-mode";
-    public final static String MANUAL_SWITCH_TO_PW_MODE = "manually-swithced-to-password-mode";
+    public static final String LOGIN_MODE = "login-mode";
+    public static final String MANUAL_SWITCH_TO_PW_MODE = "manually-swithced-to-password-mode";
 
     private static final int TASK_KEY_EXCHANGE = 1;
     private static final int TASK_UPGRADE_INSTALL = 2;
@@ -556,7 +556,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         if (showTop) {
             CommCareApplication.notificationManager().reportNotificationMessage(message);
         }
-        uiController.setErrorMessageUI(toastText, showTop);
+        uiController.setErrorMessageUi(toastText, showTop);
     }
 
     /**
@@ -628,7 +628,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         } else if (!includeDefault) {
             position = appIdDropdownList.indexOf(currAppId);
         }
-        uiController.setMultipleAppsUIState(appNames, position);
+        uiController.setMultipleAppsUiState(appNames, position);
         selectedAppIndex = -1;
 
         return includeDefault;

@@ -149,42 +149,42 @@ public class ConnectIdPasswordVerificationActivity extends CommCareActivity<Conn
 
             boolean isBusy = !ConnectIdNetworkHelper.post(this, getString(R.string.ConnectConfirmPasswordURL),
                     new AuthInfo.NoAuth(), params, false, new ConnectIdNetworkHelper.INetworkResultHandler() {
-                @Override
-                public void processSuccess(int responseCode, InputStream responseData) {
-                    String username = null;
-                    String name = null;
-                    try {
-                        String responseAsString = new String(StreamsUtil.inputStreamToByteArray(responseData));
-                        if (responseAsString.length() > 0) {
-                            JSONObject json = new JSONObject(responseAsString);
-                            String key = ConnectIdConstants.CONNECT_KEY_USERNAME;
-                            if (json.has(key)) {
-                                username = json.getString(key);
-                            }
+                        @Override
+                        public void processSuccess(int responseCode, InputStream responseData) {
+                            String username = null;
+                            String name = null;
+                            try {
+                                String responseAsString = new String(StreamsUtil.inputStreamToByteArray(responseData));
+                                if (responseAsString.length() > 0) {
+                                    JSONObject json = new JSONObject(responseAsString);
+                                    String key = ConnectIdConstants.CONNECT_KEY_USERNAME;
+                                    if (json.has(key)) {
+                                        username = json.getString(key);
+                                    }
 
-                            key = ConnectIdConstants.CONNECT_KEY_NAME;
-                            if (json.has(key)) {
-                                name = json.getString(key);
+                                    key = ConnectIdConstants.CONNECT_KEY_NAME;
+                                    if (json.has(key)) {
+                                        name = json.getString(key);
+                                    }
+                                }
+                            } catch (IOException | JSONException e) {
+                                Logger.exception("Parsing return from OTP request", e);
                             }
+                            logRecoveryResult(true);
+                            finish(true, false, username, name, password);
                         }
-                    } catch (IOException | JSONException e) {
-                        Logger.exception("Parsing return from OTP request", e);
-                    }
-                    logRecoveryResult(true);
-                    finish(true, false, username, name, password);
-                }
 
-                @Override
-                public void processFailure(int responseCode, IOException e) {
-                    handleWrongPassword();
-                }
+                        @Override
+                        public void processFailure(int responseCode, IOException e) {
+                            handleWrongPassword();
+                        }
 
-                @Override
-                public void processNetworkFailure() {
-                    Toast.makeText(getApplicationContext(), getString(R.string.recovery_network_unavailable),
-                            Toast.LENGTH_SHORT).show();
-                }
-            });
+                        @Override
+                        public void processNetworkFailure() {
+                            Toast.makeText(getApplicationContext(), getString(R.string.recovery_network_unavailable),
+                                    Toast.LENGTH_SHORT).show();
+                        }
+                    });
 
             if (isBusy) {
                 Toast.makeText(this, R.string.busy_message, Toast.LENGTH_SHORT).show();
