@@ -18,7 +18,7 @@ import org.commcare.views.UiElement;
  * @author dviggiano
  */
 @ManagedUi(R.layout.screen_connect_password)
-public class ConnectIDPasswordActivityUIController implements CommCareActivityUIController {
+public class ConnectIdPasswordActivityUiController implements CommCareActivityUIController {
     @UiElement(value = R.id.connect_password_message)
     private TextView messageTextView;
     @UiElement(value = R.id.connect_password_input)
@@ -30,9 +30,9 @@ public class ConnectIDPasswordActivityUIController implements CommCareActivityUI
     @UiElement(value = R.id.connect_password_button)
     private Button button;
 
-    protected final ConnectIDPasswordActivity activity;
+    protected final ConnectIdPasswordActivity activity;
 
-    public ConnectIDPasswordActivityUIController(ConnectIDPasswordActivity activity) {
+    public ConnectIdPasswordActivityUiController(ConnectIdPasswordActivity activity) {
         this.activity = activity;
     }
 

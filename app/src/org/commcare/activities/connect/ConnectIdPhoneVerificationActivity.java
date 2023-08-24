@@ -29,7 +29,7 @@ import java.util.Locale;
  *
  * @author dviggiano
  */
-public class ConnectIDPhoneVerificationActivity extends CommCareActivity<ConnectIDPhoneVerificationActivity>
+public class ConnectIdPhoneVerificationActivity extends CommCareActivity<ConnectIdPhoneVerificationActivity>
         implements WithUIController {
     public static final int MethodRegistrationPrimary = 1;
     public static final int MethodRecoveryPrimary = 2;
@@ -41,7 +41,7 @@ public class ConnectIDPhoneVerificationActivity extends CommCareActivity<Connect
     private String password;
     private String recoveryPhone;
     private boolean allowChange;
-    private ConnectIDPhoneVerificationActivityUIController uiController;
+    private ConnectIdPhoneVerificationActivityUiController uiController;
 
     private DateTime smsTime = null;
 
@@ -51,11 +51,11 @@ public class ConnectIDPhoneVerificationActivity extends CommCareActivity<Connect
 
         setTitle(getString(R.string.connect_verify_phone_title));
 
-        method = Integer.parseInt(getIntent().getStringExtra(ConnectIDConstants.METHOD));
-        primaryPhone = getIntent().getStringExtra(ConnectIDConstants.PHONE);
-        allowChange = getIntent().getStringExtra(ConnectIDConstants.CHANGE).equals("true");
-        username = getIntent().getStringExtra(ConnectIDConstants.USERNAME);
-        password = getIntent().getStringExtra(ConnectIDConstants.PASSWORD);
+        method = Integer.parseInt(getIntent().getStringExtra(ConnectIdConstants.METHOD));
+        primaryPhone = getIntent().getStringExtra(ConnectIdConstants.PHONE);
+        allowChange = getIntent().getStringExtra(ConnectIdConstants.CHANGE).equals("true");
+        username = getIntent().getStringExtra(ConnectIdConstants.USERNAME);
+        password = getIntent().getStringExtra(ConnectIdConstants.PASSWORD);
 
         uiController.setupUI();
 
@@ -89,7 +89,7 @@ public class ConnectIDPhoneVerificationActivity extends CommCareActivity<Connect
 
     @Override
     public void initUIController() {
-        uiController = new ConnectIDPhoneVerificationActivityUIController(this);
+        uiController = new ConnectIdPhoneVerificationActivityUiController(this);
     }
 
     @Override
@@ -167,20 +167,20 @@ public class ConnectIDPhoneVerificationActivity extends CommCareActivity<Connect
             }
         }
 
-        boolean isBusy = !ConnectIDNetworkHelper.post(this, getString(urlId), authInfo, params, false,
-                new ConnectIDNetworkHelper.INetworkResultHandler() {
+        boolean isBusy = !ConnectIdNetworkHelper.post(this, getString(urlId), authInfo, params, false,
+                new ConnectIdNetworkHelper.INetworkResultHandler() {
                     @Override
                     public void processSuccess(int responseCode, InputStream responseData) {
                         try {
                             String responseAsString = new String(StreamsUtil.inputStreamToByteArray(responseData));
                             if (responseAsString.length() > 0) {
                                 JSONObject json = new JSONObject(responseAsString);
-                                String key = ConnectIDConstants.CONNECT_KEY_SECRET;
+                                String key = ConnectIdConstants.CONNECT_KEY_SECRET;
                                 if (json.has(key)) {
                                     password = json.getString(key);
                                 }
 
-                                key = ConnectIDConstants.CONNECT_KEY_SECONDARY_PHONE;
+                                key = ConnectIdConstants.CONNECT_KEY_SECONDARY_PHONE;
                                 if (json.has(key)) {
                                     recoveryPhone = json.getString(key);
                                     updateMessage();
@@ -244,8 +244,8 @@ public class ConnectIDPhoneVerificationActivity extends CommCareActivity<Connect
 
         params.put("token", uiController.getCode());
 
-        boolean isBusy = !ConnectIDNetworkHelper.post(this, getString(urlId), authInfo, params, false,
-                new ConnectIDNetworkHelper.INetworkResultHandler() {
+        boolean isBusy = !ConnectIdNetworkHelper.post(this, getString(urlId), authInfo, params, false,
+                new ConnectIdNetworkHelper.INetworkResultHandler() {
                     @Override
                     public void processSuccess(int responseCode, InputStream responseData) {
                         String username = "";
@@ -255,12 +255,12 @@ public class ConnectIDPhoneVerificationActivity extends CommCareActivity<Connect
                                 String responseAsString = new String(
                                         StreamsUtil.inputStreamToByteArray(responseData));
                                 JSONObject json = new JSONObject(responseAsString);
-                                String key = ConnectIDConstants.CONNECT_KEY_USERNAME;
+                                String key = ConnectIdConstants.CONNECT_KEY_USERNAME;
                                 if (json.has(key)) {
                                     username = json.getString(key);
                                 }
 
-                                key = ConnectIDConstants.CONNECT_KEY_NAME;
+                                key = ConnectIdConstants.CONNECT_KEY_NAME;
                                 if (json.has(key)) {
                                     displayName = json.getString(key);
                                 }
@@ -314,14 +314,14 @@ public class ConnectIDPhoneVerificationActivity extends CommCareActivity<Connect
 
         Intent intent = new Intent(getIntent());
         if (method == MethodRecoveryPrimary) {
-            intent.putExtra(ConnectIDConstants.SECRET, password);
-            intent.putExtra(ConnectIDConstants.CHANGE, changeNumber);
+            intent.putExtra(ConnectIdConstants.SECRET, password);
+            intent.putExtra(ConnectIdConstants.CHANGE, changeNumber);
         } else if (method == MethodRecoveryAlternate) {
-            intent.putExtra(ConnectIDConstants.USERNAME, username);
-            intent.putExtra(ConnectIDConstants.NAME, name);
-            intent.putExtra(ConnectIDConstants.ALT_PHONE, altPhone);
+            intent.putExtra(ConnectIdConstants.USERNAME, username);
+            intent.putExtra(ConnectIdConstants.NAME, name);
+            intent.putExtra(ConnectIdConstants.ALT_PHONE, altPhone);
         } else {
-            intent.putExtra(ConnectIDConstants.CHANGE, changeNumber);
+            intent.putExtra(ConnectIdConstants.CHANGE, changeNumber);
         }
 
         setResult(success ? RESULT_OK : RESULT_CANCELED, intent);

@@ -12,9 +12,9 @@ import org.commcare.interfaces.WithUIController;
  *
  * @author dviggiano
  */
-public class ConnectIDMessageActivity extends CommCareActivity<ConnectIDMessageActivity>
+public class ConnectIdMessageActivity extends CommCareActivity<ConnectIdMessageActivity>
         implements WithUIController {
-    private ConnectIDMessageActivityUIController uiController;
+    private ConnectIdMessageActivityUiController uiController;
 
     private String title = null;
     private String message = null;
@@ -26,9 +26,9 @@ public class ConnectIDMessageActivity extends CommCareActivity<ConnectIDMessageA
 
         setTitle("");
 
-        title = getString(getIntent().getIntExtra(ConnectIDConstants.TITLE, 0));
-        message = getString(getIntent().getIntExtra(ConnectIDConstants.MESSAGE, 0));
-        button = getString(getIntent().getIntExtra(ConnectIDConstants.BUTTON, 0));
+        title = getString(getIntent().getIntExtra(ConnectIdConstants.TITLE, 0));
+        message = getString(getIntent().getIntExtra(ConnectIdConstants.MESSAGE, 0));
+        button = getString(getIntent().getIntExtra(ConnectIdConstants.BUTTON, 0));
 
         uiController.setupUI();
     }
@@ -54,7 +54,7 @@ public class ConnectIDMessageActivity extends CommCareActivity<ConnectIDMessageA
 
     @Override
     public void initUIController() {
-        uiController = new ConnectIDMessageActivityUIController(this);
+        uiController = new ConnectIdMessageActivityUiController(this);
     }
 
     public void finish(boolean success) {

@@ -18,7 +18,7 @@ import org.commcare.views.UiElement;
  * @author dviggiano
  */
 @ManagedUi(R.layout.screen_connect_registration)
-public class ConnectIDRegistrationActivityUIController implements CommCareActivityUIController {
+public class ConnectIdRegistrationActivityUiController implements CommCareActivityUIController {
     @UiElement(value = R.id.connect_edit_name)
     private AutoCompleteTextView nameInput;
     @UiElement(value = R.id.connect_registration_error)
@@ -26,9 +26,9 @@ public class ConnectIDRegistrationActivityUIController implements CommCareActivi
     @UiElement(value = R.id.connect_register_button)
     private Button registerButton;
 
-    protected final ConnectIDRegistrationActivity activity;
+    protected final ConnectIdRegistrationActivity activity;
 
-    public ConnectIDRegistrationActivityUIController(ConnectIDRegistrationActivity activity) {
+    public ConnectIdRegistrationActivityUiController(ConnectIdRegistrationActivity activity) {
         this.activity = activity;
     }
 

@@ -20,7 +20,7 @@ import com.scottyab.rootbeer.RootBeer;
 
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
-import org.commcare.activities.connect.ConnectIDManager;
+import org.commcare.activities.connect.ConnectIdManager;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.core.network.AuthInfo;
@@ -122,7 +122,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         uiController.setupUI();
         formAndDataSyncer = new FormAndDataSyncer();
 
-        ConnectIDManager.init(this);
+        ConnectIdManager.init(this);
         updateConnectButton();
 
         if (savedInstanceState == null) {
@@ -319,7 +319,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
             invalidateOptionsMenu();
             usernameBeforeRotation = passwordOrPinBeforeRotation = null;
         } else {
-            ConnectIDManager.handleFinishedActivity(requestCode, resultCode, intent);
+            ConnectIdManager.handleFinishedActivity(requestCode, resultCode, intent);
         }
 
         super.onActivityResult(requestCode, resultCode, intent);
@@ -418,30 +418,30 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         String appId = CommCareApplication.instance().getCurrentApp().getUniqueId();
         String username = uiController.getEnteredUsername();
         String pass = uiController.getEnteredPasswordOrPin();
-        ConnectIDManager.rememberAppCredentials(appId, username, pass);
+        ConnectIdManager.rememberAppCredentials(appId, username, pass);
     }
 
     public void handleConnectButtonPress() {
         selectedAppIndex = -1;
-        ConnectIDManager.handleConnectButtonPress(success -> {
+        ConnectIdManager.handleConnectButtonPress(success -> {
             updateConnectButton();
         });
     }
 
     private void updateConnectButton() {
-        uiController.setConnectButtonText(ConnectIDManager.getConnectButtonText(this));
-        uiController.setConnectButtonVisible(ConnectIDManager.shouldShowConnectButton());
+        uiController.setConnectButtonText(ConnectIdManager.getConnectButtonText(this));
+        uiController.setConnectButtonVisible(ConnectIdManager.shouldShowConnectButton());
 
         uiController.updateConnectLoginState();
     }
 
     private void checkForSavedCredentials() {
-        if (ConnectIDManager.isUnlocked()) {
+        if (ConnectIdManager.isUnlocked()) {
             int selectorIndex = uiController.getSelectedAppIndex();
             String selectedAppId = appIdDropdownList.size() > 0 ? appIdDropdownList.get(selectorIndex) : "";
             String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
             if (!uiController.isAppSelectorVisible() || selectedAppId.equals(seatedAppId)) {
-                AuthInfo.ProvidedAuth credentials = ConnectIDManager.getCredentialsForApp(seatedAppId, uiController.getEnteredUsername());
+                AuthInfo.ProvidedAuth credentials = ConnectIdManager.getCredentialsForApp(seatedAppId, uiController.getEnteredUsername());
                 uiController.setPasswordOrPin(credentials != null ? credentials.password : "");
             }
         }
@@ -466,9 +466,9 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         super.onPrepareOptionsMenu(menu);
         menu.findItem(MENU_PERMISSIONS).setVisible(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M);
         menu.findItem(MENU_PASSWORD_MODE).setVisible(uiController.getLoginMode() == LoginMode.PIN);
-        menu.findItem(MENU_CONNECT_SIGN_IN).setVisible(ConnectIDManager.shouldShowSignInMenuOption());
-        menu.findItem(MENU_CONNECT_SIGN_OUT).setVisible(ConnectIDManager.shouldShowSignOutMenuOption());
-        menu.findItem(MENU_CONNECT_FORGET).setVisible(ConnectIDManager.shouldShowSignOutMenuOption());
+        menu.findItem(MENU_CONNECT_SIGN_IN).setVisible(ConnectIdManager.shouldShowSignInMenuOption());
+        menu.findItem(MENU_CONNECT_SIGN_OUT).setVisible(ConnectIdManager.shouldShowSignOutMenuOption());
+        menu.findItem(MENU_CONNECT_FORGET).setVisible(ConnectIdManager.shouldShowSignOutMenuOption());
 
         return true;
     }
@@ -500,13 +500,13 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                 return true;
             case MENU_CONNECT_SIGN_OUT:
                 FirebaseAnalyticsUtil.reportCccSignOut();
-                ConnectIDManager.signOut();
+                ConnectIdManager.signOut();
                 uiController.refreshView();
                 uiController.setPasswordOrPin("");
                 updateConnectButton();
                 return true;
             case MENU_CONNECT_FORGET:
-                ConnectIDManager.forgetUser();
+                ConnectIdManager.forgetUser();
                 uiController.setPasswordOrPin("");
                 updateConnectButton();
                 uiController.refreshView();
@@ -609,7 +609,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
         appIdDropdownList.clear();
 
-        boolean includeDefault = ConnectIDManager.requiresUnlock();
+        boolean includeDefault = ConnectIdManager.requiresUnlock();
         if (includeDefault) {
             appNames.add(Localization.get("login.app.direct"));
             appIdDropdownList.add("");
@@ -636,7 +636,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-        if (!ConnectIDManager.requiresUnlock() || position > 0) {
+        if (!ConnectIdManager.requiresUnlock() || position > 0) {
             // Retrieve the app record corresponding to the app selected
             selectedAppIndex = position;
             String appId = appIdDropdownList.get(selectedAppIndex);

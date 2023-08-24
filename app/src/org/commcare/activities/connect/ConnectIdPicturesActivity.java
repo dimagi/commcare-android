@@ -25,12 +25,12 @@ import org.javarosa.core.services.locale.Localization;
  *
  * @author dviggiano
  */
-public class ConnectIDPicturesActivity extends CommCareActivity<ConnectIDPicturesActivity>
+public class ConnectIdPicturesActivity extends CommCareActivity<ConnectIdPicturesActivity>
         implements WithUIController, RuntimePermissionRequester {
     private static final int FACE_REQUEST = 1;
     private static final int ID_REQUEST = 2;
 
-    private ConnectIDPicturesActivityUIController uiController;
+    private ConnectIdPicturesActivityUiController uiController;
 
     private int requestedPhoto;
 
@@ -48,7 +48,7 @@ public class ConnectIDPicturesActivity extends CommCareActivity<ConnectIDPicture
 
     @Override
     public void initUIController() {
-        uiController = new ConnectIDPicturesActivityUIController(this);
+        uiController = new ConnectIdPicturesActivityUiController(this);
     }
 
     public void getFacePhoto() {

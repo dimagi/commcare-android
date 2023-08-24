@@ -27,11 +27,11 @@ import java.util.HashMap;
  *
  * @author dviggiano
  */
-public class ConnectIDPasswordVerificationActivity extends CommCareActivity<ConnectIDPasswordVerificationActivity>
+public class ConnectIdPasswordVerificationActivity extends CommCareActivity<ConnectIdPasswordVerificationActivity>
         implements WithUIController {
     public static final int PASSWORD_FAIL = 1;
     public static final int PASSWORD_LOCK = 2;
-    private ConnectIDPasswordVerificationActivityUIController uiController;
+    private ConnectIdPasswordVerificationActivityUiController uiController;
 
     private String phone = null;
     private String secretKey = null;
@@ -45,8 +45,8 @@ public class ConnectIDPasswordVerificationActivity extends CommCareActivity<Conn
 
         setTitle(getString(R.string.connect_password));
 
-        phone = getIntent().getStringExtra(ConnectIDConstants.PHONE);
-        secretKey = getIntent().getStringExtra(ConnectIDConstants.SECRET);
+        phone = getIntent().getStringExtra(ConnectIdConstants.PHONE);
+        secretKey = getIntent().getStringExtra(ConnectIdConstants.SECRET);
 
         uiController.setupUI();
 
@@ -72,7 +72,7 @@ public class ConnectIDPasswordVerificationActivity extends CommCareActivity<Conn
 
     @Override
     public void initUIController() {
-        uiController = new ConnectIDPasswordVerificationActivityUIController(this);
+        uiController = new ConnectIdPasswordVerificationActivityUiController(this);
     }
 
     @Override
@@ -92,10 +92,10 @@ public class ConnectIDPasswordVerificationActivity extends CommCareActivity<Conn
     public void finish(boolean success, boolean forgot, String username, String name, String password) {
         Intent intent = new Intent(getIntent());
 
-        intent.putExtra(ConnectIDConstants.FORGOT, forgot);
-        intent.putExtra(ConnectIDConstants.USERNAME, username);
-        intent.putExtra(ConnectIDConstants.NAME, name);
-        intent.putExtra(ConnectIDConstants.PASSWORD, password);
+        intent.putExtra(ConnectIdConstants.FORGOT, forgot);
+        intent.putExtra(ConnectIdConstants.USERNAME, username);
+        intent.putExtra(ConnectIdConstants.NAME, name);
+        intent.putExtra(ConnectIdConstants.PASSWORD, password);
 
         setResult(success ? RESULT_OK : RESULT_CANCELED, intent);
         finish();
@@ -114,10 +114,10 @@ public class ConnectIDPasswordVerificationActivity extends CommCareActivity<Conn
             message = R.string.connect_password_recovery_message;
         }
 
-        Intent messageIntent = new Intent(this, ConnectIDMessageActivity.class);
-        messageIntent.putExtra(ConnectIDConstants.TITLE, R.string.connect_password_fail_title);
-        messageIntent.putExtra(ConnectIDConstants.MESSAGE, message);
-        messageIntent.putExtra(ConnectIDConstants.BUTTON, R.string.connect_password_fail_button);
+        Intent messageIntent = new Intent(this, ConnectIdMessageActivity.class);
+        messageIntent.putExtra(ConnectIdConstants.TITLE, R.string.connect_password_fail_title);
+        messageIntent.putExtra(ConnectIdConstants.MESSAGE, message);
+        messageIntent.putExtra(ConnectIdConstants.BUTTON, R.string.connect_password_fail_button);
 
         startActivityForResult(messageIntent, requestCode);
     }
@@ -132,7 +132,7 @@ public class ConnectIDPasswordVerificationActivity extends CommCareActivity<Conn
 
     public void handleButtonPress() {
         String password = uiController.getPassword();
-        ConnectUserRecord user = ConnectIDDatabaseHelper.getUser(this);
+        ConnectUserRecord user = ConnectIdDatabaseHelper.getUser(this);
         if (user != null) {
             //If we have the password stored locally, no need for network call
             if (password.equals(user.getPassword())) {
@@ -147,8 +147,8 @@ public class ConnectIDPasswordVerificationActivity extends CommCareActivity<Conn
             params.put("phone", phone);
             params.put("secret_key", secretKey);
 
-            boolean isBusy = !ConnectIDNetworkHelper.post(this, getString(R.string.ConnectConfirmPasswordURL),
-                    new AuthInfo.NoAuth(), params, false, new ConnectIDNetworkHelper.INetworkResultHandler() {
+            boolean isBusy = !ConnectIdNetworkHelper.post(this, getString(R.string.ConnectConfirmPasswordURL),
+                    new AuthInfo.NoAuth(), params, false, new ConnectIdNetworkHelper.INetworkResultHandler() {
                 @Override
                 public void processSuccess(int responseCode, InputStream responseData) {
                     String username = null;
@@ -157,12 +157,12 @@ public class ConnectIDPasswordVerificationActivity extends CommCareActivity<Conn
                         String responseAsString = new String(StreamsUtil.inputStreamToByteArray(responseData));
                         if (responseAsString.length() > 0) {
                             JSONObject json = new JSONObject(responseAsString);
-                            String key = ConnectIDConstants.CONNECT_KEY_USERNAME;
+                            String key = ConnectIdConstants.CONNECT_KEY_USERNAME;
                             if (json.has(key)) {
                                 username = json.getString(key);
                             }
 
-                            key = ConnectIDConstants.CONNECT_KEY_NAME;
+                            key = ConnectIdConstants.CONNECT_KEY_NAME;
                             if (json.has(key)) {
                                 name = json.getString(key);
                             }

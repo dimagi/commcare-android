@@ -22,14 +22,14 @@ import org.commcare.interfaces.WithUIController;
  *
  * @author dviggiano
  */
-public class ConnectIDLoginActivity extends CommCareActivity<ConnectIDLoginActivity>
+public class ConnectIdLoginActivity extends CommCareActivity<ConnectIdLoginActivity>
         implements WithUIController {
     private BiometricPrompt.AuthenticationCallback biometricPromptCallbacks;
     private boolean attemptingFingerprint = false;
     private boolean allowPassword = false;
     private BiometricManager biometricManager;
 
-    private ConnectIDLoginActivityUIController uiController;
+    private ConnectIdLoginActivityUiController uiController;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,7 +39,7 @@ public class ConnectIDLoginActivity extends CommCareActivity<ConnectIDLoginActiv
 
         uiController.setupUI();
 
-        allowPassword = getIntent().getStringExtra(ConnectIDConstants.ALLOW_PASSWORD).equals("true");
+        allowPassword = getIntent().getStringExtra(ConnectIdConstants.ALLOW_PASSWORD).equals("true");
 
         biometricPromptCallbacks = preparePromptCallbacks();
 
@@ -81,13 +81,13 @@ public class ConnectIDLoginActivity extends CommCareActivity<ConnectIDLoginActiv
 
     @Override
     public void initUIController() {
-        uiController = new ConnectIDLoginActivityUIController(this);
+        uiController = new ConnectIdLoginActivityUiController(this);
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         BiometricsHelper.handlePinUnlockActivityResult(requestCode, resultCode, intent);
-        ConnectIDManager.handleFinishedActivity(requestCode, resultCode, intent);
+        ConnectIdManager.handleFinishedActivity(requestCode, resultCode, intent);
 
         super.onActivityResult(requestCode, resultCode, intent);
     }
@@ -156,8 +156,8 @@ public class ConnectIDLoginActivity extends CommCareActivity<ConnectIDLoginActiv
     private void finish(boolean success, boolean password, boolean recover) {
         Intent intent = new Intent(getIntent());
 
-        intent.putExtra(ConnectIDConstants.PASSWORD, password);
-        intent.putExtra(ConnectIDConstants.RECOVER, recover);
+        intent.putExtra(ConnectIdConstants.PASSWORD, password);
+        intent.putExtra(ConnectIdConstants.RECOVER, recover);
 
         setResult(success ? RESULT_OK : RESULT_CANCELED, intent);
         finish();

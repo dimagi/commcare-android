@@ -16,7 +16,7 @@ import org.commcare.views.UiElement;
  * @author dviggiano
  */
 @ManagedUi(R.layout.screen_connect_consent)
-public class ConnectIDConsentActivityUIController implements CommCareActivityUIController {
+public class ConnectIdConsentActivityUiController implements CommCareActivityUIController {
 
     @UiElement(value = R.id.connect_consent_message_1)
     private TextView messageText;
@@ -25,9 +25,9 @@ public class ConnectIDConsentActivityUIController implements CommCareActivityUIC
     @UiElement(value = R.id.connect_consent_button)
     private Button button;
 
-    protected final ConnectIDConsentActivity activity;
+    protected final ConnectIdConsentActivity activity;
 
-    public ConnectIDConsentActivityUIController(ConnectIDConsentActivity activity) {
+    public ConnectIdConsentActivityUiController(ConnectIdConsentActivity activity) {
         this.activity = activity;
     }
 

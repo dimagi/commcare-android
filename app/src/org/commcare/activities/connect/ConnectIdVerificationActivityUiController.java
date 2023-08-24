@@ -17,7 +17,7 @@ import org.commcare.views.UiElement;
  * @author dviggiano
  */
 @ManagedUi(R.layout.screen_connect_verify)
-public class ConnectIDVerificationActivityUIController implements CommCareActivityUIController {
+public class ConnectIdVerificationActivityUiController implements CommCareActivityUIController {
     @UiElement(value = R.id.connect_verify_title)
     private TextView titleTextView;
     @UiElement(value = R.id.connect_verify_message)
@@ -47,9 +47,9 @@ public class ConnectIDVerificationActivityUIController implements CommCareActivi
     @UiElement(value = R.id.connect_verify_password_link)
     private TextView passwordLink;
 
-    private ConnectIDVerificationActivity activity;
+    private ConnectIdVerificationActivity activity;
 
-    public ConnectIDVerificationActivityUIController(ConnectIDVerificationActivity activity) {
+    public ConnectIdVerificationActivityUiController(ConnectIdVerificationActivity activity) {
         this.activity = activity;
     }
 

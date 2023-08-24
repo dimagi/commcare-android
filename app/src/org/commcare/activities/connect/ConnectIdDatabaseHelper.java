@@ -24,7 +24,7 @@ import java.util.Vector;
  *
  * @author dviggiano
  */
-public class ConnectIDDatabaseHelper {
+public class ConnectIdDatabaseHelper {
     private static final Object connectDbHandleLock = new Object();
     private static SQLiteDatabase connectDatabase;
 
@@ -129,7 +129,7 @@ public class ConnectIDDatabaseHelper {
         getConnectStorage(context, ConnectLinkedAppRecord.class).write(record);
     }
 
-    public static void setRegistrationPhase(Context context, ConnectIDTask phase) {
+    public static void setRegistrationPhase(Context context, ConnectIdTask phase) {
         ConnectUserRecord user = getUser(context);
         if (user != null) {
             user.setRegistrationPhase(phase);

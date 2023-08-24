@@ -13,9 +13,9 @@ import org.commcare.interfaces.WithUIController;
  *
  * @author dviggiano
  */
-public class ConnectIDConsentActivity extends CommCareActivity<ConnectIDConsentActivity>
+public class ConnectIdConsentActivity extends CommCareActivity<ConnectIdConsentActivity>
         implements WithUIController {
-    private ConnectIDConsentActivityUIController uiController;
+    private ConnectIdConsentActivityUiController uiController;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,7 +38,7 @@ public class ConnectIDConsentActivity extends CommCareActivity<ConnectIDConsentA
 
     @Override
     public void initUIController() {
-        uiController = new ConnectIDConsentActivityUIController(this);
+        uiController = new ConnectIdConsentActivityUiController(this);
     }
 
     public void finish(boolean accepted) {

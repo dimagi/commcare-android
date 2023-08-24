@@ -15,7 +15,7 @@ import org.commcare.views.UiElement;
  * @author dviggiano
  */
 @ManagedUi(R.layout.screen_connect_login)
-public class ConnectIDLoginActivityUIController implements CommCareActivityUIController {
+public class ConnectIdLoginActivityUiController implements CommCareActivityUIController {
     @UiElement(value = R.id.connect_pin_button)
     private Button pinButton;
     @UiElement(value = R.id.connect_login_or)
@@ -25,9 +25,9 @@ public class ConnectIDLoginActivityUIController implements CommCareActivityUICon
     @UiElement(value = R.id.connect_trouble_link)
     private TextView troubleTextView;
 
-    protected final ConnectIDLoginActivity activity;
+    protected final ConnectIdLoginActivity activity;
 
-    public ConnectIDLoginActivityUIController(ConnectIDLoginActivity activity) {
+    public ConnectIdLoginActivityUiController(ConnectIdLoginActivity activity) {
         this.activity = activity;
     }
 

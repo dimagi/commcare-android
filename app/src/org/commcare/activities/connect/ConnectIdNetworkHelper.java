@@ -34,7 +34,7 @@ import retrofit2.Response;
  *
  * @author dviggiano
  */
-public class ConnectIDNetworkHelper {
+public class ConnectIdNetworkHelper {
     /**
      * Interface for callbacks when network request completes
      */
@@ -63,15 +63,15 @@ public class ConnectIDNetworkHelper {
 
     private boolean isBusy = false;
 
-    private ConnectIDNetworkHelper() {
+    private ConnectIdNetworkHelper() {
         //Private constructor for singleton
     }
 
     private static class Loader {
-        static final ConnectIDNetworkHelper INSTANCE = new ConnectIDNetworkHelper();
+        static final ConnectIdNetworkHelper INSTANCE = new ConnectIdNetworkHelper();
     }
 
-    private static ConnectIDNetworkHelper getInstance() {
+    private static ConnectIdNetworkHelper getInstance() {
         return Loader.INSTANCE;
     }
 

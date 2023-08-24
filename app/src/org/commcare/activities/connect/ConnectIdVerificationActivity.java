@@ -17,10 +17,10 @@ import org.commcare.views.dialogs.CustomProgressDialog;
  *
  * @author dviggiano
  */
-public class ConnectIDVerificationActivity extends CommCareActivity<ConnectIDVerificationActivity>
+public class ConnectIdVerificationActivity extends CommCareActivity<ConnectIdVerificationActivity>
         implements WithUIController {
 
-    private ConnectIDVerificationActivityUIController uiController;
+    private ConnectIdVerificationActivityUiController uiController;
     private BiometricManager biometricManager;
 
     @Override
@@ -66,7 +66,7 @@ public class ConnectIDVerificationActivity extends CommCareActivity<ConnectIDVer
 
     @Override
     public void initUIController() {
-        uiController = new ConnectIDVerificationActivityUIController(this);
+        uiController = new ConnectIdVerificationActivityUiController(this);
     }
 
     @Override
@@ -148,9 +148,9 @@ public class ConnectIDVerificationActivity extends CommCareActivity<ConnectIDVer
         BiometricsHelper.ConfigurationStatus pin = BiometricsHelper.checkPinStatus(this, biometricManager);
         boolean configured = fingerprint == BiometricsHelper.ConfigurationStatus.Configured ||
                 pin == BiometricsHelper.ConfigurationStatus.Configured;
-        intent.putExtra(ConnectIDConstants.CONFIGURED, configured);
+        intent.putExtra(ConnectIdConstants.CONFIGURED, configured);
 
-        intent.putExtra(ConnectIDConstants.PASSWORD, passwordOnly);
+        intent.putExtra(ConnectIdConstants.PASSWORD, passwordOnly);
 
         setResult(success ? RESULT_OK : RESULT_CANCELED, intent);
         finish();

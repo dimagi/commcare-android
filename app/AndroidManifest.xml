@@ -148,17 +148,17 @@
         <activity android:name="org.commcare.activities.RootMenuHomeActivity"/>
         <activity android:name="org.commcare.activities.MenuActivity"/>
 
-        <activity android:name="org.commcare.activities.connect.ConnectIDRecoveryDecisionActivity"/>
-        <activity android:name="org.commcare.activities.connect.ConnectIDLoginActivity"/>
-        <activity android:name="org.commcare.activities.connect.ConnectIDConsentActivity"/>
-        <activity android:name="org.commcare.activities.connect.ConnectIDPhoneActivity"/>
-        <activity android:name="org.commcare.activities.connect.ConnectIDRegistrationActivity"/>
-        <activity android:name="org.commcare.activities.connect.ConnectIDPasswordActivity"/>
-        <activity android:name="org.commcare.activities.connect.ConnectIDPasswordVerificationActivity"/>
-        <activity android:name="org.commcare.activities.connect.ConnectIDVerificationActivity"/>
-        <activity android:name="org.commcare.activities.connect.ConnectIDPicturesActivity"/>
-        <activity android:name="org.commcare.activities.connect.ConnectIDPhoneVerificationActivity"/>
-        <activity android:name="org.commcare.activities.connect.ConnectIDMessageActivity"/>
+        <activity android:name="org.commcare.activities.connect.ConnectIdRecoveryDecisionActivity"/>
+        <activity android:name="org.commcare.activities.connect.ConnectIdLoginActivity"/>
+        <activity android:name="org.commcare.activities.connect.ConnectIdConsentActivity"/>
+        <activity android:name="org.commcare.activities.connect.ConnectIdPhoneActivity"/>
+        <activity android:name="org.commcare.activities.connect.ConnectIdRegistrationActivity"/>
+        <activity android:name="org.commcare.activities.connect.ConnectIdPasswordActivity"/>
+        <activity android:name="org.commcare.activities.connect.ConnectIdPasswordVerificationActivity"/>
+        <activity android:name="org.commcare.activities.connect.ConnectIdVerificationActivity"/>
+        <activity android:name="org.commcare.activities.connect.ConnectIdPicturesActivity"/>
+        <activity android:name="org.commcare.activities.connect.ConnectIdPhoneVerificationActivity"/>
+        <activity android:name="org.commcare.activities.connect.ConnectIdMessageActivity"/>
 
         <activity android:name="org.commcare.activities.AppSelectActivity"/>
 

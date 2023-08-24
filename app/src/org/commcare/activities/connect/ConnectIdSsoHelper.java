@@ -25,9 +25,9 @@ import java.util.HashMap;
  *
  * @author dviggiano
  */
-public class ConnectIDSSOHelper {
+public class ConnectIdSsoHelper {
     public static AuthInfo.TokenAuth acquireSsoTokenSync(Context context) {
-        if (!ConnectIDManager.isUnlocked()) {
+        if (!ConnectIdManager.isUnlocked()) {
             return null;
         }
 
@@ -40,16 +40,16 @@ public class ConnectIDSSOHelper {
             return null;
         }
 
-        ConnectLinkedAppRecord appRecord = ConnectIDDatabaseHelper.getAppData(context, seatedAppId, hqUser);
+        ConnectLinkedAppRecord appRecord = ConnectIdDatabaseHelper.getAppData(context, seatedAppId, hqUser);
         if (appRecord == null) {
             return null;
         }
 
         //See if we already have a valid token
-        AuthInfo.TokenAuth hqTokenAuth = ConnectIDManager.getTokenCredentialsForApp(seatedAppId, hqUser);
+        AuthInfo.TokenAuth hqTokenAuth = ConnectIdManager.getTokenCredentialsForApp(seatedAppId, hqUser);
         if (hqTokenAuth == null) {
             //First get a valid Connect token
-            AuthInfo.TokenAuth connectToken = ConnectIDManager.getConnectToken();
+            AuthInfo.TokenAuth connectToken = ConnectIdManager.getConnectToken();
             if (connectToken == null) {
                 //Retrieve a new connect token
                 connectToken = retrieveConnectToken(context);
@@ -71,7 +71,7 @@ public class ConnectIDSSOHelper {
     }
 
     private static AuthInfo.TokenAuth retrieveConnectToken(Context context) {
-        ConnectUserRecord user = ConnectIDDatabaseHelper.getUser(context);
+        ConnectUserRecord user = ConnectIdDatabaseHelper.getUser(context);
 
         HashMap<String, String> params = new HashMap<>();
         params.put("client_id", "zqFUtAAMrxmjnC1Ji74KAa6ZpY1mZly0J0PlalIa");
@@ -82,7 +82,7 @@ public class ConnectIDSSOHelper {
 
         String url = context.getString(R.string.ConnectTokenURL);
 
-        ConnectIDNetworkHelper.PostResult postResult = ConnectIDNetworkHelper.postSync(context, url,
+        ConnectIdNetworkHelper.PostResult postResult = ConnectIdNetworkHelper.postSync(context, url,
                 new AuthInfo.NoAuth(), params, true);
         if (postResult.responseCode == 200) {
             try {
@@ -90,15 +90,15 @@ public class ConnectIDSSOHelper {
                         postResult.responseStream));
                 postResult.responseStream.close();
                 JSONObject json = new JSONObject(responseAsString);
-                String key = ConnectIDConstants.CONNECT_KEY_TOKEN;
+                String key = ConnectIdConstants.CONNECT_KEY_TOKEN;
                 if (json.has(key)) {
                     String token = json.getString(key);
                     Date expiration = new Date();
-                    key = ConnectIDConstants.CONNECT_KEY_EXPIRES;
+                    key = ConnectIdConstants.CONNECT_KEY_EXPIRES;
                     int seconds = json.has(key) ? json.getInt(key) : 0;
                     expiration.setTime(expiration.getTime() + ((long)seconds * 1000));
                     user.updateConnectToken(token, expiration);
-                    ConnectIDDatabaseHelper.storeUser(context, user);
+                    ConnectIdDatabaseHelper.storeUser(context, user);
 
                     return new AuthInfo.TokenAuth(token);
                 }
@@ -112,7 +112,7 @@ public class ConnectIDSSOHelper {
 
     private static void linkHqWorker(Context context, String hqUsername, String hqPassword, String connectToken) {
         String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
-        ConnectLinkedAppRecord appRecord = ConnectIDDatabaseHelper.getAppData(context, seatedAppId, hqUsername);
+        ConnectLinkedAppRecord appRecord = ConnectIdDatabaseHelper.getAppData(context, seatedAppId, hqUsername);
         if (appRecord != null && !appRecord.getWorkerLinked()) {
             HashMap<String, String> params = new HashMap<>();
             params.put("token", connectToken);
@@ -121,14 +121,14 @@ public class ConnectIDSSOHelper {
                     "settings/users/commcare/link_connectid_user/");
 
             try {
-                ConnectIDNetworkHelper.PostResult postResult = ConnectIDNetworkHelper.postSync(context, url,
+                ConnectIdNetworkHelper.PostResult postResult = ConnectIdNetworkHelper.postSync(context, url,
                         new AuthInfo.ProvidedAuth(hqUsername, hqPassword), params, true);
                 if (postResult.e == null && postResult.responseCode == 200) {
                     postResult.responseStream.close();
 
                     //Remember that we linked the user successfully
                     appRecord.setWorkerLinked(true);
-                    ConnectIDDatabaseHelper.storeApp(context, appRecord);
+                    ConnectIdDatabaseHelper.storeApp(context, appRecord);
                 }
             } catch (IOException e) {
                 //Don't care for now
@@ -153,23 +153,23 @@ public class ConnectIDSSOHelper {
 
         String url = "https://" + host + "/oauth/token/";
 
-        ConnectIDNetworkHelper.PostResult postResult = ConnectIDNetworkHelper.postSync(context, url,
+        ConnectIdNetworkHelper.PostResult postResult = ConnectIdNetworkHelper.postSync(context, url,
                 new AuthInfo.NoAuth(), params, true);
         if (postResult.responseCode == 200) {
             try {
                 String responseAsString = new String(StreamsUtil.inputStreamToByteArray(
                         postResult.responseStream));
                 JSONObject json = new JSONObject(responseAsString);
-                String key = ConnectIDConstants.CONNECT_KEY_TOKEN;
+                String key = ConnectIdConstants.CONNECT_KEY_TOKEN;
                 if (json.has(key)) {
                     String token = json.getString(key);
                     Date expiration = new Date();
-                    key = ConnectIDConstants.CONNECT_KEY_EXPIRES;
+                    key = ConnectIdConstants.CONNECT_KEY_EXPIRES;
                     int seconds = json.has(key) ? json.getInt(key) : 0;
                     expiration.setTime(expiration.getTime() + ((long)seconds * 1000));
 
                     String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
-                    ConnectIDDatabaseHelper.storeHqToken(context, seatedAppId, hqUsername, token, expiration);
+                    ConnectIdDatabaseHelper.storeHqToken(context, seatedAppId, hqUsername, token, expiration);
 
                     return new AuthInfo.TokenAuth(token);
                 }

@@ -2,8 +2,8 @@ package org.commcare.android.database.connect.models;
 
 import android.content.Intent;
 
-import org.commcare.activities.connect.ConnectIDConstants;
-import org.commcare.activities.connect.ConnectIDTask;
+import org.commcare.activities.connect.ConnectIdConstants;
+import org.commcare.activities.connect.ConnectIdTask;
 import org.commcare.android.storage.framework.Persisted;
 import org.commcare.models.framework.Persisting;
 import org.commcare.modern.database.Table;
@@ -51,7 +51,7 @@ public class ConnectUserRecord extends Persisted {
     private Date connectTokenExpiration;
 
     public ConnectUserRecord() {
-        registrationPhase = ConnectIDTask.CONNECT_NO_ACTIVITY.getRequestCode();
+        registrationPhase = ConnectIdTask.CONNECT_NO_ACTIVITY.getRequestCode();
         lastPasswordDate = new Date();
         connectTokenExpiration = new Date();
     }
@@ -70,19 +70,19 @@ public class ConnectUserRecord extends Persisted {
 
     public static ConnectUserRecord getUserFromIntent(Intent intent) {
         return new ConnectUserRecord(
-                intent.getStringExtra(ConnectIDConstants.PHONE),
-                intent.getStringExtra(ConnectIDConstants.USERNAME),
-                intent.getStringExtra(ConnectIDConstants.PASSWORD),
-                intent.getStringExtra(ConnectIDConstants.NAME),
-                intent.getStringExtra(ConnectIDConstants.ALT_PHONE));
+                intent.getStringExtra(ConnectIdConstants.PHONE),
+                intent.getStringExtra(ConnectIdConstants.USERNAME),
+                intent.getStringExtra(ConnectIdConstants.PASSWORD),
+                intent.getStringExtra(ConnectIdConstants.NAME),
+                intent.getStringExtra(ConnectIdConstants.ALT_PHONE));
     }
 
     public void putUserInIntent(Intent intent) {
-        intent.putExtra(ConnectIDConstants.PHONE, primaryPhone);
-        intent.putExtra(ConnectIDConstants.USERNAME, userId);
-        intent.putExtra(ConnectIDConstants.PASSWORD, password);
-        intent.putExtra(ConnectIDConstants.NAME, name);
-        intent.putExtra(ConnectIDConstants.ALT_PHONE, alternatePhone);
+        intent.putExtra(ConnectIdConstants.PHONE, primaryPhone);
+        intent.putExtra(ConnectIdConstants.USERNAME, userId);
+        intent.putExtra(ConnectIdConstants.PASSWORD, password);
+        intent.putExtra(ConnectIdConstants.NAME, name);
+        intent.putExtra(ConnectIdConstants.ALT_PHONE, alternatePhone);
     }
 
     public String getUserId() {
@@ -121,11 +121,11 @@ public class ConnectUserRecord extends Persisted {
         this.name = name;
     }
 
-    public ConnectIDTask getRegistrationPhase() {
-        return ConnectIDTask.fromRequestCode(registrationPhase);
+    public ConnectIdTask getRegistrationPhase() {
+        return ConnectIdTask.fromRequestCode(registrationPhase);
     }
 
-    public void setRegistrationPhase(ConnectIDTask phase) {
+    public void setRegistrationPhase(ConnectIdTask phase) {
         registrationPhase = phase.getRequestCode();
     }
 

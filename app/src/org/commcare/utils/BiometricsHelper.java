@@ -17,7 +17,7 @@ import androidx.biometric.BiometricPrompt;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
 
-import org.commcare.activities.connect.ConnectIDTask;
+import org.commcare.activities.connect.ConnectIdTask;
 import org.commcare.dalvik.R;
 
 /**
@@ -115,13 +115,13 @@ public class BiometricsHelper {
                         manager.createConfirmDeviceCredentialIntent(
                                 activity.getString(R.string.connect_unlock_pin_title),
                                 activity.getString(R.string.connect_unlock_pin_message)),
-                        ConnectIDTask.CONNECT_UNLOCK_PIN.getRequestCode());
+                        ConnectIdTask.CONNECT_UNLOCK_PIN.getRequestCode());
             }
         }
     }
 
     public static void handlePinUnlockActivityResult(int requestCode, int resultCode, Intent intent) {
-        if (requestCode == ConnectIDTask.CONNECT_UNLOCK_PIN.getRequestCode()) {
+        if (requestCode == ConnectIdTask.CONNECT_UNLOCK_PIN.getRequestCode()) {
             if (resultCode == Activity.RESULT_OK) {
                 biometricPromptCallbackHolder.onAuthenticationSucceeded(null);
             } else {

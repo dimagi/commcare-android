@@ -8,7 +8,7 @@ import com.google.firebase.analytics.FirebaseAnalytics;
 
 import org.commcare.CommCareApplication;
 import org.commcare.DiskUtils;
-import org.commcare.activities.connect.ConnectIDManager;
+import org.commcare.activities.connect.ConnectIdManager;
 import org.commcare.android.logging.ReportingUtils;
 import org.commcare.preferences.MainConfigurablePreferences;
 import org.commcare.suite.model.OfflineUserRestore;
@@ -93,7 +93,7 @@ public class FirebaseAnalyticsUtil {
         }
 
         analyticsInstance.setUserProperty(CCAnalyticsParam.CCC_ENABLED,
-                String.valueOf(ConnectIDManager.isConnectIdIntroduced()));
+                String.valueOf(ConnectIdManager.isConnectIdIntroduced()));
     }
 
     private static String getFreeDiskBucket() {

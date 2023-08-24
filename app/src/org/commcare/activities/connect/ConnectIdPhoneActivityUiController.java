@@ -18,7 +18,7 @@ import org.commcare.views.UiElement;
  * @author dviggiano
  */
 @ManagedUi(R.layout.screen_connect_primary_phone)
-public class ConnectIDPhoneActivityUIController implements CommCareActivityUIController {
+public class ConnectIdPhoneActivityUiController implements CommCareActivityUIController {
     @UiElement(value = R.id.connect_primary_phone_title)
     private TextView titleTextView;
     @UiElement(value = R.id.connect_primary_phone_message)
@@ -34,9 +34,9 @@ public class ConnectIDPhoneActivityUIController implements CommCareActivityUICon
     private Button button;
 
 
-    protected final ConnectIDPhoneActivity activity;
+    protected final ConnectIdPhoneActivity activity;
 
-    public ConnectIDPhoneActivityUIController(ConnectIDPhoneActivity activity) {
+    public ConnectIdPhoneActivityUiController(ConnectIdPhoneActivity activity) {
         this.activity = activity;
     }
 

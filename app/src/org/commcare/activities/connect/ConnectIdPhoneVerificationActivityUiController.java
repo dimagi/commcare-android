@@ -18,7 +18,7 @@ import org.commcare.views.UiElement;
  * @author dviggiano
  */
 @ManagedUi(R.layout.screen_connect_phone_verify)
-public class ConnectIDPhoneVerificationActivityUIController implements CommCareActivityUIController {
+public class ConnectIdPhoneVerificationActivityUiController implements CommCareActivityUIController {
     @UiElement(value = R.id.connect_phone_verify_label)
     private TextView labelTextView;
     @UiElement(value = R.id.connect_phone_verify_code)
@@ -32,9 +32,9 @@ public class ConnectIDPhoneVerificationActivityUIController implements CommCareA
     @UiElement(value = R.id.connect_phone_verify_button)
     private Button verifyButton;
 
-    protected final ConnectIDPhoneVerificationActivity activity;
+    protected final ConnectIdPhoneVerificationActivity activity;
 
-    public ConnectIDPhoneVerificationActivityUIController(ConnectIDPhoneVerificationActivity activity) {
+    public ConnectIdPhoneVerificationActivityUiController(ConnectIdPhoneVerificationActivity activity) {
         this.activity = activity;
     }
 

@@ -5,7 +5,7 @@ package org.commcare.activities.connect;
  *
  * @author dviggiano
  */
-public class ConnectIDConstants {
+public class ConnectIdConstants {
     public static final int ConnectIDTaskIDOffset = 1000;
     public static final String METHOD = "METHOD";
     public static final String CREATE = "CREATE";

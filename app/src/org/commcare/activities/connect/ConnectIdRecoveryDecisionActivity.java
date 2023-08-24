@@ -24,14 +24,14 @@ import java.util.Locale;
  *
  * @author dviggiano
  */
-public class ConnectIDRecoveryDecisionActivity extends CommCareActivity<ConnectIDRecoveryDecisionActivity>
+public class ConnectIdRecoveryDecisionActivity extends CommCareActivity<ConnectIdRecoveryDecisionActivity>
         implements WithUIController {
     private enum ConnectRecoveryState {
         NewOrRecover,
         PhoneOrExtended
     }
 
-    private ConnectIDRecoveryDecisionActivityUIController uiController;
+    private ConnectIdRecoveryDecisionActivityUiController uiController;
     private ConnectRecoveryState state;
 
     @Override
@@ -71,7 +71,7 @@ public class ConnectIDRecoveryDecisionActivity extends CommCareActivity<ConnectI
 
     @Override
     public void initUIController() {
-        uiController = new ConnectIDRecoveryDecisionActivityUIController(this);
+        uiController = new ConnectIdRecoveryDecisionActivityUiController(this);
     }
 
     @Override
@@ -82,8 +82,8 @@ public class ConnectIDRecoveryDecisionActivity extends CommCareActivity<ConnectI
     public void finish(boolean createNew, String phone) {
         Intent intent = new Intent(getIntent());
 
-        intent.putExtra(ConnectIDConstants.CREATE, createNew);
-        intent.putExtra(ConnectIDConstants.PHONE, phone);
+        intent.putExtra(ConnectIdConstants.CREATE, createNew);
+        intent.putExtra(ConnectIdConstants.PHONE, phone);
 
         setResult(RESULT_OK, intent);
         finish();
@@ -134,8 +134,8 @@ public class ConnectIDRecoveryDecisionActivity extends CommCareActivity<ConnectI
             Multimap<String, String> params = ArrayListMultimap.create();
             params.put("phone_number", phone);
 
-            boolean isBusy = !ConnectIDNetworkHelper.get(this, getString(R.string.ConnectPhoneAvailableURL),
-                    new AuthInfo.NoAuth(), params, new ConnectIDNetworkHelper.INetworkResultHandler() {
+            boolean isBusy = !ConnectIdNetworkHelper.get(this, getString(R.string.ConnectPhoneAvailableURL),
+                    new AuthInfo.NoAuth(), params, new ConnectIdNetworkHelper.INetworkResultHandler() {
                 @Override
                 public void processSuccess(int responseCode, InputStream responseData) {
                     uiController.setPhoneMessage(getString(R.string.connect_phone_not_found));

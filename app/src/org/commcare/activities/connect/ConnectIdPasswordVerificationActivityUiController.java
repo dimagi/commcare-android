@@ -16,7 +16,7 @@ import org.commcare.views.UiElement;
  * @author dviggiano
  */
 @ManagedUi(R.layout.screen_connect_password_verify)
-public class ConnectIDPasswordVerificationActivityUIController implements CommCareActivityUIController {
+public class ConnectIdPasswordVerificationActivityUiController implements CommCareActivityUIController {
     @UiElement(value = R.id.connect_password_verify_input)
     private AutoCompleteTextView passwordInput;
     @UiElement(value = R.id.connect_password_verify_forgot)
@@ -24,9 +24,9 @@ public class ConnectIDPasswordVerificationActivityUIController implements CommCa
     @UiElement(value = R.id.connect_password_verify_button)
     private Button button;
 
-    protected final ConnectIDPasswordVerificationActivity activity;
+    protected final ConnectIdPasswordVerificationActivity activity;
 
-    public ConnectIDPasswordVerificationActivityUIController(ConnectIDPasswordVerificationActivity activity) {
+    public ConnectIdPasswordVerificationActivityUiController(ConnectIdPasswordVerificationActivity activity) {
         this.activity = activity;
     }
 

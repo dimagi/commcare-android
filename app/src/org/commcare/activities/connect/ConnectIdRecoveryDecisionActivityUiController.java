@@ -20,7 +20,7 @@ import org.commcare.views.UiElement;
  * @author dviggiano
  */
 @ManagedUi(R.layout.screen_connect_recovery_decision)
-public class ConnectIDRecoveryDecisionActivityUIController implements CommCareActivityUIController {
+public class ConnectIdRecoveryDecisionActivityUiController implements CommCareActivityUIController {
     @UiElement(value = R.id.connect_recovery_message)
     private TextView messageTextView;
 
@@ -44,9 +44,9 @@ public class ConnectIDRecoveryDecisionActivityUIController implements CommCareAc
     @UiElement(value = R.id.connect_recovery_button_2)
     private Button button2;
 
-    protected final ConnectIDRecoveryDecisionActivity activity;
+    protected final ConnectIdRecoveryDecisionActivity activity;
 
-    public ConnectIDRecoveryDecisionActivityUIController(ConnectIDRecoveryDecisionActivity activity) {
+    public ConnectIdRecoveryDecisionActivityUiController(ConnectIdRecoveryDecisionActivity activity) {
         this.activity = activity;
     }
 

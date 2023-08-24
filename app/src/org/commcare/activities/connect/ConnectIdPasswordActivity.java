@@ -23,9 +23,9 @@ import java.util.HashMap;
  *
  * @author dviggiano
  */
-public class ConnectIDPasswordActivity extends CommCareActivity<ConnectIDPasswordActivity>
+public class ConnectIdPasswordActivity extends CommCareActivity<ConnectIdPasswordActivity>
         implements WithUIController {
-    private ConnectIDPasswordActivityUIController uiController;
+    private ConnectIdPasswordActivityUiController uiController;
 
     private String username = null;
     private String oldPassword = null;
@@ -41,12 +41,12 @@ public class ConnectIDPasswordActivity extends CommCareActivity<ConnectIDPasswor
 
         uiController.setupUI();
 
-        username = getIntent().getStringExtra(ConnectIDConstants.USERNAME);
-        oldPassword = getIntent().getStringExtra(ConnectIDConstants.PASSWORD);
-        phone = getIntent().getStringExtra(ConnectIDConstants.PHONE);
-        secret = getIntent().getStringExtra(ConnectIDConstants.SECRET);
+        username = getIntent().getStringExtra(ConnectIdConstants.USERNAME);
+        oldPassword = getIntent().getStringExtra(ConnectIdConstants.PASSWORD);
+        phone = getIntent().getStringExtra(ConnectIdConstants.PHONE);
+        secret = getIntent().getStringExtra(ConnectIdConstants.SECRET);
 
-        String method = getIntent().getStringExtra(ConnectIDConstants.METHOD);
+        String method = getIntent().getStringExtra(ConnectIdConstants.METHOD);
         boolean passwordOnlyWorkflow = method != null && method.equals("true");
 
         uiController.setMessageText(passwordOnlyWorkflow ?
@@ -75,7 +75,7 @@ public class ConnectIDPasswordActivity extends CommCareActivity<ConnectIDPasswor
 
     @Override
     public void initUIController() {
-        uiController = new ConnectIDPasswordActivityUIController(this);
+        uiController = new ConnectIdPasswordActivityUiController(this);
     }
 
     @Override
@@ -86,7 +86,7 @@ public class ConnectIDPasswordActivity extends CommCareActivity<ConnectIDPasswor
     public void finish(boolean success, String password) {
         Intent intent = new Intent(getIntent());
 
-        intent.putExtra(ConnectIDConstants.PASSWORD, password);
+        intent.putExtra(ConnectIdConstants.PASSWORD, password);
 
         setResult(success ? RESULT_OK : RESULT_CANCELED, intent);
         finish();
@@ -134,8 +134,8 @@ public class ConnectIDPasswordActivity extends CommCareActivity<ConnectIDPasswor
 
         params.put("password", password);
 
-        boolean isBusy = !ConnectIDNetworkHelper.post(this, getString(urlId), authInfo, params, false,
-                new ConnectIDNetworkHelper.INetworkResultHandler() {
+        boolean isBusy = !ConnectIdNetworkHelper.post(this, getString(urlId), authInfo, params, false,
+                new ConnectIdNetworkHelper.INetworkResultHandler() {
             @Override
             public void processSuccess(int responseCode, InputStream responseData) {
                 finish(true, password);
