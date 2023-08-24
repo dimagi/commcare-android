@@ -1,8 +1,6 @@
 package org.commcare.activities;
 
-import android.annotation.TargetApi;
 import android.content.Context;
-import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -13,6 +11,7 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import org.commcare.CommCareApplication;
+import org.commcare.activities.connect.ConnectIdManager;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
@@ -32,7 +31,6 @@ import org.javarosa.core.services.locale.Localization;
 
 import androidx.annotation.AnimRes;
 import androidx.annotation.LayoutRes;
-import androidx.core.view.MenuItemCompat;
 
 public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCareActivity<T>
         implements PullTaskResultReceiver {
@@ -105,6 +103,9 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
                 updateUiAfterDataPullOrSend(Localization.get("sync.fail.empty.url"), FAIL);
                 break;
             case AUTH_FAILED:
+                String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
+                String username = CommCareApplication.instance().getRecordForCurrentUser().getUsername();
+                ConnectIdManager.forgetAppCredentials(seatedAppId, username);
                 updateUiAfterDataPullOrSend(Localization.get("sync.fail.auth.loggedin"), FAIL);
                 break;
             case BAD_DATA:

@@ -35,6 +35,7 @@ import net.sqlcipher.database.SQLiteDatabase;
 import net.sqlcipher.database.SQLiteException;
 
 import org.commcare.activities.LoginActivity;
+import org.commcare.activities.connect.ConnectIdSsoHelper;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.javarosa.AndroidLogEntry;
@@ -105,6 +106,7 @@ import org.commcare.utils.CommCareExceptionHandler;
 import org.commcare.utils.CommCareUtil;
 import org.commcare.utils.CrashUtil;
 import org.commcare.utils.DeviceIdentifier;
+import org.commcare.utils.EncryptionKeyProvider;
 import org.commcare.utils.FileUtil;
 import org.commcare.utils.FirebaseMessagingUtil;
 import org.commcare.utils.GlobalConstants;
@@ -195,6 +197,7 @@ public class CommCareApplication extends MultiDexApplication {
 
     private boolean invalidateCacheOnRestore;
     private CommCareNoficationManager noficationManager;
+    private EncryptionKeyProvider encryptionKeyProvider;
 
     @Override
     public void onCreate() {
@@ -249,6 +252,10 @@ public class CommCareApplication extends MultiDexApplication {
         GraphUtil.setLabelCharacterLimit(getResources().getInteger(R.integer.graph_label_char_limit));
 
         FirebaseMessagingUtil.verifyToken();
+
+
+        //Create standard provider
+        setEncryptionKeyProvider(new EncryptionKeyProvider());
     }
 
     protected void attachISRGCert() {
@@ -413,7 +420,7 @@ public class CommCareApplication extends MultiDexApplication {
 
     public int[] getCommCareVersion() {
         String[] components = BuildConfig.VERSION_NAME.split("\\.");
-        int[] versions = new int[] {0, 0, 0};
+        int[] versions = new int[]{0, 0, 0};
         for (int i = 0; i < components.length; i++) {
             versions[i] = Integer.parseInt(components[i]);
         }
@@ -901,7 +908,7 @@ public class CommCareApplication extends MultiDexApplication {
 
     /**
      * Whether the current login is a "demo" mode login.
-     *
+     * <p>
      * Returns a provided default value if there is no active user login
      */
     public static boolean isInDemoMode(boolean defaultValue) {
@@ -956,8 +963,7 @@ public class CommCareApplication extends MultiDexApplication {
     public static boolean isSessionActive() {
         try {
             return CommCareApplication.instance().getSession() != null;
-        }
-        catch (SessionUnavailableException e){
+        } catch (SessionUnavailableException e) {
             return false;
         }
     }
@@ -1137,6 +1143,14 @@ public class CommCareApplication extends MultiDexApplication {
         invalidateCacheOnRestore = b;
     }
 
+    public void setEncryptionKeyProvider(EncryptionKeyProvider provider) {
+        encryptionKeyProvider = provider;
+    }
+
+    public EncryptionKeyProvider getEncryptionKeyProvider() {
+        return encryptionKeyProvider;
+    }
+
     public PrototypeFactory getPrototypeFactory(Context c) {
         return AndroidPrototypeFactorySetup.getPrototypeFactory(c);
     }
@@ -1161,10 +1175,18 @@ public class CommCareApplication extends MultiDexApplication {
                                                   AuthInfo authInfo,
                                                   @Nullable HttpResponseProcessor responseProcessor, boolean retry) {
 
-        CommCareNetworkService networkService;
+        CommCareNetworkService networkService = null;
         if (authInfo instanceof AuthInfo.NoAuth) {
             networkService = CommCareNetworkServiceGenerator.createNoAuthCommCareNetworkService();
-        } else {
+        } else if (authInfo instanceof AuthInfo.CurrentAuth) {
+            //Try to get SSO token
+            AuthInfo.TokenAuth tokenAuth = ConnectIdSsoHelper.acquireSsoTokenSync(context);
+            if (tokenAuth != null) {
+                authInfo = tokenAuth;
+            }
+        }
+
+        if (networkService == null) {
             networkService = CommCareNetworkServiceGenerator.createCommCareNetworkService(
                     HttpUtils.getCredential(authInfo),
                     DeveloperPreferences.isEnforceSecureEndpointEnabled(), retry, params);

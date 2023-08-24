@@ -8,6 +8,22 @@
     <string name="ota_restore_url">https://staging.commcarehq.org/ota_restore</string>
     <!-- string name="PostURL">https://pact.dimagi.com/receiver/submit/pact</string -->
     <!-- string name="ota_restore_url">https://pact.dimagi.com/provider/caselist</string -->
+
+    <string name="ConnectTokenURL">https://connectid.dimagi.com/o/token/</string>
+    <string name="ConnectChangePasswordURL">https://connectid.dimagi.com/users/change_password</string>
+    <string name="ConnectResetPasswordURL">https://connectid.dimagi.com/users/reset_password</string>
+    <string name="ConnectConfirmPasswordURL">https://connectid.dimagi.com/users/recover/confirm_password</string>
+    <string name="ConnectUpdateProfileURL">https://connectid.dimagi.com/users/update_profile</string>
+    <string name="ConnectChangePhoneURL">https://connectid.dimagi.com/users/change_phone</string>
+    <string name="ConnectPhoneAvailableURL">https://connectid.dimagi.com/users/phone_available</string>
+    <string name="ConnectRecoverURL">https://connectid.dimagi.com/users/recover</string>
+    <string name="ConnectRecoverSecondaryURL">https://connectid.dimagi.com/users/recover/secondary</string>
+    <string name="ConnectValidatePhoneURL">https://connectid.dimagi.com/users/validate_phone</string>
+    <string name="ConnectRecoverConfirmOTPURL">https://connectid.dimagi.com/users/recover/confirm_otp</string>
+    <string name="ConnectRecoverConfirmSecondaryOTPURL">https://connectid.dimagi.com/users/recover/confirm_secondary_otp</string>
+    <string name="ConnectConfirmOTPURL">https://connectid.dimagi.com/users/confirm_otp</string>
+    <string name="ConnectRegisterURL">https://connectid.dimagi.com/users/register</string>
+
     <string name="key_server">https://pact.dimagi.com/keys/getkey</string>
     <string name="your_comment">Your comment</string>
     <string name="support_email_address_default">commcarehq-support@dimagi.com</string>
@@ -450,6 +466,147 @@
     <string name="dependency_missing_dialog_message_plural" cc:translatable="true">CommCare needs below applications to be installed on your device before you can continue-</string>
     <string name="dependency_missing_dialog_go_to_store" cc:translatable="true">Install from Store</string>
     <string name="dependency_missing_dialog_playstore_not_found" cc:translatable="true">No Play Store found on your device</string>
+
     <string name="fcm_notification">FCM Notification</string>
     <string name="fcm_default_notification_channel">notification-channel-server-communications</string>
+
+    <string name="app_select_message" cc:translatable="true">Select an app:</string>
+
+    <!-- ConnectID strings -->
+
+    <string name="connect_id_enabled" cc:translatable="true">ConnectID Enabled</string>
+    <string name="login_button_connect" cc:translatable="true">Unlock ConnectID</string>
+    <string name="login_welcome_connect_signed_out" cc:translatable="true">Unlock ConnectID first and then enter your app.</string>
+    <string name="login_welcome_connect_signed_in" cc:translatable="true">Welcome %s!</string>
+
+    <string name="choice_or" cc:translatable="true">_____________    OR    _____________</string>
+    <string name="busy_message" cc:translatable="true">We are still busy processing your previous request. Please try again in some time.</string>
+
+    <string name="connect_button_logged_in" cc:translatable="true">Go to Connect menu</string>
+    <string name="connect_button_logged_out" cc:translatable="true">Unlock ConnectID</string>
+
+    <string name="connect_consent_title" cc:translatable="true">Consent</string>
+    <string name="connect_consent_message_1" cc:translatable="true">I have read and agree to Dimagi\'s <a href="https://www.dimagi.com/terms/latest/privacy/">Privacy Policy</a>, <a href="https://www.dimagi.com/terms/latest/tos/">Terms of Service</a>, <a href="https://www.dimagi.com/terms/latest/ba/">Business Agreement</a> and <a href="https://www.dimagi.com/terms/latest/aup/">Acceptable Use Policy</a>.</string>
+    <string name="connect_consent_message_2" cc:translatable="true">I acknowledge and understand that I may receive push notifications and SMS messages for the purpose of communication</string>
+    <string name="connect_consent_check" cc:translatable="true">Click here to give consent</string>
+    <string name="connect_consent_button" cc:translatable="true">OK</string>
+
+    <string name="connect_phone_page_title" cc:translatable="true">Phone Number</string>
+    <string name="connect_phone_title_primary" cc:translatable="true">Primary Phone</string>
+    <string name="connect_phone_message_primary" cc:translatable="true">Please enter your primary phone number</string>
+    <string name="connect_phone_title_alternate" cc:translatable="true">Alternate Phone</string>
+    <string name="connect_phone_message_alternate" cc:translatable="true">Please enter an alternate phone number. This will be used in case of account recovery</string>
+    <string name="connect_phone_button" cc:translatable="true">OK</string>
+    <string name="connect_phone_checking" cc:translatable="true">Checking…</string>
+    <string name="connect_phone_available" cc:translatable="true">Phone number is available!</string>
+    <string name="connect_phone_unavailable" cc:translatable="true">Phone number is already in use</string>
+    <string name="connect_phone_invalid" cc:translatable="true">Enter a valid phone number</string>
+    <string name="connect_phone_not_alt" cc:translatable="true">Can not use your alt. number</string>
+    <string name="connect_phone_not_primary" cc:translatable="true">Alt. number must be different than primary</string>
+    <string name="connect_phone_not_found" cc:translatable="true">Phone number not found</string>
+
+    <string name="connect_password_title" cc:translatable="true">Set Password</string>
+    <string name="connect_password_message" cc:translatable="true">Please choose a password</string>
+    <string name="connect_password_message_recovery" cc:translatable="true">Please choose a password for recovery</string>
+    <string name="connect_password_button" cc:translatable="true">OK</string>
+    <string name="connect_password" cc:translatable="true">Enter Password</string>
+    <string name="connect_password_repeat" cc:translatable="true">Confirm Password</string>
+    <string name="connect_password_mismatch" cc:translatable="true">Passwords must match</string>
+    <string name="connect_password_weak" cc:translatable="true">Please choose a stronger password</string>
+
+    <string name="connect_password_verify_title" cc:translatable="true">Enter Your Password</string>
+    <string name="connect_password_verify_message" cc:translatable="true">Please enter your recovery password to continue.</string>
+    <string name="connect_password_verify" cc:translatable="true">Enter Password</string>
+    <string name="connect_password_verify_forgot" cc:translatable="true">Forget your password?</string>
+    <string name="connect_password_verify_button" cc:translatable="true">Submit</string>
+
+    <string name="connect_password_fail_title" cc:translatable="true">Wrong Password</string>
+    <string name="connect_password_fail_message" cc:translatable="true">You entered the wrong password, please try again.</string>
+    <string name="connect_password_recovery_message" cc:translatable="true">You entered the wrong password too many times, you will need to recover your account.</string>
+    <string name="connect_password_fail_button" cc:translatable="true">OK</string>
+
+    <string name="connect_recovery_title" cc:translatable="true">ConnectID Setup</string>
+    <string name="connect_recovery_title2" cc:translatable="true">Identify Existing Account</string>
+    <string name="connect_recovery_decision_new" cc:translatable="true">Choose a step below</string>
+    <string name="connect_recovery_button_new" cc:translatable="true">Create New ConnectID Account</string>
+    <string name="connect_recovery_button_recover" cc:translatable="true">Recover Existing Account</string>
+    <string name="connect_recovery_decision_phone" cc:translatable="true">Please enter the primary phone number you entered with your account</string>
+    <string name="connect_recovery_button_phone" cc:translatable="true">Continue</string>
+    <string name="connect_recovery_button_extended" cc:translatable="true">More Options</string>
+
+    <string name="connect_recovery_alt_title" cc:translatable="true">Alternate Phone</string>
+    <string name="connect_recovery_alt_message" cc:translatable="true">On the next screen, we\'ll send a code via SMS to the alternate phone number associated with your account. Once verified, you can set a new password.</string>
+    <string name="connect_recovery_alt_button" cc:translatable="true">Continue</string>
+
+    <string name="connect_recovery_success_title" cc:translatable="true">Account Recovered</string>
+    <string name="connect_recovery_success_message" cc:translatable="true">You have successfully recovered your account and can now resume using your ConnectID.</string>
+    <string name="connect_recovery_success_button" cc:translatable="true">OK</string>
+
+    <string name="connect_unlock_title" cc:translatable="true">Unlock ConnectID</string>
+    <string name="connect_unlock_message" cc:translatable="true">Please unlock to continue</string>
+    <string name="connect_unlock_button_pin" cc:translatable="true">Unlock with PIN</string>
+    <string name="connect_unlock_button_password" cc:translatable="true">Unlock with Password</string>
+    <string name="connect_unlock_trouble_message" cc:translatable="true">Trouble unlocking?</string>
+    <string name="connect_unlock_fingerprint_title" cc:translatable="true">Unlock via fingerprint</string>
+    <string name="connect_unlock_fingerprint_message" cc:translatable="true">Use your fingerprint to continue</string>
+    <string name="connect_unlock_other_options" cc:translatable="true">Other options</string>
+    <string name="connect_unlock_pin_title" cc:translatable="true">Unlock via PIN</string>
+    <string name="connect_unlock_pin_message" cc:translatable="true">Enter your PIN to continue</string>
+
+    <string name="connect_register_title" cc:translatable="true">Create Account</string>
+    <string name="connect_register_title2" cc:translatable="true">ConnectID</string>
+    <string name="connect_register_name" cc:translatable="true">Name</string>
+    <string name="connect_register_dob" cc:translatable="true">Date of Birth (YYYY-MM-DD)</string>
+    <string name="connect_register_phone" cc:translatable="true">Phone Number (+18887776666)</string>
+    <string name="connect_register_phone_alt" cc:translatable="true">Alternate Phone Number</string>
+    <string name="connect_register_create" cc:translatable="true">Continue</string>
+    <string name="connect_register_error_id" cc:translatable="true">ID can not be empty</string>
+    <string name="connect_register_error_name" cc:translatable="true">Name can not be empty</string>
+    <string name="connect_register_error_phone" cc:translatable="true">Valid phone number required</string>
+    <string name="connect_register_error_same_number" cc:translatable="true">Primary and alt phones must be different</string>
+
+    <string name="connect_register_success_title" cc:translatable="true">Account Created</string>
+    <string name="connect_register_success_message" cc:translatable="true">Your ConnectID account has been successfully created and is now ready for you to use!</string>
+    <string name="connect_register_success_button" cc:translatable="true">OK</string>
+
+    <string name="connect_verify_title" cc:translatable="true">Unlock Options</string>
+    <string name="connect_verify_message" cc:translatable="true">Please configure a method below to unlock both your device and ConnectID account</string>
+
+    <string name="connect_verify_use_fingerprint" cc:translatable="true">Use Fingerprint</string>
+    <string name="connect_verify_use_fingerprint_long" cc:translatable="true">Use Fingerprint to Connect</string>
+    <string name="connect_verify_fingerprint_configured" cc:translatable="true">Your fingerprint has already been configured and will be used to unlock ConnectID.</string>
+    <string name="connect_verify_configure_fingerprint" cc:translatable="true">Configure Fingerprint</string>
+    <string name="connect_verify_use_pin" cc:translatable="true">Use PIN</string>
+    <string name="connect_verify_use_pin_long" cc:translatable="true">Use PIN to Connect</string>
+    <string name="connect_verify_pin_configured" cc:translatable="true">Your PIN has already been configured and will be used to unlock ConnectID.</string>
+    <string name="connect_verify_configure_pin" cc:translatable="true">Configure PIN</string>
+
+    <string name="connect_verify_agree" cc:translatable="true">Agree &amp; Continue</string>
+    <string name="connect_verify_password_only" cc:translatable="true">Create a password instead</string>
+
+
+    <string name="connect_verify_fingerprint" cc:translatable="true">Fingerprint</string>
+    <string name="connect_verify_pin" cc:translatable="true">PIN</string>
+    <string name="connect_verify_button_configured" cc:translatable="true">Continue</string>
+    <string name="connect_verify_button_password" cc:translatable="true">Use Password Only</string>
+
+    <string name="connect_verify_phone_title" cc:translatable="true">Verification Code</string>
+    <string name="connect_verify_phone_title2" cc:translatable="true">Enter verification code</string>
+    <string name="connect_verify_phone_label" cc:translatable="true">We attempted to send you a code on number %s.</string>
+    <string name="connect_verify_phone_label_alternate" cc:translatable="true">Almost there! Please enter the code sent via SMS to your alternate phone%s.</string>
+    <string name="connect_verify_phone_resend" cc:translatable="true">Didn\'t receive your code? Resend</string>
+    <string name="connect_verify_phone_resend_wait" cc:translatable="true">Didn\'t receive your code? Resend in %d s</string>
+    <string name="connect_verify_phone_change" cc:translatable="true">Change phone number</string>
+    <string name="connect_verify_phone_verify" cc:translatable="true">Verify code</string>
+
+    <string name="connect_pictures_title" cc:translatable="true">Account Recovery</string>
+    <string name="connect_pictures_label" cc:translatable="true">To help with account recovery, you can optionally take some photos to help identify you.</string>
+    <string name="connect_pictures_face" cc:translatable="true">Face</string>
+    <string name="connect_pictures_id" cc:translatable="true">Official ID</string>
+    <string name="connect_pictures_skip" cc:translatable="true">Skip</string>
+    <string name="connect_pictures_continue" cc:translatable="true">Continue</string>
+
+    <string name="login_menu_connect_sign_in" cc:translatable="true">Sign up for ConnectID</string>
+    <string name="login_menu_connect_sign_out" cc:translatable="true">Sign out of ConnectID</string>
+    <string name="login_menu_connect_forget" cc:translatable="true">Forget ConnectID user</string>
 </resources>

@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="fill_parent"
+    android:background="@color/cc_core_bg"
+    android:orientation="vertical"
+    android:layout_marginStart="@dimen/content_start"
+    android:layout_marginEnd="@dimen/content_start">
+
+    <TextView
+        android:id="@+id/connect_recovery_message"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/content_min_margin"
+        android:gravity="start"
+        android:textSize="@dimen/text_large"/>
+
+    <RelativeLayout
+        android:id="@+id/connect_recovery_phone_block"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone">
+        <AutoCompleteTextView
+            android:id="@+id/connect_recovery_phone_country_input"
+            android:layout_width="100sp"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:inputType="text" />
+
+        <AutoCompleteTextView
+            android:id="@+id/connect_recovery_phone_input"
+            android:layout_toEndOf="@id/connect_recovery_phone_country_input"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:inputType="numberDecimal" />
+    </RelativeLayout>
+
+    <TextView
+        android:id="@+id/connect_recovery_phone_message"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/content_min_margin"
+        android:gravity="start"
+        android:textSize="@dimen/text_medium"
+        android:visibility="gone"/>
+
+    <Button
+        android:id="@+id/connect_recovery_button_1"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:paddingBottom="@dimen/content_start"
+        android:paddingTop="@dimen/content_start" />
+
+    <TextView
+        android:id="@+id/connect_recovery_or"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/content_min_margin"
+        android:gravity="center"
+        android:textSize="@dimen/text_medium"
+        android:text="@string/choice_or"/>
+
+    <Button
+        android:id="@+id/connect_recovery_button_2"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:paddingBottom="@dimen/content_start"
+        android:paddingTop="@dimen/content_start"/>
+
+</LinearLayout>

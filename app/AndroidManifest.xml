@@ -148,6 +148,20 @@
         <activity android:name="org.commcare.activities.RootMenuHomeActivity"/>
         <activity android:name="org.commcare.activities.MenuActivity"/>
 
+        <activity android:name="org.commcare.activities.connect.ConnectIdRecoveryDecisionActivity"/>
+        <activity android:name="org.commcare.activities.connect.ConnectIdLoginActivity"/>
+        <activity android:name="org.commcare.activities.connect.ConnectIdConsentActivity"/>
+        <activity android:name="org.commcare.activities.connect.ConnectIdPhoneActivity"/>
+        <activity android:name="org.commcare.activities.connect.ConnectIdRegistrationActivity"/>
+        <activity android:name="org.commcare.activities.connect.ConnectIdPasswordActivity"/>
+        <activity android:name="org.commcare.activities.connect.ConnectIdPasswordVerificationActivity"/>
+        <activity android:name="org.commcare.activities.connect.ConnectIdVerificationActivity"/>
+        <activity android:name="org.commcare.activities.connect.ConnectIdPicturesActivity"/>
+        <activity android:name="org.commcare.activities.connect.ConnectIdPhoneVerificationActivity"/>
+        <activity android:name="org.commcare.activities.connect.ConnectIdMessageActivity"/>
+
+        <activity android:name="org.commcare.activities.AppSelectActivity"/>
+
         <provider
             android:name="org.commcare.provider.FormsProvider"
             android:exported="false"
