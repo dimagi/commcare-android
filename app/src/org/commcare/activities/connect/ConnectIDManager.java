@@ -1,7 +1,6 @@
 package org.commcare.activities.connect;
 
-import static android.app.Activity.RESULT_OK;
-
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.widget.Toast;
@@ -22,10 +21,13 @@ import java.util.Locale;
 import java.util.Map;
 
 /**
- * @author dviggiano
  * Manager class for ConnectID, handles workflow navigation and user management
+ * @author dviggiano
  */
 public class ConnectIDManager {
+    /**
+     * Enum representing the current state of ConnectID
+     */
     public enum ConnectIdStatus {
         NotIntroduced,
         Registering,
@@ -33,6 +35,9 @@ public class ConnectIDManager {
         LoggedIn
     }
 
+    /**
+     * Interface for handling callbacks when a ConnectID activity finishes
+     */
     public interface ConnectActivityCompleteListener {
         void connectActivityComplete(boolean success);
     }
@@ -211,7 +216,8 @@ public class ConnectIDManager {
                 params.put(ConnectIDConstants.PHONE, primaryPhone);
             }
             case CONNECT_REGISTRATION_VERIFY_PRIMARY_PHONE -> {
-                params.put(ConnectIDConstants.METHOD, String.format(Locale.getDefault(), "%d", ConnectIDPhoneVerificationActivity.MethodRegistrationPrimary));
+                params.put(ConnectIDConstants.METHOD, String.format(Locale.getDefault(), "%d",
+                        ConnectIDPhoneVerificationActivity.MethodRegistrationPrimary));
                 params.put(ConnectIDConstants.PHONE, user.getPrimaryPhone());
                 params.put(ConnectIDConstants.CHANGE, "true");
                 params.put(ConnectIDConstants.USERNAME, user.getUserId());
@@ -291,7 +297,7 @@ public class ConnectIDManager {
 
     public static void handleFinishedActivity(int requestCode, int resultCode, Intent intent) {
         ConnectIDManager manager = getInstance();
-        boolean success = resultCode == RESULT_OK;
+        boolean success = resultCode == Activity.RESULT_OK;
         ConnectIDTask nextRequestCode = ConnectIDTask.CONNECT_NO_ACTIVITY;
         boolean rememberPhase = false;
 
@@ -364,7 +370,8 @@ public class ConnectIDManager {
                 nextRequestCode = manager.passwordOnlyWorkflow ? ConnectIDTask.CONNECT_REGISTRATION_MAIN :
                         ConnectIDTask.CONNECT_REGISTRATION_CONFIGURE_BIOMETRICS;
                 if (success) {
-                    boolean changeNumber = intent != null && intent.getBooleanExtra(ConnectIDConstants.CHANGE, false);
+                    boolean changeNumber = intent != null && intent.getBooleanExtra(ConnectIDConstants.CHANGE,
+                            false);
                     nextRequestCode = changeNumber ? ConnectIDTask.CONNECT_REGISTRATION_CHANGE_PRIMARY_PHONE :
                             ConnectIDTask.CONNECT_REGISTRATION_CONFIGURE_PASSWORD;
                     rememberPhase = !changeNumber;
@@ -551,7 +558,8 @@ public class ConnectIDManager {
 
     public static AuthInfo.ProvidedAuth getCredentialsForApp(String appId, String userId) {
         if (isUnlocked()) {
-            ConnectLinkedAppRecord record = ConnectIDDatabaseHelper.getAppData(manager.parentActivity, appId, userId);
+            ConnectLinkedAppRecord record = ConnectIDDatabaseHelper.getAppData(manager.parentActivity, appId,
+                    userId);
             if (record != null && record.getPassword().length() > 0) {
                 return new AuthInfo.ProvidedAuth(record.getUserId(), record.getPassword(), false);
             }
@@ -573,7 +581,8 @@ public class ConnectIDManager {
 
     public static AuthInfo.TokenAuth getTokenCredentialsForApp(String appId, String userId) {
         if (isUnlocked()) {
-            ConnectLinkedAppRecord record = ConnectIDDatabaseHelper.getAppData(manager.parentActivity, appId, userId);
+            ConnectLinkedAppRecord record = ConnectIDDatabaseHelper.getAppData(manager.parentActivity, appId,
+                    userId);
             if (record != null && (new Date()).compareTo(record.getHqTokenExpiration()) < 0) {
                 return new AuthInfo.TokenAuth(record.getHqToken());
             }
