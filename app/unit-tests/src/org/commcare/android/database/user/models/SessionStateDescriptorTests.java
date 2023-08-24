@@ -45,7 +45,7 @@ public class SessionStateDescriptorTests {
         serializeSessionOutToDescriptor(session);
     }
 
-    private static void serializeSessionOutToDescriptor(CommCareSession session) {
+    private static void serializeSessionOutToDescriptor(SessionWrapper session) {
         AndroidSessionWrapper originalSessionWrapper = new AndroidSessionWrapper(session);
         SessionStateDescriptor oldDescriptor = SessionStateDescriptor.buildFromSessionWrapper(originalSessionWrapper);
 
