@@ -78,7 +78,8 @@ public class EncryptionUtils {
     public static byte[] encrypt(byte[] bytes, EncryptionKeyAndTransform keyAndTransform)
             throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException,
             IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException,
-            UnrecoverableEntryException, CertificateException, KeyStoreException, IOException, NoSuchProviderException {
+            UnrecoverableEntryException, CertificateException, KeyStoreException, IOException,
+            NoSuchProviderException {
         Cipher cipher = Cipher.getInstance(keyAndTransform.transformation);
         cipher.init(Cipher.ENCRYPT_MODE, keyAndTransform.key);
         byte[] encrypted = cipher.doFinal(bytes);
@@ -141,7 +142,8 @@ public class EncryptionUtils {
             InvalidAlgorithmParameterException, NoSuchPaddingException, IllegalBlockSizeException,
             UnrecoverableEntryException, CertificateException, NoSuchAlgorithmException,
             BadPaddingException, KeyStoreException, IOException, InvalidKeyException, NoSuchProviderException {
-        byte[] encrypted = encrypt(input, CommCareApplication.instance().getEncryptionKeyProvider().getKey(context, true));
+        byte[] encrypted = encrypt(input, CommCareApplication.instance().getEncryptionKeyProvider()
+                .getKey(context, true));
         return Base64.encode(encrypted);
     }
 
@@ -152,10 +154,11 @@ public class EncryptionUtils {
             BadPaddingException, KeyStoreException, IOException, InvalidKeyException, NoSuchProviderException {
         byte[] encrypted = Base64.decode(base64);
 
-        return decrypt(encrypted, CommCareApplication.instance().getEncryptionKeyProvider().getKey(context, false));
+        return decrypt(encrypted, CommCareApplication.instance().getEncryptionKeyProvider()
+                .getKey(context, false));
     }
 
-    public static String getMD5HashAsString(String plainText) {
+    public static String getMd5HashAsString(String plainText) {
         try {
             MessageDigest md = MessageDigest.getInstance("MD5");
             md.update(plainText.getBytes());

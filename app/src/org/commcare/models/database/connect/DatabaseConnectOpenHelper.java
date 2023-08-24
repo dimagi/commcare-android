@@ -16,7 +16,7 @@ import org.commcare.modern.database.TableBuilder;
 /**
  * The helper for opening/updating the Connect (encrypted) db space for CommCare.
  *
- * @author ctsims
+ * @author dviggiano
  */
 public class DatabaseConnectOpenHelper extends SQLiteOpenHelper {
     /**

@@ -21,8 +21,9 @@ import java.util.Date;
 import java.util.HashMap;
 
 /**
+ * Helper class for making SSO calls (both to ConnectID and HQ servers)
+ *
  * @author dviggiano
- * Helpre class for making SSO calls (both to ConnectID and HQ servers)
  */
 public class ConnectIDSSOHelper {
     public static AuthInfo.TokenAuth acquireSsoTokenSync(Context context) {

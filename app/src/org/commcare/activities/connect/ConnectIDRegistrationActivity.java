@@ -19,8 +19,9 @@ import java.util.Locale;
 import java.util.Random;
 
 /**
- * @author dviggiano
  * Shows the page that prompts the user to enter their name
+ *
+ * @author dviggiano
  */
 public class ConnectIDRegistrationActivity extends CommCareActivity<ConnectIDRegistrationActivity>
         implements WithUIController {
@@ -129,23 +130,23 @@ public class ConnectIDRegistrationActivity extends CommCareActivity<ConnectIDReg
 
         boolean isBusy = !ConnectIDNetworkHelper.post(this, getString(R.string.ConnectRegisterURL),
                 new AuthInfo.NoAuth(), params, false, new ConnectIDNetworkHelper.INetworkResultHandler() {
-            @Override
-            public void processSuccess(int responseCode, InputStream responseData) {
-                user = tempUser;
-                finish(true);
-            }
+                    @Override
+                    public void processSuccess(int responseCode, InputStream responseData) {
+                        user = tempUser;
+                        finish(true);
+                    }
 
-            @Override
-            public void processFailure(int responseCode, IOException e) {
-                uiController.setErrorText(String.format(Locale.getDefault(), "Registration error: %d",
-                        responseCode));
-            }
+                    @Override
+                    public void processFailure(int responseCode, IOException e) {
+                        uiController.setErrorText(String.format(Locale.getDefault(), "Registration error: %d",
+                                responseCode));
+                    }
 
-            @Override
-            public void processNetworkFailure() {
-                uiController.setErrorText(getString(R.string.recovery_network_unavailable));
-            }
-        });
+                    @Override
+                    public void processNetworkFailure() {
+                        uiController.setErrorText(getString(R.string.recovery_network_unavailable));
+                    }
+                });
 
         if (isBusy) {
             Toast.makeText(this, R.string.busy_message, Toast.LENGTH_SHORT).show();
@@ -166,23 +167,23 @@ public class ConnectIDRegistrationActivity extends CommCareActivity<ConnectIDReg
             boolean isBusy = !ConnectIDNetworkHelper.post(this, getString(R.string.ConnectUpdateProfileURL),
                     new AuthInfo.ProvidedAuth(user.getUserId(), user.getPassword(), false),
                     params, false, new ConnectIDNetworkHelper.INetworkResultHandler() {
-                @Override
-                public void processSuccess(int responseCode, InputStream responseData) {
-                    user.setName(newName);
-                    finish(true);
-                }
+                        @Override
+                        public void processSuccess(int responseCode, InputStream responseData) {
+                            user.setName(newName);
+                            finish(true);
+                        }
 
-                @Override
-                public void processFailure(int responseCode, IOException e) {
-                    uiController.setErrorText(String.format(Locale.getDefault(), "Error: %d",
-                            responseCode));
-                }
+                        @Override
+                        public void processFailure(int responseCode, IOException e) {
+                            uiController.setErrorText(String.format(Locale.getDefault(), "Error: %d",
+                                    responseCode));
+                        }
 
-                @Override
-                public void processNetworkFailure() {
-                    uiController.setErrorText(getString(R.string.recovery_network_unavailable));
-                }
-            });
+                        @Override
+                        public void processNetworkFailure() {
+                            uiController.setErrorText(getString(R.string.recovery_network_unavailable));
+                        }
+                    });
 
             if (isBusy) {
                 Toast.makeText(this, R.string.busy_message, Toast.LENGTH_SHORT).show();

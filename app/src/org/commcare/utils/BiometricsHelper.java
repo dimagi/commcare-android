@@ -20,7 +20,15 @@ import androidx.fragment.app.FragmentActivity;
 import org.commcare.activities.connect.ConnectIDTask;
 import org.commcare.dalvik.R;
 
+/**
+ * Helper class for biometric configuration and verification
+ *
+ * @author dviggiano
+ */
 public class BiometricsHelper {
+    /**
+     * Enum simplifying the availability of a biometric method
+     */
     public enum ConfigurationStatus {
         NotAvailable,
         NotConfigured,

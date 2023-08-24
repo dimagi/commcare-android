@@ -7,8 +7,9 @@ import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 
 /**
- * @author dviggiano
  * Mock key provider, creates an RSA KeyPair but doesn't store it for future usage
+ * 
+ * @author dviggiano
  */
 public class MockEncryptionKeyProvider extends EncryptionKeyProvider {
     private KeyPair keyPair = null;

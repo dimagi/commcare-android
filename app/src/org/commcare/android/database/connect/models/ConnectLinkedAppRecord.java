@@ -8,8 +8,9 @@ import org.commcare.modern.models.MetaField;
 import java.util.Date;
 
 /**
- * @author dviggiano
  * DB model holding info for an HQ app linked to ConnectID
+ *
+ * @author dviggiano
  */
 @Table(org.commcare.android.database.connect.models.ConnectLinkedAppRecord.STORAGE_KEY)
 public class ConnectLinkedAppRecord extends Persisted {

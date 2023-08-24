@@ -8,8 +8,9 @@ import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.WithUIController;
 
 /**
- * @author dviggiano
  * Shows a page that simply displays a message to the user
+ *
+ * @author dviggiano
  */
 public class ConnectIDMessageActivity extends CommCareActivity<ConnectIDMessageActivity>
         implements WithUIController {

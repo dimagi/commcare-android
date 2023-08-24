@@ -15,8 +15,9 @@ import org.commcare.views.ManagedUi;
 import org.commcare.views.UiElement;
 
 /**
- * @author dviggiano
  * UI Controller, handles UI interaction with the owning Activity
+ *
+ * @author dviggiano
  */
 @ManagedUi(R.layout.screen_connect_recovery_decision)
 public class ConnectIDRecoveryDecisionActivityUIController implements CommCareActivityUIController {

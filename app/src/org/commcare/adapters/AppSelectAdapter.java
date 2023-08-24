@@ -12,8 +12,9 @@ import java.util.HashMap;
 import java.util.List;
 
 /**
- * @author dviggiano
  * Adapter for retrieving tiles representing installed apps for the user to select
+ *
+ * @author dviggiano
  */
 public class AppSelectAdapter extends SquareButtonAdapter {
 

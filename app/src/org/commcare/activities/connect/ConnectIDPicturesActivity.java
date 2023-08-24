@@ -21,9 +21,10 @@ import org.commcare.views.dialogs.DialogCreationHelpers;
 import org.javarosa.core.services.locale.Localization;
 
 /**
- * @author dviggiano
  * NOTE: Not currently in use
  * Shows a page that attempts to get the user to take a picture of their face and photo ID
+ *
+ * @author dviggiano
  */
 public class ConnectIDPicturesActivity extends CommCareActivity<ConnectIDPicturesActivity>
         implements WithUIController, RuntimePermissionRequester {

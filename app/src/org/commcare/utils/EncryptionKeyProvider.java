@@ -7,6 +7,8 @@ import android.security.KeyPairGeneratorSpec;
 import android.security.keystore.KeyGenParameterSpec;
 import android.security.keystore.KeyProperties;
 
+import androidx.annotation.RequiresApi;
+
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.InvalidAlgorithmParameterException;
@@ -25,8 +27,11 @@ import java.util.GregorianCalendar;
 import javax.crypto.KeyGenerator;
 import javax.security.auth.x500.X500Principal;
 
-import androidx.annotation.RequiresApi;
-
+/**
+ * Class for providing encryption keys backed by Android Keystore
+ *
+ * @author dviggiano
+ */
 public class EncryptionKeyProvider {
     private static final String KEYSTORE_NAME = "AndroidKeyStore";
     private static final String SECRET_NAME = "secret";
@@ -83,7 +88,8 @@ public class EncryptionKeyProvider {
         return keystore.containsAlias(SECRET_NAME);
     }
 
-    private static EncryptionKeyAndTransform generateKeyInKeystore(Context context, boolean trueForEncrypt) throws NoSuchAlgorithmException, NoSuchProviderException, InvalidAlgorithmParameterException {
+    private static EncryptionKeyAndTransform generateKeyInKeystore(Context context, boolean trueForEncrypt)
+            throws NoSuchAlgorithmException, NoSuchProviderException, InvalidAlgorithmParameterException {
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
             KeyGenerator keyGenerator = KeyGenerator.getInstance(
                     KeyProperties.KEY_ALGORITHM_AES, KEYSTORE_NAME);
@@ -123,9 +129,9 @@ public class EncryptionKeyProvider {
     }
 
     @SuppressLint("InlinedApi") //Suppressing since we check the API version elsewhere
-    public static String getTransformationString(boolean useRSA) {
+    public static String getTransformationString(boolean useRsa) {
         String transformation;
-        if (useRSA) {
+        if (useRsa) {
             transformation = "RSA/ECB/PKCS1Padding";
         } else {
             transformation = String.format("%s/%s/%s", ALGORITHM, BLOCK_MODE, PADDING);

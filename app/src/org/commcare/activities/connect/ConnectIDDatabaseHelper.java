@@ -20,8 +20,9 @@ import java.util.Date;
 import java.util.Vector;
 
 /**
- * @author dviggiano
  * Helper class for accessing the Connect DB
+ *
+ * @author dviggiano
  */
 public class ConnectIDDatabaseHelper {
     private static final Object connectDbHandleLock = new Object();

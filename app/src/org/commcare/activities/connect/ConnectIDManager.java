@@ -22,6 +22,7 @@ import java.util.Map;
 
 /**
  * Manager class for ConnectID, handles workflow navigation and user management
+ *
  * @author dviggiano
  */
 public class ConnectIDManager {

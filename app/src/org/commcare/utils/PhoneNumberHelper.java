@@ -9,9 +9,10 @@ import io.michaelrocks.libphonenumber.android.PhoneNumberUtil;
 import io.michaelrocks.libphonenumber.android.Phonenumber;
 
 /**
- * @author dviggiano
  * Helper class for functionality related to phone numbers
  * Includes frequent usage of PhoneNumberUtil
+ *
+ * @author dviggiano
  */
 public class PhoneNumberHelper {
     private static PhoneNumberUtil utilStatic = null;

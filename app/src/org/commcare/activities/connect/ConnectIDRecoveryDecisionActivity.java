@@ -20,8 +20,9 @@ import java.io.InputStream;
 import java.util.Locale;
 
 /**
- * @author dviggiano
  * Shows the page asking the user whether to register a new account or recover their existing account
+ *
+ * @author dviggiano
  */
 public class ConnectIDRecoveryDecisionActivity extends CommCareActivity<ConnectIDRecoveryDecisionActivity>
         implements WithUIController {

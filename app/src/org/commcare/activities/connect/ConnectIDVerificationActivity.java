@@ -13,8 +13,9 @@ import org.commcare.interfaces.WithUIController;
 import org.commcare.views.dialogs.CustomProgressDialog;
 
 /**
- * @author dviggiano
  * Shows the page for configuring biometrics (fingerprint and/or PIN)
+ *
+ * @author dviggiano
  */
 public class ConnectIDVerificationActivity extends CommCareActivity<ConnectIDVerificationActivity>
         implements WithUIController {

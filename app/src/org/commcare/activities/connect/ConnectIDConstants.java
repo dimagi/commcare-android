@@ -1,8 +1,9 @@
 package org.commcare.activities.connect;
 
 /**
- * @author dviggiano
  * Constants used for ConnectID, i.e. when passing params to activities
+ *
+ * @author dviggiano
  */
 public class ConnectIDConstants {
     public static final int ConnectIDTaskIDOffset = 1000;

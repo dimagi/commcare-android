@@ -1,8 +1,9 @@
 package org.commcare.activities.connect;
 
 /**
- * @author dviggiano
  * Enum representing the tasks (and associated activities) involved in various ConnectID workflows
+ *
+ * @author dviggiano
  */
 public enum ConnectIDTask {
     CONNECT_NO_ACTIVITY(ConnectIDConstants.ConnectIDTaskIDOffset,

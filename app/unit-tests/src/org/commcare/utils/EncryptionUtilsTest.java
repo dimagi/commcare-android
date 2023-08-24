@@ -9,8 +9,9 @@ import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 
 /**
- * @author dviggiano
  * Unit test for the encryption and decryption of a string
+ *
+ * @author dviggiano
  */
 public class EncryptionUtilsTest {
     @Test
