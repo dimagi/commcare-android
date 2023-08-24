@@ -3,7 +3,6 @@ package org.commcare.activities.connect;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.widget.Toast;
 
 import org.commcare.activities.CommCareActivity;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
@@ -139,8 +138,8 @@ public class ConnectIdManager {
         }
 
         return switch (getInstance().connectStatus) {
-            case NotIntroduced, Registering, LoggedIn -> false;
-            case LoggedOut -> true;
+            case NotIntroduced, Registering -> false;
+            case LoggedOut, LoggedIn -> true;
         };
     }
 
@@ -190,9 +189,9 @@ public class ConnectIdManager {
                 }
             }
             case LoggedIn -> {
-                //NOTE: This is disabled now, but eventually will go to Connect menu (i.e. educate, verify, etc.)
-                Toast.makeText(manager.parentActivity, "Not ready yet",
-                        Toast.LENGTH_SHORT).show();
+                ConnectIdTask task = ConnectIdTask.CONNECT_MAIN;
+                Intent i = new Intent(manager.parentActivity, task.getNextActivity());
+                manager.parentActivity.startActivityForResult(i, task.getRequestCode());
             }
         }
 

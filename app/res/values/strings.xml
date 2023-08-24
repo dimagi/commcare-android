@@ -606,6 +606,35 @@
     <string name="connect_pictures_skip" cc:translatable="true">Skip</string>
     <string name="connect_pictures_continue" cc:translatable="true">Continue</string>
 
+    <string name="connect_title" cc:translatable="true">Connect</string>
+    <string name="connect_jobs_all" cc:translatable="true">ALL JOBS</string>
+    <string name="connect_jobs_mine" cc:translatable="true">MY JOBS</string>
+    <string name="connect_job_new" cc:translatable="true">NEW</string>
+
+    <string name="connect_job_you_will_learn" cc:translatable="true">You Will Learn</string>
+    <string name="connect_job_start_training" cc:translatable="true">Start Training for this Job</string>
+    <string name="connect_job_no_learning_required" cc:translatable="true">No learning required</string>
+    <string name="connect_job_download_learn_app" cc:translatable="true">Download Learn App</string>
+    <string name="connect_job_learn_summary" cc:translatable="true">%d modules, %d hours</string>
+
+    <string name="connect_learn_progress_title" cc:translatable="true">Your Learning Progress</string>
+    <string name="connect_learn_complete_by" cc:translatable="true">Complete Learning by %s</string>
+    <string name="connect_learn_status" cc:translatable="true">You have completed %d of %d lessons.\nFinish learning to earn your certificate.</string>
+    <string name="connect_learn_not_started" cc:translatable="true">You haven\'t completed any lessons.\nStart learning to earn your certificate.</string>
+    <string name="connect_learn_start" cc:translatable="true">Start Learning</string>
+    <string name="connect_learn_continue" cc:translatable="true">Continue Learning</string>
+
+    <string name="connect_delivery_title" cc:translatable="true">Delivery Details</string>
+    <string name="connect_delivery_review_title" cc:translatable="true">Review Delivery Details</string>
+    <string name="connect_delivery_last_begin" cc:translatable="true">Last Date to Begin: %s</string>
+    <string name="connect_delivery_latest_start" cc:translatable="true">Latest start: %s</string>
+    <string name="connect_delivery_max_visits" cc:translatable="true">%d Total Visits Maximum</string>
+    <string name="connect_delivery_project_ends" cc:translatable="true">Project Ends: %s</string>
+    <string name="connect_delivery_max_daily_visits" cc:translatable="true">%d Visit per Day Maximum</string>
+    <string name="connect_delivery_ready_to_claim" cc:translatable="true">Ready to Claim this Job?</string>
+    <string name="connect_delivery_ready_to_claim_detailed" cc:translatable="true">To complete this claim and start delivering care, download the delivery app.</string>
+    <string name="connect_delivery_download_app" cc:translatable="true">Download Delivery App</string>
+
     <string name="login_menu_connect_sign_in" cc:translatable="true">Sign up for ConnectID</string>
     <string name="login_menu_connect_sign_out" cc:translatable="true">Sign out of ConnectID</string>
     <string name="login_menu_connect_forget" cc:translatable="true">Forget ConnectID user</string>
