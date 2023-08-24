@@ -267,12 +267,12 @@ public class StandardHomeActivity
     }
 
     @Override
-    public void refreshUI() {
+    public void refreshUi() {
         uiController.refreshView();
     }
 
     @Override
-    void refreshCCUpdateOption() {
+    void refreshCcUpdateOption() {
         invalidateOptionsMenu();
     }
 }

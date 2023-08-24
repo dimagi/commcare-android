@@ -123,7 +123,7 @@ public class CommcareRequestGenerator implements CommcareRequestEndpoints {
             }
 
             int getDaysSinceSync = SyncDetailCalculations.getDaysSinceLastSync();
-            if(getDaysSinceSync != -1) {
+            if (getDaysSinceSync != -1) {
                 params.put("days_since_last_sync", Integer.toString(getDaysSinceSync));
             }
         }
@@ -163,12 +163,12 @@ public class CommcareRequestGenerator implements CommcareRequestEndpoints {
 
     private AuthInfo buildAuth() {
         AuthInfo authInfo = new AuthInfo.NoAuth();
-        if(username != null) {
+        if (username != null) {
             try {
                 CommCareApplication.instance().getSession();
                 //Use CurrentAuth (possibly token) if we have an active session
                 authInfo = new AuthInfo.CurrentAuth();
-            } catch(Exception e) {
+            } catch (Exception e) {
                 //No token if no session
                 authInfo = new AuthInfo.ProvidedAuth(username, password);
             }

@@ -80,12 +80,12 @@ public class RootMenuHomeActivity extends HomeScreenBaseActivity<RootMenuHomeAct
     }
 
     @Override
-    public void refreshUI() {
+    public void refreshUi() {
         // empty intentionally
     }
 
     @Override
-    void refreshCCUpdateOption() {
+    void refreshCcUpdateOption() {
         if (usingNavDrawer()) {
             navDrawerController.refreshItems();
         }
