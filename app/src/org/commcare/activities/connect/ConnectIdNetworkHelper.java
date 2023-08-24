@@ -229,7 +229,7 @@ public class ConnectIdNetworkHelper {
     }
 
     private ConnectorWithHttpResponseProcessor<HttpResponseProcessor> getResponseProcessor(
-            Context context,INetworkResultHandler handler) {
+            Context context, INetworkResultHandler handler) {
         return new ConnectorWithHttpResponseProcessor<>() {
             @Override
             public void processSuccess(int responseCode, InputStream responseData) {

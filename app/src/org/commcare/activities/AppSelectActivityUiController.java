@@ -18,7 +18,7 @@ import org.commcare.views.UiElement;
  * @author dviggiano
  */
 @ManagedUi(R.layout.screen_app_select)
-public class AppSelectActivityUIController implements CommCareActivityUIController {
+public class AppSelectActivityUiController implements CommCareActivityUIController {
     @UiElement(value = R.id.app_select_grid)
     private RecyclerView gridView;
 
@@ -26,7 +26,7 @@ public class AppSelectActivityUIController implements CommCareActivityUIControll
 
     protected final AppSelectActivity activity;
 
-    public AppSelectActivityUIController(AppSelectActivity activity) {
+    public AppSelectActivityUiController(AppSelectActivity activity) {
         this.activity = activity;
     }
 

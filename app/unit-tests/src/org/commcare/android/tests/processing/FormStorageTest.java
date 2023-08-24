@@ -12,24 +12,21 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-import org.commcare.CommCareTestApplication;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.resource.installers.XFormAndroidInstaller;
 import org.commcare.android.util.TestUtils;
+import org.commcare.CommCareTestApplication;
 import org.commcare.models.AndroidClassHasher;
 import org.commcare.models.AndroidPrototypeFactory;
-
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.xform.util.XFormUtils;
-
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
 import org.robolectric.annotation.Config;
 
 import static org.junit.Assert.assertTrue;

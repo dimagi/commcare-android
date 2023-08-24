@@ -9,13 +9,13 @@ import androidx.annotation.NonNull;
 import androidx.biometric.BiometricManager;
 import androidx.biometric.BiometricPrompt;
 
+import org.commcare.activities.CommCareActivity;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
-import org.commcare.utils.BiometricsHelper;
-import org.commcare.activities.CommCareActivity;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.WithUIController;
+import org.commcare.utils.BiometricsHelper;
 
 /**
  * Gets the user to unlock ConnectID (via fingerprint, PIN, or password)

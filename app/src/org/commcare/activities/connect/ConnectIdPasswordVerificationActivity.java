@@ -154,7 +154,8 @@ public class ConnectIdPasswordVerificationActivity extends CommCareActivity<Conn
                             String username = null;
                             String name = null;
                             try {
-                                String responseAsString = new String(StreamsUtil.inputStreamToByteArray(responseData));
+                                String responseAsString = new String(
+                                        StreamsUtil.inputStreamToByteArray(responseData));
                                 if (responseAsString.length() > 0) {
                                     JSONObject json = new JSONObject(responseAsString);
                                     String key = ConnectIdConstants.CONNECT_KEY_USERNAME;
@@ -181,7 +182,8 @@ public class ConnectIdPasswordVerificationActivity extends CommCareActivity<Conn
 
                         @Override
                         public void processNetworkFailure() {
-                            Toast.makeText(getApplicationContext(), getString(R.string.recovery_network_unavailable),
+                            Toast.makeText(getApplicationContext(),
+                                    getString(R.string.recovery_network_unavailable),
                                     Toast.LENGTH_SHORT).show();
                         }
                     });

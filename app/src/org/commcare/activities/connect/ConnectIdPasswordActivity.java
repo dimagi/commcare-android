@@ -143,7 +143,8 @@ public class ConnectIdPasswordActivity extends CommCareActivity<ConnectIdPasswor
 
                     @Override
                     public void processFailure(int responseCode, IOException e) {
-                        Toast.makeText(getApplicationContext(), "Password change error", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getApplicationContext(), "Password change error",
+                                Toast.LENGTH_SHORT).show();
                     }
 
                     @Override

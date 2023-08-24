@@ -17,6 +17,11 @@ import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import androidx.preference.PreferenceManager;
+
+import java.util.ArrayList;
+import java.util.Vector;
+
 import org.commcare.CommCareApplication;
 import org.commcare.CommCareNoficationManager;
 import org.commcare.activities.connect.ConnectIdDatabaseHelper;
@@ -39,18 +44,13 @@ import org.commcare.views.RectangleButtonWithText;
 import org.commcare.views.UiElement;
 import org.javarosa.core.services.locale.Localization;
 
-import java.util.ArrayList;
-import java.util.Vector;
-
-import androidx.preference.PreferenceManager;
-
 /**
  * Handles login activity UI
  *
  * @author Aliza Stone (astone@dimagi.com)
  */
 @ManagedUi(R.layout.screen_login)
-public class LoginActivityUIController implements CommCareActivityUIController {
+public class LoginActivityUiController implements CommCareActivityUIController {
 
     @UiElement(value = R.id.screen_login_error_view)
     private View errorContainer;
@@ -137,7 +137,7 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         }
     };
 
-    public LoginActivityUIController(LoginActivity activity) {
+    public LoginActivityUiController(LoginActivity activity) {
         this.activity = activity;
         this.loginMode = LoginMode.PASSWORD;
     }
@@ -165,7 +165,8 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         });
 
         notificationButton.setText(Localization.get("error.button.text"));
-        notificationButton.setOnClickListener(view -> CommCareNoficationManager.performIntentCalloutToNotificationsView(activity));
+        notificationButton.setOnClickListener(view -> CommCareNoficationManager
+                .performIntentCalloutToNotificationsView(activity));
     }
 
     public void setConnectButtonText(String text) {
@@ -218,7 +219,8 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         // Decide whether or not to show the app selection spinner based upon # of usable apps
         ArrayList<ApplicationRecord> readyApps = MultipleAppsUtil.getUsableAppRecords();
         boolean promptIncluded = false;
-        if (readyApps.size() == 1 && (!ConnectIdManager.isConnectIdIntroduced() || ConnectIdManager.isUnlocked())) {
+        if (readyApps.size() == 1 &&
+                (!ConnectIdManager.isConnectIdIntroduced() || ConnectIdManager.isUnlocked())) {
             setLoginInputsVisibility(true);
             // Set this app as the last selected app, for use in choosing what app to initialize
             // on first startup
@@ -275,7 +277,8 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         if (ConnectIdManager.isConnectIdIntroduced()) {
             String welcomeText;
             if (ConnectIdManager.isUnlocked()) {
-                welcomeText = activity.getString(R.string.login_welcome_connect_signed_in, ConnectIdDatabaseHelper.getUser(activity).getName());
+                welcomeText = activity.getString(R.string.login_welcome_connect_signed_in,
+                        ConnectIdDatabaseHelper.getUser(activity).getName());
             } else {
                 welcomeText = activity.getString(R.string.login_welcome_connect_signed_out);
                 emphasizeConnectSignin = true;
@@ -413,8 +416,13 @@ public class LoginActivityUIController implements CommCareActivityUIController {
     protected void setErrorMessageUi(String message, boolean showNotificationButton) {
         setLoginBoxesColorError();
 
-        username.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.icon_user_attnneg), null, null, null);
-        passwordOrPin.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.icon_lock_attnneg), null, null, null);
+        username.setCompoundDrawablesWithIntrinsicBounds(
+                getResources().getDrawable(R.drawable.icon_user_attnneg),
+                null, null, null);
+
+        passwordOrPin.setCompoundDrawablesWithIntrinsicBounds(
+                getResources().getDrawable(R.drawable.icon_lock_attnneg),
+                null, null, null);
 
         errorContainer.setVisibility(View.VISIBLE);
         errorTextView.setText(message);

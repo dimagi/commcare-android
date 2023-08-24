@@ -16,7 +16,16 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
+import androidx.core.util.Pair;
+import androidx.preference.PreferenceManager;
+import androidx.work.WorkManager;
+
 import com.scottyab.rootbeer.RootBeer;
+
+import java.util.ArrayList;
+import java.util.Date;
 
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
@@ -58,15 +67,6 @@ import org.commcare.views.notifications.NotificationMessageFactory.StockMessages
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 
-import java.util.ArrayList;
-import java.util.Date;
-
-import androidx.annotation.NonNull;
-import androidx.core.app.ActivityCompat;
-import androidx.core.util.Pair;
-import androidx.preference.PreferenceManager;
-import androidx.work.WorkManager;
-
 /**
  * @author ctsims
  */
@@ -104,7 +104,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     private String usernameBeforeRotation;
     private String passwordOrPinBeforeRotation;
 
-    private LoginActivityUIController uiController;
+    private LoginActivityUiController uiController;
     private FormAndDataSyncer formAndDataSyncer;
 
     @Override
@@ -211,7 +211,8 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
             DevSessionRestorer.tryAutoLoginPasswordSave(uiController.getEnteredPasswordOrPin(), false);
         }
 
-        if (ResourceInstallUtils.isUpdateReadyToInstall() && !UpdateActivity.isUpdateBlockedOnSync(uiController.getEnteredUsername())) {
+        if (ResourceInstallUtils.isUpdateReadyToInstall() && !UpdateActivity.isUpdateBlockedOnSync(
+                uiController.getEnteredUsername())) {
             // install update, which triggers login upon completion
             installPendingUpdate();
         } else {
@@ -232,7 +233,8 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                         uiController.getEnteredPasswordOrPin());
                 break;
             case CCZ_DEMO:
-                OfflineUserRestore offlineUserRestore = CommCareApplication.instance().getCommCarePlatform().getDemoUserRestore();
+                OfflineUserRestore offlineUserRestore = CommCareApplication.instance().getCommCarePlatform()
+                        .getDemoUserRestore();
                 uiController.setUsername(offlineUserRestore.getUsername());
                 uiController.setPasswordOrPin(OfflineUserRestore.DEMO_USER_PASSWORD);
                 formAndDataSyncer.performDemoUserRestore(this, offlineUserRestore);
@@ -441,7 +443,8 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
             String selectedAppId = appIdDropdownList.size() > 0 ? appIdDropdownList.get(selectorIndex) : "";
             String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
             if (!uiController.isAppSelectorVisible() || selectedAppId.equals(seatedAppId)) {
-                AuthInfo.ProvidedAuth credentials = ConnectIdManager.getCredentialsForApp(seatedAppId, uiController.getEnteredUsername());
+                AuthInfo.ProvidedAuth credentials = ConnectIdManager.getCredentialsForApp(seatedAppId,
+                        uiController.getEnteredUsername());
                 uiController.setPasswordOrPin(credentials != null ? credentials.password : "");
             }
         }
@@ -450,9 +453,12 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
-        menu.add(0, MENU_DEMO, 0, Localization.get("login.menu.demo")).setIcon(android.R.drawable.ic_menu_preferences);
-        menu.add(0, MENU_ABOUT, 1, Localization.get("home.menu.about")).setIcon(android.R.drawable.ic_menu_help);
-        menu.add(0, MENU_PERMISSIONS, 1, Localization.get("permission.acquire.required")).setIcon(android.R.drawable.ic_menu_manage);
+        menu.add(0, MENU_DEMO, 0, Localization.get("login.menu.demo"))
+                .setIcon(android.R.drawable.ic_menu_preferences);
+        menu.add(0, MENU_ABOUT, 1, Localization.get("home.menu.about"))
+                .setIcon(android.R.drawable.ic_menu_help);
+        menu.add(0, MENU_PERMISSIONS, 1, Localization.get("permission.acquire.required"))
+                .setIcon(android.R.drawable.ic_menu_manage);
         menu.add(0, MENU_PASSWORD_MODE, 1, Localization.get("login.menu.password.mode"));
         menu.add(0, MENU_APP_MANAGER, 1, Localization.get("login.menu.app.manager"));
         menu.add(0, MENU_CONNECT_SIGN_IN, 1, getString(R.string.login_menu_connect_sign_in));
@@ -517,7 +523,8 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     }
 
     private void loginDemoUser() {
-        OfflineUserRestore offlineUserRestore = CommCareApplication.instance().getCommCarePlatform().getDemoUserRestore();
+        OfflineUserRestore offlineUserRestore = CommCareApplication.instance().getCommCarePlatform()
+                .getDemoUserRestore();
         FirebaseAnalyticsUtil.reportPracticeModeUsage(offlineUserRestore);
 
         if (offlineUserRestore != null) {
@@ -544,7 +551,8 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     }
 
     @Override
-    public void raiseLoginMessage(MessageTag messageTag, boolean showTop, NotificationActionButtonInfo.ButtonAction buttonAction) {
+    public void raiseLoginMessage(MessageTag messageTag, boolean showTop,
+                                  NotificationActionButtonInfo.ButtonAction buttonAction) {
         NotificationMessage message = NotificationMessageFactory.message(messageTag,
                 NOTIFICATION_MESSAGE_LOGIN, buttonAction);
         raiseMessage(message, showTop);
@@ -645,7 +653,8 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                 uiController.setLoginInputsVisibility(true);
 
                 //TODO: Show user/pass fields
-                boolean selectedNewApp = !appId.equals(CommCareApplication.instance().getCurrentApp().getUniqueId());
+                boolean selectedNewApp = !appId.equals(
+                        CommCareApplication.instance().getCurrentApp().getUniqueId());
                 if (selectedNewApp) {
                     // Set the id of the last selected app
                     SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
@@ -683,7 +692,8 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                                     Toast.LENGTH_LONG).show();
                             UpdateActivity.OnSuccessfulUpdate(false, false);
                         } else {
-                            CommCareApplication.notificationManager().reportNotificationMessage(NotificationMessageFactory.message(result));
+                            CommCareApplication.notificationManager().reportNotificationMessage(
+                                    NotificationMessageFactory.message(result));
                         }
 
                         localLoginOrPullAndLogin(uiController.isRestoreSessionChecked());
@@ -716,16 +726,18 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         }
 
         // If local login was not successful
-        startDataPull(CommCareApplication.instance().isConsumerApp() ? DataPullMode.CONSUMER_APP : DataPullMode.NORMAL,
+        startDataPull(CommCareApplication.instance().isConsumerApp() ?
+                        DataPullMode.CONSUMER_APP :
+                        DataPullMode.NORMAL,
                 uiController.getEnteredPasswordOrPin());
     }
 
     @Override
     public void initUIController() {
         if (CommCareApplication.instance().isConsumerApp()) {
-            uiController = new BlankLoginActivityUIController(this);
+            uiController = new BlankLoginActivityUiController(this);
         } else {
-            uiController = new LoginActivityUIController(this);
+            uiController = new LoginActivityUiController(this);
         }
     }
 
@@ -758,16 +770,19 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                 raiseLoginMessage(StockMessages.Auth_BadCredentials, false);
                 break;
             case BAD_DATA_REQUIRES_INTERVENTION:
-                raiseLoginMessageWithInfo(StockMessages.Remote_BadRestoreRequiresIntervention, resultAndErrorMessage.errorMessage, true);
+                raiseLoginMessageWithInfo(StockMessages.Remote_BadRestoreRequiresIntervention,
+                        resultAndErrorMessage.errorMessage, true);
                 break;
             case BAD_DATA:
-                raiseLoginMessageWithInfo(StockMessages.Remote_BadRestore, resultAndErrorMessage.errorMessage, true);
+                raiseLoginMessageWithInfo(StockMessages.Remote_BadRestore,
+                        resultAndErrorMessage.errorMessage, true);
                 break;
             case STORAGE_FULL:
                 raiseLoginMessage(StockMessages.Storage_Full, true);
                 break;
             case DOWNLOAD_SUCCESS:
-                if (!tryLocalLogin(true, uiController.isRestoreSessionChecked(), !usingRemoteKeyManagement)) {
+                if (!tryLocalLogin(true, uiController.isRestoreSessionChecked(),
+                        !usingRemoteKeyManagement)) {
                     raiseLoginMessage(StockMessages.Auth_CredentialMismatch, true);
                 }
                 break;
@@ -784,19 +799,22 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                 raiseLoginMessage(StockMessages.Remote_RateLimitedServerError, true);
                 break;
             case UNKNOWN_FAILURE:
-                raiseLoginMessageWithInfo(StockMessages.Restore_Unknown, resultAndErrorMessage.errorMessage, true);
+                raiseLoginMessageWithInfo(StockMessages.Restore_Unknown,
+                        resultAndErrorMessage.errorMessage, true);
                 break;
             case CANCELLED:
                 raiseLoginMessage(StockMessages.Cancelled, true);
                 break;
             case ENCRYPTION_FAILURE:
-                raiseLoginMessageWithInfo(StockMessages.Encryption_Error, resultAndErrorMessage.errorMessage, true);
+                raiseLoginMessageWithInfo(StockMessages.Encryption_Error,
+                        resultAndErrorMessage.errorMessage, true);
                 break;
             case SESSION_EXPIRE:
                 raiseLoginMessage(StockMessages.Session_Expire, true);
                 break;
             case RECOVERY_FAILURE:
-                raiseLoginMessageWithInfo(StockMessages.Recovery_Error, resultAndErrorMessage.errorMessage, true);
+                raiseLoginMessageWithInfo(StockMessages.Recovery_Error,
+                        resultAndErrorMessage.errorMessage, true);
                 break;
             case ACTIONABLE_FAILURE:
                 NotificationMessage message = new NotificationMessage(NOTIFICATION_MESSAGE_LOGIN,
