@@ -8,20 +8,15 @@ import android.location.Location
 import android.location.LocationListener
 import android.os.Bundle
 import android.view.View
-
 import androidx.appcompat.app.AppCompatActivity
 import androidx.viewbinding.ViewBinding
-
 import com.mapbox.geojson.Polygon
 import com.mapbox.mapboxsdk.geometry.LatLng
 import com.mapbox.mapboxsdk.maps.MapboxMap
 import com.mapbox.mapboxsdk.maps.Style
-
 import io.ona.kujaku.manager.DrawingManager
 import io.ona.kujaku.views.KujakuMapView
-
 import java.io.File
-
 import org.commcare.activities.components.FormEntryInstanceState
 import org.commcare.android.javarosa.IntentCallout
 import org.commcare.dalvik.R
@@ -30,7 +25,6 @@ import org.commcare.gis.EntityMapUtils.parseBoundaryCoords
 import org.commcare.utils.FileUtil
 import org.commcare.utils.ImageType
 import org.commcare.utils.StringUtils
-
 import org.javarosa.core.services.Logger
 import org.javarosa.core.services.locale.Localization
 
@@ -55,7 +49,6 @@ class DrawingBoundaryActivity : BaseMapboxActivity(), LocationListener, MapboxMa
 
         private const val LOCATION_MIN_MAX_ACCURACY = 50
         private const val LOCATION_MIN_MIN_ACCURACY = 10
-
     }
 
     private var mapSnapshotPath: String? = null
@@ -96,11 +89,13 @@ class DrawingBoundaryActivity : BaseMapboxActivity(), LocationListener, MapboxMa
     private fun initExtras() {
         val params = intent.extras
         if (params != null) {
-
             locationMinAccuracy = LOCATION_MIN_MIN_ACCURACY.coerceAtLeast(
-                    LOCATION_MIN_MAX_ACCURACY.coerceAtMost(
-                            Integer.valueOf(params.getString(EXTRA_KEY_ACCURACY, LOCATION_MIN_MIN_ACCURACY.toString()))))
-
+                LOCATION_MIN_MAX_ACCURACY.coerceAtMost(
+                        Integer.valueOf(params.getString(EXTRA_KEY_ACCURACY, LOCATION_MIN_MIN_ACCURACY.toString()
+                        )
+                        )
+                )
+            )
 
             recordingIntervalMeters = Integer.valueOf(params.getString(EXTRA_KEY_INTERVAL_METERS, "0"))
             recordingIntervalMillis = Integer.valueOf(params.getString(EXTRA_KEY_INTERVAL_MILLIS, "0"))
@@ -115,10 +110,10 @@ class DrawingBoundaryActivity : BaseMapboxActivity(), LocationListener, MapboxMa
     private fun freezeOrientation() {
         val orientation = resources.configuration.orientation
         requestedOrientation =
-                when (orientation) {
-                    Configuration.ORIENTATION_PORTRAIT -> ActivityInfo.SCREEN_ORIENTATION_USER_PORTRAIT
-                    else -> ActivityInfo.SCREEN_ORIENTATION_USER_LANDSCAPE
-                }
+            when (orientation) {
+                Configuration.ORIENTATION_PORTRAIT -> ActivityInfo.SCREEN_ORIENTATION_USER_PORTRAIT
+                else -> ActivityInfo.SCREEN_ORIENTATION_USER_LANDSCAPE
+            }
     }
 
     override fun onMapLoaded() {
@@ -201,12 +196,14 @@ class DrawingBoundaryActivity : BaseMapboxActivity(), LocationListener, MapboxMa
     }
 
     override fun onLocationChanged(location: Location) {
-        val prevLocation = previousLocation;
+        val prevLocation = previousLocation
         if (location != null && location.accuracy <= locationMinAccuracy) {
             val addLocation = prevLocation == null ||
-                    (location.distanceTo(prevLocation) >= location.accuracy + prevLocation.accuracy &&
-                            location.time - prevLocation.time >= recordingIntervalMillis &&
-                            location.distanceTo(prevLocation) >= recordingIntervalMeters)
+                (
+                location.distanceTo(prevLocation) >= location.accuracy + prevLocation.accuracy &&
+                location.time - prevLocation.time >= recordingIntervalMillis &&
+                location.distanceTo(prevLocation) >= recordingIntervalMeters
+                )
             if (addLocation && isRecording) {
                 previousLocation = location
                 val latLng = LatLng(location.latitude, location.longitude)
