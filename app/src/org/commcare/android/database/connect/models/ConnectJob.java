@@ -1,4 +1,4 @@
-package org.commcare.fragments.connect;
+package org.commcare.android.database.connect.models;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -20,11 +20,13 @@ public class ConnectJob implements Serializable {
     private final int completedVisits;
     private final Date completedDate;
     private final ConnectJobLearningModule[] learningModules;
+    private final ConnectJobDelivery[] deliveries;
 
     public ConnectJob(String title, String description, boolean isNew,
                       int completedVisits, int maxVisits, int maxDailyVisits,
                       Date learnDeadline, Date beginDeadline, Date projectEnd, Date completedDate,
-                      ConnectJobLearningModule[] learningModules) {
+                      ConnectJobLearningModule[] learningModules,
+                      ConnectJobDelivery[] deliveries) {
         this.title = title;
         this.description = description;
         this.isNew = isNew;
@@ -36,6 +38,7 @@ public class ConnectJob implements Serializable {
         this.projectEndDate = projectEnd;
         this.completedDate = completedDate;
         this.learningModules = learningModules;
+        this.deliveries = deliveries;
     }
 
     public String getTitle() { return title; }
@@ -50,4 +53,5 @@ public class ConnectJob implements Serializable {
     public Date getBeginDeadline() { return beginDeadline; }
     public Date getProjectEndDate() { return projectEndDate; }
     public ConnectJobLearningModule[] getLearningModules() { return learningModules; }
+    public ConnectJobDelivery[] getDeliveries() { return deliveries; }
 }

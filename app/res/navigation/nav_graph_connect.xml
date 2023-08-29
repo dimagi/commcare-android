@@ -34,7 +34,10 @@
         tools:layout="@layout/fragment_connect_job_intro">
         <argument
             android:name="job"
-            app:argType="org.commcare.fragments.connect.ConnectJob" />
+            app:argType="org.commcare.android.database.connect.models.ConnectJob" />
+        <action
+            android:id="@+id/action_connect_job_intro_fragment_to_connect_downloading_fragment"
+            app:destination="@id/connect_downloading_fragment" />
     </fragment>
 
     <fragment
@@ -44,7 +47,7 @@
         tools:layout="@layout/fragment_connect_learning_progress">
         <argument
             android:name="job"
-            app:argType="org.commcare.fragments.connect.ConnectJob" />
+            app:argType="org.commcare.android.database.connect.models.ConnectJob" />
     </fragment>
 
     <fragment
@@ -54,7 +57,10 @@
         tools:layout="@layout/fragment_connect_delivery_details">
         <argument
             android:name="job"
-            app:argType="org.commcare.fragments.connect.ConnectJob" />
+            app:argType="org.commcare.android.database.connect.models.ConnectJob" />
+        <action
+            android:id="@+id/action_connect_job_delivery_details_fragment_to_connect_downloading_fragment"
+            app:destination="@id/connect_downloading_fragment" />
     </fragment>
 
     <fragment
@@ -64,7 +70,20 @@
         tools:layout="@layout/fragment_connect_delivery_progress">
         <argument
             android:name="job"
-            app:argType="org.commcare.fragments.connect.ConnectJob" />
+            app:argType="org.commcare.android.database.connect.models.ConnectJob" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/connect_downloading_fragment"
+        android:name="org.commcare.fragments.connect.ConnectDownloadingFragment"
+        android:label="fragment_connect_downloading"
+        tools:layout="@layout/fragment_connect_downloading">
+        <argument
+            android:name="title"
+            app:argType="string" />
+        <argument
+            android:name="appTitle"
+            app:argType="string" />
     </fragment>
 
 

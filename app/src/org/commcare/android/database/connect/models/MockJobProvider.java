@@ -1,4 +1,8 @@
-package org.commcare.fragments.connect;
+package org.commcare.android.database.connect.models;
+
+import org.commcare.android.database.connect.models.ConnectJob;
+import org.commcare.android.database.connect.models.ConnectJobDelivery;
+import org.commcare.android.database.connect.models.ConnectJobLearningModule;
 
 import java.util.Date;
 
@@ -20,7 +24,9 @@ public class MockJobProvider {
                     new ConnectJobLearningModule[] {
                             new ConnectJobLearningModule("How to check the vaccine booklet of a child in the household", 2, new Date("8/10/2023")),
                             new ConnectJobLearningModule("How to help the caregiver in the household get the next vaccine shot for their child", 2, null),
-            }),
+                    },
+                    new ConnectJobDelivery[]{}
+                    ),
             new ConnectJob("Vitamin A Delivery",
                     "You will deliver Vitamin A supplements to 50 homes.",
                     false,
@@ -31,7 +37,9 @@ public class MockJobProvider {
                     null,
                     new ConnectJobLearningModule[] {
                             new ConnectJobLearningModule("Sample learning module", 2, null),
-                    }),
+                    },
+                    new ConnectJobDelivery[]{}
+                    ),
     };
 
     private static final ConnectJob[] mockClaimedJobs = {
@@ -43,7 +51,12 @@ public class MockJobProvider {
                     new Date("9/10/2023"),
                     new Date("11/1/2023"),
                     null,
-                    new ConnectJobLearningModule[]{}),
+                    new ConnectJobLearningModule[]{},
+                    new ConnectJobDelivery[] {
+                            new ConnectJobDelivery("Steve", new Date("7/20/2023"), "Accepted", true),
+                            new ConnectJobDelivery("Dalitso", new Date("7/24/2023"), "Pending Verification", false),
+                            new ConnectJobDelivery("Chimango", new Date("7/19/2023"), "Rejected", false)
+            }),
             new ConnectJob("TestA",
                     "",
                     false,
@@ -52,7 +65,7 @@ public class MockJobProvider {
                     new Date("9/10/2023"),
                     new Date("11/1/2023"),
                     null,
-                    new ConnectJobLearningModule[]{}),
+                    new ConnectJobLearningModule[]{}, new ConnectJobDelivery[]{}),
             new ConnectJob("Infant Health Check",
                     "",
                     false,
@@ -61,7 +74,7 @@ public class MockJobProvider {
                     new Date("5/10/2023"),
                     new Date("10/1/2023"),
                     new Date("4/7/2023"),
-                    new ConnectJobLearningModule[]{}),
+                    new ConnectJobLearningModule[]{}, new ConnectJobDelivery[]{}),
     };
 
     public static ConnectJob[] getAvailableJobs() {

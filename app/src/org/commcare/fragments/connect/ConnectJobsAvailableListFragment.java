@@ -7,6 +7,8 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import org.commcare.android.database.connect.models.ConnectJob;
+import org.commcare.android.database.connect.models.MockJobProvider;
 import org.commcare.dalvik.R;
 
 import androidx.annotation.NonNull;

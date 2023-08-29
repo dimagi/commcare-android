@@ -3,6 +3,8 @@ package org.commcare.fragments.connect;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
+import androidx.navigation.NavDirections;
+import androidx.navigation.Navigation;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,6 +13,8 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.commcare.android.database.connect.models.ConnectJob;
+import org.commcare.android.database.connect.models.ConnectJobLearningModule;
 import org.commcare.dalvik.R;
 
 import java.util.ArrayList;
@@ -67,7 +71,11 @@ public class ConnectJobIntroFragment extends Fragment {
         textView.setText(getString(R.string.connect_job_learn_summary, modules.length, totalHours));
 
         Button button = view.findViewById(R.id.connect_job_intro_start_button);
-        button.setOnClickListener(v -> Toast.makeText(getContext(), "Not ready yet...", Toast.LENGTH_SHORT).show());
+        button.setOnClickListener(v -> {
+            String title = getString(R.string.connect_downloading_learn);
+            NavDirections directions = ConnectJobIntroFragmentDirections.actionConnectJobIntroFragmentToConnectDownloadingFragment(title, job.getTitle());
+            Navigation.findNavController(button).navigate(directions);
+        });
 
         return view;
     }

@@ -8,6 +8,8 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.commcare.android.database.connect.models.ConnectJob;
+import org.commcare.android.database.connect.models.ConnectJobLearningModule;
 import org.commcare.dalvik.R;
 
 import java.text.DateFormat;

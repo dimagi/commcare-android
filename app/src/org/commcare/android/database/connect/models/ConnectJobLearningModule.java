@@ -1,4 +1,4 @@
-package org.commcare.fragments.connect;
+package org.commcare.android.database.connect.models;
 
 import java.io.Serializable;
 import java.util.Date;

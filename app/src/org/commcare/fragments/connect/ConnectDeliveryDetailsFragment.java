@@ -8,15 +8,16 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.commcare.android.database.connect.models.ConnectJob;
 import org.commcare.dalvik.R;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Locale;
 
 import androidx.fragment.app.Fragment;
+import androidx.navigation.NavDirections;
+import androidx.navigation.Navigation;
 
 /**
  * Fragment for showing delivery details for a Connect job
@@ -69,7 +70,11 @@ public class ConnectDeliveryDetailsFragment extends Fragment {
         textView.setText(getString(R.string.connect_delivery_ready_to_claim_detailed));
 
         Button button = view.findViewById(R.id.connect_delivery_button);
-        button.setOnClickListener(v -> Toast.makeText(getContext(), "Not ready yet...", Toast.LENGTH_SHORT).show());
+        button.setOnClickListener(v -> {
+            String title = getString(R.string.connect_downloading_delivery);
+            NavDirections directions = ConnectDeliveryDetailsFragmentDirections.actionConnectJobDeliveryDetailsFragmentToConnectDownloadingFragment(title, job.getTitle());
+            Navigation.findNavController(button).navigate(directions);
+        });
 
         return view;
     }

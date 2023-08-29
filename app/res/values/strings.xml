@@ -635,6 +635,18 @@
     <string name="connect_delivery_ready_to_claim_detailed" cc:translatable="true">To complete this claim and start delivering care, download the delivery app.</string>
     <string name="connect_delivery_download_app" cc:translatable="true">Download Delivery App</string>
 
+    <string name="connect_progress_delivery" cc:translatable="true">Delivery</string>
+    <string name="connect_progress_delivery_verification" cc:translatable="true">Verification &amp; Payments</string>
+    <string name="connect_progress_title" cc:translatable="true">Your Delivery Progress</string>
+    <string name="connect_progress_status" cc:translatable="true">You have completed %d of %d visits.</string>
+    <string name="connect_progress_complete_by" cc:translatable="true">Complete Delivery by %s</string>
+    <string name="connect_progress_launch" cc:translatable="true">Launch App</string>
+    <string name="connect_progress_paid" cc:translatable="true">PAID</string>
+
+    <string name="connect_downloading_learn" cc:translatable="true">Downloading Learn App</string>
+    <string name="connect_downloading_delivery" cc:translatable="true">Downloading Delivery App</string>
+    <string name="connect_downloading_status" cc:translatable="true">%d%% Complete</string>
+
     <string name="login_menu_connect_sign_in" cc:translatable="true">Sign up for ConnectID</string>
     <string name="login_menu_connect_sign_out" cc:translatable="true">Sign out of ConnectID</string>
     <string name="login_menu_connect_forget" cc:translatable="true">Forget ConnectID user</string>
