@@ -3,6 +3,7 @@ package org.commcare.provider;
 import android.content.Intent;
 
 import org.commcare.android.javarosa.IntentCallout;
+import org.commcare.commcaresupportlibrary.BiometricUtils;
 import org.commcare.commcaresupportlibrary.identity.IdentityResponseBuilder;
 import org.commcare.commcaresupportlibrary.identity.model.IdentificationMatch;
 import org.commcare.commcaresupportlibrary.identity.model.MatchResult;
@@ -36,7 +37,7 @@ public class IdentityCalloutHandler {
     private static final String REF_MATCH_STRENGTH = "match_strength";
 
     public static final String GENERALIZED_IDENTITY_PROVIDER = "generalized_identity_provider";
-
+    private static final String REF_TEMPLATES = "templates";
 
     @StringDef({GENERALIZED_IDENTITY_PROVIDER, SimprintsCalloutProcessing.SIMPRINTS_IDENTITY_PROVIDER})
     @Retention(RetentionPolicy.SOURCE)
@@ -109,7 +110,10 @@ public class IdentityCalloutHandler {
                                                       Hashtable<String, Vector<TreeReference>> responseToRefMap) {
         RegistrationResult registrationResult = intent.getParcelableExtra(IdentityResponseBuilder.REGISTRATION);
         String guid = registrationResult.getGuid();
+        String templates = BiometricUtils.convertTemplatesToBase64String(registrationResult.getTemplates());
+
         storeValueFromCalloutInForm(formDef, responseToRefMap, intentQuestionRef, REF_GUID, guid);
+        storeValueFromCalloutInForm(formDef, responseToRefMap, intentQuestionRef, REF_TEMPLATES,  templates);
         IntentCallout.setNodeValue(formDef, intentQuestionRef, guid);
 
         // Empty out any references present for duplicate handling
