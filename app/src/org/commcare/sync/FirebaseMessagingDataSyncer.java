@@ -138,7 +138,6 @@ public class FirebaseMessagingDataSyncer implements CommCareTaskConnector {
                 user.getUniqueId(),
                 ServerUrls.getDataServerKey(),
                 context,
-                true,
                 true) {
 
             @Override
