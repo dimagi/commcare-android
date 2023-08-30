@@ -14,7 +14,7 @@ public class BiometricUtils {
     public enum BiometricIdentifier {
         RIGHT_THUMB, RIGHT_INDEX_FINGER, RIGHT_MIDDLE_FINGER, RIGHT_RING_FINGER, RIGHT_PINKY_FINGER,
         LEFT_THUMB, LEFT_INDEX_FINGER, LEFT_MIDDLE_FINGER, LEFT_RING_FINGER, LEFT_PINKY_FINGER,
-        FACE
+        FACE, UNKNOWN, INVALID
     }
 
     /**
