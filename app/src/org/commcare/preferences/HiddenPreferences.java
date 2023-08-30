@@ -100,11 +100,9 @@ public class HiddenPreferences {
     private static final long NO_OF_HOURS_TO_WAIT_TO_RESUME_BACKGROUND_WORK = 36;
 
     // This is to be used by CommCareFirebaseMessagingService to schedule a sync after the next Login
-    public final static String PENDING_SYNC_REQUEST_FROM_SERVER = "pending-sync-request-from-server-";
+    public final static String BACKGROUND_SYNC_PENDING = "background-sync-pending-";
 
     private static final String ENABLE_ANDROID_WINDOW_SECURE_FLAG = "cc-enable-android-window-secure-flag";
-
-    private static final String PENDING_SYNC_REQUEST_FROM_SERVER_TIME = "pending-sync-request-from-server-time";
     public final static String POST_FOR_SUBMISSION_SYNC_NEEDED = "post-form-submission-sync-needed";
     public final static String DONT_SHOW_PENDING_SYNC_DIALOG = "dont-show-pending-sync-dialog";
     private static final String POST_FOR_SUBMISSION_SYNC_NEEDED_FCM_MESSAGE_DATA = "post-form-submission-sync-needed-fcm-message-data";
@@ -586,18 +584,18 @@ public class HiddenPreferences {
     public static boolean isPendingSyncRequestFromServerForUser() {
         String loggedUsername = CommCareApplication.instance().getSession().getLoggedInUser().getUsername();
         return PreferenceManager.getDefaultSharedPreferences(CommCareApplication.instance())
-                .contains(PENDING_SYNC_REQUEST_FROM_SERVER + loggedUsername + "@"+ getUserDomainWithoutServerUrl());
+                .contains(BACKGROUND_SYNC_PENDING + loggedUsername + "@"+ getUserDomainWithoutServerUrl());
     }
     public static void setPendingSyncRequestFromServerForUser(FCMMessageData fcmMessageData) {
         PreferenceManager.getDefaultSharedPreferences(CommCareApplication.instance()).edit()
-                .putBoolean(PENDING_SYNC_REQUEST_FROM_SERVER + fcmMessageData.getUsername() + "@"+ fcmMessageData.getDomain(), true)
+                .putBoolean(BACKGROUND_SYNC_PENDING + fcmMessageData.getUsername() + "@"+ fcmMessageData.getDomain(), true)
                 .apply();
     }
 
     public static void clearPendingSyncRequestFromServerForUser() {
         String loggedUsername = CommCareApplication.instance().getSession().getLoggedInUser().getUsername();
         PreferenceManager.getDefaultSharedPreferences(CommCareApplication.instance()).edit()
-                .remove(PENDING_SYNC_REQUEST_FROM_SERVER + loggedUsername + "@"+ getUserDomainWithoutServerUrl())
+                .remove(BACKGROUND_SYNC_PENDING + loggedUsername + "@"+ getUserDomainWithoutServerUrl())
                 .apply();
     }
 
