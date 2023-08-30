@@ -129,8 +129,7 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
     private ContainerFragment<Bundle> managedUiState;
     private boolean isMainScreenBlocked;
 
-    DataSyncCompleteBroadcastReceiver dataSyncCompleteBroadcastReceiver = new DataSyncCompleteBroadcastReceiver();
-    private boolean dataSyncCompleteBroadcastReceiverRegistered = false;
+    private DataSyncCompleteBroadcastReceiver dataSyncCompleteBroadcastReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -299,11 +298,11 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
         super.onResume();
         AudioController.INSTANCE.playPreviousAudio();
 
-        CommCareApplication.currentActivityName = this.getClass().getSimpleName();
+        CommCareApplication.backgroundSyncSafe = true;
 
-        if (isBackgroundSyncEnabled() && !dataSyncCompleteBroadcastReceiverRegistered) {
+        if (isBackgroundSyncEnabled() && dataSyncCompleteBroadcastReceiver == null) {
+            dataSyncCompleteBroadcastReceiver = new DataSyncCompleteBroadcastReceiver();
             registerReceiver(dataSyncCompleteBroadcastReceiver, new IntentFilter(COMMCARE_DATA_UPDATE_ACTION));
-            dataSyncCompleteBroadcastReceiverRegistered = true;
         }
     }
 
@@ -329,9 +328,8 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
         areFragmentsPaused = true;
         AudioController.INSTANCE.systemInducedPause();
 
-        if (isBackgroundSyncEnabled() && dataSyncCompleteBroadcastReceiverRegistered) {
+        if (dataSyncCompleteBroadcastReceiver != null) {
             unregisterReceiver(dataSyncCompleteBroadcastReceiver);
-            dataSyncCompleteBroadcastReceiverRegistered = false;
         }
     }
 

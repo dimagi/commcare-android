@@ -39,7 +39,8 @@ public class CommcareListActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        CommCareApplication.currentActivityName = this.getClass().getSimpleName();
+
+        CommCareApplication.backgroundSyncSafe = true;
     }
 
     public int getLayoutResource() {

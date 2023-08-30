@@ -51,7 +51,6 @@ public class FirebaseMessagingDataSyncer implements CommCareTaskConnector {
         this.context = context;
     }
 
-    private List<String> syncUnsafeActivities = Arrays.asList(new String[]{"FormEntryActivity"});
     private CommCareTask currentTask = null;
     private PinnedNotificationWithProgress<DataPullTask.PullTaskResult> mPinnedNotificationProgress = null;
 
@@ -186,7 +185,7 @@ public class FirebaseMessagingDataSyncer implements CommCareTaskConnector {
     }
 
     private boolean isCurrentActivitySyncSafe() {
-        return !syncUnsafeActivities.contains(CommCareApplication.currentActivityName);
+        return CommCareApplication.backgroundSyncSafe;
     }
 
     // This method is responsible for informing the User about a pending sync and scheduling

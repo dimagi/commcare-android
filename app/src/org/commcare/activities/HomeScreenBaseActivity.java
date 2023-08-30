@@ -9,6 +9,7 @@ import static org.commcare.activities.DriftHelper.getCurrentDrift;
 import static org.commcare.activities.DriftHelper.getDriftDialog;
 import static org.commcare.activities.DriftHelper.shouldShowDriftWarning;
 import static org.commcare.activities.DriftHelper.updateLastDriftWarningTime;
+import static org.commcare.activities.EntitySelectActivity.EXTRA_ENTITY_KEY;
 import static org.commcare.appupdate.AppUpdateController.IN_APP_UPDATE_REQUEST_CODE;
 
 import android.content.DialogInterface;
@@ -172,13 +173,13 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
     private static final int MAX_CC_UPDATE_CANCELLATION = 3;
 
     // This is to trigger a background sync after a form submission,
-    public static boolean shouldTriggerBackgroundSync = true;
+    private boolean shouldTriggerBackgroundSync = true;
 
     // This is to restore the selected entity when restarting EntityDetailActivity after a
     // background sync
-    public static String selectedEntityPostSync = null;
+    private String selectedEntityPostSync = null;
 
-    FirebaseMessagingDataSyncer dataSyncer;
+    private FirebaseMessagingDataSyncer dataSyncer;
 
     {
         dataSyncer = new FirebaseMessagingDataSyncer(this);
@@ -577,11 +578,14 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
     @Override
     public void onActivityResultSessionSafe(int requestCode, int resultCode, Intent intent) {
         if (resultCode == RESULT_RESTART) {
-            startNextSessionStepSafe();
+            if (intent != null && intent.hasExtra(EXTRA_ENTITY_KEY))
+                selectedEntityPostSync = intent.getStringExtra(EXTRA_ENTITY_KEY);
 
             // Reset the AndroidInstanceInitializer to force the eval context to be rebuilt
             // during restart
             CommCareApplication.instance().getCurrentSessionWrapper().cleanVolatiles();
+
+            startNextSessionStepSafe();
         } else {
             // if handling new return code (want to return to home screen) but a return at the
             // end of your statement
@@ -1125,10 +1129,10 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
         i.putExtra(SessionFrame.STATE_COMMAND_ID, session.getCommand());
         StackFrameStep lastPopped = session.getPoppedStep();
         if (lastPopped != null && SessionFrame.STATE_DATUM_VAL.equals(lastPopped.getType())) {
-            i.putExtra(EntitySelectActivity.EXTRA_ENTITY_KEY, lastPopped.getValue());
+            i.putExtra(EXTRA_ENTITY_KEY, lastPopped.getValue());
         }
         if (selectedEntityPostSync != null) {
-            i.putExtra(EntitySelectActivity.EXTRA_ENTITY_KEY, selectedEntityPostSync);
+            i.putExtra(EXTRA_ENTITY_KEY, selectedEntityPostSync);
             selectedEntityPostSync = null;
         }
         addPendingDataExtra(i, session);
@@ -1163,7 +1167,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                 Intent i = getSelectIntent(session);
                 String caseId = DatumUtil.getReturnValueFromSelection(
                         contextRef, entityDatum, asw.getEvaluationContext());
-                i.putExtra(EntitySelectActivity.EXTRA_ENTITY_KEY, caseId);
+                i.putExtra(EXTRA_ENTITY_KEY, caseId);
                 startActivityForResult(i, GET_CASE);
             } else {
                 // Launch entity detail activity
