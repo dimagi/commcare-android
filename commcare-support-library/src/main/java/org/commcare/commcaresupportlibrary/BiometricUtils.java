@@ -20,10 +20,11 @@ public class BiometricUtils {
     /**
      * This method converts the biometrics templates into a Base64 encoded String to send back to
      * CommCare, as part of the response of the callout
-     * @param templates
+     * @param templates Map containing biometric templates
      * @return Base64 encoded string
      */
-    public static String convertTemplatesToBase64String(Map<BiometricUtils.BiometricIdentifier, byte[]> templates){
+    public static String convertMapTemplatesToBase64String(Map<BiometricUtils.BiometricIdentifier,
+            byte[]> templates){
         // In order to reduce the size of the templates, we are converting each byte array into a
         // Base64 encoded String
         Map<Integer, String> templatesBase64Encoded = new HashMap<>(templates.size());

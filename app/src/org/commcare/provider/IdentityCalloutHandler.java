@@ -110,7 +110,7 @@ public class IdentityCalloutHandler {
                                                       Hashtable<String, Vector<TreeReference>> responseToRefMap) {
         RegistrationResult registrationResult = intent.getParcelableExtra(IdentityResponseBuilder.REGISTRATION);
         String guid = registrationResult.getGuid();
-        String templates = BiometricUtils.convertTemplatesToBase64String(registrationResult.getTemplates());
+        String templates = BiometricUtils.convertMapTemplatesToBase64String(registrationResult.getTemplates());
 
         storeValueFromCalloutInForm(formDef, responseToRefMap, intentQuestionRef, REF_GUID, guid);
         storeValueFromCalloutInForm(formDef, responseToRefMap, intentQuestionRef, REF_TEMPLATES,  templates);
