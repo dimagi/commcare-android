@@ -76,13 +76,8 @@ public class FirebaseMessagingDataSyncer implements CommCareTaskConnector {
                 // A sync occurred since the sync request was triggered
                 return;
             }
-            // Attempt to trigger the sync if the user is currently in a sync safe activity
-            if (isCurrentActivitySyncSafe()){
-                uploadForms(user);
-            }
-            else {
-                informUserAboutPendingSync(fcmMessageData);
-            }
+            // The sync is triggered after any unsent forms are uploaded to HQ
+            uploadForms(user, fcmMessageData);
         } else {
             // Username and Domain don't match the current user OR payload data doesn't include username
             // and/or domain - Action: no actual, just log issue, no need to inform the user
@@ -90,7 +85,7 @@ public class FirebaseMessagingDataSyncer implements CommCareTaskConnector {
         }
     }
 
-    private void uploadForms(User user) {
+    private void uploadForms(User user, FCMMessageData fcmMessageData) {
         Constraints constraints = new Constraints.Builder()
                 .setRequiredNetworkType(NetworkType.CONNECTED)
                 .build();
@@ -112,7 +107,14 @@ public class FirebaseMessagingDataSyncer implements CommCareTaskConnector {
                     public void onChanged(WorkInfo workInfo) {
                         if (workInfo != null && workInfo.getState().isFinished()) {
                             if (workInfo.getState() == WorkInfo.State.SUCCEEDED) {
-                                triggerBackgroundSync(user);
+                                // Attempt to trigger the sync if the user is currently in a sync
+                                // safe activity
+                                if (isCurrentActivitySyncSafe()){
+                                    triggerBackgroundSync(user);
+                                }
+                                else {
+                                    informUserAboutPendingSync(fcmMessageData);
+                                }
                             }
                             workInfoLiveData.removeObserver(this);
                         }
