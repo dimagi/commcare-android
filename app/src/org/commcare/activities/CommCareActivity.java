@@ -300,7 +300,7 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
 
         CommCareApplication.backgroundSyncSafe = true;
 
-        if (shouldListenToSyncComplete() && isBackgroundSyncEnabled() && dataSyncCompleteBroadcastReceiver == null) {
+        if (shouldListenToSyncComplete() && isBackgroundSyncEnabled()) {
             dataSyncCompleteBroadcastReceiver = new DataSyncCompleteBroadcastReceiver();
             registerReceiver(dataSyncCompleteBroadcastReceiver, new IntentFilter(COMMCARE_DATA_UPDATE_ACTION));
         }
