@@ -50,7 +50,11 @@ public class FCMMessageData implements Externalizable{
         if (timeInISO8601 == null){
             return new DateTime();
         }
-        return new DateTime(timeInISO8601);
+        try {
+            return new DateTime(timeInISO8601);
+        } catch (Exception e) {
+            return new DateTime();
+        }
     }
 
     private CommCareFirebaseMessagingService.ActionTypes getActionType(String action) {
