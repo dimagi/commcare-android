@@ -300,10 +300,15 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
 
         CommCareApplication.backgroundSyncSafe = true;
 
-        if (isBackgroundSyncEnabled() && dataSyncCompleteBroadcastReceiver == null) {
+        if (shouldListenToSyncComplete() && isBackgroundSyncEnabled() && dataSyncCompleteBroadcastReceiver == null) {
             dataSyncCompleteBroadcastReceiver = new DataSyncCompleteBroadcastReceiver();
             registerReceiver(dataSyncCompleteBroadcastReceiver, new IntentFilter(COMMCARE_DATA_UPDATE_ACTION));
         }
+    }
+
+    // Activities that needs to restart after sync should override this to return true
+    public boolean shouldListenToSyncComplete() {
+        return false;
     }
 
     @Override

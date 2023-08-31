@@ -150,6 +150,11 @@ public class EntityDetailActivity
     }
 
     @Override
+    public boolean shouldListenToSyncComplete() {
+        return true;
+    }
+
+    @Override
     public Pair<Detail, TreeReference> requestEntityContext() {
         return mEntityContext;
     }

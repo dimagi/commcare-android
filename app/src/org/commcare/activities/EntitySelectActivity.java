@@ -308,6 +308,11 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         message.setText(Localization.get("select.placeholder.message", new String[]{Localization.get("cchq.case")}));
     }
 
+    @Override
+    public boolean shouldListenToSyncComplete() {
+        return true;
+    }
+
     private void restoreExistingSelection(boolean isOrientationChange) {
         // Restore detail screen for selection from landscape mode as we move into portrait mode.
         if (isOrientationChange) {
@@ -576,7 +581,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
                     // create intent for return and store path
                     returnWithResult(intent);
                 } else if (resultCode == RESULT_RESTART) {
-                    this.setResult(RESULT_RESTART);
+                    this.setResult(RESULT_RESTART, intent);
                     this.finish();
                 } else {
                     //Did we enter the detail from mapping mode? If so, go back to that
