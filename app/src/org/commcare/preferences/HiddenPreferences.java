@@ -1,7 +1,6 @@
 package org.commcare.preferences;
 
 import android.content.SharedPreferences;
-import android.util.Base64;
 
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
@@ -12,7 +11,6 @@ import org.commcare.utils.AndroidCommCarePlatform;
 import org.commcare.utils.FirebaseMessagingUtil;
 import org.commcare.utils.GeoUtils;
 import org.commcare.utils.MapLayer;
-import org.commcare.utils.SerializationUtil;
 
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
@@ -103,9 +101,9 @@ public class HiddenPreferences {
     public final static String BACKGROUND_SYNC_PENDING = "background-sync-pending-";
 
     private static final String ENABLE_ANDROID_WINDOW_SECURE_FLAG = "cc-enable-android-window-secure-flag";
-    public final static String POST_FOR_SUBMISSION_SYNC_NEEDED = "post-form-submission-sync-needed";
+    public final static String POST_FORM_SUBMISSION_SYNC_NEEDED = "post-form-submission-sync-needed";
     public final static String DONT_SHOW_PENDING_SYNC_DIALOG = "dont-show-pending-sync-dialog";
-    private static final String POST_FOR_SUBMISSION_SYNC_NEEDED_FCM_MESSAGE_DATA = "post-form-submission-sync-needed-fcm-message-data";
+    private static final String POST_FORM_SUBMISSION_SYNC_NEEDED_FCM_MESSAGE_DATA = "post-form-submission-sync-needed-fcm-message-data";
     private static final String ENABLE_BACKGROUND_SYNC = "cc-enable-background-sync";
 
     /**
@@ -581,10 +579,9 @@ public class HiddenPreferences {
                 .edit().putBoolean(RAW_MEDIA_CLEANUP_COMPLETE, true).apply();
     }
 
-    public static boolean isPendingSyncRequestFromServerForUser() {
-        String loggedUsername = CommCareApplication.instance().getSession().getLoggedInUser().getUsername();
+    public static boolean isPendingSyncRequestFromServerForUser(String loggedInUser) {
         return PreferenceManager.getDefaultSharedPreferences(CommCareApplication.instance())
-                .contains(BACKGROUND_SYNC_PENDING + loggedUsername + "@"+ getUserDomainWithoutServerUrl());
+                .contains(BACKGROUND_SYNC_PENDING + loggedInUser + "@"+ getUserDomainWithoutServerUrl());
     }
     public static void setPendingSyncRequestFromServerForUser(FCMMessageData fcmMessageData) {
         PreferenceManager.getDefaultSharedPreferences(CommCareApplication.instance()).edit()
@@ -592,10 +589,9 @@ public class HiddenPreferences {
                 .apply();
     }
 
-    public static void clearPendingSyncRequestFromServerForUser() {
-        String loggedUsername = CommCareApplication.instance().getSession().getLoggedInUser().getUsername();
+    public static void clearPendingSyncRequestFromServerForUser(String loggedInUser) {
         PreferenceManager.getDefaultSharedPreferences(CommCareApplication.instance()).edit()
-                .remove(BACKGROUND_SYNC_PENDING + loggedUsername + "@"+ getUserDomainWithoutServerUrl())
+                .remove(BACKGROUND_SYNC_PENDING + loggedInUser + "@"+ getUserDomainWithoutServerUrl())
                 .apply();
     }
 
@@ -605,25 +601,25 @@ public class HiddenPreferences {
 
     public static boolean isPostFormSubmissionSyncNeeded() {
         return CommCareApplication.instance().getCurrentApp().getAppPreferences()
-                .getBoolean(POST_FOR_SUBMISSION_SYNC_NEEDED, false);
+                .getBoolean(POST_FORM_SUBMISSION_SYNC_NEEDED, false);
     }
 
     public static void setPostFormSubmissionSyncNeeded(boolean syncNeeded) {
         CommCareApplication.instance().getCurrentApp().getAppPreferences().edit()
-                .putBoolean(POST_FOR_SUBMISSION_SYNC_NEEDED, syncNeeded)
+                .putBoolean(POST_FORM_SUBMISSION_SYNC_NEEDED, syncNeeded)
                 .apply();
     }
 
     public static void setPostFormSubmissionSyncNeededFCMMessageData(FCMMessageData fcmMessageData) {
         CommCareApplication.instance().getCurrentApp().getAppPreferences().edit()
-                .putString(POST_FOR_SUBMISSION_SYNC_NEEDED_FCM_MESSAGE_DATA,
+                .putString(POST_FORM_SUBMISSION_SYNC_NEEDED_FCM_MESSAGE_DATA,
                         FirebaseMessagingUtil.serializeFCMMessageData(fcmMessageData))
                 .apply();
     }
 
     public static FCMMessageData getPostFormSubmissionSyncNeededFCMMessageData() {
         String serializedMessageData = CommCareApplication.instance().getCurrentApp().getAppPreferences()
-                .getString(POST_FOR_SUBMISSION_SYNC_NEEDED_FCM_MESSAGE_DATA, null);
+                .getString(POST_FORM_SUBMISSION_SYNC_NEEDED_FCM_MESSAGE_DATA, null);
         return FirebaseMessagingUtil.deserializeFCMMessageData(serializedMessageData);
     }
 

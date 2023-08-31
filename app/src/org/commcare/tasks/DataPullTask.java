@@ -55,7 +55,6 @@ import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.util.Date;
 import java.util.Hashtable;
-import java.util.List;
 import java.util.NoSuchElementException;
 
 import javax.crypto.SecretKey;
@@ -461,7 +460,7 @@ public abstract class DataPullTask<R>
         updateCurrentUser(password);
 
         // Disable pending background syncs
-        HiddenPreferences.clearPendingSyncRequestFromServerForUser();
+        HiddenPreferences.clearPendingSyncRequestFromServerForUser(username);
         HiddenPreferences.setPostFormSubmissionSyncNeeded(false);
 
         this.publishProgress(PROGRESS_DONE);

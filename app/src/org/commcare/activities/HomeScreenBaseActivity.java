@@ -87,7 +87,6 @@ import org.commcare.utils.CrashUtil;
 import org.commcare.utils.EntityDetailUtils;
 import org.commcare.utils.GlobalConstants;
 import org.commcare.utils.SessionUnavailableException;
-import org.commcare.utils.SyncDetailCalculations;
 import org.commcare.views.UserfacingErrorHandling;
 import org.commcare.views.dialogs.CommCareAlertDialog;
 import org.commcare.views.dialogs.DialogChoiceItem;
@@ -354,7 +353,8 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
 
         // In case a sync request from FCM was made while the user was logged out, this will
         // trigger a blocking sync
-        if (HiddenPreferences.isPendingSyncRequestFromServerForUser()) {
+        String username = CommCareApplication.instance().getSession().getLoggedInUser().getUsername();
+        if (HiddenPreferences.isPendingSyncRequestFromServerForUser(username)) {
             sendFormsOrSync(false);
 
             return true;
@@ -405,7 +405,8 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
     private void clearOneTimeLoginActionFlags() {
         HiddenPreferences.setPostUpdateSyncNeeded(false);
         HiddenPreferences.clearInterruptedSSD();
-        HiddenPreferences.clearPendingSyncRequestFromServerForUser();
+        String username = CommCareApplication.instance().getSession().getLoggedInUser().getUsername();
+        HiddenPreferences.clearPendingSyncRequestFromServerForUser(username);
     }
 
     private boolean tryRestoringFormFromSessionExpiration() {

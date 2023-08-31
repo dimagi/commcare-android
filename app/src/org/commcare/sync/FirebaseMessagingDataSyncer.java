@@ -36,7 +36,6 @@ import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class FirebaseMessagingDataSyncer implements CommCareTaskConnector {
