@@ -2,7 +2,8 @@ package org.commcare.commcaresupportlibrary.identity.model;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import org.commcare.commcaresupportlibrary.BiometricUtils;
+
+import org.commcare.commcaresupportlibrary.BiometricIdentifier;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -11,7 +12,7 @@ import java.util.Map;
 @SuppressWarnings("unused")
 public class RegistrationResult implements Parcelable {
     private String guid;
-    private Map<BiometricUtils.BiometricIdentifier, byte[]> templates;
+    private Map<BiometricIdentifier, byte[]> templates;
 
     /**
      * Result of the identity enrollment workflow
@@ -23,7 +24,7 @@ public class RegistrationResult implements Parcelable {
         this.templates = new HashMap<>(0);
     }
 
-    public RegistrationResult(String guid, Map<BiometricUtils.BiometricIdentifier, byte[]> templates) {
+    public RegistrationResult(String guid, Map<BiometricIdentifier, byte[]> templates) {
         this.guid = guid;
         this.templates = templates;
     }
@@ -33,7 +34,7 @@ public class RegistrationResult implements Parcelable {
         int numTemplates = in.readInt();
         templates = new HashMap<>(numTemplates);
         for (int i=0;i < numTemplates; i++){
-            BiometricUtils.BiometricIdentifier biometricIdentifier = BiometricUtils.BiometricIdentifier.values()[in.readInt()];
+            BiometricIdentifier biometricIdentifier = BiometricIdentifier.values()[in.readInt()];
             int templateSize = in.readInt();
             byte[] template = new byte[templateSize];
             in.readByteArray(template);
@@ -62,7 +63,7 @@ public class RegistrationResult implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(guid);
         dest.writeInt(getNumberOfTemplates());
-        for (Map.Entry<BiometricUtils.BiometricIdentifier, byte[]> template : templates.entrySet()){
+        for (Map.Entry<BiometricIdentifier, byte[]> template : templates.entrySet()){
             dest.writeInt(template.getKey().ordinal());
             dest.writeInt(template.getValue().length);
             dest.writeByteArray(template.getValue());
@@ -73,7 +74,7 @@ public class RegistrationResult implements Parcelable {
         return guid;
     }
 
-    public Map<BiometricUtils.BiometricIdentifier, byte[]> getTemplates() {
+    public Map<BiometricIdentifier, byte[]> getTemplates() {
         return templates;
     }
 
@@ -97,7 +98,7 @@ public class RegistrationResult implements Parcelable {
             return false;
         }
 
-        for (Map.Entry<BiometricUtils.BiometricIdentifier, byte[]> template : templates.entrySet()){
+        for (Map.Entry<BiometricIdentifier, byte[]> template : templates.entrySet()){
             byte[] otherTemplate = other.getTemplates().get(template.getKey());
             if (!Arrays.equals(template.getValue(), otherTemplate)) {
                 return false;
@@ -109,7 +110,7 @@ public class RegistrationResult implements Parcelable {
     @Override
     public int hashCode() {
         int hash = guid.hashCode();
-        for (Map.Entry<BiometricUtils.BiometricIdentifier, byte[]> template : templates.entrySet()){
+        for (Map.Entry<BiometricIdentifier, byte[]> template : templates.entrySet()){
             hash += Arrays.hashCode(template.getValue());
         }
         return hash;

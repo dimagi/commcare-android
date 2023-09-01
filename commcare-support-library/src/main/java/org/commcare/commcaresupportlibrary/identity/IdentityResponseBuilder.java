@@ -3,7 +3,7 @@ package org.commcare.commcaresupportlibrary.identity;
 import android.app.Activity;
 import android.content.Intent;
 
-import org.commcare.commcaresupportlibrary.BiometricUtils;
+import org.commcare.commcaresupportlibrary.BiometricIdentifier;
 import org.commcare.commcaresupportlibrary.identity.model.IdentificationMatch;
 import org.commcare.commcaresupportlibrary.identity.model.MatchResult;
 import org.commcare.commcaresupportlibrary.identity.model.RegistrationResult;
@@ -49,7 +49,7 @@ public class IdentityResponseBuilder {
      * @param templates data captured as part of the new registration in the Identity Provider
      * @return IdentityResponseBuilder for a registration workflow response
      */
-    public static IdentityResponseBuilder registrationResponse(String guid, Map<BiometricUtils.BiometricIdentifier, byte[]> templates) {
+    public static IdentityResponseBuilder registrationResponse(String guid, Map<BiometricIdentifier, byte[]> templates) {
         Intent intent = new Intent();
         intent.putExtra(REGISTRATION, new RegistrationResult(guid, templates));
         return new IdentityResponseBuilder(intent);
