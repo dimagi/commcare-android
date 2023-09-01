@@ -111,7 +111,8 @@
         android:id="@+id/searchfooter"
         android:orientation="horizontal"
         android:background="@drawable/border_top_black"
-        android:paddingTop="1dp">
+        android:paddingTop="1dp"
+        android:visibility="gone">
 
         <TextView
             android:id="@+id/screen_entity_select_search_label"
