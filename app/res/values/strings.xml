@@ -618,9 +618,15 @@
     <string name="connect_job_learn_summary" cc:translatable="true">%d modules, %d hours</string>
 
     <string name="connect_learn_progress_title" cc:translatable="true">Your Learning Progress</string>
+    <string name="connect_learn_complete_title" cc:translatable="true">Training Complete!</string>
     <string name="connect_learn_complete_by" cc:translatable="true">Complete Learning by %s</string>
     <string name="connect_learn_status" cc:translatable="true">You have completed %d of %d lessons.\nFinish learning to earn your certificate.</string>
     <string name="connect_learn_not_started" cc:translatable="true">You haven\'t completed any lessons.\nStart learning to earn your certificate.</string>
+    <string name="connect_learn_finished" cc:translatable="true">You have earned a certificate for this job and are eligible to claim the job and begin delivering care.</string>
+    <string name="connect_learn_certificate" cc:translatable="true">CERTIFICATE OF COMPLETION</string>
+    <string name="connect_learn_completed" cc:translatable="true">Completed on: %s</string>
+    <string name="connect_learn_claim_label" cc:translatable="true">Claim Job to Deliver Care</string>
+    <string name="connect_learn_start_claim" cc:translatable="true">Start Claim</string>
     <string name="connect_learn_start" cc:translatable="true">Start Learning</string>
     <string name="connect_learn_continue" cc:translatable="true">Continue Learning</string>
 

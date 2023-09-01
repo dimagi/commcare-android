@@ -40,6 +40,19 @@ public class MockJobProvider {
                     },
                     new ConnectJobDelivery[]{}
                     ),
+            new ConnectJob("Training Complete Example",
+                    "This mock shows when training is complete for a job.",
+                    false,
+                    0,100, 5,
+                    new Date("9/15/2023"),
+                    new Date("10/1/2023"),
+                    new Date("11/1/2023"),
+                    null,
+                    new ConnectJobLearningModule[] {
+                            new ConnectJobLearningModule("Sample learning module", 2, new Date("8/10/2023")),
+                    },
+                    new ConnectJobDelivery[]{}
+            ),
     };
 
     private static final ConnectJob[] mockClaimedJobs = {
