@@ -1,5 +1,7 @@
 package org.commcare.activities;
 
+import static org.commcare.preferences.HiddenPreferences.isFlagSecureEnabled;
+
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -18,6 +20,7 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewTreeObserver;
+import android.view.WindowManager;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -126,6 +129,10 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        if (isFlagSecureEnabled()) {
+            getWindow().addFlags(WindowManager.LayoutParams.FLAG_SECURE);
+        }
 
         FragmentManager fm = this.getSupportFragmentManager();
 

@@ -350,6 +350,10 @@ public class DispatchActivity extends AppCompatActivity {
                         i.putExtra(SESSION_ENDPOINT_ID, sessionEndpointId);
                         i.putExtra(SESSION_ENDPOINT_ARGUMENTS_BUNDLE, args);
                         i.putStringArrayListExtra(SESSION_ENDPOINT_ARGUMENTS_LIST, argsList);
+
+                        // Session Endpoint extra is no longer needed. If not removed, it triggers
+                        // the external launch logic in subsequent logins
+                        getIntent().removeExtra(SESSION_ENDPOINT_ID);
                     }
                     if (i != null) {
                         i.putExtra(WAS_EXTERNAL, true);

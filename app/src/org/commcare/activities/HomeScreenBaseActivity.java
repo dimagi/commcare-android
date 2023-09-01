@@ -548,7 +548,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
     @Override
     public void onActivityResultSessionSafe(int requestCode, int resultCode, Intent intent) {
         if (resultCode == RESULT_RESTART) {
-            sessionNavigator.startNextSessionStep();
+            startNextSessionStepSafe();
         } else {
             // if handling new return code (want to return to home screen) but a return at the
             // end of your statement
