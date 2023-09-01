@@ -16,6 +16,8 @@ import org.commcare.android.resource.installers.XFormAndroidInstaller
 import org.commcare.android.util.ActivityLaunchUtils
 import org.commcare.android.util.TestAppInstaller
 import org.commcare.android.util.TestUtils
+import org.commcare.commcaresupportlibrary.BiometricIdentifier
+import org.commcare.commcaresupportlibrary.BiometricUtils
 import org.commcare.commcaresupportlibrary.identity.IdentityResponseBuilder
 import org.commcare.commcaresupportlibrary.identity.model.IdentificationMatch
 import org.commcare.commcaresupportlibrary.identity.model.MatchResult
@@ -96,6 +98,24 @@ class IdentityCalloutTests {
         assertEquals(guidToConfidenceMap.elementAt(2), "★★★")
     }
 
+    @Test
+    fun testRegistrationWithTemplates() {
+        val formEntryActivity = ActivityLaunchUtils.launchFormEntry("m0-f1")
+
+        var templates : HashMap<BiometricIdentifier, ByteArray> =
+            HashMap<BiometricIdentifier, ByteArray>(2)
+        templates.put(BiometricIdentifier.LEFT_INDEX_FINGER,
+            byteArrayOf(0, 0, -21, -67, 0, -64, 25, 62, -69, -124, -91, 29, -50, -107, 58))
+        templates.put(BiometricIdentifier.LEFT_MIDDLE_FINGER,
+            byteArrayOf(122, -91, 114, 62, 107, -95, -69, 28, 110, 123, 72, 71, -86, -117, 126))
+
+        intendRegistrationWithTemplatesIntent()
+        performIntentCallout(formEntryActivity)
+        TestUtils.assertFormValue("/data/guid", "test-case-unique-guid")
+        TestUtils.assertFormValue("/data/templates",
+            BiometricUtils.convertMapTemplatesToBase64String(templates))
+    }
+
     private fun getIdentificationIntent(): Intent {
         val identifications = ArrayList<IdentificationMatch>()
         identifications.add(IdentificationMatch("guid-1", MatchResult(80, MatchStrength.FOUR_STARS)))
@@ -116,6 +136,21 @@ class IdentityCalloutTests {
         val registration = IdentityResponseBuilder
                 .registrationResponse("test-case-unique-guid")
                 .build()
+        val result = Instrumentation.ActivityResult(Activity.RESULT_OK, registration)
+        intending(hasAction("org.commcare.identity.bioenroll")).respondWith(result)
+    }
+
+    private fun intendRegistrationWithTemplatesIntent() {
+        var templates : HashMap<BiometricIdentifier, ByteArray> =
+            HashMap<BiometricIdentifier, ByteArray>(2)
+        templates.put(BiometricIdentifier.LEFT_INDEX_FINGER,
+            byteArrayOf(0, 0, -21, -67, 0, -64, 25, 62, -69, -124, -91, 29, -50, -107, 58))
+        templates.put(BiometricIdentifier.LEFT_MIDDLE_FINGER,
+            byteArrayOf(122, -91, 114, 62, 107, -95, -69, 28, 110, 123, 72, 71, -86, -117, 126))
+
+        val registration = IdentityResponseBuilder
+            .registrationResponse("test-case-unique-guid", templates)
+            .build()
         val result = Instrumentation.ActivityResult(Activity.RESULT_OK, registration)
         intending(hasAction("org.commcare.identity.bioenroll")).respondWith(result)
     }

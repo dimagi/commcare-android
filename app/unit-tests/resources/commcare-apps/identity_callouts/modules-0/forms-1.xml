@@ -1,18 +1,12 @@
 <h:html xmlns:h="http://www.w3.org/1999/xhtml" xmlns:orx="http://openrosa.org/jr/xforms" xmlns="http://www.w3.org/2002/xforms" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:jr="http://openrosa.org/javarosa" xmlns:vellum="http://commcarehq.org/xforms/vellum">
   <h:head>
-    <h:title>Registration Form</h:title>
+    <h:title>Registration with Templates</h:title>
     <model>
       <instance>
-        <data xmlns:jrm="http://dev.commcarehq.org/jr/xforms" xmlns="http://openrosa.org/formdesigner/39BBDBB3-7C04-472E-9D8F-DB640E63F466" uiVersion="1" version="24" name="Registration Form">
-          <question2/>
-          <duplicate_guid/>
-          <duplicate_score/>
-          <duplicate_strength/>
-          <identity_guid/>
-          <verification/>
-          <verify_guid/>
-          <verify_score/>
-          <verify_strength/>
+        <data xmlns:jrm="http://dev.commcarehq.org/jr/xforms" xmlns="http://openrosa.org/formdesigner/E3900AF4-43AC-435A-B0BB-E043AD9608A1" uiVersion="1" version="24" name="Registration with Templates">
+          <register/>
+          <guid/>
+          <templates/>
           <case xmlns="http://commcarehq.org/case/transaction/v2" case_id="" date_modified="" user_id="">
             <create>
               <case_name/>
@@ -33,29 +27,20 @@
         </data>
       </instance>
       <instance id="commcaresession" src="jr://instance/session"/>
-      <bind nodeset="/data/question2" type="intent" required="true()"/>
-      <bind nodeset="/data/duplicate_guid"/>
-      <bind nodeset="/data/duplicate_score"/>
-      <bind nodeset="/data/duplicate_strength"/>
-      <bind nodeset="/data/identity_guid"/>
-      <bind nodeset="/data/verification" type="intent"/>
-      <bind nodeset="/data/verify_guid"/>
-      <bind nodeset="/data/verify_score"/>
-      <bind nodeset="/data/verify_strength"/>
+      <bind nodeset="/data/register" type="intent" required="true()"/>
+      <bind nodeset="/data/guid"/>
+      <bind nodeset="/data/templates"/>
       <itext>
         <translation lang="en" default="">
-          <text id="question2-label">
+          <text id="register-label">
             <value>Register</value>
-          </text>
-          <text id="verification-label">
-            <value>Verification</value>
           </text>
         </translation>
       </itext>
       <bind nodeset="/data/case/@date_modified" type="xsd:dateTime" calculate="/data/meta/timeEnd"/>
       <bind nodeset="/data/case/@user_id" calculate="/data/meta/userID"/>
       <setvalue ref="/data/case/@case_id" value="instance('commcaresession')/session/data/case_id_new_case_0" event="xforms-ready"/>
-      <bind nodeset="/data/case/create/case_name" calculate="/data/question2"/>
+      <bind nodeset="/data/case/create/case_name" calculate="/data/register"/>
       <bind nodeset="/data/case/create/owner_id" calculate="/data/meta/userID"/>
       <setvalue ref="/data/meta/deviceID" value="instance('commcaresession')/session/context/deviceid" event="xforms-ready"/>
       <setvalue ref="/data/meta/timeStart" value="now()" event="xforms-ready"/>
@@ -68,24 +53,14 @@
       <setvalue ref="/data/meta/appVersion" value="instance('commcaresession')/session/context/appversion" event="xforms-ready"/>
       <setvalue ref="/data/meta/drift" value="if(count(instance('commcaresession')/session/context/drift) = 1, instance('commcaresession')/session/context/drift, '')" event="xforms-revalidate"/>
     </model>
-    <odkx:intent xmlns:odkx="http://opendatakit.org/xforms" id="question2" class="org.commcare.identity.bioenroll">
-      <response key="guid" ref="/data/identity_guid"/>
-      <response key="match_guid" ref="/data/duplicate_guid"/>
-      <response key="match_confidence" ref="/data/duplicate_score"/>
-      <response key="match_strength" ref="/data/duplicate_strength"/>
-    </odkx:intent>
-    <odkx:intent xmlns:odkx="http://opendatakit.org/xforms" id="verification" class="org.commcare.identity.bioverify">
-      <response key="match_guid" ref="/data/verify_guid"/>
-      <response key="match_confidence" ref="/data/verify_score"/>
-      <response key="match_strength" ref="/data/verify_strength"/>
+    <odkx:intent xmlns:odkx="http://opendatakit.org/xforms" id="register" class="org.commcare.identity.bioenroll">
+      <response key="guid" ref="/data/guid"/>
+      <response key="templates" ref="/data/templates"/>
     </odkx:intent>
   </h:head>
   <h:body>
-    <input ref="/data/question2" appearance="intent:question2">
-      <label ref="jr:itext('question2-label')"/>
-    </input>
-    <input ref="/data/verification" appearance="intent:verification">
-      <label ref="jr:itext('verification-label')"/>
+    <input ref="/data/register" appearance="intent:register">
+      <label ref="jr:itext('register-label')"/>
     </input>
   </h:body>
 </h:html>
