@@ -298,7 +298,7 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
         super.onResume();
         AudioController.INSTANCE.playPreviousAudio();
 
-        CommCareApplication.backgroundSyncSafe = true;
+        CommCareApplication.instance().setBackgroundSyncSafe(true);
 
         if (shouldListenToSyncComplete() && isBackgroundSyncEnabled()) {
             dataSyncCompleteBroadcastReceiver = new DataSyncCompleteBroadcastReceiver();

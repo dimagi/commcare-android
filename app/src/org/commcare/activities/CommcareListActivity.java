@@ -40,7 +40,7 @@ public class CommcareListActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
 
-        CommCareApplication.backgroundSyncSafe = true;
+        CommCareApplication.instance().setBackgroundSyncSafe(true);
     }
 
     public int getLayoutResource() {

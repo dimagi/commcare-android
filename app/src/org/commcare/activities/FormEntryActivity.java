@@ -939,7 +939,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         registerReceiver(pendingSyncAlertBroadcastReceiver, intentFilter);
 
         // Flag that a background sync shouldn't be triggered when this activity is in the foreground
-        CommCareApplication.backgroundSyncSafe = false;
+        CommCareApplication.instance().setBackgroundSyncSafe(false);
     }
 
     private void reportVideoUsageIfAny() {

@@ -109,7 +109,7 @@ public class FirebaseMessagingDataSyncer implements CommCareTaskConnector {
                             if (workInfo.getState() == WorkInfo.State.SUCCEEDED) {
                                 // Attempt to trigger the sync if the user is currently in a sync
                                 // safe activity
-                                if (isCurrentActivitySyncSafe()){
+                                if (CommCareApplication.instance().isBackgroundSyncSafe()){
                                     triggerBackgroundSync(user);
                                 }
                                 else {
@@ -183,10 +183,6 @@ public class FirebaseMessagingDataSyncer implements CommCareTaskConnector {
             return payloadUsername.equalsIgnoreCase(loggedInUsername) && payloadDomain.equalsIgnoreCase(userDomain);
         }
         return false;
-    }
-
-    private boolean isCurrentActivitySyncSafe() {
-        return CommCareApplication.backgroundSyncSafe;
     }
 
     // This method is responsible for informing the User about a pending sync and scheduling
