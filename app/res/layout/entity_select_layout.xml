@@ -68,7 +68,7 @@
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/searchfooter"
+        android:layout_above="@+id/universal_frame_tile"
         android:layout_below="@+id/entity_select_filter_dropdown">
 
         <ListView
@@ -103,49 +103,6 @@
         android:layout_centerHorizontal="true"
         android:layout_alignParentBottom="true">
     </FrameLayout>
-
-    <LinearLayout
-        android:layout_height="wrap_content"
-        android:layout_width="fill_parent"
-        android:layout_above="@id/ad_container"
-        android:id="@+id/searchfooter"
-        android:orientation="horizontal"
-        android:background="@drawable/border_top_black"
-        android:paddingTop="1dp"
-        android:visibility="gone">
-
-        <TextView
-            android:id="@+id/screen_entity_select_search_label"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:text="Search:">
-        </TextView>
-
-        <RelativeLayout
-            android:id="@+id/relativeLayout1"
-            android:layout_height="wrap_content"
-            android:layout_width="fill_parent">
-
-            <EditText
-                android:id="@+id/searchbox"
-                android:layout_height="wrap_content"
-                android:layout_width="fill_parent"
-                android:layout_toLeftOf="@+id/barcodeButton"
-                android:maxLines="3"
-                android:inputType="textImeMultiLine"
-                android:imeOptions="actionDone"
-                android:layout_toStartOf="@+id/barcodeButton" />
-
-            <ImageButton
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentRight="true"
-                app:srcCompat="@drawable/barcode"
-                android:id="@+id/barcodeButton"
-                android:layout_alignParentEnd="true" />
-        </RelativeLayout>
-    </LinearLayout>
 
     <FrameLayout
         android:id="@+id/universal_frame_tile"
