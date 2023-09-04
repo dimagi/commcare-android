@@ -20,6 +20,11 @@ Often you will need this generated guid to be passed back to CommCare so that it
 IdentityResponseBuilder.registrationResponse(guid)
     .finalizeResponse(activity)
 ````
+Alternatively, in case the biometric templates are to be stored in CommCare, use the following instead -
+````
+IdentityResponseBuilder.registrationResponse(guid, templates)
+    .finalizeResponse(activity)
+````
 
 This creates an appropriate resulting Intent for the Identity registration workflow and finish your activity after setting the response as a result to returning intent.
 
