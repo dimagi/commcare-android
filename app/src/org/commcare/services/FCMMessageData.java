@@ -1,5 +1,6 @@
 package org.commcare.services;
 
+import org.javarosa.core.services.Logger;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.Externalizable;
@@ -53,6 +54,7 @@ public class FCMMessageData implements Externalizable{
         try {
             return new DateTime(timeInISO8601);
         } catch (Exception e) {
+            Logger.exception("Incorrect Date format, expected in ISO 8601: ", e);
             return new DateTime();
         }
     }
