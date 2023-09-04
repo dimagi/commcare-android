@@ -63,7 +63,7 @@ public class FirebaseMessagingDataSyncer implements CommCareTaskConnector {
     public void syncData(FCMMessageData fcmMessageData) {
         if (!CommCareApplication.isSessionActive()) {
             //  There is no active session at the moment, proceed accordingly
-            HiddenPreferences.setPendingSyncRequestFromServerForUser(fcmMessageData);
+            HiddenPreferences.setPendingSyncRequest(fcmMessageData);
             return;
         }
         // Retrieve the current User

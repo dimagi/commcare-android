@@ -460,8 +460,7 @@ public abstract class DataPullTask<R>
         updateCurrentUser(password);
 
         // Disable pending background syncs
-        HiddenPreferences.clearPendingSyncRequestFromServerForUser(username);
-        HiddenPreferences.setPostFormSubmissionSyncNeeded(false);
+        HiddenPreferences.clearPendingSyncRequest(username);
 
         this.publishProgress(PROGRESS_DONE);
     }

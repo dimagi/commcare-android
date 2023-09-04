@@ -354,7 +354,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
         // In case a sync request from FCM was made while the user was logged out, this will
         // trigger a blocking sync
         String username = CommCareApplication.instance().getSession().getLoggedInUser().getUsername();
-        if (HiddenPreferences.isPendingSyncRequestFromServerForUser(username)) {
+        if (HiddenPreferences.isPendingSyncRequest(username)) {
             sendFormsOrSync(false);
 
             return true;
@@ -406,7 +406,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
         HiddenPreferences.setPostUpdateSyncNeeded(false);
         HiddenPreferences.clearInterruptedSSD();
         String username = CommCareApplication.instance().getSession().getLoggedInUser().getUsername();
-        HiddenPreferences.clearPendingSyncRequestFromServerForUser(username);
+        HiddenPreferences.clearPendingSyncRequest(username);
     }
 
     private boolean tryRestoringFormFromSessionExpiration() {
@@ -1305,8 +1305,9 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
         }
 
         // In case a Sync was blocked because of a form entry, trigger now if it's safe
-        if (HiddenPreferences.isPostFormSubmissionSyncNeeded() && shouldTriggerBackgroundSync) {
-            dataSyncer.syncData(HiddenPreferences.getPostFormSubmissionSyncNeededFCMMessageData());
+        String username = CommCareApplication.instance().getSession().getLoggedInUser().getUsername();
+        if (HiddenPreferences.isPendingSyncRequest(username) && shouldTriggerBackgroundSync) {
+            dataSyncer.syncData(HiddenPreferences.getPendingSyncRequest(username));
         }
 
         // reset these

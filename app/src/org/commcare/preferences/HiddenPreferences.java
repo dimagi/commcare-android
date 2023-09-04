@@ -101,9 +101,7 @@ public class HiddenPreferences {
     public final static String BACKGROUND_SYNC_PENDING = "background-sync-pending-";
 
     private static final String ENABLE_ANDROID_WINDOW_SECURE_FLAG = "cc-enable-android-window-secure-flag";
-    public final static String POST_FORM_SUBMISSION_SYNC_NEEDED = "post-form-submission-sync-needed";
     public final static String DONT_SHOW_PENDING_SYNC_DIALOG = "dont-show-pending-sync-dialog";
-    private static final String POST_FORM_SUBMISSION_SYNC_NEEDED_FCM_MESSAGE_DATA = "post-form-submission-sync-needed-fcm-message-data";
     private static final String ENABLE_BACKGROUND_SYNC = "cc-enable-background-sync";
 
     /**
@@ -579,17 +577,25 @@ public class HiddenPreferences {
                 .edit().putBoolean(RAW_MEDIA_CLEANUP_COMPLETE, true).apply();
     }
 
-    public static boolean isPendingSyncRequestFromServerForUser(String loggedInUser) {
+    public static boolean isPendingSyncRequest(String loggedInUser) {
         return PreferenceManager.getDefaultSharedPreferences(CommCareApplication.instance())
                 .contains(BACKGROUND_SYNC_PENDING + loggedInUser + "@"+ getUserDomainWithoutServerUrl());
     }
-    public static void setPendingSyncRequestFromServerForUser(FCMMessageData fcmMessageData) {
+
+    public static void setPendingSyncRequest(FCMMessageData fcmMessageData) {
         PreferenceManager.getDefaultSharedPreferences(CommCareApplication.instance()).edit()
-                .putBoolean(BACKGROUND_SYNC_PENDING + fcmMessageData.getUsername() + "@"+ fcmMessageData.getDomain(), true)
+                .putString(BACKGROUND_SYNC_PENDING + fcmMessageData.getUsername() + "@"+ fcmMessageData.getDomain(),
+                        FirebaseMessagingUtil.serializeFCMMessageData(fcmMessageData))
                 .apply();
     }
 
-    public static void clearPendingSyncRequestFromServerForUser(String loggedInUser) {
+    public static FCMMessageData getPendingSyncRequest(String username) {
+        String serializedMessageData = PreferenceManager.getDefaultSharedPreferences(CommCareApplication.instance())
+                .getString(BACKGROUND_SYNC_PENDING + username + "@"+ getUserDomainWithoutServerUrl(), null);
+        return FirebaseMessagingUtil.deserializeFCMMessageData(serializedMessageData);
+    }
+
+    public static void clearPendingSyncRequest(String loggedInUser) {
         PreferenceManager.getDefaultSharedPreferences(CommCareApplication.instance()).edit()
                 .remove(BACKGROUND_SYNC_PENDING + loggedInUser + "@"+ getUserDomainWithoutServerUrl())
                 .apply();
@@ -597,30 +603,6 @@ public class HiddenPreferences {
 
     public static boolean isFlagSecureEnabled() {
         return DeveloperPreferences.doesPropertyMatch(ENABLE_ANDROID_WINDOW_SECURE_FLAG, PrefValues.NO, PrefValues.YES);
-    }
-
-    public static boolean isPostFormSubmissionSyncNeeded() {
-        return CommCareApplication.instance().getCurrentApp().getAppPreferences()
-                .getBoolean(POST_FORM_SUBMISSION_SYNC_NEEDED, false);
-    }
-
-    public static void setPostFormSubmissionSyncNeeded(boolean syncNeeded) {
-        CommCareApplication.instance().getCurrentApp().getAppPreferences().edit()
-                .putBoolean(POST_FORM_SUBMISSION_SYNC_NEEDED, syncNeeded)
-                .apply();
-    }
-
-    public static void setPostFormSubmissionSyncNeededFCMMessageData(FCMMessageData fcmMessageData) {
-        CommCareApplication.instance().getCurrentApp().getAppPreferences().edit()
-                .putString(POST_FORM_SUBMISSION_SYNC_NEEDED_FCM_MESSAGE_DATA,
-                        FirebaseMessagingUtil.serializeFCMMessageData(fcmMessageData))
-                .apply();
-    }
-
-    public static FCMMessageData getPostFormSubmissionSyncNeededFCMMessageData() {
-        String serializedMessageData = CommCareApplication.instance().getCurrentApp().getAppPreferences()
-                .getString(POST_FORM_SUBMISSION_SYNC_NEEDED_FCM_MESSAGE_DATA, null);
-        return FirebaseMessagingUtil.deserializeFCMMessageData(serializedMessageData);
     }
 
     public static boolean isPendingSyncDialogDisabled() {

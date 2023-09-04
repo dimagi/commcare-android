@@ -1516,9 +1516,8 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
     @Override
     public void alertPendingSync(FCMMessageData fcmMessageData) {
-        if (!HiddenPreferences.isPostFormSubmissionSyncNeeded()) {
-            HiddenPreferences.setPostFormSubmissionSyncNeeded(true);
-            HiddenPreferences.setPostFormSubmissionSyncNeededFCMMessageData(fcmMessageData);
+        if (!HiddenPreferences.isPendingSyncRequest(fcmMessageData.getUsername())) {
+            HiddenPreferences.setPendingSyncRequest(fcmMessageData);
 
             if (!HiddenPreferences.isPendingSyncDialogDisabled()) {
                 StandardAlertDialog dialog = StandardAlertDialog.getBasicAlertDialogWithDisablingCheckbox(this,
