@@ -3,7 +3,6 @@ package org.commcare.commcaresupportlibrary.identity;
 import android.app.Activity;
 import android.content.Intent;
 
-import org.commcare.commcaresupportlibrary.BiometricIdentifier;
 import org.commcare.commcaresupportlibrary.identity.model.IdentificationMatch;
 import org.commcare.commcaresupportlibrary.identity.model.MatchResult;
 import org.commcare.commcaresupportlibrary.identity.model.RegistrationResult;

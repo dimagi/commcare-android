@@ -3,7 +3,7 @@ package org.commcare.provider;
 import android.content.Intent;
 
 import org.commcare.android.javarosa.IntentCallout;
-import org.commcare.commcaresupportlibrary.BiometricUtils;
+import org.commcare.commcaresupportlibrary.identity.BiometricUtils;
 import org.commcare.commcaresupportlibrary.identity.IdentityResponseBuilder;
 import org.commcare.commcaresupportlibrary.identity.model.IdentificationMatch;
 import org.commcare.commcaresupportlibrary.identity.model.MatchResult;

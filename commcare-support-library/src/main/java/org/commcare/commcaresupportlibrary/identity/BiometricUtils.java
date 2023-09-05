@@ -1,4 +1,4 @@
-package org.commcare.commcaresupportlibrary;
+package org.commcare.commcaresupportlibrary.identity;
 
 import android.util.Base64;
 

@@ -3,7 +3,7 @@ package org.commcare.commcaresupportlibrary.identity.model;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import org.commcare.commcaresupportlibrary.BiometricIdentifier;
+import org.commcare.commcaresupportlibrary.identity.BiometricIdentifier;
 
 import java.util.Arrays;
 import java.util.HashMap;

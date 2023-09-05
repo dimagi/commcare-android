@@ -1,4 +1,4 @@
-package org.commcare.commcaresupportlibrary;
+package org.commcare.commcaresupportlibrary.identity;
 
 public enum BiometricIdentifier {
     RIGHT_THUMB, RIGHT_INDEX_FINGER, RIGHT_MIDDLE_FINGER, RIGHT_RING_FINGER, RIGHT_PINKY_FINGER,
