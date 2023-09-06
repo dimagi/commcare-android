@@ -41,7 +41,7 @@ class IdentityCalloutTests {
     @JvmField
     var intentsRule = ActivityScenarioRule(FormEntryActivity::class.java)
 
-    var templates : HashMap<BiometricIdentifier, ByteArray> = HashMap(2)
+
 
     @Before
     fun setup() {
@@ -50,12 +50,6 @@ class IdentityCalloutTests {
         TestAppInstaller.installAppAndLogin(
                 "jr://resource/commcare-apps/identity_callouts/profile.ccpr",
                 "test", "123")
-
-        // Initialize biometric templates
-        templates[BiometricIdentifier.LEFT_INDEX_FINGER] =
-            byteArrayOf(0, 0, -21, -67, 0, -64, 25, 62, -69, -124, -91, 29, -50, -107, 58)
-        templates[BiometricIdentifier.LEFT_MIDDLE_FINGER] =
-            byteArrayOf(122, -91, 114, 62, 107, -95, -69, 28, 110, 123, 72, 71, -86, -117, 126)
     }
 
     @After
@@ -110,7 +104,13 @@ class IdentityCalloutTests {
     fun testRegistrationWithTemplates() {
         val formEntryActivity = ActivityLaunchUtils.launchFormEntry("m0-f1")
 
-        intendRegistrationWithTemplatesIntent()
+        var templates : HashMap<BiometricIdentifier, ByteArray> = HashMap(2)
+        templates[BiometricIdentifier.LEFT_INDEX_FINGER] =
+            byteArrayOf(0, 0, -21, -67, 0, -64, 25, 62, -69, -124, -91, 29, -50, -107, 58)
+        templates[BiometricIdentifier.LEFT_MIDDLE_FINGER] =
+            byteArrayOf(122, -91, 114, 62, 107, -95, -69, 28, 110, 123, 72, 71, -86, -117, 126)
+
+        intendRegistrationWithTemplatesIntent(templates)
         performIntentCallout(formEntryActivity)
         TestUtils.assertFormValue("/data/guid", "test-case-unique-guid")
         TestUtils.assertFormValue("/data/templates",
@@ -141,7 +141,7 @@ class IdentityCalloutTests {
         intending(hasAction("org.commcare.identity.bioenroll")).respondWith(result)
     }
 
-    private fun intendRegistrationWithTemplatesIntent() {
+    private fun intendRegistrationWithTemplatesIntent(templates: HashMap<BiometricIdentifier, ByteArray>) {
         val registration = IdentityResponseBuilder
             .registrationResponse("test-case-unique-guid", templates)
             .build()
