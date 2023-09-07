@@ -104,7 +104,8 @@ public class Permissions {
             appPermissions.addAll(Arrays.asList(new String[]{
                     Manifest.permission.READ_MEDIA_IMAGES,
                     Manifest.permission.READ_MEDIA_AUDIO,
-                    Manifest.permission.READ_MEDIA_VIDEO}));
+                    Manifest.permission.READ_MEDIA_VIDEO,
+                    Manifest.permission.NEARBY_WIFI_DEVICES}));
         }
         else{
             appPermissions.addAll(Arrays.asList(new String[]{
@@ -119,7 +120,8 @@ public class Permissions {
      */
     public static String[] getRequiredPerms() {
         if (Build.VERSION.SDK_INT >=Build.VERSION_CODES.TIRAMISU) {
-            return new String[]{Manifest.permission.READ_MEDIA_IMAGES,
+            return new String[]{
+                    Manifest.permission.READ_MEDIA_IMAGES,
                     Manifest.permission.READ_MEDIA_AUDIO,
                     Manifest.permission.READ_MEDIA_VIDEO};
         }
