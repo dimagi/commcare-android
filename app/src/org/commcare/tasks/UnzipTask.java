@@ -77,38 +77,51 @@ public class UnzipTask extends CommCareTask<String, String, Integer, UnZipTaskLi
         int count = 0;
         ZipEntry entry = null;
         try {
+            String destCanonicalPath = destination.getCanonicalPath();
             while ((entry = zis.getNextEntry()) != null) {
                 publishProgress(Localization.get("mult.install.progress", new String[]{String.valueOf(count)}));
                 count++;
-
                 Logger.log(TAG, "Unzipped entry " + entry.getName());
 
+                File entryOutput = new File(destination, entry.getName());
+                String outputCanonicalPath = entryOutput.getCanonicalPath();
+                // Check if the entry path aligns with the destination folder
+                if (!outputCanonicalPath.startsWith(destCanonicalPath)) {
+                    throw new SecurityException(Localization.get("mult.install.progress.invalid.ccz"));
+                }
+
                 if (entry.isDirectory()) {
-                    FileUtil.createFolder(new File(destination, entry.getName()).toString());
+                    FileUtil.createFolder(entryOutput.toString());
                     //If it's a directory we can move on to the next one
                     continue;
                 }
 
-                File outputFile = new File(destination, entry.getName());
-                if (!outputFile.getParentFile().exists()) {
-                    FileUtil.createFolder(outputFile.getParentFile().toString());
+                if (!entryOutput.getParentFile().exists()) {
+                    FileUtil.createFolder(entryOutput.getParentFile().toString());
                 }
-                if (outputFile.exists()) {
+
+                if (entryOutput.exists()) {
                     //Try to overwrite if we can
-                    if (!outputFile.delete()) {
+                    if (!entryOutput.delete()) {
                         //If we couldn't, just skip for now
                         continue;
                     }
                 }
 
-                if (!copyZipEntryToOutputFile(outputFile, zis)) {
+                if (!copyZipEntryToOutputFile(entryOutput, zis)) {
                     return -1;
                 }
             }
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             publishProgress(Localization.get("mult.install.progress.badentry", new String[]{entry.getName()}));
             return -1;
-        } finally {
+        }
+        catch (SecurityException e) {
+            publishProgress(e.getMessage());
+            return -1;
+        }
+        finally {
             StreamsUtil.closeStream(zis);
         }
         Logger.log(TAG, "Successfully unzipped files");
