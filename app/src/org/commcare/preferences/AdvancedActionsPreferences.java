@@ -127,6 +127,21 @@ public class AdvancedActionsPreferences extends CommCarePreferenceFragment {
         });
     }
 
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putInt(SHOW_PERMISSION_DIALOG, showingPermissionDialog.getValue().ordinal());
+    }
+
+    @Override
+    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
+        super.onViewStateRestored(savedInstanceState);
+        if (savedInstanceState!=null){
+            showingPermissionDialog.setValue(
+                    PermissionAction.values()[savedInstanceState.getInt(SHOW_PERMISSION_DIALOG)]);
+        }
+    }
+
     @NonNull
     @Override
     protected String getTitle() {
