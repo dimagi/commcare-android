@@ -836,7 +836,7 @@ odk_perfect_match_color=\#87D13E
 odk_fuzzy_match_color=\#FFE88F
 
 permission.all.title=CommCare Permissions
-permission.all.message=CommCare needs permissions to read/write forms to memory, call/message from the case list, and provide location data during form entry.
+permission.all.message=CommCare needs permissions to read/write forms to memory, call/message from the case list, provide location data during form entry and notify the user about important events.
 permission.all.denial.message=CommCare doesn't have the necessary permissions. Please enable via Android's settings.
 permission.case.callout.title=Permissions for calling & messaging
 permission.case.callout.message=CommCare needs call & messaging permissions to enable communication with cases.
