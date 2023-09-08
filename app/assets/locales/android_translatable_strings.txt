@@ -813,6 +813,9 @@ wifi.direct.status.receive.message=This will allow you to receive forms on this 
 wifi.direct.status.submit.header=You are in Submit Form Mode
 wifi.direct.status.submit.count=Device has ${0} unsubmitted forms.
 wifi.direct.status.submit.message=This mode will allow you to submit forms to the CommCare Server if you have an internet connection.
+wifi.direct.permission.nearby.wifi.title=Permission to access nearby Wi-Fi Devices
+wifi.direct.permission.nearby.wifi.message=In order to exchange data with nearby devices via Wi-Fi, CommCare needs access to Wi-Fi capabilities.
+wifi.direct.permission.nearby.wifi.denial=CommCare doesn't have permission to connect with nearby devices via Wi-Fi. Please enable via Android's settings.
 
 form.transfer.no.forms=No forms to send.
 
