@@ -1,7 +1,7 @@
 package org.commcare.preferences;
 
+import static org.commcare.preferences.AdvancedActionsPreferences.PermissionAction.INFORM_FEATURE_DEGRADATION;
 import static org.commcare.preferences.AdvancedActionsPreferences.PermissionAction.NO_ACTION;
-import static org.commcare.preferences.AdvancedActionsPreferences.PermissionAction.REJECT_FEATURE;
 import static org.commcare.preferences.AdvancedActionsPreferences.PermissionAction.REQUEST_PERMISSION;
 
 import android.Manifest;
@@ -90,7 +90,7 @@ public class AdvancedActionsPreferences extends CommCarePreferenceFragment {
      *  REQUEST_PERMISSION - Show the reason for requiring the permission
      *
      */
-    private MutableLiveData<PermissionAction> showingPermissionDialog = new MutableLiveData<>();
+    private MutableLiveData<PermissionAction> showingPermissionDialog = new MutableLiveData<>(NO_ACTION);
 
     static {
         keyToTitleMap.put(REPORT_PROBLEM, "problem.report.menuitem");
@@ -109,7 +109,7 @@ public class AdvancedActionsPreferences extends CommCarePreferenceFragment {
 
     public enum PermissionAction{
         NO_ACTION,
-        REJECT_FEATURE,
+        INFORM_FEATURE_DEGRADATION,
         REQUEST_PERMISSION;
     }
 
@@ -118,7 +118,7 @@ public class AdvancedActionsPreferences extends CommCarePreferenceFragment {
         super.onCreatePreferences(savedInstanceState, rootKey);
 
         showingPermissionDialog.observe(this, value -> {
-            if (value == REJECT_FEATURE){
+            if (value == INFORM_FEATURE_DEGRADATION){
                 informUserAboutFeatureUnavailability();
             }
             else if (value == REQUEST_PERMISSION){
@@ -429,7 +429,7 @@ public class AdvancedActionsPreferences extends CommCarePreferenceFragment {
                         return;
                     }
                 }
-                showingPermissionDialog.setValue(REJECT_FEATURE);
+                showingPermissionDialog.setValue(INFORM_FEATURE_DEGRADATION);
         }
     }
 
