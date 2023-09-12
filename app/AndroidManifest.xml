@@ -113,7 +113,8 @@
         android:label="@string/application_name"
         android:hardwareAccelerated="true"
         android:usesCleartextTraffic="true"
-        android:theme="@style/AppBaseTheme">
+        android:theme="@style/AppBaseTheme"
+        android:enableOnBackInvokedCallback="false">
 
         <activity
             android:label="@string/application_name"
