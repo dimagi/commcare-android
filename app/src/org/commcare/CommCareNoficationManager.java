@@ -98,10 +98,13 @@ public class CommCareNoficationManager {
             for (NotificationMessage message : toRemove) {
                 pendingMessages.remove(message);
             }
-            if (pendingMessages.size() == 0) {
-                mNM.cancel(MESSAGE_NOTIFICATION);
-            } else {
-                updateMessageNotification();
+
+            if (areNotificationsEnabled()) {
+                if (pendingMessages.size() == 0) {
+                    mNM.cancel(MESSAGE_NOTIFICATION);
+                } else {
+                    updateMessageNotification();
+                }
             }
         }
     }
@@ -137,8 +140,20 @@ public class CommCareNoficationManager {
             }
 
             // Otherwise, add it to the queue, and update the notification
-            pendingMessages.add(message);
-            updateMessageNotification();
+            if (areNotificationsEnabled()) {
+                pendingMessages.add(message);
+                updateMessageNotification();
+            }
+        }
+    }
+
+    public boolean areNotificationsEnabled() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            return ((NotificationManager)context.getSystemService(NOTIFICATION_SERVICE))
+                    .areNotificationsEnabled();
+        }
+        else {
+            return true;
         }
     }
 

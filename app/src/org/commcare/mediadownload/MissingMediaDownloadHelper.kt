@@ -83,7 +83,9 @@ object MissingMediaDownloadHelper : TableStateListener {
 
             RequestStats.register(InstallRequestSource.BACKGROUND_LAZY_RESOURCE)
             global.setInstallCancellationChecker(cancellationChecker)
-            startPinnedNotification()
+            if (CommCareApplication.notificationManager().areNotificationsEnabled()){
+                startPinnedNotification()
+            }
 
             val lazyResourceIds = global.lazyResourceIds
 
@@ -275,10 +277,14 @@ object MissingMediaDownloadHelper : TableStateListener {
     }
 
     private fun updateNotification(complete: Int, total: Int) {
-        mPinnedNotificationProgress.handleTaskUpdate(complete, total)
+        if (this::mPinnedNotificationProgress.isInitialized) {
+            mPinnedNotificationProgress.handleTaskUpdate(complete, total)
+        }
     }
 
     private fun cancelNotification() {
-        mPinnedNotificationProgress.handleTaskCancellation()
+        if (this::mPinnedNotificationProgress.isInitialized) {
+            mPinnedNotificationProgress.handleTaskCancellation()
+        }
     }
 }

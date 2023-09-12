@@ -92,10 +92,16 @@ public class CommCareUtil {
     }
 
     public static void executeLogSubmission(String url, boolean forceLogs) {
-        LogSubmissionTask reportSubmitter =
-                new LogSubmissionTask(CommCareApplication.instance().getSession().getListenerForSubmissionNotification(R.string.submission_logs_title),
-                        url,
-                        forceLogs);
+        LogSubmissionTask reportSubmitter;
+        if (CommCareApplication.notificationManager().areNotificationsEnabled()) {
+            reportSubmitter = new LogSubmissionTask(
+                    CommCareApplication.instance().getSession().getListenerForSubmissionNotification(R.string.submission_logs_title),
+                    url,
+                    forceLogs);
+        }
+        else {
+            reportSubmitter = new LogSubmissionTask(url, forceLogs);
+        }
         // Execute on a true multithreaded chain, since this is an asynchronous process
         reportSubmitter.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }

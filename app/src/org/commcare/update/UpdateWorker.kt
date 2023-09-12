@@ -59,7 +59,9 @@ class UpdateWorker(appContext: Context, workerParams: WorkerParameters)
                 CommCareApplication.instance().currentApp != null &&
                 CommCareApplication.instance().session.isActive) {
 
-            updateHelper.startPinnedNotification(CommCareApplication.instance())
+            if (CommCareApplication.notificationManager().areNotificationsEnabled()) {
+                updateHelper.startPinnedNotification(CommCareApplication.instance())
+            }
             updateResult = updateHelper.update(ResourceInstallUtils.getDefaultProfileRef(),
                     ResourceInstallContext(InstallRequestSource.BACKGROUND_UPDATE))
         } else {

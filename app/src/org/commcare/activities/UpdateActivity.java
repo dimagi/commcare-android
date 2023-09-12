@@ -417,7 +417,9 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
         if (CommCareApplication.instance().isConsumerApp()) {
             showProgressDialog(DIALOG_CONSUMER_APP_UPGRADE);
         } else {
-            updateTask.startPinnedNotification(this);
+            if (CommCareApplication.notificationManager().areNotificationsEnabled()) {
+                updateTask.startPinnedNotification(this);
+            }
         }
     }
 

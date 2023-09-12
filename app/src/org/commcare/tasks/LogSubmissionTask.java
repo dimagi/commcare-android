@@ -102,6 +102,10 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
         this.forceLogs = forceLogs;
     }
 
+    public LogSubmissionTask(String submissionUrl, boolean forceLogs) {
+        this (null, submissionUrl, forceLogs);
+    }
+
     public static String getSubmissionUrl(SharedPreferences appPreferences) {
         return appPreferences.getString(ServerUrls.PREFS_LOG_POST_URL_KEY,
                 appPreferences.getString(ServerUrls.PREFS_SUBMISSION_URL_KEY, null));
@@ -268,7 +272,9 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
             return LogSubmitOutcomes.SUBMITTED;
         }
 
-        listener.startSubmission(index, f.length());
+        if (listener != null) {
+            listener.startSubmission(index, f.length());
+        }
 
         CommcareRequestGenerator generator;
         User user;
@@ -389,22 +395,25 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
     @Override
     protected void onProgressUpdate(Long... values) {
         super.onProgressUpdate(values);
-
-        if (values[0] == LogSubmissionTask.SUBMISSION_BEGIN) {
-            listener.beginSubmissionProcess(values[1].intValue());
-        } else if (values[0] == LogSubmissionTask.SUBMISSION_START) {
-            listener.startSubmission(values[1].intValue(), values[2]);
-        } else if (values[0] == LogSubmissionTask.SUBMISSION_NOTIFY) {
-            listener.notifyProgress(values[1].intValue(), values[2]);
-        } else if (values[0] == LogSubmissionTask.SUBMISSION_DONE) {
-            listener.endSubmissionProcess(true);
+        if (listener != null) {
+            if (values[0] == LogSubmissionTask.SUBMISSION_BEGIN) {
+                listener.beginSubmissionProcess(values[1].intValue());
+            } else if (values[0] == LogSubmissionTask.SUBMISSION_START) {
+                listener.startSubmission(values[1].intValue(), values[2]);
+            } else if (values[0] == LogSubmissionTask.SUBMISSION_NOTIFY) {
+                listener.notifyProgress(values[1].intValue(), values[2]);
+            } else if (values[0] == LogSubmissionTask.SUBMISSION_DONE) {
+                listener.endSubmissionProcess(true);
+            }
         }
     }
 
     @Override
     protected void onPostExecute(LogSubmitOutcomes result) {
         super.onPostExecute(result);
-        listener.endSubmissionProcess(LogSubmitOutcomes.SUBMITTED.equals(result));
+        if (listener != null) {
+            listener.endSubmissionProcess(LogSubmitOutcomes.SUBMITTED.equals(result));
+        }
         if (result != LogSubmitOutcomes.SUBMITTED) {
             CommCareApplication.notificationManager().reportNotificationMessage(NotificationMessageFactory.message(result));
         } else {

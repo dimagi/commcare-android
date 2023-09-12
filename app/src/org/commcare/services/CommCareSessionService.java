@@ -236,7 +236,8 @@ public class CommCareSessionService extends Service {
             notificationBuilder.setContentText(contentText);
         }
 
-        //Send the notification.
+        // Send the notification. This will cause error messages if CommCare doesn't have
+        // permission to post notifications
         this.startForeground(NOTIFICATION, notificationBuilder.build());
     }
 
@@ -247,24 +248,26 @@ public class CommCareSessionService extends Service {
     private void showLoggedOutNotification() {
         this.stopForeground(true);
 
-        Intent i = new Intent(this, DispatchActivity.class);
-        i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        if (CommCareApplication.notificationManager().areNotificationsEnabled()) {
+            Intent i = new Intent(this, DispatchActivity.class);
+            i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
 
-        PendingIntent contentIntent = null;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
-            contentIntent = PendingIntent.getActivity(this, 0, i, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
-        else
-            contentIntent = PendingIntent.getActivity(this, 0, i, PendingIntent.FLAG_UPDATE_CURRENT);
+            PendingIntent contentIntent = null;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+                contentIntent = PendingIntent.getActivity(this, 0, i, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+            else
+                contentIntent = PendingIntent.getActivity(this, 0, i, PendingIntent.FLAG_UPDATE_CURRENT);
 
-        Notification notification = new NotificationCompat.Builder(this, CommCareNoficationManager.NOTIFICATION_CHANNEL_USER_SESSION_ID)
-                .setContentTitle(this.getString(R.string.expirenotification))
-                .setContentText("Click here to log back into your session")
-                .setSmallIcon(org.commcare.dalvik.R.drawable.notification)
-                .setContentIntent(contentIntent)
-                .build();
+            Notification notification = new NotificationCompat.Builder(this, CommCareNoficationManager.NOTIFICATION_CHANNEL_USER_SESSION_ID)
+                    .setContentTitle(this.getString(R.string.expirenotification))
+                    .setContentText("Click here to log back into your session")
+                    .setSmallIcon(org.commcare.dalvik.R.drawable.notification)
+                    .setContentIntent(contentIntent)
+                    .build();
 
-        // Send the notification.
-        mNM.notify(NOTIFICATION, notification);
+            // Send the notification.
+            mNM.notify(NOTIFICATION, notification);
+        }
     }
 
     //Start CommCare Specific Functionality
