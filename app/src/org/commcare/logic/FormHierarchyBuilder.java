@@ -138,7 +138,7 @@ public class FormHierarchyBuilder {
             isError = true;
         }
         formList.add(new HierarchyElement(context, questionText, fp.getAnswerText(),
-                fepIcon == -1 ? null : context.getResources().getDrawable(fepIcon),
+                fepIcon == -1 ? null : context.getDrawable(fepIcon),
                 isError, HierarchyEntryType.question, fp.getIndex()));
     }
 
@@ -157,7 +157,7 @@ public class FormHierarchyBuilder {
             // Only add the heading if it is the repeat group entry, not an element in the group.
             HierarchyElement group =
                     new HierarchyElement(context, fc.getLongText(), null,
-                            context.getResources().getDrawable(R.drawable.expander_ic_minimized),
+                            context.getDrawable(R.drawable.expander_ic_minimized),
                             false,
                             HierarchyEntryType.collapsed, fc.getIndex());
             formList.add(group);
