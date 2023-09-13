@@ -147,7 +147,7 @@ public class FormHierarchyBuilder {
 
         int fepIcon = R.drawable.avatar_vellum_repeat_group;
         formList.add(new HierarchyElement(context, fc.getLongText(), null,
-                context.getResources().getDrawable(fepIcon),
+                context.getDrawable(fepIcon),
                 false, HierarchyEntryType.question, fc.getIndex()));
     }
 
