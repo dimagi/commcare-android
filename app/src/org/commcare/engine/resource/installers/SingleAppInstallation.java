@@ -6,6 +6,7 @@ import org.commcare.engine.resource.AppInstallStatus;
 import org.commcare.tasks.ResourceEngineTask;
 
 import static org.commcare.activities.CommCareSetupActivity.handleAppInstallResult;
+import static org.commcare.engine.resource.ResourceInstallUtils.getNewCommCareApp;
 
 /**
  * Install CC app from the APK's asset directory
@@ -22,7 +23,7 @@ public class SingleAppInstallation {
      * without prompting the user.
      */
     public static void installSingleApp(CommCareSetupActivity activity, int dialogId) {
-        CommCareApp app = CommCareSetupActivity.getCommCareApp();
+        CommCareApp app = getNewCommCareApp();
 
         ResourceEngineTask<CommCareSetupActivity> task =
                 new ResourceEngineTask<CommCareSetupActivity>(app, dialogId, false, false) {
