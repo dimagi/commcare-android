@@ -4,6 +4,7 @@ import android.content.SharedPreferences;
 
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
+import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.core.network.CaptivePortalRedirectException;
 import org.commcare.engine.resource.installers.SingleAppInstallation;
 import org.commcare.network.RateLimitedException;
@@ -21,6 +22,7 @@ import org.commcare.util.LogTypes;
 import org.commcare.utils.AndroidCommCarePlatform;
 import org.commcare.utils.SessionUnavailableException;
 import org.javarosa.core.services.Logger;
+import org.javarosa.core.util.PropertyUtils;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -46,6 +48,18 @@ public class ResourceInstallUtils {
         AndroidCommCarePlatform platform = app.getCommCarePlatform();
         ResourceTable upgradeTable = platform.getUpgradeResourceTable();
         return ResourceManager.isTableStagedForUpgrade(upgradeTable);
+    }
+
+    /**
+     * Creates a new application record in db
+     * @return newly created CommCare App
+     */
+    public static CommCareApp getNewCommCareApp() {
+        ApplicationRecord newRecord =
+                new ApplicationRecord(PropertyUtils.genUUID().replace("-", ""),
+                        ApplicationRecord.STATUS_UNINITIALIZED);
+
+        return new CommCareApp(newRecord);
     }
 
     /**

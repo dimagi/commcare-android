@@ -1,5 +1,7 @@
 package org.commcare.activities;
 
+import static org.commcare.engine.resource.ResourceInstallUtils.getNewCommCareApp;
+
 import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
@@ -460,7 +462,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 
     private void startResourceInstall() {
         if (startAllowed) {
-            ccApp = getCommCareApp();
+            ccApp = getNewCommCareApp();
             containerFragment.setData(ccApp);
 
             CustomProgressDialog lastDialog = getCurrentProgressDialog();
@@ -547,14 +549,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                 receiver.failUnknown(AppInstallStatus.UnknownFailure);
                 break;
         }
-    }
-
-    public static CommCareApp getCommCareApp() {
-        ApplicationRecord newRecord =
-                new ApplicationRecord(PropertyUtils.genUUID().replace("-", ""),
-                        ApplicationRecord.STATUS_UNINITIALIZED);
-
-        return new CommCareApp(newRecord);
     }
 
     @Override
