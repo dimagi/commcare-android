@@ -1,5 +1,6 @@
 package org.commcare.fragments.connect;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -7,9 +8,23 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import org.commcare.activities.connect.ConnectIdDatabaseHelper;
+import org.commcare.activities.connect.ConnectIdNetworkHelper;
+import org.commcare.adapters.ConnectJobAdapter;
 import org.commcare.android.database.connect.models.ConnectJob;
-import org.commcare.android.database.connect.models.MockJobProvider;
 import org.commcare.dalvik.R;
+import org.javarosa.core.io.StreamsUtil;
+import org.javarosa.core.services.Logger;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -47,54 +62,43 @@ public class ConnectJobsAvailableListFragment extends Fragment {
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
         recyclerView.setLayoutManager(linearLayoutManager);
 
-        recyclerView.setAdapter(new AvailableJobsAdapter());
-
         recyclerView.addItemDecoration(new DividerItemDecoration(getContext(), linearLayoutManager.getOrientation()));
 
-        return view;
-    }
+        ConnectIdNetworkHelper.getConnectOpportunities(getContext(), new ConnectIdNetworkHelper.INetworkResultHandler() {
+            @Override
+            public void processSuccess(int responseCode, InputStream responseData) {
+                try {
+                    String responseAsString = new String(StreamsUtil.inputStreamToByteArray(responseData));
+                    if (responseAsString.length() > 0) {
+                        //Parse the JSON
+                        JSONArray json = new JSONArray(responseAsString);
+                        List<ConnectJob> jobs = new ArrayList<>(json.length());
+                        for(int i=0; i<json.length(); i++) {
+                            JSONObject obj = (JSONObject)json.get(i);
+                            jobs.add(ConnectJob.fromJson(obj));
+                        }
 
-    private static class AvailableJobsAdapter extends RecyclerView.Adapter<AvailableJobsAdapter.AvailableJobViewHolder> {
-        @NonNull
-        @Override
-        public AvailableJobsAdapter.AvailableJobViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.connect_available_job_item, parent, false);
+                        //Store retrieved jobs
+                        ConnectIdDatabaseHelper.storeAvailableJobs(getContext(), jobs);
 
-            return new AvailableJobViewHolder(view);
-        }
-
-        @Override
-        public void onBindViewHolder(@NonNull AvailableJobsAdapter.AvailableJobViewHolder holder, int position) {
-            ConnectJob job = MockJobProvider.getAvailableJobs()[position];
-
-            holder.newText.setVisibility(job.getIsNew() ? View.VISIBLE : View.GONE);
-            holder.titleText.setText(job.getTitle());
-            holder.descriptionText.setText(job.getDescription());
-
-            holder.continueImage.setOnClickListener(v -> {
-                Navigation.findNavController(holder.continueImage).navigate(
-                        ConnectJobsListsFragmentDirections.actionConnectJobsListFragmentToConnectJobIntroFragment(job));
-            });
-        }
-
-        @Override
-        public int getItemCount() {
-            return MockJobProvider.getAvailableJobs().length;
-        }
-
-        public static class AvailableJobViewHolder extends RecyclerView.ViewHolder {
-            TextView newText;
-            TextView titleText;
-            TextView descriptionText;
-            ImageView continueImage;
-            public AvailableJobViewHolder(@NonNull View itemView) {
-                super(itemView);
-
-                newText = itemView.findViewById(R.id.new_label);
-                titleText = itemView.findViewById(R.id.title_label);
-                descriptionText = itemView.findViewById(R.id.description_label);
-                continueImage = itemView.findViewById(R.id.button);
+                        recyclerView.setAdapter(new ConnectJobAdapter(true));
+                    }
+                } catch (IOException | JSONException | ParseException e) {
+                    Logger.exception("Parsing return from Opportunities request", e);
+                }
             }
-        }
+
+            @Override
+            public void processFailure(int responseCode, IOException e) {
+                Logger.log("ERROR", String.format(Locale.getDefault(), "Failed: %d", responseCode));
+            }
+
+            @Override
+            public void processNetworkFailure() {
+                Logger.log("ERROR", "Failed (network)");
+            }
+        });
+
+        return view;
     }
 }

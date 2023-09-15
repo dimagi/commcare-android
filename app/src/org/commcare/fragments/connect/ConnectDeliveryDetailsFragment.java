@@ -46,12 +46,9 @@ public class ConnectDeliveryDetailsFragment extends Fragment {
 
         View view = inflater.inflate(R.layout.fragment_connect_delivery_details, container, false);
 
-        TextView textView = view.findViewById(R.id.connect_delivery_title);
-        textView.setText(getString(R.string.connect_delivery_review_title));
-
         DateFormat df = new SimpleDateFormat("MM/dd/yyyy", Locale.getDefault());
 
-        textView = view.findViewById(R.id.connect_delivery_begin_text);
+        TextView textView = view.findViewById(R.id.connect_delivery_begin_text);
         textView.setText(getString(R.string.connect_delivery_last_begin, df.format(job.getBeginDeadline())));
 
         textView = view.findViewById(R.id.connect_delivery_max_visits_text);
@@ -62,12 +59,6 @@ public class ConnectDeliveryDetailsFragment extends Fragment {
 
         textView = view.findViewById(R.id.connect_delivery_max_daily_visits_text);
         textView.setText(getString(R.string.connect_delivery_max_daily_visits, job.getMaxDailyVisits()));
-
-        textView = view.findViewById(R.id.connect_delivery_action_title);
-        textView.setText(getString(R.string.connect_delivery_ready_to_claim));
-
-        textView = view.findViewById(R.id.connect_delivery_action_details);
-        textView.setText(getString(R.string.connect_delivery_ready_to_claim_detailed));
 
         Button button = view.findViewById(R.id.connect_delivery_button);
         button.setOnClickListener(v -> {

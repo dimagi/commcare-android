@@ -26,6 +26,10 @@ import java.util.HashMap;
  * @author dviggiano
  */
 public class ConnectIdSsoHelper {
+    public interface TokenCallback {
+        void tokenRetrieved(AuthInfo.TokenAuth token);
+    }
+
     public static AuthInfo.TokenAuth acquireSsoTokenSync(Context context) {
         if (!ConnectIdManager.isUnlocked()) {
             return null;
@@ -49,11 +53,7 @@ public class ConnectIdSsoHelper {
         AuthInfo.TokenAuth hqTokenAuth = ConnectIdManager.getTokenCredentialsForApp(seatedAppId, hqUser);
         if (hqTokenAuth == null) {
             //First get a valid Connect token
-            AuthInfo.TokenAuth connectToken = ConnectIdManager.getConnectToken();
-            if (connectToken == null) {
-                //Retrieve a new connect token
-                connectToken = retrieveConnectToken(context);
-            }
+            AuthInfo.TokenAuth connectToken = retrieveConnectToken(context);
 
             if (connectToken == null) {
                 //If we can't get a valid Connect token there's no point continuing
@@ -70,7 +70,24 @@ public class ConnectIdSsoHelper {
         return hqTokenAuth;
     }
 
-    private static AuthInfo.TokenAuth retrieveConnectToken(Context context) {
+    public static void retrieveConnectTokenAsync(Context context, TokenCallback callback) {
+        Thread thread = new Thread() {
+            @Override
+            public void run() {
+                AuthInfo.TokenAuth token = retrieveConnectToken(context);
+                callback.tokenRetrieved(token);
+            }
+        };
+
+        thread.start();
+    }
+
+    public static AuthInfo.TokenAuth retrieveConnectToken(Context context) {
+        AuthInfo.TokenAuth connectToken = ConnectIdManager.getConnectToken();
+        if(connectToken != null) {
+            return connectToken;
+        }
+
         ConnectUserRecord user = ConnectIdDatabaseHelper.getUser(context);
 
         HashMap<String, String> params = new HashMap<>();

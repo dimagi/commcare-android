@@ -4,6 +4,7 @@ import android.os.Bundle;
 
 import org.commcare.activities.CommCareActivity;
 import org.commcare.dalvik.R;
+import org.commcare.views.dialogs.CustomProgressDialog;
 
 import javax.annotation.Nullable;
 
@@ -20,4 +21,9 @@ public class ConnectActivity extends CommCareActivity<ConnectActivity> {
     protected boolean shouldShowBreadcrumbBar() {
         return false;
     }
+
+//    @Override
+//    public CustomProgressDialog generateProgressDialog(int taskId) {
+//        return CustomProgressDialog.newInstance(null, getString(R.string.please_wait), taskId);
+//    }
 }

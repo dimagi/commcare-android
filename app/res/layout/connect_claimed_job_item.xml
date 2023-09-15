@@ -15,15 +15,28 @@
         android:layout_marginEnd="20dp"
         android:src="@drawable/arrow_right" />
 
-    <ImageView
-        android:id="@+id/progress_image"
+    <ProgressBar
+        android:id="@+id/progress_bar"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         android:layout_width="50dp"
         android:layout_height="50dp"
         android:layout_marginTop="20dp"
-        android:layout_marginStart="20dp"
-        android:src="@drawable/dummy_progress" />
+        android:layout_marginStart="10dp"
+        android:indeterminateOnly="false"
+        android:progressDrawable="@drawable/progress_ring"
+        android:rotation="-90"/>
+
+    <ImageView
+        android:id="@+id/progress_image"
+        app:layout_constraintStart_toStartOf="@id/progress_bar"
+        app:layout_constraintEnd_toEndOf="@id/progress_bar"
+        app:layout_constraintTop_toTopOf="@id/progress_bar"
+        app:layout_constraintBottom_toBottomOf="@id/progress_bar"
+
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:src="@drawable/book" />
 
     <TextView
         android:id="@+id/title_label"
@@ -32,8 +45,8 @@
         android:layout_marginStart="20dp"
         android:textStyle="bold"
         android:textSize="@dimen/text_large"
-        app:layout_constraintStart_toEndOf="@id/progress_image"
-        app:layout_constraintTop_toTopOf="@id/progress_image" />
+        app:layout_constraintStart_toEndOf="@id/progress_bar"
+        app:layout_constraintTop_toTopOf="@id/progress_bar" />
 
     <TextView
         android:id="@+id/description_label"

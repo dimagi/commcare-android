@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -41,9 +42,16 @@ public class ConnectDeliveryProgressDeliveryFragment extends Fragment {
 
         int completed = job.getCompletedVisits();
         int total = job.getMaxVisits();
-        //int percent = total > 0 ? (100 * completed / total) : 100;
+        int percent = total > 0 ? (100 * completed / total) : 100;
 
-        TextView textView = view.findViewById(R.id.connect_progress_status_text);
+        ProgressBar progress = view.findViewById(R.id.connect_progress_progress_bar);
+        progress.setProgress(percent);
+        progress.setMax(100);
+
+        TextView textView = view.findViewById(R.id.connect_progress_progress_text);
+        textView.setText(String.format(Locale.getDefault(), "%d%%", percent));
+
+        textView = view.findViewById(R.id.connect_progress_status_text);
         textView.setText(getString(R.string.connect_progress_status, completed, total));
 
         textView = view.findViewById(R.id.connect_progress_complete_by_text);

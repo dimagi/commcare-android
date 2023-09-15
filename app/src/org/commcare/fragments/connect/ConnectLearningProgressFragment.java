@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -73,8 +74,16 @@ public class ConnectLearningProgressFragment extends Fragment {
             buttonText = getString(R.string.connect_learn_start);
         }
 
-        ImageView progress = view.findViewById(R.id.connect_learning_progress);
-        progress.setVisibility(learningFinished ? View.GONE : View.VISIBLE);
+        TextView progressText = view.findViewById(R.id.connect_learning_progress_text);
+        progressText.setVisibility(learningFinished ? View.GONE : View.VISIBLE);
+        ProgressBar progressBar = view.findViewById(R.id.connect_learning_progress_bar);
+        progressBar.setVisibility(learningFinished ? View.GONE : View.VISIBLE);
+        if(!learningFinished) {
+            progressBar.setProgress(percent);
+            progressBar.setMax(100);
+
+            progressText.setText(String.format(Locale.getDefault(), "%d%%", percent));
+        }
 
         LinearLayout certContainer = view.findViewById(R.id.connect_learning_certificate_container);
         certContainer.setVisibility(learningFinished ? View.VISIBLE : View.GONE);

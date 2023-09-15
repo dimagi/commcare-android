@@ -5,8 +5,10 @@ import android.content.Context;
 import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.CommCareApplication;
+import org.commcare.android.database.connect.models.ConnectJob;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
+import org.commcare.android.database.connect.models.MockJobProvider;
 import org.commcare.android.database.global.models.ConnectKeyRecord;
 import org.commcare.models.database.AndroidDbHelper;
 import org.commcare.models.database.SqlStorage;
@@ -16,7 +18,9 @@ import org.commcare.utils.EncryptionUtils;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.storage.Persistable;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Vector;
 
 /**
@@ -135,5 +139,75 @@ public class ConnectIdDatabaseHelper {
             user.setRegistrationPhase(phase);
             storeUser(context, user);
         }
+    }
+
+    public static void storeAvailableJobs(Context context, List<ConnectJob> jobs) {
+        List<ConnectJob> existingList = getAvailableJobs(context);
+
+        //Delete jobs that are no longer available
+        for (ConnectJob existing : existingList) {
+            boolean stillExists = false;
+            for (ConnectJob newJob : jobs) {
+                if(existing.getID() == newJob.getID()) {
+                    stillExists = true;
+                    break;
+                }
+            }
+
+            if(!stillExists) {
+                getConnectStorage(context, ConnectJob.class).remove(existing.getID());
+            }
+        }
+
+        //Now insert/update jobs
+        for (ConnectJob newJob : jobs) {
+            for (ConnectJob existingJob : existingList) {
+                if(newJob.getID() == existingJob.getID()) {
+                    //To update, set ID for the new job from the existing
+                    newJob.setID(existingJob.getID());
+                    break;
+                }
+            }
+
+            //Now insert/update the job
+            getConnectStorage(context, ConnectJob.class).write(newJob);
+        }
+    }
+
+    private static final boolean UseMockData = true;
+
+    public static List<ConnectJob> getJobs(Context context, int status) {
+        if(UseMockData) {
+            return switch(status) {
+                case ConnectJob.STATUS_AVAILABLE ->
+                        MockJobProvider.getAvailableJobs();
+                case ConnectJob.STATUS_LEARNING ->
+                    MockJobProvider.getTrainingJobs();
+                case ConnectJob.STATUS_DELIVERING ->
+                    MockJobProvider.getClaimedJobs();
+                default -> new ArrayList<>();
+            };
+        }
+
+        Vector<ConnectJob> records = getConnectStorage(context, ConnectJob.class)
+                .getRecordsForValues(
+                        new String[]{ConnectJob.META_STATUS},
+                        new Object[]{status});
+
+        return new ArrayList<>(records);
+    }
+
+    public static List<ConnectJob> getAvailableJobs(Context context) {
+        List<ConnectJob> jobs = getJobs(context, ConnectJob.STATUS_AVAILABLE);
+        jobs.addAll(getJobs(context, ConnectJob.STATUS_AVAILABLE_NEW));
+        return jobs;
+    }
+
+    public static List<ConnectJob> getTrainingJobs(Context context) {
+        return getJobs(context, ConnectJob.STATUS_LEARNING);
+    }
+
+    public static List<ConnectJob> getClaimdeJobs(Context context) {
+        return getJobs(context, ConnectJob.STATUS_DELIVERING);
     }
 }
