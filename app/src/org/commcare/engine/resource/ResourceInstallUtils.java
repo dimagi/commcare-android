@@ -68,8 +68,8 @@ public class ResourceInstallUtils {
     public static CommCareApp startAppInstallAsync(boolean shouldSleep, int taskId, CommCareTaskConnector connector,
             String installRef) {
         CommCareApp ccApp = getNewCommCareApp();
-        ResourceEngineTask task =
-                new ResourceEngineTask<ResourceEngineListener>(ccApp,
+        ResourceEngineTask<ResourceEngineListener> task =
+                new ResourceEngineTask<>(ccApp,
                         taskId, shouldSleep, false) {
 
                     @Override
