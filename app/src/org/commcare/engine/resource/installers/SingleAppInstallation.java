@@ -1,13 +1,7 @@
 package org.commcare.engine.resource.installers;
 
-import org.commcare.CommCareApp;
 import org.commcare.activities.CommCareSetupActivity;
-import org.commcare.engine.resource.AppInstallStatus;
 import org.commcare.engine.resource.ResourceInstallUtils;
-import org.commcare.tasks.ResourceEngineTask;
-
-import static org.commcare.engine.resource.ResourceInstallUtils.getNewCommCareApp;
-import static org.commcare.engine.resource.ResourceInstallUtils.handleAppInstallResult;
 
 /**
  * Install CC app from the APK's asset directory

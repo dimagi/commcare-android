@@ -8,9 +8,9 @@ import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.core.network.CaptivePortalRedirectException;
 import org.commcare.engine.resource.installers.SingleAppInstallation;
 import org.commcare.network.RateLimitedException;
-import org.commcare.preferences.ServerUrls;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.preferences.MainConfigurablePreferences;
+import org.commcare.preferences.ServerUrls;
 import org.commcare.resources.ResourceManager;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
@@ -57,7 +57,7 @@ public class ResourceInstallUtils {
      * Creates a new application record in db
      * @return newly created CommCare App
      */
-    public static CommCareApp getNewCommCareApp() {
+    private static CommCareApp getNewCommCareApp() {
         ApplicationRecord newRecord =
                 new ApplicationRecord(PropertyUtils.genUUID().replace("-", ""),
                         ApplicationRecord.STATUS_UNINITIALIZED);
