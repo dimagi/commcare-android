@@ -17,16 +17,19 @@ import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.UnreliableSourceException;
 import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.suite.model.Profile;
+import org.commcare.tasks.ResourceEngineListener;
+import org.commcare.tasks.ResourceEngineTask;
+import org.commcare.tasks.templates.CommCareTaskConnector;
 import org.commcare.util.CommCarePlatform;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.AndroidCommCarePlatform;
 import org.commcare.utils.SessionUnavailableException;
+import org.commcare.views.notifications.NotificationActionButtonInfo;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.util.PropertyUtils;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.security.cert.CertificateException;
 import java.util.Date;
 
 import javax.net.ssl.SSLException;
@@ -60,6 +63,85 @@ public class ResourceInstallUtils {
                         ApplicationRecord.STATUS_UNINITIALIZED);
 
         return new CommCareApp(newRecord);
+    }
+
+    public static CommCareApp startAppInstallAsync(boolean shouldSleep, int taskId, CommCareTaskConnector connector,
+            String installRef) {
+        CommCareApp ccApp = getNewCommCareApp();
+        ResourceEngineTask task =
+                new ResourceEngineTask<ResourceEngineListener>(ccApp,
+                        taskId, shouldSleep, false) {
+
+                    @Override
+                    protected void deliverResult(ResourceEngineListener receiver,
+                            AppInstallStatus result) {
+                        handleAppInstallResult(this, receiver, result);
+                    }
+
+                    @Override
+                    protected void deliverUpdate(ResourceEngineListener receiver, int[]... update) {
+                        receiver.updateResourceProgress(update[0][0], update[0][1], update[0][2]);
+                    }
+
+                    @Override
+                    protected void deliverError(ResourceEngineListener receiver, Exception e) {
+                        receiver.failUnknown(AppInstallStatus.UnknownFailure);
+                    }
+                };
+
+        task.connect(connector);
+        task.executeParallel(installRef);
+        return ccApp;
+    }
+
+    public static void handleAppInstallResult(ResourceEngineTask resourceEngineTask, ResourceEngineListener receiver, AppInstallStatus result) {
+        switch (result) {
+            case Installed:
+                receiver.reportSuccess(true);
+                break;
+            case UpToDate:
+                receiver.reportSuccess(false);
+                break;
+            case MissingResourcesWithMessage:
+                // fall through to more general case:
+            case MissingResources:
+                receiver.failMissingResource(resourceEngineTask.getMissingResourceException(), result);
+                break;
+            case InvalidResource:
+                receiver.failInvalidResource(resourceEngineTask.getInvalidResourceException(), result);
+                break;
+            case InvalidReference:
+                receiver.failInvalidReference(resourceEngineTask.getInvalidReferenceException(), result);
+                break;
+            case IncompatibleReqs:
+                receiver.failBadReqs(resourceEngineTask.getVersionRequired(),
+                        resourceEngineTask.getVersionAvailable(), resourceEngineTask.isMajorIsProblem());
+                break;
+            case NoLocalStorage:
+                receiver.failWithNotification(AppInstallStatus.NoLocalStorage);
+                break;
+            case NoConnection:
+                receiver.failWithNotification(AppInstallStatus.NoConnection);
+                break;
+            case BadSslCertificate:
+                receiver.failWithNotification(AppInstallStatus.BadSslCertificate, NotificationActionButtonInfo.ButtonAction.LAUNCH_DATE_SETTINGS);
+                break;
+            case DuplicateApp:
+                receiver.failWithNotification(AppInstallStatus.DuplicateApp);
+                break;
+            case IncorrectTargetPackage:
+                receiver.failTargetMismatch();
+                break;
+            case ReinstallFromInvalidCcz:
+                receiver.failUnknown(AppInstallStatus.ReinstallFromInvalidCcz);
+                break;
+            case CaptivePortal:
+                receiver.failWithNotification(AppInstallStatus.CaptivePortal);
+                break;
+            default:
+                receiver.failUnknown(AppInstallStatus.UnknownFailure);
+                break;
+        }
     }
 
     /**
