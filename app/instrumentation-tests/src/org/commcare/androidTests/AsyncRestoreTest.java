@@ -68,7 +68,7 @@ public class AsyncRestoreTest extends BaseTest {
 
         // Make sure user is present in the group.
         HQApi.addUserInGroup(userId, groupId);
-        InstrumentationUtility.sleep(5);
+        InstrumentationUtility.sleep(30);
 
         installAppAndClearCache();
 
@@ -98,7 +98,7 @@ public class AsyncRestoreTest extends BaseTest {
 
         // Make sure user is not present in the group.
         HQApi.removeUserFromGroup(userId, groupId);
-        InstrumentationUtility.sleep(5);
+        InstrumentationUtility.sleep(30);
 
         installAppAndClearCache();
 
@@ -112,10 +112,9 @@ public class AsyncRestoreTest extends BaseTest {
         // Confirm No Restore happened during login.
         assertFalse(AsyncRestoreHelperMock.isRetryCalled());
         assertFalse(AsyncRestoreHelperMock.isServerProgressReportingStarted());
-
         // Add user to the group.
         HQApi.addUserInGroup(userId, groupId);
-        InstrumentationUtility.sleep(5);
+        InstrumentationUtility.sleep(30);
 
         // Sync with server.
         onView(withText("Sync with Server"))
