@@ -247,6 +247,8 @@ public class CommCareApplication extends MultiDexApplication {
         GraphUtil.setLabelCharacterLimit(getResources().getInteger(R.integer.graph_label_char_limit));
 
         FirebaseMessagingUtil.verifyToken();
+
+        customiseOkHttp();
     }
 
 
