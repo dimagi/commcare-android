@@ -21,7 +21,7 @@ import okhttp3.tls.HandshakeCertificates;
  */
 public class ISRGCertConfig {
 
-    public void attachISRGRootCertificate(OkHttpClient.Builder okHttpBuilder) {
+    public static void attachISRGRootCertificate(OkHttpClient.Builder okHttpBuilder) {
         String isgCert =
                 "-----BEGIN CERTIFICATE-----\n" +
                         "MIIFazCCA1OgAwIBAgIRAIIQz7DSQONZRGPgu2OCiwAwDQYJKoZIhvcNAQELBQAw\n" +

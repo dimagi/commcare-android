@@ -19,39 +19,40 @@ class CTInterceptorConfig {
         private var interceptor: Interceptor? = null
         private var previousRequestFailed = false
         private var interceptorAttached = false
-    }
 
-    fun toggleCertificateTransparency(client: OkHttpClient.Builder) {
-        if (HiddenPreferences.isCertificateTransparencyEnabled()) {
-            if (!interceptorAttached) {
-                client.addNetworkInterceptor(getCTInterceptor())
-                interceptorAttached = true
+        @JvmStatic
+        fun toggleCertificateTransparency(client: OkHttpClient.Builder) {
+            if (HiddenPreferences.isCertificateTransparencyEnabled()) {
+                if (!interceptorAttached) {
+                    client.addNetworkInterceptor(getCTInterceptor())
+                    interceptorAttached = true
+                }
+            } else if (interceptorAttached) {
+                removeCTInterceptors(client)
+                interceptorAttached = false
             }
-        } else if (interceptorAttached) {
-            removeCTInterceptors(client)
-            interceptorAttached = false
         }
-    }
 
-    private fun getCTInterceptor(): Interceptor {
-        if (interceptor == null) {
-            interceptor = certificateTransparencyInterceptor {
-                logger = object : CTLogger {
-                    override fun log(host: String, result: VerificationResult) {
-                        if (result is VerificationResult.Failure && !previousRequestFailed) {
-                            Logger.log(
-                                LogTypes.TYPE_NETWORK,
-                                "Certificate verification failed: $host -> $result")
+        private fun getCTInterceptor(): Interceptor {
+            if (interceptor == null) {
+                interceptor = certificateTransparencyInterceptor {
+                    logger = object : CTLogger {
+                        override fun log(host: String, result: VerificationResult) {
+                            if (result is VerificationResult.Failure && !previousRequestFailed) {
+                                Logger.log(
+                                        LogTypes.TYPE_NETWORK,
+                                        "Certificate verification failed: $host -> $result")
+                            }
+                            previousRequestFailed = result is VerificationResult.Failure
                         }
-                        previousRequestFailed = result is VerificationResult.Failure
                     }
                 }
             }
+            return interceptor!!
         }
-        return interceptor!!
-    }
 
-    private fun removeCTInterceptors(client: OkHttpClient.Builder) {
-        client.networkInterceptors().removeAll { it === interceptor }
+        private fun removeCTInterceptors(client: OkHttpClient.Builder) {
+            client.networkInterceptors().removeAll { it === interceptor }
+        }
     }
 }

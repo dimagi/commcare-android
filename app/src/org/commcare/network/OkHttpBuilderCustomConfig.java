@@ -12,22 +12,15 @@ import okhttp3.OkHttpClient;
  * Certificate Transparency
  */
 public class OkHttpBuilderCustomConfig implements HttpBuilderConfig {
-    private CTInterceptorConfig ctInterceptorConfig;
-    private ISRGCertConfig isrgCertConfig;
-
-    public OkHttpBuilderCustomConfig(){
-         ctInterceptorConfig = new CTInterceptorConfig();
-         isrgCertConfig = new ISRGCertConfig();
-    }
 
     @Override
     public OkHttpClient.Builder performCustomConfig(OkHttpClient.Builder okHttpBuilder) {
         // Enable or Disable CT, depending on the current value of the preference
-        ctInterceptorConfig.toggleCertificateTransparency(okHttpBuilder);
+        CTInterceptorConfig.toggleCertificateTransparency(okHttpBuilder);
 
         // Attach ISRG Root Certificate when running Android 7.1 and below
         if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.N_MR1) {
-            isrgCertConfig.attachISRGRootCertificate(okHttpBuilder);
+            ISRGCertConfig.attachISRGRootCertificate(okHttpBuilder);
         }
 
         return okHttpBuilder;
