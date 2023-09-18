@@ -73,7 +73,7 @@ public class ConnectJobIntroFragment extends Fragment {
         Button button = view.findViewById(R.id.connect_job_intro_start_button);
         button.setOnClickListener(v -> {
             String title = getString(R.string.connect_downloading_learn);
-            NavDirections directions = ConnectJobIntroFragmentDirections.actionConnectJobIntroFragmentToConnectDownloadingFragment(title, job.getTitle());
+            NavDirections directions = ConnectJobIntroFragmentDirections.actionConnectJobIntroFragmentToConnectDownloadingFragment(title, job);
             Navigation.findNavController(button).navigate(directions);
         });
 

@@ -33,6 +33,7 @@ public class ConnectDownloadingFragment extends Fragment implements ResourceEngi
                     + "/media_profile.ccpr";
     private ProgressBar progressBar;
     private TextView statusText;
+    private ConnectJob job;
 
     public ConnectDownloadingFragment() {
         // Required empty public constructor
@@ -56,7 +57,8 @@ public class ConnectDownloadingFragment extends Fragment implements ResourceEngi
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
         ConnectDownloadingFragmentArgs args = ConnectDownloadingFragmentArgs.fromBundle(getArguments());
-        getActivity().setTitle(args.getAppTitle());
+        job = args.getJob();
+        getActivity().setTitle(job.getTitle());
 
         View view = inflater.inflate(R.layout.fragment_connect_downloading, container, false);
 
