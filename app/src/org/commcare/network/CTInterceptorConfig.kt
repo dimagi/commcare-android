@@ -42,10 +42,8 @@ class CTInterceptorConfig {
                             Logger.log(
                                 LogTypes.TYPE_NETWORK,
                                 "Certificate verification failed: $host -> $result")
-                            previousRequestFailed = true
-                        } else if (result is VerificationResult.Success && previousRequestFailed) {
-                            previousRequestFailed = false
                         }
+                        previousRequestFailed = result is VerificationResult.Failure
                     }
                 }
             }
