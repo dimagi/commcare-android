@@ -1,6 +1,7 @@
 package org.commcare.activities;
 
 import static org.commcare.engine.resource.ResourceInstallUtils.showApkUpdatePrompt;
+import static org.commcare.engine.resource.ResourceInstallUtils.showTargetMismatchError;
 
 import android.Manifest;
 import android.content.Context;
@@ -735,8 +736,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 
     @Override
     public void failTargetMismatch() {
-        Intent intent = new Intent(this, TargetMismatchErrorActivity.class);
-        startActivity(intent);
+        showTargetMismatchError(this);
     }
 
 
