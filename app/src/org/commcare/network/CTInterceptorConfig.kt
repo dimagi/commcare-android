@@ -21,14 +21,13 @@ class CTInterceptorConfig {
         private var interceptorAttached = false
     }
 
-    fun toggleCertificateTransparency(client: OkHttpClient.Builder){
-        if (HiddenPreferences.isCertificateTransparencyEnabled()){
-            if(!interceptorAttached) {
+    fun toggleCertificateTransparency(client: OkHttpClient.Builder) {
+        if (HiddenPreferences.isCertificateTransparencyEnabled()) {
+            if (!interceptorAttached) {
                 client.addNetworkInterceptor(getCTInterceptor())
                 interceptorAttached = true
             }
-        }
-        else if (interceptorAttached) {
+        } else if (interceptorAttached) {
             removeCTInterceptors(client)
             interceptorAttached = false
         }
@@ -40,12 +39,13 @@ class CTInterceptorConfig {
                 logger = object : CTLogger {
                     override fun log(host: String, result: VerificationResult) {
                         if (result is VerificationResult.Failure && !previousRequestFailed) {
-                            Logger.log(LogTypes.TYPE_NETWORK, "Certificate verification failed: $host -> $result")
+                            Logger.log(
+                                LogTypes.TYPE_NETWORK,
+                                "Certificate verification failed: $host -> $result")
                             previousRequestFailed = true
                         } else if (result is VerificationResult.Success && previousRequestFailed) {
                             previousRequestFailed = false
                         }
-
                     }
                 }
             }
