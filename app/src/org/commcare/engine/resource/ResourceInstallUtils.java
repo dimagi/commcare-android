@@ -57,7 +57,7 @@ public class ResourceInstallUtils {
      * Creates a new application record in db
      * @return newly created CommCare App
      */
-    private static CommCareApp getNewCommCareApp() {
+    private static CommCareApp createNewCommCareApp() {
         ApplicationRecord newRecord =
                 new ApplicationRecord(PropertyUtils.genUUID().replace("-", ""),
                         ApplicationRecord.STATUS_UNINITIALIZED);
@@ -67,7 +67,7 @@ public class ResourceInstallUtils {
 
     public static CommCareApp startAppInstallAsync(boolean shouldSleep, int taskId, CommCareTaskConnector connector,
             String installRef) {
-        CommCareApp ccApp = getNewCommCareApp();
+        CommCareApp ccApp = createNewCommCareApp();
         ResourceEngineTask<ResourceEngineListener> task =
                 new ResourceEngineTask<>(ccApp,
                         taskId, shouldSleep, false) {
