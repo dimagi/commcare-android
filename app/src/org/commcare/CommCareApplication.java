@@ -220,8 +220,6 @@ public class CommCareApplication extends MultiDexApplication {
         // improperly, so the second https request in a short time period will flop)
         System.setProperty("http.keepAlive", "false");
 
-        customiseOkHttp();
-
         Thread.setDefaultUncaughtExceptionHandler(new CommCareExceptionHandler(Thread.getDefaultUncaughtExceptionHandler(), this));
 
         loadSqliteLibs();
@@ -537,6 +535,10 @@ public class CommCareApplication extends MultiDexApplication {
             FirebaseAnalyticsUtil.reportCorruptAppState();
         }
         app.setAppResourceState(resourceState);
+
+        // This is part of the CommCare app initialization because it needs to be applied during
+        // app initialization, update and when switching the seated app
+        customiseOkHttp();
     }
 
     /**
