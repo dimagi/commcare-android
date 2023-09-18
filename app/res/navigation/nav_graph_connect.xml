@@ -84,6 +84,9 @@
         <argument
             android:name="appTitle"
             app:argType="string" />
+        <action
+            android:id="@+id/action_connect_downloading_fragment_to_connect_job_learning_progress_fragment"
+            app:destination="@id/connect_job_learning_progress_fragment" />
     </fragment>
 
 
