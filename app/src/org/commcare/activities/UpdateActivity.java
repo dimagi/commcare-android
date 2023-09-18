@@ -1,6 +1,7 @@
 package org.commcare.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
+
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -355,7 +356,7 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
                 break;
         }
 
-        if(notificationMessage != null) {
+        if (notificationMessage != null) {
             CommCareApplication.notificationManager()
                     .reportNotificationMessage(notificationMessage, true);
             uiController.setNotificationsVisible();

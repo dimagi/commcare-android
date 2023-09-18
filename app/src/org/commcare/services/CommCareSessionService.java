@@ -165,7 +165,8 @@ public class CommCareSessionService extends Service {
                         decrypter.init(Cipher.DECRYPT_MODE, spec);
 
                         return decrypter;
-                    } catch (NoSuchPaddingException | NoSuchAlgorithmException | InvalidKeyException e) {
+                    } catch (NoSuchPaddingException | NoSuchAlgorithmException |
+                             InvalidKeyException e) {
                         e.printStackTrace();
                     }
                 }
@@ -211,7 +212,7 @@ public class CommCareSessionService extends Service {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
             contentIntent = PendingIntent.getActivity(this, 0, callable, PendingIntent.FLAG_IMMUTABLE);
         else
-            contentIntent = PendingIntent.getActivity(this, 0, callable,0);
+            contentIntent = PendingIntent.getActivity(this, 0, callable, 0);
 
         String notificationText;
         if (AppUtils.getInstalledAppRecords().size() > 1) {
@@ -550,13 +551,13 @@ public class CommCareSessionService extends Service {
                 callable.setAction("android.intent.action.MAIN");
                 callable.addCategory("android.intent.category.LAUNCHER");
 
-               // The PendingIntent to launch our activity if the user selects this notification
-               //TODO: Put something here that will, I dunno, cancel submission or something? Maybe show it live?
-               PendingIntent contentIntent;
+                // The PendingIntent to launch our activity if the user selects this notification
+                //TODO: Put something here that will, I dunno, cancel submission or something? Maybe show it live?
+                PendingIntent contentIntent;
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
                     contentIntent = PendingIntent.getActivity(CommCareSessionService.this, 0, callable, PendingIntent.FLAG_IMMUTABLE);
                 else
-                    contentIntent = PendingIntent.getActivity(CommCareSessionService.this, 0, callable,0);
+                    contentIntent = PendingIntent.getActivity(CommCareSessionService.this, 0, callable, 0);
 
                 submissionNotification = new NotificationCompat.Builder(CommCareSessionService.this,
                         CommCareNoficationManager.NOTIFICATION_CHANNEL_SERVER_COMMUNICATIONS_ID)

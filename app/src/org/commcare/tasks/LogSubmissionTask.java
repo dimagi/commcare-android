@@ -103,7 +103,7 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
     }
 
     public LogSubmissionTask(String submissionUrl, boolean forceLogs) {
-        this (null, submissionUrl, forceLogs);
+        this(null, submissionUrl, forceLogs);
     }
 
     public static String getSubmissionUrl(SharedPreferences appPreferences) {
@@ -182,7 +182,7 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
             DeviceReportWriter reporter;
             try {
                 //Create a report writer
-                    reporter = new DeviceReportWriter(record);
+                reporter = new DeviceReportWriter(record);
             } catch (IOException e) {
                 //TODO: Bad local file (almost certainly). Throw a better message!
                 e.printStackTrace();
@@ -263,7 +263,7 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
     }
 
     private static LogSubmitOutcomes submitDeviceReportRecord(DeviceReportRecord slr, String submissionUrl,
-                                                    DataSubmissionListener listener, int index, boolean forceLogs) {
+                                                              DataSubmissionListener listener, int index, boolean forceLogs) {
         //Get our file pointer
         File f = new File(slr.getFilePath());
 

@@ -83,7 +83,7 @@ object MissingMediaDownloadHelper : TableStateListener {
 
             RequestStats.register(InstallRequestSource.BACKGROUND_LAZY_RESOURCE)
             global.setInstallCancellationChecker(cancellationChecker)
-            if (CommCareApplication.notificationManager().areNotificationsEnabled()){
+            if (CommCareApplication.notificationManager().areNotificationsEnabled()) {
                 startPinnedNotification()
             }
 
@@ -125,18 +125,22 @@ object MissingMediaDownloadHelper : TableStateListener {
                 appInstallStatus = AppInstallStatus.InvalidResource
                 NotificationMessageFactory.message(appInstallStatus, arrayOf(null, it.resourceName, it.message))
             }
+
             is LocalStorageUnavailableException -> {
                 appInstallStatus = AppInstallStatus.NoLocalStorage
                 NotificationMessageFactory.message(appInstallStatus, arrayOf(null, null, it.message))
             }
+
             is UnresolvedResourceException -> {
                 appInstallStatus = ResourceInstallUtils.processUnresolvedResource(it)
                 NotificationMessageFactory.message(appInstallStatus, arrayOf(null, it.resource.descriptor, it.message))
             }
+
             is InstallCancelledException -> {
                 appInstallStatus = AppInstallStatus.Cancelled
                 NotificationMessageFactory.message(appInstallStatus, arrayOf(null, null, it.message))
             }
+
             else -> {
                 appInstallStatus = AppInstallStatus.UnknownFailure
                 NotificationMessageFactory.message(appInstallStatus, arrayOf(null, null, it.message))
@@ -191,7 +195,7 @@ object MissingMediaDownloadHelper : TableStateListener {
                 .filter { it != null }
                 .filter { AndroidResourceUtils.matchFileUriToResource(it, uri) }
                 .take(1)
-                .map { runBlocking { downloadResource(it) }}
+                .map { runBlocking { downloadResource(it) } }
                 .firstOrNull()
 
         if (result == null) {

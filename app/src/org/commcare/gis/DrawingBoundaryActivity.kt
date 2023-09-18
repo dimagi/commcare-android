@@ -110,10 +110,10 @@ class DrawingBoundaryActivity : BaseMapboxActivity(), LocationListener, MapboxMa
     private fun freezeOrientation() {
         val orientation = resources.configuration.orientation
         requestedOrientation =
-            when (orientation) {
-                Configuration.ORIENTATION_PORTRAIT -> ActivityInfo.SCREEN_ORIENTATION_USER_PORTRAIT
-                else -> ActivityInfo.SCREEN_ORIENTATION_USER_LANDSCAPE
-            }
+                when (orientation) {
+                    Configuration.ORIENTATION_PORTRAIT -> ActivityInfo.SCREEN_ORIENTATION_USER_PORTRAIT
+                    else -> ActivityInfo.SCREEN_ORIENTATION_USER_LANDSCAPE
+                }
     }
 
     override fun onMapLoaded() {
@@ -261,21 +261,21 @@ class DrawingBoundaryActivity : BaseMapboxActivity(), LocationListener, MapboxMa
     }
 
     private fun initUI() {
-        viewBinding.startTrackingButton.text =  Localization.get("drawing.boundary.map.start.tracking")
+        viewBinding.startTrackingButton.text = Localization.get("drawing.boundary.map.start.tracking")
         viewBinding.startTrackingButton.setOnClickListener {
             startTracking()
         }
 
-        viewBinding.stopTrackingButton.text =  Localization.get("drawing.boundary.map.stop.tracking")
+        viewBinding.stopTrackingButton.text = Localization.get("drawing.boundary.map.stop.tracking")
         viewBinding.stopTrackingButton.setOnClickListener {
             stoppedUIState()
             stopTracking()
         }
-        viewBinding.okTrackingButton.text =  Localization.get("drawing.boundary.map.ok.tracking")
+        viewBinding.okTrackingButton.text = Localization.get("drawing.boundary.map.ok.tracking")
         viewBinding.okTrackingButton.setOnClickListener {
             finishTracking()
         }
-        viewBinding.redoTrackingButton.text =  Localization.get("drawing.boundary.map.redo.tracking")
+        viewBinding.redoTrackingButton.text = Localization.get("drawing.boundary.map.redo.tracking")
         viewBinding.redoTrackingButton.setOnClickListener {
             trackingUIState()
             redoTracking()

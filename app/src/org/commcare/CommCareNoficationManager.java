@@ -151,8 +151,7 @@ public class CommCareNoficationManager {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             return ((NotificationManager)context.getSystemService(NOTIFICATION_SERVICE))
                     .areNotificationsEnabled();
-        }
-        else {
+        } else {
             return true;
         }
     }

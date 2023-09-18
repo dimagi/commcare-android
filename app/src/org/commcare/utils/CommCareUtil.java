@@ -98,8 +98,7 @@ public class CommCareUtil {
                     CommCareApplication.instance().getSession().getListenerForSubmissionNotification(R.string.submission_logs_title),
                     url,
                     forceLogs);
-        }
-        else {
+        } else {
             reportSubmitter = new LogSubmissionTask(url, forceLogs);
         }
         // Execute on a true multithreaded chain, since this is an asynchronous process

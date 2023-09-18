@@ -23,7 +23,7 @@ class FormSubmissionWorker(appContext: Context, workerParams: WorkerParameters)
         formSubmissionHelper = FormSubmissionHelper(applicationContext, this, this)
         if (CommCareApplication.notificationManager().areNotificationsEnabled()) {
             formSubmissionListeners.add(
-                CommCareApplication.instance().getSession().getListenerForSubmissionNotification()
+                    CommCareApplication.instance().getSession().getListenerForSubmissionNotification()
             )
         }
         val result = formSubmissionHelper.uploadForms()

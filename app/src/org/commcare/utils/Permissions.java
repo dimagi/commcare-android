@@ -100,15 +100,14 @@ public class Permissions {
                 Manifest.permission.ACCESS_COARSE_LOCATION,
                 Manifest.permission.RECORD_AUDIO}));
 
-        if (Build.VERSION.SDK_INT >=Build.VERSION_CODES.TIRAMISU){
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             appPermissions.addAll(Arrays.asList(new String[]{
                     Manifest.permission.READ_MEDIA_IMAGES,
                     Manifest.permission.READ_MEDIA_AUDIO,
                     Manifest.permission.READ_MEDIA_VIDEO,
                     Manifest.permission.NEARBY_WIFI_DEVICES,
                     Manifest.permission.POST_NOTIFICATIONS}));
-        }
-        else{
+        } else {
             appPermissions.addAll(Arrays.asList(new String[]{
                     Manifest.permission.WRITE_EXTERNAL_STORAGE,
                     Manifest.permission.READ_EXTERNAL_STORAGE}));
@@ -120,7 +119,7 @@ public class Permissions {
      * @return Minimal set of permissions needed for CommCare to function
      */
     public static String[] getRequiredPerms() {
-        if (Build.VERSION.SDK_INT >=Build.VERSION_CODES.TIRAMISU) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             return new String[]{
                     Manifest.permission.READ_MEDIA_IMAGES,
                     Manifest.permission.READ_MEDIA_AUDIO,

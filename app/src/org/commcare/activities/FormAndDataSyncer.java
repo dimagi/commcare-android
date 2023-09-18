@@ -49,8 +49,8 @@ public class FormAndDataSyncer {
 
     @SuppressLint("NewApi")
     protected void processAndSendForms(final SyncCapableCommCareActivity activity,
-                                     final boolean syncAfterwards,
-                                     final boolean userTriggered) {
+                                       final boolean syncAfterwards,
+                                       final boolean userTriggered) {
 
         ProcessAndSendTask<SyncCapableCommCareActivity> processAndSendTask =
                 new ProcessAndSendTask<SyncCapableCommCareActivity>(activity, syncAfterwards) {
@@ -74,7 +74,7 @@ public class FormAndDataSyncer {
 
                         receiver.handleFormUploadResult(result, getLabelForFormsSent(), userTriggered);
 
-                        if(result == FormUploadResult.FULL_SUCCESS && syncAfterwards) {
+                        if (result == FormUploadResult.FULL_SUCCESS && syncAfterwards) {
                             syncDataForLoggedInUser(receiver, true, userTriggered);
                         }
                     }

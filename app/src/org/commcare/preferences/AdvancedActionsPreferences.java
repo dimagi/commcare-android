@@ -84,11 +84,10 @@ public class AdvancedActionsPreferences extends CommCarePreferenceFragment {
     /**
      * Responsible for showing a dialog to the user related with permissions acquisition and its
      * restoration in case of configuration changes, it can take:
-     *  NO_ACTION - No action
-     *  REJECT_FEATURE - Inform the user about feature unavailability when the permission was not
-     *                   granted
-     *  REQUEST_PERMISSION - Show the reason for requiring the permission
-     *
+     * NO_ACTION - No action
+     * REJECT_FEATURE - Inform the user about feature unavailability when the permission was not
+     * granted
+     * REQUEST_PERMISSION - Show the reason for requiring the permission
      */
     private MutableLiveData<PermissionAction> showingPermissionDialog = new MutableLiveData<>(NO_ACTION);
 
@@ -107,7 +106,7 @@ public class AdvancedActionsPreferences extends CommCarePreferenceFragment {
         keyToTitleMap.put(ENABLE_MANUAL_FORM_QUARANTINE, "menu.enable.manual.form.quarantine");
     }
 
-    public enum PermissionAction{
+    public enum PermissionAction {
         NO_ACTION,
         INFORM_FEATURE_DEGRADATION,
         REQUEST_PERMISSION;
@@ -118,10 +117,9 @@ public class AdvancedActionsPreferences extends CommCarePreferenceFragment {
         super.onCreatePreferences(savedInstanceState, rootKey);
 
         showingPermissionDialog.observe(this, value -> {
-            if (value == INFORM_FEATURE_DEGRADATION){
+            if (value == INFORM_FEATURE_DEGRADATION) {
                 informUserAboutFeatureUnavailability();
-            }
-            else if (value == REQUEST_PERMISSION){
+            } else if (value == REQUEST_PERMISSION) {
                 showNearbyWiFiPermissionRationale();
             }
         });
@@ -136,7 +134,7 @@ public class AdvancedActionsPreferences extends CommCarePreferenceFragment {
     @Override
     public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
         super.onViewStateRestored(savedInstanceState);
-        if (savedInstanceState!=null){
+        if (savedInstanceState != null) {
             showingPermissionDialog.setValue(
                     PermissionAction.values()[savedInstanceState.getInt(SHOW_PERMISSION_DIALOG)]);
         }
@@ -200,13 +198,13 @@ public class AdvancedActionsPreferences extends CommCarePreferenceFragment {
         Preference wifiDirectButton = findPreference(WIFI_DIRECT);
         if (hasP2p()) {
             wifiDirectButton.setOnPreferenceClickListener(preference -> {
-                if (Build.VERSION.SDK_INT >=Build.VERSION_CODES.TIRAMISU){
-                    if (isMissingNearbyWifiPermission()){
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    if (isMissingNearbyWifiPermission()) {
                         if (this.shouldShowRequestPermissionRationale(
                                 Manifest.permission.NEARBY_WIFI_DEVICES)) {
                             showingPermissionDialog.setValue(REQUEST_PERMISSION);
                         } else {
-                           requestNearbyWifiPermission();
+                            requestNearbyWifiPermission();
                         }
                         return false;
                     }
@@ -361,14 +359,14 @@ public class AdvancedActionsPreferences extends CommCarePreferenceFragment {
         d.showNonPersistentDialog();
     }
 
-    private static String getClearUserDataMessage(int numUnsentAndIncompleteForms){
+    private static String getClearUserDataMessage(int numUnsentAndIncompleteForms) {
         if (numUnsentAndIncompleteForms > 0)
-            return Localization.get("clear.user.data.warning.message.delete.forms",String.valueOf(numUnsentAndIncompleteForms));
+            return Localization.get("clear.user.data.warning.message.delete.forms", String.valueOf(numUnsentAndIncompleteForms));
         else
             return Localization.get("clear.user.data.warning.message");
     }
 
-    private static int getClearUserDataPositiveOption(int numUnsentAndIncompleteForms){
+    private static int getClearUserDataPositiveOption(int numUnsentAndIncompleteForms) {
         if (numUnsentAndIncompleteForms > 0)
             return R.string.clear_user_data_delete_form;
         else
@@ -420,11 +418,11 @@ public class AdvancedActionsPreferences extends CommCarePreferenceFragment {
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        switch (requestCode){
+        switch (requestCode) {
             case NEARBY_WIFI_PERM_REQUEST:
-                for(int i = 0; i < permissions.length; i++){
+                for (int i = 0; i < permissions.length; i++) {
                     if (permissions[i].equals(Manifest.permission.NEARBY_WIFI_DEVICES) &&
-                            grantResults[i] == PackageManager.PERMISSION_GRANTED){
+                            grantResults[i] == PackageManager.PERMISSION_GRANTED) {
                         startWifiDirect();
                         return;
                     }
