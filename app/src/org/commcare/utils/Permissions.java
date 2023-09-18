@@ -105,7 +105,6 @@ public class Permissions {
                     Manifest.permission.READ_MEDIA_IMAGES,
                     Manifest.permission.READ_MEDIA_AUDIO,
                     Manifest.permission.READ_MEDIA_VIDEO,
-                    Manifest.permission.NEARBY_WIFI_DEVICES,
                     Manifest.permission.POST_NOTIFICATIONS}));
         } else {
             appPermissions.addAll(Arrays.asList(new String[]{
