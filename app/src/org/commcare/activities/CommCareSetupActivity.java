@@ -1,5 +1,7 @@
 package org.commcare.activities;
 
+import static org.commcare.engine.resource.ResourceInstallUtils.showApkUpdatePrompt;
+
 import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
@@ -697,11 +699,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 
     @Override
     public void failBadReqs(String versionRequired, String versionAvailable, boolean majorIsProblem) {
-        String versionMismatch = Localization.get("install.version.mismatch", new String[]{versionRequired, versionAvailable});
-        Intent intent = new Intent(this, PromptApkUpdateActivity.class);
-        intent.putExtra(PromptApkUpdateActivity.REQUIRED_VERSION, versionRequired);
-        intent.putExtra(PromptApkUpdateActivity.CUSTOM_PROMPT_TITLE, versionMismatch);
-        startActivity(intent);
+        showApkUpdatePrompt(this, versionRequired, versionAvailable);
     }
 
     @Override
