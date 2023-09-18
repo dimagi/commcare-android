@@ -7,6 +7,7 @@ import android.content.SharedPreferences;
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.activities.PromptApkUpdateActivity;
+import org.commcare.activities.TargetMismatchErrorActivity;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.core.network.CaptivePortalRedirectException;
 import org.commcare.engine.resource.installers.SingleAppInstallation;
@@ -159,6 +160,15 @@ public class ResourceInstallUtils {
         Intent intent = new Intent(context, PromptApkUpdateActivity.class);
         intent.putExtra(PromptApkUpdateActivity.REQUIRED_VERSION, versionRequired);
         intent.putExtra(PromptApkUpdateActivity.CUSTOM_PROMPT_TITLE, versionMismatch);
+        context.startActivity(intent);
+    }
+
+    /**
+     * Show target mismatch error during CC App installation
+     * @param context current context
+     */
+    public static void showTargetMismatchError(Context context) {
+        Intent intent = new Intent(context, TargetMismatchErrorActivity.class);
         context.startActivity(intent);
     }
 
