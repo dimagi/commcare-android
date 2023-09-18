@@ -68,6 +68,7 @@ public class AsyncRestoreTest extends BaseTest {
 
         // Make sure user is present in the group.
         HQApi.addUserInGroup(userId, groupId);
+        InstrumentationUtility.sleep(5);
 
         installAppAndClearCache();
 
@@ -97,6 +98,7 @@ public class AsyncRestoreTest extends BaseTest {
 
         // Make sure user is not present in the group.
         HQApi.removeUserFromGroup(userId, groupId);
+        InstrumentationUtility.sleep(5);
 
         installAppAndClearCache();
 
@@ -113,6 +115,7 @@ public class AsyncRestoreTest extends BaseTest {
 
         // Add user to the group.
         HQApi.addUserInGroup(userId, groupId);
+        InstrumentationUtility.sleep(5);
 
         // Sync with server.
         onView(withText("Sync with Server"))
