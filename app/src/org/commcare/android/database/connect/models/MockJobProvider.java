@@ -20,8 +20,6 @@ public class MockJobProvider {
                         "You will conduct 100 home visits to assess if children below 2 years are up to date with their vaccine shots.",
                         ConnectJob.STATUS_AVAILABLE_NEW,
                         0, 100, 5,
-                        new Date("8/27/2023"),
-                        new Date("9/10/2023"),
                         new Date("11/1/2023"),
                         null,
                         new ConnectJobLearningModule[]{
@@ -34,8 +32,6 @@ public class MockJobProvider {
                 "You will deliver Vitamin A supplements to 50 homes.",
                 ConnectJob.STATUS_AVAILABLE,
                 0, 100, 5,
-                new Date("9/15/2023"),
-                new Date("10/1/2023"),
                 new Date("11/1/2023"),
                 null,
                 new ConnectJobLearningModule[]{
@@ -47,8 +43,6 @@ public class MockJobProvider {
                 "This mock shows when training is complete for a job.",
                 ConnectJob.STATUS_AVAILABLE,
                 0, 100, 5,
-                new Date("9/15/2023"),
-                new Date("10/1/2023"),
                 new Date("11/1/2023"),
                 null,
                 new ConnectJobLearningModule[]{
@@ -62,8 +56,6 @@ public class MockJobProvider {
                 "",
                 ConnectJob.STATUS_DELIVERING,
                 60, 100, 5,
-                new Date("9/7/2023"),
-                new Date("9/10/2023"),
                 new Date("11/1/2023"),
                 null,
                 new ConnectJobLearningModule[]{},
@@ -76,8 +68,6 @@ public class MockJobProvider {
                 "",
                 ConnectJob.STATUS_DELIVERING,
                 0, 100, 5,
-                new Date("9/7/2023"),
-                new Date("9/10/2023"),
                 new Date("11/1/2023"),
                 null,
                 new ConnectJobLearningModule[]{}, new ConnectJobDelivery[]{}));
@@ -85,8 +75,6 @@ public class MockJobProvider {
                 "",
                 ConnectJob.STATUS_DELIVERING,
                 100, 100, 5,
-                new Date("1/7/2023"),
-                new Date("5/10/2023"),
                 new Date("10/1/2023"),
                 new Date("4/7/2023"),
                 new ConnectJobLearningModule[]{}, new ConnectJobDelivery[]{}));

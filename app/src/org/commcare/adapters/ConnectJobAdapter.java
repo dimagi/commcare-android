@@ -154,7 +154,7 @@ public class ConnectJobAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                 claimedHolder.progressBar.setMax(100);
 
                 extra = isTraining ? " to learn" : "";
-                double millis = job.getLearnDeadline().getTime() - (new Date()).getTime();
+                double millis = job.getProjectEndDate().getTime() - (new Date()).getTime();
                 int daysRemaining = (int)(millis / 1000 / 3600 / 24);
                 remaining = String.format(Locale.getDefault(), "%d days remaining%s", daysRemaining, extra);
             }

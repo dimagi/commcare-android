@@ -49,7 +49,7 @@ public class ConnectDeliveryDetailsFragment extends Fragment {
         DateFormat df = new SimpleDateFormat("MM/dd/yyyy", Locale.getDefault());
 
         TextView textView = view.findViewById(R.id.connect_delivery_begin_text);
-        textView.setText(getString(R.string.connect_delivery_last_begin, df.format(job.getBeginDeadline())));
+        textView.setText(getString(R.string.connect_delivery_last_begin, df.format(job.getProjectEndDate())));
 
         textView = view.findViewById(R.id.connect_delivery_max_visits_text);
         textView.setText(getString(R.string.connect_delivery_max_visits, job.getMaxVisits()));

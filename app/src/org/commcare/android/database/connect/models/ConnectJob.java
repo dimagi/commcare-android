@@ -42,7 +42,6 @@ public class ConnectJob extends Persisted implements Serializable {
     public static final String META_MAX_DAILY_VISITS = "daily_max_visits_per_user";
     public static final String META_BUDGET_PER_VISIT = "budget_per_visit";
     public static final String META_BUDGET_TOTAL = "total_budget";
-    public static final String META_LEARN_DEADLINE = "learn_deadline";
     public static final String META_COMPLETED_VISITS = "completed_visits";
     public static final String META_LAST_WORKED_DATE = "last_worked";
     public static final String META_STATUS = "status";
@@ -59,28 +58,22 @@ public class ConnectJob extends Persisted implements Serializable {
     @Persisting(3)
     @MetaField(META_DESCRIPTION)
     private String description;
-    @Persisting(value=4)
-    @MetaField(META_LEARN_DEADLINE)
-    private Date learnDeadline;
-    @Persisting(value=5)
-    @MetaField(META_DATE_CREATED)
-    private Date beginDeadline;
-    @Persisting(value=6)
+    @Persisting(4)
     @MetaField(META_END_DATE)
     private Date projectEndDate;
-    @Persisting(7)
+    @Persisting(5)
     @MetaField(META_MAX_VISITS)
     private int maxVisits;
-    @Persisting(8)
+    @Persisting(6)
     @MetaField(META_MAX_DAILY_VISITS)
     private int maxDailyVisits;
-    @Persisting(9)
+    @Persisting(7)
     @MetaField(META_COMPLETED_VISITS)
     private int completedVisits;
-    @Persisting(value=10)
+    @Persisting(8)
     @MetaField(META_LAST_WORKED_DATE)
     private Date lastWorkedDate;
-    @Persisting(11)
+    @Persisting(9)
     @MetaField(META_STATUS)
     private int status;
     private ConnectJobLearningModule[] learningModules;
@@ -94,7 +87,7 @@ public class ConnectJob extends Persisted implements Serializable {
 
     public ConnectJob(int jobId, String title, String description, int status,
                       int completedVisits, int maxVisits, int maxDailyVisits,
-                      Date learnDeadline, Date beginDeadline, Date projectEnd, Date lastWorkedDate,
+                      Date projectEnd, Date lastWorkedDate,
                       ConnectJobLearningModule[] learningModules,
                       ConnectJobDelivery[] deliveries) {
         this.jobId = jobId;
@@ -104,8 +97,6 @@ public class ConnectJob extends Persisted implements Serializable {
         this.completedVisits = completedVisits;
         this.maxDailyVisits = maxDailyVisits;
         this.maxVisits = maxVisits;
-        this.learnDeadline = learnDeadline;
-        this.beginDeadline = beginDeadline;
         this.projectEndDate = projectEnd;
         this.lastWorkedDate = lastWorkedDate;
         this.learningModules = learningModules;
@@ -138,8 +129,6 @@ public class ConnectJob extends Persisted implements Serializable {
         //job.? = json.has(META_BUDGET_TOTAL) ? json.getInt(META_BUDGET_TOTAL) : -1;
 
         //In model but not in JSON
-        job.learnDeadline = new Date();
-        job.beginDeadline = new Date(); //Currently using META_DATE_CREATED
         //job.completedVisits = 0;
         job.lastWorkedDate = new Date();
 
@@ -155,8 +144,6 @@ public class ConnectJob extends Persisted implements Serializable {
     public int getMaxDailyVisits() { return maxDailyVisits; }
     public int getPercentComplete() { return maxVisits > 0 ? 100 * completedVisits / maxVisits : 0; }
     public Date getDateCompleted() { return lastWorkedDate; }
-    public Date getLearnDeadline() { return learnDeadline; }
-    public Date getBeginDeadline() { return beginDeadline; }
     public Date getProjectEndDate() { return projectEndDate; }
     public ConnectJobLearningModule[] getLearningModules() { return learningModules; }
     public ConnectJobDelivery[] getDeliveries() { return deliveries; }

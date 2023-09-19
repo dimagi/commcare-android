@@ -621,7 +621,7 @@
 
     <string name="connect_learn_progress_title">Your Learning Progress</string>
     <string name="connect_learn_complete_title">Training Complete!</string>
-    <string name="connect_learn_complete_by">Complete Learning by %s</string>
+    <string name="connect_learn_complete_by">Complete Project by %s</string>
     <string name="connect_learn_status">You have completed %d of %d lessons.\nFinish learning to earn your certificate.</string>
     <string name="connect_learn_not_started">You haven\'t completed any lessons.\nStart learning to earn your certificate.</string>
     <string name="connect_learn_finished">You have earned a certificate for this job and are eligible to claim the job and begin delivering care.</string>

@@ -119,7 +119,7 @@ public class ConnectLearningProgressFragment extends Fragment {
             textView = view.findViewById(R.id.connect_learn_cert_date);
             textView.setText(getString(R.string.connect_learn_completed, df.format(latestDate)));
         } else {
-            completeByText.setText(getString(R.string.connect_learn_complete_by, df.format(job.getLearnDeadline())));
+            completeByText.setText(getString(R.string.connect_learn_complete_by, df.format(job.getProjectEndDate())));
         }
 
         Button button = view.findViewById(R.id.connect_learning_button);
