@@ -1,15 +1,8 @@
 package org.commcare.preferences;
 
-import static org.commcare.preferences.AdvancedActionsPreferences.PermissionAction.INFORM_FEATURE_DEGRADATION;
-import static org.commcare.preferences.AdvancedActionsPreferences.PermissionAction.NO_ACTION;
-import static org.commcare.preferences.AdvancedActionsPreferences.PermissionAction.REQUEST_PERMISSION;
-
-import android.Manifest;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.os.Build;
-import android.os.Bundle;
 import android.widget.Toast;
 
 import org.commcare.AppUtils;
@@ -41,9 +34,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
-import androidx.lifecycle.MutableLiveData;
 import androidx.preference.Preference;
+
+import static android.app.Activity.RESULT_CANCELED;
 
 /**
  * Menu for launching advanced CommCare actions
@@ -78,18 +71,6 @@ public class AdvancedActionsPreferences extends CommCarePreferenceFragment {
     public final static String KEY_NUMBER_DUMPED = "num_dumped";
 
     private final static Map<String, String> keyToTitleMap = new HashMap<>();
-    private final int NEARBY_WIFI_PERM_REQUEST = 2;
-    private final String SHOW_PERMISSION_DIALOG = "show-permission-dialog";
-
-    /**
-     * Responsible for showing a dialog to the user related with permissions acquisition and its
-     * restoration in case of configuration changes, it can take:
-     * NO_ACTION - No action
-     * REJECT_FEATURE - Inform the user about feature unavailability when the permission was not
-     * granted
-     * REQUEST_PERMISSION - Show the reason for requiring the permission
-     */
-    private MutableLiveData<PermissionAction> showingPermissionDialog = new MutableLiveData<>(NO_ACTION);
 
     static {
         keyToTitleMap.put(REPORT_PROBLEM, "problem.report.menuitem");
@@ -104,40 +85,6 @@ public class AdvancedActionsPreferences extends CommCarePreferenceFragment {
         keyToTitleMap.put(DISABLE_PRE_UPDATE_SYNC, "menu.disable.pre.update.sync");
         keyToTitleMap.put(ENABLE_RATE_LIMIT_POPUP, "menu.enable.rate.limit.popup");
         keyToTitleMap.put(ENABLE_MANUAL_FORM_QUARANTINE, "menu.enable.manual.form.quarantine");
-    }
-
-    public enum PermissionAction {
-        NO_ACTION,
-        INFORM_FEATURE_DEGRADATION,
-        REQUEST_PERMISSION;
-    }
-
-    @Override
-    public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
-        super.onCreatePreferences(savedInstanceState, rootKey);
-
-        showingPermissionDialog.observe(this, value -> {
-            if (value == INFORM_FEATURE_DEGRADATION) {
-                informUserAboutFeatureUnavailability();
-            } else if (value == REQUEST_PERMISSION) {
-                showNearbyWiFiPermissionRationale();
-            }
-        });
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putInt(SHOW_PERMISSION_DIALOG, showingPermissionDialog.getValue().ordinal());
-    }
-
-    @Override
-    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
-        super.onViewStateRestored(savedInstanceState);
-        if (savedInstanceState != null) {
-            showingPermissionDialog.setValue(
-                    PermissionAction.values()[savedInstanceState.getInt(SHOW_PERMISSION_DIALOG)]);
-        }
     }
 
     @NonNull
@@ -198,18 +145,8 @@ public class AdvancedActionsPreferences extends CommCarePreferenceFragment {
         Preference wifiDirectButton = findPreference(WIFI_DIRECT);
         if (hasP2p()) {
             wifiDirectButton.setOnPreferenceClickListener(preference -> {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    if (isMissingNearbyWifiPermission()) {
-                        if (this.shouldShowRequestPermissionRationale(
-                                Manifest.permission.NEARBY_WIFI_DEVICES)) {
-                            showingPermissionDialog.setValue(REQUEST_PERMISSION);
-                        } else {
-                            requestNearbyWifiPermission();
-                        }
-                        return false;
-                    }
-                }
-
+                FirebaseAnalyticsUtil.reportAdvancedActionSelected(
+                        AnalyticsParamValue.WIFI_DIRECT);
                 startWifiDirect();
                 return true;
             });
@@ -310,9 +247,6 @@ public class AdvancedActionsPreferences extends CommCarePreferenceFragment {
     }
 
     private void startWifiDirect() {
-        FirebaseAnalyticsUtil.reportAdvancedActionSelected(
-                AnalyticsParamValue.WIFI_DIRECT);
-
         Intent i = new Intent(getActivity(), CommCareWiFiDirectActivity.class);
         startActivityForResult(i, WIFI_DIRECT_ACTIVITY);
     }
@@ -378,6 +312,10 @@ public class AdvancedActionsPreferences extends CommCarePreferenceFragment {
         if (requestCode == REPORT_PROBLEM_ACTIVITY || requestCode == VALIDATE_MEDIA_ACTIVITY) {
             getActivity().finish();
         } else if (requestCode == WIFI_DIRECT_ACTIVITY || requestCode == DUMP_FORMS_ACTIVITY) {
+            if (resultCode == RESULT_CANCELED) {
+                return;
+            }
+
             String messageKey = getBulkFormMessageKey(resultCode);
             if (messageKey == null) {
                 return;
@@ -413,57 +351,6 @@ public class AdvancedActionsPreferences extends CommCarePreferenceFragment {
                 .edit()
                 .putString(ENABLE_MANUAL_FORM_QUARANTINE, enabled ? PrefValues.YES : PrefValues.NO)
                 .apply();
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        switch (requestCode) {
-            case NEARBY_WIFI_PERM_REQUEST:
-                for (int i = 0; i < permissions.length; i++) {
-                    if (permissions[i].equals(Manifest.permission.NEARBY_WIFI_DEVICES) &&
-                            grantResults[i] == PackageManager.PERMISSION_GRANTED) {
-                        startWifiDirect();
-                        return;
-                    }
-                }
-                showingPermissionDialog.setValue(INFORM_FEATURE_DEGRADATION);
-        }
-    }
-
-    private boolean isMissingNearbyWifiPermission() {
-        return ContextCompat.checkSelfPermission(getActivity(),
-                Manifest.permission.NEARBY_WIFI_DEVICES) == PackageManager.PERMISSION_DENIED;
-    }
-
-    private void showNearbyWiFiPermissionRationale() {
-        StandardAlertDialog d = new StandardAlertDialog(getActivity(),
-                Localization.get("wifi.direct.permission.nearby.wifi.title"),
-                Localization.get("wifi.direct.permission.nearby.wifi.message"));
-        DialogInterface.OnClickListener listener = (dialog, which) -> {
-            showingPermissionDialog.setValue(NO_ACTION);
-            requestNearbyWifiPermission();
-            dialog.dismiss();
-        };
-        d.setPositiveButton(Localization.get("dialog.ok"), listener);
-        d.showNonPersistentDialog();
-    }
-
-    private void requestNearbyWifiPermission() {
-        this.requestPermissions(new String[]{Manifest.permission.NEARBY_WIFI_DEVICES},
-                NEARBY_WIFI_PERM_REQUEST);
-    }
-
-    private void informUserAboutFeatureUnavailability() {
-        StandardAlertDialog d = StandardAlertDialog.getBasicAlertDialog(
-                requireActivity(),
-                Localization.get("wifi.direct.permission.nearby.wifi.title"),
-                Localization.get("wifi.direct.permission.nearby.wifi.denial"),
-                (dialog, which) -> {
-                    showingPermissionDialog.setValue(NO_ACTION);
-                    dialog.dismiss();
-                });
-        d.showNonPersistentDialog();
     }
 }
 
