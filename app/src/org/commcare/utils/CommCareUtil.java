@@ -95,8 +95,8 @@ public class CommCareUtil {
         LogSubmissionTask reportSubmitter;
         if (CommCareApplication.notificationManager().areNotificationsEnabled()) {
             reportSubmitter = new LogSubmissionTask(
-                    CommCareApplication.instance().getSession().getListenerForSubmissionNotification(R.string.submission_logs_title),
-                    url,
+                    CommCareApplication.instance().getSession()
+                            .getListenerForSubmissionNotification(R.string.submission_logs_title), url,
                     forceLogs);
         } else {
             reportSubmitter = new LogSubmissionTask(url, forceLogs);
