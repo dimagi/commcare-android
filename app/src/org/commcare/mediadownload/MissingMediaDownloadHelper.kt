@@ -83,6 +83,7 @@ object MissingMediaDownloadHelper : TableStateListener {
 
             RequestStats.register(InstallRequestSource.BACKGROUND_LAZY_RESOURCE)
             global.setInstallCancellationChecker(cancellationChecker)
+
             startPinnedNotification()
 
             val lazyResourceIds = global.lazyResourceIds
@@ -123,18 +124,22 @@ object MissingMediaDownloadHelper : TableStateListener {
                 appInstallStatus = AppInstallStatus.InvalidResource
                 NotificationMessageFactory.message(appInstallStatus, arrayOf(null, it.resourceName, it.message))
             }
+
             is LocalStorageUnavailableException -> {
                 appInstallStatus = AppInstallStatus.NoLocalStorage
                 NotificationMessageFactory.message(appInstallStatus, arrayOf(null, null, it.message))
             }
+
             is UnresolvedResourceException -> {
                 appInstallStatus = ResourceInstallUtils.processUnresolvedResource(it)
                 NotificationMessageFactory.message(appInstallStatus, arrayOf(null, it.resource.descriptor, it.message))
             }
+
             is InstallCancelledException -> {
                 appInstallStatus = AppInstallStatus.Cancelled
                 NotificationMessageFactory.message(appInstallStatus, arrayOf(null, null, it.message))
             }
+
             else -> {
                 appInstallStatus = AppInstallStatus.UnknownFailure
                 NotificationMessageFactory.message(appInstallStatus, arrayOf(null, null, it.message))
@@ -189,7 +194,7 @@ object MissingMediaDownloadHelper : TableStateListener {
                 .filter { it != null }
                 .filter { AndroidResourceUtils.matchFileUriToResource(it, uri) }
                 .take(1)
-                .map { runBlocking { downloadResource(it) }}
+                .map { runBlocking { downloadResource(it) } }
                 .firstOrNull()
 
         if (result == null) {
@@ -270,15 +275,21 @@ object MissingMediaDownloadHelper : TableStateListener {
     }
 
     private fun startPinnedNotification() {
-        mPinnedNotificationProgress = PinnedNotificationWithProgress(CommCareApplication.instance(), "media.pinned.download",
-                "media.pinned.progress", R.drawable.update_download_icon)
+        if (CommCareApplication.notificationManager().areNotificationsEnabled()) {
+            mPinnedNotificationProgress = PinnedNotificationWithProgress(CommCareApplication.instance(), "media.pinned.download",
+                    "media.pinned.progress", R.drawable.update_download_icon)
+        }
     }
 
     private fun updateNotification(complete: Int, total: Int) {
-        mPinnedNotificationProgress.handleTaskUpdate(complete, total)
+        if (this::mPinnedNotificationProgress.isInitialized) {
+            mPinnedNotificationProgress.handleTaskUpdate(complete, total)
+        }
     }
 
     private fun cancelNotification() {
-        mPinnedNotificationProgress.handleTaskCancellation()
+        if (this::mPinnedNotificationProgress.isInitialized) {
+            mPinnedNotificationProgress.handleTaskCancellation()
+        }
     }
 }
