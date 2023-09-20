@@ -63,8 +63,8 @@ public class ConnectDownloadingFragment extends Fragment implements ResourceEngi
 
         View view = inflater.inflate(R.layout.fragment_connect_downloading, container, false);
 
-        statusText = view.findViewById(R.id.connect_downloading_title);
-        statusText.setText(args.getTitle());
+        TextView titleTv = view.findViewById(R.id.connect_downloading_title);
+        titleTv.setText(args.getTitle());
 
         statusText = view.findViewById(R.id.connect_downloading_status);
         statusText.setText(getString(R.string.connect_downloading_status, 0));
