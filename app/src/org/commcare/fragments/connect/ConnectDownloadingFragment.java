@@ -26,6 +26,9 @@ import org.javarosa.core.services.locale.LocaleTextException;
 import org.javarosa.core.services.locale.Localization;
 
 public class ConnectDownloadingFragment extends Fragment implements ResourceEngineListener {
+
+    private static final int APP_DOWNLOAD_TASK_ID = 4;
+
     private static String TEST_APP_LINK =
             "https://www.commcarehq.org/a/shubhamgoyaltest/apps/download/b4e4c3b0331b400badf490d7c188b103"
                     + "/media_profile.ccpr";
@@ -48,7 +51,7 @@ public class ConnectDownloadingFragment extends Fragment implements ResourceEngi
     }
 
     private void startAppDownload() {
-        ResourceInstallUtils.startAppInstallAsync(false, 11, (CommCareTaskConnector)getActivity(), TEST_APP_LINK);
+        ResourceInstallUtils.startAppInstallAsync(false, APP_DOWNLOAD_TASK_ID, (CommCareTaskConnector)getActivity(), TEST_APP_LINK);
     }
 
     @Override
