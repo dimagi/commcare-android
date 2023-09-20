@@ -1,7 +1,5 @@
 package org.commcare.fragments.connect;
 
-import static org.commcare.engine.resource.ResourceInstallUtils.showTargetMismatchError;
-
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -152,6 +150,6 @@ public class ConnectDownloadingFragment extends Fragment implements ResourceEngi
 
     @Override
     public void failTargetMismatch() {
-        showTargetMismatchError(getActivity());
+        ResourceInstallUtils.showTargetMismatchError(getActivity());
     }
 }
