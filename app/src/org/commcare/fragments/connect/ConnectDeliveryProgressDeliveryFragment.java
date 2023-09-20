@@ -1,5 +1,8 @@
 package org.commcare.fragments.connect;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,8 +12,12 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.commcare.activities.CommCareActivity;
+import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.connect.models.ConnectJob;
 import org.commcare.dalvik.R;
+import org.commcare.views.dialogs.StandardAlertDialog;
+import org.javarosa.core.services.locale.Localization;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -58,10 +65,39 @@ public class ConnectDeliveryProgressDeliveryFragment extends Fragment {
         DateFormat df = new SimpleDateFormat("MM/dd/yyyy", Locale.getDefault());
         textView.setText(getString(R.string.connect_progress_complete_by, df.format(job.getProjectEndDate())));
 
+        boolean expired = job.getDaysRemaining() < 0;
         Button button = view.findViewById(R.id.connect_progress_button);
-        button.setText(getString(R.string.connect_progress_launch));
-        button.setOnClickListener(v -> Toast.makeText(getContext(), "Not ready yet...", Toast.LENGTH_SHORT).show());
+        button.setOnClickListener(v -> {
+            String title = null;
+            String message = null;
+            if(expired) {
+                title = getString(R.string.connect_progress_expired_dialog_title);
+                message = getString(R.string.connect_progress_expired);
+            }
+            else if(job.getCompletedVisits() >= job.getMaxVisits()) {
+                title = getString(R.string.connect_progress_max_visits_dialog_title);
+                message = getString(R.string.connect_progress_visits_completed);
+            }
+
+            if(title != null) {
+                new AlertDialog.Builder(getContext())
+                        .setTitle(title)
+                        .setMessage(message)
+                        .setPositiveButton(R.string.proceed, (dialog, which) -> {
+                            launchDeliveryApp();
+                        })
+                        .setNegativeButton(R.string.cancel, null)
+                        .show();
+            }
+            else {
+                launchDeliveryApp();
+            }
+        });
 
         return view;
+    }
+
+    private void launchDeliveryApp() {
+        Toast.makeText(getContext(), "Not ready yet...", Toast.LENGTH_SHORT).show();
     }
 }

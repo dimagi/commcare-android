@@ -4,7 +4,6 @@ import android.os.Bundle;
 
 import org.commcare.activities.CommCareActivity;
 import org.commcare.dalvik.R;
-import org.commcare.views.dialogs.CustomProgressDialog;
 
 import javax.annotation.Nullable;
 

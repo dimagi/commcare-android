@@ -93,6 +93,7 @@
         android:layout_marginTop="20dp"
         android:layout_marginStart="20dp"
         android:layout_marginEnd="20dp"
+        android:text="@string/connect_progress_launch"
         />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

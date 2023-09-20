@@ -198,6 +198,7 @@
     <string name="audio_file_error" cc:translatable="true">No audio file was specified.</string>
     <string name="audio_file_invalid" cc:translatable="true">File: %s is not a valid audio file.</string>
     <string name="backup" cc:translatable="true">back to\nprevious\nprompt</string>
+    <string name="proceed" cc:translatable="true">PROCEED</string>
     <string name="cancel" cc:translatable="true">CANCEL</string>
     <string name="cancel_loading_form" cc:translatable="true">Cancel</string>
     <string name="cancel_location" cc:translatable="true">Cancel</string>
@@ -612,6 +613,18 @@
     <string name="connect_jobs_all">ALL JOBS</string>
     <string name="connect_jobs_mine">MY JOBS</string>
     <string name="connect_job_new">NEW</string>
+    <string name="connect_job_visits">Cover %d Households in %d Days</string>
+    <string name="connect_job_training_complete">Learning Completed &amp; Certified</string>
+    <string name="connect_job_training_progress">%s %d%% Complete</string>
+    <string name="connect_job_remaining">%d days remaining</string>
+    <string name="connect_job_learning">Learning</string>
+    <string name="connect_job">Job</string>
+
+    <string name="connect_job_none_training">You\'re not training for any jobs right now</string>
+    <string name="connect_job_none_active">You don\'t have any active jobs right now</string>
+    <string name="connect_job_training">Jobs I\'m Training For</string>
+    <string name="connect_job_claimed">My Claimed Jobs</string>
+    <string name="connect_job_completed">Completed on %s</string>
 
     <string name="connect_job_you_will_learn">You Will Learn</string>
     <string name="connect_job_start_training">Start Training for this Job</string>
@@ -635,13 +648,15 @@
 
     <string name="connect_delivery_title">Delivery Details</string>
     <string name="connect_delivery_review_title">Review Delivery Details</string>
-    <string name="connect_delivery_last_begin">Last Date to Begin: %s</string>
+    <string name="connect_delivery_days_remaining">%d days to complete from today</string>
     <string name="connect_delivery_latest_start">Latest start: %s</string>
     <string name="connect_delivery_max_visits">%d Total Visits Maximum</string>
-    <string name="connect_delivery_project_ends">Project Ends: %s</string>
+    <string name="connect_delivery_earn">Earn up to $%d for %d visits</string>
     <string name="connect_delivery_max_daily_visits">%d Visit per Day Maximum</string>
     <string name="connect_delivery_ready_to_claim">Ready to Claim this Job?</string>
+    <string name="connect_delivery_expired">Opportunity Expired</string>
     <string name="connect_delivery_ready_to_claim_detailed">To complete this claim and start delivering care, download the delivery app.</string>
+    <string name="connect_delivery_expired_detailed">The last date for the project is over. You will be notified if the opportunity opens up again.</string>
     <string name="connect_delivery_download_app">Download Delivery App</string>
 
     <string name="connect_progress_delivery">Delivery</string>
@@ -649,6 +664,10 @@
     <string name="connect_progress_title">Your Delivery Progress</string>
     <string name="connect_progress_status">You have completed %d of %d visits.</string>
     <string name="connect_progress_complete_by">Complete Delivery by %s</string>
+    <string name="connect_progress_expired_dialog_title">Project Expired</string>
+    <string name="connect_progress_max_visits_dialog_title">Max Visits Reached</string>
+    <string name="connect_progress_expired">The last date for the project is over and visits will not count towards payment.</string>
+    <string name="connect_progress_visits_completed">You have reached the maximum number of visits, additional visits will not count towards payment.</string>
     <string name="connect_progress_launch">Launch App</string>
     <string name="connect_progress_paid">PAID</string>
 

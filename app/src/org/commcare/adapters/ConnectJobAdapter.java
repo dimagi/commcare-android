@@ -109,6 +109,9 @@ public class ConnectJobAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             availableHolder.titleText.setText(job.getTitle());
             availableHolder.descriptionText.setText(job.getDescription());
 
+            availableHolder.visitsText.setText(parentContext.getString(R.string.connect_job_visits,
+                    job.getMaxPossibleVisits(), job.getDaysRemaining()));
+
             availableHolder.continueImage.setOnClickListener(v -> {
                 Navigation.findNavController(availableHolder.continueImage).navigate(
                         ConnectJobsListsFragmentDirections.actionConnectJobsListFragmentToConnectJobIntroFragment(job));
@@ -132,10 +135,10 @@ public class ConnectJobAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             String remaining = null;
             if(finished) {
                 DateFormat df = new SimpleDateFormat("MM/dd/yyyy", Locale.getDefault());
-                description = String.format(Locale.getDefault(), "Completed on %s", df.format(job.getDateCompleted()));
+                description = parentContext.getString(R.string.connect_job_completed, df.format(job.getDateCompleted()));
             }
             else {
-                String extra = isTraining ? "Learning" : "Job";
+                String extra = parentContext.getString(isTraining ? R.string.connect_job_learning : R.string.connect_job);
                 int percent = job.getPercentComplete();
                 if(isTraining) {
                     int completed = 0;
@@ -148,15 +151,17 @@ public class ConnectJobAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                     int numModules = job.getLearningModules().length;
                     percent = numModules > 0 ? (100 * completed / numModules) : 100;
                 }
-                description = String.format(Locale.getDefault(), "%s %d%% Complete", extra, percent);
+                if(isTraining && percent >= 100) {
+                    description = parentContext.getString(R.string.connect_job_training_complete);
+                }
+                else {
+                    description = parentContext.getString(R.string.connect_job_training_progress, extra, percent);
+                }
 
                 claimedHolder.progressBar.setProgress(percent);
                 claimedHolder.progressBar.setMax(100);
 
-                extra = isTraining ? " to learn" : "";
-                double millis = job.getProjectEndDate().getTime() - (new Date()).getTime();
-                int daysRemaining = (int)(millis / 1000 / 3600 / 24);
-                remaining = String.format(Locale.getDefault(), "%d days remaining%s", daysRemaining, extra);
+                remaining = parentContext.getString(R.string.connect_job_remaining, job.getDaysRemaining());
             }
 
             claimedHolder.descriptionText.setVisibility(View.VISIBLE);
@@ -173,7 +178,6 @@ public class ConnectJobAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                 NavDirections directions;
                 if(isTraining) {
                     if(job.getPercentComplete() == 100) {
-                        //TODO: Go to LearningComplete instead
                         directions = org.commcare.fragments.connect.ConnectJobsListsFragmentDirections.actionConnectJobsListFragmentToConnectJobLearningProgressFragment(job);
                     }
                     else {
@@ -193,12 +197,12 @@ public class ConnectJobAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             });
         }
         else if(holder instanceof ConnectJobAdapter.EmptyJobListViewHolder emptyHolder) {
-            String text = position == 1 ? "You're not training for any jobs right now" : "You don't have any active jobs right now";
+            String text = parentContext.getString(position == 1 ? R.string.connect_job_none_training : R.string.connect_job_none_active);
             emptyHolder.image.setVisibility(position == 1 ? View.GONE : View.VISIBLE);
             emptyHolder.titleText.setText(text);
         }
         else if(holder instanceof ConnectJobAdapter.JobHeaderViewHolder headerHolder) {
-            String text = position == 0 ? "Jobs I'm Training For" : "My Claimed Jobs";
+            String text = parentContext.getString(position == 0 ? R.string.connect_job_training : R.string.connect_job_claimed);
             headerHolder.titleText.setText(text);
         }
     }
@@ -207,6 +211,7 @@ public class ConnectJobAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         TextView newText;
         TextView titleText;
         TextView descriptionText;
+        TextView visitsText;
         ImageView continueImage;
         public AvailableJobViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -214,6 +219,7 @@ public class ConnectJobAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             newText = itemView.findViewById(R.id.new_label);
             titleText = itemView.findViewById(R.id.title_label);
             descriptionText = itemView.findViewById(R.id.description_label);
+            visitsText = itemView.findViewById(R.id.visits_label);
             continueImage = itemView.findViewById(R.id.button);
         }
     }
