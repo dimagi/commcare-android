@@ -48,6 +48,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 
 import static org.commcare.engine.resource.ResourceInstallUtils.getProfileReference;
+import static org.commcare.engine.resource.ResourceInstallUtils.handleAppInstallResult;
 import static org.commcare.recovery.measures.RecoveryMeasure.MEASURE_TYPE_APP_OFFLINE_REINSTALL_AND_UPDATE;
 import static org.commcare.recovery.measures.RecoveryMeasure.MEASURE_TYPE_APP_REINSTALL_AND_UPDATE;
 import static org.commcare.recovery.measures.RecoveryMeasure.MEASURE_TYPE_APP_UPDATE;
@@ -539,7 +540,7 @@ public class ExecuteRecoveryMeasuresPresenter implements BasePresenterContract, 
 
         @Override
         protected void deliverResult(ExecuteRecoveryMeasuresActivity receiver, AppInstallStatus result) {
-            CommCareSetupActivity.handleAppInstallResult(this, receiver, result);
+            handleAppInstallResult(this, receiver, result);
         }
 
         @Override

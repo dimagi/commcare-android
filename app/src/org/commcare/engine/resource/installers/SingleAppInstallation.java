@@ -1,11 +1,7 @@
 package org.commcare.engine.resource.installers;
 
-import org.commcare.CommCareApp;
 import org.commcare.activities.CommCareSetupActivity;
-import org.commcare.engine.resource.AppInstallStatus;
-import org.commcare.tasks.ResourceEngineTask;
-
-import static org.commcare.activities.CommCareSetupActivity.handleAppInstallResult;
+import org.commcare.engine.resource.ResourceInstallUtils;
 
 /**
  * Install CC app from the APK's asset directory
@@ -22,29 +18,6 @@ public class SingleAppInstallation {
      * without prompting the user.
      */
     public static void installSingleApp(CommCareSetupActivity activity, int dialogId) {
-        CommCareApp app = CommCareSetupActivity.getCommCareApp();
-
-        ResourceEngineTask<CommCareSetupActivity> task =
-                new ResourceEngineTask<CommCareSetupActivity>(app, dialogId, false, false) {
-                    @Override
-                    protected void deliverResult(CommCareSetupActivity receiver,
-                                                 AppInstallStatus result) {
-                        handleAppInstallResult(this,receiver,result);
-                    }
-
-                    @Override
-                    protected void deliverUpdate(CommCareSetupActivity receiver,
-                                                 int[]... update) {
-                        receiver.updateResourceProgress(update[0][0], update[0][1], update[0][2]);
-                    }
-
-                    @Override
-                    protected void deliverError(CommCareSetupActivity receiver,
-                                                Exception e) {
-                        receiver.failUnknown(AppInstallStatus.UnknownFailure);
-                    }
-                };
-        task.connect(activity);
-        task.executeParallel(SINGLE_APP_REFERENCE);
+        ResourceInstallUtils.startAppInstallAsync(false, dialogId, activity, SINGLE_APP_REFERENCE);
     }
 }
