@@ -1,6 +1,7 @@
 package org.commcare.network;
 
 import android.net.Uri;
+import android.util.Log;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableMultimap;
@@ -16,9 +17,11 @@ import org.commcare.engine.cases.CaseUtils;
 import org.commcare.interfaces.CommcareRequestEndpoints;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.provider.DebugControlsReceiver;
+import org.commcare.util.LogTypes;
 import org.commcare.utils.SyncDetailCalculations;
 import org.javarosa.core.model.User;
 import org.javarosa.core.model.utils.DateUtils;
+import org.javarosa.core.services.Logger;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -137,6 +140,9 @@ public class CommcareRequestGenerator implements CommcareRequestEndpoints {
             params.put("overwrite_cache", "true");
             // Always wipe this flag after we have used it once
             CommCareApplication.instance().setInvalidateCacheFlag(false);
+            Logger.log(LogTypes.TYPE_USER, "setting cache invalidation header as true for restore");
+        } else {
+            Logger.log(LogTypes.TYPE_USER, "setting cache invalidation header as false for restore");
         }
 
         requester = CommCareApplication.instance().createGetRequester(
