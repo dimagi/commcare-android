@@ -28,11 +28,7 @@ public class ConnectActivity extends CommCareActivity<ResourceEngineListener> {
 
     @Override
     public ResourceEngineListener getReceiver() {
-        ConnectDownloadingFragment downloadFragment = getConnectDownloadFragment();
-        if (downloadFragment != null) {
-            return downloadFragment;
-        }
-        return null;
+        return getConnectDownloadFragment();
     }
 
     @Nullable
