@@ -133,7 +133,10 @@ public class ExternalApiReceiver extends BroadcastReceiver {
             }
         };
 
-        mProcess.addSubmissionListener(CommCareApplication.instance().getSession().getListenerForSubmissionNotification());
+        if (CommCareApplication.notificationManager().areNotificationsEnabled()) {
+            mProcess.addSubmissionListener(
+                    CommCareApplication.instance().getSession().getListenerForSubmissionNotification());
+        }
         mProcess.connect(dummyconnector);
         mProcess.execute();
     }

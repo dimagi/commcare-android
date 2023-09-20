@@ -53,13 +53,13 @@ public class EntitySelectCalloutSetup {
             if (b == null) {
                 // Input stream could not be used to derive bitmap, so
                 // showing error-indicating image
-                return context.getResources().getDrawable(R.drawable.ic_menu_archive);
+                return context.getDrawable(R.drawable.ic_menu_archive);
             } else {
                 return new BitmapDrawable(b);
             }
         } else {
             // no image passed in, draw a white background
-            return context.getResources().getDrawable(R.color.white);
+            return context.getDrawable(R.color.white);
         }
     }
 
