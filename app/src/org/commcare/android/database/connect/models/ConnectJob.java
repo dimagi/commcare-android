@@ -59,21 +59,30 @@ public class ConnectJob extends Persisted implements Serializable {
     @MetaField(META_DESCRIPTION)
     private String description;
     @Persisting(4)
+    @MetaField(META_ORGANIZATION)
+    private String organization;
+    @Persisting(5)
     @MetaField(META_END_DATE)
     private Date projectEndDate;
-    @Persisting(5)
+    @Persisting(6)
+    @MetaField(META_BUDGET_PER_VISIT)
+    private int budgetPerVisit;
+    @Persisting(7)
+    @MetaField(META_BUDGET_TOTAL)
+    private int totalBudget;
+    @Persisting(8)
     @MetaField(META_MAX_VISITS)
     private int maxVisits;
-    @Persisting(6)
+    @Persisting(9)
     @MetaField(META_MAX_DAILY_VISITS)
     private int maxDailyVisits;
-    @Persisting(7)
+    @Persisting(10)
     @MetaField(META_COMPLETED_VISITS)
     private int completedVisits;
-    @Persisting(8)
+    @Persisting(11)
     @MetaField(META_LAST_WORKED_DATE)
     private Date lastWorkedDate;
-    @Persisting(9)
+    @Persisting(12)
     @MetaField(META_STATUS)
     private int status;
     private ConnectJobLearningModule[] learningModules;
@@ -86,7 +95,7 @@ public class ConnectJob extends Persisted implements Serializable {
     }
 
     public ConnectJob(int jobId, String title, String description, int status,
-                      int completedVisits, int maxVisits, int maxDailyVisits,
+                      int completedVisits, int maxVisits, int maxDailyVisits, int budgetPerVisit, int totalBudget,
                       Date projectEnd, Date lastWorkedDate,
                       ConnectJobLearningModule[] learningModules,
                       ConnectJobDelivery[] deliveries) {
@@ -97,6 +106,8 @@ public class ConnectJob extends Persisted implements Serializable {
         this.completedVisits = completedVisits;
         this.maxDailyVisits = maxDailyVisits;
         this.maxVisits = maxVisits;
+        this.budgetPerVisit = budgetPerVisit;
+        this.totalBudget = totalBudget;
         this.projectEndDate = projectEnd;
         this.lastWorkedDate = lastWorkedDate;
         this.learningModules = learningModules;
@@ -111,10 +122,14 @@ public class ConnectJob extends Persisted implements Serializable {
         job.jobId = json.has(META_JOB_ID) ? json.getInt(META_JOB_ID) : -1;
         job.title = json.has(META_NAME) ? json.getString(META_NAME) : null;
         job.description = json.has(META_DESCRIPTION) ? json.getString(META_DESCRIPTION) : null;
+        job.organization = json.has(META_ORGANIZATION) ? json.getString(META_ORGANIZATION) : null;
         job.status = STATUS_AVAILABLE_NEW;
         job.projectEndDate = json.has(META_END_DATE) ? df.parse(json.getString(META_END_DATE)) : new Date();
         job.maxVisits = json.has(META_MAX_VISITS) ? json.getInt(META_MAX_VISITS) : -1;
         job.maxDailyVisits = json.has(META_MAX_DAILY_VISITS) ? json.getInt(META_MAX_DAILY_VISITS) : -1;
+        job.budgetPerVisit = json.has(META_BUDGET_PER_VISIT) ? json.getInt(META_BUDGET_PER_VISIT) : -1;
+        job.totalBudget = json.has(META_BUDGET_TOTAL) ? json.getInt(META_BUDGET_TOTAL) : -1;
+
         job.learningModules = new ConnectJobLearningModule[]{};
         job.deliveries = new ConnectJobDelivery[]{};
 
@@ -124,9 +139,6 @@ public class ConnectJob extends Persisted implements Serializable {
         //In JSON but not in model
         //job.? = json.has(META_DATE_CREATED) ? df.parse(json.getString(META_DATE_CREATED)) : null;
         //job.? = json.has(META_DATE_MODIFIED) ? df.parse(json.getString(META_DATE_MODIFIED)) : null;
-        //job.? = json.has(META_ORGANIZATION) ? df.parse(json.getString(META_ORGANIZATION)) : null;
-        //job.? = json.has(META_BUDGET_PER_VISIT) ? json.getInt(META_BUDGET_PER_VISIT) : -1;
-        //job.? = json.has(META_BUDGET_TOTAL) ? json.getInt(META_BUDGET_TOTAL) : -1;
 
         //In model but not in JSON
         //job.completedVisits = 0;
@@ -137,14 +149,29 @@ public class ConnectJob extends Persisted implements Serializable {
 
     public String getTitle() { return title; }
     public String getDescription() { return description; }
+    public String getOrganization() { return organization; }
     public boolean getIsNew() { return status == STATUS_AVAILABLE_NEW; }
     public int getStatus() { return status; }
     public int getCompletedVisits() { return completedVisits; }
     public int getMaxVisits() { return maxVisits; }
     public int getMaxDailyVisits() { return maxDailyVisits; }
+    public int getBudgetPerVisit() { return budgetPerVisit; }
+    public int getTotalBudget() { return totalBudget; }
     public int getPercentComplete() { return maxVisits > 0 ? 100 * completedVisits / maxVisits : 0; }
     public Date getDateCompleted() { return lastWorkedDate; }
     public Date getProjectEndDate() { return projectEndDate; }
     public ConnectJobLearningModule[] getLearningModules() { return learningModules; }
     public ConnectJobDelivery[] getDeliveries() { return deliveries; }
+
+    public int getDaysRemaining() {
+        double millis = projectEndDate.getTime() - (new Date()).getTime();
+        return (int)(millis / 1000 / 3600 / 24);
+    }
+
+    public int getMaxPossibleVisits() {
+        int maxVisitsBudgeted = totalBudget / budgetPerVisit;
+        int minDaysRequired = maxVisitsBudgeted / maxDailyVisits;
+        int daysRemaining = getDaysRemaining();
+        return minDaysRequired > daysRemaining ? (daysRemaining * maxDailyVisits) : maxVisitsBudgeted;
+    }
 }

@@ -19,7 +19,7 @@ public class MockJobProvider {
                 new ConnectJob(1, "Infant Vaccine Check",
                         "You will conduct 100 home visits to assess if children below 2 years are up to date with their vaccine shots.",
                         ConnectJob.STATUS_AVAILABLE_NEW,
-                        0, 100, 5,
+                        0, 100, 5, 5, 100,
                         new Date("11/1/2023"),
                         null,
                         new ConnectJobLearningModule[]{
@@ -31,7 +31,7 @@ public class MockJobProvider {
         mockAvailableJobs.add(new ConnectJob(2, "Vitamin A Delivery",
                 "You will deliver Vitamin A supplements to 50 homes.",
                 ConnectJob.STATUS_AVAILABLE,
-                0, 100, 5,
+                0, 100, 5, 5, 100,
                 new Date("11/1/2023"),
                 null,
                 new ConnectJobLearningModule[]{
@@ -42,7 +42,7 @@ public class MockJobProvider {
         mockAvailableJobs.add(new ConnectJob(3, "Training Complete Example",
                 "This mock shows when training is complete for a job.",
                 ConnectJob.STATUS_AVAILABLE,
-                0, 100, 5,
+                0, 100, 5, 5, 100,
                 new Date("11/1/2023"),
                 null,
                 new ConnectJobLearningModule[]{
@@ -55,7 +55,7 @@ public class MockJobProvider {
         mockClaimedJobs.add(new ConnectJob(1, "Mental Health Visits",
                 "",
                 ConnectJob.STATUS_DELIVERING,
-                60, 100, 5,
+                60, 100, 5, 5, 100,
                 new Date("11/1/2023"),
                 null,
                 new ConnectJobLearningModule[]{},
@@ -67,14 +67,14 @@ public class MockJobProvider {
         mockClaimedJobs.add(new ConnectJob(2, "TestA",
                 "",
                 ConnectJob.STATUS_DELIVERING,
-                0, 100, 5,
+                0, 100, 5, 5, 100,
                 new Date("11/1/2023"),
                 null,
                 new ConnectJobLearningModule[]{}, new ConnectJobDelivery[]{}));
         mockClaimedJobs.add(new ConnectJob(3, "Infant Health Check",
                 "",
                 ConnectJob.STATUS_DELIVERING,
-                100, 100, 5,
+                100, 100, 5, 5, 100,
                 new Date("10/1/2023"),
                 new Date("4/7/2023"),
                 new ConnectJobLearningModule[]{}, new ConnectJobDelivery[]{}));
