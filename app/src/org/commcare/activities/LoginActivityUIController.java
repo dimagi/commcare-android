@@ -2,14 +2,10 @@ package org.commcare.activities;
 
 import android.content.SharedPreferences;
 import android.content.res.Resources;
-import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.StateListDrawable;
-import android.os.Build;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
-import android.util.StateSet;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.ArrayAdapter;
@@ -20,6 +16,8 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
+
+import androidx.preference.PreferenceManager;
 
 import org.commcare.CommCareApplication;
 import org.commcare.CommCareNoficationManager;
@@ -43,7 +41,7 @@ import org.javarosa.core.services.locale.Localization;
 import java.util.ArrayList;
 import java.util.Vector;
 
-import androidx.preference.PreferenceManager;
+import javax.annotation.Nullable;
 
 /**
  * Handles login activity UI
@@ -196,15 +194,15 @@ public class LoginActivityUIController implements CommCareActivityUIController {
 
         // Decide whether or not to show the app selection spinner based upon # of usable apps
         ArrayList<ApplicationRecord> readyApps = MultipleAppsUtil.getUsableAppRecords();
-
-        if (readyApps.size() == 1) {
+        ApplicationRecord presetAppRecord = getPresetAppRecord(readyApps);
+        if (readyApps.size() == 1 || presetAppRecord != null) {
             // Set this app as the last selected app, for use in choosing what app to initialize
             // on first startup
-            ApplicationRecord r = readyApps.get(0);
+            ApplicationRecord r = presetAppRecord != null ? presetAppRecord : readyApps.get(0);
             SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(activity);
             prefs.edit().putString(LoginActivity.KEY_LAST_APP, r.getUniqueId()).apply();
-
             setSingleAppUIState();
+            activity.seatAppIfNeeded(r.getUniqueId());
         } else {
             activity.populateAppSpinner(readyApps);
         }
@@ -228,6 +226,23 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         if (!CommCareApplication.notificationManager().messagesForCommCareArePending()) {
             notificationButtonView.setVisibility(View.GONE);
         }
+    }
+
+    @Nullable
+    private ApplicationRecord getPresetAppRecord(ArrayList<ApplicationRecord> readyApps) {
+        String presetAppId = activity.getPresetAppID();
+        if (presetAppId != null) {
+            for (ApplicationRecord readyApp : readyApps) {
+                if (readyApp.getUniqueId().contentEquals(presetAppId)) {
+                    return readyApp;
+                }
+            }
+
+            // if preset App id is supplied but not found show an error
+            String appNotFoundError = activity.getString(R.string.app_with_id_not_found);
+            setErrorMessageUI(appNotFoundError, false);
+        }
+        return null;
     }
 
     protected void refreshForNewApp() {
