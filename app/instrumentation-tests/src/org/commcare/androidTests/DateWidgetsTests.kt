@@ -137,7 +137,7 @@ class DateWidgetsTests: BaseTest() {
      * function returns different format of the selected date
      */
     fun getDateInDifferentFormats(date : Date) : Array<String>{
-        val longFormat = SimpleDateFormat("EE, MMM d, yyyy").format(date)
+        val longFormat = SimpleDateFormat("EE, MMM d, yyyy", Locale.ENGLISH).format(date)
         val shortFormat = SimpleDateFormat("d/M/yy").format(date)
         val unformattedDate = SimpleDateFormat("yyyy-MM-dd").format(date)
         return arrayOf(longFormat.toString(),shortFormat.toString(),unformattedDate.toString())
