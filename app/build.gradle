@@ -93,7 +93,7 @@ dependencies {
 
     // crashes on update - https://developers.google.com/admob/android/quick-start#update_your_androidmanifestxml
     // We need to update consumer apps script to inject the right admob id to be able to update this
-    implementation 'com.google.firebase:firebase-ads:16.0.1'
+    implementation 'com.google.firebase:firebase-ads:22.4.0'
 
     implementation 'com.carrotsearch:hppc:0.9.1'
     implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
