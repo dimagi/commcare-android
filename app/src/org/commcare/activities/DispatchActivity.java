@@ -24,6 +24,8 @@ import java.util.ArrayList;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import javax.annotation.Nullable;
+
 /**
  * Dispatches install, login, and home screen activities.
  *
@@ -33,6 +35,7 @@ public class DispatchActivity extends AppCompatActivity {
     private static final String TAG = DispatchActivity.class.getSimpleName();
     private static final String SESSION_REQUEST = "ccodk_session_request";
     public static final String SESSION_ENDPOINT_ID = "ccodk_session_endpoint_id";
+    public static final String SESSION_ENDPOINT_APP_ID = "ccodk_session_endpoint_app_id";
 
     // Args to session endpoints can be passed as a name to value bundle or more loosely as a list
     public static final String SESSION_ENDPOINT_ARGUMENTS_BUNDLE = "ccodk_session_endpoint_arguments_bundle";
@@ -179,6 +182,9 @@ public class DispatchActivity extends AppCompatActivity {
                     }
                 } else if (!CommCareApplication.instance().getSession().isActive()) {
                     launchLoginScreen();
+                } else if (needAnotherAppLogin()){
+                    CommCareApplication.instance().closeUserSession();
+                    launchLoginScreen();
                 } else if (isExternalLaunch()) {
                     // CommCare was launched from an external app, with a session descriptor
                     handleExternalLaunch();
@@ -193,6 +199,17 @@ public class DispatchActivity extends AppCompatActivity {
                 launchLoginScreen();
             }
         }
+    }
+
+    private boolean needAnotherAppLogin() {
+        String sesssionEndpointAppID = getSessionEndpointAppId();
+        if (sesssionEndpointAppID != null) {
+            CommCareApp currentApp = CommCareApplication.instance().getCurrentApp();
+            if (currentApp != null) {
+                return !currentApp.getUniqueId().contentEquals(sesssionEndpointAppID);
+            }
+        }
+        return false;
     }
 
     private boolean isExternalLaunch() {
@@ -259,6 +276,10 @@ public class DispatchActivity extends AppCompatActivity {
             // AMS 06/09/16: This check is needed due to what we believe is a bug in the Android platform
             Intent i = new Intent(this, LoginActivity.class);
             i.putExtra(LoginActivity.USER_TRIGGERED_LOGOUT, userTriggeredLogout);
+            String sesssionEndpointAppID = getSessionEndpointAppId();
+            if (sesssionEndpointAppID != null) {
+                i.putExtra(LoginActivity.EXTRA_APP_ID, sesssionEndpointAppID);
+            }
             startActivityForResult(i, LOGIN_USER);
             waitingForActivityResultFromLogin = true;
         } else {
@@ -267,6 +288,11 @@ public class DispatchActivity extends AppCompatActivity {
                             "a new LoginActivity while it is still waiting for a result from " +
                             "another one.");
         }
+    }
+
+    @Nullable
+    private String getSessionEndpointAppId() {
+        return getIntent().getStringExtra(SESSION_ENDPOINT_APP_ID);
     }
 
     private void launchHomeScreen() {
