@@ -207,7 +207,7 @@ public class DispatchActivity extends AppCompatActivity {
         if (sesssionEndpointAppID != null) {
             CommCareApp currentApp = CommCareApplication.instance().getCurrentApp();
             if (currentApp != null) {
-                return !currentApp.getUniqueId().contentEquals(sesssionEndpointAppID);
+                return !currentApp.getUniqueId().equals(sesssionEndpointAppID);
             }
         }
         return false;

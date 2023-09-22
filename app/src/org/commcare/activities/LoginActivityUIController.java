@@ -233,7 +233,7 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         String presetAppId = activity.getPresetAppID();
         if (presetAppId != null) {
             for (ApplicationRecord readyApp : readyApps) {
-                if (readyApp.getUniqueId().contentEquals(presetAppId)) {
+                if (readyApp.getUniqueId().equals(presetAppId)) {
                     return readyApp;
                 }
             }
