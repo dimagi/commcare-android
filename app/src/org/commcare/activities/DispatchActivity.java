@@ -1,5 +1,7 @@
 package org.commcare.activities;
 
+import static org.commcare.commcaresupportlibrary.CommCareLauncher.SESSION_ENDPOINT_APP_ID;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -35,7 +37,6 @@ public class DispatchActivity extends AppCompatActivity {
     private static final String TAG = DispatchActivity.class.getSimpleName();
     private static final String SESSION_REQUEST = "ccodk_session_request";
     public static final String SESSION_ENDPOINT_ID = "ccodk_session_endpoint_id";
-    public static final String SESSION_ENDPOINT_APP_ID = "ccodk_session_endpoint_app_id";
 
     // Args to session endpoints can be passed as a name to value bundle or more loosely as a list
     public static final String SESSION_ENDPOINT_ARGUMENTS_BUNDLE = "ccodk_session_endpoint_arguments_bundle";

@@ -10,6 +10,8 @@ import org.commcare.activities.LoginActivity
 import org.commcare.activities.StandardHomeActivity
 import org.commcare.android.util.TestAppInstaller
 import org.commcare.android.util.TestUtils
+import org.commcare.commcaresupportlibrary.CommCareLauncher
+import org.commcare.commcaresupportlibrary.CommCareLauncher.SESSION_ENDPOINT_APP_ID
 import org.commcare.util.screen.CommCareSessionException
 import org.commcare.utils.SessionUnavailableException
 import org.junit.Assert.*
@@ -59,7 +61,7 @@ class ExternalLaunchTests {
 
     private fun launchAndVerifyCCWithAppId(appId: String, nextScreen: String) {
         val intent = Intent("org.commcare.dalvik.action.CommCareSession")
-        intent.putExtra(DispatchActivity.SESSION_ENDPOINT_APP_ID, appId)
+        intent.putExtra(SESSION_ENDPOINT_APP_ID, appId)
         var dispathActivity =
             Robolectric.buildActivity(DispatchActivity::class.java, intent).create().resume().get()
         var recordedNextIntent = Shadows.shadowOf(dispathActivity).nextStartedActivity
