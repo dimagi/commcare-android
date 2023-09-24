@@ -73,6 +73,9 @@ import org.javarosa.core.services.locale.Localization;
 public class LoginActivity extends CommCareActivity<LoginActivity>
         implements OnItemSelectedListener, DataPullController,
         RuntimePermissionRequester, WithUIController, PullTaskResultReceiver {
+
+    public static final String EXTRA_APP_ID = "extra_app_id";
+
     private static final String TAG = LoginActivity.class.getSimpleName();
 
     public static final int MENU_DEMO = Menu.FIRST;
@@ -106,6 +109,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
     private LoginActivityUiController uiController;
     private FormAndDataSyncer formAndDataSyncer;
+    private String presetAppID;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -124,6 +128,8 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
         ConnectIdManager.init(this);
         updateConnectButton();
+
+        presetAppID = getIntent().getStringExtra(EXTRA_APP_ID);
 
         if (savedInstanceState == null) {
             // Only restore last user on the initial creation
@@ -648,29 +654,30 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
             // Retrieve the app record corresponding to the app selected
             selectedAppIndex = position;
             String appId = appIdDropdownList.get(selectedAppIndex);
-
             if (appId.length() > 0) {
                 uiController.setLoginInputsVisibility(true);
-
-                //TODO: Show user/pass fields
-                boolean selectedNewApp = !appId.equals(
-                        CommCareApplication.instance().getCurrentApp().getUniqueId());
-                if (selectedNewApp) {
-                    // Set the id of the last selected app
-                    SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-                    prefs.edit().putString(KEY_LAST_APP, appId).commit();
-
-                    // Launch the activity to seat the new app
-                    Intent i = new Intent(this, SeatAppActivity.class);
-                    i.putExtra(SeatAppActivity.KEY_APP_TO_SEAT, appId);
-                    this.startActivityForResult(i, SEAT_APP_ACTIVITY);
-                } else {
+                if(!seatAppIfNeeded(appId)){
                     checkForSavedCredentials();
                 }
             }
         } else {
             uiController.setLoginInputsVisibility(false);
         }
+    }
+
+    protected boolean seatAppIfNeeded(String appId) {
+        boolean selectedNewApp = !appId.equals(CommCareApplication.instance().getCurrentApp().getUniqueId());
+        if (selectedNewApp) {
+            // Set the id of the last selected app
+            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+            prefs.edit().putString(KEY_LAST_APP, appId).commit();
+
+            // Launch the activity to seat the new app
+            Intent i = new Intent(this, SeatAppActivity.class);
+            i.putExtra(SeatAppActivity.KEY_APP_TO_SEAT, appId);
+            this.startActivityForResult(i, SEAT_APP_ACTIVITY);
+        }
+        return selectedNewApp;
     }
 
     @Override
@@ -857,5 +864,9 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
             uiController.setPasswordOrPin(appRestrictions.getString("password"));
             initiateLoginAttempt(false);
         }
+    }
+
+    protected String getPresetAppID() {
+        return presetAppID;
     }
 }

@@ -99,7 +99,7 @@ public class FormNavigationUI {
             expandAndShowFinishButton(context, finishButton);
         }
 
-        progressBar.setProgressDrawable(context.getResources().getDrawable(R.drawable.progressbar_full));
+        progressBar.setProgressDrawable(context.getDrawable(R.drawable.progressbar_full));
         progressBar.setProgress(details.totalQuestions);
 
         Log.i("Questions", "Form complete");
@@ -148,7 +148,7 @@ public class FormNavigationUI {
             finishButton.setVisibility(View.GONE);
         }
 
-        progressBar.setProgressDrawable(context.getResources().getDrawable(R.drawable.progressbar_modern));
+        progressBar.setProgressDrawable(context.getDrawable(R.drawable.progressbar_modern));
         progressBar.setProgress(details.completedQuestions);
     }
 

@@ -21,8 +21,11 @@ class FormSubmissionWorker(appContext: Context, workerParams: WorkerParameters)
 
     override suspend fun doWork(): Result {
         formSubmissionHelper = FormSubmissionHelper(applicationContext, this, this)
-        formSubmissionListeners.add(CommCareApplication.instance().getSession().getListenerForSubmissionNotification())
-
+        if (CommCareApplication.notificationManager().areNotificationsEnabled()) {
+            formSubmissionListeners.add(
+                    CommCareApplication.instance().getSession().getListenerForSubmissionNotification()
+            )
+        }
         val result = formSubmissionHelper.uploadForms()
 
         return when (result) {

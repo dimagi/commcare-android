@@ -476,7 +476,6 @@
     <string name="app_select_message" cc:translatable="true">Select an app:</string>
 
     <!-- ConnectID strings -->
-
     <string name="connect_id_enabled">ConnectID Enabled</string>
     <string name="login_button_connect">Unlock ConnectID</string>
     <string name="login_welcome_connect_signed_out">Unlock ConnectID first and then enter your app.</string>
@@ -680,4 +679,5 @@
     <string name="login_menu_connect_forget">Forget ConnectID user</string>
     <string name="connect_app_install_unknown_error">App install failed due to an unknown error</string>
     <string name="connect_app_installed">App installed</string>
+    <string name="app_with_id_not_found">Required CommCare App is not installed on device</string>
 </resources>
