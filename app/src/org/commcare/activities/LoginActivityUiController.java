@@ -44,6 +44,12 @@ import org.commcare.views.RectangleButtonWithText;
 import org.commcare.views.UiElement;
 import org.javarosa.core.services.locale.Localization;
 
+
+import java.util.ArrayList;
+import java.util.Vector;
+
+import javax.annotation.Nullable;
+
 /**
  * Handles login activity UI
  *
@@ -219,12 +225,14 @@ public class LoginActivityUiController implements CommCareActivityUIController {
         // Decide whether or not to show the app selection spinner based upon # of usable apps
         ArrayList<ApplicationRecord> readyApps = MultipleAppsUtil.getUsableAppRecords();
         boolean promptIncluded = false;
-        if (readyApps.size() == 1 &&
-                (!ConnectIdManager.isConnectIdIntroduced() || ConnectIdManager.isUnlocked())) {
+        ApplicationRecord presetAppRecord = getPresetAppRecord(readyApps);
+        if ((readyApps.size() == 1 && (!ConnectIdManager.isConnectIdIntroduced() || ConnectIdManager.isUnlocked()))
+                || presetAppRecord != null) {
             setLoginInputsVisibility(true);
+
             // Set this app as the last selected app, for use in choosing what app to initialize
             // on first startup
-            ApplicationRecord r = readyApps.get(0);
+            ApplicationRecord r = presetAppRecord != null ? presetAppRecord : readyApps.get(0);
             SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(activity);
             prefs.edit().putString(LoginActivity.KEY_LAST_APP, r.getUniqueId()).apply();
 
@@ -234,6 +242,7 @@ public class LoginActivityUiController implements CommCareActivityUIController {
                 appLabel.setVisibility(View.VISIBLE);
                 appLabel.setText(r.getDisplayName());
             }
+            activity.seatAppIfNeeded(r.getUniqueId());
         } else {
             promptIncluded = activity.populateAppSpinner(readyApps);
             appLabel.setVisibility(View.GONE);
@@ -288,6 +297,23 @@ public class LoginActivityUiController implements CommCareActivityUIController {
         }
 
         orLabel.setVisibility(emphasizeConnectSignin ? View.VISIBLE : View.GONE);
+    }
+
+    @Nullable
+    private ApplicationRecord getPresetAppRecord(ArrayList<ApplicationRecord> readyApps) {
+        String presetAppId = activity.getPresetAppID();
+        if (presetAppId != null) {
+            for (ApplicationRecord readyApp : readyApps) {
+                if (readyApp.getUniqueId().equals(presetAppId)) {
+                    return readyApp;
+                }
+            }
+
+            // if preset App id is supplied but not found show an error
+            String appNotFoundError = activity.getString(R.string.app_with_id_not_found);
+            setErrorMessageUI(appNotFoundError, false);
+        }
+        return null;
     }
 
     protected void refreshForNewApp() {

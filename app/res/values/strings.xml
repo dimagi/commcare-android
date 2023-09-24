@@ -609,4 +609,6 @@
     <string name="login_menu_connect_sign_in" cc:translatable="true">Sign up for ConnectID</string>
     <string name="login_menu_connect_sign_out" cc:translatable="true">Sign out of ConnectID</string>
     <string name="login_menu_connect_forget" cc:translatable="true">Forget ConnectID user</string>
+
+    <string name="app_with_id_not_found">Required CommCare App is not installed on device</string>
 </resources>
