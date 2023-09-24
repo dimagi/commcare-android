@@ -73,11 +73,9 @@ import org.javarosa.core.services.locale.Localization;
 public class LoginActivity extends CommCareActivity<LoginActivity>
         implements OnItemSelectedListener, DataPullController,
         RuntimePermissionRequester, WithUIController, PullTaskResultReceiver {
-<<<<<<< HEAD
-=======
 
     public static final String EXTRA_APP_ID = "extra_app_id";
->>>>>>> master
+
     private static final String TAG = LoginActivity.class.getSimpleName();
 
     public static final int MENU_DEMO = Menu.FIRST;
@@ -128,12 +126,10 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         uiController.setupUI();
         formAndDataSyncer = new FormAndDataSyncer();
 
-<<<<<<< HEAD
         ConnectIdManager.init(this);
         updateConnectButton();
-=======
+
         presetAppID = getIntent().getStringExtra(EXTRA_APP_ID);
->>>>>>> master
 
         if (savedInstanceState == null) {
             // Only restore last user on the initial creation
