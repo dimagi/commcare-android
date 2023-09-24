@@ -91,12 +91,15 @@ public class TestAppInstaller {
                 new ApplicationRecord(PropertyUtils.genUUID().replace("-", ""),
                         ApplicationRecord.STATUS_UNINITIALIZED);
 
+
         CommCareApp app = new CommCareTestApp(new CommCareApp(newRecord));
+
         ResourceEngineTask<Object> task =
                 new ResourceEngineTask<Object>(app, -1, false, false) {
                     @Override
                     protected void deliverResult(Object receiver,
                                                  AppInstallStatus result) {
+                        app.setMMResourcesValidated();
                     }
 
                     @Override
