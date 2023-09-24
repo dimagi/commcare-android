@@ -697,11 +697,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 
     @Override
     public void failBadReqs(String versionRequired, String versionAvailable, boolean majorIsProblem) {
-        String versionMismatch = Localization.get("install.version.mismatch", new String[]{versionRequired, versionAvailable});
-        Intent intent = new Intent(this, PromptApkUpdateActivity.class);
-        intent.putExtra(PromptApkUpdateActivity.REQUIRED_VERSION, versionRequired);
-        intent.putExtra(PromptApkUpdateActivity.CUSTOM_PROMPT_TITLE, versionMismatch);
-        startActivity(intent);
+        ResourceInstallUtils.showApkUpdatePrompt(this, versionRequired, versionAvailable);
     }
 
     @Override
@@ -737,8 +733,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 
     @Override
     public void failTargetMismatch() {
-        Intent intent = new Intent(this, TargetMismatchErrorActivity.class);
-        startActivity(intent);
+        ResourceInstallUtils.showTargetMismatchError(this);
     }
 
 

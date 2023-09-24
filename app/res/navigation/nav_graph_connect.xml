@@ -82,8 +82,11 @@
             android:name="title"
             app:argType="string" />
         <argument
-            android:name="appTitle"
-            app:argType="string" />
+            android:name="job"
+            app:argType="org.commcare.android.database.connect.models.ConnectJob" />
+        <action
+            android:id="@+id/action_connect_downloading_fragment_to_connect_job_learning_progress_fragment"
+            app:destination="@id/connect_job_learning_progress_fragment" />
     </fragment>
 
 

@@ -71,7 +71,7 @@ public class ConnectDeliveryDetailsFragment extends Fragment {
         button.setEnabled(!expired);
         button.setOnClickListener(v -> {
             String title = getString(R.string.connect_downloading_delivery);
-            NavDirections directions = ConnectDeliveryDetailsFragmentDirections.actionConnectJobDeliveryDetailsFragmentToConnectDownloadingFragment(title, job.getTitle());
+            NavDirections directions = ConnectDeliveryDetailsFragmentDirections.actionConnectJobDeliveryDetailsFragmentToConnectDownloadingFragment(title, job);
             Navigation.findNavController(button).navigate(directions);
         });
 
