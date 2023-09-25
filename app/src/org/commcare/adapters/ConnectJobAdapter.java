@@ -10,15 +10,11 @@ import android.widget.TextView;
 
 import org.commcare.activities.connect.ConnectIdDatabaseHelper;
 import org.commcare.android.database.connect.models.ConnectJob;
-import org.commcare.android.database.connect.models.ConnectJobLearningModule;
 import org.commcare.dalvik.R;
-import org.commcare.fragments.connect.ConnectJobsAvailableListFragment;
 import org.commcare.fragments.connect.ConnectJobsListsFragmentDirections;
-import org.commcare.fragments.connect.ConnectJobsMyListFragment;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -50,7 +46,7 @@ public class ConnectJobAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         List<ConnectJob> training = ConnectIdDatabaseHelper.getTrainingJobs(parentContext);
         int numTraining = training.size() > 0 ? training.size() : 1;
 
-        List<ConnectJob> claimed = ConnectIdDatabaseHelper.getClaimdeJobs(parentContext);
+        List<ConnectJob> claimed = ConnectIdDatabaseHelper.getClaimedJobs(parentContext);
         int numClaimed = claimed.size() > 0 ? claimed.size() : 1;
         return numTraining + numClaimed + 2;
     }
@@ -71,7 +67,7 @@ public class ConnectJobAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             return training.size() == 0 ? ViewTypeEmpty : ViewTypeLearning;
         }
 
-        return ConnectIdDatabaseHelper.getClaimdeJobs(parentContext).size() == 0 ? ViewTypeEmpty : ViewTypeClaimed;
+        return ConnectIdDatabaseHelper.getClaimedJobs(parentContext).size() == 0 ? ViewTypeEmpty : ViewTypeClaimed;
     }
 
     @NonNull
@@ -112,10 +108,9 @@ public class ConnectJobAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             availableHolder.visitsText.setText(parentContext.getString(R.string.connect_job_visits,
                     job.getMaxPossibleVisits(), job.getDaysRemaining()));
 
-            availableHolder.continueImage.setOnClickListener(v -> {
+            availableHolder.continueImage.setOnClickListener(v ->
                 Navigation.findNavController(availableHolder.continueImage).navigate(
-                        ConnectJobsListsFragmentDirections.actionConnectJobsListFragmentToConnectJobIntroFragment(job));
-            });
+                        ConnectJobsListsFragmentDirections.actionConnectJobsListFragmentToConnectJobIntroFragment(job)));
         }
         else if(holder instanceof ConnectJobAdapter.ClaimedJobViewHolder claimedHolder) {
             List<ConnectJob> training = ConnectIdDatabaseHelper.getTrainingJobs(parentContext);
@@ -126,7 +121,7 @@ public class ConnectJobAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             }
             else {
                 int numTraining = training.size() > 0 ? training.size() : 1;
-                job = ConnectIdDatabaseHelper.getClaimdeJobs(parentContext).get(position - numTraining - 2);
+                job = ConnectIdDatabaseHelper.getClaimedJobs(parentContext).get(position - numTraining - 2);
             }
 
             claimedHolder.titleText.setText(job.getTitle());
@@ -141,14 +136,15 @@ public class ConnectJobAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                 String extra = parentContext.getString(isTraining ? R.string.connect_job_learning : R.string.connect_job);
                 int percent = job.getPercentComplete();
                 if(isTraining) {
-                    int completed = 0;
-                    for (ConnectJobLearningModule module: job.getLearningModules()) {
-                        if(module.getCompletedDate() != null) {
-                            completed++;
-                        }
-                    }
+                    //NOTE: leaving other code here for now in case API changfes to give back the modules array
+                    int completed = job.getCompletedLearningModules();//0;
+//                    for (ConnectJobLearningModule module: job.getLearningModules()) {
+//                        if(module.getCompletedDate() != null) {
+//                            completed++;
+//                        }
+//                    }
 
-                    int numModules = job.getLearningModules().length;
+                    int numModules = job.getNumLearningModules();// job.getLearningModules().length;
                     percent = numModules > 0 ? (100 * completed / numModules) : 100;
                 }
                 if(isTraining && percent >= 100) {

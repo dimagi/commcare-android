@@ -16,6 +16,7 @@ import android.widget.Toast;
 
 import org.commcare.android.database.connect.models.ConnectJob;
 import org.commcare.android.database.connect.models.ConnectJobLearningModule;
+import org.commcare.android.database.connect.models.ConnectLearnModuleInfo;
 import org.commcare.dalvik.R;
 
 import java.util.ArrayList;
@@ -57,19 +58,19 @@ public class ConnectJobIntroFragment extends Fragment {
 
         int totalHours = 0;
         List<String> lines = new ArrayList<>();
-        ConnectJobLearningModule[] modules = job.getLearningModules();
-        for(int i=0; i<modules.length; i++) {
-            lines.add(String.format(Locale.getDefault(), "%d. %s", (i+1), modules[i].getToLearn()));
-            totalHours += modules[i].getEstimatedHours();
+        List<ConnectLearnModuleInfo> modules = job.getLearnAppInfo().getLearnModules();
+        for(int i=0; i<modules.size(); i++) {
+            lines.add(String.format(Locale.getDefault(), "%d. %s", (i+1), modules.get(i).getName()));
+            totalHours += modules.get(i).getTimeEstimate();
         }
 
-        String toLearn = modules.length > 0 ? String.join("\r\n\r\n", lines) : getString(R.string.connect_job_no_learning_required);
+        String toLearn = modules.size() > 0 ? String.join("\r\n\r\n", lines) : getString(R.string.connect_job_no_learning_required);
 
         textView = view.findViewById(R.id.connect_job_intro_learning);
         textView.setText(toLearn);
 
         textView = view.findViewById(R.id.connect_job_intro_learning_summary);
-        textView.setText(getString(R.string.connect_job_learn_summary, modules.length, totalHours));
+        textView.setText(getString(R.string.connect_job_learn_summary, modules.size(), totalHours));
 
         Button button = view.findViewById(R.id.connect_job_intro_start_button);
         button.setOnClickListener(v -> {

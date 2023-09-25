@@ -22,11 +22,11 @@ public class MockJobProvider {
                         0, 100, 5, 5, 100,
                         new Date("11/1/2023"),
                         null,
-                        new ConnectJobLearningModule[]{
-                                new ConnectJobLearningModule("How to check the vaccine booklet of a child in the household", 2, new Date("8/10/2023")),
-                                new ConnectJobLearningModule("How to help the caregiver in the household get the next vaccine shot for their child", 2, null),
-                        },
-                        new ConnectJobDelivery[]{}
+//                        new ConnectJobLearningModule[]{
+//                                new ConnectJobLearningModule("How to check the vaccine booklet of a child in the household", 2, new Date("8/10/2023")),
+//                                new ConnectJobLearningModule("How to help the caregiver in the household get the next vaccine shot for their child", 2, null),
+//                        },
+                        new ArrayList<>()
                 ));
         mockAvailableJobs.add(new ConnectJob(2, "Vitamin A Delivery",
                 "You will deliver Vitamin A supplements to 50 homes.",
@@ -34,10 +34,10 @@ public class MockJobProvider {
                 0, 100, 5, 5, 100,
                 new Date("11/1/2023"),
                 null,
-                new ConnectJobLearningModule[]{
-                        new ConnectJobLearningModule("Sample learning module", 2, null),
-                },
-                new ConnectJobDelivery[]{}
+//                new ConnectJobLearningModule[]{
+//                        new ConnectJobLearningModule("Sample learning module", 2, null),
+//                },
+                new ArrayList<>()
         ));
         mockAvailableJobs.add(new ConnectJob(3, "Training Complete Example",
                 "This mock shows when training is complete for a job.",
@@ -45,39 +45,43 @@ public class MockJobProvider {
                 0, 100, 5, 5, 100,
                 new Date("11/1/2023"),
                 null,
-                new ConnectJobLearningModule[]{
-                        new ConnectJobLearningModule("Sample learning module", 2, new Date("8/10/2023")),
-                },
-                new ConnectJobDelivery[]{}
+//                new ConnectJobLearningModule[]{
+//                        new ConnectJobLearningModule("Sample learning module", 2, new Date("8/10/2023")),
+//                },
+                new ArrayList<>()
         ));
 
         mockClaimedJobs = new ArrayList<>();
+
+        List<ConnectJobDelivery> deliveries = new ArrayList<>();
+        deliveries.add(new ConnectJobDelivery("Steve", new Date("7/20/2023"), "Accepted", true));
+        deliveries.add(new ConnectJobDelivery("Dalitso", new Date("7/24/2023"), "Pending Verification", false));
+        deliveries.add(new ConnectJobDelivery("Chimango", new Date("7/19/2023"), "Rejected", false));
+
         mockClaimedJobs.add(new ConnectJob(1, "Mental Health Visits",
                 "",
                 ConnectJob.STATUS_DELIVERING,
                 60, 100, 5, 5, 100,
                 new Date("11/1/2023"),
                 null,
-                new ConnectJobLearningModule[]{},
-                new ConnectJobDelivery[]{
-                        new ConnectJobDelivery("Steve", new Date("7/20/2023"), "Accepted", true),
-                        new ConnectJobDelivery("Dalitso", new Date("7/24/2023"), "Pending Verification", false),
-                        new ConnectJobDelivery("Chimango", new Date("7/19/2023"), "Rejected", false)
-                }));
+//                new ConnectJobLearningModule[]{},
+                deliveries));
         mockClaimedJobs.add(new ConnectJob(2, "TestA",
                 "",
                 ConnectJob.STATUS_DELIVERING,
                 0, 100, 5, 5, 100,
                 new Date("11/1/2023"),
                 null,
-                new ConnectJobLearningModule[]{}, new ConnectJobDelivery[]{}));
+//                new ConnectJobLearningModule[]{},
+                new ArrayList<>()));
         mockClaimedJobs.add(new ConnectJob(3, "Infant Health Check",
                 "",
                 ConnectJob.STATUS_DELIVERING,
                 100, 100, 5, 5, 100,
                 new Date("10/1/2023"),
                 new Date("4/7/2023"),
-                new ConnectJobLearningModule[]{}, new ConnectJobDelivery[]{}));
+//                new ConnectJobLearningModule[]{},
+                new ArrayList<>()));
     }
 
     public static List<ConnectJob> getAvailableJobs() {

@@ -6,6 +6,7 @@ import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.android.database.connect.models.ConnectAppInfo;
 import org.commcare.android.database.connect.models.ConnectJob;
+import org.commcare.android.database.connect.models.ConnectLearnModuleInfo;
 import org.commcare.modern.database.TableBuilder;
 import org.javarosa.core.services.storage.Persistable;
 
@@ -26,7 +27,8 @@ public class ConnectDatabaseUpgrader {
 
     private boolean upgradeOneTwo(SQLiteDatabase db) {
         return addTableForNewModel(db, ConnectJob.STORAGE_KEY, new ConnectJob()) &&
-                addTableForNewModel(db, ConnectAppInfo.STORAGE_KEY, new ConnectAppInfo());
+                addTableForNewModel(db, ConnectAppInfo.STORAGE_KEY, new ConnectAppInfo()) &&
+                addTableForNewModel(db, ConnectLearnModuleInfo.STORAGE_KEY, new ConnectLearnModuleInfo());
     }
 
     private static boolean addTableForNewModel(SQLiteDatabase db, String storageKey,

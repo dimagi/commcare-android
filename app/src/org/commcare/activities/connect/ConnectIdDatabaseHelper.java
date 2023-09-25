@@ -5,11 +5,14 @@ import android.content.Context;
 import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.CommCareApplication;
+import org.commcare.android.database.connect.models.ConnectAppInfo;
 import org.commcare.android.database.connect.models.ConnectJob;
+import org.commcare.android.database.connect.models.ConnectLearnModuleInfo;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.android.database.connect.models.MockJobProvider;
 import org.commcare.android.database.global.models.ConnectKeyRecord;
+import org.commcare.android.storage.framework.Persisted;
 import org.commcare.models.database.AndroidDbHelper;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.models.database.connect.DatabaseConnectOpenHelper;
@@ -19,8 +22,10 @@ import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.storage.Persistable;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.Vector;
 
 /**
@@ -141,42 +146,78 @@ public class ConnectIdDatabaseHelper {
         }
     }
 
-    public static void storeAvailableJobs(Context context, List<ConnectJob> jobs) {
-        List<ConnectJob> existingList = getAvailableJobs(context);
+    public static void storeJobs(Context context, List<ConnectJob> jobs) {
+        SqlStorage<ConnectJob> jobStorage = getConnectStorage(context, ConnectJob.class);
+        List<ConnectJob> existingList = getJobs(context, -1, jobStorage);
 
         //Delete jobs that are no longer available
         for (ConnectJob existing : existingList) {
             boolean stillExists = false;
-            for (ConnectJob newJob : jobs) {
-                if(existing.getID() == newJob.getID()) {
+            for (ConnectJob incoming : jobs) {
+                if(existing.getJobId() == incoming.getJobId()) {
+                    incoming.setID(existing.getID());
                     stillExists = true;
                     break;
                 }
             }
 
             if(!stillExists) {
-                getConnectStorage(context, ConnectJob.class).remove(existing.getID());
+                jobStorage.remove(existing.getID());
             }
         }
 
         //Now insert/update jobs
-        for (ConnectJob newJob : jobs) {
-            for (ConnectJob existingJob : existingList) {
-                if(newJob.getID() == existingJob.getID()) {
-                    //To update, set ID for the new job from the existing
-                    newJob.setID(existingJob.getID());
-                    break;
+        for (ConnectJob incomingJob : jobs) {
+            //Now insert/update the job
+            jobStorage.write(incomingJob);
+
+            //Next, store the learn and delivery app info
+            incomingJob.getLearnAppInfo().setJobId(incomingJob.getJobId());
+            incomingJob.getDeliveryAppInfo().setJobId(incomingJob.getJobId());
+            SqlStorage<ConnectAppInfo> appInfoStorage = getConnectStorage(context, ConnectAppInfo.class);
+            Vector<ConnectAppInfo> records = appInfoStorage.getRecordsForValues(
+                            new String[]{ConnectAppInfo.META_JOB_ID},
+                            new Object[]{incomingJob.getJobId()});
+
+            for(ConnectAppInfo existing : records) {
+                ConnectAppInfo incomingAppInfo = existing.getIsLearning() ? incomingJob.getLearnAppInfo() : incomingJob.getDeliveryAppInfo();
+                incomingAppInfo.setID(existing.getID());
+            }
+
+            appInfoStorage.write(incomingJob.getLearnAppInfo());
+            appInfoStorage.write(incomingJob.getDeliveryAppInfo());
+
+            //Finally, store the info for the learn modules
+            //Delete modules that are no longer available
+            SqlStorage<ConnectLearnModuleInfo> moduleStorage = getConnectStorage(context, ConnectLearnModuleInfo.class);
+            Vector<ConnectLearnModuleInfo> existingLearnModules = moduleStorage.getRecordsForValues(
+                            new String[]{ConnectLearnModuleInfo.META_JOB_ID},
+                            new Object[]{incomingJob.getJobId()});
+            for (ConnectLearnModuleInfo existing : existingLearnModules) {
+                boolean stillExists = false;
+                for (ConnectLearnModuleInfo incoming : incomingJob.getLearnAppInfo().getLearnModules()) {
+                    if(Objects.equals(existing.getSlug(), incoming.getSlug())) {
+                        incoming.setID(incoming.getID());
+                        stillExists = true;
+                        break;
+                    }
+                }
+
+                if(!stillExists) {
+                    moduleStorage.remove(existing.getID());
                 }
             }
 
-            //Now insert/update the job
-            getConnectStorage(context, ConnectJob.class).write(newJob);
+            for(ConnectLearnModuleInfo module : incomingJob.getLearnAppInfo().getLearnModules()) {
+                module.setJobId(incomingJob.getJobId());
+                moduleStorage.write(module);
+            }
         }
     }
 
-    private static final boolean UseMockData = true;
+    private static final boolean UseMockData = false;
 
-    public static List<ConnectJob> getJobs(Context context, int status) {
+    public static List<ConnectJob> getJobs(Context context, int status, SqlStorage<ConnectJob> jobStorage) {
         if(UseMockData) {
             return switch(status) {
                 case ConnectJob.STATUS_AVAILABLE ->
@@ -189,25 +230,70 @@ public class ConnectIdDatabaseHelper {
             };
         }
 
-        Vector<ConnectJob> records = getConnectStorage(context, ConnectJob.class)
-                .getRecordsForValues(
-                        new String[]{ConnectJob.META_STATUS},
-                        new Object[]{status});
+        if(jobStorage == null) {
+            jobStorage = getConnectStorage(context, ConnectJob.class);
+        }
 
-        return new ArrayList<>(records);
+        Vector<ConnectJob> jobs;
+        if(status > 0) {
+            jobs = jobStorage.getRecordsForValues(
+                    new String[]{ConnectJob.META_STATUS},
+                    new Object[]{status});
+        } else {
+            jobs = jobStorage.getRecordsForValues(new String[]{}, new Object[]{});
+        }
+
+        SqlStorage<ConnectAppInfo> appInfoStorage = getConnectStorage(context, ConnectAppInfo.class);
+        SqlStorage<ConnectLearnModuleInfo> moduleStorage = getConnectStorage(context, ConnectLearnModuleInfo.class);
+        for(ConnectJob job : jobs) {
+            //Retrieve learn and delivery app info
+            Vector<ConnectAppInfo> existingAppInfos = appInfoStorage.getRecordsForValues(
+                    new String[]{ConnectAppInfo.META_JOB_ID},
+                    new Object[]{job.getJobId()});
+
+            for(ConnectAppInfo info : existingAppInfos) {
+                if(info.getIsLearning()) {
+                    job.setLearnAppInfo(info);
+                }
+                else {
+                    job.setDeliveryAppInfo(info);
+                }
+            }
+
+            //Retrieve learn modules
+            Vector<ConnectLearnModuleInfo> existingModules = moduleStorage.getRecordsForValues(
+                    new String[]{ConnectLearnModuleInfo.META_JOB_ID},
+                    new Object[]{job.getJobId()});
+
+            List<ConnectLearnModuleInfo> modules = new ArrayList<>(existingModules);
+            modules.sort(Comparator.comparingInt(ConnectLearnModuleInfo::getModuleIndex));
+
+            job.getLearnAppInfo().setLearnModules(modules);
+        }
+
+        return new ArrayList<>(jobs);
     }
 
     public static List<ConnectJob> getAvailableJobs(Context context) {
-        List<ConnectJob> jobs = getJobs(context, ConnectJob.STATUS_AVAILABLE);
-        jobs.addAll(getJobs(context, ConnectJob.STATUS_AVAILABLE_NEW));
+        return getAvailableJobs(context, null);
+    }
+    public static List<ConnectJob> getAvailableJobs(Context context, SqlStorage<ConnectJob> jobStorage) {
+        List<ConnectJob> jobs = getJobs(context, ConnectJob.STATUS_AVAILABLE, jobStorage);
+        jobs.addAll(getJobs(context, ConnectJob.STATUS_AVAILABLE_NEW, jobStorage));
         return jobs;
     }
 
     public static List<ConnectJob> getTrainingJobs(Context context) {
-        return getJobs(context, ConnectJob.STATUS_LEARNING);
+        return getTrainingJobs(context, null);
+    }
+    public static List<ConnectJob> getTrainingJobs(Context context, SqlStorage<ConnectJob> jobStorage) {
+        return getJobs(context, ConnectJob.STATUS_LEARNING, jobStorage);
     }
 
-    public static List<ConnectJob> getClaimdeJobs(Context context) {
-        return getJobs(context, ConnectJob.STATUS_DELIVERING);
+    public static List<ConnectJob> getClaimedJobs(Context context) {
+        return getClaimedJobs(context, null);
+    }
+    public static List<ConnectJob> getClaimedJobs(Context context, SqlStorage<ConnectJob> jobStorage) {
+        return getJobs(context, ConnectJob.STATUS_DELIVERING, jobStorage);
     }
 }

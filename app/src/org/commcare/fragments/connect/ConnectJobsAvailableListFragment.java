@@ -79,7 +79,7 @@ public class ConnectJobsAvailableListFragment extends Fragment {
                         }
 
                         //Store retrieved jobs
-                        ConnectIdDatabaseHelper.storeAvailableJobs(getContext(), jobs);
+                        ConnectIdDatabaseHelper.storeJobs(getContext(), jobs);
 
                         recyclerView.setAdapter(new ConnectJobAdapter(true));
                     }

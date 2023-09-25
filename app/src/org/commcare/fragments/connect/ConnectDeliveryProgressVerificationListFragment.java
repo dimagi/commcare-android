@@ -72,7 +72,7 @@ public class ConnectDeliveryProgressVerificationListFragment extends Fragment {
         public void onBindViewHolder(@NonNull DeliveryViewHolder holder, int position) {
 
             DateFormat df = new SimpleDateFormat("MM/dd/yyyy", Locale.getDefault());
-            ConnectJobDelivery delivery = job.getDeliveries()[position];
+            ConnectJobDelivery delivery = job.getDeliveries().get(position);
             holder.paidText.setVisibility(delivery.getIsPaid() ? View.VISIBLE : View.GONE);
             holder.nameText.setText(delivery.getName());
             holder.dateText.setText(df.format(delivery.getDate()));
@@ -81,7 +81,7 @@ public class ConnectDeliveryProgressVerificationListFragment extends Fragment {
 
         @Override
         public int getItemCount() {
-            return job.getDeliveries().length;
+            return job.getDeliveries().size();
         }
 
         public static class DeliveryViewHolder extends RecyclerView.ViewHolder {

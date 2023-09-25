@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.UnknownHostException;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 import okhttp3.MediaType;
@@ -373,7 +374,11 @@ public class ConnectIdNetworkHelper {
         }
     }
 
-    public static void getConnectOpportunities(Context context, INetworkResultHandler handler) {
+    public static boolean getConnectOpportunities(Context context, INetworkResultHandler handler) {
+        if (getInstance().isBusy) {
+            return false;
+        }
+
         ConnectIdSsoHelper.retrieveConnectTokenAsync(context, token -> {
             if(token == null) {
                 return;
@@ -384,5 +389,84 @@ public class ConnectIdNetworkHelper {
 
             getInstance().getInternal(context, url, token, params, handler);
         });
+
+        return true;
+    }
+
+    public static boolean startLearnApp(Context context, int jobId, INetworkResultHandler handler) {
+        if (getInstance().isBusy) {
+            return false;
+        }
+
+        ConnectIdSsoHelper.retrieveConnectTokenAsync(context, token -> {
+            if(token == null) {
+                return;
+            }
+
+            String url = context.getString(R.string.ConnectStartLearningURL);
+            HashMap<String, String> params = new HashMap<>();
+            params.put("opportunity", String.format(Locale.getDefault(), "%d", jobId));
+
+            getInstance().postInternal(context, url, token, params, false, handler);
+        });
+
+        return true;
+    }
+
+    public static boolean getLearnProgress(Context context, int jobId, INetworkResultHandler handler) {
+        if (getInstance().isBusy) {
+            return false;
+        }
+
+        ConnectIdSsoHelper.retrieveConnectTokenAsync(context, token -> {
+            if(token == null) {
+                return;
+            }
+
+            String url = context.getString(R.string.ConnectLearnProgressURL, jobId);
+            Multimap<String, String> params = ArrayListMultimap.create();
+
+            getInstance().getInternal(context, url, token, params, handler);
+        });
+
+        return true;
+    }
+
+    public static boolean claimJob(Context context, int jobId, INetworkResultHandler handler) {
+        if (getInstance().isBusy) {
+            return false;
+        }
+
+        ConnectIdSsoHelper.retrieveConnectTokenAsync(context, token -> {
+            if(token == null) {
+                return;
+            }
+
+            String url = context.getString(R.string.ConnectClaimJobURL, jobId);
+            HashMap<String, String> params = new HashMap<>();
+
+            getInstance().postInternal(context, url, token, params, false, handler);
+        });
+
+        return true;
+    }
+
+    public static boolean getDeliveries(Context context, int jobId, INetworkResultHandler handler) {
+        if (getInstance().isBusy) {
+            return false;
+        }
+
+        ConnectIdSsoHelper.retrieveConnectTokenAsync(context, token -> {
+            if(token == null) {
+                return;
+            }
+
+            String url = context.getString(R.string.ConnectDeliveriesURL, jobId);
+            Multimap<String, String> params = ArrayListMultimap.create();
+
+            getInstance().getInternal(context, url, token, params, handler);
+        });
+
+        return true;
     }
 }

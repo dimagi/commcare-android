@@ -10,7 +10,9 @@ import org.json.JSONObject;
 import java.io.Serializable;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 /**
@@ -45,7 +47,10 @@ public class ConnectJob extends Persisted implements Serializable {
     public static final String META_COMPLETED_VISITS = "completed_visits";
     public static final String META_LAST_WORKED_DATE = "last_worked";
     public static final String META_STATUS = "status";
+    public static final String META_LEARN_MODULES = "total_modules";
+    public static final String META_COMPLETED_MODULES = "completed_modules";
 
+    public static final String META_LEARN_PROGRESS = "learn_progress";
     public static final String META_LEARN_APP = "learn_app";
     public static final String META_DELIVER_APP = "deliver_app";
 
@@ -85,8 +90,14 @@ public class ConnectJob extends Persisted implements Serializable {
     @Persisting(12)
     @MetaField(META_STATUS)
     private int status;
-    private ConnectJobLearningModule[] learningModules;
-    private ConnectJobDelivery[] deliveries;
+    @Persisting(13)
+    @MetaField(META_LEARN_MODULES)
+    private int numLearningModules;
+    @Persisting(14)
+    @MetaField(META_COMPLETED_MODULES)
+    private int learningModulesCompleted;
+//    private ConnectJobLearningModule[] learningModules;
+    private List<ConnectJobDelivery> deliveries;
     private ConnectAppInfo learnAppInfo;
     private ConnectAppInfo deliveryAppInfo;
 
@@ -97,8 +108,8 @@ public class ConnectJob extends Persisted implements Serializable {
     public ConnectJob(int jobId, String title, String description, int status,
                       int completedVisits, int maxVisits, int maxDailyVisits, int budgetPerVisit, int totalBudget,
                       Date projectEnd, Date lastWorkedDate,
-                      ConnectJobLearningModule[] learningModules,
-                      ConnectJobDelivery[] deliveries) {
+//                      ConnectJobLearningModule[] learningModules,
+                      List<ConnectJobDelivery> deliveries) {
         this.jobId = jobId;
         this.title = title;
         this.description = description;
@@ -110,7 +121,7 @@ public class ConnectJob extends Persisted implements Serializable {
         this.totalBudget = totalBudget;
         this.projectEndDate = projectEnd;
         this.lastWorkedDate = lastWorkedDate;
-        this.learningModules = learningModules;
+//        this.learningModules = learningModules;
         this.deliveries = deliveries;
     }
 
@@ -123,18 +134,21 @@ public class ConnectJob extends Persisted implements Serializable {
         job.title = json.has(META_NAME) ? json.getString(META_NAME) : null;
         job.description = json.has(META_DESCRIPTION) ? json.getString(META_DESCRIPTION) : null;
         job.organization = json.has(META_ORGANIZATION) ? json.getString(META_ORGANIZATION) : null;
-        job.status = STATUS_AVAILABLE_NEW;
         job.projectEndDate = json.has(META_END_DATE) ? df.parse(json.getString(META_END_DATE)) : new Date();
         job.maxVisits = json.has(META_MAX_VISITS) ? json.getInt(META_MAX_VISITS) : -1;
         job.maxDailyVisits = json.has(META_MAX_DAILY_VISITS) ? json.getInt(META_MAX_DAILY_VISITS) : -1;
         job.budgetPerVisit = json.has(META_BUDGET_PER_VISIT) ? json.getInt(META_BUDGET_PER_VISIT) : -1;
         job.totalBudget = json.has(META_BUDGET_TOTAL) ? json.getInt(META_BUDGET_TOTAL) : -1;
 
-        job.learningModules = new ConnectJobLearningModule[]{};
-        job.deliveries = new ConnectJobDelivery[]{};
+//        job.learningModules = new ConnectJobLearningModule[]{};
+        job.deliveries = new ArrayList<>();
 
-        job.learnAppInfo = ConnectAppInfo.fromJson(json.getJSONObject(META_LEARN_APP), job.jobId);
-        job.deliveryAppInfo = ConnectAppInfo.fromJson(json.getJSONObject(META_DELIVER_APP), job.jobId);
+        JSONObject learning = json.getJSONObject(META_LEARN_PROGRESS);
+        job.numLearningModules = learning.getInt(META_LEARN_MODULES);
+        job.learningModulesCompleted = learning.getInt(META_COMPLETED_MODULES);
+
+        job.learnAppInfo = ConnectAppInfo.fromJson(json.getJSONObject(META_LEARN_APP), job.jobId, true);
+        job.deliveryAppInfo = ConnectAppInfo.fromJson(json.getJSONObject(META_DELIVER_APP), job.jobId, false);
 
         //In JSON but not in model
         //job.? = json.has(META_DATE_CREATED) ? df.parse(json.getString(META_DATE_CREATED)) : null;
@@ -144,9 +158,21 @@ public class ConnectJob extends Persisted implements Serializable {
         //job.completedVisits = 0;
         job.lastWorkedDate = new Date();
 
+        job.status = STATUS_AVAILABLE;
+        if(job.getLearningCompletePercentage() > 0) {
+            job.status = STATUS_LEARNING;
+            if(false) {//TODO: Check claim date
+                job.status = STATUS_DELIVERING;
+                if(false) { //TODO: Check num_deliveries == maxDeliveries
+                    job.status = STATUS_COMPLETE;
+                }
+            }
+        }
+
         return job;
     }
 
+    public int getJobId() { return jobId; }
     public String getTitle() { return title; }
     public String getDescription() { return description; }
     public String getOrganization() { return organization; }
@@ -160,8 +186,14 @@ public class ConnectJob extends Persisted implements Serializable {
     public int getPercentComplete() { return maxVisits > 0 ? 100 * completedVisits / maxVisits : 0; }
     public Date getDateCompleted() { return lastWorkedDate; }
     public Date getProjectEndDate() { return projectEndDate; }
-    public ConnectJobLearningModule[] getLearningModules() { return learningModules; }
-    public ConnectJobDelivery[] getDeliveries() { return deliveries; }
+    public int getNumLearningModules() { return numLearningModules; }
+    public int getCompletedLearningModules() { return learningModulesCompleted; }
+    public ConnectAppInfo getLearnAppInfo() { return learnAppInfo; }
+    public void setLearnAppInfo(ConnectAppInfo appInfo) { this.learnAppInfo = appInfo; }
+    public ConnectAppInfo getDeliveryAppInfo() { return deliveryAppInfo; }
+    public void setDeliveryAppInfo(ConnectAppInfo appInfo) { this.deliveryAppInfo = appInfo; }
+    //public ConnectJobLearningModule[] getLearningModules() { return learningModules; }
+    public List<ConnectJobDelivery> getDeliveries() { return deliveries; }
 
     public int getDaysRemaining() {
         double millis = projectEndDate.getTime() - (new Date()).getTime();
@@ -173,5 +205,10 @@ public class ConnectJob extends Persisted implements Serializable {
         int minDaysRequired = maxVisitsBudgeted / maxDailyVisits;
         int daysRemaining = getDaysRemaining();
         return minDaysRequired > daysRemaining ? (daysRemaining * maxDailyVisits) : maxVisitsBudgeted;
+    }
+
+    public int getLearningCompletePercentage() {
+        int numLearning = getNumLearningModules();
+        return numLearning > 0 ? (100 * getCompletedLearningModules() / getNumLearningModules()) : 100;
     }
 }

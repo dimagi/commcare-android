@@ -8,6 +8,7 @@ import net.sqlcipher.database.SQLiteOpenHelper;
 
 import org.commcare.android.database.connect.models.ConnectAppInfo;
 import org.commcare.android.database.connect.models.ConnectJob;
+import org.commcare.android.database.connect.models.ConnectLearnModuleInfo;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.logging.DataChangeLog;
@@ -22,7 +23,7 @@ import org.commcare.modern.database.TableBuilder;
  */
 public class DatabaseConnectOpenHelper extends SQLiteOpenHelper {
     /**
-     * V.2 - Added ConnectJob and ConnectAppInfo tables
+     * V.2 - Added ConnectJob, ConnectAppInfo, and ConnectLearningModuleInfo tables
      */
     private static final int CONNECT_DB_VERSION = 2;
 
@@ -49,6 +50,9 @@ public class DatabaseConnectOpenHelper extends SQLiteOpenHelper {
             database.execSQL(builder.getTableCreateString());
 
             builder = new TableBuilder(ConnectAppInfo.class);
+            database.execSQL(builder.getTableCreateString());
+
+            builder = new TableBuilder(ConnectLearnModuleInfo.class);
             database.execSQL(builder.getTableCreateString());
 
             DbUtil.createNumbersTable(database);
