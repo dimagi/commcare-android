@@ -1,6 +1,7 @@
 package org.commcare.activities.connect;
 
 import android.content.Context;
+import android.os.AsyncTask;
 
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
@@ -15,6 +16,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Date;
@@ -70,16 +72,31 @@ public class ConnectIdSsoHelper {
         return hqTokenAuth;
     }
 
-    public static void retrieveConnectTokenAsync(Context context, TokenCallback callback) {
-        Thread thread = new Thread() {
-            @Override
-            public void run() {
-                AuthInfo.TokenAuth token = retrieveConnectToken(context);
-                callback.tokenRetrieved(token);
-            }
-        };
+    private static class TokenTask extends AsyncTask<Void, Void, AuthInfo.TokenAuth> {
+        private final WeakReference<Context> weakContext;
+        TokenCallback callback;
+        TokenTask(Context context, TokenCallback callback) {
+            super();
+            weakContext = new WeakReference<>(context);
+            this.callback = callback;
+        }
 
-        thread.start();
+        @Override
+        protected AuthInfo.TokenAuth doInBackground(Void... voids) {
+            Context context = weakContext.get();
+            return retrieveConnectToken(context);
+        }
+
+        @Override
+        protected void onPostExecute(AuthInfo.TokenAuth token) {
+            callback.tokenRetrieved(token);
+        }
+    }
+
+    public static void retrieveConnectTokenAsync(Context context, TokenCallback callback) {
+        TokenTask task = new TokenTask(context, callback);
+
+        task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
 
     public static AuthInfo.TokenAuth retrieveConnectToken(Context context) {
