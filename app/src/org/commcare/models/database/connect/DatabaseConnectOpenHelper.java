@@ -23,7 +23,7 @@ import org.commcare.modern.database.TableBuilder;
  */
 public class DatabaseConnectOpenHelper extends SQLiteOpenHelper {
     /**
-     * V.2 - Added ConnectJob, ConnectAppInfo, and ConnectLearningModuleInfo tables
+     * V.2 - Added ConnectJobRecord, ConnectAppInfo, and ConnectLearningModuleInfo tables
      */
     private static final int CONNECT_DB_VERSION = 2;
 

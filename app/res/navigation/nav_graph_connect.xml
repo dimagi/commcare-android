@@ -34,7 +34,7 @@
         tools:layout="@layout/fragment_connect_job_intro">
         <argument
             android:name="job"
-            app:argType="org.commcare.android.database.connect.models.ConnectJob" />
+            app:argType="org.commcare.android.database.connect.models.ConnectJobRecord" />
         <action
             android:id="@+id/action_connect_job_intro_fragment_to_connect_downloading_fragment"
             app:destination="@id/connect_downloading_fragment" />
@@ -47,7 +47,7 @@
         tools:layout="@layout/fragment_connect_learning_progress">
         <argument
             android:name="job"
-            app:argType="org.commcare.android.database.connect.models.ConnectJob" />
+            app:argType="org.commcare.android.database.connect.models.ConnectJobRecord" />
     </fragment>
 
     <fragment
@@ -57,7 +57,7 @@
         tools:layout="@layout/fragment_connect_delivery_details">
         <argument
             android:name="job"
-            app:argType="org.commcare.android.database.connect.models.ConnectJob" />
+            app:argType="org.commcare.android.database.connect.models.ConnectJobRecord" />
         <action
             android:id="@+id/action_connect_job_delivery_details_fragment_to_connect_downloading_fragment"
             app:destination="@id/connect_downloading_fragment" />
@@ -70,7 +70,7 @@
         tools:layout="@layout/fragment_connect_delivery_progress">
         <argument
             android:name="job"
-            app:argType="org.commcare.android.database.connect.models.ConnectJob" />
+            app:argType="org.commcare.android.database.connect.models.ConnectJobRecord" />
     </fragment>
 
     <fragment
@@ -83,7 +83,7 @@
             app:argType="string" />
         <argument
             android:name="job"
-            app:argType="org.commcare.android.database.connect.models.ConnectJob" />
+            app:argType="org.commcare.android.database.connect.models.ConnectJobRecord" />
         <action
             android:id="@+id/action_connect_downloading_fragment_to_connect_job_learning_progress_fragment"
             app:destination="@id/connect_job_learning_progress_fragment" />
