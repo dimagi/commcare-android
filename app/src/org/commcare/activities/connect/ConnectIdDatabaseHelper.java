@@ -150,6 +150,7 @@ public class ConnectIdDatabaseHelper {
         List<ConnectJobRecord> existingList = getJobs(context, -1, jobStorage);
 
         //Delete jobs that are no longer available
+        Vector<Integer> idsToDelete = new Vector<>();
         for (ConnectJobRecord existing : existingList) {
             boolean stillExists = false;
             for (ConnectJobRecord incoming : jobs) {
@@ -161,9 +162,11 @@ public class ConnectIdDatabaseHelper {
             }
 
             if(!stillExists) {
-                jobStorage.remove(existing.getID());
+                idsToDelete.add(existing.getID());
             }
         }
+
+        jobStorage.removeAll(idsToDelete);
 
         //Now insert/update jobs
         for (ConnectJobRecord incomingJob : jobs) {
