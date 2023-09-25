@@ -6,9 +6,9 @@ import net.sqlcipher.database.SQLiteDatabase;
 import net.sqlcipher.database.SQLiteException;
 import net.sqlcipher.database.SQLiteOpenHelper;
 
-import org.commcare.android.database.connect.models.ConnectAppInfo;
-import org.commcare.android.database.connect.models.ConnectJob;
-import org.commcare.android.database.connect.models.ConnectLearnModuleInfo;
+import org.commcare.android.database.connect.models.ConnectAppRecord;
+import org.commcare.android.database.connect.models.ConnectJobRecord;
+import org.commcare.android.database.connect.models.ConnectLearnModuleSummaryRecord;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.logging.DataChangeLog;
@@ -46,13 +46,13 @@ public class DatabaseConnectOpenHelper extends SQLiteOpenHelper {
             builder = new TableBuilder(ConnectLinkedAppRecord.class);
             database.execSQL(builder.getTableCreateString());
 
-            builder = new TableBuilder(ConnectJob.class);
+            builder = new TableBuilder(ConnectJobRecord.class);
             database.execSQL(builder.getTableCreateString());
 
-            builder = new TableBuilder(ConnectAppInfo.class);
+            builder = new TableBuilder(ConnectAppRecord.class);
             database.execSQL(builder.getTableCreateString());
 
-            builder = new TableBuilder(ConnectLearnModuleInfo.class);
+            builder = new TableBuilder(ConnectLearnModuleSummaryRecord.class);
             database.execSQL(builder.getTableCreateString());
 
             DbUtil.createNumbersTable(database);

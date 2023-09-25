@@ -6,14 +6,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import org.commcare.android.database.connect.models.ConnectJob;
+import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.dalvik.R;
-
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Locale;
 
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavDirections;
@@ -41,7 +36,7 @@ public class ConnectDeliveryDetailsFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        ConnectJob job = ConnectDeliveryDetailsFragmentArgs.fromBundle(getArguments()).getJob();
+        ConnectJobRecord job = ConnectDeliveryDetailsFragmentArgs.fromBundle(getArguments()).getJob();
         getActivity().setTitle(job.getTitle());
 
         View view = inflater.inflate(R.layout.fragment_connect_delivery_details, container, false);

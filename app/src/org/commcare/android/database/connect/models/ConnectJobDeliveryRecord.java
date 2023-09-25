@@ -2,13 +2,13 @@ package org.commcare.android.database.connect.models;
 
 import java.util.Date;
 
-public class ConnectJobDelivery {
+public class ConnectJobDeliveryRecord {
     private final String name;
     private final Date date;
     private final String status;
     private final boolean isPaid;
 
-    public ConnectJobDelivery(String name, Date date, String status, boolean isPaid) {
+    public ConnectJobDeliveryRecord(String name, Date date, String status, boolean isPaid) {
         this.name = name;
         this.date = date;
         this.status = status;

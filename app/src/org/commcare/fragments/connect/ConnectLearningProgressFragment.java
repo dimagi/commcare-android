@@ -5,7 +5,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -13,8 +12,7 @@ import android.widget.Toast;
 
 import org.commcare.activities.connect.ConnectIdManager;
 import org.commcare.activities.connect.ConnectIdNetworkHelper;
-import org.commcare.android.database.connect.models.ConnectJob;
-import org.commcare.android.database.connect.models.ConnectJobLearningModule;
+import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.commcaresupportlibrary.CommCareLauncher;
 import org.commcare.dalvik.R;
 
@@ -49,7 +47,7 @@ public class ConnectLearningProgressFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        ConnectJob job = ConnectLearningProgressFragmentArgs.fromBundle(getArguments()).getJob();
+        ConnectJobRecord job = ConnectLearningProgressFragmentArgs.fromBundle(getArguments()).getJob();
         getActivity().setTitle(job.getTitle());
 
         View view = inflater.inflate(R.layout.fragment_connect_learning_progress, container, false);

@@ -3,7 +3,6 @@ package org.commcare.fragments.connect;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
 
@@ -12,11 +11,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import org.commcare.android.database.connect.models.ConnectJob;
-import org.commcare.android.database.connect.models.ConnectJobLearningModule;
-import org.commcare.android.database.connect.models.ConnectLearnModuleInfo;
+import org.commcare.android.database.connect.models.ConnectJobRecord;
+import org.commcare.android.database.connect.models.ConnectLearnModuleSummaryRecord;
 import org.commcare.dalvik.R;
 
 import java.util.ArrayList;
@@ -45,7 +42,7 @@ public class ConnectJobIntroFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        ConnectJob job = ConnectJobIntroFragmentArgs.fromBundle(getArguments()).getJob();
+        ConnectJobRecord job = ConnectJobIntroFragmentArgs.fromBundle(getArguments()).getJob();
         getActivity().setTitle(job.getTitle());
 
         View view = inflater.inflate(R.layout.fragment_connect_job_intro, container, false);
@@ -58,7 +55,7 @@ public class ConnectJobIntroFragment extends Fragment {
 
         int totalHours = 0;
         List<String> lines = new ArrayList<>();
-        List<ConnectLearnModuleInfo> modules = job.getLearnAppInfo().getLearnModules();
+        List<ConnectLearnModuleSummaryRecord> modules = job.getLearnAppInfo().getLearnModules();
         for(int i=0; i<modules.size(); i++) {
             lines.add(String.format(Locale.getDefault(), "%d. %s", (i+1), modules.get(i).getName()));
             totalHours += modules.get(i).getTimeEstimate();

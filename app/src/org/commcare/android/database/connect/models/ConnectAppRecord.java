@@ -11,8 +11,8 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
-@Table(ConnectAppInfo.STORAGE_KEY)
-public class ConnectAppInfo extends Persisted {
+@Table(ConnectAppRecord.STORAGE_KEY)
+public class ConnectAppRecord extends Persisted {
     /**
      * Name of database that stores app info for Connect jobs
      */
@@ -47,14 +47,14 @@ public class ConnectAppInfo extends Persisted {
     @MetaField(META_ORGANIZATION)
     private String organization;
 
-    private List<ConnectLearnModuleInfo> learnModules;
+    private List<ConnectLearnModuleSummaryRecord> learnModules;
 
-    public ConnectAppInfo() {
+    public ConnectAppRecord() {
 
     }
 
-    public static ConnectAppInfo fromJson(JSONObject json, int jobId, boolean isLearning) throws JSONException {
-        ConnectAppInfo app = new ConnectAppInfo();
+    public static ConnectAppRecord fromJson(JSONObject json, int jobId, boolean isLearning) throws JSONException {
+        ConnectAppRecord app = new ConnectAppRecord();
 
         app.jobId = jobId;
         app.isLearning = isLearning;
@@ -69,7 +69,7 @@ public class ConnectAppInfo extends Persisted {
         app.learnModules = new ArrayList<>();
         for(int i=0; i<array.length(); i++) {
             JSONObject obj = (JSONObject)array.get(i);
-            app.learnModules.add(ConnectLearnModuleInfo.fromJson(obj, i));
+            app.learnModules.add(ConnectLearnModuleSummaryRecord.fromJson(obj, i));
         }
 
         return app;
@@ -81,6 +81,6 @@ public class ConnectAppInfo extends Persisted {
 
     public String getAppId() { return appId; }
 
-    public List<ConnectLearnModuleInfo> getLearnModules() { return learnModules; }
-    public void setLearnModules(List<ConnectLearnModuleInfo> modules) { learnModules = modules; }
+    public List<ConnectLearnModuleSummaryRecord> getLearnModules() { return learnModules; }
+    public void setLearnModules(List<ConnectLearnModuleSummaryRecord> modules) { learnModules = modules; }
 }

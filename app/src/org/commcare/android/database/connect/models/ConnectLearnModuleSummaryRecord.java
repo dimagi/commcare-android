@@ -7,8 +7,8 @@ import org.commcare.modern.models.MetaField;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-@Table(ConnectLearnModuleInfo.STORAGE_KEY)
-public class ConnectLearnModuleInfo extends Persisted {
+@Table(ConnectLearnModuleSummaryRecord.STORAGE_KEY)
+public class ConnectLearnModuleSummaryRecord extends Persisted {
     /**
      * Name of database that stores info for Connect learn modules
      */
@@ -42,12 +42,12 @@ public class ConnectLearnModuleInfo extends Persisted {
     @MetaField(META_INDEX)
     private int moduleIndex;
 
-    public ConnectLearnModuleInfo() {
+    public ConnectLearnModuleSummaryRecord() {
 
     }
 
-    public static ConnectLearnModuleInfo fromJson(JSONObject json, int moduleIndex) throws JSONException {
-        ConnectLearnModuleInfo info = new ConnectLearnModuleInfo();
+    public static ConnectLearnModuleSummaryRecord fromJson(JSONObject json, int moduleIndex) throws JSONException {
+        ConnectLearnModuleSummaryRecord info = new ConnectLearnModuleSummaryRecord();
 
         info.moduleIndex = moduleIndex;
 

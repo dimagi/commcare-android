@@ -7,7 +7,7 @@ import android.view.ViewGroup;
 
 import com.google.android.material.tabs.TabLayout;
 
-import org.commcare.android.database.connect.models.ConnectJob;
+import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.dalvik.R;
 
 import androidx.annotation.NonNull;
@@ -39,7 +39,7 @@ public class ConnectDeliveryProgressFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        ConnectJob job = ConnectDeliveryProgressFragmentArgs.fromBundle(getArguments()).getJob();
+        ConnectJobRecord job = ConnectDeliveryProgressFragmentArgs.fromBundle(getArguments()).getJob();
         getActivity().setTitle(job.getTitle());
 
         View view = inflater.inflate(R.layout.fragment_connect_delivery_progress, container, false);
@@ -79,8 +79,8 @@ public class ConnectDeliveryProgressFragment extends Fragment {
     }
 
     private static class ViewStateAdapter extends FragmentStateAdapter {
-        private ConnectJob job;
-        public ViewStateAdapter(@NonNull FragmentManager fragmentManager, @NonNull Lifecycle lifecycle, ConnectJob job) {
+        private ConnectJobRecord job;
+        public ViewStateAdapter(@NonNull FragmentManager fragmentManager, @NonNull Lifecycle lifecycle, ConnectJobRecord job) {
             super(fragmentManager, lifecycle);
             this.job = job;
         }

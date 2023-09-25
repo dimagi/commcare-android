@@ -6,8 +6,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import org.commcare.android.database.connect.models.ConnectJob;
-import org.commcare.android.database.connect.models.ConnectJobDelivery;
+import org.commcare.android.database.connect.models.ConnectJobRecord;
+import org.commcare.android.database.connect.models.ConnectJobDeliveryRecord;
 import org.commcare.dalvik.R;
 
 import java.text.DateFormat;
@@ -21,12 +21,12 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 public class ConnectDeliveryProgressVerificationListFragment extends Fragment {
-    private ConnectJob job;
+    private ConnectJobRecord job;
     public ConnectDeliveryProgressVerificationListFragment() {
         // Required empty public constructor
     }
 
-    public static ConnectDeliveryProgressVerificationListFragment newInstance(ConnectJob job) {
+    public static ConnectDeliveryProgressVerificationListFragment newInstance(ConnectJobRecord job) {
         ConnectDeliveryProgressVerificationListFragment fragment = new ConnectDeliveryProgressVerificationListFragment();
         fragment.job = job;
         return fragment;
@@ -55,8 +55,8 @@ public class ConnectDeliveryProgressVerificationListFragment extends Fragment {
     }
 
     private static class DeliveryAdapter extends RecyclerView.Adapter<DeliveryAdapter.DeliveryViewHolder> {
-        private ConnectJob job;
-        public DeliveryAdapter(ConnectJob job) {
+        private ConnectJobRecord job;
+        public DeliveryAdapter(ConnectJobRecord job) {
             this.job = job;
         }
 
@@ -72,7 +72,7 @@ public class ConnectDeliveryProgressVerificationListFragment extends Fragment {
         public void onBindViewHolder(@NonNull DeliveryViewHolder holder, int position) {
 
             DateFormat df = new SimpleDateFormat("MM/dd/yyyy", Locale.getDefault());
-            ConnectJobDelivery delivery = job.getDeliveries().get(position);
+            ConnectJobDeliveryRecord delivery = job.getDeliveries().get(position);
             holder.paidText.setVisibility(delivery.getIsPaid() ? View.VISIBLE : View.GONE);
             holder.nameText.setText(delivery.getName());
             holder.dateText.setText(df.format(delivery.getDate()));

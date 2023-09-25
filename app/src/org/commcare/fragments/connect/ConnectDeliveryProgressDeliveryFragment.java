@@ -1,8 +1,6 @@
 package org.commcare.fragments.connect;
 
 import android.app.AlertDialog;
-import android.content.DialogInterface;
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,12 +10,8 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.commcare.activities.CommCareActivity;
-import org.commcare.android.database.app.models.UserKeyRecord;
-import org.commcare.android.database.connect.models.ConnectJob;
+import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.dalvik.R;
-import org.commcare.views.dialogs.StandardAlertDialog;
-import org.javarosa.core.services.locale.Localization;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -26,12 +20,12 @@ import java.util.Locale;
 import androidx.fragment.app.Fragment;
 
 public class ConnectDeliveryProgressDeliveryFragment extends Fragment {
-    private ConnectJob job;
+    private ConnectJobRecord job;
     public ConnectDeliveryProgressDeliveryFragment() {
         // Required empty public constructor
     }
 
-    public static ConnectDeliveryProgressDeliveryFragment newInstance(ConnectJob job) {
+    public static ConnectDeliveryProgressDeliveryFragment newInstance(ConnectJobRecord job) {
         ConnectDeliveryProgressDeliveryFragment fragment = new ConnectDeliveryProgressDeliveryFragment();
         fragment.job = job;
         return fragment;

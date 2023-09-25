@@ -1,30 +1,14 @@
 package org.commcare.fragments.connect;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.ProgressBar;
-import android.widget.TextView;
 
-import org.commcare.activities.connect.ConnectIdDatabaseHelper;
 import org.commcare.adapters.ConnectJobAdapter;
-import org.commcare.android.database.connect.models.ConnectJob;
-import org.commcare.android.database.connect.models.ConnectJobLearningModule;
 import org.commcare.dalvik.R;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
-
-import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
-import androidx.navigation.NavDirections;
-import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;

@@ -20,8 +20,8 @@ import java.util.Locale;
  *
  * @author dviggiano
  */
-@Table(ConnectJob.STORAGE_KEY)
-public class ConnectJob extends Persisted implements Serializable {
+@Table(ConnectJobRecord.STORAGE_KEY)
+public class ConnectJobRecord extends Persisted implements Serializable {
     /**
      * Name of database that stores Connect jobs/opportunities
      */
@@ -97,19 +97,19 @@ public class ConnectJob extends Persisted implements Serializable {
     @MetaField(META_COMPLETED_MODULES)
     private int learningModulesCompleted;
 //    private ConnectJobLearningModule[] learningModules;
-    private List<ConnectJobDelivery> deliveries;
-    private ConnectAppInfo learnAppInfo;
-    private ConnectAppInfo deliveryAppInfo;
+    private List<ConnectJobDeliveryRecord> deliveries;
+    private ConnectAppRecord learnAppInfo;
+    private ConnectAppRecord deliveryAppInfo;
 
-    public ConnectJob() {
+    public ConnectJobRecord() {
 
     }
 
-    public ConnectJob(int jobId, String title, String description, int status,
-                      int completedVisits, int maxVisits, int maxDailyVisits, int budgetPerVisit, int totalBudget,
-                      Date projectEnd, Date lastWorkedDate,
+    public ConnectJobRecord(int jobId, String title, String description, int status,
+                            int completedVisits, int maxVisits, int maxDailyVisits, int budgetPerVisit, int totalBudget,
+                            Date projectEnd, Date lastWorkedDate,
 //                      ConnectJobLearningModule[] learningModules,
-                      List<ConnectJobDelivery> deliveries) {
+                            List<ConnectJobDeliveryRecord> deliveries) {
         this.jobId = jobId;
         this.title = title;
         this.description = description;
@@ -125,10 +125,10 @@ public class ConnectJob extends Persisted implements Serializable {
         this.deliveries = deliveries;
     }
 
-    public static ConnectJob fromJson(JSONObject json) throws JSONException, ParseException {
+    public static ConnectJobRecord fromJson(JSONObject json) throws JSONException, ParseException {
         SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
 
-        ConnectJob job = new ConnectJob();
+        ConnectJobRecord job = new ConnectJobRecord();
 
         job.jobId = json.has(META_JOB_ID) ? json.getInt(META_JOB_ID) : -1;
         job.title = json.has(META_NAME) ? json.getString(META_NAME) : null;
@@ -147,8 +147,8 @@ public class ConnectJob extends Persisted implements Serializable {
         job.numLearningModules = learning.getInt(META_LEARN_MODULES);
         job.learningModulesCompleted = learning.getInt(META_COMPLETED_MODULES);
 
-        job.learnAppInfo = ConnectAppInfo.fromJson(json.getJSONObject(META_LEARN_APP), job.jobId, true);
-        job.deliveryAppInfo = ConnectAppInfo.fromJson(json.getJSONObject(META_DELIVER_APP), job.jobId, false);
+        job.learnAppInfo = ConnectAppRecord.fromJson(json.getJSONObject(META_LEARN_APP), job.jobId, true);
+        job.deliveryAppInfo = ConnectAppRecord.fromJson(json.getJSONObject(META_DELIVER_APP), job.jobId, false);
 
         //In JSON but not in model
         //job.? = json.has(META_DATE_CREATED) ? df.parse(json.getString(META_DATE_CREATED)) : null;
@@ -188,12 +188,12 @@ public class ConnectJob extends Persisted implements Serializable {
     public Date getProjectEndDate() { return projectEndDate; }
     public int getNumLearningModules() { return numLearningModules; }
     public int getCompletedLearningModules() { return learningModulesCompleted; }
-    public ConnectAppInfo getLearnAppInfo() { return learnAppInfo; }
-    public void setLearnAppInfo(ConnectAppInfo appInfo) { this.learnAppInfo = appInfo; }
-    public ConnectAppInfo getDeliveryAppInfo() { return deliveryAppInfo; }
-    public void setDeliveryAppInfo(ConnectAppInfo appInfo) { this.deliveryAppInfo = appInfo; }
+    public ConnectAppRecord getLearnAppInfo() { return learnAppInfo; }
+    public void setLearnAppInfo(ConnectAppRecord appInfo) { this.learnAppInfo = appInfo; }
+    public ConnectAppRecord getDeliveryAppInfo() { return deliveryAppInfo; }
+    public void setDeliveryAppInfo(ConnectAppRecord appInfo) { this.deliveryAppInfo = appInfo; }
     //public ConnectJobLearningModule[] getLearningModules() { return learningModules; }
-    public List<ConnectJobDelivery> getDeliveries() { return deliveries; }
+    public List<ConnectJobDeliveryRecord> getDeliveries() { return deliveries; }
 
     public int getDaysRemaining() {
         double millis = projectEndDate.getTime() - (new Date()).getTime();

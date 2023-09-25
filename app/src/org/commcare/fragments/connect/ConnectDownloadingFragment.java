@@ -12,7 +12,7 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
 
-import org.commcare.android.database.connect.models.ConnectJob;
+import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.dalvik.R;
 import org.commcare.engine.resource.AppInstallStatus;
 import org.commcare.engine.resource.ResourceInstallUtils;
@@ -34,7 +34,7 @@ public class ConnectDownloadingFragment extends Fragment implements ResourceEngi
                     + "/media_profile.ccpr";
     private ProgressBar progressBar;
     private TextView statusText;
-    private ConnectJob job;
+    private ConnectJobRecord job;
 
     public ConnectDownloadingFragment() {
         // Required empty public constructor
@@ -81,7 +81,7 @@ public class ConnectDownloadingFragment extends Fragment implements ResourceEngi
     }
 
     private void onSuccessfulInstall() {
-        ConnectJob job = ConnectJobIntroFragmentArgs.fromBundle(getArguments()).getJob();
+        ConnectJobRecord job = ConnectJobIntroFragmentArgs.fromBundle(getArguments()).getJob();
         NavDirections directions =
                 ConnectDownloadingFragmentDirections.actionConnectDownloadingFragmentToConnectJobLearningProgressFragment(
                         job);

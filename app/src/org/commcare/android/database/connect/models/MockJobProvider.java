@@ -10,15 +10,15 @@ import java.util.List;
  * @author dviggiano
  */
 public class MockJobProvider {
-    private static final List<ConnectJob> mockAvailableJobs;
-    private static final List<ConnectJob> mockClaimedJobs;
+    private static final List<ConnectJobRecord> mockAvailableJobs;
+    private static final List<ConnectJobRecord> mockClaimedJobs;
 
     static {
         mockAvailableJobs = new ArrayList();
         mockAvailableJobs.add(
-                new ConnectJob(1, "Infant Vaccine Check",
+                new ConnectJobRecord(1, "Infant Vaccine Check",
                         "You will conduct 100 home visits to assess if children below 2 years are up to date with their vaccine shots.",
-                        ConnectJob.STATUS_AVAILABLE_NEW,
+                        ConnectJobRecord.STATUS_AVAILABLE_NEW,
                         0, 100, 5, 5, 100,
                         new Date("11/1/2023"),
                         null,
@@ -28,9 +28,9 @@ public class MockJobProvider {
 //                        },
                         new ArrayList<>()
                 ));
-        mockAvailableJobs.add(new ConnectJob(2, "Vitamin A Delivery",
+        mockAvailableJobs.add(new ConnectJobRecord(2, "Vitamin A Delivery",
                 "You will deliver Vitamin A supplements to 50 homes.",
-                ConnectJob.STATUS_AVAILABLE,
+                ConnectJobRecord.STATUS_AVAILABLE,
                 0, 100, 5, 5, 100,
                 new Date("11/1/2023"),
                 null,
@@ -39,9 +39,9 @@ public class MockJobProvider {
 //                },
                 new ArrayList<>()
         ));
-        mockAvailableJobs.add(new ConnectJob(3, "Training Complete Example",
+        mockAvailableJobs.add(new ConnectJobRecord(3, "Training Complete Example",
                 "This mock shows when training is complete for a job.",
-                ConnectJob.STATUS_AVAILABLE,
+                ConnectJobRecord.STATUS_AVAILABLE,
                 0, 100, 5, 5, 100,
                 new Date("11/1/2023"),
                 null,
@@ -53,30 +53,30 @@ public class MockJobProvider {
 
         mockClaimedJobs = new ArrayList<>();
 
-        List<ConnectJobDelivery> deliveries = new ArrayList<>();
-        deliveries.add(new ConnectJobDelivery("Steve", new Date("7/20/2023"), "Accepted", true));
-        deliveries.add(new ConnectJobDelivery("Dalitso", new Date("7/24/2023"), "Pending Verification", false));
-        deliveries.add(new ConnectJobDelivery("Chimango", new Date("7/19/2023"), "Rejected", false));
+        List<ConnectJobDeliveryRecord> deliveries = new ArrayList<>();
+        deliveries.add(new ConnectJobDeliveryRecord("Steve", new Date("7/20/2023"), "Accepted", true));
+        deliveries.add(new ConnectJobDeliveryRecord("Dalitso", new Date("7/24/2023"), "Pending Verification", false));
+        deliveries.add(new ConnectJobDeliveryRecord("Chimango", new Date("7/19/2023"), "Rejected", false));
 
-        mockClaimedJobs.add(new ConnectJob(1, "Mental Health Visits",
+        mockClaimedJobs.add(new ConnectJobRecord(1, "Mental Health Visits",
                 "",
-                ConnectJob.STATUS_DELIVERING,
+                ConnectJobRecord.STATUS_DELIVERING,
                 60, 100, 5, 5, 100,
                 new Date("11/1/2023"),
                 null,
 //                new ConnectJobLearningModule[]{},
                 deliveries));
-        mockClaimedJobs.add(new ConnectJob(2, "TestA",
+        mockClaimedJobs.add(new ConnectJobRecord(2, "TestA",
                 "",
-                ConnectJob.STATUS_DELIVERING,
+                ConnectJobRecord.STATUS_DELIVERING,
                 0, 100, 5, 5, 100,
                 new Date("11/1/2023"),
                 null,
 //                new ConnectJobLearningModule[]{},
                 new ArrayList<>()));
-        mockClaimedJobs.add(new ConnectJob(3, "Infant Health Check",
+        mockClaimedJobs.add(new ConnectJobRecord(3, "Infant Health Check",
                 "",
-                ConnectJob.STATUS_DELIVERING,
+                ConnectJobRecord.STATUS_DELIVERING,
                 100, 100, 5, 5, 100,
                 new Date("10/1/2023"),
                 new Date("4/7/2023"),
@@ -84,15 +84,15 @@ public class MockJobProvider {
                 new ArrayList<>()));
     }
 
-    public static List<ConnectJob> getAvailableJobs() {
+    public static List<ConnectJobRecord> getAvailableJobs() {
         return mockAvailableJobs;
     }
 
-    public static List<ConnectJob> getTrainingJobs() {
+    public static List<ConnectJobRecord> getTrainingJobs() {
         return mockAvailableJobs;
     }
 
-    public static List<ConnectJob> getClaimedJobs() {
+    public static List<ConnectJobRecord> getClaimedJobs() {
         return mockClaimedJobs;
     }
 }

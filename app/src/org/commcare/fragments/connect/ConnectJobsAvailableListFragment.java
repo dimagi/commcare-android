@@ -1,17 +1,14 @@
 package org.commcare.fragments.connect;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.TextView;
 
 import org.commcare.activities.connect.ConnectIdDatabaseHelper;
 import org.commcare.activities.connect.ConnectIdNetworkHelper;
 import org.commcare.adapters.ConnectJobAdapter;
-import org.commcare.android.database.connect.models.ConnectJob;
+import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.dalvik.R;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.services.Logger;
@@ -26,9 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
-import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -72,10 +67,10 @@ public class ConnectJobsAvailableListFragment extends Fragment {
                     if (responseAsString.length() > 0) {
                         //Parse the JSON
                         JSONArray json = new JSONArray(responseAsString);
-                        List<ConnectJob> jobs = new ArrayList<>(json.length());
+                        List<ConnectJobRecord> jobs = new ArrayList<>(json.length());
                         for(int i=0; i<json.length(); i++) {
                             JSONObject obj = (JSONObject)json.get(i);
-                            jobs.add(ConnectJob.fromJson(obj));
+                            jobs.add(ConnectJobRecord.fromJson(obj));
                         }
 
                         //Store retrieved jobs

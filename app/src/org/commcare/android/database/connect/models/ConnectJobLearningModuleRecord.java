@@ -8,13 +8,13 @@ import java.util.Date;
  *
  * @author dviggiano
  */
-public class ConnectJobLearningModule implements Serializable {
+public class ConnectJobLearningModuleRecord implements Serializable {
     private final String toLearn;
     private final int estimatedHours;
 
     private Date completedDate;
 
-    public ConnectJobLearningModule(String toLearn, int estimatedHours, Date completedDate) {
+    public ConnectJobLearningModuleRecord(String toLearn, int estimatedHours, Date completedDate) {
         this.toLearn = toLearn;
         this.estimatedHours = estimatedHours;
         this.completedDate = completedDate;
