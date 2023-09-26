@@ -611,4 +611,5 @@
     <string name="login_menu_connect_forget" cc:translatable="true">Forget ConnectID user</string>
 
     <string name="app_with_id_not_found">Required CommCare App is not installed on device</string>
+    <string name="phone_code_plus">+</string>
 </resources>

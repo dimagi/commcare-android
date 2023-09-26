@@ -311,7 +311,7 @@ public class LoginActivityUiController implements CommCareActivityUIController {
 
             // if preset App id is supplied but not found show an error
             String appNotFoundError = activity.getString(R.string.app_with_id_not_found);
-            setErrorMessageUI(appNotFoundError, false);
+            setErrorMessageUi(appNotFoundError, false);
         }
         return null;
     }

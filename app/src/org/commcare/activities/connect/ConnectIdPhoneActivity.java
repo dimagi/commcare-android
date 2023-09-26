@@ -69,7 +69,7 @@ public class ConnectIdPhoneActivity extends CommCareActivity<ConnectIdPhoneActiv
 
         String codeText = "";
         if (code > 0) {
-            codeText = String.format(Locale.getDefault(), "+%d", code);
+            codeText = String.format(Locale.getDefault(), "%d", code);
         }
 
         if (existing != null && existing.startsWith(codeText)) {
