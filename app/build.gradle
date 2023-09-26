@@ -91,10 +91,6 @@ dependencies {
     implementation 'org.jsoup:jsoup:1.15.3'
     implementation 'com.scottyab:rootbeer-lib:0.1.0'
 
-    // crashes on update - https://developers.google.com/admob/android/quick-start#update_your_androidmanifestxml
-    // We need to update consumer apps script to inject the right admob id to be able to update this
-    implementation 'com.google.firebase:firebase-ads:16.0.1'
-
     implementation 'com.carrotsearch:hppc:0.9.1'
     implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
     implementation 'com.jakewharton.rxbinding2:rxbinding:2.0.0'
