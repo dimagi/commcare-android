@@ -49,7 +49,9 @@ public enum ConnectIdTask {
     CONNECT_UNLOCK_PASSWORD(ConnectIdConstants.ConnectIdTaskIdOffset + 20,
             ConnectIdPasswordVerificationActivity.class),
     CONNECT_UNLOCK_PIN(ConnectIdConstants.ConnectIdTaskIdOffset + 21,
-            null);
+            null),
+    CONNECT_BIOMETRIC_ENROLL_FAIL(ConnectIdConstants.ConnectIdTaskIdOffset + 22,
+                             ConnectIdMessageActivity.class);
 
     private final int requestCode;
     private final Class<?> nextActivity;

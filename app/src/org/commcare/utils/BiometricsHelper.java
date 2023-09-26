@@ -43,8 +43,8 @@ public class BiometricsHelper {
         return checkStatus(context, biometricManager, StrongBiometric) == ConfigurationStatus.Configured;
     }
 
-    public static void configureFingerprint(Activity activity) {
-        configureBiometric(activity, StrongBiometric);
+    public static boolean configureFingerprint(Activity activity) {
+        return configureBiometric(activity, StrongBiometric);
     }
 
     public static void authenticateFingerprint(FragmentActivity activity, BiometricManager biometricManager,
@@ -81,8 +81,8 @@ public class BiometricsHelper {
         return checkStatus(context, biometricManager, PinBiometric) == ConfigurationStatus.Configured;
     }
 
-    public static void configurePin(Activity activity) {
-        configureBiometric(activity, PinBiometric);
+    public static boolean configurePin(Activity activity) {
+        return configureBiometric(activity, PinBiometric);
     }
 
     private static BiometricPrompt.AuthenticationCallback biometricPromptCallbackHolder;
@@ -151,11 +151,24 @@ public class BiometricsHelper {
         return biometricManager.canAuthenticate(authenticator);
     }
 
-    private static void configureBiometric(Activity activity, int authenticator) {
+    private static boolean configureBiometric(Activity activity, int authenticator) {
         // Prompts the user to create credentials that your app accepts.
-        final Intent enrollIntent = new Intent(Settings.ACTION_BIOMETRIC_ENROLL);
-        enrollIntent.putExtra(Settings.EXTRA_BIOMETRIC_AUTHENTICATORS_ALLOWED,
-                authenticator);
+        Intent enrollIntent;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            //Best case, handles both fingerprint and PIN
+            enrollIntent = new Intent(Settings.ACTION_BIOMETRIC_ENROLL);
+            enrollIntent.putExtra(Settings.EXTRA_BIOMETRIC_AUTHENTICATORS_ALLOWED,
+                    authenticator);
+        }
+        else if(authenticator == StrongBiometric && Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            //An alternative for fingerprint enroll that might be available
+            enrollIntent = new Intent(Settings.ACTION_FINGERPRINT_ENROLL);
+        } else {
+            //No way to enroll, have to fail
+            return false;
+        }
+
         activity.startActivityForResult(enrollIntent, IntentIntegrator.REQUEST_CODE);
+        return true;
     }
 }

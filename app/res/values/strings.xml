@@ -542,6 +542,10 @@
     <string name="connect_recovery_success_message" cc:translatable="true">You have successfully recovered your account and can now resume using your ConnectID.</string>
     <string name="connect_recovery_success_button" cc:translatable="true">OK</string>
 
+    <string name="connect_biometric_enroll_fail_title">Biometric Issue</string>
+    <string name="connect_biometric_enroll_fail_message">You will need to configure this biometric manually in the Android settings.</string>
+    <string name="connect_biometric_enroll_fail_button">Go to Settings</string>
+
     <string name="connect_unlock_title" cc:translatable="true">Unlock ConnectID</string>
     <string name="connect_unlock_message" cc:translatable="true">Please unlock to continue</string>
     <string name="connect_unlock_button_pin" cc:translatable="true">Unlock with PIN</string>
