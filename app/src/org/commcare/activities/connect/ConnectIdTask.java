@@ -51,7 +51,7 @@ public enum ConnectIdTask {
     CONNECT_UNLOCK_PIN(ConnectIdConstants.ConnectIdTaskIdOffset + 21,
             null),
     CONNECT_BIOMETRIC_ENROLL_FAIL(ConnectIdConstants.ConnectIdTaskIdOffset + 22,
-                             ConnectIdMessageActivity.class);
+            ConnectIdMessageActivity.class);
 
     private final int requestCode;
     private final Class<?> nextActivity;

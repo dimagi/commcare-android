@@ -122,7 +122,7 @@ public class ConnectIdVerificationActivity extends CommCareActivity<ConnectIdVer
                 biometricManager);
         if (fingerprint == BiometricsHelper.ConfigurationStatus.Configured) {
             finish(true, false, false);
-        } else if(!BiometricsHelper.configureFingerprint(this)) {
+        } else if (!BiometricsHelper.configureFingerprint(this)) {
             finish(true, false, true);
         }
     }
@@ -131,7 +131,7 @@ public class ConnectIdVerificationActivity extends CommCareActivity<ConnectIdVer
         BiometricsHelper.ConfigurationStatus pin = BiometricsHelper.checkPinStatus(this, biometricManager);
         if (pin == BiometricsHelper.ConfigurationStatus.Configured) {
             finish(true, false, false);
-        } else if(!BiometricsHelper.configurePin(this)) {
+        } else if (!BiometricsHelper.configurePin(this)) {
             finish(true, false, true);
         }
     }

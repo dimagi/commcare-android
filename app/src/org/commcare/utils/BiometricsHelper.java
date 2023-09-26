@@ -159,8 +159,7 @@ public class BiometricsHelper {
             enrollIntent = new Intent(Settings.ACTION_BIOMETRIC_ENROLL);
             enrollIntent.putExtra(Settings.EXTRA_BIOMETRIC_AUTHENTICATORS_ALLOWED,
                     authenticator);
-        }
-        else if(authenticator == StrongBiometric && Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+        } else if (authenticator == StrongBiometric && Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             //An alternative for fingerprint enroll that might be available
             enrollIntent = new Intent(Settings.ACTION_FINGERPRINT_ENROLL);
         } else {

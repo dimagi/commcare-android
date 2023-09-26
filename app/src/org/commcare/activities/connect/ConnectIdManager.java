@@ -365,10 +365,9 @@ public class ConnectIdManager {
                     boolean configured = intent.getBooleanExtra(ConnectIdConstants.CONFIGURED, false);
                     manager.passwordOnlyWorkflow = intent.getBooleanExtra(ConnectIdConstants.PASSWORD, false);
                     boolean failedEnrollment = intent.getBooleanExtra(ConnectIdConstants.ENROLL_FAIL, false);
-                    if(failedEnrollment) {
+                    if (failedEnrollment) {
                         nextRequestCode = ConnectIdTask.CONNECT_BIOMETRIC_ENROLL_FAIL;
-                    }
-                    else {
+                    } else {
                         nextRequestCode = configured && !manager.passwordOnlyWorkflow ?
                                 ConnectIdTask.CONNECT_REGISTRATION_UNLOCK_BIOMETRIC :
                                 ConnectIdTask.CONNECT_REGISTRATION_VERIFY_PRIMARY_PHONE;
@@ -544,7 +543,7 @@ public class ConnectIdManager {
             }
             case CONNECT_BIOMETRIC_ENROLL_FAIL -> {
                 nextRequestCode = ConnectIdTask.CONNECT_REGISTRATION_CONFIGURE_BIOMETRICS;
-                if(success) {
+                if (success) {
                     //Go to settings
                     launchSecuritySettings = true;
                 }
@@ -562,7 +561,7 @@ public class ConnectIdManager {
 
         manager.continueWorkflow();
 
-        if(launchSecuritySettings) {
+        if (launchSecuritySettings) {
             //Launch after continuing workflow so previous activity is still there when user returns
             SettingsHelper.launchSecuritySettings(manager.parentActivity);
         }
