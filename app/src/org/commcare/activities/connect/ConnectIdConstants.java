@@ -22,6 +22,7 @@ public class ConnectIdConstants {
 
     public static final String RECOVER = "RECOVER";
     public static final String CONFIGURED = "CONFIGURED";
+    public static final String ENROLL_FAIL = "ENROLL_FAIL";
     public static final String CHANGE = "CHANGE";
     public static final String FORGOT = "FORGOT";
     public static final String ALLOW_PASSWORD = "ALLOW_PASSWORD";

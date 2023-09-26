@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.widget.Toast;
 
 import org.commcare.activities.CommCareActivity;
+import org.commcare.activities.SettingsHelper;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.core.network.AuthInfo;
@@ -283,6 +284,11 @@ public class ConnectIdManager {
             case CONNECT_REGISTRATION_UNLOCK_BIOMETRIC -> {
                 params.put(ConnectIdConstants.ALLOW_PASSWORD, "false");
             }
+            case CONNECT_BIOMETRIC_ENROLL_FAIL -> {
+                params.put(ConnectIdConstants.TITLE, R.string.connect_biometric_enroll_fail_title);
+                params.put(ConnectIdConstants.MESSAGE, R.string.connect_biometric_enroll_fail_message);
+                params.put(ConnectIdConstants.BUTTON, R.string.connect_biometric_enroll_fail_button);
+            }
         }
 
         if (nextActivity != null) {
@@ -301,6 +307,7 @@ public class ConnectIdManager {
         boolean success = resultCode == Activity.RESULT_OK;
         ConnectIdTask nextRequestCode = ConnectIdTask.CONNECT_NO_ACTIVITY;
         boolean rememberPhase = false;
+        boolean launchSecuritySettings = false;
 
         ConnectIdTask task = ConnectIdTask.fromRequestCode(requestCode);
         switch (task) {
@@ -357,9 +364,14 @@ public class ConnectIdManager {
                     //If no biometric configured, proceed with password only
                     boolean configured = intent.getBooleanExtra(ConnectIdConstants.CONFIGURED, false);
                     manager.passwordOnlyWorkflow = intent.getBooleanExtra(ConnectIdConstants.PASSWORD, false);
-                    nextRequestCode = !manager.passwordOnlyWorkflow && configured ?
-                            ConnectIdTask.CONNECT_REGISTRATION_UNLOCK_BIOMETRIC :
-                            ConnectIdTask.CONNECT_REGISTRATION_VERIFY_PRIMARY_PHONE;
+                    boolean failedEnrollment = intent.getBooleanExtra(ConnectIdConstants.ENROLL_FAIL, false);
+                    if (failedEnrollment) {
+                        nextRequestCode = ConnectIdTask.CONNECT_BIOMETRIC_ENROLL_FAIL;
+                    } else {
+                        nextRequestCode = configured && !manager.passwordOnlyWorkflow ?
+                                ConnectIdTask.CONNECT_REGISTRATION_UNLOCK_BIOMETRIC :
+                                ConnectIdTask.CONNECT_REGISTRATION_VERIFY_PRIMARY_PHONE;
+                    }
                 }
             }
             case CONNECT_REGISTRATION_UNLOCK_BIOMETRIC -> {
@@ -529,6 +541,13 @@ public class ConnectIdManager {
                     }
                 }
             }
+            case CONNECT_BIOMETRIC_ENROLL_FAIL -> {
+                nextRequestCode = ConnectIdTask.CONNECT_REGISTRATION_CONFIGURE_BIOMETRICS;
+                if (success) {
+                    //Go to settings
+                    launchSecuritySettings = true;
+                }
+            }
             default -> {
                 return;
             }
@@ -541,6 +560,11 @@ public class ConnectIdManager {
         }
 
         manager.continueWorkflow();
+
+        if (launchSecuritySettings) {
+            //Launch after continuing workflow so previous activity is still there when user returns
+            SettingsHelper.launchSecuritySettings(manager.parentActivity);
+        }
     }
 
     public static void rememberAppCredentials(String appId, String userId, String passwordOrPin) {
