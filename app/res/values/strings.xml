@@ -11,7 +11,7 @@
 
     <string name="ConnectTokenURL">https://connectid.dimagi.com/o/token/</string>
     <string name="ConnectChangePasswordURL">https://connectid.dimagi.com/users/change_password</string>
-    <string name="ConnectResetPasswordURL">https://connectid.dimagi.com/users/reset_password</string>
+    <string name="ConnectResetPasswordURL">https://connectid.dimagi.com/users/recover/reset_password</string>
     <string name="ConnectConfirmPasswordURL">https://connectid.dimagi.com/users/recover/confirm_password</string>
     <string name="ConnectUpdateProfileURL">https://connectid.dimagi.com/users/update_profile</string>
     <string name="ConnectChangePhoneURL">https://connectid.dimagi.com/users/change_phone</string>
