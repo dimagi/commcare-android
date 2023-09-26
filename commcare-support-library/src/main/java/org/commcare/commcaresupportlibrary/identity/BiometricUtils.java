@@ -1,64 +1,60 @@
 package org.commcare.commcaresupportlibrary.identity;
 
 import android.util.Base64;
+import android.util.Pair;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 
 import java.lang.reflect.Type;
-import java.util.HashMap;
-import java.util.Map;
 
 public class BiometricUtils {
 
     /**
-     * This method converts the biometrics templates into a Base64 encoded String to send back to
-     * CommCare, as part of the response of the callout
+     * This method converts the biometric template into a Base64 encoded String to send back to
+     * CommCare, as part of the callout response
      *
-     * @param templates Map containing biometric templates
+     * @param biometricIdentifier indicates the type of biometric element captured
+     * @param template inputs the biometric template
      * @return Base64 encoded string
      */
-    public static String convertMapTemplatesToBase64String(Map<BiometricIdentifier,
-            byte[]> templates) {
-        // In order to reduce the size of the templates, we are converting each byte array into a
-        // Base64 encoded String
-        Map<Integer, String> templatesBase64Encoded = new HashMap<>(templates.size());
-        for (Map.Entry<BiometricIdentifier, byte[]> template : templates.entrySet()) {
-            templatesBase64Encoded.put(template.getKey().ordinal(),
-                    Base64.encodeToString(template.getValue(), Base64.DEFAULT));
-        }
-        String templatesInJson = new Gson().toJson(templatesBase64Encoded);
+    public static String convertTemplateToBase64String(BiometricIdentifier biometricIdentifier,
+                                                       byte[] template) {
+        // In order to reduce the size of the outpput, the byte array is converted to Base64 before
+        // the instantiation of the pair object
+        Pair<Integer, String> templatePairBase64Encoded = new Pair<>(biometricIdentifier.ordinal(),
+                Base64.encodeToString(template, Base64.DEFAULT));
+        String templatesInJson = new Gson().toJson(templatePairBase64Encoded);
         return Base64.encodeToString(templatesInJson.getBytes(), Base64.DEFAULT);
     }
 
     /**
-     * This method converts the Base64 encoded biometric templates to its original form
+     * This method converts the Base64 encoded biometric template to its original form
      *
-     * @param base64EncodedTemplates String containing Base64 encoded biometric templates
-     * @return Map containing biometric templates
+     * @param base64EncodedTemplatePair String containing a Base64 encoded biometric template
+     * @return Pair containing the biometric template
      */
-    public static Map<BiometricIdentifier, byte[]> convertBase64StringTemplatesToMap(
-            String base64EncodedTemplates) {
-        if (base64EncodedTemplates == null || base64EncodedTemplates.isEmpty()) {
+    public static Pair<BiometricIdentifier, byte[]> convertBase64StringToTemplatePair(
+            String base64EncodedTemplatePair) {
+        if (base64EncodedTemplatePair == null || base64EncodedTemplatePair.isEmpty()) {
             return null;
         }
 
-        Map<Integer, String> templatesBase64Encoded = null;
+        Pair<Integer, String> templatePairBase64Encoded = null;
         try {
-            String templatesInJson = new String(Base64.decode(base64EncodedTemplates.getBytes(),
+            String templatePairInJson = new String(Base64.decode(base64EncodedTemplatePair.getBytes(),
                     Base64.DEFAULT));
-            Type mapType = new TypeToken<HashMap<Integer, String>>() {}.getType();
-            templatesBase64Encoded = new Gson().fromJson(templatesInJson, mapType);
+            Type mapType = new TypeToken<Pair<Integer, String>>() {
+            }.getType();
+            templatePairBase64Encoded = new Gson().fromJson(templatePairInJson, mapType);
         } catch (IllegalArgumentException | UnsupportedOperationException | JsonSyntaxException e) {
             return null;
         }
 
-        Map<BiometricIdentifier, byte[]> templates = new HashMap<>(templatesBase64Encoded.size());
-        for (Map.Entry<Integer, String> template : templatesBase64Encoded.entrySet()) {
-            templates.put(BiometricIdentifier.values()[template.getKey()],
-                    Base64.decode(template.getValue(), Base64.DEFAULT));
-        }
-        return templates;
+        Pair<BiometricIdentifier, byte[]> template = new Pair<>(
+                BiometricIdentifier.values()[templatePairBase64Encoded.first],
+                Base64.decode(templatePairBase64Encoded.second, Base64.DEFAULT));
+        return template;
     }
 }
