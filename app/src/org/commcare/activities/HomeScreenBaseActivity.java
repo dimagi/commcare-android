@@ -15,7 +15,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
-import android.os.Build;
 import android.os.Bundle;
 import android.util.Base64;
 import android.widget.AdapterView;
@@ -42,7 +41,6 @@ import org.commcare.appupdate.FlexibleAppUpdateController;
 import org.commcare.core.process.CommCareInstanceInitializer;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
-import org.commcare.google.services.ads.AdMobManager;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.heartbeat.UpdatePromptHelper;
@@ -173,7 +171,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
         super.onCreateSessionSafe(savedInstanceState);
         loadInstanceState(savedInstanceState);
         CrashUtil.registerAppData();
-        AdMobManager.initAdsForCurrentConsumerApp(getApplicationContext());
+
         updateLastSuccessfulCommCareVersion();
         sessionNavigator = new SessionNavigator(this);
 
@@ -1182,7 +1180,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
     }
 
     private void formEntry(int formDefId, FormRecord r, String headerTitle,
-            boolean isRestartAfterSessionExpiration) {
+                           boolean isRestartAfterSessionExpiration) {
         Logger.log(LogTypes.TYPE_FORM_ENTRY, "Form Entry Starting|" +
                 (r.getInstanceID() == null ? "" : r.getInstanceID() + "|") +
                 r.getFormNamespace());
@@ -1300,7 +1298,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
 
     @Override
     public void handlePullTaskResult(ResultAndError<DataPullTask.PullTaskResult> resultAndError,
-            boolean userTriggeredSync, boolean formsToSend, boolean usingRemoteKeyManagement) {
+                                     boolean userTriggeredSync, boolean formsToSend, boolean usingRemoteKeyManagement) {
         super.handlePullTaskResult(resultAndError, userTriggeredSync, formsToSend,
                 usingRemoteKeyManagement);
         if (UpdateActivity.sBlockedUpdateWorkflowInProgress) {
@@ -1324,7 +1322,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
     }
 
     private void createAskUseOldDialog(final AndroidSessionWrapper state,
-            final SessionStateDescriptor existing) {
+                                       final SessionStateDescriptor existing) {
         final AndroidCommCarePlatform platform =
                 CommCareApplication.instance().getCommCarePlatform();
         String title = Localization.get("app.workflow.incomplete.continue.title");

@@ -37,8 +37,6 @@ import org.commcare.dalvik.R;
 import org.commcare.fragments.ContainerFragment;
 import org.commcare.gis.EntityMapActivity;
 import org.commcare.gis.EntityMapboxActivity;
-import org.commcare.google.services.ads.AdLocation;
-import org.commcare.google.services.ads.AdMobManager;
 import org.commcare.models.AndroidSessionWrapper;
 import org.commcare.modern.session.SessionWrapper;
 import org.commcare.preferences.HiddenPreferences;
@@ -279,8 +277,6 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         persistAdapterState(visibleView);
         setUpCalloutClickListener();
         setupMapNav();
-        AdMobManager.requestBannerAdForView(this, findViewById(R.id.ad_container),
-                AdLocation.EntitySelect);
     }
 
     private void setUpCalloutClickListener() {
