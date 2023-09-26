@@ -104,7 +104,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-crashlytics:17.2.1'
     implementation 'androidx.legacy:legacy-support-core-ui:1.0.0'
     implementation 'com.duolingo.open:rtl-viewpager:2.0.0'
-    implementation ("com.github.bumptech.glide:glide:4.9.0") {
+    implementation("com.github.bumptech.glide:glide:4.9.0") {
         exclude group: "com.android.support"
     }
 
@@ -116,7 +116,7 @@ dependencies {
     implementation "io.noties.markwon:ext-tables:$markwon_version"
     implementation "io.noties.markwon:ext-strikethrough:$markwon_version"
 
-    implementation ('io.ona.kujaku:library:0.9.0'){
+    implementation('io.ona.kujaku:library:0.9.0') {
         exclude module: 'xpp3'
     }
     implementation "androidx.work:work-runtime:2.7.1"
@@ -192,19 +192,6 @@ def runDownloadScripts = project.hasProperty('run_download_scripts') ? run_downl
 def ccDomainSafe = ccDomain.replaceAll("-", "")
 def consumerAppUsername = getConsumerAppUsername(isConsumerApp)
 def consumerAppPassword = getConsumerAppPassword(isConsumerApp)
-def usingAdmob = isConsumerApp && project.hasProperty('admob_id') && allAdUnitIdsPresent()
-def admobId = usingAdmob ? admob_id : ""
-def entityDetailAdUnitId = usingAdmob ? entity_detail_ad_id : ""
-def entitySelectAdUnitId = usingAdmob ? entity_select_ad_id : ""
-def menuListAdUnitId = usingAdmob ? menu_list_ad_id : ""
-def menuGridAdUnitId = usingAdmob ? menu_grid_ad_id : ""
-
-def allAdUnitIdsPresent() {
-    return (project.hasProperty("entity_detail_ad_id") &&
-            project.hasProperty("entity_select_ad_id") &&
-            project.hasProperty("menu_list_ad_id") &&
-            project.hasProperty("menu_grid_ad_id"))
-}
 
 /**
  * Get the version code from command line param
@@ -280,12 +267,6 @@ android {
         buildConfigField "String", "ANALYTICS_TRACKING_ID_LIVE", "\"${project.ext.ANALYTICS_TRACKING_ID_LIVE}\""
         buildConfigField "String", "ANALYTICS_TRACKING_ID_DEV", "\"${project.ext.ANALYTICS_TRACKING_ID_DEV}\""
         buildConfigField "String", "MAPBOX_SDK_API_KEY", "\"${project.ext.MAPBOX_SDK_API_KEY}\""
-
-        buildConfigField "String", "ADMOB_ID", "\"\""
-        buildConfigField "String", "ENTITY_DETAIL_AD_UNIT_ID", "\"\""
-        buildConfigField "String", "ENTITY_SELECT_AD_UNIT_ID", "\"\""
-        buildConfigField "String", "MENU_LIST_AD_UNIT_ID", "\"\""
-        buildConfigField "String", "MENU_GRID_AD_UNIT_ID", "\"\""
 
         buildConfigField "String", "HQ_API_USERNAME", "\"${project.ext.HQ_API_USERNAME}\""
         buildConfigField "String", "HQ_API_PASSWORD", "\"${project.ext.HQ_API_PASSWORD}\""
@@ -394,7 +375,7 @@ android {
             def applicationName = "CommCare LTS"
             resValue "string", "application_name", applicationName
         }
-        
+
         standalone {
             // Builds commcare w/ ccz app packaged in the apk.
             // Must be invoked from command-line w/ args pointing to app domain &
@@ -415,12 +396,6 @@ android {
             // include this again so that the value get reloaded
             buildConfigField "String", "CC_AUTHORITY", "\"${applicationId}\""
             buildConfigField "String", "ODK_AUTHORITY", "\"${odkProviderStr}\""
-
-            buildConfigField "String", "ADMOB_ID", "\"${admobId}\""
-            buildConfigField "String", "ENTITY_DETAIL_AD_UNIT_ID", "\"${entityDetailAdUnitId}\""
-            buildConfigField "String", "ENTITY_SELECT_AD_UNIT_ID", "\"${entitySelectAdUnitId}\""
-            buildConfigField "String", "MENU_LIST_AD_UNIT_ID", "\"${menuListAdUnitId}\""
-            buildConfigField "String", "MENU_GRID_AD_UNIT_ID", "\"${menuGridAdUnitId}\""
         }
     }
 
