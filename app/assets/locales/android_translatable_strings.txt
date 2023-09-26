@@ -864,6 +864,9 @@ intent.callout.unable.to.process=Unable to process callout result
 intent.callout.activity.missing=Couldn't find intent for callout!
 intent.callout.not.supported=This intent callout is not supported on this device
 fingerprints.scanned=Fingerprints scanned: ${0}
+intent.callout.biometrics.capture.result.success=All data stored successfully
+intent.callout.biometrics.capture.result.fail=No data was stored
+intent.callout.biometrics.capture.result.partialfail=Failed to store some data
 
 settings.developer.options=Developer Options
 settings.developer.title=Developer Options
