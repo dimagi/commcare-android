@@ -26,7 +26,7 @@
 
     <string name="ConnectOpportunitiesURL">https://connect.dimagi.com/api/opportunity/</string>
     <string name="ConnectStartLearningURL">https://connect.dimagi.com/users/start_learn_app/</string>
-    <string name="ConnectLearnProgressURL">https://connect.dimagi.com/api/opportunity/%d/learn_progress/</string>
+    <string name="ConnectLearnProgressURL">https://connect.dimagi.com/api/opportunity/%d/learn_progress</string>
     <string name="ConnectClaimJobURL">https://connect.dimagi.com/api/opportunity/%d/claim/</string>
     <string name="ConnectDeliveriesURL">https://connect.dimagi.com/api/opportunity/%d/deliver_visit/</string>
 
@@ -636,6 +636,7 @@
     <string name="connect_job_you_will_learn">You Will Learn</string>
     <string name="connect_job_start_training">Start Training for this Job</string>
     <string name="connect_job_no_learning_required">No learning required</string>
+    <string name="connect_job_go_to_learn_app">Go to Learn App</string>
     <string name="connect_job_download_learn_app">Download Learn App</string>
     <string name="connect_job_learn_summary">%d modules, %d hours</string>
 

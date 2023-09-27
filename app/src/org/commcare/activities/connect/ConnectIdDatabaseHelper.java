@@ -25,6 +25,7 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
+import java.util.Random;
 import java.util.Vector;
 
 /**
@@ -54,6 +55,18 @@ public class ConnectIdDatabaseHelper {
             Logger.exception("Getting DB passphrase", e);
             throw new RuntimeException(e);
         }
+    }
+
+    public static String generatePassword() {
+        int passwordLength = 20;
+
+        String charSet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_!.?";
+        StringBuilder password = new StringBuilder();
+        for (int i = 0; i < passwordLength; i++) {
+            password.append(charSet.charAt(new Random().nextInt(charSet.length())));
+        }
+
+        return password.toString();
     }
 
     public static void init(Context context) {
@@ -147,10 +160,16 @@ public class ConnectIdDatabaseHelper {
 
     public static void storeJobs(Context context, List<ConnectJobRecord> jobs) {
         SqlStorage<ConnectJobRecord> jobStorage = getConnectStorage(context, ConnectJobRecord.class);
+        SqlStorage<ConnectAppRecord> appInfoStorage = getConnectStorage(context, ConnectAppRecord.class);
+        SqlStorage<ConnectLearnModuleSummaryRecord> moduleStorage = getConnectStorage(context,
+                ConnectLearnModuleSummaryRecord.class);
+
         List<ConnectJobRecord> existingList = getJobs(context, -1, jobStorage);
 
         //Delete jobs that are no longer available
-        Vector<Integer> idsToDelete = new Vector<>();
+        Vector<Integer> jobIdsToDelete = new Vector<>();
+        Vector<Integer> appInfoIdsToDelete = new Vector<>();
+        Vector<Integer> moduleIdsToDelete = new Vector<>();
         for (ConnectJobRecord existing : existingList) {
             boolean stillExists = false;
             for (ConnectJobRecord incoming : jobs) {
@@ -162,21 +181,32 @@ public class ConnectIdDatabaseHelper {
             }
 
             if(!stillExists) {
-                idsToDelete.add(existing.getID());
+                //Mark the job, learn/delivre app infos, and learn module infos for deletion
+                //Remember their IDs so we can delete them all at once after the loop
+                jobIdsToDelete.add(existing.getID());
+
+                appInfoIdsToDelete.add(existing.getLearnAppInfo().getID());
+                appInfoIdsToDelete.add(existing.getDeliveryAppInfo().getID());
+
+                for(ConnectLearnModuleSummaryRecord module : existing.getLearnAppInfo().getLearnModules()) {
+                    moduleIdsToDelete.add(module.getID());
+                }
             }
         }
 
-        jobStorage.removeAll(idsToDelete);
+        jobStorage.removeAll(jobIdsToDelete);
+        appInfoStorage.removeAll(appInfoIdsToDelete);
+        moduleStorage.removeAll(moduleIdsToDelete);
 
         //Now insert/update jobs
         for (ConnectJobRecord incomingJob : jobs) {
+            incomingJob.setLastUpdate(new Date());
             //Now insert/update the job
             jobStorage.write(incomingJob);
 
             //Next, store the learn and delivery app info
             incomingJob.getLearnAppInfo().setJobId(incomingJob.getJobId());
             incomingJob.getDeliveryAppInfo().setJobId(incomingJob.getJobId());
-            SqlStorage<ConnectAppRecord> appInfoStorage = getConnectStorage(context, ConnectAppRecord.class);
             Vector<ConnectAppRecord> records = appInfoStorage.getRecordsForValues(
                             new String[]{ConnectAppRecord.META_JOB_ID},
                             new Object[]{incomingJob.getJobId()});
@@ -186,32 +216,45 @@ public class ConnectIdDatabaseHelper {
                 incomingAppInfo.setID(existing.getID());
             }
 
+            incomingJob.getLearnAppInfo().setLastUpdate(new Date());
             appInfoStorage.write(incomingJob.getLearnAppInfo());
+
+            incomingJob.getDeliveryAppInfo().setLastUpdate(new Date());
             appInfoStorage.write(incomingJob.getDeliveryAppInfo());
 
             //Finally, store the info for the learn modules
             //Delete modules that are no longer available
-            SqlStorage<ConnectLearnModuleSummaryRecord> moduleStorage = getConnectStorage(context, ConnectLearnModuleSummaryRecord.class);
-            Vector<ConnectLearnModuleSummaryRecord> existingLearnModules = moduleStorage.getRecordsForValues(
+            Vector<Integer> foundIndexes = new Vector<>();
+            jobIdsToDelete.clear();
+            Vector<ConnectLearnModuleSummaryRecord> existingLearnModules =
+                    moduleStorage.getRecordsForValues(
                             new String[]{ConnectLearnModuleSummaryRecord.META_JOB_ID},
                             new Object[]{incomingJob.getJobId()});
             for (ConnectLearnModuleSummaryRecord existing : existingLearnModules) {
                 boolean stillExists = false;
-                for (ConnectLearnModuleSummaryRecord incoming : incomingJob.getLearnAppInfo().getLearnModules()) {
-                    if(Objects.equals(existing.getSlug(), incoming.getSlug())) {
-                        incoming.setID(incoming.getID());
-                        stillExists = true;
-                        break;
+                if(!foundIndexes.contains(existing.getModuleIndex())) {
+                    for (ConnectLearnModuleSummaryRecord incoming :
+                            incomingJob.getLearnAppInfo().getLearnModules()) {
+                        if (Objects.equals(existing.getModuleIndex(), incoming.getModuleIndex())) {
+                            incoming.setID(existing.getID());
+                            stillExists = true;
+                            foundIndexes.add(existing.getModuleIndex());
+
+                            break;
+                        }
                     }
                 }
 
                 if(!stillExists) {
-                    moduleStorage.remove(existing.getID());
+                    jobIdsToDelete.add(existing.getID());
                 }
             }
 
+            moduleStorage.removeAll(jobIdsToDelete);
+
             for(ConnectLearnModuleSummaryRecord module : incomingJob.getLearnAppInfo().getLearnModules()) {
                 module.setJobId(incomingJob.getJobId());
+                module.setLastUpdate(new Date());
                 moduleStorage.write(module);
             }
         }
@@ -270,7 +313,9 @@ public class ConnectIdDatabaseHelper {
             List<ConnectLearnModuleSummaryRecord> modules = new ArrayList<>(existingModules);
             modules.sort(Comparator.comparingInt(ConnectLearnModuleSummaryRecord::getModuleIndex));
 
-            job.getLearnAppInfo().setLearnModules(modules);
+            if(job.getLearnAppInfo() != null) {
+                job.getLearnAppInfo().setLearnModules(modules);
+            }
         }
 
         return new ArrayList<>(jobs);

@@ -17,6 +17,7 @@ import org.commcare.dalvik.R;
 import org.commcare.interfaces.ConnectorWithHttpResponseProcessor;
 import org.commcare.tasks.ModernHttpTask;
 import org.commcare.tasks.templates.CommCareTask;
+import org.javarosa.core.services.Logger;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -134,6 +135,10 @@ public class ConnectIdNetworkHelper {
             responseCode = response.code();
             if (response.isSuccessful()) {
                 stream = requester.getResponseStream(response);
+            }
+            else if(response.errorBody() != null) {
+                String error = response.errorBody().string();
+                Logger.log("DAVE", error);
             }
         } catch (IOException e) {
             exception = e;
@@ -407,7 +412,7 @@ public class ConnectIdNetworkHelper {
             HashMap<String, String> params = new HashMap<>();
             params.put("opportunity", String.format(Locale.getDefault(), "%d", jobId));
 
-            getInstance().postInternal(context, url, token, params, false, handler);
+            getInstance().postInternal(context, url, token, params, true, handler);
         });
 
         return true;

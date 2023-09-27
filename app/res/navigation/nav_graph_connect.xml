@@ -13,8 +13,7 @@
         tools:layout="@layout/fragment_connect_jobs_list" >
         <action
             android:id="@+id/action_connect_jobs_list_fragment_to_connect_job_intro_fragment"
-            app:destination="@id/connect_job_intro_fragment"
-            />
+            app:destination="@id/connect_job_intro_fragment"  />
         <action
             android:id="@+id/action_connect_jobs_list_fragment_to_connect_job_learning_progress_fragment"
             app:destination="@id/connect_job_learning_progress_fragment" />
@@ -38,6 +37,9 @@
         <action
             android:id="@+id/action_connect_job_intro_fragment_to_connect_downloading_fragment"
             app:destination="@id/connect_downloading_fragment" />
+        <action
+            android:id="@+id/action_connect_job_intro_fragment_to_connect_job_learning_progress_fragment"
+            app:destination="@id/connect_job_learning_progress_fragment" />
     </fragment>
 
     <fragment

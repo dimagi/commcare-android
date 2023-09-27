@@ -80,18 +80,6 @@ public class ConnectIdRegistrationActivity extends CommCareActivity<ConnectIdReg
         return userId.toString();
     }
 
-    public static String generatePassword() {
-        int passwordLength = 15;
-
-        String charSet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_!.?";
-        StringBuilder password = new StringBuilder();
-        for (int i = 0; i < passwordLength; i++) {
-            password.append(charSet.charAt(new Random().nextInt(charSet.length())));
-        }
-
-        return password.toString();
-    }
-
     public void updateStatus() {
         String error = uiController.getNameText().length() == 0 ?
                 getString(R.string.connect_register_error_name) : null;
@@ -119,7 +107,7 @@ public class ConnectIdRegistrationActivity extends CommCareActivity<ConnectIdReg
     public void createAccount() {
         uiController.setErrorText(null);
 
-        ConnectUserRecord tempUser = new ConnectUserRecord(phone, generateUserId(), generatePassword(),
+        ConnectUserRecord tempUser = new ConnectUserRecord(phone, generateUserId(), ConnectIdDatabaseHelper.generatePassword(),
                 uiController.getNameText(), "");
 
         HashMap<String, String> params = new HashMap<>();

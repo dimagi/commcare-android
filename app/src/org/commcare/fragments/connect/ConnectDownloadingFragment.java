@@ -47,6 +47,8 @@ public class ConnectDownloadingFragment extends Fragment implements ResourceEngi
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        ConnectDownloadingFragmentArgs args = ConnectDownloadingFragmentArgs.fromBundle(getArguments());
+        job = args.getJob();
         startAppDownload();
     }
 
@@ -58,7 +60,6 @@ public class ConnectDownloadingFragment extends Fragment implements ResourceEngi
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
         ConnectDownloadingFragmentArgs args = ConnectDownloadingFragmentArgs.fromBundle(getArguments());
-        job = args.getJob();
         getActivity().setTitle(job.getTitle());
 
         View view = inflater.inflate(R.layout.fragment_connect_downloading, container, false);

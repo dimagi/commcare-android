@@ -7,6 +7,8 @@ import org.commcare.modern.models.MetaField;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.Date;
+
 @Table(ConnectLearnModuleSummaryRecord.STORAGE_KEY)
 public class ConnectLearnModuleSummaryRecord extends Persisted {
     /**
@@ -24,12 +26,15 @@ public class ConnectLearnModuleSummaryRecord extends Persisted {
     @Persisting(1)
     @MetaField(META_SLUG)
     private String slug;
+
     @Persisting(2)
     @MetaField(META_NAME)
     private String name;
+
     @Persisting(3)
     @MetaField(META_DESCRIPTION)
     private String description;
+
     @Persisting(4)
     @MetaField(META_ESTIMATE)
     private int timeEstimate;
@@ -41,6 +46,9 @@ public class ConnectLearnModuleSummaryRecord extends Persisted {
     @Persisting(6)
     @MetaField(META_INDEX)
     private int moduleIndex;
+
+    @Persisting(7)
+    private Date lastUpdate;
 
     public ConnectLearnModuleSummaryRecord() {
 
@@ -64,4 +72,5 @@ public class ConnectLearnModuleSummaryRecord extends Persisted {
     public int getModuleIndex() { return moduleIndex; }
     public String getName() { return name; }
     public int getTimeEstimate() { return timeEstimate; }
+    public void setLastUpdate(Date lastUpdate) { this.lastUpdate = lastUpdate; }
 }

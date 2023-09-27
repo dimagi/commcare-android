@@ -125,7 +125,7 @@ public class ConnectJobAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             }
 
             claimedHolder.titleText.setText(job.getTitle());
-            boolean finished = job.getDateCompleted() != null;
+            boolean finished = job.getStatus() == ConnectJobRecord.STATUS_COMPLETE;
             String description;
             String remaining = null;
             if(finished) {

@@ -9,6 +9,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Table(ConnectAppRecord.STORAGE_KEY)
@@ -46,6 +47,8 @@ public class ConnectAppRecord extends Persisted {
     @Persisting(7)
     @MetaField(META_ORGANIZATION)
     private String organization;
+    @Persisting(8)
+    private Date lastUpdate;
 
     private List<ConnectLearnModuleSummaryRecord> learnModules;
 
@@ -83,4 +86,5 @@ public class ConnectAppRecord extends Persisted {
 
     public List<ConnectLearnModuleSummaryRecord> getLearnModules() { return learnModules; }
     public void setLearnModules(List<ConnectLearnModuleSummaryRecord> modules) { learnModules = modules; }
+    public void setLastUpdate(Date lastUpdate) { this.lastUpdate = lastUpdate; }
 }

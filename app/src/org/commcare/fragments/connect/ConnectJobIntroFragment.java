@@ -14,7 +14,9 @@ import android.widget.TextView;
 
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectLearnModuleSummaryRecord;
+import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.dalvik.R;
+import org.commcare.utils.MultipleAppsUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -56,8 +58,8 @@ public class ConnectJobIntroFragment extends Fragment {
         int totalHours = 0;
         List<String> lines = new ArrayList<>();
         List<ConnectLearnModuleSummaryRecord> modules = job.getLearnAppInfo().getLearnModules();
-        for(int i=0; i<modules.size(); i++) {
-            lines.add(String.format(Locale.getDefault(), "%d. %s", (i+1), modules.get(i).getName()));
+        for (int i = 0; i < modules.size(); i++) {
+            lines.add(String.format(Locale.getDefault(), "%d. %s", (i + 1), modules.get(i).getName()));
             totalHours += modules.get(i).getTimeEstimate();
         }
 
@@ -69,10 +71,26 @@ public class ConnectJobIntroFragment extends Fragment {
         textView = view.findViewById(R.id.connect_job_intro_learning_summary);
         textView.setText(getString(R.string.connect_job_learn_summary, modules.size(), totalHours));
 
+        boolean installed = false;
+        for (ApplicationRecord app : MultipleAppsUtil.getUsableAppRecords()) {
+            if (job.getLearnAppInfo().getAppId().equals(app.getApplicationId())) {
+                installed = true;
+                break;
+            }
+        }
+
+        final boolean appInstalled = installed;
         Button button = view.findViewById(R.id.connect_job_intro_start_button);
+        button.setText(getString(appInstalled ? R.string.connect_job_go_to_learn_app : R.string.connect_job_download_learn_app));
         button.setOnClickListener(v -> {
-            String title = getString(R.string.connect_downloading_learn);
-            NavDirections directions = ConnectJobIntroFragmentDirections.actionConnectJobIntroFragmentToConnectDownloadingFragment(title, job);
+            NavDirections directions;
+            if (appInstalled) {
+                directions = ConnectJobIntroFragmentDirections.actionConnectJobIntroFragmentToConnectJobLearningProgressFragment(job);
+            } else {
+                String title = getString(R.string.connect_downloading_learn);
+                directions = ConnectJobIntroFragmentDirections.actionConnectJobIntroFragmentToConnectDownloadingFragment(title, job);
+            }
+
             Navigation.findNavController(button).navigate(directions);
         });
 

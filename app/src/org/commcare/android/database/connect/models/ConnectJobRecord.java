@@ -96,6 +96,8 @@ public class ConnectJobRecord extends Persisted implements Serializable {
     @Persisting(14)
     @MetaField(META_COMPLETED_MODULES)
     private int learningModulesCompleted;
+    @Persisting(15)
+    private Date lastUpdate;
 //    private ConnectJobLearningModule[] learningModules;
     private List<ConnectJobDeliveryRecord> deliveries;
     private ConnectAppRecord learnAppInfo;
@@ -194,6 +196,7 @@ public class ConnectJobRecord extends Persisted implements Serializable {
     public void setDeliveryAppInfo(ConnectAppRecord appInfo) { this.deliveryAppInfo = appInfo; }
     //public ConnectJobLearningModule[] getLearningModules() { return learningModules; }
     public List<ConnectJobDeliveryRecord> getDeliveries() { return deliveries; }
+    public void setLastUpdate(Date lastUpdate) { this.lastUpdate = lastUpdate; }
 
     public int getDaysRemaining() {
         double millis = projectEndDate.getTime() - (new Date()).getTime();

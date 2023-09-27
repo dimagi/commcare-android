@@ -10,17 +10,27 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.commcare.activities.connect.ConnectIdDatabaseHelper;
 import org.commcare.activities.connect.ConnectIdManager;
 import org.commcare.activities.connect.ConnectIdNetworkHelper;
+import org.commcare.adapters.ConnectJobAdapter;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.commcaresupportlibrary.CommCareLauncher;
 import org.commcare.dalvik.R;
+import org.javarosa.core.io.StreamsUtil;
+import org.javarosa.core.services.Logger;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 import androidx.fragment.app.Fragment;
@@ -52,6 +62,47 @@ public class ConnectLearningProgressFragment extends Fragment {
 
         View view = inflater.inflate(R.layout.fragment_connect_learning_progress, container, false);
 
+        ConnectIdNetworkHelper.getLearnProgress(getContext(), job.getJobId(), new ConnectIdNetworkHelper.INetworkResultHandler() {
+            @Override
+            public void processSuccess(int responseCode, InputStream responseData) {
+                try {
+                    String responseAsString = new String(StreamsUtil.inputStreamToByteArray(responseData));
+                    if (responseAsString.length() > 0) {
+//                        //Parse the JSON
+//                        JSONArray json = new JSONArray(responseAsString);
+//                        List<ConnectJobRecord> jobs = new ArrayList<>(json.length());
+//                        for(int i=0; i<json.length(); i++) {
+//                            JSONObject obj = (JSONObject)json.get(i);
+//                            jobs.add(ConnectJobRecord.fromJson(obj));
+//                        }
+//
+//                        //Store retrieved jobs
+//                        ConnectIdDatabaseHelper.storeJobs(getContext(), jobs);
+                    }
+                } catch (IOException e) {
+                    Logger.exception("Parsing return from learn_progress request", e);
+                }
+
+                updateUi(view, job);
+            }
+
+            @Override
+            public void processFailure(int responseCode, IOException e) {
+                Logger.log("ERROR", String.format(Locale.getDefault(), "Failed: %d", responseCode));
+                updateUi(view, job);
+            }
+
+            @Override
+            public void processNetworkFailure() {
+                Logger.log("ERROR", "Failed (network)");
+                updateUi(view, job);
+            }
+        });
+
+        return view;
+    }
+
+    private void updateUi(View view, ConnectJobRecord job) {
         //NOTE: Leaving old logic here in case we go back to array
         int completed = job.getCompletedLearningModules();// 0;
 //        for (ConnectJobLearningModule module: job.getLearningModules()) {
@@ -133,7 +184,7 @@ public class ConnectLearningProgressFragment extends Fragment {
             ConnectIdNetworkHelper.startLearnApp(getContext(), job.getJobId(), new ConnectIdNetworkHelper.INetworkResultHandler() {
                 @Override
                 public void processSuccess(int responseCode, InputStream responseData) {
-                    CommCareLauncher.launchCommCareForAppId(getContext(), job.getLearnAppInfo().getAppId());
+                    CommCareLauncher.launchCommCareForAppIdFromConnect(getContext(), job.getLearnAppInfo().getAppId());
                 }
 
                 @Override
@@ -148,7 +199,5 @@ public class ConnectLearningProgressFragment extends Fragment {
                 }
             });
         });
-
-        return view;
     }
 }

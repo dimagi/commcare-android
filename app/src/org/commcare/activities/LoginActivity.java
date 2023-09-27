@@ -29,9 +29,12 @@ import java.util.Date;
 
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
+import org.commcare.activities.connect.ConnectIdDatabaseHelper;
 import org.commcare.activities.connect.ConnectIdManager;
 import org.commcare.android.database.app.models.UserKeyRecord;
+import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
+import org.commcare.commcaresupportlibrary.CommCareLauncher;
 import org.commcare.core.network.AuthInfo;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
@@ -110,6 +113,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     private LoginActivityUiController uiController;
     private FormAndDataSyncer formAndDataSyncer;
     private String presetAppID;
+    private boolean appLaunchedFromConnect;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -130,6 +134,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         updateConnectButton();
 
         presetAppID = getIntent().getStringExtra(EXTRA_APP_ID);
+        appLaunchedFromConnect = getIntent().getBooleanExtra(CommCareLauncher.EXTRA_FROM_CONNECT, false);
 
         if (savedInstanceState == null) {
             // Only restore last user on the initial creation
@@ -371,6 +376,16 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                                   LoginMode loginMode, boolean blockRemoteKeyManagement,
                                   DataPullMode pullModeToUse) {
         try {
+            if(ConnectIdManager.isUnlocked() && appLaunchedFromConnect) {
+                //Configure some things if we haven't already
+                String hqUser = ConnectIdManager.getUser(this).getUserId();
+                ConnectLinkedAppRecord record = ConnectIdDatabaseHelper.getAppData(this,
+                        presetAppID, hqUser);
+                if(record == null) {
+                    ConnectIdManager.prepareConnectManagedApp(this, presetAppID, hqUser);
+                }
+            }
+
             final boolean triggerMultipleUsersWarning = getMatchingUsersCount(username) > 1
                     && warnMultipleAccounts;
 

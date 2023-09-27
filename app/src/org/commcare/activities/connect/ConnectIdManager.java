@@ -5,20 +5,27 @@ import android.content.Context;
 import android.content.Intent;
 
 import org.commcare.activities.CommCareActivity;
+import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.activities.SettingsHelper;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
+import org.commcare.CommCareApplication;
+import org.commcare.core.encryption.CryptUtil;
 import org.commcare.core.network.AuthInfo;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
+import org.commcare.models.encryption.ByteEncrypter;
 import org.commcare.preferences.AppManagerDeveloperPreferences;
+import org.javarosa.core.util.PropertyUtils;
 
 import java.io.Serializable;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+
+import javax.crypto.SecretKey;
 
 /**
  * Manager class for ConnectID, handles workflow navigation and user management
@@ -613,5 +620,22 @@ public class ConnectIdManager {
         }
 
         return null;
+    }
+
+    public static void prepareConnectManagedApp(Context context, String appId, String username) {
+        //Ctreate password
+        String password = ConnectIdDatabaseHelper.generatePassword();
+
+        //Store ConnectLinkedAppRecord
+        ConnectIdDatabaseHelper.storeApp(context, appId, username, password);
+
+        //Store UKR
+        SecretKey newKey = CryptUtil.generateSemiRandomKey();
+        String sandboxId = PropertyUtils.genUUID().replace("-", "");
+        UserKeyRecord ukr = new UserKeyRecord(username, UserKeyRecord.generatePwdHash(password),
+                ByteEncrypter.wrapByteArrayWithString(newKey.getEncoded(), password),
+                new Date(), new Date(Long.MAX_VALUE), sandboxId);
+
+        CommCareApplication.instance().getCurrentApp().getStorage(UserKeyRecord.class).write(ukr);
     }
 }
