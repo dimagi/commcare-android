@@ -576,18 +576,15 @@
     <string name="connect_verify_title" cc:translatable="true">Unlock Options</string>
     <string name="connect_verify_message" cc:translatable="true">Please configure a method below to unlock both your device and ConnectID account</string>
 
-    <string name="connect_verify_use_fingerprint" cc:translatable="true">Use Fingerprint</string>
     <string name="connect_verify_use_fingerprint_long" cc:translatable="true">Use Fingerprint to Connect</string>
     <string name="connect_verify_fingerprint_configured" cc:translatable="true">Your fingerprint has already been configured and will be used to unlock ConnectID.</string>
     <string name="connect_verify_configure_fingerprint" cc:translatable="true">Configure Fingerprint</string>
-    <string name="connect_verify_use_pin" cc:translatable="true">Use PIN</string>
     <string name="connect_verify_use_pin_long" cc:translatable="true">Use PIN to Connect</string>
     <string name="connect_verify_pin_configured" cc:translatable="true">Your PIN has already been configured and will be used to unlock ConnectID.</string>
     <string name="connect_verify_configure_pin" cc:translatable="true">Configure PIN</string>
 
     <string name="connect_verify_agree" cc:translatable="true">Agree &amp; Continue</string>
     <string name="connect_verify_password_only" cc:translatable="true">Create a password instead</string>
-
 
     <string name="connect_verify_fingerprint" cc:translatable="true">Fingerprint</string>
     <string name="connect_verify_pin" cc:translatable="true">PIN</string>
