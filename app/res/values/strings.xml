@@ -11,7 +11,7 @@
 
     <string name="ConnectTokenURL">https://connectid.dimagi.com/o/token/</string>
     <string name="ConnectChangePasswordURL">https://connectid.dimagi.com/users/change_password</string>
-    <string name="ConnectResetPasswordURL">https://connectid.dimagi.com/users/reset_password</string>
+    <string name="ConnectResetPasswordURL">https://connectid.dimagi.com/users/recover/reset_password</string>
     <string name="ConnectConfirmPasswordURL">https://connectid.dimagi.com/users/recover/confirm_password</string>
     <string name="ConnectUpdateProfileURL">https://connectid.dimagi.com/users/update_profile</string>
     <string name="ConnectChangePhoneURL">https://connectid.dimagi.com/users/change_phone</string>
@@ -559,6 +559,10 @@
     <string name="connect_unlock_pin_title">Unlock via PIN</string>
     <string name="connect_unlock_pin_message">Enter your PIN to continue</string>
 
+    <string name="connect_biometric_enroll_fail_title">Biometric Issue</string>
+    <string name="connect_biometric_enroll_fail_message">You will need to configure this biometric manually in the Android settings.</string>
+    <string name="connect_biometric_enroll_fail_button">Go to Settings</string>
+
     <string name="connect_register_title">Create Account</string>
     <string name="connect_register_title2">ConnectID</string>
     <string name="connect_register_name">Name</string>
@@ -684,4 +688,5 @@
     <string name="connect_app_install_unknown_error">App install failed due to an unknown error</string>
     <string name="connect_app_installed">App installed</string>
     <string name="app_with_id_not_found">Required CommCare App is not installed on device</string>
+    <string name="phone_code_plus">+</string>
 </resources>

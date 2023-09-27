@@ -38,7 +38,7 @@ public class ConnectIdVerificationActivity extends CommCareActivity<ConnectIdVer
         if (fingerprint == BiometricsHelper.ConfigurationStatus.NotAvailable &&
                 pin == BiometricsHelper.ConfigurationStatus.NotAvailable) {
             //Skip to password-only workflow
-            finish(true, true);
+            finish(true, true, false);
         } else {
             updateState(fingerprint, pin);
         }
@@ -121,26 +121,26 @@ public class ConnectIdVerificationActivity extends CommCareActivity<ConnectIdVer
         BiometricsHelper.ConfigurationStatus fingerprint = BiometricsHelper.checkFingerprintStatus(this,
                 biometricManager);
         if (fingerprint == BiometricsHelper.ConfigurationStatus.Configured) {
-            finish(true, false);
-        } else {
-            BiometricsHelper.configureFingerprint(this);
+            finish(true, false, false);
+        } else if (!BiometricsHelper.configureFingerprint(this)) {
+            finish(true, false, true);
         }
     }
 
     public void handlePinButton() {
         BiometricsHelper.ConfigurationStatus pin = BiometricsHelper.checkPinStatus(this, biometricManager);
         if (pin == BiometricsHelper.ConfigurationStatus.Configured) {
-            finish(true, false);
-        } else {
-            BiometricsHelper.configurePin(this);
+            finish(true, false, false);
+        } else if (!BiometricsHelper.configurePin(this)) {
+            finish(true, false, true);
         }
     }
 
     public void handlePasswordButton() {
-        finish(true, true);
+        finish(true, true, false);
     }
 
-    public void finish(boolean success, boolean passwordOnly) {
+    public void finish(boolean success, boolean passwordOnly, boolean failedEnrollment) {
         Intent intent = new Intent(getIntent());
 
         BiometricsHelper.ConfigurationStatus fingerprint = BiometricsHelper.checkFingerprintStatus(this,
@@ -151,6 +151,7 @@ public class ConnectIdVerificationActivity extends CommCareActivity<ConnectIdVer
         intent.putExtra(ConnectIdConstants.CONFIGURED, configured);
 
         intent.putExtra(ConnectIdConstants.PASSWORD, passwordOnly);
+        intent.putExtra(ConnectIdConstants.ENROLL_FAIL, failedEnrollment);
 
         setResult(success ? RESULT_OK : RESULT_CANCELED, intent);
         finish();

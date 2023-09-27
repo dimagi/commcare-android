@@ -81,7 +81,7 @@ public class ConnectIdPhoneActivityUiController implements CommCareActivityUICon
     }
 
     public String getCountryCode() {
-        return countryCodeInput.getText().toString();
+        return "+" + countryCodeInput.getText().toString();
     }
 
     public void setPhoneNumber(String phone) {
