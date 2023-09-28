@@ -47,19 +47,25 @@ public class BiometricsHelper {
         return configureBiometric(activity, StrongBiometric);
     }
 
-    public static void authenticateFingerprint(FragmentActivity activity, BiometricManager biometricManager,
+    public static void authenticateFingerprint(FragmentActivity activity,
+                                               BiometricManager biometricManager,
+                                               boolean allowExtraOptions,
                                                BiometricPrompt.AuthenticationCallback biometricPromptCallback) {
         if (BiometricsHelper.isFingerprintConfigured(activity, biometricManager)) {
             BiometricPrompt prompt = new BiometricPrompt(activity,
                     ContextCompat.getMainExecutor(activity),
                     biometricPromptCallback);
 
-            prompt.authenticate(new BiometricPrompt.PromptInfo.Builder()
+            BiometricPrompt.PromptInfo.Builder builder = new BiometricPrompt.PromptInfo.Builder()
                     .setTitle(activity.getString(R.string.connect_unlock_fingerprint_title))
                     .setSubtitle(activity.getString(R.string.connect_unlock_fingerprint_message))
-                    .setAllowedAuthenticators(BiometricManager.Authenticators.BIOMETRIC_STRONG)
-                    .setNegativeButtonText(activity.getString(R.string.connect_unlock_other_options))
-                    .build());
+                    .setAllowedAuthenticators(BiometricManager.Authenticators.BIOMETRIC_STRONG);
+
+            if(allowExtraOptions) {
+                builder.setNegativeButtonText(activity.getString(R.string.connect_unlock_other_options));
+            }
+
+            prompt.authenticate(builder.build());
         }
     }
 
