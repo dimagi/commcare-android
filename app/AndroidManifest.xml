@@ -131,7 +131,7 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
             <intent-filter>
-                <action android:name="${applicationId}.action.CommCareSession"/>
+                <action android:name="org.commcare.dalvik.action.CommCareSession"/>
 
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
