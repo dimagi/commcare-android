@@ -72,8 +72,8 @@ public class ConnectIdPhoneActivity extends CommCareActivity<ConnectIdPhoneActiv
             codeText = String.format(Locale.getDefault(), "%d", code);
         }
 
-        if (existing != null && existing.startsWith(codeText)) {
-            existing = existing.substring(codeText.length());
+        if (existing != null && existing.startsWith("+" + codeText)) {
+            existing = existing.substring(codeText.length() + 1);
         }
 
         uiController.setPhoneNumber(existing);
