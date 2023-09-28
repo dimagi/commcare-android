@@ -7,11 +7,29 @@
     android:layout_width="match_parent"
     tools:context="org.commcare.fragments.connect.ConnectJobsListsFragment">
 
+    <ImageView
+        android:id="@+id/connect_jobs_refresh"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:src="@drawable/ic_update_nav_drawer"
+        android:contentDescription="@string/refresh" />
+
+    <TextView
+        android:id="@+id/connect_jobs_last_update"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginTop="3dp"
+        app:layout_constraintEnd_toStartOf="@id/connect_jobs_refresh"
+        />
+
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/connect_jobs_tabs"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/connect_jobs_refresh"
         android:background="@color/solid_blue"
         app:tabTextColor="@color/white" />
 

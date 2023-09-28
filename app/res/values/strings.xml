@@ -594,7 +594,6 @@
     <string name="connect_verify_agree">Agree &amp; Continue</string>
     <string name="connect_verify_password_only">Create a password instead</string>
 
-
     <string name="connect_verify_fingerprint">Fingerprint</string>
     <string name="connect_verify_pin">PIN</string>
     <string name="connect_verify_button_configured">Continue</string>
@@ -615,6 +614,8 @@
     <string name="connect_pictures_id">Official ID</string>
     <string name="connect_pictures_skip">Skip</string>
     <string name="connect_pictures_continue">Continue</string>
+
+    <string name="connect_last_update">Updated: %s</string>
 
     <string name="connect_title">Connect</string>
     <string name="connect_jobs_all">ALL JOBS</string>
