@@ -20,12 +20,17 @@ Often you will need this generated guid to be passed back to CommCare so that it
 IdentityResponseBuilder.registrationResponse(guid)
     .finalizeResponse(activity)
 ````
-Alternatively, in case the biometric templates are to be stored in CommCare, use the following instead -
+Alternatively, in case the biometric templates are to be stored in CommCare, use the following instead:
 ````
 IdentityResponseBuilder.registrationResponse(guid, templates)
     .finalizeResponse(activity)
 ````
-
+* `templates` is a [`Map`](https://docs.oracle.com/javase/8/docs/api/java/util/Map.html) containing all the biometric templates and whose _keys_ are [`BiometricIdentifier`](BiometricIdentifier.java) elements and _values_ are the actual biometric templates in the form of a byte array. See an example below in `kotlin`:
+````
+        var templates: HashMap<BiometricIdentifier, ByteArray> = HashMap(2)
+        templates[BiometricIdentifier.LEFT_INDEX_FINGER] = byteArrayOf(0, 0, -21, -67, 0, -64, 25, 62, -69, -124, -91, 29, -50, -107, 58)
+        templates[BiometricIdentifier.LEFT_MIDDLE_FINGER] = byteArrayOf(122, -91, 114, 62, 107, -95, -69, 28, 110, 123, 72, 71, -86, -117, 126)
+````
 This creates an appropriate resulting Intent for the Identity registration workflow and finish your activity after setting the response as a result to returning intent.
 
 
