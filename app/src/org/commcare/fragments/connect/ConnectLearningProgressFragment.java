@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -41,6 +42,9 @@ import androidx.fragment.app.Fragment;
  * @author dviggiano
  */
 public class ConnectLearningProgressFragment extends Fragment {
+    private View view;
+    private ConnectJobRecord job;
+
     public ConnectLearningProgressFragment() {
         // Required empty public constructor
     }
@@ -57,17 +61,30 @@ public class ConnectLearningProgressFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        ConnectJobRecord job = ConnectLearningProgressFragmentArgs.fromBundle(getArguments()).getJob();
+        job = ConnectLearningProgressFragmentArgs.fromBundle(getArguments()).getJob();
         getActivity().setTitle(job.getTitle());
 
-        View view = inflater.inflate(R.layout.fragment_connect_learning_progress, container, false);
+        view = inflater.inflate(R.layout.fragment_connect_learning_progress, container, false);
 
+        ImageView refreshButton = view.findViewById(R.id.connect_learning_refresh);
+        refreshButton.setOnClickListener(v -> {
+            refreshData();
+        });
+
+        updateUi(view, job);
+        refreshData();
+
+        return view;
+    }
+
+    private void refreshData() {
         ConnectIdNetworkHelper.getLearnProgress(getContext(), job.getJobId(), new ConnectIdNetworkHelper.INetworkResultHandler() {
             @Override
             public void processSuccess(int responseCode, InputStream responseData) {
-                try {
-                    String responseAsString = new String(StreamsUtil.inputStreamToByteArray(responseData));
-                    if (responseAsString.length() > 0) {
+                //TODO DAV: Handle received learn progress
+//                try {
+//                    String responseAsString = new String(StreamsUtil.inputStreamToByteArray(responseData));
+//                    if (responseAsString.length() > 0) {
 //                        //Parse the JSON
 //                        JSONArray json = new JSONArray(responseAsString);
 //                        List<ConnectJobRecord> jobs = new ArrayList<>(json.length());
@@ -78,10 +95,10 @@ public class ConnectLearningProgressFragment extends Fragment {
 //
 //                        //Store retrieved jobs
 //                        ConnectIdDatabaseHelper.storeJobs(getContext(), jobs);
-                    }
-                } catch (IOException e) {
-                    Logger.exception("Parsing return from learn_progress request", e);
-                }
+//                    }
+//                } catch (IOException e) {
+//                    Logger.exception("Parsing return from learn_progress request", e);
+//                }
 
                 updateUi(view, job);
             }
@@ -89,17 +106,13 @@ public class ConnectLearningProgressFragment extends Fragment {
             @Override
             public void processFailure(int responseCode, IOException e) {
                 Logger.log("ERROR", String.format(Locale.getDefault(), "Failed: %d", responseCode));
-                updateUi(view, job);
             }
 
             @Override
             public void processNetworkFailure() {
                 Logger.log("ERROR", "Failed (network)");
-                updateUi(view, job);
             }
         });
-
-        return view;
     }
 
     private void updateUi(View view, ConnectJobRecord job) {
@@ -110,6 +123,8 @@ public class ConnectLearningProgressFragment extends Fragment {
 //                completed++;
 //            }
 //        }
+
+        updateUpdatedDate();
 
         int numModules = job.getNumLearningModules();// job.getLearningModules().length;
         int percent = numModules > 0 ? (100 * completed / numModules) : 100;
@@ -163,7 +178,7 @@ public class ConnectLearningProgressFragment extends Fragment {
             textView = view.findViewById(R.id.connect_learn_cert_person);
             textView.setText(ConnectIdManager.getUser(getContext()).getName());
 
-            //TODO: get from server somehow
+            //TODO DAV: get from server somehow
             Date latestDate = new Date();//null;
 //            for (ConnectJobLearningModule module : job.getLearningModules()) {
 //                if(latestDate == null || latestDate.before(module.getCompletedDate())) {
@@ -180,24 +195,19 @@ public class ConnectLearningProgressFragment extends Fragment {
         Button button = view.findViewById(R.id.connect_learning_button);
         button.setText(buttonText);
         button.setOnClickListener(v -> {
-            //First, need to tell Connect we're starting learning so it can create a user on HQ
-            ConnectIdNetworkHelper.startLearnApp(getContext(), job.getJobId(), new ConnectIdNetworkHelper.INetworkResultHandler() {
-                @Override
-                public void processSuccess(int responseCode, InputStream responseData) {
-                    CommCareLauncher.launchCommCareForAppIdFromConnect(getContext(), job.getLearnAppInfo().getAppId());
-                }
-
-                @Override
-                public void processFailure(int responseCode, IOException e) {
-                    Toast.makeText(getContext(), "Connect: error starting learning", Toast.LENGTH_SHORT).show();
-                }
-
-                @Override
-                public void processNetworkFailure() {
-                    Toast.makeText(getContext(), getString(R.string.recovery_network_unavailable),
-                            Toast.LENGTH_SHORT).show();
-                }
-            });
+            if(learningFinished) {
+                //TODO DAV: Claim job
+            }
+            else {
+                CommCareLauncher.launchCommCareForAppIdFromConnect(getContext(), job.getLearnAppInfo().getAppId());
+            }
         });
+    }
+
+    private void updateUpdatedDate() {
+        Date lastUpdate = new Date(); //TODO DAV: Determine last update date
+        DateFormat df = SimpleDateFormat.getDateTimeInstance();
+        TextView updateText = view.findViewById(R.id.connect_learning_last_update);
+        updateText.setText(getString(R.string.connect_last_update, df.format(lastUpdate)));
     }
 }

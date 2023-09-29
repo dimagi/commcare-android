@@ -7,10 +7,11 @@ import org.commcare.modern.models.MetaField;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.Serializable;
 import java.util.Date;
 
 @Table(ConnectLearnModuleSummaryRecord.STORAGE_KEY)
-public class ConnectLearnModuleSummaryRecord extends Persisted {
+public class ConnectLearnModuleSummaryRecord extends Persisted implements Serializable {
     /**
      * Name of database that stores info for Connect learn modules
      */

@@ -53,7 +53,9 @@ public class ConnectDownloadingFragment extends Fragment implements ResourceEngi
     }
 
     private void startAppDownload() {
-        ResourceInstallUtils.startAppInstallAsync(false, APP_DOWNLOAD_TASK_ID, (CommCareTaskConnector)getActivity(), TEST_APP_LINK);
+        String url = String.format("https://staging.commcarehq.org/a/%s/apps/download/%s/media_profile.ccpr",
+                job.getLearnAppInfo().getDomain(), job.getLearnAppInfo().getAppId());
+        ResourceInstallUtils.startAppInstallAsync(false, APP_DOWNLOAD_TASK_ID, (CommCareTaskConnector)getActivity(), url);
     }
 
     @Override

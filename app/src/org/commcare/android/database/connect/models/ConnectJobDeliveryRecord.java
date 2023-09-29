@@ -1,5 +1,6 @@
 package org.commcare.android.database.connect.models;
 
+import java.io.Serializable;
 import java.util.Date;
 
 import org.commcare.android.storage.framework.Persisted;
@@ -8,7 +9,7 @@ import org.commcare.modern.database.Table;
 import org.commcare.modern.models.MetaField;
 
 @Table(ConnectJobDeliveryRecord.STORAGE_KEY)
-public class ConnectJobDeliveryRecord extends Persisted {
+public class ConnectJobDeliveryRecord extends Persisted implements Serializable {
     /**
      * Name of database that stores info for Connect deliveries
      */

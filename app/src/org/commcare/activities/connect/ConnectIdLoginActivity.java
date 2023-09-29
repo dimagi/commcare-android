@@ -139,7 +139,6 @@ public class ConnectIdLoginActivity extends CommCareActivity<ConnectIdLoginActiv
             @Override
             public void onAuthenticationFailed() {
                 super.onAuthenticationFailed();
-                //TODO: Change path before Android takes action
                 Toast.makeText(getApplicationContext(), "Authentication failed",
                                 Toast.LENGTH_SHORT)
                         .show();

@@ -11,13 +11,18 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import org.commcare.activities.connect.ConnectIdNetworkHelper;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectLearnModuleSummaryRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
+import org.commcare.commcaresupportlibrary.CommCareLauncher;
 import org.commcare.dalvik.R;
 import org.commcare.utils.MultipleAppsUtil;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -72,8 +77,8 @@ public class ConnectJobIntroFragment extends Fragment {
         textView.setText(getString(R.string.connect_job_learn_summary, modules.size(), totalHours));
 
         boolean installed = false;
-        for (ApplicationRecord app : MultipleAppsUtil.getUsableAppRecords()) {
-            if (job.getLearnAppInfo().getAppId().equals(app.getApplicationId())) {
+        for (ApplicationRecord app : MultipleAppsUtil.appRecordArray()) {
+            if (job.getLearnAppInfo().getAppId().equals(app.getUniqueId())) {
                 installed = true;
                 break;
             }
@@ -83,15 +88,37 @@ public class ConnectJobIntroFragment extends Fragment {
         Button button = view.findViewById(R.id.connect_job_intro_start_button);
         button.setText(getString(appInstalled ? R.string.connect_job_go_to_learn_app : R.string.connect_job_download_learn_app));
         button.setOnClickListener(v -> {
-            NavDirections directions;
-            if (appInstalled) {
-                directions = ConnectJobIntroFragmentDirections.actionConnectJobIntroFragmentToConnectJobLearningProgressFragment(job);
-            } else {
-                String title = getString(R.string.connect_downloading_learn);
-                directions = ConnectJobIntroFragmentDirections.actionConnectJobIntroFragmentToConnectDownloadingFragment(title, job);
-            }
+            //First, need to tell Connect we're starting learning so it can create a user on HQ
+            ConnectIdNetworkHelper.startLearnApp(getContext(), job.getJobId(), new ConnectIdNetworkHelper.INetworkResultHandler() {
+                @Override
+                public void processSuccess(int responseCode, InputStream responseData) {
+                    //TODO DAV: Expecting to eventually get HQ username from server here
+                    job.setStatus(ConnectJobRecord.STATUS_LEARNING);
 
-            Navigation.findNavController(button).navigate(directions);
+
+                    NavDirections directions;
+                    if (appInstalled) {
+                        directions = ConnectJobIntroFragmentDirections.actionConnectJobIntroFragmentToConnectJobLearningProgressFragment(job);
+                    } else {
+                        String title = getString(R.string.connect_downloading_learn);
+                        directions = ConnectJobIntroFragmentDirections.actionConnectJobIntroFragmentToConnectDownloadingFragment(title, job);
+                    }
+
+                    Navigation.findNavController(button).navigate(directions);
+                }
+
+                @Override
+                public void processFailure(int responseCode, IOException e) {
+                    Toast.makeText(getContext(), "Connect: error starting learning", Toast.LENGTH_SHORT).show();
+                    Navigation.findNavController(button).navigate(ConnectJobIntroFragmentDirections.actionConnectJobIntroFragmentToConnectJobLearningProgressFragment(job));
+                }
+
+                @Override
+                public void processNetworkFailure() {
+                    Toast.makeText(getContext(), getString(R.string.recovery_network_unavailable),
+                            Toast.LENGTH_SHORT).show();
+                }
+            });
         });
 
         return view;

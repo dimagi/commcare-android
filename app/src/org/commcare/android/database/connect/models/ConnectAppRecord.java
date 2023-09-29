@@ -8,12 +8,13 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 @Table(ConnectAppRecord.STORAGE_KEY)
-public class ConnectAppRecord extends Persisted {
+public class ConnectAppRecord extends Persisted implements Serializable {
     /**
      * Name of database that stores app info for Connect jobs
      */
@@ -67,6 +68,7 @@ public class ConnectAppRecord extends Persisted {
         app.name = json.has(META_NAME) ? json.getString(META_NAME) : null;
         app.description = json.has(META_DESCRIPTION) ? json.getString(META_DESCRIPTION) : null;
         app.organization = json.has(META_ORGANIZATION) ? json.getString(META_ORGANIZATION) : null;
+        //TODO DAV: Add passing score
 
         JSONArray array = json.getJSONArray(META_MODULES);
         app.learnModules = new ArrayList<>();
@@ -83,6 +85,7 @@ public class ConnectAppRecord extends Persisted {
     public void setJobId(int jobId) { this.jobId = jobId; }
 
     public String getAppId() { return appId; }
+    public String getDomain() { return domain; }
 
     public List<ConnectLearnModuleSummaryRecord> getLearnModules() { return learnModules; }
     public void setLearnModules(List<ConnectLearnModuleSummaryRecord> modules) { learnModules = modules; }

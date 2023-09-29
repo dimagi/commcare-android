@@ -124,7 +124,7 @@ public class ConnectIdDatabaseHelper {
         storage.remove(record);
     }
 
-    public static void storeApp(Context context, String appId, String userId, String passwordOrPin) {
+    public static ConnectLinkedAppRecord storeApp(Context context, String appId, String userId, String passwordOrPin) {
         ConnectLinkedAppRecord record = getAppData(context, appId, userId);
         if (record == null) {
             record = new ConnectLinkedAppRecord(appId, userId, passwordOrPin);
@@ -133,6 +133,8 @@ public class ConnectIdDatabaseHelper {
         }
 
         storeApp(context, record);
+
+        return record;
     }
 
     public static void storeApp(Context context, ConnectLinkedAppRecord record) {
@@ -156,6 +158,14 @@ public class ConnectIdDatabaseHelper {
             user.setRegistrationPhase(phase);
             storeUser(context, user);
         }
+    }
+
+    //TODO DAV: Finish this, for updating parts of a job when new data received (i.e. learn_progress)
+    public static void updateJob(Context context, ConnectJobRecord job) {
+        SqlStorage<ConnectJobRecord> jobStorage = getConnectStorage(context, ConnectJobRecord.class);
+        //Check for existing DB ID
+
+        jobStorage.write(job);
     }
 
     public static void storeJobs(Context context, List<ConnectJobRecord> jobs) {
@@ -201,6 +211,11 @@ public class ConnectIdDatabaseHelper {
         //Now insert/update jobs
         for (ConnectJobRecord incomingJob : jobs) {
             incomingJob.setLastUpdate(new Date());
+
+            if(incomingJob.getID() <= 0 && incomingJob.getStatus() == ConnectJobRecord.STATUS_AVAILABLE) {
+                incomingJob.setStatus(ConnectJobRecord.STATUS_AVAILABLE_NEW);
+            }
+
             //Now insert/update the job
             jobStorage.write(incomingJob);
 

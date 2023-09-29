@@ -622,12 +622,12 @@ public class ConnectIdManager {
         return null;
     }
 
-    public static void prepareConnectManagedApp(Context context, String appId, String username) {
+    public static ConnectLinkedAppRecord prepareConnectManagedApp(Context context, String appId, String username) {
         //Ctreate password
         String password = ConnectIdDatabaseHelper.generatePassword();
 
         //Store ConnectLinkedAppRecord
-        ConnectIdDatabaseHelper.storeApp(context, appId, username, password);
+        ConnectLinkedAppRecord appRecord = ConnectIdDatabaseHelper.storeApp(context, appId, username, password);
 
         //Store UKR
         SecretKey newKey = CryptUtil.generateSemiRandomKey();
@@ -637,5 +637,7 @@ public class ConnectIdManager {
                 new Date(), new Date(Long.MAX_VALUE), sandboxId);
 
         CommCareApplication.instance().getCurrentApp().getStorage(UserKeyRecord.class).write(ukr);
+
+        return appRecord;
     }
 }

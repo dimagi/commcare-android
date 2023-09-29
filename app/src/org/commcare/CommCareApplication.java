@@ -1175,18 +1175,10 @@ public class CommCareApplication extends MultiDexApplication {
                                                   AuthInfo authInfo,
                                                   @Nullable HttpResponseProcessor responseProcessor, boolean retry) {
 
-        CommCareNetworkService networkService = null;
+        CommCareNetworkService networkService;
         if (authInfo instanceof AuthInfo.NoAuth) {
             networkService = CommCareNetworkServiceGenerator.createNoAuthCommCareNetworkService();
-        } else if (authInfo instanceof AuthInfo.CurrentAuth) {
-            //Try to get SSO token
-            AuthInfo.TokenAuth tokenAuth = ConnectIdSsoHelper.acquireSsoTokenSync(context);
-            if (tokenAuth != null) {
-                authInfo = tokenAuth;
-            }
-        }
-
-        if (networkService == null) {
+        } else {
             networkService = CommCareNetworkServiceGenerator.createCommCareNetworkService(
                     HttpUtils.getCredential(authInfo),
                     DeveloperPreferences.isEnforceSecureEndpointEnabled(), retry, params);

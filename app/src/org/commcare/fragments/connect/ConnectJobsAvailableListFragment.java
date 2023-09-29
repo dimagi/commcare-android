@@ -19,6 +19,7 @@ import androidx.recyclerview.widget.RecyclerView;
  * @author dviggiano
  */
 public class ConnectJobsAvailableListFragment extends Fragment {
+    private ConnectJobAdapter adapter;
     public ConnectJobsAvailableListFragment() {
         // Required empty public constructor
     }
@@ -44,8 +45,13 @@ public class ConnectJobsAvailableListFragment extends Fragment {
 
         recyclerView.addItemDecoration(new DividerItemDecoration(getContext(), linearLayoutManager.getOrientation()));
 
-        recyclerView.setAdapter(new ConnectJobAdapter(true));
+        adapter = new ConnectJobAdapter(true);
+        recyclerView.setAdapter(adapter);
 
         return view;
+    }
+
+    public void updateView() {
+        adapter.notifyDataSetChanged();
     }
 }

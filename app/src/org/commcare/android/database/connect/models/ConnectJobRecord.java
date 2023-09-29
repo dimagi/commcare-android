@@ -51,8 +51,10 @@ public class ConnectJobRecord extends Persisted implements Serializable {
     public static final String META_COMPLETED_MODULES = "completed_modules";
 
     public static final String META_LEARN_PROGRESS = "learn_progress";
+    public static final String META_DELIVERY_PROGRESS = "deliver_progress";
     public static final String META_LEARN_APP = "learn_app";
     public static final String META_DELIVER_APP = "deliver_app";
+    public static final String META_CLAIM = "claim";
 
     @Persisting(1)
     @MetaField(META_JOB_ID)
@@ -99,9 +101,15 @@ public class ConnectJobRecord extends Persisted implements Serializable {
     @Persisting(15)
     private Date lastUpdate;
 //    private ConnectJobLearningModule[] learningModules;
+
+    @MetaField(META_DELIVERY_PROGRESS)
+    @Persisting(16)
+    private int deliveryProgress;
     private List<ConnectJobDeliveryRecord> deliveries;
     private ConnectAppRecord learnAppInfo;
     private ConnectAppRecord deliveryAppInfo;
+
+    private boolean claimed;
 
     public ConnectJobRecord() {
 
@@ -144,6 +152,10 @@ public class ConnectJobRecord extends Persisted implements Serializable {
 
 //        job.learningModules = new ConnectJobLearningModule[]{};
         job.deliveries = new ArrayList<>();
+        job.deliveryProgress = json.has(META_DELIVERY_PROGRESS) ? json.getInt(META_DELIVERY_PROGRESS) : -1;
+
+        //Just need to know if the job has been claimed for now
+        job.claimed = json.has(META_CLAIM);
 
         JSONObject learning = json.getJSONObject(META_LEARN_PROGRESS);
         job.numLearningModules = learning.getInt(META_LEARN_MODULES);
@@ -163,9 +175,9 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         job.status = STATUS_AVAILABLE;
         if(job.getLearningCompletePercentage() > 0) {
             job.status = STATUS_LEARNING;
-            if(false) {//TODO: Check claim date
+            if(job.claimed) {
                 job.status = STATUS_DELIVERING;
-                if(false) { //TODO: Check num_deliveries == maxDeliveries
+                if(job.deliveryProgress >= 100) { //TODO DAV: Check num_deliveries == maxDeliveries
                     job.status = STATUS_COMPLETE;
                 }
             }
@@ -180,6 +192,7 @@ public class ConnectJobRecord extends Persisted implements Serializable {
     public String getOrganization() { return organization; }
     public boolean getIsNew() { return status == STATUS_AVAILABLE_NEW; }
     public int getStatus() { return status; }
+    public void setStatus(int status) { this.status = status; }
     public int getCompletedVisits() { return completedVisits; }
     public int getMaxVisits() { return maxVisits; }
     public int getMaxDailyVisits() { return maxDailyVisits; }

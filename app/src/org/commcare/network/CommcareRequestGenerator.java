@@ -7,6 +7,7 @@ import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
 
 import org.commcare.CommCareApplication;
+import org.commcare.activities.connect.ConnectIdSsoHelper;
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.core.network.AuthInfo;
 import org.commcare.core.network.HTTPMethod;
@@ -165,9 +166,14 @@ public class CommcareRequestGenerator implements CommcareRequestEndpoints {
         AuthInfo authInfo = new AuthInfo.NoAuth();
         if (username != null) {
             try {
-                CommCareApplication.instance().getSession();
-                //Use CurrentAuth (possibly token) if we have an active session
-                authInfo = new AuthInfo.CurrentAuth();
+                AuthInfo.TokenAuth tokenAuth = ConnectIdSsoHelper.acquireSsoTokenSync(CommCareApplication.instance(), username);
+                if (tokenAuth != null) {
+                    authInfo = tokenAuth;
+                } else {
+                    CommCareApplication.instance().getSession();
+                    //Use CurrentAuth (possibly token) if we have an active session
+                    authInfo = new AuthInfo.CurrentAuth();
+                }
             } catch (Exception e) {
                 //No token if no session
                 authInfo = new AuthInfo.ProvidedAuth(username, password);

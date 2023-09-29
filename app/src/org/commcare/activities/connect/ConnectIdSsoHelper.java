@@ -32,27 +32,27 @@ public class ConnectIdSsoHelper {
         void tokenRetrieved(AuthInfo.TokenAuth token);
     }
 
-    public static AuthInfo.TokenAuth acquireSsoTokenSync(Context context) {
+    public static AuthInfo.TokenAuth acquireSsoTokenSync(Context context, String hqUsername) {
         if (!ConnectIdManager.isUnlocked()) {
             return null;
         }
 
         String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
-        String hqUser;
-        try {
-            hqUser = CommCareApplication.instance().getRecordForCurrentUser().getUsername();
-        } catch (Exception e) {
-            //No token if no session
-            return null;
-        }
+//        String hqUser;
+//        try {
+//            hqUser = CommCareApplication.instance().getRecordForCurrentUser().getUsername();
+//        } catch (Exception e) {
+//            //No token if no session
+//            return null;
+//        }
 
-        ConnectLinkedAppRecord appRecord = ConnectIdDatabaseHelper.getAppData(context, seatedAppId, hqUser);
+        ConnectLinkedAppRecord appRecord = ConnectIdDatabaseHelper.getAppData(context, seatedAppId, hqUsername);
         if (appRecord == null) {
             return null;
         }
 
         //See if we already have a valid token
-        AuthInfo.TokenAuth hqTokenAuth = ConnectIdManager.getTokenCredentialsForApp(seatedAppId, hqUser);
+        AuthInfo.TokenAuth hqTokenAuth = ConnectIdManager.getTokenCredentialsForApp(seatedAppId, hqUsername);
         if (hqTokenAuth == null) {
             //First get a valid Connect token
             AuthInfo.TokenAuth connectToken = retrieveConnectToken(context);
@@ -63,10 +63,10 @@ public class ConnectIdSsoHelper {
             }
 
             //Link user if necessary
-            linkHqWorker(context, hqUser, appRecord.getPassword(), connectToken.bearerToken);
+            linkHqWorker(context, hqUsername, appRecord.getPassword(), connectToken.bearerToken);
 
             //Retrieve HQ token
-            hqTokenAuth = retrieveHqToken(context, hqUser, connectToken.bearerToken);
+            hqTokenAuth = retrieveHqToken(context, hqUsername, connectToken.bearerToken);
         }
 
         return hqTokenAuth;

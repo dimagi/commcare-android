@@ -6,6 +6,7 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.Lifecycle;
+import androidx.viewpager.widget.PagerAdapter;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.viewpager2.widget.ViewPager2;
 
@@ -122,7 +123,7 @@ public class ConnectJobsListsFragment extends Fragment {
                         //Parse the JSON
                         JSONArray json = new JSONArray(responseAsString);
                         List<ConnectJobRecord> jobs = new ArrayList<>(json.length());
-                        for(int i=0; i<json.length(); i++) {
+                        for (int i = 0; i < json.length(); i++) {
                             JSONObject obj = (JSONObject)json.get(i);
                             jobs.add(ConnectJobRecord.fromJson(obj));
                         }
@@ -131,7 +132,7 @@ public class ConnectJobsListsFragment extends Fragment {
                         ConnectIdDatabaseHelper.storeJobs(getContext(), jobs);
 
                         updateUpdatedDate();
-                        viewStateAdapter.notifyDataSetChanged();
+                        viewStateAdapter.refresh();
                     }
                 } catch (IOException | JSONException | ParseException e) {
                     Logger.exception("Parsing return from Opportunities request", e);
@@ -151,12 +152,15 @@ public class ConnectJobsListsFragment extends Fragment {
     }
 
     private void updateUpdatedDate() {
-        Date lastUpdate = new Date();
+        Date lastUpdate = new Date(); //TODO DAV: Determine last update date
         DateFormat df = SimpleDateFormat.getDateTimeInstance();
         updateText.setText(getString(R.string.connect_last_update, df.format(lastUpdate)));
     }
 
     private static class ViewStateAdapter extends FragmentStateAdapter {
+        ConnectJobsAvailableListFragment availableFragment;
+        ConnectJobsMyListFragment myFragment;
+
         public ViewStateAdapter(@NonNull FragmentManager fragmentManager, @NonNull Lifecycle lifecycle) {
             super(fragmentManager, lifecycle);
         }
@@ -165,15 +169,27 @@ public class ConnectJobsListsFragment extends Fragment {
         @Override
         public Fragment createFragment(int position) {
             if (position == 0) {
-                return ConnectJobsAvailableListFragment.newInstance();
+                availableFragment = ConnectJobsAvailableListFragment.newInstance();
+                return availableFragment;
             }
 
-            return ConnectJobsMyListFragment.newInstance();
+            myFragment = ConnectJobsMyListFragment.newInstance();
+            return myFragment;
         }
 
         @Override
         public int getItemCount() {
             return 2;
+        }
+
+        public void refresh() {
+            if (availableFragment != null) {
+                availableFragment.updateView();
+            }
+
+            if (myFragment != null) {
+                myFragment.updateView();
+            }
         }
     }
 }
