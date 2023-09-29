@@ -170,8 +170,8 @@ public class CommcareRequestGenerator implements CommcareRequestEndpoints {
                 if (tokenAuth != null) {
                     authInfo = tokenAuth;
                 } else {
-                    CommCareApplication.instance().getSession();
-                    //Use CurrentAuth (possibly token) if we have an active session
+                    CommCareApplication.instance().getSession().getLoggedInUser();
+                    //Use CurrentAuth (possibly token) if we have an active session and logged in user
                     authInfo = new AuthInfo.CurrentAuth();
                 }
             } catch (Exception e) {

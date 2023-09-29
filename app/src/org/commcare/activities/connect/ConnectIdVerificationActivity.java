@@ -108,11 +108,8 @@ public class ConnectIdVerificationActivity extends CommCareActivity<ConnectIdVer
         boolean showFingerprint = fingerprintButtonText != null;
         boolean showPin = pinButtonText != null;
 
-        String fingerprintMessageText = showPin ? getString(R.string.connect_verify_use_fingerprint) : "";
-        String pinMessageText = showFingerprint ? getString(R.string.connect_verify_use_pin) : "";
-
-        uiController.updateFingerprint(fingerprintMessageText, fingerprintButtonText);
-        uiController.updatePin(pinMessageText, pinButtonText);
+        uiController.updateFingerprint(fingerprintButtonText);
+        uiController.updatePin(pinButtonText);
 
         uiController.setOrVisibility(showFingerprint && showPin);
     }

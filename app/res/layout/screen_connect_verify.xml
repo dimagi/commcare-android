@@ -12,7 +12,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_margin="@dimen/content_min_margin"
+        android:layout_marginTop="5dp"
+        android:layout_marginBottom="5dp"
         android:textColor="@color/cc_neutral_color"
         android:textSize="@dimen/text_larger"
         android:textAlignment="center"
@@ -23,7 +24,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_margin="@dimen/content_min_margin"
+        android:layout_marginBottom="10dp"
         android:textColor="@color/cc_neutral_color"
         android:textSize="@dimen/text_medium"
         android:textAlignment="center"
@@ -35,15 +36,6 @@
         android:layout_height="wrap_content"
         android:background="@color/cc_core_bg"
         android:orientation="vertical" >
-
-        <TextView
-            android:id="@+id/connect_verify_fingerprint_message"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:textColor="@color/cc_neutral_color"
-            android:textSize="@dimen/text_medium"
-            android:text="@string/connect_verify_use_fingerprint"/>
 
         <ImageView
             android:id="@+id/connect_verify_fingerprint_icon"
@@ -75,15 +67,6 @@
         android:layout_height="wrap_content"
         android:background="@color/cc_core_bg"
         android:orientation="vertical">
-
-        <TextView
-            android:id="@+id/connect_verify_pin_message"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:textColor="@color/cc_neutral_color"
-            android:textSize="@dimen/text_medium"
-            android:text="@string/connect_verify_use_pin"/>
 
         <ImageView
             android:id="@+id/connect_verify_pin_icon"
