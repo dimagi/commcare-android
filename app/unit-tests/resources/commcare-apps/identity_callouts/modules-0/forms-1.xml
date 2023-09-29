@@ -6,7 +6,8 @@
         <data xmlns:jrm="http://dev.commcarehq.org/jr/xforms" xmlns="http://openrosa.org/formdesigner/E3900AF4-43AC-435A-B0BB-E043AD9608A1" uiVersion="1" version="24" name="Registration with Templates">
           <register/>
           <guid/>
-          <templates/>
+          <left_index_finger_template/>
+          <left_middle_finger_template/>
           <case xmlns="http://commcarehq.org/case/transaction/v2" case_id="" date_modified="" user_id="">
             <create>
               <case_name/>
@@ -29,7 +30,8 @@
       <instance id="commcaresession" src="jr://instance/session"/>
       <bind nodeset="/data/register" type="intent" required="true()"/>
       <bind nodeset="/data/guid"/>
-      <bind nodeset="/data/templates"/>
+      <bind nodeset="/data/left_index_finger_template"/>
+      <bind nodeset="/data/left_middle_finger_template"/>
       <itext>
         <translation lang="en" default="">
           <text id="register-label">
@@ -55,7 +57,8 @@
     </model>
     <odkx:intent xmlns:odkx="http://opendatakit.org/xforms" id="register" class="org.commcare.identity.bioenroll">
       <response key="guid" ref="/data/guid"/>
-      <response key="templates" ref="/data/templates"/>
+      <response key="left_index_finger_template" ref="/data/left_index_finger_template"/>
+      <response key="left_middle_finger_template" ref="/data/left_middle_finger_template"/>
     </odkx:intent>
   </h:head>
   <h:body>
