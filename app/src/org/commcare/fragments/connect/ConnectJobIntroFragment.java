@@ -13,11 +13,10 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.commcare.activities.connect.ConnectIdNetworkHelper;
+import org.commcare.activities.connect.ConnectNetworkHelper;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectLearnModuleSummaryRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
-import org.commcare.commcaresupportlibrary.CommCareLauncher;
 import org.commcare.dalvik.R;
 import org.commcare.utils.MultipleAppsUtil;
 
@@ -89,7 +88,7 @@ public class ConnectJobIntroFragment extends Fragment {
         button.setText(getString(appInstalled ? R.string.connect_job_go_to_learn_app : R.string.connect_job_download_learn_app));
         button.setOnClickListener(v -> {
             //First, need to tell Connect we're starting learning so it can create a user on HQ
-            ConnectIdNetworkHelper.startLearnApp(getContext(), job.getJobId(), new ConnectIdNetworkHelper.INetworkResultHandler() {
+            ConnectNetworkHelper.startLearnApp(getContext(), job.getJobId(), new ConnectNetworkHelper.INetworkResultHandler() {
                 @Override
                 public void processSuccess(int responseCode, InputStream responseData) {
                     //TODO DAV: Expecting to eventually get HQ username from server here

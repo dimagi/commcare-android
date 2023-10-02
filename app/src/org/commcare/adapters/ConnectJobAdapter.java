@@ -8,7 +8,7 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import org.commcare.activities.connect.ConnectIdDatabaseHelper;
+import org.commcare.activities.connect.ConnectDatabaseHelper;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.dalvik.R;
 import org.commcare.fragments.connect.ConnectJobsListsFragmentDirections;
@@ -40,14 +40,14 @@ public class ConnectJobAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     @Override
     public int getItemCount() {
         if(showAvailable) {
-            int numAvailable = ConnectIdDatabaseHelper.getAvailableJobs(parentContext).size();
+            int numAvailable = ConnectDatabaseHelper.getAvailableJobs(parentContext).size();
             return numAvailable > 0 ? numAvailable : 1;
         }
 
-        List<ConnectJobRecord> training = ConnectIdDatabaseHelper.getTrainingJobs(parentContext);
+        List<ConnectJobRecord> training = ConnectDatabaseHelper.getTrainingJobs(parentContext);
         int numTraining = training.size() > 0 ? training.size() : 1;
 
-        List<ConnectJobRecord> claimed = ConnectIdDatabaseHelper.getClaimedJobs(parentContext);
+        List<ConnectJobRecord> claimed = ConnectDatabaseHelper.getClaimedJobs(parentContext);
         int numClaimed = claimed.size() > 0 ? claimed.size() : 1;
         return numTraining + numClaimed + 2;
     }
@@ -55,7 +55,7 @@ public class ConnectJobAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     @Override
     public int getItemViewType(int position) {
         if(showAvailable) {
-            int numAvailable = ConnectIdDatabaseHelper.getAvailableJobs(parentContext).size();
+            int numAvailable = ConnectDatabaseHelper.getAvailableJobs(parentContext).size();
             if(numAvailable == 0) {
                 return ViewTypeEmpty;
             }
@@ -63,7 +63,7 @@ public class ConnectJobAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             return ViewTypeAvailable;
         }
 
-        List<ConnectJobRecord> training = ConnectIdDatabaseHelper.getTrainingJobs(parentContext);
+        List<ConnectJobRecord> training = ConnectDatabaseHelper.getTrainingJobs(parentContext);
         int numTraining = training.size() > 0 ? training.size() : 1;
         if(position == 0 || position - 1 == numTraining) {
             return ViewTypeHeader;
@@ -73,7 +73,7 @@ public class ConnectJobAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             return training.size() == 0 ? ViewTypeEmpty : ViewTypeLearning;
         }
 
-        return ConnectIdDatabaseHelper.getClaimedJobs(parentContext).size() == 0 ? ViewTypeEmpty : ViewTypeClaimed;
+        return ConnectDatabaseHelper.getClaimedJobs(parentContext).size() == 0 ? ViewTypeEmpty : ViewTypeClaimed;
     }
 
     @NonNull
@@ -105,7 +105,7 @@ public class ConnectJobAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         if(holder instanceof ConnectJobAdapter.AvailableJobViewHolder availableHolder) {
-            ConnectJobRecord job = ConnectIdDatabaseHelper.getAvailableJobs(parentContext).get(position);
+            ConnectJobRecord job = ConnectDatabaseHelper.getAvailableJobs(parentContext).get(position);
 
             availableHolder.newText.setVisibility(job.getIsNew() ? View.VISIBLE : View.GONE);
             availableHolder.titleText.setText(job.getTitle());
@@ -119,7 +119,7 @@ public class ConnectJobAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                         ConnectJobsListsFragmentDirections.actionConnectJobsListFragmentToConnectJobIntroFragment(job)));
         }
         else if(holder instanceof ConnectJobAdapter.ClaimedJobViewHolder claimedHolder) {
-            List<ConnectJobRecord> training = ConnectIdDatabaseHelper.getTrainingJobs(parentContext);
+            List<ConnectJobRecord> training = ConnectDatabaseHelper.getTrainingJobs(parentContext);
             boolean isTraining = position-1 < training.size();
             ConnectJobRecord job;
             if(isTraining) {
@@ -127,7 +127,7 @@ public class ConnectJobAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             }
             else {
                 int numTraining = training.size() > 0 ? training.size() : 1;
-                job = ConnectIdDatabaseHelper.getClaimedJobs(parentContext).get(position - numTraining - 2);
+                job = ConnectDatabaseHelper.getClaimedJobs(parentContext).get(position - numTraining - 2);
             }
 
             claimedHolder.titleText.setText(job.getTitle());

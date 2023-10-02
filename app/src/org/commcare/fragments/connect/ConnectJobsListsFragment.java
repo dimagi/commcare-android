@@ -6,21 +6,19 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.Lifecycle;
-import androidx.viewpager.widget.PagerAdapter;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.viewpager2.widget.ViewPager2;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.google.android.material.tabs.TabLayout;
 
-import org.commcare.activities.connect.ConnectIdDatabaseHelper;
-import org.commcare.activities.connect.ConnectIdNetworkHelper;
+import org.commcare.activities.connect.ConnectDatabaseHelper;
+import org.commcare.activities.connect.ConnectNetworkHelper;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.dalvik.R;
 import org.javarosa.core.io.StreamsUtil;
@@ -114,7 +112,7 @@ public class ConnectJobsListsFragment extends Fragment {
     }
 
     public void refreshData() {
-        ConnectIdNetworkHelper.getConnectOpportunities(getContext(), new ConnectIdNetworkHelper.INetworkResultHandler() {
+        ConnectNetworkHelper.getConnectOpportunities(getContext(), new ConnectNetworkHelper.INetworkResultHandler() {
             @Override
             public void processSuccess(int responseCode, InputStream responseData) {
                 try {
@@ -129,7 +127,7 @@ public class ConnectJobsListsFragment extends Fragment {
                         }
 
                         //Store retrieved jobs
-                        ConnectIdDatabaseHelper.storeJobs(getContext(), jobs, true);
+                        ConnectDatabaseHelper.storeJobs(getContext(), jobs, true);
 
                         updateUpdatedDate();
                         viewStateAdapter.refresh();

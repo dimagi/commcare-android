@@ -37,7 +37,7 @@ import retrofit2.Response;
  *
  * @author dviggiano
  */
-public class ConnectIdNetworkHelper {
+public class ConnectNetworkHelper {
     /**
      * Interface for callbacks when network request completes
      */
@@ -66,15 +66,15 @@ public class ConnectIdNetworkHelper {
 
     private boolean isBusy = false;
 
-    private ConnectIdNetworkHelper() {
+    private ConnectNetworkHelper() {
         //Private constructor for singleton
     }
 
     private static class Loader {
-        static final ConnectIdNetworkHelper INSTANCE = new ConnectIdNetworkHelper();
+        static final ConnectNetworkHelper INSTANCE = new ConnectNetworkHelper();
     }
 
-    private static ConnectIdNetworkHelper getInstance() {
+    private static ConnectNetworkHelper getInstance() {
         return Loader.INSTANCE;
     }
 
@@ -384,7 +384,7 @@ public class ConnectIdNetworkHelper {
             return false;
         }
 
-        ConnectIdSsoHelper.retrieveConnectTokenAsync(context, token -> {
+        ConnectSsoHelper.retrieveConnectTokenAsync(context, token -> {
             if(token == null) {
                 return;
             }
@@ -403,7 +403,7 @@ public class ConnectIdNetworkHelper {
             return false;
         }
 
-        ConnectIdSsoHelper.retrieveConnectTokenAsync(context, token -> {
+        ConnectSsoHelper.retrieveConnectTokenAsync(context, token -> {
             if(token == null) {
                 return;
             }
@@ -423,7 +423,7 @@ public class ConnectIdNetworkHelper {
             return false;
         }
 
-        ConnectIdSsoHelper.retrieveConnectTokenAsync(context, token -> {
+        ConnectSsoHelper.retrieveConnectTokenAsync(context, token -> {
             if(token == null) {
                 return;
             }
@@ -442,7 +442,7 @@ public class ConnectIdNetworkHelper {
             return false;
         }
 
-        ConnectIdSsoHelper.retrieveConnectTokenAsync(context, token -> {
+        ConnectSsoHelper.retrieveConnectTokenAsync(context, token -> {
             if(token == null) {
                 return;
             }
@@ -461,7 +461,7 @@ public class ConnectIdNetworkHelper {
             return false;
         }
 
-        ConnectIdSsoHelper.retrieveConnectTokenAsync(context, token -> {
+        ConnectSsoHelper.retrieveConnectTokenAsync(context, token -> {
             if(token == null) {
                 return;
             }

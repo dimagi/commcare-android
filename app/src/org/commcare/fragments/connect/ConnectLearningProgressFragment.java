@@ -9,12 +9,10 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import org.commcare.activities.connect.ConnectIdDatabaseHelper;
-import org.commcare.activities.connect.ConnectIdManager;
-import org.commcare.activities.connect.ConnectIdNetworkHelper;
-import org.commcare.adapters.ConnectJobAdapter;
+import org.commcare.activities.connect.ConnectDatabaseHelper;
+import org.commcare.activities.connect.ConnectManager;
+import org.commcare.activities.connect.ConnectNetworkHelper;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.commcaresupportlibrary.CommCareLauncher;
 import org.commcare.dalvik.R;
@@ -22,16 +20,12 @@ import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.services.Logger;
 import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.DateFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 import java.util.Locale;
 
 import androidx.fragment.app.Fragment;
@@ -80,7 +74,7 @@ public class ConnectLearningProgressFragment extends Fragment {
     }
 
     private void refreshData() {
-        ConnectIdNetworkHelper.getLearnProgress(getContext(), job.getJobId(), new ConnectIdNetworkHelper.INetworkResultHandler() {
+        ConnectNetworkHelper.getLearnProgress(getContext(), job.getJobId(), new ConnectNetworkHelper.INetworkResultHandler() {
             @Override
             public void processSuccess(int responseCode, InputStream responseData) {
                 try {
@@ -95,7 +89,7 @@ public class ConnectLearningProgressFragment extends Fragment {
 //                        }
 
                         job.setComletedLearningModules(json.length());
-                        ConnectIdDatabaseHelper.updateJobLearnProgress(getContext(), job);
+                        ConnectDatabaseHelper.updateJobLearnProgress(getContext(), job);
                     }
                 } catch (IOException | JSONException e) {
                     Logger.exception("Parsing return from learn_progress request", e);
@@ -179,7 +173,7 @@ public class ConnectLearningProgressFragment extends Fragment {
             textView.setText(job.getTitle());
 
             textView = view.findViewById(R.id.connect_learn_cert_person);
-            textView.setText(ConnectIdManager.getUser(getContext()).getName());
+            textView.setText(ConnectManager.getUser(getContext()).getName());
 
             //TODO DAV: get from server somehow
             Date latestDate = new Date();//null;

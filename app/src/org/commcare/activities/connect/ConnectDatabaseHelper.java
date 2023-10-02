@@ -5,7 +5,6 @@ import android.content.Context;
 import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.CommCareApplication;
-import org.commcare.adapters.ConnectJobAdapter;
 import org.commcare.android.database.connect.models.ConnectAppRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectLearnModuleSummaryRecord;
@@ -34,7 +33,7 @@ import java.util.Vector;
  *
  * @author dviggiano
  */
-public class ConnectIdDatabaseHelper {
+public class ConnectDatabaseHelper {
     private static final Object connectDbHandleLock = new Object();
     private static SQLiteDatabase connectDatabase;
 
@@ -158,7 +157,7 @@ public class ConnectIdDatabaseHelper {
         getConnectStorage(context, ConnectLinkedAppRecord.class).write(record);
     }
 
-    public static void setRegistrationPhase(Context context, ConnectIdTask phase) {
+    public static void setRegistrationPhase(Context context, ConnectTask phase) {
         ConnectUserRecord user = getUser(context);
         if (user != null) {
             user.setRegistrationPhase(phase);

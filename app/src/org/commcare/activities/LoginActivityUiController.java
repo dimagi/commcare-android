@@ -24,8 +24,8 @@ import java.util.Vector;
 
 import org.commcare.CommCareApplication;
 import org.commcare.CommCareNoficationManager;
-import org.commcare.activities.connect.ConnectIdDatabaseHelper;
-import org.commcare.activities.connect.ConnectIdManager;
+import org.commcare.activities.connect.ConnectDatabaseHelper;
+import org.commcare.activities.connect.ConnectManager;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.dalvik.R;
@@ -44,9 +44,6 @@ import org.commcare.views.RectangleButtonWithText;
 import org.commcare.views.UiElement;
 import org.javarosa.core.services.locale.Localization;
 
-
-import java.util.ArrayList;
-import java.util.Vector;
 
 import javax.annotation.Nullable;
 
@@ -226,7 +223,7 @@ public class LoginActivityUiController implements CommCareActivityUIController {
         ArrayList<ApplicationRecord> readyApps = MultipleAppsUtil.getUsableAppRecords();
         boolean promptIncluded = false;
         ApplicationRecord presetAppRecord = getPresetAppRecord(readyApps);
-        if ((readyApps.size() == 1 && (!ConnectIdManager.isConnectIdIntroduced() || ConnectIdManager.isUnlocked()))
+        if ((readyApps.size() == 1 && (!ConnectManager.isConnectIdIntroduced() || ConnectManager.isUnlocked()))
                 || presetAppRecord != null) {
             setLoginInputsVisibility(true);
 
@@ -238,7 +235,7 @@ public class LoginActivityUiController implements CommCareActivityUIController {
 
             setSingleAppUiState();
 
-            if (ConnectIdManager.isUnlocked()) {
+            if (ConnectManager.isUnlocked()) {
                 appLabel.setVisibility(View.VISIBLE);
                 appLabel.setText(r.getDisplayName());
             }
@@ -270,7 +267,7 @@ public class LoginActivityUiController implements CommCareActivityUIController {
             notificationButtonView.setVisibility(View.GONE);
         }
 
-        if (ConnectIdManager.isConnectIdIntroduced()) {
+        if (ConnectManager.isConnectIdIntroduced()) {
             setLoginInputsVisibility(!promptIncluded);
         }
     }
@@ -283,11 +280,11 @@ public class LoginActivityUiController implements CommCareActivityUIController {
 
     public void updateConnectLoginState() {
         boolean emphasizeConnectSignin = false;
-        if (ConnectIdManager.isConnectIdIntroduced()) {
+        if (ConnectManager.isConnectIdIntroduced()) {
             String welcomeText;
-            if (ConnectIdManager.isUnlocked()) {
+            if (ConnectManager.isUnlocked()) {
                 welcomeText = activity.getString(R.string.login_welcome_connect_signed_in,
-                        ConnectIdDatabaseHelper.getUser(activity).getName());
+                        ConnectDatabaseHelper.getUser(activity).getName());
             } else {
                 welcomeText = activity.getString(R.string.login_welcome_connect_signed_out);
                 emphasizeConnectSignin = true;

@@ -36,11 +36,11 @@ public class ConnectIdRegistrationActivity extends CommCareActivity<ConnectIdReg
 
         setTitle(getString(R.string.connect_register_title));
 
-        phone = getIntent().getStringExtra(ConnectIdConstants.PHONE);
+        phone = getIntent().getStringExtra(ConnectConstants.PHONE);
 
         uiController.setupUI();
 
-        ConnectUserRecord user = ConnectIdManager.getUser(this);
+        ConnectUserRecord user = ConnectManager.getUser(this);
         if (user != null) {
             uiController.setNameText(user.getName());
         }
@@ -96,7 +96,7 @@ public class ConnectIdRegistrationActivity extends CommCareActivity<ConnectIdReg
     }
 
     public void continuePressed() {
-        user = ConnectIdManager.getUser(this);
+        user = ConnectManager.getUser(this);
         if (user == null) {
             createAccount();
         } else {
@@ -107,7 +107,7 @@ public class ConnectIdRegistrationActivity extends CommCareActivity<ConnectIdReg
     public void createAccount() {
         uiController.setErrorText(null);
 
-        ConnectUserRecord tempUser = new ConnectUserRecord(phone, generateUserId(), ConnectIdDatabaseHelper.generatePassword(),
+        ConnectUserRecord tempUser = new ConnectUserRecord(phone, generateUserId(), ConnectDatabaseHelper.generatePassword(),
                 uiController.getNameText(), "");
 
         HashMap<String, String> params = new HashMap<>();
@@ -116,8 +116,8 @@ public class ConnectIdRegistrationActivity extends CommCareActivity<ConnectIdReg
         params.put("name", tempUser.getName());
         params.put("phone_number", phone);
 
-        boolean isBusy = !ConnectIdNetworkHelper.post(this, getString(R.string.ConnectRegisterURL),
-                new AuthInfo.NoAuth(), params, false, new ConnectIdNetworkHelper.INetworkResultHandler() {
+        boolean isBusy = !ConnectNetworkHelper.post(this, getString(R.string.ConnectRegisterURL),
+                new AuthInfo.NoAuth(), params, false, new ConnectNetworkHelper.INetworkResultHandler() {
                     @Override
                     public void processSuccess(int responseCode, InputStream responseData) {
                         user = tempUser;
@@ -152,9 +152,9 @@ public class ConnectIdRegistrationActivity extends CommCareActivity<ConnectIdReg
             HashMap<String, String> params = new HashMap<>();
             params.put("name", user.getName());
 
-            boolean isBusy = !ConnectIdNetworkHelper.post(this, getString(R.string.ConnectUpdateProfileURL),
+            boolean isBusy = !ConnectNetworkHelper.post(this, getString(R.string.ConnectUpdateProfileURL),
                     new AuthInfo.ProvidedAuth(user.getUserId(), user.getPassword(), false),
-                    params, false, new ConnectIdNetworkHelper.INetworkResultHandler() {
+                    params, false, new ConnectNetworkHelper.INetworkResultHandler() {
                         @Override
                         public void processSuccess(int responseCode, InputStream responseData) {
                             user.setName(newName);
