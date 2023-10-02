@@ -40,7 +40,8 @@ public class ConnectJobAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     @Override
     public int getItemCount() {
         if(showAvailable) {
-            return ConnectIdDatabaseHelper.getAvailableJobs(parentContext).size();
+            int numAvailable = ConnectIdDatabaseHelper.getAvailableJobs(parentContext).size();
+            return numAvailable > 0 ? numAvailable : 1;
         }
 
         List<ConnectJobRecord> training = ConnectIdDatabaseHelper.getTrainingJobs(parentContext);
@@ -54,6 +55,11 @@ public class ConnectJobAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     @Override
     public int getItemViewType(int position) {
         if(showAvailable) {
+            int numAvailable = ConnectIdDatabaseHelper.getAvailableJobs(parentContext).size();
+            if(numAvailable == 0) {
+                return ViewTypeEmpty;
+            }
+
             return ViewTypeAvailable;
         }
 
@@ -193,9 +199,13 @@ public class ConnectJobAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             });
         }
         else if(holder instanceof ConnectJobAdapter.EmptyJobListViewHolder emptyHolder) {
-            String text = parentContext.getString(position == 1 ? R.string.connect_job_none_training : R.string.connect_job_none_active);
-            emptyHolder.image.setVisibility(position == 1 ? View.GONE : View.VISIBLE);
-            emptyHolder.titleText.setText(text);
+            int textResource = position == 1 ? R.string.connect_job_none_training : R.string.connect_job_none_active;
+            if(showAvailable) {
+                textResource = R.string.connect_job_none_available;
+            }
+
+            emptyHolder.image.setVisibility(!showAvailable && position == 1 ? View.GONE : View.VISIBLE);
+            emptyHolder.titleText.setText(parentContext.getString(textResource));
         }
         else if(holder instanceof ConnectJobAdapter.JobHeaderViewHolder headerHolder) {
             String text = parentContext.getString(position == 0 ? R.string.connect_job_training : R.string.connect_job_claimed);

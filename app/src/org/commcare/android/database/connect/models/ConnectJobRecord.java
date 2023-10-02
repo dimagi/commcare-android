@@ -155,7 +155,7 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         job.deliveryProgress = json.has(META_DELIVERY_PROGRESS) ? json.getInt(META_DELIVERY_PROGRESS) : -1;
 
         //Just need to know if the job has been claimed for now
-        job.claimed = json.has(META_CLAIM);
+        job.claimed = json.has(META_CLAIM) && !json.isNull(META_CLAIM);
 
         JSONObject learning = json.getJSONObject(META_LEARN_PROGRESS);
         job.numLearningModules = learning.getInt(META_LEARN_MODULES);
@@ -203,6 +203,7 @@ public class ConnectJobRecord extends Persisted implements Serializable {
     public Date getProjectEndDate() { return projectEndDate; }
     public int getNumLearningModules() { return numLearningModules; }
     public int getCompletedLearningModules() { return learningModulesCompleted; }
+    public void setComletedLearningModules(int numCompleted) { this.learningModulesCompleted = numCompleted; }
     public ConnectAppRecord getLearnAppInfo() { return learnAppInfo; }
     public void setLearnAppInfo(ConnectAppRecord appInfo) { this.learnAppInfo = appInfo; }
     public ConnectAppRecord getDeliveryAppInfo() { return deliveryAppInfo; }

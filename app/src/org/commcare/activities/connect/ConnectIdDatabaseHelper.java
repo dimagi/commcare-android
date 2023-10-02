@@ -5,6 +5,7 @@ import android.content.Context;
 import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.CommCareApplication;
+import org.commcare.adapters.ConnectJobAdapter;
 import org.commcare.android.database.connect.models.ConnectAppRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectLearnModuleSummaryRecord;
@@ -124,12 +125,17 @@ public class ConnectIdDatabaseHelper {
         storage.remove(record);
     }
 
-    public static ConnectLinkedAppRecord storeApp(Context context, String appId, String userId, String passwordOrPin) {
+    public static ConnectLinkedAppRecord storeApp(Context context, String appId, String userId, String passwordOrPin, boolean workerLinked) {
         ConnectLinkedAppRecord record = getAppData(context, appId, userId);
         if (record == null) {
             record = new ConnectLinkedAppRecord(appId, userId, passwordOrPin);
         } else if (!record.getPassword().equals(passwordOrPin)) {
             record.setPassword(passwordOrPin);
+        }
+
+        if(workerLinked) {
+            //If passed in false, we'll leave the setting unchanged
+            record.setWorkerLinked(workerLinked);
         }
 
         storeApp(context, record);
@@ -160,15 +166,24 @@ public class ConnectIdDatabaseHelper {
         }
     }
 
-    //TODO DAV: Finish this, for updating parts of a job when new data received (i.e. learn_progress)
-    public static void updateJob(Context context, ConnectJobRecord job) {
+    public static void updateJobLearnProgress(Context context, ConnectJobRecord job) {
         SqlStorage<ConnectJobRecord> jobStorage = getConnectStorage(context, ConnectJobRecord.class);
-        //Check for existing DB ID
 
-        jobStorage.write(job);
+        //Check for existing DB ID
+        Vector<ConnectJobRecord> existingJobs =
+                jobStorage.getRecordsForValues(
+                        new String[]{ConnectJobRecord.META_JOB_ID},
+                        new Object[]{job.getJobId()});
+
+        if(existingJobs.size() > 0) {
+            ConnectJobRecord existing = existingJobs.get(0);
+            existing.setComletedLearningModules(job.getCompletedLearningModules());
+            existing.setLastUpdate(new Date());
+            jobStorage.write(existing);
+        }
     }
 
-    public static void storeJobs(Context context, List<ConnectJobRecord> jobs) {
+    public static void storeJobs(Context context, List<ConnectJobRecord> jobs, boolean pruneMissing) {
         SqlStorage<ConnectJobRecord> jobStorage = getConnectStorage(context, ConnectJobRecord.class);
         SqlStorage<ConnectAppRecord> appInfoStorage = getConnectStorage(context, ConnectAppRecord.class);
         SqlStorage<ConnectLearnModuleSummaryRecord> moduleStorage = getConnectStorage(context,
@@ -190,7 +205,7 @@ public class ConnectIdDatabaseHelper {
                 }
             }
 
-            if(!stillExists) {
+            if(!stillExists && pruneMissing) {
                 //Mark the job, learn/delivre app infos, and learn module infos for deletion
                 //Remember their IDs so we can delete them all at once after the loop
                 jobIdsToDelete.add(existing.getID());
@@ -204,9 +219,11 @@ public class ConnectIdDatabaseHelper {
             }
         }
 
-        jobStorage.removeAll(jobIdsToDelete);
-        appInfoStorage.removeAll(appInfoIdsToDelete);
-        moduleStorage.removeAll(moduleIdsToDelete);
+        if(pruneMissing) {
+            jobStorage.removeAll(jobIdsToDelete);
+            appInfoStorage.removeAll(appInfoIdsToDelete);
+            moduleStorage.removeAll(moduleIdsToDelete);
+        }
 
         //Now insert/update jobs
         for (ConnectJobRecord incomingJob : jobs) {

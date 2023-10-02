@@ -129,7 +129,7 @@ public class ConnectJobsListsFragment extends Fragment {
                         }
 
                         //Store retrieved jobs
-                        ConnectIdDatabaseHelper.storeJobs(getContext(), jobs);
+                        ConnectIdDatabaseHelper.storeJobs(getContext(), jobs, true);
 
                         updateUpdatedDate();
                         viewStateAdapter.refresh();

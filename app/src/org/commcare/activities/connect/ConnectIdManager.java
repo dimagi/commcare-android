@@ -576,7 +576,7 @@ public class ConnectIdManager {
     public static void rememberAppCredentials(String appId, String userId, String passwordOrPin) {
         ConnectIdManager manager = getInstance();
         if (isUnlocked()) {
-            ConnectIdDatabaseHelper.storeApp(manager.parentActivity, appId, userId, passwordOrPin);
+            ConnectIdDatabaseHelper.storeApp(manager.parentActivity, appId, userId, passwordOrPin, false);
         }
     }
 
@@ -626,15 +626,19 @@ public class ConnectIdManager {
         //Ctreate password
         String password = ConnectIdDatabaseHelper.generatePassword();
 
-        //Store ConnectLinkedAppRecord
-        ConnectLinkedAppRecord appRecord = ConnectIdDatabaseHelper.storeApp(context, appId, username, password);
+        //Store ConnectLinkedAppRecord (note worker already linked)
+        ConnectLinkedAppRecord appRecord = ConnectIdDatabaseHelper.storeApp(context, appId, username, password, true);
 
         //Store UKR
         SecretKey newKey = CryptUtil.generateSemiRandomKey();
         String sandboxId = PropertyUtils.genUUID().replace("-", "");
+        Date fromDate = new Date();
+        long tenYears = 10 * 365 * 24 * 3600;
+        Date toDate = new Date(fromDate.getTime() + tenYears);
+
         UserKeyRecord ukr = new UserKeyRecord(username, UserKeyRecord.generatePwdHash(password),
                 ByteEncrypter.wrapByteArrayWithString(newKey.getEncoded(), password),
-                new Date(), new Date(Long.MAX_VALUE), sandboxId);
+                fromDate, toDate, sandboxId);
 
         CommCareApplication.instance().getCurrentApp().getStorage(UserKeyRecord.class).write(ukr);
 

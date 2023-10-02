@@ -35,6 +35,8 @@ import java.util.List;
 import java.util.Locale;
 
 import androidx.fragment.app.Fragment;
+import androidx.navigation.NavDirections;
+import androidx.navigation.Navigation;
 
 /**
  * Fragment for showing learning progress for a Connect job
@@ -81,24 +83,23 @@ public class ConnectLearningProgressFragment extends Fragment {
         ConnectIdNetworkHelper.getLearnProgress(getContext(), job.getJobId(), new ConnectIdNetworkHelper.INetworkResultHandler() {
             @Override
             public void processSuccess(int responseCode, InputStream responseData) {
-                //TODO DAV: Handle received learn progress
-//                try {
-//                    String responseAsString = new String(StreamsUtil.inputStreamToByteArray(responseData));
-//                    if (responseAsString.length() > 0) {
-//                        //Parse the JSON
-//                        JSONArray json = new JSONArray(responseAsString);
+                try {
+                    String responseAsString = new String(StreamsUtil.inputStreamToByteArray(responseData));
+                    if (responseAsString.length() > 0) {
+                        //Parse the JSON
+                        JSONArray json = new JSONArray(responseAsString);
 //                        List<ConnectJobRecord> jobs = new ArrayList<>(json.length());
 //                        for(int i=0; i<json.length(); i++) {
 //                            JSONObject obj = (JSONObject)json.get(i);
 //                            jobs.add(ConnectJobRecord.fromJson(obj));
 //                        }
-//
-//                        //Store retrieved jobs
-//                        ConnectIdDatabaseHelper.storeJobs(getContext(), jobs);
-//                    }
-//                } catch (IOException e) {
-//                    Logger.exception("Parsing return from learn_progress request", e);
-//                }
+
+                        job.setComletedLearningModules(json.length());
+                        ConnectIdDatabaseHelper.updateJobLearnProgress(getContext(), job);
+                    }
+                } catch (IOException | JSONException e) {
+                    Logger.exception("Parsing return from learn_progress request", e);
+                }
 
                 updateUi(view, job);
             }
@@ -134,7 +135,7 @@ public class ConnectLearningProgressFragment extends Fragment {
         String buttonText;
         if (learningFinished) {
             status = getString(R.string.connect_learn_finished);
-            buttonText = getString(R.string.connect_learn_start_claim);
+            buttonText = getString(R.string.connect_learn_view_details);
         } else if(percent > 0) {
             status = getString(R.string.connect_learn_status, completed, numModules);
             buttonText = getString(R.string.connect_learn_continue);
@@ -147,6 +148,8 @@ public class ConnectLearningProgressFragment extends Fragment {
         progressText.setVisibility(learningFinished ? View.GONE : View.VISIBLE);
         ProgressBar progressBar = view.findViewById(R.id.connect_learning_progress_bar);
         progressBar.setVisibility(learningFinished ? View.GONE : View.VISIBLE);
+        LinearLayout progressBarTextContainer = view.findViewById(R.id.connect_learn_progress_bar_text_container);
+        progressBarTextContainer.setVisibility(learningFinished ? View.GONE : View.VISIBLE);
         if(!learningFinished) {
             progressBar.setProgress(percent);
             progressBar.setMax(100);
@@ -192,11 +195,12 @@ public class ConnectLearningProgressFragment extends Fragment {
             completeByText.setText(getString(R.string.connect_learn_complete_by, df.format(job.getProjectEndDate())));
         }
 
-        Button button = view.findViewById(R.id.connect_learning_button);
+        final Button button = view.findViewById(R.id.connect_learning_button);
         button.setText(buttonText);
         button.setOnClickListener(v -> {
             if(learningFinished) {
-                //TODO DAV: Claim job
+                NavDirections directions = ConnectLearningProgressFragmentDirections.actionConnectJobLearningProgressFragmentToConnectJobDeliveryDetailsFragment(job);
+                Navigation.findNavController(button).navigate(directions);
             }
             else {
                 CommCareLauncher.launchCommCareForAppIdFromConnect(getContext(), job.getLearnAppInfo().getAppId());

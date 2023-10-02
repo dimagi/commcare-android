@@ -95,13 +95,12 @@ public class ConnectJobIntroFragment extends Fragment {
                     //TODO DAV: Expecting to eventually get HQ username from server here
                     job.setStatus(ConnectJobRecord.STATUS_LEARNING);
 
-
                     NavDirections directions;
                     if (appInstalled) {
                         directions = ConnectJobIntroFragmentDirections.actionConnectJobIntroFragmentToConnectJobLearningProgressFragment(job);
                     } else {
                         String title = getString(R.string.connect_downloading_learn);
-                        directions = ConnectJobIntroFragmentDirections.actionConnectJobIntroFragmentToConnectDownloadingFragment(title, job);
+                        directions = ConnectJobIntroFragmentDirections.actionConnectJobIntroFragmentToConnectDownloadingFragment(title, true, job);
                     }
 
                     Navigation.findNavController(button).navigate(directions);

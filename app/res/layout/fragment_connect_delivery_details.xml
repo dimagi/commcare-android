@@ -150,8 +150,6 @@
         android:layout_marginTop="10dp"
         android:layout_marginStart="20dp"
         android:layout_marginEnd="20dp"
-        android:text="@string/connect_delivery_download_app" />
-
-
+        android:text="@string/connect_delivery_claim" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -630,6 +630,7 @@
 
     <string name="connect_job_none_training">You\'re not training for any jobs right now</string>
     <string name="connect_job_none_active">You don\'t have any active jobs right now</string>
+    <string name="connect_job_none_available">There are no available opportunities right now</string>
     <string name="connect_job_training">Jobs I\'m Training For</string>
     <string name="connect_job_claimed">My Claimed Jobs</string>
     <string name="connect_job_completed">Completed on %s</string>
@@ -651,7 +652,7 @@
     <string name="connect_learn_certificate">CERTIFICATE OF COMPLETION</string>
     <string name="connect_learn_completed">Completed on: %s</string>
     <string name="connect_learn_claim_label">Claim Job to Deliver Care</string>
-    <string name="connect_learn_start_claim">Start Claim</string>
+    <string name="connect_learn_view_details">View Delivery Details</string>
     <string name="connect_learn_start">Start Learning</string>
     <string name="connect_learn_continue">Continue Learning</string>
 
@@ -666,7 +667,7 @@
     <string name="connect_delivery_expired">Opportunity Expired</string>
     <string name="connect_delivery_ready_to_claim_detailed">To complete this claim and start delivering care, download the delivery app.</string>
     <string name="connect_delivery_expired_detailed">The last date for the project is over. You will be notified if the opportunity opens up again.</string>
-    <string name="connect_delivery_download_app">Download Delivery App</string>
+    <string name="connect_delivery_claim">Claim Job</string>
 
     <string name="connect_progress_delivery">Delivery</string>
     <string name="connect_progress_delivery_verification">Verification &amp; Payments</string>
