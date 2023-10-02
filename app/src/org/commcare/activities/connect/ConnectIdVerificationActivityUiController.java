@@ -25,10 +25,6 @@ public class ConnectIdVerificationActivityUiController implements CommCareActivi
 
     @UiElement(value = R.id.connect_verify_fingerprint_container)
     private LinearLayout fingerprintContainer;
-    @UiElement(value = R.id.connect_verify_fingerprint_message)
-    private TextView fingerprintTextView;
-    @UiElement(value = R.id.connect_verify_fingerprint_icon)
-    private ImageView fingerprintIcon;
     @UiElement(value = R.id.connect_verify_fingerprint_button)
     private Button fingerprintButton;
 
@@ -37,10 +33,6 @@ public class ConnectIdVerificationActivityUiController implements CommCareActivi
 
     @UiElement(value = R.id.connect_verify_pin_container)
     private LinearLayout pinContainer;
-    @UiElement(value = R.id.connect_verify_pin_message)
-    private TextView pinTextView;
-    @UiElement(value = R.id.connect_verify_pin_icon)
-    private ImageView pinIcon;
     @UiElement(value = R.id.connect_verify_pin_button)
     private Button pinButton;
 
@@ -73,20 +65,18 @@ public class ConnectIdVerificationActivityUiController implements CommCareActivi
         messageTextView.setText(text);
     }
 
-    public void updateFingerprint(String fingerprintMessageText, String fingerprintButtonText) {
+    public void updateFingerprint(String fingerprintButtonText) {
         boolean showFingerprint = fingerprintButtonText != null;
         fingerprintContainer.setVisibility(showFingerprint ? View.VISIBLE : View.GONE);
         if (showFingerprint) {
-            fingerprintTextView.setText(fingerprintMessageText);
             fingerprintButton.setText(fingerprintButtonText);
         }
     }
 
-    public void updatePin(String pinMessageText, String pinButtonText) {
+    public void updatePin(String pinButtonText) {
         boolean showPin = pinButtonText != null;
         pinContainer.setVisibility(showPin ? View.VISIBLE : View.GONE);
         if (showPin) {
-            pinTextView.setText(pinMessageText);
             pinButton.setText(pinButtonText);
         }
     }

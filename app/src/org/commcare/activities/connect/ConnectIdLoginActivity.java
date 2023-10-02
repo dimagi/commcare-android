@@ -98,7 +98,9 @@ public class ConnectIdLoginActivity extends CommCareActivity<ConnectIdLoginActiv
 
     public void performFingerprintUnlock() {
         attemptingFingerprint = true;
-        BiometricsHelper.authenticateFingerprint(this, biometricManager, biometricPromptCallbacks);
+        boolean allowOtherOptions = BiometricsHelper.isPinConfigured(this, biometricManager) ||
+                allowPassword;
+        BiometricsHelper.authenticateFingerprint(this, biometricManager, allowOtherOptions, biometricPromptCallbacks);
     }
 
     public void performPasswordUnlock() {
@@ -118,7 +120,8 @@ public class ConnectIdLoginActivity extends CommCareActivity<ConnectIdLoginActiv
                 super.onAuthenticationError(errorCode, errString);
                 if (attemptingFingerprint) {
                     attemptingFingerprint = false;
-                    if (!BiometricsHelper.isPinConfigured(context, biometricManager)) {
+                    if (!BiometricsHelper.isPinConfigured(context, biometricManager) &&
+                            allowPassword) {
                         //Automatically try password, it's the only option
                         performPasswordUnlock();
                     } else {
