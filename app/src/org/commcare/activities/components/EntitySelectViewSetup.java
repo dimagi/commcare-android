@@ -20,7 +20,7 @@ public class EntitySelectViewSetup {
             }
             dividerWidth += (int)context.getResources().getDimension(R.dimen.row_padding_horizontal);
 
-            LayerDrawable dividerDrawable = (LayerDrawable)context.getResources().getDrawable(R.drawable.divider_case_list_modern);
+            LayerDrawable dividerDrawable = (LayerDrawable)context.getDrawable(R.drawable.divider_case_list_modern);
             dividerDrawable.setLayerInset(0, dividerWidth, 0, 0, 0);
 
             view.setDivider(dividerDrawable);

@@ -59,29 +59,31 @@ public class CommCareNoficationManager {
                 return;
             }
 
-            String title = pendingMessages.get(0).getTitle();
+            if (areNotificationsEnabled()) {
+                String title = pendingMessages.get(0).getTitle();
 
-            // The PendingIntent to launch our activity if the user selects this notification
-            Intent i = new Intent(context, MessageActivity.class);
+                // The PendingIntent to launch our activity if the user selects this notification
+                Intent i = new Intent(context, MessageActivity.class);
 
-            int intentFlags = 0;
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
-                intentFlags = PendingIntent.FLAG_IMMUTABLE;
-            PendingIntent contentIntent = PendingIntent.getActivity(context, 0, i, intentFlags);
+                int intentFlags = 0;
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+                    intentFlags = PendingIntent.FLAG_IMMUTABLE;
+                PendingIntent contentIntent = PendingIntent.getActivity(context, 0, i, intentFlags);
 
-            String additional = pendingMessages.size() > 1 ? Localization.get("notifications.prompt.more", new String[]{String.valueOf(pendingMessages.size() - 1)}) : "";
-            Notification messageNotification = new NotificationCompat.Builder(context, NOTIFICATION_CHANNEL_ERRORS_ID)
-                    .setContentTitle(title)
-                    .setContentText(Localization.get("notifications.prompt.details", new String[]{additional}))
-                    .setSmallIcon(R.drawable.notification)
-                    .setNumber(pendingMessages.size())
-                    .setContentIntent(contentIntent)
-                    .setDeleteIntent(PendingIntent.getBroadcast(context, 0, new Intent(context, NotificationClearReceiver.class), intentFlags))
-                    .setOngoing(true)
-                    .setWhen(System.currentTimeMillis())
-                    .build();
+                String additional = pendingMessages.size() > 1 ? Localization.get("notifications.prompt.more", new String[]{String.valueOf(pendingMessages.size() - 1)}) : "";
+                Notification messageNotification = new NotificationCompat.Builder(context, NOTIFICATION_CHANNEL_ERRORS_ID)
+                        .setContentTitle(title)
+                        .setContentText(Localization.get("notifications.prompt.details", new String[]{additional}))
+                        .setSmallIcon(R.drawable.notification)
+                        .setNumber(pendingMessages.size())
+                        .setContentIntent(contentIntent)
+                        .setDeleteIntent(PendingIntent.getBroadcast(context, 0, new Intent(context, NotificationClearReceiver.class), intentFlags))
+                        .setOngoing(true)
+                        .setWhen(System.currentTimeMillis())
+                        .build();
 
-            mNM.notify(MESSAGE_NOTIFICATION, messageNotification);
+                mNM.notify(MESSAGE_NOTIFICATION, messageNotification);
+            }
         }
     }
 
@@ -98,6 +100,7 @@ public class CommCareNoficationManager {
             for (NotificationMessage message : toRemove) {
                 pendingMessages.remove(message);
             }
+
             if (pendingMessages.size() == 0) {
                 mNM.cancel(MESSAGE_NOTIFICATION);
             } else {
@@ -139,6 +142,15 @@ public class CommCareNoficationManager {
             // Otherwise, add it to the queue, and update the notification
             pendingMessages.add(message);
             updateMessageNotification();
+        }
+    }
+
+    public boolean areNotificationsEnabled() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            return ((NotificationManager)context.getSystemService(NOTIFICATION_SERVICE))
+                    .areNotificationsEnabled();
+        } else {
+            return true;
         }
     }
 

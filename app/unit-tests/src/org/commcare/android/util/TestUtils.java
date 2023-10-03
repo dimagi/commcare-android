@@ -47,6 +47,7 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.test_utils.ExprEvalUtils;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
+import org.javarosa.xpath.parser.XPathSyntaxException;
 import org.robolectric.RuntimeEnvironment;
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -362,12 +363,19 @@ public class TestUtils {
         return new EvaluationContext(null, instances);
     }
 
-    public static void assertFormValue(String expr, Object expectedValue){
+    public static void assertFormValue(String expr, Object expectedValue) {
         FormDef formDef = FormEntryActivity.mFormController.getFormEntryController().getModel().getForm();
         FormInstance instance = formDef.getMainInstance();
 
         String errorMsg;
         errorMsg = ExprEvalUtils.expectedEval(expr, instance, null, expectedValue, null);
         assertTrue(errorMsg, "".equals(errorMsg));
+    }
+
+    public static Object getFormValue(String expr) throws XPathSyntaxException {
+        FormDef formDef = FormEntryActivity.mFormController.getFormEntryController().getModel().getForm();
+        FormInstance instance = formDef.getMainInstance();
+        EvaluationContext ec = new EvaluationContext(instance);
+        return ExprEvalUtils.xpathEval(ec, expr);
     }
 }

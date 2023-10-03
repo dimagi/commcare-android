@@ -144,4 +144,9 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
         setResult(RESULT_OK, i);
         finish();
     }
+
+    @Override
+    public boolean shouldListenToSyncComplete() {
+        return true;
+    }
 }

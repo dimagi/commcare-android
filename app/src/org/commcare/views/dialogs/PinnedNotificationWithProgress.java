@@ -12,7 +12,6 @@ import androidx.core.app.NotificationCompat;
 
 import org.commcare.CommCareNoficationManager;
 import org.commcare.activities.UpdateActivity;
-import org.commcare.engine.resource.AppInstallStatus;
 import org.commcare.tasks.ResultAndError;
 import org.commcare.tasks.TaskListener;
 import org.javarosa.core.services.locale.Localization;
@@ -22,19 +21,21 @@ import org.javarosa.core.services.locale.Localization;
  *
  * @author Phillip Mates (pmates@dimagi.com).
  */
-public class PinnedNotificationWithProgress
-        implements TaskListener<Integer, ResultAndError<AppInstallStatus>> {
+public class PinnedNotificationWithProgress<R>
+        implements TaskListener<Integer, ResultAndError<R>> {
     private final NotificationManager notificationManager;
     private final int notificationId;
     private final NotificationCompat.Builder notificationBuilder;
 
-    private final String progressText;
+    private String progressText;
+    private String titleText;
 
     public PinnedNotificationWithProgress(Context ctx, String titleText,
                                           String progressText,
                                           int largeIconResource) {
         this.notificationId = titleText.hashCode();
         this.progressText = progressText;
+        this.titleText = titleText;
 
         notificationManager =
                 (NotificationManager)ctx.getSystemService(Context.NOTIFICATION_SERVICE);
@@ -61,6 +62,10 @@ public class PinnedNotificationWithProgress
         return Localization.get(progressText, new String[]{"" + progress, "" + max});
     }
 
+    private String getProgressText(int completion) {
+        return Localization.get(progressText, new String[]{"" + completion});
+    }
+
     private PendingIntent buildPendingIntent(Context ctx) {
         int intentFlags = PendingIntent.FLAG_UPDATE_CURRENT;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
@@ -81,18 +86,35 @@ public class PinnedNotificationWithProgress
             max = updateVals[1];
         }
 
-        notificationBuilder.setProgress(max, progress, false);
-        notificationBuilder.setContentText(getProgressText(progress, max));
+        // if max is -1, it means that the progress is percentage
+        if (max == -1){
+            notificationBuilder.setProgress(100, progress, false);
+            notificationBuilder.setContentText(getProgressText(progress));
+        }
+        else{
+            notificationBuilder.setProgress(max, progress, false);
+            notificationBuilder.setContentText(getProgressText(progress, max));
+        }
+        notificationBuilder.setContentTitle(Localization.get(titleText));
+
         notificationManager.notify(notificationId, notificationBuilder.build());
     }
 
     @Override
-    public void handleTaskCompletion(ResultAndError<AppInstallStatus> result) {
+    public void handleTaskCompletion(ResultAndError<R> result) {
         notificationManager.cancel(notificationId);
     }
 
     @Override
     public void handleTaskCancellation() {
         notificationManager.cancel(notificationId);
+    }
+
+    public void setTitleText(String titleText) {
+        this.titleText = titleText;
+    }
+
+    public void setProgressText(String progressText) {
+        this.progressText = progressText;
     }
 }
