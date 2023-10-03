@@ -58,3 +58,9 @@ Then retrieve the XML for a specific fixture from this list:
 
 `FixtureUtils.getFixtureXml(Context context, String fixtureId`
 
+#### CommCare Launch Helpers
+
+Launch CommCare with a specific CommCare App:
+
+`CommCareLauncher.launchCommCareForAppId(Context context, String appId)`
+

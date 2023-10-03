@@ -6,7 +6,9 @@ import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.activities.GeoPointActivity;
 import org.commcare.android.logging.ReportingUtils;
+import org.commcare.services.FCMMessageData;
 import org.commcare.utils.AndroidCommCarePlatform;
+import org.commcare.utils.FirebaseMessagingUtil;
 import org.commcare.utils.GeoUtils;
 import org.commcare.utils.MapLayer;
 
@@ -98,11 +100,18 @@ public class HiddenPreferences {
     static final String ENABLE_CERTIFICATE_TRANSPARENCY = "cc-enable-certificate-transparency";
 
     // This is to be used by CommCareFirebaseMessagingService to schedule a sync after the next Login
-    public final static String PENDING_SYNC_REQUEST_FROM_SERVER = "pending-sync-request-from-server";
+    public final static String BACKGROUND_SYNC_PENDING = "background-sync-pending-";
 
     private static final String ENABLE_ANDROID_WINDOW_SECURE_FLAG = "cc-enable-android-window-secure-flag";
+    public final static String DONT_SHOW_PENDING_SYNC_DIALOG = "dont-show-pending-sync-dialog";
+    private static final String ENABLE_BACKGROUND_SYNC = "cc-enable-background-sync";
 
-
+    /**
+     * The domain name in the application profile file comes in the <domain>.commcarehq.org form,
+     * this is standard across the different HQ servers. This constant is to store that suffix and
+     * be used to remove it form the user domain name to match how the domain represented in the backend
+     */
+    public static final String USER_DOMAIN_SERVER_URL_SUFFIX = ".commcarehq.org";
 
     /**
      * @return How many seconds should a user session remain open before expiring?
@@ -263,6 +272,18 @@ public class HiddenPreferences {
     public static String getUserDomain() {
         SharedPreferences prefs = CommCareApplication.instance().getCurrentApp().getAppPreferences();
         return prefs.getString(USER_DOMAIN_SUFFIX, null);
+    }
+
+    public static String getUserDomainWithoutServerUrl() {
+        String userDomain = getUserDomain();
+        if (userDomain == null){
+            return null;
+        }
+
+        if (userDomain.contains(USER_DOMAIN_SERVER_URL_SUFFIX)){
+            return userDomain.replace(USER_DOMAIN_SERVER_URL_SUFFIX, "");
+        }
+        return userDomain;
     }
 
     public static void setPostUpdateSyncNeeded(boolean b) {
@@ -562,18 +583,50 @@ public class HiddenPreferences {
         return DeveloperPreferences.doesPropertyMatch(ENABLE_CERTIFICATE_TRANSPARENCY, PrefValues.NO, PrefValues.YES);
     }
 
-    public static boolean isPendingSyncRequestFromServer() {
+    public static boolean isPendingSyncRequest(String loggedInUser) {
         return PreferenceManager.getDefaultSharedPreferences(CommCareApplication.instance())
-                .getBoolean(PENDING_SYNC_REQUEST_FROM_SERVER, false);
+                .contains(BACKGROUND_SYNC_PENDING + loggedInUser + "@"+ getUserDomainWithoutServerUrl());
     }
 
-    public static void setPendingSyncRequestFromServer(boolean syncNeeded) {
+    public static void setPendingSyncRequest(FCMMessageData fcmMessageData) {
         PreferenceManager.getDefaultSharedPreferences(CommCareApplication.instance()).edit()
-                .putBoolean(PENDING_SYNC_REQUEST_FROM_SERVER, syncNeeded)
+                .putString(BACKGROUND_SYNC_PENDING + fcmMessageData.getUsername() + "@"+ fcmMessageData.getDomain(),
+                        FirebaseMessagingUtil.serializeFCMMessageData(fcmMessageData))
+                .apply();
+    }
+
+    public static FCMMessageData getPendingSyncRequest(String username) {
+        String serializedMessageData = PreferenceManager.getDefaultSharedPreferences(CommCareApplication.instance())
+                .getString(BACKGROUND_SYNC_PENDING + username + "@"+ getUserDomainWithoutServerUrl(), null);
+        return FirebaseMessagingUtil.deserializeFCMMessageData(serializedMessageData);
+    }
+
+    public static void clearPendingSyncRequest(String loggedInUser) {
+        PreferenceManager.getDefaultSharedPreferences(CommCareApplication.instance()).edit()
+                .remove(BACKGROUND_SYNC_PENDING + loggedInUser + "@"+ getUserDomainWithoutServerUrl())
                 .apply();
     }
 
     public static boolean isFlagSecureEnabled() {
         return DeveloperPreferences.doesPropertyMatch(ENABLE_ANDROID_WINDOW_SECURE_FLAG, PrefValues.NO, PrefValues.YES);
+    }
+
+    public static boolean isPendingSyncDialogDisabled() {
+        return CommCareApplication.instance().getCurrentApp().getAppPreferences()
+                .getBoolean(DONT_SHOW_PENDING_SYNC_DIALOG, false);
+    }
+
+    public static void setPendingSyncDialogDisabled(boolean dialogDisabled) {
+        CommCareApplication.instance().getCurrentApp().getAppPreferences().edit()
+                .putBoolean(DONT_SHOW_PENDING_SYNC_DIALOG, dialogDisabled)
+                .apply();
+    }
+
+    /**
+     * This custom property is used to enable background syncing and it works in conjunction
+     * with Firebase Messaging Push Notifications
+     */
+    public static boolean isBackgroundSyncEnabled() {
+        return DeveloperPreferences.doesPropertyMatch(ENABLE_BACKGROUND_SYNC, PrefValues.NO, PrefValues.YES);
     }
 }

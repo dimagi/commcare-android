@@ -1,5 +1,7 @@
 package org.commcare.activities;
 
+import static org.commcare.commcaresupportlibrary.CommCareLauncher.SESSION_ENDPOINT_APP_ID;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -11,18 +13,24 @@ import org.commcare.CommCareApplication;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.dalvik.R;
+import org.commcare.models.AndroidSessionWrapper;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.recovery.measures.ExecuteRecoveryMeasuresActivity;
 import org.commcare.recovery.measures.RecoveryMeasuresHelper;
+import org.commcare.session.CommCareSession;
+import org.commcare.suite.model.StackFrameStep;
 import org.commcare.utils.AndroidShortcuts;
 import org.commcare.utils.CommCareLifecycleUtils;
 import org.commcare.utils.MultipleAppsUtil;
 import org.commcare.utils.SessionUnavailableException;
+import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.services.locale.Localization;
 
 import java.util.ArrayList;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import javax.annotation.Nullable;
 
 /**
  * Dispatches install, login, and home screen activities.
@@ -43,7 +51,7 @@ public class DispatchActivity extends AppCompatActivity {
     public static final String WAS_SHORTCUT_LAUNCH = "launch_from_shortcut";
     public static final String START_FROM_LOGIN = "process_successful_login";
     public static final String EXECUTE_RECOVERY_MEASURES = "execute_recovery_measures";
-
+    public static final String SESSION_REBUILD_REQUEST = "session_rebuild_request";
     private static final int LOGIN_USER = 0;
     private static final int HOME_SCREEN = 1;
     public static final int INIT_APP = 2;
@@ -72,7 +80,7 @@ public class DispatchActivity extends AppCompatActivity {
     private boolean waitingForActivityResultFromLogin;
 
     boolean alreadyCheckedForAppFilesChange;
-
+    static final String REBUILD_SESSION = "rebuild_session";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -179,6 +187,9 @@ public class DispatchActivity extends AppCompatActivity {
                     }
                 } else if (!CommCareApplication.instance().getSession().isActive()) {
                     launchLoginScreen();
+                } else if (needAnotherAppLogin()){
+                    CommCareApplication.instance().closeUserSession();
+                    launchLoginScreen();
                 } else if (isExternalLaunch()) {
                     // CommCare was launched from an external app, with a session descriptor
                     handleExternalLaunch();
@@ -186,13 +197,25 @@ public class DispatchActivity extends AppCompatActivity {
                         !shortcutExtraWasConsumed) {
                     // CommCare was launched from a shortcut
                     handleShortcutLaunch();
-                } else {
+                }
+                else {
                     launchHomeScreen();
                 }
             } catch (SessionUnavailableException sue) {
                 launchLoginScreen();
             }
         }
+    }
+
+    private boolean needAnotherAppLogin() {
+        String sesssionEndpointAppID = getSessionEndpointAppId();
+        if (sesssionEndpointAppID != null) {
+            CommCareApp currentApp = CommCareApplication.instance().getCurrentApp();
+            if (currentApp != null) {
+                return !currentApp.getUniqueId().equals(sesssionEndpointAppID);
+            }
+        }
+        return false;
     }
 
     private boolean isExternalLaunch() {
@@ -259,6 +282,10 @@ public class DispatchActivity extends AppCompatActivity {
             // AMS 06/09/16: This check is needed due to what we believe is a bug in the Android platform
             Intent i = new Intent(this, LoginActivity.class);
             i.putExtra(LoginActivity.USER_TRIGGERED_LOGOUT, userTriggeredLogout);
+            String sesssionEndpointAppID = getSessionEndpointAppId();
+            if (sesssionEndpointAppID != null) {
+                i.putExtra(LoginActivity.EXTRA_APP_ID, sesssionEndpointAppID);
+            }
             startActivityForResult(i, LOGIN_USER);
             waitingForActivityResultFromLogin = true;
         } else {
@@ -267,6 +294,11 @@ public class DispatchActivity extends AppCompatActivity {
                             "a new LoginActivity while it is still waiting for a result from " +
                             "another one.");
         }
+    }
+
+    @Nullable
+    private String getSessionEndpointAppId() {
+        return getIntent().getStringExtra(SESSION_ENDPOINT_APP_ID);
     }
 
     private void launchHomeScreen() {

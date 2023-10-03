@@ -1,13 +1,12 @@
 package org.commcare.activities;
 
-import android.annotation.TargetApi;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.app.AlertDialog;
+import android.Manifest;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.net.wifi.p2p.WifiP2pConfig;
 import android.net.wifi.p2p.WifiP2pDevice;
 import android.net.wifi.p2p.WifiP2pManager;
@@ -16,12 +15,20 @@ import android.net.wifi.p2p.WifiP2pManager.Channel;
 import android.net.wifi.p2p.WifiP2pManager.PeerListListener;
 import android.os.Build;
 import android.os.Bundle;
-import androidx.fragment.app.FragmentTransaction;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.Pair;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AlertDialog;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.MutableLiveData;
+
 
 import org.commcare.CommCareApplication;
 import org.commcare.android.adapters.WiFiDirectUIController;
@@ -62,6 +69,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Vector;
+
+import static org.commcare.activities.CommCareWiFiDirectActivity.PermissionAction.INFORM_FEATURE_DEGRADATION;
+import static org.commcare.activities.CommCareWiFiDirectActivity.PermissionAction.REQUEST_PERMISSION;
+import static org.commcare.activities.CommCareWiFiDirectActivity.PermissionAction.SHOW_PERMISSION_RATIONALE;
 
 /**
  * An activity that uses WiFi Direct APIs to discover and connect with available
@@ -104,6 +115,38 @@ public class CommCareWiFiDirectActivity
 
     private FormRecord[] cachedRecords;
 
+    private final int NEARBY_WIFI_PERM_REQUEST = 2;
+    private final String SHOW_PERMISSION_DIALOG = "show-permission-dialog";
+    /**
+     * Responsible for showing a dialog to the user related with permissions acquisition and its
+     * restoration in case of configuration changes, it can take:
+     * - NO_ACTION - No action
+     * - REJECT_FEATURE - Inform the user about feature unavailability when the permission was not
+     * granted
+     * - SHOW_PERMISSION_RATIONALE - Show the reason for needing the permission
+     * - REQUEST_PERMISSION - Request permission to the user
+     */
+    private MutableLiveData<PermissionAction> showingPermissionDialog = new MutableLiveData<>(PermissionAction.NO_ACTION);
+
+    public enum PermissionAction {
+        NO_ACTION,
+        INFORM_FEATURE_DEGRADATION,
+        SHOW_PERMISSION_RATIONALE,
+        REQUEST_PERMISSION;
+    }
+
+    {
+        showingPermissionDialog.observe(this, value -> {
+            if (value == INFORM_FEATURE_DEGRADATION) {
+                informUserAboutFeatureUnavailability();
+            } else if (value == SHOW_PERMISSION_RATIONALE) {
+                showNearbyWiFiPermissionRationale();
+            } else if (value == REQUEST_PERMISSION) {
+                requestNearbyWifiPermission();
+            }
+        });
+    }
+
     @Override
     public void onCreateSessionSafe(Bundle savedInstanceState) {
         super.onCreateSessionSafe(savedInstanceState);
@@ -137,6 +180,25 @@ public class CommCareWiFiDirectActivity
             showChangeStateDialog();
         }
         uiController.setupUI();
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            checkMissingNearbyWifiPermission();
+        }
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putInt(SHOW_PERMISSION_DIALOG, showingPermissionDialog.getValue().ordinal());
+    }
+
+    @Override
+    protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        if (savedInstanceState != null) {
+            showingPermissionDialog.setValue(
+                    PermissionAction.values()[savedInstanceState.getInt(SHOW_PERMISSION_DIALOG)]);
+        }
     }
 
     @Override
@@ -899,4 +961,67 @@ public class CommCareWiFiDirectActivity
         return mState;
     }
 
+    private void checkMissingNearbyWifiPermission() {
+        if (isMissingNearbyWifiPermission()) {
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                    Manifest.permission.NEARBY_WIFI_DEVICES)) {
+                showingPermissionDialog.setValue(SHOW_PERMISSION_RATIONALE);
+            } else {
+                showingPermissionDialog.setValue(REQUEST_PERMISSION);
+            }
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch (requestCode) {
+            case NEARBY_WIFI_PERM_REQUEST:
+                for (int i = 0; i < permissions.length; i++) {
+                    if (permissions[i].equals(Manifest.permission.NEARBY_WIFI_DEVICES) &&
+                            grantResults[i] != PackageManager.PERMISSION_GRANTED) {
+                        // inform user and end activity
+                        showingPermissionDialog.setValue(INFORM_FEATURE_DEGRADATION);
+                    }
+                }
+        }
+    }
+
+    private boolean isMissingNearbyWifiPermission() {
+        return ContextCompat.checkSelfPermission(this,
+                Manifest.permission.NEARBY_WIFI_DEVICES) != PackageManager.PERMISSION_GRANTED;
+    }
+
+    private void showNearbyWiFiPermissionRationale() {
+        StandardAlertDialog d = new StandardAlertDialog(this,
+                Localization.get("wifi.direct.permission.nearby.wifi.title"),
+                Localization.get("wifi.direct.permission.nearby.wifi.message"));
+        DialogInterface.OnClickListener listener = (dialog, which) -> {
+            showingPermissionDialog.setValue(REQUEST_PERMISSION);
+            dialog.dismiss();
+        };
+        d.setPositiveButton(Localization.get("dialog.ok"), listener);
+        showAlertDialog(d);
+    }
+
+    private void requestNearbyWifiPermission() {
+        ActivityCompat.requestPermissions(this,
+                new String[]{Manifest.permission.NEARBY_WIFI_DEVICES},
+                NEARBY_WIFI_PERM_REQUEST);
+    }
+
+    private void informUserAboutFeatureUnavailability() {
+        StandardAlertDialog d = StandardAlertDialog.getBasicAlertDialog(
+                this,
+                Localization.get("wifi.direct.permission.nearby.wifi.title"),
+                Localization.get("wifi.direct.permission.nearby.wifi.denial"),
+                (dialog, which) -> {
+                    showingPermissionDialog.setValue(PermissionAction.NO_ACTION);
+
+                    // terminate activity
+                    this.setResult(RESULT_CANCELED);
+                    this.finish();
+                });
+        showAlertDialog(d);
+    }
 }

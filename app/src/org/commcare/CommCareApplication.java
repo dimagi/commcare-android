@@ -196,6 +196,8 @@ public class CommCareApplication extends MultiDexApplication {
     private boolean invalidateCacheOnRestore;
     private CommCareNoficationManager noficationManager;
 
+    private boolean backgroundSyncSafe;
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -286,6 +288,14 @@ public class CommCareApplication extends MultiDexApplication {
         } else if (isFirstRunAfterUpdate()) {
             DataChangeLogger.log(new DataChangeLog.CommCareUpdate());
         }
+    }
+
+    public void setBackgroundSyncSafe(boolean backgroundSyncSafe){
+        this.backgroundSyncSafe = backgroundSyncSafe;
+    }
+
+    public boolean isBackgroundSyncSafe(){
+        return this.backgroundSyncSafe;
     }
 
     // Whether user is running CommCare for the first time after installation

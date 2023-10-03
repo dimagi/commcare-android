@@ -57,6 +57,9 @@ import org.commcare.logic.AndroidFormController;
 import org.commcare.models.AndroidSessionWrapper;
 import org.commcare.models.FormRecordProcessor;
 import org.commcare.models.database.SqlStorage;
+import org.commcare.preferences.HiddenPreferences;
+import org.commcare.services.FCMMessageData;
+import org.commcare.services.PendingSyncAlertBroadcastReceiver;
 import org.commcare.tasks.FormLoaderTask;
 import org.commcare.tasks.SaveToDiskTask;
 import org.commcare.tts.TextToSpeechCallback;
@@ -102,6 +105,7 @@ import androidx.appcompat.app.ActionBar;
 import androidx.core.app.ActivityCompat;
 
 import static org.commcare.android.database.user.models.FormRecord.QuarantineReason_LOCAL_PROCESSING_ERROR;
+import static org.commcare.sync.FirebaseMessagingDataSyncer.PENGING_SYNC_ALERT_ACTION;
 
 /**
  * Displays questions, animates transitions between
@@ -171,6 +175,9 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
     private boolean fullFormProfilingEnabled = false;
     private EvaluationTraceReporter traceReporter;
+
+    private PendingSyncAlertBroadcastReceiver pendingSyncAlertBroadcastReceiver = new PendingSyncAlertBroadcastReceiver();
+
     private TextToSpeechCallback mTTSCallback = new TextToSpeechCallback() {
         @Override
         public void initFailed() {
@@ -878,6 +885,8 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             PollSensorController.INSTANCE.stopLocationPolling();
         }
         TextToSpeechConverter.INSTANCE.stop();
+
+        unregisterReceiver(pendingSyncAlertBroadcastReceiver);
     }
 
     private void saveInlineVideoState() {
@@ -925,6 +934,12 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         restorePriorStates();
 
         reportVideoUsageIfAny();
+
+        IntentFilter intentFilter = new IntentFilter(PENGING_SYNC_ALERT_ACTION);
+        registerReceiver(pendingSyncAlertBroadcastReceiver, intentFilter);
+
+        // Flag that a background sync shouldn't be triggered when this activity is in the foreground
+        CommCareApplication.instance().setBackgroundSyncSafe(false);
     }
 
     private void reportVideoUsageIfAny() {
@@ -1496,6 +1511,25 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                     PollSensorController.INSTANCE.requestLocationUpdates();
                 }
                 break;
+        }
+    }
+
+    @Override
+    public void alertPendingSync(FCMMessageData fcmMessageData) {
+        if (!HiddenPreferences.isPendingSyncRequest(fcmMessageData.getUsername())) {
+            HiddenPreferences.setPendingSyncRequest(fcmMessageData);
+
+            if (!HiddenPreferences.isPendingSyncDialogDisabled()) {
+                StandardAlertDialog dialog = StandardAlertDialog.getBasicAlertDialogWithDisablingCheckbox(this,
+                        Localization.get("background.sync.pending.form.entry.title"),
+                        Localization.get("background.sync.pending.form.entry.detail"), (buttonView, isChecked) -> {
+                            HiddenPreferences.setPendingSyncDialogDisabled(isChecked);
+                        });
+                dialog.setPositiveButton(Localization.get("dialog.ok"), (dialog1, which) -> {
+                    dialog1.dismiss();
+                });
+                showAlertDialog(dialog);
+            }
         }
     }
 

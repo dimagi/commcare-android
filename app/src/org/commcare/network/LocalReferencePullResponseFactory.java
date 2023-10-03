@@ -37,9 +37,10 @@ public enum LocalReferencePullResponseFactory implements DataPullRequester {
     public RemoteDataPullResponse makeDataPullRequest(DataPullTask task,
                                                       CommcareRequestEndpoints requestor,
                                                       String server,
-                                                      boolean includeSyncToken) throws IOException {
+                                                      boolean includeSyncToken,
+                                                      boolean skipFixtures) throws IOException {
         numTries++;
-        Response<ResponseBody> response = requestor.makeCaseFetchRequest(server, includeSyncToken);
+        Response<ResponseBody> response = requestor.makeCaseFetchRequest(server, includeSyncToken, skipFixtures);
         return new LocalReferencePullResponse(xmlPayloadReferences.remove(0), response);
     }
 

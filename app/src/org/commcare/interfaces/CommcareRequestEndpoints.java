@@ -20,7 +20,7 @@ import retrofit2.Response;
  * @author Phillip Mates (pmates@dimagi.com)
  */
 public interface CommcareRequestEndpoints {
-    Response<ResponseBody> makeCaseFetchRequest(String baseUri, boolean includeStateFlags) throws IOException;
+    Response<ResponseBody> makeCaseFetchRequest(String baseUri, boolean includeStateFlags, boolean skipFixtures) throws IOException;
 
     Response<ResponseBody> makeKeyFetchRequest(String baseUri, @Nullable Date lastRequest) throws IOException;
 
