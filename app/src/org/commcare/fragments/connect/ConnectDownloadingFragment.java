@@ -85,6 +85,10 @@ public class ConnectDownloadingFragment extends Fragment implements ResourceEngi
     }
 
     private void onSuccessfulInstall() {
+        startLearning();
+    }
+
+    public void startLearning() {
         View view = getView();
         if (view != null) {
             NavDirections directions;
