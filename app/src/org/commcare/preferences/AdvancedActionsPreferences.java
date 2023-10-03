@@ -3,7 +3,6 @@ package org.commcare.preferences;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.os.Build;
 import android.widget.Toast;
 
 import org.commcare.AppUtils;
@@ -36,6 +35,8 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.preference.Preference;
+
+import static android.app.Activity.RESULT_CANCELED;
 
 /**
  * Menu for launching advanced CommCare actions
@@ -292,14 +293,14 @@ public class AdvancedActionsPreferences extends CommCarePreferenceFragment {
         d.showNonPersistentDialog();
     }
 
-    private static String getClearUserDataMessage(int numUnsentAndIncompleteForms){
+    private static String getClearUserDataMessage(int numUnsentAndIncompleteForms) {
         if (numUnsentAndIncompleteForms > 0)
-            return Localization.get("clear.user.data.warning.message.delete.forms",String.valueOf(numUnsentAndIncompleteForms));
+            return Localization.get("clear.user.data.warning.message.delete.forms", String.valueOf(numUnsentAndIncompleteForms));
         else
             return Localization.get("clear.user.data.warning.message");
     }
 
-    private static int getClearUserDataPositiveOption(int numUnsentAndIncompleteForms){
+    private static int getClearUserDataPositiveOption(int numUnsentAndIncompleteForms) {
         if (numUnsentAndIncompleteForms > 0)
             return R.string.clear_user_data_delete_form;
         else
@@ -311,6 +312,10 @@ public class AdvancedActionsPreferences extends CommCarePreferenceFragment {
         if (requestCode == REPORT_PROBLEM_ACTIVITY || requestCode == VALIDATE_MEDIA_ACTIVITY) {
             getActivity().finish();
         } else if (requestCode == WIFI_DIRECT_ACTIVITY || requestCode == DUMP_FORMS_ACTIVITY) {
+            if (resultCode == RESULT_CANCELED) {
+                return;
+            }
+
             String messageKey = getBulkFormMessageKey(resultCode);
             if (messageKey == null) {
                 return;

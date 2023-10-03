@@ -1,5 +1,7 @@
 package org.commcare.activities;
 
+import static org.commcare.commcaresupportlibrary.CommCareLauncher.SESSION_ENDPOINT_APP_ID;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -23,6 +25,8 @@ import org.javarosa.core.services.locale.Localization;
 import java.util.ArrayList;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import javax.annotation.Nullable;
 
 /**
  * Dispatches install, login, and home screen activities.
@@ -179,6 +183,9 @@ public class DispatchActivity extends AppCompatActivity {
                     }
                 } else if (!CommCareApplication.instance().getSession().isActive()) {
                     launchLoginScreen();
+                } else if (needAnotherAppLogin()){
+                    CommCareApplication.instance().closeUserSession();
+                    launchLoginScreen();
                 } else if (isExternalLaunch()) {
                     // CommCare was launched from an external app, with a session descriptor
                     handleExternalLaunch();
@@ -193,6 +200,17 @@ public class DispatchActivity extends AppCompatActivity {
                 launchLoginScreen();
             }
         }
+    }
+
+    private boolean needAnotherAppLogin() {
+        String sesssionEndpointAppID = getSessionEndpointAppId();
+        if (sesssionEndpointAppID != null) {
+            CommCareApp currentApp = CommCareApplication.instance().getCurrentApp();
+            if (currentApp != null) {
+                return !currentApp.getUniqueId().equals(sesssionEndpointAppID);
+            }
+        }
+        return false;
     }
 
     private boolean isExternalLaunch() {
@@ -259,6 +277,10 @@ public class DispatchActivity extends AppCompatActivity {
             // AMS 06/09/16: This check is needed due to what we believe is a bug in the Android platform
             Intent i = new Intent(this, LoginActivity.class);
             i.putExtra(LoginActivity.USER_TRIGGERED_LOGOUT, userTriggeredLogout);
+            String sesssionEndpointAppID = getSessionEndpointAppId();
+            if (sesssionEndpointAppID != null) {
+                i.putExtra(LoginActivity.EXTRA_APP_ID, sesssionEndpointAppID);
+            }
             startActivityForResult(i, LOGIN_USER);
             waitingForActivityResultFromLogin = true;
         } else {
@@ -267,6 +289,11 @@ public class DispatchActivity extends AppCompatActivity {
                             "a new LoginActivity while it is still waiting for a result from " +
                             "another one.");
         }
+    }
+
+    @Nullable
+    private String getSessionEndpointAppId() {
+        return getIntent().getStringExtra(SESSION_ENDPOINT_APP_ID);
     }
 
     private void launchHomeScreen() {
@@ -350,6 +377,10 @@ public class DispatchActivity extends AppCompatActivity {
                         i.putExtra(SESSION_ENDPOINT_ID, sessionEndpointId);
                         i.putExtra(SESSION_ENDPOINT_ARGUMENTS_BUNDLE, args);
                         i.putStringArrayListExtra(SESSION_ENDPOINT_ARGUMENTS_LIST, argsList);
+
+                        // Session Endpoint extra is no longer needed. If not removed, it triggers
+                        // the external launch logic in subsequent logins
+                        getIntent().removeExtra(SESSION_ENDPOINT_ID);
                     }
                     if (i != null) {
                         i.putExtra(WAS_EXTERNAL, true);
