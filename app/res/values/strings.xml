@@ -27,7 +27,7 @@
     <string name="ConnectOpportunitiesURL">https://connect.dimagi.com/api/opportunity/</string>
     <string name="ConnectStartLearningURL">https://connect.dimagi.com/users/start_learn_app/</string>
     <string name="ConnectLearnProgressURL">https://connect.dimagi.com/api/opportunity/%d/learn_progress</string>
-    <string name="ConnectClaimJobURL">https://connect.dimagi.com/api/opportunity/%d/claim/</string>
+    <string name="ConnectClaimJobURL">https://connect.dimagi.com/api/opportunity/%d/claim</string>
     <string name="ConnectDeliveriesURL">https://connect.dimagi.com/api/opportunity/%d/deliver_visit/</string>
 
     <string name="key_server">https://pact.dimagi.com/keys/getkey</string>

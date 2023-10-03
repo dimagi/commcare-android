@@ -6,9 +6,17 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import org.commcare.activities.connect.ConnectDatabaseHelper;
+import org.commcare.activities.connect.ConnectNetworkHelper;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
+import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.dalvik.R;
+import org.commcare.utils.MultipleAppsUtil;
+
+import java.io.IOException;
+import java.io.InputStream;
 
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavDirections;
@@ -65,9 +73,43 @@ public class ConnectDeliveryDetailsFragment extends Fragment {
         Button button = view.findViewById(R.id.connect_delivery_button);
         button.setEnabled(!expired);
         button.setOnClickListener(v -> {
-            String title = getString(R.string.connect_downloading_delivery);
-            NavDirections directions = ConnectDeliveryDetailsFragmentDirections.actionConnectJobDeliveryDetailsFragmentToConnectDownloadingFragment(title, false, job);
-            Navigation.findNavController(button).navigate(directions);
+            //Claim job
+            ConnectNetworkHelper.claimJob(getContext(), job.getJobId(), new ConnectNetworkHelper.INetworkResultHandler() {
+                @Override
+                public void processSuccess(int responseCode, InputStream responseData) {
+                    job.setStatus(ConnectJobRecord.STATUS_DELIVERING);
+                    ConnectDatabaseHelper.upsertJob(getContext(), job);
+
+                    boolean installed = false;
+                    for (ApplicationRecord app : MultipleAppsUtil.appRecordArray()) {
+                        if (job.getDeliveryAppInfo().getAppId().equals(app.getUniqueId())) {
+                            installed = true;
+                            break;
+                        }
+                    }
+
+                    NavDirections directions;
+                    if(installed) {
+                        directions = ConnectDeliveryDetailsFragmentDirections.actionConnectJobDeliveryDetailsFragmentToConnectJobDeliveryProgressFragment(job);
+                    } else {
+                        String title = getString(R.string.connect_downloading_delivery);
+                        directions = ConnectDeliveryDetailsFragmentDirections.actionConnectJobDeliveryDetailsFragmentToConnectDownloadingFragment(title, false, job);
+                    }
+
+                    Navigation.findNavController(button).navigate(directions);
+                }
+
+                @Override
+                public void processFailure(int responseCode, IOException e) {
+                    Toast.makeText(getContext(), "Connect: error claming job", Toast.LENGTH_SHORT).show();
+                }
+
+                @Override
+                public void processNetworkFailure() {
+                    Toast.makeText(getContext(), getString(R.string.recovery_network_unavailable),
+                            Toast.LENGTH_SHORT).show();
+                }
+            });
         });
 
         return view;

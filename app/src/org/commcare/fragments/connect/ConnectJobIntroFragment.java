@@ -13,6 +13,7 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.commcare.activities.connect.ConnectDatabaseHelper;
 import org.commcare.activities.connect.ConnectNetworkHelper;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectLearnModuleSummaryRecord;
@@ -82,8 +83,8 @@ public class ConnectJobIntroFragment extends Fragment {
                 break;
             }
         }
-
         final boolean appInstalled = installed;
+
         Button button = view.findViewById(R.id.connect_job_intro_start_button);
         button.setText(getString(appInstalled ? R.string.connect_job_go_to_learn_app : R.string.connect_job_download_learn_app));
         button.setOnClickListener(v -> {
@@ -93,6 +94,7 @@ public class ConnectJobIntroFragment extends Fragment {
                 public void processSuccess(int responseCode, InputStream responseData) {
                     //TODO DAV: Expecting to eventually get HQ username from server here
                     job.setStatus(ConnectJobRecord.STATUS_LEARNING);
+                    ConnectDatabaseHelper.upsertJob(getContext(), job);
 
                     NavDirections directions;
                     if (appInstalled) {

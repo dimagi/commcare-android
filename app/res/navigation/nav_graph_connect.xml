@@ -66,6 +66,9 @@
         <action
             android:id="@+id/action_connect_job_delivery_details_fragment_to_connect_downloading_fragment"
             app:destination="@id/connect_downloading_fragment" />
+        <action
+            android:id="@+id/action_connect_job_delivery_details_fragment_to_connect_job_delivery_progress_fragment"
+            app:destination="@id/connect_job_delivery_progress_fragment" />
     </fragment>
 
     <fragment
@@ -95,6 +98,9 @@
         <action
             android:id="@+id/action_connect_downloading_fragment_to_connect_job_learning_progress_fragment"
             app:destination="@id/connect_job_learning_progress_fragment" />
+        <action
+            android:id="@+id/action_connect_downloading_fragment_to_connect_job_delivery_progress_fragment"
+            app:destination="@id/connect_job_delivery_progress_fragment" />
     </fragment>
 
 

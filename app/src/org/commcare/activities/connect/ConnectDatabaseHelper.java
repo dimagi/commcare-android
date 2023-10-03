@@ -182,6 +182,12 @@ public class ConnectDatabaseHelper {
         }
     }
 
+    public static void upsertJob(Context context, ConnectJobRecord job) {
+        List<ConnectJobRecord> list = new ArrayList<>();
+        list.add(job);
+        storeJobs(context, list, false);
+    }
+
     public static void storeJobs(Context context, List<ConnectJobRecord> jobs, boolean pruneMissing) {
         SqlStorage<ConnectJobRecord> jobStorage = getConnectStorage(context, ConnectJobRecord.class);
         SqlStorage<ConnectAppRecord> appInfoStorage = getConnectStorage(context, ConnectAppRecord.class);
