@@ -4,14 +4,11 @@ import android.media.MediaPlayer;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemLongClickListener;
-import android.widget.FrameLayout;
 import android.widget.GridView;
 
 import org.commcare.CommCareApplication;
 import org.commcare.adapters.GridMenuAdapter;
 import org.commcare.dalvik.R;
-import org.commcare.google.services.ads.AdLocation;
-import org.commcare.google.services.ads.AdMobManager;
 import org.commcare.suite.model.MenuDisplayable;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
@@ -20,7 +17,7 @@ import java.io.IOException;
 
 /**
  * Handles the alternative Grid appearance for Module and Form navigation
- * 
+ *
  * @author wspride
  */
 public class MenuGrid extends MenuList implements OnItemLongClickListener {
@@ -39,14 +36,8 @@ public class MenuGrid extends MenuList implements OnItemLongClickListener {
     }
 
     @Override
-    protected void requestBannerAd() {
-        AdMobManager.requestBannerAdForView(activity,
-                activity.findViewById(R.id.ad_container), AdLocation.MenuGrid);
-    }
-
-    @Override
     public boolean onItemLongClick(AdapterView<?> parent, View view,
-            int position, long id) {
+                                   int position, long id) {
         MenuDisplayable value = (MenuDisplayable)parent.getAdapter().getItem(position);
         String audioURI = value.getAudioURI();
         MediaPlayer mp = new MediaPlayer();
@@ -58,7 +49,7 @@ public class MenuGrid extends MenuList implements OnItemLongClickListener {
                 mp.prepare();
                 mp.start();
             } catch (IOException | IllegalStateException
-                    | InvalidReferenceException e) {
+                     | InvalidReferenceException e) {
                 e.printStackTrace();
             }
         }

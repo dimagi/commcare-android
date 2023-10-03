@@ -287,6 +287,7 @@ mult.install.bad=The selected ZIP file is not valid. Please choose a valid zip f
 mult.install.progress.baddest=Couldn't write multimedia to the local filesystem at: ${0}
 mult.install.progress.badentry=There was a bad entry in the zip file: ${0}
 mult.install.progress.errormoving=There was a problem copying the multimedia from the zip file, please try again.
+mult.install.progress.invalid.ccz=The selected CCZ file is invalid, please verify it and try again!
 
 mult.install.prompt=From here you can install your app multimedia from a ZIP file on the local filesystem
 mult.install.button=Install Multimedia
@@ -814,6 +815,9 @@ wifi.direct.status.receive.message=This will allow you to receive forms on this 
 wifi.direct.status.submit.header=You are in Submit Form Mode
 wifi.direct.status.submit.count=Device has ${0} unsubmitted forms.
 wifi.direct.status.submit.message=This mode will allow you to submit forms to the CommCare Server if you have an internet connection.
+wifi.direct.permission.nearby.wifi.title=Permission to access nearby Wi-Fi Devices
+wifi.direct.permission.nearby.wifi.message=In order to exchange data with nearby devices via Wi-Fi, CommCare needs access to Wi-Fi capabilities.
+wifi.direct.permission.nearby.wifi.denial=CommCare doesn't have permission to connect with nearby devices via Wi-Fi. Please enable via Android's settings.
 
 form.transfer.no.forms=No forms to send.
 
@@ -834,7 +838,7 @@ odk_perfect_match_color=\#87D13E
 odk_fuzzy_match_color=\#FFE88F
 
 permission.all.title=CommCare Permissions
-permission.all.message=CommCare needs permissions to read/write forms to memory, call/message from the case list, and provide location data during form entry.
+permission.all.message=CommCare needs permissions to read/write forms to memory, call/message from the case list, provide location data during form entry and notify the user about important events.
 permission.all.denial.message=CommCare doesn't have the necessary permissions. Please enable via Android's settings.
 permission.case.callout.title=Permissions for calling & messaging
 permission.case.callout.message=CommCare needs call & messaging permissions to enable communication with cases.

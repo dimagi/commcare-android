@@ -352,6 +352,7 @@ public class FormStorageTest {
             , "org.javarosa.core.model.instance.ExternalDataInstanceSource"
             , "org.commcare.suite.model.DetailGroup"
             , "org.commcare.services.FCMMessageData"
+            , "org.commcare.suite.model.EndpointArgument"
     );
 
 

@@ -1,6 +1,7 @@
 package org.commcare.androidTests
 
 import android.Manifest
+import android.os.Build
 import androidx.test.espresso.Espresso
 import androidx.test.espresso.intent.rule.IntentsTestRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -22,16 +23,7 @@ abstract class BaseTest {
 
     @Rule
     @JvmField
-    var permissionRule: GrantPermissionRule = GrantPermissionRule.grant(
-            Manifest.permission.READ_PHONE_STATE,
-            Manifest.permission.CALL_PHONE,
-            Manifest.permission.ACCESS_FINE_LOCATION,
-            Manifest.permission.ACCESS_COARSE_LOCATION,
-            Manifest.permission.WRITE_EXTERNAL_STORAGE,
-            Manifest.permission.READ_EXTERNAL_STORAGE,
-            Manifest.permission.RECORD_AUDIO,
-            Manifest.permission.CAMERA
-    )
+    var permissionRule: GrantPermissionRule = GrantPermissionRule.grant(*getAppPermissions())
 
     protected open fun installApp(appName: String, ccz: String, force: Boolean = false) {
         if (CommCareApplication.instance().currentApp == null) {
@@ -43,5 +35,28 @@ abstract class BaseTest {
             // App installation doesn't take back to login screen. Is this an issue?
             Espresso.pressBack()
         }
+    }
+
+    private fun getAppPermissions(): Array<String> {
+        var appPermissions = mutableListOf(
+                Manifest.permission.READ_PHONE_STATE,
+                Manifest.permission.CALL_PHONE,
+                Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.ACCESS_COARSE_LOCATION,
+                Manifest.permission.RECORD_AUDIO,
+                Manifest.permission.CAMERA)
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            appPermissions.addAll(arrayOf(
+                    Manifest.permission.READ_MEDIA_IMAGES,
+                    Manifest.permission.READ_MEDIA_AUDIO,
+                    Manifest.permission.READ_MEDIA_VIDEO,
+                    Manifest.permission.POST_NOTIFICATIONS))
+        } else {
+            appPermissions.addAll(arrayOf(
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                    Manifest.permission.READ_EXTERNAL_STORAGE))
+        }
+        return appPermissions.toTypedArray()
     }
 }

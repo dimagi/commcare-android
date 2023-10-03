@@ -3,7 +3,6 @@ package org.commcare.activities;
 import static org.commcare.activities.HomeScreenBaseActivity.RESULT_RESTART;
 
 import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
@@ -23,6 +22,9 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.FragmentManager;
+
 import com.jakewharton.rxbinding2.widget.AdapterViewItemClickEvent;
 import com.jakewharton.rxbinding2.widget.RxAdapterView;
 
@@ -36,15 +38,13 @@ import org.commcare.cases.entity.Entity;
 import org.commcare.cases.entity.NodeEntityFactory;
 import org.commcare.dalvik.R;
 import org.commcare.fragments.ContainerFragment;
-import org.commcare.gis.EntityMapboxActivity;
 import org.commcare.gis.EntityMapActivity;
-import org.commcare.google.services.ads.AdLocation;
-import org.commcare.google.services.ads.AdMobManager;
+import org.commcare.gis.EntityMapboxActivity;
 import org.commcare.models.AndroidSessionWrapper;
+import org.commcare.modern.session.SessionWrapper;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.provider.IdentityCalloutHandler;
 import org.commcare.provider.SimprintsCalloutProcessing;
-import org.commcare.session.CommCareSession;
 import org.commcare.session.SessionFrame;
 import org.commcare.suite.model.Action;
 import org.commcare.suite.model.Callout;
@@ -79,7 +79,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import androidx.fragment.app.FragmentManager;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.Consumer;
 
@@ -88,7 +87,7 @@ import io.reactivex.functions.Consumer;
  */
 public class EntitySelectActivity extends SaveSessionCommCareActivity
         implements EntityLoaderListener, HereFunctionHandlerListener {
-    private CommCareSession session;
+    private SessionWrapper session;
     private AndroidSessionWrapper asw;
 
     private static final String ICDS_DOMAIN_NAME = "icds-cas.commcarehq.org";
@@ -281,8 +280,6 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         persistAdapterState(visibleView);
         setUpCalloutClickListener();
         setupMapNav();
-        AdMobManager.requestBannerAdForView(this, findViewById(R.id.ad_container),
-                AdLocation.EntitySelect);
     }
 
     private void setUpCalloutClickListener() {

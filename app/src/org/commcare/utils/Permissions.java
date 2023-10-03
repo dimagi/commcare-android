@@ -2,6 +2,7 @@ package org.commcare.utils;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
+import android.os.Build;
 
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.interfaces.RuntimePermissionRequester;
@@ -12,6 +13,10 @@ import org.javarosa.core.services.locale.Localization;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Acquire Android permissions needed by CommCare.
@@ -90,21 +95,39 @@ public class Permissions {
      * @return Permissions needed for _normal_ CommCare functionality
      */
     public static String[] getAppPermissions() {
-        return new String[]{Manifest.permission.READ_PHONE_STATE,
+        List<String> appPermissions = new ArrayList<>(Arrays.asList(new String[]{
+                Manifest.permission.READ_PHONE_STATE,
                 Manifest.permission.CALL_PHONE,
                 Manifest.permission.ACCESS_FINE_LOCATION,
                 Manifest.permission.ACCESS_COARSE_LOCATION,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                Manifest.permission.READ_EXTERNAL_STORAGE,
-                Manifest.permission.RECORD_AUDIO
-        };
+                Manifest.permission.RECORD_AUDIO}));
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            appPermissions.addAll(Arrays.asList(new String[]{
+                    Manifest.permission.READ_MEDIA_IMAGES,
+                    Manifest.permission.READ_MEDIA_AUDIO,
+                    Manifest.permission.READ_MEDIA_VIDEO,
+                    Manifest.permission.POST_NOTIFICATIONS}));
+        } else {
+            appPermissions.addAll(Arrays.asList(new String[]{
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                    Manifest.permission.READ_EXTERNAL_STORAGE}));
+        }
+        return appPermissions.toArray(new String[]{});
     }
 
     /**
      * @return Minimal set of permissions needed for CommCare to function
      */
     public static String[] getRequiredPerms() {
-        return new String[]{Manifest.permission.READ_EXTERNAL_STORAGE,
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            return new String[]{
+                    Manifest.permission.READ_MEDIA_IMAGES,
+                    Manifest.permission.READ_MEDIA_AUDIO,
+                    Manifest.permission.READ_MEDIA_VIDEO};
+        }
+        return new String[]{
+                Manifest.permission.READ_EXTERNAL_STORAGE,
                 Manifest.permission.WRITE_EXTERNAL_STORAGE};
     }
 }

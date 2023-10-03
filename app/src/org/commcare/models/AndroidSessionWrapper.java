@@ -6,7 +6,9 @@ import org.commcare.CommCareApplication;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.core.interfaces.RemoteInstanceFetcher;
+import org.commcare.models.database.AndroidSandbox;
 import org.commcare.models.database.SqlStorage;
+import org.commcare.modern.session.SessionWrapper;
 import org.commcare.modern.session.SessionWrapperInterface;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.session.CommCareSession;
@@ -47,15 +49,15 @@ import javax.crypto.SecretKey;
 public class AndroidSessionWrapper implements SessionWrapperInterface {
     private static final String TAG = AndroidSessionWrapper.class.getSimpleName();
     //The state descriptor will need these 
-    private final CommCareSession session;
+    private final SessionWrapper session;
     private int formRecordId = -1;
     private int sessionStateRecordId = -1;
 
     public AndroidSessionWrapper(CommCarePlatform platform) {
-        session = new CommCareSession(platform);
+        session = new SessionWrapper(new CommCareSession(platform), platform, new AndroidSandbox(CommCareApplication.instance()));
     }
 
-    public AndroidSessionWrapper(CommCareSession session) {
+    public AndroidSessionWrapper(SessionWrapper session) {
         this.session = session;
     }
 
@@ -88,7 +90,7 @@ public class AndroidSessionWrapper implements SessionWrapperInterface {
         initializer = null;
     }
 
-    public CommCareSession getSession() {
+    public SessionWrapper getSession() {
         return session;
     }
 
@@ -243,11 +245,9 @@ public class AndroidSessionWrapper implements SessionWrapperInterface {
     }
 
     @Override
-    public void prepareExternalSources(RemoteInstanceFetcher fetcher)
-            throws RemoteInstanceFetcher.RemoteInstanceException {
-        for(StackFrameStep step : session.getFrame().getSteps()) {
-            step.initDataInstanceSources(fetcher);
-        }
+    public void prepareExternalSources() {
+        throw new RuntimeException(
+                "This method is not yet implemented and only here to maintain parity with core interface");
     }
 
     /**

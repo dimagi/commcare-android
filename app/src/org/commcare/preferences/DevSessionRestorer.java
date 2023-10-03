@@ -1,15 +1,18 @@
 package org.commcare.preferences;
 
 import android.content.SharedPreferences;
-import androidx.core.util.Pair;
 import android.util.Base64;
 import android.util.Log;
+
+import androidx.core.util.Pair;
 
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.activities.FormEntryActivity;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.models.AndroidSessionWrapper;
+import org.commcare.models.database.AndroidSandbox;
+import org.commcare.modern.session.SessionWrapper;
 import org.commcare.session.CommCareSession;
 import org.commcare.util.CommCarePlatform;
 import org.commcare.utils.SessionStateUninitException;
@@ -113,7 +116,8 @@ public class DevSessionRestorer {
                         CommCareSession.restoreSessionFromStream(platform, stream);
 
                 Log.i(TAG, "Restoring session from storage");
-                return new AndroidSessionWrapper(restoredSession);
+                return new AndroidSessionWrapper(new SessionWrapper(restoredSession, platform,
+                        new AndroidSandbox(CommCareApplication.instance())));
             } catch (Exception e) {
                 clearSession(prefs);
                 Log.w(TAG, "Restoring session from serialized file failed");
