@@ -169,7 +169,9 @@ public class FirebaseMessagingDataSyncer implements CommCareTaskConnector {
             @Override
             protected void onPostExecute(ResultAndError<PullTaskResult> resultAndErrorMessage) {
                 super.onPostExecute(resultAndErrorMessage);
-                mPinnedNotificationProgress.handleTaskCompletion(resultAndErrorMessage);
+                if (mPinnedNotificationProgress != null) {
+                    mPinnedNotificationProgress.handleTaskCompletion(resultAndErrorMessage);
+                }
             }
         };
         dataPullTask.connect(this);
@@ -207,8 +209,10 @@ public class FirebaseMessagingDataSyncer implements CommCareTaskConnector {
         if (CommCareSessionService.sessionAliveLock.isLocked()) {
             currentTask.cancel(true);
         }
-        mPinnedNotificationProgress = new PinnedNotificationWithProgress(context,
-                "sync.communicating.title","sync.progress.starting", -1);
+        if (CommCareApplication.notificationManager().areNotificationsEnabled()) {
+            mPinnedNotificationProgress = new PinnedNotificationWithProgress(context,
+                    "sync.communicating.title", "sync.progress.starting", -1);
+        }
     }
 
     @Override
@@ -240,48 +244,50 @@ public class FirebaseMessagingDataSyncer implements CommCareTaskConnector {
     }
 
     private void handleProgress(Integer... update) {
-        int status = update[0];
-        List<Integer> progressBarUpdate = new ArrayList<>();
+        if (mPinnedNotificationProgress != null) {
+            int status = update[0];
+            List<Integer> progressBarUpdate = new ArrayList<>();
 
-        switch(status) {
-            case DataPullTask.PROGRESS_STARTED:
-                mPinnedNotificationProgress.setProgressText("sync.progress.purge");
-                break;
-            case DataPullTask.PROGRESS_CLEANED:
-                mPinnedNotificationProgress.setProgressText("sync.progress.authing");
-                break;
-            case DataPullTask.PROGRESS_AUTHED:
-                mPinnedNotificationProgress.setProgressText("sync.progress.downloading");
-                if(update[1] == 1)
+            switch (status) {
+                case DataPullTask.PROGRESS_STARTED:
+                    mPinnedNotificationProgress.setProgressText("sync.progress.purge");
+                    break;
+                case DataPullTask.PROGRESS_CLEANED:
+                    mPinnedNotificationProgress.setProgressText("sync.progress.authing");
+                    break;
+                case DataPullTask.PROGRESS_AUTHED:
+                    mPinnedNotificationProgress.setProgressText("sync.progress.downloading");
+                    if (update[1] == 1)
+                        return;
+                    break;
+                case DataPullTask.PROGRESS_DOWNLOADING:
+                    mPinnedNotificationProgress.setTitleText("sync.downloading.title");
+                    mPinnedNotificationProgress.setProgressText("sync.process.downloading.progress");
+                    progressBarUpdate.add(0);
+                    progressBarUpdate.add(-1);
+                    break;
+                case DataPullTask.PROGRESS_DOWNLOADING_COMPLETE:
+                    mPinnedNotificationProgress.setProgressText("sync.process.downloading.progress");
+                    progressBarUpdate.add(100);
+                    progressBarUpdate.add(-1);
+                    break;
+                case DataPullTask.PROGRESS_PROCESSING:
+                    mPinnedNotificationProgress.setTitleText("sync.processing.title");
+                    mPinnedNotificationProgress.setProgressText("sync.progress");
+                    progressBarUpdate.add(update[1]);
+                    progressBarUpdate.add(update[2]);
+                    break;
+                case DataPullTask.PROGRESS_SERVER_PROCESSING:
+                    mPinnedNotificationProgress.setTitleText("sync.waiting.title");
+                    mPinnedNotificationProgress.setProgressText("sync.progress");
+                    progressBarUpdate.add(update[1]);
+                    progressBarUpdate.add(update[2]);
+                    break;
+
+                default:
                     return;
-                break;
-            case DataPullTask.PROGRESS_DOWNLOADING:
-                mPinnedNotificationProgress.setTitleText("sync.downloading.title");
-                mPinnedNotificationProgress.setProgressText("sync.process.downloading.progress");
-                progressBarUpdate.add(0);
-                progressBarUpdate.add(-1);
-                break;
-            case DataPullTask.PROGRESS_DOWNLOADING_COMPLETE:
-                mPinnedNotificationProgress.setProgressText("sync.process.downloading.progress");
-                progressBarUpdate.add(100);
-                progressBarUpdate.add(-1);
-                break;
-            case DataPullTask.PROGRESS_PROCESSING:
-                mPinnedNotificationProgress.setTitleText("sync.processing.title");
-                mPinnedNotificationProgress.setProgressText("sync.progress");
-                progressBarUpdate.add(update[1]);
-                progressBarUpdate.add(update[2]);
-                break;
-            case DataPullTask.PROGRESS_SERVER_PROCESSING:
-                mPinnedNotificationProgress.setTitleText("sync.waiting.title");
-                mPinnedNotificationProgress.setProgressText("sync.progress");
-                progressBarUpdate.add(update[1]);
-                progressBarUpdate.add(update[2]);
-                break;
-
-            default:
-                return;
+            }
+            mPinnedNotificationProgress.handleTaskUpdate(progressBarUpdate.toArray(new Integer[]{}));
         }
-        mPinnedNotificationProgress.handleTaskUpdate(progressBarUpdate.toArray(new Integer[]{}));
     }
 }
