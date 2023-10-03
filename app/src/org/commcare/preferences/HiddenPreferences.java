@@ -2,7 +2,6 @@ package org.commcare.preferences;
 
 import android.content.SharedPreferences;
 
-import org.commcare.AppUtils;
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.activities.GeoPointActivity;
@@ -94,8 +93,13 @@ public class HiddenPreferences {
     private static final String BYPASS_PRE_UPDATE_SYNC = "bypass_pre_update_sync";
     private static final String DISABLE_BACKGROUND_WORK_TIME = "disable-background-work-time";
 
-
     private static final long NO_OF_HOURS_TO_WAIT_TO_RESUME_BACKGROUND_WORK = 36;
+
+    // This is to be used by CommCareFirebaseMessagingService to schedule a sync after the next Login
+    public final static String PENDING_SYNC_REQUEST_FROM_SERVER = "pending-sync-request-from-server";
+
+    private static final String ENABLE_ANDROID_WINDOW_SECURE_FLAG = "cc-enable-android-window-secure-flag";
+
 
 
     /**
@@ -550,5 +554,19 @@ public class HiddenPreferences {
     public static void markRawMediaCleanUpComplete() {
         CommCareApplication.instance().getCurrentApp().getAppPreferences()
                 .edit().putBoolean(RAW_MEDIA_CLEANUP_COMPLETE, true).apply();
+    }
+
+    public static boolean isPendingSyncRequestFromServer() {
+        return PreferenceManager.getDefaultSharedPreferences(CommCareApplication.instance())
+                .getBoolean(PENDING_SYNC_REQUEST_FROM_SERVER, false);
+    }
+    public static void setPendingSyncRequestFromServer(boolean syncNeeded) {
+        PreferenceManager.getDefaultSharedPreferences(CommCareApplication.instance()).edit()
+                .putBoolean(PENDING_SYNC_REQUEST_FROM_SERVER, syncNeeded)
+                .apply();
+    }
+
+    public static boolean isFlagSecureEnabled() {
+        return DeveloperPreferences.doesPropertyMatch(ENABLE_ANDROID_WINDOW_SECURE_FLAG, PrefValues.NO, PrefValues.YES);
     }
 }

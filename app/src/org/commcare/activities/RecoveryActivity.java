@@ -146,7 +146,10 @@ public class RecoveryActivity extends SessionAwareCommCareActivity<RecoveryActiv
 
                 };
 
-        mProcess.addSubmissionListener(CommCareApplication.instance().getSession().getListenerForSubmissionNotification());
+        if (CommCareApplication.notificationManager().areNotificationsEnabled()) {
+            mProcess.addSubmissionListener(
+                    CommCareApplication.instance().getSession().getListenerForSubmissionNotification());
+        }
         mProcess.connect(this);
 
         //Execute on a true multithreaded chain. We should probably replace all of our calls with this
