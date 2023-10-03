@@ -1,5 +1,8 @@
 package org.commcare.activities;
 
+import static org.commcare.activities.HomeScreenBaseActivity.RESULT_RESTART;
+
+import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
@@ -302,6 +305,11 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         message.setText(Localization.get("select.placeholder.message", new String[]{Localization.get("cchq.case")}));
     }
 
+    @Override
+    public boolean shouldListenToSyncComplete() {
+        return true;
+    }
+
     private void restoreExistingSelection(boolean isOrientationChange) {
         // Restore detail screen for selection from landscape mode as we move into portrait mode.
         if (isOrientationChange) {
@@ -569,6 +577,9 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
                 if (resultCode == RESULT_OK && !mViewMode) {
                     // create intent for return and store path
                     returnWithResult(intent);
+                } else if (resultCode == RESULT_RESTART) {
+                    this.setResult(RESULT_RESTART, intent);
+                    this.finish();
                 } else {
                     //Did we enter the detail from mapping mode? If so, go back to that
                     if (mResultIsMap) {

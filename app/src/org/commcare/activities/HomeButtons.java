@@ -4,12 +4,14 @@ import android.content.Context;
 import android.content.Intent;
 import android.text.Spannable;
 import android.view.View;
+import android.widget.Toast;
 
 import org.commcare.adapters.HomeCardDisplayData;
 import org.commcare.adapters.SquareButtonViewHolder;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
+import org.commcare.services.CommCareSessionService;
 import org.commcare.utils.SessionUnavailableException;
 import org.commcare.utils.StorageUtils;
 import org.commcare.utils.SyncDetailCalculations;
@@ -110,6 +112,10 @@ public class HomeButtons {
 
     private static View.OnClickListener getSyncButtonListener(final StandardHomeActivity activity) {
         return v -> {
+            if (CommCareSessionService.sessionAliveLock.isLocked()) {
+                Toast.makeText(activity, Localization.get("background.sync.user.sync.attempt.during.sync"), Toast.LENGTH_LONG).show();
+                return;
+            }
             reportButtonClick(AnalyticsParamValue.SYNC_BUTTON);
             activity.syncButtonPressed();
         };

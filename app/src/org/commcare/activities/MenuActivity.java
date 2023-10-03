@@ -58,4 +58,9 @@ public class MenuActivity extends SessionAwareCommCareActivity<MenuActivity> {
         }
         return true;
     }
+
+    @Override
+    public boolean shouldListenToSyncComplete() {
+        return true;
+    }
 }

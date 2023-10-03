@@ -7,6 +7,8 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -112,5 +114,20 @@ public class StandardAlertDialog extends CommCareAlertDialog {
             }
             return true;
         });
+    }
+
+    public void setCheckbox(CharSequence displayText, CompoundButton.OnCheckedChangeListener checkboxListener) {
+        CheckBox checkbox = this.view.findViewById(R.id.dialog_checkbox);
+        checkbox.setText(displayText);
+        if(checkboxListener != null) {
+            checkbox.setOnCheckedChangeListener(checkboxListener);
+        }
+        checkbox.setVisibility(View.VISIBLE);
+    }
+    public static StandardAlertDialog getBasicAlertDialogWithDisablingCheckbox(Context context, String title, String msg,
+                                                                               CompoundButton.OnCheckedChangeListener checkboxListener){
+        StandardAlertDialog d = new StandardAlertDialog(context, title, msg);
+        d.setCheckbox(Localization.get("dialog.do.not.show"), checkboxListener);
+        return d;
     }
 }
