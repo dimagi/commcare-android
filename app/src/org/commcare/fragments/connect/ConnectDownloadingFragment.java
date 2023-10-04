@@ -12,6 +12,7 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
 
+import org.commcare.android.database.connect.models.ConnectAppRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.dalvik.R;
 import org.commcare.engine.resource.AppInstallStatus;
@@ -29,12 +30,10 @@ public class ConnectDownloadingFragment extends Fragment implements ResourceEngi
 
     private static final int APP_DOWNLOAD_TASK_ID = 4;
 
-    private static String TEST_APP_LINK =
-            "https://www.commcarehq.org/a/shubhamgoyaltest/apps/download/b4e4c3b0331b400badf490d7c188b103"
-                    + "/media_profile.ccpr";
     private ProgressBar progressBar;
     private TextView statusText;
     private ConnectJobRecord job;
+    private boolean getLearnApp;
 
     public ConnectDownloadingFragment() {
         // Required empty public constructor
@@ -49,12 +48,14 @@ public class ConnectDownloadingFragment extends Fragment implements ResourceEngi
         super.onCreate(savedInstanceState);
         ConnectDownloadingFragmentArgs args = ConnectDownloadingFragmentArgs.fromBundle(getArguments());
         job = args.getJob();
+        getLearnApp = args.getLearning();
         startAppDownload();
     }
 
     private void startAppDownload() {
+        ConnectAppRecord record = getLearnApp ? job.getLearnAppInfo() : job.getDeliveryAppInfo();
         String url = String.format("https://staging.commcarehq.org/a/%s/apps/download/%s/media_profile.ccpr",
-                job.getLearnAppInfo().getDomain(), job.getLearnAppInfo().getAppId());
+                record.getDomain(), record.getAppId());
         ResourceInstallUtils.startAppInstallAsync(false, APP_DOWNLOAD_TASK_ID, (CommCareTaskConnector)getActivity(), url);
     }
 
@@ -84,12 +85,16 @@ public class ConnectDownloadingFragment extends Fragment implements ResourceEngi
     }
 
     private void onSuccessfulInstall() {
-        ConnectJobRecord job = ConnectJobIntroFragmentArgs.fromBundle(getArguments()).getJob();
-        NavDirections directions =
-                ConnectDownloadingFragmentDirections.actionConnectDownloadingFragmentToConnectJobLearningProgressFragment(
-                        job);
         View view = getView();
         if (view != null) {
+            NavDirections directions;
+            if (getLearnApp) {
+                directions = ConnectDownloadingFragmentDirections
+                        .actionConnectDownloadingFragmentToConnectJobLearningProgressFragment(job);
+            } else {
+                directions = ConnectDownloadingFragmentDirections
+                        .actionConnectDownloadingFragmentToConnectJobDeliveryProgressFragment(job);
+            }
             Navigation.findNavController(view).navigate(directions);
         }
     }

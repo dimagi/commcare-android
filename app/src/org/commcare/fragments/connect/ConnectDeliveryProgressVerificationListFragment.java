@@ -21,6 +21,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 public class ConnectDeliveryProgressVerificationListFragment extends Fragment {
+    private DeliveryAdapter adapter;
     private ConnectJobRecord job;
     public ConnectDeliveryProgressVerificationListFragment() {
         // Required empty public constructor
@@ -47,11 +48,16 @@ public class ConnectDeliveryProgressVerificationListFragment extends Fragment {
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
         recyclerView.setLayoutManager(linearLayoutManager);
 
-        recyclerView.setAdapter(new DeliveryAdapter(job));
+        adapter = new DeliveryAdapter(job);
+        recyclerView.setAdapter(adapter);
 
         recyclerView.addItemDecoration(new DividerItemDecoration(getContext(), linearLayoutManager.getOrientation()));
 
         return view;
+    }
+
+    public void updateView() {
+        adapter.notifyDataSetChanged();
     }
 
     private static class DeliveryAdapter extends RecyclerView.Adapter<DeliveryAdapter.DeliveryViewHolder> {

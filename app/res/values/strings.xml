@@ -668,6 +668,8 @@
     <string name="connect_delivery_ready_to_claim_detailed">To complete this claim and start delivering care, download the delivery app.</string>
     <string name="connect_delivery_expired_detailed">The last date for the project is over. You will be notified if the opportunity opens up again.</string>
     <string name="connect_delivery_claim">Claim Job</string>
+    <string name="connect_delivery_get_app">Download App</string>
+    <string name="connect_delivery_go">Go To App</string>
 
     <string name="connect_progress_delivery">Delivery</string>
     <string name="connect_progress_delivery_verification">Verification &amp; Payments</string>

@@ -173,7 +173,7 @@ public class ConnectSsoHelper {
     private static AuthInfo.TokenAuth retrieveHqToken(Context context, String hqUsername, String connectToken) {
         HashMap<String, String> params = new HashMap<>();
         params.put("client_id", "4eHlQad1oasGZF0lPiycZIjyL0SY1zx7ZblA6SCV");
-        params.put("scope", "mobile_access");
+        params.put("scope", "mobile_access sync");
         params.put("grant_type", "password");
         params.put("username", hqUsername + "@" + HiddenPreferences.getUserDomain());
         params.put("password", connectToken);

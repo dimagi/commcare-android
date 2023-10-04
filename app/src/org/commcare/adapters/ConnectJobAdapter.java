@@ -179,15 +179,10 @@ public class ConnectJobAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             claimedHolder.continueImage.setOnClickListener(v -> {
                 NavDirections directions;
                 if(isTraining) {
-                    if(job.getPercentComplete() == 100) {
-                        directions = org.commcare.fragments.connect.ConnectJobsListsFragmentDirections.actionConnectJobsListFragmentToConnectJobLearningProgressFragment(job);
-                    }
-                    else {
-                        directions = ConnectJobsListsFragmentDirections.actionConnectJobsListFragmentToConnectJobLearningProgressFragment(job);
-                    }
+                    directions = ConnectJobsListsFragmentDirections.actionConnectJobsListFragmentToConnectJobLearningProgressFragment(job);
                 }
                 else {
-                    if(job.getPercentComplete() > 0) {
+                    if(job.getStatus() == ConnectJobRecord.STATUS_DELIVERING) {
                         directions = ConnectJobsListsFragmentDirections.actionConnectJobsListFragmentToConnectJobDeliveryProgressFragment(job);
                     }
                     else {

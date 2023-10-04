@@ -11,6 +11,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import org.commcare.android.database.connect.models.ConnectJobRecord;
+import org.commcare.commcaresupportlibrary.CommCareLauncher;
 import org.commcare.dalvik.R;
 
 import java.text.DateFormat;
@@ -20,6 +21,7 @@ import java.util.Locale;
 import androidx.fragment.app.Fragment;
 
 public class ConnectDeliveryProgressDeliveryFragment extends Fragment {
+    private View view;
     private ConnectJobRecord job;
     public ConnectDeliveryProgressDeliveryFragment() {
         // Required empty public constructor
@@ -39,25 +41,8 @@ public class ConnectDeliveryProgressDeliveryFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_connect_progress_delivery, container, false);
-
-        int completed = job.getCompletedVisits();
-        int total = job.getMaxVisits();
-        int percent = total > 0 ? (100 * completed / total) : 100;
-
-        ProgressBar progress = view.findViewById(R.id.connect_progress_progress_bar);
-        progress.setProgress(percent);
-        progress.setMax(100);
-
-        TextView textView = view.findViewById(R.id.connect_progress_progress_text);
-        textView.setText(String.format(Locale.getDefault(), "%d%%", percent));
-
-        textView = view.findViewById(R.id.connect_progress_status_text);
-        textView.setText(getString(R.string.connect_progress_status, completed, total));
-
-        textView = view.findViewById(R.id.connect_progress_complete_by_text);
-        DateFormat df = new SimpleDateFormat("MM/dd/yyyy", Locale.getDefault());
-        textView.setText(getString(R.string.connect_progress_complete_by, df.format(job.getProjectEndDate())));
+        view = inflater.inflate(R.layout.fragment_connect_progress_delivery, container, false);
+        updateView();
 
         boolean expired = job.getDaysRemaining() < 0;
         Button button = view.findViewById(R.id.connect_progress_button);
@@ -92,6 +77,27 @@ public class ConnectDeliveryProgressDeliveryFragment extends Fragment {
     }
 
     private void launchDeliveryApp() {
-        Toast.makeText(getContext(), "Not ready yet...", Toast.LENGTH_SHORT).show();
+        CommCareLauncher.launchCommCareForAppIdFromConnect(getContext(), job.getDeliveryAppInfo().getAppId());
+    }
+
+    public void updateView() {
+
+        int completed = job.getCompletedVisits();
+        int total = job.getMaxVisits();
+        int percent = total > 0 ? (100 * completed / total) : 100;
+
+        ProgressBar progress = view.findViewById(R.id.connect_progress_progress_bar);
+        progress.setProgress(percent);
+        progress.setMax(100);
+
+        TextView textView = view.findViewById(R.id.connect_progress_progress_text);
+        textView.setText(String.format(Locale.getDefault(), "%d%%", percent));
+
+        textView = view.findViewById(R.id.connect_progress_status_text);
+        textView.setText(getString(R.string.connect_progress_status, completed, total));
+
+        textView = view.findViewById(R.id.connect_progress_complete_by_text);
+        DateFormat df = new SimpleDateFormat("MM/dd/yyyy", Locale.getDefault());
+        textView.setText(getString(R.string.connect_progress_complete_by, df.format(job.getProjectEndDate())));
     }
 }

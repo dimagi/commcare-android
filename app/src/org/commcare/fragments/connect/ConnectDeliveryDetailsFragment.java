@@ -70,48 +70,61 @@ public class ConnectDeliveryDetailsFragment extends Fragment {
         textView = view.findViewById(R.id.connect_delivery_action_details);
         textView.setText(expired ? R.string.connect_delivery_expired_detailed : R.string.connect_delivery_ready_to_claim_detailed);
 
+        boolean jobClaimed = job.getStatus() == ConnectJobRecord.STATUS_DELIVERING;
+        boolean installed = false;
+        for (ApplicationRecord app : MultipleAppsUtil.appRecordArray()) {
+            if (job.getDeliveryAppInfo().getAppId().equals(app.getUniqueId())) {
+                installed = true;
+                break;
+            }
+        }
+        final boolean appInstalled = installed;
+
+        int buttonTextId = jobClaimed ? (appInstalled ? R.string.connect_delivery_go : R.string.connect_delivery_get_app) : R.string.connect_delivery_claim;
+
         Button button = view.findViewById(R.id.connect_delivery_button);
+        button.setText(buttonTextId);
         button.setEnabled(!expired);
         button.setOnClickListener(v -> {
-            //Claim job
-            ConnectNetworkHelper.claimJob(getContext(), job.getJobId(), new ConnectNetworkHelper.INetworkResultHandler() {
-                @Override
-                public void processSuccess(int responseCode, InputStream responseData) {
-                    job.setStatus(ConnectJobRecord.STATUS_DELIVERING);
-                    ConnectDatabaseHelper.upsertJob(getContext(), job);
-
-                    boolean installed = false;
-                    for (ApplicationRecord app : MultipleAppsUtil.appRecordArray()) {
-                        if (job.getDeliveryAppInfo().getAppId().equals(app.getUniqueId())) {
-                            installed = true;
-                            break;
-                        }
+            if(jobClaimed) {
+                proceedAfterJobClaimed(button, job, appInstalled);
+            } else {
+                //Claim job
+                ConnectNetworkHelper.claimJob(getContext(), job.getJobId(), new ConnectNetworkHelper.INetworkResultHandler() {
+                    @Override
+                    public void processSuccess(int responseCode, InputStream responseData) {
+                        proceedAfterJobClaimed(button, job, appInstalled);
                     }
 
-                    NavDirections directions;
-                    if(installed) {
-                        directions = ConnectDeliveryDetailsFragmentDirections.actionConnectJobDeliveryDetailsFragmentToConnectJobDeliveryProgressFragment(job);
-                    } else {
-                        String title = getString(R.string.connect_downloading_delivery);
-                        directions = ConnectDeliveryDetailsFragmentDirections.actionConnectJobDeliveryDetailsFragmentToConnectDownloadingFragment(title, false, job);
+                    @Override
+                    public void processFailure(int responseCode, IOException e) {
+                        Toast.makeText(getContext(), "Connect: error claming job", Toast.LENGTH_SHORT).show();
                     }
 
-                    Navigation.findNavController(button).navigate(directions);
-                }
-
-                @Override
-                public void processFailure(int responseCode, IOException e) {
-                    Toast.makeText(getContext(), "Connect: error claming job", Toast.LENGTH_SHORT).show();
-                }
-
-                @Override
-                public void processNetworkFailure() {
-                    Toast.makeText(getContext(), getString(R.string.recovery_network_unavailable),
-                            Toast.LENGTH_SHORT).show();
-                }
-            });
+                    @Override
+                    public void processNetworkFailure() {
+                        Toast.makeText(getContext(), getString(R.string.recovery_network_unavailable),
+                                Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
         });
 
         return view;
+    }
+
+    private void proceedAfterJobClaimed(Button button, ConnectJobRecord job, boolean installed) {
+        job.setStatus(ConnectJobRecord.STATUS_DELIVERING);
+        ConnectDatabaseHelper.upsertJob(getContext(), job);
+
+        NavDirections directions;
+        if (installed) {
+            directions = ConnectDeliveryDetailsFragmentDirections.actionConnectJobDeliveryDetailsFragmentToConnectJobDeliveryProgressFragment(job);
+        } else {
+            String title = getString(R.string.connect_downloading_delivery);
+            directions = ConnectDeliveryDetailsFragmentDirections.actionConnectJobDeliveryDetailsFragmentToConnectDownloadingFragment(title, false, job);
+        }
+
+        Navigation.findNavController(button).navigate(directions);
     }
 }
