@@ -28,8 +28,7 @@ public class ExternalDataUpdateHelper {
             i.putStringArrayListExtra("cases", updatedCases);
         }
 
-        // This is to be used to skip any cases that are not owned by the user but that might be
-        // in the database at the time of the data refresh
+        // This is to be used by extenal apps to run any user based filtering
         if (CommCareApplication.instance().getSession().isActive()) {
             i.putExtra("cc-logged-in-user-id", CommCareApplication.instance().getCurrentUserId());
         }
