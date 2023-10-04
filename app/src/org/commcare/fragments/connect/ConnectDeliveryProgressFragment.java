@@ -11,6 +11,7 @@ import com.google.android.material.tabs.TabLayout;
 
 import org.commcare.activities.connect.ConnectDatabaseHelper;
 import org.commcare.activities.connect.ConnectNetworkHelper;
+import org.commcare.android.database.connect.models.ConnectJobDeliveryRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.dalvik.R;
 import org.javarosa.core.io.StreamsUtil;
@@ -121,20 +122,20 @@ public class ConnectDeliveryProgressFragment extends Fragment {
                     //[{"id":15,"status":"pending","visit_date":"2023-10-03T20:29:05.520000Z","deliver_form_name":"Survey","deliver_form_xmlns":"http://openrosa.org/formdesigner/574981F7-A9CC-4FA4-B4BC-6EF7873E84FB"}]
                     if (responseAsString.length() > 0) {
                         //Parse the JSON
-//                        JSONArray json = new JSONArray(responseAsString);
-//                        List<ConnectJobRecord> jobs = new ArrayList<>(json.length());
-//                        for (int i = 0; i < json.length(); i++) {
-//                            JSONObject obj = (JSONObject)json.get(i);
-//                            jobs.add(ConnectJobRecord.fromJson(obj));
-//                        }
-//
-//                        //Store retrieved jobs
-//                        ConnectDatabaseHelper.storeJobs(getContext(), jobs, true);
-//
-//                        updateUpdatedDate();
-//                        viewStateAdapter.refresh();
+                        JSONArray json = new JSONArray(responseAsString);
+                        List<ConnectJobDeliveryRecord> deliveries = new ArrayList<>(json.length());
+                        for (int i = 0; i < json.length(); i++) {
+                            JSONObject obj = (JSONObject)json.get(i);
+                            deliveries.add(ConnectJobDeliveryRecord.fromJson(obj, job.getJobId()));
+                        }
+
+                        //Store retrieved jobs
+                        ConnectDatabaseHelper.storeDeliveries(getContext(), deliveries, job.getJobId(), true);
+
+                        updateUpdatedDate();
+                        viewStateAdapter.refresh();
                     }
-                } catch (IOException e) {
+                } catch (IOException | JSONException | ParseException e) {
                     Logger.exception("Parsing return from delivery progress request", e);
                 }
             }

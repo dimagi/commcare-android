@@ -54,9 +54,6 @@ public class MockJobProvider {
         mockClaimedJobs = new ArrayList<>();
 
         List<ConnectJobDeliveryRecord> deliveries = new ArrayList<>();
-        deliveries.add(new ConnectJobDeliveryRecord("Steve", new Date("7/20/2023"), "Accepted", true));
-        deliveries.add(new ConnectJobDeliveryRecord("Dalitso", new Date("7/24/2023"), "Pending Verification", false));
-        deliveries.add(new ConnectJobDeliveryRecord("Chimango", new Date("7/19/2023"), "Rejected", false));
 
         mockClaimedJobs.add(new ConnectJobRecord(1, "Mental Health Visits",
                 "",

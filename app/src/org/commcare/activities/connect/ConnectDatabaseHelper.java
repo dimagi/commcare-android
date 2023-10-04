@@ -6,6 +6,7 @@ import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.connect.models.ConnectAppRecord;
+import org.commcare.android.database.connect.models.ConnectJobDeliveryRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectLearnModuleSummaryRecord;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
@@ -262,7 +263,8 @@ public class ConnectDatabaseHelper {
             //Finally, store the info for the learn modules
             //Delete modules that are no longer available
             Vector<Integer> foundIndexes = new Vector<>();
-            jobIdsToDelete.clear();
+            //Note: Reusing this vector
+            moduleIdsToDelete.clear();
             Vector<ConnectLearnModuleSummaryRecord> existingLearnModules =
                     moduleStorage.getRecordsForValues(
                             new String[]{ConnectLearnModuleSummaryRecord.META_JOB_ID},
@@ -283,17 +285,54 @@ public class ConnectDatabaseHelper {
                 }
 
                 if(!stillExists) {
-                    jobIdsToDelete.add(existing.getID());
+                    moduleIdsToDelete.add(existing.getID());
                 }
             }
 
-            moduleStorage.removeAll(jobIdsToDelete);
+            moduleStorage.removeAll(moduleIdsToDelete);
 
             for(ConnectLearnModuleSummaryRecord module : incomingJob.getLearnAppInfo().getLearnModules()) {
                 module.setJobId(incomingJob.getJobId());
                 module.setLastUpdate(new Date());
                 moduleStorage.write(module);
             }
+        }
+    }
+
+    public static void storeDeliveries(Context context, List<ConnectJobDeliveryRecord> deliveries, int jobId, boolean pruneMissing) {
+        SqlStorage<ConnectJobDeliveryRecord> deliveryStorage = getConnectStorage(context, ConnectJobDeliveryRecord.class);
+
+        List<ConnectJobDeliveryRecord> existingList = getDeliveries(context, jobId, deliveryStorage);
+
+        //Delete jobs that are no longer available
+        Vector<Integer> deliveryIdsToDelete = new Vector<>();
+        for (ConnectJobDeliveryRecord existing : existingList) {
+            boolean stillExists = false;
+            for (ConnectJobDeliveryRecord incoming : deliveries) {
+                if(existing.getDeliveryId() == incoming.getDeliveryId()) {
+                    incoming.setID(existing.getID());
+                    stillExists = true;
+                    break;
+                }
+            }
+
+            if(!stillExists && pruneMissing) {
+                //Mark the delivery for deletion
+                //Remember the ID so we can delete them all at once after the loop
+                deliveryIdsToDelete.add(existing.getID());
+            }
+        }
+
+        if(pruneMissing) {
+            deliveryStorage.removeAll(deliveryIdsToDelete);
+        }
+
+        //Now insert/update deliveries
+        for (ConnectJobDeliveryRecord incomingDelivery : deliveries) {
+            incomingDelivery.setLastUpdate(new Date());
+
+            //Now insert/update the delivery
+            deliveryStorage.write(incomingDelivery);
         }
     }
 
@@ -379,5 +418,17 @@ public class ConnectDatabaseHelper {
     }
     public static List<ConnectJobRecord> getClaimedJobs(Context context, SqlStorage<ConnectJobRecord> jobStorage) {
         return getJobs(context, ConnectJobRecord.STATUS_DELIVERING, jobStorage);
+    }
+
+    public static List<ConnectJobDeliveryRecord> getDeliveries(Context context, int jobId, SqlStorage<ConnectJobDeliveryRecord> deliveryStorage) {
+        if(deliveryStorage == null) {
+            deliveryStorage = getConnectStorage(context, ConnectJobDeliveryRecord.class);
+        }
+
+        Vector<ConnectJobDeliveryRecord> deliveries = deliveryStorage.getRecordsForValues(
+                new String[]{ConnectJobDeliveryRecord.META_JOB_ID},
+                new Object[]{jobId});
+
+        return new ArrayList<>(deliveries);
     }
 }

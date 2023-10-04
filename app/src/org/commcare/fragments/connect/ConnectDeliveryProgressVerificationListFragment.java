@@ -79,8 +79,8 @@ public class ConnectDeliveryProgressVerificationListFragment extends Fragment {
 
             DateFormat df = new SimpleDateFormat("MM/dd/yyyy", Locale.getDefault());
             ConnectJobDeliveryRecord delivery = job.getDeliveries().get(position);
-            holder.paidText.setVisibility(delivery.getIsPaid() ? View.VISIBLE : View.GONE);
-            holder.nameText.setText(delivery.getName());
+            holder.paidText.setVisibility(View.GONE); //TODO DAV: This goes away
+            holder.nameText.setText(delivery.getFormName());
             holder.dateText.setText(df.format(delivery.getDate()));
             holder.statusText.setText(delivery.getStatus());
         }
