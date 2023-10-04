@@ -6,6 +6,8 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 
+import org.commcare.CommCareApplication;
+
 import java.util.ArrayList;
 
 import javax.annotation.Nullable;
@@ -24,6 +26,11 @@ public class ExternalDataUpdateHelper {
         Intent i = new Intent(COMMCARE_DATA_UPDATE_ACTION);
         if (updatedCases != null) {
             i.putStringArrayListExtra("cases", updatedCases);
+        }
+
+        // This is to be used by extenal apps to run any user based filtering
+        if (CommCareApplication.instance().getSession().isActive()) {
+            i.putExtra("cc-logged-in-user-id", CommCareApplication.instance().getCurrentUserId());
         }
         c.sendBroadcast(i, COMMCARE_CASE_READ_PERMISSION);
 
