@@ -31,7 +31,7 @@ public class ExternalDataUpdateHelper {
         // This is to be used to skip any cases that are not owned by the user but that might be
         // in the database at the time of the data refresh
         if (CommCareApplication.instance().getSession().isActive()) {
-            i.putExtra("logged-in-user-id", CommCareApplication.instance().getCurrentUserId());
+            i.putExtra("cc-logged-in-user-id", CommCareApplication.instance().getCurrentUserId());
         }
         c.sendBroadcast(i, COMMCARE_CASE_READ_PERMISSION);
 
