@@ -345,10 +345,10 @@ public class FormStorageTest {
             "org.commcare.suite.model.AndroidPackageDependency",
 
             // Added in 2.54
-            , "org.commcare.services.FCMMessageData"
+            "org.commcare.services.FCMMessageData",
             "org.commcare.android.database.connect.models.ConnectLinkedAppRecord",
             "org.commcare.android.database.connect.models.ConnectUserRecord",
-            "org.commcare.android.database.global.models.ConnectKeyRecord",
+            "org.commcare.android.database.global.models.ConnectKeyRecord"
     );
 
 
