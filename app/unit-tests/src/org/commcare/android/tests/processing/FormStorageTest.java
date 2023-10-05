@@ -346,14 +346,21 @@ public class FormStorageTest {
 
             // Added in 2.54
             "org.commcare.services.FCMMessageData",
+            "org.commcare.suite.model.DetailGroup",
+            "org.commcare.suite.model.EndpointArgument",
+            "org.commcare.suite.model.ListQueryData",
+            "org.commcare.suite.model.MultiSelectEntityDatum",
+            "org.commcare.suite.model.QueryPromptCondition",
+            "org.commcare.suite.model.ValueQueryData",
+            "org.javarosa.core.model.instance.ExternalDataInstanceSource",
+            "org.javarosa.core.util.externalizable.ExtWrapMultiMap",
             "org.commcare.android.database.connect.models.ConnectLinkedAppRecord",
             "org.commcare.android.database.connect.models.ConnectUserRecord",
-            "org.commcare.android.database.global.models.ConnectAppRecord",
-            "org.commcare.android.database.global.models.ConnectJobDeliveryRecord",
-            "org.commcare.android.database.global.models.ConnectJobLearningModuleRecord",
-            "org.commcare.android.database.global.models.ConnectJobPaymentRecord",
-            "org.commcare.android.database.global.models.ConnectJobRecord",
-            "org.commcare.android.database.global.models.ConnectLearnModuleSummaryRecord",
+            "org.commcare.android.database.connect.models.ConnectAppRecord",
+            "org.commcare.android.database.connect.models.ConnectJobDeliveryRecord",
+            "org.commcare.android.database.connect.models.ConnectJobPaymentRecord",
+            "org.commcare.android.database.connect.models.ConnectJobRecord",
+            "org.commcare.android.database.connect.models.ConnectLearnModuleSummaryRecord",
             "org.commcare.android.database.global.models.ConnectKeyRecord"
 
     );

@@ -6,7 +6,6 @@ import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.android.database.connect.models.ConnectAppRecord;
 import org.commcare.android.database.connect.models.ConnectJobDeliveryRecord;
-import org.commcare.android.database.connect.models.ConnectJobLearningModuleRecord;
 import org.commcare.android.database.connect.models.ConnectJobPaymentRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectLearnModuleSummaryRecord;
