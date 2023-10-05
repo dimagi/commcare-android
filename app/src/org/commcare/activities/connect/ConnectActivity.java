@@ -25,7 +25,7 @@ public class ConnectActivity extends CommCareActivity<ResourceEngineListener> {
                 if (result.getResultCode() == Activity.RESULT_OK) {
                     ConnectDownloadingFragment connectDownloadFragment = getConnectDownloadFragment();
                     if (connectDownloadFragment != null) {
-                        connectDownloadFragment.startLearning();
+                        connectDownloadFragment.onSuccessfulVerification();
                     }
                 }
             });

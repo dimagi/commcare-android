@@ -89,7 +89,7 @@ public class ConnectDownloadingFragment extends Fragment implements ResourceEngi
         ((ConnectActivity)getActivity()).startAppValidation();
     }
 
-    public void startLearning() {
+    public void onSuccessfulVerification() {
         View view = getView();
         if (view != null) {
             NavDirections directions;
