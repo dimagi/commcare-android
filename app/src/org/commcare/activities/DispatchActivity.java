@@ -320,6 +320,8 @@ public class DispatchActivity extends AppCompatActivity {
             i = new Intent(this, StandardHomeActivity.class);
         }
         i.putExtra(START_FROM_LOGIN, startFromLogin);
+        i.putExtra(CommCareLauncher.EXTRA_FROM_CONNECT,
+                getIntent().getBooleanExtra(CommCareLauncher.EXTRA_FROM_CONNECT, false));
         i.putExtra(LoginActivity.LOGIN_MODE, lastLoginMode);
         i.putExtra(LoginActivity.MANUAL_SWITCH_TO_PW_MODE, userManuallyEnteredPasswordMode);
         startFromLogin = false;
