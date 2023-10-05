@@ -345,17 +345,10 @@ public class FormStorageTest {
             "org.commcare.suite.model.AndroidPackageDependency",
 
             // Added in 2.54
-            "org.commcare.suite.model.QueryPromptCondition",
-            "org.commcare.suite.model.MultiSelectEntityDatum",
-            "org.commcare.suite.model.ListQueryData",
-            "org.commcare.suite.model.ValueQueryData",
-            "org.javarosa.core.util.externalizable.ExtWrapMultiMap",
-            "org.javarosa.core.model.instance.ExternalDataInstanceSource",
+            , "org.commcare.services.FCMMessageData"
             "org.commcare.android.database.connect.models.ConnectLinkedAppRecord",
             "org.commcare.android.database.connect.models.ConnectUserRecord",
             "org.commcare.android.database.global.models.ConnectKeyRecord",
-            "org.commcare.suite.model.DetailGroup",
-            "org.commcare.suite.model.EndpointArgument"
     );
 
 

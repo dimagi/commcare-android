@@ -95,7 +95,7 @@ public class CommcareRequestGenerator implements CommcareRequestEndpoints {
     }
 
     @Override
-    public Response<ResponseBody> makeCaseFetchRequest(String baseUri, boolean includeStateFlags) throws IOException {
+    public Response<ResponseBody> makeCaseFetchRequest(String baseUri, boolean includeStateFlags, boolean skipFixtures) throws IOException {
         Multimap<String, String> params = ArrayListMultimap.create();
 
         Uri serverUri = Uri.parse(baseUri);
@@ -138,6 +138,10 @@ public class CommcareRequestGenerator implements CommcareRequestEndpoints {
             params.put("overwrite_cache", "true");
             // Always wipe this flag after we have used it once
             CommCareApplication.instance().setInvalidateCacheFlag(false);
+        }
+
+        if (skipFixtures) {
+            params.put("skip_fixtures", "true");
         }
 
         requester = CommCareApplication.instance().createGetRequester(

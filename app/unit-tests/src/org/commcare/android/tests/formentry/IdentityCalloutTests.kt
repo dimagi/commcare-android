@@ -3,6 +3,7 @@ package org.commcare.android.tests.formentry
 import android.app.Activity
 import android.app.Instrumentation
 import android.content.Intent
+import android.util.Base64
 import android.widget.Button
 import android.widget.ImageButton
 import androidx.test.espresso.intent.Intents
@@ -16,6 +17,7 @@ import org.commcare.android.resource.installers.XFormAndroidInstaller
 import org.commcare.android.util.ActivityLaunchUtils
 import org.commcare.android.util.TestAppInstaller
 import org.commcare.android.util.TestUtils
+import org.commcare.commcaresupportlibrary.identity.BiometricIdentifier
 import org.commcare.commcaresupportlibrary.identity.IdentityResponseBuilder
 import org.commcare.commcaresupportlibrary.identity.model.IdentificationMatch
 import org.commcare.commcaresupportlibrary.identity.model.MatchResult
@@ -23,6 +25,7 @@ import org.commcare.commcaresupportlibrary.identity.model.MatchStrength
 import org.commcare.dalvik.R
 import org.commcare.provider.IdentityCalloutHandler
 import org.junit.After
+import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Rule
@@ -38,6 +41,7 @@ class IdentityCalloutTests {
     @Rule
     @JvmField
     var intentsRule = ActivityScenarioRule(FormEntryActivity::class.java)
+
 
     @Before
     fun setup() {
@@ -96,6 +100,33 @@ class IdentityCalloutTests {
         assertEquals(guidToConfidenceMap.elementAt(2), "★★★")
     }
 
+    @Test
+    fun testRegistrationWithTemplates() {
+        val formEntryActivity = ActivityLaunchUtils.launchFormEntry("m0-f1")
+
+        var templates: HashMap<BiometricIdentifier, ByteArray> = HashMap(2)
+        templates[BiometricIdentifier.LEFT_INDEX_FINGER] =
+                byteArrayOf(0, 0, -21, -67, 0, -64, 25, 62, -69, -124, -91, 29, -50, -107, 58)
+        templates[BiometricIdentifier.LEFT_MIDDLE_FINGER] =
+                byteArrayOf(122, -91, 114, 62, 107, -95, -69, 28, 110, 123, 72, 71, -86, -117, 126)
+
+        // get Identity response and save Base64 encoded template to form question
+        intendRegistrationWithTemplatesIntent(templates)
+        performIntentCallout(formEntryActivity)
+        TestUtils.assertFormValue("/data/guid", "test-case-unique-guid")
+        for ((key, value) in templates) {
+            TestUtils.assertFormValue("/data/" + key.calloutResponseKey,
+                    Base64.encodeToString(value, Base64.DEFAULT))
+        }
+
+        // retrieve Base64 encoded template from form question, decode and compare with initial
+        // value
+        for ((key, value) in templates) {
+            var base64EncodedTemplate = TestUtils.getFormValue("/data/" + key.calloutResponseKey) as String;
+            assertArrayEquals(Base64.decode(base64EncodedTemplate, Base64.DEFAULT), value)
+        }
+    }
+
     private fun getIdentificationIntent(): Intent {
         val identifications = ArrayList<IdentificationMatch>()
         identifications.add(IdentificationMatch("guid-1", MatchResult(80, MatchStrength.FOUR_STARS)))
@@ -115,6 +146,14 @@ class IdentityCalloutTests {
     private fun intendRegistrationIntent() {
         val registration = IdentityResponseBuilder
                 .registrationResponse("test-case-unique-guid")
+                .build()
+        val result = Instrumentation.ActivityResult(Activity.RESULT_OK, registration)
+        intending(hasAction("org.commcare.identity.bioenroll")).respondWith(result)
+    }
+
+    private fun intendRegistrationWithTemplatesIntent(templates: HashMap<BiometricIdentifier, ByteArray>) {
+        val registration = IdentityResponseBuilder
+                .registrationResponse("test-case-unique-guid", templates)
                 .build()
         val result = Instrumentation.ActivityResult(Activity.RESULT_OK, registration)
         intending(hasAction("org.commcare.identity.bioenroll")).respondWith(result)
