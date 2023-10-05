@@ -6,6 +6,7 @@ import android.os.Bundle;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.appcompat.app.ActionBar;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
 
@@ -35,6 +36,17 @@ public class ConnectActivity extends CommCareActivity<ResourceEngineListener> {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.screen_connect);
         setTitle(getString(R.string.connect_title));
+        showBackButton();
+    }
+
+    private void showBackButton() {
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            if(isBackEnabled()){
+                actionBar.setDisplayShowHomeEnabled(true);
+                actionBar.setDisplayHomeAsUpEnabled(true);
+            }
+        }
     }
 
     @Override
