@@ -348,7 +348,14 @@ public class FormStorageTest {
             "org.commcare.services.FCMMessageData",
             "org.commcare.android.database.connect.models.ConnectLinkedAppRecord",
             "org.commcare.android.database.connect.models.ConnectUserRecord",
+            "org.commcare.android.database.global.models.ConnectAppRecord",
+            "org.commcare.android.database.global.models.ConnectJobDeliveryRecord",
+            "org.commcare.android.database.global.models.ConnectJobLearningModuleRecord",
+            "org.commcare.android.database.global.models.ConnectJobPaymentRecord",
+            "org.commcare.android.database.global.models.ConnectJobRecord",
+            "org.commcare.android.database.global.models.ConnectLearnModuleSummaryRecord",
             "org.commcare.android.database.global.models.ConnectKeyRecord"
+
     );
 
 
