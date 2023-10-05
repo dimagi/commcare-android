@@ -67,7 +67,7 @@ public class ConnectJobsListsFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_connect_jobs_list, container, false);
 
         updateText = view.findViewById(R.id.connect_jobs_last_update);
-        updateUpdatedDate();
+        updateUpdatedDate(ConnectDatabaseHelper.getLastJobsUpdate(getContext()));
 
         ImageView refreshButton = view.findViewById(R.id.connect_jobs_refresh);
         refreshButton.setOnClickListener(v -> {
@@ -129,7 +129,7 @@ public class ConnectJobsListsFragment extends Fragment {
                         //Store retrieved jobs
                         ConnectDatabaseHelper.storeJobs(getContext(), jobs, true);
 
-                        updateUpdatedDate();
+                        updateUpdatedDate(new Date());
                         viewStateAdapter.refresh();
                     }
                 } catch (IOException | JSONException | ParseException e) {
@@ -149,8 +149,7 @@ public class ConnectJobsListsFragment extends Fragment {
         });
     }
 
-    private void updateUpdatedDate() {
-        Date lastUpdate = new Date(); //TODO DAV: Determine last update date
+    private void updateUpdatedDate(Date lastUpdate) {
         DateFormat df = SimpleDateFormat.getDateTimeInstance();
         updateText.setText(getString(R.string.connect_last_update, df.format(lastUpdate)));
     }

@@ -35,16 +35,4 @@
         android:layout_marginStart="10dp"
         />
 
-    <TextView
-        android:id="@+id/delivery_item_paid"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:paddingEnd="20dp"
-        android:textStyle="bold"
-        android:text="@string/connect_progress_paid"
-        />
-
 </androidx.constraintlayout.widget.ConstraintLayout>

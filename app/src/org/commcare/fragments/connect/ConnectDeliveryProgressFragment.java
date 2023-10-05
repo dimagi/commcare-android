@@ -12,6 +12,7 @@ import com.google.android.material.tabs.TabLayout;
 import org.commcare.activities.connect.ConnectDatabaseHelper;
 import org.commcare.activities.connect.ConnectNetworkHelper;
 import org.commcare.android.database.connect.models.ConnectJobDeliveryRecord;
+import org.commcare.android.database.connect.models.ConnectJobPaymentRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.dalvik.R;
 import org.javarosa.core.io.StreamsUtil;
@@ -69,8 +70,9 @@ public class ConnectDeliveryProgressFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_connect_delivery_progress, container, false);
 
         updateText = view.findViewById(R.id.connect_delivery_last_update);
-        updateUpdatedDate();
+        updateUpdatedDate(ConnectDatabaseHelper.getLastDeliveriesUpdate(getContext()));
 
+        refreshData();
         ImageView refreshButton = view.findViewById(R.id.connect_delivery_refresh);
         refreshButton.setOnClickListener(v -> {
             refreshData();
@@ -108,8 +110,6 @@ public class ConnectDeliveryProgressFragment extends Fragment {
             }
         });
 
-        refreshData();
-
         return view;
     }
 
@@ -119,20 +119,39 @@ public class ConnectDeliveryProgressFragment extends Fragment {
             public void processSuccess(int responseCode, InputStream responseData) {
                 try {
                     String responseAsString = new String(StreamsUtil.inputStreamToByteArray(responseData));
-                    //[{"id":15,"status":"pending","visit_date":"2023-10-03T20:29:05.520000Z","deliver_form_name":"Survey","deliver_form_xmlns":"http://openrosa.org/formdesigner/574981F7-A9CC-4FA4-B4BC-6EF7873E84FB"}]
                     if (responseAsString.length() > 0) {
                         //Parse the JSON
-                        JSONArray json = new JSONArray(responseAsString);
+                        JSONObject json = new JSONObject(responseAsString);
+
                         List<ConnectJobDeliveryRecord> deliveries = new ArrayList<>(json.length());
-                        for (int i = 0; i < json.length(); i++) {
-                            JSONObject obj = (JSONObject)json.get(i);
-                            deliveries.add(ConnectJobDeliveryRecord.fromJson(obj, job.getJobId()));
+                        String key = "deliveries";
+                        if(json.has(key)) {
+                            JSONArray array = json.getJSONArray(key);
+                            for (int i = 0; i < array.length(); i++) {
+                                JSONObject obj = (JSONObject)array.get(i);
+                                deliveries.add(ConnectJobDeliveryRecord.fromJson(obj, job.getJobId()));
+                            }
+
+                            //Store retrieved jobs
+                            ConnectDatabaseHelper.storeDeliveries(getContext(), deliveries, job.getJobId(), true);
+
+                            job.setDeliveries(deliveries);
+                            ConnectDatabaseHelper.upsertJob(getContext(), job);
                         }
 
-                        //Store retrieved jobs
-                        ConnectDatabaseHelper.storeDeliveries(getContext(), deliveries, job.getJobId(), true);
+                        List<ConnectJobPaymentRecord> payments = new ArrayList<>();
+                        key = "payments";
+                        if(json.has(key)) {
+                            JSONArray array = json.getJSONArray(key);
+                            for (int i = 0; i < array.length(); i++) {
+                                JSONObject obj = (JSONObject)array.get(i);
+                                payments.add(ConnectJobPaymentRecord.fromJson(obj, job.getJobId()));
+                            }
 
-                        updateUpdatedDate();
+                            ConnectDatabaseHelper.storePayments(getContext(), payments, job.getJobId(), true);
+                        }
+
+                        updateUpdatedDate(new Date());
                         viewStateAdapter.refresh();
                     }
                 } catch (IOException | JSONException | ParseException e) {
@@ -152,8 +171,7 @@ public class ConnectDeliveryProgressFragment extends Fragment {
         });
     }
 
-    private void updateUpdatedDate() {
-        Date lastUpdate = new Date(); //TODO DAV: Determine last update date
+    private void updateUpdatedDate(Date lastUpdate) {
         DateFormat df = SimpleDateFormat.getDateTimeInstance();
         updateText.setText(getString(R.string.connect_last_update, df.format(lastUpdate)));
     }

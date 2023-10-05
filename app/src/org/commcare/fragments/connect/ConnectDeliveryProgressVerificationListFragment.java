@@ -61,7 +61,7 @@ public class ConnectDeliveryProgressVerificationListFragment extends Fragment {
     }
 
     private static class DeliveryAdapter extends RecyclerView.Adapter<DeliveryAdapter.DeliveryViewHolder> {
-        private ConnectJobRecord job;
+        private final ConnectJobRecord job;
         public DeliveryAdapter(ConnectJobRecord job) {
             this.job = job;
         }
@@ -79,7 +79,6 @@ public class ConnectDeliveryProgressVerificationListFragment extends Fragment {
 
             DateFormat df = new SimpleDateFormat("MM/dd/yyyy", Locale.getDefault());
             ConnectJobDeliveryRecord delivery = job.getDeliveries().get(position);
-            holder.paidText.setVisibility(View.GONE); //TODO DAV: This goes away
             holder.nameText.setText(delivery.getFormName());
             holder.dateText.setText(df.format(delivery.getDate()));
             holder.statusText.setText(delivery.getStatus());
@@ -94,7 +93,6 @@ public class ConnectDeliveryProgressVerificationListFragment extends Fragment {
             TextView nameText;
             TextView dateText;
             TextView statusText;
-            TextView paidText;
 
             public DeliveryViewHolder(@NonNull View itemView) {
                 super(itemView);
@@ -102,7 +100,6 @@ public class ConnectDeliveryProgressVerificationListFragment extends Fragment {
                 nameText = itemView.findViewById(R.id.delivery_item_name);
                 dateText = itemView.findViewById(R.id.delivery_item_date);
                 statusText = itemView.findViewById(R.id.delivery_item_status);
-                paidText = itemView.findViewById(R.id.delivery_item_paid);
             }
         }
     }

@@ -106,6 +106,7 @@ public class ConnectJobRecord extends Persisted implements Serializable {
     @Persisting(16)
     private int deliveryProgress;
     private List<ConnectJobDeliveryRecord> deliveries;
+    private List<ConnectJobPaymentRecord> payments;
     private ConnectAppRecord learnAppInfo;
     private ConnectAppRecord deliveryAppInfo;
 
@@ -133,6 +134,7 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         this.lastWorkedDate = lastWorkedDate;
 //        this.learningModules = learningModules;
         this.deliveries = deliveries;
+        this.payments = new ArrayList<>();
     }
 
     public static ConnectJobRecord fromJson(JSONObject json) throws JSONException, ParseException {
@@ -154,6 +156,7 @@ public class ConnectJobRecord extends Persisted implements Serializable {
 
 //        job.learningModules = new ConnectJobLearningModule[]{};
         job.deliveries = new ArrayList<>();
+        job.payments = new ArrayList<>();
         job.deliveryProgress = json.has(META_DELIVERY_PROGRESS) ? json.getInt(META_DELIVERY_PROGRESS) : -1;
 
         //Just need to know if the job has been claimed for now
@@ -179,7 +182,7 @@ public class ConnectJobRecord extends Persisted implements Serializable {
             job.status = STATUS_LEARNING;
             if(job.claimed) {
                 job.status = STATUS_DELIVERING;
-                if(job.deliveryProgress >= 100) { //TODO DAV: Check num_deliveries == maxDeliveries
+                if(job.deliveryProgress >= 100 || job.getProjectEndDate().getTime() < new Date().getTime()) {
                     job.status = STATUS_COMPLETE;
                 }
             }
@@ -212,6 +215,15 @@ public class ConnectJobRecord extends Persisted implements Serializable {
     public void setDeliveryAppInfo(ConnectAppRecord appInfo) { this.deliveryAppInfo = appInfo; }
     //public ConnectJobLearningModule[] getLearningModules() { return learningModules; }
     public List<ConnectJobDeliveryRecord> getDeliveries() { return deliveries; }
+    public void setDeliveries(List<ConnectJobDeliveryRecord> deliveries) {
+        this.deliveries = deliveries;
+        completedVisits = deliveries.size();
+        deliveryProgress = 100 * completedVisits / maxVisits;
+    }
+    public List<ConnectJobPaymentRecord> getPayments() { return payments; }
+    public void setPayments(List<ConnectJobPaymentRecord> payments) {
+        this.payments = payments;
+    }
     public void setLastUpdate(Date lastUpdate) { this.lastUpdate = lastUpdate; }
 
     public int getDaysRemaining() {

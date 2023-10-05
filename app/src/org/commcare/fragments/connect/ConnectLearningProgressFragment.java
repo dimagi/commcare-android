@@ -28,6 +28,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
@@ -67,7 +68,8 @@ public class ConnectLearningProgressFragment extends Fragment {
             refreshData();
         });
 
-        updateUi(view, job);
+        updateUpdatedDate(ConnectDatabaseHelper.getLastLearnProgressUpdate(getContext()));
+        updateUi();
         refreshData();
 
         return view;
@@ -95,7 +97,8 @@ public class ConnectLearningProgressFragment extends Fragment {
                     Logger.exception("Parsing return from learn_progress request", e);
                 }
 
-                updateUi(view, job);
+                updateUpdatedDate(new Date());
+                updateUi();
             }
 
             @Override
@@ -110,7 +113,7 @@ public class ConnectLearningProgressFragment extends Fragment {
         });
     }
 
-    private void updateUi(View view, ConnectJobRecord job) {
+    private void updateUi() {
         //NOTE: Leaving old logic here in case we go back to array
         int completed = job.getCompletedLearningModules();// 0;
 //        for (ConnectJobLearningModule module: job.getLearningModules()) {
@@ -118,8 +121,6 @@ public class ConnectLearningProgressFragment extends Fragment {
 //                completed++;
 //            }
 //        }
-
-        updateUpdatedDate();
 
         int numModules = job.getNumLearningModules();// job.getLearningModules().length;
         int percent = numModules > 0 ? (100 * completed / numModules) : 100;
@@ -202,8 +203,7 @@ public class ConnectLearningProgressFragment extends Fragment {
         });
     }
 
-    private void updateUpdatedDate() {
-        Date lastUpdate = new Date(); //TODO DAV: Determine last update date
+    private void updateUpdatedDate(Date lastUpdate) {
         DateFormat df = SimpleDateFormat.getDateTimeInstance();
         TextView updateText = view.findViewById(R.id.connect_learning_last_update);
         updateText.setText(getString(R.string.connect_last_update, df.format(lastUpdate)));

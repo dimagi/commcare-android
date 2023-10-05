@@ -1,12 +1,15 @@
 package org.commcare.activities.connect;
 
+import android.app.job.JobParameters;
 import android.content.Context;
+import android.os.Build;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.connect.models.ConnectAppRecord;
 import org.commcare.android.database.connect.models.ConnectJobDeliveryRecord;
+import org.commcare.android.database.connect.models.ConnectJobPaymentRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectLearnModuleSummaryRecord;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
@@ -166,6 +169,16 @@ public class ConnectDatabaseHelper {
         }
     }
 
+    public static Date getLastJobsUpdate(Context context) {
+        //TODO DAV: Retrieve most recent jobs update date
+        return new Date();
+    }
+
+    public static Date getLastLearnProgressUpdate(Context context) {
+        //TODO DAV: Retrieve most recent learn_progress update date
+        return new Date();
+    }
+
     public static void updateJobLearnProgress(Context context, ConnectJobRecord job) {
         SqlStorage<ConnectJobRecord> jobStorage = getConnectStorage(context, ConnectJobRecord.class);
 
@@ -299,6 +312,11 @@ public class ConnectDatabaseHelper {
         }
     }
 
+    public static Date getLastDeliveriesUpdate(Context context) {
+        //TODO DAV: Retrieve most recent deliveries update date
+        return new Date();
+    }
+
     public static void storeDeliveries(Context context, List<ConnectJobDeliveryRecord> deliveries, int jobId, boolean pruneMissing) {
         SqlStorage<ConnectJobDeliveryRecord> deliveryStorage = getConnectStorage(context, ConnectJobDeliveryRecord.class);
 
@@ -336,6 +354,40 @@ public class ConnectDatabaseHelper {
         }
     }
 
+    public static void storePayments(Context context, List<ConnectJobPaymentRecord> payments, int jobId, boolean pruneMissing) {
+        SqlStorage<ConnectJobPaymentRecord> paymentStorage = getConnectStorage(context, ConnectJobPaymentRecord.class);
+
+        List<ConnectJobPaymentRecord> existingList = getPayments(context, jobId, paymentStorage);
+
+        //Delete payments that are no longer available
+        Vector<Integer> paymentIdsToDelete = new Vector<>();
+        for (ConnectJobPaymentRecord existing : existingList) {
+            boolean stillExists = false;
+            for (ConnectJobPaymentRecord incoming : payments) {
+                if(existing.getDate() == incoming.getDate()) {
+                    incoming.setID(existing.getID());
+                    stillExists = true;
+                    break;
+                }
+            }
+
+            if(!stillExists && pruneMissing) {
+                //Mark the delivery for deletion
+                //Remember the ID so we can delete them all at once after the loop
+                paymentIdsToDelete.add(existing.getID());
+            }
+        }
+
+        if(pruneMissing) {
+            paymentStorage.removeAll(paymentIdsToDelete);
+        }
+
+        //Now insert/update deliveries
+        for (ConnectJobPaymentRecord incomingPayment : payments) {
+            paymentStorage.write(incomingPayment);
+        }
+    }
+
     private static final boolean UseMockData = false;
 
     public static List<ConnectJobRecord> getJobs(Context context, int status, SqlStorage<ConnectJobRecord> jobStorage) {
@@ -366,6 +418,8 @@ public class ConnectDatabaseHelper {
 
         SqlStorage<ConnectAppRecord> appInfoStorage = getConnectStorage(context, ConnectAppRecord.class);
         SqlStorage<ConnectLearnModuleSummaryRecord> moduleStorage = getConnectStorage(context, ConnectLearnModuleSummaryRecord.class);
+        SqlStorage<ConnectJobDeliveryRecord> deliveryStorage = getConnectStorage(context, ConnectJobDeliveryRecord.class);
+        SqlStorage<ConnectJobPaymentRecord> paymentStorage = getConnectStorage(context, ConnectJobPaymentRecord.class);
         for(ConnectJobRecord job : jobs) {
             //Retrieve learn and delivery app info
             Vector<ConnectAppRecord> existingAppInfos = appInfoStorage.getRecordsForValues(
@@ -387,11 +441,22 @@ public class ConnectDatabaseHelper {
                     new Object[]{job.getJobId()});
 
             List<ConnectLearnModuleSummaryRecord> modules = new ArrayList<>(existingModules);
-            modules.sort(Comparator.comparingInt(ConnectLearnModuleSummaryRecord::getModuleIndex));
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                modules.sort(Comparator.comparingInt(ConnectLearnModuleSummaryRecord::getModuleIndex));
+            }
+            else {
+                //TODO DAV: Brute force sort
+            }
 
             if(job.getLearnAppInfo() != null) {
                 job.getLearnAppInfo().setLearnModules(modules);
             }
+
+            //Retrieve deliveries
+            job.setDeliveries(getDeliveries(context, job.getJobId(), deliveryStorage));
+
+            //Retrieve payments
+            job.setPayments(getPayments(context, job.getJobId(), paymentStorage));
         }
 
         return new ArrayList<>(jobs);
@@ -430,5 +495,17 @@ public class ConnectDatabaseHelper {
                 new Object[]{jobId});
 
         return new ArrayList<>(deliveries);
+    }
+
+    public static List<ConnectJobPaymentRecord> getPayments(Context context, int jobId, SqlStorage<ConnectJobPaymentRecord> paymentStorage) {
+        if(paymentStorage == null) {
+            paymentStorage = getConnectStorage(context, ConnectJobPaymentRecord.class);
+        }
+
+        Vector<ConnectJobPaymentRecord> payments = paymentStorage.getRecordsForValues(
+                new String[]{ConnectJobPaymentRecord.META_JOB_ID},
+                new Object[]{jobId});
+
+        return new ArrayList<>(payments);
     }
 }

@@ -472,6 +472,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                 uiController.setUsername("AUTO");
                 uiController.setPasswordOrPin("AUTO");
                 uiController.setConnectButtonVisible(false);
+                initiateLoginAttempt(uiController.isRestoreSessionChecked());
             } else {
                 int selectorIndex = uiController.getSelectedAppIndex();
                 String selectedAppId = appIdDropdownList.size() > 0 ? appIdDropdownList.get(selectorIndex) : "";
