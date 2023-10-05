@@ -113,6 +113,12 @@ public class ConnectDeliveryProgressFragment extends Fragment {
         return view;
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        refreshData();
+    }
+
     public void refreshData() {
         ConnectNetworkHelper.getDeliveries(getContext(), job.getJobId(), new ConnectNetworkHelper.INetworkResultHandler() {
             @Override
@@ -178,8 +184,8 @@ public class ConnectDeliveryProgressFragment extends Fragment {
 
     private static class ViewStateAdapter extends FragmentStateAdapter {
         private final ConnectJobRecord job;
-        private ConnectDeliveryProgressDeliveryFragment deliveryFragment = null;
-        private ConnectDeliveryProgressVerificationListFragment verificationFragment = null;
+        private static ConnectDeliveryProgressDeliveryFragment deliveryFragment = null;
+        private static ConnectDeliveryProgressVerificationListFragment verificationFragment = null;
         public ViewStateAdapter(@NonNull FragmentManager fragmentManager, @NonNull Lifecycle lifecycle, ConnectJobRecord job) {
             super(fragmentManager, lifecycle);
             this.job = job;

@@ -39,7 +39,6 @@ import androidx.navigation.Navigation;
  * @author dviggiano
  */
 public class ConnectLearningProgressFragment extends Fragment {
-    private View view;
     private ConnectJobRecord job;
 
     public ConnectLearningProgressFragment() {
@@ -61,7 +60,7 @@ public class ConnectLearningProgressFragment extends Fragment {
         job = ConnectLearningProgressFragmentArgs.fromBundle(getArguments()).getJob();
         getActivity().setTitle(job.getTitle());
 
-        view = inflater.inflate(R.layout.fragment_connect_learning_progress, container, false);
+        View view = inflater.inflate(R.layout.fragment_connect_learning_progress, container, false);
 
         ImageView refreshButton = view.findViewById(R.id.connect_learning_refresh);
         refreshButton.setOnClickListener(v -> {
@@ -73,6 +72,12 @@ public class ConnectLearningProgressFragment extends Fragment {
         refreshData();
 
         return view;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        refreshData();
     }
 
     private void refreshData() {
@@ -114,6 +119,11 @@ public class ConnectLearningProgressFragment extends Fragment {
     }
 
     private void updateUi() {
+        View view = getView();
+        if(view == null) {
+            return;
+        }
+
         //NOTE: Leaving old logic here in case we go back to array
         int completed = job.getCompletedLearningModules();// 0;
 //        for (ConnectJobLearningModule module: job.getLearningModules()) {
@@ -204,6 +214,11 @@ public class ConnectLearningProgressFragment extends Fragment {
     }
 
     private void updateUpdatedDate(Date lastUpdate) {
+        View view = getView();
+        if(view == null) {
+            return;
+        }
+
         DateFormat df = SimpleDateFormat.getDateTimeInstance();
         TextView updateText = view.findViewById(R.id.connect_learning_last_update);
         updateText.setText(getString(R.string.connect_last_update, df.format(lastUpdate)));

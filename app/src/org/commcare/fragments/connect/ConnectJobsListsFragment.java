@@ -155,8 +155,8 @@ public class ConnectJobsListsFragment extends Fragment {
     }
 
     private static class ViewStateAdapter extends FragmentStateAdapter {
-        ConnectJobsAvailableListFragment availableFragment;
-        ConnectJobsMyListFragment myFragment;
+        static ConnectJobsAvailableListFragment availableFragment;
+        static ConnectJobsMyListFragment myFragment;
 
         public ViewStateAdapter(@NonNull FragmentManager fragmentManager, @NonNull Lifecycle lifecycle) {
             super(fragmentManager, lifecycle);

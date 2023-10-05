@@ -6,12 +6,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import org.commcare.android.database.connect.models.ConnectJobPaymentRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectJobDeliveryRecord;
 import org.commcare.dalvik.R;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Locale;
 
 import androidx.annotation.NonNull;
@@ -76,17 +78,31 @@ public class ConnectDeliveryProgressVerificationListFragment extends Fragment {
 
         @Override
         public void onBindViewHolder(@NonNull DeliveryViewHolder holder, int position) {
-
             DateFormat df = new SimpleDateFormat("MM/dd/yyyy", Locale.getDefault());
-            ConnectJobDeliveryRecord delivery = job.getDeliveries().get(position);
-            holder.nameText.setText(delivery.getFormName());
-            holder.dateText.setText(df.format(delivery.getDate()));
-            holder.statusText.setText(delivery.getStatus());
+            String name;
+            Date date;
+            String status;
+            if(position < job.getDeliveries().size()) {
+                ConnectJobDeliveryRecord delivery = job.getDeliveries().get(position);
+                name = delivery.getFormName();
+                date = delivery.getDate();
+                status = delivery.getStatus();
+            }
+            else {
+                ConnectJobPaymentRecord payment = job.getPayments().get(position - job.getDeliveries().size());
+                name = "Payment";
+                date = payment.getDate();
+                status = payment.getAmount();
+            }
+
+            holder.nameText.setText(name);
+            holder.dateText.setText(df.format(date));
+            holder.statusText.setText(status);
         }
 
         @Override
         public int getItemCount() {
-            return job.getDeliveries().size();
+            return job.getDeliveries().size() + job.getPayments().size();
         }
 
         public static class DeliveryViewHolder extends RecyclerView.ViewHolder {

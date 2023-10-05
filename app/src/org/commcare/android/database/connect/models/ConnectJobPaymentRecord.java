@@ -36,7 +36,7 @@ public class ConnectJobPaymentRecord extends Persisted implements Serializable {
 
     @Persisting(3)
     @MetaField(META_AMOUNT)
-    private int amount;
+    private String amount;
 
     public ConnectJobPaymentRecord() {}
 
@@ -47,10 +47,12 @@ public class ConnectJobPaymentRecord extends Persisted implements Serializable {
 
         payment.jobId = jobId;
         payment.date = json.has(META_DATE) ? df.parse(json.getString(META_DATE)) : new Date();
-        payment.amount = json.has(META_AMOUNT) ? (int)(100 * json.getDouble(META_AMOUNT)) : 0;
+        payment.amount = String.format(Locale.getDefault(), "%.02f", json.has(META_AMOUNT) ? json.getDouble(META_AMOUNT) : 0);
 
         return payment;
     }
 
     public Date getDate() { return date;}
+
+    public String getAmount() { return amount; }
 }

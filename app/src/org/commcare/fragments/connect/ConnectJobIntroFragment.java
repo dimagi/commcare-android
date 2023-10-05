@@ -93,9 +93,6 @@ public class ConnectJobIntroFragment extends Fragment {
                 @Override
                 public void processSuccess(int responseCode, InputStream responseData) {
                     //TODO DAV: Expecting to eventually get HQ username from server here
-                    job.setStatus(ConnectJobRecord.STATUS_LEARNING);
-                    ConnectDatabaseHelper.upsertJob(getContext(), job);
-
                     NavDirections directions;
                     if (appInstalled) {
                         directions = ConnectJobIntroFragmentDirections.actionConnectJobIntroFragmentToConnectJobLearningProgressFragment(job);

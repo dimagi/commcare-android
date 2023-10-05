@@ -61,9 +61,9 @@ public class ConnectJobDeliveryRecord extends Persisted implements Serializable 
 
         delivery.deliveryId = json.has(META_ID) ? json.getInt(META_ID) : -1;
         delivery.date = json.has(META_DATE) ? df.parse(json.getString(META_DATE)) : new Date();
-        delivery.status = json.has(META_STATUS) ? json.getString(META_STATUS) : null;
-        delivery.formName = json.has(META_FORM_NAME) ? json.getString(META_FORM_NAME) : null;
-        delivery.formXmlNs = json.has(META_XML_NS) ? json.getString(META_XML_NS) : null;
+        delivery.status = json.has(META_STATUS) ? json.getString(META_STATUS) : "";
+        delivery.formName = json.has(META_FORM_NAME) ? json.getString(META_FORM_NAME) : "";
+        delivery.formXmlNs = json.has(META_XML_NS) ? json.getString(META_XML_NS) : "";
 
         return delivery;
     }

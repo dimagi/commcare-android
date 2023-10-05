@@ -21,7 +21,6 @@ import java.util.Locale;
 import androidx.fragment.app.Fragment;
 
 public class ConnectDeliveryProgressDeliveryFragment extends Fragment {
-    private View view;
     private ConnectJobRecord job;
     public ConnectDeliveryProgressDeliveryFragment() {
         // Required empty public constructor
@@ -41,7 +40,7 @@ public class ConnectDeliveryProgressDeliveryFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        view = inflater.inflate(R.layout.fragment_connect_progress_delivery, container, false);
+        View view = inflater.inflate(R.layout.fragment_connect_progress_delivery, container, false);
         updateView();
 
         boolean expired = job.getDaysRemaining() < 0;
@@ -85,6 +84,11 @@ public class ConnectDeliveryProgressDeliveryFragment extends Fragment {
         int completed = job.getCompletedVisits();
         int total = job.getMaxVisits();
         int percent = total > 0 ? (100 * completed / total) : 100;
+
+        View view = getView();
+        if(view == null) {
+            return;
+        }
 
         ProgressBar progress = view.findViewById(R.id.connect_progress_progress_bar);
         progress.setProgress(percent);
