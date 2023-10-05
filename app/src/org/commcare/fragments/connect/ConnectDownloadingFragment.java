@@ -12,6 +12,7 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
 
+import org.commcare.activities.connect.ConnectActivity;
 import org.commcare.android.database.connect.models.ConnectAppRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.dalvik.R;
@@ -85,6 +86,10 @@ public class ConnectDownloadingFragment extends Fragment implements ResourceEngi
     }
 
     private void onSuccessfulInstall() {
+        ((ConnectActivity)getActivity()).startAppValidation();
+    }
+
+    public void onSuccessfulVerification() {
         View view = getView();
         if (view != null) {
             NavDirections directions;

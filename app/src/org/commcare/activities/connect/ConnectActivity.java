@@ -1,11 +1,16 @@
 package org.commcare.activities.connect;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
 
 import org.commcare.activities.CommCareActivity;
+import org.commcare.activities.CommCareVerificationActivity;
 import org.commcare.dalvik.R;
 import org.commcare.fragments.connect.ConnectDownloadingFragment;
 import org.commcare.tasks.ResourceEngineListener;
@@ -13,6 +18,17 @@ import org.commcare.tasks.ResourceEngineListener;
 import javax.annotation.Nullable;
 
 public class ConnectActivity extends CommCareActivity<ResourceEngineListener> {
+
+    ActivityResultLauncher<Intent> verificationLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                if (result.getResultCode() == Activity.RESULT_OK) {
+                    ConnectDownloadingFragment connectDownloadFragment = getConnectDownloadFragment();
+                    if (connectDownloadFragment != null) {
+                        connectDownloadFragment.onSuccessfulVerification();
+                    }
+                }
+            });
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -41,5 +57,11 @@ public class ConnectActivity extends CommCareActivity<ResourceEngineListener> {
             return (ConnectDownloadingFragment)currentFragment;
         }
         return null;
+    }
+
+    public void startAppValidation() {
+        Intent i = new Intent(this, CommCareVerificationActivity.class);
+        i.putExtra(CommCareVerificationActivity.KEY_LAUNCH_FROM_SETTINGS, true);
+        verificationLauncher.launch(i);
     }
 }
