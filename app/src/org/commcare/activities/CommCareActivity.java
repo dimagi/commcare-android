@@ -1,12 +1,14 @@
 package org.commcare.activities;
 
-import static org.commcare.preferences.HiddenPreferences.isFlagSecureEnabled;
 
-import android.annotation.TargetApi;
+import static org.commcare.preferences.HiddenPreferences.isBackgroundSyncEnabled;
+import static org.commcare.preferences.HiddenPreferences.isFlagSecureEnabled;
+import static org.commcare.sync.ExternalDataUpdateHelper.COMMCARE_DATA_UPDATE_ACTION;
+
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.IntentFilter;
 import android.graphics.Rect;
-import android.os.Build;
 import android.os.Bundle;
 import android.text.Spannable;
 import android.util.DisplayMetrics;
@@ -32,6 +34,8 @@ import org.commcare.fragments.TaskConnectorFragment;
 import org.commcare.interfaces.WithUIController;
 import org.commcare.logic.DetailCalloutListenerDefaultImpl;
 import org.commcare.preferences.LocalePreferences;
+import org.commcare.services.DataSyncCompleteBroadcastReceiver;
+import org.commcare.services.FCMMessageData;
 import org.commcare.session.CommCareSession;
 import org.commcare.session.SessionFrame;
 import org.commcare.session.SessionInstanceBuilder;
@@ -125,6 +129,7 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
     private ContainerFragment<Bundle> managedUiState;
     private boolean isMainScreenBlocked;
 
+    private DataSyncCompleteBroadcastReceiver dataSyncCompleteBroadcastReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -292,6 +297,18 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
     protected void onResume() {
         super.onResume();
         AudioController.INSTANCE.playPreviousAudio();
+
+        CommCareApplication.instance().setBackgroundSyncSafe(true);
+
+        if (shouldListenToSyncComplete() && isBackgroundSyncEnabled()) {
+            dataSyncCompleteBroadcastReceiver = new DataSyncCompleteBroadcastReceiver();
+            registerReceiver(dataSyncCompleteBroadcastReceiver, new IntentFilter(COMMCARE_DATA_UPDATE_ACTION));
+        }
+    }
+
+    // Activities that needs to restart after sync should override this to return true
+    public boolean shouldListenToSyncComplete() {
+        return false;
     }
 
     @Override
@@ -315,6 +332,10 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
 
         areFragmentsPaused = true;
         AudioController.INSTANCE.systemInducedPause();
+
+        if (dataSyncCompleteBroadcastReceiver != null) {
+            unregisterReceiver(dataSyncCompleteBroadcastReceiver);
+        }
     }
 
     @Override
@@ -701,6 +722,9 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
     public boolean aTaskInProgress() {
         return stateHolder != null && stateHolder.isCurrentTaskRunning();
     }
+
+    // Dummy method, should be implemented by each Activity that is not safe for a background sync
+    public void alertPendingSync(FCMMessageData fcmMessageData) {}
 
     /**
      * Interface to perform additional setup code when adding an ActionBar

@@ -1,8 +1,10 @@
 package org.commcare.provider;
 
 import android.content.Intent;
+import android.util.Base64;
 
 import org.commcare.android.javarosa.IntentCallout;
+import org.commcare.commcaresupportlibrary.identity.BiometricIdentifier;
 import org.commcare.commcaresupportlibrary.identity.IdentityResponseBuilder;
 import org.commcare.commcaresupportlibrary.identity.model.IdentificationMatch;
 import org.commcare.commcaresupportlibrary.identity.model.MatchResult;
@@ -23,6 +25,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.util.Collections;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Map;
 import java.util.Vector;
 
 import androidx.annotation.StringDef;
@@ -37,12 +40,10 @@ public class IdentityCalloutHandler {
 
     public static final String GENERALIZED_IDENTITY_PROVIDER = "generalized_identity_provider";
 
-
     @StringDef({GENERALIZED_IDENTITY_PROVIDER, SimprintsCalloutProcessing.SIMPRINTS_IDENTITY_PROVIDER})
     @Retention(RetentionPolicy.SOURCE)
     public @interface IdentityProvider {
     }
-
 
     public static boolean isIdentityCalloutResponse(Intent intent) {
         return isRegistrationResponse(intent) || isVerificationResponse(intent) || isIdentificationResponse(intent);
@@ -109,8 +110,34 @@ public class IdentityCalloutHandler {
                                                       Hashtable<String, Vector<TreeReference>> responseToRefMap) {
         RegistrationResult registrationResult = intent.getParcelableExtra(IdentityResponseBuilder.REGISTRATION);
         String guid = registrationResult.getGuid();
+
         storeValueFromCalloutInForm(formDef, responseToRefMap, intentQuestionRef, REF_GUID, guid);
-        IntentCallout.setNodeValue(formDef, intentQuestionRef, guid);
+
+        int numOfTemplatesStored = 0;
+        int numOfTemplates = 0;
+        for (Map.Entry<BiometricIdentifier, byte[]> template : registrationResult.getTemplates().entrySet()) {
+            boolean success = storeValueFromCalloutInForm(formDef, responseToRefMap,
+                    intentQuestionRef,
+                    template.getKey().getCalloutResponseKey(),
+                    Base64.encodeToString(template.getValue(), Base64.DEFAULT));
+            if (success) {
+                numOfTemplatesStored++;
+            }
+            numOfTemplates++;
+        }
+
+        String result = "";
+        if (registrationResult.getTemplates().isEmpty() || (numOfTemplates == numOfTemplatesStored)) {
+            result = Localization.get("intent.callout.biometrics.capture.result.success");
+        } else if (numOfTemplates > 0) {
+            if (numOfTemplatesStored == 0) {
+                result = Localization.get("intent.callout.biometrics.capture.result.fail");
+            } else {
+                result = Localization.get("intent.callout.biometrics.capture.result.partialfail");
+            }
+        }
+
+        IntentCallout.setNodeValue(formDef, intentQuestionRef, result);
 
         // Empty out any references present for duplicate handling
         storeValueFromCalloutInForm(formDef, responseToRefMap, intentQuestionRef, REF_MATCH_GUID, "");
