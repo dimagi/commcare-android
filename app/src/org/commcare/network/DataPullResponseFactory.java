@@ -21,8 +21,9 @@ public enum DataPullResponseFactory implements DataPullRequester {
     public RemoteDataPullResponse makeDataPullRequest(DataPullTask task,
                                                       CommcareRequestEndpoints requestor,
                                                       String server,
-                                                      boolean includeSyncToken) throws IOException {
-        Response<ResponseBody> response = requestor.makeCaseFetchRequest(server, includeSyncToken);
+                                                      boolean includeSyncToken,
+                                                      boolean skipFixtures) throws IOException {
+        Response<ResponseBody> response = requestor.makeCaseFetchRequest(server, includeSyncToken, skipFixtures);
         return new RemoteDataPullResponse(task, response);
     }
 

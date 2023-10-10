@@ -151,7 +151,8 @@ public class ExternalApiReceiver extends BroadcastReceiver {
                 u.getCachedPwd(),
                 u.getUniqueId(),
                 ServerUrls.getDataServerKey(),
-                context) {
+                context,
+                false) {
 
             @Override
             protected void deliverResult(Object receiver, ResultAndError<PullTaskResult> resultAndErrorMessage) {
