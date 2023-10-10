@@ -140,6 +140,9 @@ import io.noties.markwon.ext.tables.TablePlugin;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 
+import static org.commcare.util.EncryptionUtils.USER_CREDENTIALS_KEY_ALIAS;
+import static org.commcare.utils.EncryptionUtils.generateCryptographicKeyForKeyStore;
+
 public class CommCareApplication extends MultiDexApplication {
 
     private static final String TAG = CommCareApplication.class.getSimpleName();
@@ -249,6 +252,8 @@ public class CommCareApplication extends MultiDexApplication {
         GraphUtil.setLabelCharacterLimit(getResources().getInteger(R.integer.graph_label_char_limit));
 
         FirebaseMessagingUtil.verifyToken();
+
+        generateCryptographicKeyForKeyStore(USER_CREDENTIALS_KEY_ALIAS);
     }
 
     protected void attachISRGCert() {
