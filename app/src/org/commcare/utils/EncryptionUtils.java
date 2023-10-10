@@ -39,7 +39,8 @@ public class EncryptionUtils {
         }
     }
 
-    public static void generateKeyForKeyStore(String keyAlias) {
+    // Generates a cryptrographic key and adds it to the Android KeyStore
+    public static void generateCryptographicKeyForKeyStore(String keyAlias) {
         try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 KeyGenerator keyGenerator = KeyGenerator
