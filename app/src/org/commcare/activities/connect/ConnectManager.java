@@ -588,12 +588,10 @@ public class ConnectManager {
     }
 
     public static AuthInfo.ProvidedAuth getCredentialsForApp(String appId, String userId) {
-        if (isUnlocked()) {
-            ConnectLinkedAppRecord record = ConnectDatabaseHelper.getAppData(manager.parentActivity, appId,
-                    userId);
-            if (record != null && record.getPassword().length() > 0) {
-                return new AuthInfo.ProvidedAuth(record.getUserId(), record.getPassword(), false);
-            }
+        ConnectLinkedAppRecord record = ConnectDatabaseHelper.getAppData(manager.parentActivity, appId,
+                userId);
+        if (record != null && record.getPassword().length() > 0) {
+            return new AuthInfo.ProvidedAuth(record.getUserId(), record.getPassword(), false);
         }
 
         return null;
