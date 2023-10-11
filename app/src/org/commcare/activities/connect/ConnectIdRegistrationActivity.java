@@ -10,6 +10,7 @@ import org.commcare.core.network.AuthInfo;
 import org.commcare.dalvik.R;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.WithUIController;
+import org.commcare.utils.FirebaseMessagingUtil;
 import org.commcare.views.dialogs.CustomProgressDialog;
 
 import java.io.IOException;
@@ -115,6 +116,7 @@ public class ConnectIdRegistrationActivity extends CommCareActivity<ConnectIdReg
         params.put("password", tempUser.getPassword());
         params.put("name", tempUser.getName());
         params.put("phone_number", phone);
+        params.put("fcm_token", FirebaseMessagingUtil.getFCMToken());
 
         boolean isBusy = !ConnectNetworkHelper.post(this, getString(R.string.ConnectRegisterURL),
                 new AuthInfo.NoAuth(), params, false, new ConnectNetworkHelper.INetworkResultHandler() {
