@@ -213,7 +213,7 @@ static def getDate() {
 }
 
 android {
-    compileSdkVersion 33
+    compileSdkVersion 34
 
     lintOptions {
         abortOnError false
