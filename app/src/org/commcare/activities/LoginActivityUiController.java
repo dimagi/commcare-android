@@ -20,6 +20,7 @@ import android.widget.TextView;
 import androidx.preference.PreferenceManager;
 
 import java.util.ArrayList;
+import java.util.Locale;
 import java.util.Vector;
 
 import org.commcare.CommCareApplication;
@@ -28,6 +29,7 @@ import org.commcare.activities.connect.ConnectDatabaseHelper;
 import org.commcare.activities.connect.ConnectManager;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
+import org.commcare.core.network.AuthInfo;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.interfaces.CommCareActivityUIController;
@@ -221,9 +223,14 @@ public class LoginActivityUiController implements CommCareActivityUIController {
 
         // Decide whether or not to show the app selection spinner based upon # of usable apps
         ArrayList<ApplicationRecord> readyApps = MultipleAppsUtil.getUsableAppRecords();
+        ConnectManager.filterConnectManagedApps(activity, readyApps, activity.getPresetAppId());
+
         boolean promptIncluded = false;
         ApplicationRecord presetAppRecord = getPresetAppRecord(readyApps);
-        if ((readyApps.size() == 1 && (!ConnectManager.isConnectIdIntroduced() || ConnectManager.isUnlocked()))
+        if(readyApps.isEmpty()) {
+            appLabel.setVisibility(View.GONE);
+            setLoginInputsVisibility(false);
+        } else if ((readyApps.size() == 1 && (!ConnectManager.isConnectIdIntroduced() || ConnectManager.isUnlocked()))
                 || presetAppRecord != null) {
             setLoginInputsVisibility(true);
 
@@ -298,7 +305,7 @@ public class LoginActivityUiController implements CommCareActivityUIController {
 
     @Nullable
     private ApplicationRecord getPresetAppRecord(ArrayList<ApplicationRecord> readyApps) {
-        String presetAppId = activity.getPresetAppID();
+        String presetAppId = activity.getPresetAppId();
         if (presetAppId != null) {
             for (ApplicationRecord readyApp : readyApps) {
                 if (readyApp.getUniqueId().equals(presetAppId)) {

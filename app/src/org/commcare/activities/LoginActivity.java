@@ -112,7 +112,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
     private LoginActivityUiController uiController;
     private FormAndDataSyncer formAndDataSyncer;
-    private String presetAppID;
+    private String presetAppId;
     private boolean appLaunchedFromConnect;
 
     @Override
@@ -133,7 +133,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         ConnectManager.init(this);
         updateConnectButton();
 
-        presetAppID = getIntent().getStringExtra(EXTRA_APP_ID);
+        presetAppId = getIntent().getStringExtra(EXTRA_APP_ID);
         appLaunchedFromConnect = getIntent().getBooleanExtra(CommCareLauncher.EXTRA_FROM_CONNECT, false);
 
         if (savedInstanceState == null) {
@@ -282,7 +282,6 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         return false;
     }
 
-
     // cancels all worker tasks for previously seated app
     private static void disableWorkForLastSeatedApp() {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(CommCareApplication.instance());
@@ -384,9 +383,9 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
             if (ConnectManager.isUnlocked() && appLaunchedFromConnect) {
                 //Configure some things if we haven't already
                 ConnectLinkedAppRecord record = ConnectDatabaseHelper.getAppData(this,
-                        presetAppID, username);
+                        presetAppId, username);
                 if (record == null) {
-                    record = ConnectManager.prepareConnectManagedApp(this, presetAppID, username);
+                    record = ConnectManager.prepareConnectManagedApp(this, presetAppId, username);
                 }
 
                 passwordOrPin = record.getPassword();
@@ -898,7 +897,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         }
     }
 
-    protected String getPresetAppID() {
-        return presetAppID;
+    protected String getPresetAppId() {
+        return presetAppId;
     }
 }

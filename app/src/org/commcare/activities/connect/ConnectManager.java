@@ -5,11 +5,13 @@ import android.content.Context;
 import android.content.Intent;
 
 import org.commcare.activities.CommCareActivity;
+import org.commcare.activities.LoginActivity;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.activities.SettingsHelper;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.CommCareApplication;
+import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.core.encryption.CryptUtil;
 import org.commcare.core.network.AuthInfo;
 import org.commcare.dalvik.R;
@@ -20,12 +22,15 @@ import org.commcare.preferences.AppManagerDeveloperPreferences;
 import org.javarosa.core.util.PropertyUtils;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
 import javax.crypto.SecretKey;
+
+import androidx.annotation.Nullable;
 
 /**
  * Manager class for ConnectID, handles workflow navigation and user management
@@ -173,6 +178,24 @@ public class ConnectManager {
         manager.recoveryPhone = null;
         manager.recoverySecret = null;
         manager.forgotPassword = false;
+    }
+
+    public static void filterConnectManagedApps(Context context, ArrayList<ApplicationRecord> readyApps, String presetAppId) {
+        if(ConnectManager.isConnectIdIntroduced()) {
+            //We need to remove any apps that are managed by Connect
+            String username = ConnectManager.getUser(context).getUserId().toLowerCase(Locale.getDefault());
+            for(int i= readyApps.size()-1; i>=0; i--) {
+                String appId = readyApps.get(i).getUniqueId();
+                //Preset app needs to remain in the list if set
+                if(!appId.equals(presetAppId)) {
+                    AuthInfo.ProvidedAuth auth = ConnectManager.getCredentialsForApp(appId, username);
+                    if (auth != null) {
+                        //Creds stored for the CID username indicates this app is managed by Connect
+                        readyApps.remove(i);
+                    }
+                }
+            }
+        }
     }
 
     public static void handleConnectButtonPress(ConnectActivityCompleteListener listener) {
@@ -587,13 +610,12 @@ public class ConnectManager {
         }
     }
 
+    @Nullable
     public static AuthInfo.ProvidedAuth getCredentialsForApp(String appId, String userId) {
-        if (isUnlocked()) {
-            ConnectLinkedAppRecord record = ConnectDatabaseHelper.getAppData(manager.parentActivity, appId,
-                    userId);
-            if (record != null && record.getPassword().length() > 0) {
-                return new AuthInfo.ProvidedAuth(record.getUserId(), record.getPassword(), false);
-            }
+        ConnectLinkedAppRecord record = ConnectDatabaseHelper.getAppData(manager.parentActivity, appId,
+                userId);
+        if (record != null && record.getPassword().length() > 0) {
+            return new AuthInfo.ProvidedAuth(record.getUserId(), record.getPassword(), false);
         }
 
         return null;
