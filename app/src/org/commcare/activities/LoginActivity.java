@@ -473,7 +473,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                 uiController.setUsername("AUTO");
                 uiController.setPasswordOrPin("AUTO");
                 uiController.setConnectButtonVisible(false);
-                if(!seatAppIfNeeded(presetAppID)) {
+                if(!seatAppIfNeeded(presetAppId)) {
                     initiateLoginAttempt(uiController.isRestoreSessionChecked());
                 }
             } else {
