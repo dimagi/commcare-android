@@ -13,6 +13,8 @@ import android.widget.TextView;
 import org.commcare.activities.connect.ConnectDatabaseHelper;
 import org.commcare.activities.connect.ConnectManager;
 import org.commcare.activities.connect.ConnectNetworkHelper;
+import org.commcare.android.database.connect.models.ConnectJobAssessmentRecord;
+import org.commcare.android.database.connect.models.ConnectJobLearningRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.commcaresupportlibrary.CommCareLauncher;
 import org.commcare.dalvik.R;
@@ -20,12 +22,16 @@ import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.services.Logger;
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 import androidx.activity.OnBackPressedCallback;
@@ -88,17 +94,32 @@ public class ConnectLearningProgressFragment extends Fragment {
                     String responseAsString = new String(StreamsUtil.inputStreamToByteArray(responseData));
                     if (responseAsString.length() > 0) {
                         //Parse the JSON
-                        JSONArray json = new JSONArray(responseAsString);
-//                        List<ConnectJobRecord> jobs = new ArrayList<>(json.length());
-//                        for(int i=0; i<json.length(); i++) {
-//                            JSONObject obj = (JSONObject)json.get(i);
-//                            jobs.add(ConnectJobRecord.fromJson(obj));
-//                        }
+                        JSONObject json = new JSONObject(responseAsString);
 
-                        job.setComletedLearningModules(json.length());
+                        String key = "completed_modules";
+                        JSONArray modules = json.getJSONArray(key);
+                        List<ConnectJobLearningRecord> learningRecords = new ArrayList<>(modules.length());
+                        for(int i=0; i<modules.length(); i++) {
+                            JSONObject obj = (JSONObject)modules.get(i);
+                            ConnectJobLearningRecord record = ConnectJobLearningRecord.fromJson(obj, job.getJobId());
+                            learningRecords.add(record);
+                        }
+                        job.setLearnings(learningRecords);
+
+                        key = "assessments";
+                        JSONArray assessments = json.getJSONArray(key);
+                        List<ConnectJobAssessmentRecord> assessmentRecords = new ArrayList<>(assessments.length());
+                        for(int i=0; i<assessments.length(); i++) {
+                            JSONObject obj = (JSONObject)assessments.get(i);
+                            ConnectJobAssessmentRecord record = ConnectJobAssessmentRecord.fromJson(obj, job.getJobId());
+                            assessmentRecords.add(record);
+                        }
+                        job.setAssessments(assessmentRecords);
+
+                        job.setComletedLearningModules(learningRecords.size());
                         ConnectDatabaseHelper.updateJobLearnProgress(getContext(), job);
                     }
-                } catch (IOException | JSONException e) {
+                } catch (IOException | JSONException | ParseException e) {
                     Logger.exception("Parsing return from learn_progress request", e);
                 }
 
@@ -125,7 +146,7 @@ public class ConnectLearningProgressFragment extends Fragment {
         }
 
         //NOTE: Leaving old logic here in case we go back to array
-        int completed = job.getCompletedLearningModules();// 0;
+        int completed = job.getCompletedLearningModules();
 //        for (ConnectJobLearningModule module: job.getLearningModules()) {
 //            if(module.getCompletedDate() != null) {
 //                completed++;
@@ -135,12 +156,26 @@ public class ConnectLearningProgressFragment extends Fragment {
         int numModules = job.getNumLearningModules();// job.getLearningModules().length;
         int percent = numModules > 0 ? (100 * completed / numModules) : 100;
         boolean learningFinished = percent >= 100;
+        boolean assessmentAttempted = job.attemptedAssessment();
+        boolean assessmentPassed = job.passedAssessment();
 
         String status;
         String buttonText;
         if (learningFinished) {
-            status = getString(R.string.connect_learn_finished);
-            buttonText = getString(R.string.connect_learn_view_details);
+            if(assessmentAttempted) {
+                if(assessmentPassed) {
+                    status = getString(R.string.connect_learn_finished);
+                    buttonText = getString(R.string.connect_learn_view_details);
+                }
+                else {
+                    status = getString(R.string.connect_learn_failed);
+                    buttonText = getString(R.string.connect_learn_try_again);
+                }
+            }
+            else {
+                status = getString(R.string.connect_learn_need_assessment);
+                buttonText = getString(R.string.connect_learn_go_to_assessment);
+            }
         } else if(percent > 0) {
             status = getString(R.string.connect_learn_status, completed, numModules);
             buttonText = getString(R.string.connect_learn_continue);
@@ -150,10 +185,11 @@ public class ConnectLearningProgressFragment extends Fragment {
         }
 
         TextView progressText = view.findViewById(R.id.connect_learning_progress_text);
-        progressText.setVisibility(learningFinished ? View.GONE : View.VISIBLE);
         ProgressBar progressBar = view.findViewById(R.id.connect_learning_progress_bar);
-        progressBar.setVisibility(learningFinished ? View.GONE : View.VISIBLE);
         LinearLayout progressBarTextContainer = view.findViewById(R.id.connect_learn_progress_bar_text_container);
+
+        progressText.setVisibility(learningFinished ? View.GONE : View.VISIBLE);
+        progressBar.setVisibility(learningFinished ? View.GONE : View.VISIBLE);
         progressBarTextContainer.setVisibility(learningFinished ? View.GONE : View.VISIBLE);
         if(!learningFinished) {
             progressBar.setProgress(percent);
@@ -163,20 +199,37 @@ public class ConnectLearningProgressFragment extends Fragment {
         }
 
         LinearLayout certContainer = view.findViewById(R.id.connect_learning_certificate_container);
-        certContainer.setVisibility(learningFinished ? View.VISIBLE : View.GONE);
+        certContainer.setVisibility(learningFinished && assessmentPassed ? View.VISIBLE : View.GONE);
+
+        int titleResource;
+        if(learningFinished) {
+            if(assessmentAttempted) {
+                if(assessmentPassed) {
+                    titleResource = R.string.connect_learn_complete_title;
+                }
+                else {
+                    titleResource = R.string.connect_learn_failed_title;
+                }
+            }
+            else {
+                titleResource = R.string.connect_learn_need_assessment_title;
+            }
+        }
+        else {
+            titleResource = R.string.connect_learn_progress_title;
+        }
 
         TextView textView = view.findViewById(R.id.connect_learn_progress_title);
-        textView.setText(getString(learningFinished ? R.string.connect_learn_complete_title :
-                R.string.connect_learn_progress_title));
+        textView.setText(getString(titleResource));
 
         textView = view.findViewById(R.id.connect_learning_claim_label);
-        textView.setVisibility(learningFinished ? View.VISIBLE : View.GONE);
+        textView.setVisibility(learningFinished && assessmentPassed ? View.VISIBLE : View.GONE);
 
         textView = view.findViewById(R.id.connect_learning_status_text);
         textView.setText(status);
 
         TextView completeByText = view.findViewById(R.id.connect_learning_complete_by_text);
-        completeByText.setVisibility(learningFinished ? View.GONE : View.VISIBLE);
+        completeByText.setVisibility(learningFinished && assessmentPassed ? View.GONE : View.VISIBLE);
 
         DateFormat df = new SimpleDateFormat("MM/dd/yyyy", Locale.getDefault());
         if(learningFinished) {
@@ -203,7 +256,7 @@ public class ConnectLearningProgressFragment extends Fragment {
         final Button button = view.findViewById(R.id.connect_learning_button);
         button.setText(buttonText);
         button.setOnClickListener(v -> {
-            if(learningFinished) {
+            if(learningFinished && assessmentPassed) {
                 NavDirections directions = ConnectLearningProgressFragmentDirections.actionConnectJobLearningProgressFragmentToConnectJobDeliveryDetailsFragment(job);
                 Navigation.findNavController(button).navigate(directions);
             }

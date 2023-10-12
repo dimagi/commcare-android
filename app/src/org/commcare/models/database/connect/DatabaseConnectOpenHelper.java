@@ -7,7 +7,9 @@ import net.sqlcipher.database.SQLiteException;
 import net.sqlcipher.database.SQLiteOpenHelper;
 
 import org.commcare.android.database.connect.models.ConnectAppRecord;
+import org.commcare.android.database.connect.models.ConnectJobAssessmentRecord;
 import org.commcare.android.database.connect.models.ConnectJobDeliveryRecord;
+import org.commcare.android.database.connect.models.ConnectJobLearningRecord;
 import org.commcare.android.database.connect.models.ConnectJobPaymentRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectLearnModuleSummaryRecord;
@@ -55,6 +57,12 @@ public class DatabaseConnectOpenHelper extends SQLiteOpenHelper {
             database.execSQL(builder.getTableCreateString());
 
             builder = new TableBuilder(ConnectLearnModuleSummaryRecord.class);
+            database.execSQL(builder.getTableCreateString());
+
+            builder = new TableBuilder(ConnectJobLearningRecord.class);
+            database.execSQL(builder.getTableCreateString());
+
+            builder = new TableBuilder(ConnectJobAssessmentRecord.class);
             database.execSQL(builder.getTableCreateString());
 
             builder = new TableBuilder(ConnectJobDeliveryRecord.class);

@@ -361,6 +361,8 @@ public class FormStorageTest {
             "org.commcare.android.database.connect.models.ConnectJobPaymentRecord",
             "org.commcare.android.database.connect.models.ConnectJobRecord",
             "org.commcare.android.database.connect.models.ConnectLearnModuleSummaryRecord",
+            "org.commcare.android.database.connect.models.ConnectJobLearningRecord",
+            "org.commcare.android.database.connect.models.ConnectJobAssessmentRecord",
             "org.commcare.android.database.global.models.ConnectKeyRecord"
 
     );

@@ -9,7 +9,9 @@ import net.sqlcipher.database.SQLiteDatabase;
 import org.commcare.CommCareApplication;
 import org.commcare.adapters.ConnectJobAdapter;
 import org.commcare.android.database.connect.models.ConnectAppRecord;
+import org.commcare.android.database.connect.models.ConnectJobAssessmentRecord;
 import org.commcare.android.database.connect.models.ConnectJobDeliveryRecord;
+import org.commcare.android.database.connect.models.ConnectJobLearningRecord;
 import org.commcare.android.database.connect.models.ConnectJobPaymentRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectLearnModuleSummaryRecord;
@@ -194,6 +196,10 @@ public class ConnectDatabaseHelper {
             existing.setComletedLearningModules(job.getCompletedLearningModules());
             existing.setLastUpdate(new Date());
             jobStorage.write(existing);
+
+            //Also update learning and assessment records
+            storeLearningRecords(context, job.getLearnings(), job.getJobId(), true);
+            storeAssessments(context, job.getAssessments(), job.getJobId(), true);
         }
     }
 
@@ -313,18 +319,92 @@ public class ConnectDatabaseHelper {
         }
     }
 
+    public static void storeLearningRecords(Context context, List<ConnectJobLearningRecord> learnings, int jobId, boolean pruneMissing) {
+        SqlStorage<ConnectJobLearningRecord> storage = getConnectStorage(context, ConnectJobLearningRecord.class);
+
+        List<ConnectJobLearningRecord> existingList = getLearnings(context, jobId, storage);
+
+        //Delete records that are no longer available
+        Vector<Integer> recordIdsToDelete = new Vector<>();
+        for (ConnectJobLearningRecord existing : existingList) {
+            boolean stillExists = false;
+            for (ConnectJobLearningRecord incoming : learnings) {
+                if(existing.getModuleId() == incoming.getModuleId() && existing.getDate().equals(incoming.getDate())) {
+                    incoming.setID(existing.getID());
+                    stillExists = true;
+                    break;
+                }
+            }
+
+            if(!stillExists && pruneMissing) {
+                //Mark the record for deletion
+                //Remember the ID so we can delete them all at once after the loop
+                recordIdsToDelete.add(existing.getID());
+            }
+        }
+
+        if(pruneMissing) {
+            storage.removeAll(recordIdsToDelete);
+        }
+
+        //Now insert/update records
+        for (ConnectJobLearningRecord incomingRecord : learnings) {
+            incomingRecord.setLastUpdate(new Date());
+
+            //Now insert/update the record
+            storage.write(incomingRecord);
+        }
+    }
+
+    public static void storeAssessments(Context context, List<ConnectJobAssessmentRecord> assessments, int jobId, boolean pruneMissing) {
+        SqlStorage<ConnectJobAssessmentRecord> storage = getConnectStorage(context, ConnectJobAssessmentRecord.class);
+
+        List<ConnectJobAssessmentRecord> existingList = getAssessments(context, jobId, storage);
+
+        //Delete records that are no longer available
+        Vector<Integer> recordIdsToDelete = new Vector<>();
+        for (ConnectJobAssessmentRecord existing : existingList) {
+            boolean stillExists = false;
+            for (ConnectJobAssessmentRecord incoming : assessments) {
+                if(existing.getScore() == incoming.getScore() && existing.getDate().equals(incoming.getDate())) {
+                    incoming.setID(existing.getID());
+                    stillExists = true;
+                    break;
+                }
+            }
+
+            if(!stillExists && pruneMissing) {
+                //Mark the record for deletion
+                //Remember the ID so we can delete them all at once after the loop
+                recordIdsToDelete.add(existing.getID());
+            }
+        }
+
+        if(pruneMissing) {
+            storage.removeAll(recordIdsToDelete);
+        }
+
+        //Now insert/update records
+        for (ConnectJobAssessmentRecord incomingRecord : assessments) {
+            incomingRecord.setLastUpdate(new Date());
+
+            //Now insert/update the record
+            storage.write(incomingRecord);
+        }
+    }
+
     public static Date getLastDeliveriesUpdate(Context context) {
         //TODO DAV: Retrieve most recent deliveries update date
         return new Date();
     }
 
     public static void storeDeliveries(Context context, List<ConnectJobDeliveryRecord> deliveries, int jobId, boolean pruneMissing) {
-        SqlStorage<ConnectJobDeliveryRecord> deliveryStorage = getConnectStorage(context, ConnectJobDeliveryRecord.class);
+        SqlStorage<ConnectJobDeliveryRecord> storage = getConnectStorage(context, ConnectJobDeliveryRecord.class);
 
-        List<ConnectJobDeliveryRecord> existingList = getDeliveries(context, jobId, deliveryStorage);
+        List<ConnectJobDeliveryRecord> existingList = getDeliveries(context, jobId, storage);
 
         //Delete jobs that are no longer available
-        Vector<Integer> deliveryIdsToDelete = new Vector<>();
+        Vector<Integer> recordIdsToDelete = new Vector<>();
         for (ConnectJobDeliveryRecord existing : existingList) {
             boolean stillExists = false;
             for (ConnectJobDeliveryRecord incoming : deliveries) {
@@ -338,30 +418,30 @@ public class ConnectDatabaseHelper {
             if(!stillExists && pruneMissing) {
                 //Mark the delivery for deletion
                 //Remember the ID so we can delete them all at once after the loop
-                deliveryIdsToDelete.add(existing.getID());
+                recordIdsToDelete.add(existing.getID());
             }
         }
 
         if(pruneMissing) {
-            deliveryStorage.removeAll(deliveryIdsToDelete);
+            storage.removeAll(recordIdsToDelete);
         }
 
         //Now insert/update deliveries
-        for (ConnectJobDeliveryRecord incomingDelivery : deliveries) {
-            incomingDelivery.setLastUpdate(new Date());
+        for (ConnectJobDeliveryRecord incomingRecord : deliveries) {
+            incomingRecord.setLastUpdate(new Date());
 
             //Now insert/update the delivery
-            deliveryStorage.write(incomingDelivery);
+            storage.write(incomingRecord);
         }
     }
 
     public static void storePayments(Context context, List<ConnectJobPaymentRecord> payments, int jobId, boolean pruneMissing) {
-        SqlStorage<ConnectJobPaymentRecord> paymentStorage = getConnectStorage(context, ConnectJobPaymentRecord.class);
+        SqlStorage<ConnectJobPaymentRecord> storage = getConnectStorage(context, ConnectJobPaymentRecord.class);
 
-        List<ConnectJobPaymentRecord> existingList = getPayments(context, jobId, paymentStorage);
+        List<ConnectJobPaymentRecord> existingList = getPayments(context, jobId, storage);
 
         //Delete payments that are no longer available
-        Vector<Integer> paymentIdsToDelete = new Vector<>();
+        Vector<Integer> recordIdsToDelete = new Vector<>();
         for (ConnectJobPaymentRecord existing : existingList) {
             boolean stillExists = false;
             for (ConnectJobPaymentRecord incoming : payments) {
@@ -375,17 +455,17 @@ public class ConnectDatabaseHelper {
             if(!stillExists && pruneMissing) {
                 //Mark the delivery for deletion
                 //Remember the ID so we can delete them all at once after the loop
-                paymentIdsToDelete.add(existing.getID());
+                recordIdsToDelete.add(existing.getID());
             }
         }
 
         if(pruneMissing) {
-            paymentStorage.removeAll(paymentIdsToDelete);
+            storage.removeAll(recordIdsToDelete);
         }
 
         //Now insert/update deliveries
-        for (ConnectJobPaymentRecord incomingPayment : payments) {
-            paymentStorage.write(incomingPayment);
+        for (ConnectJobPaymentRecord incomingRecord : payments) {
+            storage.write(incomingRecord);
         }
     }
 
@@ -421,6 +501,8 @@ public class ConnectDatabaseHelper {
         SqlStorage<ConnectLearnModuleSummaryRecord> moduleStorage = getConnectStorage(context, ConnectLearnModuleSummaryRecord.class);
         SqlStorage<ConnectJobDeliveryRecord> deliveryStorage = getConnectStorage(context, ConnectJobDeliveryRecord.class);
         SqlStorage<ConnectJobPaymentRecord> paymentStorage = getConnectStorage(context, ConnectJobPaymentRecord.class);
+        SqlStorage<ConnectJobLearningRecord> learningStorage = getConnectStorage(context, ConnectJobLearningRecord.class);
+        SqlStorage<ConnectJobAssessmentRecord> assessmentStorage = getConnectStorage(context, ConnectJobAssessmentRecord.class);
         for(ConnectJobRecord job : jobs) {
             //Retrieve learn and delivery app info
             Vector<ConnectAppRecord> existingAppInfos = appInfoStorage.getRecordsForValues(
@@ -453,11 +535,11 @@ public class ConnectDatabaseHelper {
                 job.getLearnAppInfo().setLearnModules(modules);
             }
 
-            //Retrieve deliveries
+            //Retrieve related data
             job.setDeliveries(getDeliveries(context, job.getJobId(), deliveryStorage));
-
-            //Retrieve payments
             job.setPayments(getPayments(context, job.getJobId(), paymentStorage));
+            job.setLearnings(getLearnings(context, job.getJobId(), learningStorage));
+            job.setAssessments(getAssessments(context, job.getJobId(), assessmentStorage));
         }
 
         return new ArrayList<>(jobs);
@@ -508,5 +590,29 @@ public class ConnectDatabaseHelper {
                 new Object[]{jobId});
 
         return new ArrayList<>(payments);
+    }
+
+    public static List<ConnectJobLearningRecord> getLearnings(Context context, int jobId, SqlStorage<ConnectJobLearningRecord> learningStorage) {
+        if(learningStorage == null) {
+            learningStorage = getConnectStorage(context, ConnectJobLearningRecord.class);
+        }
+
+        Vector<ConnectJobLearningRecord> learnings = learningStorage.getRecordsForValues(
+                new String[]{ConnectJobLearningRecord.META_JOB_ID},
+                new Object[]{jobId});
+
+        return new ArrayList<>(learnings);
+    }
+
+    public static List<ConnectJobAssessmentRecord> getAssessments(Context context, int jobId, SqlStorage<ConnectJobAssessmentRecord> assessmentStorage) {
+        if(assessmentStorage == null) {
+            assessmentStorage = getConnectStorage(context, ConnectJobAssessmentRecord.class);
+        }
+
+        Vector<ConnectJobAssessmentRecord> assessments = assessmentStorage.getRecordsForValues(
+                new String[]{ConnectJobAssessmentRecord.META_JOB_ID},
+                new Object[]{jobId});
+
+        return new ArrayList<>(assessments);
     }
 }

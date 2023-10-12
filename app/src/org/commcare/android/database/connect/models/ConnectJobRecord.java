@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Locale;
 
 /**
- * Data class for holding info relatde to a Connect job
+ * Data class for holding info related to a Connect job
  *
  * @author dviggiano
  */
@@ -36,15 +36,12 @@ public class ConnectJobRecord extends Persisted implements Serializable {
     public static final String META_JOB_ID = "id";
     public static final String META_NAME = "name";
     public static final String META_DESCRIPTION = "description";
-    public static final String META_DATE_CREATED = "date_created";
-    public static final String META_DATE_MODIFIED = "date_modified";
     public static final String META_ORGANIZATION = "organization";
     public static final String META_END_DATE = "end_date";
     public static final String META_MAX_VISITS = "max_visits_per_user";
     public static final String META_MAX_DAILY_VISITS = "daily_max_visits_per_user";
     public static final String META_BUDGET_PER_VISIT = "budget_per_visit";
     public static final String META_BUDGET_TOTAL = "total_budget";
-    public static final String META_COMPLETED_VISITS = "completed_visits";
     public static final String META_LAST_WORKED_DATE = "last_worked";
     public static final String META_STATUS = "status";
     public static final String META_LEARN_MODULES = "total_modules";
@@ -84,7 +81,7 @@ public class ConnectJobRecord extends Persisted implements Serializable {
     @MetaField(META_MAX_DAILY_VISITS)
     private int maxDailyVisits;
     @Persisting(10)
-    @MetaField(META_COMPLETED_VISITS)
+    @MetaField(META_DELIVERY_PROGRESS)
     private int completedVisits;
     @Persisting(11)
     @MetaField(META_LAST_WORKED_DATE)
@@ -102,11 +99,10 @@ public class ConnectJobRecord extends Persisted implements Serializable {
     private Date lastUpdate;
 //    private ConnectJobLearningModule[] learningModules;
 
-    @MetaField(META_DELIVERY_PROGRESS)
-    @Persisting(16)
-    private int deliveryProgress;
     private List<ConnectJobDeliveryRecord> deliveries;
     private List<ConnectJobPaymentRecord> payments;
+    private List<ConnectJobLearningRecord> learnings;
+    private List<ConnectJobAssessmentRecord> assessments;
     private ConnectAppRecord learnAppInfo;
     private ConnectAppRecord deliveryAppInfo;
 
@@ -135,6 +131,8 @@ public class ConnectJobRecord extends Persisted implements Serializable {
 //        this.learningModules = learningModules;
         this.deliveries = deliveries;
         this.payments = new ArrayList<>();
+        this.learnings = new ArrayList<>();
+        this.assessments = new ArrayList<>();
     }
 
     public static ConnectJobRecord fromJson(JSONObject json) throws JSONException, ParseException {
@@ -157,7 +155,9 @@ public class ConnectJobRecord extends Persisted implements Serializable {
 //        job.learningModules = new ConnectJobLearningModule[]{};
         job.deliveries = new ArrayList<>();
         job.payments = new ArrayList<>();
-        job.deliveryProgress = json.has(META_DELIVERY_PROGRESS) ? json.getInt(META_DELIVERY_PROGRESS) : -1;
+        job.learnings = new ArrayList<>();
+        job.assessments = new ArrayList<>();
+        job.completedVisits = json.has(META_DELIVERY_PROGRESS) ? json.getInt(META_DELIVERY_PROGRESS) : -1;
 
         //Just need to know if the job has been claimed for now
         job.claimed = json.has(META_CLAIM) && !json.isNull(META_CLAIM);
@@ -182,7 +182,7 @@ public class ConnectJobRecord extends Persisted implements Serializable {
             job.status = STATUS_LEARNING;
             if(job.claimed) {
                 job.status = STATUS_DELIVERING;
-                if(job.deliveryProgress >= 100 || job.getProjectEndDate().getTime() < new Date().getTime()) {
+                if(job.getPercentComplete() >= 100 || job.getProjectEndDate().getTime() < new Date().getTime()) {
                     job.status = STATUS_COMPLETE;
                 }
             }
@@ -194,7 +194,6 @@ public class ConnectJobRecord extends Persisted implements Serializable {
     public int getJobId() { return jobId; }
     public String getTitle() { return title; }
     public String getDescription() { return description; }
-    public String getOrganization() { return organization; }
     public boolean getIsNew() { return status == STATUS_AVAILABLE_NEW; }
     public int getStatus() { return status; }
     public void setStatus(int status) { this.status = status; }
@@ -202,7 +201,6 @@ public class ConnectJobRecord extends Persisted implements Serializable {
     public int getMaxVisits() { return maxVisits; }
     public int getMaxDailyVisits() { return maxDailyVisits; }
     public int getBudgetPerVisit() { return budgetPerVisit; }
-    public int getTotalBudget() { return totalBudget; }
     public int getPercentComplete() { return maxVisits > 0 ? 100 * completedVisits / maxVisits : 0; }
     public Date getDateCompleted() { return lastWorkedDate; }
     public Date getProjectEndDate() { return projectEndDate; }
@@ -217,12 +215,27 @@ public class ConnectJobRecord extends Persisted implements Serializable {
     public List<ConnectJobDeliveryRecord> getDeliveries() { return deliveries; }
     public void setDeliveries(List<ConnectJobDeliveryRecord> deliveries) {
         this.deliveries = deliveries;
-        completedVisits = deliveries.size();
-        deliveryProgress = 100 * completedVisits / maxVisits;
+        if(deliveries.size() > 0) {
+            completedVisits = deliveries.size();
+        }
     }
     public List<ConnectJobPaymentRecord> getPayments() { return payments; }
     public void setPayments(List<ConnectJobPaymentRecord> payments) {
         this.payments = payments;
+    }
+
+    public List<ConnectJobLearningRecord> getLearnings() {
+        return learnings;
+    }
+    public void setLearnings(List<ConnectJobLearningRecord> learnings) {
+        this.learnings = learnings;
+    }
+
+    public List<ConnectJobAssessmentRecord> getAssessments() {
+        return assessments;
+    }
+    public void setAssessments(List<ConnectJobAssessmentRecord> assessments) {
+        this.assessments = assessments;
     }
     public void setLastUpdate(Date lastUpdate) { this.lastUpdate = lastUpdate; }
 
@@ -235,11 +248,30 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         int maxVisitsBudgeted = totalBudget / budgetPerVisit;
         int minDaysRequired = maxVisitsBudgeted / maxDailyVisits;
         int daysRemaining = getDaysRemaining();
-        return minDaysRequired > daysRemaining ? (daysRemaining * maxDailyVisits) : maxVisitsBudgeted;
+        int max = minDaysRequired > daysRemaining ? (daysRemaining * maxDailyVisits) : maxVisitsBudgeted;
+        return Math.min(max, maxVisits);
     }
 
     public int getLearningCompletePercentage() {
         int numLearning = getNumLearningModules();
         return numLearning > 0 ? (100 * getCompletedLearningModules() / getNumLearningModules()) : 100;
+    }
+
+    public boolean attemptedAssessment() {
+        return getLearningCompletePercentage() >= 100 && getAssessmentScore() > 0;
+    }
+
+    public boolean passedAssessment() {
+        return getLearningCompletePercentage() >= 100 && getAssessmentScore() >= getLearnAppInfo().getPassingScore();
+    }
+
+    public int getAssessmentScore() {
+        int maxScore = 0;
+        if(assessments != null) {
+            for(ConnectJobAssessmentRecord record : assessments) {
+                maxScore  = Math.max(maxScore, record.getScore());
+            }
+        }
+        return maxScore;
     }
 }

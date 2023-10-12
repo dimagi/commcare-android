@@ -153,8 +153,14 @@ public class ConnectJobAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                     int numModules = job.getNumLearningModules();// job.getLearningModules().length;
                     percent = numModules > 0 ? (100 * completed / numModules) : 100;
                 }
+
                 if(isTraining && percent >= 100) {
-                    description = parentContext.getString(R.string.connect_job_training_complete);
+                    if(job.passedAssessment()) {
+                        description = parentContext.getString(R.string.connect_job_training_complete);
+                    }
+                    else {
+                        description = parentContext.getString(R.string.connect_job_needs_assessment);
+                    }
                 }
                 else {
                     description = parentContext.getString(R.string.connect_job_training_progress, extra, percent);

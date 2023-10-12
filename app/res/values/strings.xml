@@ -623,6 +623,7 @@
     <string name="connect_job_new">NEW</string>
     <string name="connect_job_visits">Cover %d Households in %d Days</string>
     <string name="connect_job_training_complete">Learning Completed &amp; Certified</string>
+    <string name="connect_job_needs_assessment">Assessment Required</string>
     <string name="connect_job_training_progress">%s %d%% Complete</string>
     <string name="connect_job_remaining">%d days remaining</string>
     <string name="connect_job_learning">Learning</string>
@@ -644,15 +645,21 @@
 
     <string name="connect_learn_progress_title">Your Learning Progress</string>
     <string name="connect_learn_complete_title">Training Complete!</string>
+    <string name="connect_learn_need_assessment_title">Training Pending</string>
+    <string name="connect_learn_failed_title">Training Failed</string>
     <string name="connect_learn_complete_by">Complete Project by %s</string>
     <string name="connect_learn_status">You have completed %d of %d lessons.\nFinish learning to earn your certificate.</string>
     <string name="connect_learn_not_started">You haven\'t completed any lessons.\nStart learning to earn your certificate.</string>
     <string name="connect_learn_finished">You have earned a certificate for this job and are eligible to claim the job and begin delivering care.</string>
+    <string name="connect_learn_need_assessment">Complete the assessment to finish training.</string>
+    <string name="connect_learn_failed">Sorry, you did not earn a passing score on your assessment. Please try again.</string>
     <string name="connect_learn_complete">Complete</string>
     <string name="connect_learn_certificate">CERTIFICATE OF COMPLETION</string>
     <string name="connect_learn_completed">Completed on: %s</string>
     <string name="connect_learn_claim_label">Claim Job to Deliver Care</string>
     <string name="connect_learn_view_details">View Delivery Details</string>
+    <string name="connect_learn_go_to_assessment">Go To Assessment</string>
+    <string name="connect_learn_try_again">Try Again</string>
     <string name="connect_learn_start">Start Learning</string>
     <string name="connect_learn_continue">Continue Learning</string>
 
