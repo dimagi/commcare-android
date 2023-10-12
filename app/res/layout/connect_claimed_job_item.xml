@@ -41,28 +41,37 @@
     <TextView
         android:id="@+id/title_label"
         android:layout_height="wrap_content"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_marginStart="20dp"
         android:textStyle="bold"
         android:textSize="@dimen/text_large"
+        android:textAlignment="textStart"
+        app:layout_constrainedWidth="true"
         app:layout_constraintStart_toEndOf="@id/progress_bar"
+        app:layout_constraintEnd_toStartOf="@id/button"
         app:layout_constraintTop_toTopOf="@id/progress_bar" />
 
     <TextView
         android:id="@+id/description_label"
         app:layout_constraintStart_toStartOf="@id/title_label"
+        app:layout_constraintEnd_toStartOf="@id/button"
         app:layout_constraintTop_toBottomOf="@id/title_label"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textAlignment="textStart"
+        app:layout_constrainedWidth="true"/>
 
     <TextView
         android:id="@+id/remaining_label"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/button"
         app:layout_constraintTop_toBottomOf="@id/description_label"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="20dp"
         android:layout_marginTop="10dp"
-        android:paddingBottom="10dp" />
+        android:paddingBottom="10dp"
+        android:textAlignment="textStart"
+        app:layout_constrainedWidth="true"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
