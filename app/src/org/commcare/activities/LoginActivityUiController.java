@@ -223,21 +223,7 @@ public class LoginActivityUiController implements CommCareActivityUIController {
 
         // Decide whether or not to show the app selection spinner based upon # of usable apps
         ArrayList<ApplicationRecord> readyApps = MultipleAppsUtil.getUsableAppRecords();
-        if(ConnectManager.isConnectIdIntroduced()) {
-            //We need to remove any apps that are managed by Connect
-            String username = ConnectManager.getUser(activity).getUserId().toLowerCase(Locale.getDefault());
-            for(int i= readyApps.size()-1; i>=0; i--) {
-                String appId = readyApps.get(i).getUniqueId();
-                //Preset app needs to be in the list if set
-                if(!appId.equals(activity.getPresetAppId())) {
-                    AuthInfo.ProvidedAuth auth = ConnectManager.getCredentialsForApp(appId, username);
-                    if (auth != null) {
-                        //Creds stored for the CID username indicates this app is managed by Connect
-                        readyApps.remove(i);
-                    }
-                }
-            }
-        }
+        ConnectManager.filterConnectManagedApps(activity, readyApps, activity.getPresetAppId());
 
         boolean promptIncluded = false;
         ApplicationRecord presetAppRecord = getPresetAppRecord(readyApps);
