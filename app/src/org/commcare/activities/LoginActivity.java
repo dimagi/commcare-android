@@ -454,7 +454,9 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     public void handleConnectButtonPress() {
         selectedAppIndex = -1;
         ConnectManager.handleConnectButtonPress(success -> {
-            updateConnectButton();
+            if(success) {
+                ConnectManager.goToConnectJobsList();
+            }
         });
     }
 
