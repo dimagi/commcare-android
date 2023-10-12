@@ -197,9 +197,7 @@ public class ConnectManager {
                 }
             }
             case LoggedIn -> {
-                ConnectTask task = ConnectTask.CONNECT_MAIN;
-                Intent i = new Intent(manager.parentActivity, task.getNextActivity());
-                manager.parentActivity.startActivityForResult(i, task.getRequestCode());
+                goToConnectJobsList();
             }
         }
 
@@ -207,6 +205,12 @@ public class ConnectManager {
             manager.phase = requestCode;
             manager.continueWorkflow();
         }
+    }
+
+    public static void goToConnectJobsList() {
+        ConnectTask task = ConnectTask.CONNECT_MAIN;
+        Intent i = new Intent(manager.parentActivity, task.getNextActivity());
+        manager.parentActivity.startActivityForResult(i, task.getRequestCode());
     }
 
     private void continueWorkflow() {
