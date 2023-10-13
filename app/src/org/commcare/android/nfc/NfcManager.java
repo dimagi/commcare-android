@@ -1,11 +1,9 @@
 package org.commcare.android.nfc;
 
-import android.annotation.TargetApi;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.IntentFilter;
 import android.nfc.NfcAdapter;
-import android.os.Build;
 
 import org.apache.commons.lang3.StringUtils;
 import org.commcare.util.EncryptionUtils;
@@ -60,7 +58,7 @@ public class NfcManager {
         if (message.startsWith(payloadTag)) {
             message = message.replace(payloadTag, "");
             if (!StringUtils.isEmpty(encryptionKey)) {
-                message = EncryptionUtils.decrypt(message, encryptionKey, true);
+                message = EncryptionUtils.decryptUsingBase64EncodedKey("AES", message, encryptionKey);
             }
         } else if (!allowUntaggedRead && !isEmptyPayloadTag(payloadTag)) {
             throw new InvalidPayloadTagException();
@@ -97,7 +95,7 @@ public class NfcManager {
         }
         String payload = message;
         if (!StringUtils.isEmpty(encryptionKey)) {
-            payload = EncryptionUtils.encrypt(payload, encryptionKey, true);
+            payload = EncryptionUtils.encryptUsingBase64EncodedKey("AES", payload, encryptionKey);
         }
         if (payload.contains(PAYLOAD_DELIMITER)) {
             throw new InvalidPayloadException();
