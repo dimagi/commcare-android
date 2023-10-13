@@ -256,12 +256,18 @@ public class ConnectLearningProgressFragment extends Fragment {
         final Button button = view.findViewById(R.id.connect_learning_button);
         button.setText(buttonText);
         button.setOnClickListener(v -> {
+            NavDirections directions = null;
             if(learningFinished && assessmentPassed) {
-                NavDirections directions = ConnectLearningProgressFragmentDirections.actionConnectJobLearningProgressFragmentToConnectJobDeliveryDetailsFragment(job);
-                Navigation.findNavController(button).navigate(directions);
-            }
-            else {
+                directions = ConnectLearningProgressFragmentDirections.actionConnectJobLearningProgressFragmentToConnectJobDeliveryDetailsFragment(job);
+            } else if(ConnectManager.isAppInstalled(job.getDeliveryAppInfo().getAppId())) {
                 CommCareLauncher.launchCommCareForAppIdFromConnect(getContext(), job.getLearnAppInfo().getAppId());
+            } else {
+                String title = getString(R.string.connect_downloading_learn);
+                directions = ConnectLearningProgressFragmentDirections.actionConnectJobLearningProgressFragmentToConnectDownloadingFragment(title, true, job);
+            }
+
+            if(directions != null) {
+                Navigation.findNavController(button).navigate(directions);
             }
         });
     }

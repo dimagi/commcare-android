@@ -10,6 +10,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.commcare.activities.connect.ConnectManager;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.commcaresupportlibrary.CommCareLauncher;
 import org.commcare.dalvik.R;
@@ -19,6 +20,7 @@ import java.text.SimpleDateFormat;
 import java.util.Locale;
 
 import androidx.fragment.app.Fragment;
+import androidx.navigation.Navigation;
 
 public class ConnectDeliveryProgressDeliveryFragment extends Fragment {
     private ConnectJobRecord job;
@@ -62,21 +64,27 @@ public class ConnectDeliveryProgressDeliveryFragment extends Fragment {
                         .setTitle(title)
                         .setMessage(message)
                         .setPositiveButton(R.string.proceed, (dialog, which) -> {
-                            launchDeliveryApp();
+                            launchDeliveryApp(button);
                         })
                         .setNegativeButton(R.string.cancel, null)
                         .show();
             }
             else {
-                launchDeliveryApp();
+                launchDeliveryApp(button);
             }
         });
 
         return view;
     }
 
-    private void launchDeliveryApp() {
-        CommCareLauncher.launchCommCareForAppIdFromConnect(getContext(), job.getDeliveryAppInfo().getAppId());
+    private void launchDeliveryApp(Button button) {
+        if(ConnectManager.isAppInstalled(job.getDeliveryAppInfo().getAppId())) {
+            CommCareLauncher.launchCommCareForAppIdFromConnect(getContext(), job.getDeliveryAppInfo().getAppId());
+        }
+        else {
+            String title = getString(R.string.connect_downloading_delivery);
+            Navigation.findNavController(button).navigate(ConnectDeliveryProgressFragmentDirections.actionConnectJobDeliveryProgressFragmentToConnectDownloadingFragment(title, false, job));
+        }
     }
 
     public void updateView() {

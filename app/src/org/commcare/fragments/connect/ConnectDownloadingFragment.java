@@ -15,6 +15,7 @@ import androidx.navigation.Navigation;
 import org.commcare.activities.connect.ConnectActivity;
 import org.commcare.android.database.connect.models.ConnectAppRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
+import org.commcare.commcaresupportlibrary.CommCareLauncher;
 import org.commcare.dalvik.R;
 import org.commcare.engine.resource.AppInstallStatus;
 import org.commcare.engine.resource.ResourceInstallUtils;
@@ -92,15 +93,8 @@ public class ConnectDownloadingFragment extends Fragment implements ResourceEngi
     public void onSuccessfulVerification() {
         View view = getView();
         if (view != null) {
-            NavDirections directions;
-            if (getLearnApp) {
-                directions = ConnectDownloadingFragmentDirections
-                        .actionConnectDownloadingFragmentToConnectJobLearningProgressFragment(job);
-            } else {
-                directions = ConnectDownloadingFragmentDirections
-                        .actionConnectDownloadingFragmentToConnectJobDeliveryProgressFragment(job);
-            }
-            Navigation.findNavController(view).navigate(directions);
+            ConnectAppRecord appToLaunch = getLearnApp ? job.getLearnAppInfo() : job.getDeliveryAppInfo();
+            CommCareLauncher.launchCommCareForAppIdFromConnect(getContext(), appToLaunch.getAppId());
         }
     }
 

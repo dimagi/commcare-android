@@ -19,6 +19,7 @@ import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.models.encryption.ByteEncrypter;
 import org.commcare.preferences.AppManagerDeveloperPreferences;
+import org.commcare.utils.MultipleAppsUtil;
 import org.javarosa.core.util.PropertyUtils;
 
 import java.io.Serializable;
@@ -646,6 +647,17 @@ public class ConnectManager {
         }
 
         return null;
+    }
+
+    public static boolean isAppInstalled(String appId) {
+        boolean installed = false;
+        for (ApplicationRecord app : MultipleAppsUtil.appRecordArray()) {
+            if (appId.equals(app.getUniqueId())) {
+                installed = true;
+                break;
+            }
+        }
+        return installed;
     }
 
     public static ConnectLinkedAppRecord prepareConnectManagedApp(Context context, String appId, String username) {

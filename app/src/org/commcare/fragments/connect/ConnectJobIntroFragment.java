@@ -13,6 +13,7 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.commcare.activities.connect.ConnectManager;
 import org.commcare.activities.connect.ConnectNetworkHelper;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectLearnModuleSummaryRecord;
@@ -75,14 +76,7 @@ public class ConnectJobIntroFragment extends Fragment {
         textView = view.findViewById(R.id.connect_job_intro_learning_summary);
         textView.setText(getString(R.string.connect_job_learn_summary, modules.size(), totalHours));
 
-        boolean installed = false;
-        for (ApplicationRecord app : MultipleAppsUtil.appRecordArray()) {
-            if (job.getLearnAppInfo().getAppId().equals(app.getUniqueId())) {
-                installed = true;
-                break;
-            }
-        }
-        final boolean appInstalled = installed;
+        final boolean appInstalled = ConnectManager.isAppInstalled(job.getLearnAppInfo().getAppId());
 
         Button button = view.findViewById(R.id.connect_job_intro_start_button);
         button.setText(getString(appInstalled ? R.string.connect_job_go_to_learn_app : R.string.connect_job_download_learn_app));
