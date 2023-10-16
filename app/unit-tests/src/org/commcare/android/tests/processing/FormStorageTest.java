@@ -353,6 +353,7 @@ public class FormStorageTest {
             , "org.commcare.suite.model.DetailGroup"
             , "org.commcare.services.FCMMessageData"
             , "org.commcare.suite.model.EndpointArgument"
+            , "org.commcare.suite.model.EndpointAction"
     );
 
 
