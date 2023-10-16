@@ -19,8 +19,9 @@ import java.util.GregorianCalendar;
 import javax.crypto.KeyGenerator;
 import javax.security.auth.x500.X500Principal;
 
-import static org.commcare.util.EncryptionUtils.ANDROID_KEYSTORE_PROVIDER_NAME;
-import static org.commcare.util.EncryptionUtils.isAndroidKeyStoreSupported;
+import static org.commcare.util.CommCarePlatform.getPlatformKeyStoreName;
+import static org.commcare.util.EncryptionUtils.isPlatformKeyStoreAvailable;
+
 
 /**
  * Utility class for encrypting submissions during the SaveToDiskTask.
@@ -42,11 +43,11 @@ public class EncryptionUtils {
 
     // Generates a cryptrographic key and adds it to the Android KeyStore
     public static void generateCryptographicKeyForKeyStore(String keyAlias) {
-        if (isAndroidKeyStoreSupported()) {
+        if (isPlatformKeyStoreAvailable()) {
             try {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                     KeyGenerator keyGenerator = KeyGenerator
-                            .getInstance(KeyProperties.KEY_ALGORITHM_AES, ANDROID_KEYSTORE_PROVIDER_NAME);
+                            .getInstance(KeyProperties.KEY_ALGORITHM_AES, getPlatformKeyStoreName());
                     KeyGenParameterSpec keyGenParameterSpec = new KeyGenParameterSpec.Builder(keyAlias,
                             KeyProperties.PURPOSE_ENCRYPT | KeyProperties.PURPOSE_DECRYPT)
                             .setBlockModes(KeyProperties.BLOCK_MODE_GCM)
@@ -55,8 +56,12 @@ public class EncryptionUtils {
                     keyGenerator.init(keyGenParameterSpec);
                     keyGenerator.generateKey();
                 } else {
+                    // Because KeyGenParameterSpec was introduced in Android SDK 23, prior versions
+                    // need to resource to KeyPairGenerator which only generates asymmetric keys,
+                    // hence the need to switch to a correspondent algorithm as well, RSA
+                    // TODO: Add link to StackOverflow page
                     KeyPairGenerator keyGenerator = KeyPairGenerator
-                            .getInstance(KeyProperties.KEY_ALGORITHM_RSA, ANDROID_KEYSTORE_PROVIDER_NAME);
+                            .getInstance(KeyProperties.KEY_ALGORITHM_RSA, getPlatformKeyStoreName());
                     GregorianCalendar start = new GregorianCalendar();
                     GregorianCalendar end = new GregorianCalendar();
                     end.add(GregorianCalendar.YEAR, 1);
