@@ -37,6 +37,10 @@ public class AndroidCommCarePlatform extends CommCarePlatform {
     private final CommCareApp app;
     private String mUpdateInfoFormXmlns;
 
+    {
+        platformKeyStoreName = "AndroidKeyStore";
+    }
+
     public AndroidCommCarePlatform(int majorVersion, int minorVersion, int minimalVersion, CommCareApp app) {
         super(majorVersion, minorVersion, minimalVersion);
         xmlnstable = new Hashtable<>();
