@@ -97,6 +97,8 @@ public class HiddenPreferences {
 
     private static final long NO_OF_HOURS_TO_WAIT_TO_RESUME_BACKGROUND_WORK = 36;
 
+    static final String ENABLE_CERTIFICATE_TRANSPARENCY = "cc-enable-certificate-transparency";
+
     // This is to be used by CommCareFirebaseMessagingService to schedule a sync after the next Login
     public final static String BACKGROUND_SYNC_PENDING = "background-sync-pending-";
 
@@ -575,6 +577,10 @@ public class HiddenPreferences {
     public static void markRawMediaCleanUpComplete() {
         CommCareApplication.instance().getCurrentApp().getAppPreferences()
                 .edit().putBoolean(RAW_MEDIA_CLEANUP_COMPLETE, true).apply();
+    }
+
+    public static boolean isCertificateTransparencyEnabled() {
+        return DeveloperPreferences.doesPropertyMatch(ENABLE_CERTIFICATE_TRANSPARENCY, PrefValues.NO, PrefValues.YES);
     }
 
     public static boolean isPendingSyncRequest(String loggedInUser) {

@@ -122,12 +122,18 @@ dependencies {
     implementation 'com.google.android.play:app-update:2.1.0'
     implementation 'android.arch.lifecycle:common-java8:1.1.1'
 
-    implementation('com.squareup.okhttp3:okhttp-tls:3.12.12') {
+
+    implementation('com.squareup.okhttp3:okhttp-tls:4.11.0') {
         exclude(group: 'org.bouncycastle', module: 'bcprov-jdk15on')
     }
 
     implementation 'com.google.android.material:material:1.3.0'
     implementation 'com.google.guava:guava:31.1-jre'
+
+    implementation 'com.appmattus.certificatetransparency:certificatetransparency-android:2.5.4'
+
+    // Dependency required for API desugaring
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs_minimal:2.0.3'
 
     implementation 'androidx.biometric:biometric:1.1.0'
 
@@ -168,29 +174,31 @@ ext {
     HQ_API_USERNAME = project.properties['HQ_API_USERNAME'] ?: ""
     HQ_API_PASSWORD = project.properties['HQ_API_PASSWORD'] ?: ""
     TEST_BUILD_TYPE = project.properties['TEST_BUILD_TYPE'] ?: "debug"
+    FIREBASE_DATABASE_URL = project.properties['FIREBASE_DATABASE_URL'] ?: ""
 }
 
 afterEvaluate {
     // Hack to get assets to show up in robolectric tests; try to eventually remove this
     preCommcareDebugUnitTestBuild.dependsOn mergeCommcareDebugAssets
-    processStandaloneDebugGoogleServices.dependsOn injectGoogleServicesAPIKey
-    processStandaloneReleaseGoogleServices.dependsOn injectGoogleServicesAPIKey
-    processLtsDebugGoogleServices.dependsOn injectGoogleServicesAPIKey
-    processLtsReleaseGoogleServices.dependsOn injectGoogleServicesAPIKey
-    processCommcareDebugGoogleServices.dependsOn injectGoogleServicesAPIKey
-    processCommcareReleaseGoogleServices.dependsOn injectGoogleServicesAPIKey
+    processStandaloneDebugGoogleServices.dependsOn injectPropertiesIntoFirebaseConfigFile
+    processStandaloneReleaseGoogleServices.dependsOn injectPropertiesIntoFirebaseConfigFile
+    processLtsDebugGoogleServices.dependsOn injectPropertiesIntoFirebaseConfigFile
+    processLtsReleaseGoogleServices.dependsOn injectPropertiesIntoFirebaseConfigFile
+    processCommcareDebugGoogleServices.dependsOn injectPropertiesIntoFirebaseConfigFile
+    processCommcareReleaseGoogleServices.dependsOn injectPropertiesIntoFirebaseConfigFile
 }
 
 /**
  * https://discuss.gradle.org/t/gradle-7-0-seems-to-take-an-overzealous-approach-to-inter-task-dependencies/39656/2
  * Gradle 7.0 treats any copy tasks as having an implicit dependencies with each other.
  */
-task injectGoogleServicesAPIKey {
-    description = 'Injects the Google Services API key into the google-services.json file at runtime'
+task injectPropertiesIntoFirebaseConfigFile {
+    description = 'Injects properties into the google-services.json file at runtime'
 
     copy {
         from 'templates/google-services.json'
-        filter(ReplaceTokens, tokens: [apiKey: project.ext.GOOGLE_SERVICES_API_KEY])
+        filter(ReplaceTokens, tokens: [apiKey: project.ext.GOOGLE_SERVICES_API_KEY,
+                                       firebaseDatabaseUrl: project.ext.FIREBASE_DATABASE_URL])
         into projectDir
     }
 }
@@ -280,7 +288,7 @@ android {
 
         buildConfigField "String", "HQ_API_USERNAME", "\"${project.ext.HQ_API_USERNAME}\""
         buildConfigField "String", "HQ_API_PASSWORD", "\"${project.ext.HQ_API_PASSWORD}\""
-
+        buildConfigField "String", "FIREBASE_DATABASE_URL", "\"${project.ext.FIREBASE_DATABASE_URL}\""
         testInstrumentationRunner "org.commcare.CommCareJUnitRunner"
     }
 
@@ -297,6 +305,9 @@ android {
     }
 
     compileOptions {
+        // Flag to enable support for API desugaring
+        coreLibraryDesugaringEnabled true
+
         sourceCompatibility JavaVersion.VERSION_17
         targetCompatibility JavaVersion.VERSION_17
     }
