@@ -203,7 +203,12 @@ public class DispatchActivity extends AppCompatActivity {
                     launchHomeScreen();
                 }
             } catch (SessionUnavailableException sue) {
-                launchLoginScreen();
+                if(!userTriggeredLogout || !getAppLaunchedFromConnect()) {
+                    launchLoginScreen();
+                }
+                else {
+                    finish();
+                }
             }
         }
     }

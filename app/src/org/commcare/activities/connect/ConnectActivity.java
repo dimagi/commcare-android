@@ -39,6 +39,14 @@ public class ConnectActivity extends CommCareActivity<ResourceEngineListener> {
         showBackButton();
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if(!ConnectManager.isUnlocked()) {
+            finish();
+        }
+    }
+
     private void showBackButton() {
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {

@@ -34,7 +34,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-import androidx.activity.OnBackPressedCallback;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
@@ -83,7 +82,10 @@ public class ConnectLearningProgressFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        refreshData();
+
+        if(ConnectManager.isUnlocked()) {
+            refreshData();
+        }
     }
 
     private void refreshData() {
@@ -259,7 +261,7 @@ public class ConnectLearningProgressFragment extends Fragment {
             NavDirections directions = null;
             if(learningFinished && assessmentPassed) {
                 directions = ConnectLearningProgressFragmentDirections.actionConnectJobLearningProgressFragmentToConnectJobDeliveryDetailsFragment(job);
-            } else if(ConnectManager.isAppInstalled(job.getDeliveryAppInfo().getAppId())) {
+            } else if(ConnectManager.isAppInstalled(job.getLearnAppInfo().getAppId())) {
                 CommCareLauncher.launchCommCareForAppIdFromConnect(getContext(), job.getLearnAppInfo().getAppId());
             } else {
                 String title = getString(R.string.connect_downloading_learn);

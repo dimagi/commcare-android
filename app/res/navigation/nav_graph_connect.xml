@@ -36,7 +36,8 @@
             app:argType="org.commcare.android.database.connect.models.ConnectJobRecord" />
         <action
             android:id="@+id/action_connect_job_intro_fragment_to_connect_downloading_fragment"
-            app:destination="@id/connect_downloading_fragment" />
+            app:destination="@id/connect_downloading_fragment"
+            app:popUpTo="@id/connect_jobs_list_fragment"/>
         <action
             android:id="@+id/action_connect_job_intro_fragment_to_connect_job_learning_progress_fragment"
             app:destination="@id/connect_job_learning_progress_fragment"
@@ -57,7 +58,12 @@
             app:popUpTo="@id/connect_jobs_list_fragment"/>
         <action
             android:id="@+id/action_connect_job_learning_progress_fragment_to_connect_downloading_fragment"
-            app:destination="@id/connect_downloading_fragment" />
+            app:destination="@id/connect_downloading_fragment"
+            app:popUpTo="@id/connect_jobs_list_fragment"/>
+        <action
+            android:id="@+id/action_connect_job_learning_progress_fragment_to_connect_jobs_list_fragment"
+            app:popUpTo="@id/connect_jobs_list_fragment"
+            app:popUpToInclusive="true"/>
     </fragment>
 
     <fragment
@@ -70,7 +76,8 @@
             app:argType="org.commcare.android.database.connect.models.ConnectJobRecord" />
         <action
             android:id="@+id/action_connect_job_delivery_details_fragment_to_connect_downloading_fragment"
-            app:destination="@id/connect_downloading_fragment" />
+            app:destination="@id/connect_downloading_fragment"
+            app:popUpTo="@id/connect_jobs_list_fragment"/>
         <action
             android:id="@+id/action_connect_job_delivery_details_fragment_to_connect_job_delivery_progress_fragment"
             app:destination="@id/connect_job_delivery_progress_fragment"
@@ -87,7 +94,8 @@
             app:argType="org.commcare.android.database.connect.models.ConnectJobRecord" />
         <action
             android:id="@+id/action_connect_job_delivery_progress_fragment_to_connect_downloading_fragment"
-            app:destination="@id/connect_downloading_fragment" />
+            app:destination="@id/connect_downloading_fragment"
+            app:popUpTo="@id/connect_jobs_list_fragment" />
     </fragment>
 
     <fragment

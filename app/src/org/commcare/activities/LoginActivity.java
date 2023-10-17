@@ -479,12 +479,14 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                 }
             } else {
                 int selectorIndex = uiController.getSelectedAppIndex();
-                String selectedAppId = appIdDropdownList.size() > 0 ? appIdDropdownList.get(selectorIndex) : "";
-                String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
-                if (!uiController.isAppSelectorVisible() || selectedAppId.equals(seatedAppId)) {
-                    AuthInfo.ProvidedAuth credentials = ConnectManager.getCredentialsForApp(seatedAppId,
-                            uiController.getEnteredUsername());
-                    uiController.setPasswordOrPin(credentials != null ? credentials.password : "");
+                if(selectorIndex >= 0) {
+                    String selectedAppId = appIdDropdownList.size() > 0 ? appIdDropdownList.get(selectorIndex) : "";
+                    String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
+                    if (!uiController.isAppSelectorVisible() || selectedAppId.equals(seatedAppId)) {
+                        AuthInfo.ProvidedAuth credentials = ConnectManager.getCredentialsForApp(seatedAppId,
+                                uiController.getEnteredUsername());
+                        uiController.setPasswordOrPin(credentials != null ? credentials.password : "");
+                    }
                 }
             }
         }

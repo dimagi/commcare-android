@@ -4,8 +4,8 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 
+import org.commcare.AppUtils;
 import org.commcare.activities.CommCareActivity;
-import org.commcare.activities.LoginActivity;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.activities.SettingsHelper;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
@@ -19,7 +19,6 @@ import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.models.encryption.ByteEncrypter;
 import org.commcare.preferences.AppManagerDeveloperPreferences;
-import org.commcare.utils.MultipleAppsUtil;
 import org.javarosa.core.util.PropertyUtils;
 
 import java.io.Serializable;
@@ -651,7 +650,9 @@ public class ConnectManager {
 
     public static boolean isAppInstalled(String appId) {
         boolean installed = false;
-        for (ApplicationRecord app : MultipleAppsUtil.appRecordArray()) {
+        ArrayList<ApplicationRecord> apps = AppUtils.
+                getInstalledAppRecords();
+        for (ApplicationRecord app : apps) {
             if (appId.equals(app.getUniqueId())) {
                 installed = true;
                 break;
