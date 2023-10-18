@@ -182,7 +182,7 @@
 
     <Button
         android:id="@+id/connect_learning_button"
-        android:layout_width="240dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constraintTop_toBottomOf="@id/connect_learning_claim_label"
         app:layout_constraintStart_toStartOf="parent"

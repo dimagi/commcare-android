@@ -227,10 +227,11 @@ public class LoginActivityUiController implements CommCareActivityUIController {
 
         boolean promptIncluded = false;
         ApplicationRecord presetAppRecord = getPresetAppRecord(readyApps);
-        if(readyApps.isEmpty()) {
-            appLabel.setVisibility(View.GONE);
-            setLoginInputsVisibility(false);
-        } else if ((readyApps.size() == 1 && (!ConnectManager.isConnectIdIntroduced() || ConnectManager.isUnlocked()))
+        boolean noApps = readyApps.isEmpty();
+        appLabel.setVisibility(noApps ? View.GONE : View.VISIBLE);
+        orLabel.setVisibility(noApps ? View.GONE : View.VISIBLE);
+        setLoginInputsVisibility(!noApps);
+        if ((readyApps.size() == 1 && (!ConnectManager.isConnectIdIntroduced() || ConnectManager.isUnlocked()))
                 || presetAppRecord != null) {
             setLoginInputsVisibility(true);
 
@@ -250,6 +251,7 @@ public class LoginActivityUiController implements CommCareActivityUIController {
         } else {
             promptIncluded = activity.populateAppSpinner(readyApps);
             appLabel.setVisibility(View.GONE);
+            spinner.setVisibility(noApps ? View.GONE : View.VISIBLE);
         }
 
         // Not using this for now, but may turn back on later
@@ -275,7 +277,7 @@ public class LoginActivityUiController implements CommCareActivityUIController {
         }
 
         if (ConnectManager.isConnectIdIntroduced()) {
-            setLoginInputsVisibility(!promptIncluded);
+            setLoginInputsVisibility(!noApps && !promptIncluded);
         }
     }
 
@@ -286,7 +288,6 @@ public class LoginActivityUiController implements CommCareActivityUIController {
     }
 
     public void updateConnectLoginState() {
-        boolean emphasizeConnectSignin = false;
         if (ConnectManager.isConnectIdIntroduced()) {
             String welcomeText;
             if (ConnectManager.isUnlocked()) {
@@ -294,13 +295,10 @@ public class LoginActivityUiController implements CommCareActivityUIController {
                         ConnectDatabaseHelper.getUser(activity).getName());
             } else {
                 welcomeText = activity.getString(R.string.login_welcome_connect_signed_out);
-                emphasizeConnectSignin = true;
             }
 
             welcomeMessage.setText(welcomeText);
         }
-
-        orLabel.setVisibility(emphasizeConnectSignin ? View.VISIBLE : View.GONE);
     }
 
     @Nullable
