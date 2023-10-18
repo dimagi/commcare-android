@@ -269,6 +269,8 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
         updateConnectButton();
         checkForSavedCredentials();
+
+        ConnectManager.setParent(this);
     }
 
     protected boolean checkForSeatedAppChange() {

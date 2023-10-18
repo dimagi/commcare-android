@@ -95,6 +95,10 @@ public class ConnectManager {
         }
     }
 
+    public static void setParent(CommCareActivity<?> parent) {
+        getInstance().parentActivity = parent;
+    }
+
     public static boolean isConnectIdIntroduced() {
         if (!AppManagerDeveloperPreferences.isConnectIdEnabled()) {
             return false;
