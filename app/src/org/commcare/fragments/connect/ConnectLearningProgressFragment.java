@@ -72,7 +72,7 @@ public class ConnectLearningProgressFragment extends Fragment {
             refreshData();
         });
 
-        updateUpdatedDate(ConnectDatabaseHelper.getLastLearnProgressUpdate(getContext()));
+        updateUpdatedDate(job.getLastLearnUpdate());
         updateUi();
         refreshData();
 
@@ -107,6 +107,7 @@ public class ConnectLearningProgressFragment extends Fragment {
                             learningRecords.add(record);
                         }
                         job.setLearnings(learningRecords);
+                        job.setComletedLearningModules(learningRecords.size());
 
                         key = "assessments";
                         JSONArray assessments = json.getJSONArray(key);
@@ -118,7 +119,6 @@ public class ConnectLearningProgressFragment extends Fragment {
                         }
                         job.setAssessments(assessmentRecords);
 
-                        job.setComletedLearningModules(learningRecords.size());
                         ConnectDatabaseHelper.updateJobLearnProgress(getContext(), job);
                     }
                 } catch (IOException | JSONException | ParseException e) {
@@ -241,13 +241,25 @@ public class ConnectLearningProgressFragment extends Fragment {
             textView = view.findViewById(R.id.connect_learn_cert_person);
             textView.setText(ConnectManager.getUser(getContext()).getName());
 
-            //TODO DAV: get from server somehow
-            Date latestDate = new Date();//null;
-//            for (ConnectJobLearningModule module : job.getLearningModules()) {
-//                if(latestDate == null || latestDate.before(module.getCompletedDate())) {
-//                    latestDate = module.getCompletedDate();
-//                }
-//            }
+            Date latestDate = null;
+            List<ConnectJobAssessmentRecord> assessments = job.getAssessments();
+            if(assessments == null || assessments.size() == 0) {
+                for (ConnectJobLearningRecord learning : job.getLearnings()) {
+                    if (latestDate == null || latestDate.before(learning.getDate())) {
+                        latestDate = learning.getDate();
+                    }
+                }
+            } else {
+                for (ConnectJobAssessmentRecord assessment : assessments) {
+                    if (latestDate == null || latestDate.before(assessment.getDate())) {
+                        latestDate = assessment.getDate();
+                    }
+                }
+            }
+
+            if(latestDate == null) {
+                latestDate = new Date();
+            }
 
             textView = view.findViewById(R.id.connect_learn_cert_date);
             textView.setText(getString(R.string.connect_learn_completed, df.format(latestDate)));

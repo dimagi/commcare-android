@@ -173,17 +173,20 @@ public class ConnectDatabaseHelper {
     }
 
     public static Date getLastJobsUpdate(Context context) {
-        //TODO DAV: Retrieve most recent jobs update date
-        return new Date();
-    }
+        Date lastDate = null;
+        for(ConnectJobRecord job : getJobs(context, -1, null)) {
+            if(lastDate == null || lastDate.before(job.getLastUpdate())) {
+                lastDate = job.getLastUpdate();
+            }
+        }
 
-    public static Date getLastLearnProgressUpdate(Context context) {
-        //TODO DAV: Retrieve most recent learn_progress update date
-        return new Date();
+        return lastDate != null ? lastDate : new Date();
     }
 
     public static void updateJobLearnProgress(Context context, ConnectJobRecord job) {
         SqlStorage<ConnectJobRecord> jobStorage = getConnectStorage(context, ConnectJobRecord.class);
+
+        job.setLastLearnUpdate(new Date());
 
         //Check for existing DB ID
         Vector<ConnectJobRecord> existingJobs =
@@ -221,6 +224,7 @@ public class ConnectDatabaseHelper {
         Vector<Integer> jobIdsToDelete = new Vector<>();
         Vector<Integer> appInfoIdsToDelete = new Vector<>();
         Vector<Integer> moduleIdsToDelete = new Vector<>();
+        //Note when jobs are found in the loop below, we retrieve the DB ID into the incoming job
         for (ConnectJobRecord existing : existingList) {
             boolean stillExists = false;
             for (ConnectJobRecord incoming : jobs) {
@@ -393,11 +397,6 @@ public class ConnectDatabaseHelper {
         }
     }
 
-    public static Date getLastDeliveriesUpdate(Context context) {
-        //TODO DAV: Retrieve most recent deliveries update date
-        return new Date();
-    }
-
     public static void storeDeliveries(Context context, List<ConnectJobDeliveryRecord> deliveries, int jobId, boolean pruneMissing) {
         SqlStorage<ConnectJobDeliveryRecord> storage = getConnectStorage(context, ConnectJobDeliveryRecord.class);
 
@@ -528,7 +527,7 @@ public class ConnectDatabaseHelper {
                 modules.sort(Comparator.comparingInt(ConnectLearnModuleSummaryRecord::getModuleIndex));
             }
             else {
-                //TODO DAV: Brute force sort
+                //TODO: Brute force sort
             }
 
             if(job.getLearnAppInfo() != null) {

@@ -229,7 +229,7 @@ public class LoginActivityUiController implements CommCareActivityUIController {
         ApplicationRecord presetAppRecord = getPresetAppRecord(readyApps);
         boolean noApps = readyApps.isEmpty();
         appLabel.setVisibility(noApps ? View.GONE : View.VISIBLE);
-        orLabel.setVisibility(noApps ? View.GONE : View.VISIBLE);
+        orLabel.setVisibility(noApps || !ConnectManager.isConnectIdIntroduced() ? View.GONE : View.VISIBLE);
         setLoginInputsVisibility(!noApps);
         if ((readyApps.size() == 1 && (!ConnectManager.isConnectIdIntroduced() || ConnectManager.isUnlocked()))
                 || presetAppRecord != null) {

@@ -70,7 +70,7 @@ public class ConnectDeliveryProgressFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_connect_delivery_progress, container, false);
 
         updateText = view.findViewById(R.id.connect_delivery_last_update);
-        updateUpdatedDate(ConnectDatabaseHelper.getLastDeliveriesUpdate(getContext()));
+        updateUpdatedDate(job.getLastDeliveryUpdate());
 
         refreshData();
         ImageView refreshButton = view.findViewById(R.id.connect_delivery_refresh);
@@ -129,8 +129,26 @@ public class ConnectDeliveryProgressFragment extends Fragment {
                         //Parse the JSON
                         JSONObject json = new JSONObject(responseAsString);
 
+                        boolean updatedJob = false;
+                        String key = "max_payments";
+                        if(json.has(key)) {
+                            job.setMaxVisits(json.getInt(key));
+                            updatedJob = true;
+                        }
+
+                        key = "payment_accrued";
+                        if(json.has(key)) {
+                            job.setPaymentAccrued(json.getString(key));
+                            updatedJob = true;
+                        }
+
+                        if(updatedJob) {
+                            job.setLastDeliveryUpdate(new Date());
+                            ConnectDatabaseHelper.upsertJob(getContext(), job);
+                        }
+
                         List<ConnectJobDeliveryRecord> deliveries = new ArrayList<>(json.length());
-                        String key = "deliveries";
+                        key = "deliveries";
                         if(json.has(key)) {
                             JSONArray array = json.getJSONArray(key);
                             for (int i = 0; i < array.length(); i++) {
@@ -138,11 +156,10 @@ public class ConnectDeliveryProgressFragment extends Fragment {
                                 deliveries.add(ConnectJobDeliveryRecord.fromJson(obj, job.getJobId()));
                             }
 
-                            //Store retrieved jobs
+                            //Store retrieved deliveries
                             ConnectDatabaseHelper.storeDeliveries(getContext(), deliveries, job.getJobId(), true);
 
                             job.setDeliveries(deliveries);
-                            ConnectDatabaseHelper.upsertJob(getContext(), job);
                         }
 
                         List<ConnectJobPaymentRecord> payments = new ArrayList<>();
@@ -155,6 +172,8 @@ public class ConnectDeliveryProgressFragment extends Fragment {
                             }
 
                             ConnectDatabaseHelper.storePayments(getContext(), payments, job.getJobId(), true);
+
+                            job.setPayments(payments);
                         }
 
                         updateUpdatedDate(new Date());
@@ -185,7 +204,7 @@ public class ConnectDeliveryProgressFragment extends Fragment {
     private static class ViewStateAdapter extends FragmentStateAdapter {
         private final ConnectJobRecord job;
         private static ConnectDeliveryProgressDeliveryFragment deliveryFragment = null;
-        private static ConnectDeliveryProgressVerificationListFragment verificationFragment = null;
+        private static ConnectResultsSummaryListFragment verificationFragment = null;
         public ViewStateAdapter(@NonNull FragmentManager fragmentManager, @NonNull Lifecycle lifecycle, ConnectJobRecord job) {
             super(fragmentManager, lifecycle);
             this.job = job;
@@ -199,7 +218,7 @@ public class ConnectDeliveryProgressFragment extends Fragment {
                 return deliveryFragment;
             }
 
-            verificationFragment = ConnectDeliveryProgressVerificationListFragment.newInstance(job);
+            verificationFragment = ConnectResultsSummaryListFragment.newInstance(job);
             return verificationFragment;
         }
 

@@ -96,6 +96,9 @@
             android:id="@+id/action_connect_job_delivery_progress_fragment_to_connect_downloading_fragment"
             app:destination="@id/connect_downloading_fragment"
             app:popUpTo="@id/connect_jobs_list_fragment" />
+        <action
+            android:id="@+id/action_connect_job_delivery_progress_fragment_to_connect_results_fragment"
+            app:destination="@id/connect_results_fragment" />
     </fragment>
 
     <fragment
@@ -122,5 +125,18 @@
             app:popUpTo="@id/connect_jobs_list_fragment"/>
     </fragment>
 
+    <fragment
+        android:id="@+id/connect_results_fragment"
+        android:name="org.commcare.fragments.connect.ConnectResultsListFragment"
+        android:label="fragment_connect_results_list"
+        tools:layout="@layout/fragment_connect_results_list">
+        <argument
+            android:name="job"
+            app:argType="org.commcare.android.database.connect.models.ConnectJobRecord" />
+        <argument
+            android:name="showPayments"
+            app:argType="boolean" />
+
+    </fragment>
 
 </navigation>

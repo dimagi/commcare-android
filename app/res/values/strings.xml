@@ -694,6 +694,13 @@
     <string name="connect_downloading_delivery">Downloading Delivery App</string>
     <string name="connect_downloading_status">%d%% Complete</string>
 
+    <string name="connect_results_summary_verifications_title">Verification Status</string>
+    <string name="connect_results_summary_verifications_description">Pending Verification: %d\nNot Approved: %d\nApproved: %d</string>
+    <string name="connect_results_summary_payments_title">Payment Status</string>
+    <string name="connect_results_summary_payments_description">Earned Amount: %d%s\nTransferred Amount: %s%s</string>
+    <string name="connect_results_payment_title">You received money</string>
+    <string name="connect_results_payment_description">You received %s%s</string>
+
     <string name="login_menu_connect_sign_in">Sign up for ConnectID</string>
     <string name="login_menu_connect_sign_out">Sign out of ConnectID</string>
     <string name="login_menu_connect_forget">Forget ConnectID user</string>

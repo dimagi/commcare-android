@@ -52,6 +52,8 @@ public class ConnectJobRecord extends Persisted implements Serializable {
     public static final String META_LEARN_APP = "learn_app";
     public static final String META_DELIVER_APP = "deliver_app";
     public static final String META_CLAIM = "claim";
+    public static final String META_CURRENCY = "currency";
+    public static final String META_ACCRUED = "payment_accrued";
 
     @Persisting(1)
     @MetaField(META_JOB_ID)
@@ -96,7 +98,19 @@ public class ConnectJobRecord extends Persisted implements Serializable {
     @MetaField(META_COMPLETED_MODULES)
     private int learningModulesCompleted;
     @Persisting(15)
+    @MetaField(META_CURRENCY)
+    private String currency;
+    @Persisting(16)
+    @MetaField(META_ACCRUED)
+    private String paymentAccrued;
+    @Persisting(17)
     private Date lastUpdate;
+    @Persisting(18)
+    private Date lastLearnUpdate;
+    @Persisting(19)
+    private Date lastDeliveryUpdate;
+
+
 //    private ConnectJobLearningModule[] learningModules;
 
     private List<ConnectJobDeliveryRecord> deliveries;
@@ -141,16 +155,21 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         ConnectJobRecord job = new ConnectJobRecord();
 
         job.lastUpdate = new Date();
+        job.lastLearnUpdate = new Date();
+        job.lastDeliveryUpdate = new Date();
 
         job.jobId = json.has(META_JOB_ID) ? json.getInt(META_JOB_ID) : -1;
-        job.title = json.has(META_NAME) ? json.getString(META_NAME) : null;
-        job.description = json.has(META_DESCRIPTION) ? json.getString(META_DESCRIPTION) : null;
-        job.organization = json.has(META_ORGANIZATION) ? json.getString(META_ORGANIZATION) : null;
+        job.title = json.has(META_NAME) ? json.getString(META_NAME) : "";
+        job.description = json.has(META_DESCRIPTION) ? json.getString(META_DESCRIPTION) : "";
+        job.organization = json.has(META_ORGANIZATION) ? json.getString(META_ORGANIZATION) : "";
         job.projectEndDate = json.has(META_END_DATE) ? df.parse(json.getString(META_END_DATE)) : new Date();
         job.maxVisits = json.has(META_MAX_VISITS) ? json.getInt(META_MAX_VISITS) : -1;
         job.maxDailyVisits = json.has(META_MAX_DAILY_VISITS) ? json.getInt(META_MAX_DAILY_VISITS) : -1;
         job.budgetPerVisit = json.has(META_BUDGET_PER_VISIT) ? json.getInt(META_BUDGET_PER_VISIT) : -1;
         job.totalBudget = json.has(META_BUDGET_TOTAL) ? json.getInt(META_BUDGET_TOTAL) : -1;
+        job.currency = json.has(META_CURRENCY) && !json.isNull(META_CURRENCY) ? json.getString(META_CURRENCY) : "";
+
+        job.paymentAccrued = "";
 
 //        job.learningModules = new ConnectJobLearningModule[]{};
         job.deliveries = new ArrayList<>();
@@ -161,6 +180,7 @@ public class ConnectJobRecord extends Persisted implements Serializable {
 
         //Just need to know if the job has been claimed for now
         job.claimed = json.has(META_CLAIM) && !json.isNull(META_CLAIM);
+        //Actual claim object: {"max_payments", "end_date", "date_claimed" }
 
         JSONObject learning = json.getJSONObject(META_LEARN_PROGRESS);
         job.numLearningModules = learning.getInt(META_LEARN_MODULES);
@@ -199,11 +219,15 @@ public class ConnectJobRecord extends Persisted implements Serializable {
     public void setStatus(int status) { this.status = status; }
     public int getCompletedVisits() { return completedVisits; }
     public int getMaxVisits() { return maxVisits; }
+    public void setMaxVisits(int max) { maxVisits = max; }
     public int getMaxDailyVisits() { return maxDailyVisits; }
     public int getBudgetPerVisit() { return budgetPerVisit; }
     public int getPercentComplete() { return maxVisits > 0 ? 100 * completedVisits / maxVisits : 0; }
     public Date getDateCompleted() { return lastWorkedDate; }
     public Date getProjectEndDate() { return projectEndDate; }
+    public String getPaymentAccrued() { return paymentAccrued; }
+    public void setPaymentAccrued(String paymentAccrued) { this.paymentAccrued = paymentAccrued; }
+    public String getCurrency() { return currency; }
     public int getNumLearningModules() { return numLearningModules; }
     public int getCompletedLearningModules() { return learningModulesCompleted; }
     public void setComletedLearningModules(int numCompleted) { this.learningModulesCompleted = numCompleted; }
@@ -274,4 +298,11 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         }
         return maxScore;
     }
+
+    public Date getLastUpdate() { return lastUpdate; }
+
+    public Date getLastLearnUpdate() { return lastLearnUpdate; }
+    public void setLastLearnUpdate(Date date) { lastLearnUpdate = date; }
+    public Date getLastDeliveryUpdate() { return lastDeliveryUpdate; }
+    public void setLastDeliveryUpdate(Date date) { lastDeliveryUpdate = date; }
 }

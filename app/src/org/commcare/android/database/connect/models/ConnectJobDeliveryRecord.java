@@ -24,8 +24,10 @@ public class ConnectJobDeliveryRecord extends Persisted implements Serializable 
     public static final String META_ID = "id";
     public static final String META_STATUS = "status";
     public static final String META_DATE = "visit_date";
-    public static final String META_FORM_NAME = "deliver_form_name";
-    public static final String META_XML_NS = "deliver_form_xmlns";
+    public static final String META_UNIT_NAME = "deliver_unit_name";
+    public static final String META_SLUG = "deliver_unit_slug";
+    public static final String META_ENTITY_ID = "entity_id";
+    public static final String META_ENTITY_NAME = "entity_name";
 
     @Persisting(1)
     @MetaField(META_JOB_ID)
@@ -41,12 +43,18 @@ public class ConnectJobDeliveryRecord extends Persisted implements Serializable 
     @MetaField(META_STATUS)
     private String status;
     @Persisting(5)
-    @MetaField(META_FORM_NAME)
-    private String formName;
+    @MetaField(META_UNIT_NAME)
+    private String unitName;
     @Persisting(6)
-    @MetaField(META_XML_NS)
-    private String formXmlNs;
+    @MetaField(META_SLUG)
+    private String slug;
     @Persisting(7)
+    @MetaField(META_ENTITY_ID)
+    private String entityId;
+    @Persisting(8)
+    @MetaField(META_ENTITY_NAME)
+    private String entityname;
+    @Persisting(9)
     private Date lastUpdate;
 
     public ConnectJobDeliveryRecord() {
@@ -62,8 +70,10 @@ public class ConnectJobDeliveryRecord extends Persisted implements Serializable 
         delivery.deliveryId = json.has(META_ID) ? json.getInt(META_ID) : -1;
         delivery.date = json.has(META_DATE) ? df.parse(json.getString(META_DATE)) : new Date();
         delivery.status = json.has(META_STATUS) ? json.getString(META_STATUS) : "";
-        delivery.formName = json.has(META_FORM_NAME) ? json.getString(META_FORM_NAME) : "";
-        delivery.formXmlNs = json.has(META_XML_NS) ? json.getString(META_XML_NS) : "";
+        delivery.unitName = json.has(META_UNIT_NAME) ? json.getString(META_UNIT_NAME) : "";
+        delivery.slug = json.has(META_SLUG) ? json.getString(META_SLUG) : "";
+        delivery.entityId = json.has(META_ENTITY_ID) ? json.getString(META_ENTITY_ID) : "";
+        delivery.entityname = json.has(META_ENTITY_NAME) ? json.getString(META_ENTITY_NAME) : "";
 
         return delivery;
     }
@@ -71,6 +81,6 @@ public class ConnectJobDeliveryRecord extends Persisted implements Serializable 
     public int getDeliveryId() { return deliveryId; }
     public Date getDate() { return date; }
     public String getStatus() { return status; }
-    public String getFormName() { return formName; }
+    public String getEntityName() { return entityname; }
     public void setLastUpdate(Date lastUpdate) { this.lastUpdate = lastUpdate; }
 }

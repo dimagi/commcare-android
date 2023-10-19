@@ -85,7 +85,7 @@ public class ConnectJobIntroFragment extends Fragment {
             ConnectNetworkHelper.startLearnApp(getContext(), job.getJobId(), new ConnectNetworkHelper.INetworkResultHandler() {
                 @Override
                 public void processSuccess(int responseCode, InputStream responseData) {
-                    //TODO DAV: Expecting to eventually get HQ username from server here
+                    //TODO: Expecting to eventually get HQ username from server here
                     NavDirections directions;
                     if (appInstalled) {
                         directions = ConnectJobIntroFragmentDirections.actionConnectJobIntroFragmentToConnectJobLearningProgressFragment(job);
