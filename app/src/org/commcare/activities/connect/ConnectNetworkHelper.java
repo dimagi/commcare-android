@@ -1,6 +1,7 @@
 package org.commcare.activities.connect;
 
 import android.content.Context;
+import android.os.Handler;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableMultimap;
@@ -369,13 +370,19 @@ public class ConnectNetworkHelper {
 
     private void showProgressDialog(Context context) {
         if (context instanceof CommCareActivity<?>) {
-            ((CommCareActivity<?>)context).showProgressDialog(NETWORK_ACTIVITY_ID);
+            Handler handler = new Handler(context.getMainLooper());
+            handler.post(() -> {
+                ((CommCareActivity<?>)context).showProgressDialog(NETWORK_ACTIVITY_ID);
+            });
         }
     }
 
     private void dismissProgressDialog(Context context) {
         if (context instanceof CommCareActivity<?>) {
-            ((CommCareActivity<?>)context).dismissProgressDialogForTask(NETWORK_ACTIVITY_ID);
+            Handler handler = new Handler(context.getMainLooper());
+            handler.post(() -> {
+                ((CommCareActivity<?>)context).dismissProgressDialogForTask(NETWORK_ACTIVITY_ID);
+            });
         }
     }
 

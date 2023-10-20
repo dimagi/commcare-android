@@ -15,6 +15,7 @@ import org.commcare.activities.CommCareVerificationActivity;
 import org.commcare.dalvik.R;
 import org.commcare.fragments.connect.ConnectDownloadingFragment;
 import org.commcare.tasks.ResourceEngineListener;
+import org.commcare.views.dialogs.CustomProgressDialog;
 
 import javax.annotation.Nullable;
 
@@ -45,6 +46,11 @@ public class ConnectActivity extends CommCareActivity<ResourceEngineListener> {
         if(!ConnectManager.isUnlocked()) {
             finish();
         }
+    }
+
+    @Override
+    public CustomProgressDialog generateProgressDialog(int taskId) {
+        return CustomProgressDialog.newInstance(null, getString(R.string.please_wait), taskId);
     }
 
     private void showBackButton() {
