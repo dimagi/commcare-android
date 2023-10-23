@@ -60,18 +60,18 @@ public class ImageWidget extends QuestionWidget implements QuestionWidget.MediaC
     public static final Object IMAGE_VIEW_TAG = "image_view_tag";
 
     private final Button mCaptureButton;
-    private final Button mChooseButton;
+    protected final Button mChooseButton;
     private final Button mDiscardButton;
     private ImageView mImageView;
 
-    private String mBinaryName;
+    protected String mBinaryName;
 
     private final String mInstanceFolder;
 
     private final TextView mErrorTextView;
 
     private int mMaxDimen;
-    private final PendingCalloutInterface pendingCalloutInterface;
+    protected final PendingCalloutInterface pendingCalloutInterface;
 
     public static File getTempFileForImageCapture() {
         return new File(CommCareApplication.instance().
@@ -210,6 +210,7 @@ public class ImageWidget extends QuestionWidget implements QuestionWidget.MediaC
                     mErrorTextView.setVisibility(View.VISIBLE);
                 }
                 mImageView.setImageBitmap(bmp);
+                mDiscardButton.setVisibility(View.VISIBLE);
             } else {
                 mImageView.setImageBitmap(null);
             }
@@ -221,7 +222,6 @@ public class ImageWidget extends QuestionWidget implements QuestionWidget.MediaC
                     MediaWidget.playMedia(getContext(), "image/*", toDisplay.getAbsolutePath()));
 
             addView(mImageView);
-            mDiscardButton.setVisibility(View.VISIBLE);
         }
     }
 
@@ -256,7 +256,7 @@ public class ImageWidget extends QuestionWidget implements QuestionWidget.MediaC
         return toDisplay;
     }
 
-    private void takePicture() {
+    protected void takePicture() {
         Intent i = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
         Uri uri = FileUtil.getUriForExternalFile(getContext(), getTempFileForImageCapture());
 
