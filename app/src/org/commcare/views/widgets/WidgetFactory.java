@@ -51,6 +51,9 @@ public class WidgetFactory {
             case Constants.CONTROL_SECRET:
                 questionWidget = buildBasicWidget(appearance, fep, context, inCompactGroup);
                 break;
+            case Constants.CONTROL_MICRO_IMAGE:
+                questionWidget = new MicroImageWidget(context, fep, pendingCalloutInterface);
+                break;
             case Constants.CONTROL_IMAGE_CHOOSE:
                 if (appearance != null && appearance.equals("signature")) {
                     questionWidget = new SignatureWidget(context, fep, pendingCalloutInterface);

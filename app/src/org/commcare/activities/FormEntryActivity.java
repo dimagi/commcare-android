@@ -358,9 +358,8 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                                 Localization.get("intent.callout.unable.to.process"), Toast.LENGTH_SHORT).show();
                     }
                     break;
-                case FormEntryConstants.IMAGE_CAPTURE:
-                    ImageCaptureProcessing.processCaptureResponse(this,
-                            FormEntryInstanceState.getInstanceFolder(), true);
+                case FormEntryConstants.IMAGE_CAPTURE, FormEntryConstants.MICRO_IMAGE_CAPTURE:
+                    ImageCaptureProcessing.processCaptureResponse(this, FormEntryInstanceState.getInstanceFolder(), true);
                     break;
                 case FormEntryConstants.SIGNATURE_CAPTURE:
                     Logger.log(LogTypes.SOFT_ASSERT, "Signature captured successfully");
