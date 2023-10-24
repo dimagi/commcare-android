@@ -107,11 +107,9 @@ public class ConnectResultsSummaryListFragment extends Fragment {
                     total += Double.parseDouble(payment.getAmount());
                 }
 
-                String currency = "";
-                if(job.getCurrency() != null && job.getCurrency().length() > 0) {
-                    currency = " " + job.getCurrency();
-                }
-                description = parentContext.getString(R.string.connect_results_summary_payments_description, (int)total, currency, job.getPaymentAccrued(), currency);
+                String accrued = job.getMoneyString((int)Double.parseDouble(job.getPaymentAccrued()));
+                String paid = job.getMoneyString((int)total);
+                description = parentContext.getString(R.string.connect_results_summary_payments_description, accrued, paid);
             }
 
             holder.descriptionText.setText(description);

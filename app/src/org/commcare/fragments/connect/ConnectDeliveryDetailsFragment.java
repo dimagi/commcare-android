@@ -61,7 +61,8 @@ public class ConnectDeliveryDetailsFragment extends Fragment {
         textView.setText(getString(R.string.connect_delivery_max_daily_visits, job.getMaxDailyVisits()));
 
         textView = view.findViewById(R.id.connect_delivery_budget_text);
-        textView.setText(getString(R.string.connect_delivery_earn, maxPossibleVisits * job.getBudgetPerVisit(), maxPossibleVisits));
+        String moneyValue = job.getMoneyString(maxPossibleVisits * job.getBudgetPerVisit());
+        textView.setText(getString(R.string.connect_delivery_earn, moneyValue, maxPossibleVisits));
 
         boolean expired = daysRemaining < 0;
         textView = view.findViewById(R.id.connect_delivery_action_title);

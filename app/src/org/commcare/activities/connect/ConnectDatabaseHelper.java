@@ -550,7 +550,15 @@ public class ConnectDatabaseHelper {
     public static List<ConnectJobRecord> getAvailableJobs(Context context, SqlStorage<ConnectJobRecord> jobStorage) {
         List<ConnectJobRecord> jobs = getJobs(context, ConnectJobRecord.STATUS_AVAILABLE, jobStorage);
         jobs.addAll(getJobs(context, ConnectJobRecord.STATUS_AVAILABLE_NEW, jobStorage));
-        return jobs;
+
+        List<ConnectJobRecord> filtered = new ArrayList<>();
+        for(ConnectJobRecord record : jobs) {
+            if(record.getDaysRemaining() > 0) {
+                filtered.add(record);
+            }
+        }
+
+        return filtered;
     }
 
     public static List<ConnectJobRecord> getTrainingJobs(Context context) {
@@ -564,7 +572,9 @@ public class ConnectDatabaseHelper {
         return getClaimedJobs(context, null);
     }
     public static List<ConnectJobRecord> getClaimedJobs(Context context, SqlStorage<ConnectJobRecord> jobStorage) {
-        return getJobs(context, ConnectJobRecord.STATUS_DELIVERING, jobStorage);
+        List<ConnectJobRecord> jobs = getJobs(context, ConnectJobRecord.STATUS_DELIVERING, jobStorage);
+        jobs.addAll(getJobs(context, ConnectJobRecord.STATUS_COMPLETE, jobStorage));
+        return jobs;
     }
 
     public static List<ConnectJobDeliveryRecord> getDeliveries(Context context, int jobId, SqlStorage<ConnectJobDeliveryRecord> deliveryStorage) {

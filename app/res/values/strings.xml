@@ -636,7 +636,7 @@
     <string name="connect_job_claimed">My Claimed Jobs</string>
     <string name="connect_job_completed">Completed on %s</string>
 
-    <string name="connect_job_you_will_learn">You Will Learn</string>
+    <string name="connect_job_you_will_learn">Complete the following learn modules and earn a certificate</string>
     <string name="connect_job_start_training">Start Training for this Job</string>
     <string name="connect_job_no_learning_required">No learning required</string>
     <string name="connect_job_go_to_learn_app">Go to Learn App</string>
@@ -664,15 +664,15 @@
     <string name="connect_learn_continue">Continue Learning</string>
 
     <string name="connect_delivery_title">Delivery Details</string>
-    <string name="connect_delivery_review_title">Review Delivery Details</string>
+    <string name="connect_delivery_review_title">Review Job Details</string>
     <string name="connect_delivery_days_remaining">%d days to complete from today</string>
     <string name="connect_delivery_latest_start">Latest start: %s</string>
-    <string name="connect_delivery_max_visits">%d Total Visits Maximum</string>
-    <string name="connect_delivery_earn">Earn up to $%d for %d visits</string>
-    <string name="connect_delivery_max_daily_visits">%d Visit per Day Maximum</string>
-    <string name="connect_delivery_ready_to_claim">Ready to Claim this Job?</string>
+    <string name="connect_delivery_max_visits">%d Maximum Visits</string>
+    <string name="connect_delivery_earn">Earn up to %s for %d visits</string>
+    <string name="connect_delivery_max_daily_visits">%d Maximum Visits per Day</string>
+    <string name="connect_delivery_ready_to_claim">Ready to Start Visits?</string>
     <string name="connect_delivery_expired">Opportunity Expired</string>
-    <string name="connect_delivery_ready_to_claim_detailed">To complete this claim and start delivering care, download the delivery app.</string>
+    <string name="connect_delivery_ready_to_claim_detailed">Claim Job Below and Download Deliver App.</string>
     <string name="connect_delivery_expired_detailed">The last date for the project is over. You will be notified if the opportunity opens up again.</string>
     <string name="connect_delivery_claim">Claim Job</string>
     <string name="connect_delivery_get_app">Download App</string>
@@ -697,9 +697,9 @@
     <string name="connect_results_summary_verifications_title">Verification Status</string>
     <string name="connect_results_summary_verifications_description">Pending Verification: %d\nNot Approved: %d\nApproved: %d</string>
     <string name="connect_results_summary_payments_title">Payment Status</string>
-    <string name="connect_results_summary_payments_description">Earned Amount: %d%s\nTransferred Amount: %s%s</string>
+    <string name="connect_results_summary_payments_description">Earned Amount: %s\nTransferred Amount: %s</string>
     <string name="connect_results_payment_title">You received money</string>
-    <string name="connect_results_payment_description">You received %s%s</string>
+    <string name="connect_results_payment_description">You received %s</string>
 
     <string name="login_menu_connect_sign_in">Sign up for ConnectID</string>
     <string name="login_menu_connect_sign_out">Sign out of ConnectID</string>

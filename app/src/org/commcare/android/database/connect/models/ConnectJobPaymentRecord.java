@@ -24,7 +24,7 @@ public class ConnectJobPaymentRecord extends Persisted implements Serializable {
 
     public static final String META_JOB_ID = "job_id";
     public static final String META_AMOUNT = "amount";
-    public static final String META_DATE = "date";
+    public static final String META_DATE = "date_paid";
 
     @Persisting(1)
     @MetaField(META_JOB_ID)

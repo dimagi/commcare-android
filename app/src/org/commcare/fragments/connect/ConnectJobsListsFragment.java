@@ -70,9 +70,7 @@ public class ConnectJobsListsFragment extends Fragment {
         updateUpdatedDate(ConnectDatabaseHelper.getLastJobsUpdate(getContext()));
 
         ImageView refreshButton = view.findViewById(R.id.connect_jobs_refresh);
-        refreshButton.setOnClickListener(v -> {
-            refreshData();
-        });
+        refreshButton.setOnClickListener(v -> refreshData());
 
         final ViewPager2 pager = view.findViewById(R.id.jobs_view_pager);
         viewStateAdapter = new ViewStateAdapter(getChildFragmentManager(), getLifecycle());

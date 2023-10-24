@@ -179,8 +179,22 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         job.completedVisits = json.has(META_DELIVERY_PROGRESS) ? json.getInt(META_DELIVERY_PROGRESS) : -1;
 
         //Just need to know if the job has been claimed for now
-        job.claimed = json.has(META_CLAIM) && !json.isNull(META_CLAIM);
-        //Actual claim object: {"max_payments", "end_date", "date_claimed" }
+        job.claimed = json.has(META_CLAIM) &&!json.isNull(META_CLAIM);
+
+        if(job.claimed) {
+            //Actual claim object: {"max_payments", "end_date", "date_claimed" }
+            JSONObject claim = json.getJSONObject(META_CLAIM);
+
+            String key = "max_payments";
+            if (claim.has(key)) {
+                job.maxVisits = claim.getInt(key);
+            }
+
+            key = "end_date";
+            if (claim.has(key)) {
+                job.projectEndDate = df.parse(claim.getString(key));
+            }
+        }
 
         JSONObject learning = json.getJSONObject(META_LEARN_PROGRESS);
         job.numLearningModules = learning.getInt(META_LEARN_MODULES);
@@ -202,7 +216,7 @@ public class ConnectJobRecord extends Persisted implements Serializable {
             job.status = STATUS_LEARNING;
             if(job.claimed) {
                 job.status = STATUS_DELIVERING;
-                if(job.getPercentComplete() >= 100 || job.getProjectEndDate().getTime() < new Date().getTime()) {
+                if(job.getPercentComplete() >= 100 || job.getDaysRemaining() <= 0) {
                     job.status = STATUS_COMPLETE;
                 }
             }
@@ -225,6 +239,7 @@ public class ConnectJobRecord extends Persisted implements Serializable {
     public int getPercentComplete() { return maxVisits > 0 ? 100 * completedVisits / maxVisits : 0; }
     public Date getDateCompleted() { return lastWorkedDate; }
     public Date getProjectEndDate() { return projectEndDate; }
+    public void setProjectEndDate(Date date) { projectEndDate = date; }
     public String getPaymentAccrued() { return paymentAccrued; }
     public void setPaymentAccrued(String paymentAccrued) { this.paymentAccrued = paymentAccrued; }
     public String getCurrency() { return currency; }
@@ -265,7 +280,11 @@ public class ConnectJobRecord extends Persisted implements Serializable {
 
     public int getDaysRemaining() {
         double millis = projectEndDate.getTime() - (new Date()).getTime();
-        return (int)(millis / 1000 / 3600 / 24);
+        //Ceiling means we'll get 0 within 24 hours of the end date
+        //(since the end date has 00:00 time, but project is valid until midnight)
+        int days = (int)Math.ceil(millis / 1000 / 3600 / 24);
+        //Now plus 1 so we report i.e. 1 day remaining on the last day
+        return days >= 0 ? (days + 1) : 0;
     }
 
     public int getMaxPossibleVisits() {
@@ -305,4 +324,13 @@ public class ConnectJobRecord extends Persisted implements Serializable {
     public void setLastLearnUpdate(Date date) { lastLearnUpdate = date; }
     public Date getLastDeliveryUpdate() { return lastDeliveryUpdate; }
     public void setLastDeliveryUpdate(Date date) { lastDeliveryUpdate = date; }
+
+    public String getMoneyString(int value) {
+        String currency = "";
+        if(this.currency != null && this.currency.length() > 0) {
+            currency = " " + this.currency;
+        }
+
+        return String.format(Locale.getDefault(), "%d%s", value, currency);
+    }
 }

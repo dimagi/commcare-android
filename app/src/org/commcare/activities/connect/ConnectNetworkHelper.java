@@ -372,7 +372,11 @@ public class ConnectNetworkHelper {
         if (context instanceof CommCareActivity<?>) {
             Handler handler = new Handler(context.getMainLooper());
             handler.post(() -> {
-                ((CommCareActivity<?>)context).showProgressDialog(NETWORK_ACTIVITY_ID);
+                try {
+                    ((CommCareActivity<?>)context).showProgressDialog(NETWORK_ACTIVITY_ID);
+                } catch(Exception e) {
+                    //Ignore, ok if showing fails
+                }
             });
         }
     }

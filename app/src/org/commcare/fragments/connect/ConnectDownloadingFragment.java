@@ -93,6 +93,7 @@ public class ConnectDownloadingFragment extends Fragment implements ResourceEngi
     public void onSuccessfulVerification() {
         View view = getView();
         if (view != null) {
+            Navigation.findNavController(view).popBackStack();
             ConnectAppRecord appToLaunch = getLearnApp ? job.getLearnAppInfo() : job.getDeliveryAppInfo();
             CommCareLauncher.launchCommCareForAppIdFromConnect(getContext(), appToLaunch.getAppId());
         }

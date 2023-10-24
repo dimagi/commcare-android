@@ -10,6 +10,7 @@ import android.widget.TextView;
 import com.google.android.material.tabs.TabLayout;
 
 import org.commcare.activities.connect.ConnectDatabaseHelper;
+import org.commcare.activities.connect.ConnectManager;
 import org.commcare.activities.connect.ConnectNetworkHelper;
 import org.commcare.android.database.connect.models.ConnectJobDeliveryRecord;
 import org.commcare.android.database.connect.models.ConnectJobPaymentRecord;
@@ -116,7 +117,10 @@ public class ConnectDeliveryProgressFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        refreshData();
+
+        if(ConnectManager.isUnlocked()) {
+            refreshData();
+        }
     }
 
     public void refreshData() {

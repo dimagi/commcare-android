@@ -101,14 +101,11 @@ public class ConnectResultsListFragment extends Fragment {
             } else if(holder instanceof PaymentViewHolder paymentHolder) {
                 ConnectJobPaymentRecord payment = job.getPayments().get(position);
 
-                String currency = "";
-                if(job.getCurrency() != null && job.getCurrency().length() > 0) {
-                    currency = " " + job.getCurrency();
-                }
+                String money = job.getMoneyString((int)Double.parseDouble(payment.getAmount()));
 
                 paymentHolder.nameText.setText(parentContext.getString(R.string.connect_results_payment_title));
                 paymentHolder.dateText.setText(df.format(payment.getDate()));
-                paymentHolder.statusText.setText(parentContext.getString(R.string.connect_results_payment_description, payment.getAmount(), currency));
+                paymentHolder.statusText.setText(parentContext.getString(R.string.connect_results_payment_description, money));
             }
         }
 
