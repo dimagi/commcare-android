@@ -1,5 +1,6 @@
 package org.commcare.fragments.connect;
 
+import android.app.Activity;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -8,6 +9,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
@@ -51,7 +53,26 @@ public class ConnectDownloadingFragment extends Fragment implements ResourceEngi
         ConnectDownloadingFragmentArgs args = ConnectDownloadingFragmentArgs.fromBundle(getArguments());
         job = args.getJob();
         getLearnApp = args.getLearning();
+
+        //Disable back button during install (done by providing empty callback)
+        requireActivity().getOnBackPressedDispatcher().addCallback(new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+
+            }
+        });
+
+        //Disable the default wait dialog during this fragment since it displays progress on its own
+        setWaitDialogEnabled(false);
+
         startAppDownload();
+    }
+
+    private void setWaitDialogEnabled(boolean enabled) {
+        Activity activity = getActivity();
+        if(activity instanceof ConnectActivity connectActivity) {
+            connectActivity.setWaitDialogEnabled(enabled);
+        }
     }
 
     private void startAppDownload() {
@@ -93,6 +114,7 @@ public class ConnectDownloadingFragment extends Fragment implements ResourceEngi
     public void onSuccessfulVerification() {
         View view = getView();
         if (view != null) {
+            setWaitDialogEnabled(true);
             Navigation.findNavController(view).popBackStack();
             ConnectAppRecord appToLaunch = getLearnApp ? job.getLearnAppInfo() : job.getDeliveryAppInfo();
             CommCareLauncher.launchCommCareForAppIdFromConnect(getContext(), appToLaunch.getAppId());
@@ -105,6 +127,7 @@ public class ConnectDownloadingFragment extends Fragment implements ResourceEngi
     }
 
     private void showInstallFailError(AppInstallStatus statusmissing) {
+        setWaitDialogEnabled(true);
         String installError = getString(R.string.connect_app_install_unknown_error);
         try {
             installError = Localization.get(statusmissing.getLocaleKeyBase() + ".title");

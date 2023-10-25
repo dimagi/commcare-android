@@ -216,7 +216,7 @@ public class ConnectJobRecord extends Persisted implements Serializable {
             job.status = STATUS_LEARNING;
             if(job.claimed) {
                 job.status = STATUS_DELIVERING;
-                if(job.getPercentComplete() >= 100 || job.getDaysRemaining() <= 0) {
+                if(job.getDaysRemaining() <= 0) {
                     job.status = STATUS_COMPLETE;
                 }
             }

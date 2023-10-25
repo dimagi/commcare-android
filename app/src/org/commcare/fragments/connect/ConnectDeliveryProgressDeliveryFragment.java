@@ -45,7 +45,7 @@ public class ConnectDeliveryProgressDeliveryFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_connect_progress_delivery, container, false);
         updateView();
 
-        boolean expired = job.getDaysRemaining() < 0;
+        boolean expired = job.getDaysRemaining() <= 0;
         Button button = view.findViewById(R.id.connect_progress_button);
         button.setOnClickListener(v -> {
             String title = null;

@@ -657,7 +657,7 @@
     <string name="connect_learn_certificate">CERTIFICATE OF COMPLETION</string>
     <string name="connect_learn_completed">Completed on: %s</string>
     <string name="connect_learn_claim_label">Claim Job to Deliver Care</string>
-    <string name="connect_learn_view_details">View Delivery Details</string>
+    <string name="connect_learn_view_details">View Job Details</string>
     <string name="connect_learn_go_to_assessment">Go To Assessment</string>
     <string name="connect_learn_try_again">Try Again</string>
     <string name="connect_learn_start">Start Learning</string>

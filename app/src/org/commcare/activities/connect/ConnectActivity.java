@@ -20,6 +20,7 @@ import org.commcare.views.dialogs.CustomProgressDialog;
 import javax.annotation.Nullable;
 
 public class ConnectActivity extends CommCareActivity<ResourceEngineListener> {
+    private boolean waitDialogEnabled = true;
 
     ActivityResultLauncher<Intent> verificationLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
@@ -50,8 +51,14 @@ public class ConnectActivity extends CommCareActivity<ResourceEngineListener> {
 
     @Override
     public CustomProgressDialog generateProgressDialog(int taskId) {
-        return CustomProgressDialog.newInstance(null, getString(R.string.please_wait), taskId);
+        if(waitDialogEnabled) {
+            return CustomProgressDialog.newInstance(null, getString(R.string.please_wait), taskId);
+        }
+
+        return null;
     }
+
+    public void setWaitDialogEnabled(boolean enabled) { waitDialogEnabled = enabled; }
 
     private void showBackButton() {
         ActionBar actionBar = getSupportActionBar();
