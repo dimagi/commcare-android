@@ -73,7 +73,6 @@ public class ConnectDeliveryProgressFragment extends Fragment {
         updateText = view.findViewById(R.id.connect_delivery_last_update);
         updateUpdatedDate(job.getLastDeliveryUpdate());
 
-        refreshData();
         ImageView refreshButton = view.findViewById(R.id.connect_delivery_refresh);
         refreshButton.setOnClickListener(v -> {
             refreshData();
