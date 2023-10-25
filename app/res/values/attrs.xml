@@ -53,5 +53,8 @@
     <declare-styleable name="FilePreference">
         <attr name="file_type" format="string"/>
     </declare-styleable>
-
+    <declare-styleable name="FaceCaptureView">
+        <attr name="background_color" format="color" />
+        <attr name="face_capture_area_delimiter_color" format="color" />
+    </declare-styleable>
 </resources>
