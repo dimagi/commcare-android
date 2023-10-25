@@ -11,9 +11,9 @@ import android.widget.Toast;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.fragment.app.Fragment;
-import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
 
+import org.commcare.CommCareApplication;
 import org.commcare.activities.connect.ConnectActivity;
 import org.commcare.android.database.connect.models.ConnectAppRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
@@ -76,6 +76,7 @@ public class ConnectDownloadingFragment extends Fragment implements ResourceEngi
     }
 
     private void startAppDownload() {
+        CommCareApplication.instance().closeUserSession();
         ConnectAppRecord record = getLearnApp ? job.getLearnAppInfo() : job.getDeliveryAppInfo();
         String url = String.format("https://staging.commcarehq.org/a/%s/apps/download/%s/media_profile.ccpr",
                 record.getDomain(), record.getAppId());
@@ -108,13 +109,13 @@ public class ConnectDownloadingFragment extends Fragment implements ResourceEngi
     }
 
     private void onSuccessfulInstall() {
+        setWaitDialogEnabled(true);
         ((ConnectActivity)getActivity()).startAppValidation();
     }
 
     public void onSuccessfulVerification() {
         View view = getView();
         if (view != null) {
-            setWaitDialogEnabled(true);
             Navigation.findNavController(view).popBackStack();
             ConnectAppRecord appToLaunch = getLearnApp ? job.getLearnAppInfo() : job.getDeliveryAppInfo();
             CommCareLauncher.launchCommCareForAppIdFromConnect(getContext(), appToLaunch.getAppId());
