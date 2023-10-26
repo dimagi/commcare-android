@@ -46,6 +46,18 @@ import java.util.concurrent.ExecutionException;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
+import android.os.Bundle;
+import android.util.Log;
+import android.util.Size;
+import android.widget.Toast;
+
+import com.google.common.util.concurrent.ListenableFuture;
+
+import org.commcare.dalvik.R;
+import org.commcare.views.FaceCaptureView;
+
+import java.util.concurrent.ExecutionException;
+
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
@@ -55,6 +67,7 @@ import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageProxy;
 import androidx.camera.core.Preview;
 import androidx.camera.core.UseCase;
+import androidx.camera.core.Preview;
 import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.camera.view.PreviewView;
 import androidx.core.content.ContextCompat;
@@ -83,6 +96,8 @@ public class MicroImageActivity extends CommonBaseActivity implements ImageAnaly
                 }
             }
     );
+
+    private static final String TAG = MicroImageActivity.class.toString();
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -171,7 +186,7 @@ public class MicroImageActivity extends CommonBaseActivity implements ImageAnaly
         } else {
             imageAnalyzerOrCapture = buildImageCaptureUseCase(targetResolution);
         }
-        CameraSelector cameraSelector = CameraSelector.DEFAULT_FRONT_CAMERA;
+        CameraSelector cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA;
 
         // Unbind any previous use cases before binding new ones
         cameraProvider.unbindAll();
@@ -339,5 +354,12 @@ public class MicroImageActivity extends CommonBaseActivity implements ImageAnaly
         if (bitmap != null && !bitmap.isRecycled()) {
             bitmap.recycle();
         }
+    }
+
+    private void logErrorAndExit(String logMessage, Throwable e) {
+        Log.e(TAG, logMessage + ": " + e);
+        Toast.makeText(this, R.string.camera_start_failed, Toast.LENGTH_LONG).show();
+        setResult(AppCompatActivity.RESULT_CANCELED);
+        finish();
     }
 }

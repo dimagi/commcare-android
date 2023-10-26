@@ -1,11 +1,13 @@
 package org.commcare.views.widgets;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-
 import android.util.Base64;
 
+import org.commcare.activities.components.FormEntryConstants;
+import org.commcare.fragments.MicroImageActivity;
 import org.commcare.logic.PendingCalloutInterface;
 import org.commcare.modern.util.Pair;
 import org.javarosa.core.model.data.Base64ImageData;
@@ -30,7 +32,11 @@ public class MicroImageWidget extends ImageWidget{
     }
 
     @Override
-    protected void takePicture() {}
+    protected void takePicture() {
+        Intent i = new Intent(getContext(), MicroImageActivity.class);
+        ((AppCompatActivity)getContext()).startActivityForResult(i, FormEntryConstants.MICRO_IMAGE_CAPTURE);
+        pendingCalloutInterface.setPendingCalloutFormIndex(mPrompt.getIndex());
+    }
 
     @Override
     public void setBinaryData(Object binaryPath) {
