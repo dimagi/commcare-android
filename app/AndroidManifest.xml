@@ -317,6 +317,10 @@
             android:name="org.commcare.activities.FormRecordListActivity"
             android:windowSoftInputMode="adjustResize">
         </activity>
+        <activity
+            android:name="org.commcare.fragments.MicroImageActivity"
+            android:windowSoftInputMode="adjustResize">
+        </activity>
         <service
             android:enabled="true"
             android:foregroundServiceType="specialUse"

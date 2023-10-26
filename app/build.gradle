@@ -66,6 +66,10 @@ dependencies {
 
     // this syntax doesn't work for compiling .aar files, so those have to be loaded manually
     implementation fileTree(include: '*.jar', exclude: 'regexp-me.jar', dir: 'libs')
+    implementation "androidx.camera:camera-view:$cameraX_version"
+    implementation "androidx.camera:camera-core:$cameraX_version"
+    implementation "androidx.camera:camera-camera2:$cameraX_version"
+    implementation "androidx.camera:camera-lifecycle:$cameraX_version"
     implementation(name: 'htmlspanner-custom', ext: 'aar')
     implementation 'com.github.dimagi:zebra-print-android:v1.3'
     implementation (name: 'LibSimprints-1.0.12', ext: 'aar')
