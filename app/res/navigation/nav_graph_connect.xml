@@ -113,6 +113,9 @@
             android:name="learning"
             app:argType="boolean" />
         <argument
+            android:name="goToApp"
+            app:argType="boolean" />
+        <argument
             android:name="job"
             app:argType="org.commcare.android.database.connect.models.ConnectJobRecord" />
         <action

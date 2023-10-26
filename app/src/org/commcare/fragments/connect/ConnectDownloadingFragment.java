@@ -9,11 +9,10 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.activity.OnBackPressedCallback;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
 
-import org.commcare.CommCareApplication;
 import org.commcare.activities.connect.ConnectActivity;
 import org.commcare.android.database.connect.models.ConnectAppRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
@@ -38,6 +37,7 @@ public class ConnectDownloadingFragment extends Fragment implements ResourceEngi
     private TextView statusText;
     private ConnectJobRecord job;
     private boolean getLearnApp;
+    private boolean goToApp;
 
     public ConnectDownloadingFragment() {
         // Required empty public constructor
@@ -53,19 +53,22 @@ public class ConnectDownloadingFragment extends Fragment implements ResourceEngi
         ConnectDownloadingFragmentArgs args = ConnectDownloadingFragmentArgs.fromBundle(getArguments());
         job = args.getJob();
         getLearnApp = args.getLearning();
+        goToApp = args.getGoToApp();
 
         //Disable back button during install (done by providing empty callback)
-        requireActivity().getOnBackPressedDispatcher().addCallback(new OnBackPressedCallback(true) {
-            @Override
-            public void handleOnBackPressed() {
-
-            }
-        });
+        setBackButtonEnabled(false);
 
         //Disable the default wait dialog during this fragment since it displays progress on its own
         setWaitDialogEnabled(false);
 
         startAppDownload();
+    }
+
+    private void setBackButtonEnabled(boolean enabled) {
+        Activity activity = getActivity();
+        if(activity instanceof ConnectActivity connectActivity) {
+            connectActivity.setBackButtonEnabled(enabled);
+        }
     }
 
     private void setWaitDialogEnabled(boolean enabled) {
@@ -76,7 +79,6 @@ public class ConnectDownloadingFragment extends Fragment implements ResourceEngi
     }
 
     private void startAppDownload() {
-        CommCareApplication.instance().closeUserSession();
         ConnectAppRecord record = getLearnApp ? job.getLearnAppInfo() : job.getDeliveryAppInfo();
         String url = String.format("https://staging.commcarehq.org/a/%s/apps/download/%s/media_profile.ccpr",
                 record.getDomain(), record.getAppId());
@@ -114,11 +116,27 @@ public class ConnectDownloadingFragment extends Fragment implements ResourceEngi
     }
 
     public void onSuccessfulVerification() {
+        setBackButtonEnabled(true);
         View view = getView();
         if (view != null) {
-            Navigation.findNavController(view).popBackStack();
-            ConnectAppRecord appToLaunch = getLearnApp ? job.getLearnAppInfo() : job.getDeliveryAppInfo();
-            CommCareLauncher.launchCommCareForAppIdFromConnect(getContext(), appToLaunch.getAppId());
+            if(goToApp) {
+                Navigation.findNavController(view).popBackStack();
+
+                //Launch the learn/deliver app
+                ConnectAppRecord appToLaunch = getLearnApp ? job.getLearnAppInfo() : job.getDeliveryAppInfo();
+                CommCareLauncher.launchCommCareForAppIdFromConnect(getContext(), appToLaunch.getAppId());
+            }
+            else {
+                //Go to learn/deliver progress
+                NavDirections directions;
+                if(getLearnApp) {
+                    directions = ConnectDownloadingFragmentDirections.actionConnectDownloadingFragmentToConnectJobLearningProgressFragment(job);
+                }
+                else {
+                    directions = ConnectDownloadingFragmentDirections.actionConnectDownloadingFragmentToConnectJobDeliveryProgressFragment(job);
+                }
+                Navigation.findNavController(statusText).navigate(directions);
+            }
         }
     }
 
@@ -128,6 +146,7 @@ public class ConnectDownloadingFragment extends Fragment implements ResourceEngi
     }
 
     private void showInstallFailError(AppInstallStatus statusmissing) {
+        setBackButtonEnabled(true);
         setWaitDialogEnabled(true);
         String installError = getString(R.string.connect_app_install_unknown_error);
         try {
