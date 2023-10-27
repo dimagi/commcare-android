@@ -96,7 +96,7 @@ public class BiometricsHelper {
     public static void authenticatePin(FragmentActivity activity, BiometricManager biometricManager,
                                        BiometricPrompt.AuthenticationCallback biometricPromptCallback) {
         if (BiometricsHelper.isPinConfigured(activity, biometricManager)) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.Q) {
                 BiometricPrompt prompt = new BiometricPrompt(activity,
                         ContextCompat.getMainExecutor(activity),
                         biometricPromptCallback);

@@ -127,8 +127,13 @@ public class ConnectJobsListsFragment extends Fragment {
                         //Store retrieved jobs
                         ConnectDatabaseHelper.storeJobs(getContext(), jobs, true);
 
-                        updateUpdatedDate(new Date());
-                        viewStateAdapter.refresh();
+                        try {
+                            updateUpdatedDate(new Date());
+                            viewStateAdapter.refresh();
+                        }
+                        catch(Exception e) {
+                            //Ignore exception, happens if we leave the page before API call finishes
+                        }
                     }
                 } catch (IOException | JSONException | ParseException e) {
                     Logger.exception("Parsing return from Opportunities request", e);

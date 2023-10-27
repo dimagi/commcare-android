@@ -92,14 +92,13 @@ public class ConnectDeliveryProgressDeliveryFragment extends Fragment {
     }
 
     public void updateView() {
+        if(job == null || view == null) {
+            return;
+        }
 
         int completed = job.getCompletedVisits();
         int total = job.getMaxVisits();
         int percent = total > 0 ? (100 * completed / total) : 100;
-
-        if(view == null) {
-            return;
-        }
 
         ProgressBar progress = view.findViewById(R.id.connect_progress_progress_bar);
         progress.setProgress(percent);

@@ -27,6 +27,7 @@ public class ConnectAppRecord extends Persisted implements Serializable {
     public static final String META_DESCRIPTION = "description";
     public static final String META_ORGANIZATION = "organization";
     public static final String META_PASSING_SCORE = "passing_score";
+    public static final String META_INSTALL_URL = "install_url";
     public static final String META_MODULES = "learn_modules";
 
     @Persisting(1)
@@ -53,7 +54,10 @@ public class ConnectAppRecord extends Persisted implements Serializable {
     @Persisting(8)
     @MetaField(META_PASSING_SCORE)
     private int passingScore;
-    @Persisting(8)
+    @Persisting(9)
+    @MetaField(META_INSTALL_URL)
+    private String installUrl;
+    @Persisting(10)
     private Date lastUpdate;
 
     private List<ConnectLearnModuleSummaryRecord> learnModules;
@@ -74,6 +78,7 @@ public class ConnectAppRecord extends Persisted implements Serializable {
         app.description = json.has(META_DESCRIPTION) ? json.getString(META_DESCRIPTION) : null;
         app.organization = json.has(META_ORGANIZATION) ? json.getString(META_ORGANIZATION) : null;
         app.passingScore = json.has(META_PASSING_SCORE) && !json.isNull(META_PASSING_SCORE) ? json.getInt(META_PASSING_SCORE) : -1;
+        app.installUrl = json.has(META_INSTALL_URL) ? json.getString(META_INSTALL_URL) : null;
 
         JSONArray array = json.getJSONArray(META_MODULES);
         app.learnModules = new ArrayList<>();
@@ -94,6 +99,7 @@ public class ConnectAppRecord extends Persisted implements Serializable {
     public int getPassingScore() { return passingScore; }
 
     public List<ConnectLearnModuleSummaryRecord> getLearnModules() { return learnModules; }
+    public String getInstallUrl() { return installUrl; }
     public void setLearnModules(List<ConnectLearnModuleSummaryRecord> modules) { learnModules = modules; }
     public void setLastUpdate(Date lastUpdate) { this.lastUpdate = lastUpdate; }
 }
