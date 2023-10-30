@@ -20,6 +20,7 @@ import com.google.android.material.tabs.TabLayout;
 import org.commcare.activities.connect.ConnectDatabaseHelper;
 import org.commcare.activities.connect.ConnectNetworkHelper;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
+import org.commcare.CommCareApplication;
 import org.commcare.dalvik.R;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.services.Logger;
@@ -43,6 +44,8 @@ import java.util.Locale;
  * @author dviggiano
  */
 public class ConnectJobsListsFragment extends Fragment {
+    private TabLayout tabLayout;
+    private ViewPager2 viewPager;
     private ViewStateAdapter viewStateAdapter;
     private TextView updateText;
 
@@ -72,15 +75,15 @@ public class ConnectJobsListsFragment extends Fragment {
         ImageView refreshButton = view.findViewById(R.id.connect_jobs_refresh);
         refreshButton.setOnClickListener(v -> refreshData());
 
-        final ViewPager2 pager = view.findViewById(R.id.jobs_view_pager);
+        viewPager = view.findViewById(R.id.jobs_view_pager);
         viewStateAdapter = new ViewStateAdapter(getChildFragmentManager(), getLifecycle());
-        pager.setAdapter(viewStateAdapter);
+        viewPager.setAdapter(viewStateAdapter);
 
-        final TabLayout tabLayout = view.findViewById(R.id.connect_jobs_tabs);
+        tabLayout = view.findViewById(R.id.connect_jobs_tabs);
         tabLayout.addTab(tabLayout.newTab().setText(R.string.connect_jobs_all));
         tabLayout.addTab(tabLayout.newTab().setText(R.string.connect_jobs_mine));
 
-        pager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
+        viewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
             @Override
             public void onPageSelected(int position) {
                 tabLayout.selectTab(tabLayout.getTabAt(position));
@@ -90,7 +93,7 @@ public class ConnectJobsListsFragment extends Fragment {
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
-                pager.setCurrentItem(tab.getPosition());
+                viewPager.setCurrentItem(tab.getPosition());
             }
 
             @Override
@@ -104,6 +107,7 @@ public class ConnectJobsListsFragment extends Fragment {
             }
         });
 
+        chooseTab();
         refreshData();
 
         return view;
@@ -130,6 +134,7 @@ public class ConnectJobsListsFragment extends Fragment {
                         try {
                             updateUpdatedDate(new Date());
                             viewStateAdapter.refresh();
+                            chooseTab();
                         }
                         catch(Exception e) {
                             //Ignore exception, happens if we leave the page before API call finishes
@@ -155,6 +160,13 @@ public class ConnectJobsListsFragment extends Fragment {
     private void updateUpdatedDate(Date lastUpdate) {
         DateFormat df = SimpleDateFormat.getDateTimeInstance();
         updateText.setText(getString(R.string.connect_last_update, df.format(lastUpdate)));
+    }
+
+    private void chooseTab() {
+        int numAvailable = ConnectDatabaseHelper.getAvailableJobs(CommCareApplication.instance()).size();
+        int index = numAvailable > 0 ? 0 : 1;
+        viewPager.setCurrentItem(index);
+        tabLayout.setScrollPosition(index, 0f, true);
     }
 
     private static class ViewStateAdapter extends FragmentStateAdapter {
