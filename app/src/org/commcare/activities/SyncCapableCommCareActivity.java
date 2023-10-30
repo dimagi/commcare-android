@@ -273,7 +273,7 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
 
     public void showRateLimitError(boolean userTriggered) {
         if (HiddenPreferences.isRateLimitPopupDisabled() || !userTriggered) {
-            handleFormUploadResult(FormUploadResult.RATE_LIMITED, null, userTriggered);
+            handleFormSendResult(Localization.get(FormUploadResult.RATE_LIMITED.getLocaleKeyBase()), false);
             return;
         }
         String title = Localization.get("form.send.rate.limit.error.title");
