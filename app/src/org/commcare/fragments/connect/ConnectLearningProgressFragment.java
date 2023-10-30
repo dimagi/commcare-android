@@ -125,8 +125,13 @@ public class ConnectLearningProgressFragment extends Fragment {
                     Logger.exception("Parsing return from learn_progress request", e);
                 }
 
-                updateUpdatedDate(new Date());
-                updateUi();
+                try {
+                    updateUpdatedDate(new Date());
+                    updateUi();
+                }
+                catch(Exception e) {
+                    //Ignore exception, happens if we leave the page before API call finishes
+                }
             }
 
             @Override

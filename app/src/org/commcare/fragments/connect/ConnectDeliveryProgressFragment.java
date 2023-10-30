@@ -179,8 +179,13 @@ public class ConnectDeliveryProgressFragment extends Fragment {
                             job.setPayments(payments);
                         }
 
-                        updateUpdatedDate(new Date());
-                        viewStateAdapter.refresh();
+                        try {
+                            updateUpdatedDate(new Date());
+                            viewStateAdapter.refresh();
+                        }
+                        catch(Exception e) {
+                            //Ignore exception, happens if we leave the page before API call finishes
+                        }
                     }
                 } catch (IOException | JSONException | ParseException e) {
                     Logger.exception("Parsing return from delivery progress request", e);
