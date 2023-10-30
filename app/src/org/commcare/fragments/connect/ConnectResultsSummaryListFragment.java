@@ -85,31 +85,33 @@ public class ConnectResultsSummaryListFragment extends Fragment {
                     R.string.connect_results_summary_payments_title));
 
             String description = "";
-            if(position == 0) {
-                //Verification Status
-                int numPending = 0;
-                int numFailed = 0;
-                int numApproved = 0;
-                for(ConnectJobDeliveryRecord delivery : job.getDeliveries()) {
-                    if(delivery.getStatus().equals("pending")) {
-                        numPending++;
-                    } else if(delivery.getStatus().equals("approved")) {
-                        numApproved++;
-                    } else {
-                        numFailed++;
+            if(job != null) {
+                if (position == 0) {
+                    //Verification Status
+                    int numPending = 0;
+                    int numFailed = 0;
+                    int numApproved = 0;
+                    for (ConnectJobDeliveryRecord delivery : job.getDeliveries()) {
+                        if (delivery.getStatus().equals("pending")) {
+                            numPending++;
+                        } else if (delivery.getStatus().equals("approved")) {
+                            numApproved++;
+                        } else {
+                            numFailed++;
+                        }
                     }
-                }
-                description = parentContext.getString(R.string.connect_results_summary_verifications_description, numPending, numFailed, numApproved);
-            } else {
-                //Payment Status
-                double total = 0;
-                for(ConnectJobPaymentRecord payment: job.getPayments()) {
-                    total += Double.parseDouble(payment.getAmount());
-                }
+                    description = parentContext.getString(R.string.connect_results_summary_verifications_description, numPending, numFailed, numApproved);
+                } else {
+                    //Payment Status
+                    double total = 0;
+                    for (ConnectJobPaymentRecord payment : job.getPayments()) {
+                        total += Double.parseDouble(payment.getAmount());
+                    }
 
-                String accrued = job.getMoneyString((int)Double.parseDouble(job.getPaymentAccrued()));
-                String paid = job.getMoneyString((int)total);
-                description = parentContext.getString(R.string.connect_results_summary_payments_description, accrued, paid);
+                    String accrued = job.getMoneyString((int)Double.parseDouble(job.getPaymentAccrued()));
+                    String paid = job.getMoneyString((int)total);
+                    description = parentContext.getString(R.string.connect_results_summary_payments_description, accrued, paid);
+                }
             }
 
             holder.descriptionText.setText(description);
