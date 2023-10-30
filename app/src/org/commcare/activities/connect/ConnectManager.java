@@ -547,7 +547,9 @@ public class ConnectManager {
                 //Finish workflow, user registered/recovered and logged in
                 rememberPhase = true;
                 manager.connectStatus = ConnectIdStatus.LoggedIn;
-                manager.loginListener.connectActivityComplete(true);
+                if(manager.loginListener != null) {
+                    manager.loginListener.connectActivityComplete(true);
+                }
             }
             case CONNECT_UNLOCK_BIOMETRIC -> {
                 if (success) {
