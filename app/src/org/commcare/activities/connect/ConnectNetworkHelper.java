@@ -14,6 +14,7 @@ import org.commcare.core.interfaces.HttpResponseProcessor;
 import org.commcare.core.network.AuthInfo;
 import org.commcare.core.network.HTTPMethod;
 import org.commcare.core.network.ModernHttpRequester;
+import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.interfaces.ConnectorWithHttpResponseProcessor;
 import org.commcare.tasks.ModernHttpTask;
@@ -400,7 +401,7 @@ public class ConnectNetworkHelper {
                 return;
             }
 
-            String url = context.getString(R.string.ConnectOpportunitiesURL);
+            String url = context.getString(R.string.ConnectOpportunitiesURL, BuildConfig.CCC_HOST);
             Multimap<String, String> params = ArrayListMultimap.create();
 
             getInstance().getInternal(context, url, token, params, handler);
@@ -419,7 +420,7 @@ public class ConnectNetworkHelper {
                 return;
             }
 
-            String url = context.getString(R.string.ConnectStartLearningURL);
+            String url = context.getString(R.string.ConnectStartLearningURL, BuildConfig.CCC_HOST);
             HashMap<String, String> params = new HashMap<>();
             params.put("opportunity", String.format(Locale.getDefault(), "%d", jobId));
 
@@ -439,7 +440,7 @@ public class ConnectNetworkHelper {
                 return;
             }
 
-            String url = context.getString(R.string.ConnectLearnProgressURL, jobId);
+            String url = context.getString(R.string.ConnectLearnProgressURL, BuildConfig.CCC_HOST, jobId);
             Multimap<String, String> params = ArrayListMultimap.create();
 
             getInstance().getInternal(context, url, token, params, handler);
@@ -458,7 +459,7 @@ public class ConnectNetworkHelper {
                 return;
             }
 
-            String url = context.getString(R.string.ConnectClaimJobURL, jobId);
+            String url = context.getString(R.string.ConnectClaimJobURL, BuildConfig.CCC_HOST, jobId);
             HashMap<String, String> params = new HashMap<>();
 
             getInstance().postInternal(context, url, token, params, false, handler);
@@ -477,7 +478,7 @@ public class ConnectNetworkHelper {
                 return;
             }
 
-            String url = context.getString(R.string.ConnectDeliveriesURL, jobId);
+            String url = context.getString(R.string.ConnectDeliveriesURL, BuildConfig.CCC_HOST, jobId);
             Multimap<String, String> params = ArrayListMultimap.create();
 
             getInstance().getInternal(context, url, token, params, handler);

@@ -289,6 +289,8 @@ android {
         buildConfigField "String", "HQ_API_USERNAME", "\"${project.ext.HQ_API_USERNAME}\""
         buildConfigField "String", "HQ_API_PASSWORD", "\"${project.ext.HQ_API_PASSWORD}\""
         buildConfigField "String", "FIREBASE_DATABASE_URL", "\"${project.ext.FIREBASE_DATABASE_URL}\""
+
+        buildConfigField "String", "CCC_HOST", "\"connect.dimagi.com\""
         testInstrumentationRunner "org.commcare.CommCareJUnitRunner"
     }
 
@@ -395,6 +397,10 @@ android {
             // set the app name
             def applicationName = "CommCare LTS"
             resValue "string", "application_name", applicationName
+        }
+
+        cccStaging {
+            buildConfigField "String", "CCC_HOST", "\"connect-staging.dimagi.com\""
         }
 
         standalone {

@@ -24,11 +24,11 @@
     <string name="ConnectConfirmOTPURL">https://connectid.dimagi.com/users/confirm_otp</string>
     <string name="ConnectRegisterURL">https://connectid.dimagi.com/users/register</string>
 
-    <string name="ConnectOpportunitiesURL">https://connect.dimagi.com/api/opportunity/</string>
-    <string name="ConnectStartLearningURL">https://connect.dimagi.com/users/start_learn_app/</string>
-    <string name="ConnectLearnProgressURL">https://connect.dimagi.com/api/opportunity/%d/learn_progress</string>
-    <string name="ConnectClaimJobURL">https://connect.dimagi.com/api/opportunity/%d/claim</string>
-    <string name="ConnectDeliveriesURL">https://connect.dimagi.com/api/opportunity/%d/delivery_progress</string>
+    <string name="ConnectOpportunitiesURL">https://%s/api/opportunity/</string>
+    <string name="ConnectStartLearningURL">https://%s/users/start_learn_app/</string>
+    <string name="ConnectLearnProgressURL">https://%s/api/opportunity/%d/learn_progress</string>
+    <string name="ConnectClaimJobURL">https://%s/api/opportunity/%d/claim</string>
+    <string name="ConnectDeliveriesURL">https://%s/api/opportunity/%d/delivery_progress</string>
 
     <string name="key_server">https://pact.dimagi.com/keys/getkey</string>
     <string name="your_comment">Your comment</string>
