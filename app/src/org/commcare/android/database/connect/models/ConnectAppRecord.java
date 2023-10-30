@@ -72,13 +72,13 @@ public class ConnectAppRecord extends Persisted implements Serializable {
         app.jobId = jobId;
         app.isLearning = isLearning;
 
-        app.domain = json.has(META_DOMAIN) ? json.getString(META_DOMAIN) : null;
-        app.appId = json.has(META_APP_ID) ? json.getString(META_APP_ID) : null;
-        app.name = json.has(META_NAME) ? json.getString(META_NAME) : null;
-        app.description = json.has(META_DESCRIPTION) ? json.getString(META_DESCRIPTION) : null;
-        app.organization = json.has(META_ORGANIZATION) ? json.getString(META_ORGANIZATION) : null;
+        app.domain = json.has(META_DOMAIN) ? json.getString(META_DOMAIN) : "";
+        app.appId = json.has(META_APP_ID) ? json.getString(META_APP_ID) : "";
+        app.name = json.has(META_NAME) ? json.getString(META_NAME) : "";
+        app.description = json.has(META_DESCRIPTION) ? json.getString(META_DESCRIPTION) : "";
+        app.organization = json.has(META_ORGANIZATION) ? json.getString(META_ORGANIZATION) : "";
         app.passingScore = json.has(META_PASSING_SCORE) && !json.isNull(META_PASSING_SCORE) ? json.getInt(META_PASSING_SCORE) : -1;
-        app.installUrl = json.has(META_INSTALL_URL) ? json.getString(META_INSTALL_URL) : null;
+        app.installUrl = json.has(META_INSTALL_URL) ? json.getString(META_INSTALL_URL) : "";
 
         JSONArray array = json.getJSONArray(META_MODULES);
         app.learnModules = new ArrayList<>();
