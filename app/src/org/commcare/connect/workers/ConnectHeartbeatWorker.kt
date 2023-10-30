@@ -17,7 +17,7 @@ class ConnectHeartbeatWorker(context: Context, workerParams: WorkerParameters) :
             if (!ConnectManager.isUnlocked()) {
                 return@withContext Result.failure()
             }
-            val connectNetworkService = ConnectNetworkServiceFactory.createConnectNetworkSerive()
+            val connectNetworkService = ConnectNetworkServiceFactory.createConnectIdNetworkSerive()
             val fcmToken = FirebaseMessagingUtil.getFCMToken();
             val response = connectNetworkService.makeHeartbeatRequest(fcmToken)!!.execute()
             return@withContext if (response.isSuccessful) Result.success() else Result.failure()

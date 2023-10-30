@@ -10,7 +10,7 @@ import java.util.concurrent.TimeUnit
 
 object ConnectNetworkServiceFactory {
 
-    private const val CONNECT_BASE_URL = "https://connect.dimagi.com/"
+    private const val CONNECT_ID_BASE_URL = "https://connectid.dimagi.com/"
 
     private val auth = HttpUtils.getCredential(ConnectManager.getConnectToken())
 
@@ -19,12 +19,12 @@ object ConnectNetworkServiceFactory {
         .readTimeout(ModernHttpRequester.CONNECTION_SO_TIMEOUT.toLong(), TimeUnit.MILLISECONDS)
         .addInterceptor(AuthenticationInterceptor(auth))
 
-    private val retrofit = Retrofit.Builder()
-        .baseUrl(CONNECT_BASE_URL)
+    private val connectIdRetrofit = Retrofit.Builder()
+        .baseUrl(CONNECT_ID_BASE_URL)
         .client(httpClient.build())
         .build()
 
-    fun createConnectNetworkSerive(): ConnectNetworkService {
-        return retrofit.create(ConnectNetworkService::class.java)
+    fun createConnectIdNetworkSerive(): ConnectNetworkService {
+        return connectIdRetrofit.create(ConnectNetworkService::class.java)
     }
 }
