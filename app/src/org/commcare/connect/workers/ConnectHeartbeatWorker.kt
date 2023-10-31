@@ -13,7 +13,7 @@ class ConnectHeartbeatWorker(context: Context, workerParams: WorkerParameters) :
     CoroutineWorker(context, workerParams) {
 
     override suspend fun doWork(): Result {
-        withContext(Dispatchers.IO) {
+        return withContext(Dispatchers.IO) {
             if (!ConnectManager.isUnlocked()) {
                 return@withContext Result.failure()
             }
@@ -22,6 +22,5 @@ class ConnectHeartbeatWorker(context: Context, workerParams: WorkerParameters) :
             val response = connectNetworkService.makeHeartbeatRequest(fcmToken)!!.execute()
             return@withContext if (response.isSuccessful) Result.success() else Result.failure()
         }
-        return Result.failure()
     }
 }
