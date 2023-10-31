@@ -349,6 +349,10 @@ android {
             manifest.srcFile 'CommcareAndroidManifest.xml'
         }
 
+        cccStaging {
+            manifest.srcFile 'CommcareAndroidManifest.xml'
+        }
+
         standalone {
             res.srcDirs = ['standalone/res']
             assets.srcDirs = ['standalone/assets']
@@ -401,6 +405,10 @@ android {
 
         cccStaging {
             buildConfigField "String", "CCC_HOST", "\"connect-staging.dimagi.com\""
+
+            // set the app name
+            def applicationName = "CommCare (CCC Staging)"
+            resValue "string", "application_name", applicationName
         }
 
         standalone {
