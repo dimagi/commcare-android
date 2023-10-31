@@ -12,12 +12,12 @@ object ConnectNetworkServiceFactory {
 
     private const val CONNECT_ID_BASE_URL = "https://connectid.dimagi.com/"
 
-    private val auth = HttpUtils.getCredential(ConnectManager.getConnectToken())
+    private val authInterceptor = AuthenticationInterceptor()
 
     private val httpClient = OkHttpClient.Builder()
         .connectTimeout(ModernHttpRequester.CONNECTION_TIMEOUT.toLong(), TimeUnit.MILLISECONDS)
         .readTimeout(ModernHttpRequester.CONNECTION_SO_TIMEOUT.toLong(), TimeUnit.MILLISECONDS)
-        .addInterceptor(AuthenticationInterceptor(auth))
+        .addInterceptor(authInterceptor)
 
     private val connectIdRetrofit = Retrofit.Builder()
         .baseUrl(CONNECT_ID_BASE_URL)
@@ -25,6 +25,7 @@ object ConnectNetworkServiceFactory {
         .build()
 
     fun createConnectIdNetworkSerive(): ConnectNetworkService {
+        authInterceptor.setCredential(HttpUtils.getCredential(ConnectManager.getConnectToken()))
         return connectIdRetrofit.create(ConnectNetworkService::class.java)
     }
 }
