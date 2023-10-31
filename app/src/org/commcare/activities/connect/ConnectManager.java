@@ -113,14 +113,15 @@ public class ConnectManager {
     }
 
     private static void scheduleHearbeat() {
-        if (isUnlocked()) {
+        if (AppManagerDeveloperPreferences.isConnectIdEnabled()) {
             Constraints constraints = new Constraints.Builder()
                     .setRequiredNetworkType(NetworkType.CONNECTED)
                     .setRequiresBatteryNotLow(true)
                     .build();
 
             PeriodicWorkRequest heartbeatRequest =
-                    new PeriodicWorkRequest.Builder(ConnectHeartbeatWorker.class, PERIODICITY_FOR_HEARTBEAT_IN_HOURS,
+                    new PeriodicWorkRequest.Builder(ConnectHeartbeatWorker.class,
+                            PERIODICITY_FOR_HEARTBEAT_IN_HOURS,
                             TimeUnit.HOURS)
                             .addTag(CONNECT_WORKER)
                             .setConstraints(constraints)
@@ -132,7 +133,7 @@ public class ConnectManager {
 
             WorkManager.getInstance(CommCareApplication.instance()).enqueueUniquePeriodicWork(
                     CONNECT_HEARTBEAT_REQUEST_NAME,
-                    ExistingPeriodicWorkPolicy.KEEP,
+                    ExistingPeriodicWorkPolicy.REPLACE,
                     heartbeatRequest
             );
         }
