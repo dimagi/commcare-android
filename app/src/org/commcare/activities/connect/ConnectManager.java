@@ -5,6 +5,13 @@ import android.content.Context;
 import android.content.Intent;
 
 import org.commcare.AppUtils;
+import androidx.work.BackoffPolicy;
+import androidx.work.Constraints;
+import androidx.work.ExistingPeriodicWorkPolicy;
+import androidx.work.NetworkType;
+import androidx.work.PeriodicWorkRequest;
+import androidx.work.WorkManager;
+
 import org.commcare.activities.CommCareActivity;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.activities.SettingsHelper;
@@ -12,6 +19,7 @@ import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.global.models.ApplicationRecord;
+import org.commcare.connect.workers.ConnectHeartbeatWorker;
 import org.commcare.core.encryption.CryptUtil;
 import org.commcare.core.network.AuthInfo;
 import org.commcare.dalvik.R;
@@ -19,6 +27,8 @@ import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.models.encryption.ByteEncrypter;
 import org.commcare.preferences.AppManagerDeveloperPreferences;
+import org.commcare.sync.FormSubmissionHelper;
+import org.commcare.sync.FormSubmissionWorker;
 import org.javarosa.core.util.PropertyUtils;
 
 import java.io.Serializable;
@@ -27,6 +37,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import javax.crypto.SecretKey;
 
@@ -38,6 +49,11 @@ import androidx.annotation.Nullable;
  * @author dviggiano
  */
 public class ConnectManager {
+    private static final String CONNECT_WORKER = "connect_worker";
+    private static final long PERIODICITY_FOR_HEARTBEAT_IN_HOURS = 4;
+    private static final long BACKOFF_DELAY_FOR_HEARTBEAT_RETRY = 5 * 60 * 1000L; // 5 mins
+    private static final String CONNECT_HEARTBEAT_REQUEST_NAME = "connect_hearbeat_periodic_request";
+
     /**
      * Enum representing the current state of ConnectID
      */
@@ -92,6 +108,34 @@ public class ConnectManager {
             } else if (manager.connectStatus == ConnectIdStatus.NotIntroduced) {
                 manager.connectStatus = ConnectIdStatus.LoggedOut;
             }
+        }
+        scheduleHearbeat();
+    }
+
+    private static void scheduleHearbeat() {
+        if (AppManagerDeveloperPreferences.isConnectIdEnabled()) {
+            Constraints constraints = new Constraints.Builder()
+                    .setRequiredNetworkType(NetworkType.CONNECTED)
+                    .setRequiresBatteryNotLow(true)
+                    .build();
+
+            PeriodicWorkRequest heartbeatRequest =
+                    new PeriodicWorkRequest.Builder(ConnectHeartbeatWorker.class,
+                            PERIODICITY_FOR_HEARTBEAT_IN_HOURS,
+                            TimeUnit.HOURS)
+                            .addTag(CONNECT_WORKER)
+                            .setConstraints(constraints)
+                            .setBackoffCriteria(
+                                    BackoffPolicy.EXPONENTIAL,
+                                    BACKOFF_DELAY_FOR_HEARTBEAT_RETRY,
+                                    TimeUnit.MILLISECONDS)
+                            .build();
+
+            WorkManager.getInstance(CommCareApplication.instance()).enqueueUniquePeriodicWork(
+                    CONNECT_HEARTBEAT_REQUEST_NAME,
+                    ExistingPeriodicWorkPolicy.REPLACE,
+                    heartbeatRequest
+            );
         }
     }
 
