@@ -14,9 +14,6 @@ import org.javarosa.core.util.PropertyUtils;
 
 import java.security.GeneralSecurityException;
 import java.security.KeyPair;
-import java.security.KeyPairGenerator;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
 
 /**
  * This is a record of a key that CommCare ODK has shared with another app
@@ -52,18 +49,10 @@ public class AndroidSharedKeyRecord extends Persisted {
     }
 
     public static AndroidSharedKeyRecord generateNewSharingKey() {
-        try {
-            KeyPairGenerator generator = KeyPairGenerator.getInstance("RSA");
-            generator.initialize(512, new SecureRandom());
-            KeyPair pair = generator.genKeyPair();
-            byte[] encodedPrivate = pair.getPrivate().getEncoded();
-            String privateEncoding = pair.getPrivate().getFormat();
-            byte[] encodedPublic = pair.getPublic().getEncoded();
-            String publicencoding = pair.getPublic().getFormat();
-            return new AndroidSharedKeyRecord(PropertyUtils.genUUID(), pair.getPrivate().getEncoded(), pair.getPublic().getEncoded());
-        } catch (NoSuchAlgorithmException nsae) {
-            return null;
-        }
+        KeyPair pair = CryptUtil.generateRandomKeyPair(512);
+        byte[] encodedPrivate = pair.getPrivate().getEncoded();
+        byte[] encodedPublic = pair.getPublic().getEncoded();
+        return new AndroidSharedKeyRecord(PropertyUtils.genUUID(), encodedPrivate, encodedPublic);
     }
 
     private String getKeyId() {
