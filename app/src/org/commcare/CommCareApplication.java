@@ -81,7 +81,7 @@ import org.commcare.modern.util.PerformanceTuningUtil;
 import org.commcare.network.DataPullRequester;
 import org.commcare.network.DataPullResponseFactory;
 import org.commcare.network.HttpUtils;
-import org.commcare.network.ISRGCertConfig;
+import org.commcare.network.OkHttpBuilderCustomConfig;
 import org.commcare.preferences.DevSessionRestorer;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.preferences.HiddenPreferences;
@@ -196,6 +196,8 @@ public class CommCareApplication extends MultiDexApplication {
     private boolean invalidateCacheOnRestore;
     private CommCareNoficationManager noficationManager;
 
+    private boolean backgroundSyncSafe;
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -219,8 +221,6 @@ public class CommCareApplication extends MultiDexApplication {
         // Workaround because android is written by 7 year-olds (re-uses http connection pool
         // improperly, so the second https request in a short time period will flop)
         System.setProperty("http.keepAlive", "false");
-
-        attachISRGCert();
 
         Thread.setDefaultUncaughtExceptionHandler(new CommCareExceptionHandler(Thread.getDefaultUncaughtExceptionHandler(), this));
 
@@ -249,11 +249,10 @@ public class CommCareApplication extends MultiDexApplication {
         GraphUtil.setLabelCharacterLimit(getResources().getInteger(R.integer.graph_label_char_limit));
 
         FirebaseMessagingUtil.verifyToken();
+
+        customiseOkHttp();
     }
 
-    protected void attachISRGCert() {
-        CommCareNetworkServiceGenerator.customizeRetrofitSetup(new ISRGCertConfig());
-    }
 
     protected void loadSqliteLibs() {
         SQLiteDatabase.loadLibs(this);
@@ -289,6 +288,14 @@ public class CommCareApplication extends MultiDexApplication {
         } else if (isFirstRunAfterUpdate()) {
             DataChangeLogger.log(new DataChangeLog.CommCareUpdate());
         }
+    }
+
+    public void setBackgroundSyncSafe(boolean backgroundSyncSafe){
+        this.backgroundSyncSafe = backgroundSyncSafe;
+    }
+
+    public boolean isBackgroundSyncSafe(){
+        return this.backgroundSyncSafe;
     }
 
     // Whether user is running CommCare for the first time after installation
@@ -540,6 +547,10 @@ public class CommCareApplication extends MultiDexApplication {
             FirebaseAnalyticsUtil.reportCorruptAppState();
         }
         app.setAppResourceState(resourceState);
+
+        // This is part of the CommCare app initialization because it needs to be applied during
+        // app initialization, update and when switching the seated app
+        customiseOkHttp();
     }
 
     /**
@@ -1192,4 +1203,7 @@ public class CommCareApplication extends MultiDexApplication {
         return true;
     }
 
+    public void customiseOkHttp() {
+        CommCareNetworkServiceGenerator.customizeRetrofitSetup(new OkHttpBuilderCustomConfig());
+    }
 }

@@ -225,11 +225,12 @@ public class UpdateHelper implements TableStateListener {
      * @param ctx For launching notification and localizing text.
      */
     public void startPinnedNotification(Context ctx) {
-        mPinnedNotificationProgress =
-                new PinnedNotificationWithProgress(ctx, "updates.pinned.download",
-                        "updates.pinned.progress", R.drawable.update_download_icon);
+        if (CommCareApplication.notificationManager().areNotificationsEnabled()) {
+            mPinnedNotificationProgress =
+                    new PinnedNotificationWithProgress(ctx, "updates.pinned.download",
+                            "updates.pinned.progress", R.drawable.update_download_icon);
+        }
     }
-
 
     public void updateNotification(Integer... values) {
         if (mPinnedNotificationProgress != null) {
@@ -238,7 +239,6 @@ public class UpdateHelper implements TableStateListener {
     }
 
     public void OnUpdateCancelled() {
-
         if (mPinnedNotificationProgress != null) {
             mPinnedNotificationProgress.handleTaskCancellation();
         }

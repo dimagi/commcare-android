@@ -72,6 +72,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         implements OnItemSelectedListener, DataPullController,
         RuntimePermissionRequester, WithUIController, PullTaskResultReceiver {
 
+    public static final String EXTRA_APP_ID = "extra_app_id";
     private static final String TAG = LoginActivity.class.getSimpleName();
 
     public static final int MENU_DEMO = Menu.FIRST;
@@ -101,6 +102,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
     private LoginActivityUIController uiController;
     private FormAndDataSyncer formAndDataSyncer;
+    private String presetAppID;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -116,6 +118,8 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
         uiController.setupUI();
         formAndDataSyncer = new FormAndDataSyncer();
+
+        presetAppID = getIntent().getStringExtra(EXTRA_APP_ID);
 
         if (savedInstanceState == null) {
             // Only restore last user on the initial creation
@@ -550,7 +554,10 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
         // Retrieve the app record corresponding to the app selected
         String appId = appIdDropdownList.get(position);
+        seatAppIfNeeded(appId);
+    }
 
+    protected void seatAppIfNeeded(String appId) {
         boolean selectedNewApp = !appId.equals(CommCareApplication.instance().getCurrentApp().getUniqueId());
         if (selectedNewApp) {
             // Set the id of the last selected app
@@ -739,5 +746,9 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
             uiController.setPasswordOrPin(appRestrictions.getString("password"));
             initiateLoginAttempt(false);
         }
+    }
+
+    protected String getPresetAppID() {
+        return presetAppID;
     }
 }

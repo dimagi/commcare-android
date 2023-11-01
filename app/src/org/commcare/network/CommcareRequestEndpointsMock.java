@@ -46,7 +46,7 @@ public class CommcareRequestEndpointsMock implements CommcareRequestEndpoints {
     }
 
     @Override
-    public Response<ResponseBody> makeCaseFetchRequest(String baseUri, boolean includeStateFlags)
+    public Response<ResponseBody> makeCaseFetchRequest(String baseUri, boolean includeStateFlags, boolean skipFixtures)
             throws IOException {
         int responseCode;
         if (caseFetchResponseCodeStack.size() > 0) {

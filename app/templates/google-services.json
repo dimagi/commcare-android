@@ -1,7 +1,7 @@
 {
   "project_info": {
     "project_number": "768065119425",
-    "firebase_url": "https://commcare-a57e4.firebaseio.com",
+    "firebase_url": "@firebaseDatabaseUrl@",
     "project_id": "commcare-a57e4",
     "storage_bucket": "commcare-a57e4.appspot.com"
   },
