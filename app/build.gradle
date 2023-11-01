@@ -349,10 +349,6 @@ android {
             manifest.srcFile 'CommcareAndroidManifest.xml'
         }
 
-        cccStaging {
-            manifest.srcFile 'CommcareAndroidManifest.xml'
-        }
-
         standalone {
             res.srcDirs = ['standalone/res']
             assets.srcDirs = ['standalone/assets']
