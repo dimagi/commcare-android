@@ -57,8 +57,12 @@ public class ConnectJobIntroFragment extends Fragment {
         TextView textView = view.findViewById(R.id.connect_job_intro_title);
         textView.setText(job.getTitle());
 
+        String visitPayment = job.getMoneyString(job.getBudgetPerVisit());
+        String totalPayment = job.getMoneyString(job.getMaxPossibleVisits() * job.getBudgetPerVisit());
+        String fullDescription = String.format(Locale.getDefault(), getString(R.string.connect_job_full_description), job.getDescription(), visitPayment, totalPayment, job.getDaysRemaining());
+
         textView = view.findViewById(R.id.connect_job_intro_description);
-        textView.setText(job.getDescription());
+        textView.setText(fullDescription);
 
         int totalHours = 0;
         List<String> lines = new ArrayList<>();

@@ -639,6 +639,7 @@
     <string name="connect_job_you_will_learn">Complete the following learn modules and earn a certificate</string>
     <string name="connect_job_start_training">Start Training for this Job</string>
     <string name="connect_job_no_learning_required">No learning required</string>
+    <string name="connect_job_full_description">%s\nIncludes %s for every household visit\nEarn up to %s in %d days</string>
     <string name="connect_job_go_to_learn_app">Go to Learn App</string>
     <string name="connect_job_download_learn_app">Download Learn App</string>
     <string name="connect_job_learn_summary">%d modules, %d hours</string>
@@ -672,7 +673,7 @@
     <string name="connect_delivery_max_daily_visits">%d Maximum Visits per Day</string>
     <string name="connect_delivery_ready_to_claim">Ready to Start Visits?</string>
     <string name="connect_delivery_expired">Opportunity Expired</string>
-    <string name="connect_delivery_ready_to_claim_detailed">Claim Job Below and Download Deliver App.</string>
+    <string name="connect_delivery_ready_to_claim_detailed">Claim Job Below and Download Deliver App</string>
     <string name="connect_delivery_expired_detailed">The last date for the project is over. You will be notified if the opportunity opens up again.</string>
     <string name="connect_delivery_claim">Claim Job</string>
     <string name="connect_delivery_get_app">Download App</string>
@@ -689,6 +690,9 @@
     <string name="connect_progress_visits_completed">You have reached the maximum number of visits, additional visits will not count towards payment.</string>
     <string name="connect_progress_launch">Launch App</string>
     <string name="connect_progress_paid">PAID</string>
+    <string name="connect_progress_warning">Not seeing your expected progress?</string>
+    <string name="connect_progress_warning_learn">Learn why</string>
+    <string name="connect_progress_warning_full">You may not see your expected progress if your number of visits exceeds the maximum for the day OR if your forms have not been uploaded. You can wait for your forms to sync with a better network and check progress again.</string>
 
     <string name="connect_downloading_learn">Downloading Learn App</string>
     <string name="connect_downloading_delivery">Downloading Delivery App</string>

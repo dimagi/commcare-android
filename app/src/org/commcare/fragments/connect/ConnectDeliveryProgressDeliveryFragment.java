@@ -1,7 +1,9 @@
 package org.commcare.fragments.connect;
 
 import android.app.AlertDialog;
+import android.content.Intent;
 import android.os.Bundle;
+import android.speech.tts.TextToSpeech;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,10 +12,14 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.commcare.activities.CommCareActivity;
+import org.commcare.activities.FormEntryActivity;
 import org.commcare.activities.connect.ConnectManager;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.commcaresupportlibrary.CommCareLauncher;
 import org.commcare.dalvik.R;
+import org.commcare.views.dialogs.StandardAlertDialog;
+import org.javarosa.core.services.locale.Localization;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -113,5 +119,17 @@ public class ConnectDeliveryProgressDeliveryFragment extends Fragment {
         textView = view.findViewById(R.id.connect_progress_complete_by_text);
         DateFormat df = new SimpleDateFormat("MM/dd/yyyy", Locale.getDefault());
         textView.setText(getString(R.string.connect_progress_complete_by, df.format(job.getProjectEndDate())));
+
+        textView = view.findViewById(R.id.connect_progress_warning_learn_text);
+        textView.setOnClickListener(v -> {
+                StandardAlertDialog dialog = new StandardAlertDialog(
+                        getContext(),
+                        getString(R.string.connect_progress_warning),
+                        getString(R.string.connect_progress_warning_full));
+                dialog.setPositiveButton(Localization.get("dialog.ok"), (dialog1, which) -> {
+                    dialog1.dismiss();
+                });
+            ((CommCareActivity<?>)getActivity()).showAlertDialog(dialog);
+        });
     }
 }

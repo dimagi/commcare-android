@@ -45,13 +45,13 @@
 
             <TextView
                 android:id="@+id/connect_delivery_total_visits_text"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 app:layout_constraintTop_toTopOf="@id/connect_delivery_visits_icon"
                 app:layout_constraintBottom_toBottomOf="@id/connect_delivery_visits_icon"
                 app:layout_constraintStart_toEndOf="@id/connect_delivery_visits_icon"
+                app:layout_constraintEnd_toEndOf="parent"
                 android:layout_marginStart="20dp"
-                android:gravity="center"
                 />
 
             <ImageView
@@ -67,11 +67,12 @@
 
             <TextView
                 android:id="@+id/connect_delivery_remaining_text"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 app:layout_constraintTop_toTopOf="@id/connect_delivery_remaining_icon"
                 app:layout_constraintBottom_toBottomOf="@id/connect_delivery_remaining_icon"
                 app:layout_constraintStart_toEndOf="@id/connect_delivery_remaining_icon"
+                app:layout_constraintEnd_toEndOf="parent"
                 android:layout_marginStart="20dp"
                 />
 
@@ -88,11 +89,12 @@
 
             <TextView
                 android:id="@+id/connect_delivery_max_daily_text"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 app:layout_constraintTop_toTopOf="@id/connect_delivery_max_daily_icon"
                 app:layout_constraintBottom_toBottomOf="@id/connect_delivery_max_daily_icon"
                 app:layout_constraintStart_toEndOf="@id/connect_delivery_max_daily_icon"
+                app:layout_constraintEnd_toEndOf="parent"
                 android:layout_marginStart="20dp"
                 />
 
@@ -109,11 +111,12 @@
 
             <TextView
                 android:id="@+id/connect_delivery_budget_text"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 app:layout_constraintTop_toTopOf="@id/connect_delivery_budget_icon"
                 app:layout_constraintBottom_toBottomOf="@id/connect_delivery_budget_icon"
                 app:layout_constraintStart_toEndOf="@id/connect_delivery_budget_icon"
+                app:layout_constraintEnd_toEndOf="parent"
                 android:layout_marginStart="20dp"
                 />
 
