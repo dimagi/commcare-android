@@ -13,7 +13,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         android:layout_marginTop="200dp"
-        android:src="@drawable/phone_heart"
+        android:src="@drawable/mobile_support"
         />
 
     <TextView

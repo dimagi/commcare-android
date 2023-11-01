@@ -21,7 +21,7 @@
                 android:id="@+id/connect_progress_progress_icon"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
-                android:src="@drawable/phone_heart"/>
+                android:src="@drawable/mobile_support"/>
 
             <TextView
                 android:layout_width="wrap_content"

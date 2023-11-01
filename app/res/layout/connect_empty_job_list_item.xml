@@ -20,7 +20,7 @@
         android:layout_width="120dp"
         android:layout_height="120dp"
         android:paddingBottom="10dp"
-        android:src="@drawable/phone_heart"/>
+        android:src="@drawable/mobile_support"/>
 
     <TextView
         android:id="@+id/title_label"

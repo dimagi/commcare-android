@@ -40,7 +40,7 @@
                 app:layout_constraintStart_toStartOf="parent"
                 android:layout_marginTop="20dp"
                 android:layout_marginStart="20dp"
-                android:src="@drawable/checklist"
+                android:src="@drawable/report_approved"
                 />
 
             <TextView
@@ -62,7 +62,7 @@
                 app:layout_constraintStart_toStartOf="parent"
                 android:layout_marginTop="20dp"
                 android:layout_marginStart="20dp"
-                android:src="@drawable/watch"
+                android:src="@drawable/time"
                 />
 
             <TextView
@@ -83,7 +83,7 @@
                 app:layout_constraintStart_toStartOf="parent"
                 android:layout_marginTop="20dp"
                 android:layout_marginStart="20dp"
-                android:src="@drawable/calendar_heart"
+                android:src="@drawable/report_approved"
                 />
 
             <TextView
@@ -104,7 +104,7 @@
                 app:layout_constraintStart_toStartOf="parent"
                 android:layout_marginTop="20dp"
                 android:layout_marginStart="20dp"
-                android:src="@drawable/money2"
+                android:src="@drawable/monetary_support"
                 />
 
             <TextView
