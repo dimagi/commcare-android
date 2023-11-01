@@ -38,7 +38,7 @@ import androidx.appcompat.app.AppCompatActivity;
 public abstract class TemplatePrinterUtils {
 
     private static final String FORMAT_REGEX_WITH_DELIMITER = "((?<=%2$s)|(?=%1$s))";
-    private static final SecretKey KEY = CryptUtil.generateSemiRandomKey();
+    private static final SecretKey KEY = CryptUtil.generateRandomSecretKey();
 
     /**
      * Concatenate all Strings in a String array to one String.

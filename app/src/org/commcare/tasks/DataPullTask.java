@@ -223,7 +223,7 @@ public abstract class DataPullTask<R>
 
     private void initUKRForLogin() {
         if (blockRemoteKeyManagement || shouldGenerateFirstKey()) {
-            SecretKey newKey = CryptUtil.generateSemiRandomKey();
+            SecretKey newKey = CryptUtil.generateRandomSecretKey();
             if (newKey == null) {
                 return;
             }

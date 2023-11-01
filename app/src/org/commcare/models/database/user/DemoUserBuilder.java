@@ -65,7 +65,7 @@ public class DemoUserBuilder {
         int userCount = keyRecordDB.getIDsForValue(UserKeyRecord.META_USERNAME, username).size();
 
         if (userCount == 0) {
-            SecretKey secretKey = CryptUtil.generateSemiRandomKey();
+            SecretKey secretKey = CryptUtil.generateRandomSecretKey();
             if (secretKey == null) {
                 throw new RuntimeException("Error setting up user's encrypted storage");
             }
