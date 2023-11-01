@@ -100,7 +100,7 @@ public class ConnectJobIntroFragment extends Fragment {
                 @Override
                 public void processFailure(int responseCode, IOException e) {
                     Toast.makeText(getContext(), "Connect: error starting learning", Toast.LENGTH_SHORT).show();
-                    Navigation.findNavController(button).navigate(ConnectJobIntroFragmentDirections.actionConnectJobIntroFragmentToConnectJobLearningProgressFragment(job));
+                    //TODO DAV: Log the message from the server
                 }
 
                 @Override
