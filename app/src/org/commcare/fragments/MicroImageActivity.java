@@ -1,30 +1,46 @@
 package org.commcare.fragments;
 
+import android.annotation.SuppressLint;
+import android.graphics.Bitmap;
+import android.media.Image;
 import android.os.Bundle;
 import android.util.Log;
 import android.util.Size;
 import android.widget.Toast;
 
 import com.google.common.util.concurrent.ListenableFuture;
+import com.google.mlkit.common.MlKitException;
+import com.google.mlkit.vision.common.InputImage;
+import com.google.mlkit.vision.common.internal.ImageConvertUtils;
+import com.google.mlkit.vision.face.Face;
+import com.google.mlkit.vision.face.FaceDetection;
+import com.google.mlkit.vision.face.FaceDetector;
+import com.google.mlkit.vision.face.FaceDetectorOptions;
 
 import org.commcare.dalvik.R;
 import org.commcare.views.FaceCaptureView;
 
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.camera.core.CameraSelector;
+import androidx.camera.core.ImageAnalysis;
+import androidx.camera.core.ImageProxy;
 import androidx.camera.core.Preview;
+import androidx.camera.core.UseCase;
 import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.camera.view.PreviewView;
 import androidx.core.content.ContextCompat;
 
-public class MicroImageActivity extends AppCompatActivity {
+public class MicroImageActivity extends AppCompatActivity implements ImageAnalysis.Analyzer {
     private static final String TAG = MicroImageActivity.class.toString();
     private PreviewView cameraView;
     private FaceCaptureView faceCaptureView;
+    private Bitmap inputImage;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -71,13 +87,26 @@ public class MicroImageActivity extends AppCompatActivity {
                 .build();
         preview.setSurfaceProvider(cameraView.getSurfaceProvider());
 
+        UseCase imageAnalyzer = buildImageAnalysisUseCase(targetResolution, targetRotation);
+
         CameraSelector cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA;
 
         // Unbind any previous use cases before binding new ones
         cameraProvider.unbindAll();
 
         // Bind the use cases to the camera
-        cameraProvider.bindToLifecycle(this, cameraSelector, preview);
+        cameraProvider.bindToLifecycle(this, cameraSelector, preview, imageAnalyzer);
+    }
+
+    private UseCase buildImageAnalysisUseCase(Size targetResolution, int targetRotation) {
+        ImageAnalysis imageAnalyzer = new ImageAnalysis.Builder()
+                .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
+                .setTargetResolution(targetResolution)
+                .setTargetRotation(targetRotation)
+                .build();
+
+        imageAnalyzer.setAnalyzer(ContextCompat.getMainExecutor(getApplicationContext()), this);
+        return imageAnalyzer;
     }
 
     private void logErrorAndExit(String logMessage, Throwable e) {
@@ -85,5 +114,46 @@ public class MicroImageActivity extends AppCompatActivity {
         Toast.makeText(this, R.string.camera_start_failed, Toast.LENGTH_LONG).show();
         setResult(AppCompatActivity.RESULT_CANCELED);
         finish();
+    }
+
+    @Override
+    public void analyze(@NonNull ImageProxy imageProxy) {
+        @SuppressLint("UnsafeOptInUsageError") Image mediaImage = imageProxy.getImage();
+        if (mediaImage != null) {
+            InputImage image = InputImage.fromMediaImage(mediaImage, imageProxy.getImageInfo().getRotationDegrees());
+
+            FaceDetectorOptions realTimeOpts = new FaceDetectorOptions.Builder()
+                    .setContourMode(FaceDetectorOptions.CONTOUR_MODE_NONE)
+                    .setPerformanceMode(FaceDetectorOptions.PERFORMANCE_MODE_ACCURATE)
+                    .build();
+            FaceDetector faceDetector = FaceDetection.getClient(realTimeOpts);
+            // process image with the face detector
+            faceDetector.process(image)
+                    .addOnSuccessListener(faces -> processFaceDetectionResult(faces, image))
+                    .addOnFailureListener(e -> handleErrorDuringDetection(e))
+                    .addOnCompleteListener(task -> {
+                        imageProxy.close();
+                    });
+        } else {
+            imageProxy.close();
+        }
+    }
+
+    private void handleErrorDuringDetection(Exception e) {
+        Log.e(TAG, "Error during face detection: " + e);
+        Toast.makeText(this, R.string.face_detection_mode_failed, Toast.LENGTH_LONG).show();
+        // TODO: decide whether to switch to manual mode or close activity
+    }
+
+    private void processFaceDetectionResult(List<Face> faces, InputImage image) {
+        // Only relevant if there are faces
+        if (faces.size() > 0) {
+            try {
+                inputImage = ImageConvertUtils.getInstance().convertToUpRightBitmap(image);
+            } catch (MlKitException e) {
+                Toast.makeText(this, R.string.face_detection_mode_failed, Toast.LENGTH_LONG).show();
+                // TODO: decide whether to switch to manual mode or close activity?
+            }
+        }
     }
 }

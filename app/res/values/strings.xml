@@ -463,4 +463,5 @@
     <string name="audio_recording_notification">Audio Recording Notification</string>
     <string name="micro_image_activity_title" cc:translatable="true">Capture Face Picture</string>
     <string name="camera_start_failed" cc:translatable="true">Camera failed to start</string>
+    <string name="face_detection_mode_failed" cc:translatable="true">Face detection mode failed</string>
 </resources>
