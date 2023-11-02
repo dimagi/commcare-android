@@ -6,6 +6,8 @@ import android.os.Environment;
 import android.os.StrictMode;
 import android.util.Log;
 
+import androidx.work.Configuration;
+
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.mocks.ModernHttpRequesterMock;
 import org.commcare.android.util.TestUtils;
@@ -47,7 +49,10 @@ import java.util.List;
 import java.util.Map;
 
 import androidx.annotation.NonNull;
+import androidx.test.InstrumentationRegistry;
 import androidx.test.core.app.ApplicationProvider;
+import androidx.work.testing.SynchronousExecutor;
+import androidx.work.testing.WorkManagerTestInitHelper;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 
@@ -84,6 +89,15 @@ public class CommCareTestApplication extends CommCareApplication implements Test
             asyncExceptions.add(ex);
             Assert.fail(ex.getMessage());
         });
+
+        Configuration config = new Configuration.Builder()
+                .setMinimumLoggingLevel(Log.DEBUG)
+                .setExecutor(new SynchronousExecutor())
+                .build();
+
+        // Initialize WorkManager for instrumentation tests.
+        WorkManagerTestInitHelper.initializeTestWorkManager(
+                this, config);
     }
 
     protected void attachISRGCert() {

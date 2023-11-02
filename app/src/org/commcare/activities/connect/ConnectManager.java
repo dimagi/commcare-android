@@ -109,7 +109,7 @@ public class ConnectManager {
                 manager.connectStatus = ConnectIdStatus.LoggedOut;
             }
         }
-        //scheduleHearbeat();
+        scheduleHearbeat();
     }
 
     private static void scheduleHearbeat() {
