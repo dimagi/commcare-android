@@ -105,7 +105,12 @@ public class ConnectResultsSummaryListFragment extends Fragment {
                     //Payment Status
                     double total = 0;
                     for (ConnectJobPaymentRecord payment : job.getPayments()) {
-                        total += Double.parseDouble(payment.getAmount());
+                        String value = payment.getAmount();
+                        if(value.indexOf(',') >= value.length() - 3) {
+                            //Replace comma with period if number ends with comma followed by up to 2 digits
+                            value = value.replace(',', '.');
+                        }
+                        total += Double.parseDouble(value);
                     }
 
                     String accrued = job.getMoneyString((int)Double.parseDouble(job.getPaymentAccrued()));
