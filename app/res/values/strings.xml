@@ -651,9 +651,9 @@
     <string name="connect_learn_complete_by">Complete Project by %s</string>
     <string name="connect_learn_status">You have completed %d of %d lessons.\nFinish learning to earn your certificate.</string>
     <string name="connect_learn_not_started">You haven\'t completed any lessons.\nStart learning to earn your certificate.</string>
-    <string name="connect_learn_finished">You have earned a certificate for this job and are eligible to claim the job and begin delivering care.</string>
+    <string name="connect_learn_finished">You have earned a certificate for this job and are eligible to claim the job and begin delivering care.\nYour score: %d\nPassing score: %d</string>
     <string name="connect_learn_need_assessment">Complete the assessment to finish training.</string>
-    <string name="connect_learn_failed">Sorry, you did not earn a passing score on your assessment. Please try again.</string>
+    <string name="connect_learn_failed">Sorry, you did not earn a passing score on your assessment. Please try again.\nYour score: %d\nPassing score: %d</string>
     <string name="connect_learn_complete">Complete</string>
     <string name="connect_learn_certificate">CERTIFICATE OF COMPLETION</string>
     <string name="connect_learn_completed">Completed on: %s</string>

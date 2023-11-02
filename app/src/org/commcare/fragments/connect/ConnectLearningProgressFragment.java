@@ -171,11 +171,11 @@ public class ConnectLearningProgressFragment extends Fragment {
         if (learningFinished) {
             if(assessmentAttempted) {
                 if(assessmentPassed) {
-                    status = getString(R.string.connect_learn_finished);
+                    status = getString(R.string.connect_learn_finished, job.getAssessmentScore(), job.getLearnAppInfo().getPassingScore());
                     buttonText = getString(R.string.connect_learn_view_details);
                 }
                 else {
-                    status = getString(R.string.connect_learn_failed);
+                    status = getString(R.string.connect_learn_failed, job.getAssessmentScore(), job.getLearnAppInfo().getPassingScore());
                     buttonText = getString(R.string.connect_learn_try_again);
                 }
             }
