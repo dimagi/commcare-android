@@ -8,7 +8,6 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import org.commcare.CommCareApplication;
 import org.commcare.android.database.connect.models.ConnectJobDeliveryRecord;
 import org.commcare.android.database.connect.models.ConnectJobPaymentRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
@@ -105,12 +104,7 @@ public class ConnectResultsSummaryListFragment extends Fragment {
                     //Payment Status
                     double total = 0;
                     for (ConnectJobPaymentRecord payment : job.getPayments()) {
-                        String value = payment.getAmount();
-                        if(value.indexOf(',') >= value.length() - 3) {
-                            //Replace comma with period if number ends with comma followed by up to 2 digits
-                            value = value.replace(',', '.');
-                        }
-                        total += Double.parseDouble(value);
+                        total += Double.parseDouble(payment.getAmount());
                     }
 
                     String accrued = job.getMoneyString((int)Double.parseDouble(job.getPaymentAccrued()));
