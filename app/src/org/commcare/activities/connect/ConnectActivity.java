@@ -4,11 +4,15 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 
-import androidx.activity.OnBackPressedCallback;
+import com.google.firebase.analytics.FirebaseAnalytics;
+
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.ActionBar;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
+import androidx.navigation.fragment.FragmentNavigator;
 import androidx.navigation.fragment.NavHostFragment;
 
 import org.commcare.activities.CommCareActivity;
@@ -24,6 +28,8 @@ import javax.annotation.Nullable;
 public class ConnectActivity extends CommCareActivity<ResourceEngineListener> {
     private boolean backButtonEnabled = true;
     private boolean waitDialogEnabled = true;
+
+    NavController.OnDestinationChangedListener destinationListener = null;
 
     ActivityResultLauncher<Intent> verificationLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
@@ -43,16 +49,18 @@ public class ConnectActivity extends CommCareActivity<ResourceEngineListener> {
         setTitle(getString(R.string.connect_title));
         showBackButton();
 
-//        getOnBackPressedDispatcher().addCallback(new OnBackPressedCallback(true) {
-//            @Override
-//            public void handleOnBackPressed() {
-//                if(backButtonEnabled) {
-//                    //Disable this handler and call again for default back behavior
-//                    setEnabled(false);
-//                    onBackPressed();
-//                }
-//            }
-//        });
+        destinationListener = (navController, navDestination, args) -> {
+            Bundle bundle = new Bundle();
+            var currentFragmentClassName = ((FragmentNavigator.Destination)navController.getCurrentDestination())
+                    .getClassName();
+            bundle.putString(FirebaseAnalytics.Param.SCREEN_NAME, navDestination.getLabel().toString());
+            bundle.putString(FirebaseAnalytics.Param.SCREEN_CLASS, currentFragmentClassName);
+            FirebaseAnalytics.getInstance(this).logEvent(FirebaseAnalytics.Event.SCREEN_VIEW, bundle);
+        };
+
+        NavHostFragment navHostFragment = (NavHostFragment)getSupportFragmentManager()
+                .findFragmentById(R.id.nav_host_fragment_connect);
+        navHostFragment.getNavController().addOnDestinationChangedListener(destinationListener);
     }
 
     @Override
@@ -69,6 +77,19 @@ public class ConnectActivity extends CommCareActivity<ResourceEngineListener> {
         CommCareApplication.instance().closeUserSession();
         if(!ConnectManager.isUnlocked()) {
             finish();
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        if(destinationListener != null) {
+            NavHostFragment navHostFragment = (NavHostFragment)getSupportFragmentManager()
+                    .findFragmentById(R.id.nav_host_fragment_connect);
+            navHostFragment.getNavController()
+                    .removeOnDestinationChangedListener(destinationListener);
+            destinationListener = null;
         }
     }
 
