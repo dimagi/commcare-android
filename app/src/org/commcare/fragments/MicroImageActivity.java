@@ -146,14 +146,20 @@ public class MicroImageActivity extends AppCompatActivity implements ImageAnalys
     }
 
     private void processFaceDetectionResult(List<Face> faces, InputImage image) {
-        // Only relevant if there are faces
         if (faces.size() > 0) {
+            // Only one face is processed, this can be increased if needed
+            Face newFace = faces.get(0);
+
+            // this will draw a bounding circle around the first detected face
+            faceCaptureView.updateFace(newFace);
             try {
                 inputImage = ImageConvertUtils.getInstance().convertToUpRightBitmap(image);
             } catch (MlKitException e) {
                 Toast.makeText(this, R.string.face_detection_mode_failed, Toast.LENGTH_LONG).show();
                 // TODO: decide whether to switch to manual mode or close activity?
             }
+        } else {
+            faceCaptureView.updateFace(null);
         }
     }
 }

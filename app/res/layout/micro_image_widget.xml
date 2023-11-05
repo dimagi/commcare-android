@@ -23,6 +23,7 @@
             android:layout_height="0dp"
             app:background_color="@color/cc_neutral_bg_tr"
             app:face_capture_area_delimiter_color="@color/white"
+            app:face_delimiter_color="@color/cc_attention_positive_color"
             android:layout_weight="1"/>
     </LinearLayout>
 </FrameLayout>

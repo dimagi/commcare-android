@@ -9,8 +9,11 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
+import android.graphics.Rect;
 import android.graphics.RectF;
 import android.util.AttributeSet;
+
+import com.google.mlkit.vision.face.Face;
 
 import org.commcare.dalvik.R;
 
@@ -21,12 +24,18 @@ public class FaceCaptureView extends AppCompatImageView {
 
     private int faceCaptureAreaDelimiterColor;
     private int backgroundColor;
+    private int faceDelimiterColor;
     private RectF faceCaptureArea = null;
     private int imageWidth;
     private int imageHeight;
     public static int DEFAULT_IMAGE_WIDTH = 480;
     public static int DEFAULT_IMAGE_HEIGHT = 640;
     private static float VIEW_CAPTURE_AREA_RATIO = 0.8f;
+    private Object lock = new Object();
+    private FaceOvalGraphic faceOvalGraphic;
+    private float postScaleHeightOffset;
+    private float postScaleWidthOffset;
+    private float scaleFactor;
 
     public FaceCaptureView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
@@ -47,6 +56,7 @@ public class FaceCaptureView extends AppCompatImageView {
         try {
             faceCaptureAreaDelimiterColor = typedArr.getColor(R.styleable.FaceCaptureView_face_capture_area_delimiter_color, Color.WHITE);
             backgroundColor = typedArr.getColor(R.styleable.FaceCaptureView_background_color, Color.LTGRAY);
+            faceDelimiterColor = typedArr.getColor(R.styleable.FaceCaptureView_face_delimiter_color, Color.GREEN);
         } finally {
             typedArr.recycle();
         }
@@ -54,6 +64,7 @@ public class FaceCaptureView extends AppCompatImageView {
 
     private void initCameraView(int viewWidth, int viewHeight){
         setFaceCaptureArea(viewWidth, viewHeight);
+        calcScaleFactors(viewWidth, viewHeight);
 
         Bitmap previewOverlay = Bitmap.createBitmap(viewWidth, viewHeight, Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(previewOverlay);
@@ -74,6 +85,8 @@ public class FaceCaptureView extends AppCompatImageView {
         canvas.drawOval(faceCaptureArea, paint);
 
         setImageBitmap(previewOverlay);
+
+        faceOvalGraphic = new FaceOvalGraphic();
     }
 
     public int getImageWidth() {
@@ -93,6 +106,28 @@ public class FaceCaptureView extends AppCompatImageView {
         }
     }
 
+    @Override
+    protected void onDraw(Canvas canvas) {
+        super.onDraw(canvas);
+
+        synchronized (lock) {
+            if (faceOvalGraphic != null) {
+                faceOvalGraphic.drawFaceOval(canvas);
+            }
+        }
+    }
+
+    public void updateFace(Face face) {
+        if (!faceOvalGraphic.isFaceBlank() || face != null) {
+            if (face == null) {
+                faceOvalGraphic.clearFace();
+            } else {
+                faceOvalGraphic.updateFace(face);
+            }
+            postInvalidate();
+        }
+    }
+
     private void setFaceCaptureArea(int width, int height) {
         int captureAreaWidth = (int)(width * VIEW_CAPTURE_AREA_RATIO);
         int captureAreaHeigth = (int)(height * VIEW_CAPTURE_AREA_RATIO);
@@ -103,5 +138,86 @@ public class FaceCaptureView extends AppCompatImageView {
         int captureAreaBottom = captureAreaTop + captureAreaHeigth;
 
         faceCaptureArea = new RectF(captureAreaLeft, captureAreaTop, captureAreaRight, captureAreaBottom);
+    }
+
+    private void calcScaleFactors(int viewWidth, int viewHeight) {
+        float viewAspectRatio = (float) viewWidth / viewHeight;
+        float imageAspectRatio = (float) imageWidth / imageHeight;
+        postScaleWidthOffset = 0;
+        postScaleHeightOffset = 0;
+        if (viewAspectRatio > imageAspectRatio) {
+            // The image needs to be vertically cropped to be displayed in this view.
+            scaleFactor = (float) viewWidth / imageWidth;
+            postScaleHeightOffset = ((float) viewWidth / imageAspectRatio - viewHeight) / 2;
+        } else {
+            // The image needs to be horizontally cropped to be displayed in this view.
+            scaleFactor = (float) viewHeight / imageHeight;
+            postScaleWidthOffset = ((float) viewHeight * imageAspectRatio - viewWidth) / 2;
+        }
+    }
+
+    /**
+     * Translate coordinates from the preview's system to the view system.
+     */
+    private Rect translateFaceOvalCoordinates(Rect boundingBox){
+        float x0 = scaleX(boundingBox.left);
+        float y0 = scaleY(boundingBox.top);
+        float dx = scaleX(boundingBox.right);
+        float dy = scaleY(boundingBox.bottom);
+        return new Rect((int)x0, (int)y0, (int)dx, (int)dy);
+    }
+
+    private float scaleY(float vertical) {
+        return vertical * scaleFactor - postScaleHeightOffset;
+    }
+
+    private float scaleX(float horizontal) {
+        return horizontal * scaleFactor - postScaleWidthOffset;
+    }
+
+    private class FaceOvalGraphic {
+        private Paint faceAreaPaint;
+        private Face currFace;
+
+        public FaceOvalGraphic(){
+            faceAreaPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+            faceAreaPaint.setStyle(Paint.Style.STROKE);
+            faceAreaPaint.setColor(faceDelimiterColor);
+            faceAreaPaint.setStrokeWidth(10);
+        }
+
+        public void updateFace(Face face){
+            if (isFaceInCaptureArea(face.getBoundingBox())) {
+                currFace = face;
+            } else {
+                clearFace();
+            }
+        }
+
+        public void clearFace(){
+            currFace = null;
+        }
+
+        public void drawFaceOval(Canvas canvas) {
+            if (!isFaceBlank()) {
+                Rect faceOvalCoord = translateFaceOvalCoordinates(currFace.getBoundingBox());
+                canvas.drawOval(faceOvalCoord.left, faceOvalCoord.top, faceOvalCoord.right, faceOvalCoord.bottom, faceAreaPaint);
+            }
+        }
+
+        private boolean isFaceBlank() {
+            return currFace == null;
+        }
+
+        private boolean isFaceInCaptureArea(Rect faceCoords){
+            Rect faceViewCoords = translateFaceOvalCoordinates(faceCoords);
+            if ((faceViewCoords.left < faceCaptureArea.left) ||
+                    (faceViewCoords.top < faceCaptureArea.top) ||
+                    (faceViewCoords.right > faceCaptureArea.right) ||
+                    (faceViewCoords.bottom > faceCaptureArea.bottom)) {
+                return false;
+            }
+            return true;
+        }
     }
 }
