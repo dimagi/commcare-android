@@ -18,8 +18,11 @@ import android.util.TypedValue;
 import com.google.mlkit.vision.face.Face;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
+import android.graphics.Rect;
 import android.graphics.RectF;
 import android.util.AttributeSet;
+
+import com.google.mlkit.vision.face.Face;
 
 import org.commcare.dalvik.R;
 
@@ -38,6 +41,7 @@ public class FaceCaptureView extends AppCompatImageView {
     private int countdownTextSizeSp;
     private int faceCaptureAreaDelimiterColor;
     private int backgroundColor;
+    private int faceDelimiterColor;
     private RectF faceCaptureArea = null;
     private int imageWidth;
     private int imageHeight;
@@ -279,7 +283,7 @@ public class FaceCaptureView extends AppCompatImageView {
             return new Point(xPos, yPos);
         }
 
-        private boolean isFaceBlank() {
+        private boolean isFaeBlank() {
             return currFace == null;
         }
 
