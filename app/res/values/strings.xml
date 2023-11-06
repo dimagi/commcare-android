@@ -639,7 +639,7 @@
     <string name="connect_job_you_will_learn">Complete the following learn modules and earn a certificate</string>
     <string name="connect_job_start_training">Start Training for this Job</string>
     <string name="connect_job_no_learning_required">No learning required</string>
-    <string name="connect_job_full_description">%s\nIncludes %s for every household visit\nEarn up to %s in %d days</string>
+    <string name="connect_job_full_description">%s\nEarn %s per visit</string>
     <string name="connect_job_go_to_learn_app">Go to Learn App</string>
     <string name="connect_job_download_learn_app">Download Learn App</string>
     <string name="connect_job_learn_summary">%d modules, %d hours</string>

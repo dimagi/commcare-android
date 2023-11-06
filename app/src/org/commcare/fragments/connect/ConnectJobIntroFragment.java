@@ -58,8 +58,7 @@ public class ConnectJobIntroFragment extends Fragment {
         textView.setText(job.getTitle());
 
         String visitPayment = job.getMoneyString(job.getBudgetPerVisit());
-        String totalPayment = job.getMoneyString(job.getMaxPossibleVisits() * job.getBudgetPerVisit());
-        String fullDescription = String.format(Locale.getDefault(), getString(R.string.connect_job_full_description), job.getDescription(), visitPayment, totalPayment, job.getDaysRemaining());
+        String fullDescription = String.format(Locale.getDefault(), getString(R.string.connect_job_full_description), job.getDescription(), visitPayment);
 
         textView = view.findViewById(R.id.connect_job_intro_description);
         textView.setText(fullDescription);
