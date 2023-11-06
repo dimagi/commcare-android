@@ -27,12 +27,11 @@ import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.models.encryption.ByteEncrypter;
 import org.commcare.preferences.AppManagerDeveloperPreferences;
-import org.commcare.sync.FormSubmissionHelper;
-import org.commcare.sync.FormSubmissionWorker;
 import org.javarosa.core.util.PropertyUtils;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
@@ -722,8 +721,11 @@ public class ConnectManager {
         SecretKey newKey = CryptUtil.generateSemiRandomKey();
         String sandboxId = PropertyUtils.genUUID().replace("-", "");
         Date fromDate = new Date();
-        long tenYears = 10 * 365 * 24 * 3600;
-        Date toDate = new Date(fromDate.getTime() + tenYears);
+
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(fromDate);
+        cal.add(Calendar.YEAR, 10); //Expire in ten years
+        Date toDate = cal.getTime();
 
         UserKeyRecord ukr = new UserKeyRecord(username, UserKeyRecord.generatePwdHash(password),
                 ByteEncrypter.wrapByteArrayWithString(newKey.getEncoded(), password),
