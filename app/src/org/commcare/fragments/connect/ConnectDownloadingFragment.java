@@ -174,6 +174,7 @@ public class ConnectDownloadingFragment extends Fragment implements ResourceEngi
     @Override
     public void failBadReqs(String vReq, String vAvail, boolean majorIsProblem) {
         ResourceInstallUtils.showApkUpdatePrompt(getActivity(), vReq, vAvail);
+        showInstallFailError(AppInstallStatus.UnknownFailure);
     }
 
     @Override
@@ -205,5 +206,6 @@ public class ConnectDownloadingFragment extends Fragment implements ResourceEngi
     @Override
     public void failTargetMismatch() {
         ResourceInstallUtils.showTargetMismatchError(getActivity());
+        showInstallFailError(AppInstallStatus.UnknownFailure);
     }
 }
