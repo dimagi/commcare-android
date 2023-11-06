@@ -139,6 +139,13 @@ public class ConnectDeliveryProgressFragment extends Fragment {
                             updatedJob = true;
                         }
 
+                        key = "end_date";
+                        if(json.has(key)) {
+                            SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+                            job.setProjectEndDate(df.parse(json.getString(key)));
+                            updatedJob = true;
+                        }
+
                         key = "payment_accrued";
                         if(json.has(key)) {
                             job.setPaymentAccrued(json.getString(key));
