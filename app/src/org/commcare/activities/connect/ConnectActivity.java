@@ -87,8 +87,10 @@ public class ConnectActivity extends CommCareActivity<ResourceEngineListener> {
         if(destinationListener != null) {
             NavHostFragment navHostFragment = (NavHostFragment)getSupportFragmentManager()
                     .findFragmentById(R.id.nav_host_fragment_connect);
-            navHostFragment.getNavController()
-                    .removeOnDestinationChangedListener(destinationListener);
+            if(navHostFragment != null) {
+                navHostFragment.getNavController()
+                        .removeOnDestinationChangedListener(destinationListener);
+            }
             destinationListener = null;
         }
     }

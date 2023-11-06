@@ -54,6 +54,7 @@ public class ConnectJobRecord extends Persisted implements Serializable {
     public static final String META_CLAIM = "claim";
     public static final String META_CURRENCY = "currency";
     public static final String META_ACCRUED = "payment_accrued";
+    public static final String META_SHORT_DESCRIPTION = "short_description";
 
     @Persisting(1)
     @MetaField(META_JOB_ID)
@@ -104,10 +105,13 @@ public class ConnectJobRecord extends Persisted implements Serializable {
     @MetaField(META_ACCRUED)
     private String paymentAccrued;
     @Persisting(17)
-    private Date lastUpdate;
+    @MetaField(META_SHORT_DESCRIPTION)
+    private String shortDescription;
     @Persisting(18)
-    private Date lastLearnUpdate;
+    private Date lastUpdate;
     @Persisting(19)
+    private Date lastLearnUpdate;
+    @Persisting(20)
     private Date lastDeliveryUpdate;
 
 
@@ -168,6 +172,8 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         job.budgetPerVisit = json.has(META_BUDGET_PER_VISIT) ? json.getInt(META_BUDGET_PER_VISIT) : -1;
         job.totalBudget = json.has(META_BUDGET_TOTAL) ? json.getInt(META_BUDGET_TOTAL) : -1;
         job.currency = json.has(META_CURRENCY) && !json.isNull(META_CURRENCY) ? json.getString(META_CURRENCY) : "";
+        job.shortDescription = json.has(META_SHORT_DESCRIPTION) && !json.isNull(META_SHORT_DESCRIPTION) ?
+                json.getString(META_SHORT_DESCRIPTION) : "";
 
         job.paymentAccrued = "";
 
@@ -228,6 +234,7 @@ public class ConnectJobRecord extends Persisted implements Serializable {
     public int getJobId() { return jobId; }
     public String getTitle() { return title; }
     public String getDescription() { return description; }
+    public String getShortDescription() { return shortDescription; }
     public boolean getIsNew() { return status == STATUS_AVAILABLE_NEW; }
     public int getStatus() { return status; }
     public void setStatus(int status) { this.status = status; }

@@ -109,7 +109,7 @@ public class ConnectJobAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
             availableHolder.newText.setVisibility(job.getIsNew() ? View.VISIBLE : View.GONE);
             availableHolder.titleText.setText(job.getTitle());
-            availableHolder.descriptionText.setText(job.getDescription());
+            availableHolder.descriptionText.setText(job.getShortDescription());
 
             availableHolder.visitsText.setText(parentContext.getString(R.string.connect_job_visits,
                     job.getMaxPossibleVisits(), job.getDaysRemaining()));
