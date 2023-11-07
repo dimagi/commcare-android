@@ -28,7 +28,7 @@ public class FaceCaptureView extends AppCompatImageView {
 
     private int faceCaptureAreaDelimiterColor;
     private int backgroundColor;
-    private int faceDelimiterColor;
+    private int faceMarkerColor;
     private RectF faceCaptureArea = null;
     private int imageWidth;
     private int imageHeight;
@@ -61,7 +61,7 @@ public class FaceCaptureView extends AppCompatImageView {
         try {
             faceCaptureAreaDelimiterColor = typedArr.getColor(R.styleable.FaceCaptureView_face_capture_area_delimiter_color, Color.WHITE);
             backgroundColor = typedArr.getColor(R.styleable.FaceCaptureView_background_color, Color.LTGRAY);
-            faceDelimiterColor = typedArr.getColor(R.styleable.FaceCaptureView_face_delimiter_color, Color.GREEN);
+            faceMarkerColor = typedArr.getColor(R.styleable.FaceCaptureView_face_marker_color, Color.GREEN);
         } finally {
             typedArr.recycle();
         }
@@ -192,7 +192,7 @@ public class FaceCaptureView extends AppCompatImageView {
         public FaceOvalGraphic(){
             faceAreaPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
             faceAreaPaint.setStyle(Paint.Style.STROKE);
-            faceAreaPaint.setColor(faceDelimiterColor);
+            faceAreaPaint.setColor(faceMarkerColor);
             faceAreaPaint.setStrokeWidth(10);
         }
 
