@@ -19,7 +19,9 @@ import com.google.mlkit.vision.face.FaceDetector;
 import com.google.mlkit.vision.face.FaceDetectorOptions;
 
 import org.commcare.dalvik.R;
+import org.commcare.utils.MediaUtil;
 import org.commcare.views.FaceCaptureView;
+import org.commcare.views.widgets.ImageWidget;
 
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -168,6 +170,8 @@ public class MicroImageActivity extends AppCompatActivity implements ImageAnalys
 
     @Override
     public void onImageStabilizedListener(Rect faceArea) {
-
+        MediaUtil.cropAndSaveImage(inputImage, faceArea, ImageWidget.getTempFileForImageCapture());
+        setResult(AppCompatActivity.RESULT_OK);
+        finish();
     }
 }

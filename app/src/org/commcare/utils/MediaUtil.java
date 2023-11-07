@@ -6,6 +6,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.AudioManager;
 import android.os.Build;
+import android.graphics.Rect;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.Pair;
@@ -513,4 +514,30 @@ public class MediaUtil {
                 .getActiveRecordingConfigurations().size() > 0;
     }
 
+    /**
+     * Crops an image according to a given area and saves the resulting image
+     */
+    public static void cropAndSaveImage(Bitmap bitmap, Rect cropArea, File imageFile){
+        if (!validateCropArea(bitmap, cropArea)) {
+            Logger.log(LogTypes.TYPE_MEDIA_EVENT, "Cropping failed due to invalid area!");
+            return;
+        }
+
+        Bitmap croppedBitmap = Bitmap.createBitmap(bitmap, cropArea.left, cropArea.top,
+                cropArea.right - cropArea.left, cropArea.bottom - cropArea.top);
+
+        try {
+            FileUtil.writeBitmapToDiskAndCleanupHandles(croppedBitmap,
+                    ImageType.fromExtension(FileUtil.getExtension(imageFile.getPath())), imageFile);
+        } catch (IOException e) {
+            Logger.log(LogTypes.TYPE_MEDIA_EVENT, "Failed to save image after cropping: " + e.getMessage());
+        }
+    }
+
+    private static boolean validateCropArea(Bitmap bitmap, Rect cropArea) {
+        if (bitmap.getHeight() >= cropArea.top && bitmap.getHeight() >= cropArea.bottom && bitmap.getWidth() >= cropArea.left && bitmap.getWidth() >= cropArea.right){
+            return true;
+        }
+        return false;
+    }
 }
