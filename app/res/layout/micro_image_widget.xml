@@ -24,6 +24,7 @@
             app:background_color="@color/cc_neutral_bg_tr"
             app:face_capture_area_delimiter_color="@color/white"
             app:face_marker_color="@color/cc_attention_positive_color"
+            app:countdown_text_size="@dimen/font_size_large"
             android:layout_weight="1"/>
     </LinearLayout>
 </FrameLayout>

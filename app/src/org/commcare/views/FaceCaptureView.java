@@ -7,11 +7,13 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Point;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.util.AttributeSet;
+import android.util.TypedValue;
 
 import com.google.mlkit.vision.face.Face;
 
@@ -29,6 +31,7 @@ public class FaceCaptureView extends AppCompatImageView {
     private int faceCaptureAreaDelimiterColor;
     private int backgroundColor;
     private int faceMarkerColor;
+    private int countdownTextSizeSp;
     private RectF faceCaptureArea = null;
     private int imageWidth;
     private int imageHeight;
@@ -62,6 +65,7 @@ public class FaceCaptureView extends AppCompatImageView {
             faceCaptureAreaDelimiterColor = typedArr.getColor(R.styleable.FaceCaptureView_face_capture_area_delimiter_color, Color.WHITE);
             backgroundColor = typedArr.getColor(R.styleable.FaceCaptureView_background_color, Color.LTGRAY);
             faceMarkerColor = typedArr.getColor(R.styleable.FaceCaptureView_face_marker_color, Color.GREEN);
+            countdownTextSizeSp = typedArr.getDimensionPixelSize(R.styleable.FaceCaptureView_countdown_text_size, -1);
         } finally {
             typedArr.recycle();
         }
@@ -188,17 +192,27 @@ public class FaceCaptureView extends AppCompatImageView {
         private Paint faceAreaPaint;
         private Face currFace;
         private static final int IMAGE_STABILIZATION_BUFFER = 5;
+        private static final int COUNTDOWN_START = 3;
+        private int countdown = COUNTDOWN_START;
+        private Paint faceAreaTextPaint;
 
         public FaceOvalGraphic(){
             faceAreaPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
             faceAreaPaint.setStyle(Paint.Style.STROKE);
             faceAreaPaint.setColor(faceMarkerColor);
             faceAreaPaint.setStrokeWidth(10);
+
+            faceAreaTextPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+            faceAreaTextPaint.setTextSize((int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, countdownTextSizeSp, getResources().getDisplayMetrics()));
+            faceAreaTextPaint.setTextAlign(Paint.Align.CENTER);
+            faceAreaTextPaint.setStyle(Paint.Style.FILL_AND_STROKE);
+            faceAreaTextPaint.setColor(faceMarkerColor);
         }
 
         public void updateFace(Face face){
             if (isFaceStable(face.getBoundingBox()) && isFaceInCaptureArea(face.getBoundingBox())) {
                 currFace = face;
+                countdown--;
             } else {
                 clearFace();
             }
@@ -206,13 +220,27 @@ public class FaceCaptureView extends AppCompatImageView {
 
         public void clearFace(){
             currFace = null;
+            countdown = COUNTDOWN_START;
         }
 
         public void drawFaceOval(Canvas canvas) {
             if (!isFaceBlank()) {
                 Rect faceOvalCoord = translateFaceOvalCoordinates(currFace.getBoundingBox());
                 canvas.drawOval(faceOvalCoord.left, faceOvalCoord.top, faceOvalCoord.right, faceOvalCoord.bottom, faceAreaPaint);
+
+                Point textCoord = calcTextPosition(faceOvalCoord);
+                canvas.drawText(countdown != COUNTDOWN_START? String.valueOf(countdown):"", textCoord.x, textCoord.y, faceAreaTextPaint);
+
+                if (countdown == 0) {
+                    imageStabilizedListener.onImageStabilizedListener(currFace.getBoundingBox());
+                }
             }
+        }
+
+        private Point calcTextPosition(Rect faceOval) {
+            int xPos = faceOval.left + (faceOval.width() / 2);
+            int yPos = faceOval.top + (int) ((faceOval.height() / 2) - ((faceAreaTextPaint.descent() + faceAreaTextPaint.ascent()) / 2));
+            return new Point(xPos, yPos);
         }
 
         private boolean isFaceBlank() {
