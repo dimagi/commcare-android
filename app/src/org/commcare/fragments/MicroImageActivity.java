@@ -2,6 +2,7 @@ package org.commcare.fragments;
 
 import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
+import android.graphics.Rect;
 import android.media.Image;
 import android.os.Bundle;
 import android.util.Log;
@@ -36,7 +37,7 @@ import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.camera.view.PreviewView;
 import androidx.core.content.ContextCompat;
 
-public class MicroImageActivity extends AppCompatActivity implements ImageAnalysis.Analyzer {
+public class MicroImageActivity extends AppCompatActivity implements ImageAnalysis.Analyzer, FaceCaptureView.ImageStabilizedListener {
     private static final String TAG = MicroImageActivity.class.toString();
     private PreviewView cameraView;
     private FaceCaptureView faceCaptureView;
@@ -54,6 +55,8 @@ public class MicroImageActivity extends AppCompatActivity implements ImageAnalys
         if (actionBar != null) {
             actionBar.setTitle(R.string.micro_image_activity_title);
         }
+
+        faceCaptureView.setImageStabilizedListener(this);
 
         try {
            startCamera();
@@ -161,5 +164,10 @@ public class MicroImageActivity extends AppCompatActivity implements ImageAnalys
         } else {
             faceCaptureView.updateFace(null);
         }
+    }
+
+    @Override
+    public void onImageStabilizedListener(Rect faceArea) {
+
     }
 }

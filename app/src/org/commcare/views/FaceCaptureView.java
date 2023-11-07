@@ -22,6 +22,10 @@ import androidx.appcompat.widget.AppCompatImageView;
 
 public class FaceCaptureView extends AppCompatImageView {
 
+    public interface ImageStabilizedListener {
+        void onImageStabilizedListener(Rect faceArea);
+    }
+
     private int faceCaptureAreaDelimiterColor;
     private int backgroundColor;
     private int faceDelimiterColor;
@@ -36,6 +40,7 @@ public class FaceCaptureView extends AppCompatImageView {
     private float postScaleHeightOffset;
     private float postScaleWidthOffset;
     private float scaleFactor;
+    private ImageStabilizedListener imageStabilizedListener;
 
     public FaceCaptureView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
@@ -128,6 +133,10 @@ public class FaceCaptureView extends AppCompatImageView {
         }
     }
 
+    public void setImageStabilizedListener(ImageStabilizedListener imageStabilizedListener) {
+        this.imageStabilizedListener = imageStabilizedListener;
+    }
+
     private void setFaceCaptureArea(int width, int height) {
         int captureAreaWidth = (int)(width * VIEW_CAPTURE_AREA_RATIO);
         int captureAreaHeigth = (int)(height * VIEW_CAPTURE_AREA_RATIO);
@@ -178,6 +187,7 @@ public class FaceCaptureView extends AppCompatImageView {
     private class FaceOvalGraphic {
         private Paint faceAreaPaint;
         private Face currFace;
+        private static final int IMAGE_STABILIZATION_BUFFER = 5;
 
         public FaceOvalGraphic(){
             faceAreaPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -187,7 +197,7 @@ public class FaceCaptureView extends AppCompatImageView {
         }
 
         public void updateFace(Face face){
-            if (isFaceInCaptureArea(face.getBoundingBox())) {
+            if (isFaceStable(face.getBoundingBox()) && isFaceInCaptureArea(face.getBoundingBox())) {
                 currFace = face;
             } else {
                 clearFace();
@@ -218,6 +228,23 @@ public class FaceCaptureView extends AppCompatImageView {
                 return false;
             }
             return true;
+        }
+
+        private boolean isFaceStable(Rect newFaceArea) {
+            if (currFace == null || (currFace != null && areRectsEqual(newFaceArea, currFace.getBoundingBox()))) {
+                return true;
+            }
+            return false;
+        }
+
+        private boolean areRectsEqual(Rect a, Rect b) {
+            if ((Math.abs(a.left - b.left) < IMAGE_STABILIZATION_BUFFER) &&
+                    (Math.abs(a.top - b.top) < IMAGE_STABILIZATION_BUFFER) &&
+                    (Math.abs(a.right - b.right) < IMAGE_STABILIZATION_BUFFER) &&
+                    (Math.abs(a.bottom - b.bottom) < IMAGE_STABILIZATION_BUFFER)) {
+                return true;
+            }
+            return false;
         }
     }
 }
