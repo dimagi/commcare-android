@@ -639,4 +639,23 @@ public class MediaUtil {
         byte[] decodedString = Base64.decode(base64Image, Base64.DEFAULT);
         return BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
     }
+    /**
+     * Crops an image according to a given area and saves the resulting image
+     * */
+    public static void cropAndSaveImage(Bitmap bitmap, Rect cropArea, File imageFile){
+        if (!validateCropArea(bitmap, cropArea)) {
+            Logger.log(LogTypes.TYPE_MEDIA_EVENT, "Cropping failed due to invalid area!");
+            return;
+        }
+
+        Bitmap croppedBitmap = Bitmap.createBitmap(bitmap, cropArea.left, cropArea.top,
+                cropArea.right - cropArea.left, cropArea.bottom - cropArea.top);
+
+        try {
+            FileUtil.writeBitmapToDiskAndCleanupHandles(croppedBitmap,
+                    ImageType.fromExtension(FileUtil.getExtension(imageFile.getPath())), imageFile);
+        } catch (IOException e) {
+            Logger.log(LogTypes.TYPE_MEDIA_EVENT, "Failed to save image after cropping: " + e.getMessage());
+        }
+    }
 }

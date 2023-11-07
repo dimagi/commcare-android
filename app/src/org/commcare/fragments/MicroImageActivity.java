@@ -65,7 +65,9 @@ import com.google.mlkit.vision.face.FaceDetector;
 import com.google.mlkit.vision.face.FaceDetectorOptions;
 
 import org.commcare.dalvik.R;
+import org.commcare.utils.MediaUtil;
 import org.commcare.views.FaceCaptureView;
+import org.commcare.views.widgets.ImageWidget;
 
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -367,5 +369,13 @@ public class MicroImageActivity extends CommonBaseActivity implements ImageAnaly
         if (bitmap != null && !bitmap.isRecycled()) {
             bitmap.recycle();
         }
+    }
+
+    // Unused method for when we were saving the image to a file instead of returning as base64, but keeping for
+    // face capture widget
+    private void finalizeImageCaptureForWidget(Rect faceArea) {
+        MediaUtil.cropAndSaveImage(inputImage, faceArea, ImageWidget.getTempFileForImageCapture());
+        setResult(AppCompatActivity.RESULT_OK);
+        finish();
     }
 }
