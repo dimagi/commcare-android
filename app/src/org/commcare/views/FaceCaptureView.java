@@ -39,9 +39,6 @@ public class FaceCaptureView extends AppCompatImageView {
     private int backgroundColor;
     private int faceMarkerColor;
     private int countdownTextSizeSp;
-    private int faceCaptureAreaDelimiterColor;
-    private int backgroundColor;
-    private int faceDelimiterColor;
     private RectF faceCaptureArea = null;
     private int imageWidth;
     private int imageHeight;
@@ -283,7 +280,7 @@ public class FaceCaptureView extends AppCompatImageView {
             return new Point(xPos, yPos);
         }
 
-        private boolean isFaeBlank() {
+        private boolean isFaceBlank() {
             return currFace == null;
         }
 

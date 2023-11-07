@@ -1,6 +1,5 @@
 package org.commcare.fragments;
 
-<<<<<<< HEAD
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Intent;
@@ -49,6 +48,7 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
+import android.graphics.Rect;
 import android.media.Image;
 import android.os.Bundle;
 import android.util.Log;
@@ -94,7 +94,7 @@ public class MicroImageActivity extends CommonBaseActivity implements ImageAnaly
     private static final int DEFAULT_MICRO_IMAGE_MAX_DIMENSION_PX = 72;
     private static final int DEFAULT_MICRO_IMAGE_MAX_SIZE_BYTES = 2 * 1024;
     public static final String BASE_64_IMAGE_PREFIX = "data:image/webp;base64,";
-
+    private static final String TAG = MicroImageActivity.class.toString();
     private PreviewView cameraView;
     private FaceCaptureView faceCaptureView;
     private Bitmap inputImage;
@@ -111,8 +111,6 @@ public class MicroImageActivity extends CommonBaseActivity implements ImageAnaly
                 }
             }
     );
-
-    private static final String TAG = MicroImageActivity.class.toString();
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -369,12 +367,5 @@ public class MicroImageActivity extends CommonBaseActivity implements ImageAnaly
         if (bitmap != null && !bitmap.isRecycled()) {
             bitmap.recycle();
         }
-    }
-
-    private void logErrorAndExit(String logMessage, Throwable e) {
-        Log.e(TAG, logMessage + ": " + e);
-        Toast.makeText(this, R.string.camera_start_failed, Toast.LENGTH_LONG).show();
-        setResult(AppCompatActivity.RESULT_CANCELED);
-        finish();
     }
 }
