@@ -96,7 +96,7 @@ public class ConnectDownloadingFragment extends Fragment implements ResourceEngi
         titleTv.setText(args.getTitle());
 
         statusText = view.findViewById(R.id.connect_downloading_status);
-        statusText.setText(getString(R.string.connect_downloading_status, 0));
+        updateInstallStatus(null);
 
         progressBar = view.findViewById(R.id.connect_downloading_progress);
 
@@ -153,12 +153,12 @@ public class ConnectDownloadingFragment extends Fragment implements ResourceEngi
         } catch (LocaleTextException e) {
             // do nothing
         }
-        showInstallFailError(installError);
+        updateInstallStatus(installError);
     }
 
-    private void showInstallFailError(String error) {
-        statusText.setVisibility(View.VISIBLE);
-        statusText.setText(error);
+    private void updateInstallStatus(String status) {
+        statusText.setVisibility(status != null ? View.VISIBLE : View.GONE);
+        statusText.setText(status);
     }
 
     @Override
@@ -186,6 +186,15 @@ public class ConnectDownloadingFragment extends Fragment implements ResourceEngi
     public void updateResourceProgress(int done, int pending, int phase) {
         progressBar.setMax(pending);
         progressBar.setProgress(done);
+
+        // Don't change the text on the progress dialog if we are showing the generic consumer
+        // apps startup dialog
+        String installProgressText =
+                Localization.getWithDefault("profile.found",
+                        new String[]{"" + done, "" + pending},
+                        "Setting up app...");
+
+        updateInstallStatus(installProgressText);
     }
 
     @Override

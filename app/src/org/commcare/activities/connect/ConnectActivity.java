@@ -4,15 +4,11 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 
-import com.google.firebase.analytics.FirebaseAnalytics;
-
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.ActionBar;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
-import androidx.navigation.Navigation;
-import androidx.navigation.fragment.FragmentNavigator;
 import androidx.navigation.fragment.NavHostFragment;
 
 import org.commcare.activities.CommCareActivity;
@@ -20,6 +16,7 @@ import org.commcare.activities.CommCareVerificationActivity;
 import org.commcare.CommCareApplication;
 import org.commcare.dalvik.R;
 import org.commcare.fragments.connect.ConnectDownloadingFragment;
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.tasks.ResourceEngineListener;
 import org.commcare.views.dialogs.CustomProgressDialog;
 
@@ -49,14 +46,7 @@ public class ConnectActivity extends CommCareActivity<ResourceEngineListener> {
         setTitle(getString(R.string.connect_title));
         showBackButton();
 
-        destinationListener = (navController, navDestination, args) -> {
-            Bundle bundle = new Bundle();
-            var currentFragmentClassName = ((FragmentNavigator.Destination)navController.getCurrentDestination())
-                    .getClassName();
-            bundle.putString(FirebaseAnalytics.Param.SCREEN_NAME, navDestination.getLabel().toString());
-            bundle.putString(FirebaseAnalytics.Param.SCREEN_CLASS, currentFragmentClassName);
-            FirebaseAnalytics.getInstance(this).logEvent(FirebaseAnalytics.Event.SCREEN_VIEW, bundle);
-        };
+        destinationListener = FirebaseAnalyticsUtil.getDestinationChangeListener();
 
         NavHostFragment navHostFragment = (NavHostFragment)getSupportFragmentManager()
                 .findFragmentById(R.id.nav_host_fragment_connect);

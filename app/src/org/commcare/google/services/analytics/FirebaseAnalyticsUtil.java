@@ -1,5 +1,6 @@
 package org.commcare.google.services.analytics;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.os.Environment;
 import android.text.TextUtils;
@@ -15,6 +16,9 @@ import org.commcare.suite.model.OfflineUserRestore;
 import org.commcare.utils.EncryptionUtils;
 
 import java.util.Date;
+
+import androidx.navigation.NavController;
+import androidx.navigation.fragment.FragmentNavigator;
 
 import static org.commcare.google.services.analytics.AnalyticsParamValue.CORRUPT_APP_STATE;
 import static org.commcare.google.services.analytics.AnalyticsParamValue.STAGE_UPDATE_FAILURE;
@@ -368,5 +372,22 @@ public class FirebaseAnalyticsUtil {
 
     public static void reportLoginClicks() {
         reportEvent(CCAnalyticsEvent.LOGIN_CLICK);
+    }
+
+    public static NavController.OnDestinationChangedListener getDestinationChangeListener() {
+        return (navController, navDestination, args) -> {
+            Bundle bundle = new Bundle();
+            var currentFragmentClassName = ((FragmentNavigator.Destination)navController.getCurrentDestination())
+                    .getClassName();
+            bundle.putString(FirebaseAnalytics.Param.SCREEN_NAME, navDestination.getLabel().toString());
+            bundle.putString(FirebaseAnalytics.Param.SCREEN_CLASS, currentFragmentClassName);
+            reportEvent(FirebaseAnalytics.Event.SCREEN_VIEW, bundle);
+        };
+    }
+
+    public static void reportConnectTabChange(String tabName) {
+        reportEvent(CCAnalyticsEvent.CCC_TAB_CHANGE,
+                new String[]{CCAnalyticsEvent.PARAM_CCC_TAB_CHANGE_NAME},
+                new String[]{tabName});
     }
 }

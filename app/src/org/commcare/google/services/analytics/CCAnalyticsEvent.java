@@ -34,5 +34,7 @@ public class CCAnalyticsEvent {
     static final String CCC_RECOVERY = "ccc_recovery";
     static final String PARAM_CCC_RECOVERY_METHOD = "ccc_recovery_method";
     static final String PARAM_CCC_RECOVERY_SUCCESS = "ccc_recovery_success";
+    static final String CCC_TAB_CHANGE = "ccc_tab_change";
+    static final String PARAM_CCC_TAB_CHANGE_NAME = "ccc_tab_change_name";
 
 }

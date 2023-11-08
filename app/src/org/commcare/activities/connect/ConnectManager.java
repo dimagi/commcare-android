@@ -108,7 +108,6 @@ public class ConnectManager {
                 manager.connectStatus = ConnectIdStatus.LoggedOut;
             }
         }
-        scheduleHearbeat();
     }
 
     private static void scheduleHearbeat() {
@@ -201,6 +200,16 @@ public class ConnectManager {
             case NotIntroduced, Registering -> false;
             case LoggedOut, LoggedIn -> true;
         };
+    }
+
+    private static void completeSignin() {
+        scheduleHearbeat();
+
+        ConnectManager instance = getInstance();
+        instance.connectStatus = ConnectIdStatus.LoggedIn;
+        if(instance.loginListener != null) {
+            instance.loginListener.connectActivityComplete(true);
+        }
     }
 
     public static void signOut() {
@@ -589,15 +598,11 @@ public class ConnectManager {
                     CONNECT_REGISTRATION_SUCCESS -> {
                 //Finish workflow, user registered/recovered and logged in
                 rememberPhase = true;
-                manager.connectStatus = ConnectIdStatus.LoggedIn;
-                if(manager.loginListener != null) {
-                    manager.loginListener.connectActivityComplete(true);
-                }
+                completeSignin();
             }
             case CONNECT_UNLOCK_BIOMETRIC -> {
                 if (success) {
-                    manager.connectStatus = ConnectIdStatus.LoggedIn;
-                    manager.loginListener.connectActivityComplete(true);
+                    completeSignin();
                 } else if (intent != null && intent.getBooleanExtra(ConnectConstants.PASSWORD, false)) {
                     nextRequestCode = ConnectTask.CONNECT_UNLOCK_PASSWORD;
                 } else if (intent != null && intent.getBooleanExtra(ConnectConstants.RECOVER, false)) {
@@ -613,8 +618,7 @@ public class ConnectManager {
                         manager.forgotPassword = true;
                     } else {
                         manager.forgotPassword = false;
-                        manager.connectStatus = ConnectIdStatus.LoggedIn;
-                        manager.loginListener.connectActivityComplete(true);
+                        completeSignin();
                         FirebaseAnalyticsUtil.reportCccSignIn(AnalyticsParamValue.CCC_SIGN_IN_METHOD_PASSWORD);
 
                         ConnectUserRecord user = ConnectDatabaseHelper.getUser(manager.parentActivity);

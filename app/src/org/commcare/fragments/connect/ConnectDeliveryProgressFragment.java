@@ -16,6 +16,7 @@ import org.commcare.android.database.connect.models.ConnectJobDeliveryRecord;
 import org.commcare.android.database.connect.models.ConnectJobPaymentRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.dalvik.R;
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.services.Logger;
 import org.json.JSONArray;
@@ -89,7 +90,10 @@ public class ConnectDeliveryProgressFragment extends Fragment {
         pager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
             @Override
             public void onPageSelected(int position) {
-                tabLayout.selectTab(tabLayout.getTabAt(position));
+                TabLayout.Tab tab = tabLayout.getTabAt(position);
+                tabLayout.selectTab(tab);
+
+                FirebaseAnalyticsUtil.reportConnectTabChange(tab.getText().toString());
             }
         });
 
