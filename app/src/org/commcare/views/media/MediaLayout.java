@@ -184,7 +184,9 @@ public class MediaLayout extends RelativeLayout {
     private void setupVideoButton(String videoURI) {
         if (videoURI != null) {
             boolean mediaPresent = FileUtil.referenceFileExists(videoURI);
-            videoButton.setImageResource(mediaPresent ? android.R.drawable.ic_media_play : R.drawable.update_download_icon);
+            int imageResource = mediaPresent ? android.R.drawable.ic_media_play : R.drawable.update_download_icon;
+            videoButton.setImageResource(imageResource);
+            videoButton.setTag(imageResource); // this is to easily test drawables with Espresso
             if (!mediaPresent) {
                 AndroidUtil.showToast(getContext(), R.string.video_download_prompt);
             }
