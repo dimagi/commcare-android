@@ -10,6 +10,7 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import org.commcare.activities.CommCareActivity;
 import org.commcare.activities.connect.ConnectDatabaseHelper;
 import org.commcare.activities.connect.ConnectManager;
 import org.commcare.activities.connect.ConnectNetworkHelper;
@@ -18,8 +19,10 @@ import org.commcare.android.database.connect.models.ConnectJobLearningRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.commcaresupportlibrary.CommCareLauncher;
 import org.commcare.dalvik.R;
+import org.commcare.views.dialogs.StandardAlertDialog;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.services.Logger;
+import org.javarosa.core.services.locale.Localization;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -237,6 +240,18 @@ public class ConnectLearningProgressFragment extends Fragment {
 
         TextView completeByText = view.findViewById(R.id.connect_learning_complete_by_text);
         completeByText.setVisibility(learningFinished && assessmentPassed ? View.GONE : View.VISIBLE);
+
+        textView = view.findViewById(R.id.connect_progress_warning_learn_text);
+        textView.setOnClickListener(v -> {
+            StandardAlertDialog dialog = new StandardAlertDialog(
+                    getContext(),
+                    getString(R.string.connect_progress_warning),
+                    getString(R.string.connect_progress_warning_full));
+            dialog.setPositiveButton(Localization.get("dialog.ok"), (dialog1, which) -> {
+                dialog1.dismiss();
+            });
+            ((CommCareActivity<?>)getActivity()).showAlertDialog(dialog);
+        });
 
         DateFormat df = new SimpleDateFormat("MM/dd/yyyy", Locale.getDefault());
         if(learningFinished) {
