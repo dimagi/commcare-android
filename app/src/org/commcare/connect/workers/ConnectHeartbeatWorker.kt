@@ -7,6 +7,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.commcare.activities.connect.ConnectManager
 import org.commcare.connect.network.ConnectNetworkServiceFactory
+import org.commcare.connect.network.HeartBeatBody
 import org.commcare.utils.FirebaseMessagingUtil
 
 class ConnectHeartbeatWorker(context: Context, workerParams: WorkerParameters) :
@@ -18,8 +19,9 @@ class ConnectHeartbeatWorker(context: Context, workerParams: WorkerParameters) :
                 return@withContext Result.failure()
             }
             val connectNetworkService = ConnectNetworkServiceFactory.createConnectIdNetworkSerive()
-            val fcmToken = FirebaseMessagingUtil.getFCMToken();
-            val response = connectNetworkService.makeHeartbeatRequest(fcmToken)!!.execute()
+            val fcmToken = FirebaseMessagingUtil.getFCMToken()
+            val requestBody = HeartBeatBody(fcmToken)
+            val response = connectNetworkService.makeHeartbeatRequest(requestBody)!!.execute()
             return@withContext if (response.isSuccessful) Result.success() else Result.failure()
         }
     }
