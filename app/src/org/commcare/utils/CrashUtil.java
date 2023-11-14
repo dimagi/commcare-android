@@ -1,6 +1,7 @@
 package org.commcare.utils;
 
 import org.commcare.CommCareApplication;
+import org.commcare.activities.connect.ConnectManager;
 import org.commcare.android.logging.ReportingUtils;
 import org.commcare.dalvik.BuildConfig;
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
@@ -16,6 +17,7 @@ public class CrashUtil {
     private static final String APP_NAME = "app_name";
     private static final String DOMAIN = "domain";
     private static final String DEVICE_ID = "device_id";
+    private static final String CCC_USER = "ccc_user_id";
 
     private static boolean crashlyticsEnabled = BuildConfig.USE_CRASHLYTICS;
 
@@ -45,6 +47,12 @@ public class CrashUtil {
     public static void registerUserData() {
         if (crashlyticsEnabled) {
             FirebaseCrashlytics.getInstance().setUserId(ReportingUtils.getUser());
+        }
+    }
+
+    public static void registerConnectUser() {
+        if (crashlyticsEnabled && ConnectManager.isUnlocked()) {
+            FirebaseCrashlytics.getInstance().setCustomKey(CCC_USER, ConnectManager.getUser(CommCareApplication.instance()).getUserId());
         }
     }
 

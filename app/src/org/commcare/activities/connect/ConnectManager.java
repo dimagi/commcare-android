@@ -27,6 +27,7 @@ import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.models.encryption.ByteEncrypter;
 import org.commcare.preferences.AppManagerDeveloperPreferences;
+import org.commcare.utils.CrashUtil;
 import org.javarosa.core.util.PropertyUtils;
 
 import java.io.Serializable;
@@ -204,6 +205,7 @@ public class ConnectManager {
 
     private static void completeSignin() {
         scheduleHearbeat();
+        CrashUtil.registerConnectUser();
 
         ConnectManager instance = getInstance();
         instance.connectStatus = ConnectIdStatus.LoggedIn;

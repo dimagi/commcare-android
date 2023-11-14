@@ -19,6 +19,8 @@ import org.commcare.dalvik.R;
 import org.commcare.interfaces.ConnectorWithHttpResponseProcessor;
 import org.commcare.tasks.ModernHttpTask;
 import org.commcare.tasks.templates.CommCareTask;
+import org.commcare.utils.CrashUtil;
+import org.commcare.utils.FirebaseMessagingUtil;
 import org.javarosa.core.services.Logger;
 
 import java.io.IOException;
@@ -185,7 +187,7 @@ public class ConnectNetworkHelper {
                         requestBody,
                         HTTPMethod.POST,
                         authInfo);
-        postTask.connect(getResponseProcessor(context, handler));
+        postTask.connect(getResponseProcessor(context, url, handler));
 
         postTask.executeParallel();
 
@@ -282,14 +284,14 @@ public class ConnectNetworkHelper {
                         ArrayListMultimap.create(),
                         new HashMap<>(),
                         authInfo);
-        getTask.connect(getResponseProcessor(context, handler));
+        getTask.connect(getResponseProcessor(context, url, handler));
         getTask.executeParallel();
 
         return true;
     }
 
     private ConnectorWithHttpResponseProcessor<HttpResponseProcessor> getResponseProcessor(
-            Context context, INetworkResultHandler handler) {
+            Context context, String url, INetworkResultHandler handler) {
         return new ConnectorWithHttpResponseProcessor<>() {
             @Override
             public void processSuccess(int responseCode, InputStream responseData) {
@@ -300,6 +302,10 @@ public class ConnectNetworkHelper {
             @Override
             public void processClientError(int responseCode) {
                 onFinishProcessing(context);
+
+                String message = String.format(Locale.getDefault(), "Call:%s\nResponse code:%d", url, responseCode);
+                CrashUtil.reportException(new Exception(message));
+
                 //400 error
                 handler.processFailure(responseCode, null);
             }
@@ -307,6 +313,10 @@ public class ConnectNetworkHelper {
             @Override
             public void processServerError(int responseCode) {
                 onFinishProcessing(context);
+
+                String message = String.format(Locale.getDefault(), "Call:%s\nResponse code:%d", url, responseCode);
+                CrashUtil.reportException(new Exception(message));
+
                 //500 error for internal server error
                 handler.processFailure(responseCode, null);
             }
@@ -314,6 +324,10 @@ public class ConnectNetworkHelper {
             @Override
             public void processOther(int responseCode) {
                 onFinishProcessing(context);
+
+                String message = String.format(Locale.getDefault(), "Call:%s\nResponse code:%d", url, responseCode);
+                CrashUtil.reportException(new Exception(message));
+
                 handler.processFailure(responseCode, null);
             }
 
@@ -389,6 +403,14 @@ public class ConnectNetworkHelper {
                 ((CommCareActivity<?>)context).dismissProgressDialogForTask(NETWORK_ACTIVITY_ID);
             });
         }
+    }
+
+    public static PostResult makeHeartbeatRequestSync(Context context) {
+        String url = context.getString(R.string.ConnectHeartbeatURL);
+        HashMap<String, String> params = new HashMap<>();
+        params.put("fcm_token", FirebaseMessagingUtil.getFCMToken());
+        boolean useFormEncoding = true;
+        return postSync(context, url, ConnectManager.getConnectToken(), params, useFormEncoding);
     }
 
     public static boolean getConnectOpportunities(Context context, INetworkResultHandler handler) {

@@ -10,6 +10,7 @@
     <!-- string name="ota_restore_url">https://pact.dimagi.com/provider/caselist</string -->
 
     <string name="ConnectTokenURL">https://connectid.dimagi.com/o/token/</string>
+    <string name="ConnectHeartbeatURL">https://connectid.dimagi.com/users/heartbeat</string>
     <string name="ConnectChangePasswordURL">https://connectid.dimagi.com/users/change_password</string>
     <string name="ConnectResetPasswordURL">https://connectid.dimagi.com/users/recover/reset_password</string>
     <string name="ConnectConfirmPasswordURL">https://connectid.dimagi.com/users/recover/confirm_password</string>
