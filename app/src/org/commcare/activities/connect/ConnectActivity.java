@@ -13,7 +13,6 @@ import androidx.navigation.fragment.NavHostFragment;
 
 import org.commcare.activities.CommCareActivity;
 import org.commcare.activities.CommCareVerificationActivity;
-import org.commcare.CommCareApplication;
 import org.commcare.dalvik.R;
 import org.commcare.fragments.connect.ConnectDownloadingFragment;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
@@ -64,7 +63,6 @@ public class ConnectActivity extends CommCareActivity<ResourceEngineListener> {
     @Override
     protected void onResume() {
         super.onResume();
-        CommCareApplication.instance().closeUserSession();
         if(!ConnectManager.isUnlocked()) {
             finish();
         }

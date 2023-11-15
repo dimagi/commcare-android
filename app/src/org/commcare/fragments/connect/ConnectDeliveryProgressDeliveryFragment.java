@@ -89,7 +89,7 @@ public class ConnectDeliveryProgressDeliveryFragment extends Fragment {
 
     private void launchDeliveryApp(Button button) {
         if(ConnectManager.isAppInstalled(job.getDeliveryAppInfo().getAppId())) {
-            CommCareLauncher.launchCommCareForAppIdFromConnect(getContext(), job.getDeliveryAppInfo().getAppId());
+            ConnectManager.launchApp(getContext(), job.getDeliveryAppInfo().getAppId());
         }
         else {
             String title = getString(R.string.connect_downloading_delivery);

@@ -294,7 +294,7 @@ public class ConnectLearningProgressFragment extends Fragment {
             if(learningFinished && assessmentPassed) {
                 directions = ConnectLearningProgressFragmentDirections.actionConnectJobLearningProgressFragmentToConnectJobDeliveryDetailsFragment(job);
             } else if(ConnectManager.isAppInstalled(job.getLearnAppInfo().getAppId())) {
-                CommCareLauncher.launchCommCareForAppIdFromConnect(getContext(), job.getLearnAppInfo().getAppId());
+                ConnectManager.launchApp(getContext(), job.getLearnAppInfo().getAppId());
             } else {
                 String title = getString(R.string.connect_downloading_learn);
                 directions = ConnectLearningProgressFragmentDirections.actionConnectJobLearningProgressFragmentToConnectDownloadingFragment(title, true, true, job);

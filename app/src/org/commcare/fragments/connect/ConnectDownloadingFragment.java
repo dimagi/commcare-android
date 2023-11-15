@@ -14,6 +14,7 @@ import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
 
 import org.commcare.activities.connect.ConnectActivity;
+import org.commcare.activities.connect.ConnectManager;
 import org.commcare.android.database.connect.models.ConnectAppRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.commcaresupportlibrary.CommCareLauncher;
@@ -23,15 +24,12 @@ import org.commcare.engine.resource.ResourceInstallUtils;
 import org.commcare.resources.model.InvalidResourceException;
 import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.tasks.ResourceEngineListener;
-import org.commcare.tasks.templates.CommCareTaskConnector;
 import org.commcare.views.notifications.NotificationActionButtonInfo;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.services.locale.LocaleTextException;
 import org.javarosa.core.services.locale.Localization;
 
 public class ConnectDownloadingFragment extends Fragment implements ResourceEngineListener {
-
-    private static final int APP_DOWNLOAD_TASK_ID = 4;
 
     private ProgressBar progressBar;
     private TextView statusText;
@@ -80,8 +78,7 @@ public class ConnectDownloadingFragment extends Fragment implements ResourceEngi
 
     private void startAppDownload() {
         ConnectAppRecord record = getLearnApp ? job.getLearnAppInfo() : job.getDeliveryAppInfo();
-        String url = record.getInstallUrl();
-        ResourceInstallUtils.startAppInstallAsync(false, APP_DOWNLOAD_TASK_ID, (CommCareTaskConnector)getActivity(), url);
+        ConnectManager.downloadAppOrResumeUpdates(record.getInstallUrl(), this);
     }
 
     @Override
@@ -123,7 +120,7 @@ public class ConnectDownloadingFragment extends Fragment implements ResourceEngi
 
                 //Launch the learn/deliver app
                 ConnectAppRecord appToLaunch = getLearnApp ? job.getLearnAppInfo() : job.getDeliveryAppInfo();
-                CommCareLauncher.launchCommCareForAppIdFromConnect(getContext(), appToLaunch.getAppId());
+                ConnectManager.launchApp(getContext(), appToLaunch.getAppId());
             }
             else {
                 //Go to learn/deliver progress

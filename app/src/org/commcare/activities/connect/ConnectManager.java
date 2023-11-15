@@ -19,14 +19,19 @@ import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.global.models.ApplicationRecord;
+import org.commcare.commcaresupportlibrary.CommCareLauncher;
 import org.commcare.connect.workers.ConnectHeartbeatWorker;
 import org.commcare.core.encryption.CryptUtil;
 import org.commcare.core.network.AuthInfo;
 import org.commcare.dalvik.R;
+import org.commcare.engine.resource.ResourceInstallUtils;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.models.encryption.ByteEncrypter;
 import org.commcare.preferences.AppManagerDeveloperPreferences;
+import org.commcare.tasks.ResourceEngineListener;
+import org.commcare.tasks.templates.CommCareTask;
+import org.commcare.tasks.templates.CommCareTaskConnector;
 import org.commcare.utils.CrashUtil;
 import org.javarosa.core.util.PropertyUtils;
 
@@ -53,6 +58,7 @@ public class ConnectManager {
     private static final long PERIODICITY_FOR_HEARTBEAT_IN_HOURS = 4;
     private static final long BACKOFF_DELAY_FOR_HEARTBEAT_RETRY = 5 * 60 * 1000L; // 5 mins
     private static final String CONNECT_HEARTBEAT_REQUEST_NAME = "connect_hearbeat_periodic_request";
+    private static final int APP_DOWNLOAD_TASK_ID = 4;
 
     /**
      * Enum representing the current state of ConnectID
@@ -714,6 +720,63 @@ public class ConnectManager {
             }
         }
         return installed;
+    }
+
+    private boolean downloading = false;
+    private ResourceEngineListener downloadListener = null;
+    public static void downloadAppOrResumeUpdates(String installUrl, ResourceEngineListener listener) {
+        ConnectManager instance = getInstance();
+        instance.downloadListener = listener;
+        if(!instance.downloading) {
+            instance.downloading = true;
+            //Start a new download
+            ResourceInstallUtils.startAppInstallAsync(false, APP_DOWNLOAD_TASK_ID, new CommCareTaskConnector<ResourceEngineListener>() {
+                @Override
+                public void connectTask(CommCareTask task) {
+
+                }
+
+                @Override
+                public void startBlockingForTask(int id) {
+
+                }
+
+                @Override
+                public void stopBlockingForTask(int id) {
+                    instance.downloading = false;
+                }
+
+                @Override
+                public void taskCancelled() {
+
+                }
+
+                @Override
+                public ResourceEngineListener getReceiver() {
+                    return instance.downloadListener;
+                }
+
+                @Override
+                public void startTaskTransition() {
+
+                }
+
+                @Override
+                public void stopTaskTransition(int taskId) {
+
+                }
+
+                @Override
+                public void hideTaskCancelButton() {
+
+                }
+            }, installUrl);
+        }
+    }
+
+    public static void launchApp(Context context, String appId) {
+        CommCareApplication.instance().closeUserSession();
+        CommCareLauncher.launchCommCareForAppIdFromConnect(context, appId);
     }
 
     public static ConnectLinkedAppRecord prepareConnectManagedApp(Context context, String appId, String username) {
