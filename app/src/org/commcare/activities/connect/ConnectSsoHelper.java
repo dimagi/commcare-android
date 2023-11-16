@@ -124,18 +124,15 @@ public class ConnectSsoHelper {
                         postResult.responseStream));
                 postResult.responseStream.close();
                 JSONObject json = new JSONObject(responseAsString);
-                String key = ConnectConstants.CONNECT_KEY_TOKEN;
-                if (json.has(key)) {
-                    String token = json.getString(key);
-                    Date expiration = new Date();
-                    key = ConnectConstants.CONNECT_KEY_EXPIRES;
-                    int seconds = json.has(key) ? json.getInt(key) : 0;
-                    expiration.setTime(expiration.getTime() + ((long)seconds * 1000));
-                    user.updateConnectToken(token, expiration);
-                    ConnectDatabaseHelper.storeUser(context, user);
+                String token = json.getString(ConnectConstants.CONNECT_KEY_TOKEN);
+                Date expiration = new Date();
+                int seconds = json.getInt(ConnectConstants.CONNECT_KEY_EXPIRES);
+                expiration.setTime(expiration.getTime() + ((long)seconds * 1000));
 
-                    return new AuthInfo.TokenAuth(token);
-                }
+                user.updateConnectToken(token, expiration);
+                ConnectDatabaseHelper.storeUser(context, user);
+
+                return new AuthInfo.TokenAuth(token);
             } catch (IOException | JSONException e) {
                 Logger.exception("Parsing return from Connect OIDC call", e);
             }
@@ -194,19 +191,15 @@ public class ConnectSsoHelper {
                 String responseAsString = new String(StreamsUtil.inputStreamToByteArray(
                         postResult.responseStream));
                 JSONObject json = new JSONObject(responseAsString);
-                String key = ConnectConstants.CONNECT_KEY_TOKEN;
-                if (json.has(key)) {
-                    String token = json.getString(key);
-                    Date expiration = new Date();
-                    key = ConnectConstants.CONNECT_KEY_EXPIRES;
-                    int seconds = json.has(key) ? json.getInt(key) : 0;
-                    expiration.setTime(expiration.getTime() + ((long)seconds * 1000));
+                String token = json.getString(ConnectConstants.CONNECT_KEY_TOKEN);
+                Date expiration = new Date();
+                int seconds = json.getInt(ConnectConstants.CONNECT_KEY_EXPIRES);
+                expiration.setTime(expiration.getTime() + ((long)seconds * 1000));
 
-                    String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
-                    ConnectDatabaseHelper.storeHqToken(context, seatedAppId, hqUsername, token, expiration);
+                String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
+                ConnectDatabaseHelper.storeHqToken(context, seatedAppId, hqUsername, token, expiration);
 
-                    return new AuthInfo.TokenAuth(token);
-                }
+                return new AuthInfo.TokenAuth(token);
             } catch (IOException | JSONException e) {
                 Logger.exception("Parsing return from HQ OIDC call", e);
             }

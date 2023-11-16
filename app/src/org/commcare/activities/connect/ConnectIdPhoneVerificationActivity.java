@@ -175,16 +175,11 @@ public class ConnectIdPhoneVerificationActivity extends CommCareActivity<Connect
                             String responseAsString = new String(StreamsUtil.inputStreamToByteArray(responseData));
                             if (responseAsString.length() > 0) {
                                 JSONObject json = new JSONObject(responseAsString);
-                                String key = ConnectConstants.CONNECT_KEY_SECRET;
-                                if (json.has(key)) {
-                                    password = json.getString(key);
-                                }
 
-                                key = ConnectConstants.CONNECT_KEY_SECONDARY_PHONE;
-                                if (json.has(key)) {
-                                    recoveryPhone = json.getString(key);
-                                    updateMessage();
-                                }
+                                password = json.getString(ConnectConstants.CONNECT_KEY_SECRET);
+                                recoveryPhone = json.getString(ConnectConstants.CONNECT_KEY_SECONDARY_PHONE);
+
+                                updateMessage();
                             }
                         } catch (IOException | JSONException e) {
                             Logger.exception("Parsing return from OTP request", e);
@@ -255,15 +250,8 @@ public class ConnectIdPhoneVerificationActivity extends CommCareActivity<Connect
                                 String responseAsString = new String(
                                         StreamsUtil.inputStreamToByteArray(responseData));
                                 JSONObject json = new JSONObject(responseAsString);
-                                String key = ConnectConstants.CONNECT_KEY_USERNAME;
-                                if (json.has(key)) {
-                                    username = json.getString(key);
-                                }
-
-                                key = ConnectConstants.CONNECT_KEY_NAME;
-                                if (json.has(key)) {
-                                    displayName = json.getString(key);
-                                }
+                                username = json.getString(ConnectConstants.CONNECT_KEY_USERNAME);
+                                displayName = json.getString(ConnectConstants.CONNECT_KEY_NAME);
                             } catch (IOException | JSONException e) {
                                 Logger.exception("Parsing return from confirm_secondary_otp", e);
                             }

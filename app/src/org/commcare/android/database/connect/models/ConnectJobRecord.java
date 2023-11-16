@@ -162,44 +162,35 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         job.lastLearnUpdate = new Date();
         job.lastDeliveryUpdate = new Date();
 
-        job.jobId = json.has(META_JOB_ID) ? json.getInt(META_JOB_ID) : -1;
-        job.title = json.has(META_NAME) ? json.getString(META_NAME) : "";
-        job.description = json.has(META_DESCRIPTION) ? json.getString(META_DESCRIPTION) : "";
-        job.organization = json.has(META_ORGANIZATION) ? json.getString(META_ORGANIZATION) : "";
-        job.projectEndDate = json.has(META_END_DATE) ? df.parse(json.getString(META_END_DATE)) : new Date();
-        job.maxVisits = json.has(META_MAX_VISITS) ? json.getInt(META_MAX_VISITS) : -1;
-        job.maxDailyVisits = json.has(META_MAX_DAILY_VISITS) ? json.getInt(META_MAX_DAILY_VISITS) : -1;
-        job.budgetPerVisit = json.has(META_BUDGET_PER_VISIT) ? json.getInt(META_BUDGET_PER_VISIT) : -1;
-        job.totalBudget = json.has(META_BUDGET_TOTAL) ? json.getInt(META_BUDGET_TOTAL) : -1;
-        job.currency = json.has(META_CURRENCY) && !json.isNull(META_CURRENCY) ? json.getString(META_CURRENCY) : "";
-        job.shortDescription = json.has(META_SHORT_DESCRIPTION) && !json.isNull(META_SHORT_DESCRIPTION) ?
-                json.getString(META_SHORT_DESCRIPTION) : "";
+        job.jobId = json.getInt(META_JOB_ID);
+        job.title = json.getString(META_NAME);
+        job.description = json.getString(META_DESCRIPTION);
+        job.organization = json.getString(META_ORGANIZATION);
+        job.projectEndDate = df.parse(json.getString(META_END_DATE));
+        job.maxVisits = json.getInt(META_MAX_VISITS);
+        job.maxDailyVisits = json.getInt(META_MAX_DAILY_VISITS);
+        job.budgetPerVisit = json.getInt(META_BUDGET_PER_VISIT);
+        job.totalBudget = json.getInt(META_BUDGET_TOTAL);
+        job.currency = json.getString(META_CURRENCY);
+        job.shortDescription = json.getString(META_SHORT_DESCRIPTION);
 
-        job.paymentAccrued = "";
+        job.paymentAccrued = "0";
 
 //        job.learningModules = new ConnectJobLearningModule[]{};
         job.deliveries = new ArrayList<>();
         job.payments = new ArrayList<>();
         job.learnings = new ArrayList<>();
         job.assessments = new ArrayList<>();
-        job.completedVisits = json.has(META_DELIVERY_PROGRESS) ? json.getInt(META_DELIVERY_PROGRESS) : -1;
+        job.completedVisits = json.getInt(META_DELIVERY_PROGRESS);
 
         //Just need to know if the job has been claimed for now
-        job.claimed = json.has(META_CLAIM) &&!json.isNull(META_CLAIM);
-
+        job.claimed = !json.isNull(META_CLAIM);
         if(job.claimed) {
             //Actual claim object: {"max_payments", "end_date", "date_claimed" }
             JSONObject claim = json.getJSONObject(META_CLAIM);
 
-            String key = "max_payments";
-            if (claim.has(key)) {
-                job.maxVisits = claim.getInt(key);
-            }
-
-            key = "end_date";
-            if (claim.has(key)) {
-                job.projectEndDate = df.parse(claim.getString(key));
-            }
+            job.maxVisits = claim.getInt("max_payments");
+            job.projectEndDate = df.parse(claim.getString("end_date"));
         }
 
         JSONObject learning = json.getJSONObject(META_LEARN_PROGRESS);
@@ -210,8 +201,8 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         job.deliveryAppInfo = ConnectAppRecord.fromJson(json.getJSONObject(META_DELIVER_APP), job.jobId, false);
 
         //In JSON but not in model
-        //job.? = json.has(META_DATE_CREATED) ? df.parse(json.getString(META_DATE_CREATED)) : null;
-        //job.? = json.has(META_DATE_MODIFIED) ? df.parse(json.getString(META_DATE_MODIFIED)) : null;
+        //job.? = df.parse(json.getString(META_DATE_CREATED));
+        //job.? = df.parse(json.getString(META_DATE_MODIFIED));
 
         //In model but not in JSON
         //job.completedVisits = 0;

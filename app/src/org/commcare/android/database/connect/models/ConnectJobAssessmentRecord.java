@@ -61,10 +61,10 @@ public class ConnectJobAssessmentRecord extends Persisted implements Serializabl
         record.lastUpdate = new Date();
 
         record.jobId = jobId;
-        record.date = json.has(META_DATE) ? df.parse(json.getString(META_DATE)) : new Date();
-        record.score = json.has(META_SCORE) ? json.getInt(META_SCORE) : -1;
-        record.passingScore = json.has(META_PASSING_SCORE) ? json.getInt(META_PASSING_SCORE) : -1;
-        record.passed = json.has(META_PASSED) && json.getBoolean(META_PASSED);
+        record.date = df.parse(json.getString(META_DATE));
+        record.score = json.getInt(META_SCORE);
+        record.passingScore = json.getInt(META_PASSING_SCORE);
+        record.passed = json.getBoolean(META_PASSED);
 
         return record;
     }

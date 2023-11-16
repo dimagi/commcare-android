@@ -158,15 +158,9 @@ public class ConnectIdPasswordVerificationActivity extends CommCareActivity<Conn
                                         StreamsUtil.inputStreamToByteArray(responseData));
                                 if (responseAsString.length() > 0) {
                                     JSONObject json = new JSONObject(responseAsString);
-                                    String key = ConnectConstants.CONNECT_KEY_USERNAME;
-                                    if (json.has(key)) {
-                                        username = json.getString(key);
-                                    }
 
-                                    key = ConnectConstants.CONNECT_KEY_NAME;
-                                    if (json.has(key)) {
-                                        name = json.getString(key);
-                                    }
+                                    username = json.getString(ConnectConstants.CONNECT_KEY_USERNAME);
+                                    name = json.getString(ConnectConstants.CONNECT_KEY_NAME);
                                 }
                             } catch (IOException | JSONException e) {
                                 Logger.exception("Parsing return from OTP request", e);

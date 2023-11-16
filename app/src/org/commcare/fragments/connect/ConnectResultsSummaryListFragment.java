@@ -104,10 +104,21 @@ public class ConnectResultsSummaryListFragment extends Fragment {
                     //Payment Status
                     double total = 0;
                     for (ConnectJobPaymentRecord payment : job.getPayments()) {
-                        total += Double.parseDouble(payment.getAmount());
+                        try {
+                            total += Double.parseDouble(payment.getAmount());
+                        } catch(Exception e) {
+                            //Ignore at least for now
+                        }
                     }
 
-                    String accrued = job.getMoneyString((int)Double.parseDouble(job.getPaymentAccrued()));
+                    double amount = 0;
+                    try {
+                        amount = Double.parseDouble(job.getPaymentAccrued());
+                    } catch(Exception e) {
+                        //Ignore for now, apparently server might send empty string?
+                    }
+
+                    String accrued = job.getMoneyString((int)amount);
                     String paid = job.getMoneyString((int)total);
                     description = parentContext.getString(R.string.connect_results_summary_payments_description, accrued, paid);
                 }
