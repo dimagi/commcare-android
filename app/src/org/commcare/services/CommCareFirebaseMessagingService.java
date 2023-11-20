@@ -99,7 +99,7 @@ public class CommCareFirebaseMessagingService extends FirebaseMessagingService {
             contentIntent = PendingIntent.getActivity(this, 0, i, 0);
 
         NotificationCompat.Builder fcmNotification = new NotificationCompat.Builder(this,
-                CommCareNoficationManager.NOTIFICATION_CHANNEL_SERVER_COMMUNICATIONS_ID)
+                CommCareNoficationManager.NOTIFICATION_CHANNEL_PUSH_NOTIFICATIONS_ID)
                 .setContentTitle(notificationTitle)
                 .setContentText(notificationText)
                 .setContentIntent(contentIntent)
