@@ -46,7 +46,6 @@ public class MediaUtil {
     public static final String FORM_IMAGE = "image";
     private static final int IMAGE_QUALIY_REDUCTION_FACTOR = 10;
 
-
     /**
      * Attempts to inflate an image from a CommCare UI definition source.
      *
