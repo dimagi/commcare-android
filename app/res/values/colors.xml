@@ -86,6 +86,7 @@
     <!-- Neutral -->
     <color name="cc_neutral_color">#685C53</color>
     <color name="cc_neutral_bg">#D6D6D4</color>
+    <color name="cc_neutral_bg_tr">#80D6D6D4</color>
     <color name="cc_neutral_text">#373534</color>
 
     <!-- Attention Positive -->
