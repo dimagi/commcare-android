@@ -464,4 +464,5 @@
     <string name="micro_image_activity_title" cc:translatable="true">Capture Face Picture</string>
     <string name="camera_start_failed" cc:translatable="true">Camera failed to start</string>
     <string name="face_detection_mode_failed" cc:translatable="true">Face detection mode failed</string>
+    <string name="micro_image_cropping_failed" cc:translatable="true">Image cropping failed, make sure the target is in the capture area</string>
 </resources>

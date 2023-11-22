@@ -517,10 +517,9 @@ public class MediaUtil {
     /**
      * Crops an image according to a given area and saves the resulting image
      */
-    public static void cropAndSaveImage(Bitmap bitmap, Rect cropArea, File imageFile){
+    public static void cropAndSaveImage(Bitmap bitmap, Rect cropArea, File imageFile) {
         if (!validateCropArea(bitmap, cropArea)) {
-            Logger.log(LogTypes.TYPE_MEDIA_EVENT, "Cropping failed due to invalid area!");
-            return;
+            throw new RuntimeException("Cropping failed due to invalid area!");
         }
 
         Bitmap croppedBitmap = Bitmap.createBitmap(bitmap, cropArea.left, cropArea.top,
@@ -530,7 +529,7 @@ public class MediaUtil {
             FileUtil.writeBitmapToDiskAndCleanupHandles(croppedBitmap,
                     ImageType.fromExtension(FileUtil.getExtension(imageFile.getPath())), imageFile);
         } catch (IOException e) {
-            Logger.log(LogTypes.TYPE_MEDIA_EVENT, "Failed to save image after cropping: " + e.getMessage());
+            throw new RuntimeException("Failed to save image after cropping", e);
         }
     }
 
