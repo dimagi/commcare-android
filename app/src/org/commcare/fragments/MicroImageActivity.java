@@ -65,15 +65,18 @@ import com.google.mlkit.vision.face.FaceDetector;
 import com.google.mlkit.vision.face.FaceDetectorOptions;
 
 import org.commcare.dalvik.R;
+import org.commcare.util.LogTypes;
 import org.commcare.utils.MediaUtil;
 import org.commcare.views.FaceCaptureView;
 import org.commcare.views.widgets.ImageWidget;
+import org.javarosa.core.services.Logger;
 
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.StringRes;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.camera.core.CameraSelector;
@@ -374,8 +377,12 @@ public class MicroImageActivity extends CommonBaseActivity implements ImageAnaly
     // Unused method for when we were saving the image to a file instead of returning as base64, but keeping for
     // face capture widget
     private void finalizeImageCaptureForWidget(Rect faceArea) {
-        MediaUtil.cropAndSaveImage(inputImage, faceArea, ImageWidget.getTempFileForImageCapture());
-        setResult(AppCompatActivity.RESULT_OK);
-        finish();
+        try {
+            MediaUtil.cropAndSaveImage(inputImage, faceArea, ImageWidget.getTempFileForImageCapture());
+            setResult(AppCompatActivity.RESULT_OK);
+            finish();
+        } catch (Exception e) {
+            logErrorAndExit(e.getMessage(), "microimage.cropping.failed", e.getCause());
+        }
     }
 }
