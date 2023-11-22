@@ -7,6 +7,7 @@ import android.graphics.BitmapFactory;
 import android.media.AudioManager;
 import android.os.Build;
 import android.graphics.Rect;
+import android.util.Base64;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.Pair;
@@ -21,6 +22,7 @@ import org.javarosa.core.reference.Reference;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.Logger;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.math.BigInteger;
@@ -40,7 +42,7 @@ public class MediaUtil {
     public static final String FORM_VIDEO = "video";
     public static final String FORM_AUDIO = "audio";
     public static final String FORM_IMAGE = "image";
-
+    private static final int IMAGE_QUALIY_REDUCTION_FACTOR = 10;
 
     /**
      * Attempts to inflate an image from a CommCare UI definition source.
@@ -538,5 +540,33 @@ public class MediaUtil {
             return true;
         }
         return false;
+    }
+
+    public static byte[] compressBitmapToTargetSize(Bitmap bitmap, int targetSize) {
+        if (bitmap == null) {
+            return null;
+        }
+
+        byte[] byteArray = null;
+        int quality = 100;
+        while (quality != 0) {
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            bitmap.compress(Bitmap.CompressFormat.WEBP, quality, baos);
+            byteArray = baos.toByteArray();
+            if (byteArray.length <= targetSize) {
+                break;
+            }
+            quality -= IMAGE_QUALIY_REDUCTION_FACTOR;
+        }
+        return byteArray;
+    }
+
+    public static Bitmap decodeBase64EncodedBitmap(String base64Image){
+        try {
+            byte[] decodedString = Base64.decode(base64Image, Base64.DEFAULT);
+            return BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+        } catch(Exception e){
+            return null;
+        }
     }
 }

@@ -10,6 +10,7 @@ import org.commcare.activities.components.FormEntryConstants;
 import org.commcare.fragments.MicroImageActivity;
 import org.commcare.logic.PendingCalloutInterface;
 import org.commcare.modern.util.Pair;
+import org.commcare.utils.MediaUtil;
 import org.javarosa.core.model.data.Base64ImageData;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.form.api.FormEntryPrompt;
@@ -20,6 +21,9 @@ import java.io.File;
 import androidx.appcompat.app.AppCompatActivity;
 
 public class MicroImageWidget extends ImageWidget{
+    private static final int IMAGE_DIMEN_SCALED_MAX_PX = 72;
+    private static final int MICRO_IMAGE_MAX_SIZE_BYTES = 2 * 1024;
+
     private String mBinary;
 
     public MicroImageWidget(Context context, FormEntryPrompt prompt, PendingCalloutInterface pic) {
@@ -46,11 +50,12 @@ public class MicroImageWidget extends ImageWidget{
 
         File f = new File(binaryPath.toString());
         Bitmap originalImage = BitmapFactory.decodeFile(binaryPath.toString());
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        originalImage.compress(Bitmap.CompressFormat.WEBP, 100, baos);
+
+        Bitmap scaledDownBitmap = scaleImage(originalImage, IMAGE_DIMEN_SCALED_MAX_PX, IMAGE_DIMEN_SCALED_MAX_PX);
+        byte[] compressedBitmapByteArray = MediaUtil.compressBitmapToTargetSize(scaledDownBitmap, MICRO_IMAGE_MAX_SIZE_BYTES);
 
         try {
-            mBinary = Base64.encodeToString(baos.toByteArray(), Base64.DEFAULT);
+            mBinary = Base64.encodeToString(compressedBitmapByteArray, Base64.DEFAULT);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -70,5 +75,28 @@ public class MicroImageWidget extends ImageWidget{
     protected void deleteMedia() {
         super.deleteMedia();
         mBinary = null;
+    }
+
+    // TODO: Refactor
+    private Bitmap scaleImage(Bitmap bitmap, int maxWidth, int maxHeight){
+        int width = bitmap.getWidth();
+        int height = bitmap.getHeight();
+
+        // scaling factors
+        float widthRatio = (float) maxWidth / width;
+        float heightRatio = (float) maxHeight / height;
+        float scaleFactor = Math.min(widthRatio, heightRatio);
+
+        int newWidth = Math.round(width * scaleFactor);
+        int newHeight = Math.round(height * scaleFactor);
+
+        Bitmap resizedBitmap = Bitmap.createScaledBitmap(bitmap, newWidth, newHeight, true);
+
+        // Check and set the same configuration if necessary
+        if (bitmap.getConfig() != resizedBitmap.getConfig()) {
+            resizedBitmap = resizedBitmap.copy(bitmap.getConfig(), true);
+        }
+
+        return resizedBitmap;
     }
 }
