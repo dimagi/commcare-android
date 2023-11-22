@@ -135,35 +135,60 @@ public class ConnectDeliveryProgressFragment extends Fragment {
                     if (responseAsString.length() > 0) {
                         //Parse the JSON
                         JSONObject json = new JSONObject(responseAsString);
-                        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
 
-                        job.setMaxVisits(json.getInt("max_payments"));
-                        job.setProjectEndDate(df.parse(json.getString("end_date")));
-                        job.setPaymentAccrued(json.getString("payment_accrued"));
-                        job.setLastDeliveryUpdate(new Date());
+                        boolean updatedJob = false;
+                        String key = "max_payments";
+                        if(json.has(key)) {
+                            job.setMaxVisits(json.getInt(key));
+                            updatedJob = true;
+                        }
 
-                        ConnectDatabaseHelper.upsertJob(getContext(), job);
+                        key = "end_date";
+                        if(json.has(key)) {
+                            SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+                            job.setProjectEndDate(df.parse(json.getString(key)));
+                            updatedJob = true;
+                        }
+
+                        key = "payment_accrued";
+                        if(json.has(key)) {
+                            job.setPaymentAccrued(json.getString(key));
+                            updatedJob = true;
+                        }
+
+                        if(updatedJob) {
+                            job.setLastDeliveryUpdate(new Date());
+                            ConnectDatabaseHelper.upsertJob(getContext(), job);
+                        }
 
                         List<ConnectJobDeliveryRecord> deliveries = new ArrayList<>(json.length());
-                        JSONArray array = json.getJSONArray("deliveries");
-                        for (int i = 0; i < array.length(); i++) {
-                            JSONObject obj = (JSONObject)array.get(i);
-                            deliveries.add(ConnectJobDeliveryRecord.fromJson(obj, job.getJobId()));
-                        }
+                        key = "deliveries";
+                        if(json.has(key)) {
+                            JSONArray array = json.getJSONArray(key);
+                            for (int i = 0; i < array.length(); i++) {
+                                JSONObject obj = (JSONObject)array.get(i);
+                                deliveries.add(ConnectJobDeliveryRecord.fromJson(obj, job.getJobId()));
+                            }
 
-                        //Store retrieved deliveries
-                        ConnectDatabaseHelper.storeDeliveries(getContext(), deliveries, job.getJobId(), true);
-                        job.setDeliveries(deliveries);
+                            //Store retrieved deliveries
+                            ConnectDatabaseHelper.storeDeliveries(getContext(), deliveries, job.getJobId(), true);
+
+                            job.setDeliveries(deliveries);
+                        }
 
                         List<ConnectJobPaymentRecord> payments = new ArrayList<>();
-                        array = json.getJSONArray("payments");
-                        for (int i = 0; i < array.length(); i++) {
-                            JSONObject obj = (JSONObject)array.get(i);
-                            payments.add(ConnectJobPaymentRecord.fromJson(obj, job.getJobId()));
-                        }
+                        key = "payments";
+                        if(json.has(key)) {
+                            JSONArray array = json.getJSONArray(key);
+                            for (int i = 0; i < array.length(); i++) {
+                                JSONObject obj = (JSONObject)array.get(i);
+                                payments.add(ConnectJobPaymentRecord.fromJson(obj, job.getJobId()));
+                            }
 
-                        ConnectDatabaseHelper.storePayments(getContext(), payments, job.getJobId(), true);
-                        job.setPayments(payments);
+                            ConnectDatabaseHelper.storePayments(getContext(), payments, job.getJobId(), true);
+
+                            job.setPayments(payments);
+                        }
 
                         try {
                             updateUpdatedDate(new Date());

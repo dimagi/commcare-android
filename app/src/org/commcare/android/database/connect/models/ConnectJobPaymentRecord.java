@@ -46,8 +46,8 @@ public class ConnectJobPaymentRecord extends Persisted implements Serializable {
         ConnectJobPaymentRecord payment = new ConnectJobPaymentRecord();
 
         payment.jobId = jobId;
-        payment.date = df.parse(json.getString(META_DATE));
-        payment.amount = String.format(Locale.ENGLISH, "%.02f", json.getDouble(META_AMOUNT));
+        payment.date = json.has(META_DATE) ? df.parse(json.getString(META_DATE)) : new Date();
+        payment.amount = String.format(Locale.ENGLISH, "%.02f", json.has(META_AMOUNT) ? json.getDouble(META_AMOUNT) : 0);
 
         return payment;
     }
