@@ -28,10 +28,13 @@ import org.commcare.util.GridCoordinate;
 import org.commcare.util.GridStyle;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.CachingAsyncImageLoader;
+import org.commcare.utils.FileUtil;
 import org.commcare.utils.MarkupUtil;
 import org.commcare.utils.MediaUtil;
 import org.commcare.views.media.AudioPlaybackButton;
 import org.commcare.views.media.ViewId;
+import org.javarosa.core.model.data.Base64ImageData;
+import org.javarosa.core.model.data.UncastData;
 import org.javarosa.core.services.Logger;
 import org.javarosa.xpath.XPathUnhandledException;
 
@@ -357,8 +360,17 @@ public class EntityViewTile extends GridLayout {
                         mImageLoader.display(rowData, ((ImageView)retVal), R.drawable.info_bubble,
                                 maxWidth, maxHeight);
                     } else {
-                        Bitmap b = MediaUtil.inflateDisplayImage(getContext(), rowData,
-                                maxWidth, maxHeight, true);
+                        Bitmap b = null;
+                        if (FileUtil.isValidFileLocation(rowData)) {
+                            b = MediaUtil.inflateDisplayImage(getContext(), rowData, maxWidth, maxHeight, true);
+                        } else {
+                            try {
+                                Base64ImageData base64ImageData = new Base64ImageData().cast(new UncastData(rowData));
+                                b = MediaUtil.decodeBase64EncodedBitmap(base64ImageData.getValue().second);
+                            } catch(Exception e){
+                                // handled silently, no image is displayed
+                            }
+                        }
                         ((ImageView)retVal).setImageBitmap(b);
                     }
                 }
