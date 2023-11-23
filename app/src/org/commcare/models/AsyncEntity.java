@@ -10,6 +10,7 @@ import org.commcare.suite.model.Text;
 import org.commcare.utils.StringUtils;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
+import org.javarosa.core.services.Logger;
 import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.expr.FunctionUtils;
 import org.javarosa.xpath.expr.XPathExpression;
@@ -104,7 +105,7 @@ public class AsyncEntity extends Entity<TreeReference> {
                 try {
                     data[i] = fields[i].getTemplate().evaluate(context);
                 } catch (XPathException xpe) {
-                    XPathErrorLogger.INSTANCE.logErrorToCurrentApp(xpe);
+                    Logger.exception("Error while evaluating field for case list ", xpe);
                     xpe.printStackTrace();
                     data[i] = "<invalid xpath: " + xpe.getMessage() + ">";
                 }
@@ -158,7 +159,7 @@ public class AsyncEntity extends Entity<TreeReference> {
 
                         mEntityStorageCache.cache(mCacheIndex, cacheKey, sortData[i]);
                     } catch (XPathException xpe) {
-                        XPathErrorLogger.INSTANCE.logErrorToCurrentApp(xpe);
+                        Logger.exception("Error while evaluating sort field", xpe);
                         xpe.printStackTrace();
                         sortData[i] = "<invalid xpath: " + xpe.getMessage() + ">";
                     }
