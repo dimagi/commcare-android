@@ -8,7 +8,6 @@ import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.AppUtils;
 import org.commcare.CommCareApplication;
-import org.commcare.android.logging.ReportingUtils;
 import org.commcare.models.AsyncEntity;
 import org.commcare.models.database.DbUtil;
 import org.commcare.modern.database.TableBuilder;
@@ -18,6 +17,7 @@ import org.commcare.modern.database.DatabaseIndexingUtils;
 import org.commcare.modern.util.Pair;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.DetailField;
+import org.commcare.utils.SessionUnavailableException;
 
 import java.util.Collection;
 import java.util.Hashtable;
@@ -69,6 +69,31 @@ public class EntityStorageCache {
     public static void createIndexes(SQLiteDatabase db) {
         db.execSQL(DatabaseIndexingUtils.indexOnTableCommand("CACHE_TIMESTAMP", TABLE_NAME, COL_CACHE_NAME + ", " + COL_TIMESTAMP));
         db.execSQL(DatabaseIndexingUtils.indexOnTableCommand("NAME_ENTITY_KEY", TABLE_NAME, COL_CACHE_NAME + ", " + COL_ENTITY_KEY + ", " + COL_CACHE_KEY));
+    }
+
+    public static boolean lockCache() {
+        //Get a db handle so we can get an outer lock
+        SQLiteDatabase db;
+        try {
+            db = CommCareApplication.instance().getUserDbHandle();
+        } catch (SessionUnavailableException e) {
+            return false;
+        }
+
+        //get the db lock
+        db.beginTransaction();
+        return true;
+    }
+
+    public static void releaseCache() {
+        SQLiteDatabase db;
+        try {
+            db = CommCareApplication.instance().getUserDbHandle();
+            db.setTransactionSuccessful();
+            db.endTransaction();
+        } catch (SessionUnavailableException e) {
+            // do nothing
+        }
     }
 
     //TODO: We should do some synchronization to make it the case that nothing can hold

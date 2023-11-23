@@ -2,15 +2,11 @@ package org.commcare.models;
 
 import static org.commcare.models.database.user.models.EntityStorageCache.getCacheKey;
 
-import net.sqlcipher.database.SQLiteDatabase;
-
-import org.commcare.CommCareApplication;
 import org.commcare.cases.entity.Entity;
 import org.commcare.logging.XPathErrorLogger;
 import org.commcare.models.database.user.models.EntityStorageCache;
 import org.commcare.suite.model.DetailField;
 import org.commcare.suite.model.Text;
-import org.commcare.utils.SessionUnavailableException;
 import org.commcare.utils.StringUtils;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
@@ -128,24 +124,14 @@ public class AsyncEntity extends Entity<TreeReference> {
 
     @Override
     public String getSortField(int i) {
-        //Get a db handle so we can get an outer lock
-        SQLiteDatabase db;
-        try {
-            db = CommCareApplication.instance().getUserDbHandle();
-        } catch (SessionUnavailableException e) {
-            return null;
-        }
-
-        //get the db lock
-        db.beginTransaction();
-        try {
+        if (EntityStorageCache.lockCache()) {
             //get our second lock.
             synchronized (mAsyncLock) {
                 if (sortData[i] == null) {
                     // sort data not in search field cache; load and store it
                     Text sortText = fields[i].getSort();
                     if (sortText == null) {
-                        db.setTransactionSuccessful();
+                        EntityStorageCache.releaseCache();
                         return null;
                     }
 
@@ -156,7 +142,7 @@ public class AsyncEntity extends Entity<TreeReference> {
                         String value = mEntityStorageCache.retrieveCacheValue(mCacheIndex, cacheKey);
                         if (value != null) {
                             this.setSortData(i, value);
-                            db.setTransactionSuccessful();
+                            EntityStorageCache.releaseCache();
                             return sortData[i];
                         }
                     }
@@ -177,14 +163,11 @@ public class AsyncEntity extends Entity<TreeReference> {
                         sortData[i] = "<invalid xpath: " + xpe.getMessage() + ">";
                     }
                 }
-                db.setTransactionSuccessful();
+                EntityStorageCache.releaseCache();
                 return sortData[i];
             }
-
-        } finally {
-            //free the db lock.
-            db.endTransaction();
         }
+        return null;
     }
 
     @Override
