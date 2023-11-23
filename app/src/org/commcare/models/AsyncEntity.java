@@ -1,5 +1,7 @@
 package org.commcare.models;
 
+import static org.commcare.models.database.user.models.EntityStorageCache.getCacheKey;
+
 import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.CommCareApplication;
@@ -147,7 +149,7 @@ public class AsyncEntity extends Entity<TreeReference> {
                         return null;
                     }
 
-                    String cacheKey = AsyncNodeEntityFactory.getCacheKey(mDetailId, String.valueOf(i));
+                    String cacheKey = getCacheKey(mDetailId, String.valueOf(i));
 
                     if (mCacheIndex != null) {
                         //Check the cache!

@@ -2,19 +2,10 @@ package org.commcare.models;
 
 import android.util.Log;
 
-import net.sqlcipher.Cursor;
-import net.sqlcipher.database.SQLiteDatabase;
-
-import org.commcare.AppUtils;
-import org.commcare.CommCareApplication;
 import org.commcare.cases.entity.Entity;
 import org.commcare.cases.entity.NodeEntityFactory;
-import org.commcare.models.database.DbUtil;
-import org.commcare.models.database.SqlStorage;
 import org.commcare.models.database.user.models.EntityStorageCache;
-import org.commcare.modern.database.TableBuilder;
 import org.commcare.suite.model.Detail;
-import org.commcare.suite.model.DetailField;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.model.utils.CacheHost;
@@ -23,7 +14,6 @@ import org.javarosa.xpath.expr.XPathExpression;
 
 import java.util.Hashtable;
 import java.util.List;
-import java.util.Vector;
 
 /**
  * @author ctsims
@@ -103,93 +93,7 @@ public class AsyncNodeEntityFactory extends NodeEntityFactory {
         if (cachePrimeKeys == null) {
             return;
         }
-        primeCache(mEntitySet,cachePrimeKeys, detail);
-    }
-
-    private static void primeCache(Hashtable<String, AsyncEntity> entitySet, String[][] cachePrimeKeys,
-            Detail detail) {
-        Vector<Integer> sortKeys = new Vector<>();
-        String validKeys = buildValidKeys(sortKeys, detail.getFields());
-        if ("".equals(validKeys)) {
-            return;
-        }
-
-        //Create our full args tree. We need the elements from the cache primer
-        //along with the specific keys we wanna pull out
-
-        String[] args = new String[cachePrimeKeys[1].length + sortKeys.size()];
-        System.arraycopy(cachePrimeKeys[1], 0, args, 0, cachePrimeKeys[1].length);
-
-        for (int i = 0; i < sortKeys.size(); ++i) {
-            args[cachePrimeKeys[1].length + i] = getCacheKey(detail.getId(), String.valueOf(sortKeys.get(i)));
-        }
-
-        String[] names = cachePrimeKeys[0];
-        String whereClause = buildKeyNameWhereClause(names);
-        long now = System.currentTimeMillis();
-        String sqlStatement = "SELECT entity_key, cache_key, value FROM entity_cache JOIN AndroidCase ON entity_cache.entity_key = AndroidCase.commcare_sql_id WHERE " +
-                whereClause + " AND " + EntityStorageCache.COL_APP_ID + " = '" + AppUtils.getCurrentAppId() +
-                "' AND cache_key IN " + validKeys;
-        SQLiteDatabase db = CommCareApplication.instance().getUserDbHandle();
-        if (SqlStorage.STORAGE_OUTPUT_DEBUG) {
-            DbUtil.explainSql(db, sqlStatement, args);
-        }
-
-        populateEntitySet(db, sqlStatement, args, entitySet);
-
-        if (SqlStorage.STORAGE_OUTPUT_DEBUG) {
-            Log.d(TAG, "Sequential Cache Load: " + (System.currentTimeMillis() - now) + "ms");
-        }
-    }
-
-    private static String buildValidKeys(Vector<Integer> sortKeys, DetailField[] fields) {
-        String validKeys = "(";
-        boolean added = false;
-        for (int i = 0; i < fields.length; ++i) {
-            //We're only gonna pull out the fields we can index/sort on
-            if (fields[i].getSort() != null) {
-                sortKeys.add(i);
-                validKeys += "?, ";
-                added = true;
-            }
-        }
-        if (added) {
-            return validKeys.substring(0, validKeys.length() - 2) + ")";
-        } else {
-            return "";
-        }
-    }
-
-    public static String getCacheKey(String detailId, String mFieldId) {
-        return detailId + "_" + mFieldId;
-    }
-
-    private static String buildKeyNameWhereClause(String[] names) {
-        String whereClause = "";
-        for (int i = 0; i < names.length; ++i) {
-            whereClause += TableBuilder.scrubName(names[i]) + " = ?";
-            if (i + 1 < names.length) {
-                whereClause += " AND ";
-            }
-        }
-        return whereClause;
-    }
-
-    private static void populateEntitySet(SQLiteDatabase db, String sqlStatement, String[] args,
-            Hashtable<String, AsyncEntity> entitySet) {
-        //TODO: This will _only_ query up to about a meg of data, which is an un-great limitation.
-        //Should probably split this up SQL LIMIT based looped
-        //For reference the current limitation is about 10k rows with 1 field each.
-        Cursor walker = db.rawQuery(sqlStatement, args);
-        while (walker.moveToNext()) {
-            String entityId = walker.getString(walker.getColumnIndex("entity_key"));
-            String cacheId = walker.getString(walker.getColumnIndex("cache_key"));
-            String val = walker.getString(walker.getColumnIndex("value"));
-            if (entitySet.containsKey(entityId)) {
-                entitySet.get(entityId).setSortData(cacheId, val);
-            }
-        }
-        walker.close();
+        EntityStorageCache.primeCache(mEntitySet,cachePrimeKeys, detail);
     }
 
     @Override
