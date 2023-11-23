@@ -7,7 +7,6 @@ import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.AppUtils;
 import org.commcare.CommCareApplication;
-import org.commcare.android.logging.ReportingUtils;
 import org.commcare.cases.entity.Entity;
 import org.commcare.cases.entity.NodeEntityFactory;
 import org.commcare.models.database.DbUtil;
@@ -104,7 +103,11 @@ public class AsyncNodeEntityFactory extends NodeEntityFactory {
         if (cachePrimeKeys == null) {
             return;
         }
+        primeCache(mEntitySet,cachePrimeKeys, detail);
+    }
 
+    private static void primeCache(Hashtable<String, AsyncEntity> entitySet, String[][] cachePrimeKeys,
+            Detail detail) {
         Vector<Integer> sortKeys = new Vector<>();
         String validKeys = buildValidKeys(sortKeys, detail.getFields());
         if ("".equals(validKeys)) {
@@ -123,26 +126,23 @@ public class AsyncNodeEntityFactory extends NodeEntityFactory {
 
         String[] names = cachePrimeKeys[0];
         String whereClause = buildKeyNameWhereClause(names);
-
         long now = System.currentTimeMillis();
-
-        SQLiteDatabase db = CommCareApplication.instance().getUserDbHandle();
-
         String sqlStatement = "SELECT entity_key, cache_key, value FROM entity_cache JOIN AndroidCase ON entity_cache.entity_key = AndroidCase.commcare_sql_id WHERE " +
                 whereClause + " AND " + EntityStorageCache.COL_APP_ID + " = '" + AppUtils.getCurrentAppId() +
                 "' AND cache_key IN " + validKeys;
+        SQLiteDatabase db = CommCareApplication.instance().getUserDbHandle();
         if (SqlStorage.STORAGE_OUTPUT_DEBUG) {
             DbUtil.explainSql(db, sqlStatement, args);
         }
 
-        populateEntitySet(db, sqlStatement, args);
+        populateEntitySet(db, sqlStatement, args, entitySet);
 
         if (SqlStorage.STORAGE_OUTPUT_DEBUG) {
             Log.d(TAG, "Sequential Cache Load: " + (System.currentTimeMillis() - now) + "ms");
         }
     }
 
-    private String buildValidKeys(Vector<Integer> sortKeys, DetailField[] fields) {
+    private static String buildValidKeys(Vector<Integer> sortKeys, DetailField[] fields) {
         String validKeys = "(";
         boolean added = false;
         for (int i = 0; i < fields.length; ++i) {
@@ -164,7 +164,7 @@ public class AsyncNodeEntityFactory extends NodeEntityFactory {
         return detailId + "_" + mFieldId;
     }
 
-    private String buildKeyNameWhereClause(String[] names) {
+    private static String buildKeyNameWhereClause(String[] names) {
         String whereClause = "";
         for (int i = 0; i < names.length; ++i) {
             whereClause += TableBuilder.scrubName(names[i]) + " = ?";
@@ -175,7 +175,8 @@ public class AsyncNodeEntityFactory extends NodeEntityFactory {
         return whereClause;
     }
 
-    private void populateEntitySet(SQLiteDatabase db, String sqlStatement, String[] args) {
+    private static void populateEntitySet(SQLiteDatabase db, String sqlStatement, String[] args,
+            Hashtable<String, AsyncEntity> entitySet) {
         //TODO: This will _only_ query up to about a meg of data, which is an un-great limitation.
         //Should probably split this up SQL LIMIT based looped
         //For reference the current limitation is about 10k rows with 1 field each.
@@ -184,8 +185,8 @@ public class AsyncNodeEntityFactory extends NodeEntityFactory {
             String entityId = walker.getString(walker.getColumnIndex("entity_key"));
             String cacheId = walker.getString(walker.getColumnIndex("cache_key"));
             String val = walker.getString(walker.getColumnIndex("value"));
-            if (this.mEntitySet.containsKey(entityId)) {
-                this.mEntitySet.get(entityId).setSortData(cacheId, val);
+            if (entitySet.containsKey(entityId)) {
+                entitySet.get(entityId).setSortData(cacheId, val);
             }
         }
         walker.close();
