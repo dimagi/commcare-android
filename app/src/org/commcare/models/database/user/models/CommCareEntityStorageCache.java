@@ -8,7 +8,8 @@ import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.AppUtils;
 import org.commcare.CommCareApplication;
-import org.commcare.models.AsyncEntity;
+import org.commcare.cases.entity.AsyncEntity;
+import org.commcare.cases.entity.EntityStorageCache;
 import org.commcare.models.database.DbUtil;
 import org.commcare.modern.database.TableBuilder;
 import org.commcare.models.database.SqlStorage;
@@ -27,8 +28,8 @@ import java.util.Vector;
 /**
  * @author ctsims
  */
-public class EntityStorageCache {
-    private static final String TAG = EntityStorageCache.class.getSimpleName();
+public class CommCareEntityStorageCache implements EntityStorageCache {
+    private static final String TAG = CommCareEntityStorageCache.class.getSimpleName();
     public static final String TABLE_NAME = "entity_cache";
 
     public static final String COL_APP_ID = "app_id";
@@ -43,11 +44,11 @@ public class EntityStorageCache {
     private final String mCacheName;
     private final String mAppId;
 
-    public EntityStorageCache(String cacheName) {
+    public CommCareEntityStorageCache(String cacheName) {
         this(cacheName, CommCareApplication.instance().getUserDbHandle(), AppUtils.getCurrentAppId());
     }
 
-    public EntityStorageCache(String cacheName, SQLiteDatabase db, String appId) {
+    public CommCareEntityStorageCache(String cacheName, SQLiteDatabase db, String appId) {
         this.db = db;
         this.mCacheName = cacheName;
         this.mAppId = appId;
@@ -71,7 +72,7 @@ public class EntityStorageCache {
         db.execSQL(DatabaseIndexingUtils.indexOnTableCommand("NAME_ENTITY_KEY", TABLE_NAME, COL_CACHE_NAME + ", " + COL_ENTITY_KEY + ", " + COL_CACHE_KEY));
     }
 
-    public static boolean lockCache() {
+    public boolean lockCache() {
         //Get a db handle so we can get an outer lock
         SQLiteDatabase db;
         try {
@@ -85,7 +86,7 @@ public class EntityStorageCache {
         return true;
     }
 
-    public static void releaseCache() {
+    public void releaseCache() {
         SQLiteDatabase db;
         try {
             db = CommCareApplication.instance().getUserDbHandle();
@@ -156,7 +157,7 @@ public class EntityStorageCache {
     }
 
 
-    public static int getSortFieldIdFromCacheKey(String detailId, String cacheKey) {
+    public int getSortFieldIdFromCacheKey(String detailId, String cacheKey) {
         String intId = cacheKey.substring(detailId.length() + 1);
         try {
             return Integer.parseInt(intId);
@@ -195,7 +196,7 @@ public class EntityStorageCache {
                 .getInt(uuid + "_" + ENTITY_CACHE_WIPED_PREF_SUFFIX, -1);
     }
 
-    public static void primeCache(Hashtable<String, AsyncEntity> entitySet, String[][] cachePrimeKeys,
+    public void primeCache(Hashtable<String, AsyncEntity> entitySet, String[][] cachePrimeKeys,
             Detail detail) {
         Vector<Integer> sortKeys = new Vector<>();
         String validKeys = buildValidKeys(sortKeys, detail.getFields());
@@ -217,7 +218,7 @@ public class EntityStorageCache {
         String whereClause = buildKeyNameWhereClause(names);
         long now = System.currentTimeMillis();
         String sqlStatement = "SELECT entity_key, cache_key, value FROM entity_cache JOIN AndroidCase ON entity_cache.entity_key = AndroidCase.commcare_sql_id WHERE " +
-                whereClause + " AND " + EntityStorageCache.COL_APP_ID + " = '" + AppUtils.getCurrentAppId() +
+                whereClause + " AND " + CommCareEntityStorageCache.COL_APP_ID + " = '" + AppUtils.getCurrentAppId() +
                 "' AND cache_key IN " + validKeys;
         SQLiteDatabase db = CommCareApplication.instance().getUserDbHandle();
         if (SqlStorage.STORAGE_OUTPUT_DEBUG) {
@@ -231,7 +232,7 @@ public class EntityStorageCache {
         }
     }
 
-    public static String getCacheKey(String detailId, String mFieldId) {
+    public String getCacheKey(String detailId, String mFieldId) {
         return detailId + "_" + mFieldId;
     }
 
