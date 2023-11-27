@@ -1,5 +1,7 @@
 package org.commcare.views;
 
+import static org.commcare.cases.util.StringUtils.normalize;
+
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -17,15 +19,14 @@ import android.widget.TextView;
 import org.commcare.android.logging.ForceCloseLogger;
 import org.commcare.cases.entity.AsyncEntity;
 import org.commcare.cases.entity.Entity;
-import org.commcare.dalvik.R;
 import org.commcare.core.graph.model.GraphData;
 import org.commcare.core.graph.util.GraphException;
+import org.commcare.dalvik.R;
 import org.commcare.graph.view.GraphView;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.DetailField;
 import org.commcare.utils.AndroidUtil;
 import org.commcare.utils.MediaUtil;
-import org.commcare.utils.StringUtils;
 import org.commcare.views.media.AudioPlaybackButton;
 import org.commcare.views.media.ViewId;
 import org.javarosa.core.services.Logger;
@@ -391,14 +392,14 @@ public class EntityView extends LinearLayout {
                 }
 
                 //make sure that we have the same consistency for our background match
-                backgroundString = StringUtils.normalize(backgroundString).trim();
+                backgroundString = normalize(backgroundString).trim();
             } else {
                 //Otherwise we basically want to treat the "Search" string and the display string
                 //the same way.
-                backgroundString = StringUtils.normalize(raw.toString());
+                backgroundString = normalize(raw.toString());
             }
 
-            String normalizedDisplayString = StringUtils.normalize(raw.toString());
+            String normalizedDisplayString = normalize(raw.toString());
 
             removeSpans(raw);
 
