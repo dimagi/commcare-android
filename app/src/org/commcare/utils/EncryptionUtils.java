@@ -1,27 +1,8 @@
 package org.commcare.utils;
 
-import android.os.Build;
-import android.security.KeyPairGeneratorSpec;
-import android.security.keystore.KeyGenParameterSpec;
-import android.security.keystore.KeyProperties;
-
-import org.commcare.CommCareApplication;
 import org.commcare.util.Base64;
-
-import java.math.BigInteger;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.KeyPairGenerator;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
-import java.util.GregorianCalendar;
-
-import javax.crypto.KeyGenerator;
-import javax.security.auth.x500.X500Principal;
-
-import static org.commcare.util.CommCarePlatform.getPlatformKeyStoreName;
-import static org.commcare.util.EncryptionUtils.isPlatformKeyStoreAvailable;
-
 
 /**
  * Utility class for encrypting submissions during the SaveToDiskTask.
@@ -38,55 +19,6 @@ public class EncryptionUtils {
             return Base64.encode(hashInBytes);
         } catch (NoSuchAlgorithmException e) {
             return "";
-        }
-    }
-
-    // Generates a cryptrographic key and adds it to the Android KeyStore
-    public static void generateCryptographicKeyForKeyStore(String keyAlias) {
-        if (isPlatformKeyStoreAvailable()) {
-            try {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    KeyGenerator keyGenerator = KeyGenerator
-                            .getInstance(KeyProperties.KEY_ALGORITHM_AES, getPlatformKeyStoreName());
-                    KeyGenParameterSpec keyGenParameterSpec = new KeyGenParameterSpec.Builder(keyAlias,
-                            KeyProperties.PURPOSE_ENCRYPT | KeyProperties.PURPOSE_DECRYPT)
-                            .setBlockModes(KeyProperties.BLOCK_MODE_GCM)
-                            .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
-                            .build();
-                    keyGenerator.init(keyGenParameterSpec);
-                    keyGenerator.generateKey();
-                } else {
-                    // Because KeyGenParameterSpec was introduced in Android SDK 23, prior versions
-                    // need to resource to KeyPairGenerator which only generates asymmetric keys,
-                    // hence the need to switch to a correspondent algorithm as well, RSA
-                    // TODO: Add link to StackOverflow page
-                    KeyPairGenerator keyGenerator = KeyPairGenerator
-                            .getInstance(KeyProperties.KEY_ALGORITHM_RSA, getPlatformKeyStoreName());
-                    GregorianCalendar start = new GregorianCalendar();
-                    GregorianCalendar end = new GregorianCalendar();
-                    end.add(GregorianCalendar.YEAR, 1);
-
-                    KeyPairGeneratorSpec keySpec = new KeyPairGeneratorSpec.Builder(CommCareApplication.instance())
-                            // Key alias to be used to retrieve it from the KeyStore
-                            .setAlias(keyAlias)
-                            // The subject used for the self-signed certificate of the generated pair
-                            .setSubject(new X500Principal(String.format("CN=%s", keyAlias)))
-                            // The serial number used for the self-signed certificate of the
-                            // generated pair
-                            .setSerialNumber(BigInteger.valueOf(1337))
-                            // Date range of validity for the generated pair
-                            .setStartDate(start.getTime())
-                            .setEndDate(end.getTime())
-                            .build();
-
-                    keyGenerator.initialize(keySpec);
-                    keyGenerator.generateKeyPair();
-                }
-
-            } catch (NoSuchAlgorithmException | NoSuchProviderException |
-                     InvalidAlgorithmParameterException e) {
-                throw new RuntimeException(e);
-            }
         }
     }
 }

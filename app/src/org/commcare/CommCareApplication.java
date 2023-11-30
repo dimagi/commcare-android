@@ -141,7 +141,7 @@ import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 
 import static org.commcare.util.EncryptionUtils.USER_CREDENTIALS_KEY_ALIAS;
-import static org.commcare.utils.EncryptionUtils.generateCryptographicKeyForKeyStore;
+import static org.commcare.util.EncryptionUtils.encryptionKeyProvider;
 
 public class CommCareApplication extends MultiDexApplication {
 
@@ -253,7 +253,7 @@ public class CommCareApplication extends MultiDexApplication {
 
         FirebaseMessagingUtil.verifyToken();
 
-        generateCryptographicKeyForKeyStore(USER_CREDENTIALS_KEY_ALIAS);
+        encryptionKeyProvider.generateCryptographicKeyInKeyStore(USER_CREDENTIALS_KEY_ALIAS);
 
         customiseOkHttp();
     }
