@@ -121,6 +121,7 @@ public class ConnectJobsListsFragment extends Fragment {
         ConnectNetworkHelper.getConnectOpportunities(getContext(), new ConnectNetworkHelper.INetworkResultHandler() {
             @Override
             public void processSuccess(int responseCode, InputStream responseData) {
+                //TODO: Sounds like we don't want a try-catch here, better to crash. Verify before changing
                 try {
                     String responseAsString = new String(StreamsUtil.inputStreamToByteArray(responseData));
                     if (responseAsString.length() > 0) {
@@ -134,31 +135,38 @@ public class ConnectJobsListsFragment extends Fragment {
 
                         //Store retrieved jobs
                         ConnectDatabaseHelper.storeJobs(getContext(), jobs, true);
-
-                        try {
-                            updateUpdatedDate(new Date());
-                            viewStateAdapter.refresh();
-                            chooseTab();
-                        }
-                        catch(Exception e) {
-                            //Ignore exception, happens if we leave the page before API call finishes
-                        }
                     }
                 } catch (IOException | JSONException | ParseException e) {
                     Logger.exception("Parsing return from Opportunities request", e);
                 }
+
+                refreshUi();
             }
 
             @Override
             public void processFailure(int responseCode, IOException e) {
                 Logger.log("ERROR", String.format(Locale.getDefault(), "Opportunities call failed: %d", responseCode));
+                refreshUi();
             }
 
             @Override
             public void processNetworkFailure() {
                 Logger.log("ERROR", "Failed (network)");
+                refreshUi();
             }
         });
+    }
+
+    private void refreshUi() {
+        try {
+            //TODO: This code should happen even after failures
+            updateUpdatedDate(new Date());
+            viewStateAdapter.refresh();
+            chooseTab();
+        }
+        catch(Exception e) {
+            //Ignore exception, happens if we leave the page before API call finishes
+        }
     }
 
     private void updateUpdatedDate(Date lastUpdate) {
