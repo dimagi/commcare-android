@@ -200,6 +200,14 @@
             android:textSize="@dimen/text_large"/>
 
         <Button
+            android:id="@+id/connect_learning_review_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            tools:text="@string/connect_learn_review"
+            android:visibility="gone"/>
+
+        <Button
             android:id="@+id/connect_learning_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

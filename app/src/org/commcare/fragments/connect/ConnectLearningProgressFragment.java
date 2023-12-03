@@ -169,6 +169,7 @@ public class ConnectLearningProgressFragment extends Fragment {
         boolean assessmentAttempted = job.attemptedAssessment();
         boolean assessmentPassed = job.passedAssessment();
 
+        boolean showReviewLearningButton = false;
         String status;
         String buttonText;
         if (learningFinished) {
@@ -176,10 +177,12 @@ public class ConnectLearningProgressFragment extends Fragment {
                 if(assessmentPassed) {
                     status = getString(R.string.connect_learn_finished, job.getAssessmentScore(), job.getLearnAppInfo().getPassingScore());
                     buttonText = getString(R.string.connect_learn_view_details);
+                    showReviewLearningButton = true;
                 }
                 else {
                     status = getString(R.string.connect_learn_failed, job.getAssessmentScore(), job.getLearnAppInfo().getPassingScore());
                     buttonText = getString(R.string.connect_learn_try_again);
+                    showReviewLearningButton = true;
                 }
             }
             else {
@@ -286,6 +289,22 @@ public class ConnectLearningProgressFragment extends Fragment {
         } else {
             completeByText.setText(getString(R.string.connect_learn_complete_by, df.format(job.getProjectEndDate())));
         }
+
+        final Button reviewButton = view.findViewById(R.id.connect_learning_review_button);
+        reviewButton.setVisibility(showReviewLearningButton ? View.VISIBLE : View.GONE);
+        reviewButton.setOnClickListener(v -> {
+            NavDirections directions = null;
+            if(ConnectManager.isAppInstalled(job.getLearnAppInfo().getAppId())) {
+                ConnectManager.launchApp(getContext(), job.getLearnAppInfo().getAppId());
+            } else {
+                String title = getString(R.string.connect_downloading_learn);
+                directions = ConnectLearningProgressFragmentDirections.actionConnectJobLearningProgressFragmentToConnectDownloadingFragment(title, true, true, job);
+            }
+
+            if(directions != null) {
+                Navigation.findNavController(reviewButton).navigate(directions);
+            }
+        });
 
         final Button button = view.findViewById(R.id.connect_learning_button);
         button.setText(buttonText);

@@ -84,7 +84,22 @@ public class ConnectDeliveryProgressDeliveryFragment extends Fragment {
 //            }
         });
 
+        Button reviewButton = view.findViewById(R.id.connect_progress_review_button);
+        reviewButton.setOnClickListener(v -> {
+            launchLearningApp(reviewButton);
+        });
+
         return view;
+    }
+
+    private void launchLearningApp(Button button) {
+        if(ConnectManager.isAppInstalled(job.getLearnAppInfo().getAppId())) {
+            ConnectManager.launchApp(getContext(), job.getLearnAppInfo().getAppId());
+        }
+        else {
+            String title = getString(R.string.connect_downloading_learn);
+            Navigation.findNavController(button).navigate(ConnectDeliveryProgressFragmentDirections.actionConnectJobDeliveryProgressFragmentToConnectDownloadingFragment(title, true, true, job));
+        }
     }
 
     private void launchDeliveryApp(Button button) {

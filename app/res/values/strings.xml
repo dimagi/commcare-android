@@ -661,6 +661,7 @@
     <string name="connect_learn_certificate">CERTIFICATE OF COMPLETION</string>
     <string name="connect_learn_completed">Completed on: %s</string>
     <string name="connect_learn_claim_label">Claim Job to Deliver Care</string>
+    <string name="connect_learn_review">Review Learning</string>
     <string name="connect_learn_view_details">View Job Details</string>
     <string name="connect_learn_go_to_assessment">Go To Assessment</string>
     <string name="connect_learn_try_again">Try Again</string>
@@ -691,6 +692,7 @@
     <string name="connect_progress_max_visits_dialog_title">Max Visits Reached</string>
     <string name="connect_progress_expired">The last date for the project is over and visits will not count towards payment.</string>
     <string name="connect_progress_visits_completed">You have reached the maximum number of visits, additional visits will not count towards payment.</string>
+    <string name="connect_progress_review">Review Learning</string>
     <string name="connect_progress_launch">Launch App</string>
     <string name="connect_progress_paid">PAID</string>
     <string name="connect_progress_warning">Not seeing your expected progress?</string>
