@@ -101,7 +101,7 @@ public class ConnectResultsListFragment extends Fragment {
             } else if(holder instanceof PaymentViewHolder paymentHolder) {
                 ConnectJobPaymentRecord payment = job.getPayments().get(position);
 
-                String money = job.getMoneyString((int)Double.parseDouble(payment.getAmount()));
+                String money = job.getMoneyString(Integer.parseInt(payment.getAmount()));
 
                 paymentHolder.nameText.setText(parentContext.getString(R.string.connect_results_payment_title));
                 paymentHolder.dateText.setText(df.format(payment.getDate()));

@@ -247,8 +247,8 @@ public class ConnectJobRecord extends Persisted implements Serializable {
     public Date getDateCompleted() { return lastWorkedDate; }
     public Date getProjectEndDate() { return projectEndDate; }
     public void setProjectEndDate(Date date) { projectEndDate = date; }
-    public String getPaymentAccrued() { return paymentAccrued; }
-    public void setPaymentAccrued(String paymentAccrued) { this.paymentAccrued = paymentAccrued; }
+    public int getPaymentAccrued() { return Integer.parseInt(paymentAccrued); }
+    public void setPaymentAccrued(int paymentAccrued) { this.paymentAccrued = Integer.toString(paymentAccrued); }
     public String getCurrency() { return currency; }
     public int getNumLearningModules() { return numLearningModules; }
     public int getCompletedLearningModules() { return learningModulesCompleted; }

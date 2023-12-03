@@ -152,7 +152,7 @@ public class ConnectDeliveryProgressFragment extends Fragment {
 
                         key = "payment_accrued";
                         if(json.has(key)) {
-                            job.setPaymentAccrued(json.getString(key));
+                            job.setPaymentAccrued(json.getInt(key));
                             updatedJob = true;
                         }
 

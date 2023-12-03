@@ -102,13 +102,17 @@ public class ConnectResultsSummaryListFragment extends Fragment {
                     description = parentContext.getString(R.string.connect_results_summary_verifications_description, numPending, numFailed, numApproved);
                 } else {
                     //Payment Status
-                    double total = 0;
+                    int total = 0;
                     for (ConnectJobPaymentRecord payment : job.getPayments()) {
-                        total += Double.parseDouble(payment.getAmount());
+                        try {
+                            total += Integer.parseInt(payment.getAmount());
+                        } catch(Exception e) {
+                            //Ignore at least for now
+                        }
                     }
 
-                    String accrued = job.getMoneyString((int)Double.parseDouble(job.getPaymentAccrued()));
-                    String paid = job.getMoneyString((int)total);
+                    String accrued = job.getMoneyString(job.getPaymentAccrued());
+                    String paid = job.getMoneyString(total);
                     description = parentContext.getString(R.string.connect_results_summary_payments_description, accrued, paid);
                 }
             }
