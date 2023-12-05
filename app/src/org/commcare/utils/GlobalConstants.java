@@ -56,4 +56,6 @@ public class GlobalConstants {
     public static final String TRUSTED_SOURCE_PUBLIC_KEY = BuildConfig.TRUSTED_SOURCE_PUBLIC_KEY;
 
     public static final String SMS_INSTALL_KEY_STRING = "[commcare app - do not delete]";
+
+    public static final String KEYSTORE_NAME = "AndroidKeyStore";
 }

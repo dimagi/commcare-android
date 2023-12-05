@@ -27,9 +27,9 @@ import java.util.GregorianCalendar;
 import javax.crypto.KeyGenerator;
 import javax.security.auth.x500.X500Principal;
 
-public class EncryptionKeyProvider implements IEncryptionKeyProvider {
+import static org.commcare.utils.GlobalConstants.KEYSTORE_NAME;
 
-    private static final String KEYSTORE_NAME = "AndroidKeyStore";
+public class EncryptionKeyProvider implements IEncryptionKeyProvider {
 
     private static final String BLOCK_MODE = KeyProperties.BLOCK_MODE_GCM;
 
