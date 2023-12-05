@@ -211,7 +211,7 @@ public class CommCareTestApplication extends CommCareApplication implements Test
         }
         if (user != null) {
             user.setCachedPwd(cachedUserPassword);
-            user.setWrappedKey(ByteEncrypter.wrapByteArrayWithString(CryptUtil.generateSemiRandomKey().getEncoded(), cachedUserPassword));
+            user.setWrappedKey(ByteEncrypter.wrapByteArrayWithString(CryptUtil.generateRandomSecretKey().getEncoded(), cachedUserPassword));
         }
         ccService.startSession(user, record);
         CommCareApplication.instance().setTestingService(ccService);
