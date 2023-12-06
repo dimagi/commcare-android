@@ -160,29 +160,31 @@ ext {
     HQ_API_USERNAME = project.properties['HQ_API_USERNAME'] ?: ""
     HQ_API_PASSWORD = project.properties['HQ_API_PASSWORD'] ?: ""
     TEST_BUILD_TYPE = project.properties['TEST_BUILD_TYPE'] ?: "debug"
+    FIREBASE_DATABASE_URL = project.properties['FIREBASE_DATABASE_URL'] ?: ""
 }
 
 afterEvaluate {
     // Hack to get assets to show up in robolectric tests; try to eventually remove this
     preCommcareDebugUnitTestBuild.dependsOn mergeCommcareDebugAssets
-    processStandaloneDebugGoogleServices.dependsOn injectGoogleServicesAPIKey
-    processStandaloneReleaseGoogleServices.dependsOn injectGoogleServicesAPIKey
-    processLtsDebugGoogleServices.dependsOn injectGoogleServicesAPIKey
-    processLtsReleaseGoogleServices.dependsOn injectGoogleServicesAPIKey
-    processCommcareDebugGoogleServices.dependsOn injectGoogleServicesAPIKey
-    processCommcareReleaseGoogleServices.dependsOn injectGoogleServicesAPIKey
+    processStandaloneDebugGoogleServices.dependsOn injectPropertiesIntoFirebaseConfigFile
+    processStandaloneReleaseGoogleServices.dependsOn injectPropertiesIntoFirebaseConfigFile
+    processLtsDebugGoogleServices.dependsOn injectPropertiesIntoFirebaseConfigFile
+    processLtsReleaseGoogleServices.dependsOn injectPropertiesIntoFirebaseConfigFile
+    processCommcareDebugGoogleServices.dependsOn injectPropertiesIntoFirebaseConfigFile
+    processCommcareReleaseGoogleServices.dependsOn injectPropertiesIntoFirebaseConfigFile
 }
 
 /**
  * https://discuss.gradle.org/t/gradle-7-0-seems-to-take-an-overzealous-approach-to-inter-task-dependencies/39656/2
  * Gradle 7.0 treats any copy tasks as having an implicit dependencies with each other.
  */
-task injectGoogleServicesAPIKey {
-    description = 'Injects the Google Services API key into the google-services.json file at runtime'
+task injectPropertiesIntoFirebaseConfigFile {
+    description = 'Injects properties into the google-services.json file at runtime'
 
     copy {
         from 'templates/google-services.json'
-        filter(ReplaceTokens, tokens: [apiKey: project.ext.GOOGLE_SERVICES_API_KEY])
+        filter(ReplaceTokens, tokens: [apiKey: project.ext.GOOGLE_SERVICES_API_KEY,
+                                       firebaseDatabaseUrl: project.ext.FIREBASE_DATABASE_URL])
         into projectDir
     }
 }
