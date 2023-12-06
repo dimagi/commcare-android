@@ -231,6 +231,8 @@ public class CommCareApplication extends MultiDexApplication {
         setRoots();
         prepareTemporaryStorage();
 
+        getEncryptionKeyProvider().generateCryptographicKeyInKeyStore(USER_CREDENTIALS_KEY_ALIAS);
+
         if (LegacyInstallUtils.checkForLegacyInstall(this)) {
             dbState = STATE_LEGACY_DETECTED;
         } else {
@@ -252,8 +254,6 @@ public class CommCareApplication extends MultiDexApplication {
         GraphUtil.setLabelCharacterLimit(getResources().getInteger(R.integer.graph_label_char_limit));
 
         FirebaseMessagingUtil.verifyToken();
-
-        getEncryptionKeyProvider().generateCryptographicKeyInKeyStore(USER_CREDENTIALS_KEY_ALIAS);
 
         customiseOkHttp();
     }
