@@ -7,6 +7,7 @@ import io.mockk.mockk
 import org.commcare.CommCareApplication
 import org.commcare.CommCareTestApplication
 import org.commcare.android.util.TestAppInstaller
+import org.commcare.util.EncryptionUtils
 import org.javarosa.core.model.User
 import org.junit.After
 import org.junit.Assert
@@ -14,8 +15,6 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
-import org.commcare.util.EncryptionUtils;
-
 
 @Config(application = CommCareTestApplication::class)
 @RunWith(AndroidJUnit4::class)
@@ -24,8 +23,10 @@ public class EncryptCredentialsInMemoryTest {
     @Before
     fun setup() {
         TestAppInstaller.installAppAndUser(
-                "jr://resource/commcare-apps/update_tests/base_app/profile.ccpr",
-            TEST_USER, TEST_PASS)
+            "jr://resource/commcare-apps/update_tests/base_app/profile.ccpr",
+            TEST_USER,
+            TEST_PASS
+        )
 
         // Set production encryption key provider
         EncryptionUtils.setEncryptionKeyProvider(EncryptionKeyProvider())
@@ -37,7 +38,7 @@ public class EncryptCredentialsInMemoryTest {
         Assert.assertFalse(EncryptionUtils.getEncryptionKeyProvider().isKeyStoreAvailable)
 
         // register mock Android key store provider, this is when the key store becomes available
-        MockAndroidKeyStoreProvider.registerProvider();
+        MockAndroidKeyStoreProvider.registerProvider()
 
         // generate key to encrypt User credentials in the key store
         generateUserCredentialKey()
@@ -53,7 +54,11 @@ public class EncryptCredentialsInMemoryTest {
 
         // save the same username and store the username for future comparison
         user.setUsername(TEST_USER)
-        CommCareApplication.instance().getRawStorage("USER", User::class.java, CommCareApplication.instance().getUserDbHandle()).write(user)
+        CommCareApplication.instance().getRawStorage(
+            "USER",
+            User::class.java,
+            CommCareApplication.instance().userDbHandle
+        ).write(user)
         var username = user.username
 
         // close the user session
@@ -69,19 +74,19 @@ public class EncryptCredentialsInMemoryTest {
         TestAppInstaller.login(TEST_USER, TEST_PASS)
 
         // retrieve the current logged in user
-        user = CommCareApplication.instance().getSession().getLoggedInUser()
+        user = CommCareApplication.instance().session.loggedInUser
 
         // confirm that the previously captured username matches the current user's
         Assert.assertEquals(username, user.username)
     }
 
     @After
-    fun restore(){
+    fun restore() {
         EncryptionUtils.reloadEncryptionKeyProvider()
     }
 
-    private fun generateUserCredentialKey(){
-        var mockKeyGenParameterSpec = mockk<KeyGenParameterSpec>();
+    private fun generateUserCredentialKey() {
+        var mockKeyGenParameterSpec = mockk<KeyGenParameterSpec>()
         every { mockKeyGenParameterSpec.keystoreAlias } returns EncryptionUtils.USER_CREDENTIALS_KEY_ALIAS
 
         // generate key using mock key generator
