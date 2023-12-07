@@ -17,8 +17,8 @@ import javax.crypto.KeyGeneratorSpi;
 import javax.crypto.SecretKey;
 
 public class MockKeyGeneratorSpi extends KeyGeneratorSpi {
-    private KeyGenerator wrappedKeyGenerator;
-    private KeyStore keyStore;
+    private final KeyGenerator wrappedKeyGenerator;
+    private final KeyStore keyStore;
     private KeyGenParameterSpec spec = null;
 
     {
@@ -35,7 +35,7 @@ public class MockKeyGeneratorSpi extends KeyGeneratorSpi {
     @Override
     protected void engineInit(AlgorithmParameterSpec params, SecureRandom random)
             throws InvalidAlgorithmParameterException {
-        if (params == null || !(params instanceof KeyGenParameterSpec)) {
+        if (!(params instanceof KeyGenParameterSpec)) {
             throw new InvalidAlgorithmParameterException(
                     String.format("Cannot initialize without a %s parameter", KeyGenParameterSpec.class.getName()));
         }

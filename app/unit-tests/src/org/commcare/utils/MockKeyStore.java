@@ -4,7 +4,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.security.Key;
 import java.security.KeyStore;
-import java.security.KeyStoreException;
 import java.security.KeyStoreSpi;
 import java.security.PrivateKey;
 import java.security.cert.Certificate;
@@ -18,8 +17,8 @@ import javax.crypto.SecretKey;
 
 public class MockKeyStore extends KeyStoreSpi {
 
-    private static HashMap<String, Key> keys = new HashMap<>();
-    private static HashMap<String, Certificate> certs = new HashMap<>();
+    private static final HashMap<String, Key> keys = new HashMap<>();
+    private static final HashMap<String, Certificate> certs = new HashMap<>();
 
     @Override
     public void engineSetKeyEntry(String alias, Key key, char[] password, Certificate[] chain) {
@@ -27,7 +26,7 @@ public class MockKeyStore extends KeyStoreSpi {
     }
 
     @Override
-    public void engineDeleteEntry(String alias) throws KeyStoreException {
+    public void engineDeleteEntry(String alias) {
         keys.remove(alias);
         certs.remove(alias);
     }

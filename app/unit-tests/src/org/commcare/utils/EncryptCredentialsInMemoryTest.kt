@@ -1,4 +1,4 @@
-package org.commcare.utils;
+package org.commcare.utils
 
 import android.security.keystore.KeyGenParameterSpec
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -59,7 +59,7 @@ public class EncryptCredentialsInMemoryTest {
             User::class.java,
             CommCareApplication.instance().userDbHandle
         ).write(user)
-        var username = user.username
+        val username = user.username
 
         // close the user session
         CommCareApplication.instance().closeUserSession()
@@ -86,11 +86,11 @@ public class EncryptCredentialsInMemoryTest {
     }
 
     private fun generateUserCredentialKey() {
-        var mockKeyGenParameterSpec = mockk<KeyGenParameterSpec>()
+        val mockKeyGenParameterSpec = mockk<KeyGenParameterSpec>()
         every { mockKeyGenParameterSpec.keystoreAlias } returns EncryptionUtils.USER_CREDENTIALS_KEY_ALIAS
 
         // generate key using mock key generator
-        var mockKeyGenerator = MockKeyGenerator()
+        val mockKeyGenerator = MockKeyGenerator()
         mockKeyGenerator.init(mockKeyGenParameterSpec)
         mockKeyGenerator.generateKey()
     }

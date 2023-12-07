@@ -27,12 +27,22 @@ import java.util.GregorianCalendar;
 import javax.crypto.KeyGenerator;
 import javax.security.auth.x500.X500Principal;
 
+import androidx.annotation.RequiresApi;
+
 import static org.commcare.utils.GlobalConstants.KEYSTORE_NAME;
 
+/**
+ * Class for providing encryption keys backed by Android Keystore
+ *
+ * @author dviggiano
+ */
 public class EncryptionKeyProvider implements IEncryptionKeyProvider {
 
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    private static final String ALGORITHM = KeyProperties.KEY_ALGORITHM_AES;
+    @RequiresApi(api = Build.VERSION_CODES.M)
     private static final String BLOCK_MODE = KeyProperties.BLOCK_MODE_GCM;
-
+    @RequiresApi(api = Build.VERSION_CODES.M)
     private static final String PADDING = KeyProperties.ENCRYPTION_PADDING_NONE;
     private static KeyStore keystoreSingleton = null;
 
@@ -48,7 +58,8 @@ public class EncryptionKeyProvider implements IEncryptionKeyProvider {
     @Override
     public EncryptionKeyAndTransformation retrieveKeyFromKeyStore(String keyAlias,
                                                                   EncryptionUtils.CryptographicOperation operation)
-            throws KeyStoreException, UnrecoverableEntryException, NoSuchAlgorithmException, CertificateException, IOException {
+            throws KeyStoreException, UnrecoverableEntryException, NoSuchAlgorithmException,
+            CertificateException, IOException {
         Key key;
         if (getKeyStore().containsAlias(keyAlias)) {
             KeyStore.Entry keyEntry = getKeyStore().getEntry(keyAlias, null);
@@ -64,10 +75,11 @@ public class EncryptionKeyProvider implements IEncryptionKeyProvider {
         } else {
             throw new KeyStoreException("Key not found in KeyStore");
         }
-        if (key != null)
+        if (key != null) {
             return new EncryptionKeyAndTransformation(key, getTransformationString(key.getAlgorithm()));
-        else
+        } else {
             return null;
+        }
     }
 
     // Generates a cryptrographic key and adds it to the Android KeyStore
@@ -128,12 +140,12 @@ public class EncryptionKeyProvider implements IEncryptionKeyProvider {
 
     @Override
     public String getAESKeyAlgorithmRepresentation() {
-        return KeyProperties.KEY_ALGORITHM_AES;
+        return ALGORITHM;
     }
 
     @Override
     public String getRSAKeyAlgorithmRepresentation() {
-        return KeyProperties.KEY_ALGORITHM_RSA;
+        return "RSA";
     }
 
     @Override

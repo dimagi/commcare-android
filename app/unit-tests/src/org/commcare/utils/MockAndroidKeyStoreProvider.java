@@ -1,6 +1,5 @@
 package org.commcare.utils;
 
-import java.security.NoSuchAlgorithmException;
 import java.security.Provider;
 import java.security.Security;
 
@@ -14,7 +13,7 @@ public class MockAndroidKeyStoreProvider extends Provider {
         super(GlobalConstants.KEYSTORE_NAME, 1.0, "Mock AndroidKeyStore provider");
     }
 
-    public static void registerProvider() throws NoSuchAlgorithmException {
+    public static void registerProvider() {
         Security.addProvider(new MockAndroidKeyStoreProvider());
     }
 
