@@ -161,9 +161,14 @@ ext {
     TEST_BUILD_TYPE = project.properties['TEST_BUILD_TYPE'] ?: 'debug'
     FIREBASE_DATABASE_URL = project.properties['FIREBASE_DATABASE_URL'] ?: ''
 
-    // properties related to Service providers
-    SERVICE_PROVIDERS = ['org.commcare.util.IEncryptionKeyProvider' : 'org.commcare.utils.EncryptionKeyProvider']
+    // properties related to Service providers part of the Java SPI pattern
     SERVICE_PROVIDERS_REL_DIR = 'META-INF/services'
+    /**
+     * Service provider implementations and respective service interfaces should be added to this
+     * map. The task registerServiceProviders is responsible for iterating over it and create the
+     * configuration files under META-INF/services
+     */
+    SERVICE_PROVIDERS = ['org.commcare.util.IEncryptionKeyProvider' : 'org.commcare.utils.EncryptionKeyProvider']
 }
 
 afterEvaluate {
