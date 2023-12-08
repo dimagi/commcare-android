@@ -76,7 +76,7 @@ public class ConnectLearningProgressFragment extends Fragment {
         });
 
         updateUpdatedDate(job.getLastLearnUpdate());
-        updateUi();
+        updateUi(view);
         refreshData();
 
         return view;
@@ -130,7 +130,7 @@ public class ConnectLearningProgressFragment extends Fragment {
 
                 try {
                     updateUpdatedDate(new Date());
-                    updateUi();
+                    updateUi(null);
                 }
                 catch(Exception e) {
                     //Ignore exception, happens if we leave the page before API call finishes
@@ -149,8 +149,11 @@ public class ConnectLearningProgressFragment extends Fragment {
         });
     }
 
-    private void updateUi() {
-        View view = getView();
+    private void updateUi(View view) {
+        if(view == null) {
+            view = getView();
+        }
+
         if(view == null) {
             return;
         }
@@ -292,6 +295,7 @@ public class ConnectLearningProgressFragment extends Fragment {
 
         final Button reviewButton = view.findViewById(R.id.connect_learning_review_button);
         reviewButton.setVisibility(showReviewLearningButton ? View.VISIBLE : View.GONE);
+        reviewButton.setText(R.string.connect_learn_review);
         reviewButton.setOnClickListener(v -> {
             NavDirections directions = null;
             if(ConnectManager.isAppInstalled(job.getLearnAppInfo().getAppId())) {
