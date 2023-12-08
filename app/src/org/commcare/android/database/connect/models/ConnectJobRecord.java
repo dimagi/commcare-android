@@ -31,7 +31,6 @@ public class ConnectJobRecord extends Persisted implements Serializable {
     public static final int STATUS_AVAILABLE = 2;
     public static final int STATUS_LEARNING = 3;
     public static final int STATUS_DELIVERING = 4;
-    public static final int STATUS_COMPLETE = 5;
 
     public static final String META_JOB_ID = "id";
     public static final String META_NAME = "name";
@@ -222,13 +221,14 @@ public class ConnectJobRecord extends Persisted implements Serializable {
             job.status = STATUS_LEARNING;
             if(job.claimed) {
                 job.status = STATUS_DELIVERING;
-                if(job.getDaysRemaining() <= 0) {
-                    job.status = STATUS_COMPLETE;
-                }
             }
         }
 
         return job;
+    }
+
+    public boolean isFinished() {
+        return getDaysRemaining() <= 0;
     }
 
     public int getJobId() { return jobId; }

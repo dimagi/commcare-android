@@ -89,7 +89,7 @@ public class MockJobProvider {
         return mockAvailableJobs;
     }
 
-    public static List<ConnectJobRecord> getClaimedJobs() {
+    public static List<ConnectJobRecord> getDeliveryJobs() {
         return mockClaimedJobs;
     }
 }

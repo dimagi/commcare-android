@@ -131,9 +131,14 @@ public class ConnectDeliveryProgressDeliveryFragment extends Fragment {
         textView = view.findViewById(R.id.connect_progress_status_text);
         textView.setText(getString(R.string.connect_progress_status, completed, total));
 
+        boolean finished = job.isFinished();
+        textView = view.findViewById(R.id.connect_progress_ended_text);
+        textView.setVisibility(finished ? View.VISIBLE : View.GONE);
+
         textView = view.findViewById(R.id.connect_progress_complete_by_text);
         DateFormat df = new SimpleDateFormat("MM/dd/yyyy", Locale.getDefault());
-        textView.setText(getString(R.string.connect_progress_complete_by, df.format(job.getProjectEndDate())));
+        int textId = finished ? R.string.connect_progress_ended : R.string.connect_progress_complete_by;
+        textView.setText(getString(textId, df.format(job.getProjectEndDate())));
 
         textView = view.findViewById(R.id.connect_progress_warning_learn_text);
         textView.setOnClickListener(v -> {

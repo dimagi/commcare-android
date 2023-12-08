@@ -627,17 +627,22 @@
     <string name="connect_job_visits">Cover %d Households in %d Days</string>
     <string name="connect_job_training_complete">Learning Completed &amp; Certified</string>
     <string name="connect_job_needs_assessment">Assessment Required</string>
+    <string name="connect_job_passed_assessment">Assessment Completed</string>
     <string name="connect_job_training_progress">%s %d%% Complete</string>
+    <string name="connect_job_visits_completed">Completed %d visits</string>
     <string name="connect_job_remaining">%d days remaining</string>
     <string name="connect_job_learning">Learning</string>
+    <string name="connect_job_learning_not_completed">Learning not completed</string>
+    <string name="connect_job_assessment_not_completed">Assessment not completed</string>
     <string name="connect_job">Job</string>
 
     <string name="connect_job_none_training">You\'re not training for any jobs right now</string>
     <string name="connect_job_none_active">You don\'t have any active jobs right now</string>
     <string name="connect_job_none_available">There are no available opportunities right now</string>
     <string name="connect_job_training">Jobs I\'m Training For</string>
-    <string name="connect_job_claimed">My Claimed Jobs</string>
-    <string name="connect_job_completed">Completed on %s</string>
+    <string name="connect_job_claimed">Jobs In Delivery</string>
+    <string name="connect_job_ended">Ended Jobs</string>
+    <string name="connect_job_completed">Ended %s</string>
 
     <string name="connect_job_you_will_learn">Complete the following learn modules and earn a certificate</string>
     <string name="connect_job_start_training">Start Training for this Job</string>
@@ -661,6 +666,7 @@
     <string name="connect_learn_certificate">CERTIFICATE OF COMPLETION</string>
     <string name="connect_learn_completed">Completed on: %s</string>
     <string name="connect_learn_claim_label">Claim Job to Deliver Care</string>
+    <string name="connect_learn_warning_ended">The job has ended. You will not earn any progress for additional work.</string>
     <string name="connect_learn_review">Review Learning</string>
     <string name="connect_learn_view_details">View Job Details</string>
     <string name="connect_learn_go_to_assessment">Go To Assessment</string>
@@ -688,6 +694,7 @@
     <string name="connect_progress_title">Your Delivery Progress</string>
     <string name="connect_progress_status">You have completed %d of %d visits.</string>
     <string name="connect_progress_complete_by">Complete Delivery by %s</string>
+    <string name="connect_progress_ended">Job ended %s</string>
     <string name="connect_progress_expired_dialog_title">Project Expired</string>
     <string name="connect_progress_max_visits_dialog_title">Max Visits Reached</string>
     <string name="connect_progress_expired">The last date for the project is over and visits will not count towards payment.</string>
@@ -697,6 +704,7 @@
     <string name="connect_progress_paid">PAID</string>
     <string name="connect_progress_warning">Not seeing your expected progress?</string>
     <string name="connect_progress_warning_learn">Learn why</string>
+    <string name="connect_progress_warning_ended">The job has ended. You will not earn any progress for additional work.</string>
     <string name="connect_progress_warning_full">You may not see your expected progress if your number of visits exceeds the maximum for the day OR if your forms have not been uploaded. You can wait for your forms to sync with a better network and check progress again.</string>
 
     <string name="connect_downloading_learn">Downloading Learn App</string>

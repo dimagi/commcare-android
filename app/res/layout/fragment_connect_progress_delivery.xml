@@ -101,6 +101,16 @@
             android:textAlignment="center"
             android:layout_marginTop="20dp"/>
 
+        <TextView
+            android:id="@+id/connect_progress_ended_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAlignment="center"
+            android:layout_marginTop="20dp"
+            android:textColor="@color/red"
+            android:text="@string/connect_progress_warning_ended"
+            android:visibility="gone"/>
+
         <Button
             android:id="@+id/connect_progress_review_button"
             android:layout_width="match_parent"

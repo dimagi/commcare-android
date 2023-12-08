@@ -29,6 +29,7 @@ public class ConnectJobAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     private static final int ViewTypeClaimed = 3;
     private static final int ViewTypeEmpty = 4;
     private static final int ViewTypeAvailable = 5;
+    private static final int ViewTypeEnded = 6;
 
     private Context parentContext;
     private final boolean showAvailable;
@@ -40,16 +41,23 @@ public class ConnectJobAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     @Override
     public int getItemCount() {
         if(showAvailable) {
+            //1 section, no header
             int numAvailable = ConnectDatabaseHelper.getAvailableJobs(parentContext).size();
             return numAvailable > 0 ? numAvailable : 1;
         }
 
-        List<ConnectJobRecord> training = ConnectDatabaseHelper.getTrainingJobs(parentContext);
-        int numTraining = training.size() > 0 ? training.size() : 1;
+        //3 sections, each with a header and at least 1 row (for placeholder)
 
-        List<ConnectJobRecord> claimed = ConnectDatabaseHelper.getClaimedJobs(parentContext);
-        int numClaimed = claimed.size() > 0 ? claimed.size() : 1;
-        return numTraining + numClaimed + 2;
+        List<ConnectJobRecord> training = ConnectDatabaseHelper.getTrainingJobs(parentContext);
+        int numTrainingRows = training.size() > 0 ? training.size() : 1;
+
+        List<ConnectJobRecord> claimed = ConnectDatabaseHelper.getDeliveryJobs(parentContext);
+        int numClaimedRows = claimed.size() > 0 ? claimed.size() : 1;
+
+        List<ConnectJobRecord> finished = ConnectDatabaseHelper.getFinishedJobs(parentContext);
+        int numFinishedRows = finished.size() > 0 ? finished.size() : 1;
+
+        return numTrainingRows + numClaimedRows + numFinishedRows + 3; //3 here is for headers
     }
 
     @Override
@@ -65,15 +73,27 @@ public class ConnectJobAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
         List<ConnectJobRecord> training = ConnectDatabaseHelper.getTrainingJobs(parentContext);
         int numTraining = training.size() > 0 ? training.size() : 1;
-        if(position == 0 || position - 1 == numTraining) {
+        int totalTrainingRows = numTraining + 1;
+
+        List<ConnectJobRecord> claimed = ConnectDatabaseHelper.getDeliveryJobs(parentContext);
+        int numClaimed = claimed.size() > 0 ? claimed.size() : 1;
+        int totalTrainingPlusClaimedRows = numTraining + numClaimed + 2;
+
+        if(position == 0 || position == totalTrainingRows || position == totalTrainingPlusClaimedRows) {
             return ViewTypeHeader;
         }
 
-        if(position <= numTraining) {
+        if(position < totalTrainingRows) {
             return training.size() == 0 ? ViewTypeEmpty : ViewTypeLearning;
         }
 
-        return ConnectDatabaseHelper.getClaimedJobs(parentContext).size() == 0 ? ViewTypeEmpty : ViewTypeClaimed;
+        if(position < totalTrainingPlusClaimedRows) {
+            return claimed.size() == 0 ? ViewTypeEmpty : ViewTypeClaimed;
+        }
+
+        List<ConnectJobRecord> finished = ConnectDatabaseHelper.getFinishedJobs(parentContext);
+
+        return finished.size() == 0 ? ViewTypeEmpty : ViewTypeEnded;
     }
 
     @NonNull
@@ -84,6 +104,10 @@ public class ConnectJobAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             case ViewTypeClaimed, ViewTypeLearning -> {
                 View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.connect_claimed_job_item, parent, false);
                 return new ConnectJobAdapter.ClaimedJobViewHolder(view);
+            }
+            case ViewTypeEnded -> {
+                View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.connect_claimed_job_item, parent, false);
+                return new ConnectJobAdapter.EndedJobViewHolder(view);
             }
             case ViewTypeEmpty -> {
                 View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.connect_empty_job_list_item, parent, false);
@@ -115,88 +139,68 @@ public class ConnectJobAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                     job.getMaxPossibleVisits(), job.getDaysRemaining()));
 
             availableHolder.continueImage.setOnClickListener(v ->
-                Navigation.findNavController(availableHolder.continueImage).navigate(
-                        ConnectJobsListsFragmentDirections.actionConnectJobsListFragmentToConnectJobIntroFragment(job)));
+                    enterJob(job, availableHolder.continueImage));
         }
         else if(holder instanceof ConnectJobAdapter.ClaimedJobViewHolder claimedHolder) {
             List<ConnectJobRecord> training = ConnectDatabaseHelper.getTrainingJobs(parentContext);
-            boolean isTraining = position-1 < training.size();
+            boolean isTraining = position - 1 < training.size();
             ConnectJobRecord job;
-            if(isTraining) {
+            if (isTraining) {
                 job = training.get(position - 1);
-            }
-            else {
+            } else {
                 int numTraining = training.size() > 0 ? training.size() : 1;
-                job = ConnectDatabaseHelper.getClaimedJobs(parentContext).get(position - numTraining - 2);
+                job = ConnectDatabaseHelper.getDeliveryJobs(parentContext).get(position - numTraining - 2);
             }
 
             claimedHolder.titleText.setText(job.getTitle());
-            boolean finished = job.getStatus() == ConnectJobRecord.STATUS_COMPLETE;
-            String description;
-            String remaining = null;
-            if(finished) {
-                DateFormat df = new SimpleDateFormat("MM/dd/yyyy", Locale.getDefault());
-                description = parentContext.getString(R.string.connect_job_completed, df.format(job.getDateCompleted()));
-            }
-            else {
-                String extra = parentContext.getString(isTraining ? R.string.connect_job_learning : R.string.connect_job);
-                int percent = job.getPercentComplete();
-                if(isTraining) {
-                    //NOTE: leaving other code here for now in case API changfes to give back the modules array
-                    int completed = job.getCompletedLearningModules();//0;
-//                    for (ConnectJobLearningModule module: job.getLearningModules()) {
-//                        if(module.getCompletedDate() != null) {
-//                            completed++;
-//                        }
-//                    }
 
-                    int numModules = job.getNumLearningModules();// job.getLearningModules().length;
-                    percent = numModules > 0 ? (100 * completed / numModules) : 100;
-                }
-
-                if(isTraining && percent >= 100) {
-                    if(job.passedAssessment()) {
-                        description = parentContext.getString(R.string.connect_job_training_complete);
-                    }
-                    else {
-                        description = parentContext.getString(R.string.connect_job_needs_assessment);
-                    }
-                }
-                else {
-                    description = parentContext.getString(R.string.connect_job_training_progress, extra, percent);
-                }
-
-                claimedHolder.progressBar.setProgress(percent);
-                claimedHolder.progressBar.setMax(100);
-
-                remaining = parentContext.getString(R.string.connect_job_remaining, job.getDaysRemaining());
-            }
+            int percent = getJobPercentage(job, isTraining);
+            claimedHolder.progressBar.setProgress(percent);
+            claimedHolder.progressBar.setMax(100);
 
             claimedHolder.descriptionText.setVisibility(View.VISIBLE);
-            claimedHolder.descriptionText.setText(description);
+            claimedHolder.descriptionText.setText(getStatusDescription(job, isTraining, percent));
 
-            claimedHolder.remainingText.setVisibility(finished ? View.GONE : View.VISIBLE);
-            claimedHolder.remainingText.setText(remaining != null ? remaining : "");
+            String remaining = parentContext.getString(R.string.connect_job_remaining, job.getDaysRemaining());
+            claimedHolder.remainingText.setVisibility(View.VISIBLE);
+            claimedHolder.remainingText.setText(remaining);
 
-            claimedHolder.progressBar.setVisibility(finished ? View.GONE : View.VISIBLE);
-            claimedHolder.progressImage.setVisibility(finished ? View.GONE : View.VISIBLE);
+            claimedHolder.progressBar.setVisibility(View.VISIBLE);
+            claimedHolder.progressImage.setVisibility(View.VISIBLE);
 
-            claimedHolder.continueImage.setVisibility(finished ? View.GONE : View.VISIBLE);
+            claimedHolder.continueImage.setVisibility(View.VISIBLE);
             claimedHolder.continueImage.setOnClickListener(v -> {
-                NavDirections directions;
-                if(isTraining) {
-                    directions = ConnectJobsListsFragmentDirections.actionConnectJobsListFragmentToConnectJobLearningProgressFragment(job);
-                }
-                else {
-                    if(job.getStatus() == ConnectJobRecord.STATUS_DELIVERING) {
-                        directions = ConnectJobsListsFragmentDirections.actionConnectJobsListFragmentToConnectJobDeliveryProgressFragment(job);
-                    }
-                    else {
-                        directions = ConnectJobsListsFragmentDirections.actionConnectJobsListFragmentToConnectJobDeliveryDetailsFragment(job);
-                    }
-                }
+                enterJob(job, claimedHolder.continueImage);
+            });
+        }
+        else if(holder instanceof ConnectJobAdapter.EndedJobViewHolder endedHolder) {
+            List<ConnectJobRecord> training = ConnectDatabaseHelper.getTrainingJobs(parentContext);
+            int numTraining = training.size() > 0 ? training.size() : 1;
+            List<ConnectJobRecord> claimed = ConnectDatabaseHelper.getDeliveryJobs(parentContext);
+            int numClaimed = claimed.size() > 0 ? claimed.size() : 1;
+            int totalTrainingPlusClaimedRows = numTraining + numClaimed + 2;
+            int endedIndex = position - 1 - totalTrainingPlusClaimedRows;
 
-                Navigation.findNavController(claimedHolder.continueImage).navigate(directions);
+            ConnectJobRecord job = ConnectDatabaseHelper.getFinishedJobs(parentContext).get(endedIndex);
+
+            endedHolder.titleText.setText(job.getTitle());
+
+            boolean isTraining = job.getStatus() == ConnectJobRecord.STATUS_LEARNING;
+            int percent = getJobPercentage(job, isTraining);
+            endedHolder.descriptionText.setVisibility(View.VISIBLE);
+            endedHolder.descriptionText.setText(getStatusDescription(job, isTraining, percent));
+
+            DateFormat df = new SimpleDateFormat("MM/dd/yyyy", Locale.getDefault());
+            String endedText = parentContext.getString(R.string.connect_job_completed, df.format(job.getProjectEndDate()));
+            endedHolder.remainingText.setVisibility(View.VISIBLE);
+            endedHolder.remainingText.setText(endedText);
+
+            endedHolder.progressBar.setVisibility(View.GONE);
+            endedHolder.progressImage.setVisibility(View.GONE);
+
+            endedHolder.continueImage.setVisibility(View.VISIBLE);
+            endedHolder.continueImage.setOnClickListener(v -> {
+                enterJob(job, endedHolder.continueImage);
             });
         }
         else if(holder instanceof ConnectJobAdapter.EmptyJobListViewHolder emptyHolder) {
@@ -209,9 +213,90 @@ public class ConnectJobAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             emptyHolder.titleText.setText(parentContext.getString(textResource));
         }
         else if(holder instanceof ConnectJobAdapter.JobHeaderViewHolder headerHolder) {
-            String text = parentContext.getString(position == 0 ? R.string.connect_job_training : R.string.connect_job_claimed);
-            headerHolder.titleText.setText(text);
+            int textId = R.string.connect_job_ended;
+            if(position == 0) {
+                textId = R.string.connect_job_training;
+            }
+            else {
+                List<ConnectJobRecord> training = ConnectDatabaseHelper.getTrainingJobs(parentContext);
+                int numTraining = training.size() > 0 ? training.size() : 1;
+                int totalTrainingRows = numTraining + 1;
+                if(position == totalTrainingRows) {
+                    textId = R.string.connect_job_claimed;
+                }
+            }
+
+            headerHolder.titleText.setText(parentContext.getString(textId));
         }
+    }
+
+    int getJobPercentage(ConnectJobRecord job, boolean isTraining) {
+        int percent = job.getPercentComplete();
+        if (isTraining) {
+            //NOTE: leaving other code here for now in case API changfes to give back the modules array
+            int completed = job.getCompletedLearningModules();//0;
+//                    for (ConnectJobLearningModule module: job.getLearningModules()) {
+//                        if(module.getCompletedDate() != null) {
+//                            completed++;
+//                        }
+//                    }
+
+            int numModules = job.getNumLearningModules();// job.getLearningModules().length;
+            percent = numModules > 0 ? (100 * completed / numModules) : 100;
+        }
+
+        return percent;
+    }
+
+    private String getStatusDescription(ConnectJobRecord job, boolean isTraining, int percent) {
+        String description;
+        boolean finished = job.isFinished();
+        if (isTraining) {
+            //Started learning
+            if(percent >= 100) {
+                //Finished learning
+                if (job.passedAssessment()) {
+                    description = parentContext.getString(finished ?
+                            R.string.connect_job_passed_assessment :
+                            R.string.connect_job_training_complete);
+                } else {
+                    description = parentContext.getString(finished ?
+                            R.string.connect_job_assessment_not_completed :
+                            R.string.connect_job_needs_assessment);
+                }
+            } else {
+                description = parentContext.getString(R.string.connect_job_learning_not_completed);
+            }
+        } else if(finished) {
+            description = parentContext.getString(R.string.connect_job_visits_completed, job.getCompletedVisits());
+        } else {
+            String learningOrJob = parentContext.getString(isTraining ? R.string.connect_job_learning : R.string.connect_job);
+            description = parentContext.getString(R.string.connect_job_training_progress, learningOrJob, percent);
+        }
+
+        return description;
+    }
+
+    private void enterJob(ConnectJobRecord job, View view) {
+        NavDirections directions;
+
+        switch(job.getStatus()) {
+            case ConnectJobRecord.STATUS_AVAILABLE,
+                    ConnectJobRecord.STATUS_AVAILABLE_NEW -> {
+                directions = ConnectJobsListsFragmentDirections.actionConnectJobsListFragmentToConnectJobIntroFragment(job);
+            }
+            case ConnectJobRecord.STATUS_LEARNING -> {
+                directions = ConnectJobsListsFragmentDirections.actionConnectJobsListFragmentToConnectJobLearningProgressFragment(job);
+            }
+            case ConnectJobRecord.STATUS_DELIVERING -> {
+                directions = ConnectJobsListsFragmentDirections.actionConnectJobsListFragmentToConnectJobDeliveryProgressFragment(job);
+            }
+            default -> {
+                throw new RuntimeException(String.format("Unexpected job status: %d", job.getStatus()));
+            }
+        }
+
+        Navigation.findNavController(view).navigate(directions);
     }
 
     public static class AvailableJobViewHolder extends RecyclerView.ViewHolder {
@@ -239,6 +324,25 @@ public class ConnectJobAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         TextView remainingText;
         ImageView continueImage;
         public ClaimedJobViewHolder(@NonNull View itemView) {
+            super(itemView);
+
+            progressBar = itemView.findViewById(R.id.progress_bar);
+            progressImage = itemView.findViewById(R.id.progress_image);
+            titleText = itemView.findViewById(R.id.title_label);
+            descriptionText = itemView.findViewById(R.id.description_label);
+            remainingText = itemView.findViewById(R.id.remaining_label);
+            continueImage = itemView.findViewById(R.id.button);
+        }
+    }
+
+    public static class EndedJobViewHolder extends RecyclerView.ViewHolder {
+        ProgressBar progressBar;
+        ImageView progressImage;
+        TextView titleText;
+        TextView descriptionText;
+        TextView remainingText;
+        ImageView continueImage;
+        public EndedJobViewHolder(@NonNull View itemView) {
             super(itemView);
 
             progressBar = itemView.findViewById(R.id.progress_bar);

@@ -478,7 +478,7 @@ public class ConnectDatabaseHelper {
                 case ConnectJobRecord.STATUS_LEARNING ->
                     MockJobProvider.getTrainingJobs();
                 case ConnectJobRecord.STATUS_DELIVERING ->
-                    MockJobProvider.getClaimedJobs();
+                    MockJobProvider.getDeliveryJobs();
                 default -> new ArrayList<>();
             };
         }
@@ -565,16 +565,48 @@ public class ConnectDatabaseHelper {
         return getTrainingJobs(context, null);
     }
     public static List<ConnectJobRecord> getTrainingJobs(Context context, SqlStorage<ConnectJobRecord> jobStorage) {
-        return getJobs(context, ConnectJobRecord.STATUS_LEARNING, jobStorage);
+        List<ConnectJobRecord> jobs = getJobs(context, ConnectJobRecord.STATUS_LEARNING, jobStorage);
+
+        List<ConnectJobRecord> filtered = new ArrayList<>();
+        for(ConnectJobRecord record : jobs) {
+            if(record.getDaysRemaining() > 0) {
+                filtered.add(record);
+            }
+        }
+
+        return filtered;
     }
 
-    public static List<ConnectJobRecord> getClaimedJobs(Context context) {
-        return getClaimedJobs(context, null);
+    public static List<ConnectJobRecord> getDeliveryJobs(Context context) {
+        return getDeliveryJobs(context, null);
     }
-    public static List<ConnectJobRecord> getClaimedJobs(Context context, SqlStorage<ConnectJobRecord> jobStorage) {
+    public static List<ConnectJobRecord> getDeliveryJobs(Context context, SqlStorage<ConnectJobRecord> jobStorage) {
         List<ConnectJobRecord> jobs = getJobs(context, ConnectJobRecord.STATUS_DELIVERING, jobStorage);
-        jobs.addAll(getJobs(context, ConnectJobRecord.STATUS_COMPLETE, jobStorage));
-        return jobs;
+
+        List<ConnectJobRecord> filtered = new ArrayList<>();
+        for(ConnectJobRecord record : jobs) {
+            if(record.getDaysRemaining() > 0) {
+                filtered.add(record);
+            }
+        }
+
+        return filtered;
+    }
+
+    public static List<ConnectJobRecord> getFinishedJobs(Context context) {
+        return getFinishedJobs(context, null);
+    }
+    public static List<ConnectJobRecord> getFinishedJobs(Context context, SqlStorage<ConnectJobRecord> jobStorage) {
+        List<ConnectJobRecord> jobs = getJobs(context, -1, jobStorage);
+
+        List<ConnectJobRecord> filtered = new ArrayList<>();
+        for(ConnectJobRecord record : jobs) {
+            if(record.getDaysRemaining() == 0) {
+                filtered.add(record);
+            }
+        }
+
+        return filtered;
     }
 
     public static List<ConnectJobDeliveryRecord> getDeliveries(Context context, int jobId, SqlStorage<ConnectJobDeliveryRecord> deliveryStorage) {

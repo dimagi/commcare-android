@@ -247,7 +247,11 @@ public class ConnectLearningProgressFragment extends Fragment {
         TextView completeByText = view.findViewById(R.id.connect_learning_complete_by_text);
         completeByText.setVisibility(learningFinished && assessmentPassed ? View.GONE : View.VISIBLE);
 
-        textView = view.findViewById(R.id.connect_progress_warning_learn_text);
+        boolean finished = job.isFinished();
+        textView = view.findViewById(R.id.connect_learning_ended_text);
+        textView.setVisibility(finished ? View.VISIBLE : View.GONE);
+
+        textView = view.findViewById(R.id.connect_learning_warning_learn_text);
         textView.setOnClickListener(v -> {
             StandardAlertDialog dialog = new StandardAlertDialog(
                     getContext(),
