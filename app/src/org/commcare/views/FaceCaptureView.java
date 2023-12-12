@@ -44,6 +44,12 @@ public class FaceCaptureView extends AppCompatImageView {
     private float postScaleWidthOffset;
     private float scaleFactor;
     private ImageStabilizedListener imageStabilizedListener;
+    public enum CaptureMode {FaceDetectionMode, ManualMode}
+    private CaptureMode captureMode = CaptureMode.FaceDetectionMode;
+
+    public void setCaptureMode(CaptureMode captureMode){
+        this.captureMode = captureMode;
+    }
 
     public FaceCaptureView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
@@ -75,6 +81,10 @@ public class FaceCaptureView extends AppCompatImageView {
         setFaceCaptureArea(viewWidth, viewHeight);
         calcScaleFactors(viewWidth, viewHeight);
 
+        if (captureMode == CaptureMode.FaceDetectionMode) {
+            faceOvalGraphic = new FaceOvalGraphic();
+        }
+
         Bitmap previewOverlay = Bitmap.createBitmap(viewWidth, viewHeight, Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(previewOverlay);
         canvas.drawColor(backgroundColor);
@@ -94,8 +104,6 @@ public class FaceCaptureView extends AppCompatImageView {
         canvas.drawOval(faceCaptureArea, paint);
 
         setImageBitmap(previewOverlay);
-
-        faceOvalGraphic = new FaceOvalGraphic();
     }
 
     public int getImageWidth() {

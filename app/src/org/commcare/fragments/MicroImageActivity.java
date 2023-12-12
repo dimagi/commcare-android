@@ -6,6 +6,7 @@ import android.graphics.Rect;
 import android.media.Image;
 import android.os.Bundle;
 import android.util.Size;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -20,6 +21,7 @@ import com.google.mlkit.vision.face.FaceDetectorOptions;
 
 import org.commcare.dalvik.R;
 import org.commcare.util.LogTypes;
+import org.commcare.utils.AndroidUtil;
 import org.commcare.utils.MediaUtil;
 import org.commcare.views.FaceCaptureView;
 import org.commcare.views.widgets.ImageWidget;
@@ -63,7 +65,12 @@ public class MicroImageActivity extends AppCompatActivity implements ImageAnalys
             actionBar.setTitle(R.string.micro_image_activity_title);
         }
 
-        faceCaptureView.setImageStabilizedListener(this);
+        if (!AndroidUtil.isGooglePlayServicesAvailable(this)) {
+            faceCaptureView.setCaptureMode(FaceCaptureView.CaptureMode.ManualMode);
+            cameraShutterButton.setVisibility(View.VISIBLE);
+        } else {
+            faceCaptureView.setImageStabilizedListener(this);
+        }
 
         try {
            startCamera();
