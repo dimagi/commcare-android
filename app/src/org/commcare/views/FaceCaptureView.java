@@ -51,6 +51,10 @@ public class FaceCaptureView extends AppCompatImageView {
         this.captureMode = captureMode;
     }
 
+    public CaptureMode getCaptureMode() {
+        return captureMode;
+    }
+
     public FaceCaptureView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
 
@@ -147,6 +151,10 @@ public class FaceCaptureView extends AppCompatImageView {
 
     public void setImageStabilizedListener(ImageStabilizedListener imageStabilizedListener) {
         this.imageStabilizedListener = imageStabilizedListener;
+    }
+
+    public RectF getFaceCaptureArea() {
+        return faceCaptureArea;
     }
 
     private void setFaceCaptureArea(RectF faceCaptureArea) {

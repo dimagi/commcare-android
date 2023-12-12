@@ -3,6 +3,7 @@ package org.commcare.fragments;
 import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
 import android.graphics.Rect;
+import android.graphics.RectF;
 import android.media.Image;
 import android.os.Bundle;
 import android.util.Size;
@@ -37,6 +38,7 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ImageAnalysis;
+import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageProxy;
 import androidx.camera.core.Preview;
 import androidx.camera.core.UseCase;
@@ -105,8 +107,12 @@ public class MicroImageActivity extends AppCompatActivity implements ImageAnalys
                 .build();
         preview.setSurfaceProvider(cameraView.getSurfaceProvider());
 
-        UseCase imageAnalyzer = buildImageAnalysisUseCase(targetResolution, targetRotation);
-
+        UseCase imageAnalyzer = null;
+        if (faceCaptureView.getCaptureMode() == FaceCaptureView.CaptureMode.FaceDetectionMode) {
+            imageAnalyzer = buildImageAnalysisUseCase(targetResolution, targetRotation);
+        } else {
+            imageAnalyzer = buildImageCaptureUseCase(targetResolution);
+        }
         CameraSelector cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA;
 
         // Unbind any previous use cases before binding new ones
@@ -200,5 +206,32 @@ public class MicroImageActivity extends AppCompatActivity implements ImageAnalys
             logErrorAndExit(e.getMessage(), "microimage.cropping.failed", e.getCause());
         }
 
+    }
+
+    // Set up image capture use case, for when Google Services is not available
+    private UseCase buildImageCaptureUseCase(Size targetResolution){
+        ImageCapture imageCapture = new ImageCapture.Builder().setTargetResolution(targetResolution).build();
+
+        cameraShutterButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                imageCapture.takePicture(ContextCompat.getMainExecutor(getApplicationContext()), new ImageCapture.OnImageCapturedCallback(){
+                    @Override
+                    public void onCaptureSuccess(@NonNull ImageProxy imageProxy) {
+                        super.onCaptureSuccess(imageProxy);
+                        @SuppressLint("UnsafeOptInUsageError")
+                        Image capturedImage = imageProxy.getImage();
+                        inputImage = ImageConvertUtils.getInstance().convertJpegToUpRightBitmap(capturedImage, imageProxy.getImageInfo().getRotationDegrees());
+                        imageProxy.close();
+                        finalizeImageCapture(convertRectFToRect(faceCaptureView.getFaceCaptureArea()));
+                    }
+                });
+            }
+        });
+        return imageCapture;
+    }
+
+    private Rect convertRectFToRect(RectF rectf) {
+        return new Rect((int)rectf.left, (int)rectf.top, (int)rectf.right, (int)rectf.bottom);
     }
 }
