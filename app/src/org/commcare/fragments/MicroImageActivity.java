@@ -6,6 +6,7 @@ import android.graphics.Rect;
 import android.media.Image;
 import android.os.Bundle;
 import android.util.Size;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -46,6 +47,7 @@ public class MicroImageActivity extends AppCompatActivity implements ImageAnalys
     private PreviewView cameraView;
     private FaceCaptureView faceCaptureView;
     private Bitmap inputImage;
+    private ImageView cameraShutterButton;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -54,6 +56,7 @@ public class MicroImageActivity extends AppCompatActivity implements ImageAnalys
 
         faceCaptureView = findViewById(R.id.face_overlay);
         cameraView = findViewById(R.id.view_finder);
+        cameraShutterButton = findViewById(R.id.camera_shutter_button);
 
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
