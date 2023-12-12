@@ -188,6 +188,10 @@ public class MicroImageActivity extends AppCompatActivity implements ImageAnalys
 
     @Override
     public void onImageStabilizedListener(Rect faceArea) {
+        finalizeImageCapture(faceArea);
+    }
+
+    private void finalizeImageCapture(Rect faceArea) {
         try {
             MediaUtil.cropAndSaveImage(inputImage, faceArea, ImageWidget.getTempFileForImageCapture());
             setResult(AppCompatActivity.RESULT_OK);

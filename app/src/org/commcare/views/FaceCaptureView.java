@@ -78,7 +78,7 @@ public class FaceCaptureView extends AppCompatImageView {
     }
 
     private void initCameraView(int viewWidth, int viewHeight){
-        setFaceCaptureArea(viewWidth, viewHeight);
+        setFaceCaptureArea(calcCaptureArea(viewWidth, viewHeight));
         calcScaleFactors(viewWidth, viewHeight);
 
         if (captureMode == CaptureMode.FaceDetectionMode) {
@@ -149,7 +149,11 @@ public class FaceCaptureView extends AppCompatImageView {
         this.imageStabilizedListener = imageStabilizedListener;
     }
 
-    private void setFaceCaptureArea(int width, int height) {
+    private void setFaceCaptureArea(RectF faceCaptureArea) {
+        this.faceCaptureArea = faceCaptureArea;
+    }
+
+    public RectF calcCaptureArea(int width, int height) {
         int captureAreaWidth = (int)(width * VIEW_CAPTURE_AREA_RATIO);
         int captureAreaHeigth = (int)(height * VIEW_CAPTURE_AREA_RATIO);
 
@@ -158,7 +162,7 @@ public class FaceCaptureView extends AppCompatImageView {
         int captureAreaRight = captureAreaLeft + captureAreaWidth;
         int captureAreaBottom = captureAreaTop + captureAreaHeigth;
 
-        faceCaptureArea = new RectF(captureAreaLeft, captureAreaTop, captureAreaRight, captureAreaBottom);
+        return new RectF(captureAreaLeft, captureAreaTop, captureAreaRight, captureAreaBottom);
     }
 
     private void calcScaleFactors(int viewWidth, int viewHeight) {
