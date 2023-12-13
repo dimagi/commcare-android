@@ -87,7 +87,7 @@ public class EncryptCredentialsInMemoryTest {
 
     private fun generateUserCredentialKey() {
         val mockKeyGenParameterSpec = mockk<KeyGenParameterSpec>()
-        every { mockKeyGenParameterSpec.keystoreAlias } returns EncryptionUtils.USER_CREDENTIALS_KEY_ALIAS
+        every { mockKeyGenParameterSpec.keystoreAlias } returns EncryptionUtils.CC_IN_MEMORY_ENCRYPTION_KEY_ALIAS
 
         // generate key using mock key generator
         val mockKeyGenerator = MockKeyGenerator()

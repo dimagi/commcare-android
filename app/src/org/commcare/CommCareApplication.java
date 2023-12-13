@@ -140,7 +140,7 @@ import io.noties.markwon.ext.tables.TablePlugin;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 
-import static org.commcare.util.EncryptionUtils.USER_CREDENTIALS_KEY_ALIAS;
+import static org.commcare.util.EncryptionUtils.CC_IN_MEMORY_ENCRYPTION_KEY_ALIAS;
 import static org.commcare.util.EncryptionUtils.getEncryptionKeyProvider;
 
 public class CommCareApplication extends MultiDexApplication {
@@ -231,7 +231,7 @@ public class CommCareApplication extends MultiDexApplication {
         setRoots();
         prepareTemporaryStorage();
 
-        getEncryptionKeyProvider().generateCryptographicKeyInKeyStore(USER_CREDENTIALS_KEY_ALIAS);
+        getEncryptionKeyProvider().generateCryptographicKeyInKeyStore(CC_IN_MEMORY_ENCRYPTION_KEY_ALIAS);
 
         if (LegacyInstallUtils.checkForLegacyInstall(this)) {
             dbState = STATE_LEGACY_DETECTED;
