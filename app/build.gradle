@@ -160,26 +160,17 @@ ext {
     HQ_API_PASSWORD = project.properties['HQ_API_PASSWORD'] ?: ''
     TEST_BUILD_TYPE = project.properties['TEST_BUILD_TYPE'] ?: 'debug'
     FIREBASE_DATABASE_URL = project.properties['FIREBASE_DATABASE_URL'] ?: ''
-
-    // properties related to Service providers part of the Java SPI pattern
-    SERVICE_PROVIDERS_REL_DIR = 'META-INF/services'
-    /**
-     * Service provider implementations and respective service interfaces should be added to this
-     * map. The task registerServiceProviders is responsible for iterating over it and create the
-     * configuration files under META-INF/services
-     */
-    SERVICE_PROVIDERS = ['org.commcare.util.IEncryptionKeyProvider' : 'org.commcare.utils.EncryptionKeyProvider']
 }
 
 afterEvaluate {
     // Hack to get assets to show up in robolectric tests; try to eventually remove this
-    preCommcareDebugUnitTestBuild.dependsOn mergeCommcareDebugAssets, registerServiceProviders
-    processStandaloneDebugGoogleServices.dependsOn injectPropertiesIntoFirebaseConfigFile, registerServiceProviders
-    processStandaloneReleaseGoogleServices.dependsOn injectPropertiesIntoFirebaseConfigFile, registerServiceProviders
-    processLtsDebugGoogleServices.dependsOn injectPropertiesIntoFirebaseConfigFile, registerServiceProviders
-    processLtsReleaseGoogleServices.dependsOn injectPropertiesIntoFirebaseConfigFile, registerServiceProviders
-    processCommcareDebugGoogleServices.dependsOn injectPropertiesIntoFirebaseConfigFile, registerServiceProviders
-    processCommcareReleaseGoogleServices.dependsOn injectPropertiesIntoFirebaseConfigFile, registerServiceProviders
+    preCommcareDebugUnitTestBuild.dependsOn mergeCommcareDebugAssets
+    processStandaloneDebugGoogleServices.dependsOn injectPropertiesIntoFirebaseConfigFile
+    processStandaloneReleaseGoogleServices.dependsOn injectPropertiesIntoFirebaseConfigFile
+    processLtsDebugGoogleServices.dependsOn injectPropertiesIntoFirebaseConfigFile
+    processLtsReleaseGoogleServices.dependsOn injectPropertiesIntoFirebaseConfigFile
+    processCommcareDebugGoogleServices.dependsOn injectPropertiesIntoFirebaseConfigFile
+    processCommcareReleaseGoogleServices.dependsOn injectPropertiesIntoFirebaseConfigFile
 }
 
 /**
@@ -639,18 +630,4 @@ def getConsumerAppPassword(isConsumerApp) {
 downloadLicenses {
     includeProjectDependencies = true
     dependencyConfiguration = 'compile'
-}
-
-task registerServiceProviders {
-    doLast {
-        def servProvAbsPath = android.sourceSets.main.java.srcDirs[0].path + File.separator + project.ext.SERVICE_PROVIDERS_REL_DIR
-        project.ext.SERVICE_PROVIDERS.each { servProv ->
-            println(servProvAbsPath  + File.separator + "$servProv.key")
-            def file = new File(servProvAbsPath  + File.separator + "$servProv.key")
-            if(!file.getParentFile().exists()) {
-                file.getParentFile().mkdirs()
-            }
-            file.write("$servProv.value")
-        }
-    }
 }

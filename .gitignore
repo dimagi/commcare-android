@@ -35,4 +35,3 @@ build/
 **/*~
 app/google-services.json
 app/fabric.properties
-app/src/META-INF/
