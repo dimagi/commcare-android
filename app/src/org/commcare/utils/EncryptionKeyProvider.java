@@ -29,6 +29,7 @@ import javax.security.auth.x500.X500Principal;
 
 import androidx.annotation.RequiresApi;
 
+import static org.commcare.util.EncryptionUtils.CC_KEY_ALGORITHM_RSA;
 import static org.commcare.utils.GlobalConstants.KEYSTORE_NAME;
 
 /**
@@ -145,7 +146,7 @@ public class EncryptionKeyProvider implements IEncryptionKeyProvider {
 
     @Override
     public String getRSAKeyAlgorithmRepresentation() {
-        return "RSA";
+        return CC_KEY_ALGORITHM_RSA;
     }
 
     @Override
