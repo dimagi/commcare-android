@@ -366,6 +366,7 @@ public class FormStorageTest {
             "org.commcare.android.database.global.models.ConnectKeyRecord"
 
             , "org.commcare.suite.model.EndpointAction"
+            , "org.commcare.suite.model.QueryGroup"
     );
 
 
