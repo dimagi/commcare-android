@@ -12,12 +12,10 @@ import org.commcare.core.network.AuthInfo;
 import org.commcare.dalvik.R;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.WithUIController;
-import org.commcare.utils.PhoneNumberHelper;
 import org.commcare.views.dialogs.CustomProgressDialog;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Locale;
 
 /**
  * Shows the page asking the user whether to register a new account or recover their existing account
@@ -93,8 +91,7 @@ public class ConnectIdRecoveryDecisionActivity extends CommCareActivity<ConnectI
         switch (state) {
             case NewOrRecover -> finish(true, null);
             case PhoneOrExtended ->
-                    finish(false, PhoneNumberHelper.buildPhoneNumber(uiController.getCountryCode(),
-                            uiController.getPhoneNumber()));
+                    finish(false, uiController.getPhoneNumber());
         }
     }
 
@@ -106,13 +103,12 @@ public class ConnectIdRecoveryDecisionActivity extends CommCareActivity<ConnectI
 
                 setTitle(getString(R.string.connect_recovery_title2));
 
-                int code = PhoneNumberHelper.getCountryCode(this);
-                uiController.setCountryCode(String.format(Locale.getDefault(), "+%d", code));
-
                 uiController.requestInputFocus();
                 uiController.setMessage(getString(R.string.connect_recovery_decision_phone));
                 uiController.setButton1Text(getString(R.string.connect_recovery_button_phone));
                 uiController.setButton2Visible(false);
+
+                checkPhoneNumber();
             }
             case PhoneOrExtended -> {
                 Toast.makeText(this, "Not ready yet!", Toast.LENGTH_SHORT).show();
@@ -121,12 +117,13 @@ public class ConnectIdRecoveryDecisionActivity extends CommCareActivity<ConnectI
     }
 
     public void checkPhoneNumber() {
-        String phone = PhoneNumberHelper.buildPhoneNumber(uiController.getCountryCode(),
-                uiController.getPhoneNumber());
+        if(state == ConnectRecoveryState.NewOrRecover) {
+            uiController.setButton1Enabled(true);
+            return;
+        }
 
-        boolean valid = PhoneNumberHelper.isValidPhoneNumber(this, phone);
-
-        if (valid) {
+        if (uiController.isPhoneValid()) {
+            String phone = uiController.getPhoneNumber();
             phone = phone.replaceAll("\\+", "%2b");
             uiController.setPhoneMessage(getString(R.string.connect_phone_checking));
             uiController.setButton1Enabled(false);

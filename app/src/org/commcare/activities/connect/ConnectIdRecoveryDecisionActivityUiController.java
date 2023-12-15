@@ -8,6 +8,8 @@ import android.widget.Button;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.hbb20.CountryCodePicker;
+
 import org.commcare.dalvik.R;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.utils.KeyboardHelper;
@@ -27,8 +29,8 @@ public class ConnectIdRecoveryDecisionActivityUiController implements CommCareAc
     @UiElement(R.id.connect_recovery_phone_block)
     private RelativeLayout phoneBlock;
 
-    @UiElement(value = R.id.connect_recovery_phone_country_input)
-    private AutoCompleteTextView countryCodeInput;
+    @UiElement(value = R.id.connect_recovery_phone_country_picker)
+    private CountryCodePicker countryCodeInput;
     @UiElement(value = R.id.connect_recovery_phone_input)
     private AutoCompleteTextView phoneInput;
 
@@ -55,23 +57,27 @@ public class ConnectIdRecoveryDecisionActivityUiController implements CommCareAc
         button1.setOnClickListener(v -> activity.handleButton1Press());
         button2.setOnClickListener(v -> activity.handleButton2Press());
 
-        TextWatcher watcher = new TextWatcher() {
+        phoneInput.addTextChangedListener(new TextWatcher() {
+            String lastValue = null;
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
             }
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                activity.checkPhoneNumber();
+                if(!s.toString().equals(lastValue)) {
+                    lastValue = s.toString();
+                    activity.checkPhoneNumber();
+                }
             }
 
             @Override
             public void afterTextChanged(Editable s) {
             }
-        };
+        });
 
-        countryCodeInput.addTextChangedListener(watcher);
-        phoneInput.addTextChangedListener(watcher);
+        countryCodeInput.registerCarrierNumberEditText(phoneInput);
+        countryCodeInput.setOnCountryChangeListener(() -> activity.checkPhoneNumber());
     }
 
     @Override
@@ -88,16 +94,16 @@ public class ConnectIdRecoveryDecisionActivityUiController implements CommCareAc
         phoneMessageTextView.setVisibility(visible ? View.VISIBLE : View.GONE);
     }
 
-    public void setCountryCode(String code) {
-        countryCodeInput.setText(code);
+    public boolean isPhoneValid() {
+        return countryCodeInput.isValidFullNumber();
     }
 
-    public String getCountryCode() {
-        return countryCodeInput.getText().toString();
+    public void setPhoneNumber(String phone) {
+        countryCodeInput.setFullNumber(phone);
     }
 
     public String getPhoneNumber() {
-        return phoneInput.getText().toString();
+        return countryCodeInput.getFullNumberWithPlus();
     }
 
     public void setButton1Enabled(boolean enabled) {

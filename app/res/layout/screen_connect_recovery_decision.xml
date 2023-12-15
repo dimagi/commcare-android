@@ -2,6 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="fill_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="@color/cc_core_bg"
     android:orientation="vertical"
     android:layout_marginStart="@dimen/content_start"
@@ -20,16 +21,14 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:visibility="gone">
-        <AutoCompleteTextView
-            android:id="@+id/connect_recovery_phone_country_input"
-            android:layout_width="100sp"
+        <com.hbb20.CountryCodePicker
+            android:id="@+id/connect_recovery_phone_country_picker"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:gravity="center"
-            android:inputType="text" />
-
+            app:ccp_autoDetectCountry="true" />
         <AutoCompleteTextView
             android:id="@+id/connect_recovery_phone_input"
-            android:layout_toEndOf="@id/connect_recovery_phone_country_input"
+            android:layout_toEndOf="@id/connect_recovery_phone_country_picker"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:inputType="numberDecimal" />

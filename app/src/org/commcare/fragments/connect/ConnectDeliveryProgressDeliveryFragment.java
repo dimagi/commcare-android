@@ -1,23 +1,17 @@
 package org.commcare.fragments.connect;
 
-import android.app.AlertDialog;
-import android.content.Intent;
 import android.os.Bundle;
-import android.speech.tts.TextToSpeech;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import org.commcare.activities.CommCareActivity;
-import org.commcare.activities.FormEntryActivity;
 import org.commcare.activities.connect.ConnectManager;
 import org.commcare.android.database.connect.models.ConnectJobDeliveryRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
-import org.commcare.commcaresupportlibrary.CommCareLauncher;
 import org.commcare.dalvik.R;
 import org.commcare.views.dialogs.StandardAlertDialog;
 import org.javarosa.core.services.locale.Localization;
