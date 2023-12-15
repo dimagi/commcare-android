@@ -15,6 +15,7 @@ import android.widget.Toast;
 import org.commcare.activities.CommCareActivity;
 import org.commcare.activities.FormEntryActivity;
 import org.commcare.activities.connect.ConnectManager;
+import org.commcare.android.database.connect.models.ConnectJobDeliveryRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.commcaresupportlibrary.CommCareLauncher;
 import org.commcare.dalvik.R;
@@ -23,6 +24,8 @@ import org.javarosa.core.services.locale.Localization;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Locale;
 
 import androidx.fragment.app.Fragment;
@@ -131,9 +134,32 @@ public class ConnectDeliveryProgressDeliveryFragment extends Fragment {
         textView = view.findViewById(R.id.connect_progress_status_text);
         textView.setText(getString(R.string.connect_progress_status, completed, total));
 
+        int totalVisitCount = 0;
+        int dailyVisitCount = 0;
+        Instant today = Instant.now().truncatedTo(ChronoUnit.DAYS);
+        for (ConnectJobDeliveryRecord record : job.getDeliveries()) {
+            totalVisitCount++;
+            if(record.getDate().toInstant().truncatedTo(ChronoUnit.DAYS).equals(today)) {
+                dailyVisitCount++;
+            }
+        }
+
         boolean finished = job.isFinished();
-        textView = view.findViewById(R.id.connect_progress_ended_text);
-        textView.setVisibility(finished ? View.VISIBLE : View.GONE);
+
+        int warningTextId = -1;
+        if(finished) {
+            warningTextId = R.string.connect_progress_warning_ended;
+        } else if(totalVisitCount >= job.getMaxVisits()) {
+            warningTextId = R.string.connect_progress_warning_max_reached;
+        } else if(dailyVisitCount >= job.getMaxDailyVisits()) {
+            warningTextId = R.string.connect_progress_warning_daily_max_reached;
+        }
+
+        textView = view.findViewById(R.id.connect_progress_delivery_warning_text);
+        textView.setVisibility(warningTextId >= 0 ? View.VISIBLE : View.GONE);
+        if(warningTextId >= 0) {
+            textView.setText(warningTextId);
+        }
 
         textView = view.findViewById(R.id.connect_progress_complete_by_text);
         DateFormat df = new SimpleDateFormat("MM/dd/yyyy", Locale.getDefault());
