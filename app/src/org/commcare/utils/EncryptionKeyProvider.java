@@ -7,7 +7,7 @@ import android.security.keystore.KeyProperties;
 
 import org.commcare.CommCareApplication;
 import org.commcare.util.EncryptionKeyAndTransformation;
-import org.commcare.util.EncryptionUtils;
+import org.commcare.util.EncryptionHelper;
 import org.commcare.util.IEncryptionKeyProvider;
 
 import java.io.IOException;
@@ -29,7 +29,7 @@ import javax.security.auth.x500.X500Principal;
 
 import androidx.annotation.RequiresApi;
 
-import static org.commcare.util.EncryptionUtils.CC_KEY_ALGORITHM_RSA;
+import static org.commcare.util.EncryptionHelper.CC_KEY_ALGORITHM_RSA;
 import static org.commcare.utils.GlobalConstants.KEYSTORE_NAME;
 
 /**
@@ -58,14 +58,14 @@ public class EncryptionKeyProvider implements IEncryptionKeyProvider {
 
     @Override
     public EncryptionKeyAndTransformation retrieveKeyFromKeyStore(String keyAlias,
-                                                                  EncryptionUtils.CryptographicOperation operation)
+                                                                  EncryptionHelper.CryptographicOperation operation)
             throws KeyStoreException, UnrecoverableEntryException, NoSuchAlgorithmException,
             CertificateException, IOException {
         Key key;
         if (getKeyStore().containsAlias(keyAlias)) {
             KeyStore.Entry keyEntry = getKeyStore().getEntry(keyAlias, null);
             if (keyEntry instanceof KeyStore.PrivateKeyEntry) {
-                if (operation == EncryptionUtils.CryptographicOperation.Encryption) {
+                if (operation == EncryptionHelper.CryptographicOperation.Encryption) {
                     key = ((KeyStore.PrivateKeyEntry)keyEntry).getCertificate().getPublicKey();
                 } else {
                     key = ((KeyStore.PrivateKeyEntry)keyEntry).getPrivateKey();

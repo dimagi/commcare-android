@@ -1,18 +1,16 @@
 package org.commcare.android.nfc;
 
-import android.annotation.TargetApi;
 import android.content.Intent;
 import android.nfc.FormatException;
 import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
 import android.nfc.Tag;
 import android.nfc.tech.Ndef;
-import android.os.Build;
 import android.os.Bundle;
 import android.util.Pair;
 
 import org.commcare.android.javarosa.IntentCallout;
-import org.commcare.util.EncryptionUtils;
+import org.commcare.util.EncryptionHelper;
 
 import java.io.IOException;
 
@@ -95,7 +93,7 @@ public class NfcReadActivity extends NfcActivity {
             finishWithErrorToast("nfc.read.io.error", e);
         } catch (FormatException e) {
             finishWithErrorToast("nfc.read.msg.malformed", e);
-        } catch (EncryptionUtils.EncryptionException e) {
+        } catch (EncryptionHelper.EncryptionException e) {
             finishWithErrorToast("nfc.read.msg.decryption.error", e);
         } catch (NfcManager.InvalidPayloadTagException e) {
             // payload doesn't have our tag attached, so we should not let the app read this message

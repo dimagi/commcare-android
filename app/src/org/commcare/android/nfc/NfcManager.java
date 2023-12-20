@@ -6,7 +6,7 @@ import android.content.IntentFilter;
 import android.nfc.NfcAdapter;
 
 import org.apache.commons.lang3.StringUtils;
-import org.commcare.util.EncryptionUtils;
+import org.commcare.util.EncryptionHelper;
 
 import javax.annotation.Nullable;
 
@@ -53,12 +53,12 @@ public class NfcManager {
         }
     }
 
-    public String decryptValue(String message) throws EncryptionUtils.EncryptionException {
+    public String decryptValue(String message) throws EncryptionHelper.EncryptionException {
         String payloadTag = getPayloadTag();
         if (message.startsWith(payloadTag)) {
             message = message.replace(payloadTag, "");
             if (!StringUtils.isEmpty(encryptionKey)) {
-                message = EncryptionUtils.decryptWithBase64EncodedKey("AES", message, encryptionKey);
+                    message = (new EncryptionHelper()).decryptWithBase64EncodedKey(EncryptionHelper.CC_KEY_ALGORITHM_AES, message, encryptionKey);
             }
         } else if (!allowUntaggedRead && !isEmptyPayloadTag(payloadTag)) {
             throw new InvalidPayloadTagException();
@@ -89,13 +89,13 @@ public class NfcManager {
         return payloadTag.contentEquals(getEmptyPayloadTag());
     }
 
-    public String tagAndEncryptPayload(String message) throws EncryptionUtils.EncryptionException {
+    public String tagAndEncryptPayload(String message) throws EncryptionHelper.EncryptionException {
         if (StringUtils.isEmpty(message)) {
             return message;
         }
         String payload = message;
         if (!StringUtils.isEmpty(encryptionKey)) {
-            payload = EncryptionUtils.encryptWithBase64EncodedKey("AES", payload, encryptionKey);
+            payload = (new EncryptionHelper()).encryptWithBase64EncodedKey(EncryptionHelper.CC_KEY_ALGORITHM_AES, payload, encryptionKey);
         }
         if (payload.contains(PAYLOAD_DELIMITER)) {
             throw new InvalidPayloadException();

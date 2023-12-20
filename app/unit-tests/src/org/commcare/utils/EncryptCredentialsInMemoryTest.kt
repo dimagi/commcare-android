@@ -7,7 +7,7 @@ import io.mockk.mockk
 import org.commcare.CommCareApplication
 import org.commcare.CommCareTestApplication
 import org.commcare.android.util.TestAppInstaller
-import org.commcare.util.EncryptionUtils
+import org.commcare.util.EncryptionHelper
 import org.javarosa.core.model.User
 import org.junit.After
 import org.junit.Assert
@@ -20,6 +20,7 @@ import org.robolectric.annotation.Config
 @RunWith(AndroidJUnit4::class)
 public class EncryptCredentialsInMemoryTest {
 
+    val encryptionHelper = EncryptionHelper()
     @Before
     fun setup() {
         TestAppInstaller.installAppAndUser(
@@ -29,13 +30,13 @@ public class EncryptCredentialsInMemoryTest {
         )
 
         // Set production encryption key provider
-        EncryptionUtils.setEncryptionKeyProvider(EncryptionKeyProvider())
+        encryptionHelper.setEncryptionKeyProvider(EncryptionKeyProvider())
     }
 
     @Test
     fun saveUsernameWithKeyStoreAndReadWithout_shouldPass() {
         // confirm that there is no android key store available
-        Assert.assertFalse(EncryptionUtils.getEncryptionKeyProvider().isKeyStoreAvailable)
+        Assert.assertFalse(encryptionHelper.getEncryptionKeyProvider().isKeyStoreAvailable)
 
         // register mock Android key store provider, this is when the key store becomes available
         MockAndroidKeyStoreProvider.registerProvider()
@@ -44,7 +45,7 @@ public class EncryptCredentialsInMemoryTest {
         generateUserCredentialKey()
 
         // assert that the android key store is available
-        Assert.assertTrue(EncryptionUtils.getEncryptionKeyProvider().isKeyStoreAvailable)
+        Assert.assertTrue(encryptionHelper.getEncryptionKeyProvider().isKeyStoreAvailable)
 
         // login with the Android key store available
         TestAppInstaller.login(TEST_USER, TEST_PASS)
@@ -68,7 +69,7 @@ public class EncryptCredentialsInMemoryTest {
         MockAndroidKeyStoreProvider.deregisterProvider()
 
         // confirm that the key store is no longer available
-        Assert.assertFalse(EncryptionUtils.getEncryptionKeyProvider().isKeyStoreAvailable)
+        Assert.assertFalse(encryptionHelper.getEncryptionKeyProvider().isKeyStoreAvailable)
 
         // login once again, this time without the keystore
         TestAppInstaller.login(TEST_USER, TEST_PASS)
@@ -82,12 +83,12 @@ public class EncryptCredentialsInMemoryTest {
 
     @After
     fun restore() {
-        EncryptionUtils.reloadEncryptionKeyProvider()
+        encryptionHelper.reloadEncryptionKeyProvider()
     }
 
     private fun generateUserCredentialKey() {
         val mockKeyGenParameterSpec = mockk<KeyGenParameterSpec>()
-        every { mockKeyGenParameterSpec.keystoreAlias } returns EncryptionUtils.CC_IN_MEMORY_ENCRYPTION_KEY_ALIAS
+        every { mockKeyGenParameterSpec.keystoreAlias } returns EncryptionHelper.CC_IN_MEMORY_ENCRYPTION_KEY_ALIAS
 
         // generate key using mock key generator
         val mockKeyGenerator = MockKeyGenerator()

@@ -97,6 +97,7 @@ import org.commcare.tasks.PurgeStaleArchivedFormsTask;
 import org.commcare.tasks.templates.ManagedAsyncTask;
 import org.commcare.update.UpdateHelper;
 import org.commcare.update.UpdateWorker;
+import org.commcare.util.EncryptionHelper;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.AndroidCacheDirSetup;
 import org.commcare.utils.AndroidCommCarePlatform;
@@ -140,8 +141,7 @@ import io.noties.markwon.ext.tables.TablePlugin;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 
-import static org.commcare.util.EncryptionUtils.CC_IN_MEMORY_ENCRYPTION_KEY_ALIAS;
-import static org.commcare.util.EncryptionUtils.getEncryptionKeyProvider;
+import static org.commcare.util.EncryptionHelper.CC_IN_MEMORY_ENCRYPTION_KEY_ALIAS;
 
 public class CommCareApplication extends MultiDexApplication {
 
@@ -231,7 +231,7 @@ public class CommCareApplication extends MultiDexApplication {
         setRoots();
         prepareTemporaryStorage();
 
-        getEncryptionKeyProvider().generateCryptographicKeyInKeyStore(CC_IN_MEMORY_ENCRYPTION_KEY_ALIAS);
+        (new EncryptionHelper()).getEncryptionKeyProvider().generateCryptographicKeyInKeyStore(CC_IN_MEMORY_ENCRYPTION_KEY_ALIAS);
 
         if (LegacyInstallUtils.checkForLegacyInstall(this)) {
             dbState = STATE_LEGACY_DETECTED;
