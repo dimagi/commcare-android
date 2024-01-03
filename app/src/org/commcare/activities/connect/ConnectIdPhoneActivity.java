@@ -13,12 +13,14 @@ import org.commcare.core.network.AuthInfo;
 import org.commcare.dalvik.R;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.WithUIController;
+import org.commcare.utils.PhoneNumberHelper;
 import org.commcare.views.dialogs.CustomProgressDialog;
 import org.javarosa.core.services.Logger;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
+import java.util.Locale;
 
 /**
  * Shows the page that prompts the user to enter a phone number (during registration or recovery)
@@ -59,9 +61,23 @@ public class ConnectIdPhoneActivity extends CommCareActivity<ConnectIdPhoneActiv
 
         uiController.setTitle(title);
         uiController.setMessage(message);
-        if(existing != null) {
-            uiController.setPhoneNumber(existing);
+
+        int code = PhoneNumberHelper.getCountryCode(this);
+        if (existing != null && existing.length() > 0) {
+            code = PhoneNumberHelper.getCountryCode(this, existing);
         }
+
+        String codeText = "";
+        if (code > 0) {
+            codeText = String.format(Locale.getDefault(), "%d", code);
+        }
+
+        if (existing != null && existing.startsWith("+" + codeText)) {
+            existing = existing.substring(codeText.length() + 1);
+        }
+
+        uiController.setPhoneNumber(existing);
+        uiController.setCountryCode(codeText);
     }
 
     @Override
@@ -103,7 +119,8 @@ public class ConnectIdPhoneActivity extends CommCareActivity<ConnectIdPhoneActiv
     }
 
     public void handleButtonPress() {
-        String phone = uiController.getPhoneNumber();
+        String phone = PhoneNumberHelper.buildPhoneNumber(uiController.getCountryCode(),
+                uiController.getPhoneNumber());
         ConnectUserRecord user = ConnectManager.getUser(this);
         String existing = user != null ? user.getPrimaryPhone() : existingPhone;
         if (method.equals(ConnectConstants.METHOD_CHANGE_ALTERNATE)) {
@@ -155,9 +172,13 @@ public class ConnectIdPhoneActivity extends CommCareActivity<ConnectIdPhoneActiv
     }
 
     public void checkPhoneNumber() {
-        if (uiController.isPhoneValid()) {
-            String phone = uiController.getPhoneNumber();
-            ConnectUserRecord user = ConnectManager.getUser(this);
+        String phone = PhoneNumberHelper.buildPhoneNumber(uiController.getCountryCode(),
+                uiController.getPhoneNumber());
+
+        boolean valid = PhoneNumberHelper.isValidPhoneNumber(this, phone);
+        ConnectUserRecord user = ConnectManager.getUser(this);
+
+        if (valid) {
             String existingPrimary = user != null ? user.getPrimaryPhone() : existingPhone;
             String existingAlternate = user != null ? user.getAlternatePhone() : null;
             switch (method) {

@@ -6,8 +6,6 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.TextView;
 
-import com.hbb20.CountryCodePicker;
-
 import org.commcare.dalvik.R;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.utils.KeyboardHelper;
@@ -25,8 +23,8 @@ public class ConnectIdPhoneActivityUiController implements CommCareActivityUICon
     private TextView titleTextView;
     @UiElement(value = R.id.connect_primary_phone_message)
     private TextView messageTextView;
-    @UiElement(value = R.id.connect_primary_phone_country_picker)
-    private CountryCodePicker countryCodeInput;
+    @UiElement(value = R.id.connect_primary_phone_country_input)
+    private AutoCompleteTextView countryCodeInput;
     @UiElement(value = R.id.connect_primary_phone_input)
     private AutoCompleteTextView phoneInput;
     @UiElement(value = R.id.connect_primary_phone_availability)
@@ -46,28 +44,23 @@ public class ConnectIdPhoneActivityUiController implements CommCareActivityUICon
     public void setupUI() {
         button.setOnClickListener(v -> activity.handleButtonPress());
 
-        phoneInput.addTextChangedListener(new TextWatcher() {
-            String lastValue = null;
-
+        TextWatcher watcher = new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
             }
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if(!s.toString().equals(lastValue)) {
-                    lastValue = s.toString();
-                    activity.checkPhoneNumber();
-                }
+                activity.checkPhoneNumber();
             }
 
             @Override
             public void afterTextChanged(Editable s) {
             }
-        });
+        };
 
-        countryCodeInput.registerCarrierNumberEditText(phoneInput);
-        countryCodeInput.setOnCountryChangeListener(() -> activity.checkPhoneNumber());
+        countryCodeInput.addTextChangedListener(watcher);
+        phoneInput.addTextChangedListener(watcher);
     }
 
     @Override
@@ -83,21 +76,26 @@ public class ConnectIdPhoneActivityUiController implements CommCareActivityUICon
         messageTextView.setText(message);
     }
 
-    public boolean isPhoneValid() {
-        return countryCodeInput.isValidFullNumber();
+    public void setCountryCode(String code) {
+        countryCodeInput.setText(code);
+    }
+
+    public String getCountryCode() {
+        return "+" + countryCodeInput.getText().toString();
     }
 
     public void setPhoneNumber(String phone) {
-        countryCodeInput.setFullNumber(phone);
+        phoneInput.setText(phone);
     }
 
     public String getPhoneNumber() {
-        return countryCodeInput.getFullNumberWithPlus();
+        return phoneInput.getText().toString();
     }
 
     public void requestInputFocus() {
         KeyboardHelper.showKeyboardOnInput(activity, phoneInput);
     }
+
 
     public void setOkButtonEnabled(boolean enabled) {
         button.setEnabled(enabled);
