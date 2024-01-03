@@ -6,6 +6,8 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.google.android.material.textfield.TextInputEditText;
+
 import org.commcare.dalvik.R;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.utils.KeyboardHelper;
@@ -22,9 +24,9 @@ public class ConnectIdPasswordActivityUiController implements CommCareActivityUI
     @UiElement(value = R.id.connect_password_message)
     private TextView messageTextView;
     @UiElement(value = R.id.connect_password_input)
-    private AutoCompleteTextView passwordInput;
+    private TextInputEditText passwordInput;
     @UiElement(value = R.id.connect_password_repeat_input)
-    private AutoCompleteTextView passwordRepeatInput;
+    private TextInputEditText passwordRepeatInput;
     @UiElement(value = R.id.connect_password_error_message)
     private TextView errorTextView;
     @UiElement(value = R.id.connect_password_button)
