@@ -38,6 +38,7 @@ public class CommCareNoficationManager {
     public static final String NOTIFICATION_CHANNEL_ERRORS_ID = "notification-channel-errors";
     public static final String NOTIFICATION_CHANNEL_USER_SESSION_ID = "notification-channel-user-session";
     public static final String NOTIFICATION_CHANNEL_SERVER_COMMUNICATIONS_ID = "notification-channel-server-communications";
+    public static final String NOTIFICATION_CHANNEL_PUSH_NOTIFICATIONS_ID = "notification-channel-push-notifications";
 
     /**
      * Handler to receive notifications and show them the user using toast.
@@ -188,6 +189,11 @@ public class CommCareNoficationManager {
                 R.string.notification_channel_server_communication_title,
                 R.string.notification_channel_server_communication_description,
                 NotificationManager.IMPORTANCE_LOW);
+
+        createNotificationChannel(NOTIFICATION_CHANNEL_PUSH_NOTIFICATIONS_ID,
+                R.string.notification_channel_push_notfications_title,
+                R.string.notification_channel_push_notfications_description,
+                NotificationManager.IMPORTANCE_DEFAULT);
     }
 
     @TargetApi(Build.VERSION_CODES.O)

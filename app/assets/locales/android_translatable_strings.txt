@@ -834,6 +834,8 @@ image.capture.not.saved=The image you have taken was not able to be saved proper
 image.selection.not.saved=The image you have chosen was not able to be saved properly. Please select another image.
 image.selection.invalid.extension=The image you have chosen doesn't have an extension. Please select another image.
 
+upload.clear.title=Clear
+
 odk_perfect_match_color=\#87D13E
 odk_fuzzy_match_color=\#FFE88F
 
