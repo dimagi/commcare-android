@@ -7,7 +7,7 @@ import org.commcare.android.database.user.models.ACase;
 import org.commcare.cases.model.Case;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.models.database.user.models.AndroidCaseIndexTable;
-import org.commcare.models.database.user.models.EntityStorageCache;
+import org.commcare.models.database.user.models.CommCareEntityStorageCache;
 import org.commcare.xml.bulk.BulkProcessingCaseXmlParser;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.kxml2.io.KXmlParser;
@@ -26,21 +26,21 @@ import java.util.Set;
  * @author ctsims
  */
 public class AndroidBulkCaseXmlParser extends BulkProcessingCaseXmlParser {
-    private final EntityStorageCache mEntityCache;
+    private final CommCareEntityStorageCache mEntityCache;
     private final AndroidCaseIndexTable mCaseIndexTable;
     private final SqlStorage<ACase> storage;
 
     public AndroidBulkCaseXmlParser(KXmlParser parser,
                                     SqlStorage<ACase> storage) {
-        this(parser, storage, new EntityStorageCache("case"), new AndroidCaseIndexTable());
+        this(parser, storage, new CommCareEntityStorageCache("case"), new AndroidCaseIndexTable());
     }
 
     public AndroidBulkCaseXmlParser(KXmlParser parser,
                                     SqlStorage<ACase> storage,
-                                    EntityStorageCache entityStorageCache,
+                                    CommCareEntityStorageCache commCareEntityStorageCache,
                                     AndroidCaseIndexTable indexTable) {
         super(parser);
-        mEntityCache = entityStorageCache;
+        mEntityCache = commCareEntityStorageCache;
         mCaseIndexTable = indexTable;
         this.storage = storage;
     }
