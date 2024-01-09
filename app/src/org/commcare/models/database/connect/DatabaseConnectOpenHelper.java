@@ -28,8 +28,10 @@ import org.commcare.modern.database.TableBuilder;
 public class DatabaseConnectOpenHelper extends SQLiteOpenHelper {
     /**
      * V.2 - Added ConnectJobRecord, ConnectAppInfo, and ConnectLearningModuleInfo tables
+     * V.3 - Added date_claimed column to ConnectJobRecord,
+     *          and reason column to ConnectJobDeliveryRecord
      */
-    private static final int CONNECT_DB_VERSION = 2;
+    private static final int CONNECT_DB_VERSION = 3;
 
     private static final String CONNECT_DB_LOCATOR = "database_connect";
 

@@ -51,6 +51,8 @@ public class ConnectJobRecord extends Persisted implements Serializable {
     public static final String META_LEARN_APP = "learn_app";
     public static final String META_DELIVER_APP = "deliver_app";
     public static final String META_CLAIM = "claim";
+    public static final String META_CLAIM_DATE = "date_claimed";
+    public static final String META_MAX_PAYMENTS = "max_payments";
     public static final String META_CURRENCY = "currency";
     public static final String META_ACCRUED = "payment_accrued";
     public static final String META_SHORT_DESCRIPTION = "short_description";
@@ -112,9 +114,10 @@ public class ConnectJobRecord extends Persisted implements Serializable {
     private Date lastLearnUpdate;
     @Persisting(20)
     private Date lastDeliveryUpdate;
+    @Persisting(21)
+    @MetaField(META_CLAIM_DATE)
+    private Date dateClaimed;
 
-
-//    private ConnectJobLearningModule[] learningModules;
 
     private List<ConnectJobDeliveryRecord> deliveries;
     private List<ConnectJobPaymentRecord> payments;
@@ -132,7 +135,6 @@ public class ConnectJobRecord extends Persisted implements Serializable {
     public ConnectJobRecord(int jobId, String title, String description, int status,
                             int completedVisits, int maxVisits, int maxDailyVisits, int budgetPerVisit, int totalBudget,
                             Date projectEnd, Date lastWorkedDate,
-//                      ConnectJobLearningModule[] learningModules,
                             List<ConnectJobDeliveryRecord> deliveries) {
         this.jobId = jobId;
         this.title = title;
@@ -145,7 +147,6 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         this.totalBudget = totalBudget;
         this.projectEndDate = projectEnd;
         this.lastWorkedDate = lastWorkedDate;
-//        this.learningModules = learningModules;
         this.deliveries = deliveries;
         this.payments = new ArrayList<>();
         this.learnings = new ArrayList<>();
@@ -176,28 +177,32 @@ public class ConnectJobRecord extends Persisted implements Serializable {
 
         job.paymentAccrued = "";
 
-//        job.learningModules = new ConnectJobLearningModule[]{};
         job.deliveries = new ArrayList<>();
         job.payments = new ArrayList<>();
         job.learnings = new ArrayList<>();
         job.assessments = new ArrayList<>();
         job.completedVisits = json.has(META_DELIVERY_PROGRESS) ? json.getInt(META_DELIVERY_PROGRESS) : -1;
 
-        //Just need to know if the job has been claimed for now
         job.claimed = json.has(META_CLAIM) &&!json.isNull(META_CLAIM);
+        job.dateClaimed = new Date();
 
         if(job.claimed) {
             //Actual claim object: {"max_payments", "end_date", "date_claimed" }
             JSONObject claim = json.getJSONObject(META_CLAIM);
 
-            String key = "max_payments";
+            String key = META_MAX_PAYMENTS;
             if (claim.has(key)) {
                 job.maxVisits = claim.getInt(key);
             }
 
-            key = "end_date";
+            key = META_END_DATE;
             if (claim.has(key)) {
                 job.projectEndDate = df.parse(claim.getString(key));
+            }
+
+            key = META_CLAIM_DATE;
+            if (claim.has(key)) {
+                job.dateClaimed = df.parse(claim.getString(key));
             }
         }
 
@@ -213,7 +218,6 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         //job.? = json.has(META_DATE_MODIFIED) ? df.parse(json.getString(META_DATE_MODIFIED)) : null;
 
         //In model but not in JSON
-        //job.completedVisits = 0;
         job.lastWorkedDate = new Date();
 
         job.status = STATUS_AVAILABLE;
@@ -247,7 +251,7 @@ public class ConnectJobRecord extends Persisted implements Serializable {
     public Date getDateCompleted() { return lastWorkedDate; }
     public Date getProjectEndDate() { return projectEndDate; }
     public void setProjectEndDate(Date date) { projectEndDate = date; }
-    public int getPaymentAccrued() { return Integer.parseInt(paymentAccrued); }
+    public int getPaymentAccrued() { return paymentAccrued != null && paymentAccrued.length() > 0 ? Integer.parseInt(paymentAccrued) : 0; }
     public void setPaymentAccrued(int paymentAccrued) { this.paymentAccrued = Integer.toString(paymentAccrued); }
     public String getCurrency() { return currency; }
     public int getNumLearningModules() { return numLearningModules; }
@@ -257,7 +261,6 @@ public class ConnectJobRecord extends Persisted implements Serializable {
     public void setLearnAppInfo(ConnectAppRecord appInfo) { this.learnAppInfo = appInfo; }
     public ConnectAppRecord getDeliveryAppInfo() { return deliveryAppInfo; }
     public void setDeliveryAppInfo(ConnectAppRecord appInfo) { this.deliveryAppInfo = appInfo; }
-    //public ConnectJobLearningModule[] getLearningModules() { return learningModules; }
     public List<ConnectJobDeliveryRecord> getDeliveries() { return deliveries; }
     public void setDeliveries(List<ConnectJobDeliveryRecord> deliveries) {
         this.deliveries = deliveries;
@@ -331,6 +334,11 @@ public class ConnectJobRecord extends Persisted implements Serializable {
     public void setLastLearnUpdate(Date date) { lastLearnUpdate = date; }
     public Date getLastDeliveryUpdate() { return lastDeliveryUpdate; }
     public void setLastDeliveryUpdate(Date date) { lastDeliveryUpdate = date; }
+    public String getOrganization() { return organization; }
+    public int getTotalBudget() { return totalBudget; }
+    public Date getLastWorkedDate() { return lastWorkedDate; }
+    public int getLearningModulesCompleted() { return learningModulesCompleted; }
+    public Date getDateClaimed() { return dateClaimed; }
 
     public String getMoneyString(int value) {
         String currency = "";
@@ -339,5 +347,40 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         }
 
         return String.format(Locale.getDefault(), "%d%s", value, currency);
+    }
+
+
+    /**
+     * Used for app db migration only
+     */
+    public static ConnectJobRecord fromV2(ConnectJobRecordV2 oldRecord) {
+        ConnectJobRecord newRecord = new ConnectJobRecord(
+                oldRecord.getJobId(),
+                oldRecord.getTitle(),
+                oldRecord.getDescription(),
+                oldRecord.getStatus(),
+                oldRecord.getCompletedVisits(),
+                oldRecord.getMaxVisits(),
+                oldRecord.getMaxDailyVisits(),
+                oldRecord.getBudgetPerVisit(),
+                oldRecord.getTotalBudget(),
+                oldRecord.getProjectEndDate(),
+                oldRecord.getLastUpdate(),
+                new ArrayList<>()
+        );
+
+         newRecord.organization = oldRecord.getOrganization();
+         newRecord.lastWorkedDate = oldRecord.getLastWorkedDate();
+         newRecord.numLearningModules = oldRecord.getNumLearningModules();
+         newRecord.learningModulesCompleted = oldRecord.getLearningModulesCompleted();
+         newRecord.currency = oldRecord.getCurrency();
+         newRecord.paymentAccrued = Integer.toString(oldRecord.getPaymentAccrued());
+         newRecord.shortDescription = oldRecord.getShortDescription();
+         newRecord.lastUpdate = oldRecord.getLastUpdate();
+         newRecord.lastLearnUpdate = oldRecord.getLastLearnUpdate();
+         newRecord.lastDeliveryUpdate = oldRecord.getLastDeliveryUpdate();
+         newRecord.dateClaimed = new Date();
+
+        return newRecord;
     }
 }

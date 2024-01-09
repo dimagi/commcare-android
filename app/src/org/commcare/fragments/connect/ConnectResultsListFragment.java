@@ -98,6 +98,7 @@ public class ConnectResultsListFragment extends Fragment {
                 verificationHolder.nameText.setText(delivery.getEntityName());
                 verificationHolder.dateText.setText(df.format(delivery.getDate()));
                 verificationHolder.statusText.setText(delivery.getStatus());
+                verificationHolder.reasonText.setText(delivery.getReason());
             } else if(holder instanceof PaymentViewHolder paymentHolder) {
                 ConnectJobPaymentRecord payment = job.getPayments().get(position);
 
@@ -118,6 +119,7 @@ public class ConnectResultsListFragment extends Fragment {
             TextView nameText;
             TextView dateText;
             TextView statusText;
+            TextView reasonText;
 
             public VerificationViewHolder(@NonNull View itemView) {
                 super(itemView);
@@ -125,6 +127,7 @@ public class ConnectResultsListFragment extends Fragment {
                 nameText = itemView.findViewById(R.id.delivery_item_name);
                 dateText = itemView.findViewById(R.id.delivery_item_date);
                 statusText = itemView.findViewById(R.id.delivery_item_status);
+                reasonText = itemView.findViewById(R.id.delivery_item_reason);
             }
         }
 

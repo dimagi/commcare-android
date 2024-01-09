@@ -13,6 +13,11 @@ import org.commcare.modern.models.MetaField;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+/**
+ * Data class for holding info related to a Connect job delivery
+ *
+ * @author dviggiano
+ */
 @Table(ConnectJobDeliveryRecord.STORAGE_KEY)
 public class ConnectJobDeliveryRecord extends Persisted implements Serializable {
     /**
@@ -23,6 +28,7 @@ public class ConnectJobDeliveryRecord extends Persisted implements Serializable 
     public static final String META_JOB_ID = "job_id";
     public static final String META_ID = "id";
     public static final String META_STATUS = "status";
+    public static final String META_REASON = "reason";
     public static final String META_DATE = "visit_date";
     public static final String META_UNIT_NAME = "deliver_unit_name";
     public static final String META_SLUG = "deliver_unit_slug";
@@ -53,9 +59,12 @@ public class ConnectJobDeliveryRecord extends Persisted implements Serializable 
     private String entityId;
     @Persisting(8)
     @MetaField(META_ENTITY_NAME)
-    private String entityname;
+    private String entityName;
     @Persisting(9)
     private Date lastUpdate;
+    @Persisting(10)
+    @MetaField(META_REASON)
+    private String reason;
 
     public ConnectJobDeliveryRecord() {
     }
@@ -73,7 +82,9 @@ public class ConnectJobDeliveryRecord extends Persisted implements Serializable 
         delivery.unitName = json.has(META_UNIT_NAME) ? json.getString(META_UNIT_NAME) : "";
         delivery.slug = json.has(META_SLUG) ? json.getString(META_SLUG) : "";
         delivery.entityId = json.has(META_ENTITY_ID) ? json.getString(META_ENTITY_ID) : "";
-        delivery.entityname = json.has(META_ENTITY_NAME) ? json.getString(META_ENTITY_NAME) : "";
+        delivery.entityName = json.has(META_ENTITY_NAME) ? json.getString(META_ENTITY_NAME) : "";
+
+        delivery.reason = json.has(META_REASON) && !json.isNull(META_REASON) ? json.getString(META_REASON) : "";
 
         return delivery;
     }
@@ -81,6 +92,30 @@ public class ConnectJobDeliveryRecord extends Persisted implements Serializable 
     public int getDeliveryId() { return deliveryId; }
     public Date getDate() { return date; }
     public String getStatus() { return status; }
-    public String getEntityName() { return entityname; }
+    public String getEntityName() { return entityName; }
     public void setLastUpdate(Date lastUpdate) { this.lastUpdate = lastUpdate; }
+
+    public int getJobId() { return jobId; }
+    public String getUnitName() { return unitName; }
+    public String getSlug() { return slug; }
+    public String getEntityId() { return entityId; }
+    public Date getLastUpdate() { return lastUpdate; }
+    public String getReason() { return reason; }
+
+    public static ConnectJobDeliveryRecord fromV2(ConnectJobDeliveryRecordV2 oldRecord) {
+        ConnectJobDeliveryRecord newRecord = new ConnectJobDeliveryRecord();
+
+        newRecord.jobId = oldRecord.getJobId();
+        newRecord.deliveryId = oldRecord.getDeliveryId();
+        newRecord.date = oldRecord.getDate();
+        newRecord.status = oldRecord.getStatus();
+        newRecord.unitName = oldRecord.getUnitName();
+        newRecord.slug = oldRecord.getSlug();
+        newRecord.entityId = oldRecord.getEntityId();
+        newRecord.entityName = oldRecord.getEntityName();
+        newRecord.lastUpdate = oldRecord.getLastUpdate();
+        newRecord.reason = "";
+
+        return newRecord;
+    }
 }
