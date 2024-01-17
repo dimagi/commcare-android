@@ -20,6 +20,9 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.Locale;
 
 import androidx.fragment.app.Fragment;
@@ -130,10 +133,10 @@ public class ConnectDeliveryProgressDeliveryFragment extends Fragment {
 
         int totalVisitCount = 0;
         int dailyVisitCount = 0;
-        Instant today = Instant.now().truncatedTo(ChronoUnit.DAYS);
+        Date today = new Date();
         for (ConnectJobDeliveryRecord record : job.getDeliveries()) {
             totalVisitCount++;
-            if(record.getDate().toInstant().truncatedTo(ChronoUnit.DAYS).equals(today)) {
+            if(sameDay(today, record.getDate())) {
                 dailyVisitCount++;
             }
         }
@@ -171,5 +174,23 @@ public class ConnectDeliveryProgressDeliveryFragment extends Fragment {
                 });
             ((CommCareActivity<?>)getActivity()).showAlertDialog(dialog);
         });
+    }
+
+    private static boolean sameDay(Date date1, Date date2) {
+        if(android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            return date1.toInstant().truncatedTo(ChronoUnit.DAYS).equals(date2.toInstant());
+        }
+
+        Calendar calendar1 = new GregorianCalendar();
+        calendar1.setTime(date1);
+        int year1 = calendar1.get(Calendar.YEAR);
+        int day1 = calendar1.get(Calendar.DAY_OF_YEAR);
+
+        Calendar calendar2 = new GregorianCalendar();
+        calendar2.setTime(date2);
+        int year2 = calendar2.get(Calendar.YEAR);
+        int day2 = calendar2.get(Calendar.DAY_OF_YEAR);
+
+        return year1 == year2 && day1 == day2;
     }
 }
