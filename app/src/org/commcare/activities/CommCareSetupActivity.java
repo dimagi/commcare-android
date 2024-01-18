@@ -24,6 +24,7 @@ import androidx.fragment.app.FragmentTransaction;
 import org.commcare.AppUtils;
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
+import org.commcare.activities.connect.ConnectManager;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.engine.resource.AppInstallStatus;
@@ -114,6 +115,9 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     public static final int MENU_ARCHIVE = Menu.FIRST;
     private static final int MENU_SMS = Menu.FIRST + 2;
     private static final int MENU_FROM_LIST = Menu.FIRST + 3;
+    private static final int MENU_CONNECT_SIGN_IN = Menu.FIRST + 4;
+    private static final int MENU_CONNECT_SIGN_OUT = Menu.FIRST + 5;
+    private static final int MENU_CONNECT_FORGET = Menu.FIRST + 6;
 
     // Activity request codes
     public static final int BARCODE_CAPTURE = 1;
@@ -164,6 +168,10 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         fromManager = getIntent().getBooleanExtra(AppManagerActivity.KEY_LAUNCH_FROM_MANAGER, false);
         if (checkForMultipleAppsViolation()) {
             return;
+        }
+
+        if(!fromManager) {
+            ConnectManager.init(this);
         }
 
         loadIntentAndInstanceState(savedInstanceState);
@@ -352,6 +360,8 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             ft.commit();
             fm.executePendingTransactions();
         }
+
+        updateConnectButton();
     }
 
     private Fragment restoreInstallSetupFragment() {
@@ -417,6 +427,9 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                 setResult(RESULT_CANCELED);
                 finish();
                 return;
+            default:
+                ConnectManager.handleFinishedActivity(requestCode, resultCode, data);
+                return;
 
         }
         if (result == null) {
@@ -475,6 +488,19 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         super.onCreateOptionsMenu(menu);
         menu.add(0, MENU_ARCHIVE, 0, Localization.get("menu.archive")).setIcon(android.R.drawable.ic_menu_upload);
         menu.add(0, MENU_FROM_LIST, 2, Localization.get("menu.app.list.install"));
+        menu.add(0, MENU_CONNECT_SIGN_IN, 3, getString(R.string.login_menu_connect_sign_in));
+        menu.add(0, MENU_CONNECT_SIGN_OUT, 3, getString(R.string.login_menu_connect_sign_out));
+        menu.add(0, MENU_CONNECT_FORGET, 3, getString(R.string.login_menu_connect_forget));
+        return true;
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        super.onPrepareOptionsMenu(menu);
+        menu.findItem(MENU_CONNECT_SIGN_IN).setVisible(!fromManager && !fromExternal && ConnectManager.shouldShowSignInMenuOption());
+        menu.findItem(MENU_CONNECT_SIGN_OUT).setVisible(!fromManager && !fromExternal && ConnectManager.shouldShowSignOutMenuOption());
+        menu.findItem(MENU_CONNECT_FORGET).setVisible(!fromManager && !fromExternal && ConnectManager.shouldShowSignOutMenuOption());
+
         return true;
     }
 
@@ -596,8 +622,35 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                 i = new Intent(getApplicationContext(), InstallFromListActivity.class);
                 startActivityForResult(i, GET_APPS_FROM_HQ);
                 break;
+            case MENU_CONNECT_SIGN_IN:
+                //Exactly like pressing the Connect button, but the first time happens this way
+                handleConnectButtonPress();
+                break;
+            case MENU_CONNECT_SIGN_OUT:
+                FirebaseAnalyticsUtil.reportCccSignOut();
+                ConnectManager.signOut();
+                updateConnectButton();
+                break;
+            case MENU_CONNECT_FORGET:
+                ConnectManager.forgetUser();
+                updateConnectButton();
+                break;
         }
         return true;
+    }
+
+    private void updateConnectButton() {
+        installFragment.updateConnectButton(this, !fromManager && !fromExternal, v -> {
+            handleConnectButtonPress();
+        });
+    }
+
+    private void handleConnectButtonPress() {
+        ConnectManager.handleConnectButtonPress(this, success -> {
+            if(success) {
+                ConnectManager.goToConnectJobsList();
+            }
+        });
     }
 
     private void fail(NotificationMessage notificationMessage, boolean showAsPinnedNotifcation) {

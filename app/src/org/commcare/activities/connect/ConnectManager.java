@@ -262,8 +262,9 @@ public class ConnectManager {
         }
     }
 
-    public static void handleConnectButtonPress(ConnectActivityCompleteListener listener) {
+    public static void handleConnectButtonPress(CommCareActivity<?> parent, ConnectActivityCompleteListener listener) {
         ConnectManager manager = getInstance();
+        manager.parentActivity = parent;
         manager.loginListener = listener;
         manager.forgotPassword = false;
 
