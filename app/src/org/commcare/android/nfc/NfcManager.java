@@ -58,7 +58,7 @@ public class NfcManager {
         if (message.startsWith(payloadTag)) {
             message = message.replace(payloadTag, "");
             if (!StringUtils.isEmpty(encryptionKey)) {
-                    message = (new EncryptionHelper()).decryptWithBase64EncodedKey(EncryptionHelper.CC_KEY_ALGORITHM_AES, message, encryptionKey);
+                    message = (new EncryptionHelper()).decryptWithBase64EncodedKey(message, encryptionKey);
             }
         } else if (!allowUntaggedRead && !isEmptyPayloadTag(payloadTag)) {
             throw new InvalidPayloadTagException();
@@ -95,7 +95,7 @@ public class NfcManager {
         }
         String payload = message;
         if (!StringUtils.isEmpty(encryptionKey)) {
-            payload = (new EncryptionHelper()).encryptWithBase64EncodedKey(EncryptionHelper.CC_KEY_ALGORITHM_AES, payload, encryptionKey);
+            payload = (new EncryptionHelper()).encryptWithBase64EncodedKey(payload, encryptionKey);
         }
         if (payload.contains(PAYLOAD_DELIMITER)) {
             throw new InvalidPayloadException();
