@@ -10,6 +10,7 @@ import android.os.Bundle;
 
 import org.commcare.android.javarosa.IntentCallout;
 import org.commcare.util.EncryptionHelper;
+import org.commcare.util.EncryptionKeyHelper;
 
 import java.io.IOException;
 
@@ -44,6 +45,8 @@ public class NfcWriteActivity extends NfcActivity {
             finishWithErrorToast("nfc.write.encryption.error", e);
         } catch (NfcManager.InvalidPayloadException e) {
             finishWithErrorToast("nfc.write.payload.error", e);
+        } catch (EncryptionKeyHelper.EncryptionKeyException e) {
+            finishWithErrorToast("nfc.write.encryption.error", e);
         }
     }
 

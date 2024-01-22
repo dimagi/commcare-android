@@ -11,6 +11,7 @@ import android.util.Pair;
 
 import org.commcare.android.javarosa.IntentCallout;
 import org.commcare.util.EncryptionHelper;
+import org.commcare.util.EncryptionKeyHelper;
 
 import java.io.IOException;
 
@@ -98,6 +99,8 @@ public class NfcReadActivity extends NfcActivity {
         } catch (NfcManager.InvalidPayloadTagException e) {
             // payload doesn't have our tag attached, so we should not let the app read this message
             finishWithErrorToast("nfc.read.msg.payload.tag.error");
+        } catch (EncryptionKeyHelper.EncryptionKeyException e) {
+            finishWithErrorToast("nfc.read.msg.decryption.key.error", e);
         } finally {
             try {
                 ndefObject.close();

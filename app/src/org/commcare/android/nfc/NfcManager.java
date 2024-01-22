@@ -54,7 +54,8 @@ public class NfcManager {
         }
     }
 
-    public String decryptValue(String message) throws EncryptionHelper.EncryptionException {
+    public String decryptValue(String message)
+            throws EncryptionHelper.EncryptionException, EncryptionKeyHelper.EncryptionKeyException {
         String payloadTag = getPayloadTag();
         if (message.startsWith(payloadTag)) {
             message = message.replace(payloadTag, "");
@@ -90,7 +91,8 @@ public class NfcManager {
         return payloadTag.contentEquals(getEmptyPayloadTag());
     }
 
-    public String tagAndEncryptPayload(String message) throws EncryptionHelper.EncryptionException {
+    public String tagAndEncryptPayload(String message)
+            throws EncryptionHelper.EncryptionException, EncryptionKeyHelper.EncryptionKeyException {
         if (StringUtils.isEmpty(message)) {
             return message;
         }

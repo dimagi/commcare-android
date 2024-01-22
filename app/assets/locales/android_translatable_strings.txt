@@ -924,6 +924,7 @@ nfc.write.type.not.supported=The well-known type you tried to write is not suppo
 nfc.write.io.error=An IO error occurred while attempting to write the Ndef message to your NFC tag
 nfc.write.msg.malformed=The Ndef message that you attempted to write was malformed
 nfc.write.success=NFC write was successful!
+nfc.write.encryption.key.error=An error occurred while handling the encryption key
 nfc.missing.domain=A domain must be provided when specifying a custom type for your NFC action
 nfc.read.success=NFC read was successful!
 nfc.read.io.error=An IO error occurred while attempting to read the Ndef message
@@ -934,6 +935,7 @@ nfc.read.error.no.ndef=The message on this NFC tag is not of a format that Andro
 nfc.read.no.data=The provided NFC tag had no data on it to read
 nfc.read.error.unsupported=The message read from the NFC tag is of a type not supported by CommCare
 nfc.read.error.mismatch=The message read from the NFC tag does not match the type specified by this app's configuration
+nfc.read.msg.decryption.key.error=An error occurred while handling the encryption key
 
 reason.for.quarantine.title=Reason for Quarantine
 reason.for.quarantine.prefix=Quarantine Reason:

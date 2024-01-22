@@ -7,6 +7,7 @@ import android.security.keystore.KeyProperties;
 
 import org.commcare.CommCareApplication;
 import org.commcare.util.EncryptionHelper;
+import org.commcare.util.EncryptionKeyHelper;
 import org.commcare.util.IEncryptionKeyProvider;
 
 import java.math.BigInteger;
@@ -41,8 +42,10 @@ public class EncryptionKeyProvider implements IEncryptionKeyProvider {
     private static final String PADDING = KeyProperties.ENCRYPTION_PADDING_NONE;
 
     // Generates a cryptrographic key and adds it to the Android KeyStore
+    @Override
     public Key generateCryptographicKeyInKeyStore(String keyAlias,
-                                                  EncryptionHelper.CryptographicOperation cryptographicOperation) {
+                                                  EncryptionHelper.CryptographicOperation cryptographicOperation)
+            throws EncryptionKeyHelper.EncryptionKeyException{
         try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 KeyGenerator keyGenerator = KeyGenerator
@@ -86,10 +89,9 @@ public class EncryptionKeyProvider implements IEncryptionKeyProvider {
                     return keyPair.getPrivate();
                 }
             }
-
         } catch (NoSuchAlgorithmException | NoSuchProviderException |
                  InvalidAlgorithmParameterException e) {
-            throw new RuntimeException(e);
+            throw new EncryptionKeyHelper.EncryptionKeyException("Key generation failed: ", e);
         }
     }
 
