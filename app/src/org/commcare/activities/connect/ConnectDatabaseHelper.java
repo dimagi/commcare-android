@@ -100,6 +100,15 @@ public class ConnectDatabaseHelper {
         });
     }
 
+    public static void teardown() {
+        synchronized (connectDbHandleLock) {
+            if (connectDatabase != null && connectDatabase.isOpen()) {
+                connectDatabase.close();
+                connectDatabase = null;
+            }
+        }
+    }
+
     public static ConnectUserRecord getUser(Context context) {
         ConnectUserRecord user = null;
         for (ConnectUserRecord r : getConnectStorage(context, ConnectUserRecord.class)) {

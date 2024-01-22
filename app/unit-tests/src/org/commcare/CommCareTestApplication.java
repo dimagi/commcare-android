@@ -8,6 +8,7 @@ import android.util.Log;
 
 import androidx.work.Configuration;
 
+import org.commcare.activities.connect.ConnectDatabaseHelper;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.mocks.ModernHttpRequesterMock;
 import org.commcare.android.util.TestUtils;
@@ -275,6 +276,8 @@ public class CommCareTestApplication extends CommCareApplication implements Test
         if(app != null) {
             app.teardownSandbox();
         }
+
+        ConnectDatabaseHelper.teardown();
 
         if (!asyncExceptions.isEmpty()) {
             for (Throwable throwable : asyncExceptions) {
