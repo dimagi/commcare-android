@@ -7,6 +7,7 @@ import android.nfc.NfcAdapter;
 
 import org.apache.commons.lang3.StringUtils;
 import org.commcare.util.EncryptionHelper;
+import org.commcare.util.EncryptionKeyHelper;
 
 import javax.annotation.Nullable;
 
@@ -58,7 +59,7 @@ public class NfcManager {
         if (message.startsWith(payloadTag)) {
             message = message.replace(payloadTag, "");
             if (!StringUtils.isEmpty(encryptionKey)) {
-                    message = (new EncryptionHelper()).decryptWithBase64EncodedKey(message, encryptionKey);
+                    message = EncryptionHelper.decryptWithBase64EncodedKey(message, encryptionKey);
             }
         } else if (!allowUntaggedRead && !isEmptyPayloadTag(payloadTag)) {
             throw new InvalidPayloadTagException();
@@ -95,7 +96,7 @@ public class NfcManager {
         }
         String payload = message;
         if (!StringUtils.isEmpty(encryptionKey)) {
-            payload = (new EncryptionHelper()).encryptWithBase64EncodedKey(payload, encryptionKey);
+            payload = EncryptionHelper.encryptWithBase64EncodedKey(payload, encryptionKey);
         }
         if (payload.contains(PAYLOAD_DELIMITER)) {
             throw new InvalidPayloadException();
