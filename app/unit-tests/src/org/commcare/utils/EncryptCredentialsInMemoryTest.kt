@@ -7,7 +7,7 @@ import io.mockk.mockk
 import org.commcare.CommCareApplication
 import org.commcare.CommCareTestApplication
 import org.commcare.android.util.TestAppInstaller
-import org.commcare.util.EncryptionHelper
+import org.commcare.util.EncryptionKeyHelper
 import org.javarosa.core.model.User
 import org.junit.After
 import org.junit.Assert
@@ -36,7 +36,7 @@ public class EncryptCredentialsInMemoryTest {
     @Test
     fun saveUsernameWithKeyStoreAndReadWithout_shouldPass() {
         // confirm that there is no android key store available
-        Assert.assertFalse(encryptionHelper.getEncryptionKeyProvider().isKeyStoreAvailable)
+        Assert.assertFalse(EncryptionKeyHelper.isKeyStoreAvailable)
 
         // register mock Android key store provider, this is when the key store becomes available
         MockAndroidKeyStoreProvider.registerProvider()
@@ -45,7 +45,7 @@ public class EncryptCredentialsInMemoryTest {
         generateUserCredentialKey()
 
         // assert that the android key store is available
-        Assert.assertTrue(encryptionHelper.getEncryptionKeyProvider().isKeyStoreAvailable)
+        Assert.assertTrue(EncryptionKeyHelper.isKeyStoreAvailable)
 
         // login with the Android key store available
         TestAppInstaller.login(TEST_USER, TEST_PASS)
@@ -69,7 +69,7 @@ public class EncryptCredentialsInMemoryTest {
         MockAndroidKeyStoreProvider.deregisterProvider()
 
         // confirm that the key store is no longer available
-        Assert.assertFalse(encryptionHelper.getEncryptionKeyProvider().isKeyStoreAvailable)
+        Assert.assertFalse(EncryptionKeyHelper.isKeyStoreAvailable())
 
         // login once again, this time without the keystore
         TestAppInstaller.login(TEST_USER, TEST_PASS)
@@ -88,7 +88,7 @@ public class EncryptCredentialsInMemoryTest {
 
     private fun generateUserCredentialKey() {
         val mockKeyGenParameterSpec = mockk<KeyGenParameterSpec>()
-        every { mockKeyGenParameterSpec.keystoreAlias } returns EncryptionHelper.CC_IN_MEMORY_ENCRYPTION_KEY_ALIAS
+        every { mockKeyGenParameterSpec.keystoreAlias } returns EncryptionKeyHelper.CC_IN_MEMORY_ENCRYPTION_KEY_ALIAS
 
         // generate key using mock key generator
         val mockKeyGenerator = MockKeyGenerator()
