@@ -6,10 +6,13 @@ import android.security.keystore.KeyGenParameterSpec;
 import android.security.keystore.KeyProperties;
 
 import org.commcare.CommCareApplication;
+import org.commcare.util.EncryptionHelper;
 import org.commcare.util.IEncryptionKeyProvider;
 
 import java.math.BigInteger;
 import java.security.InvalidAlgorithmParameterException;
+import java.security.Key;
+import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
@@ -38,7 +41,8 @@ public class EncryptionKeyProvider implements IEncryptionKeyProvider {
     private static final String PADDING = KeyProperties.ENCRYPTION_PADDING_NONE;
 
     // Generates a cryptrographic key and adds it to the Android KeyStore
-    public void generateCryptographicKeyInKeyStore(String keyAlias) {
+    public Key generateCryptographicKeyInKeyStore(String keyAlias,
+                                                  EncryptionHelper.CryptographicOperation cryptographicOperation) {
         try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 KeyGenerator keyGenerator = KeyGenerator
@@ -49,7 +53,7 @@ public class EncryptionKeyProvider implements IEncryptionKeyProvider {
                         .setEncryptionPaddings(PADDING)
                         .build();
                 keyGenerator.init(keyGenParameterSpec);
-                keyGenerator.generateKey();
+                return keyGenerator.generateKey();
             } else {
                 // Because KeyGenParameterSpec was introduced in Android SDK 23, prior versions
                 // need to resource to KeyPairGenerator which only generates asymmetric keys,
@@ -75,7 +79,12 @@ public class EncryptionKeyProvider implements IEncryptionKeyProvider {
                         .build();
 
                 keyGenerator.initialize(keySpec);
-                keyGenerator.generateKeyPair();
+                KeyPair keyPair = keyGenerator.generateKeyPair();
+                if (cryptographicOperation == EncryptionHelper.CryptographicOperation.Encryption) {
+                    return keyPair.getPublic();
+                } else {
+                    return keyPair.getPrivate();
+                }
             }
 
         } catch (NoSuchAlgorithmException | NoSuchProviderException |

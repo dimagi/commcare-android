@@ -97,8 +97,6 @@ import org.commcare.tasks.PurgeStaleArchivedFormsTask;
 import org.commcare.tasks.templates.ManagedAsyncTask;
 import org.commcare.update.UpdateHelper;
 import org.commcare.update.UpdateWorker;
-import org.commcare.util.EncryptionHelper;
-import org.commcare.util.EncryptionKeyHelper;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.AndroidCacheDirSetup;
 import org.commcare.utils.AndroidCommCarePlatform;
@@ -231,8 +229,6 @@ public class CommCareApplication extends MultiDexApplication {
         loadSqliteLibs();
         setRoots();
         prepareTemporaryStorage();
-
-        (new EncryptionKeyHelper()).generateCryptographicKeyInKeyStore(CC_IN_MEMORY_ENCRYPTION_KEY_ALIAS);
 
         if (LegacyInstallUtils.checkForLegacyInstall(this)) {
             dbState = STATE_LEGACY_DETECTED;
