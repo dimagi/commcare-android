@@ -107,12 +107,14 @@ public class ConnectManager {
         manager.parentActivity = parent;
         ConnectDatabaseHelper.init(parent);
 
-        ConnectUserRecord user = ConnectDatabaseHelper.getUser(manager.parentActivity);
-        if (user != null) {
-            if (user.getRegistrationPhase() != ConnectTask.CONNECT_NO_ACTIVITY) {
-                manager.connectStatus = ConnectIdStatus.Registering;
-            } else if (manager.connectStatus == ConnectIdStatus.NotIntroduced) {
-                manager.connectStatus = ConnectIdStatus.LoggedOut;
+        if(manager.connectStatus == ConnectIdStatus.NotIntroduced) {
+            ConnectUserRecord user = ConnectDatabaseHelper.getUser(manager.parentActivity);
+            if (user != null) {
+                if (user.getRegistrationPhase() != ConnectTask.CONNECT_NO_ACTIVITY) {
+                    manager.connectStatus = ConnectIdStatus.Registering;
+                } else if (manager.connectStatus == ConnectIdStatus.NotIntroduced) {
+                    manager.connectStatus = ConnectIdStatus.LoggedOut;
+                }
             }
         }
     }
@@ -210,11 +212,12 @@ public class ConnectManager {
     }
 
     private static void completeSignin() {
+        ConnectManager instance = getInstance();
+        instance.connectStatus = ConnectIdStatus.LoggedIn;
+
         scheduleHearbeat();
         CrashUtil.registerConnectUser();
 
-        ConnectManager instance = getInstance();
-        instance.connectStatus = ConnectIdStatus.LoggedIn;
         if(instance.loginListener != null) {
             instance.loginListener.connectActivityComplete(true);
         }
