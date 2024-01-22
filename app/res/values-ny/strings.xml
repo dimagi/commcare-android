@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:cc="http://strings_namespace">
+    <string name="ok" cc:translatable="true">Chabwino</string>
+
+    <string name="connect_last_update">Update yomaliza yachitika pa %s</string>
+
+    <string name="connect_title">Connect</string>
+    <string name="connect_jobs_all">NTCHITO ZONSE</string>
+    <string name="connect_jobs_mine">NTCHITO ZANGA</string>
+    <string name="connect_job_new">ZATSOPANO</string>
+    <string name="connect_job_visits">Yenderani nyumba %d mmasiku %d</string>
+    <string name="connect_job_training_complete">Kuphunzira mwamaliza ndipo zatsimikizidwa</string>
+    <string name="connect_job_needs_assessment">Mukuyenera kulemba mayeso</string>
+    <string name="connect_job_passed_assessment">Mwamaliza mayeso anu</string>
+    <string name="connect_job_training_progress">%s Mwapangako magawo %d pa magawo 100</string>
+    <string name="connect_job_visits_completed">Mwayendera makomo %d</string>
+    <string name="connect_job_remaining">Mwatsala ndi masiku %d okha basi</string>
+    <string name="connect_job_learning">Kuphunzira</string>
+    <string name="connect_job_learning_not_completed">Simunamalize kuphunzira </string>
+    <string name="connect_job_assessment_not_completed">Simudamalize mayeso anu</string>
+    <string name="connect_job">Ntchito</string>
+
+    <string name="connect_job_none_training">Simunayambebe kuphunzira za ntchito ili yonse</string>
+    <string name="connect_job_none_active">Mudakalibe ntchito iliyonse padakali pano</string>
+    <string name="connect_job_none_available">Palibe mwayi wa ntchito padakali pano</string>
+    <string name="connect_job_training">Ntchito zimene ndikupanga maphunziro ake</string>
+    <string name="connect_job_claimed">Ntchito zimene ndikugwira</string>
+    <string name="connect_job_ended">Ntchito zimene ndamaliza</string>
+    <string name="connect_job_completed">Ntchitp zimene zatha %s</string>
+
+    <string name="connect_job_you_will_learn">Pangani maphunziro awa ndi kupeza setifiketi</string>
+    <string name="connect_job_start_training">Yambani maphunziro a ntchito iyi</string>
+    <string name="connect_job_no_learning_required">Simusoweka kuphunzira padakali pano</string>
+    <string name="connect_job_full_description">%s\nPatani %s pa kuyendera khomo liri lonse</string>
+    <string name="connect_job_go_to_learn_app">Bwerani apa kuti muyambe maphunziro anu</string>
+    <string name="connect_job_download_learn_app">Pangani download maphunziro anu apa</string>
+    <string name="connect_job_learn_summary">%d magawo, %d maola</string>
+
+    <string name="connect_learn_progress_title">Ulendo wanu wa maphunziro</string>
+    <string name="connect_learn_complete_title">Tsopano mwamaliza maphunziro anu!</string>
+    <string name="connect_learn_need_assessment_title">Maphunziro adakali</string>
+    <string name="connect_learn_failed_title">Training yakanika</string>
+    <string name="connect_learn_complete_by">Malizitsani ntchito yanu pofika pa %s</string>
+    <string name="connect_learn_status">Mwamaliza gawo %d pa magawo %d a maphunziro.\nMalizani maphunziro kuti mulandire setifiketi yanu.</string>
+    <string name="connect_learn_not_started">Inu simunayambebe maphunziro aliwonse. Yambani kuti mupeze setifiketi.</string>
+    <string name="connect_learn_finished">Mwapata setifiketi yokuyenerezani kukayendera makomo ndi kukagwira ntchito molingana ndi maphunziro amene mwapangawa.\nMalikisi anu: %d\nMalikisi okhonzera mayeso: %d</string>
+    <string name="connect_learn_need_assessment">Tsopano lembani mayeso kuti mumalize maphunziro anu.</string>
+    <string name="connect_learn_failed">Pepani, mwalephera kufikira malikisi okhonzera mayeso. Yesansinso kachikena.\nMalikisi anu: %d\nMalikisi okhonzera mayeso %d</string>
+    <string name="connect_learn_complete">Tsopano mwamaliza</string>
+    <string name="connect_learn_certificate">SETIFIKETI YOTSIMIKIZA KUTI MWAMALIZA MAPHUNZIRO</string>
+    <string name="connect_learn_completed">Mwamaliza pa tsiku la: %s</string>
+    <string name="connect_learn_claim_label">Tsopano tengani ntchito kuti mukathe kuyendera makomo</string>
+    <string name="connect_learn_warning_ended">Ntchitoyi yatha tsopano. Simuthanso kuigwira.</string>
+    <string name="connect_learn_review">Onaninso maphunziro</string>
+    <string name="connect_learn_view_details">Onani Ntchito Apa</string>
+    <string name="connect_learn_go_to_assessment">Pitani apa kuti mulembe mayeso</string>
+    <string name="connect_learn_try_again">Yeseraninso</string>
+    <string name="connect_learn_start">Yambanipo maphunziro</string>
+    <string name="connect_learn_continue">Pitirizani Maphunziro</string>
+
+    <string name="connect_delivery_title">Ndondomeko za ntchito</string>
+    <string name="connect_delivery_review_title">Onani zambiri za Ntchito apa</string>
+    <string name="connect_delivery_days_remaining">Mwatsala ndi masiku %d kuti mumalize kuyendera makomo</string>
+    <string name="connect_delivery_latest_start">Tsiku lomaliza kuyamba ntchito: %s</string>
+    <string name="connect_delivery_max_visits">Makomo onse amene mungathe kuyendera asapose %d</string>
+    <string name="connect_delivery_earn">Mutha kupeza %s ngati muyendere makomo %d</string>
+    <string name="connect_delivery_max_daily_visits">Muyendere makomo osaposa %d patsiku</string>
+    <string name="connect_delivery_ready_to_claim">Mwakonzeka kuyamba kuyendera makomo?</string>
+    <string name="connect_delivery_expired">Mwayi wa ntchito watha</string>
+    <string name="connect_delivery_ready_to_claim_detailed">Tengani ntchitoyi tsopano ndipo mupange download app yokayendera makomo</string>
+    <string name="connect_delivery_expired_detailed">Tsiku lomaliza kuyamba ntchito ladutsa. Mudziwitsidwa mwayi wina ukapezeka.</string>
+    <string name="connect_delivery_claim">Tengani Ntchito</string>
+    <string name="connect_delivery_get_app">Pangani download app apa</string>
+    <string name="connect_delivery_go">Pitani ku App</string>
+
+    <string name="connect_progress_delivery">Kuyendera Makomo</string>
+    <string name="connect_progress_delivery_verification">Kutsimikizira Komanso Kulipidwa</string>
+    <string name="connect_progress_title">Mwayenda makomo angati</string>
+    <string name="connect_progress_status">Mwayendera makomo %d mwa makomo %d.</string>
+    <string name="connect_progress_complete_by">Malizani kuyendera makomo pasanadutse pa %s</string>
+    <string name="connect_progress_ended">Ntchitoyi inatha pa %s</string>
+    <string name="connect_progress_expired_dialog_title">Pulojekiti inatha</string>
+    <string name="connect_progress_max_visits_dialog_title">Mwamaliza makomo onse amene mukuloledwa kuyendera</string>
+    <string name="connect_progress_expired">Tsiku lomaliza ladutsa ndipokuyendera kwina nkosalipidwa.</string>
+    <string name="connect_progress_visits_completed">Mwamaliza makomo onse amene mukuloledwa kuyendera, kuyendera kwina simulipidwa.</string>
+    <string name="connect_progress_review">Onani maphunziro</string>
+    <string name="connect_progress_launch">Yambani Pologalamu</string>
+    <string name="connect_progress_paid">ZALIPIRIDWA</string>
+    <string name="connect_progress_warning">Simukuona mmene mwapitira patsogolo?</string>
+    <string name="connect_progress_warning_learn">Dziwani chifukwa chani</string>
+    <string name="connect_progress_warning_ended">Ntchito iyi yafika pamapeto. Inu simulandira kalikonse pogwira ntchito yowonjezera.</string>
+    <string name="connect_progress_warning_max_reached">Mwamaliza makomo onse amene mukuloledwa kuyendera, kuyendera kwina kowonjezera sikulipidwa.</string>
+    <string name="connect_progress_warning_daily_max_reached">Mwamaliza makomo onse amene mukuloledwa kuyendera lero, kuyendera kwina kowonjezera lero sikulipidwa.</string>
+    <string name="connect_progress_warning_full">Nkutheka kuti simutha kuona mmene mukupitira patsogolo ngati mwayendera makomo koposa amene mukuyenera kuyendera patsiku, KAPENA ngati simunatumize ma fomu anu ku nkhokwe yotchedwa seva. Mukuyenera kudikira ma fomu anu apange sinki kuti muone mmene mwapitira patsogolo.</string>
+
+    <string name="connect_downloading_learn">Mukutsegula maphunziro </string>
+    <string name="connect_downloading_delivery">Mukutsegula ntchito</string>
+    <string name="connect_downloading_status">Mwatsegula magawo %d pa magawo 100</string>
+
+    <string name="connect_results_summary_verifications_title">Kutsimikizira makomo oyenderedwa</string>
+    <string name="connect_results_summary_verifications_description">Zomwe sizinatsimikizidwe: %d\nZomwe zakanidwa: %d\nZomwe zavomerezedwa: %d</string>
+    <string name="connect_results_summary_payments_title">Malipiro</string>
+    <string name="connect_results_summary_payments_description">Ndalama zomwe mwapanga: %s\nNdalama zomwe zatumizidwa kwa inu: %s</string>
+    <string name="connect_results_payment_title">Mwalandira ndalama</string>
+    <string name="connect_results_payment_description">Mwalandika %s</string>
+
+    <string name="connect_app_install_unknown_error">App yakanika kulowa mu phone pa zifukwa zina</string>
+    <string name="connect_app_installed">App yatheka kuika mu foni</string>
+    <string name="app_with_id_not_found">App ya CommCare siinatheke kulowa mu foni</string>
+</resources>
