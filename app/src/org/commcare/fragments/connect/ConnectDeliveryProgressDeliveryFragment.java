@@ -15,14 +15,11 @@ import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.dalvik.R;
 import org.commcare.views.dialogs.StandardAlertDialog;
 import org.javarosa.core.services.locale.Localization;
+import org.joda.time.LocalDate;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.Calendar;
 import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.Locale;
 
 import androidx.fragment.app.Fragment;
@@ -177,20 +174,9 @@ public class ConnectDeliveryProgressDeliveryFragment extends Fragment {
     }
 
     private static boolean sameDay(Date date1, Date date2) {
-        if(android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            return date1.toInstant().truncatedTo(ChronoUnit.DAYS).equals(date2.toInstant());
-        }
+        LocalDate dt1 = new LocalDate(date1);
+        LocalDate dt2 = new LocalDate(date2);
 
-        Calendar calendar1 = new GregorianCalendar();
-        calendar1.setTime(date1);
-        int year1 = calendar1.get(Calendar.YEAR);
-        int day1 = calendar1.get(Calendar.DAY_OF_YEAR);
-
-        Calendar calendar2 = new GregorianCalendar();
-        calendar2.setTime(date2);
-        int year2 = calendar2.get(Calendar.YEAR);
-        int day2 = calendar2.get(Calendar.DAY_OF_YEAR);
-
-        return year1 == year2 && day1 == day2;
+        return dt1.equals(dt2);
     }
 }
