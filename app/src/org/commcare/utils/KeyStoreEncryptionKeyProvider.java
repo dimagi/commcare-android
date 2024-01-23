@@ -8,7 +8,7 @@ import android.security.keystore.KeyProperties;
 import org.commcare.CommCareApplication;
 import org.commcare.util.EncryptionHelper;
 import org.commcare.util.EncryptionKeyHelper;
-import org.commcare.util.IEncryptionKeyProvider;
+import org.commcare.util.IKeyStoreEncryptionKeyProvider;
 
 import java.math.BigInteger;
 import java.security.InvalidAlgorithmParameterException;
@@ -32,7 +32,7 @@ import static org.commcare.utils.GlobalConstants.KEYSTORE_NAME;
  *
  * @author dviggiano
  */
-public class EncryptionKeyProvider implements IEncryptionKeyProvider {
+public class KeyStoreEncryptionKeyProvider implements IKeyStoreEncryptionKeyProvider {
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     private static final String ALGORITHM = KeyProperties.KEY_ALGORITHM_AES;
