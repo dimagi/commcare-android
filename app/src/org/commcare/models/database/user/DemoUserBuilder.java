@@ -11,6 +11,7 @@ import org.commcare.models.database.SqlStorage;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.core.encryption.CryptUtil;
 import org.commcare.models.encryption.ByteEncrypter;
+import org.commcare.util.EncryptionKeyHelper;
 import org.javarosa.core.model.User;
 import org.javarosa.core.util.PropertyUtils;
 
@@ -65,8 +66,11 @@ public class DemoUserBuilder {
         int userCount = keyRecordDB.getIDsForValue(UserKeyRecord.META_USERNAME, username).size();
 
         if (userCount == 0) {
-            SecretKey secretKey = CryptUtil.generateRandomSecretKey();
-            if (secretKey == null) {
+
+            SecretKey secretKey;
+            try {
+                secretKey = CryptUtil.generateRandomSecretKey();
+            } catch (EncryptionKeyHelper.EncryptionKeyException e) {
                 throw new RuntimeException("Error setting up user's encrypted storage");
             }
             randomKey = secretKey.getEncoded();

@@ -19,6 +19,7 @@ import org.commcare.interfaces.ConnectorWithHttpResponseProcessor;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.ModernHttpTask;
 import org.commcare.tasks.templates.CommCareTaskConnector;
+import org.commcare.util.EncryptionKeyHelper;
 import org.commcare.views.ManagedUi;
 import org.commcare.views.UiElement;
 import org.commcare.views.dialogs.CustomProgressDialog;
@@ -212,6 +213,11 @@ public class PostRequestActivity
         } else if (exception instanceof IOException) {
             enterErrorState(Localization.get("post.io.error", exception.getMessage()));
         }
+    }
+
+    @Override
+    public void handleEncryptionKeyException(EncryptionKeyHelper.EncryptionKeyException exception) {
+        enterErrorState(Localization.get("post.cache.encryption.key.error", exception.getMessage()));
     }
 
     @Override

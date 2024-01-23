@@ -9,6 +9,7 @@ import org.commcare.android.storage.framework.Persisted;
 import org.commcare.models.framework.Persisting;
 import org.commcare.modern.database.Table;
 import org.commcare.modern.models.MetaField;
+import org.commcare.util.EncryptionKeyHelper;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.util.PropertyUtils;
 
@@ -48,7 +49,8 @@ public class AndroidSharedKeyRecord extends Persisted {
         this.publicKey = publicKey;
     }
 
-    public static AndroidSharedKeyRecord generateNewSharingKey() {
+    public static AndroidSharedKeyRecord generateNewSharingKey()
+            throws EncryptionKeyHelper.EncryptionKeyException {
         KeyPair pair = CryptUtil.generateRandomKeyPair(512);
         byte[] encodedPrivate = pair.getPrivate().getEncoded();
         byte[] encodedPublic = pair.getPublic().getEncoded();

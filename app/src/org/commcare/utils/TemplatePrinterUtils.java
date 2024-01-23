@@ -6,6 +6,7 @@ import android.text.TextUtils;
 
 import org.commcare.android.javarosa.IntentCallout;
 import org.commcare.core.encryption.CryptUtil;
+import org.commcare.util.EncryptionKeyHelper;
 import org.commcare.views.dialogs.StandardAlertDialog;
 
 import java.io.BufferedReader;
@@ -38,7 +39,18 @@ import androidx.appcompat.app.AppCompatActivity;
 public abstract class TemplatePrinterUtils {
 
     private static final String FORMAT_REGEX_WITH_DELIMITER = "((?<=%2$s)|(?=%1$s))";
-    private static final SecretKey KEY = CryptUtil.generateRandomSecretKey();
+    private static final SecretKey KEY;
+
+    static {
+        SecretKey secretKey = null;
+        try {
+            secretKey = CryptUtil.generateRandomSecretKey();
+        } catch (EncryptionKeyHelper.EncryptionKeyException e) {
+            secretKey = null;
+        } finally{
+            KEY = secretKey;
+        }
+    }
 
     /**
      * Concatenate all Strings in a String array to one String.

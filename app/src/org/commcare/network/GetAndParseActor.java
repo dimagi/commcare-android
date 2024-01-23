@@ -12,6 +12,7 @@ import org.commcare.core.interfaces.HttpResponseProcessor;
 import org.commcare.core.network.AuthInfo;
 import org.commcare.core.network.AuthenticationInterceptor;
 import org.commcare.core.network.ModernHttpRequester;
+import org.commcare.util.EncryptionKeyHelper;
 import org.commcare.util.LogTypes;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.services.Logger;
@@ -106,6 +107,13 @@ public abstract class GetAndParseActor {
                         String.format("Encountered IOException while getting response stream for %s response: %s",
                                 requestName, exception.getMessage()));
             }
+        }
+
+        @Override
+        public void handleEncryptionKeyException(EncryptionKeyHelper.EncryptionKeyException exception) {
+            Logger.log(LogTypes.TYPE_ERROR_ENCRYPTION_KEY,
+                    String.format("Encountered EncryptionKeyException while getting response stream for %s response: %s",
+                            requestName, exception.getMessage()));
         }
 
         private void processErrorResponse(int responseCode) {

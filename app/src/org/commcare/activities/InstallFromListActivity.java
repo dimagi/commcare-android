@@ -32,6 +32,7 @@ import org.commcare.network.CommcareRequestGenerator;
 import org.commcare.preferences.GlobalPrivilegesManager;
 import org.commcare.tasks.ModernHttpTask;
 import org.commcare.tasks.templates.CommCareTaskConnector;
+import org.commcare.util.EncryptionKeyHelper;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.ConnectivityStatus;
 import org.commcare.views.UserfacingErrorHandling;
@@ -352,6 +353,13 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
             Logger.log(LogTypes.TYPE_ERROR_SERVER_COMMS,
                     "An IOException was encountered during get available apps request: " + exception.getMessage());
         }
+        repeatRequestOrShowResults(true, false);
+    }
+
+    @Override
+    public void handleEncryptionKeyException(EncryptionKeyHelper.EncryptionKeyException exception) {
+        Logger.log(LogTypes.TYPE_ERROR_ENCRYPTION_KEY,
+                "An ENcryptionKeyException was encountered when pocessing available apps request: " + exception.getMessage());
         repeatRequestOrShowResults(true, false);
     }
 

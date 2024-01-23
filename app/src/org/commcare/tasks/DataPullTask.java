@@ -34,6 +34,7 @@ import org.commcare.resources.model.CommCareOTARestoreListener;
 import org.commcare.services.CommCareSessionService;
 import org.commcare.sync.ExternalDataUpdateHelper;
 import org.commcare.tasks.templates.CommCareTask;
+import org.commcare.util.EncryptionKeyHelper;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.FormSaveUtil;
 import org.commcare.utils.SessionUnavailableException;
@@ -223,8 +224,10 @@ public abstract class DataPullTask<R>
 
     private void initUKRForLogin() {
         if (blockRemoteKeyManagement || shouldGenerateFirstKey()) {
-            SecretKey newKey = CryptUtil.generateRandomSecretKey();
-            if (newKey == null) {
+            SecretKey newKey = null;
+            try {
+                newKey = CryptUtil.generateRandomSecretKey();
+            } catch (EncryptionKeyHelper.EncryptionKeyException e) {
                 return;
             }
             String sandboxId = PropertyUtils.genUUID().replace("-", "");
@@ -294,6 +297,9 @@ public abstract class DataPullTask<R>
         } catch (UnknownSyncError e) {
             e.printStackTrace();
             Logger.log(LogTypes.TYPE_WARNING_NETWORK, "Couldn't sync due to Unknown Error|" + e.getMessage());
+        } catch (EncryptionKeyHelper.EncryptionKeyException e) {
+            e.printStackTrace();
+            Logger.log(LogTypes.TYPE_WARNING_NETWORK, "Couldn't sync due to Cache encryption Error|" + e.getMessage());
         }
 
         wipeLoginIfItOccurred();
@@ -305,8 +311,9 @@ public abstract class DataPullTask<R>
      * @return the proper result, or null if we have not yet been able to determine the result to
      * return
      */
-    private ResultAndError<PullTaskResult> makeRequestAndHandleResponse(AndroidTransactionParserFactory factory)
-            throws IOException, UnknownSyncError {
+    private ResultAndError<PullTaskResult> makeRequestAndHandleResponse(
+            AndroidTransactionParserFactory factory)
+            throws IOException, UnknownSyncError, EncryptionKeyHelper.EncryptionKeyException {
 
         RemoteDataPullResponse pullResponse =
                 dataPullRequester.makeDataPullRequest(this, requestor, server, !loginNeeded, skipFixtures);
@@ -352,7 +359,7 @@ public abstract class DataPullTask<R>
      */
     private ResultAndError<PullTaskResult> handleSuccessResponseCode(
             RemoteDataPullResponse pullResponse, AndroidTransactionParserFactory factory)
-            throws IOException, UnknownSyncError {
+            throws IOException, UnknownSyncError, EncryptionKeyHelper.EncryptionKeyException {
 
         asyncRestoreHelper.completeServerProgressBarIfShowing();
         handleLoginNeededOnSuccess();
@@ -540,6 +547,10 @@ public abstract class DataPullTask<R>
             e.printStackTrace();
             //Ok, well, we're bailing here, but we didn't make any changes
             Logger.log(LogTypes.TYPE_USER, "Sync Recovery Failed due to IOException|" + e.getMessage());
+            return new Pair<>(PROGRESS_RECOVERY_FAIL_SAFE, "");
+        } catch (EncryptionKeyHelper.EncryptionKeyException e) {
+            e.printStackTrace();
+            Logger.log(LogTypes.TYPE_USER, "Sync Recovery Failed due to Cache encryption error|" + e.getMessage());
             return new Pair<>(PROGRESS_RECOVERY_FAIL_SAFE, "");
         }
 

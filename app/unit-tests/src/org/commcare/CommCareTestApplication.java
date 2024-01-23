@@ -26,6 +26,7 @@ import org.commcare.models.encryption.ByteEncrypter;
 import org.commcare.network.DataPullRequester;
 import org.commcare.network.LocalReferencePullResponseFactory;
 import org.commcare.services.CommCareSessionService;
+import org.commcare.util.EncryptionKeyHelper;
 import org.commcare.utils.AndroidCacheDirSetup;
 import org.javarosa.core.model.User;
 import org.javarosa.core.reference.ReferenceManager;
@@ -211,7 +212,11 @@ public class CommCareTestApplication extends CommCareApplication implements Test
         }
         if (user != null) {
             user.setCachedPwd(cachedUserPassword);
-            user.setWrappedKey(ByteEncrypter.wrapByteArrayWithString(CryptUtil.generateRandomSecretKey().getEncoded(), cachedUserPassword));
+            try {
+                user.setWrappedKey(ByteEncrypter.wrapByteArrayWithString(CryptUtil.generateRandomSecretKey().getEncoded(), cachedUserPassword));
+            } catch (EncryptionKeyHelper.EncryptionKeyException e){
+                throw new RuntimeException(e);
+            }
         }
         ccService.startSession(user, record);
         CommCareApplication.instance().setTestingService(ccService);

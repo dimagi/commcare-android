@@ -196,11 +196,12 @@ post.generic.error=An error occurred while preparing the HTTP request
 post.dialog.title=Claiming...
 post.dialog.body=Claiming chosen data from server
 post.io.error=Error reading server response: ${0}
-post.unknown.response=Received unknown resonse code (${0}) from server
+post.unknown.response=Received unknown response code (${0}) from server
 post.client.error=Client-side error (code ${0}) received from network request.
 post.server.error=Server-side error (code ${0}) received from network request.
 post.gone.error=Case is not present on server.
 post.conflict.error=You have already claimed this case.
+post.cache.encryption.key.error=Encryption error while processing server response: ${0}
 
 version.id.long=CommCare Android, version "${0}"(${1}). App v${5}. CommCare Version ${2}. Build ${3}, built on: ${4}
 version.id.short=CCDroid:"${0}"(${1}). v${5} CC${2}b[${3}] on ${4}
@@ -263,6 +264,7 @@ app.handled.error.explanation=CommCare will now restart. You may need to correct
 app.key.request.message=Another android application has requested the ability to communicate securely with CommCare. This application will be able to pass information to CommCare and trigger actions (submission, login, etc). Do you want to grant access?
 app.key.request.grant=Grant Access
 app.key.request.deny=Deny Access
+app.key.request.encryption.key.error=Error during encryption Key generation
 
 key.manage.title=Logging in
 key.manage.start=Logging in
