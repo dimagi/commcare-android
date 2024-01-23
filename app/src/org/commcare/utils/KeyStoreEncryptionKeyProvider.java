@@ -25,7 +25,6 @@ import javax.security.auth.x500.X500Principal;
 import androidx.annotation.RequiresApi;
 
 import static org.commcare.util.EncryptionKeyHelper.CC_KEY_ALGORITHM_RSA;
-import static org.commcare.utils.GlobalConstants.KEYSTORE_NAME;
 
 /**
  * Class for providing encryption keys backed by Android Keystore
@@ -49,7 +48,7 @@ public class KeyStoreEncryptionKeyProvider implements IKeyStoreEncryptionKeyProv
         try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 KeyGenerator keyGenerator = KeyGenerator
-                        .getInstance(KeyProperties.KEY_ALGORITHM_AES, KEYSTORE_NAME);
+                        .getInstance(KeyProperties.KEY_ALGORITHM_AES, getKeyStoreName());
                 KeyGenParameterSpec keyGenParameterSpec = new KeyGenParameterSpec.Builder(keyAlias,
                         KeyProperties.PURPOSE_ENCRYPT | KeyProperties.PURPOSE_DECRYPT)
                         .setBlockModes(BLOCK_MODE)
@@ -63,7 +62,7 @@ public class KeyStoreEncryptionKeyProvider implements IKeyStoreEncryptionKeyProv
                 // hence the need to switch to a correspondent algorithm as well, RSA
                 // TODO: Add link to StackOverflow page
                 KeyPairGenerator keyGenerator = KeyPairGenerator
-                        .getInstance(CC_KEY_ALGORITHM_RSA, KEYSTORE_NAME);
+                        .getInstance(CC_KEY_ALGORITHM_RSA, getKeyStoreName());
                 GregorianCalendar start = new GregorianCalendar();
                 GregorianCalendar end = new GregorianCalendar();
                 end.add(GregorianCalendar.YEAR, 100);
@@ -106,6 +105,6 @@ public class KeyStoreEncryptionKeyProvider implements IKeyStoreEncryptionKeyProv
 
     @Override
     public String getKeyStoreName() {
-        return "AndroidKeyStore";
+        return GlobalConstants.KEYSTORE_NAME;
     }
 }

@@ -18,7 +18,7 @@ import org.robolectric.annotation.Config
 
 @Config(application = CommCareTestApplication::class)
 @RunWith(AndroidJUnit4::class)
-public class EncryptCredentialsInMemoryTest {
+class EncryptCredentialsInMemoryTest {
 
     @Before
     fun setup() {
@@ -48,7 +48,7 @@ public class EncryptCredentialsInMemoryTest {
         TestAppInstaller.login(TEST_USER, TEST_PASS)
 
         // retrieve the logged in user, this should be using the encrypted version
-        var user = CommCareApplication.instance().getSession().getLoggedInUser()
+        var user = CommCareApplication.instance().session.loggedInUser
 
         // save the same username and store the username for future comparison
         user.setUsername(TEST_USER)
