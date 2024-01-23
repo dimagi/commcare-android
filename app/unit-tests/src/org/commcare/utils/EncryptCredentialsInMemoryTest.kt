@@ -8,8 +8,8 @@ import org.commcare.CommCareApplication
 import org.commcare.CommCareTestApplication
 import org.commcare.android.util.TestAppInstaller
 import org.commcare.util.EncryptionKeyHelper
+import org.commcare.util.EncryptionHelper
 import org.javarosa.core.model.User
-import org.junit.After
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
@@ -20,7 +20,6 @@ import org.robolectric.annotation.Config
 @RunWith(AndroidJUnit4::class)
 public class EncryptCredentialsInMemoryTest {
 
-    val encryptionHelper = EncryptionHelper()
     @Before
     fun setup() {
         TestAppInstaller.installAppAndUser(
@@ -28,15 +27,13 @@ public class EncryptCredentialsInMemoryTest {
             TEST_USER,
             TEST_PASS
         )
-
-        // Set production encryption key provider
-        encryptionHelper.setEncryptionKeyProvider(EncryptionKeyProvider())
     }
 
     @Test
     fun saveUsernameWithKeyStoreAndReadWithout_shouldPass() {
         // confirm that there is no android key store available
-        Assert.assertFalse(EncryptionKeyHelper.isKeyStoreAvailable)
+
+        Assert.assertFalse(EncryptionKeyHelper.isKeyStoreAvailable())
 
         // register mock Android key store provider, this is when the key store becomes available
         MockAndroidKeyStoreProvider.registerProvider()
@@ -45,7 +42,7 @@ public class EncryptCredentialsInMemoryTest {
         generateUserCredentialKey()
 
         // assert that the android key store is available
-        Assert.assertTrue(EncryptionKeyHelper.isKeyStoreAvailable)
+        Assert.assertTrue(EncryptionKeyHelper.isKeyStoreAvailable())
 
         // login with the Android key store available
         TestAppInstaller.login(TEST_USER, TEST_PASS)
@@ -79,11 +76,6 @@ public class EncryptCredentialsInMemoryTest {
 
         // confirm that the previously captured username matches the current user's
         Assert.assertEquals(username, user.username)
-    }
-
-    @After
-    fun restore() {
-        encryptionHelper.reloadEncryptionKeyProvider()
     }
 
     private fun generateUserCredentialKey() {
