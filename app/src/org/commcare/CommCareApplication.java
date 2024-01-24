@@ -140,6 +140,8 @@ import io.noties.markwon.ext.tables.TablePlugin;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 
+import static org.commcare.util.EncryptionKeyHelper.CC_IN_MEMORY_ENCRYPTION_KEY_ALIAS;
+
 public class CommCareApplication extends MultiDexApplication {
 
     private static final String TAG = CommCareApplication.class.getSimpleName();

@@ -1,6 +1,7 @@
 package org.commcare.tasks;
 
 import org.commcare.network.RemoteDataPullResponse;
+import org.commcare.util.EncryptionKeyHelper;
 import org.commcare.util.LogTypes;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.services.Logger;
@@ -74,7 +75,7 @@ public class AsyncRestoreHelper {
                 }
                 eventType = parser.next();
             } while (eventType != KXmlParser.END_DOCUMENT);
-        } catch (IOException | XmlPullParserException e) {
+        } catch (IOException | XmlPullParserException | EncryptionKeyHelper.EncryptionKeyException e) {
             Logger.log(LogTypes.TYPE_USER,
                     "Error while parsing progress values of retry result");
         } finally {

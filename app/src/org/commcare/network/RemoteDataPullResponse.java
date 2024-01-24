@@ -7,6 +7,7 @@ import org.commcare.core.network.ModernHttpRequester;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.core.network.bitcache.BitCache;
 import org.commcare.core.network.bitcache.BitCacheFactory;
+import org.commcare.util.EncryptionKeyHelper;
 import org.commcare.utils.AndroidCacheDirSetup;
 import org.javarosa.core.io.StreamsUtil;
 
@@ -49,7 +50,8 @@ public class RemoteDataPullResponse {
      *
      * @throws IOException If there is an issue reading or writing the response.
      */
-    public BitCache writeResponseToCache(Context c) throws IOException {
+    public BitCache writeResponseToCache(Context c)
+            throws IOException, EncryptionKeyHelper.EncryptionKeyException {
         BitCache cache = null;
         try (InputStream input = getInputStream()) {
             final long dataSizeGuess = ModernHttpRequester.getContentLength(response);

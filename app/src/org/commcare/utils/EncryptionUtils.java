@@ -1,7 +1,6 @@
 package org.commcare.utils;
 
 import org.commcare.util.Base64;
-
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 

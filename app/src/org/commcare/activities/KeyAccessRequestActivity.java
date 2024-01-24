@@ -4,12 +4,16 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.global.models.AndroidSharedKeyRecord;
 import org.commcare.dalvik.R;
+import org.commcare.util.EncryptionKeyHelper;
 import org.commcare.views.ManagedUi;
 import org.commcare.views.UiElement;
+import org.javarosa.core.services.Logger;
+import org.javarosa.core.services.locale.Localization;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -34,7 +38,14 @@ public class KeyAccessRequestActivity extends CommCareActivity<KeyAccessRequestA
 
         grantButton.setOnClickListener(v -> {
             Intent response = new Intent(getIntent());
-            AndroidSharedKeyRecord record = AndroidSharedKeyRecord.generateNewSharingKey();
+            AndroidSharedKeyRecord record = null;
+            try {
+                record = AndroidSharedKeyRecord.generateNewSharingKey();
+            } catch (EncryptionKeyHelper.EncryptionKeyException e) {
+                Toast.makeText(this, Localization.get("app.key.request.encryption.key.error"), Toast.LENGTH_LONG).show();
+                Logger.exception("Exception while generating encryption key ", e);
+                return;
+            }
             CommCareApplication.instance().getGlobalStorage(AndroidSharedKeyRecord.class).write(record);
             record.writeResponseToIntent(response);
             setResult(AppCompatActivity.RESULT_OK, response);

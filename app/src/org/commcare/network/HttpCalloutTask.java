@@ -10,6 +10,7 @@ import org.commcare.core.network.bitcache.BitCacheFactory;
 import org.commcare.data.xml.DataModelPullParser;
 import org.commcare.data.xml.TransactionParserFactory;
 import org.commcare.tasks.templates.CommCareTask;
+import org.commcare.util.EncryptionKeyHelper;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.AndroidCacheDirSetup;
 import org.javarosa.core.io.StreamsUtil;
@@ -43,7 +44,7 @@ public abstract class HttpCalloutTask<R> extends CommCareTask<Object, String, Ht
         NetworkFailureBadPassword,
         IncorrectPin,
         AuthOverHttp,
-        CaptivePortal
+        ResponseCacheError, CaptivePortal
     }
 
     private final Context c;
@@ -99,6 +100,9 @@ public abstract class HttpCalloutTask<R> extends CommCareTask<Object, String, Ht
                 //This is probably related to local files, actually
                 e.printStackTrace();
                 outcome = HttpCalloutOutcomes.NetworkFailure;
+            } catch (EncryptionKeyHelper.EncryptionKeyException e) {
+                e.printStackTrace();
+                outcome = HttpCalloutOutcomes.ResponseCacheError;
             }
 
             //If we needed the callout to succeed and it didn't, return our failure.
@@ -131,7 +135,8 @@ public abstract class HttpCalloutTask<R> extends CommCareTask<Object, String, Ht
 
     protected abstract Response<ResponseBody> doHttpRequest() throws IOException;
 
-    protected HttpCalloutOutcomes doResponseSuccess(Response<ResponseBody> response) throws IOException {
+    protected HttpCalloutOutcomes doResponseSuccess(Response<ResponseBody> response)
+            throws IOException, EncryptionKeyHelper.EncryptionKeyException {
         beginResponseHandling(response);
 
         InputStream input = cacheResponseOpenHandle(response);
@@ -162,7 +167,8 @@ public abstract class HttpCalloutTask<R> extends CommCareTask<Object, String, Ht
 
     protected abstract TransactionParserFactory getTransactionParserFactory();
 
-    protected InputStream cacheResponseOpenHandle(Response<ResponseBody> response) throws IOException {
+    protected InputStream cacheResponseOpenHandle(Response<ResponseBody> response)
+            throws IOException, EncryptionKeyHelper.EncryptionKeyException {
         long dataSizeGuess = ModernHttpRequester.getContentLength(response);
 
         BitCache cache = BitCacheFactory.getCache(new AndroidCacheDirSetup(c), dataSizeGuess);

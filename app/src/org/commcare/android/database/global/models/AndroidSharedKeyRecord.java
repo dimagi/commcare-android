@@ -9,14 +9,12 @@ import org.commcare.android.storage.framework.Persisted;
 import org.commcare.models.framework.Persisting;
 import org.commcare.modern.database.Table;
 import org.commcare.modern.models.MetaField;
+import org.commcare.util.EncryptionKeyHelper;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.util.PropertyUtils;
 
 import java.security.GeneralSecurityException;
 import java.security.KeyPair;
-import java.security.KeyPairGenerator;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
 
 /**
  * This is a record of a key that CommCare ODK has shared with another app
@@ -51,19 +49,12 @@ public class AndroidSharedKeyRecord extends Persisted {
         this.publicKey = publicKey;
     }
 
-    public static AndroidSharedKeyRecord generateNewSharingKey() {
-        try {
-            KeyPairGenerator generator = KeyPairGenerator.getInstance("RSA");
-            generator.initialize(512, new SecureRandom());
-            KeyPair pair = generator.genKeyPair();
-            byte[] encodedPrivate = pair.getPrivate().getEncoded();
-            String privateEncoding = pair.getPrivate().getFormat();
-            byte[] encodedPublic = pair.getPublic().getEncoded();
-            String publicencoding = pair.getPublic().getFormat();
-            return new AndroidSharedKeyRecord(PropertyUtils.genUUID(), pair.getPrivate().getEncoded(), pair.getPublic().getEncoded());
-        } catch (NoSuchAlgorithmException nsae) {
-            return null;
-        }
+    public static AndroidSharedKeyRecord generateNewSharingKey()
+            throws EncryptionKeyHelper.EncryptionKeyException {
+        KeyPair pair = CryptUtil.generateRandomKeyPair(512);
+        byte[] encodedPrivate = pair.getPrivate().getEncoded();
+        byte[] encodedPublic = pair.getPublic().getEncoded();
+        return new AndroidSharedKeyRecord(PropertyUtils.genUUID(), encodedPrivate, encodedPublic);
     }
 
     private String getKeyId() {

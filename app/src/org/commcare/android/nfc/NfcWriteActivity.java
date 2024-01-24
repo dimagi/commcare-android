@@ -1,17 +1,16 @@
 package org.commcare.android.nfc;
 
-import android.annotation.TargetApi;
 import android.content.Intent;
 import android.nfc.FormatException;
 import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
 import android.nfc.Tag;
 import android.nfc.tech.Ndef;
-import android.os.Build;
 import android.os.Bundle;
 
 import org.commcare.android.javarosa.IntentCallout;
-import org.commcare.util.EncryptionUtils;
+import org.commcare.util.EncryptionHelper;
+import org.commcare.util.EncryptionKeyHelper;
 
 import java.io.IOException;
 
@@ -42,10 +41,12 @@ public class NfcWriteActivity extends NfcActivity {
         typeForPayload = getIntent().getStringExtra(NFC_PAYLOAD_SINGLE_TYPE_ARG);
         try {
             payloadToWrite = nfcManager.tagAndEncryptPayload(getIntent().getStringExtra(NFC_PAYLOAD_TO_WRITE));
-        } catch (EncryptionUtils.EncryptionException e) {
+        } catch (EncryptionHelper.EncryptionException e) {
             finishWithErrorToast("nfc.write.encryption.error", e);
         } catch (NfcManager.InvalidPayloadException e) {
             finishWithErrorToast("nfc.write.payload.error", e);
+        } catch (EncryptionKeyHelper.EncryptionKeyException e) {
+            finishWithErrorToast("nfc.write.encryption.error", e);
         }
     }
 

@@ -1,14 +1,13 @@
 package org.commcare.android.nfc;
 
-import android.annotation.TargetApi;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.IntentFilter;
 import android.nfc.NfcAdapter;
-import android.os.Build;
 
 import org.apache.commons.lang3.StringUtils;
-import org.commcare.util.EncryptionUtils;
+import org.commcare.util.EncryptionHelper;
+import org.commcare.util.EncryptionKeyHelper;
 
 import javax.annotation.Nullable;
 
@@ -55,12 +54,13 @@ public class NfcManager {
         }
     }
 
-    public String decryptValue(String message) throws EncryptionUtils.EncryptionException {
+    public String decryptValue(String message)
+            throws EncryptionHelper.EncryptionException, EncryptionKeyHelper.EncryptionKeyException {
         String payloadTag = getPayloadTag();
         if (message.startsWith(payloadTag)) {
             message = message.replace(payloadTag, "");
             if (!StringUtils.isEmpty(encryptionKey)) {
-                message = EncryptionUtils.decrypt(message, encryptionKey);
+                    message = EncryptionHelper.decryptWithEncodedKey(message, encryptionKey);
             }
         } else if (!allowUntaggedRead && !isEmptyPayloadTag(payloadTag)) {
             throw new InvalidPayloadTagException();
@@ -91,13 +91,14 @@ public class NfcManager {
         return payloadTag.contentEquals(getEmptyPayloadTag());
     }
 
-    public String tagAndEncryptPayload(String message) throws EncryptionUtils.EncryptionException {
+    public String tagAndEncryptPayload(String message)
+            throws EncryptionHelper.EncryptionException, EncryptionKeyHelper.EncryptionKeyException {
         if (StringUtils.isEmpty(message)) {
             return message;
         }
         String payload = message;
         if (!StringUtils.isEmpty(encryptionKey)) {
-            payload = EncryptionUtils.encrypt(payload, encryptionKey);
+            payload = EncryptionHelper.encryptWithEncodedKey(payload, encryptionKey);
         }
         if (payload.contains(PAYLOAD_DELIMITER)) {
             throw new InvalidPayloadException();

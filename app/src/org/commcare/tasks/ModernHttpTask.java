@@ -12,9 +12,11 @@ import org.commcare.core.network.AuthInfo;
 import org.commcare.core.network.HTTPMethod;
 import org.commcare.core.network.ModernHttpRequester;
 import org.commcare.tasks.templates.CommCareTask;
+import org.commcare.util.EncryptionKeyHelper;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.Key;
 import java.util.HashMap;
 
 import javax.annotation.Nullable;
@@ -36,7 +38,7 @@ public class ModernHttpTask
 
     private final ModernHttpRequester requester;
     private InputStream responseDataStream;
-    private IOException mException;
+    private Exception mException;
     private Response<ResponseBody> mResponse;
 
     // Use for GET request
@@ -72,7 +74,7 @@ public class ModernHttpTask
             if (mResponse.isSuccessful()) {
                 responseDataStream = requester.getResponseStream(mResponse);
             }
-        } catch (IOException e) {
+        } catch (IOException | EncryptionKeyHelper.EncryptionKeyException e) {
             mException = e;
         }
         return null;
@@ -83,7 +85,11 @@ public class ModernHttpTask
                                  Void result) {
 
         if (mException != null) {
-            httpResponseProcessor.handleIOException(mException);
+            if (mException instanceof IOException ioExcep) {
+                httpResponseProcessor.handleIOException(ioExcep);
+            } else if (mException instanceof EncryptionKeyHelper.EncryptionKeyException encryptKeyExcep) {
+                httpResponseProcessor.handleEncryptionKeyException(encryptKeyExcep);
+            }
         } else {
             // route to appropriate callback based on http response code
             ModernHttpRequester.processResponse(

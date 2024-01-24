@@ -23,6 +23,7 @@ import org.commcare.modern.util.Pair;
 import org.commcare.session.RemoteQuerySessionManager;
 import org.commcare.tasks.ModernHttpTask;
 import org.commcare.tasks.templates.CommCareTaskConnector;
+import org.commcare.util.EncryptionKeyHelper;
 import org.commcare.utils.SessionRegistrationHelper;
 import org.commcare.utils.SessionUnavailableException;
 import org.commcare.views.UserfacingErrorHandling;
@@ -194,6 +195,11 @@ public class QueryRequestActivity
         } else if (exception instanceof IOException) {
             enterErrorState(Localization.get("post.io.error", exception.getMessage()));
         }
+    }
+
+    @Override
+    public void handleEncryptionKeyException(EncryptionKeyHelper.EncryptionKeyException exception) {
+        enterErrorState(Localization.get("post.cache.encryption.key.error", exception.getMessage()));
     }
 
     @Override
