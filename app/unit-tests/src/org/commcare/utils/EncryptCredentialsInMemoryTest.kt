@@ -4,9 +4,9 @@ import android.security.keystore.KeyGenParameterSpec
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import io.mockk.every
 import io.mockk.mockk
+import org.commcare.android.util.TestAppInstaller
 import org.commcare.CommCareApplication
 import org.commcare.CommCareTestApplication
-import org.commcare.android.util.TestAppInstaller
 import org.commcare.util.EncryptionKeyHelper
 import org.commcare.util.EncryptionHelper
 import org.javarosa.core.model.User
