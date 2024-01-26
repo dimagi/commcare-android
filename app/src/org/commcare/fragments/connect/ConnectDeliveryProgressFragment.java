@@ -130,6 +130,7 @@ public class ConnectDeliveryProgressFragment extends Fragment {
         ConnectNetworkHelper.getDeliveries(getContext(), job.getJobId(), new ConnectNetworkHelper.INetworkResultHandler() {
             @Override
             public void processSuccess(int responseCode, InputStream responseData) {
+                boolean success = true;
                 try {
                     String responseAsString = new String(StreamsUtil.inputStreamToByteArray(responseData));
                     if (responseAsString.length() > 0) {
@@ -200,19 +201,28 @@ public class ConnectDeliveryProgressFragment extends Fragment {
                     }
                 } catch (IOException | JSONException | ParseException e) {
                     Logger.exception("Parsing return from delivery progress request", e);
+                    success = false;
                 }
+
+                reportApiCall(success);
             }
 
             @Override
             public void processFailure(int responseCode, IOException e) {
                 Logger.log("ERROR", String.format(Locale.getDefault(), "Delivery progress call failed: %d", responseCode));
+                reportApiCall(false);
             }
 
             @Override
             public void processNetworkFailure() {
                 Logger.log("ERROR", "Failed (network)");
+                reportApiCall(false);
             }
         });
+    }
+
+    private void reportApiCall(boolean success) {
+        FirebaseAnalyticsUtil.reportCccApiDeliveryProgress(success);
     }
 
     private void updateUpdatedDate(Date lastUpdate) {

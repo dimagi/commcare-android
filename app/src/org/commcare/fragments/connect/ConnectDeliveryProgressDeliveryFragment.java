@@ -91,7 +91,7 @@ public class ConnectDeliveryProgressDeliveryFragment extends Fragment {
 
     private void launchLearningApp(Button button) {
         if(ConnectManager.isAppInstalled(job.getLearnAppInfo().getAppId())) {
-            ConnectManager.launchApp(getContext(), job.getLearnAppInfo().getAppId());
+            ConnectManager.launchApp(getContext(), true, job.getLearnAppInfo().getAppId());
         }
         else {
             String title = getString(R.string.connect_downloading_learn);
@@ -101,7 +101,7 @@ public class ConnectDeliveryProgressDeliveryFragment extends Fragment {
 
     private void launchDeliveryApp(Button button) {
         if(ConnectManager.isAppInstalled(job.getDeliveryAppInfo().getAppId())) {
-            ConnectManager.launchApp(getContext(), job.getDeliveryAppInfo().getAppId());
+            ConnectManager.launchApp(getContext(), false, job.getDeliveryAppInfo().getAppId());
         }
         else {
             String title = getString(R.string.connect_downloading_delivery);

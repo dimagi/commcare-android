@@ -19,6 +19,7 @@ import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectLearnModuleSummaryRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.dalvik.R;
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.utils.MultipleAppsUtil;
 
 import java.io.IOException;
@@ -88,6 +89,7 @@ public class ConnectJobIntroFragment extends Fragment {
             ConnectNetworkHelper.startLearnApp(getContext(), job.getJobId(), new ConnectNetworkHelper.INetworkResultHandler() {
                 @Override
                 public void processSuccess(int responseCode, InputStream responseData) {
+                    reportApiCall(true);
                     //TODO: Expecting to eventually get HQ username from server here
                     NavDirections directions;
                     if (appInstalled) {
@@ -103,6 +105,7 @@ public class ConnectJobIntroFragment extends Fragment {
                 @Override
                 public void processFailure(int responseCode, IOException e) {
                     Toast.makeText(getContext(), "Connect: error starting learning", Toast.LENGTH_SHORT).show();
+                    reportApiCall(false);
                     //TODO DAV: Log the message from the server
                 }
 
@@ -110,10 +113,15 @@ public class ConnectJobIntroFragment extends Fragment {
                 public void processNetworkFailure() {
                     Toast.makeText(getContext(), getString(R.string.recovery_network_unavailable),
                             Toast.LENGTH_SHORT).show();
+                    reportApiCall(false);
                 }
             });
         });
 
         return view;
+    }
+
+    private void reportApiCall(boolean success) {
+        FirebaseAnalyticsUtil.reportCccApiStartLearning(success);
     }
 }

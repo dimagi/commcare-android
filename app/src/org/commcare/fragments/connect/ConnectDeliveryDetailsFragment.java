@@ -13,6 +13,7 @@ import org.commcare.activities.connect.ConnectNetworkHelper;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.dalvik.R;
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.utils.MultipleAppsUtil;
 
 import java.io.IOException;
@@ -95,23 +96,30 @@ public class ConnectDeliveryDetailsFragment extends Fragment {
                     @Override
                     public void processSuccess(int responseCode, InputStream responseData) {
                         proceedAfterJobClaimed(button, job, appInstalled);
+                        reportApiCall(true);
                     }
 
                     @Override
                     public void processFailure(int responseCode, IOException e) {
                         Toast.makeText(getContext(), "Connect: error claming job", Toast.LENGTH_SHORT).show();
+                        reportApiCall(false);
                     }
 
                     @Override
                     public void processNetworkFailure() {
                         Toast.makeText(getContext(), getString(R.string.recovery_network_unavailable),
                                 Toast.LENGTH_SHORT).show();
+                        reportApiCall(false);
                     }
                 });
             }
         });
 
         return view;
+    }
+
+    private void reportApiCall(boolean success) {
+        FirebaseAnalyticsUtil.reportCccApiClaimJob(success);
     }
 
     private void proceedAfterJobClaimed(Button button, ConnectJobRecord job, boolean installed) {

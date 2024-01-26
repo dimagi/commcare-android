@@ -221,7 +221,7 @@ public class ConnectDatabaseHelper {
         storeJobs(context, list, false);
     }
 
-    public static void storeJobs(Context context, List<ConnectJobRecord> jobs, boolean pruneMissing) {
+    public static int storeJobs(Context context, List<ConnectJobRecord> jobs, boolean pruneMissing) {
         SqlStorage<ConnectJobRecord> jobStorage = getConnectStorage(context, ConnectJobRecord.class);
         SqlStorage<ConnectAppRecord> appInfoStorage = getConnectStorage(context, ConnectAppRecord.class);
         SqlStorage<ConnectLearnModuleSummaryRecord> moduleStorage = getConnectStorage(context,
@@ -245,7 +245,7 @@ public class ConnectDatabaseHelper {
             }
 
             if(!stillExists && pruneMissing) {
-                //Mark the job, learn/delivre app infos, and learn module infos for deletion
+                //Mark the job, learn/deliver app infos, and learn module infos for deletion
                 //Remember their IDs so we can delete them all at once after the loop
                 jobIdsToDelete.add(existing.getID());
 
@@ -265,11 +265,15 @@ public class ConnectDatabaseHelper {
         }
 
         //Now insert/update jobs
+        int newJobs = 0;
         for (ConnectJobRecord incomingJob : jobs) {
             incomingJob.setLastUpdate(new Date());
 
-            if(incomingJob.getID() <= 0 && incomingJob.getStatus() == ConnectJobRecord.STATUS_AVAILABLE) {
-                incomingJob.setStatus(ConnectJobRecord.STATUS_AVAILABLE_NEW);
+            if(incomingJob.getID() <= 0) {
+                newJobs++;
+                if (incomingJob.getStatus() == ConnectJobRecord.STATUS_AVAILABLE) {
+                    incomingJob.setStatus(ConnectJobRecord.STATUS_AVAILABLE_NEW);
+                }
             }
 
             //Now insert/update the job
@@ -330,6 +334,8 @@ public class ConnectDatabaseHelper {
                 moduleStorage.write(module);
             }
         }
+
+        return newJobs;
     }
 
     public static void storeLearningRecords(Context context, List<ConnectJobLearningRecord> learnings, int jobId, boolean pruneMissing) {

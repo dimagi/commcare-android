@@ -778,8 +778,12 @@ public class ConnectManager {
         }
     }
 
-    public static void launchApp(Context context, String appId) {
+    public static void launchApp(Context context, boolean isLearning, String appId) {
         CommCareApplication.instance().closeUserSession();
+
+        String appType = isLearning ? "Learn" : "Deliver";
+        FirebaseAnalyticsUtil.reportCccAppLaunch(appType, appId);
+
         CommCareLauncher.launchCommCareForAppIdFromConnect(context, appId);
     }
 

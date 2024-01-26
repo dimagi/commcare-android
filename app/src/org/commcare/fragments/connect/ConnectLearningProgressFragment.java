@@ -19,6 +19,7 @@ import org.commcare.android.database.connect.models.ConnectJobLearningRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.commcaresupportlibrary.CommCareLauncher;
 import org.commcare.dalvik.R;
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.views.dialogs.StandardAlertDialog;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.services.Logger;
@@ -135,18 +136,26 @@ public class ConnectLearningProgressFragment extends Fragment {
                 catch(Exception e) {
                     //Ignore exception, happens if we leave the page before API call finishes
                 }
+
+                reportApiCall(true);
             }
 
             @Override
             public void processFailure(int responseCode, IOException e) {
                 Logger.log("ERROR", String.format(Locale.getDefault(), "Failed: %d", responseCode));
+                reportApiCall(false);
             }
 
             @Override
             public void processNetworkFailure() {
                 Logger.log("ERROR", "Failed (network)");
+                reportApiCall(false);
             }
         });
+    }
+
+    private void reportApiCall(boolean success) {
+        FirebaseAnalyticsUtil.reportCccApiLearnProgress(success);
     }
 
     private void updateUi(View view) {
@@ -303,7 +312,7 @@ public class ConnectLearningProgressFragment extends Fragment {
         reviewButton.setOnClickListener(v -> {
             NavDirections directions = null;
             if(ConnectManager.isAppInstalled(job.getLearnAppInfo().getAppId())) {
-                ConnectManager.launchApp(getContext(), job.getLearnAppInfo().getAppId());
+                ConnectManager.launchApp(getContext(), true, job.getLearnAppInfo().getAppId());
             } else {
                 String title = getString(R.string.connect_downloading_learn);
                 directions = ConnectLearningProgressFragmentDirections.actionConnectJobLearningProgressFragmentToConnectDownloadingFragment(title, true, true, job);
@@ -321,7 +330,7 @@ public class ConnectLearningProgressFragment extends Fragment {
             if(learningFinished && assessmentPassed) {
                 directions = ConnectLearningProgressFragmentDirections.actionConnectJobLearningProgressFragmentToConnectJobDeliveryDetailsFragment(job);
             } else if(ConnectManager.isAppInstalled(job.getLearnAppInfo().getAppId())) {
-                ConnectManager.launchApp(getContext(), job.getLearnAppInfo().getAppId());
+                ConnectManager.launchApp(getContext(), true, job.getLearnAppInfo().getAppId());
             } else {
                 String title = getString(R.string.connect_downloading_learn);
                 directions = ConnectLearningProgressFragmentDirections.actionConnectJobLearningProgressFragmentToConnectDownloadingFragment(title, true, true, job);

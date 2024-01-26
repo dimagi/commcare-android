@@ -120,7 +120,7 @@ public class ConnectDownloadingFragment extends Fragment implements ResourceEngi
 
                 //Launch the learn/deliver app
                 ConnectAppRecord appToLaunch = getLearnApp ? job.getLearnAppInfo() : job.getDeliveryAppInfo();
-                ConnectManager.launchApp(getContext(), appToLaunch.getAppId());
+                ConnectManager.launchApp(getContext(), getLearnApp, appToLaunch.getAppId());
             }
             else {
                 //Go to learn/deliver progress

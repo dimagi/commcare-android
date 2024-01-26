@@ -366,6 +366,49 @@ public class FirebaseAnalyticsUtil {
         reportEvent(CCAnalyticsEvent.CCC_RECOVERY, b);
     }
 
+    public static void reportCccAppLaunch(String type, String appId) {
+        reportEvent(CCAnalyticsEvent.CCC_LAUNCH_APP,
+                new String[]{CCAnalyticsEvent.PARAM_CCC_LAUNCH_APP_TYPE, CCAnalyticsEvent.PARAM_CCC_APP_NAME},
+                new String[]{type, appId});
+    }
+
+    public static void reportCccAppFailedAutoLogin(String app) {
+        reportEvent(CCAnalyticsEvent.CCC_AUTO_LOGIN_FAILED,
+                new String[]{CCAnalyticsEvent.PARAM_CCC_APP_NAME},
+                new String[]{app});
+    }
+
+    public static void reportCccApiJobs(boolean success, int newJobs) {
+        Bundle b = new Bundle();
+        b.putLong(CCAnalyticsEvent.PARAM_API_SUCCESS, success ? 1 : 0);
+        b.putInt(CCAnalyticsEvent.PARAM_API_NEW_JOBS, newJobs);
+        reportEvent(CCAnalyticsEvent.CCC_API_JOBS, b);
+    }
+
+    public static void reportCccApiStartLearning(boolean success) {
+        Bundle b = new Bundle();
+        b.putLong(CCAnalyticsEvent.PARAM_API_SUCCESS, success ? 1 : 0);
+        reportEvent(CCAnalyticsEvent.CCC_API_START_LEARNING, b);
+    }
+
+    public static void reportCccApiLearnProgress(boolean success) {
+        Bundle b = new Bundle();
+        b.putLong(CCAnalyticsEvent.PARAM_API_SUCCESS, success ? 1 : 0);
+        reportEvent(CCAnalyticsEvent.CCC_API_LEARN_PROGRESS, b);
+    }
+
+    public static void reportCccApiClaimJob(boolean success) {
+        Bundle b = new Bundle();
+        b.putLong(CCAnalyticsEvent.PARAM_API_SUCCESS, success ? 1 : 0);
+        reportEvent(CCAnalyticsEvent.CCC_API_CLAIM_JOB, b);
+    }
+
+    public static void reportCccApiDeliveryProgress(boolean success) {
+        Bundle b = new Bundle();
+        b.putLong(CCAnalyticsEvent.PARAM_API_SUCCESS, success ? 1 : 0);
+        reportEvent(CCAnalyticsEvent.CCC_API_DELIVERY_PROGRESS, b);
+    }
+
     public static void reportCccSignOut() {
         reportEvent(CCAnalyticsEvent.CCC_SIGN_OUT);
     }

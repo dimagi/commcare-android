@@ -609,6 +609,11 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
             CommCareApplication.notificationManager().reportNotificationMessage(message);
         }
         uiController.setErrorMessageUi(toastText, showTop);
+
+        if(appLaunchedFromConnect) {
+            String currAppId = CommCareApplication.instance().getCurrentApp().getAppRecord().getApplicationId();
+            FirebaseAnalyticsUtil.reportCccAppFailedAutoLogin(currAppId);
+        }
     }
 
     /**

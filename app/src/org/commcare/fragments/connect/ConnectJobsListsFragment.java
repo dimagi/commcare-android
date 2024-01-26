@@ -121,6 +121,7 @@ public class ConnectJobsListsFragment extends Fragment {
         ConnectNetworkHelper.getConnectOpportunities(getContext(), new ConnectNetworkHelper.INetworkResultHandler() {
             @Override
             public void processSuccess(int responseCode, InputStream responseData) {
+                int newJobs = 0;
                 //TODO: Sounds like we don't want a try-catch here, better to crash. Verify before changing
                 try {
                     String responseAsString = new String(StreamsUtil.inputStreamToByteArray(responseData));
@@ -134,11 +135,13 @@ public class ConnectJobsListsFragment extends Fragment {
                         }
 
                         //Store retrieved jobs
-                        ConnectDatabaseHelper.storeJobs(getContext(), jobs, true);
+                        newJobs = ConnectDatabaseHelper.storeJobs(getContext(), jobs, true);
                     }
                 } catch (IOException | JSONException | ParseException e) {
                     Logger.exception("Parsing return from Opportunities request", e);
                 }
+
+                reportApiCall(true, newJobs);
 
                 refreshUi();
             }
@@ -146,20 +149,25 @@ public class ConnectJobsListsFragment extends Fragment {
             @Override
             public void processFailure(int responseCode, IOException e) {
                 Logger.log("ERROR", String.format(Locale.getDefault(), "Opportunities call failed: %d", responseCode));
+                reportApiCall(false, 0);
                 refreshUi();
             }
 
             @Override
             public void processNetworkFailure() {
                 Logger.log("ERROR", "Failed (network)");
+                reportApiCall(false, 0);
                 refreshUi();
             }
         });
     }
 
+    private void reportApiCall(boolean success, int newJobs) {
+        FirebaseAnalyticsUtil.reportCccApiJobs(success, newJobs);
+    }
+
     private void refreshUi() {
         try {
-            //TODO: This code should happen even after failures
             updateUpdatedDate(new Date());
             viewStateAdapter.refresh();
             chooseTab();
