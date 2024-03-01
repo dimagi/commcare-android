@@ -152,12 +152,13 @@ public class SyncDetailCalculations {
 
     private static boolean unsentFormTimeLimitExceeded(long lastSyncTime) {
         SharedPreferences prefs = CommCareApplication.instance().getCurrentApp().getAppPreferences();
-        int unsentFormTimeLimit = Integer.parseInt(prefs.getString(UNSENT_FORM_TIME_KEY, "5"));
+        double unsentFormTimeLimitInDays = Double.parseDouble(prefs.getString(UNSENT_FORM_TIME_KEY, "5"));
+        int unsentFormTimeLimitInMinutes = (int)(unsentFormTimeLimitInDays * 24 * 60);
 
         long now = new Date().getTime();
-        int secs_ago = (int)((lastSyncTime - now) / 1000);
-        int days_ago = secs_ago / 86400;
+        int secsSinceLastSync = (int)((now - lastSyncTime) / 1000);
+        int minutesSinceLastSync = (int)(secsSinceLastSync / 60);
 
-        return (-days_ago) > unsentFormTimeLimit;
+        return minutesSinceLastSync > unsentFormTimeLimitInMinutes;
     }
 }
