@@ -64,18 +64,6 @@ public class ConnectDatabaseHelper {
         }
     }
 
-    public static String generatePassword() {
-        int passwordLength = 20;
-
-        String charSet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_!.?";
-        StringBuilder password = new StringBuilder();
-        for (int i = 0; i < passwordLength; i++) {
-            password.append(charSet.charAt(new Random().nextInt(charSet.length())));
-        }
-
-        return password.toString();
-    }
-
     public static void init(Context context) {
         synchronized (connectDbHandleLock) {
             byte[] passphrase = getConnectDbPassphrase(context);
@@ -126,6 +114,8 @@ public class ConnectDatabaseHelper {
     public static void forgetUser(Context context) {
         getConnectStorage(context, ConnectUserRecord.class).removeAll();
     }
+
+
 
     public static ConnectLinkedAppRecord getAppData(Context context, String appId, String username) {
         Vector<ConnectLinkedAppRecord> records = getConnectStorage(context, ConnectLinkedAppRecord.class)

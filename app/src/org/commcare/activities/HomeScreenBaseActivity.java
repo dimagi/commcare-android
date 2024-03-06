@@ -567,7 +567,6 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
             return;
         }
         CommCareApplication.instance().closeUserSession();
-        ConnectManager.signOut();
         setResult(RESULT_OK);
         finish();
     }
