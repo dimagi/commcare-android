@@ -13,7 +13,8 @@ import org.commcare.dalvik.R;
 import org.commcare.utils.AndroidUtil;
 
 /**
- * Custom MediaController which provides a workaround to the issue where hide and show aren't working while adding it in the view hierarchy.
+ * Custom MediaController which provides a workaround to the issue where hide and show aren't
+ * working while adding it in the view hierarchy.
  * Note: Use only when you're manually adding MediaController in the view hierarchy.
  * Used here {@link MediaLayout}
  * @author $|-|!˅@M
