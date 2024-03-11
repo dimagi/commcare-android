@@ -293,4 +293,10 @@
     <color name="login_edit_text_color">@color/cc_core_text</color>
     <color name="login_edit_text_color_error">@color/cc_attention_negative_color</color>
     <dimen name="map_button_min_width">120dp</dimen>
+
+    <style name="MediaButton">
+        <item name="background">@null</item>
+        <item name="android:layout_width">71dip</item>
+        <item name="android:layout_height">52dip</item>
+    </style>
 </resources>
