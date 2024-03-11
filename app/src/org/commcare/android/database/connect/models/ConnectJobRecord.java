@@ -311,7 +311,7 @@ public class ConnectJobRecord extends Persisted implements Serializable {
     }
 
     public boolean attemptedAssessment() {
-        return getLearningCompletePercentage() >= 100 && getAssessmentScore() > 0;
+        return getLearningCompletePercentage() >= 100 && assessments != null && assessments.size() > 0;
     }
 
     public boolean passedAssessment() {
