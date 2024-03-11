@@ -36,8 +36,6 @@ import org.commcare.tasks.templates.CommCareTaskConnector;
 import org.commcare.utils.CrashUtil;
 import org.commcare.views.dialogs.StandardAlertDialog;
 import org.javarosa.core.util.PropertyUtils;
-import org.joda.time.DateTime;
-import org.joda.time.Duration;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -112,10 +110,16 @@ public class ConnectManager {
         ConnectDatabaseHelper.init(parent);
 
         if(manager.connectStatus == ConnectIdStatus.NotIntroduced) {
-            ConnectUserRecord user = ConnectDatabaseHelper.getUser(manager.parentActivity);
-            if (user != null) {
-                boolean registering = user.getRegistrationPhase() != ConnectTask.CONNECT_NO_ACTIVITY;
-                manager.connectStatus = registering ? ConnectIdStatus.Registering : ConnectIdStatus.LoggedIn;
+            ConnectUpgrader.checkUpgradeStatus(parent);
+            if(ConnectUpgrader.allowConnectUsage()) {
+                ConnectUserRecord user = ConnectDatabaseHelper.getUser(manager.parentActivity);
+                if (user != null) {
+                    boolean registering = user.getRegistrationPhase() != ConnectTask.CONNECT_NO_ACTIVITY;
+                    manager.connectStatus = registering ? ConnectIdStatus.Registering : ConnectIdStatus.LoggedIn;
+                }
+            }
+            else {
+                ConnectUpgrader.promptToUpgrade(parent);
             }
         }
     }
@@ -152,7 +156,7 @@ public class ConnectManager {
     }
 
     public static boolean isConnectIdIntroduced() {
-        if (!AppManagerDeveloperPreferences.isConnectIdEnabled()) {
+        if (!AppManagerDeveloperPreferences.isConnectIdEnabled() || !ConnectUpgrader.allowConnectUsage()) {
             return false;
         }
 
@@ -169,7 +173,7 @@ public class ConnectManager {
             return false;
         }
 
-        return getInstance().connectStatus != ConnectIdStatus.LoggedIn;
+        return ConnectUpgrader.allowConnectUsage() && getInstance().connectStatus != ConnectIdStatus.LoggedIn;
     }
 
     public static boolean shouldShowSignOutMenuOption() {
@@ -177,7 +181,7 @@ public class ConnectManager {
             return false;
         }
 
-        return getInstance().connectStatus == ConnectIdStatus.LoggedIn;
+        return ConnectUpgrader.allowConnectUsage() && getInstance().connectStatus == ConnectIdStatus.LoggedIn;
     }
 
     public static String getConnectButtonText(Context context) {
@@ -193,7 +197,7 @@ public class ConnectManager {
             return false;
         }
 
-        return getInstance().connectStatus == ConnectIdStatus.LoggedIn;
+        return ConnectUpgrader.allowConnectUsage() && getInstance().connectStatus == ConnectIdStatus.LoggedIn;
     }
 
     private static void completeSignin() {

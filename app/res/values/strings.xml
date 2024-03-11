@@ -737,4 +737,21 @@
     <string name="connect_app_installed">App installed</string>
     <string name="app_with_id_not_found">Required CommCare App is not installed on device</string>
     <string name="phone_code_plus">+</string>
+
+    <string name="connect_upgrade_title">Upgrade Connect</string>
+    <string name="connect_upgrade_prompt_title">Upgrade Connect?</string>
+    <string name="connect_upgrade_prompt_message">The Connect storage needs to be updated for security. Until this is done you will not be able to use Connect ID or Connect features. Would you like to upgrade now?</string>
+    <string name="connect_upgrade_prompt_yes">Yes</string>
+    <string name="connect_upgrade_prompt_no">Not now</string>
+
+    <string name="connect_upgrade_message_intro">To begin the upgrade, first unlock ConnectID.</string>
+    <string name="connect_upgrade_message_failed_unlock">You will need to unlock ConnectID in order to upgrade the Connect storage. You will be prompted to try again the next time the app runs. In the meantime, all ConnectID and Connect functionality is disabled.</string>
+    <string name="connect_upgrade_message_upgrading">Upgrading Connect storage, please wait.</string>
+    <string name="connect_upgrade_message_failed">The uprade failed. You can try again the next time the app runs. In the meantime, all ConnectID and Connect functionality is disabled.</string>
+    <string name="connect_upgrade_message_completed">The storage upgrade completed successfully! You can now resume using ConnectID and Connect functionality.</string>
+
+    <string name="connect_upgrade_button_intro">Unlock ConnectID</string>
+    <string name="connect_upgrade_button_proceed">Proceed to CommCare</string>
+    <string name="connect_upgrade_button_upgrading">Upgrading...</string>
+
 </resources>

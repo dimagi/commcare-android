@@ -53,7 +53,9 @@ public enum ConnectTask {
     CONNECT_BIOMETRIC_ENROLL_FAIL(ConnectConstants.ConnectIdTaskIdOffset + 22,
             ConnectIdMessageActivity.class),
     CONNECT_MAIN(ConnectConstants.ConnectIdTaskIdOffset + 23,
-                 ConnectActivity.class);
+                 ConnectActivity.class),
+    CONNECT_UPGRADE(ConnectConstants.ConnectIdTaskIdOffset + 24,
+            ConnectUpgradeActivity.class);
 
     private final int requestCode;
     private final Class<?> nextActivity;

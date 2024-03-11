@@ -37,6 +37,8 @@ public class DatabaseConnectOpenHelper extends SQLiteOpenHelper {
 
     private final Context mContext;
 
+    public static String getDbName() { return CONNECT_DB_LOCATOR; }
+
     public DatabaseConnectOpenHelper(Context context) {
         super(context, CONNECT_DB_LOCATOR, null, CONNECT_DB_VERSION);
         this.mContext = context;
