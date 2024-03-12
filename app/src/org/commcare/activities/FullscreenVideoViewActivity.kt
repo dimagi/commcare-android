@@ -52,6 +52,13 @@ class FullscreenVideoViewActivity: AppCompatActivity() {
         }
     }
 
+    override fun onBackPressed() {
+        val i = Intent()
+        i.putExtra(CommCareMediaController.INLINE_VIDEO_TIME_POSITION, viewBinding.fullscreenVideoView.currentPosition)
+        setResult(RESULT_OK, i)
+        super.onBackPressed()
+    }
+
     override fun onDestroy() {
         super.onDestroy()
         viewBinding.fullscreenVideoView.stopPlayback()

@@ -77,6 +77,7 @@ import org.commcare.views.UserfacingErrorHandling;
 import org.commcare.views.dialogs.CommCareAlertDialog;
 import org.commcare.views.dialogs.CustomProgressDialog;
 import org.commcare.views.dialogs.StandardAlertDialog;
+import org.commcare.views.media.CommCareMediaController;
 import org.commcare.views.widgets.BarcodeWidget;
 import org.commcare.views.widgets.ImageWidget;
 import org.commcare.views.widgets.IntentWidget;
@@ -366,6 +367,13 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                         // We resolved the exception so let's hear location updates now.
                         // We don't wanna do anything if user doesn't except it here.
                         PollSensorController.INSTANCE.requestLocationUpdates();
+                    }
+                    break;
+                case FormEntryConstants.VIEW_VIDEO_FULLSCREEN:
+                    if (intent.getExtras().containsKey(
+                            CommCareMediaController.INLINE_VIDEO_TIME_POSITION)) {
+                        positionOfVideoProgress = intent.getIntExtra(
+                                CommCareMediaController.INLINE_VIDEO_TIME_POSITION, 0);
                     }
                     break;
             }
