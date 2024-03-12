@@ -37,10 +37,18 @@ class FullscreenVideoViewActivity: AppCompatActivity() {
         }
     }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        if (lastPosition != -1) {
+            outState.putInt(CommCareMediaController.INLINE_VIDEO_TIME_POSITION, lastPosition)
+        }
+    }
+
     override fun onPause() {
         super.onPause()
         if (viewBinding.fullscreenVideoView != null) {
             viewBinding.fullscreenVideoView.pause()
+            lastPosition = viewBinding.fullscreenVideoView.currentPosition
         }
     }
 
