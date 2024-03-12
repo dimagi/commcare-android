@@ -299,4 +299,10 @@
         <item name="android:layout_width">71dip</item>
         <item name="android:layout_height">52dip</item>
     </style>
+
+    <style name="FullscreenTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="android:windowFullscreen">true</item>
+        <item name="android:windowBackground">"@color/black"</item>
+        <item name="android:navigationBarColor">@color/black</item>
+    </style>
 </resources>

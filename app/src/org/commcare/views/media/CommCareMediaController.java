@@ -1,6 +1,7 @@
 package org.commcare.views.media;
 
 import android.content.Context;
+import android.content.Intent;
 import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.View;
@@ -9,8 +10,15 @@ import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.MediaController;
 
+import androidx.appcompat.app.AppCompatActivity;
+
+import org.commcare.activities.FullscreenVideoViewActivity;
+import org.commcare.activities.components.FormEntryConstants;
 import org.commcare.dalvik.R;
 import org.commcare.utils.AndroidUtil;
+import org.commcare.utils.FileUtil;
+
+import java.io.File;
 
 /**
  * Custom MediaController which provides a workaround to the issue where hide and show aren't
@@ -74,6 +82,13 @@ public class CommCareMediaController extends MediaController {
             fullscreenBtn = new ImageButton(getContext(), null, R.style.MediaButton);
             fullscreenBtn.setId(AndroidUtil.generateViewId());
             fullscreenBtn.setImageResource(R.drawable.ic_media_fullscreen);
+            fullscreenBtn.setOnClickListener(view1 -> {
+                    Intent intent = new Intent(getContext(), FullscreenVideoViewActivity.class);
+                    intent.setData(FileUtil.getUriForExternalFile(getContext(),
+                            new File(videoView.getVideoPath())));
+                    ((AppCompatActivity) getContext()).startActivityForResult(intent,
+                            FormEntryConstants.VIEW_VIDEO_FULLSCREEN);
+                });
         }
         FrameLayout.LayoutParams frameParams = new LayoutParams(LayoutParams.WRAP_CONTENT,
                 LayoutParams.WRAP_CONTENT, Gravity.END);
