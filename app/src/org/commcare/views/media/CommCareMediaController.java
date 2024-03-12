@@ -29,6 +29,8 @@ import java.io.File;
  */
 public class CommCareMediaController extends MediaController {
 
+    public static final String INLINE_VIDEO_TIME_POSITION = "inline-video-time-position";
+
     // A mock to superclass' isShowing property.
     // {@link https://android.googlesource.com/platform/frameworks/base/+/master/core/java/android/widget/MediaController.java#96}
     private boolean _isShowing = false;
@@ -86,6 +88,9 @@ public class CommCareMediaController extends MediaController {
                     Intent intent = new Intent(getContext(), FullscreenVideoViewActivity.class);
                     intent.setData(FileUtil.getUriForExternalFile(getContext(),
                             new File(videoView.getVideoPath())));
+                    if (videoView.isPlaying()) {
+                        intent.putExtra(INLINE_VIDEO_TIME_POSITION, videoView.getCurrentPosition());
+                    }
                     ((AppCompatActivity) getContext()).startActivityForResult(intent,
                             FormEntryConstants.VIEW_VIDEO_FULLSCREEN);
                 });
