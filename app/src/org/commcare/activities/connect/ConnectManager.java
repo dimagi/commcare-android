@@ -797,10 +797,15 @@ public class ConnectManager {
         //Store UKR
         SecretKey newKey = CryptUtil.generateSemiRandomKey();
         String sandboxId = PropertyUtils.genUUID().replace("-", "");
-        Date fromDate = new Date();
+        Date now = new Date();
 
         Calendar cal = Calendar.getInstance();
-        cal.setTime(fromDate);
+        cal.setTime(now);
+        cal.add(Calendar.YEAR, -10); //Begin ten years ago
+        Date fromDate = cal.getTime();
+
+        cal = Calendar.getInstance();
+        cal.setTime(now);
         cal.add(Calendar.YEAR, 10); //Expire in ten years
         Date toDate = cal.getTime();
 
