@@ -53,13 +53,13 @@ public class ConnectUpgrader {
         activity.showAlertDialog(d);
     }
 
-    public static void startUpgrade(UpgradeCallback callback) {
+    public static void startUpgrade(Context context, UpgradeCallback callback) {
         AsyncTask<Void, Void, Void> task = new AsyncTask<>() {
             @Override
             protected Void doInBackground(Void... voids) {
                 boolean success=  true;
                 if(upgradeCode == UPGRADE_CODE_DB_V3) {
-                    success = upgradeOldDb();
+                    success = upgradeOldDb(context);
                 }
 
                 //Future upgrades will go here
@@ -77,7 +77,8 @@ public class ConnectUpgrader {
         task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
 
-    private static boolean upgradeOldDb() {
+    private static boolean upgradeOldDb(Context context) {
+        //context.deleteDatabase(DatabaseConnectOpenHelper.getDbName())
         return false;
     }
 }

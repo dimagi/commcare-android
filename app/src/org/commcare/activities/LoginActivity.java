@@ -202,7 +202,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         boolean connectJobs = isConnectJobsSelected();
 
         if(connectJobs) {
-            ConnectManager.unlockConnect(this, success -> {
+            ConnectManager.unlockConnect(this, false, success -> {
                 if(success) {
                     ConnectManager.goToConnectJobsList();
                 }
@@ -215,7 +215,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
             String username = uiController.getEnteredUsername();
 
             if(!appLaunchedFromConnect && uiController.loginManagedByConnectId()) {
-                ConnectManager.unlockConnect(this, success -> {
+                ConnectManager.unlockConnect(this, false, success -> {
                     if(success) {
                         String pass = ConnectManager.getStoredPasswordForApp(seatedAppId, username);
                         doLogin(loginMode, restoreSession, pass);

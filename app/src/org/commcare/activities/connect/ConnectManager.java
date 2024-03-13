@@ -107,10 +107,14 @@ public class ConnectManager {
     public static void init(CommCareActivity<?> parent) {
         ConnectManager manager = getInstance();
         manager.parentActivity = parent;
-        ConnectDatabaseHelper.init(parent);
 
         if(manager.connectStatus == ConnectIdStatus.NotIntroduced) {
             ConnectUpgrader.checkUpgradeStatus(parent);
+        }
+
+        ConnectDatabaseHelper.init(parent);
+
+        if(manager.connectStatus == ConnectIdStatus.NotIntroduced) {
             if(ConnectUpgrader.allowConnectUsage()) {
                 ConnectUserRecord user = ConnectDatabaseHelper.getUser(manager.parentActivity);
                 if (user != null) {
@@ -247,8 +251,8 @@ public class ConnectManager {
         }
     }
 
-    public static void unlockConnect(CommCareActivity<?> parent, ConnectActivityCompleteListener listener) {
-        if(manager.connectStatus == ConnectIdStatus.LoggedIn) {
+    public static void unlockConnect(CommCareActivity<?> parent, boolean repairMode, ConnectActivityCompleteListener listener) {
+        if(repairMode || manager.connectStatus == ConnectIdStatus.LoggedIn) {
             manager.parentActivity = parent;
             manager.loginListener = listener;
             manager.forgotPassword = false;
@@ -721,7 +725,7 @@ public class ConnectManager {
                 d.setPositiveButton(activity.getString(R.string.login_link_connectid_yes), (dialog, which) -> {
                     activity.dismissAlertDialog();
 
-                    unlockConnect(activity, success -> {
+                    unlockConnect(activity, false, success -> {
                         if(success) {
                             ConnectManager.forgetAppCredentials(appId, username);
                         }
@@ -778,7 +782,7 @@ public class ConnectManager {
                 d.setPositiveButton(activity.getString(R.string.login_link_connectid_yes), (dialog, which) -> {
                     activity.dismissAlertDialog();
 
-                    unlockConnect(activity, success -> {
+                    unlockConnect(activity, false, success -> {
                         if(success) {
                             ConnectManager.rememberAppCredentials(appId, username, password);
 

@@ -637,7 +637,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 
     private void updateConnectButton() {
         installFragment.updateConnectButton(this, !fromManager && !fromExternal && ConnectManager.isConnectIdIntroduced(), v -> {
-            ConnectManager.unlockConnect(this, success -> {
+            ConnectManager.unlockConnect(this, false, success -> {
                 if(success) {
                     ConnectManager.goToConnectJobsList();
                 }

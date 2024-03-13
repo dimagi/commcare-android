@@ -11,7 +11,7 @@ public class ConnectUpgradeViewModel extends ViewModel {
     private static final int UPGRADE_STATE_UPGRADING = 3;
     private static final int UPGRADE_STATE_FAILED = 4;
     private static final int UPGRADE_STATE_COMPLETED = 5;
-    private int state;
+    private int state = UPGRADE_STATE_INTRO;
     private Runnable callback = null;
 
     public void setCallback(Runnable callback) {
@@ -58,14 +58,14 @@ public class ConnectUpgradeViewModel extends ViewModel {
     public void handleButtonPress(CommCareActivity<?> activity) {
         switch(state) {
             case UPGRADE_STATE_INTRO -> {
-                ConnectManager.unlockConnect(activity, unlocked -> {
+                ConnectManager.unlockConnect(activity, true, unlocked -> {
                     state = unlocked ? UPGRADE_STATE_UPGRADING : UPGRADE_STATE_FAILED_UNLOCK;
                     if(callback != null) {
                         callback.run();
                     }
 
                     if(unlocked) {
-                        ConnectUpgrader.startUpgrade(success -> {
+                        ConnectUpgrader.startUpgrade(activity, success -> {
                             state = success ? UPGRADE_STATE_COMPLETED : UPGRADE_STATE_FAILED;
                             if(callback != null) {
                                 callback.run();
