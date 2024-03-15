@@ -307,7 +307,7 @@ public class MediaLayout extends RelativeLayout {
                             setupInlineVideoView(inlineVideoURI);
                         });
             } else {
-                final CommCareMediaController ctrl = new CommCareMediaController(this.getContext());
+                final CommCareMediaController ctrl = new CommCareMediaController(this.getContext(), false);
                 ctrl.setId(AndroidUtil.generateViewId());
                 videoView.setOnPreparedListener(mediaPlayer -> {
                     //Since MediaController will create a default set of controls and put them in a window floating above your application(From AndroidDocs)

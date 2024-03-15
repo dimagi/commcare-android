@@ -35,17 +35,21 @@ public class CommCareMediaController extends MediaController {
     // {@link https://android.googlesource.com/platform/frameworks/base/+/master/core/java/android/widget/MediaController.java#96}
     private boolean _isShowing = false;
     private ImageButton fullscreenBtn;
+    private boolean fullscreenMode;
 
-    public CommCareMediaController(Context context, AttributeSet attrs) {
+    public CommCareMediaController(Context context, AttributeSet attrs, boolean fullscreenMode) {
         super(context, attrs);
+        this.fullscreenMode = fullscreenMode;
     }
 
-    public CommCareMediaController(Context context, boolean useFastForward) {
+    public CommCareMediaController(Context context, boolean useFastForward, boolean fullscreenMode) {
         super(context, useFastForward);
+        this.fullscreenMode = fullscreenMode;
     }
 
-    public CommCareMediaController(Context context) {
+    public CommCareMediaController(Context context, boolean fullscreenMode) {
         super(context);
+        this.fullscreenMode = fullscreenMode;
     }
 
     @Override
