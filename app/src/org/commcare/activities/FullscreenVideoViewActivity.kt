@@ -2,7 +2,6 @@ package org.commcare.activities
 
 import android.content.Intent
 import android.os.Bundle
-import android.widget.MediaController
 import androidx.appcompat.app.AppCompatActivity
 import org.commcare.dalvik.databinding.ActivityFullscreenVideoViewBinding
 import org.commcare.views.media.CommCareMediaController
@@ -28,7 +27,7 @@ class FullscreenVideoViewActivity: AppCompatActivity() {
 
         lastPosition = restoreLastPosition(savedInstanceState)
 
-        viewBinding.fullscreenVideoView.setMediaController(MediaController(this))
+        viewBinding.fullscreenVideoView.setMediaController(CommCareMediaController(this, true))
         viewBinding.fullscreenVideoView.setOnPreparedListener {
             if (lastPosition != -1) {
                 viewBinding.fullscreenVideoView.seekTo(lastPosition)
