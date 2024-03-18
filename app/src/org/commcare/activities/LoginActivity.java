@@ -130,7 +130,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         ConnectManager.init(this);
 
         presetAppId = getIntent().getStringExtra(EXTRA_APP_ID);
-        appLaunchedFromConnect = getIntent().getBooleanExtra(CommCareLauncher.EXTRA_FROM_CONNECT, false);
+        appLaunchedFromConnect = ConnectManager.wasAppLaunchedFromConnect(presetAppId);
 
         if (savedInstanceState == null) {
             // Only restore last user on the initial creation

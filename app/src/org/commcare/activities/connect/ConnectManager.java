@@ -93,6 +93,7 @@ public class ConnectManager {
     private String recoverySecret = null;
     private boolean forgotPassword = false;
     private boolean passwordOnlyWorkflow = false;
+    private String primedAppIdForAutoLogin = null;
 
     //Singleton, private constructor
     private ConnectManager() {
@@ -923,7 +924,14 @@ public class ConnectManager {
         String appType = isLearning ? "Learn" : "Deliver";
         FirebaseAnalyticsUtil.reportCccAppLaunch(appType, appId);
 
-        CommCareLauncher.launchCommCareForAppIdFromConnect(context, appId);
+        getInstance().primedAppIdForAutoLogin = appId;
+
+        CommCareLauncher.launchCommCareForAppId(context, appId);
+    }
+
+    public static boolean wasAppLaunchedFromConnect(String appId) {
+        String primed = getInstance().primedAppIdForAutoLogin;
+        return primed != null && primed.equals(appId);
     }
 
     public static String checkAutoLoginAndOverridePassword(Context context, String appId, String username,
