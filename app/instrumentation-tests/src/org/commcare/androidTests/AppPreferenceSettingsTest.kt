@@ -111,7 +111,7 @@ class AppPreferenceSettingsTest: BaseTest() {
     private fun selectSetting(text: String) {
         onView(withText("CommCare > Settings"))
                 .check(matches(isDisplayed()))
-        onView(withId(R.id.recycler_view))
+        onView(withId(androidx.preference.R.id.recycler_view))
                 .perform(RecyclerViewActions.scrollTo<RecyclerView.ViewHolder>(
                         hasDescendant(withText(text))
                 ))

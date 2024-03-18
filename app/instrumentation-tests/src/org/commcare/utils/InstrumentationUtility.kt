@@ -493,7 +493,7 @@ object InstrumentationUtility {
      */
     fun searchCaseAndSelect(text: String){
         onView(withId(R.id.search_action_bar)).perform(click())
-        enterText(R.id.search_src_text,text)
+        enterText(androidx.appcompat.R.id.search_src_text,text)
         onView(withId(R.id.screen_entity_detail_list)).isPresent()
         clickListItem(R.id.screen_entity_select_list, 0)
     }
