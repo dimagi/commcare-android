@@ -2,22 +2,24 @@ package org.commcare.models.database.global;
 
 import android.content.Context;
 
+import java.io.File;
+
 import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.global.models.AppAvailableToInstall;
+import org.commcare.android.database.global.models.ApplicationRecord;
+import org.commcare.android.database.global.models.ApplicationRecordV1;
+import org.commcare.android.database.global.models.ConnectKeyRecord;
 import org.commcare.android.logging.ForceCloseLogEntry;
-import org.commcare.modern.database.TableBuilder;
 import org.commcare.models.database.ConcreteAndroidDbHelper;
 import org.commcare.models.database.DbUtil;
 import org.commcare.models.database.MigrationException;
 import org.commcare.models.database.SqlStorage;
-import org.commcare.android.database.global.models.ApplicationRecord;
-import org.commcare.android.database.global.models.ApplicationRecordV1;
+import org.commcare.modern.database.TableBuilder;
 import org.commcare.provider.ProviderUtils;
-import org.javarosa.core.services.storage.Persistable;
 
-import java.io.File;
+import org.javarosa.core.services.storage.Persistable;
 
 /**
  * @author ctsims
@@ -48,6 +50,11 @@ class GlobalDatabaseUpgrader {
         if (oldVersion == 4) {
             if (upgradeFourFive(db)) {
                 oldVersion = 5;
+            }
+        }
+        if (oldVersion == 5) {
+            if (upgradeFiveSix(db)) {
+                oldVersion = 6;
             }
         }
     }
@@ -115,6 +122,10 @@ class GlobalDatabaseUpgrader {
 
     private boolean upgradeFourFive(SQLiteDatabase db) {
         return addTableForNewModel(db, AppAvailableToInstall.STORAGE_KEY, new AppAvailableToInstall());
+    }
+
+    private boolean upgradeFiveSix(SQLiteDatabase db) {
+        return addTableForNewModel(db, ConnectKeyRecord.STORAGE_KEY, new ConnectKeyRecord());
     }
 
     private static boolean addTableForNewModel(SQLiteDatabase db, String storageKey,

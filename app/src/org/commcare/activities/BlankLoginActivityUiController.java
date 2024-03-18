@@ -12,12 +12,12 @@ import java.util.ArrayList;
 /**
  * UIController for running LoginActivity without showing anything on the screen
  */
-public class BlankLoginActivityUIController extends LoginActivityUIController {
+public class BlankLoginActivityUiController extends LoginActivityUiController {
 
     private EditText username;
     private EditText password;
 
-    public BlankLoginActivityUIController(LoginActivity activity) {
+    public BlankLoginActivityUiController(LoginActivity activity) {
         super(activity);
     }
 
@@ -46,7 +46,7 @@ public class BlankLoginActivityUIController extends LoginActivityUIController {
     }
 
     @Override
-    protected void setErrorMessageUI(String message, boolean shownotification) {
+    protected void setErrorMessageUi(String message, boolean shownotification) {
 
     }
 
@@ -55,7 +55,7 @@ public class BlankLoginActivityUIController extends LoginActivityUIController {
     }
 
     @Override
-    protected void setMultipleAppsUIState(ArrayList<String> appNames, int position) {
+    protected void setMultipleAppsUiState(ArrayList<String> appNames, int position) {
     }
 
     @Override
