@@ -12,7 +12,7 @@ import org.commcare.views.media.CommCareMediaController
  *
  * @author avazirna
  */
-class FullscreenVideoViewActivity: AppCompatActivity() {
+class FullscreenVideoViewActivity : AppCompatActivity() {
 
     private lateinit var viewBinding: ActivityFullscreenVideoViewBinding
     private var lastPosition = -1
@@ -23,6 +23,7 @@ class FullscreenVideoViewActivity: AppCompatActivity() {
         setContentView(viewBinding.root)
 
         // Get video URI from intent, finish if no URI is available
+        // TODO: we should inform the user when we finish because there is no data
         intent.data?.let { viewBinding.fullscreenVideoView.setVideoURI(intent.data) } ?: { finish() }
 
         lastPosition = restoreLastPosition(savedInstanceState)
@@ -56,9 +57,12 @@ class FullscreenVideoViewActivity: AppCompatActivity() {
         super.onBackPressed()
     }
 
-    private fun setResultIntent(){
+    private fun setResultIntent() {
         val i = Intent()
-        i.putExtra(CommCareMediaController.INLINE_VIDEO_TIME_POSITION, viewBinding.fullscreenVideoView.currentPosition)
+        i.putExtra(
+            CommCareMediaController.INLINE_VIDEO_TIME_POSITION,
+            viewBinding.fullscreenVideoView.currentPosition
+        )
         this.setResult(RESULT_OK, i)
     }
 
@@ -70,13 +74,11 @@ class FullscreenVideoViewActivity: AppCompatActivity() {
     // priority is given to lastPosition saved state
     private fun restoreLastPosition(savedInstanceState: Bundle?): Int {
         val intentExtras = intent.extras
-        if (savedInstanceState != null && savedInstanceState.containsKey(
-                CommCareMediaController.INLINE_VIDEO_TIME_POSITION
-            )) {
+        if (savedInstanceState != null &&
+            savedInstanceState.containsKey(CommCareMediaController.INLINE_VIDEO_TIME_POSITION)) {
             return savedInstanceState.getInt(CommCareMediaController.INLINE_VIDEO_TIME_POSITION)
-        } else if (intentExtras !=null && intentExtras.containsKey(
-                CommCareMediaController.INLINE_VIDEO_TIME_POSITION
-            )) {
+        } else if (intentExtras !=null &&
+            intentExtras.containsKey(CommCareMediaController.INLINE_VIDEO_TIME_POSITION)) {
             return intentExtras.getInt(CommCareMediaController.INLINE_VIDEO_TIME_POSITION)
         }
         return -1

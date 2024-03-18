@@ -177,17 +177,20 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     private boolean fullFormProfilingEnabled = false;
     private EvaluationTraceReporter traceReporter;
 
-    private PendingSyncAlertBroadcastReceiver pendingSyncAlertBroadcastReceiver = new PendingSyncAlertBroadcastReceiver();
+    private PendingSyncAlertBroadcastReceiver pendingSyncAlertBroadcastReceiver =
+            new PendingSyncAlertBroadcastReceiver();
 
     private TextToSpeechCallback mTTSCallback = new TextToSpeechCallback() {
         @Override
         public void initFailed() {
-            Toast.makeText(FormEntryActivity.this, Localization.get("tts.init.failed"), Toast.LENGTH_LONG).show();
+            Toast.makeText(FormEntryActivity.this, Localization.get("tts.init.failed"),
+                    Toast.LENGTH_LONG).show();
         }
 
         @Override
         public void speakFailed() {
-            Toast.makeText(FormEntryActivity.this, Localization.get("tts.speak.failed"), Toast.LENGTH_LONG).show();
+            Toast.makeText(FormEntryActivity.this, Localization.get("tts.speak.failed"),
+                    Toast.LENGTH_LONG).show();
         }
 
         @Override
@@ -304,7 +307,8 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
         if (symetricKey != null) {
             try {
-                outState.putString(KEY_AES_STORAGE_KEY, new Base64Wrapper().encodeToString(symetricKey.getEncoded()));
+                outState.putString(KEY_AES_STORAGE_KEY,
+                        new Base64Wrapper().encodeToString(symetricKey.getEncoded()));
             } catch (ClassNotFoundException e) {
                 // we can't really get here anyway, since we couldn't have decoded the string to begin with
                 throw new RuntimeException("Base 64 encoding unavailable! Can't pass storage key");
@@ -333,22 +337,26 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             switch (requestCode) {
                 case FormEntryConstants.INTENT_CALLOUT:
                     if (!processIntentResponse(intent, false)) {
-                        Toast.makeText(this, Localization.get("intent.callout.unable.to.process"), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(this,
+                                Localization.get("intent.callout.unable.to.process"), Toast.LENGTH_SHORT).show();
                     }
                     break;
                 case FormEntryConstants.IMAGE_CAPTURE:
-                    ImageCaptureProcessing.processCaptureResponse(this, FormEntryInstanceState.getInstanceFolder(), true);
+                    ImageCaptureProcessing.processCaptureResponse(this,
+                            FormEntryInstanceState.getInstanceFolder(), true);
                     break;
                 case FormEntryConstants.SIGNATURE_CAPTURE:
                     Logger.log(LogTypes.SOFT_ASSERT, "Signature captured successfully");
-                    boolean saved = ImageCaptureProcessing.processCaptureResponse(this, FormEntryInstanceState.getInstanceFolder(), false);
+                    boolean saved = ImageCaptureProcessing.processCaptureResponse(this,
+                            FormEntryInstanceState.getInstanceFolder(), false);
                     if (saved && !uiController.questionsView.isQuestionList()) {
                         // attempt to auto-advance if a signature was captured
                         advance();
                     }
                     break;
                 case FormEntryConstants.IMAGE_CHOOSER:
-                    ImageCaptureProcessing.processImageChooserResponse(this, FormEntryInstanceState.getInstanceFolder(), intent);
+                    ImageCaptureProcessing.processImageChooserResponse(this,
+                            FormEntryInstanceState.getInstanceFolder(), intent);
                     break;
                 case FormEntryConstants.AUDIO_VIDEO_FETCH:
                     processChooserResponse(intent);
@@ -407,8 +415,10 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         // then the widget copies the file and makes a new entry in the content provider.
         Uri media = intent.getData();
         if (media == null) {
-            Logger.log(LogTypes.TYPE_ERROR_ASSERTION, "AUDIO_VIDEO_FETCH intent data returns null " + intent.toString());
-            Logger.log(LogTypes.TYPE_ERROR_ASSERTION, "Extras: " + (intent.getExtras() != null ? intent.getExtras().toString() : "null"));
+            Logger.log(LogTypes.TYPE_ERROR_ASSERTION,
+                    "AUDIO_VIDEO_FETCH intent data returns null " + intent.toString());
+            Logger.log(LogTypes.TYPE_ERROR_ASSERTION,
+                    "Extras: " + (intent.getExtras() != null ? intent.getExtras().toString() : "null"));
             uiController.questionsView.clearAnswer();
             Toast.makeText(FormEntryActivity.this,
                     Localization.get("form.attachment.notfound"),
@@ -562,7 +572,8 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 return true;
             case FormEntryConstants.MENU_PREFERENCES:
                 Intent pref = new Intent(this, SessionAwarePreferenceActivity.class);
-                pref.putExtra(CommCarePreferenceActivity.EXTRA_PREF_TYPE, CommCarePreferenceActivity.PREF_TYPE_FORM_ENTRY);
+                pref.putExtra(CommCarePreferenceActivity.EXTRA_PREF_TYPE,
+                        CommCarePreferenceActivity.PREF_TYPE_FORM_ENTRY);
                 startActivityForResult(pref, FormEntryConstants.FORM_PREFERENCES_KEY);
                 return true;
             case android.R.id.home:
@@ -637,7 +648,8 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                                         (failOnRequired ||
                                                 saveStatus != FormEntryController.ANSWER_REQUIRED_BUT_EMPTY))) {
                             if (!headless) {
-                                uiController.showConstraintWarning(index, mFormController.getQuestionPrompt(index).getConstraintText(), saveStatus, success);
+                                uiController.showConstraintWarning(index,
+                                        mFormController.getQuestionPrompt(index).getConstraintText(), saveStatus, success);
                             }
                             success = false;
                         }
@@ -694,12 +706,14 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     @Override
     public Object onRetainCustomNonConfigurationInstance() {
         // if a form is loading, pass the loader task
-        if (mFormLoaderTask != null && mFormLoaderTask.getStatus() != AsyncTask.Status.FINISHED)
+        if (mFormLoaderTask != null && mFormLoaderTask.getStatus() != AsyncTask.Status.FINISHED) {
             return mFormLoaderTask;
+        }
 
         // if a form is writing to disk, pass the save to disk task
-        if (mSaveToDiskTask != null && mSaveToDiskTask.getStatus() != AsyncTask.Status.FINISHED)
+        if (mSaveToDiskTask != null && mSaveToDiskTask.getStatus() != AsyncTask.Status.FINISHED) {
             return mSaveToDiskTask;
+        }
 
         // mFormEntryController is static so we don't need to pass it.
         if (mFormController != null && currentPromptIsQuestion() && uiController.questionsView != null) {
@@ -827,7 +841,8 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     }
 
     public void discardChangesAndExit() {
-        FormFileSystemHelpers.removeMediaAttachedToUnsavedForm(this, FormEntryInstanceState.mFormRecordPath, formRecordStorage);
+        FormFileSystemHelpers.removeMediaAttachedToUnsavedForm(this, FormEntryInstanceState.mFormRecordPath,
+                formRecordStorage);
         finishReturnInstance(false);
     }
 
@@ -915,7 +930,8 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
     private void restoreInlineVideoState() {
         if (indexOfWidgetWithVideoPlaying != -1) {
-            QuestionWidget widgetWithVideoToResume = uiController.questionsView.getWidgets().get(indexOfWidgetWithVideoPlaying);
+            QuestionWidget widgetWithVideoToResume = uiController.questionsView.getWidgets()
+                    .get(indexOfWidgetWithVideoPlaying);
             VideoView inlineVideo = widgetWithVideoToResume.findViewById(R.id.inline_video_view);
             if (inlineVideo != null) {
                 inlineVideo.seekTo(positionOfVideoProgress);
@@ -954,7 +970,8 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         if (mFormController != null) {
             FormAnalyticsHelper formAnalyticsHelper = mFormController.getFormAnalyticsHelper();
             if (formAnalyticsHelper.getVideoStartTime() != -1) {
-                FirebaseAnalyticsUtil.reportVideoPlayEvent(formAnalyticsHelper.getVideoName(), formAnalyticsHelper.getVideoDuration(), formAnalyticsHelper.getVideoStartTime());
+                FirebaseAnalyticsUtil.reportVideoPlayEvent(formAnalyticsHelper.getVideoName(),
+                        formAnalyticsHelper.getVideoDuration(), formAnalyticsHelper.getVideoStartTime());
                 formAnalyticsHelper.resetVideoPlaybackInfo();
             }
         }
@@ -978,7 +995,8 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             setTitleToLoading();
             int formId;
             try {
-                SqlStorage<FormDefRecord> formDefStorage = CommCareApplication.instance().getAppStorage(FormDefRecord.class);
+                SqlStorage<FormDefRecord> formDefStorage = CommCareApplication.instance()
+                        .getAppStorage(FormDefRecord.class);
                 if (intent.hasExtra(KEY_FORM_RECORD_ID)) {
                     Pair<Integer, Boolean> instanceAndStatus = instanceState.getFormDefIdForRecord(
                             formDefStorage,
@@ -996,11 +1014,13 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                     return;
                 }
             } catch (FormQueryException e) {
-                new UserfacingErrorHandling<>().createErrorDialog(this, e.getMessage(), FormEntryConstants.EXIT);
+                new UserfacingErrorHandling<>().createErrorDialog(this, e.getMessage(),
+                        FormEntryConstants.EXIT);
                 return;
             }
 
-            mFormLoaderTask = new FormLoaderTask<FormEntryActivity>(symetricKey, instanceIsReadOnly, formEntryRestoreSession.isRecording(), FormEntryInstanceState.mFormRecordPath, this) {
+            mFormLoaderTask = new FormLoaderTask<FormEntryActivity>(symetricKey, instanceIsReadOnly,
+                    formEntryRestoreSession.isRecording(), FormEntryInstanceState.mFormRecordPath, this) {
                 @Override
                 protected void deliverResult(FormEntryActivity receiver, FECWrapper wrapperResult) {
                     receiver.handleFormLoadCompletion(wrapperResult.getController());
@@ -1016,15 +1036,20 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                     receiver.dismissProgressDialogForTask(taskId);
 
                     if (e != null) {
-                        new UserfacingErrorHandling<>().createErrorDialog(receiver, e.getMessage(), FormEntryConstants.EXIT);
+                        new UserfacingErrorHandling<>().createErrorDialog(receiver,
+                                e.getMessage(), FormEntryConstants.EXIT);
                     } else {
-                        new UserfacingErrorHandling<>().createErrorDialog(receiver, StringUtils.getStringRobust(receiver, R.string.parse_error), FormEntryConstants.EXIT);
+                        new UserfacingErrorHandling<>().createErrorDialog(receiver,
+                                StringUtils.getStringRobust(receiver, R.string.parse_error),
+                                FormEntryConstants.EXIT);
                     }
 
                     if (intent.hasExtra(KEY_FORM_RECORD_ID)) {
                         // log the form record id for which form load has failed
-                        FormRecord formRecord = FormRecord.getFormRecord(formRecordStorage, intent.getIntExtra(KEY_FORM_RECORD_ID, -1));
-                        Logger.log(LogTypes.TYPE_FORM_ENTRY, "Form load failed for form with id " + formRecord.getInstanceID());
+                        FormRecord formRecord = FormRecord.getFormRecord(formRecordStorage,
+                                intent.getIntExtra(KEY_FORM_RECORD_ID, -1));
+                        Logger.log(LogTypes.TYPE_FORM_ENTRY,
+                                "Form load failed for form with id " + formRecord.getInstanceID());
                     }
                 }
             };
@@ -1070,13 +1095,15 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         uiController.refreshView();
         FormNavigationUI.updateNavigationCues(this, mFormController, uiController.questionsView);
         if (isRestartAfterSessionExpiration) {
-            Toast.makeText(this, Localization.get("form.entry.restart.after.expiration"), Toast.LENGTH_LONG).show();
+            Toast.makeText(this,
+                    Localization.get("form.entry.restart.after.expiration"), Toast.LENGTH_LONG).show();
         }
     }
 
     private void handleXpathErrorBroadcast() {
         new UserfacingErrorHandling<>().createErrorDialog(FormEntryActivity.this,
-                "There is a bug in one of your form's XPath Expressions \n" + badLocationXpath, FormEntryConstants.EXIT);
+                "There is a bug in one of your form's XPath Expressions \n" + badLocationXpath,
+                FormEntryConstants.EXIT);
     }
 
     /**
@@ -1204,7 +1231,8 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 case SAVED_AND_EXIT:
                     hasSaved = true;
                     if (!CommCareApplication.instance().isConsumerApp()) {
-                        Toast.makeText(this, Localization.get("form.entry.complete.save.success"), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(this,
+                                Localization.get("form.entry.complete.save.success"), Toast.LENGTH_SHORT).show();
                     }
                     finishReturnInstance();
                     return;
@@ -1217,7 +1245,8 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 case SAVE_ERROR:
                     if (!CommCareApplication.instance().isConsumerApp()) {
                         new UserfacingErrorHandling<>().createErrorDialog(this, errorMessage,
-                                Localization.get("notification.formentry.save_error.title"), FormEntryConstants.EXIT);
+                                Localization.get("notification.formentry.save_error.title"),
+                                FormEntryConstants.EXIT);
                     }
                     quarantineRecordOnError(errorMessage);
                     return;
@@ -1465,7 +1494,8 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         if (mHeaderString != null) {
             setTitle(mHeaderString);
         } else {
-            setTitle(StringUtils.getStringRobust(this, R.string.application_name) + " > " + StringUtils.getStringRobust(this, R.string.loading_form));
+            setTitle(StringUtils.getStringRobust(this, R.string.application_name) + " > " +
+                    StringUtils.getStringRobust(this, R.string.loading_form));
         }
     }
 
@@ -1474,7 +1504,8 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             //Localization?
             return mHeaderString;
         } else {
-            return StringUtils.getStringRobust(this, R.string.application_name) + " > " + FormEntryActivity.mFormController.getFormTitle();
+            return StringUtils.getStringRobust(this, R.string.application_name) + " > " +
+                    FormEntryActivity.mFormController.getFormTitle();
         }
     }
 
@@ -1492,7 +1523,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
     @Override
     public void onRequestPermissionsResult(int requestCode,
-                                           String permissions[], int[] grantResults) {
+                                           String[] permissions, int[] grantResults) {
         switch (requestCode) {
             case ImageWidget.REQUEST_CAMERA_PERMISSION: {
 

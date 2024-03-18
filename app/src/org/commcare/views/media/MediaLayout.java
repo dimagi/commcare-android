@@ -46,8 +46,8 @@ import org.javarosa.core.services.locale.Localization;
 
 import java.io.File;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import kotlinx.coroutines.Dispatchers;
 
@@ -108,7 +108,8 @@ public class MediaLayout extends RelativeLayout {
                                                        final String ttsText,
                                                        int questionIndex) {
         MediaLayout mediaLayout = new MediaLayout(context);
-        mediaLayout.setAVT(text, audioURI, imageURI, videoURI, bigImageURI, qrCodeContent, inlineVideoURI, false, questionIndex);
+        mediaLayout.setAVT(text, audioURI, imageURI, videoURI, bigImageURI, qrCodeContent, inlineVideoURI, false,
+                questionIndex);
         // Show TTS view only when audioURI is not present
         if (ttsText != null && audioURI == null) {
             mediaLayout.showTtsButton(ttsText);
@@ -184,7 +185,8 @@ public class MediaLayout extends RelativeLayout {
     private void setupVideoButton(String videoURI) {
         if (videoURI != null) {
             boolean mediaPresent = FileUtil.referenceFileExists(videoURI);
-            videoButton.setImageResource(mediaPresent ? android.R.drawable.ic_media_play : R.drawable.update_download_icon);
+            videoButton.setImageResource(
+                    mediaPresent ? android.R.drawable.ic_media_play : R.drawable.update_download_icon);
             if (!mediaPresent) {
                 AndroidUtil.showToast(getContext(), R.string.video_download_prompt);
             }
@@ -207,7 +209,8 @@ public class MediaLayout extends RelativeLayout {
                     i.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                     try {
                         getContext().startActivity(i);
-                        FormEntryActivity.mFormController.getFormAnalyticsHelper().recordVideoPlaybackStart(videoFile);
+                        FormEntryActivity.mFormController.getFormAnalyticsHelper()
+                                .recordVideoPlaybackStart(videoFile);
                     } catch (ActivityNotFoundException e) {
                         Toast.makeText(getContext(),
                                 getContext().getString(R.string.activity_not_found, "view video"),
@@ -224,7 +227,8 @@ public class MediaLayout extends RelativeLayout {
         MissingMediaDownloadHelper.requestMediaDownload(videoURI, Dispatchers.getDefault(), result -> {
             if (result instanceof MissingMediaDownloadResult.Success) {
                 boolean mediaPresent = FileUtil.referenceFileExists(videoURI);
-                videoButton.setImageResource(mediaPresent ? android.R.drawable.ic_media_play : R.drawable.update_download_icon);
+                videoButton.setImageResource(
+                        mediaPresent ? android.R.drawable.ic_media_play : R.drawable.update_download_icon);
                 AndroidUtil.showToast(getContext(), R.string.media_download_completed);
                 videoButton.setVisibility(VISIBLE);
             } else if (result instanceof MissingMediaDownloadResult.InProgress) {
@@ -310,9 +314,9 @@ public class MediaLayout extends RelativeLayout {
                 final CommCareMediaController ctrl = new CommCareMediaController(this.getContext(), false);
                 ctrl.setId(AndroidUtil.generateViewId());
                 videoView.setOnPreparedListener(mediaPlayer -> {
-                    //Since MediaController will create a default set of controls and put them in a window floating above your application(From AndroidDocs)
-                    //It would never follow the parent view's animation or scroll.
-                    //So, adding the MediaController to the view hierarchy here.
+                    // Since MediaController will create a default set of controls and put them in a window
+                    // floating above your application(From AndroidDocs). It would never follow the parent view's
+                    // animation or scroll. So, adding the MediaController to the view hierarchy here.
                     FrameLayout frameLayout = (FrameLayout)ctrl.getParent();
                     ((ViewGroup)frameLayout.getParent()).removeView(frameLayout);
                     LayoutParams params = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
@@ -336,7 +340,8 @@ public class MediaLayout extends RelativeLayout {
                     if (duration == 0) {
                         return;
                     }
-                    FirebaseAnalyticsUtil.reportInlineVideoPlayEvent(videoFilename, FileUtil.getDuration(videoFile), duration);
+                    FirebaseAnalyticsUtil.reportInlineVideoPlayEvent(videoFilename,
+                            FileUtil.getDuration(videoFile), duration);
                 });
 
                 videoView.setOnClickListener(v -> ViewUtil.hideVirtualKeyboard((AppCompatActivity)getContext()));
@@ -367,7 +372,8 @@ public class MediaLayout extends RelativeLayout {
         videoView.setLayoutParams(params);
     }
 
-    private void showMissingMediaView(String mediaUri, String errorMessage, boolean allowDownload, @Nullable Runnable completion) {
+    private void showMissingMediaView(String mediaUri, String errorMessage, boolean allowDownload,
+                                      @Nullable Runnable completion) {
         missingMediaView.setVisibility(VISIBLE);
         missingMediaStatus.setText(errorMessage);
         missingMediaStatus.setVisibility(VISIBLE);
@@ -378,7 +384,8 @@ public class MediaLayout extends RelativeLayout {
             progressBar.setVisibility(VISIBLE);
             downloadIcon.setVisibility(INVISIBLE);
             downloadIcon.setEnabled(false);
-            missingMediaStatus.setText(StringUtils.getStringRobust(getContext(), R.string.media_download_in_progress));
+            missingMediaStatus.setText(
+                    StringUtils.getStringRobust(getContext(), R.string.media_download_in_progress));
 
             MissingMediaDownloadHelper.requestMediaDownload(mediaUri, Dispatchers.getDefault(), result -> {
                 if (result instanceof MissingMediaDownloadResult.Success) {
