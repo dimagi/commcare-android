@@ -78,12 +78,8 @@ public class CommCareMediaController extends MediaController {
     public void setAnchorView(View view) {
         super.setAnchorView(view);
 
-        CommCareVideoView videoView;
-        if (fullscreenMode) {
-            videoView = view.findViewById(R.id.fullscreen_video_view);
-        } else {
-            videoView = view.findViewById(R.id.inline_video_view);
-        }
+        int videoViewId = fullscreenMode ? R.id.fullscreen_video_view : R.id.inline_video_view;
+        CommCareVideoView videoView = view.findViewById(videoViewId);
 
         if (videoView != null) {
             addFullscreenButton(videoView);
