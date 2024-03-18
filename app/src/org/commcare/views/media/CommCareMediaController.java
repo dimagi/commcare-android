@@ -93,7 +93,11 @@ public class CommCareMediaController extends MediaController {
         if (fullscreenBtn == null) {
             fullscreenBtn = new ImageButton(getContext(), null, R.style.MediaButton);
             fullscreenBtn.setId(AndroidUtil.generateViewId());
-            fullscreenBtn.setImageResource(R.drawable.ic_media_fullscreen);
+            if (fullscreenMode) {
+                fullscreenBtn.setImageResource(R.drawable.ic_media_exit_fullscreen);
+            } else {
+                fullscreenBtn.setImageResource(R.drawable.ic_media_fullscreen);
+            }
             fullscreenBtn.setOnClickListener(view1 -> {
                     Intent intent = new Intent(getContext(), FullscreenVideoViewActivity.class);
                     intent.setData(FileUtil.getUriForExternalFile(getContext(),
