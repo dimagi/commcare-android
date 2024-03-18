@@ -1,5 +1,6 @@
 package org.commcare.views.media;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.util.AttributeSet;
@@ -99,6 +100,13 @@ public class CommCareMediaController extends MediaController {
                 fullscreenBtn.setImageResource(R.drawable.ic_media_fullscreen);
             }
             fullscreenBtn.setOnClickListener(view1 -> {
+                // if in fullscreen mode, we exit
+                if (fullscreenMode) {
+                    Intent i = new Intent();
+                    i.putExtra(CommCareMediaController.INLINE_VIDEO_TIME_POSITION, videoView.getCurrentPosition());
+                    ((AppCompatActivity)getContext()).setResult(Activity.RESULT_OK, i);
+                    ((AppCompatActivity)getContext()).finish();
+                } else {
                     Intent intent = new Intent(getContext(), FullscreenVideoViewActivity.class);
                     intent.setData(FileUtil.getUriForExternalFile(getContext(),
                             new File(videoView.getVideoPath())));
@@ -107,7 +115,8 @@ public class CommCareMediaController extends MediaController {
                     }
                     ((AppCompatActivity) getContext()).startActivityForResult(intent,
                             FormEntryConstants.VIEW_VIDEO_FULLSCREEN);
-                });
+                }
+            });
         }
         FrameLayout.LayoutParams frameParams = new LayoutParams(LayoutParams.WRAP_CONTENT,
                 LayoutParams.WRAP_CONTENT, Gravity.END);
