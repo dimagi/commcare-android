@@ -170,7 +170,7 @@ public class CommcareRequestGenerator implements CommcareRequestEndpoints {
         AuthInfo authInfo = new AuthInfo.NoAuth();
         if (username != null) {
             try {
-                AuthInfo.TokenAuth tokenAuth = ConnectSsoHelper.acquireSsoTokenSync(CommCareApplication.instance(), username);
+                AuthInfo.TokenAuth tokenAuth = ConnectSsoHelper.retrieveHqSsoTokenSync(CommCareApplication.instance(), username, false);
                 if (tokenAuth != null) {
                     authInfo = tokenAuth;
                 } else {

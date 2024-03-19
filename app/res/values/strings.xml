@@ -485,6 +485,7 @@
     <!-- ConnectID strings -->
     <string name="connect_id_enabled">ConnectID Enabled</string>
     <string name="login_button_connect">Unlock ConnectID</string>
+    <string name="login_password_by_connect">Via ConnectID (or press here)</string>
     <string name="login_welcome_connect_signed_out">Unlock ConnectID first and then enter your app.</string>
     <string name="login_welcome_connect_signed_in">Welcome %s!</string>
 
@@ -719,6 +720,14 @@
     <string name="connect_results_summary_payments_description">Earned Amount: %s\nTransferred Amount: %s</string>
     <string name="connect_results_payment_title">You received money</string>
     <string name="connect_results_payment_description">You received %s</string>
+
+    <string name="login_button_connectid">Login with ConnectID</string>
+    <string name="login_link_connectid_title">Link to ConnectID?</string>
+    <string name="login_link_connectid_message">Do you want to link this login to your ConnectID account? You will not need to type your password in the future.</string>
+    <string name="login_unlink_connectid_title">Unlink ConnectID?</string>
+    <string name="login_unlink_connectid_message">I see you logged in with your password although ConnectID was configured for auto-login. Would you like to sever this login from ConnectID?</string>
+    <string name="login_link_connectid_yes">Yes</string>
+    <string name="login_link_connectid_no">No</string>
 
     <string name="login_menu_connect_sign_in">Sign up for ConnectID</string>
     <string name="login_menu_connect_sign_out">Sign out of ConnectID</string>

@@ -108,7 +108,7 @@ public class ConnectIdRegistrationActivity extends CommCareActivity<ConnectIdReg
     public void createAccount() {
         uiController.setErrorText(null);
 
-        ConnectUserRecord tempUser = new ConnectUserRecord(phone, generateUserId(), ConnectDatabaseHelper.generatePassword(),
+        ConnectUserRecord tempUser = new ConnectUserRecord(phone, generateUserId(), ConnectManager.generatePassword(),
                 uiController.getNameText(), "");
 
         HashMap<String, String> params = new HashMap<>();

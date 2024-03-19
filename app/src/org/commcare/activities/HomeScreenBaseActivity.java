@@ -567,7 +567,6 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
             return;
         }
         CommCareApplication.instance().closeUserSession();
-        ConnectManager.signOut();
         setResult(RESULT_OK);
         finish();
     }
@@ -1465,7 +1464,8 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
 
     @Override
     public boolean isBackEnabled() {
-        if (getIntent().getBooleanExtra(CommCareLauncher.EXTRA_FROM_CONNECT, false)) {
+        String appId = CommCareApplication.instance().getCurrentApp().getUniqueId();
+        if (ConnectManager.wasAppLaunchedFromConnect(appId)) {
             return true;
         }
         return false;

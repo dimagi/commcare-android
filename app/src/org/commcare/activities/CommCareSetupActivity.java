@@ -116,8 +116,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     private static final int MENU_SMS = Menu.FIRST + 2;
     private static final int MENU_FROM_LIST = Menu.FIRST + 3;
     private static final int MENU_CONNECT_SIGN_IN = Menu.FIRST + 4;
-    private static final int MENU_CONNECT_SIGN_OUT = Menu.FIRST + 5;
-    private static final int MENU_CONNECT_FORGET = Menu.FIRST + 6;
+    private static final int MENU_CONNECT_FORGET = Menu.FIRST + 5;
 
     // Activity request codes
     public static final int BARCODE_CAPTURE = 1;
@@ -489,7 +488,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         menu.add(0, MENU_ARCHIVE, 0, Localization.get("menu.archive")).setIcon(android.R.drawable.ic_menu_upload);
         menu.add(0, MENU_FROM_LIST, 2, Localization.get("menu.app.list.install"));
         menu.add(0, MENU_CONNECT_SIGN_IN, 3, getString(R.string.login_menu_connect_sign_in));
-        menu.add(0, MENU_CONNECT_SIGN_OUT, 3, getString(R.string.login_menu_connect_sign_out));
         menu.add(0, MENU_CONNECT_FORGET, 3, getString(R.string.login_menu_connect_forget));
         return true;
     }
@@ -498,7 +496,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     public boolean onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
         menu.findItem(MENU_CONNECT_SIGN_IN).setVisible(!fromManager && !fromExternal && ConnectManager.shouldShowSignInMenuOption());
-        menu.findItem(MENU_CONNECT_SIGN_OUT).setVisible(!fromManager && !fromExternal && ConnectManager.shouldShowSignOutMenuOption());
         menu.findItem(MENU_CONNECT_FORGET).setVisible(!fromManager && !fromExternal && ConnectManager.shouldShowSignOutMenuOption());
 
         return true;
@@ -623,13 +620,12 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                 startActivityForResult(i, GET_APPS_FROM_HQ);
                 break;
             case MENU_CONNECT_SIGN_IN:
-                //Exactly like pressing the Connect button, but the first time happens this way
-                handleConnectButtonPress();
-                break;
-            case MENU_CONNECT_SIGN_OUT:
-                FirebaseAnalyticsUtil.reportCccSignOut();
-                ConnectManager.signOut();
-                updateConnectButton();
+                //Setup ConnectID and proceed to jobs page if successful
+                ConnectManager.handleConnectButtonPress(this, success -> {
+                    if(success) {
+                        ConnectManager.goToConnectJobsList();
+                    }
+                });
                 break;
             case MENU_CONNECT_FORGET:
                 ConnectManager.forgetUser();
@@ -640,16 +636,12 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     }
 
     private void updateConnectButton() {
-        installFragment.updateConnectButton(this, !fromManager && !fromExternal, v -> {
-            handleConnectButtonPress();
-        });
-    }
-
-    private void handleConnectButtonPress() {
-        ConnectManager.handleConnectButtonPress(this, success -> {
-            if(success) {
-                ConnectManager.goToConnectJobsList();
-            }
+        installFragment.updateConnectButton(this, !fromManager && !fromExternal && ConnectManager.isConnectIdIntroduced(), v -> {
+            ConnectManager.unlockConnect(this, success -> {
+                if(success) {
+                    ConnectManager.goToConnectJobsList();
+                }
+            });
         });
     }
 

@@ -32,59 +32,28 @@ public class ConnectSsoHelper {
         void tokenRetrieved(AuthInfo.TokenAuth token);
     }
 
-    public static AuthInfo.TokenAuth acquireSsoTokenSync(Context context, String hqUsername) {
-        if (!ConnectManager.isUnlocked()) {
-            return null;
-        }
-
-        String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
-//        String hqUser;
-//        try {
-//            hqUser = CommCareApplication.instance().getRecordForCurrentUser().getUsername();
-//        } catch (Exception e) {
-//            //No token if no session
-//            return null;
-//        }
-
-        ConnectLinkedAppRecord appRecord = ConnectDatabaseHelper.getAppData(context, seatedAppId, hqUsername);
-        if (appRecord == null) {
-            return null;
-        }
-
-        //See if we already have a valid token
-        AuthInfo.TokenAuth hqTokenAuth = ConnectManager.getTokenCredentialsForApp(seatedAppId, hqUsername);
-        if (hqTokenAuth == null) {
-            //First get a valid Connect token
-            AuthInfo.TokenAuth connectToken = retrieveConnectToken(context);
-
-            if (connectToken == null) {
-                //If we can't get a valid Connect token there's no point continuing
-                return null;
-            }
-
-            //Link user if necessary
-            linkHqWorker(context, hqUsername, appRecord.getPassword(), connectToken.bearerToken);
-
-            //Retrieve HQ token
-            hqTokenAuth = retrieveHqToken(context, hqUsername, connectToken.bearerToken);
-        }
-
-        return hqTokenAuth;
-    }
-
+    //Used for aynchronously retrieving HQ or SSO token
     private static class TokenTask extends AsyncTask<Void, Void, AuthInfo.TokenAuth> {
         private final WeakReference<Context> weakContext;
+        private final String hqUsername; //null for Connect
+        private final boolean linkHqUser;
         TokenCallback callback;
-        TokenTask(Context context, TokenCallback callback) {
+        TokenTask(Context context, String hqUsername, boolean linkHqUser, TokenCallback callback) {
             super();
-            weakContext = new WeakReference<>(context);
+            this.weakContext = new WeakReference<>(context);
+            this.hqUsername = hqUsername;
+            this.linkHqUser = linkHqUser;
             this.callback = callback;
         }
 
         @Override
         protected AuthInfo.TokenAuth doInBackground(Void... voids) {
             Context context = weakContext.get();
-            return retrieveConnectToken(context);
+            if(hqUsername == null) {
+                return retrieveConnectTokenSync(context);
+            }
+
+            return retrieveHqSsoTokenSync(context, hqUsername, linkHqUser);
         }
 
         @Override
@@ -93,13 +62,52 @@ public class ConnectSsoHelper {
         }
     }
 
-    public static void retrieveConnectTokenAsync(Context context, TokenCallback callback) {
-        TokenTask task = new TokenTask(context, callback);
+    public static void retrieveHqSsoTokenAsync(Context context, String hqUsername, boolean linkHqUser, TokenCallback callback) {
+        TokenTask task = new TokenTask(context, hqUsername, linkHqUser, callback);
 
         task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
 
-    public static AuthInfo.TokenAuth retrieveConnectToken(Context context) {
+    public static AuthInfo.TokenAuth retrieveHqSsoTokenSync(Context context, String hqUsername, boolean performLink) {
+        if (!ConnectManager.isUnlocked()) {
+            return null;
+        }
+
+        String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
+
+        ConnectLinkedAppRecord appRecord = ConnectDatabaseHelper.getAppData(context, seatedAppId, hqUsername);
+        if (appRecord == null) {
+            return null;
+        }
+
+        //See if we already have a valid token
+        AuthInfo.TokenAuth hqTokenAuth = ConnectManager.getTokenCredentialsForApp(seatedAppId, hqUsername);
+        if (hqTokenAuth == null && (performLink || appRecord.getWorkerLinked())) {
+            //First get a valid Connect token
+            AuthInfo.TokenAuth connectToken = retrieveConnectTokenSync(context);
+
+            //If we can't get a valid Connect token there's no point continuing
+            if (connectToken != null) {
+                if(!appRecord.getWorkerLinked()) {
+                    //Link user if necessary
+                    linkHqWorker(context, hqUsername, appRecord.getPassword(), connectToken.bearerToken);
+                }
+
+                //Retrieve HQ token
+                hqTokenAuth = retrieveHqTokenApi(context, hqUsername, connectToken.bearerToken);
+            }
+        }
+
+        return hqTokenAuth;
+    }
+
+    public static void retrieveConnectTokenAsync(Context context, TokenCallback callback) {
+        TokenTask task = new TokenTask(context, null, false, callback);
+
+        task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+    }
+
+    public static AuthInfo.TokenAuth retrieveConnectTokenSync(Context context) {
         AuthInfo.TokenAuth connectToken = ConnectManager.getConnectToken();
         if(connectToken != null) {
             return connectToken;
@@ -170,7 +178,7 @@ public class ConnectSsoHelper {
         }
     }
 
-    private static AuthInfo.TokenAuth retrieveHqToken(Context context, String hqUsername, String connectToken) {
+    private static AuthInfo.TokenAuth retrieveHqTokenApi(Context context, String hqUsername, String connectToken) {
         HashMap<String, String> params = new HashMap<>();
         params.put("client_id", "4eHlQad1oasGZF0lPiycZIjyL0SY1zx7ZblA6SCV");
         params.put("scope", "mobile_access sync");

@@ -106,7 +106,7 @@ public class ConnectJobIntroFragment extends Fragment {
                 public void processFailure(int responseCode, IOException e) {
                     Toast.makeText(getContext(), "Connect: error starting learning", Toast.LENGTH_SHORT).show();
                     reportApiCall(false);
-                    //TODO DAV: Log the message from the server
+                    //TODO: Log the message from the server
                 }
 
                 @Override

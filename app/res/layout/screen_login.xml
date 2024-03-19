@@ -82,26 +82,6 @@
                                 android:textColor="@color/cc_neutral_color"
                                 android:textSize="@dimen/text_medium" />
 
-                            <Button
-                                android:id="@+id/connect_login_button"
-                                android:layout_width="fill_parent"
-                                android:layout_height="wrap_content"
-                                android:layout_gravity="bottom"
-                                android:paddingBottom="@dimen/content_start"
-                                android:paddingTop="@dimen/content_start"
-                                android:visibility="gone"
-                                android:text="@string/login_button_connect"/>
-
-                            <TextView
-                                android:id="@+id/login_or"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_gravity="center"
-                                android:layout_margin="@dimen/content_min_margin"
-                                android:textColor="@color/cc_neutral_color"
-                                android:textSize="@dimen/text_medium"
-                                android:text="@string/choice_or" />
-
                             <Spinner
                                 android:id="@+id/app_selection_spinner"
                                 android:layout_width="match_parent"
@@ -111,16 +91,6 @@
                                 android:gravity="center"
                                 android:textSize="@dimen/text_medium"
                                 android:visibility="gone" />
-
-                            <TextView
-                                android:id="@+id/app_label"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_gravity="center"
-                                android:layout_margin="@dimen/content_min_margin"
-                                android:textColor="@color/cc_neutral_color"
-                                android:textSize="@dimen/text_medium"
-                                android:visibility="gone"/>
 
                             <AutoCompleteTextView
                                 android:id="@+id/edit_username"

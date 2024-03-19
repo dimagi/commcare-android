@@ -10,6 +10,7 @@ import android.widget.Toast;
 import org.commcare.AppUtils;
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
+import org.commcare.activities.connect.ConnectManager;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.commcaresupportlibrary.CommCareLauncher;
@@ -203,7 +204,7 @@ public class DispatchActivity extends AppCompatActivity {
                     launchHomeScreen();
                 }
             } catch (SessionUnavailableException sue) {
-                if(!userTriggeredLogout || !getAppLaunchedFromConnect()) {
+                if(!userTriggeredLogout || !ConnectManager.wasAppLaunchedFromConnect(currentApp.getUniqueId())) {
                     launchLoginScreen();
                 }
                 else {
@@ -293,8 +294,6 @@ public class DispatchActivity extends AppCompatActivity {
                 i.putExtra(LoginActivity.EXTRA_APP_ID, sesssionEndpointAppID);
             }
 
-            i.putExtra(CommCareLauncher.EXTRA_FROM_CONNECT, getAppLaunchedFromConnect());
-
             startActivityForResult(i, LOGIN_USER);
             waitingForActivityResultFromLogin = true;
         } else {
@@ -310,9 +309,6 @@ public class DispatchActivity extends AppCompatActivity {
         return getIntent().getStringExtra(SESSION_ENDPOINT_APP_ID);
     }
 
-    private boolean getAppLaunchedFromConnect() {
-        return getIntent().getBooleanExtra(CommCareLauncher.EXTRA_FROM_CONNECT, false);
-    }
 
     private void launchHomeScreen() {
         Intent i;
@@ -325,8 +321,6 @@ public class DispatchActivity extends AppCompatActivity {
             i = new Intent(this, StandardHomeActivity.class);
         }
         i.putExtra(START_FROM_LOGIN, startFromLogin);
-        i.putExtra(CommCareLauncher.EXTRA_FROM_CONNECT,
-                getIntent().getBooleanExtra(CommCareLauncher.EXTRA_FROM_CONNECT, false));
         i.putExtra(LoginActivity.LOGIN_MODE, lastLoginMode);
         i.putExtra(LoginActivity.MANUAL_SWITCH_TO_PW_MODE, userManuallyEnteredPasswordMode);
         startFromLogin = false;

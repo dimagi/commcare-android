@@ -50,6 +50,12 @@ public class ConnectUserRecord extends Persisted {
     @Persisting(value = 9, nullable = true)
     private Date connectTokenExpiration;
 
+    private boolean linkOffered1;
+    private Date linkOfferDate1;
+
+    private boolean linkOffered2;
+    private Date linkOfferDate2;
+
     public ConnectUserRecord() {
         registrationPhase = ConnectTask.CONNECT_NO_ACTIVITY.getRequestCode();
         lastPasswordDate = new Date();
@@ -161,5 +167,21 @@ public class ConnectUserRecord extends Persisted {
 
     public Date getConnectTokenExpiration() {
         return connectTokenExpiration;
+    }
+
+    public Date getLinkOfferDate1() {
+        return linkOffered1 ? linkOfferDate1 : null;
+    }
+    public void setLinkOfferDate1(Date date) {
+        linkOffered1 = true;
+        linkOfferDate1 = date;
+    }
+
+    public Date getLinkOfferDate2() {
+        return linkOffered2 ? linkOfferDate2 : null;
+    }
+    public void setLinkOfferDate2(Date date) {
+        linkOffered2 = true;
+        linkOfferDate2 = date;
     }
 }
