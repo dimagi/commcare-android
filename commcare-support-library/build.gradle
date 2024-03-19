@@ -39,6 +39,7 @@ afterEvaluate {
 }
 
 android {
+    namespace "org.commcare.commcaresupportlibrary"
     compileSdk 33
     defaultConfig {
         minSdkVersion 21
@@ -49,6 +50,12 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+    publishing {
+        singleVariant("release") {
+            withSourcesJar()
+            withJavadocJar()
         }
     }
 }
