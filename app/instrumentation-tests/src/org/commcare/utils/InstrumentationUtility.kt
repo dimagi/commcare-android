@@ -15,17 +15,33 @@ import android.widget.TextView
 import androidx.annotation.IdRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.preference.PreferenceManager
-import androidx.test.espresso.*
-import androidx.test.espresso.Espresso.*
-import androidx.test.espresso.action.ViewActions.*
+import androidx.test.espresso.DataInteraction
+import androidx.test.espresso.Espresso
+import androidx.test.espresso.Espresso.onData
+import androidx.test.espresso.Espresso.onView
+import androidx.test.espresso.Espresso.openActionBarOverflowOrOptionsMenu
+import androidx.test.espresso.PerformException
+import androidx.test.espresso.UiController
+import androidx.test.espresso.ViewAction
+import androidx.test.espresso.ViewInteraction
+import androidx.test.espresso.action.ViewActions.clearText
+import androidx.test.espresso.action.ViewActions.click
+import androidx.test.espresso.action.ViewActions.swipeUp
+import androidx.test.espresso.action.ViewActions.typeText
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.intent.Intents
 import androidx.test.espresso.intent.Intents.intending
 import androidx.test.espresso.intent.matcher.IntentMatchers
 import androidx.test.espresso.intent.matcher.IntentMatchers.hasAction
 import androidx.test.espresso.matcher.RootMatchers
-import androidx.test.espresso.matcher.ViewMatchers
-import androidx.test.espresso.matcher.ViewMatchers.*
+import androidx.test.espresso.matcher.ViewMatchers.hasSibling
+import androidx.test.espresso.matcher.ViewMatchers.isAssignableFrom
+import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
+import androidx.test.espresso.matcher.ViewMatchers.isRoot
+import androidx.test.espresso.matcher.ViewMatchers.withChild
+import androidx.test.espresso.matcher.ViewMatchers.withClassName
+import androidx.test.espresso.matcher.ViewMatchers.withId
+import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.espresso.util.HumanReadables
 import androidx.test.espresso.util.TreeIterables
 import androidx.test.platform.app.InstrumentationRegistry
@@ -38,15 +54,15 @@ import org.commcare.CommCareInstrumentationTestApplication
 import org.commcare.dalvik.R
 import org.commcare.services.CommCareSessionService
 import org.commcare.utils.CustomMatchers.withChildViewCount
+import org.hamcrest.CoreMatchers.anything
+import org.hamcrest.CoreMatchers.startsWith
 import org.hamcrest.Matcher
 import org.hamcrest.Matchers
-import org.hamcrest.Matchers.*
 import org.hamcrest.StringDescription
 import org.javarosa.core.io.StreamsUtil
 import org.junit.Assert.assertTrue
 import java.io.File
 import java.io.IOException
-import java.util.*
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
 
@@ -81,26 +97,26 @@ object InstrumentationUtility {
         stubCcz(cczName)
         openOptionsMenu()
         onView(withText("Offline Install"))
-                .perform(click())
+            .perform(click())
         onView(withId(R.id.screen_multimedia_inflater_filefetch))
-                .perform(click())
+            .perform(click())
         onView(withId(R.id.screen_multimedia_inflater_install))
-                .perform(click())
+            .perform(click())
     }
 
     @JvmStatic
     fun uninstallCurrentApp() {
         openOptionsMenu()
         onView(withText("Go To App Manager"))
-                .perform(click())
+            .perform(click())
         clickListItem(R.id.apps_list_view, 0)
         onView(withText("Uninstall"))
-                .perform(click())
+            .perform(click())
         onView(withText("OK"))
-                .inRoot(RootMatchers.isDialog())
-                .perform(click())
+            .inRoot(RootMatchers.isDialog())
+            .perform(click())
         onView(withId(R.id.install_app_button))
-                .perform(click())
+            .perform(click())
     }
 
     @JvmStatic
@@ -109,21 +125,21 @@ object InstrumentationUtility {
         enterText(R.id.edit_password, password)
         onView(isRoot()).perform(swipeUp())
         onView(withId(R.id.login_button))
-                .perform(click())
+            .perform(click())
     }
 
     @JvmStatic
     fun openModule(text: String) {
         onView(withText("Start"))
-                .perform(click())
+            .perform(click())
         onView(withText(text))
-                .perform(click())
+            .perform(click())
     }
 
     @JvmStatic
     fun openModule(module: Int) {
         onView(withText("Start"))
-                .perform(click())
+            .perform(click())
         clickListItem(R.id.screen_suite_menu_list, module)
     }
 
@@ -145,9 +161,9 @@ object InstrumentationUtility {
         for (i in 0..3) {
             openOptionsMenu()
             onView(withText("About CommCare"))
-                    .perform(click())
+                .perform(click())
             onView(withText("OK"))
-                    .perform(click())
+                .perform(click())
         }
     }
 
@@ -159,9 +175,9 @@ object InstrumentationUtility {
     @JvmStatic
     fun clickListItem(@IdRes resId: Int, position: Int) {
         onData(anything())
-                .inAdapterView(withId(resId))
-                .atPosition(position)
-                .perform(click())
+            .inAdapterView(withId(resId))
+            .atPosition(position)
+            .perform(click())
     }
 
     /**
@@ -173,9 +189,9 @@ object InstrumentationUtility {
     @JvmStatic
     fun getSubViewInListItem(@IdRes listId: Int, position: Int, @IdRes subviewId: Int): DataInteraction {
         return onData(anything())
-                .inAdapterView(withId(listId))
-                .atPosition(position)
-                .onChildView(withId(subviewId))
+            .inAdapterView(withId(listId))
+            .atPosition(position)
+            .onChildView(withId(subviewId))
     }
 
     /**
@@ -185,7 +201,7 @@ object InstrumentationUtility {
     @JvmStatic
     fun openFirstIncompleteForm() {
         onView(withText(startsWith("Incomplete")))
-                .perform(click())
+            .perform(click())
         clickListItem(R.id.screen_entity_select_list, 0)
     }
 
@@ -193,9 +209,9 @@ object InstrumentationUtility {
     fun logout() {
         gotoHome()
         onView(withId(R.id.home_gridview_buttons))
-                .perform(swipeUp())
+            .perform(swipeUp())
         onView(withText("Log out of CommCare"))
-                .perform(click())
+            .perform(click())
     }
 
     /**
@@ -207,7 +223,7 @@ object InstrumentationUtility {
         var intentCallback = onImageCaptureIntentSent()
         IntentMonitorRegistry.getInstance().addIntentCallback(intentCallback)
         onView(withText(R.string.capture_image))
-                .perform(click())
+            .perform(click())
         IntentMonitorRegistry.getInstance().removeIntentCallback(intentCallback)
     }
 
@@ -217,7 +233,7 @@ object InstrumentationUtility {
     @JvmStatic
     fun nextPage() {
         onView(withId(R.id.nav_btn_next))
-                .perform(click())
+            .perform(click())
     }
 
     /**
@@ -235,9 +251,9 @@ object InstrumentationUtility {
     @JvmStatic
     fun sleep(seconds: Int) {
         onView(isRoot())
-                .perform(sleep(
-                        TimeUnit.SECONDS.toMillis(seconds.toLong())
-                ))
+            .perform(sleep(
+                TimeUnit.SECONDS.toMillis(seconds.toLong())
+            ))
     }
 
     /**
@@ -246,10 +262,10 @@ object InstrumentationUtility {
     @JvmStatic
     fun matchChildCount(parent: Class<*>, child: Class<*>, count: Int) {
         onView(withClassName(Matchers.`is`(parent.canonicalName)))
-                .check(matches(
-                        withChildViewCount(count,
-                                withClassName(Matchers.`is`(child.canonicalName)))
-                ))
+            .check(matches(
+                withChildViewCount(count,
+                    withClassName(Matchers.`is`(child.canonicalName)))
+            ))
     }
 
     /**
@@ -259,9 +275,9 @@ object InstrumentationUtility {
     @JvmStatic
     fun getListSize(@IdRes resId: Int): Int {
         val application = InstrumentationRegistry
-                .getInstrumentation()
-                .targetContext
-                .applicationContext as CommCareInstrumentationTestApplication
+            .getInstrumentation()
+            .targetContext
+            .applicationContext as CommCareInstrumentationTestApplication
         val activity = application.currentActivity
         val listView = activity.findViewById<ListView>(resId)
         return listView.adapter.count
@@ -290,21 +306,22 @@ object InstrumentationUtility {
     @JvmStatic
     fun enterText(@IdRes editTextId: Int, text: String) {
         onView(withId(editTextId))
-                .perform(clearText())
+            .perform(clearText())
         onView(withId(editTextId))
-                .perform(typeText(text))
+            .perform(typeText(text))
         Espresso.closeSoftKeyboard()
     }
 
     fun enterText(text: String) {
         onView(withClassName(Matchers.endsWith("EditText")))
-                .perform(typeText((text)))
+            .perform(typeText((text)))
         Espresso.closeSoftKeyboard()
     }
+
     /**
      * A utility to match the text present in a textfield
      */
-    fun matchTypedText(@IdRes editTextId: Int, text: String){
+    fun matchTypedText(@IdRes editTextId: Int, text: String) {
         onView(withId(editTextId)).check(matches(withText(text)))
     }
 
@@ -353,6 +370,7 @@ object InstrumentationUtility {
         val mDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
         mDevice.pressBack()
     }
+
     /**
      * The method does following in order:
      * 1. Closes keyboard.
@@ -364,7 +382,7 @@ object InstrumentationUtility {
         Espresso.closeSoftKeyboard()
         Espresso.pressBack()
         onView(withText(backOption))
-                .perform(click())
+            .perform(click())
     }
 
     /**
@@ -376,11 +394,11 @@ object InstrumentationUtility {
     fun selectOptionItem(matcher: Matcher<View>) {
         openOptionsMenu()
         onView(matcher)
-                .perform(click())
+            .perform(click())
     }
 
     @JvmStatic
-    fun stubIntentWithAction(action : String) {
+    fun stubIntentWithAction(action: String) {
         Intents.intending(IntentMatchers.hasAction(action))
                 .respondWith(Instrumentation.ActivityResult(Activity.RESULT_OK, Intent()))
     }
@@ -394,7 +412,7 @@ object InstrumentationUtility {
     @JvmStatic
     fun <T> assertCurrentActivity(clazz: Class<T>) {
         val application = InstrumentationRegistry.getInstrumentation().targetContext.applicationContext
-                as CommCareInstrumentationTestApplication
+            as CommCareInstrumentationTestApplication
         val activity = application.currentActivity
         assert(clazz.isInstance(activity), "Current Activity is ${activity.localClassName}")
     }
@@ -461,14 +479,12 @@ object InstrumentationUtility {
         }
     }
 
-
-
     /**
      * A utility to verify Form Fields with their values
      */
 
     fun verifyFormCellAndValue(cellData: String, value: String) {
-        val result : Boolean = onView(
+        val result: Boolean = onView(
             Matchers.allOf(
                 withId(R.id.detail_type_text),
                 withText(cellData),
@@ -491,9 +507,9 @@ object InstrumentationUtility {
     /**
      * utility to search a case in Form list and select the same
      */
-    fun searchCaseAndSelect(text: String){
+    fun searchCaseAndSelect(text: String) {
         onView(withId(R.id.search_action_bar)).perform(click())
-        enterText(androidx.appcompat.R.id.search_src_text,text)
+        enterText(androidx.appcompat.R.id.search_src_text, text)
         onView(withId(R.id.screen_entity_detail_list)).isPresent()
         clickListItem(R.id.screen_entity_select_list, 0)
     }
