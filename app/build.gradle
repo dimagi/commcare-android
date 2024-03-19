@@ -455,6 +455,7 @@ android {
             minifyEnabled true
             signingConfig signingConfigs.release
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard.cfg'
+            testProguardFiles 'test-proguard.cfg'
 
             multiDexKeepProguard file('proguard-multidex.pro')
             // enable crashlytics
