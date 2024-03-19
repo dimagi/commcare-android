@@ -42,15 +42,15 @@ public class ConnectIdPhoneActivity extends CommCareActivity<ConnectIdPhoneActiv
 
         uiController.setupUI();
 
-        method = getIntent().getStringExtra(ConnectIdConstants.METHOD);
+        method = getIntent().getStringExtra(ConnectConstants.METHOD);
         //Special case for initial reg. screen. Remembering phone number before account has been created
-        existingPhone = getIntent().getStringExtra(ConnectIdConstants.PHONE);
+        existingPhone = getIntent().getStringExtra(ConnectConstants.PHONE);
 
-        ConnectUserRecord user = ConnectIdManager.getUser(this);
+        ConnectUserRecord user = ConnectManager.getUser(this);
         String title = getString(R.string.connect_phone_title_primary);
         String message = getString(R.string.connect_phone_message_primary);
         String existing;
-        if (method.equals(ConnectIdConstants.METHOD_CHANGE_ALTERNATE)) {
+        if (method.equals(ConnectConstants.METHOD_CHANGE_ALTERNATE)) {
             title = getString(R.string.connect_phone_title_alternate);
             message = getString(R.string.connect_phone_message_alternate);
 
@@ -112,7 +112,7 @@ public class ConnectIdPhoneActivity extends CommCareActivity<ConnectIdPhoneActiv
     public void finish(boolean success, String phone) {
         Intent intent = new Intent(getIntent());
 
-        intent.putExtra(ConnectIdConstants.PHONE, phone);
+        intent.putExtra(ConnectConstants.PHONE, phone);
 
         setResult(success ? RESULT_OK : RESULT_CANCELED, intent);
         finish();
@@ -121,16 +121,16 @@ public class ConnectIdPhoneActivity extends CommCareActivity<ConnectIdPhoneActiv
     public void handleButtonPress() {
         String phone = PhoneNumberHelper.buildPhoneNumber(uiController.getCountryCode(),
                 uiController.getPhoneNumber());
-        ConnectUserRecord user = ConnectIdManager.getUser(this);
+        ConnectUserRecord user = ConnectManager.getUser(this);
         String existing = user != null ? user.getPrimaryPhone() : existingPhone;
-        if (method.equals(ConnectIdConstants.METHOD_CHANGE_ALTERNATE)) {
+        if (method.equals(ConnectConstants.METHOD_CHANGE_ALTERNATE)) {
             existing = user != null ? user.getAlternatePhone() : null;
         }
         if (user != null && existing != null && !existing.equals(phone)) {
             //Update the phone number with the server
             HashMap<String, String> params = new HashMap<>();
             int urlId;
-            if (method.equals(ConnectIdConstants.METHOD_CHANGE_ALTERNATE)) {
+            if (method.equals(ConnectConstants.METHOD_CHANGE_ALTERNATE)) {
                 urlId = R.string.ConnectUpdateProfileURL;
 
                 params.put("secondary_phone", phone);
@@ -141,9 +141,9 @@ public class ConnectIdPhoneActivity extends CommCareActivity<ConnectIdPhoneActiv
                 params.put("new_phone_number", phone);
             }
 
-            boolean isBusy = !ConnectIdNetworkHelper.post(this, getString(urlId),
+            boolean isBusy = !ConnectNetworkHelper.post(this, getString(urlId),
                     new AuthInfo.ProvidedAuth(user.getUserId(), user.getPassword(), false), params, false,
-                    new ConnectIdNetworkHelper.INetworkResultHandler() {
+                    new ConnectNetworkHelper.INetworkResultHandler() {
                         @Override
                         public void processSuccess(int responseCode, InputStream responseData) {
                             finish(true, phone);
@@ -176,14 +176,14 @@ public class ConnectIdPhoneActivity extends CommCareActivity<ConnectIdPhoneActiv
                 uiController.getPhoneNumber());
 
         boolean valid = PhoneNumberHelper.isValidPhoneNumber(this, phone);
-        ConnectUserRecord user = ConnectIdManager.getUser(this);
+        ConnectUserRecord user = ConnectManager.getUser(this);
 
         if (valid) {
             String existingPrimary = user != null ? user.getPrimaryPhone() : existingPhone;
             String existingAlternate = user != null ? user.getAlternatePhone() : null;
             switch (method) {
-                case ConnectIdConstants.METHOD_REGISTER_PRIMARY,
-                        ConnectIdConstants.METHOD_CHANGE_PRIMARY -> {
+                case ConnectConstants.METHOD_REGISTER_PRIMARY,
+                        ConnectConstants.METHOD_CHANGE_PRIMARY -> {
                     if (existingPrimary != null && existingPrimary.equals(phone)) {
                         uiController.setAvailabilityText("");
                         uiController.setOkButtonEnabled(true);
@@ -199,10 +199,10 @@ public class ConnectIdPhoneActivity extends CommCareActivity<ConnectIdPhoneActiv
                         Multimap<String, String> params = ArrayListMultimap.create();
                         params.put("phone_number", phone);
 
-                        boolean isBusy = !ConnectIdNetworkHelper.get(this,
+                        boolean isBusy = !ConnectNetworkHelper.get(this,
                                 this.getString(R.string.ConnectPhoneAvailableURL),
                                 new AuthInfo.NoAuth(), params,
-                                new ConnectIdNetworkHelper.INetworkResultHandler() {
+                                new ConnectNetworkHelper.INetworkResultHandler() {
                                     @Override
                                     public void processSuccess(int responseCode, InputStream responseData) {
                                         uiController.setAvailabilityText(
@@ -234,7 +234,7 @@ public class ConnectIdPhoneActivity extends CommCareActivity<ConnectIdPhoneActiv
                         }
                     }
                 }
-                case ConnectIdConstants.METHOD_CHANGE_ALTERNATE -> {
+                case ConnectConstants.METHOD_CHANGE_ALTERNATE -> {
                     if (existingPrimary != null && existingPrimary.equals(phone)) {
                         uiController.setAvailabilityText(getString(R.string.connect_phone_not_primary));
                         uiController.setOkButtonEnabled(false);
@@ -243,7 +243,7 @@ public class ConnectIdPhoneActivity extends CommCareActivity<ConnectIdPhoneActiv
                         uiController.setOkButtonEnabled(true);
                     }
                 }
-                case ConnectIdConstants.METHOD_RECOVER_PRIMARY -> {
+                case ConnectConstants.METHOD_RECOVER_PRIMARY -> {
                     uiController.setAvailabilityText("");
                     uiController.setOkButtonEnabled(true);
                 }

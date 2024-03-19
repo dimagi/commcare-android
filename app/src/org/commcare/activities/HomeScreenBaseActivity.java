@@ -32,7 +32,7 @@ import org.commcare.CommCareApplication;
 import org.commcare.activities.components.FormEntryConstants;
 import org.commcare.activities.components.FormEntryInstanceState;
 import org.commcare.activities.components.FormEntrySessionWrapper;
-import org.commcare.activities.connect.ConnectIdManager;
+import org.commcare.activities.connect.ConnectManager;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
@@ -40,6 +40,7 @@ import org.commcare.android.logging.ReportingUtils;
 import org.commcare.appupdate.AppUpdateControllerFactory;
 import org.commcare.appupdate.AppUpdateState;
 import org.commcare.appupdate.FlexibleAppUpdateController;
+import org.commcare.commcaresupportlibrary.CommCareLauncher;
 import org.commcare.core.process.CommCareInstanceInitializer;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
@@ -566,7 +567,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
             return;
         }
         CommCareApplication.instance().closeUserSession();
-        ConnectIdManager.signOut();
+        ConnectManager.signOut();
         setResult(RESULT_OK);
         finish();
     }
@@ -1464,6 +1465,9 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
 
     @Override
     public boolean isBackEnabled() {
+        if (getIntent().getBooleanExtra(CommCareLauncher.EXTRA_FROM_CONNECT, false)) {
+            return true;
+        }
         return false;
     }
 

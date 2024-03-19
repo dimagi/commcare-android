@@ -39,7 +39,7 @@ public class ConnectIdLoginActivity extends CommCareActivity<ConnectIdLoginActiv
 
         uiController.setupUI();
 
-        allowPassword = getIntent().getStringExtra(ConnectIdConstants.ALLOW_PASSWORD).equals("true");
+        allowPassword = getIntent().getStringExtra(ConnectConstants.ALLOW_PASSWORD).equals("true");
 
         biometricPromptCallbacks = preparePromptCallbacks();
 
@@ -87,7 +87,7 @@ public class ConnectIdLoginActivity extends CommCareActivity<ConnectIdLoginActiv
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         BiometricsHelper.handlePinUnlockActivityResult(requestCode, resultCode, intent);
-        ConnectIdManager.handleFinishedActivity(requestCode, resultCode, intent);
+        ConnectManager.handleFinishedActivity(requestCode, resultCode, intent);
 
         super.onActivityResult(requestCode, resultCode, intent);
     }
@@ -142,7 +142,6 @@ public class ConnectIdLoginActivity extends CommCareActivity<ConnectIdLoginActiv
             @Override
             public void onAuthenticationFailed() {
                 super.onAuthenticationFailed();
-                //TODO: Change path before Android takes action
                 Toast.makeText(getApplicationContext(), "Authentication failed",
                                 Toast.LENGTH_SHORT)
                         .show();
@@ -159,8 +158,8 @@ public class ConnectIdLoginActivity extends CommCareActivity<ConnectIdLoginActiv
     private void finish(boolean success, boolean password, boolean recover) {
         Intent intent = new Intent(getIntent());
 
-        intent.putExtra(ConnectIdConstants.PASSWORD, password);
-        intent.putExtra(ConnectIdConstants.RECOVER, recover);
+        intent.putExtra(ConnectConstants.PASSWORD, password);
+        intent.putExtra(ConnectConstants.RECOVER, recover);
 
         setResult(success ? RESULT_OK : RESULT_CANCELED, intent);
         finish();

@@ -82,8 +82,8 @@ public class ConnectIdRecoveryDecisionActivity extends CommCareActivity<ConnectI
     public void finish(boolean createNew, String phone) {
         Intent intent = new Intent(getIntent());
 
-        intent.putExtra(ConnectIdConstants.CREATE, createNew);
-        intent.putExtra(ConnectIdConstants.PHONE, phone);
+        intent.putExtra(ConnectConstants.CREATE, createNew);
+        intent.putExtra(ConnectConstants.PHONE, phone);
 
         setResult(RESULT_OK, intent);
         finish();
@@ -134,8 +134,8 @@ public class ConnectIdRecoveryDecisionActivity extends CommCareActivity<ConnectI
             Multimap<String, String> params = ArrayListMultimap.create();
             params.put("phone_number", phone);
 
-            boolean isBusy = !ConnectIdNetworkHelper.get(this, getString(R.string.ConnectPhoneAvailableURL),
-                    new AuthInfo.NoAuth(), params, new ConnectIdNetworkHelper.INetworkResultHandler() {
+            boolean isBusy = !ConnectNetworkHelper.get(this, getString(R.string.ConnectPhoneAvailableURL),
+                    new AuthInfo.NoAuth(), params, new ConnectNetworkHelper.INetworkResultHandler() {
                         @Override
                         public void processSuccess(int responseCode, InputStream responseData) {
                             uiController.setPhoneMessage(getString(R.string.connect_phone_not_found));

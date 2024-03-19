@@ -35,7 +35,6 @@ import net.sqlcipher.database.SQLiteDatabase;
 import net.sqlcipher.database.SQLiteException;
 
 import org.commcare.activities.LoginActivity;
-import org.commcare.activities.connect.ConnectIdSsoHelper;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.javarosa.AndroidLogEntry;
@@ -253,13 +252,11 @@ public class CommCareApplication extends MultiDexApplication {
 
         FirebaseMessagingUtil.verifyToken();
 
-
         //Create standard provider
         setEncryptionKeyProvider(new EncryptionKeyProvider());
 
-        customiseOkHttp();
+		customiseOkHttp();
     }
-
 
     protected void loadSqliteLibs() {
         SQLiteDatabase.loadLibs(this);
@@ -1186,18 +1183,10 @@ public class CommCareApplication extends MultiDexApplication {
                                                   AuthInfo authInfo,
                                                   @Nullable HttpResponseProcessor responseProcessor, boolean retry) {
 
-        CommCareNetworkService networkService = null;
+        CommCareNetworkService networkService;
         if (authInfo instanceof AuthInfo.NoAuth) {
             networkService = CommCareNetworkServiceGenerator.createNoAuthCommCareNetworkService();
-        } else if (authInfo instanceof AuthInfo.CurrentAuth) {
-            //Try to get SSO token
-            AuthInfo.TokenAuth tokenAuth = ConnectIdSsoHelper.acquireSsoTokenSync(context);
-            if (tokenAuth != null) {
-                authInfo = tokenAuth;
-            }
-        }
-
-        if (networkService == null) {
+        } else {
             networkService = CommCareNetworkServiceGenerator.createCommCareNetworkService(
                     HttpUtils.getCredential(authInfo),
                     DeveloperPreferences.isEnforceSecureEndpointEnabled(), retry, params);

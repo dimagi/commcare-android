@@ -20,6 +20,7 @@ import org.robolectric.Robolectric;
 import org.robolectric.Shadows;
 import org.robolectric.android.controller.ActivityController;
 import org.robolectric.annotation.Config;
+import org.robolectric.annotation.SQLiteMode;
 import org.robolectric.shadows.ShadowActivity;
 
 import java.util.List;

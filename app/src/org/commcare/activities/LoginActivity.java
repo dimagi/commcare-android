@@ -29,9 +29,12 @@ import java.util.Date;
 
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
-import org.commcare.activities.connect.ConnectIdManager;
+import org.commcare.activities.connect.ConnectDatabaseHelper;
+import org.commcare.activities.connect.ConnectManager;
 import org.commcare.android.database.app.models.UserKeyRecord;
+import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
+import org.commcare.commcaresupportlibrary.CommCareLauncher;
 import org.commcare.core.network.AuthInfo;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
@@ -109,7 +112,8 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
     private LoginActivityUiController uiController;
     private FormAndDataSyncer formAndDataSyncer;
-    private String presetAppID;
+    private String presetAppId;
+    private boolean appLaunchedFromConnect;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -126,10 +130,11 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         uiController.setupUI();
         formAndDataSyncer = new FormAndDataSyncer();
 
-        ConnectIdManager.init(this);
+        ConnectManager.init(this);
         updateConnectButton();
 
-        presetAppID = getIntent().getStringExtra(EXTRA_APP_ID);
+        presetAppId = getIntent().getStringExtra(EXTRA_APP_ID);
+        appLaunchedFromConnect = getIntent().getBooleanExtra(CommCareLauncher.EXTRA_FROM_CONNECT, false);
 
         if (savedInstanceState == null) {
             // Only restore last user on the initial creation
@@ -262,7 +267,10 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         // Otherwise, refresh the activity for current conditions
         uiController.refreshView();
 
+        updateConnectButton();
         checkForSavedCredentials();
+
+        ConnectManager.setParent(this);
     }
 
     protected boolean checkForSeatedAppChange() {
@@ -276,7 +284,6 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         }
         return false;
     }
-
 
     // cancels all worker tasks for previously seated app
     private static void disableWorkForLastSeatedApp() {
@@ -327,7 +334,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
             invalidateOptionsMenu();
             usernameBeforeRotation = passwordOrPinBeforeRotation = null;
         } else {
-            ConnectIdManager.handleFinishedActivity(requestCode, resultCode, intent);
+            ConnectManager.handleFinishedActivity(requestCode, resultCode, intent);
         }
 
         super.onActivityResult(requestCode, resultCode, intent);
@@ -355,7 +362,12 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     }
 
     private String getUniformUsername() {
-        return uiController.getEnteredUsername().toLowerCase().trim();
+        String username = uiController.getEnteredUsername();
+        if (ConnectManager.isUnlocked() && appLaunchedFromConnect) {
+            //Configure some things if we haven't already
+            username = ConnectManager.getUser(this).getUserId();
+        }
+        return username.toLowerCase().trim();
     }
 
     private boolean tryLocalLogin(final boolean warnMultipleAccounts, boolean restoreSession,
@@ -366,11 +378,22 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                 blockRemoteKeyManagement, DataPullMode.NORMAL);
     }
 
-    private boolean tryLocalLogin(final String username, String passwordOrPin,
+    private boolean tryLocalLogin(String username, String passwordOrPin,
                                   final boolean warnMultipleAccounts, final boolean restoreSession,
                                   LoginMode loginMode, boolean blockRemoteKeyManagement,
                                   DataPullMode pullModeToUse) {
         try {
+            if (ConnectManager.isUnlocked() && appLaunchedFromConnect) {
+                //Configure some things if we haven't already
+                ConnectLinkedAppRecord record = ConnectDatabaseHelper.getAppData(this,
+                        presetAppId, username);
+                if (record == null) {
+                    record = ConnectManager.prepareConnectManagedApp(this, presetAppId, username);
+                }
+
+                passwordOrPin = record.getPassword();
+            }
+
             final boolean triggerMultipleUsersWarning = getMatchingUsersCount(username) > 1
                     && warnMultipleAccounts;
 
@@ -423,35 +446,50 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     }
 
     public void handleConnectSignIn() {
-        String appId = CommCareApplication.instance().getCurrentApp().getUniqueId();
-        String username = uiController.getEnteredUsername();
-        String pass = uiController.getEnteredPasswordOrPin();
-        ConnectIdManager.rememberAppCredentials(appId, username, pass);
+        if (!appLaunchedFromConnect) {
+            String appId = CommCareApplication.instance().getCurrentApp().getUniqueId();
+            String username = uiController.getEnteredUsername();
+            String pass = uiController.getEnteredPasswordOrPin();
+            ConnectManager.rememberAppCredentials(appId, username, pass);
+        }
     }
 
     public void handleConnectButtonPress() {
         selectedAppIndex = -1;
-        ConnectIdManager.handleConnectButtonPress(success -> {
-            updateConnectButton();
+        ConnectManager.handleConnectButtonPress(this, success -> {
+            if(success) {
+                ConnectManager.goToConnectJobsList();
+            }
         });
     }
 
     private void updateConnectButton() {
-        uiController.setConnectButtonText(ConnectIdManager.getConnectButtonText(this));
-        uiController.setConnectButtonVisible(ConnectIdManager.shouldShowConnectButton());
+        uiController.setConnectButtonText(ConnectManager.getConnectButtonText(this));
+        uiController.setConnectButtonVisible(ConnectManager.shouldShowConnectButton());
 
         uiController.updateConnectLoginState();
     }
 
     private void checkForSavedCredentials() {
-        if (ConnectIdManager.isUnlocked()) {
-            int selectorIndex = uiController.getSelectedAppIndex();
-            String selectedAppId = appIdDropdownList.size() > 0 ? appIdDropdownList.get(selectorIndex) : "";
-            String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
-            if (!uiController.isAppSelectorVisible() || selectedAppId.equals(seatedAppId)) {
-                AuthInfo.ProvidedAuth credentials = ConnectIdManager.getCredentialsForApp(seatedAppId,
-                        uiController.getEnteredUsername());
-                uiController.setPasswordOrPin(credentials != null ? credentials.password : "");
+        if (ConnectManager.isUnlocked()) {
+            if (appLaunchedFromConnect) {
+                uiController.setUsername("AUTO");
+                uiController.setPasswordOrPin("AUTO");
+                uiController.setConnectButtonVisible(false);
+                if(!seatAppIfNeeded(presetAppId)) {
+                    initiateLoginAttempt(uiController.isRestoreSessionChecked());
+                }
+            } else {
+                int selectorIndex = uiController.getSelectedAppIndex();
+                if(selectorIndex >= 0) {
+                    String selectedAppId = appIdDropdownList.size() > 0 ? appIdDropdownList.get(selectorIndex) : "";
+                    String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
+                    if (!uiController.isAppSelectorVisible() || selectedAppId.equals(seatedAppId)) {
+                        AuthInfo.ProvidedAuth credentials = ConnectManager.getCredentialsForApp(seatedAppId,
+                                uiController.getEnteredUsername());
+                        uiController.setPasswordOrPin(credentials != null ? credentials.password : "");
+                    }
+                }
             }
         }
     }
@@ -478,9 +516,9 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         super.onPrepareOptionsMenu(menu);
         menu.findItem(MENU_PERMISSIONS).setVisible(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M);
         menu.findItem(MENU_PASSWORD_MODE).setVisible(uiController.getLoginMode() == LoginMode.PIN);
-        menu.findItem(MENU_CONNECT_SIGN_IN).setVisible(ConnectIdManager.shouldShowSignInMenuOption());
-        menu.findItem(MENU_CONNECT_SIGN_OUT).setVisible(ConnectIdManager.shouldShowSignOutMenuOption());
-        menu.findItem(MENU_CONNECT_FORGET).setVisible(ConnectIdManager.shouldShowSignOutMenuOption());
+        menu.findItem(MENU_CONNECT_SIGN_IN).setVisible(ConnectManager.shouldShowSignInMenuOption());
+        menu.findItem(MENU_CONNECT_SIGN_OUT).setVisible(ConnectManager.shouldShowSignOutMenuOption());
+        menu.findItem(MENU_CONNECT_FORGET).setVisible(ConnectManager.shouldShowSignOutMenuOption());
 
         return true;
     }
@@ -512,13 +550,13 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                 return true;
             case MENU_CONNECT_SIGN_OUT:
                 FirebaseAnalyticsUtil.reportCccSignOut();
-                ConnectIdManager.signOut();
+                ConnectManager.signOut();
                 uiController.refreshView();
                 uiController.setPasswordOrPin("");
                 updateConnectButton();
                 return true;
             case MENU_CONNECT_FORGET:
-                ConnectIdManager.forgetUser();
+                ConnectManager.forgetUser();
                 uiController.setPasswordOrPin("");
                 updateConnectButton();
                 uiController.refreshView();
@@ -571,6 +609,11 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
             CommCareApplication.notificationManager().reportNotificationMessage(message);
         }
         uiController.setErrorMessageUi(toastText, showTop);
+
+        if(appLaunchedFromConnect) {
+            String currAppId = CommCareApplication.instance().getCurrentApp().getAppRecord().getApplicationId();
+            FirebaseAnalyticsUtil.reportCccAppFailedAutoLogin(currAppId);
+        }
     }
 
     /**
@@ -623,7 +666,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
         appIdDropdownList.clear();
 
-        boolean includeDefault = ConnectIdManager.requiresUnlock();
+        boolean includeDefault = ConnectManager.requiresUnlock();
         if (includeDefault) {
             appNames.add(Localization.get("login.app.direct"));
             appIdDropdownList.add("");
@@ -650,13 +693,13 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-        if (!ConnectIdManager.requiresUnlock() || position > 0) {
+        if (!ConnectManager.requiresUnlock() || position > 0) {
             // Retrieve the app record corresponding to the app selected
             selectedAppIndex = position;
             String appId = appIdDropdownList.get(selectedAppIndex);
             if (appId.length() > 0) {
                 uiController.setLoginInputsVisibility(true);
-                if(!seatAppIfNeeded(appId)){
+                if (!seatAppIfNeeded(appId)) {
                     checkForSavedCredentials();
                 }
             }
@@ -866,7 +909,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         }
     }
 
-    protected String getPresetAppID() {
-        return presetAppID;
+    protected String getPresetAppId() {
+        return presetAppId;
     }
 }

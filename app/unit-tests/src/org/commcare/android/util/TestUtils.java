@@ -166,7 +166,6 @@ public class TestUtils {
             parser = new DataModelPullParser(is, getFactory(db, bulkProcessingEnabled), true, true);
             parser.parse();
             is.close();
-
         } catch (IOException ioe) {
             throw wrapError(ioe, "IO Error parsing transactions");
         } catch (InvalidStructureException e) {
@@ -175,6 +174,9 @@ public class TestUtils {
             throw wrapError(e, "Bad XML");
         } catch (UnfullfilledRequirementsException e) {
             throw wrapError(e, "Bad State");
+        }
+        finally {
+            db.close();
         }
     }
 

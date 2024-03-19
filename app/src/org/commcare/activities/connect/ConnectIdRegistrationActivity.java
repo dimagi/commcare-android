@@ -10,6 +10,7 @@ import org.commcare.core.network.AuthInfo;
 import org.commcare.dalvik.R;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.WithUIController;
+import org.commcare.utils.FirebaseMessagingUtil;
 import org.commcare.views.dialogs.CustomProgressDialog;
 
 import java.io.IOException;
@@ -36,11 +37,11 @@ public class ConnectIdRegistrationActivity extends CommCareActivity<ConnectIdReg
 
         setTitle(getString(R.string.connect_register_title));
 
-        phone = getIntent().getStringExtra(ConnectIdConstants.PHONE);
+        phone = getIntent().getStringExtra(ConnectConstants.PHONE);
 
         uiController.setupUI();
 
-        ConnectUserRecord user = ConnectIdManager.getUser(this);
+        ConnectUserRecord user = ConnectManager.getUser(this);
         if (user != null) {
             uiController.setNameText(user.getName());
         }
@@ -80,18 +81,6 @@ public class ConnectIdRegistrationActivity extends CommCareActivity<ConnectIdReg
         return userId.toString();
     }
 
-    public static String generatePassword() {
-        int passwordLength = 15;
-
-        String charSet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_!.?";
-        StringBuilder password = new StringBuilder();
-        for (int i = 0; i < passwordLength; i++) {
-            password.append(charSet.charAt(new Random().nextInt(charSet.length())));
-        }
-
-        return password.toString();
-    }
-
     public void updateStatus() {
         String error = uiController.getNameText().length() == 0 ?
                 getString(R.string.connect_register_error_name) : null;
@@ -108,7 +97,7 @@ public class ConnectIdRegistrationActivity extends CommCareActivity<ConnectIdReg
     }
 
     public void continuePressed() {
-        user = ConnectIdManager.getUser(this);
+        user = ConnectManager.getUser(this);
         if (user == null) {
             createAccount();
         } else {
@@ -119,7 +108,7 @@ public class ConnectIdRegistrationActivity extends CommCareActivity<ConnectIdReg
     public void createAccount() {
         uiController.setErrorText(null);
 
-        ConnectUserRecord tempUser = new ConnectUserRecord(phone, generateUserId(), generatePassword(),
+        ConnectUserRecord tempUser = new ConnectUserRecord(phone, generateUserId(), ConnectDatabaseHelper.generatePassword(),
                 uiController.getNameText(), "");
 
         HashMap<String, String> params = new HashMap<>();
@@ -127,9 +116,10 @@ public class ConnectIdRegistrationActivity extends CommCareActivity<ConnectIdReg
         params.put("password", tempUser.getPassword());
         params.put("name", tempUser.getName());
         params.put("phone_number", phone);
+        params.put("fcm_token", FirebaseMessagingUtil.getFCMToken());
 
-        boolean isBusy = !ConnectIdNetworkHelper.post(this, getString(R.string.ConnectRegisterURL),
-                new AuthInfo.NoAuth(), params, false, new ConnectIdNetworkHelper.INetworkResultHandler() {
+        boolean isBusy = !ConnectNetworkHelper.post(this, getString(R.string.ConnectRegisterURL),
+                new AuthInfo.NoAuth(), params, false, new ConnectNetworkHelper.INetworkResultHandler() {
                     @Override
                     public void processSuccess(int responseCode, InputStream responseData) {
                         user = tempUser;
@@ -164,9 +154,9 @@ public class ConnectIdRegistrationActivity extends CommCareActivity<ConnectIdReg
             HashMap<String, String> params = new HashMap<>();
             params.put("name", user.getName());
 
-            boolean isBusy = !ConnectIdNetworkHelper.post(this, getString(R.string.ConnectUpdateProfileURL),
+            boolean isBusy = !ConnectNetworkHelper.post(this, getString(R.string.ConnectUpdateProfileURL),
                     new AuthInfo.ProvidedAuth(user.getUserId(), user.getPassword(), false),
-                    params, false, new ConnectIdNetworkHelper.INetworkResultHandler() {
+                    params, false, new ConnectNetworkHelper.INetworkResultHandler() {
                         @Override
                         public void processSuccess(int responseCode, InputStream responseData) {
                             user.setName(newName);

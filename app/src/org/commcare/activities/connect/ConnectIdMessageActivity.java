@@ -26,9 +26,9 @@ public class ConnectIdMessageActivity extends CommCareActivity<ConnectIdMessageA
 
         setTitle("");
 
-        title = getString(getIntent().getIntExtra(ConnectIdConstants.TITLE, 0));
-        message = getString(getIntent().getIntExtra(ConnectIdConstants.MESSAGE, 0));
-        button = getString(getIntent().getIntExtra(ConnectIdConstants.BUTTON, 0));
+        title = getString(getIntent().getIntExtra(ConnectConstants.TITLE, 0));
+        message = getString(getIntent().getIntExtra(ConnectConstants.MESSAGE, 0));
+        button = getString(getIntent().getIntExtra(ConnectConstants.BUTTON, 0));
 
         uiController.setupUI();
     }

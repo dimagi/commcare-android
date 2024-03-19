@@ -12,6 +12,7 @@ import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
+import org.commcare.commcaresupportlibrary.CommCareLauncher;
 import org.commcare.dalvik.R;
 import org.commcare.models.AndroidSessionWrapper;
 import org.commcare.preferences.DeveloperPreferences;
@@ -202,7 +203,12 @@ public class DispatchActivity extends AppCompatActivity {
                     launchHomeScreen();
                 }
             } catch (SessionUnavailableException sue) {
-                launchLoginScreen();
+                if(!userTriggeredLogout || !getAppLaunchedFromConnect()) {
+                    launchLoginScreen();
+                }
+                else {
+                    finish();
+                }
             }
         }
     }
@@ -286,6 +292,9 @@ public class DispatchActivity extends AppCompatActivity {
             if (sesssionEndpointAppID != null) {
                 i.putExtra(LoginActivity.EXTRA_APP_ID, sesssionEndpointAppID);
             }
+
+            i.putExtra(CommCareLauncher.EXTRA_FROM_CONNECT, getAppLaunchedFromConnect());
+
             startActivityForResult(i, LOGIN_USER);
             waitingForActivityResultFromLogin = true;
         } else {
@@ -301,6 +310,10 @@ public class DispatchActivity extends AppCompatActivity {
         return getIntent().getStringExtra(SESSION_ENDPOINT_APP_ID);
     }
 
+    private boolean getAppLaunchedFromConnect() {
+        return getIntent().getBooleanExtra(CommCareLauncher.EXTRA_FROM_CONNECT, false);
+    }
+
     private void launchHomeScreen() {
         Intent i;
         if (useRootMenuHomeActivity()) {
@@ -312,6 +325,8 @@ public class DispatchActivity extends AppCompatActivity {
             i = new Intent(this, StandardHomeActivity.class);
         }
         i.putExtra(START_FROM_LOGIN, startFromLogin);
+        i.putExtra(CommCareLauncher.EXTRA_FROM_CONNECT,
+                getIntent().getBooleanExtra(CommCareLauncher.EXTRA_FROM_CONNECT, false));
         i.putExtra(LoginActivity.LOGIN_MODE, lastLoginMode);
         i.putExtra(LoginActivity.MANUAL_SWITCH_TO_PW_MODE, userManuallyEnteredPasswordMode);
         startFromLogin = false;

@@ -14,7 +14,7 @@ import androidx.fragment.app.FragmentActivity;
 
 import com.google.zxing.integration.android.IntentIntegrator;
 
-import org.commcare.activities.connect.ConnectIdTask;
+import org.commcare.activities.connect.ConnectTask;
 import org.commcare.dalvik.R;
 
 /**
@@ -96,7 +96,7 @@ public class BiometricsHelper {
     public static void authenticatePin(FragmentActivity activity, BiometricManager biometricManager,
                                        BiometricPrompt.AuthenticationCallback biometricPromptCallback) {
         if (BiometricsHelper.isPinConfigured(activity, biometricManager)) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.Q) {
                 BiometricPrompt prompt = new BiometricPrompt(activity,
                         ContextCompat.getMainExecutor(activity),
                         biometricPromptCallback);
@@ -113,13 +113,13 @@ public class BiometricsHelper {
                         manager.createConfirmDeviceCredentialIntent(
                                 activity.getString(R.string.connect_unlock_pin_title),
                                 activity.getString(R.string.connect_unlock_pin_message)),
-                        ConnectIdTask.CONNECT_UNLOCK_PIN.getRequestCode());
+                        ConnectTask.CONNECT_UNLOCK_PIN.getRequestCode());
             }
         }
     }
 
     public static void handlePinUnlockActivityResult(int requestCode, int resultCode, Intent intent) {
-        if (requestCode == ConnectIdTask.CONNECT_UNLOCK_PIN.getRequestCode()) {
+        if (requestCode == ConnectTask.CONNECT_UNLOCK_PIN.getRequestCode()) {
             if (resultCode == Activity.RESULT_OK) {
                 biometricPromptCallbackHolder.onAuthenticationSucceeded(null);
             } else {

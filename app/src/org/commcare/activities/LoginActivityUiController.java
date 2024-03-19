@@ -20,14 +20,16 @@ import android.widget.TextView;
 import androidx.preference.PreferenceManager;
 
 import java.util.ArrayList;
+import java.util.Locale;
 import java.util.Vector;
 
 import org.commcare.CommCareApplication;
 import org.commcare.CommCareNoficationManager;
-import org.commcare.activities.connect.ConnectIdDatabaseHelper;
-import org.commcare.activities.connect.ConnectIdManager;
+import org.commcare.activities.connect.ConnectDatabaseHelper;
+import org.commcare.activities.connect.ConnectManager;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
+import org.commcare.core.network.AuthInfo;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.interfaces.CommCareActivityUIController;
@@ -44,9 +46,6 @@ import org.commcare.views.RectangleButtonWithText;
 import org.commcare.views.UiElement;
 import org.javarosa.core.services.locale.Localization;
 
-
-import java.util.ArrayList;
-import java.util.Vector;
 
 import javax.annotation.Nullable;
 
@@ -224,9 +223,15 @@ public class LoginActivityUiController implements CommCareActivityUIController {
 
         // Decide whether or not to show the app selection spinner based upon # of usable apps
         ArrayList<ApplicationRecord> readyApps = MultipleAppsUtil.getUsableAppRecords();
+        ConnectManager.filterConnectManagedApps(activity, readyApps, activity.getPresetAppId());
+
         boolean promptIncluded = false;
         ApplicationRecord presetAppRecord = getPresetAppRecord(readyApps);
-        if ((readyApps.size() == 1 && (!ConnectIdManager.isConnectIdIntroduced() || ConnectIdManager.isUnlocked()))
+        boolean noApps = readyApps.isEmpty();
+        appLabel.setVisibility(noApps ? View.GONE : View.VISIBLE);
+        orLabel.setVisibility(noApps || !ConnectManager.isConnectIdIntroduced() ? View.GONE : View.VISIBLE);
+        setLoginInputsVisibility(!noApps);
+        if ((readyApps.size() == 1 && (!ConnectManager.isConnectIdIntroduced() || ConnectManager.isUnlocked()))
                 || presetAppRecord != null) {
             setLoginInputsVisibility(true);
 
@@ -238,7 +243,7 @@ public class LoginActivityUiController implements CommCareActivityUIController {
 
             setSingleAppUiState();
 
-            if (ConnectIdManager.isUnlocked()) {
+            if (ConnectManager.isUnlocked()) {
                 appLabel.setVisibility(View.VISIBLE);
                 appLabel.setText(r.getDisplayName());
             }
@@ -246,6 +251,7 @@ public class LoginActivityUiController implements CommCareActivityUIController {
         } else {
             promptIncluded = activity.populateAppSpinner(readyApps);
             appLabel.setVisibility(View.GONE);
+            spinner.setVisibility(noApps ? View.GONE : View.VISIBLE);
         }
 
         // Not using this for now, but may turn back on later
@@ -270,8 +276,8 @@ public class LoginActivityUiController implements CommCareActivityUIController {
             notificationButtonView.setVisibility(View.GONE);
         }
 
-        if (ConnectIdManager.isConnectIdIntroduced()) {
-            setLoginInputsVisibility(!promptIncluded);
+        if (ConnectManager.isConnectIdIntroduced()) {
+            setLoginInputsVisibility(!noApps && !promptIncluded);
         }
     }
 
@@ -282,26 +288,22 @@ public class LoginActivityUiController implements CommCareActivityUIController {
     }
 
     public void updateConnectLoginState() {
-        boolean emphasizeConnectSignin = false;
-        if (ConnectIdManager.isConnectIdIntroduced()) {
+        if (ConnectManager.isConnectIdIntroduced()) {
             String welcomeText;
-            if (ConnectIdManager.isUnlocked()) {
+            if (ConnectManager.isUnlocked()) {
                 welcomeText = activity.getString(R.string.login_welcome_connect_signed_in,
-                        ConnectIdDatabaseHelper.getUser(activity).getName());
+                        ConnectDatabaseHelper.getUser(activity).getName());
             } else {
                 welcomeText = activity.getString(R.string.login_welcome_connect_signed_out);
-                emphasizeConnectSignin = true;
             }
 
             welcomeMessage.setText(welcomeText);
         }
-
-        orLabel.setVisibility(emphasizeConnectSignin ? View.VISIBLE : View.GONE);
     }
 
     @Nullable
     private ApplicationRecord getPresetAppRecord(ArrayList<ApplicationRecord> readyApps) {
-        String presetAppId = activity.getPresetAppID();
+        String presetAppId = activity.getPresetAppId();
         if (presetAppId != null) {
             for (ApplicationRecord readyApp : readyApps) {
                 if (readyApp.getUniqueId().equals(presetAppId)) {

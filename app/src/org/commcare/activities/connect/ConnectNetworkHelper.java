@@ -1,6 +1,7 @@
 package org.commcare.activities.connect;
 
 import android.content.Context;
+import android.os.Handler;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableMultimap;
@@ -13,14 +14,20 @@ import org.commcare.core.interfaces.HttpResponseProcessor;
 import org.commcare.core.network.AuthInfo;
 import org.commcare.core.network.HTTPMethod;
 import org.commcare.core.network.ModernHttpRequester;
+import org.commcare.dalvik.BuildConfig;
+import org.commcare.dalvik.R;
 import org.commcare.interfaces.ConnectorWithHttpResponseProcessor;
 import org.commcare.tasks.ModernHttpTask;
 import org.commcare.tasks.templates.CommCareTask;
+import org.commcare.utils.CrashUtil;
+import org.commcare.utils.FirebaseMessagingUtil;
+import org.javarosa.core.services.Logger;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.UnknownHostException;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 import okhttp3.MediaType;
@@ -34,7 +41,7 @@ import retrofit2.Response;
  *
  * @author dviggiano
  */
-public class ConnectIdNetworkHelper {
+public class ConnectNetworkHelper {
     /**
      * Interface for callbacks when network request completes
      */
@@ -63,15 +70,15 @@ public class ConnectIdNetworkHelper {
 
     private boolean isBusy = false;
 
-    private ConnectIdNetworkHelper() {
+    private ConnectNetworkHelper() {
         //Private constructor for singleton
     }
 
     private static class Loader {
-        static final ConnectIdNetworkHelper INSTANCE = new ConnectIdNetworkHelper();
+        static final ConnectNetworkHelper INSTANCE = new ConnectNetworkHelper();
     }
 
-    private static ConnectIdNetworkHelper getInstance() {
+    private static ConnectNetworkHelper getInstance() {
         return Loader.INSTANCE;
     }
 
@@ -133,6 +140,10 @@ public class ConnectIdNetworkHelper {
             if (response.isSuccessful()) {
                 stream = requester.getResponseStream(response);
             }
+            else if(response.errorBody() != null) {
+                String error = response.errorBody().string();
+                Logger.log("DAVE", error);
+            }
         } catch (IOException e) {
             exception = e;
         }
@@ -176,7 +187,7 @@ public class ConnectIdNetworkHelper {
                         requestBody,
                         HTTPMethod.POST,
                         authInfo);
-        postTask.connect(getResponseProcessor(context, handler));
+        postTask.connect(getResponseProcessor(context, url, handler));
 
         postTask.executeParallel();
 
@@ -192,6 +203,57 @@ public class ConnectIdNetworkHelper {
             //Empty headers if something goes wrong
         }
         return headers;
+    }
+
+    private PostResult getSyncInternal(Context context, String url, AuthInfo authInfo,
+                                        Multimap<String, String> params) {
+        isBusy = true;
+        showProgressDialog(context);
+        HashMap<String, String> headers = new HashMap<>();
+        RequestBody requestBody;
+
+        //TODO: Figure out how to send GET request the right way
+        StringBuilder getUrl = new StringBuilder(url);
+        if (params.size() > 0) {
+            boolean first = true;
+            for (Map.Entry<String, String> entry : params.entries()) {
+                String delim = "&";
+                if (first) {
+                    delim = "?";
+                    first = false;
+                }
+                getUrl.append(delim).append(entry.getKey()).append("=").append(entry.getValue());
+            }
+        }
+
+        ModernHttpRequester requester = CommCareApplication.instance().buildHttpRequester(
+                context,
+                getUrl.toString(),
+                ImmutableMultimap.of(),
+                headers,
+                null,
+                null,
+                HTTPMethod.GET,
+                authInfo,
+                null,
+                true);
+
+        int responseCode = -1;
+        InputStream stream = null;
+        IOException exception = null;
+        try {
+            Response<ResponseBody> response = requester.makeRequest();
+            responseCode = response.code();
+            if (response.isSuccessful()) {
+                stream = requester.getResponseStream(response);
+            }
+        } catch (IOException e) {
+            exception = e;
+        }
+
+        onFinishProcessing(context);
+
+        return new PostResult(responseCode, stream, exception);
     }
 
     private boolean getInternal(Context context, String url, AuthInfo authInfo,
@@ -222,14 +284,14 @@ public class ConnectIdNetworkHelper {
                         ArrayListMultimap.create(),
                         new HashMap<>(),
                         authInfo);
-        getTask.connect(getResponseProcessor(context, handler));
+        getTask.connect(getResponseProcessor(context, url, handler));
         getTask.executeParallel();
 
         return true;
     }
 
     private ConnectorWithHttpResponseProcessor<HttpResponseProcessor> getResponseProcessor(
-            Context context, INetworkResultHandler handler) {
+            Context context, String url, INetworkResultHandler handler) {
         return new ConnectorWithHttpResponseProcessor<>() {
             @Override
             public void processSuccess(int responseCode, InputStream responseData) {
@@ -240,6 +302,10 @@ public class ConnectIdNetworkHelper {
             @Override
             public void processClientError(int responseCode) {
                 onFinishProcessing(context);
+
+                String message = String.format(Locale.getDefault(), "Call:%s\nResponse code:%d", url, responseCode);
+                CrashUtil.reportException(new Exception(message));
+
                 //400 error
                 handler.processFailure(responseCode, null);
             }
@@ -247,6 +313,10 @@ public class ConnectIdNetworkHelper {
             @Override
             public void processServerError(int responseCode) {
                 onFinishProcessing(context);
+
+                String message = String.format(Locale.getDefault(), "Call:%s\nResponse code:%d", url, responseCode);
+                CrashUtil.reportException(new Exception(message));
+
                 //500 error for internal server error
                 handler.processFailure(responseCode, null);
             }
@@ -254,6 +324,10 @@ public class ConnectIdNetworkHelper {
             @Override
             public void processOther(int responseCode) {
                 onFinishProcessing(context);
+
+                String message = String.format(Locale.getDefault(), "Call:%s\nResponse code:%d", url, responseCode);
+                CrashUtil.reportException(new Exception(message));
+
                 handler.processFailure(responseCode, null);
             }
 
@@ -311,13 +385,127 @@ public class ConnectIdNetworkHelper {
 
     private void showProgressDialog(Context context) {
         if (context instanceof CommCareActivity<?>) {
-            ((CommCareActivity<?>)context).showProgressDialog(NETWORK_ACTIVITY_ID);
+            Handler handler = new Handler(context.getMainLooper());
+            handler.post(() -> {
+                try {
+                    ((CommCareActivity<?>)context).showProgressDialog(NETWORK_ACTIVITY_ID);
+                } catch(Exception e) {
+                    //Ignore, ok if showing fails
+                }
+            });
         }
     }
 
     private void dismissProgressDialog(Context context) {
         if (context instanceof CommCareActivity<?>) {
-            ((CommCareActivity<?>)context).dismissProgressDialogForTask(NETWORK_ACTIVITY_ID);
+            Handler handler = new Handler(context.getMainLooper());
+            handler.post(() -> {
+                ((CommCareActivity<?>)context).dismissProgressDialogForTask(NETWORK_ACTIVITY_ID);
+            });
         }
+    }
+
+    public static PostResult makeHeartbeatRequestSync(Context context) {
+        String url = context.getString(R.string.ConnectHeartbeatURL);
+        HashMap<String, String> params = new HashMap<>();
+        params.put("fcm_token", FirebaseMessagingUtil.getFCMToken());
+        boolean useFormEncoding = true;
+        return postSync(context, url, ConnectManager.getConnectToken(), params, useFormEncoding);
+    }
+
+    public static boolean getConnectOpportunities(Context context, INetworkResultHandler handler) {
+        if (getInstance().isBusy) {
+            return false;
+        }
+
+        ConnectSsoHelper.retrieveConnectTokenAsync(context, token -> {
+            if(token == null) {
+                return;
+            }
+
+            String url = context.getString(R.string.ConnectOpportunitiesURL, BuildConfig.CCC_HOST);
+            Multimap<String, String> params = ArrayListMultimap.create();
+
+            getInstance().getInternal(context, url, token, params, handler);
+        });
+
+        return true;
+    }
+
+    public static boolean startLearnApp(Context context, int jobId, INetworkResultHandler handler) {
+        if (getInstance().isBusy) {
+            return false;
+        }
+
+        ConnectSsoHelper.retrieveConnectTokenAsync(context, token -> {
+            if(token == null) {
+                return;
+            }
+
+            String url = context.getString(R.string.ConnectStartLearningURL, BuildConfig.CCC_HOST);
+            HashMap<String, String> params = new HashMap<>();
+            params.put("opportunity", String.format(Locale.getDefault(), "%d", jobId));
+
+            getInstance().postInternal(context, url, token, params, true, handler);
+        });
+
+        return true;
+    }
+
+    public static boolean getLearnProgress(Context context, int jobId, INetworkResultHandler handler) {
+        if (getInstance().isBusy) {
+            return false;
+        }
+
+        ConnectSsoHelper.retrieveConnectTokenAsync(context, token -> {
+            if(token == null) {
+                return;
+            }
+
+            String url = context.getString(R.string.ConnectLearnProgressURL, BuildConfig.CCC_HOST, jobId);
+            Multimap<String, String> params = ArrayListMultimap.create();
+
+            getInstance().getInternal(context, url, token, params, handler);
+        });
+
+        return true;
+    }
+
+    public static boolean claimJob(Context context, int jobId, INetworkResultHandler handler) {
+        if (getInstance().isBusy) {
+            return false;
+        }
+
+        ConnectSsoHelper.retrieveConnectTokenAsync(context, token -> {
+            if(token == null) {
+                return;
+            }
+
+            String url = context.getString(R.string.ConnectClaimJobURL, BuildConfig.CCC_HOST, jobId);
+            HashMap<String, String> params = new HashMap<>();
+
+            getInstance().postInternal(context, url, token, params, false, handler);
+        });
+
+        return true;
+    }
+
+    public static boolean getDeliveries(Context context, int jobId, INetworkResultHandler handler) {
+        if (getInstance().isBusy) {
+            return false;
+        }
+
+        ConnectSsoHelper.retrieveConnectTokenAsync(context, token -> {
+            if(token == null) {
+                return;
+            }
+
+            String url = context.getString(R.string.ConnectDeliveriesURL, BuildConfig.CCC_HOST, jobId);
+            Multimap<String, String> params = ArrayListMultimap.create();
+
+            getInstance().getInternal(context, url, token, params, handler);
+        });
+
+        return true;
     }
 }

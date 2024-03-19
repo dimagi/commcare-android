@@ -12,7 +12,7 @@ import java.util.Date;
  *
  * @author dviggiano
  */
-@Table(org.commcare.android.database.connect.models.ConnectLinkedAppRecord.STORAGE_KEY)
+@Table(ConnectLinkedAppRecord.STORAGE_KEY)
 public class ConnectLinkedAppRecord extends Persisted {
     /**
      * Name of database that stores Connect user records
