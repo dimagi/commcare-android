@@ -296,6 +296,17 @@ public class MicroImageActivity extends CommonBaseActivity implements ImageAnaly
         switchToManualCaptureMode();
     }
 
+    private void switchToManualCaptureMode() {
+        cameraShutterButton.setVisibility(View.VISIBLE);
+        isGooglePlayServicesAvailable = false;
+        faceCaptureView.setCaptureMode(FaceCaptureView.CaptureMode.ManualMode);
+        try {
+            startCamera();
+        } catch (ExecutionException | InterruptedException e) {
+            logErrorAndExit("Error restarting camera in manual mode", R.string.camera_start_failed, e);
+        }
+    }
+
     private void processFaceDetectionResult(List<Face> faces, InputImage image) {
         if (faces.size() > 0) {
             // Only one face is processed, this can be increased if needed
@@ -311,13 +322,6 @@ public class MicroImageActivity extends CommonBaseActivity implements ImageAnaly
         } else {
             faceCaptureView.updateFace(null);
         }
-    }
-
-    private void switchToManualCaptureMode() {
-        cameraShutterButton.setVisibility(View.VISIBLE);
-        isGooglePlayServicesAvailable = false;
-        faceCaptureView.setCaptureMode(FaceCaptureView.CaptureMode.ManualMode);
-        startCamera();
     }
 
     @Override

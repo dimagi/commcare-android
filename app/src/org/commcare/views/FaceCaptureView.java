@@ -55,17 +55,6 @@ public class FaceCaptureView extends AppCompatImageView {
     public enum CaptureMode {FaceDetectionMode, ManualMode}
     private CaptureMode captureMode = CaptureMode.FaceDetectionMode;
 
-<<<<<<< HEAD
-=======
-    public void setCaptureMode(CaptureMode captureMode){
-        this.captureMode = captureMode;
-    }
-
-    public CaptureMode getCaptureMode() {
-        return captureMode;
-    }
-
->>>>>>> f2528c739 (Add image capture use case for manual mode)
     public FaceCaptureView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
 
