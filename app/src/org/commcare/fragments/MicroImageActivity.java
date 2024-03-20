@@ -235,7 +235,7 @@ public class MicroImageActivity extends AppCompatActivity implements ImageAnalys
                         Image capturedImage = imageProxy.getImage();
                         inputImage = ImageConvertUtils.getInstance().convertJpegToUpRightBitmap(capturedImage, imageProxy.getImageInfo().getRotationDegrees());
                         imageProxy.close();
-                        finalizeImageCapture(convertRectFToRect(faceCaptureView.getFaceCaptureArea()));
+                        finalizeImageCapture(calcPreviewCaptureArea());
                     }
                 });
             }
@@ -243,7 +243,10 @@ public class MicroImageActivity extends AppCompatActivity implements ImageAnalys
         return imageCapture;
     }
 
-    private Rect convertRectFToRect(RectF rectf) {
-        return new Rect((int)rectf.left, (int)rectf.top, (int)rectf.right, (int)rectf.bottom);
+    private Rect calcPreviewCaptureArea() {
+        int actualImageHeight = (int)(faceCaptureView.getImageHeight() * ((float)faceCaptureView.getHeight())/cameraView.getHeight());
+        int actualImageWidth = (int)(faceCaptureView.getImageWidth() * ((float)faceCaptureView.getWidth())/cameraView.getWidth());
+        RectF rectF = faceCaptureView.calcCaptureArea(actualImageWidth, actualImageHeight);
+        return new Rect((int)rectF.left, (int)rectF.top, (int)rectF.right, (int)rectF.bottom);
     }
 }
