@@ -52,6 +52,7 @@ public class MicroImageActivity extends AppCompatActivity implements ImageAnalys
     private FaceCaptureView faceCaptureView;
     private Bitmap inputImage;
     private ImageView cameraShutterButton;
+    private boolean isGooglePlayServicesAvailable = false;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -66,8 +67,8 @@ public class MicroImageActivity extends AppCompatActivity implements ImageAnalys
         if (actionBar != null) {
             actionBar.setTitle(R.string.micro_image_activity_title);
         }
-
-        if (!AndroidUtil.isGooglePlayServicesAvailable(this)) {
+        isGooglePlayServicesAvailable = AndroidUtil.isGooglePlayServicesAvailable(this);
+        if (!isGooglePlayServicesAvailable) {
             faceCaptureView.setCaptureMode(FaceCaptureView.CaptureMode.ManualMode);
             cameraShutterButton.setVisibility(View.VISIBLE);
         } else {
@@ -170,7 +171,18 @@ public class MicroImageActivity extends AppCompatActivity implements ImageAnalys
     private void handleErrorDuringDetection(Exception e) {
         Logger.exception("Error during face detection ", e);
         Toast.makeText(this, "microimage.face.detection.mode.failed", Toast.LENGTH_LONG).show();
-        // TODO: decide whether to switch to manual mode or close activity
+        switchToManualCaptureMode();
+    }
+
+    private void switchToManualCaptureMode() {
+        cameraShutterButton.setVisibility(View.VISIBLE);
+        isGooglePlayServicesAvailable = false;
+        faceCaptureView.setCaptureMode(FaceCaptureView.CaptureMode.ManualMode);
+        try {
+            startCamera();
+        } catch (ExecutionException | InterruptedException e) {
+            logErrorAndExit("Error restarting camera in manual mode", R.string.camera_start_failed, e);
+        }
     }
 
     private void processFaceDetectionResult(List<Face> faces, InputImage image) {
@@ -185,7 +197,7 @@ public class MicroImageActivity extends AppCompatActivity implements ImageAnalys
             } catch (MlKitException e) {
                 Logger.exception("Error during face detection ", e);
                 Toast.makeText(this, "microimage.face.detection.mode.failed", Toast.LENGTH_LONG).show();
-                // TODO: decide whether to switch to manual mode or close activity?
+                switchToManualCaptureMode();
             }
         } else {
             faceCaptureView.updateFace(null);

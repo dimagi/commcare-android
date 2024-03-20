@@ -49,6 +49,11 @@ public class FaceCaptureView extends AppCompatImageView {
 
     public void setCaptureMode(CaptureMode captureMode){
         this.captureMode = captureMode;
+
+        if (captureMode == CaptureMode.ManualMode) {
+            imageStabilizedListener = null;
+        }
+        invalidate();
     }
 
     public CaptureMode getCaptureMode() {
