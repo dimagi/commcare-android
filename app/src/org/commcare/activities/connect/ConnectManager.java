@@ -692,13 +692,6 @@ public class ConnectManager {
         }
     }
 
-    public static void rememberAppCredentials(String appId, String userId, String passwordOrPin) {
-        ConnectManager manager = getInstance();
-        if (isUnlocked()) {
-            ConnectDatabaseHelper.storeApp(manager.parentActivity, appId, userId, passwordOrPin, false);
-        }
-    }
-
     public static void forgetAppCredentials(String appId, String userId) {
         ConnectLinkedAppRecord record = ConnectDatabaseHelper.getAppData(manager.parentActivity, appId, userId);
         if (record != null) {
@@ -720,7 +713,11 @@ public class ConnectManager {
 
                     unlockConnect(activity, success -> {
                         if(success) {
-                            ConnectManager.forgetAppCredentials(appId, username);
+                            ConnectLinkedAppRecord linkedApp = ConnectDatabaseHelper.getAppData(activity, appId, username);
+                            if(linkedApp != null) {
+                                linkedApp.severConnectIdLink();
+                                ConnectDatabaseHelper.storeApp(activity, linkedApp);
+                            }
                         }
 
                         callback.connectActivityComplete(success);
@@ -741,13 +738,13 @@ public class ConnectManager {
             boolean offerToLink = true;
             boolean isSecondOffer = false;
 
-            ConnectUserRecord user = ConnectDatabaseHelper.getUser(activity);
+            ConnectLinkedAppRecord linkedApp = ConnectDatabaseHelper.getAppData(activity, appId, username);
             //See if we've offered to link already
-            Date firstOffer = user.getLinkOfferDate1();
+            Date firstOffer = linkedApp != null ? linkedApp.getLinkOfferDate1() : null;
             if(firstOffer != null) {
                 isSecondOffer = true;
                 //See if we've done the second offer
-                Date secondOffer = user.getLinkOfferDate2();
+                Date secondOffer = linkedApp.getLinkOfferDate2();
                 if(secondOffer != null) {
                     //They've declined twice, we won't bug them again
                     offerToLink = false;
@@ -761,13 +758,19 @@ public class ConnectManager {
             }
 
             if(offerToLink) {
-                //Update that we offered
-                if(isSecondOffer) {
-                    user.setLinkOfferDate2(new Date());
-                } else {
-                    user.setLinkOfferDate1(new Date());
+                if(linkedApp == null) {
+                    //Create the linked app record (even if just to remember that we offered
+                    linkedApp = ConnectDatabaseHelper.storeApp(activity, appId, username, false, "", false);
                 }
 
+                //Update that we offered
+                if(isSecondOffer) {
+                    linkedApp.setLinkOfferDate2(new Date());
+                } else {
+                    linkedApp.setLinkOfferDate1(new Date());
+                }
+
+                final ConnectLinkedAppRecord appRecordFinal = linkedApp;
                 StandardAlertDialog d = new StandardAlertDialog(activity,
                         activity.getString(R.string.login_link_connectid_title),
                         activity.getString(R.string.login_link_connectid_message));
@@ -777,7 +780,8 @@ public class ConnectManager {
 
                     unlockConnect(activity, success -> {
                         if(success) {
-                            ConnectManager.rememberAppCredentials(appId, username, password);
+                            appRecordFinal.linkToConnectId(password);
+                            ConnectDatabaseHelper.storeApp(activity, appRecordFinal);
 
                             //Link the HQ user by aqcuiring the SSO token for the first time
                             ConnectSsoHelper.retrieveHqSsoTokenAsync(activity, username, true, auth -> {
@@ -797,6 +801,9 @@ public class ConnectManager {
 
                 d.setNegativeButton(activity.getString(R.string.login_link_connectid_no), (dialog, which) -> {
                     activity.dismissAlertDialog();
+
+                    //Save updated record indicating that we offered
+                    ConnectDatabaseHelper.storeApp(activity, appRecordFinal);
 
                     callback.connectActivityComplete(false);
                 });
@@ -823,7 +830,7 @@ public class ConnectManager {
     public static AuthInfo.ProvidedAuth getCredentialsForApp(String appId, String userId) {
         ConnectLinkedAppRecord record = ConnectDatabaseHelper.getAppData(manager.parentActivity, appId,
                 userId);
-        if (record != null && record.getPassword().length() > 0) {
+        if (record != null && record.getConnectIdLinked() && record.getPassword().length() > 0) {
             return new AuthInfo.ProvidedAuth(record.getUserId(), record.getPassword(), false);
         }
 
@@ -960,7 +967,7 @@ public class ConnectManager {
         String password = generatePassword();
 
         //Store ConnectLinkedAppRecord (note worker already linked)
-        ConnectLinkedAppRecord appRecord = ConnectDatabaseHelper.storeApp(context, appId, username, password, true);
+        ConnectLinkedAppRecord appRecord = ConnectDatabaseHelper.storeApp(context, appId, username, true, password, true);
 
         //Store UKR
         SecretKey newKey = CryptUtil.generateSemiRandomKey();

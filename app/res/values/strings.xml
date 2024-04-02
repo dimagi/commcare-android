@@ -30,6 +30,7 @@
     <string name="ConnectLearnProgressURL">https://%s/api/opportunity/%d/learn_progress</string>
     <string name="ConnectClaimJobURL">https://%s/api/opportunity/%d/claim</string>
     <string name="ConnectDeliveriesURL">https://%s/api/opportunity/%d/delivery_progress</string>
+    <string name="ConnectPaymentConfirmationURL">https://%s/api/payment/%d/confirm</string>
 
     <string name="key_server">https://pact.dimagi.com/keys/getkey</string>
     <string name="your_comment">Your comment</string>

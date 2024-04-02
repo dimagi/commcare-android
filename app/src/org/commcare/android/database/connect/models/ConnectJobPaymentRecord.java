@@ -4,14 +4,12 @@ import org.commcare.android.storage.framework.Persisted;
 import org.commcare.models.framework.Persisting;
 import org.commcare.modern.database.Table;
 import org.commcare.modern.models.MetaField;
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.Serializable;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 
@@ -25,6 +23,8 @@ public class ConnectJobPaymentRecord extends Persisted implements Serializable {
     public static final String META_JOB_ID = "job_id";
     public static final String META_AMOUNT = "amount";
     public static final String META_DATE = "date_paid";
+    public static final String META_CONFIRMED = "confirmed";
+    public static final String META_CONFIRMED_DATE = "date_confirmed";
 
     @Persisting(1)
     @MetaField(META_JOB_ID)
@@ -38,7 +38,28 @@ public class ConnectJobPaymentRecord extends Persisted implements Serializable {
     @MetaField(META_AMOUNT)
     private String amount;
 
+    @Persisting(4)
+    @MetaField(META_CONFIRMED)
+    private boolean confirmed;
+
+    @Persisting(5)
+    @MetaField(META_CONFIRMED_DATE)
+    private Date confirmedDate;
+
     public ConnectJobPaymentRecord() {}
+
+    public static ConnectJobPaymentRecord fromV3(ConnectJobPaymentRecordV3 oldRecord) {
+        ConnectJobPaymentRecord newRecord = new ConnectJobPaymentRecord();
+
+        newRecord.jobId = oldRecord.getJobId();
+        newRecord.date = oldRecord.getDate();
+        newRecord.amount = oldRecord.getAmount();
+
+        newRecord.confirmed = false;
+        newRecord.confirmedDate = new Date();
+
+        return newRecord;
+    }
 
     public static ConnectJobPaymentRecord fromJson(JSONObject json, int jobId) throws JSONException, ParseException {
         SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
@@ -49,10 +70,23 @@ public class ConnectJobPaymentRecord extends Persisted implements Serializable {
         payment.date = json.has(META_DATE) ? df.parse(json.getString(META_DATE)) : new Date();
         payment.amount = String.format(Locale.ENGLISH, "%d", json.has(META_AMOUNT) ? json.getInt(META_AMOUNT) : 0);
 
+        payment.confirmed = json.has(META_CONFIRMED) && json.getBoolean(META_CONFIRMED);
+        payment.confirmedDate = json.has(META_CONFIRMED_DATE) ? df.parse(json.getString(META_CONFIRMED_DATE)) : new Date();
+
         return payment;
     }
 
     public Date getDate() { return date;}
 
     public String getAmount() { return amount; }
+
+    public boolean getConfirmed() {return confirmed; }
+    public Date getConfirmedDate() {return confirmedDate; }
+
+    public void setConfirmed(boolean confirmed) {
+        this.confirmed = confirmed;
+        if(confirmed) {
+            confirmedDate = new Date();
+        }
+    }
 }
