@@ -88,7 +88,7 @@ public class CommCareMediaController extends MediaController {
 
     private void addFullscreenButton(CommCareVideoView videoView) {
         if (fullscreenBtn == null) {
-            fullscreenBtn = new ImageButton(getContext(), null, R.style.MediaButton);
+            fullscreenBtn = new ImageButton(getContext(), null, R.style.FullScreenVideoButton);
             fullscreenBtn.setId(AndroidUtil.generateViewId());
             if (fullscreenMode) {
                 fullscreenBtn.setImageResource(R.drawable.ic_media_exit_fullscreen);
