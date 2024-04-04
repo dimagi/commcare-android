@@ -3,6 +3,7 @@ package org.commcare.activities.connect;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.widget.Toast;
 
 import org.commcare.AppUtils;
 import androidx.work.BackoffPolicy;
@@ -15,6 +16,7 @@ import androidx.work.WorkManager;
 import org.commcare.activities.CommCareActivity;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.activities.SettingsHelper;
+import org.commcare.android.database.connect.models.ConnectJobPaymentRecord;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.CommCareApplication;
@@ -33,8 +35,13 @@ import org.commcare.tasks.ResourceEngineListener;
 import org.commcare.tasks.templates.CommCareTask;
 import org.commcare.tasks.templates.CommCareTaskConnector;
 import org.commcare.utils.CrashUtil;
+import org.commcare.views.dialogs.StandardAlertDialog;
 import org.javarosa.core.util.PropertyUtils;
+import org.joda.time.DateTime;
+import org.joda.time.Duration;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -42,6 +49,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 import javax.crypto.SecretKey;
@@ -66,7 +74,6 @@ public class ConnectManager {
     public enum ConnectIdStatus {
         NotIntroduced,
         Registering,
-        LoggedOut,
         LoggedIn
     }
 
@@ -89,6 +96,7 @@ public class ConnectManager {
     private String recoverySecret = null;
     private boolean forgotPassword = false;
     private boolean passwordOnlyWorkflow = false;
+    private String primedAppIdForAutoLogin = null;
 
     //Singleton, private constructor
     private ConnectManager() {
@@ -110,11 +118,8 @@ public class ConnectManager {
         if(manager.connectStatus == ConnectIdStatus.NotIntroduced) {
             ConnectUserRecord user = ConnectDatabaseHelper.getUser(manager.parentActivity);
             if (user != null) {
-                if (user.getRegistrationPhase() != ConnectTask.CONNECT_NO_ACTIVITY) {
-                    manager.connectStatus = ConnectIdStatus.Registering;
-                } else if (manager.connectStatus == ConnectIdStatus.NotIntroduced) {
-                    manager.connectStatus = ConnectIdStatus.LoggedOut;
-                }
+                boolean registering = user.getRegistrationPhase() != ConnectTask.CONNECT_NO_ACTIVITY;
+                manager.connectStatus = registering ? ConnectIdStatus.Registering : ConnectIdStatus.LoggedIn;
             }
         }
     }
@@ -155,14 +160,7 @@ public class ConnectManager {
             return false;
         }
 
-        return switch (getInstance().connectStatus) {
-            case NotIntroduced, Registering -> false;
-            case LoggedOut, LoggedIn -> true;
-        };
-    }
-
-    public static boolean requiresUnlock() {
-        return isConnectIdIntroduced() && !isUnlocked();
+        return getInstance().connectStatus == ConnectIdStatus.LoggedIn;
     }
 
     public static boolean isUnlocked() {
@@ -175,10 +173,7 @@ public class ConnectManager {
             return false;
         }
 
-        return switch (getInstance().connectStatus) {
-            case LoggedOut, LoggedIn -> false;
-            case NotIntroduced, Registering -> true;
-        };
+        return getInstance().connectStatus != ConnectIdStatus.LoggedIn;
     }
 
     public static boolean shouldShowSignOutMenuOption() {
@@ -186,15 +181,12 @@ public class ConnectManager {
             return false;
         }
 
-        return switch (getInstance().connectStatus) {
-            case NotIntroduced, Registering, LoggedOut -> false;
-            case LoggedIn -> true;
-        };
+        return getInstance().connectStatus == ConnectIdStatus.LoggedIn;
     }
 
     public static String getConnectButtonText(Context context) {
         return switch (getInstance().connectStatus) {
-            case LoggedOut, Registering, NotIntroduced ->
+            case Registering, NotIntroduced ->
                     context.getString(R.string.connect_button_logged_out);
             case LoggedIn -> context.getString(R.string.connect_button_logged_in);
         };
@@ -205,10 +197,7 @@ public class ConnectManager {
             return false;
         }
 
-        return switch (getInstance().connectStatus) {
-            case NotIntroduced, Registering -> false;
-            case LoggedOut, LoggedIn -> true;
-        };
+        return getInstance().connectStatus == ConnectIdStatus.LoggedIn;
     }
 
     private static void completeSignin() {
@@ -220,12 +209,6 @@ public class ConnectManager {
 
         if(instance.loginListener != null) {
             instance.loginListener.connectActivityComplete(true);
-        }
-    }
-
-    public static void signOut() {
-        if (getInstance().connectStatus == ConnectIdStatus.LoggedIn) {
-            getInstance().connectStatus = ConnectIdStatus.LoggedOut;
         }
     }
 
@@ -255,13 +238,60 @@ public class ConnectManager {
                 String appId = readyApps.get(i).getUniqueId();
                 //Preset app needs to remain in the list if set
                 if(!appId.equals(presetAppId)) {
-                    AuthInfo.ProvidedAuth auth = ConnectManager.getCredentialsForApp(appId, username);
-                    if (auth != null) {
+                    if (isLoginManagedByConnectId(appId, username)) {
                         //Creds stored for the CID username indicates this app is managed by Connect
                         readyApps.remove(i);
                     }
                 }
             }
+        }
+    }
+
+    public static void unlockConnect(CommCareActivity<?> parent, ConnectActivityCompleteListener listener) {
+        if(manager.connectStatus == ConnectIdStatus.LoggedIn) {
+            manager.parentActivity = parent;
+            manager.loginListener = listener;
+            manager.forgotPassword = false;
+
+            ConnectUserRecord user = ConnectDatabaseHelper.getUser(manager.parentActivity);
+            manager.phase = user.shouldForcePassword() ?
+                    ConnectTask.CONNECT_UNLOCK_PASSWORD :
+                    ConnectTask.CONNECT_UNLOCK_BIOMETRIC;
+
+            manager.continueWorkflow();
+        }
+    }
+
+    public static void registerUser(CommCareActivity<?> parent, ConnectActivityCompleteListener listener) {
+        ConnectManager manager = getInstance();
+        manager.parentActivity = parent;
+        manager.loginListener = listener;
+        manager.forgotPassword = false;
+
+        ConnectTask requestCode = ConnectTask.CONNECT_NO_ACTIVITY;
+        switch (manager.connectStatus) {
+            case NotIntroduced -> {
+                requestCode = ConnectTask.CONNECT_REGISTER_OR_RECOVER_DECISION;
+            }
+            case Registering -> {
+                ConnectUserRecord user = ConnectDatabaseHelper.getUser(manager.parentActivity);
+                ConnectTask phase = user.getRegistrationPhase();
+                if (phase != ConnectTask.CONNECT_NO_ACTIVITY) {
+                    requestCode = phase;
+                } else {
+                    requestCode = user.shouldForcePassword() ?
+                            ConnectTask.CONNECT_UNLOCK_PASSWORD :
+                            ConnectTask.CONNECT_UNLOCK_BIOMETRIC;
+                }
+            }
+            default -> {
+                //Error, should never get here
+            }
+        }
+
+        if (requestCode != ConnectTask.CONNECT_NO_ACTIVITY) {
+            manager.phase = requestCode;
+            manager.continueWorkflow();
         }
     }
 
@@ -276,7 +306,7 @@ public class ConnectManager {
             case NotIntroduced -> {
                 requestCode = ConnectTask.CONNECT_REGISTER_OR_RECOVER_DECISION;
             }
-            case LoggedOut, Registering -> {
+            case Registering -> {
                 ConnectUserRecord user = ConnectDatabaseHelper.getUser(manager.parentActivity);
                 ConnectTask phase = user.getRegistrationPhase();
                 if (phase != ConnectTask.CONNECT_NO_ACTIVITY) {
@@ -665,13 +695,6 @@ public class ConnectManager {
         }
     }
 
-    public static void rememberAppCredentials(String appId, String userId, String passwordOrPin) {
-        ConnectManager manager = getInstance();
-        if (isUnlocked()) {
-            ConnectDatabaseHelper.storeApp(manager.parentActivity, appId, userId, passwordOrPin, false);
-        }
-    }
-
     public static void forgetAppCredentials(String appId, String userId) {
         ConnectLinkedAppRecord record = ConnectDatabaseHelper.getAppData(manager.parentActivity, appId, userId);
         if (record != null) {
@@ -679,11 +702,138 @@ public class ConnectManager {
         }
     }
 
+    public static void checkConnectIdLink(CommCareActivity<?> activity, boolean autoLoggedIn, String appId, String username, String password, ConnectActivityCompleteListener callback) {
+        if(isLoginManagedByConnectId(appId, username)) {
+            //ConnectID is configured
+            if(!autoLoggedIn) {
+                //See if user wishes to permanently sever the connection
+                StandardAlertDialog d = new StandardAlertDialog(activity,
+                        activity.getString(R.string.login_unlink_connectid_title),
+                        activity.getString(R.string.login_unlink_connectid_message));
+
+                d.setPositiveButton(activity.getString(R.string.login_link_connectid_yes), (dialog, which) -> {
+                    activity.dismissAlertDialog();
+
+                    unlockConnect(activity, success -> {
+                        if(success) {
+                            ConnectLinkedAppRecord linkedApp = ConnectDatabaseHelper.getAppData(activity, appId, username);
+                            if(linkedApp != null) {
+                                linkedApp.severConnectIdLink();
+                                ConnectDatabaseHelper.storeApp(activity, linkedApp);
+                            }
+                        }
+
+                        callback.connectActivityComplete(success);
+                    });
+                });
+
+                d.setNegativeButton(activity.getString(R.string.login_link_connectid_no), (dialog, which) -> {
+                    activity.dismissAlertDialog();
+
+                    callback.connectActivityComplete(false);
+                });
+
+                activity.showAlertDialog(d);
+                return;
+            }
+        } else {
+            //ConnectID is NOT configured
+            boolean offerToLink = true;
+            boolean isSecondOffer = false;
+
+            ConnectLinkedAppRecord linkedApp = ConnectDatabaseHelper.getAppData(activity, appId, username);
+            //See if we've offered to link already
+            Date firstOffer = linkedApp != null ? linkedApp.getLinkOfferDate1() : null;
+            if(firstOffer != null) {
+                isSecondOffer = true;
+                //See if we've done the second offer
+                Date secondOffer = linkedApp.getLinkOfferDate2();
+                if(secondOffer != null) {
+                    //They've declined twice, we won't bug them again
+                    offerToLink = false;
+                } else {
+                    //Determine whether to do second offer
+                    int daysToSecondOffer = 30;
+                    long millis = (new Date()).getTime() - firstOffer.getTime();
+                    long days = TimeUnit.DAYS.convert(millis, TimeUnit.MILLISECONDS);
+                    offerToLink = days >= daysToSecondOffer;
+                }
+            }
+
+            if(offerToLink) {
+                if(linkedApp == null) {
+                    //Create the linked app record (even if just to remember that we offered
+                    linkedApp = ConnectDatabaseHelper.storeApp(activity, appId, username, false, "", false);
+                }
+
+                //Update that we offered
+                if(isSecondOffer) {
+                    linkedApp.setLinkOfferDate2(new Date());
+                } else {
+                    linkedApp.setLinkOfferDate1(new Date());
+                }
+
+                final ConnectLinkedAppRecord appRecordFinal = linkedApp;
+                StandardAlertDialog d = new StandardAlertDialog(activity,
+                        activity.getString(R.string.login_link_connectid_title),
+                        activity.getString(R.string.login_link_connectid_message));
+
+                d.setPositiveButton(activity.getString(R.string.login_link_connectid_yes), (dialog, which) -> {
+                    activity.dismissAlertDialog();
+
+                    unlockConnect(activity, success -> {
+                        if(success) {
+                            appRecordFinal.linkToConnectId(password);
+                            ConnectDatabaseHelper.storeApp(activity, appRecordFinal);
+
+                            //Link the HQ user by aqcuiring the SSO token for the first time
+                            ConnectSsoHelper.retrieveHqSsoTokenAsync(activity, username, true, auth -> {
+                                if(auth == null) {
+                                    Toast.makeText(activity, "Failed to acquire SSO token", Toast.LENGTH_SHORT).show();
+                                    //TODO: Re-enable when token working again
+                                    //ConnectManager.forgetAppCredentials(appId, username);
+                                }
+
+                                callback.connectActivityComplete(true);
+                            });
+                        } else {
+                            callback.connectActivityComplete(false);
+                        }
+                    });
+                });
+
+                d.setNegativeButton(activity.getString(R.string.login_link_connectid_no), (dialog, which) -> {
+                    activity.dismissAlertDialog();
+
+                    //Save updated record indicating that we offered
+                    ConnectDatabaseHelper.storeApp(activity, appRecordFinal);
+
+                    callback.connectActivityComplete(false);
+                });
+
+                activity.showAlertDialog(d);
+                return;
+            }
+        }
+
+        callback.connectActivityComplete(false);
+    }
+
+    public static boolean isLoginManagedByConnectId(String appId, String userId) {
+        AuthInfo.ProvidedAuth auth = getCredentialsForApp(appId, userId);
+        return auth != null;
+    }
+
+    public static String getStoredPasswordForApp(String appId, String userId) {
+        AuthInfo.ProvidedAuth auth = getCredentialsForApp(appId, userId);
+        return auth != null ? auth.password : null;
+    }
+
     @Nullable
     public static AuthInfo.ProvidedAuth getCredentialsForApp(String appId, String userId) {
         ConnectLinkedAppRecord record = ConnectDatabaseHelper.getAppData(manager.parentActivity, appId,
                 userId);
-        if (record != null && record.getPassword().length() > 0) {
+        if (record != null && record.getConnectIdLinked() && record.getPassword().length() > 0) {
             return new AuthInfo.ProvidedAuth(record.getUserId(), record.getPassword(), false);
         }
 
@@ -784,15 +934,43 @@ public class ConnectManager {
         String appType = isLearning ? "Learn" : "Deliver";
         FirebaseAnalyticsUtil.reportCccAppLaunch(appType, appId);
 
-        CommCareLauncher.launchCommCareForAppIdFromConnect(context, appId);
+        getInstance().primedAppIdForAutoLogin = appId;
+
+        CommCareLauncher.launchCommCareForAppId(context, appId);
+    }
+
+    public static boolean wasAppLaunchedFromConnect(String appId) {
+        String primed = getInstance().primedAppIdForAutoLogin;
+        return primed != null && primed.equals(appId);
+    }
+
+    public static String checkAutoLoginAndOverridePassword(Context context, String appId, String username,
+                                                    String passwordOrPin, boolean appLaunchedFromConnect, boolean uiInAutoLogin) {
+        if (isUnlocked()) {
+            if(appLaunchedFromConnect) {
+                //Configure some things if we haven't already
+                ConnectLinkedAppRecord record = ConnectDatabaseHelper.getAppData(context,
+                        appId, username);
+                if (record == null) {
+                    record = prepareConnectManagedApp(context, appId, username);
+                }
+
+                passwordOrPin = record.getPassword();
+            } else if(uiInAutoLogin) {
+                String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
+                passwordOrPin = ConnectManager.getStoredPasswordForApp(seatedAppId, username);
+            }
+        }
+
+        return passwordOrPin;
     }
 
     public static ConnectLinkedAppRecord prepareConnectManagedApp(Context context, String appId, String username) {
-        //Ctreate password
-        String password = ConnectDatabaseHelper.generatePassword();
+        //Create app password
+        String password = generatePassword();
 
         //Store ConnectLinkedAppRecord (note worker already linked)
-        ConnectLinkedAppRecord appRecord = ConnectDatabaseHelper.storeApp(context, appId, username, password, true);
+        ConnectLinkedAppRecord appRecord = ConnectDatabaseHelper.storeApp(context, appId, username, true, password, true);
 
         //Store UKR
         SecretKey newKey = CryptUtil.generateSemiRandomKey();
@@ -816,5 +994,42 @@ public class ConnectManager {
         CommCareApplication.instance().getCurrentApp().getStorage(UserKeyRecord.class).write(ukr);
 
         return appRecord;
+    }
+
+    public static void updatePaymentConfirmed(Context context, final ConnectJobPaymentRecord payment, boolean confirmed, ConnectActivityCompleteListener listener) {
+        ConnectNetworkHelper.setPaymentConfirmed(context, payment.getPaymentId(), confirmed, new ConnectNetworkHelper.INetworkResultHandler() {
+            @Override
+            public void processSuccess(int responseCode, InputStream responseData) {
+                payment.setConfirmed(confirmed);
+                ConnectDatabaseHelper.storePayment(context, payment);
+
+                //No need to report to user
+                listener.connectActivityComplete(true);
+            }
+
+            @Override
+            public void processFailure(int responseCode, IOException e) {
+                Toast.makeText(context, R.string.connect_payment_confirm_failed, Toast.LENGTH_SHORT).show();
+                listener.connectActivityComplete(false);
+            }
+
+            @Override
+            public void processNetworkFailure() {
+                Toast.makeText(context, R.string.connect_payment_confirm_failed, Toast.LENGTH_SHORT).show();
+                listener.connectActivityComplete(false);
+            }
+        });
+    }
+
+    public static String generatePassword() {
+        int passwordLength = 20;
+
+        String charSet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_!.?";
+        StringBuilder password = new StringBuilder();
+        for (int i = 0; i < passwordLength; i++) {
+            password.append(charSet.charAt(new Random().nextInt(charSet.length())));
+        }
+
+        return password.toString();
     }
 }

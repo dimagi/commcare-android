@@ -1,13 +1,11 @@
 package org.commcare.activities.connect;
 
-import android.app.job.JobParameters;
 import android.content.Context;
 import android.os.Build;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.CommCareApplication;
-import org.commcare.adapters.ConnectJobAdapter;
 import org.commcare.android.database.connect.models.ConnectAppRecord;
 import org.commcare.android.database.connect.models.ConnectJobAssessmentRecord;
 import org.commcare.android.database.connect.models.ConnectJobDeliveryRecord;
@@ -32,7 +30,6 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
-import java.util.Random;
 import java.util.Vector;
 
 /**
@@ -62,18 +59,6 @@ public class ConnectDatabaseHelper {
             Logger.exception("Getting DB passphrase", e);
             throw new RuntimeException(e);
         }
-    }
-
-    public static String generatePassword() {
-        int passwordLength = 20;
-
-        String charSet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_!.?";
-        StringBuilder password = new StringBuilder();
-        for (int i = 0; i < passwordLength; i++) {
-            password.append(charSet.charAt(new Random().nextInt(charSet.length())));
-        }
-
-        return password.toString();
     }
 
     public static void init(Context context) {
@@ -127,6 +112,8 @@ public class ConnectDatabaseHelper {
         getConnectStorage(context, ConnectUserRecord.class).removeAll();
     }
 
+
+
     public static ConnectLinkedAppRecord getAppData(Context context, String appId, String username) {
         Vector<ConnectLinkedAppRecord> records = getConnectStorage(context, ConnectLinkedAppRecord.class)
                 .getRecordsForValues(
@@ -140,17 +127,19 @@ public class ConnectDatabaseHelper {
         storage.remove(record);
     }
 
-    public static ConnectLinkedAppRecord storeApp(Context context, String appId, String userId, String passwordOrPin, boolean workerLinked) {
+    public static ConnectLinkedAppRecord storeApp(Context context, String appId, String userId, boolean connectIdLinked, String passwordOrPin, boolean workerLinked) {
         ConnectLinkedAppRecord record = getAppData(context, appId, userId);
         if (record == null) {
-            record = new ConnectLinkedAppRecord(appId, userId, passwordOrPin);
+            record = new ConnectLinkedAppRecord(appId, userId, connectIdLinked, passwordOrPin);
         } else if (!record.getPassword().equals(passwordOrPin)) {
             record.setPassword(passwordOrPin);
         }
 
+        record.setConnectIdLinked(connectIdLinked);
+
         if(workerLinked) {
             //If passed in false, we'll leave the setting unchanged
-            record.setWorkerLinked(workerLinked);
+            record.setWorkerLinked(true);
         }
 
         storeApp(context, record);
@@ -165,7 +154,7 @@ public class ConnectDatabaseHelper {
     public static void storeHqToken(Context context, String appId, String userId, String token, Date expiration) {
         ConnectLinkedAppRecord record = getAppData(context, appId, userId);
         if (record == null) {
-            record = new ConnectLinkedAppRecord(appId, userId, "");
+            record = new ConnectLinkedAppRecord(appId, userId, false, "");
         }
 
         record.updateHqToken(token, expiration);
@@ -447,6 +436,11 @@ public class ConnectDatabaseHelper {
             //Now insert/update the delivery
             storage.write(incomingRecord);
         }
+    }
+
+    public static void storePayment(Context context, ConnectJobPaymentRecord payment) {
+        SqlStorage<ConnectJobPaymentRecord> storage = getConnectStorage(context, ConnectJobPaymentRecord.class);
+        storage.write(payment);
     }
 
     public static void storePayments(Context context, List<ConnectJobPaymentRecord> payments, int jobId, boolean pruneMissing) {

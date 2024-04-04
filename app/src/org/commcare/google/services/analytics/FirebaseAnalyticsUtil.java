@@ -409,6 +409,29 @@ public class FirebaseAnalyticsUtil {
         reportEvent(CCAnalyticsEvent.CCC_API_DELIVERY_PROGRESS, b);
     }
 
+    public static void reportCccApiPaymentConfirmation(boolean success) {
+        Bundle b = new Bundle();
+        b.putLong(CCAnalyticsEvent.PARAM_API_SUCCESS, success ? 1 : 0);
+        reportEvent(CCAnalyticsEvent.CCC_API_PAYMENT_CONFIRMATION, b);
+    }
+
+    public static void reportCccPaymentConfirmationOnlineCheck(boolean success) {
+        Bundle b = new Bundle();
+        b.putLong(CCAnalyticsEvent.PARAM_API_SUCCESS, success ? 1 : 0);
+        reportEvent(CCAnalyticsEvent.CCC_PAYMENT_CONFIRMATION_CHECK, b);
+    }
+
+    public static void reportCccPaymentConfirmationDisplayed() {
+        Bundle b = new Bundle();
+        reportEvent(CCAnalyticsEvent.CCC_PAYMENT_CONFIRMATION_DISPLAY, b);
+    }
+
+    public static void reportCccPaymentConfirmationInteraction(boolean positive) {
+        Bundle b = new Bundle();
+        b.putLong(CCAnalyticsEvent.PARAM_API_SUCCESS, positive ? 1 : 0);
+        reportEvent(CCAnalyticsEvent.CCC_PAYMENT_CONFIRMATION_INTERACT, b);
+    }
+
     public static void reportCccSignOut() {
         reportEvent(CCAnalyticsEvent.CCC_SIGN_OUT);
     }

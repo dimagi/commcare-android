@@ -12,15 +12,21 @@ import org.commcare.android.database.connect.models.ConnectJobDeliveryRecord;
 import org.commcare.android.database.connect.models.ConnectJobDeliveryRecordV2;
 import org.commcare.android.database.connect.models.ConnectJobLearningRecord;
 import org.commcare.android.database.connect.models.ConnectJobPaymentRecord;
+import org.commcare.android.database.connect.models.ConnectJobPaymentRecordV3;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecordV2;
 import org.commcare.android.database.connect.models.ConnectLearnModuleSummaryRecord;
+import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
+import org.commcare.android.database.connect.models.ConnectLinkedAppRecordV3;
 import org.commcare.models.database.ConcreteAndroidDbHelper;
 import org.commcare.models.database.DbUtil;
 import org.commcare.models.database.SqlStorage;
+import org.commcare.models.framework.Persisting;
 import org.commcare.modern.database.TableBuilder;
 import org.commcare.resources.model.Resource;
 import org.javarosa.core.services.storage.Persistable;
+
+import java.util.Date;
 
 public class ConnectDatabaseUpgrader {
     private final Context c;
@@ -39,6 +45,12 @@ public class ConnectDatabaseUpgrader {
         if (oldVersion == 2) {
             if (upgradeTwoThree(db)) {
                 oldVersion = 3;
+            }
+        }
+
+        if (oldVersion == 3) {
+            if (upgradeThreeFour(db)) {
+                oldVersion = 4;
             }
         }
     }
@@ -99,6 +111,97 @@ public class ConnectDatabaseUpgrader {
             for (Persistable r : oldStorage) {
                 ConnectJobDeliveryRecordV2 oldRecord = (ConnectJobDeliveryRecordV2)r;
                 ConnectJobDeliveryRecord newRecord = ConnectJobDeliveryRecord.fromV2(oldRecord);
+                //set this new record to have same ID as the old one
+                newRecord.setID(oldRecord.getID());
+                newStorage.write(newRecord);
+            }
+
+            db.setTransactionSuccessful();
+            return true;
+        } catch(Exception e) {
+            return false;
+        } finally {
+            db.endTransaction();
+        }
+    }
+
+    private boolean upgradeThreeFour(SQLiteDatabase db) {
+        db.beginTransaction();
+
+        try {
+            //First, migrate the old ConnectLinkedAppRecord in storage to the new version
+            db.execSQL(DbUtil.addColumnToTable(
+                    ConnectLinkedAppRecord.STORAGE_KEY,
+                    ConnectLinkedAppRecord.META_CONNECTID_LINKED,
+                    "TEXT"));
+
+            db.execSQL(DbUtil.addColumnToTable(
+                    ConnectLinkedAppRecord.STORAGE_KEY,
+                    ConnectLinkedAppRecord.META_OFFERED_1,
+                    "TEXT"));
+
+            db.execSQL(DbUtil.addColumnToTable(
+                    ConnectLinkedAppRecord.STORAGE_KEY,
+                    ConnectLinkedAppRecord.META_OFFERED_1_DATE,
+                    "TEXT"));
+
+            db.execSQL(DbUtil.addColumnToTable(
+                    ConnectLinkedAppRecord.STORAGE_KEY,
+                    ConnectLinkedAppRecord.META_OFFERED_2,
+                    "TEXT"));
+
+            db.execSQL(DbUtil.addColumnToTable(
+                    ConnectLinkedAppRecord.STORAGE_KEY,
+                    ConnectLinkedAppRecord.META_OFFERED_2_DATE,
+                    "TEXT"));
+
+            SqlStorage<Persistable> oldStorage = new SqlStorage<>(
+                    ConnectLinkedAppRecord.STORAGE_KEY,
+                    ConnectLinkedAppRecordV3.class,
+                    new ConcreteAndroidDbHelper(c, db));
+
+            SqlStorage<Persistable> newStorage = new SqlStorage<>(
+                    ConnectLinkedAppRecord.STORAGE_KEY,
+                    ConnectLinkedAppRecord.class,
+                    new ConcreteAndroidDbHelper(c, db));
+
+            for (Persistable r : oldStorage) {
+                ConnectLinkedAppRecordV3 oldRecord = (ConnectLinkedAppRecordV3)r;
+                ConnectLinkedAppRecord newRecord = ConnectLinkedAppRecord.fromV3(oldRecord);
+                //set this new record to have same ID as the old one
+                newRecord.setID(oldRecord.getID());
+                newStorage.write(newRecord);
+            }
+
+            //Next, migrate the old ConnectJobPaymentRecord in storage to the new version
+            db.execSQL(DbUtil.addColumnToTable(
+                    ConnectJobPaymentRecord.STORAGE_KEY,
+                    ConnectJobPaymentRecord.META_PAYMENT_ID,
+                    "TEXT"));
+
+            db.execSQL(DbUtil.addColumnToTable(
+                    ConnectJobPaymentRecord.STORAGE_KEY,
+                    ConnectJobPaymentRecord.META_CONFIRMED,
+                    "TEXT"));
+
+            db.execSQL(DbUtil.addColumnToTable(
+                    ConnectJobPaymentRecord.STORAGE_KEY,
+                    ConnectJobPaymentRecord.META_CONFIRMED_DATE,
+                    "TEXT"));
+
+            oldStorage = new SqlStorage<>(
+                    ConnectJobPaymentRecord.STORAGE_KEY,
+                    ConnectJobPaymentRecordV3.class,
+                    new ConcreteAndroidDbHelper(c, db));
+
+            newStorage = new SqlStorage<>(
+                    ConnectJobPaymentRecord.STORAGE_KEY,
+                    ConnectJobPaymentRecord.class,
+                    new ConcreteAndroidDbHelper(c, db));
+
+            for (Persistable r : oldStorage) {
+                ConnectJobPaymentRecordV3 oldRecord = (ConnectJobPaymentRecordV3)r;
+                ConnectJobPaymentRecord newRecord = ConnectJobPaymentRecord.fromV3(oldRecord);
                 //set this new record to have same ID as the old one
                 newRecord.setID(oldRecord.getID());
                 newStorage.write(newRecord);

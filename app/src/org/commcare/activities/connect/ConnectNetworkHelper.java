@@ -1,6 +1,11 @@
 package org.commcare.activities.connect;
 
 import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkCapabilities;
+import android.net.NetworkInfo;
+import android.os.Build;
 import android.os.Handler;
 
 import com.google.common.collect.ArrayListMultimap;
@@ -82,6 +87,22 @@ public class ConnectNetworkHelper {
         return Loader.INSTANCE;
     }
 
+    public static boolean isOnline(Context context) {
+        ConnectivityManager manager = (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            Network network = manager.getActiveNetwork();
+            if(network == null) {
+                return false;
+            }
+
+            NetworkCapabilities capabilities = manager.getNetworkCapabilities(network);
+            return capabilities != null && capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) || capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR);
+        } else {
+            NetworkInfo info = manager.getActiveNetworkInfo();
+            return info != null && info.isConnected();
+        }
+    }
+
     public static PostResult postSync(Context context, String url, AuthInfo authInfo,
                                       HashMap<String, String> params, boolean useFormEncoding) {
         return getInstance().postSyncInternal(context, url, authInfo, params, useFormEncoding);
@@ -101,56 +122,61 @@ public class ConnectNetworkHelper {
     private PostResult postSyncInternal(Context context, String url, AuthInfo authInfo,
                                         HashMap<String, String> params, boolean useFormEncoding) {
         isBusy = true;
-        showProgressDialog(context);
-        HashMap<String, String> headers = new HashMap<>();
-        RequestBody requestBody;
-
-        if (useFormEncoding) {
-            Multimap<String, String> multimap = ArrayListMultimap.create();
-            for (Map.Entry<String, String> entry : params.entrySet()) {
-                multimap.put(entry.getKey(), entry.getValue());
-            }
-
-            requestBody = ModernHttpRequester.getPostBody(multimap);
-            headers = getContentHeadersForXFormPost(requestBody);
-        } else {
-            Gson gson = new Gson();
-            String json = gson.toJson(params);
-            requestBody = RequestBody.create(MediaType.parse("application/json"), json);
-        }
-
-        ModernHttpRequester requester = CommCareApplication.instance().buildHttpRequester(
-                context,
-                url,
-                ImmutableMultimap.of(),
-                headers,
-                requestBody,
-                null,
-                HTTPMethod.POST,
-                authInfo,
-                null,
-                false);
-
-        int responseCode = -1;
-        InputStream stream = null;
-        IOException exception = null;
         try {
-            Response<ResponseBody> response = requester.makeRequest();
-            responseCode = response.code();
-            if (response.isSuccessful()) {
-                stream = requester.getResponseStream(response);
+            showProgressDialog(context);
+            HashMap<String, String> headers = new HashMap<>();
+            RequestBody requestBody;
+
+            if (useFormEncoding) {
+                Multimap<String, String> multimap = ArrayListMultimap.create();
+                for (Map.Entry<String, String> entry : params.entrySet()) {
+                    multimap.put(entry.getKey(), entry.getValue());
+                }
+
+                requestBody = ModernHttpRequester.getPostBody(multimap);
+                headers = getContentHeadersForXFormPost(requestBody);
+            } else {
+                Gson gson = new Gson();
+                String json = gson.toJson(params);
+                requestBody = RequestBody.create(MediaType.parse("application/json"), json);
             }
-            else if(response.errorBody() != null) {
-                String error = response.errorBody().string();
-                Logger.log("DAVE", error);
+
+            ModernHttpRequester requester = CommCareApplication.instance().buildHttpRequester(
+                    context,
+                    url,
+                    ImmutableMultimap.of(),
+                    headers,
+                    requestBody,
+                    null,
+                    HTTPMethod.POST,
+                    authInfo,
+                    null,
+                    false);
+
+            int responseCode = -1;
+            InputStream stream = null;
+            IOException exception = null;
+            try {
+                Response<ResponseBody> response = requester.makeRequest();
+                responseCode = response.code();
+                if (response.isSuccessful()) {
+                    stream = requester.getResponseStream(response);
+                } else if (response.errorBody() != null) {
+                    String error = response.errorBody().string();
+                    Logger.log("DAVE", error);
+                }
+            } catch (IOException e) {
+                exception = e;
             }
-        } catch (IOException e) {
-            exception = e;
+
+            onFinishProcessing(context);
+
+            return new PostResult(responseCode, stream, exception);
         }
-
-        onFinishProcessing(context);
-
-        return new PostResult(responseCode, stream, exception);
+        catch(Exception e) {
+            isBusy = false;
+            return new PostResult(-1, null, null);
+        }
     }
 
     private boolean postInternal(Context context, String url, AuthInfo authInfo,
@@ -504,6 +530,27 @@ public class ConnectNetworkHelper {
             Multimap<String, String> params = ArrayListMultimap.create();
 
             getInstance().getInternal(context, url, token, params, handler);
+        });
+
+        return true;
+    }
+
+    public static boolean setPaymentConfirmed(Context context, String paymentId, boolean confirmed, INetworkResultHandler handler) {
+        if (getInstance().isBusy) {
+            return false;
+        }
+
+        ConnectSsoHelper.retrieveConnectTokenAsync(context, token -> {
+            if(token == null) {
+                return;
+            }
+
+            String url = context.getString(R.string.ConnectPaymentConfirmationURL, BuildConfig.CCC_HOST, paymentId);
+
+            HashMap<String, String> params = new HashMap<>();
+            params.put("confirmed", confirmed ? "true" : "false");
+
+            getInstance().postInternal(context, url, token, params, true, handler);
         });
 
         return true;
