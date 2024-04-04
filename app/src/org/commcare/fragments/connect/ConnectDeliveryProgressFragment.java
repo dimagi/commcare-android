@@ -1,5 +1,6 @@
 package org.commcare.fragments.connect;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -34,6 +35,7 @@ import java.util.List;
 import java.util.Locale;
 
 import androidx.annotation.NonNull;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.Lifecycle;
@@ -49,6 +51,10 @@ public class ConnectDeliveryProgressFragment extends Fragment {
     private ConnectJobRecord job;
     private ConnectDeliveryProgressFragment.ViewStateAdapter viewStateAdapter;
     private TextView updateText;
+
+    private ConstraintLayout paymentAlertTile;
+    private TextView paymentAlertText;
+    private ConnectJobPaymentRecord paymentToConfirm = null;
 
     public ConnectDeliveryProgressFragment() {
         // Required empty public constructor
@@ -75,8 +81,29 @@ public class ConnectDeliveryProgressFragment extends Fragment {
         updateUpdatedDate(job.getLastDeliveryUpdate());
 
         ImageView refreshButton = view.findViewById(R.id.connect_delivery_refresh);
-        refreshButton.setOnClickListener(v -> {
-            refreshData();
+        refreshButton.setOnClickListener(v -> refreshData());
+
+        paymentAlertTile = view.findViewById(R.id.connect_delivery_progress_alert_tile);
+        paymentAlertText = view.findViewById(R.id.connect_payment_confirm_label);
+        TextView paymentAlertNoButton = view.findViewById(R.id.connect_payment_confirm_no_button);
+        paymentAlertNoButton.setOnClickListener(v -> {
+            updatePaymentConfirmationTile(getContext(), true);
+            FirebaseAnalyticsUtil.reportCccPaymentConfirmationInteraction(false);
+        });
+
+        TextView paymentAlertYesButton = view.findViewById(R.id.connect_payment_confirm_yes_button);
+        paymentAlertYesButton.setOnClickListener(v -> {
+            final ConnectJobPaymentRecord payment = paymentToConfirm;
+            //Dismiss the tile
+            updatePaymentConfirmationTile(getContext(), true);
+
+            if(payment != null) {
+                FirebaseAnalyticsUtil.reportCccPaymentConfirmationInteraction(true);
+
+                ConnectManager.updatePaymentConfirmed(getContext(), payment, true, success -> {
+                    FirebaseAnalyticsUtil.reportCccApiPaymentConfirmation(success);
+                });
+            }
         });
 
         final ViewPager2 pager = view.findViewById(R.id.connect_delivery_progress_view_pager);
@@ -113,6 +140,8 @@ public class ConnectDeliveryProgressFragment extends Fragment {
 
             }
         });
+
+        updatePaymentConfirmationTile(getContext(), false);
 
         return view;
     }
@@ -193,6 +222,7 @@ public class ConnectDeliveryProgressFragment extends Fragment {
 
                         try {
                             updateUpdatedDate(new Date());
+                            updatePaymentConfirmationTile(getContext(), false);
                             viewStateAdapter.refresh();
                         }
                         catch(Exception e) {
@@ -219,6 +249,35 @@ public class ConnectDeliveryProgressFragment extends Fragment {
                 reportApiCall(false);
             }
         });
+    }
+
+    private void updatePaymentConfirmationTile(Context context, boolean forceHide) {
+        paymentToConfirm = null;
+        if(!forceHide) {
+            //Look for at least one payment that needs to be confirmed
+            for (ConnectJobPaymentRecord payment : job.getPayments()) {
+                if(payment.allowConfirm()) {
+                    paymentToConfirm = payment;
+                    break;
+                }
+            }
+        }
+
+        //NOTE: Checking for network connectivity here
+        boolean show = paymentToConfirm != null;
+        if(show) {
+            show = ConnectNetworkHelper.isOnline(context);
+            FirebaseAnalyticsUtil.reportCccPaymentConfirmationOnlineCheck(show);
+        }
+
+        paymentAlertTile.setVisibility(show ? View.VISIBLE : View.GONE);
+        if(show) {
+            DateFormat df = new SimpleDateFormat("MM/dd/yyyy", Locale.getDefault());
+            String date = df.format(paymentToConfirm.getDate());
+            paymentAlertText.setText(getString(R.string.connect_payment_confirm_text, paymentToConfirm.getAmount(), job.getCurrency(), date));
+
+            FirebaseAnalyticsUtil.reportCccPaymentConfirmationDisplayed();
+        }
     }
 
     private void reportApiCall(boolean success) {

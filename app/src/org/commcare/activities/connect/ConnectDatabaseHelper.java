@@ -438,6 +438,11 @@ public class ConnectDatabaseHelper {
         }
     }
 
+    public static void storePayment(Context context, ConnectJobPaymentRecord payment) {
+        SqlStorage<ConnectJobPaymentRecord> storage = getConnectStorage(context, ConnectJobPaymentRecord.class);
+        storage.write(payment);
+    }
+
     public static void storePayments(Context context, List<ConnectJobPaymentRecord> payments, int jobId, boolean pruneMissing) {
         SqlStorage<ConnectJobPaymentRecord> storage = getConnectStorage(context, ConnectJobPaymentRecord.class);
 

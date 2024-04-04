@@ -22,11 +22,60 @@
         app:layout_constraintEnd_toStartOf="@id/connect_delivery_refresh"
         />
 
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/connect_delivery_progress_alert_tile"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/connect_delivery_refresh"
+        android:layout_marginTop="2dp"
+        android:layout_marginStart="5dp"
+        android:layout_marginEnd="5dp"
+        android:background="@drawable/dots_rect_back"
+
+        >
+        <ImageView
+            android:id="@+id/connect_payment_confirm_icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:src="@drawable/monetary_support"
+            />
+        <TextView
+            android:id="@+id/connect_payment_confirm_label"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toEndOf="@id/connect_payment_confirm_icon"
+            app:layout_constraintEnd_toEndOf="parent"
+            />
+        <TextView
+            android:id="@+id/connect_payment_confirm_yes_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/connect_payment_confirm_label"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginEnd="10dp"
+            android:textColor="@color/blue"
+            android:text="@string/connect_payment_confirm_yes"/>
+        <TextView
+            android:id="@+id/connect_payment_confirm_no_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/connect_payment_confirm_label"
+            app:layout_constraintEnd_toStartOf="@id/connect_payment_confirm_yes_button"
+            android:layout_marginEnd="40dp"
+            android:textColor="@color/blue"
+            android:text="@string/connect_payment_confirm_no"/>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/connect_delivery_progress_tabs"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/connect_delivery_refresh"
+        app:layout_constraintTop_toBottomOf="@id/connect_delivery_progress_alert_tile"
+        android:layout_marginTop="5dp"
         android:background="@color/solid_blue"
         app:tabTextColor="@color/white" />
 

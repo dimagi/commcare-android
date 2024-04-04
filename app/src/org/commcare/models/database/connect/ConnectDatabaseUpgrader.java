@@ -173,7 +173,12 @@ public class ConnectDatabaseUpgrader {
                 newStorage.write(newRecord);
             }
 
-            //Next, migrate the old ConnectJobDeliveryRecord in storage to the new version
+            //Next, migrate the old ConnectJobPaymentRecord in storage to the new version
+            db.execSQL(DbUtil.addColumnToTable(
+                    ConnectJobPaymentRecord.STORAGE_KEY,
+                    ConnectJobPaymentRecord.META_PAYMENT_ID,
+                    "TEXT"));
+
             db.execSQL(DbUtil.addColumnToTable(
                     ConnectJobPaymentRecord.STORAGE_KEY,
                     ConnectJobPaymentRecord.META_CONFIRMED,

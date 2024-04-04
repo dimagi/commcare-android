@@ -30,7 +30,7 @@
     <string name="ConnectLearnProgressURL">https://%s/api/opportunity/%d/learn_progress</string>
     <string name="ConnectClaimJobURL">https://%s/api/opportunity/%d/claim</string>
     <string name="ConnectDeliveriesURL">https://%s/api/opportunity/%d/delivery_progress</string>
-    <string name="ConnectPaymentConfirmationURL">https://%s/api/payment/%d/confirm</string>
+    <string name="ConnectPaymentConfirmationURL">https://%s/api/payment/%s/confirm</string>
 
     <string name="key_server">https://pact.dimagi.com/keys/getkey</string>
     <string name="your_comment">Your comment</string>
@@ -719,8 +719,17 @@
     <string name="connect_results_summary_verifications_description">Pending Verification: %d\nNot Approved: %d\nApproved: %d</string>
     <string name="connect_results_summary_payments_title">Payment Status</string>
     <string name="connect_results_summary_payments_description">Earned Amount: %s\nTransferred Amount: %s</string>
-    <string name="connect_results_payment_title">You received money</string>
-    <string name="connect_results_payment_description">You received %s</string>
+    <string name="connect_results_payment_date">Issued %s</string>
+    <string name="connect_results_payment_description">Paid %s</string>
+    <string name="connect_results_payment_confirm">Confirm</string>
+    <string name="connect_results_payment_confirm_undo">Undo confirm</string>
+    <string name="connect_results_payment_confirmed">Confirmed</string>
+    <string name="connect_results_payment_not_confirmed">Not Confirmed</string>
+
+    <string name="connect_payment_confirm_text">You got paid!\n%s %s paid %s.\nHave you received the payment?</string>
+    <string name="connect_payment_confirm_yes">Yes!</string>
+    <string name="connect_payment_confirm_no">Ask later</string>
+    <string name="connect_payment_confirm_failed">Failed to send confirmation, we will ask again later.</string>
 
     <string name="login_button_connectid">Login with ConnectID</string>
     <string name="login_link_connectid_title">Link to ConnectID?</string>

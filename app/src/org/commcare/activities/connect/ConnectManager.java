@@ -16,6 +16,7 @@ import androidx.work.WorkManager;
 import org.commcare.activities.CommCareActivity;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.activities.SettingsHelper;
+import org.commcare.android.database.connect.models.ConnectJobPaymentRecord;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.CommCareApplication;
@@ -39,6 +40,8 @@ import org.javarosa.core.util.PropertyUtils;
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -986,6 +989,31 @@ public class ConnectManager {
         CommCareApplication.instance().getCurrentApp().getStorage(UserKeyRecord.class).write(ukr);
 
         return appRecord;
+    }
+
+    public static void updatePaymentConfirmed(Context context, final ConnectJobPaymentRecord payment, boolean confirmed, ConnectActivityCompleteListener listener) {
+        ConnectNetworkHelper.setPaymentConfirmed(context, payment.getPaymentId(), confirmed, new ConnectNetworkHelper.INetworkResultHandler() {
+            @Override
+            public void processSuccess(int responseCode, InputStream responseData) {
+                payment.setConfirmed(confirmed);
+                ConnectDatabaseHelper.storePayment(context, payment);
+
+                //No need to report to user
+                listener.connectActivityComplete(true);
+            }
+
+            @Override
+            public void processFailure(int responseCode, IOException e) {
+                Toast.makeText(context, R.string.connect_payment_confirm_failed, Toast.LENGTH_SHORT).show();
+                listener.connectActivityComplete(false);
+            }
+
+            @Override
+            public void processNetworkFailure() {
+                Toast.makeText(context, R.string.connect_payment_confirm_failed, Toast.LENGTH_SHORT).show();
+                listener.connectActivityComplete(false);
+            }
+        });
     }
 
     public static String generatePassword() {

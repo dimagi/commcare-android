@@ -12,6 +12,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
+import java.util.concurrent.TimeUnit;
 
 @Table(ConnectJobPaymentRecord.STORAGE_KEY)
 public class ConnectJobPaymentRecord extends Persisted implements Serializable {
@@ -23,6 +24,7 @@ public class ConnectJobPaymentRecord extends Persisted implements Serializable {
     public static final String META_JOB_ID = "job_id";
     public static final String META_AMOUNT = "amount";
     public static final String META_DATE = "date_paid";
+    public static final String META_PAYMENT_ID = "payment_id";
     public static final String META_CONFIRMED = "confirmed";
     public static final String META_CONFIRMED_DATE = "date_confirmed";
 
@@ -39,10 +41,13 @@ public class ConnectJobPaymentRecord extends Persisted implements Serializable {
     private String amount;
 
     @Persisting(4)
+    @MetaField(META_PAYMENT_ID)
+    private String paymentId;
+    @Persisting(5)
     @MetaField(META_CONFIRMED)
     private boolean confirmed;
 
-    @Persisting(5)
+    @Persisting(6)
     @MetaField(META_CONFIRMED_DATE)
     private Date confirmedDate;
 
@@ -55,6 +60,7 @@ public class ConnectJobPaymentRecord extends Persisted implements Serializable {
         newRecord.date = oldRecord.getDate();
         newRecord.amount = oldRecord.getAmount();
 
+        newRecord.paymentId = "-1";
         newRecord.confirmed = false;
         newRecord.confirmedDate = new Date();
 
@@ -70,12 +76,14 @@ public class ConnectJobPaymentRecord extends Persisted implements Serializable {
         payment.date = json.has(META_DATE) ? df.parse(json.getString(META_DATE)) : new Date();
         payment.amount = String.format(Locale.ENGLISH, "%d", json.has(META_AMOUNT) ? json.getInt(META_AMOUNT) : 0);
 
+        payment.paymentId = json.has("id") ? json.getString("id") : "";
         payment.confirmed = json.has(META_CONFIRMED) && json.getBoolean(META_CONFIRMED);
-        payment.confirmedDate = json.has(META_CONFIRMED_DATE) ? df.parse(json.getString(META_CONFIRMED_DATE)) : new Date();
+        payment.confirmedDate = json.has(META_CONFIRMED_DATE) && !json.isNull(META_CONFIRMED_DATE) ? df.parse(json.getString(META_CONFIRMED_DATE)) : new Date();
 
         return payment;
     }
 
+    public String getPaymentId() {return paymentId; }
     public Date getDate() { return date;}
 
     public String getAmount() { return amount; }
@@ -88,5 +96,25 @@ public class ConnectJobPaymentRecord extends Persisted implements Serializable {
         if(confirmed) {
             confirmedDate = new Date();
         }
+    }
+
+    public boolean allowConfirm() {
+        if (confirmed) {
+            return false;
+        }
+
+        long millis = (new Date()).getTime() - date.getTime();
+        long days = TimeUnit.DAYS.convert(millis, TimeUnit.MILLISECONDS);
+        return days < 7;
+    }
+
+    public boolean allowConfirmUndo() {
+        if (!confirmed) {
+            return false;
+        }
+
+        long millis = (new Date()).getTime() - confirmedDate.getTime();
+        long days = TimeUnit.DAYS.convert(millis, TimeUnit.MILLISECONDS);
+        return days < 1;
     }
 }

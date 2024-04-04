@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import org.commcare.activities.connect.ConnectManager;
 import org.commcare.android.database.connect.models.ConnectJobDeliveryRecord;
 import org.commcare.android.database.connect.models.ConnectJobPaymentRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
@@ -100,13 +101,22 @@ public class ConnectResultsListFragment extends Fragment {
                 verificationHolder.statusText.setText(delivery.getStatus());
                 verificationHolder.reasonText.setText(delivery.getReason());
             } else if(holder instanceof PaymentViewHolder paymentHolder) {
-                ConnectJobPaymentRecord payment = job.getPayments().get(position);
+                final ConnectJobPaymentRecord payment = job.getPayments().get(position);
 
                 String money = job.getMoneyString(Integer.parseInt(payment.getAmount()));
+                paymentHolder.nameText.setText(parentContext.getString(R.string.connect_results_payment_description, money));
 
-                paymentHolder.nameText.setText(parentContext.getString(R.string.connect_results_payment_title));
-                paymentHolder.dateText.setText(df.format(payment.getDate()));
-                paymentHolder.statusText.setText(parentContext.getString(R.string.connect_results_payment_description, money));
+                paymentHolder.dateText.setText(parentContext.getString(R.string.connect_results_payment_date, df.format(payment.getDate())));
+
+                boolean enabled = paymentHolder.updateConfirmedText(parentContext, payment);
+
+                if(enabled) {
+                    paymentHolder.confirmText.setOnClickListener(v -> {
+                        ConnectManager.updatePaymentConfirmed(parentContext, payment, !payment.getConfirmed(), success -> {
+                            paymentHolder.updateConfirmedText(parentContext, payment);
+                        });
+                    });
+                }
             }
         }
 
@@ -134,14 +144,35 @@ public class ConnectResultsListFragment extends Fragment {
         public static class PaymentViewHolder extends RecyclerView.ViewHolder {
             TextView nameText;
             TextView dateText;
-            TextView statusText;
+            TextView confirmText;
 
             public PaymentViewHolder(@NonNull View itemView) {
                 super(itemView);
 
                 nameText = itemView.findViewById(R.id.name);
                 dateText = itemView.findViewById(R.id.date);
-                statusText = itemView.findViewById(R.id.status);
+                confirmText = itemView.findViewById(R.id.confirm);
+            }
+
+            public boolean updateConfirmedText(Context context, ConnectJobPaymentRecord payment) {
+                boolean enabled;
+                int confirmTextId;
+                if(payment.getConfirmed()) {
+                    enabled = payment.allowConfirmUndo();
+                    confirmTextId = enabled ?
+                            R.string.connect_results_payment_confirm_undo :
+                            R.string.connect_results_payment_confirmed;
+                } else {
+                    enabled = payment.allowConfirm();
+                    confirmTextId = enabled ?
+                            R.string.connect_results_payment_confirm :
+                            R.string.connect_results_payment_not_confirmed;
+                }
+
+                confirmText.setText(confirmTextId);
+                confirmText.setTextColor(context.getResources().getColor(enabled ? R.color.blue : R.color.dark_grey));
+
+                return enabled;
             }
         }
     }
