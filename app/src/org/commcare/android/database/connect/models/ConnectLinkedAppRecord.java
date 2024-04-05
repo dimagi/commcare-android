@@ -59,6 +59,8 @@ public class ConnectLinkedAppRecord extends Persisted {
 
     public ConnectLinkedAppRecord() {
         hqTokenExpiration = new Date();
+        linkOfferDate1 = new Date();
+        linkOfferDate2 = new Date();
     }
 
     public static ConnectLinkedAppRecord fromV3(ConnectLinkedAppRecordV3 oldRecord) {
@@ -81,12 +83,12 @@ public class ConnectLinkedAppRecord extends Persisted {
     }
 
     public ConnectLinkedAppRecord(String appId, String userId, boolean connectIdLinked, String password) {
+        this();
+
         this.appId = appId;
         this.userId = userId;
         this.connectIdLinked = connectIdLinked;
         this.password = password;
-
-        hqTokenExpiration = new Date();
     }
 
     public String getUserId() {
