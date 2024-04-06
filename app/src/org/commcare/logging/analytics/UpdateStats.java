@@ -21,6 +21,7 @@ public class UpdateStats implements Serializable {
     private long startInstallTime;
     private int resetCounter = 0;
     private ResultAndError<AppInstallStatus> lastStageUpdateResult;
+    private int previousAtempttProgress = -1;
 
     private UpdateStats() {
         startInstallTime = new Date().getTime();
@@ -55,6 +56,7 @@ public class UpdateStats implements Serializable {
         clearPersistedStats(app);
         startInstallTime = new Date().getTime();
         resetCounter = 0;
+        previousAtempttProgress = -1;
     }
 
     /**
@@ -64,10 +66,11 @@ public class UpdateStats implements Serializable {
         PrefStats.clearPersistedStats(app, UPGRADE_STATS_KEY);
     }
 
-    public void registerUpdateFailure(AppInstallStatus result) {
+    public void registerUpdateFailure(AppInstallStatus result, int currentProgress) {
         if (result.causeUpdateReset()) {
             resetCounter++;
         }
+        previousAtempttProgress = currentProgress;
     }
 
     /**
@@ -105,7 +108,7 @@ public class UpdateStats implements Serializable {
                 ".\n" +
                 "Reset Count " +
                 resetCounter +
-                " times.\n";
+                " times." + (previousAtempttProgress != -1 ? "Previous attempt progress "+ previousAtempttProgress:"")+". \n";
     }
 
 }

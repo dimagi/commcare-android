@@ -12,7 +12,6 @@ import org.commcare.resources.ResourceInstallContext;
 import org.commcare.resources.ResourceManager;
 import org.commcare.resources.model.InstallCancelled;
 import org.commcare.resources.model.InstallCancelledException;
-import org.commcare.resources.model.InstallRequestSource;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.TableStateListener;
@@ -186,10 +185,11 @@ public class AndroidResourceManager extends ResourceManager {
      * Clear update table, log failure with update stats,
      * and, if appropriate, schedule a update retry
      *
-     * @param result update attempt result
+     * @param result           update attempt result
+     * @param updateProgress   update attempt progress
      */
-    public void processUpdateFailure(AppInstallStatus result) {
-        updateStats.registerUpdateFailure(result);
+    public void processUpdateFailure(AppInstallStatus result, int updateProgress) {
+        updateStats.registerUpdateFailure(result, updateProgress);
         FirebaseAnalyticsUtil.reportStageUpdateAttemptFailure(result.toString());
 
         if (result.shouldDiscardPartialUpdateTable()) {

@@ -177,7 +177,7 @@ public class UpdateHelper implements TableStateListener {
         }
 
         if (!resultAndError.data.isUpdateInCompletedState()) {
-            mResourceManager.processUpdateFailure(resultAndError.data);
+            mResourceManager.processUpdateFailure(resultAndError.data, mCurrentProgress);
         }
 
         if (mPinnedNotificationProgress != null) {
