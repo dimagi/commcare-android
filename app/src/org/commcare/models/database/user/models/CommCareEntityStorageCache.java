@@ -20,6 +20,7 @@ import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.DetailField;
 import org.commcare.utils.SessionUnavailableException;
 
+import java.io.Closeable;
 import java.util.Collection;
 import java.util.Hashtable;
 import java.util.List;
@@ -72,18 +73,12 @@ public class CommCareEntityStorageCache implements EntityStorageCache {
         db.execSQL(DatabaseIndexingUtils.indexOnTableCommand("NAME_ENTITY_KEY", TABLE_NAME, COL_CACHE_NAME + ", " + COL_ENTITY_KEY + ", " + COL_CACHE_KEY));
     }
 
-    public boolean lockCache() {
+    public Closeable lockCache() {
         //Get a db handle so we can get an outer lock
-        SQLiteDatabase db;
-        try {
-            db = CommCareApplication.instance().getUserDbHandle();
-        } catch (SessionUnavailableException e) {
-            return false;
-        }
-
+        SQLiteDatabase db = CommCareApplication.instance().getUserDbHandle();
         //get the db lock
         db.beginTransaction();
-        return true;
+        return db;
     }
 
     public void releaseCache() {
