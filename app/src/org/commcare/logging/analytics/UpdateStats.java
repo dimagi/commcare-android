@@ -67,7 +67,10 @@ public class UpdateStats implements Serializable {
     }
 
     public void registerUpdateFailure(AppInstallStatus result, int currentProgress) {
-        if (result.causeUpdateReset()) {
+        // TODO: Consider whether the incrementation should only happen when currentProgress is higher than that
+        //  of the previous attempt
+        if ((previousAtempttProgress ==-1 || previousAtempttProgress == currentProgress) &&
+                result.causeUpdateReset()) {
             resetCounter++;
         }
         previousAtempttProgress = currentProgress;
