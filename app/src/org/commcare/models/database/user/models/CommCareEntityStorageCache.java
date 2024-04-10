@@ -11,10 +11,10 @@ import org.commcare.CommCareApplication;
 import org.commcare.cases.entity.AsyncEntity;
 import org.commcare.cases.entity.EntityStorageCache;
 import org.commcare.models.database.DbUtil;
-import org.commcare.modern.database.TableBuilder;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.modern.database.DatabaseHelper;
 import org.commcare.modern.database.DatabaseIndexingUtils;
+import org.commcare.modern.database.TableBuilder;
 import org.commcare.modern.util.Pair;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.DetailField;
@@ -78,18 +78,10 @@ public class CommCareEntityStorageCache implements EntityStorageCache {
         SQLiteDatabase db = CommCareApplication.instance().getUserDbHandle();
         //get the db lock
         db.beginTransaction();
-        return db;
-    }
-
-    public void releaseCache() {
-        SQLiteDatabase db;
-        try {
-            db = CommCareApplication.instance().getUserDbHandle();
+        return () -> {
             db.setTransactionSuccessful();
             db.endTransaction();
-        } catch (SessionUnavailableException e) {
-            // do nothing
-        }
+        };
     }
 
     //TODO: We should do some synchronization to make it the case that nothing can hold
