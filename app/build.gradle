@@ -396,7 +396,7 @@ android {
 
 
         cccStaging {
-            buildConfigField 'String', 'CCC_HOST', '\'connect-staging.dimagi.com\''
+            buildConfigField 'String', 'CCC_HOST', "\"connect-staging.dimagi.com\""
 
             // set the app name
             def applicationName = 'CommCare (CCC Staging)'
