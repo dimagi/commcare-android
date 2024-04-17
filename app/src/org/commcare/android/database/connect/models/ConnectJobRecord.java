@@ -140,27 +140,6 @@ public class ConnectJobRecord extends Persisted implements Serializable {
 
     }
 
-    public ConnectJobRecord(int jobId, String title, String description, int status,
-                            int completedVisits, int maxVisits, int maxDailyVisits, int budgetPerVisit, int totalBudget,
-                            Date projectEnd, Date lastWorkedDate,
-                            List<ConnectJobDeliveryRecord> deliveries) {
-        this.jobId = jobId;
-        this.title = title;
-        this.description = description;
-        this.status = status;
-        this.completedVisits = completedVisits;
-        this.maxDailyVisits = maxDailyVisits;
-        this.maxVisits = maxVisits;
-        this.budgetPerVisit = budgetPerVisit;
-        this.totalBudget = totalBudget;
-        this.projectEndDate = projectEnd;
-        this.lastWorkedDate = lastWorkedDate;
-        this.deliveries = deliveries;
-        this.payments = new ArrayList<>();
-        this.learnings = new ArrayList<>();
-        this.assessments = new ArrayList<>();
-    }
-
     public static ConnectJobRecord fromJson(JSONObject json) throws JSONException, ParseException {
         SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
 
@@ -374,53 +353,59 @@ public class ConnectJobRecord extends Persisted implements Serializable {
      * Used for app db migration only
      */
     public static ConnectJobRecord fromV2(ConnectJobRecordV2 oldRecord) {
-        ConnectJobRecord newRecord = new ConnectJobRecord(
-                oldRecord.getJobId(),
-                oldRecord.getTitle(),
-                oldRecord.getDescription(),
-                oldRecord.getStatus(),
-                oldRecord.getCompletedVisits(),
-                oldRecord.getMaxVisits(),
-                oldRecord.getMaxDailyVisits(),
-                oldRecord.getBudgetPerVisit(),
-                oldRecord.getTotalBudget(),
-                oldRecord.getProjectEndDate(),
-                oldRecord.getLastUpdate(),
-                new ArrayList<>()
-        );
+        ConnectJobRecord newRecord = new ConnectJobRecord();
 
-         newRecord.organization = oldRecord.getOrganization();
-         newRecord.lastWorkedDate = oldRecord.getLastWorkedDate();
-         newRecord.numLearningModules = oldRecord.getNumLearningModules();
-         newRecord.learningModulesCompleted = oldRecord.getLearningModulesCompleted();
-         newRecord.currency = oldRecord.getCurrency();
-         newRecord.paymentAccrued = Integer.toString(oldRecord.getPaymentAccrued());
-         newRecord.shortDescription = oldRecord.getShortDescription();
-         newRecord.lastUpdate = oldRecord.getLastUpdate();
-         newRecord.lastLearnUpdate = oldRecord.getLastLearnUpdate();
-         newRecord.lastDeliveryUpdate = oldRecord.getLastDeliveryUpdate();
-         newRecord.dateClaimed = new Date();
-         newRecord.projectStartDate = new Date();
-         newRecord.isActive = true;
+        newRecord.jobId = oldRecord.getJobId();
+        newRecord.title = oldRecord.getTitle();
+        newRecord.description = oldRecord.getDescription();
+        newRecord.status = oldRecord.getStatus();
+        newRecord.completedVisits = oldRecord.getCompletedVisits();
+        newRecord.maxDailyVisits = oldRecord.getMaxDailyVisits();
+        newRecord.maxVisits = oldRecord.getMaxVisits();
+        newRecord.budgetPerVisit = oldRecord.getBudgetPerVisit();
+        newRecord.totalBudget = oldRecord.getTotalBudget();
+        newRecord.projectEndDate = oldRecord.getProjectEndDate();
+        newRecord.lastWorkedDate = oldRecord.getLastWorkedDate();
+        newRecord.deliveries = new ArrayList<>();
+        newRecord.payments = new ArrayList<>();
+        newRecord.learnings = new ArrayList<>();
+        newRecord.assessments = new ArrayList<>();
+
+        newRecord.organization = oldRecord.getOrganization();
+        newRecord.lastWorkedDate = oldRecord.getLastWorkedDate();
+        newRecord.numLearningModules = oldRecord.getNumLearningModules();
+        newRecord.learningModulesCompleted = oldRecord.getLearningModulesCompleted();
+        newRecord.currency = oldRecord.getCurrency();
+        newRecord.paymentAccrued = Integer.toString(oldRecord.getPaymentAccrued());
+        newRecord.shortDescription = oldRecord.getShortDescription();
+        newRecord.lastUpdate = oldRecord.getLastUpdate();
+        newRecord.lastLearnUpdate = oldRecord.getLastLearnUpdate();
+        newRecord.lastDeliveryUpdate = oldRecord.getLastDeliveryUpdate();
+        newRecord.dateClaimed = new Date();
+        newRecord.projectStartDate = new Date();
+        newRecord.isActive = true;
 
         return newRecord;
     }
 
     public static ConnectJobRecord fromV4(ConnectJobRecordV4 oldRecord) {
-        ConnectJobRecord newRecord = new ConnectJobRecord(
-                oldRecord.getJobId(),
-                oldRecord.getTitle(),
-                oldRecord.getDescription(),
-                oldRecord.getStatus(),
-                oldRecord.getCompletedVisits(),
-                oldRecord.getMaxVisits(),
-                oldRecord.getMaxDailyVisits(),
-                oldRecord.getBudgetPerVisit(),
-                oldRecord.getTotalBudget(),
-                oldRecord.getProjectEndDate(),
-                oldRecord.getLastUpdate(),
-                new ArrayList<>()
-        );
+        ConnectJobRecord newRecord = new ConnectJobRecord();
+
+        newRecord.jobId = oldRecord.getJobId();
+        newRecord.title = oldRecord.getTitle();
+        newRecord.description = oldRecord.getDescription();
+        newRecord.status = oldRecord.getStatus();
+        newRecord.completedVisits = oldRecord.getCompletedVisits();
+        newRecord.maxDailyVisits = oldRecord.getMaxDailyVisits();
+        newRecord.maxVisits = oldRecord.getMaxVisits();
+        newRecord.budgetPerVisit = oldRecord.getBudgetPerVisit();
+        newRecord.totalBudget = oldRecord.getTotalBudget();
+        newRecord.projectEndDate = oldRecord.getProjectEndDate();
+        newRecord.lastWorkedDate = oldRecord.getLastWorkedDate();
+        newRecord.deliveries = new ArrayList<>();
+        newRecord.payments = new ArrayList<>();
+        newRecord.learnings = new ArrayList<>();
+        newRecord.assessments = new ArrayList<>();
 
         newRecord.organization = oldRecord.getOrganization();
         newRecord.lastWorkedDate = oldRecord.getLastWorkedDate();

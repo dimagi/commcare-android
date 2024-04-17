@@ -7,6 +7,7 @@ import org.commcare.modern.models.MetaField;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Data class for holding info related to a Connect job

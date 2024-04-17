@@ -15,7 +15,6 @@ import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectLearnModuleSummaryRecord;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
-import org.commcare.android.database.connect.models.MockJobProvider;
 import org.commcare.android.database.global.models.ConnectKeyRecord;
 import org.commcare.models.database.AndroidDbHelper;
 import org.commcare.models.database.SqlStorage;
@@ -477,21 +476,7 @@ public class ConnectDatabaseHelper {
         }
     }
 
-    private static final boolean UseMockData = false;
-
     public static List<ConnectJobRecord> getJobs(Context context, int status, SqlStorage<ConnectJobRecord> jobStorage) {
-        if(UseMockData) {
-            return switch(status) {
-                case ConnectJobRecord.STATUS_AVAILABLE ->
-                        MockJobProvider.getAvailableJobs();
-                case ConnectJobRecord.STATUS_LEARNING ->
-                    MockJobProvider.getTrainingJobs();
-                case ConnectJobRecord.STATUS_DELIVERING ->
-                    MockJobProvider.getDeliveryJobs();
-                default -> new ArrayList<>();
-            };
-        }
-
         if(jobStorage == null) {
             jobStorage = getConnectStorage(context, ConnectJobRecord.class);
         }
