@@ -128,6 +128,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         formAndDataSyncer = new FormAndDataSyncer();
 
         ConnectManager.init(this);
+        updateConnectButton();
 
         presetAppId = getIntent().getStringExtra(EXTRA_APP_ID);
         appLaunchedFromConnect = ConnectManager.wasAppLaunchedFromConnect(presetAppId);
@@ -291,6 +292,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         // Otherwise, refresh the activity for current conditions
         uiController.refreshView();
 
+        updateConnectButton();
         checkForSavedCredentials();
 
         ConnectManager.setParent(this);
@@ -464,6 +466,15 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         finish();
     }
 
+    public void handleConnectButtonPress() {
+        selectedAppIndex = -1;
+        ConnectManager.unlockConnect(this, success -> {
+            if(success) {
+                ConnectManager.goToConnectJobsList();
+            }
+        });
+    }
+
     public boolean handleConnectSignIn() {
         if (!appLaunchedFromConnect && ConnectManager.isConnectIdIntroduced()) {
             String appId = CommCareApplication.instance().getCurrentApp().getUniqueId();
@@ -491,6 +502,13 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         }
     }
 
+    private void updateConnectButton() {
+        uiController.setConnectButtonText(ConnectManager.getConnectButtonText(this));
+        uiController.setConnectButtonVisible(ConnectManager.shouldShowConnectButton());
+
+        uiController.updateConnectLoginState();
+    }
+
     public void registerConnectIdUser() {
         selectedAppIndex = -1;
         ConnectManager.registerUser(this, success -> {
@@ -505,8 +523,9 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         if (ConnectManager.isConnectIdIntroduced()) {
             if (appLaunchedFromConnect) {
                 loginWithConnectIDVisible = true;
-                uiController.setUsername("AUTO");
-                uiController.setPasswordOrPin("AUTO");
+                uiController.setConnectButtonVisible(false);
+                uiController.setUsername(getString(R.string.login_input_auto));
+                uiController.setPasswordOrPin(getString(R.string.login_input_auto));
                 if(!seatAppIfNeeded(presetAppId)) {
                     initiateLoginAttempt(uiController.isRestoreSessionChecked());
                 }

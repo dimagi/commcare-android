@@ -158,7 +158,8 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         job.maxVisits = json.has(META_MAX_VISITS) ? json.getInt(META_MAX_VISITS) : -1;
         job.maxDailyVisits = json.has(META_MAX_DAILY_VISITS) ? json.getInt(META_MAX_DAILY_VISITS) : -1;
         job.budgetPerVisit = json.has(META_BUDGET_PER_VISIT) ? json.getInt(META_BUDGET_PER_VISIT) : -1;
-        job.totalBudget = json.has(META_BUDGET_TOTAL) ? json.getInt(META_BUDGET_TOTAL) : -1;
+        String budgetPerUserKey = "budget_per_user";
+        job.totalBudget = json.has(budgetPerUserKey) ? json.getInt(budgetPerUserKey) : -1;
         job.currency = json.has(META_CURRENCY) && !json.isNull(META_CURRENCY) ? json.getString(META_CURRENCY) : "";
         job.shortDescription = json.has(META_SHORT_DESCRIPTION) && !json.isNull(META_SHORT_DESCRIPTION) ?
                 json.getString(META_SHORT_DESCRIPTION) : "";
@@ -174,7 +175,7 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         job.claimed = json.has(META_CLAIM) &&!json.isNull(META_CLAIM);
         job.dateClaimed = new Date();
 
-        job.isActive = json.has(META_IS_ACTIVE) && json.getBoolean(META_IS_ACTIVE);
+        job.isActive = !json.has(META_IS_ACTIVE) || json.getBoolean(META_IS_ACTIVE);
 
         if(job.claimed) {
             //Actual claim object: {"max_payments", "end_date", "date_claimed" }

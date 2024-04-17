@@ -24,6 +24,7 @@ import java.util.Vector;
 
 import org.commcare.CommCareApplication;
 import org.commcare.CommCareNoficationManager;
+import org.commcare.activities.connect.ConnectDatabaseHelper;
 import org.commcare.activities.connect.ConnectManager;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
@@ -65,6 +66,12 @@ public class LoginActivityUiController implements CommCareActivityUIController {
 
     @UiElement(value = R.id.btn_view_notifications)
     private RectangleButtonWithText notificationButton;
+
+    @UiElement(value = R.id.connect_login_button)
+    private Button connectLoginButton;
+
+    @UiElement(value = R.id.login_or)
+    private TextView orLabel;
 
     @UiElement(value = R.id.edit_username, locale = "login.username")
     private AutoCompleteTextView username;
@@ -143,6 +150,8 @@ public class LoginActivityUiController implements CommCareActivityUIController {
         setTextChangeListeners();
         setBannerLayoutLogic();
 
+        connectLoginButton.setOnClickListener(arg0 -> activity.handleConnectButtonPress());
+
         loginButton.setOnClickListener(arg0 -> {
             FirebaseAnalyticsUtil.reportLoginClicks();
             activity.initiateLoginAttempt(isRestoreSessionChecked());
@@ -165,6 +174,14 @@ public class LoginActivityUiController implements CommCareActivityUIController {
         notificationButton.setText(Localization.get("error.button.text"));
         notificationButton.setOnClickListener(view -> CommCareNoficationManager
                 .performIntentCalloutToNotificationsView(activity));
+    }
+
+    public void setConnectButtonText(String text) {
+        connectLoginButton.setText(text);
+    }
+
+    public void setConnectButtonVisible(Boolean visible) {
+        connectLoginButton.setVisibility(visible ? View.VISIBLE : View.GONE);
     }
 
     private void setTextChangeListeners() {
@@ -211,6 +228,7 @@ public class LoginActivityUiController implements CommCareActivityUIController {
 
         ApplicationRecord presetAppRecord = getPresetAppRecord(readyApps);
         boolean noApps = readyApps.isEmpty();
+        orLabel.setVisibility(noApps || !ConnectManager.isConnectIdIntroduced() ? View.GONE : View.VISIBLE);
         setLoginInputsVisibility(!noApps);
         if (!ConnectManager.isConnectIdIntroduced() && (readyApps.size() == 1 || presetAppRecord != null)) {
             setLoginInputsVisibility(true);
@@ -242,6 +260,8 @@ public class LoginActivityUiController implements CommCareActivityUIController {
             checkEnteredUsernameForMatch();
         }
 
+        updateConnectLoginState();
+
         if (!CommCareApplication.notificationManager().messagesForCommCareArePending()) {
             notificationButtonView.setVisibility(View.GONE);
         }
@@ -250,6 +270,15 @@ public class LoginActivityUiController implements CommCareActivityUIController {
     public void setLoginInputsVisibility(boolean visible) {
         username.setVisibility(visible ? View.VISIBLE : View.GONE);
         passwordOrPin.setVisibility(visible ? View.VISIBLE : View.GONE);
+    }
+
+    public void updateConnectLoginState() {
+        if (ConnectManager.isConnectIdIntroduced()) {
+            String welcomeText = activity.getString(R.string.login_welcome_connect_signed_in,
+                    ConnectDatabaseHelper.getUser(activity).getName());
+
+            welcomeMessage.setText(welcomeText);
+        }
     }
 
     @Nullable
