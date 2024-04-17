@@ -32,8 +32,9 @@ public class DatabaseConnectOpenHelper extends SQLiteOpenHelper {
      *          and reason column to ConnectJobDeliveryRecord
      * V.4 - Added confirmed and confirmedDate fields to ConnectJobPaymentRecord
      *          Added link offer info to ConnectLinkedAppRecord
+     * V.5 - Added projectStartDate and isActive to ConnectJobRecord
      */
-    private static final int CONNECT_DB_VERSION = 4;
+    private static final int CONNECT_DB_VERSION = 5;
 
     private static final String CONNECT_DB_LOCATOR = "database_connect";
 

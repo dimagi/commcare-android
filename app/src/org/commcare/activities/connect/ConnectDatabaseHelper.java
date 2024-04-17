@@ -562,7 +562,7 @@ public class ConnectDatabaseHelper {
 
         List<ConnectJobRecord> filtered = new ArrayList<>();
         for(ConnectJobRecord record : jobs) {
-            if(record.getDaysRemaining() > 0) {
+            if(!record.isFinished()) {
                 filtered.add(record);
             }
         }
@@ -578,7 +578,7 @@ public class ConnectDatabaseHelper {
 
         List<ConnectJobRecord> filtered = new ArrayList<>();
         for(ConnectJobRecord record : jobs) {
-            if(record.getDaysRemaining() > 0) {
+            if(!record.isFinished()) {
                 filtered.add(record);
             }
         }
@@ -594,7 +594,7 @@ public class ConnectDatabaseHelper {
 
         List<ConnectJobRecord> filtered = new ArrayList<>();
         for(ConnectJobRecord record : jobs) {
-            if(record.getDaysRemaining() > 0) {
+            if(!record.isFinished()) {
                 filtered.add(record);
             }
         }
@@ -610,7 +610,7 @@ public class ConnectDatabaseHelper {
 
         List<ConnectJobRecord> filtered = new ArrayList<>();
         for(ConnectJobRecord record : jobs) {
-            if(record.getDaysRemaining() == 0) {
+            if(record.isFinished()) {
                 filtered.add(record);
             }
         }

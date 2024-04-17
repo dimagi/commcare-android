@@ -1,6 +1,7 @@
 package org.commcare.fragments.connect;
 
 import android.os.Bundle;
+import android.os.Environment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -157,8 +158,21 @@ public class ConnectDeliveryProgressDeliveryFragment extends Fragment {
 
         textView = view.findViewById(R.id.connect_progress_complete_by_text);
         DateFormat df = new SimpleDateFormat("MM/dd/yyyy", Locale.getDefault());
-        int textId = finished ? R.string.connect_progress_ended : R.string.connect_progress_complete_by;
-        textView.setText(getString(textId, df.format(job.getProjectEndDate())));
+
+        String endText = df.format(job.getProjectEndDate());
+        String text;
+        if(finished) {
+            //Project ended
+            text = getString(R.string.connect_progress_ended, endText);
+        }
+        else if(job.getProjectStartDate() != null && job.getProjectStartDate().after(new Date())) {
+            //Project hasn't started yet
+            text = getString(R.string.connect_progress_begin_date, df.format(job.getProjectStartDate()), endText);
+        }
+        else {
+            text = getString(R.string.connect_progress_complete_by, endText);
+        }
+        textView.setText(text);
 
         textView = view.findViewById(R.id.connect_progress_warning_learn_text);
         textView.setOnClickListener(v -> {

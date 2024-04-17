@@ -56,6 +56,8 @@ public class ConnectJobRecord extends Persisted implements Serializable {
     public static final String META_CURRENCY = "currency";
     public static final String META_ACCRUED = "payment_accrued";
     public static final String META_SHORT_DESCRIPTION = "short_description";
+    public static final String META_START_DATE = "start_date";
+    public static final String META_IS_ACTIVE = "is_active";
 
     @Persisting(1)
     @MetaField(META_JOB_ID)
@@ -117,6 +119,12 @@ public class ConnectJobRecord extends Persisted implements Serializable {
     @Persisting(21)
     @MetaField(META_CLAIM_DATE)
     private Date dateClaimed;
+    @Persisting(22)
+    @MetaField(META_START_DATE)
+    private Date projectStartDate;
+    @Persisting(23)
+    @MetaField(META_IS_ACTIVE)
+    private boolean isActive;
 
 
     private List<ConnectJobDeliveryRecord> deliveries;
@@ -167,6 +175,7 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         job.description = json.has(META_DESCRIPTION) ? json.getString(META_DESCRIPTION) : "";
         job.organization = json.has(META_ORGANIZATION) ? json.getString(META_ORGANIZATION) : "";
         job.projectEndDate = json.has(META_END_DATE) ? df.parse(json.getString(META_END_DATE)) : new Date();
+        job.projectStartDate = json.has(META_START_DATE) ? df.parse(json.getString(META_START_DATE)) : new Date();
         job.maxVisits = json.has(META_MAX_VISITS) ? json.getInt(META_MAX_VISITS) : -1;
         job.maxDailyVisits = json.has(META_MAX_DAILY_VISITS) ? json.getInt(META_MAX_DAILY_VISITS) : -1;
         job.budgetPerVisit = json.has(META_BUDGET_PER_VISIT) ? json.getInt(META_BUDGET_PER_VISIT) : -1;
@@ -185,6 +194,8 @@ public class ConnectJobRecord extends Persisted implements Serializable {
 
         job.claimed = json.has(META_CLAIM) &&!json.isNull(META_CLAIM);
         job.dateClaimed = new Date();
+
+        job.isActive = json.has(META_IS_ACTIVE) && json.getBoolean(META_IS_ACTIVE);
 
         if(job.claimed) {
             //Actual claim object: {"max_payments", "end_date", "date_claimed" }
@@ -232,7 +243,7 @@ public class ConnectJobRecord extends Persisted implements Serializable {
     }
 
     public boolean isFinished() {
-        return getDaysRemaining() <= 0;
+        return !isActive || getDaysRemaining() <= 0;
     }
 
     public int getJobId() { return jobId; }
@@ -249,6 +260,7 @@ public class ConnectJobRecord extends Persisted implements Serializable {
     public int getBudgetPerVisit() { return budgetPerVisit; }
     public int getPercentComplete() { return maxVisits > 0 ? 100 * completedVisits / maxVisits : 0; }
     public Date getDateCompleted() { return lastWorkedDate; }
+    public Date getProjectStartDate() { return projectStartDate; }
     public Date getProjectEndDate() { return projectEndDate; }
     public void setProjectEndDate(Date date) { projectEndDate = date; }
     public int getPaymentAccrued() { return paymentAccrued != null && paymentAccrued.length() > 0 ? Integer.parseInt(paymentAccrued) : 0; }
@@ -289,7 +301,11 @@ public class ConnectJobRecord extends Persisted implements Serializable {
     public void setLastUpdate(Date lastUpdate) { this.lastUpdate = lastUpdate; }
 
     public int getDaysRemaining() {
-        double millis = projectEndDate.getTime() - (new Date()).getTime();
+        Date startDate = new Date();
+        if(projectStartDate != null && projectStartDate.after(startDate)) {
+            startDate = projectStartDate;
+        }
+        double millis = projectEndDate.getTime() - (startDate).getTime();
         //Ceiling means we'll get 0 within 24 hours of the end date
         //(since the end date has 00:00 time, but project is valid until midnight)
         int days = (int)Math.ceil(millis / 1000 / 3600 / 24);
@@ -298,11 +314,14 @@ public class ConnectJobRecord extends Persisted implements Serializable {
     }
 
     public int getMaxPossibleVisits() {
-        int maxVisitsBudgeted = totalBudget / budgetPerVisit;
-        int minDaysRequired = maxVisitsBudgeted / maxDailyVisits;
-        int daysRemaining = getDaysRemaining();
-        int max = minDaysRequired > daysRemaining ? (daysRemaining * maxDailyVisits) : maxVisitsBudgeted;
-        return Math.min(max, maxVisits);
+        //NOTE: No longer reducing the value based on time remaining
+//        int maxVisitsBudgeted = totalBudget / budgetPerVisit;
+//        int minDaysRequired = maxVisitsBudgeted / maxDailyVisits;
+//        int daysRemaining = getDaysRemaining();
+//        int max = minDaysRequired > daysRemaining ? (daysRemaining * maxDailyVisits) : maxVisitsBudgeted;
+//        return Math.min(max, maxVisits);
+
+        return maxVisits;
     }
 
     public int getLearningCompletePercentage() {
@@ -339,6 +358,7 @@ public class ConnectJobRecord extends Persisted implements Serializable {
     public Date getLastWorkedDate() { return lastWorkedDate; }
     public int getLearningModulesCompleted() { return learningModulesCompleted; }
     public Date getDateClaimed() { return dateClaimed; }
+    public boolean getIsActive() { return isActive; }
 
     public String getMoneyString(int value) {
         String currency = "";
@@ -380,6 +400,41 @@ public class ConnectJobRecord extends Persisted implements Serializable {
          newRecord.lastLearnUpdate = oldRecord.getLastLearnUpdate();
          newRecord.lastDeliveryUpdate = oldRecord.getLastDeliveryUpdate();
          newRecord.dateClaimed = new Date();
+         newRecord.projectStartDate = new Date();
+         newRecord.isActive = true;
+
+        return newRecord;
+    }
+
+    public static ConnectJobRecord fromV4(ConnectJobRecordV4 oldRecord) {
+        ConnectJobRecord newRecord = new ConnectJobRecord(
+                oldRecord.getJobId(),
+                oldRecord.getTitle(),
+                oldRecord.getDescription(),
+                oldRecord.getStatus(),
+                oldRecord.getCompletedVisits(),
+                oldRecord.getMaxVisits(),
+                oldRecord.getMaxDailyVisits(),
+                oldRecord.getBudgetPerVisit(),
+                oldRecord.getTotalBudget(),
+                oldRecord.getProjectEndDate(),
+                oldRecord.getLastUpdate(),
+                new ArrayList<>()
+        );
+
+        newRecord.organization = oldRecord.getOrganization();
+        newRecord.lastWorkedDate = oldRecord.getLastWorkedDate();
+        newRecord.numLearningModules = oldRecord.getNumLearningModules();
+        newRecord.learningModulesCompleted = oldRecord.getLearningModulesCompleted();
+        newRecord.currency = oldRecord.getCurrency();
+        newRecord.paymentAccrued = Integer.toString(oldRecord.getPaymentAccrued());
+        newRecord.shortDescription = oldRecord.getShortDescription();
+        newRecord.lastUpdate = oldRecord.getLastUpdate();
+        newRecord.lastLearnUpdate = oldRecord.getLastLearnUpdate();
+        newRecord.lastDeliveryUpdate = oldRecord.getLastDeliveryUpdate();
+        newRecord.dateClaimed = new Date();
+        newRecord.projectStartDate = new Date();
+        newRecord.isActive = true;
 
         return newRecord;
     }

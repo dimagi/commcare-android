@@ -695,6 +695,7 @@
     <string name="connect_progress_delivery_verification">Verification &amp; Payments</string>
     <string name="connect_progress_title">Your Delivery Progress</string>
     <string name="connect_progress_status">You have completed %d of %d visits.</string>
+    <string name="connect_progress_begin_date">Project Begins %s\nComplete Delivery by %s</string>
     <string name="connect_progress_complete_by">Complete Delivery by %s</string>
     <string name="connect_progress_ended">Job ended %s</string>
     <string name="connect_progress_expired_dialog_title">Project Expired</string>
