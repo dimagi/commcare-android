@@ -514,9 +514,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     public void registerConnectIdUser() {
         selectedAppIndex = -1;
         ConnectManager.registerUser(this, success -> {
-            if(success) {
-                ConnectManager.goToConnectJobsList();
-            }
+            //Do nothing, just return to login page
         });
     }
 
