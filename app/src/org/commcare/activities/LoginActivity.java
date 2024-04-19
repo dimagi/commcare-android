@@ -111,6 +111,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     private FormAndDataSyncer formAndDataSyncer;
     private String presetAppId;
     private boolean appLaunchedFromConnect;
+    private boolean appAutoLaunchPerformed;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -131,6 +132,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         updateConnectButton();
 
         presetAppId = getIntent().getStringExtra(EXTRA_APP_ID);
+        appAutoLaunchPerformed = false;
         appLaunchedFromConnect = ConnectManager.wasAppLaunchedFromConnect(presetAppId);
 
         if (savedInstanceState == null) {
@@ -526,7 +528,8 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                 uiController.setConnectButtonVisible(false);
                 uiController.setUsername(getString(R.string.login_input_auto));
                 uiController.setPasswordOrPin(getString(R.string.login_input_auto));
-                if(!seatAppIfNeeded(presetAppId)) {
+                if(!seatAppIfNeeded(presetAppId) && !appAutoLaunchPerformed) {
+                    appAutoLaunchPerformed = true;
                     initiateLoginAttempt(uiController.isRestoreSessionChecked());
                 }
             } else {
