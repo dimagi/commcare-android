@@ -135,6 +135,8 @@ public class ConnectLinkedAppRecord extends Persisted {
     public void severConnectIdLink() {
         connectIdLinked = false;
         password = "";
+        linkOffered1 = false;
+        linkOffered2 = false;
     }
 
     public Date getLinkOfferDate1() {
