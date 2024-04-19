@@ -560,7 +560,7 @@ public class LoginActivityUiController implements CommCareActivityUIController {
             passwordOrPin.clearFocus();
         }
 
-        passwordOrPin.setInputType(useConnectId ? InputType.TYPE_CLASS_TEXT : InputType.TYPE_TEXT_VARIATION_PASSWORD);
+        passwordOrPin.setInputType(useConnectId ? InputType.TYPE_CLASS_TEXT : (InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD));
     }
 
     private void updateBanner() {
