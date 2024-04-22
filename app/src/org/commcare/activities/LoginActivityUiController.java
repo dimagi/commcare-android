@@ -182,6 +182,7 @@ public class LoginActivityUiController implements CommCareActivityUIController {
 
     public void setConnectButtonVisible(Boolean visible) {
         connectLoginButton.setVisibility(visible ? View.VISIBLE : View.GONE);
+        orLabel.setVisibility(visible ? View.VISIBLE : View.GONE);
     }
 
     private void setTextChangeListeners() {
@@ -228,7 +229,6 @@ public class LoginActivityUiController implements CommCareActivityUIController {
 
         ApplicationRecord presetAppRecord = getPresetAppRecord(readyApps);
         boolean noApps = readyApps.isEmpty();
-        orLabel.setVisibility(noApps || !ConnectManager.isConnectIdIntroduced() ? View.GONE : View.VISIBLE);
         setLoginInputsVisibility(!noApps);
         if (!ConnectManager.isConnectIdIntroduced() && (readyApps.size() == 1 || presetAppRecord != null)) {
             setLoginInputsVisibility(true);
