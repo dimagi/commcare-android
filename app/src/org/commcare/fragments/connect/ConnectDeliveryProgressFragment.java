@@ -46,7 +46,6 @@ import androidx.viewpager2.widget.ViewPager2;
  * @author dviggiano
  */
 public class ConnectDeliveryProgressFragment extends Fragment {
-    private ConnectJobRecord job;
     private ConnectDeliveryProgressFragment.ViewStateAdapter viewStateAdapter;
     private TextView updateText;
 
@@ -70,7 +69,7 @@ public class ConnectDeliveryProgressFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        job = ConnectDeliveryProgressFragmentArgs.fromBundle(getArguments()).getJob();
+        ConnectJobRecord job = ConnectManager.getActiveJob();
         getActivity().setTitle(job.getTitle());
 
         View view = inflater.inflate(R.layout.fragment_connect_delivery_progress, container, false);
@@ -105,7 +104,7 @@ public class ConnectDeliveryProgressFragment extends Fragment {
         });
 
         final ViewPager2 pager = view.findViewById(R.id.connect_delivery_progress_view_pager);
-        viewStateAdapter = new ConnectDeliveryProgressFragment.ViewStateAdapter(getChildFragmentManager(), getLifecycle(), job);
+        viewStateAdapter = new ConnectDeliveryProgressFragment.ViewStateAdapter(getChildFragmentManager(), getLifecycle());
         pager.setAdapter(viewStateAdapter);
 
         final TabLayout tabLayout = view.findViewById(R.id.connect_delivery_progress_tabs);
@@ -154,6 +153,7 @@ public class ConnectDeliveryProgressFragment extends Fragment {
     }
 
     public void refreshData() {
+        ConnectJobRecord job = ConnectManager.getActiveJob();
         ConnectNetworkHelper.getDeliveries(getContext(), job.getJobId(), new ConnectNetworkHelper.INetworkResultHandler() {
             @Override
             public void processSuccess(int responseCode, InputStream responseData) {
@@ -249,6 +249,7 @@ public class ConnectDeliveryProgressFragment extends Fragment {
     }
 
     private void updatePaymentConfirmationTile(Context context, boolean forceHide) {
+        ConnectJobRecord job = ConnectManager.getActiveJob();
         paymentToConfirm = null;
         if(!forceHide) {
             //Look for at least one payment that needs to be confirmed
@@ -285,23 +286,21 @@ public class ConnectDeliveryProgressFragment extends Fragment {
     }
 
     private static class ViewStateAdapter extends FragmentStateAdapter {
-        private final ConnectJobRecord job;
         private static ConnectDeliveryProgressDeliveryFragment deliveryFragment = null;
         private static ConnectResultsSummaryListFragment verificationFragment = null;
-        public ViewStateAdapter(@NonNull FragmentManager fragmentManager, @NonNull Lifecycle lifecycle, ConnectJobRecord job) {
+        public ViewStateAdapter(@NonNull FragmentManager fragmentManager, @NonNull Lifecycle lifecycle) {
             super(fragmentManager, lifecycle);
-            this.job = job;
         }
 
         @NonNull
         @Override
         public Fragment createFragment(int position) {
             if (position == 0) {
-                deliveryFragment = ConnectDeliveryProgressDeliveryFragment.newInstance(job);
+                deliveryFragment = ConnectDeliveryProgressDeliveryFragment.newInstance();
                 return deliveryFragment;
             }
 
-            verificationFragment = ConnectResultsSummaryListFragment.newInstance(job);
+            verificationFragment = ConnectResultsSummaryListFragment.newInstance();
             return verificationFragment;
         }
 

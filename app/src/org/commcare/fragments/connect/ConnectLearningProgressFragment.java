@@ -17,7 +17,6 @@ import org.commcare.activities.connect.ConnectNetworkHelper;
 import org.commcare.android.database.connect.models.ConnectJobAssessmentRecord;
 import org.commcare.android.database.connect.models.ConnectJobLearningRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
-import org.commcare.commcaresupportlibrary.CommCareLauncher;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.views.dialogs.StandardAlertDialog;
@@ -46,8 +45,6 @@ import androidx.navigation.Navigation;
  * @author dviggiano
  */
 public class ConnectLearningProgressFragment extends Fragment {
-    private ConnectJobRecord job;
-
     public ConnectLearningProgressFragment() {
         // Required empty public constructor
     }
@@ -64,7 +61,7 @@ public class ConnectLearningProgressFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        job = ConnectLearningProgressFragmentArgs.fromBundle(getArguments()).getJob();
+        ConnectJobRecord job = ConnectManager.getActiveJob();
         getActivity().setTitle(job.getTitle());
 
         View view = inflater.inflate(R.layout.fragment_connect_learning_progress, container, false);
@@ -91,6 +88,7 @@ public class ConnectLearningProgressFragment extends Fragment {
     }
 
     private void refreshData() {
+        ConnectJobRecord job = ConnectManager.getActiveJob();
         ConnectNetworkHelper.getLearnProgress(getContext(), job.getJobId(), new ConnectNetworkHelper.INetworkResultHandler() {
             @Override
             public void processSuccess(int responseCode, InputStream responseData) {
@@ -164,6 +162,8 @@ public class ConnectLearningProgressFragment extends Fragment {
         if(view == null) {
             return;
         }
+
+        ConnectJobRecord job = ConnectManager.getActiveJob();
 
         //NOTE: Leaving old logic here in case we go back to array
         int completed = job.getCompletedLearningModules();
@@ -312,7 +312,7 @@ public class ConnectLearningProgressFragment extends Fragment {
                 ConnectManager.launchApp(getContext(), true, job.getLearnAppInfo().getAppId());
             } else {
                 String title = getString(R.string.connect_downloading_learn);
-                directions = ConnectLearningProgressFragmentDirections.actionConnectJobLearningProgressFragmentToConnectDownloadingFragment(title, true, true, job);
+                directions = ConnectLearningProgressFragmentDirections.actionConnectJobLearningProgressFragmentToConnectDownloadingFragment(title, true, true);
             }
 
             if(directions != null) {
@@ -325,12 +325,12 @@ public class ConnectLearningProgressFragment extends Fragment {
         button.setOnClickListener(v -> {
             NavDirections directions = null;
             if(learningFinished && assessmentPassed) {
-                directions = ConnectLearningProgressFragmentDirections.actionConnectJobLearningProgressFragmentToConnectJobDeliveryDetailsFragment(job);
+                directions = ConnectLearningProgressFragmentDirections.actionConnectJobLearningProgressFragmentToConnectJobDeliveryDetailsFragment();
             } else if(ConnectManager.isAppInstalled(job.getLearnAppInfo().getAppId())) {
                 ConnectManager.launchApp(getContext(), true, job.getLearnAppInfo().getAppId());
             } else {
                 String title = getString(R.string.connect_downloading_learn);
-                directions = ConnectLearningProgressFragmentDirections.actionConnectJobLearningProgressFragmentToConnectDownloadingFragment(title, true, true, job);
+                directions = ConnectLearningProgressFragmentDirections.actionConnectJobLearningProgressFragmentToConnectDownloadingFragment(title, true, true);
             }
 
             if(directions != null) {

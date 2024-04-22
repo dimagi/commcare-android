@@ -1,7 +1,6 @@
 package org.commcare.fragments.connect;
 
 import android.os.Bundle;
-import android.os.Environment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,7 +17,6 @@ import org.commcare.views.dialogs.StandardAlertDialog;
 import org.javarosa.core.services.locale.Localization;
 import org.joda.time.LocalDate;
 
-import java.text.DateFormat;
 import java.util.Date;
 import java.util.Locale;
 
@@ -26,16 +24,13 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 
 public class ConnectDeliveryProgressDeliveryFragment extends Fragment {
-    private ConnectJobRecord job;
     private View view;
     public ConnectDeliveryProgressDeliveryFragment() {
         // Required empty public constructor
     }
 
-    public static ConnectDeliveryProgressDeliveryFragment newInstance(ConnectJobRecord job) {
-        ConnectDeliveryProgressDeliveryFragment fragment = new ConnectDeliveryProgressDeliveryFragment();
-        fragment.job = job;
-        return fragment;
+    public static ConnectDeliveryProgressDeliveryFragment newInstance() {
+        return new ConnectDeliveryProgressDeliveryFragment();
     }
 
     @Override
@@ -90,26 +85,29 @@ public class ConnectDeliveryProgressDeliveryFragment extends Fragment {
     }
 
     private void launchLearningApp(Button button) {
+        ConnectJobRecord job = ConnectManager.getActiveJob();
         if(ConnectManager.isAppInstalled(job.getLearnAppInfo().getAppId())) {
             ConnectManager.launchApp(getContext(), true, job.getLearnAppInfo().getAppId());
         }
         else {
             String title = getString(R.string.connect_downloading_learn);
-            Navigation.findNavController(button).navigate(ConnectDeliveryProgressFragmentDirections.actionConnectJobDeliveryProgressFragmentToConnectDownloadingFragment(title, true, true, job));
+            Navigation.findNavController(button).navigate(ConnectDeliveryProgressFragmentDirections.actionConnectJobDeliveryProgressFragmentToConnectDownloadingFragment(title, true, true));
         }
     }
 
     private void launchDeliveryApp(Button button) {
+        ConnectJobRecord job = ConnectManager.getActiveJob();
         if(ConnectManager.isAppInstalled(job.getDeliveryAppInfo().getAppId())) {
             ConnectManager.launchApp(getContext(), false, job.getDeliveryAppInfo().getAppId());
         }
         else {
             String title = getString(R.string.connect_downloading_delivery);
-            Navigation.findNavController(button).navigate(ConnectDeliveryProgressFragmentDirections.actionConnectJobDeliveryProgressFragmentToConnectDownloadingFragment(title, false, true, job));
+            Navigation.findNavController(button).navigate(ConnectDeliveryProgressFragmentDirections.actionConnectJobDeliveryProgressFragmentToConnectDownloadingFragment(title, false, true));
         }
     }
 
     public void updateView() {
+        ConnectJobRecord job = ConnectManager.getActiveJob();
         if(job == null || view == null) {
             return;
         }

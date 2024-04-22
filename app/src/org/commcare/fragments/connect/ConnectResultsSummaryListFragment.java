@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import org.commcare.activities.connect.ConnectManager;
 import org.commcare.android.database.connect.models.ConnectJobDeliveryRecord;
 import org.commcare.android.database.connect.models.ConnectJobPaymentRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
@@ -22,15 +23,12 @@ import androidx.recyclerview.widget.RecyclerView;
 
 public class ConnectResultsSummaryListFragment extends Fragment {
     private VerificationSummaryListAdapter adapter;
-    private ConnectJobRecord job;
     public ConnectResultsSummaryListFragment() {
         // Required empty public constructor
     }
 
-    public static ConnectResultsSummaryListFragment newInstance(ConnectJobRecord job) {
-        ConnectResultsSummaryListFragment fragment = new ConnectResultsSummaryListFragment();
-        fragment.job = job;
-        return fragment;
+    public static ConnectResultsSummaryListFragment newInstance() {
+        return new ConnectResultsSummaryListFragment();
     }
 
     @Override
@@ -48,7 +46,7 @@ public class ConnectResultsSummaryListFragment extends Fragment {
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
         recyclerView.setLayoutManager(linearLayoutManager);
 
-        adapter = new VerificationSummaryListAdapter(job);
+        adapter = new VerificationSummaryListAdapter();
         recyclerView.setAdapter(adapter);
 
         recyclerView.addItemDecoration(new DividerItemDecoration(getContext(), linearLayoutManager.getOrientation()));
@@ -61,11 +59,10 @@ public class ConnectResultsSummaryListFragment extends Fragment {
     }
 
     private static class VerificationSummaryListAdapter extends RecyclerView.Adapter<VerificationSummaryListAdapter.VerificationSummaryItemViewHolder> {
-        private final ConnectJobRecord job;
         private Context parentContext;
 
-        public VerificationSummaryListAdapter(ConnectJobRecord job) {
-            this.job = job;
+        public VerificationSummaryListAdapter() {
+
         }
 
         @NonNull
@@ -79,6 +76,7 @@ public class ConnectResultsSummaryListFragment extends Fragment {
 
         @Override
         public void onBindViewHolder(@NonNull VerificationSummaryItemViewHolder holder, int position) {
+            ConnectJobRecord job = ConnectManager.getActiveJob();
             holder.titleText.setText(parentContext.getString(position == 0 ?
                     R.string.connect_results_summary_verifications_title :
                     R.string.connect_results_summary_payments_title));
@@ -121,7 +119,7 @@ public class ConnectResultsSummaryListFragment extends Fragment {
 
             holder.button.setOnClickListener(v -> {
                 Navigation.findNavController(holder.button).navigate(ConnectDeliveryProgressFragmentDirections
-                        .actionConnectJobDeliveryProgressFragmentToConnectResultsFragment(job, position > 0));
+                        .actionConnectJobDeliveryProgressFragmentToConnectResultsFragment(position > 0));
             });
         }
 

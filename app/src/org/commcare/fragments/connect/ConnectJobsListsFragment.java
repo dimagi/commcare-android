@@ -67,6 +67,8 @@ public class ConnectJobsListsFragment extends Fragment {
                              Bundle savedInstanceState) {
         getActivity().setTitle(R.string.connect_title);
 
+        ConnectManager.setActiveJob(null);
+
         View view = inflater.inflate(R.layout.fragment_connect_jobs_list, container, false);
 
         updateText = view.findViewById(R.id.connect_jobs_last_update);

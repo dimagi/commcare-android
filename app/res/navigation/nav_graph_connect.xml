@@ -31,9 +31,6 @@
         android:name="org.commcare.fragments.connect.ConnectJobIntroFragment"
         android:label="fragment_connect_job_intro"
         tools:layout="@layout/fragment_connect_job_intro">
-        <argument
-            android:name="job"
-            app:argType="org.commcare.android.database.connect.models.ConnectJobRecord" />
         <action
             android:id="@+id/action_connect_job_intro_fragment_to_connect_downloading_fragment"
             app:destination="@id/connect_downloading_fragment"
@@ -49,9 +46,6 @@
         android:name="org.commcare.fragments.connect.ConnectLearningProgressFragment"
         android:label="fragment_connect_learning_progess"
         tools:layout="@layout/fragment_connect_learning_progress">
-        <argument
-            android:name="job"
-            app:argType="org.commcare.android.database.connect.models.ConnectJobRecord" />
         <action
             android:id="@+id/action_connect_job_learning_progress_fragment_to_connect_job_delivery_details_fragment"
             app:destination="@id/connect_job_delivery_details_fragment"
@@ -71,9 +65,6 @@
         android:name="org.commcare.fragments.connect.ConnectDeliveryDetailsFragment"
         android:label="fragment_connect_delivery_details"
         tools:layout="@layout/fragment_connect_delivery_details">
-        <argument
-            android:name="job"
-            app:argType="org.commcare.android.database.connect.models.ConnectJobRecord" />
         <action
             android:id="@+id/action_connect_job_delivery_details_fragment_to_connect_downloading_fragment"
             app:destination="@id/connect_downloading_fragment"
@@ -89,9 +80,6 @@
         android:name="org.commcare.fragments.connect.ConnectDeliveryProgressFragment"
         android:label="fragment_connect_delivery_progress"
         tools:layout="@layout/fragment_connect_delivery_progress">
-        <argument
-            android:name="job"
-            app:argType="org.commcare.android.database.connect.models.ConnectJobRecord" />
         <action
             android:id="@+id/action_connect_job_delivery_progress_fragment_to_connect_downloading_fragment"
             app:destination="@id/connect_downloading_fragment"
@@ -115,9 +103,6 @@
         <argument
             android:name="goToApp"
             app:argType="boolean" />
-        <argument
-            android:name="job"
-            app:argType="org.commcare.android.database.connect.models.ConnectJobRecord" />
         <action
             android:id="@+id/action_connect_downloading_fragment_to_connect_job_learning_progress_fragment"
             app:destination="@id/connect_job_learning_progress_fragment"
@@ -133,9 +118,6 @@
         android:name="org.commcare.fragments.connect.ConnectResultsListFragment"
         android:label="fragment_connect_results_list"
         tools:layout="@layout/fragment_connect_results_list">
-        <argument
-            android:name="job"
-            app:argType="org.commcare.android.database.connect.models.ConnectJobRecord" />
         <argument
             android:name="showPayments"
             app:argType="boolean" />

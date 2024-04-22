@@ -17,6 +17,7 @@ import org.commcare.activities.CommCareActivity;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.activities.SettingsHelper;
 import org.commcare.android.database.connect.models.ConnectJobPaymentRecord;
+import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.CommCareApplication;
@@ -1042,5 +1043,13 @@ public class ConnectManager {
         }
 
         return password.toString();
+    }
+
+    private static ConnectJobRecord activeJob = null;
+    public static void setActiveJob(ConnectJobRecord job) {
+        activeJob = job;
+    }
+    public static ConnectJobRecord getActiveJob() {
+        return activeJob;
     }
 }

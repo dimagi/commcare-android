@@ -17,10 +17,8 @@ import org.commcare.activities.connect.ConnectManager;
 import org.commcare.activities.connect.ConnectNetworkHelper;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectLearnModuleSummaryRecord;
-import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
-import org.commcare.utils.MultipleAppsUtil;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -50,7 +48,7 @@ public class ConnectJobIntroFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        ConnectJobRecord job = ConnectJobIntroFragmentArgs.fromBundle(getArguments()).getJob();
+        ConnectJobRecord job = ConnectManager.getActiveJob();
         getActivity().setTitle(job.getTitle());
 
         View view = inflater.inflate(R.layout.fragment_connect_job_intro, container, false);
@@ -93,10 +91,10 @@ public class ConnectJobIntroFragment extends Fragment {
                     //TODO: Expecting to eventually get HQ username from server here
                     NavDirections directions;
                     if (appInstalled) {
-                        directions = ConnectJobIntroFragmentDirections.actionConnectJobIntroFragmentToConnectJobLearningProgressFragment(job);
+                        directions = ConnectJobIntroFragmentDirections.actionConnectJobIntroFragmentToConnectJobLearningProgressFragment();
                     } else {
                         String title = getString(R.string.connect_downloading_learn);
-                        directions = ConnectJobIntroFragmentDirections.actionConnectJobIntroFragmentToConnectDownloadingFragment(title, true, false, job);
+                        directions = ConnectJobIntroFragmentDirections.actionConnectJobIntroFragmentToConnectDownloadingFragment(title, true, false);
                     }
 
                     Navigation.findNavController(button).navigate(directions);

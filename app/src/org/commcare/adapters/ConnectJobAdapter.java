@@ -281,18 +281,19 @@ public class ConnectJobAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     }
 
     private void enterJob(ConnectJobRecord job, View view) {
-        NavDirections directions;
+        ConnectManager.setActiveJob(job);
 
+        NavDirections directions;
         switch(job.getStatus()) {
             case ConnectJobRecord.STATUS_AVAILABLE,
                     ConnectJobRecord.STATUS_AVAILABLE_NEW -> {
-                directions = ConnectJobsListsFragmentDirections.actionConnectJobsListFragmentToConnectJobIntroFragment(job);
+                directions = ConnectJobsListsFragmentDirections.actionConnectJobsListFragmentToConnectJobIntroFragment();
             }
             case ConnectJobRecord.STATUS_LEARNING -> {
-                directions = ConnectJobsListsFragmentDirections.actionConnectJobsListFragmentToConnectJobLearningProgressFragment(job);
+                directions = ConnectJobsListsFragmentDirections.actionConnectJobsListFragmentToConnectJobLearningProgressFragment();
             }
             case ConnectJobRecord.STATUS_DELIVERING -> {
-                directions = ConnectJobsListsFragmentDirections.actionConnectJobsListFragmentToConnectJobDeliveryProgressFragment(job);
+                directions = ConnectJobsListsFragmentDirections.actionConnectJobsListFragmentToConnectJobDeliveryProgressFragment();
             }
             default -> {
                 throw new RuntimeException(String.format("Unexpected job status: %d", job.getStatus()));

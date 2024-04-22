@@ -33,7 +33,6 @@ public class ConnectDownloadingFragment extends Fragment implements ResourceEngi
 
     private ProgressBar progressBar;
     private TextView statusText;
-    private ConnectJobRecord job;
     private boolean getLearnApp;
     private boolean goToApp;
 
@@ -49,7 +48,6 @@ public class ConnectDownloadingFragment extends Fragment implements ResourceEngi
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         ConnectDownloadingFragmentArgs args = ConnectDownloadingFragmentArgs.fromBundle(getArguments());
-        job = args.getJob();
         getLearnApp = args.getLearning();
         goToApp = args.getGoToApp();
 
@@ -77,6 +75,7 @@ public class ConnectDownloadingFragment extends Fragment implements ResourceEngi
     }
 
     private void startAppDownload() {
+        ConnectJobRecord job = ConnectManager.getActiveJob();
         ConnectAppRecord record = getLearnApp ? job.getLearnAppInfo() : job.getDeliveryAppInfo();
         ConnectManager.downloadAppOrResumeUpdates(record.getInstallUrl(), this);
     }
@@ -84,6 +83,7 @@ public class ConnectDownloadingFragment extends Fragment implements ResourceEngi
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
+        ConnectJobRecord job = ConnectManager.getActiveJob();
         ConnectDownloadingFragmentArgs args = ConnectDownloadingFragmentArgs.fromBundle(getArguments());
         getActivity().setTitle(job.getTitle());
 
@@ -119,6 +119,7 @@ public class ConnectDownloadingFragment extends Fragment implements ResourceEngi
                 Navigation.findNavController(view).popBackStack();
 
                 //Launch the learn/deliver app
+                ConnectJobRecord job = ConnectManager.getActiveJob();
                 ConnectAppRecord appToLaunch = getLearnApp ? job.getLearnAppInfo() : job.getDeliveryAppInfo();
                 ConnectManager.launchApp(getContext(), getLearnApp, appToLaunch.getAppId());
             }
@@ -126,10 +127,10 @@ public class ConnectDownloadingFragment extends Fragment implements ResourceEngi
                 //Go to learn/deliver progress
                 NavDirections directions;
                 if(getLearnApp) {
-                    directions = ConnectDownloadingFragmentDirections.actionConnectDownloadingFragmentToConnectJobLearningProgressFragment(job);
+                    directions = ConnectDownloadingFragmentDirections.actionConnectDownloadingFragmentToConnectJobLearningProgressFragment();
                 }
                 else {
-                    directions = ConnectDownloadingFragmentDirections.actionConnectDownloadingFragmentToConnectJobDeliveryProgressFragment(job);
+                    directions = ConnectDownloadingFragmentDirections.actionConnectDownloadingFragmentToConnectJobDeliveryProgressFragment();
                 }
                 Navigation.findNavController(statusText).navigate(directions);
             }
