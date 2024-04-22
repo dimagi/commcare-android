@@ -2,10 +2,9 @@ package org.commcare.android.database.connect.models;
 
 import java.io.Serializable;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Locale;
 
+import org.commcare.activities.connect.ConnectNetworkHelper;
 import org.commcare.android.storage.framework.Persisted;
 import org.commcare.models.framework.Persisting;
 import org.commcare.modern.database.Table;
@@ -70,14 +69,12 @@ public class ConnectJobDeliveryRecord extends Persisted implements Serializable 
     }
 
     public static ConnectJobDeliveryRecord fromJson(JSONObject json, int jobId) throws JSONException, ParseException {
-        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
-
         ConnectJobDeliveryRecord delivery = new ConnectJobDeliveryRecord();
         delivery.jobId = jobId;
         delivery.lastUpdate = new Date();
 
         delivery.deliveryId = json.has(META_ID) ? json.getInt(META_ID) : -1;
-        delivery.date = json.has(META_DATE) ? df.parse(json.getString(META_DATE)) : new Date();
+        delivery.date = json.has(META_DATE) ? ConnectNetworkHelper.parseDate(json.getString(META_DATE)) : new Date();
         delivery.status = json.has(META_STATUS) ? json.getString(META_STATUS) : "";
         delivery.unitName = json.has(META_UNIT_NAME) ? json.getString(META_UNIT_NAME) : "";
         delivery.slug = json.has(META_SLUG) ? json.getString(META_SLUG) : "";

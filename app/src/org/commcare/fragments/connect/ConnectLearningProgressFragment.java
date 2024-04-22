@@ -30,9 +30,7 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.text.DateFormat;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -272,7 +270,6 @@ public class ConnectLearningProgressFragment extends Fragment {
             ((CommCareActivity<?>)getActivity()).showAlertDialog(dialog);
         });
 
-        DateFormat df = new SimpleDateFormat("MM/dd/yyyy", Locale.getDefault());
         if(learningFinished) {
             textView = view.findViewById(R.id.connect_learn_cert_subject);
             textView.setText(job.getTitle());
@@ -301,9 +298,9 @@ public class ConnectLearningProgressFragment extends Fragment {
             }
 
             textView = view.findViewById(R.id.connect_learn_cert_date);
-            textView.setText(getString(R.string.connect_learn_completed, df.format(latestDate)));
+            textView.setText(getString(R.string.connect_learn_completed, ConnectManager.formatDate(latestDate)));
         } else {
-            completeByText.setText(getString(R.string.connect_learn_complete_by, df.format(job.getProjectEndDate())));
+            completeByText.setText(getString(R.string.connect_learn_complete_by, ConnectManager.formatDate(job.getProjectEndDate())));
         }
 
         final Button reviewButton = view.findViewById(R.id.connect_learning_review_button);
@@ -348,8 +345,7 @@ public class ConnectLearningProgressFragment extends Fragment {
             return;
         }
 
-        DateFormat df = SimpleDateFormat.getDateTimeInstance();
         TextView updateText = view.findViewById(R.id.connect_learning_last_update);
-        updateText.setText(getString(R.string.connect_last_update, df.format(lastUpdate)));
+        updateText.setText(getString(R.string.connect_last_update, ConnectManager.formatDateTime(lastUpdate)));
     }
 }

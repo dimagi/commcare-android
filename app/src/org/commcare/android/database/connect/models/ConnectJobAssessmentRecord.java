@@ -1,5 +1,6 @@
 package org.commcare.android.database.connect.models;
 
+import org.commcare.activities.connect.ConnectNetworkHelper;
 import org.commcare.android.storage.framework.Persisted;
 import org.commcare.models.framework.Persisting;
 import org.commcare.modern.database.Table;
@@ -9,9 +10,7 @@ import org.json.JSONObject;
 
 import java.io.Serializable;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Locale;
 
 /**
  * Data class for holding info related to a Connect job assessment
@@ -54,14 +53,12 @@ public class ConnectJobAssessmentRecord extends Persisted implements Serializabl
     }
 
     public static ConnectJobAssessmentRecord fromJson(JSONObject json, int jobId) throws JSONException, ParseException {
-        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
-
         ConnectJobAssessmentRecord record = new ConnectJobAssessmentRecord();
 
         record.lastUpdate = new Date();
 
         record.jobId = jobId;
-        record.date = json.has(META_DATE) ? df.parse(json.getString(META_DATE)) : new Date();
+        record.date = json.has(META_DATE) ? ConnectNetworkHelper.parseDate(json.getString(META_DATE)) : new Date();
         record.score = json.has(META_SCORE) ? json.getInt(META_SCORE) : -1;
         record.passingScore = json.has(META_PASSING_SCORE) ? json.getInt(META_PASSING_SCORE) : -1;
         record.passed = json.has(META_PASSED) && json.getBoolean(META_PASSED);

@@ -1,5 +1,6 @@
 package org.commcare.android.database.connect.models;
 
+import org.commcare.activities.connect.ConnectNetworkHelper;
 import org.commcare.android.storage.framework.Persisted;
 import org.commcare.models.framework.Persisting;
 import org.commcare.modern.database.Table;
@@ -9,9 +10,7 @@ import org.json.JSONObject;
 
 import java.io.Serializable;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Locale;
 
 /**
  * Data class for holding info related to the completion of a Connect job learning module
@@ -50,14 +49,12 @@ public class ConnectJobLearningRecord extends Persisted implements Serializable 
     }
 
     public static ConnectJobLearningRecord fromJson(JSONObject json, int jobId) throws JSONException, ParseException {
-        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
-
         ConnectJobLearningRecord record = new ConnectJobLearningRecord();
 
         record.lastUpdate = new Date();
 
         record.jobId = jobId;
-        record.date = json.has(META_DATE) ? df.parse(json.getString(META_DATE)) : new Date();
+        record.date = json.has(META_DATE) ? ConnectNetworkHelper.parseDate(json.getString(META_DATE)) : new Date();
         record.moduleId = json.has(META_MODULE) ? json.getInt(META_MODULE) : -1;
         record.duration = json.has(META_DURATION) ? json.getString(META_DURATION) : "";
 

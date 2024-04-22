@@ -43,6 +43,8 @@ import org.joda.time.Duration;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -166,6 +168,15 @@ public class ConnectManager {
     public static boolean isUnlocked() {
         return AppManagerDeveloperPreferences.isConnectIdEnabled()
                 && getInstance().connectStatus == ConnectIdStatus.LoggedIn;
+    }
+
+    private static DateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy", Locale.getDefault());
+    public static String formatDate(Date date) {
+        return dateFormat.format(date);
+    }
+
+    public static String formatDateTime(Date date) {
+        return SimpleDateFormat.getDateTimeInstance().format(date);
     }
 
     public static boolean shouldShowSignInMenuOption() {

@@ -9,14 +9,13 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import org.commcare.activities.connect.ConnectDatabaseHelper;
+import org.commcare.activities.connect.ConnectManager;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.dalvik.R;
 import org.commcare.fragments.connect.ConnectJobsListsFragmentDirections;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 
 import androidx.annotation.NonNull;
 import androidx.navigation.NavDirections;
@@ -161,7 +160,12 @@ public class ConnectJobAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             claimedHolder.descriptionText.setVisibility(View.VISIBLE);
             claimedHolder.descriptionText.setText(getStatusDescription(job, isTraining, percent));
 
-            String remaining = parentContext.getString(R.string.connect_job_remaining, job.getDaysRemaining());
+            String fromStr = "";
+            if(job.getProjectStartDate().after(new Date())) {
+                fromStr = parentContext.getString(R.string.connect_job_remaining_from,
+                        ConnectManager.formatDate(job.getProjectStartDate()));
+            }
+            String remaining = parentContext.getString(R.string.connect_job_remaining, job.getDaysRemaining(), fromStr);
             claimedHolder.remainingText.setVisibility(View.VISIBLE);
             claimedHolder.remainingText.setText(remaining);
 
@@ -190,8 +194,7 @@ public class ConnectJobAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             endedHolder.descriptionText.setVisibility(View.VISIBLE);
             endedHolder.descriptionText.setText(getStatusDescription(job, isTraining, percent));
 
-            DateFormat df = new SimpleDateFormat("MM/dd/yyyy", Locale.getDefault());
-            String endedText = parentContext.getString(R.string.connect_job_completed, df.format(job.getProjectEndDate()));
+            String endedText = parentContext.getString(R.string.connect_job_completed, ConnectManager.formatDate(job.getProjectEndDate()));
             endedHolder.remainingText.setVisibility(View.VISIBLE);
             endedHolder.remainingText.setText(endedText);
 

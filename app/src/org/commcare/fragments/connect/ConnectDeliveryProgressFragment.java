@@ -26,9 +26,7 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.text.DateFormat;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -175,8 +173,7 @@ public class ConnectDeliveryProgressFragment extends Fragment {
 
                         key = "end_date";
                         if(json.has(key)) {
-                            SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
-                            job.setProjectEndDate(df.parse(json.getString(key)));
+                            job.setProjectEndDate(ConnectNetworkHelper.parseDate(json.getString(key)));
                             updatedJob = true;
                         }
 
@@ -272,8 +269,7 @@ public class ConnectDeliveryProgressFragment extends Fragment {
 
         paymentAlertTile.setVisibility(show ? View.VISIBLE : View.GONE);
         if(show) {
-            DateFormat df = new SimpleDateFormat("MM/dd/yyyy", Locale.getDefault());
-            String date = df.format(paymentToConfirm.getDate());
+            String date = ConnectManager.formatDate(paymentToConfirm.getDate());
             paymentAlertText.setText(getString(R.string.connect_payment_confirm_text, paymentToConfirm.getAmount(), job.getCurrency(), date));
 
             FirebaseAnalyticsUtil.reportCccPaymentConfirmationDisplayed();
@@ -285,8 +281,7 @@ public class ConnectDeliveryProgressFragment extends Fragment {
     }
 
     private void updateUpdatedDate(Date lastUpdate) {
-        DateFormat df = SimpleDateFormat.getDateTimeInstance();
-        updateText.setText(getString(R.string.connect_last_update, df.format(lastUpdate)));
+        updateText.setText(getString(R.string.connect_last_update, ConnectManager.formatDateTime(lastUpdate)));
     }
 
     private static class ViewStateAdapter extends FragmentStateAdapter {

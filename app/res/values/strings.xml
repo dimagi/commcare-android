@@ -634,7 +634,8 @@
     <string name="connect_job_passed_assessment">Assessment Completed</string>
     <string name="connect_job_training_progress">%s %d%% Complete</string>
     <string name="connect_job_visits_completed">Completed %d visits</string>
-    <string name="connect_job_remaining">%d days remaining</string>
+    <string name="connect_job_remaining">%d days remaining%s</string>
+    <string name="connect_job_remaining_from"> from %s</string>
     <string name="connect_job_learning">Learning</string>
     <string name="connect_job_learning_not_completed">Learning not completed</string>
     <string name="connect_job_assessment_not_completed">Assessment not completed</string>
@@ -680,7 +681,8 @@
 
     <string name="connect_delivery_title">Delivery Details</string>
     <string name="connect_delivery_review_title">Review Job Details</string>
-    <string name="connect_delivery_days_remaining">%d days to complete from today</string>
+    <string name="connect_delivery_days_remaining">%d days to complete from %s</string>
+    <string name="connect_delivery_today">today</string>
     <string name="connect_delivery_latest_start">Latest start: %s</string>
     <string name="connect_delivery_max_visits">%d Maximum Visits</string>
     <string name="connect_delivery_earn">Earn up to %s for %d visits</string>
@@ -710,6 +712,7 @@
     <string name="connect_progress_warning">Not seeing your expected progress?</string>
     <string name="connect_progress_warning_learn">Learn why</string>
     <string name="connect_progress_warning_ended">The job has ended. You will not earn any progress for additional work.</string>
+    <string name="connect_progress_warning_not_started">The job has not started yet. You will not earn any progress for work.</string>
     <string name="connect_progress_warning_max_reached">You have completed the maximum number of visits. You will not earn any progress for additional work.</string>
     <string name="connect_progress_warning_daily_max_reached">You have reached the maximum number of visits for today. You will not earn any progress for additional work.</string>
     <string name="connect_progress_warning_full">You may not see your expected progress if your number of visits exceeds the maximum for the day OR if your forms have not been uploaded. You can wait for your forms to sync with a better network and check progress again.</string>

@@ -19,7 +19,6 @@ import org.javarosa.core.services.locale.Localization;
 import org.joda.time.LocalDate;
 
 import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
@@ -144,6 +143,8 @@ public class ConnectDeliveryProgressDeliveryFragment extends Fragment {
         int warningTextId = -1;
         if(finished) {
             warningTextId = R.string.connect_progress_warning_ended;
+        } else if(job.getProjectStartDate().after(new Date())) {
+            warningTextId = R.string.connect_progress_warning_not_started;
         } else if(totalVisitCount >= job.getMaxVisits()) {
             warningTextId = R.string.connect_progress_warning_max_reached;
         } else if(dailyVisitCount >= job.getMaxDailyVisits()) {
@@ -157,9 +158,7 @@ public class ConnectDeliveryProgressDeliveryFragment extends Fragment {
         }
 
         textView = view.findViewById(R.id.connect_progress_complete_by_text);
-        DateFormat df = new SimpleDateFormat("MM/dd/yyyy", Locale.getDefault());
-
-        String endText = df.format(job.getProjectEndDate());
+        String endText = ConnectManager.formatDate(job.getProjectEndDate());
         String text;
         if(finished) {
             //Project ended
@@ -167,7 +166,7 @@ public class ConnectDeliveryProgressDeliveryFragment extends Fragment {
         }
         else if(job.getProjectStartDate() != null && job.getProjectStartDate().after(new Date())) {
             //Project hasn't started yet
-            text = getString(R.string.connect_progress_begin_date, df.format(job.getProjectStartDate()), endText);
+            text = getString(R.string.connect_progress_begin_date, ConnectManager.formatDate(job.getProjectStartDate()), endText);
         }
         else {
             text = getString(R.string.connect_progress_complete_by, endText);

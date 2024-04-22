@@ -9,6 +9,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import org.commcare.activities.connect.ConnectDatabaseHelper;
+import org.commcare.activities.connect.ConnectManager;
 import org.commcare.activities.connect.ConnectNetworkHelper;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
@@ -18,6 +19,7 @@ import org.commcare.utils.MultipleAppsUtil;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Date;
 
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavDirections;
@@ -56,7 +58,11 @@ public class ConnectDeliveryDetailsFragment extends Fragment {
 
         textView = view.findViewById(R.id.connect_delivery_remaining_text);
         int daysRemaining = job.getDaysRemaining();
-        textView.setText(getString(R.string.connect_delivery_days_remaining, daysRemaining));
+        String dueDate = getString(R.string.connect_delivery_today);
+        if(job.getProjectStartDate().after(new Date())) {
+            dueDate = ConnectManager.formatDate(job.getProjectStartDate());
+        }
+        textView.setText(getString(R.string.connect_delivery_days_remaining, daysRemaining, dueDate));
 
         textView = view.findViewById(R.id.connect_delivery_max_daily_text);
         textView.setText(getString(R.string.connect_delivery_max_daily_visits, job.getMaxDailyVisits()));

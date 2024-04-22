@@ -31,6 +31,10 @@ import org.javarosa.core.services.Logger;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.UnknownHostException;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -85,6 +89,11 @@ public class ConnectNetworkHelper {
 
     private static ConnectNetworkHelper getInstance() {
         return Loader.INSTANCE;
+    }
+
+    private static DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+    public static Date parseDate(String dateStr) throws ParseException {
+        return dateFormat.parse(dateStr);
     }
 
     public static boolean isOnline(Context context) {

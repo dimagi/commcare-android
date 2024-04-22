@@ -18,6 +18,7 @@ import android.widget.TextView;
 import com.google.android.material.tabs.TabLayout;
 
 import org.commcare.activities.connect.ConnectDatabaseHelper;
+import org.commcare.activities.connect.ConnectManager;
 import org.commcare.activities.connect.ConnectNetworkHelper;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.CommCareApplication;
@@ -31,9 +32,7 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.text.DateFormat;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -178,8 +177,7 @@ public class ConnectJobsListsFragment extends Fragment {
     }
 
     private void updateUpdatedDate(Date lastUpdate) {
-        DateFormat df = SimpleDateFormat.getDateTimeInstance();
-        updateText.setText(getString(R.string.connect_last_update, df.format(lastUpdate)));
+        updateText.setText(getString(R.string.connect_last_update, ConnectManager.formatDateTime(lastUpdate)));
     }
 
     private void chooseTab() {

@@ -13,10 +13,6 @@ import org.commcare.android.database.connect.models.ConnectJobPaymentRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.dalvik.R;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Locale;
-
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.DividerItemDecoration;
@@ -92,12 +88,11 @@ public class ConnectResultsListFragment extends Fragment {
 
         @Override
         public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
-            DateFormat df = new SimpleDateFormat("MM/dd/yyyy", Locale.getDefault());
             if(holder instanceof VerificationViewHolder verificationHolder) {
                 ConnectJobDeliveryRecord delivery = job.getDeliveries().get(position);
 
                 verificationHolder.nameText.setText(delivery.getEntityName());
-                verificationHolder.dateText.setText(df.format(delivery.getDate()));
+                verificationHolder.dateText.setText(ConnectManager.formatDate(delivery.getDate()));
                 verificationHolder.statusText.setText(delivery.getStatus());
                 verificationHolder.reasonText.setText(delivery.getReason());
             } else if(holder instanceof PaymentViewHolder paymentHolder) {
@@ -106,7 +101,7 @@ public class ConnectResultsListFragment extends Fragment {
                 String money = job.getMoneyString(Integer.parseInt(payment.getAmount()));
                 paymentHolder.nameText.setText(parentContext.getString(R.string.connect_results_payment_description, money));
 
-                paymentHolder.dateText.setText(parentContext.getString(R.string.connect_results_payment_date, df.format(payment.getDate())));
+                paymentHolder.dateText.setText(parentContext.getString(R.string.connect_results_payment_date, ConnectManager.formatDate(payment.getDate())));
 
                 boolean enabled = paymentHolder.updateConfirmedText(parentContext, payment);
 

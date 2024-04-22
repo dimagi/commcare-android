@@ -1,5 +1,6 @@
 package org.commcare.android.database.connect.models;
 
+import org.commcare.activities.connect.ConnectNetworkHelper;
 import org.commcare.android.storage.framework.Persisted;
 import org.commcare.models.framework.Persisting;
 import org.commcare.modern.database.Table;
@@ -9,7 +10,6 @@ import org.json.JSONObject;
 
 import java.io.Serializable;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
@@ -37,12 +37,10 @@ public class ConnectJobPaymentRecordV3 extends Persisted implements Serializable
     public ConnectJobPaymentRecordV3() {}
 
     public static ConnectJobPaymentRecordV3 fromJson(JSONObject json, int jobId) throws JSONException, ParseException {
-        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
-
         ConnectJobPaymentRecordV3 payment = new ConnectJobPaymentRecordV3();
 
         payment.jobId = jobId;
-        payment.date = json.has(META_DATE) ? df.parse(json.getString(META_DATE)) : new Date();
+        payment.date = json.has(META_DATE) ? ConnectNetworkHelper.parseDate(json.getString(META_DATE)) : new Date();
         payment.amount = String.format(Locale.ENGLISH, "%d", json.has(META_AMOUNT) ? json.getInt(META_AMOUNT) : 0);
 
         return payment;

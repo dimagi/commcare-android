@@ -1,5 +1,6 @@
 package org.commcare.android.database.connect.models;
 
+import org.commcare.activities.connect.ConnectNetworkHelper;
 import org.commcare.android.storage.framework.Persisted;
 import org.commcare.models.framework.Persisting;
 import org.commcare.modern.database.Table;
@@ -9,7 +10,6 @@ import org.json.JSONObject;
 
 import java.io.Serializable;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -141,8 +141,6 @@ public class ConnectJobRecord extends Persisted implements Serializable {
     }
 
     public static ConnectJobRecord fromJson(JSONObject json) throws JSONException, ParseException {
-        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
-
         ConnectJobRecord job = new ConnectJobRecord();
 
         job.lastUpdate = new Date();
@@ -153,8 +151,8 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         job.title = json.has(META_NAME) ? json.getString(META_NAME) : "";
         job.description = json.has(META_DESCRIPTION) ? json.getString(META_DESCRIPTION) : "";
         job.organization = json.has(META_ORGANIZATION) ? json.getString(META_ORGANIZATION) : "";
-        job.projectEndDate = json.has(META_END_DATE) ? df.parse(json.getString(META_END_DATE)) : new Date();
-        job.projectStartDate = json.has(META_START_DATE) ? df.parse(json.getString(META_START_DATE)) : new Date();
+        job.projectEndDate = json.has(META_END_DATE) ? ConnectNetworkHelper.parseDate(json.getString(META_END_DATE)) : new Date();
+        job.projectStartDate = json.has(META_START_DATE) ? ConnectNetworkHelper.parseDate(json.getString(META_START_DATE)) : new Date();
         job.maxVisits = json.has(META_MAX_VISITS) ? json.getInt(META_MAX_VISITS) : -1;
         job.maxDailyVisits = json.has(META_MAX_DAILY_VISITS) ? json.getInt(META_MAX_DAILY_VISITS) : -1;
         job.budgetPerVisit = json.has(META_BUDGET_PER_VISIT) ? json.getInt(META_BUDGET_PER_VISIT) : -1;
@@ -188,12 +186,12 @@ public class ConnectJobRecord extends Persisted implements Serializable {
 
             key = META_END_DATE;
             if (claim.has(key)) {
-                job.projectEndDate = df.parse(claim.getString(key));
+                job.projectEndDate = ConnectNetworkHelper.parseDate(claim.getString(key));
             }
 
             key = META_CLAIM_DATE;
             if (claim.has(key)) {
-                job.dateClaimed = df.parse(claim.getString(key));
+                job.dateClaimed = ConnectNetworkHelper.parseDate(claim.getString(key));
             }
         }
 

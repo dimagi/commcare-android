@@ -1,5 +1,6 @@
 package org.commcare.android.database.connect.models;
 
+import org.commcare.activities.connect.ConnectNetworkHelper;
 import org.commcare.android.storage.framework.Persisted;
 import org.commcare.models.framework.Persisting;
 import org.commcare.modern.database.Table;
@@ -9,7 +10,6 @@ import org.json.JSONObject;
 
 import java.io.Serializable;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
@@ -68,17 +68,15 @@ public class ConnectJobPaymentRecord extends Persisted implements Serializable {
     }
 
     public static ConnectJobPaymentRecord fromJson(JSONObject json, int jobId) throws JSONException, ParseException {
-        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
-
         ConnectJobPaymentRecord payment = new ConnectJobPaymentRecord();
 
         payment.jobId = jobId;
-        payment.date = json.has(META_DATE) ? df.parse(json.getString(META_DATE)) : new Date();
+        payment.date = json.has(META_DATE) ? ConnectNetworkHelper.parseDate(json.getString(META_DATE)) : new Date();
         payment.amount = String.format(Locale.ENGLISH, "%d", json.has(META_AMOUNT) ? json.getInt(META_AMOUNT) : 0);
 
         payment.paymentId = json.has("id") ? json.getString("id") : "";
         payment.confirmed = json.has(META_CONFIRMED) && json.getBoolean(META_CONFIRMED);
-        payment.confirmedDate = json.has(META_CONFIRMED_DATE) && !json.isNull(META_CONFIRMED_DATE) ? df.parse(json.getString(META_CONFIRMED_DATE)) : new Date();
+        payment.confirmedDate = json.has(META_CONFIRMED_DATE) && !json.isNull(META_CONFIRMED_DATE) ? ConnectNetworkHelper.parseDate(json.getString(META_CONFIRMED_DATE)) : new Date();
 
         return payment;
     }
