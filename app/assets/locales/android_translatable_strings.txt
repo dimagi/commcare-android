@@ -444,6 +444,7 @@ custom.restore.file.not.set=Custom restore file path is not set in preferences
 custom.restore.error=Error loading custom sync
 
 start.recording=Start Recording
+start.recording.failed=Unable to start recording while another application is recording!
 stop.recording=Stop Recording
 recording.header=Record a sound
 before.recording=Tap to start recording

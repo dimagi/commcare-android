@@ -23,9 +23,11 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.commcare.CommCareApplication;
 import org.commcare.dalvik.R;
+import org.commcare.utils.MediaUtil;
 import org.javarosa.core.services.locale.Localization;
 
 import java.io.File;
@@ -165,6 +167,13 @@ public class RecordingFragment extends DialogFragment {
     }
 
     private void startRecording() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            if (MediaUtil.isRecordingActive(getContext())) {
+                Toast.makeText(getContext(), Localization.get("start.recording.failed"), Toast.LENGTH_SHORT).show();
+                return;
+            }
+        }
+
         disableScreenRotation((AppCompatActivity)getContext());
         setCancelable(false);
         setupRecorder();
