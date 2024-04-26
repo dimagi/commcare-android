@@ -205,8 +205,11 @@ public class RecordingFragment extends DialogFragment {
         }
 
         boolean isHeAacSupported = isHeAacEncoderSupported();
-
-        recorder.setAudioSource(MediaRecorder.AudioSource.MIC);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            recorder.setAudioSource(MediaRecorder.AudioSource.VOICE_COMMUNICATION);
+       } else {
+            recorder.setAudioSource(MediaRecorder.AudioSource.MIC);
+       }
         recorder.setAudioSamplingRate(isHeAacSupported ? HEAAC_SAMPLE_RATE : AMRNB_SAMPLE_RATE);
         recorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
         recorder.setOutputFile(fileName);
