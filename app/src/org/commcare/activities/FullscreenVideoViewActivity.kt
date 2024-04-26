@@ -22,10 +22,9 @@ class FullscreenVideoViewActivity : AppCompatActivity() {
         viewBinding = ActivityFullscreenVideoViewBinding.inflate(layoutInflater)
         setContentView(viewBinding.root)
 
-        // Get video URI from intent, finish if no URI is available
-        // TODO: we should inform the user when we finish because there is no data
-        intent.data?.let { viewBinding.fullscreenVideoView.setVideoURI(intent.data) } ?: { finish() }
-
+        // Get video URI from intent, crash if no URI is available
+        intent.data?.let { viewBinding.fullscreenVideoView.setVideoURI(intent.data) }
+            ?: throw RuntimeException("Video file not found!");
         lastPosition = restoreLastPosition(savedInstanceState)
 
         viewBinding.fullscreenVideoView.setMediaController(CommCareMediaController(this, true))
@@ -77,7 +76,7 @@ class FullscreenVideoViewActivity : AppCompatActivity() {
         if (savedInstanceState != null &&
             savedInstanceState.containsKey(CommCareMediaController.INLINE_VIDEO_TIME_POSITION)) {
             return savedInstanceState.getInt(CommCareMediaController.INLINE_VIDEO_TIME_POSITION)
-        } else if (intentExtras !=null &&
+        } else if (intentExtras != null &&
             intentExtras.containsKey(CommCareMediaController.INLINE_VIDEO_TIME_POSITION)) {
             return intentExtras.getInt(CommCareMediaController.INLINE_VIDEO_TIME_POSITION)
         }
