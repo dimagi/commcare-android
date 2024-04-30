@@ -16,6 +16,7 @@ import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.WithUIController;
 import org.commcare.utils.BiometricsHelper;
+import org.javarosa.core.services.Logger;
 
 /**
  * Gets the user to unlock ConnectID (via fingerprint, PIN, or password)
@@ -48,17 +49,12 @@ public class ConnectIdLoginActivity extends CommCareActivity<ConnectIdLoginActiv
         if (BiometricsHelper.isFingerprintConfigured(this, biometricManager)) {
             //Automatically try fingerprint first
             performFingerprintUnlock();
-        } else if (!BiometricsHelper.isPinConfigured(this, biometricManager)) {
-            //Automatically try password, it's the only option
+        } else if (BiometricsHelper.isPinConfigured(this, biometricManager)) {
+            performPinUnlock();
+        } else if (allowPassword) {
             performPasswordUnlock();
         } else {
-            if (allowPassword) {
-                //Show options for PIN or password
-                uiController.showAdditionalOptions();
-            } else {
-                //PIN is the only option
-                performPinUnlock();
-            }
+            Logger.exception("No unlock method available when trying to unlock ConnectID", new Exception("No unlock option"));
         }
     }
 
@@ -120,13 +116,13 @@ public class ConnectIdLoginActivity extends CommCareActivity<ConnectIdLoginActiv
                 super.onAuthenticationError(errorCode, errString);
                 if (attemptingFingerprint) {
                     attemptingFingerprint = false;
-                    if (!BiometricsHelper.isPinConfigured(context, biometricManager) &&
+                    if (BiometricsHelper.isPinConfigured(context, biometricManager) &&
                             allowPassword) {
                         //Automatically try password, it's the only option
-                        performPasswordUnlock();
+                        performPinUnlock();
                     } else {
-                        //Show options for PIN or password
-                        uiController.showAdditionalOptions();
+                        //Automatically try password, it's the only option
+                        performPasswordUnlock();
                     }
                 }
             }

@@ -14,6 +14,8 @@
     <string name="ConnectChangePasswordURL">https://connectid.dimagi.com/users/change_password</string>
     <string name="ConnectResetPasswordURL">https://connectid.dimagi.com/users/recover/reset_password</string>
     <string name="ConnectConfirmPasswordURL">https://connectid.dimagi.com/users/recover/confirm_password</string>
+    <string name="ConnectSetPinURL">https://connectid.dimagi.com/users/set_recovery_pin</string>
+    <string name="ConnectConfirmPinURL">https://connectid.dimagi.com/users/recover/confirm_pin</string>
     <string name="ConnectUpdateProfileURL">https://connectid.dimagi.com/users/update_profile</string>
     <string name="ConnectChangePhoneURL">https://connectid.dimagi.com/users/change_phone</string>
     <string name="ConnectPhoneAvailableURL">https://connectid.dimagi.com/users/phone_available</string>
@@ -527,16 +529,32 @@
     <string name="connect_password_mismatch">Passwords must match</string>
     <string name="connect_password_weak">Please choose a stronger password</string>
 
+    <string name="connect_pin_title_set">Choose PIN</string>
+    <string name="connect_pin_title_confirm">Confirm PIN</string>
+    <string name="connect_pin_message_set">Please choose a 6-digit PIN for account recovery</string>
+    <string name="connect_pin_message_repeat">Please enter the recovery PIN that you previously entered</string>
+    <string name="connect_pin_message_confirm">Please enter your recovery PIN</string>
+    <string name="connect_pin">Enter PIN</string>
+    <string name="connect_pin_repeat">Confirm PIN</string>
+    <string name="connect_pin_length">PIN must be %d digits</string>
+    <string name="connect_pin_mismatch">PINs must match</string>
+
     <string name="connect_password_verify_title">Enter Your Password</string>
     <string name="connect_password_verify_message">Please enter your recovery password to continue.</string>
     <string name="connect_password_verify">Enter Password</string>
-    <string name="connect_password_verify_forgot">Forget your password?</string>
+    <string name="connect_password_verify_forgot">Don\'t have or forgot your password?</string>
     <string name="connect_password_verify_button">Submit</string>
 
     <string name="connect_password_fail_title">Wrong Password</string>
     <string name="connect_password_fail_message">You entered the wrong password, please try again.</string>
     <string name="connect_password_recovery_message">You entered the wrong password too many times, you will need to recover your account.</string>
     <string name="connect_password_fail_button">OK</string>
+
+    <string name="connect_pin_fail_title">Wrong PIN</string>
+    <string name="connect_pin_fail_message">You entered the wrong PIN, please try again.</string>
+    <string name="connect_pin_recovery_message">You entered the wrong PIN too many times, you will need to recover your account.</string>
+    <string name="connect_pin_verify_forgot">Don\'t have or forgot your PIN?</string>
+    <string name="connect_pin_fail_button">OK</string>
 
     <string name="connect_recovery_title">ConnectID Setup</string>
     <string name="connect_recovery_title2">Identify Existing Account</string>

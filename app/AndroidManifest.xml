@@ -169,8 +169,8 @@
         <activity android:name="org.commcare.activities.connect.ConnectIdPicturesActivity"/>
         <activity android:name="org.commcare.activities.connect.ConnectIdPhoneVerificationActivity"/>
         <activity android:name="org.commcare.activities.connect.ConnectIdMessageActivity"/>
+        <activity android:name="org.commcare.activities.connect.ConnectIdPinActivity"/>
         <activity android:name="org.commcare.activities.connect.ConnectActivity"/>
-
         <activity android:name="org.commcare.activities.AppSelectActivity"/>
 
         <provider

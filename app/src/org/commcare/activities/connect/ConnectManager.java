@@ -1,6 +1,5 @@
 package org.commcare.activities.connect;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.widget.Toast;
@@ -15,7 +14,6 @@ import androidx.work.WorkManager;
 
 import org.commcare.activities.CommCareActivity;
 import org.commcare.android.database.app.models.UserKeyRecord;
-import org.commcare.activities.SettingsHelper;
 import org.commcare.android.database.connect.models.ConnectJobPaymentRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
@@ -28,7 +26,6 @@ import org.commcare.core.encryption.CryptUtil;
 import org.commcare.core.network.AuthInfo;
 import org.commcare.dalvik.R;
 import org.commcare.engine.resource.ResourceInstallUtils;
-import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.models.encryption.ByteEncrypter;
 import org.commcare.preferences.AppManagerDeveloperPreferences;
@@ -38,20 +35,15 @@ import org.commcare.tasks.templates.CommCareTaskConnector;
 import org.commcare.utils.CrashUtil;
 import org.commcare.views.dialogs.StandardAlertDialog;
 import org.javarosa.core.util.PropertyUtils;
-import org.joda.time.DateTime;
-import org.joda.time.Duration;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.Serializable;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
@@ -91,14 +83,7 @@ public class ConnectManager {
     private ConnectIdStatus connectStatus = ConnectIdStatus.NotIntroduced;
     private CommCareActivity<?> parentActivity;
     private ConnectActivityCompleteListener loginListener;
-    private ConnectTask phase = ConnectTask.CONNECT_NO_ACTIVITY;
 
-    //Only used for remembering the phone number between the first and second registration screens
-    private String primaryPhone = null;
-    private String recoveryPhone = null;
-    private String recoverySecret = null;
-    private boolean forgotPassword = false;
-    private boolean passwordOnlyWorkflow = false;
     private String primedAppIdForAutoLogin = null;
 
     //Singleton, private constructor
@@ -212,6 +197,11 @@ public class ConnectManager {
         return getInstance().connectStatus == ConnectIdStatus.LoggedIn;
     }
 
+    public static void handleFinishedActivity(int requestCode, int resultCode, Intent intent) {
+        if(ConnectIdWorkflows.handleFinishedActivity(requestCode, resultCode, intent)) {
+            getInstance().connectStatus = ConnectIdStatus.Registering;
+        }
+    }
     private static void completeSignin() {
         ConnectManager instance = getInstance();
         instance.connectStatus = ConnectIdStatus.LoggedIn;
@@ -233,13 +223,10 @@ public class ConnectManager {
 
         ConnectDatabaseHelper.forgetUser(manager.parentActivity);
 
+        ConnectIdWorkflows.reset();
+
         manager.connectStatus = ConnectIdStatus.NotIntroduced;
         manager.loginListener = null;
-        manager.phase = ConnectTask.CONNECT_NO_ACTIVITY;
-        manager.primaryPhone = null;
-        manager.recoveryPhone = null;
-        manager.recoverySecret = null;
-        manager.forgotPassword = false;
     }
 
     public static void filterConnectManagedApps(Context context, ArrayList<ApplicationRecord> readyApps, String presetAppId) {
@@ -261,82 +248,42 @@ public class ConnectManager {
 
     public static void unlockConnect(CommCareActivity<?> parent, ConnectActivityCompleteListener listener) {
         if(manager.connectStatus == ConnectIdStatus.LoggedIn) {
-            manager.parentActivity = parent;
-            manager.loginListener = listener;
-            manager.forgotPassword = false;
-
-            ConnectUserRecord user = ConnectDatabaseHelper.getUser(manager.parentActivity);
-            manager.phase = user.shouldForcePassword() ?
-                    ConnectTask.CONNECT_UNLOCK_PASSWORD :
-                    ConnectTask.CONNECT_UNLOCK_BIOMETRIC;
-
-            manager.continueWorkflow();
+            ConnectIdWorkflows.unlockConnect(parent, success -> {
+                if(success) {
+                    completeSignin();
+                }
+                listener.connectActivityComplete(success);
+            });
         }
     }
 
     public static void registerUser(CommCareActivity<?> parent, ConnectActivityCompleteListener listener) {
         ConnectManager manager = getInstance();
-        manager.parentActivity = parent;
-        manager.loginListener = listener;
-        manager.forgotPassword = false;
-
-        ConnectTask requestCode = ConnectTask.CONNECT_NO_ACTIVITY;
-        switch (manager.connectStatus) {
-            case NotIntroduced -> {
-                requestCode = ConnectTask.CONNECT_REGISTER_OR_RECOVER_DECISION;
+        ConnectIdWorkflows.beginRegistration(parent, manager.connectStatus, success -> {
+            if(success) {
+                completeSignin();
             }
-            case Registering -> {
-                ConnectUserRecord user = ConnectDatabaseHelper.getUser(manager.parentActivity);
-                ConnectTask phase = user.getRegistrationPhase();
-                if (phase != ConnectTask.CONNECT_NO_ACTIVITY) {
-                    requestCode = phase;
-                } else {
-                    requestCode = user.shouldForcePassword() ?
-                            ConnectTask.CONNECT_UNLOCK_PASSWORD :
-                            ConnectTask.CONNECT_UNLOCK_BIOMETRIC;
-                }
-            }
-            default -> {
-                //Error, should never get here
-            }
-        }
-
-        if (requestCode != ConnectTask.CONNECT_NO_ACTIVITY) {
-            manager.phase = requestCode;
-            manager.continueWorkflow();
-        }
+            listener.connectActivityComplete(success);
+        });
     }
 
     public static void handleConnectButtonPress(CommCareActivity<?> parent, ConnectActivityCompleteListener listener) {
         ConnectManager manager = getInstance();
         manager.parentActivity = parent;
         manager.loginListener = listener;
-        manager.forgotPassword = false;
 
-        ConnectTask requestCode = ConnectTask.CONNECT_NO_ACTIVITY;
         switch (manager.connectStatus) {
-            case NotIntroduced -> {
-                requestCode = ConnectTask.CONNECT_REGISTER_OR_RECOVER_DECISION;
-            }
-            case Registering -> {
-                ConnectUserRecord user = ConnectDatabaseHelper.getUser(manager.parentActivity);
-                ConnectTask phase = user.getRegistrationPhase();
-                if (phase != ConnectTask.CONNECT_NO_ACTIVITY) {
-                    requestCode = phase;
-                } else {
-                    requestCode = user.shouldForcePassword() ?
-                            ConnectTask.CONNECT_UNLOCK_PASSWORD :
-                            ConnectTask.CONNECT_UNLOCK_BIOMETRIC;
-                }
+            case NotIntroduced, Registering -> {
+                ConnectIdWorkflows.beginRegistration(parent, manager.connectStatus, success -> {
+                    if(success) {
+                        completeSignin();
+                    }
+                    listener.connectActivityComplete(success);
+                });
             }
             case LoggedIn -> {
                 goToConnectJobsList();
             }
-        }
-
-        if (requestCode != ConnectTask.CONNECT_NO_ACTIVITY) {
-            manager.phase = requestCode;
-            manager.continueWorkflow();
         }
     }
 
@@ -344,367 +291,6 @@ public class ConnectManager {
         ConnectTask task = ConnectTask.CONNECT_MAIN;
         Intent i = new Intent(manager.parentActivity, task.getNextActivity());
         manager.parentActivity.startActivityForResult(i, task.getRequestCode());
-    }
-
-    private void continueWorkflow() {
-        //Determine activity to launch for next phase
-        Class<?> nextActivity = phase.getNextActivity();
-        Map<String, Serializable> params = new HashMap<>();
-        ConnectUserRecord user = ConnectDatabaseHelper.getUser(parentActivity);
-
-        switch (phase) {
-            case CONNECT_REGISTRATION_PRIMARY_PHONE -> {
-                params.put(ConnectConstants.METHOD, ConnectConstants.METHOD_REGISTER_PRIMARY);
-                params.put(ConnectConstants.PHONE, primaryPhone);
-            }
-            case CONNECT_REGISTRATION_MAIN -> {
-                params.put(ConnectConstants.PHONE, primaryPhone);
-            }
-            case CONNECT_REGISTRATION_VERIFY_PRIMARY_PHONE -> {
-                params.put(ConnectConstants.METHOD, String.format(Locale.getDefault(), "%d",
-                        ConnectIdPhoneVerificationActivity.MethodRegistrationPrimary));
-                params.put(ConnectConstants.PHONE, user.getPrimaryPhone());
-                params.put(ConnectConstants.CHANGE, "true");
-                params.put(ConnectConstants.USERNAME, user.getUserId());
-                params.put(ConnectConstants.PASSWORD, user.getPassword());
-            }
-            case CONNECT_REGISTRATION_CHANGE_PRIMARY_PHONE -> {
-                params.put(ConnectConstants.METHOD, ConnectConstants.METHOD_CHANGE_PRIMARY);
-            }
-            case CONNECT_REGISTRATION_CONFIGURE_PASSWORD -> {
-                params.put(ConnectConstants.USERNAME, user.getUserId());
-                params.put(ConnectConstants.PASSWORD, user.getPassword());
-                params.put(ConnectConstants.METHOD, passwordOnlyWorkflow ? "true" : "false");
-            }
-            case CONNECT_REGISTRATION_ALTERNATE_PHONE -> {
-                params.put(ConnectConstants.METHOD, ConnectConstants.METHOD_CHANGE_ALTERNATE);
-            }
-            case CONNECT_REGISTRATION_SUCCESS -> {
-                //Show message screen indicating success
-                params.put(ConnectConstants.TITLE, R.string.connect_register_success_title);
-                params.put(ConnectConstants.MESSAGE, R.string.connect_register_success_message);
-                params.put(ConnectConstants.BUTTON, R.string.connect_register_success_button);
-            }
-            case CONNECT_RECOVERY_PRIMARY_PHONE -> {
-                params.put(ConnectConstants.METHOD, ConnectConstants.METHOD_RECOVER_PRIMARY);
-            }
-            case CONNECT_RECOVERY_VERIFY_PRIMARY_PHONE -> {
-                params.put(ConnectConstants.METHOD, String.format(Locale.getDefault(), "%d",
-                        ConnectIdPhoneVerificationActivity.MethodRecoveryPrimary));
-                params.put(ConnectConstants.PHONE, recoveryPhone);
-                params.put(ConnectConstants.CHANGE, "false");
-                params.put(ConnectConstants.USERNAME, recoveryPhone);
-                params.put(ConnectConstants.PASSWORD, "");
-            }
-            case CONNECT_RECOVERY_VERIFY_PASSWORD,
-                    CONNECT_RECOVERY_CHANGE_PASSWORD -> {
-                params.put(ConnectConstants.PHONE, recoveryPhone);
-                params.put(ConnectConstants.SECRET, recoverySecret);
-            }
-            case CONNECT_RECOVERY_ALT_PHONE_MESSAGE -> {
-                //Show message screen indicating plan to use alt phone
-                params.put(ConnectConstants.TITLE, R.string.connect_recovery_alt_title);
-                params.put(ConnectConstants.MESSAGE, R.string.connect_recovery_alt_message);
-                params.put(ConnectConstants.BUTTON, R.string.connect_recovery_alt_button);
-            }
-            case CONNECT_RECOVERY_VERIFY_ALT_PHONE -> {
-                params.put(ConnectConstants.METHOD, String.format(Locale.getDefault(), "%d",
-                        ConnectIdPhoneVerificationActivity.MethodRecoveryAlternate));
-                params.put(ConnectConstants.PHONE, null);
-                params.put(ConnectConstants.CHANGE, "false");
-                params.put(ConnectConstants.USERNAME, recoveryPhone);
-                params.put(ConnectConstants.PASSWORD, recoverySecret);
-            }
-            case CONNECT_RECOVERY_SUCCESS -> {
-                //Show message screen indicating success
-                params.put(ConnectConstants.TITLE, R.string.connect_recovery_success_title);
-                params.put(ConnectConstants.MESSAGE, R.string.connect_recovery_success_message);
-                params.put(ConnectConstants.BUTTON, R.string.connect_recovery_success_button);
-            }
-            case CONNECT_UNLOCK_BIOMETRIC -> {
-                params.put(ConnectConstants.ALLOW_PASSWORD, "true");
-            }
-            case CONNECT_REGISTRATION_UNLOCK_BIOMETRIC -> {
-                params.put(ConnectConstants.ALLOW_PASSWORD, "false");
-            }
-            case CONNECT_BIOMETRIC_ENROLL_FAIL -> {
-                params.put(ConnectConstants.TITLE, R.string.connect_biometric_enroll_fail_title);
-                params.put(ConnectConstants.MESSAGE, R.string.connect_biometric_enroll_fail_message);
-                params.put(ConnectConstants.BUTTON, R.string.connect_biometric_enroll_fail_button);
-            }
-        }
-
-        if (nextActivity != null) {
-            Intent i = new Intent(parentActivity, nextActivity);
-
-            for (Map.Entry<String, Serializable> pair : params.entrySet()) {
-                i.putExtra(pair.getKey(), pair.getValue());
-            }
-
-            parentActivity.startActivityForResult(i, phase.getRequestCode());
-        }
-    }
-
-    public static void handleFinishedActivity(int requestCode, int resultCode, Intent intent) {
-        ConnectManager manager = getInstance();
-        boolean success = resultCode == Activity.RESULT_OK;
-        ConnectTask nextRequestCode = ConnectTask.CONNECT_NO_ACTIVITY;
-        boolean rememberPhase = false;
-        boolean launchSecuritySettings = false;
-
-        ConnectTask task = ConnectTask.fromRequestCode(requestCode);
-        switch (task) {
-            case CONNECT_REGISTER_OR_RECOVER_DECISION -> {
-                if (success) {
-                    boolean createNew = intent.getBooleanExtra(ConnectConstants.CREATE, false);
-
-                    if (createNew) {
-                        nextRequestCode = ConnectTask.CONNECT_REGISTRATION_CONSENT;
-                    } else {
-                        nextRequestCode = ConnectTask.CONNECT_RECOVERY_VERIFY_PRIMARY_PHONE;
-                        manager.recoveryPhone = intent.getStringExtra(ConnectConstants.PHONE);
-                    }
-                }
-            }
-            case CONNECT_REGISTRATION_CONSENT -> {
-                nextRequestCode = success ? ConnectTask.CONNECT_REGISTRATION_PRIMARY_PHONE :
-                        ConnectTask.CONNECT_NO_ACTIVITY;
-            }
-            case CONNECT_REGISTRATION_PRIMARY_PHONE -> {
-                nextRequestCode = success ? ConnectTask.CONNECT_REGISTRATION_MAIN :
-                        ConnectTask.CONNECT_REGISTRATION_CONSENT;
-                if (success) {
-                    manager.primaryPhone = intent.getStringExtra(ConnectConstants.PHONE);
-
-                    ConnectUserRecord user = ConnectDatabaseHelper.getUser(manager.parentActivity);
-                    if (user != null) {
-                        user.setPrimaryPhone(manager.primaryPhone);
-                        ConnectDatabaseHelper.storeUser(manager.parentActivity, user);
-                    }
-                }
-            }
-            case CONNECT_REGISTRATION_MAIN -> {
-                nextRequestCode = success ? ConnectTask.CONNECT_REGISTRATION_CONFIGURE_BIOMETRICS :
-                        ConnectTask.CONNECT_REGISTRATION_PRIMARY_PHONE;
-                if (success) {
-                    ConnectUserRecord user = ConnectUserRecord.getUserFromIntent(intent);
-                    ConnectUserRecord dbUser = ConnectDatabaseHelper.getUser(manager.parentActivity);
-                    if (dbUser != null) {
-                        dbUser.setName(user.getName());
-                        dbUser.setAlternatePhone(user.getAlternatePhone());
-                        user = dbUser;
-                    } else {
-                        manager.connectStatus = ConnectIdStatus.Registering;
-                    }
-                    ConnectDatabaseHelper.storeUser(manager.parentActivity, user);
-                    rememberPhase = true;
-                }
-            }
-            case CONNECT_REGISTRATION_CONFIGURE_BIOMETRICS -> {
-                //Backing up here is problematic, we just created a new account...
-                nextRequestCode = ConnectTask.CONNECT_REGISTRATION_MAIN;
-                if (success) {
-                    //If no biometric configured, proceed with password only
-                    boolean configured = intent.getBooleanExtra(ConnectConstants.CONFIGURED, false);
-                    manager.passwordOnlyWorkflow = intent.getBooleanExtra(ConnectConstants.PASSWORD, false);
-                    boolean failedEnrollment = intent.getBooleanExtra(ConnectConstants.ENROLL_FAIL, false);
-                    if (failedEnrollment) {
-                        nextRequestCode = ConnectTask.CONNECT_BIOMETRIC_ENROLL_FAIL;
-                    } else {
-                        nextRequestCode = configured && !manager.passwordOnlyWorkflow ?
-                                ConnectTask.CONNECT_REGISTRATION_UNLOCK_BIOMETRIC :
-                                ConnectTask.CONNECT_REGISTRATION_VERIFY_PRIMARY_PHONE;
-                    }
-                }
-            }
-            case CONNECT_REGISTRATION_UNLOCK_BIOMETRIC -> {
-                nextRequestCode = success ? ConnectTask.CONNECT_REGISTRATION_VERIFY_PRIMARY_PHONE :
-                        ConnectTask.CONNECT_REGISTRATION_CONFIGURE_BIOMETRICS;
-                rememberPhase = success;
-            }
-            case CONNECT_REGISTRATION_VERIFY_PRIMARY_PHONE -> {
-                nextRequestCode = manager.passwordOnlyWorkflow ? ConnectTask.CONNECT_REGISTRATION_MAIN :
-                        ConnectTask.CONNECT_REGISTRATION_CONFIGURE_BIOMETRICS;
-                if (success) {
-                    boolean changeNumber = intent != null && intent.getBooleanExtra(ConnectConstants.CHANGE,
-                            false);
-                    nextRequestCode = changeNumber ? ConnectTask.CONNECT_REGISTRATION_CHANGE_PRIMARY_PHONE :
-                            ConnectTask.CONNECT_REGISTRATION_CONFIGURE_PASSWORD;
-                    rememberPhase = !changeNumber;
-                }
-            }
-            case CONNECT_REGISTRATION_ALTERNATE_PHONE -> {
-                nextRequestCode = success ? ConnectTask.CONNECT_REGISTRATION_SUCCESS :
-                        ConnectTask.CONNECT_REGISTRATION_CONFIGURE_PASSWORD;
-                if (success) {
-                    rememberPhase = true;
-                    ConnectUserRecord user = ConnectDatabaseHelper.getUser(manager.parentActivity);
-                    if (user != null) {
-                        user.setAlternatePhone(intent.getStringExtra(ConnectConstants.PHONE));
-                        ConnectDatabaseHelper.storeUser(manager.parentActivity, user);
-                    }
-                }
-            }
-            case CONNECT_REGISTRATION_CHANGE_PRIMARY_PHONE -> {
-                //Note that we return to primary phone verification
-                // (whether they did or didn't change the phone number)
-                nextRequestCode = ConnectTask.CONNECT_REGISTRATION_VERIFY_PRIMARY_PHONE;
-                if (success) {
-                    rememberPhase = true;
-                    ConnectUserRecord user = ConnectDatabaseHelper.getUser(manager.parentActivity);
-                    if (user != null) {
-                        user.setPrimaryPhone(intent.getStringExtra(ConnectConstants.PHONE));
-                        ConnectDatabaseHelper.storeUser(manager.parentActivity, user);
-                    }
-                }
-            }
-            case CONNECT_REGISTRATION_CONFIGURE_PASSWORD -> {
-                nextRequestCode = success ? ConnectTask.CONNECT_REGISTRATION_ALTERNATE_PHONE :
-                        ConnectTask.CONNECT_REGISTRATION_VERIFY_PRIMARY_PHONE;
-                if (success) {
-                    rememberPhase = true;
-
-                    //Update password
-                    manager.forgotPassword = false;
-                    ConnectUserRecord user = ConnectDatabaseHelper.getUser(manager.parentActivity);
-                    if (user != null) {
-                        user.setPassword(intent.getStringExtra(ConnectConstants.PASSWORD));
-                        user.setLastPasswordDate(new Date());
-                        ConnectDatabaseHelper.storeUser(manager.parentActivity, user);
-                    }
-                }
-            }
-            case CONNECT_RECOVERY_PRIMARY_PHONE -> {
-                if (success) {
-                    nextRequestCode = ConnectTask.CONNECT_RECOVERY_VERIFY_PRIMARY_PHONE;
-                    manager.recoveryPhone = intent.getStringExtra(ConnectConstants.PHONE);
-                }
-            }
-            case CONNECT_RECOVERY_VERIFY_PRIMARY_PHONE -> {
-                if (success) {
-                    //If the user forgot their password, proceed directly to alt OTP
-                    nextRequestCode = manager.forgotPassword ? ConnectTask.CONNECT_RECOVERY_ALT_PHONE_MESSAGE :
-                            ConnectTask.CONNECT_RECOVERY_VERIFY_PASSWORD;
-
-                    //Remember the secret key for use through the rest of the recovery process
-                    manager.recoverySecret = intent.getStringExtra(ConnectConstants.SECRET);
-                }
-            }
-            case CONNECT_RECOVERY_VERIFY_PASSWORD -> {
-                nextRequestCode = success ? ConnectTask.CONNECT_RECOVERY_SUCCESS :
-                        ConnectTask.CONNECT_RECOVERY_VERIFY_PRIMARY_PHONE;
-                if (success) {
-                    manager.forgotPassword = intent.getBooleanExtra(ConnectConstants.FORGOT, false);
-                    if (manager.forgotPassword) {
-                        nextRequestCode = ConnectTask.CONNECT_RECOVERY_ALT_PHONE_MESSAGE;
-                    } else {
-                        String username = intent.getStringExtra(ConnectConstants.USERNAME);
-                        String name = intent.getStringExtra(ConnectConstants.NAME);
-                        String password = intent.getStringExtra(ConnectConstants.PASSWORD);
-
-                        if (username != null && name != null && password != null) {
-                            //TODO: Need to get secondary phone from server
-                            ConnectUserRecord user = new ConnectUserRecord(manager.recoveryPhone, username,
-                                    password, name, "");
-                            user.setLastPasswordDate(new Date());
-                            ConnectDatabaseHelper.storeUser(manager.parentActivity, user);
-                        }
-                    }
-                }
-            }
-            case CONNECT_RECOVERY_ALT_PHONE_MESSAGE -> {
-                if (success) {
-                    nextRequestCode = ConnectTask.CONNECT_RECOVERY_VERIFY_ALT_PHONE;
-                }
-            }
-            case CONNECT_RECOVERY_VERIFY_ALT_PHONE -> {
-                nextRequestCode = success ? ConnectTask.CONNECT_RECOVERY_CHANGE_PASSWORD :
-                        ConnectTask.CONNECT_RECOVERY_VERIFY_PRIMARY_PHONE;
-
-                if (success) {
-                    String username = intent.getStringExtra(ConnectConstants.USERNAME);
-                    String name = intent.getStringExtra(ConnectConstants.NAME);
-                    String altPhone = intent.getStringExtra(ConnectConstants.ALT_PHONE);
-
-                    if (username != null && name != null) {
-                        //NOTE: They'll choose a new password next
-                        ConnectUserRecord user = new ConnectUserRecord(manager.recoveryPhone, username,
-                                "", name, altPhone);
-                        ConnectDatabaseHelper.storeUser(manager.parentActivity, user);
-                    }
-                }
-            }
-            case CONNECT_RECOVERY_CHANGE_PASSWORD -> {
-                nextRequestCode = success ? ConnectTask.CONNECT_RECOVERY_SUCCESS :
-                        ConnectTask.CONNECT_RECOVERY_VERIFY_PRIMARY_PHONE;
-                if (success) {
-                    //Update password
-                    manager.forgotPassword = false;
-                    ConnectUserRecord user = ConnectDatabaseHelper.getUser(manager.parentActivity);
-                    if (user != null) {
-                        user.setPassword(intent.getStringExtra(ConnectConstants.PASSWORD));
-                        user.setLastPasswordDate(new Date());
-                        ConnectDatabaseHelper.storeUser(manager.parentActivity, user);
-                    }
-                }
-            }
-            case CONNECT_RECOVERY_SUCCESS,
-                    CONNECT_REGISTRATION_SUCCESS -> {
-                //Finish workflow, user registered/recovered and logged in
-                rememberPhase = true;
-                completeSignin();
-            }
-            case CONNECT_UNLOCK_BIOMETRIC -> {
-                if (success) {
-                    completeSignin();
-                } else if (intent != null && intent.getBooleanExtra(ConnectConstants.PASSWORD, false)) {
-                    nextRequestCode = ConnectTask.CONNECT_UNLOCK_PASSWORD;
-                } else if (intent != null && intent.getBooleanExtra(ConnectConstants.RECOVER, false)) {
-                    nextRequestCode = ConnectTask.CONNECT_RECOVERY_PRIMARY_PHONE;
-                }
-            }
-            case CONNECT_UNLOCK_PASSWORD -> {
-                if (success) {
-                    boolean forgot = intent.getBooleanExtra(ConnectConstants.FORGOT, false);
-                    if (forgot) {
-                        //Begin the recovery workflow
-                        nextRequestCode = ConnectTask.CONNECT_RECOVERY_PRIMARY_PHONE;
-                        manager.forgotPassword = true;
-                    } else {
-                        manager.forgotPassword = false;
-                        completeSignin();
-                        FirebaseAnalyticsUtil.reportCccSignIn(AnalyticsParamValue.CCC_SIGN_IN_METHOD_PASSWORD);
-
-                        ConnectUserRecord user = ConnectDatabaseHelper.getUser(manager.parentActivity);
-                        user.setLastPasswordDate(new Date());
-                        ConnectDatabaseHelper.storeUser(manager.parentActivity, user);
-                    }
-                }
-            }
-            case CONNECT_BIOMETRIC_ENROLL_FAIL -> {
-                nextRequestCode = ConnectTask.CONNECT_REGISTRATION_CONFIGURE_BIOMETRICS;
-                if (success) {
-                    //Go to settings
-                    launchSecuritySettings = true;
-                }
-            }
-            default -> {
-                return;
-            }
-        }
-
-        manager.phase = nextRequestCode;
-
-        if (rememberPhase) {
-            ConnectDatabaseHelper.setRegistrationPhase(manager.parentActivity, manager.phase);
-        }
-
-        manager.continueWorkflow();
-
-        if (launchSecuritySettings) {
-            //Launch after continuing workflow so previous activity is still there when user returns
-            SettingsHelper.launchSecuritySettings(manager.parentActivity);
-        }
     }
 
     public static void forgetAppCredentials(String appId, String userId) {

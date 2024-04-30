@@ -115,37 +115,39 @@ public class ConnectSsoHelper {
 
         ConnectUserRecord user = ConnectDatabaseHelper.getUser(context);
 
-        HashMap<String, String> params = new HashMap<>();
-        params.put("client_id", "zqFUtAAMrxmjnC1Ji74KAa6ZpY1mZly0J0PlalIa");
-        params.put("scope", "openid");
-        params.put("grant_type", "password");
-        params.put("username", user.getUserId());
-        params.put("password", user.getPassword());
+        if(user != null) {
+            HashMap<String, String> params = new HashMap<>();
+            params.put("client_id", "zqFUtAAMrxmjnC1Ji74KAa6ZpY1mZly0J0PlalIa");
+            params.put("scope", "openid");
+            params.put("grant_type", "password");
+            params.put("username", user.getUserId());
+            params.put("password", user.getPassword());
 
-        String url = context.getString(R.string.ConnectTokenURL);
+            String url = context.getString(R.string.ConnectTokenURL);
 
-        ConnectNetworkHelper.PostResult postResult = ConnectNetworkHelper.postSync(context, url,
-                new AuthInfo.NoAuth(), params, true);
-        if (postResult.responseCode == 200) {
-            try {
-                String responseAsString = new String(StreamsUtil.inputStreamToByteArray(
-                        postResult.responseStream));
-                postResult.responseStream.close();
-                JSONObject json = new JSONObject(responseAsString);
-                String key = ConnectConstants.CONNECT_KEY_TOKEN;
-                if (json.has(key)) {
-                    String token = json.getString(key);
-                    Date expiration = new Date();
-                    key = ConnectConstants.CONNECT_KEY_EXPIRES;
-                    int seconds = json.has(key) ? json.getInt(key) : 0;
-                    expiration.setTime(expiration.getTime() + ((long)seconds * 1000));
-                    user.updateConnectToken(token, expiration);
-                    ConnectDatabaseHelper.storeUser(context, user);
+            ConnectNetworkHelper.PostResult postResult = ConnectNetworkHelper.postSync(context, url,
+                    new AuthInfo.NoAuth(), params, true);
+            if (postResult.responseCode == 200) {
+                try {
+                    String responseAsString = new String(StreamsUtil.inputStreamToByteArray(
+                            postResult.responseStream));
+                    postResult.responseStream.close();
+                    JSONObject json = new JSONObject(responseAsString);
+                    String key = ConnectConstants.CONNECT_KEY_TOKEN;
+                    if (json.has(key)) {
+                        String token = json.getString(key);
+                        Date expiration = new Date();
+                        key = ConnectConstants.CONNECT_KEY_EXPIRES;
+                        int seconds = json.has(key) ? json.getInt(key) : 0;
+                        expiration.setTime(expiration.getTime() + ((long)seconds * 1000));
+                        user.updateConnectToken(token, expiration);
+                        ConnectDatabaseHelper.storeUser(context, user);
 
-                    return new AuthInfo.TokenAuth(token);
+                        return new AuthInfo.TokenAuth(token);
+                    }
+                } catch (IOException | JSONException e) {
+                    Logger.exception("Parsing return from Connect OIDC call", e);
                 }
-            } catch (IOException | JSONException e) {
-                Logger.exception("Parsing return from Connect OIDC call", e);
             }
         }
 

@@ -622,6 +622,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             case MENU_CONNECT_SIGN_IN:
                 //Setup ConnectID and proceed to jobs page if successful
                 ConnectManager.handleConnectButtonPress(this, success -> {
+                    updateConnectButton();
                     if(success) {
                         ConnectManager.goToConnectJobsList();
                     }

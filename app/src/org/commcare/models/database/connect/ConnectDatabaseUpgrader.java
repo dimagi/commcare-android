@@ -17,6 +17,8 @@ import org.commcare.android.database.connect.models.ConnectJobRecordV4;
 import org.commcare.android.database.connect.models.ConnectLearnModuleSummaryRecord;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecordV3;
+import org.commcare.android.database.connect.models.ConnectUserRecord;
+import org.commcare.android.database.connect.models.ConnectUserRecordV5;
 import org.commcare.models.database.ConcreteAndroidDbHelper;
 import org.commcare.models.database.DbUtil;
 import org.commcare.models.database.SqlStorage;
@@ -52,6 +54,12 @@ public class ConnectDatabaseUpgrader {
         if (oldVersion == 4) {
             if (upgradeFourFive(db)) {
                 oldVersion = 5;
+            }
+        }
+
+        if (oldVersion == 5) {
+            if (upgradeFiveSix(db)) {
+                oldVersion = 6;
             }
         }
     }
@@ -246,6 +254,48 @@ public class ConnectDatabaseUpgrader {
             for (Persistable r : oldStorage) {
                 ConnectJobRecordV4 oldRecord = (ConnectJobRecordV4)r;
                 ConnectJobRecord newRecord = ConnectJobRecord.fromV4(oldRecord);
+                //set this new record to have same ID as the old one
+                newRecord.setID(oldRecord.getID());
+                newStorage.write(newRecord);
+            }
+
+            db.setTransactionSuccessful();
+            return true;
+        } catch(Exception e) {
+            return false;
+        } finally {
+            db.endTransaction();
+        }
+    }
+
+    private boolean upgradeFiveSix(SQLiteDatabase db) {
+        db.beginTransaction();
+
+        try {
+            //First, migrate the old ConnectUserRecord in storage to the new version
+            db.execSQL(DbUtil.addColumnToTable(
+                    ConnectUserRecord.STORAGE_KEY,
+                    ConnectUserRecord.META_PIN,
+                    "TEXT"));
+
+            db.execSQL(DbUtil.addColumnToTable(
+                    ConnectUserRecord.STORAGE_KEY,
+                    ConnectUserRecord.META_SECONDARY_PHONE_VERIFIED,
+                    "TEXT"));
+
+            SqlStorage<Persistable> oldStorage = new SqlStorage<>(
+                    ConnectUserRecord.STORAGE_KEY,
+                    ConnectUserRecordV5.class,
+                    new ConcreteAndroidDbHelper(c, db));
+
+            SqlStorage<Persistable> newStorage = new SqlStorage<>(
+                    ConnectUserRecord.STORAGE_KEY,
+                    ConnectUserRecordV5.class,
+                    new ConcreteAndroidDbHelper(c, db));
+
+            for (Persistable r : oldStorage) {
+                ConnectUserRecordV5 oldRecord = (ConnectUserRecordV5)r;
+                ConnectUserRecord newRecord = ConnectUserRecord.fromV5(oldRecord);
                 //set this new record to have same ID as the old one
                 newRecord.setID(oldRecord.getID());
                 newStorage.write(newRecord);

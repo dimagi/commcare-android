@@ -11,6 +11,7 @@ public class ConnectConstants {
     public static final String CREATE = "CREATE";
     public static final String USERNAME = "USERNAME";
     public static final String PASSWORD = "PASSWORD";
+    public static final String PIN = "PIN";
     public static final String NAME = "NAME";
     public static final String PHONE = "PHONE";
     public static final String ALT_PHONE = "ALT_PHONE";
@@ -21,7 +22,6 @@ public class ConnectConstants {
     public static final String SECRET = "SECRET";
 
     public static final String RECOVER = "RECOVER";
-    public static final String CONFIGURED = "CONFIGURED";
     public static final String ENROLL_FAIL = "ENROLL_FAIL";
     public static final String CHANGE = "CHANGE";
     public static final String FORGOT = "FORGOT";

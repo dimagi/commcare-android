@@ -1,12 +1,12 @@
 package org.commcare.activities.connect;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Toast;
 
 import org.commcare.activities.CommCareActivity;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
-import org.commcare.core.network.AuthInfo;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
@@ -20,7 +20,6 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashMap;
 
 /**
  * Shows the page that prompts the user to enter their password
@@ -80,7 +79,7 @@ public class ConnectIdPasswordVerificationActivity extends CommCareActivity<Conn
         super.onActivityResult(requestCode, resultCode, intent);
 
         if (requestCode == PASSWORD_LOCK) {
-            finish(true, true, null, null, null);
+            finish(true, true);
         }
     }
 
@@ -89,13 +88,10 @@ public class ConnectIdPasswordVerificationActivity extends CommCareActivity<Conn
         return CustomProgressDialog.newInstance(null, getString(R.string.please_wait), taskId);
     }
 
-    public void finish(boolean success, boolean forgot, String username, String name, String password) {
+    public void finish(boolean success, boolean forgot) {
         Intent intent = new Intent(getIntent());
 
         intent.putExtra(ConnectConstants.FORGOT, forgot);
-        intent.putExtra(ConnectConstants.USERNAME, username);
-        intent.putExtra(ConnectConstants.NAME, name);
-        intent.putExtra(ConnectConstants.PASSWORD, password);
 
         setResult(success ? RESULT_OK : RESULT_CANCELED, intent);
         finish();
@@ -127,7 +123,7 @@ public class ConnectIdPasswordVerificationActivity extends CommCareActivity<Conn
     }
 
     public void handleForgotPress() {
-        finish(true, true, null, null, null);
+        finish(true, true);
     }
 
     public void handleButtonPress() {
@@ -137,18 +133,13 @@ public class ConnectIdPasswordVerificationActivity extends CommCareActivity<Conn
             //If we have the password stored locally, no need for network call
             if (password.equals(user.getPassword())) {
                 logRecoveryResult(true);
-                finish(true, false, null, null, null);
+                finish(true, false);
             } else {
                 handleWrongPassword();
             }
         } else {
-            HashMap<String, String> params = new HashMap<>();
-            params.put("password", password);
-            params.put("phone", phone);
-            params.put("secret_key", secretKey);
-
-            boolean isBusy = !ConnectNetworkHelper.post(this, getString(R.string.ConnectConfirmPasswordURL),
-                    new AuthInfo.NoAuth(), params, false, new ConnectNetworkHelper.INetworkResultHandler() {
+            final Context context = this;
+            boolean isBusy = !ConnectNetworkHelper.checkPassword(this, phone, secretKey, password, new ConnectNetworkHelper.INetworkResultHandler() {
                         @Override
                         public void processSuccess(int responseCode, InputStream responseData) {
                             String username = null;
@@ -167,12 +158,18 @@ public class ConnectIdPasswordVerificationActivity extends CommCareActivity<Conn
                                     if (json.has(key)) {
                                         name = json.getString(key);
                                     }
+
+                                    //TODO: Need to get secondary phone from server
+                                    ConnectUserRecord user = new ConnectUserRecord(phone, username,
+                                            password, name, "");
+                                    ConnectDatabaseHelper.storeUser(context, user);
                                 }
                             } catch (IOException | JSONException e) {
                                 Logger.exception("Parsing return from OTP request", e);
                             }
+
                             logRecoveryResult(true);
-                            finish(true, false, username, name, password);
+                            finish(true, false);
                         }
 
                         @Override

@@ -116,43 +116,33 @@ public class ConnectIdPasswordActivity extends CommCareActivity<ConnectIdPasswor
     }
 
     public void handleButtonPress() {
-        String password = uiController.getPasswordText();
+        final String password = uiController.getPasswordText();
 
-        HashMap<String, String> params = new HashMap<>();
-        AuthInfo authInfo;
-        int urlId;
+        ConnectNetworkHelper.INetworkResultHandler callback = new ConnectNetworkHelper.INetworkResultHandler() {
+            @Override
+            public void processSuccess(int responseCode, InputStream responseData) {
+                finish(true, password);
+            }
+
+            @Override
+            public void processFailure(int responseCode, IOException e) {
+                Toast.makeText(getApplicationContext(), "Password change error",
+                        Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void processNetworkFailure() {
+                Toast.makeText(getApplicationContext(), getString(R.string.recovery_network_unavailable),
+                        Toast.LENGTH_SHORT).show();
+            }
+        };
+
+        boolean isBusy;
         if (username != null && username.length() > 0 && oldPassword != null && oldPassword.length() > 0) {
-            authInfo = new AuthInfo.ProvidedAuth(username, oldPassword, false);
-            urlId = R.string.ConnectChangePasswordURL;
+            isBusy = !ConnectNetworkHelper.changePassword(this, username, oldPassword, password, callback);
         } else {
-            authInfo = new AuthInfo.NoAuth();
-            urlId = R.string.ConnectResetPasswordURL;
-
-            params.put("phone", phone);
-            params.put("secret_key", secret);
+            isBusy = !ConnectNetworkHelper.resetPassword(this, phone, secret, password, callback);
         }
-
-        params.put("password", password);
-
-        boolean isBusy = !ConnectNetworkHelper.post(this, getString(urlId), authInfo, params, false,
-                new ConnectNetworkHelper.INetworkResultHandler() {
-                    @Override
-                    public void processSuccess(int responseCode, InputStream responseData) {
-                        finish(true, password);
-                    }
-
-                    @Override
-                    public void processFailure(int responseCode, IOException e) {
-                        Toast.makeText(getApplicationContext(), "Password change error",
-                                Toast.LENGTH_SHORT).show();
-                    }
-
-                    @Override
-                    public void processNetworkFailure() {
-                        Toast.makeText(getApplicationContext(), getString(R.string.recovery_network_unavailable),
-                                Toast.LENGTH_SHORT).show();
-                    }
-                });
 
         if (isBusy) {
             Toast.makeText(this, R.string.busy_message, Toast.LENGTH_SHORT).show();

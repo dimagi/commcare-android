@@ -7,6 +7,7 @@ import android.net.NetworkCapabilities;
 import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Handler;
+import android.widget.Toast;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableMultimap;
@@ -77,7 +78,7 @@ public class ConnectNetworkHelper {
         }
     }
 
-    private boolean isBusy = false;
+    private String callInProgress = null;
 
     private ConnectNetworkHelper() {
         //Private constructor for singleton
@@ -94,6 +95,18 @@ public class ConnectNetworkHelper {
     private static DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
     public static Date parseDate(String dateStr) throws ParseException {
         return dateFormat.parse(dateStr);
+    }
+
+    public static String getCallInProgress() {
+        return getInstance().callInProgress;
+    }
+
+    private static boolean isBusy() {
+        return getCallInProgress() != null;
+    }
+
+    private static void setCallInProgress(String call) {
+        getInstance().callInProgress = call;
     }
 
     public static boolean isOnline(Context context) {
@@ -130,7 +143,7 @@ public class ConnectNetworkHelper {
 
     private PostResult postSyncInternal(Context context, String url, AuthInfo authInfo,
                                         HashMap<String, String> params, boolean useFormEncoding) {
-        isBusy = true;
+        setCallInProgress(url);
         try {
             showProgressDialog(context);
             HashMap<String, String> headers = new HashMap<>();
@@ -183,7 +196,7 @@ public class ConnectNetworkHelper {
             return new PostResult(responseCode, stream, exception);
         }
         catch(Exception e) {
-            isBusy = false;
+            setCallInProgress(null);
             return new PostResult(-1, null, null);
         }
     }
@@ -191,10 +204,10 @@ public class ConnectNetworkHelper {
     private boolean postInternal(Context context, String url, AuthInfo authInfo,
                                  HashMap<String, String> params, boolean useFormEncoding,
                                  INetworkResultHandler handler) {
-        if (isBusy) {
+        if (isBusy()) {
             return false;
         }
-        isBusy = true;
+        setCallInProgress(url);
 
         showProgressDialog(context);
 
@@ -242,7 +255,7 @@ public class ConnectNetworkHelper {
 
     private PostResult getSyncInternal(Context context, String url, AuthInfo authInfo,
                                         Multimap<String, String> params) {
-        isBusy = true;
+        setCallInProgress(url);
         showProgressDialog(context);
         HashMap<String, String> headers = new HashMap<>();
         RequestBody requestBody;
@@ -293,10 +306,10 @@ public class ConnectNetworkHelper {
 
     private boolean getInternal(Context context, String url, AuthInfo authInfo,
                                 Multimap<String, String> params, INetworkResultHandler handler) {
-        if (isBusy) {
+        if (isBusy()) {
             return false;
         }
-        isBusy = true;
+        setCallInProgress(url);
 
         showProgressDialog(context);
 
@@ -412,7 +425,7 @@ public class ConnectNetworkHelper {
     }
 
     private void onFinishProcessing(Context context) {
-        isBusy = false;
+        setCallInProgress(null);
         dismissProgressDialog(context);
     }
 
@@ -448,8 +461,83 @@ public class ConnectNetworkHelper {
         return postSync(context, url, ConnectManager.getConnectToken(), params, useFormEncoding);
     }
 
+    public static boolean checkPassword(Context context, String phone, String secret,
+                                        String password, INetworkResultHandler callback) {
+        HashMap<String, String> params = new HashMap<>();
+        params.put("phone", phone);
+        params.put("secret_key", secret);
+        params.put("password", password);
+
+        return post(context, context.getString(R.string.ConnectConfirmPasswordURL),
+        new AuthInfo.NoAuth(), params, false, callback);
+    }
+
+    public static boolean changePassword(Context context, String username, String oldPassword,
+                                         String newPassword, INetworkResultHandler callback) {
+        if (isBusy()) {
+            return false;
+        }
+
+        AuthInfo authInfo = new AuthInfo.ProvidedAuth(username, oldPassword, false);
+        int urlId = R.string.ConnectChangePasswordURL;
+
+        HashMap<String, String> params = new HashMap<>();
+        params.put("password", newPassword);
+
+        return post(context, context.getString(urlId), authInfo, params, false, callback);
+    }
+
+    public static boolean resetPassword(Context context, String phoneNumber, String recoverySecret,
+                                         String newPassword, INetworkResultHandler callback) {
+        if (isBusy()) {
+            return false;
+        }
+
+        AuthInfo authInfo = new AuthInfo.NoAuth();
+        int urlId = R.string.ConnectResetPasswordURL;
+
+        HashMap<String, String> params = new HashMap<>();
+        params.put("phone", phoneNumber);
+        params.put("secret_key", recoverySecret);
+        params.put("password", newPassword);
+
+        return post(context, context.getString(urlId), authInfo, params, false, callback);
+    }
+
+    public static boolean checkPin(Context context, String phone, String secret,
+                                         String pin, INetworkResultHandler callback) {
+        if (isBusy()) {
+            return false;
+        }
+
+        AuthInfo authInfo = new AuthInfo.NoAuth();
+        int urlId = R.string.ConnectConfirmPinURL;
+
+        HashMap<String, String> params = new HashMap<>();
+        params.put("phone", phone);
+        params.put("secret_key", secret);
+        params.put("recovery_pin", pin);
+
+        return post(context, context.getString(urlId), authInfo, params, false, callback);
+    }
+
+    public static boolean changePin(Context context, String username, String password,
+                                         String pin, INetworkResultHandler callback) {
+        if (isBusy()) {
+            return false;
+        }
+
+        AuthInfo authInfo = new AuthInfo.ProvidedAuth(username, password, false);
+        int urlId = R.string.ConnectSetPinURL;
+
+        HashMap<String, String> params = new HashMap<>();
+        params.put("recovery_pin", pin);
+
+        return post(context, context.getString(urlId), authInfo, params, false, callback);
+    }
+
     public static boolean getConnectOpportunities(Context context, INetworkResultHandler handler) {
-        if (getInstance().isBusy) {
+        if (isBusy()) {
             return false;
         }
 
@@ -468,7 +556,7 @@ public class ConnectNetworkHelper {
     }
 
     public static boolean startLearnApp(Context context, int jobId, INetworkResultHandler handler) {
-        if (getInstance().isBusy) {
+        if (isBusy()) {
             return false;
         }
 
@@ -488,7 +576,7 @@ public class ConnectNetworkHelper {
     }
 
     public static boolean getLearnProgress(Context context, int jobId, INetworkResultHandler handler) {
-        if (getInstance().isBusy) {
+        if (isBusy()) {
             return false;
         }
 
@@ -507,7 +595,7 @@ public class ConnectNetworkHelper {
     }
 
     public static boolean claimJob(Context context, int jobId, INetworkResultHandler handler) {
-        if (getInstance().isBusy) {
+        if (isBusy()) {
             return false;
         }
 
@@ -526,7 +614,7 @@ public class ConnectNetworkHelper {
     }
 
     public static boolean getDeliveries(Context context, int jobId, INetworkResultHandler handler) {
-        if (getInstance().isBusy) {
+        if (isBusy()) {
             return false;
         }
 
@@ -545,7 +633,7 @@ public class ConnectNetworkHelper {
     }
 
     public static boolean setPaymentConfirmed(Context context, String paymentId, boolean confirmed, INetworkResultHandler handler) {
-        if (getInstance().isBusy) {
+        if (isBusy()) {
             return false;
         }
 

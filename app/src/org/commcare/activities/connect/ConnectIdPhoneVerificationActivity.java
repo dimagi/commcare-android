@@ -1,11 +1,13 @@
 package org.commcare.activities.connect;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.widget.Toast;
 
 import org.commcare.activities.CommCareActivity;
+import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.core.network.AuthInfo;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
@@ -21,6 +23,7 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
 
@@ -244,10 +247,14 @@ public class ConnectIdPhoneVerificationActivity extends CommCareActivity<Connect
 
         params.put("token", uiController.getCode());
 
+        String phone = username;
+        final Context context = this;
         boolean isBusy = !ConnectNetworkHelper.post(this, getString(urlId), authInfo, params, false,
                 new ConnectNetworkHelper.INetworkResultHandler() {
                     @Override
                     public void processSuccess(int responseCode, InputStream responseData) {
+                        logRecoveryResult(true);
+
                         String username = "";
                         String displayName = "";
                         if (method == MethodRecoveryAlternate) {
@@ -264,12 +271,15 @@ public class ConnectIdPhoneVerificationActivity extends CommCareActivity<Connect
                                 if (json.has(key)) {
                                     displayName = json.getString(key);
                                 }
+
+                                resetPassword(context, phone, password, username, displayName);
                             } catch (IOException | JSONException e) {
                                 Logger.exception("Parsing return from confirm_secondary_otp", e);
                             }
                         }
-                        logRecoveryResult(true);
-                        finish(true, false, username, displayName, recoveryPhone);
+                        else {
+                            finish(true, false);
+                        }
                     }
 
                     @Override
@@ -295,6 +305,34 @@ public class ConnectIdPhoneVerificationActivity extends CommCareActivity<Connect
         }
     }
 
+    private void resetPassword(Context context, String phone, String secret, String username, String name) {
+        //Auto-generate and send a new password
+        String password = ConnectManager.generatePassword();
+        ConnectNetworkHelper.resetPassword(context, phone, secret, password, new ConnectNetworkHelper.INetworkResultHandler() {
+            @Override
+            public void processSuccess(int responseCode, InputStream responseData) {
+                //TODO: Need to get secondary phone from server
+                ConnectUserRecord user = new ConnectUserRecord(phone, username,
+                        password, name, recoveryPhone);
+                ConnectDatabaseHelper.storeUser(context, user);
+
+                finish(true, false);
+            }
+
+            @Override
+            public void processFailure(int responseCode, IOException e) {
+                Toast.makeText(context, "Error finalizing recovery, please try again later",
+                        Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void processNetworkFailure() {
+                Toast.makeText(context, context.getString(R.string.recovery_network_unavailable),
+                        Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
     private void logRecoveryResult(boolean success) {
         if (method != MethodRegistrationPrimary) {
             String methodParam = AnalyticsParamValue.CCC_RECOVERY_METHOD_PRIMARY_OTP;
@@ -306,21 +344,17 @@ public class ConnectIdPhoneVerificationActivity extends CommCareActivity<Connect
     }
 
     public void changeNumber() {
-        finish(true, true, null, null, null);
+        finish(true, true);
     }
 
-    public void finish(boolean success, boolean changeNumber, String username, String name, String altPhone) {
+    public void finish(boolean success, boolean changeNumber) {
         stopHandler();
 
         Intent intent = new Intent(getIntent());
         if (method == MethodRecoveryPrimary) {
             intent.putExtra(ConnectConstants.SECRET, password);
             intent.putExtra(ConnectConstants.CHANGE, changeNumber);
-        } else if (method == MethodRecoveryAlternate) {
-            intent.putExtra(ConnectConstants.USERNAME, username);
-            intent.putExtra(ConnectConstants.NAME, name);
-            intent.putExtra(ConnectConstants.ALT_PHONE, altPhone);
-        } else {
+        } else if (method != MethodRecoveryAlternate) {
             intent.putExtra(ConnectConstants.CHANGE, changeNumber);
         }
 

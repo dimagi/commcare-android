@@ -24,8 +24,6 @@ public enum ConnectTask {
             ConnectIdPhoneVerificationActivity.class),
     CONNECT_REGISTRATION_CHANGE_PRIMARY_PHONE(ConnectConstants.ConnectIdTaskIdOffset + 8,
             ConnectIdPhoneActivity.class),
-    CONNECT_REGISTRATION_CONFIGURE_PASSWORD(ConnectConstants.ConnectIdTaskIdOffset + 9,
-            ConnectIdPasswordActivity.class),
     CONNECT_REGISTRATION_ALTERNATE_PHONE(ConnectConstants.ConnectIdTaskIdOffset + 10,
             ConnectIdPhoneActivity.class),
     CONNECT_REGISTRATION_SUCCESS(ConnectConstants.ConnectIdTaskIdOffset + 11,
@@ -40,8 +38,6 @@ public enum ConnectTask {
             ConnectIdMessageActivity.class),
     CONNECT_RECOVERY_VERIFY_ALT_PHONE(ConnectConstants.ConnectIdTaskIdOffset + 16,
             ConnectIdPhoneVerificationActivity.class),
-    CONNECT_RECOVERY_CHANGE_PASSWORD(ConnectConstants.ConnectIdTaskIdOffset + 17,
-            ConnectIdPasswordActivity.class),
     CONNECT_RECOVERY_SUCCESS(ConnectConstants.ConnectIdTaskIdOffset + 18,
             ConnectIdMessageActivity.class),
     CONNECT_UNLOCK_BIOMETRIC(ConnectConstants.ConnectIdTaskIdOffset + 19,
@@ -53,7 +49,19 @@ public enum ConnectTask {
     CONNECT_BIOMETRIC_ENROLL_FAIL(ConnectConstants.ConnectIdTaskIdOffset + 22,
             ConnectIdMessageActivity.class),
     CONNECT_MAIN(ConnectConstants.ConnectIdTaskIdOffset + 23,
-                 ConnectActivity.class);
+                 ConnectActivity.class),
+    CONNECT_REGISTRATION_CONFIGURE_PIN(ConnectConstants.ConnectIdTaskIdOffset + 24,
+            ConnectIdPinActivity.class),
+    CONNECT_REGISTRATION_CONFIRM_PIN(ConnectConstants.ConnectIdTaskIdOffset + 25,
+            ConnectIdPinActivity.class),
+    CONNECT_RECOVERY_VERIFY_PIN(ConnectConstants.ConnectIdTaskIdOffset + 26,
+            ConnectIdPinActivity.class),
+    CONNECT_RECOVERY_CHANGE_PIN(ConnectConstants.ConnectIdTaskIdOffset + 27,
+            ConnectIdPinActivity.class),
+    CONNECT_RECOVERY_CONFIGURE_BIOMETRICS(ConnectConstants.ConnectIdTaskIdOffset + 28,
+            ConnectIdVerificationActivity.class),
+    CONNECT_RECOVERY_UNLOCK_BIOMETRIC(ConnectConstants.ConnectIdTaskIdOffset + 29,
+            ConnectIdLoginActivity.class);
 
     private final int requestCode;
     private final Class<?> nextActivity;

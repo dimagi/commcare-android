@@ -7,6 +7,7 @@ import org.commcare.activities.connect.ConnectTask;
 import org.commcare.android.storage.framework.Persisted;
 import org.commcare.models.framework.Persisting;
 import org.commcare.modern.database.Table;
+import org.commcare.modern.models.MetaField;
 
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
@@ -22,6 +23,8 @@ public class ConnectUserRecord extends Persisted {
      * Name of database that stores Connect user records
      */
     public static final String STORAGE_KEY = "user_info";
+    public static final String META_PIN = "pin";
+    public static final String META_SECONDARY_PHONE_VERIFIED = "secondary_phone_verified";
 
     @Persisting(1)
     private String userId;
@@ -49,6 +52,12 @@ public class ConnectUserRecord extends Persisted {
 
     @Persisting(value = 9, nullable = true)
     private Date connectTokenExpiration;
+    @Persisting(value=10, nullable = true)
+    @MetaField(META_PIN)
+    private String pin;
+    @Persisting(11)
+    @MetaField(META_SECONDARY_PHONE_VERIFIED)
+    private boolean secondaryPhoneVerified;
 
     public ConnectUserRecord() {
         registrationPhase = ConnectTask.CONNECT_NO_ACTIVITY.getRequestCode();
@@ -104,6 +113,8 @@ public class ConnectUserRecord extends Persisted {
     public void setAlternatePhone(String alternatePhone) {
         this.alternatePhone = alternatePhone;
     }
+    public void setPin(String pin) { this.pin = pin; }
+    public String getPin() { return pin; }
 
     public String getPassword() {
         return password;
@@ -129,25 +140,22 @@ public class ConnectUserRecord extends Persisted {
         registrationPhase = phase.getRequestCode();
     }
 
-    public Date getLastPasswordDate() {
+    public Date getLastPinDate() {
         return lastPasswordDate;
     }
+    public void setLastPinDate(Date date) { lastPasswordDate = date; }
 
     public boolean shouldForcePassword() {
-        Date passwordDate = getLastPasswordDate();
-        boolean forcePassword = passwordDate == null;
-        if (!forcePassword) {
-            //See how much time has passed since last password login
-            long millis = (new Date()).getTime() - passwordDate.getTime();
+        Date pinDate = getLastPinDate();
+        boolean forcePin = pinDate == null;
+        if (!forcePin) {
+            //See how much time has passed since last PIN login
+            long millis = (new Date()).getTime() - pinDate.getTime();
             long days = TimeUnit.DAYS.convert(millis, TimeUnit.MILLISECONDS);
-            forcePassword = days >= 7;
+            forcePin = days >= 7;
         }
 
-        return forcePassword;
-    }
-
-    public void setLastPasswordDate(Date date) {
-        lastPasswordDate = date;
+        return forcePin;
     }
 
     public void updateConnectToken(String token, Date expirationDate) {
@@ -161,5 +169,22 @@ public class ConnectUserRecord extends Persisted {
 
     public Date getConnectTokenExpiration() {
         return connectTokenExpiration;
+    }
+
+    public static ConnectUserRecord fromV5(ConnectUserRecordV5 oldRecord) {
+        ConnectUserRecord newRecord = new ConnectUserRecord();
+
+        newRecord.userId = oldRecord.getUserId();
+        newRecord.password = oldRecord.getPassword();
+        newRecord.name = oldRecord.getName();
+        newRecord.primaryPhone = oldRecord.getPrimaryPhone();
+        newRecord.alternatePhone = oldRecord.getAlternatePhone();
+        newRecord.registrationPhase = oldRecord.getRegistrationPhase().getRequestCode();
+        newRecord.lastPasswordDate = oldRecord.getLastPasswordDate();
+        newRecord.connectToken = oldRecord.getConnectToken();
+        newRecord.connectTokenExpiration = oldRecord.getConnectTokenExpiration();
+        newRecord.secondaryPhoneVerified = false;
+
+        return newRecord;
     }
 }
