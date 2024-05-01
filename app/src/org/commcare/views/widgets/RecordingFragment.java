@@ -1,10 +1,13 @@
 package org.commcare.views.widgets;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.graphics.Rect;
+import android.media.AudioManager;
+import android.media.AudioRecordingConfiguration;
 import android.media.MediaCodecInfo;
 import android.media.MediaCodecList;
 import android.media.MediaPlayer;
@@ -25,6 +28,10 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.DialogFragment;
+
 import org.commcare.CommCareApplication;
 import org.commcare.dalvik.R;
 import org.commcare.utils.MediaUtil;
@@ -33,9 +40,8 @@ import org.javarosa.core.services.locale.Localization;
 import java.io.File;
 import java.io.IOException;
 import java.util.Date;
-
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.DialogFragment;
+import java.util.List;
+import java.util.Optional;
 
 /**
  * A popup dialog fragment that handles recording_fragment and saving of audio
@@ -75,7 +81,7 @@ public class RecordingFragment extends DialogFragment {
     private long mLastStopTime;
     private boolean inPausedState = false;
     private boolean savedRecordingExists = false;
-
+    private AudioManager.AudioRecordingCallback audioRecordingCallback;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -207,9 +213,9 @@ public class RecordingFragment extends DialogFragment {
         boolean isHeAacSupported = isHeAacEncoderSupported();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             recorder.setAudioSource(MediaRecorder.AudioSource.VOICE_COMMUNICATION);
-       } else {
+        } else {
             recorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-       }
+        }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             recorder.setPrivacySensitive(true);
@@ -221,6 +227,9 @@ public class RecordingFragment extends DialogFragment {
             recorder.setAudioEncoder(MediaRecorder.AudioEncoder.HE_AAC);
         } else {
             recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            registerAudioRecordingConfigurationChangeCallback();
         }
         try {
             recorder.prepare();
@@ -320,6 +329,9 @@ public class RecordingFragment extends DialogFragment {
         if (listener != null) {
             listener.onRecordingCompletion(fileName);
         }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            unregisterAudioRecordingConfigurationChangeCallback();
+        }
         dismiss();
     }
 
@@ -408,5 +420,26 @@ public class RecordingFragment extends DialogFragment {
             recordingDuration.setBase(recordingDuration.getBase() + intervalOnPause);
         }
         recordingDuration.start();
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.Q)
+    private void registerAudioRecordingConfigurationChangeCallback() {
+        audioRecordingCallback = new AudioManager.AudioRecordingCallback() {
+            @Override
+            public void onRecordingConfigChanged(List<AudioRecordingConfiguration> configs) {
+                super.onRecordingConfigChanged(configs);
+            }
+        };
+        ((AudioManager)getContext().getSystemService(Context.AUDIO_SERVICE))
+                .registerAudioRecordingCallback(audioRecordingCallback,null);
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.Q)
+    private void unregisterAudioRecordingConfigurationChangeCallback() {
+        if (audioRecordingCallback != null) {
+                ((AudioManager) getContext().getSystemService(Context.AUDIO_SERVICE))
+                        .unregisterAudioRecordingCallback(audioRecordingCallback);
+            audioRecordingCallback = null;
+        }
     }
 }
