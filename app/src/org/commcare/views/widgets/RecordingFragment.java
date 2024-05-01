@@ -428,6 +428,19 @@ public class RecordingFragment extends DialogFragment {
             @Override
             public void onRecordingConfigChanged(List<AudioRecordingConfiguration> configs) {
                 super.onRecordingConfigChanged(configs);
+                if (recorder == null) {
+                    return;
+                }
+
+                if (hasRecordingGoneSilent(configs)) {
+                    if (!inPausedState) {
+                        pauseRecording();
+                    }
+                } else {
+                    if (inPausedState) {
+                        resumeRecording();
+                    }
+                }
             }
         };
         ((AudioManager)getContext().getSystemService(Context.AUDIO_SERVICE))
@@ -441,5 +454,17 @@ public class RecordingFragment extends DialogFragment {
                         .unregisterAudioRecordingCallback(audioRecordingCallback);
             audioRecordingCallback = null;
         }
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.Q)
+    private boolean hasRecordingGoneSilent(List<AudioRecordingConfiguration> configs) {
+        if (recorder == null || recorder.getActiveRecordingConfiguration() == null) {
+            return false;
+        }
+
+        Optional<AudioRecordingConfiguration> currentAudioConfig = configs.stream()
+                .filter(config -> config.getClientAudioSessionId()
+                        == recorder.getActiveRecordingConfiguration().getClientAudioSessionId()).findAny();
+        return currentAudioConfig.isPresent() ? currentAudioConfig.get().isClientSilenced() : false;
     }
 }
