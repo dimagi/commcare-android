@@ -3,6 +3,7 @@ package org.commcare.views.widgets;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.graphics.Rect;
@@ -33,8 +34,11 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.DialogFragment;
 
 import org.commcare.CommCareApplication;
+import org.commcare.CommCareNoficationManager;
+import org.commcare.activities.DispatchActivity;
 import org.commcare.dalvik.R;
 import org.commcare.utils.MediaUtil;
+import org.commcare.utils.NotificationUtil;
 import org.javarosa.core.services.locale.Localization;
 
 import java.io.File;
@@ -62,6 +66,7 @@ public class RecordingFragment extends DialogFragment {
 
     private static final int HEAAC_SAMPLE_RATE = 44100;
     private static final int AMRNB_SAMPLE_RATE = 8000;
+    private final int RECORDING_NOTIFICATION_ID = R.string.audio_recording_notification;
 
     private String fileName;
     private static final String FILE_EXT = ".mp3";
@@ -433,10 +438,20 @@ public class RecordingFragment extends DialogFragment {
                 if (hasRecordingGoneSilent(configs)) {
                     if (!inPausedState) {
                         pauseRecording();
+                        NotificationUtil.showNotification(
+                                getContext(),
+                                CommCareNoficationManager.NOTIFICATION_CHANNEL_USER_SESSION_ID,
+                                RECORDING_NOTIFICATION_ID,
+                                Localization.get("recording.paused.due.another.app.recording.title"),
+                                Localization.get("recording.paused.due.another.app.recording.message"),
+                                new Intent(getContext(), DispatchActivity.class)
+                                        .setAction(Intent.ACTION_MAIN)
+                                        .addCategory(Intent.CATEGORY_LAUNCHER));
                     }
                 } else {
                     if (inPausedState) {
                         resumeRecording();
+                        NotificationUtil.cancelNotification(getContext(), RECORDING_NOTIFICATION_ID);
                     }
                 }
             }
