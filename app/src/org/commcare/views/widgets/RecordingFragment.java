@@ -85,8 +85,8 @@ public class RecordingFragment extends DialogFragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        layout = (LinearLayout)inflater.inflate(R.layout.recording_fragment, container);
-        disableScreenRotation((AppCompatActivity)getContext());
+        layout = (LinearLayout) inflater.inflate(R.layout.recording_fragment, container);
+        disableScreenRotation((AppCompatActivity) getContext());
         prepareButtons();
         prepareText();
         setWindowSize();
@@ -127,7 +127,7 @@ public class RecordingFragment extends DialogFragment {
         Rect displayRectangle = new Rect();
         Window window = getActivity().getWindow();
         window.getDecorView().getWindowVisibleDisplayFrame(displayRectangle);
-        layout.setMinimumWidth((int)(displayRectangle.width() * 0.9f));
+        layout.setMinimumWidth((int) (displayRectangle.width() * 0.9f));
         getDialog().getWindow().requestFeature(Window.FEATURE_NO_TITLE);
     }
 
@@ -149,7 +149,6 @@ public class RecordingFragment extends DialogFragment {
     private void setActionText(String textKey) {
         actionButton.setText(Localization.get(textKey));
     }
-
 
     private void resetRecordingView() {
         if (recorder != null) {
@@ -180,7 +179,7 @@ public class RecordingFragment extends DialogFragment {
             }
         }
 
-        disableScreenRotation((AppCompatActivity)getContext());
+        disableScreenRotation((AppCompatActivity) getContext());
         setCancelable(false);
         setupRecorder();
         recorder.start();
@@ -203,7 +202,6 @@ public class RecordingFragment extends DialogFragment {
         actionButton.setVisibility(View.INVISIBLE);
         discardRecording.setVisibility(View.INVISIBLE);
     }
-
 
     private void setupRecorder() {
         if (recorder == null) {
@@ -255,7 +253,8 @@ public class RecordingFragment extends DialogFragment {
                     MediaCodecInfo.CodecProfileLevel[] profileLevels = cap.profileLevels;
                     for (MediaCodecInfo.CodecProfileLevel profileLevel : profileLevels) {
                         int profile = profileLevel.profile;
-                        if (profile == MediaCodecInfo.CodecProfileLevel.AACObjectHE || profile == MediaCodecInfo.CodecProfileLevel.AACObjectHE_PS) {
+                        if (profile == MediaCodecInfo.CodecProfileLevel.AACObjectHE
+                                || profile == MediaCodecInfo.CodecProfileLevel.AACObjectHE_PS) {
                             return true;
                         }
                     }
@@ -315,12 +314,11 @@ public class RecordingFragment extends DialogFragment {
         Bundle args = getArguments();
         if (args != null) {
             String appearance = args.getString(APPEARANCE_ATTR_ARG_KEY);
-            return LONG_APPEARANCE_VALUE.equals(appearance) &&
-                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.N;
+            return LONG_APPEARANCE_VALUE.equals(appearance)
+                    && Build.VERSION.SDK_INT >= Build.VERSION_CODES.N;
         }
         return false;
     }
-
 
     private void saveRecording() {
         if (inPausedState) {
@@ -346,7 +344,7 @@ public class RecordingFragment extends DialogFragment {
     @Override
     public void onDismiss(DialogInterface dialog) {
         super.onDismiss(dialog);
-        enableScreenRotation((AppCompatActivity)getContext());
+        enableScreenRotation((AppCompatActivity) getContext());
         if (recorder != null) {
             recorder.release();
             this.recorder = null;
@@ -356,7 +354,7 @@ public class RecordingFragment extends DialogFragment {
             try {
                 player.release();
             } catch (IllegalStateException e) {
-                //Do nothing because player wasn't recording
+                // Do nothing because player wasn't recording
             }
         }
     }
@@ -443,15 +441,15 @@ public class RecordingFragment extends DialogFragment {
                 }
             }
         };
-        ((AudioManager)getContext().getSystemService(Context.AUDIO_SERVICE))
-                .registerAudioRecordingCallback(audioRecordingCallback,null);
+        ((AudioManager) getContext().getSystemService(Context.AUDIO_SERVICE))
+                .registerAudioRecordingCallback(audioRecordingCallback, null);
     }
 
     @RequiresApi(api = Build.VERSION_CODES.Q)
     private void unregisterAudioRecordingConfigurationChangeCallback() {
         if (audioRecordingCallback != null) {
-                ((AudioManager) getContext().getSystemService(Context.AUDIO_SERVICE))
-                        .unregisterAudioRecordingCallback(audioRecordingCallback);
+            ((AudioManager) getContext().getSystemService(Context.AUDIO_SERVICE))
+                    .unregisterAudioRecordingCallback(audioRecordingCallback);
             audioRecordingCallback = null;
         }
     }
@@ -462,9 +460,10 @@ public class RecordingFragment extends DialogFragment {
             return false;
         }
 
-        Optional<AudioRecordingConfiguration> currentAudioConfig = configs.stream()
-                .filter(config -> config.getClientAudioSessionId()
-                        == recorder.getActiveRecordingConfiguration().getClientAudioSessionId()).findAny();
+        Optional<AudioRecordingConfiguration> currentAudioConfig =
+                configs.stream().filter(config -> config.getClientAudioSessionId()
+                                == recorder.getActiveRecordingConfiguration().getClientAudioSessionId())
+                        .findAny();
         return currentAudioConfig.isPresent() ? currentAudioConfig.get().isClientSilenced() : false;
     }
 }
