@@ -17,6 +17,7 @@ import org.commcare.activities.connect.ConnectNetworkHelper;
 import org.commcare.android.database.connect.models.ConnectJobAssessmentRecord;
 import org.commcare.android.database.connect.models.ConnectJobLearningRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
+import org.commcare.connect.network.ApiConnect;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.views.dialogs.StandardAlertDialog;
@@ -89,7 +90,7 @@ public class ConnectLearningProgressFragment extends Fragment {
 
     private void refreshData() {
         ConnectJobRecord job = ConnectManager.getActiveJob();
-        ConnectNetworkHelper.getLearnProgress(getContext(), job.getJobId(), new ConnectNetworkHelper.INetworkResultHandler() {
+        ApiConnect.getLearnProgress(getContext(), job.getJobId(), new ConnectNetworkHelper.INetworkResultHandler() {
             @Override
             public void processSuccess(int responseCode, InputStream responseData) {
                 try {
@@ -145,6 +146,12 @@ public class ConnectLearningProgressFragment extends Fragment {
             @Override
             public void processNetworkFailure() {
                 Logger.log("ERROR", "Failed (network)");
+                reportApiCall(false);
+            }
+
+            @Override
+            public void processOldApiError() {
+                ConnectNetworkHelper.showOutdatedApiError(getContext());
                 reportApiCall(false);
             }
         });

@@ -411,6 +411,7 @@
     <string name="recovery_forms_send_error" cc:translatable="true">Error while sending forms</string>
     <string name="recovery_forms_state_unavailable" cc:translatable="true">Forms are not available. Make sure your phone storage is available</string>
     <string name="recovery_network_unavailable" cc:translatable="true">No network connection. Please check your internet and try again.</string>
+    <string name="recovery_network_outdated" cc:translatable="true">The app is outdated and can no longer communicate with the server. Please update the app on the Google Play Store.</string>
     <string name="recovery_app_manager" cc:translatable="true">Go to App Manager</string>
     <string name="recovery_retry" cc:translatable="true">Retry Recovery</string>
 
@@ -519,6 +520,7 @@
     <string name="connect_phone_not_alt">Can not use your alt. number</string>
     <string name="connect_phone_not_primary">Alt. number must be different than primary</string>
     <string name="connect_phone_not_found">Phone number not found</string>
+    <string name="connect_phone_change_error">Error changing phone number</string>
 
     <string name="connect_password_title">Set Password</string>
     <string name="connect_password_message">Please choose a password</string>
@@ -528,6 +530,7 @@
     <string name="connect_password_repeat">Confirm Password</string>
     <string name="connect_password_mismatch">Passwords must match</string>
     <string name="connect_password_weak">Please choose a stronger password</string>
+    <string name="connect_password_error">Error changing password</string>
 
     <string name="connect_pin_title_set">Choose PIN</string>
     <string name="connect_pin_title_confirm">Confirm PIN</string>
@@ -572,6 +575,7 @@
     <string name="connect_recovery_success_title">Account Recovered</string>
     <string name="connect_recovery_success_message">You have successfully recovered your account and can now resume using your ConnectID.</string>
     <string name="connect_recovery_success_button">OK</string>
+    <string name="connect_recovery_failure">Error finalizing recovery, please try again later</string>
 
     <string name="connect_unlock_title">Unlock ConnectID</string>
     <string name="connect_unlock_message">Please unlock to continue</string>

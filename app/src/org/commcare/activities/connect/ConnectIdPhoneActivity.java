@@ -4,12 +4,9 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Toast;
 
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Multimap;
-
 import org.commcare.activities.CommCareActivity;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
-import org.commcare.core.network.AuthInfo;
+import org.commcare.connect.network.ApiConnectId;
 import org.commcare.dalvik.R;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.WithUIController;
@@ -19,7 +16,6 @@ import org.javarosa.core.services.Logger;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashMap;
 import java.util.Locale;
 
 /**
@@ -127,41 +123,38 @@ public class ConnectIdPhoneActivity extends CommCareActivity<ConnectIdPhoneActiv
             existing = user != null ? user.getAlternatePhone() : null;
         }
         if (user != null && existing != null && !existing.equals(phone)) {
+            ConnectNetworkHelper.INetworkResultHandler callback = new ConnectNetworkHelper.INetworkResultHandler() {
+                @Override
+                public void processSuccess(int responseCode, InputStream responseData) {
+                    finish(true, phone);
+                }
+
+                @Override
+                public void processFailure(int responseCode, IOException e) {
+                    Toast.makeText(getApplicationContext(), getString(R.string.connect_phone_change_error),
+                            Toast.LENGTH_SHORT).show();
+                }
+
+                @Override
+                public void processNetworkFailure() {
+                    ConnectNetworkHelper.showNetworkError(getApplicationContext());
+                }
+
+                @Override
+                public void processOldApiError() {
+                    ConnectNetworkHelper.showOutdatedApiError(getApplicationContext());
+                }
+            };
+
             //Update the phone number with the server
-            HashMap<String, String> params = new HashMap<>();
-            int urlId;
+            boolean isBusy;
             if (method.equals(ConnectConstants.METHOD_CHANGE_ALTERNATE)) {
-                urlId = R.string.ConnectUpdateProfileURL;
-
-                params.put("secondary_phone", phone);
+                isBusy = !ApiConnectId.updateUserProfile(this, user.getUserId(), user.getPassword(),
+                        null, phone, callback);
             } else {
-                urlId = R.string.ConnectChangePhoneURL;
-
-                params.put("old_phone_number", existing);
-                params.put("new_phone_number", phone);
+                isBusy = !ApiConnectId.changePhone(this, user.getUserId(), user.getPassword(),
+                        existing, phone, callback);
             }
-
-            boolean isBusy = !ConnectNetworkHelper.post(this, getString(urlId),
-                    new AuthInfo.ProvidedAuth(user.getUserId(), user.getPassword(), false), params, false,
-                    new ConnectNetworkHelper.INetworkResultHandler() {
-                        @Override
-                        public void processSuccess(int responseCode, InputStream responseData) {
-                            finish(true, phone);
-                        }
-
-                        @Override
-                        public void processFailure(int responseCode, IOException e) {
-                            Toast.makeText(getApplicationContext(), "Phone change error",
-                                    Toast.LENGTH_SHORT).show();
-                        }
-
-                        @Override
-                        public void processNetworkFailure() {
-                            Toast.makeText(getApplicationContext(),
-                                    getString(R.string.recovery_network_unavailable),
-                                    Toast.LENGTH_SHORT).show();
-                        }
-                    });
 
             if (isBusy) {
                 Toast.makeText(this, R.string.busy_message, Toast.LENGTH_SHORT).show();
@@ -196,12 +189,7 @@ public class ConnectIdPhoneActivity extends CommCareActivity<ConnectIdPhoneActiv
                         uiController.setAvailabilityText(getString(R.string.connect_phone_checking));
                         uiController.setOkButtonEnabled(false);
 
-                        Multimap<String, String> params = ArrayListMultimap.create();
-                        params.put("phone_number", phone);
-
-                        boolean isBusy = !ConnectNetworkHelper.get(this,
-                                this.getString(R.string.ConnectPhoneAvailableURL),
-                                new AuthInfo.NoAuth(), params,
+                        boolean isBusy = !ApiConnectId.checkPhoneAvailable(this, phone,
                                 new ConnectNetworkHelper.INetworkResultHandler() {
                                     @Override
                                     public void processSuccess(int responseCode, InputStream responseData) {
@@ -226,6 +214,12 @@ public class ConnectIdPhoneActivity extends CommCareActivity<ConnectIdPhoneActiv
                                     public void processNetworkFailure() {
                                         uiController.setAvailabilityText(getString(
                                                 R.string.recovery_network_unavailable));
+                                    }
+
+                                    @Override
+                                    public void processOldApiError() {
+                                        uiController.setAvailabilityText(getString(
+                                                R.string.recovery_network_outdated));
                                     }
                                 });
 

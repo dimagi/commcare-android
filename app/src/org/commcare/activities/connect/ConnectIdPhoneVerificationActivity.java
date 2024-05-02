@@ -8,7 +8,7 @@ import android.widget.Toast;
 
 import org.commcare.activities.CommCareActivity;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
-import org.commcare.core.network.AuthInfo;
+import org.commcare.connect.network.ApiConnectId;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
@@ -23,8 +23,6 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.Locale;
 
 /**
@@ -151,72 +149,71 @@ public class ConnectIdPhoneVerificationActivity extends CommCareActivity<Connect
         smsTime = new DateTime();
 
         uiController.setErrorMessage(null);
-        int urlId;
-        HashMap<String, String> params = new HashMap<>();
-        AuthInfo authInfo = new AuthInfo.NoAuth();
+
+        ConnectNetworkHelper.INetworkResultHandler callback = new ConnectNetworkHelper.INetworkResultHandler() {
+            @Override
+            public void processSuccess(int responseCode, InputStream responseData) {
+                try {
+                    String responseAsString = new String(StreamsUtil.inputStreamToByteArray(responseData));
+                    if (responseAsString.length() > 0) {
+                        JSONObject json = new JSONObject(responseAsString);
+                        String key = ConnectConstants.CONNECT_KEY_SECRET;
+                        if (json.has(key)) {
+                            password = json.getString(key);
+                        }
+
+                        key = ConnectConstants.CONNECT_KEY_SECONDARY_PHONE;
+                        if (json.has(key)) {
+                            recoveryPhone = json.getString(key);
+                            updateMessage();
+                        }
+                    }
+                } catch (IOException | JSONException e) {
+                    Logger.exception("Parsing return from OTP request", e);
+                }
+            }
+
+            @Override
+            public void processFailure(int responseCode, IOException e) {
+                String message = "";
+                if (responseCode > 0) {
+                    message = String.format(Locale.getDefault(), "(%d)", responseCode);
+                } else if (e != null) {
+                    message = e.toString();
+                }
+
+                uiController.setErrorMessage(String.format("Error requesting SMS code. %s", message));
+
+                //Null out the last-requested time so user can request again immediately
+                smsTime = null;
+            }
+
+            @Override
+            public void processNetworkFailure() {
+                uiController.setErrorMessage(getString(R.string.recovery_network_unavailable));
+
+                //Null out the last-requested time so user can request again immediately
+                smsTime = null;
+            }
+
+            @Override
+            public void processOldApiError() {
+                uiController.setErrorMessage(getString(R.string.recovery_network_outdated));
+            }
+        };
+
+        boolean isBusy;
         switch (method) {
             case MethodRecoveryPrimary -> {
-                urlId = R.string.ConnectRecoverURL;
-                params.put("phone", username);
+                isBusy = !ApiConnectId.requestRecoveryOtpPrimary(this, username, callback);
             }
             case MethodRecoveryAlternate -> {
-                urlId = R.string.ConnectRecoverSecondaryURL;
-                params.put("phone", username);
-                params.put("secret_key", password);
+                isBusy = !ApiConnectId.requestRecoveryOtpSecondary(this, username, password, callback);
             }
             default -> {
-                urlId = R.string.ConnectValidatePhoneURL;
-                authInfo = new AuthInfo.ProvidedAuth(username, password, false);
+                isBusy = !ApiConnectId.requestRegistrationOtpPrimary(this, username, password, callback);
             }
         }
-
-        boolean isBusy = !ConnectNetworkHelper.post(this, getString(urlId), authInfo, params, false,
-                new ConnectNetworkHelper.INetworkResultHandler() {
-                    @Override
-                    public void processSuccess(int responseCode, InputStream responseData) {
-                        try {
-                            String responseAsString = new String(StreamsUtil.inputStreamToByteArray(responseData));
-                            if (responseAsString.length() > 0) {
-                                JSONObject json = new JSONObject(responseAsString);
-                                String key = ConnectConstants.CONNECT_KEY_SECRET;
-                                if (json.has(key)) {
-                                    password = json.getString(key);
-                                }
-
-                                key = ConnectConstants.CONNECT_KEY_SECONDARY_PHONE;
-                                if (json.has(key)) {
-                                    recoveryPhone = json.getString(key);
-                                    updateMessage();
-                                }
-                            }
-                        } catch (IOException | JSONException e) {
-                            Logger.exception("Parsing return from OTP request", e);
-                        }
-                    }
-
-                    @Override
-                    public void processFailure(int responseCode, IOException e) {
-                        String message = "";
-                        if (responseCode > 0) {
-                            message = String.format(Locale.getDefault(), "(%d)", responseCode);
-                        } else if (e != null) {
-                            message = e.toString();
-                        }
-
-                        uiController.setErrorMessage(String.format("Error requesting SMS code. %s", message));
-
-                        //Null out the last-requested time so user can request again immediately
-                        smsTime = null;
-                    }
-
-                    @Override
-                    public void processNetworkFailure() {
-                        uiController.setErrorMessage(getString(R.string.recovery_network_unavailable));
-
-                        //Null out the last-requested time so user can request again immediately
-                        smsTime = null;
-                    }
-                });
 
         if (isBusy) {
             Toast.makeText(this, R.string.busy_message, Toast.LENGTH_SHORT).show();
@@ -225,80 +222,78 @@ public class ConnectIdPhoneVerificationActivity extends CommCareActivity<Connect
 
     public void verifySmsCode() {
         uiController.setErrorMessage(null);
-        int urlId;
-        HashMap<String, String> params = new HashMap<>();
-        AuthInfo authInfo = new AuthInfo.NoAuth();
-        switch (method) {
-            case MethodRecoveryPrimary -> {
-                urlId = R.string.ConnectRecoverConfirmOTPURL;
-                params.put("phone", username);
-                params.put("secret_key", password);
-            }
-            case MethodRecoveryAlternate -> {
-                urlId = R.string.ConnectRecoverConfirmSecondaryOTPURL;
-                params.put("phone", username);
-                params.put("secret_key", password);
-            }
-            default -> {
-                urlId = R.string.ConnectConfirmOTPURL;
-                authInfo = new AuthInfo.ProvidedAuth(username, password, false);
-            }
-        }
 
-        params.put("token", uiController.getCode());
-
+        String token = uiController.getCode();
         String phone = username;
         final Context context = this;
-        boolean isBusy = !ConnectNetworkHelper.post(this, getString(urlId), authInfo, params, false,
-                new ConnectNetworkHelper.INetworkResultHandler() {
-                    @Override
-                    public void processSuccess(int responseCode, InputStream responseData) {
-                        logRecoveryResult(true);
 
-                        String username = "";
-                        String displayName = "";
-                        if (method == MethodRecoveryAlternate) {
-                            try {
-                                String responseAsString = new String(
-                                        StreamsUtil.inputStreamToByteArray(responseData));
-                                JSONObject json = new JSONObject(responseAsString);
-                                String key = ConnectConstants.CONNECT_KEY_USERNAME;
-                                if (json.has(key)) {
-                                    username = json.getString(key);
-                                }
+        ConnectNetworkHelper.INetworkResultHandler callback = new ConnectNetworkHelper.INetworkResultHandler() {
+            @Override
+            public void processSuccess(int responseCode, InputStream responseData) {
+                logRecoveryResult(true);
 
-                                key = ConnectConstants.CONNECT_KEY_NAME;
-                                if (json.has(key)) {
-                                    displayName = json.getString(key);
-                                }
-
-                                resetPassword(context, phone, password, username, displayName);
-                            } catch (IOException | JSONException e) {
-                                Logger.exception("Parsing return from confirm_secondary_otp", e);
-                            }
+                String username = "";
+                String displayName = "";
+                if (method == MethodRecoveryAlternate) {
+                    try {
+                        String responseAsString = new String(
+                                StreamsUtil.inputStreamToByteArray(responseData));
+                        JSONObject json = new JSONObject(responseAsString);
+                        String key = ConnectConstants.CONNECT_KEY_USERNAME;
+                        if (json.has(key)) {
+                            username = json.getString(key);
                         }
-                        else {
-                            finish(true, false);
-                        }
-                    }
 
-                    @Override
-                    public void processFailure(int responseCode, IOException e) {
-                        String message = "";
-                        if (responseCode > 0) {
-                            message = String.format(Locale.getDefault(), "(%d)", responseCode);
-                        } else if (e != null) {
-                            message = e.toString();
+                        key = ConnectConstants.CONNECT_KEY_NAME;
+                        if (json.has(key)) {
+                            displayName = json.getString(key);
                         }
-                        logRecoveryResult(false);
-                        uiController.setErrorMessage(String.format("Error verifying SMS code. %s", message));
-                    }
 
-                    @Override
-                    public void processNetworkFailure() {
-                        uiController.setErrorMessage(getString(R.string.recovery_network_unavailable));
+                        resetPassword(context, phone, password, username, displayName);
+                    } catch (IOException | JSONException e) {
+                        Logger.exception("Parsing return from confirm_secondary_otp", e);
                     }
-                });
+                }
+                else {
+                    finish(true, false);
+                }
+            }
+
+            @Override
+            public void processFailure(int responseCode, IOException e) {
+                String message = "";
+                if (responseCode > 0) {
+                    message = String.format(Locale.getDefault(), "(%d)", responseCode);
+                } else if (e != null) {
+                    message = e.toString();
+                }
+                logRecoveryResult(false);
+                uiController.setErrorMessage(String.format("Error verifying SMS code. %s", message));
+            }
+
+            @Override
+            public void processNetworkFailure() {
+                uiController.setErrorMessage(getString(R.string.recovery_network_unavailable));
+            }
+
+            @Override
+            public void processOldApiError() {
+                uiController.setErrorMessage(getString(R.string.recovery_network_outdated));
+            }
+        };
+
+        boolean isBusy;
+        switch (method) {
+            case MethodRecoveryPrimary -> {
+                isBusy = !ApiConnectId.confirmRecoveryOtpPrimary(this, username, password, token, callback);
+            }
+            case MethodRecoveryAlternate -> {
+                isBusy = !ApiConnectId.confirmRecoveryOtpSecondary(this, username, password, token, callback);
+            }
+            default -> {
+                isBusy = !ApiConnectId.confirmRegistrationOtpPrimary(this, username, password, token, callback);
+            }
+        }
 
         if (isBusy) {
             Toast.makeText(this, R.string.busy_message, Toast.LENGTH_SHORT).show();
@@ -308,7 +303,7 @@ public class ConnectIdPhoneVerificationActivity extends CommCareActivity<Connect
     private void resetPassword(Context context, String phone, String secret, String username, String name) {
         //Auto-generate and send a new password
         String password = ConnectManager.generatePassword();
-        ConnectNetworkHelper.resetPassword(context, phone, secret, password, new ConnectNetworkHelper.INetworkResultHandler() {
+        ApiConnectId.resetPassword(context, phone, secret, password, new ConnectNetworkHelper.INetworkResultHandler() {
             @Override
             public void processSuccess(int responseCode, InputStream responseData) {
                 //TODO: Need to get secondary phone from server
@@ -321,14 +316,18 @@ public class ConnectIdPhoneVerificationActivity extends CommCareActivity<Connect
 
             @Override
             public void processFailure(int responseCode, IOException e) {
-                Toast.makeText(context, "Error finalizing recovery, please try again later",
+                Toast.makeText(context, getString(R.string.connect_recovery_failure),
                         Toast.LENGTH_SHORT).show();
             }
 
             @Override
             public void processNetworkFailure() {
-                Toast.makeText(context, context.getString(R.string.recovery_network_unavailable),
-                        Toast.LENGTH_SHORT).show();
+                ConnectNetworkHelper.showNetworkError(getApplicationContext());
+            }
+
+            @Override
+            public void processOldApiError() {
+                ConnectNetworkHelper.showOutdatedApiError(getApplicationContext());
             }
         });
     }

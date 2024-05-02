@@ -4,11 +4,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Toast;
 
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Multimap;
-
 import org.commcare.activities.CommCareActivity;
-import org.commcare.core.network.AuthInfo;
+import org.commcare.connect.network.ApiConnectId;
 import org.commcare.dalvik.R;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.WithUIController;
@@ -131,11 +128,8 @@ public class ConnectIdRecoveryDecisionActivity extends CommCareActivity<ConnectI
             uiController.setPhoneMessage(getString(R.string.connect_phone_checking));
             uiController.setButton1Enabled(false);
 
-            Multimap<String, String> params = ArrayListMultimap.create();
-            params.put("phone_number", phone);
-
-            boolean isBusy = !ConnectNetworkHelper.get(this, getString(R.string.ConnectPhoneAvailableURL),
-                    new AuthInfo.NoAuth(), params, new ConnectNetworkHelper.INetworkResultHandler() {
+            boolean isBusy = !ApiConnectId.checkPhoneAvailable(this, phone,
+                    new ConnectNetworkHelper.INetworkResultHandler() {
                         @Override
                         public void processSuccess(int responseCode, InputStream responseData) {
                             uiController.setPhoneMessage(getString(R.string.connect_phone_not_found));
@@ -151,6 +145,12 @@ public class ConnectIdRecoveryDecisionActivity extends CommCareActivity<ConnectI
                         @Override
                         public void processNetworkFailure() {
                             uiController.setPhoneMessage(getString(R.string.recovery_network_unavailable));
+                            uiController.setButton1Enabled(false);
+                        }
+
+                        @Override
+                        public void processOldApiError() {
+                            uiController.setPhoneMessage(getString(R.string.recovery_network_outdated));
                             uiController.setButton1Enabled(false);
                         }
                     });

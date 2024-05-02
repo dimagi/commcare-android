@@ -22,6 +22,7 @@ import org.commcare.activities.connect.ConnectManager;
 import org.commcare.activities.connect.ConnectNetworkHelper;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.CommCareApplication;
+import org.commcare.connect.network.ApiConnect;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.javarosa.core.io.StreamsUtil;
@@ -119,7 +120,7 @@ public class ConnectJobsListsFragment extends Fragment {
     }
 
     public void refreshData() {
-        ConnectNetworkHelper.getConnectOpportunities(getContext(), new ConnectNetworkHelper.INetworkResultHandler() {
+        ApiConnect.getConnectOpportunities(getContext(), new ConnectNetworkHelper.INetworkResultHandler() {
             @Override
             public void processSuccess(int responseCode, InputStream responseData) {
                 int newJobs = 0;
@@ -159,6 +160,12 @@ public class ConnectJobsListsFragment extends Fragment {
                 Logger.log("ERROR", "Failed (network)");
                 reportApiCall(false, 0);
                 refreshUi();
+            }
+
+            @Override
+            public void processOldApiError() {
+                ConnectNetworkHelper.showOutdatedApiError(getContext());
+                reportApiCall(false, 0);
             }
         });
     }

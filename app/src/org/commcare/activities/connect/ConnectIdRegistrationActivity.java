@@ -6,16 +6,14 @@ import android.widget.Toast;
 
 import org.commcare.activities.CommCareActivity;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
-import org.commcare.core.network.AuthInfo;
+import org.commcare.connect.network.ApiConnectId;
 import org.commcare.dalvik.R;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.WithUIController;
-import org.commcare.utils.FirebaseMessagingUtil;
 import org.commcare.views.dialogs.CustomProgressDialog;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashMap;
 import java.util.Locale;
 import java.util.Random;
 
@@ -111,15 +109,8 @@ public class ConnectIdRegistrationActivity extends CommCareActivity<ConnectIdReg
         ConnectUserRecord tempUser = new ConnectUserRecord(phone, generateUserId(), ConnectManager.generatePassword(),
                 uiController.getNameText(), "");
 
-        HashMap<String, String> params = new HashMap<>();
-        params.put("username", tempUser.getUserId());
-        params.put("password", tempUser.getPassword());
-        params.put("name", tempUser.getName());
-        params.put("phone_number", phone);
-        params.put("fcm_token", FirebaseMessagingUtil.getFCMToken());
-
-        boolean isBusy = !ConnectNetworkHelper.post(this, getString(R.string.ConnectRegisterURL),
-                new AuthInfo.NoAuth(), params, false, new ConnectNetworkHelper.INetworkResultHandler() {
+        boolean isBusy = !ApiConnectId.registerUser(this, tempUser.getUserId(), tempUser.getPassword(),
+                tempUser.getName(), phone, new ConnectNetworkHelper.INetworkResultHandler() {
                     @Override
                     public void processSuccess(int responseCode, InputStream responseData) {
                         user = tempUser;
@@ -136,6 +127,11 @@ public class ConnectIdRegistrationActivity extends CommCareActivity<ConnectIdReg
                     public void processNetworkFailure() {
                         uiController.setErrorText(getString(R.string.recovery_network_unavailable));
                     }
+
+                    @Override
+                    public void processOldApiError() {
+                        uiController.setErrorText(getString(R.string.recovery_network_outdated));
+                    }
                 });
 
         if (isBusy) {
@@ -151,12 +147,8 @@ public class ConnectIdRegistrationActivity extends CommCareActivity<ConnectIdReg
         if (newName.equals(user.getName())) {
             finish(true);
         } else {
-            HashMap<String, String> params = new HashMap<>();
-            params.put("name", user.getName());
-
-            boolean isBusy = !ConnectNetworkHelper.post(this, getString(R.string.ConnectUpdateProfileURL),
-                    new AuthInfo.ProvidedAuth(user.getUserId(), user.getPassword(), false),
-                    params, false, new ConnectNetworkHelper.INetworkResultHandler() {
+            boolean isBusy = !ApiConnectId.updateUserProfile(this, user.getUserId(),
+                    user.getPassword(), newName, null, new ConnectNetworkHelper.INetworkResultHandler() {
                         @Override
                         public void processSuccess(int responseCode, InputStream responseData) {
                             user.setName(newName);
@@ -172,6 +164,11 @@ public class ConnectIdRegistrationActivity extends CommCareActivity<ConnectIdReg
                         @Override
                         public void processNetworkFailure() {
                             uiController.setErrorText(getString(R.string.recovery_network_unavailable));
+                        }
+
+                        @Override
+                        public void processOldApiError() {
+                            uiController.setErrorText(getString(R.string.recovery_network_outdated));
                         }
                     });
 

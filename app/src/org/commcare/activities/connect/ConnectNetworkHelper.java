@@ -20,13 +20,11 @@ import org.commcare.core.interfaces.HttpResponseProcessor;
 import org.commcare.core.network.AuthInfo;
 import org.commcare.core.network.HTTPMethod;
 import org.commcare.core.network.ModernHttpRequester;
-import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.interfaces.ConnectorWithHttpResponseProcessor;
 import org.commcare.tasks.ModernHttpTask;
 import org.commcare.tasks.templates.CommCareTask;
 import org.commcare.utils.CrashUtil;
-import org.commcare.utils.FirebaseMessagingUtil;
 import org.javarosa.core.services.Logger;
 
 import java.io.IOException;
@@ -57,10 +55,9 @@ public class ConnectNetworkHelper {
      */
     public interface INetworkResultHandler {
         void processSuccess(int responseCode, InputStream responseData);
-
         void processFailure(int responseCode, IOException e);
-
         void processNetworkFailure();
+        void processOldApiError();
     }
 
     /**
@@ -101,7 +98,7 @@ public class ConnectNetworkHelper {
         return getInstance().callInProgress;
     }
 
-    private static boolean isBusy() {
+    public static boolean isBusy() {
         return getCallInProgress() != null;
     }
 
@@ -125,27 +122,30 @@ public class ConnectNetworkHelper {
         }
     }
 
-    public static PostResult postSync(Context context, String url, AuthInfo authInfo,
-                                      HashMap<String, String> params, boolean useFormEncoding) {
-        return getInstance().postSyncInternal(context, url, authInfo, params, useFormEncoding);
-    }
-
-    public static boolean post(Context context, String url, AuthInfo authInfo,
+    public static boolean post(Context context, String url, String version, AuthInfo authInfo,
                                HashMap<String, String> params, boolean useFormEncoding,
                                INetworkResultHandler handler) {
-        return getInstance().postInternal(context, url, authInfo, params, useFormEncoding, handler);
+        return getInstance().postInternal(context, url, version, authInfo, params, useFormEncoding, handler);
     }
 
-    public static boolean get(Context context, String url, AuthInfo authInfo,
+    public static boolean get(Context context, String url, String version, AuthInfo authInfo,
                               Multimap<String, String> params, INetworkResultHandler handler) {
-        return getInstance().getInternal(context, url, authInfo, params, handler);
+        return getInstance().getInternal(context, url, version, authInfo, params, handler);
     }
 
-    private PostResult postSyncInternal(Context context, String url, AuthInfo authInfo,
+    private static void addVersionHeader(HashMap<String, String> headers, String version) {
+        if(version != null) {
+            headers.put("Accept", "application/json;version=" + version);
+        }
+    }
+
+    public static PostResult postSync(Context context, String url, String version, AuthInfo authInfo,
                                         HashMap<String, String> params, boolean useFormEncoding) {
         setCallInProgress(url);
+        ConnectNetworkHelper instance = getInstance();
+
         try {
-            showProgressDialog(context);
+            instance.showProgressDialog(context);
             HashMap<String, String> headers = new HashMap<>();
             RequestBody requestBody;
 
@@ -162,6 +162,8 @@ public class ConnectNetworkHelper {
                 String json = gson.toJson(params);
                 requestBody = RequestBody.create(MediaType.parse("application/json"), json);
             }
+
+            addVersionHeader(headers, version);
 
             ModernHttpRequester requester = CommCareApplication.instance().buildHttpRequester(
                     context,
@@ -191,7 +193,7 @@ public class ConnectNetworkHelper {
                 exception = e;
             }
 
-            onFinishProcessing(context);
+            instance.onFinishProcessing(context);
 
             return new PostResult(responseCode, stream, exception);
         }
@@ -201,7 +203,7 @@ public class ConnectNetworkHelper {
         }
     }
 
-    private boolean postInternal(Context context, String url, AuthInfo authInfo,
+    private boolean postInternal(Context context, String url, String version, AuthInfo authInfo,
                                  HashMap<String, String> params, boolean useFormEncoding,
                                  INetworkResultHandler handler) {
         if (isBusy()) {
@@ -228,6 +230,8 @@ public class ConnectNetworkHelper {
             requestBody = RequestBody.create(MediaType.parse("application/json"), json);
         }
 
+        addVersionHeader(headers, version);
+
         ModernHttpTask postTask =
                 new ModernHttpTask(context, url,
                         ImmutableMultimap.of(),
@@ -242,7 +246,7 @@ public class ConnectNetworkHelper {
         return true;
     }
 
-    private HashMap<String, String> getContentHeadersForXFormPost(RequestBody postBody) {
+    private static HashMap<String, String> getContentHeadersForXFormPost(RequestBody postBody) {
         HashMap<String, String> headers = new HashMap<>();
         headers.put("Content-Type", "application/x-www-form-urlencoded");
         try {
@@ -253,7 +257,7 @@ public class ConnectNetworkHelper {
         return headers;
     }
 
-    private PostResult getSyncInternal(Context context, String url, AuthInfo authInfo,
+    public PostResult getSync(Context context, String url, AuthInfo authInfo,
                                         Multimap<String, String> params) {
         setCallInProgress(url);
         showProgressDialog(context);
@@ -304,7 +308,7 @@ public class ConnectNetworkHelper {
         return new PostResult(responseCode, stream, exception);
     }
 
-    private boolean getInternal(Context context, String url, AuthInfo authInfo,
+    private boolean getInternal(Context context, String url, String version, AuthInfo authInfo,
                                 Multimap<String, String> params, INetworkResultHandler handler) {
         if (isBusy()) {
             return false;
@@ -327,10 +331,13 @@ public class ConnectNetworkHelper {
             }
         }
 
+        HashMap<String, String> headers = new HashMap<>();
+        addVersionHeader(headers, version);
+
         ModernHttpTask getTask =
                 new ModernHttpTask(context, getUrl.toString(),
                         ArrayListMultimap.create(),
-                        new HashMap<>(),
+                        headers,
                         authInfo);
         getTask.connect(getResponseProcessor(context, url, handler));
         getTask.executeParallel();
@@ -354,8 +361,13 @@ public class ConnectNetworkHelper {
                 String message = String.format(Locale.getDefault(), "Call:%s\nResponse code:%d", url, responseCode);
                 CrashUtil.reportException(new Exception(message));
 
-                //400 error
-                handler.processFailure(responseCode, null);
+                if(responseCode == 406) {
+                    //API version is too old, require app update.
+                    handler.processOldApiError();
+                } else {
+                    //400 error
+                    handler.processFailure(responseCode, null);
+                }
             }
 
             @Override
@@ -429,6 +441,16 @@ public class ConnectNetworkHelper {
         dismissProgressDialog(context);
     }
 
+    public static void showNetworkError(Context context) {
+        Toast.makeText(context, context.getString(R.string.recovery_network_unavailable),
+                Toast.LENGTH_SHORT).show();
+    }
+
+    public static void showOutdatedApiError(Context context) {
+        Toast.makeText(context, context.getString(R.string.recovery_network_outdated),
+                Toast.LENGTH_LONG).show();
+    }
+
     private static final int NETWORK_ACTIVITY_ID = 7000;
 
     private void showProgressDialog(Context context) {
@@ -451,205 +473,5 @@ public class ConnectNetworkHelper {
                 ((CommCareActivity<?>)context).dismissProgressDialogForTask(NETWORK_ACTIVITY_ID);
             });
         }
-    }
-
-    public static PostResult makeHeartbeatRequestSync(Context context) {
-        String url = context.getString(R.string.ConnectHeartbeatURL);
-        HashMap<String, String> params = new HashMap<>();
-        params.put("fcm_token", FirebaseMessagingUtil.getFCMToken());
-        boolean useFormEncoding = true;
-        return postSync(context, url, ConnectManager.getConnectToken(), params, useFormEncoding);
-    }
-
-    public static boolean checkPassword(Context context, String phone, String secret,
-                                        String password, INetworkResultHandler callback) {
-        HashMap<String, String> params = new HashMap<>();
-        params.put("phone", phone);
-        params.put("secret_key", secret);
-        params.put("password", password);
-
-        return post(context, context.getString(R.string.ConnectConfirmPasswordURL),
-        new AuthInfo.NoAuth(), params, false, callback);
-    }
-
-    public static boolean changePassword(Context context, String username, String oldPassword,
-                                         String newPassword, INetworkResultHandler callback) {
-        if (isBusy()) {
-            return false;
-        }
-
-        AuthInfo authInfo = new AuthInfo.ProvidedAuth(username, oldPassword, false);
-        int urlId = R.string.ConnectChangePasswordURL;
-
-        HashMap<String, String> params = new HashMap<>();
-        params.put("password", newPassword);
-
-        return post(context, context.getString(urlId), authInfo, params, false, callback);
-    }
-
-    public static boolean resetPassword(Context context, String phoneNumber, String recoverySecret,
-                                         String newPassword, INetworkResultHandler callback) {
-        if (isBusy()) {
-            return false;
-        }
-
-        AuthInfo authInfo = new AuthInfo.NoAuth();
-        int urlId = R.string.ConnectResetPasswordURL;
-
-        HashMap<String, String> params = new HashMap<>();
-        params.put("phone", phoneNumber);
-        params.put("secret_key", recoverySecret);
-        params.put("password", newPassword);
-
-        return post(context, context.getString(urlId), authInfo, params, false, callback);
-    }
-
-    public static boolean checkPin(Context context, String phone, String secret,
-                                         String pin, INetworkResultHandler callback) {
-        if (isBusy()) {
-            return false;
-        }
-
-        AuthInfo authInfo = new AuthInfo.NoAuth();
-        int urlId = R.string.ConnectConfirmPinURL;
-
-        HashMap<String, String> params = new HashMap<>();
-        params.put("phone", phone);
-        params.put("secret_key", secret);
-        params.put("recovery_pin", pin);
-
-        return post(context, context.getString(urlId), authInfo, params, false, callback);
-    }
-
-    public static boolean changePin(Context context, String username, String password,
-                                         String pin, INetworkResultHandler callback) {
-        if (isBusy()) {
-            return false;
-        }
-
-        AuthInfo authInfo = new AuthInfo.ProvidedAuth(username, password, false);
-        int urlId = R.string.ConnectSetPinURL;
-
-        HashMap<String, String> params = new HashMap<>();
-        params.put("recovery_pin", pin);
-
-        return post(context, context.getString(urlId), authInfo, params, false, callback);
-    }
-
-    public static boolean getConnectOpportunities(Context context, INetworkResultHandler handler) {
-        if (isBusy()) {
-            return false;
-        }
-
-        ConnectSsoHelper.retrieveConnectTokenAsync(context, token -> {
-            if(token == null) {
-                return;
-            }
-
-            String url = context.getString(R.string.ConnectOpportunitiesURL, BuildConfig.CCC_HOST);
-            Multimap<String, String> params = ArrayListMultimap.create();
-
-            getInstance().getInternal(context, url, token, params, handler);
-        });
-
-        return true;
-    }
-
-    public static boolean startLearnApp(Context context, int jobId, INetworkResultHandler handler) {
-        if (isBusy()) {
-            return false;
-        }
-
-        ConnectSsoHelper.retrieveConnectTokenAsync(context, token -> {
-            if(token == null) {
-                return;
-            }
-
-            String url = context.getString(R.string.ConnectStartLearningURL, BuildConfig.CCC_HOST);
-            HashMap<String, String> params = new HashMap<>();
-            params.put("opportunity", String.format(Locale.getDefault(), "%d", jobId));
-
-            getInstance().postInternal(context, url, token, params, true, handler);
-        });
-
-        return true;
-    }
-
-    public static boolean getLearnProgress(Context context, int jobId, INetworkResultHandler handler) {
-        if (isBusy()) {
-            return false;
-        }
-
-        ConnectSsoHelper.retrieveConnectTokenAsync(context, token -> {
-            if(token == null) {
-                return;
-            }
-
-            String url = context.getString(R.string.ConnectLearnProgressURL, BuildConfig.CCC_HOST, jobId);
-            Multimap<String, String> params = ArrayListMultimap.create();
-
-            getInstance().getInternal(context, url, token, params, handler);
-        });
-
-        return true;
-    }
-
-    public static boolean claimJob(Context context, int jobId, INetworkResultHandler handler) {
-        if (isBusy()) {
-            return false;
-        }
-
-        ConnectSsoHelper.retrieveConnectTokenAsync(context, token -> {
-            if(token == null) {
-                return;
-            }
-
-            String url = context.getString(R.string.ConnectClaimJobURL, BuildConfig.CCC_HOST, jobId);
-            HashMap<String, String> params = new HashMap<>();
-
-            getInstance().postInternal(context, url, token, params, false, handler);
-        });
-
-        return true;
-    }
-
-    public static boolean getDeliveries(Context context, int jobId, INetworkResultHandler handler) {
-        if (isBusy()) {
-            return false;
-        }
-
-        ConnectSsoHelper.retrieveConnectTokenAsync(context, token -> {
-            if(token == null) {
-                return;
-            }
-
-            String url = context.getString(R.string.ConnectDeliveriesURL, BuildConfig.CCC_HOST, jobId);
-            Multimap<String, String> params = ArrayListMultimap.create();
-
-            getInstance().getInternal(context, url, token, params, handler);
-        });
-
-        return true;
-    }
-
-    public static boolean setPaymentConfirmed(Context context, String paymentId, boolean confirmed, INetworkResultHandler handler) {
-        if (isBusy()) {
-            return false;
-        }
-
-        ConnectSsoHelper.retrieveConnectTokenAsync(context, token -> {
-            if(token == null) {
-                return;
-            }
-
-            String url = context.getString(R.string.ConnectPaymentConfirmationURL, BuildConfig.CCC_HOST, paymentId);
-
-            HashMap<String, String> params = new HashMap<>();
-            params.put("confirmed", confirmed ? "true" : "false");
-
-            getInstance().postInternal(context, url, token, params, true, handler);
-        });
-
-        return true;
     }
 }

@@ -13,6 +13,7 @@ import org.commcare.activities.connect.ConnectManager;
 import org.commcare.activities.connect.ConnectNetworkHelper;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
+import org.commcare.connect.network.ApiConnect;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.utils.MultipleAppsUtil;
@@ -98,7 +99,7 @@ public class ConnectDeliveryDetailsFragment extends Fragment {
                 proceedAfterJobClaimed(button, job, appInstalled);
             } else {
                 //Claim job
-                ConnectNetworkHelper.claimJob(getContext(), job.getJobId(), new ConnectNetworkHelper.INetworkResultHandler() {
+                ApiConnect.claimJob(getContext(), job.getJobId(), new ConnectNetworkHelper.INetworkResultHandler() {
                     @Override
                     public void processSuccess(int responseCode, InputStream responseData) {
                         proceedAfterJobClaimed(button, job, appInstalled);
@@ -113,8 +114,13 @@ public class ConnectDeliveryDetailsFragment extends Fragment {
 
                     @Override
                     public void processNetworkFailure() {
-                        Toast.makeText(getContext(), getString(R.string.recovery_network_unavailable),
-                                Toast.LENGTH_SHORT).show();
+                        ConnectNetworkHelper.showNetworkError(getContext());
+                        reportApiCall(false);
+                    }
+
+                    @Override
+                    public void processOldApiError() {
+                        ConnectNetworkHelper.showOutdatedApiError(getContext());
                         reportApiCall(false);
                     }
                 });

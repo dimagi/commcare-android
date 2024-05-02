@@ -7,6 +7,7 @@ import android.widget.Toast;
 
 import org.commcare.activities.CommCareActivity;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
+import org.commcare.connect.network.ApiConnectId;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
@@ -141,7 +142,7 @@ public class ConnectIdPinActivity extends CommCareActivity<ConnectIdPinActivity>
         final Context context = this;
         if(isChanging) {
             //Change PIN
-            isBusy = !ConnectNetworkHelper.changePin(this, user.getUserId(), user.getPassword(), pin,
+            isBusy = !ApiConnectId.changePin(this, user.getUserId(), user.getPassword(), pin,
                     new ConnectNetworkHelper.INetworkResultHandler() {
                         @Override
                         public void processSuccess(int responseCode, InputStream responseData) {
@@ -158,13 +159,17 @@ public class ConnectIdPinActivity extends CommCareActivity<ConnectIdPinActivity>
 
                         @Override
                         public void processNetworkFailure() {
-                            Toast.makeText(getApplicationContext(), getString(R.string.recovery_network_unavailable),
-                                    Toast.LENGTH_SHORT).show();
+                            ConnectNetworkHelper.showNetworkError(getApplicationContext());
+                        }
+
+                        @Override
+                        public void processOldApiError() {
+                            ConnectNetworkHelper.showOutdatedApiError(getApplicationContext());
                         }
                     });
         } else if(isRecovery) {
             //Confirm PIN
-            isBusy = !ConnectNetworkHelper.checkPin(this, phone, secret, pin,
+            isBusy = !ApiConnectId.checkPin(this, phone, secret, pin,
                     new ConnectNetworkHelper.INetworkResultHandler() {
                         @Override
                         public void processSuccess(int responseCode, InputStream responseData) {
@@ -199,8 +204,12 @@ public class ConnectIdPinActivity extends CommCareActivity<ConnectIdPinActivity>
 
                         @Override
                         public void processNetworkFailure() {
-                            Toast.makeText(getApplicationContext(), getString(R.string.recovery_network_unavailable),
-                                    Toast.LENGTH_SHORT).show();
+                            ConnectNetworkHelper.showNetworkError(getApplicationContext());
+                        }
+
+                        @Override
+                        public void processOldApiError() {
+                            ConnectNetworkHelper.showOutdatedApiError(getApplicationContext());
                         }
                     });
         } else if (pin.equals(user.getPin())) {
@@ -220,7 +229,7 @@ public class ConnectIdPinActivity extends CommCareActivity<ConnectIdPinActivity>
     private void resetPassword(Context context, String phone, String secret, String username, String name, String pin) {
         //Auto-generate and send a new password
         String password = ConnectManager.generatePassword();
-        ConnectNetworkHelper.resetPassword(context, phone, secret, password, new ConnectNetworkHelper.INetworkResultHandler() {
+        ApiConnectId.resetPassword(context, phone, secret, password, new ConnectNetworkHelper.INetworkResultHandler() {
             @Override
             public void processSuccess(int responseCode, InputStream responseData) {
                 //TODO: Need to get secondary phone from server
@@ -235,14 +244,18 @@ public class ConnectIdPinActivity extends CommCareActivity<ConnectIdPinActivity>
 
             @Override
             public void processFailure(int responseCode, IOException e) {
-                Toast.makeText(context, "Error finalizing recovery, please try again later",
+                Toast.makeText(context, getString(R.string.connect_recovery_failure),
                         Toast.LENGTH_SHORT).show();
             }
 
             @Override
             public void processNetworkFailure() {
-                Toast.makeText(context, context.getString(R.string.recovery_network_unavailable),
-                        Toast.LENGTH_SHORT).show();
+                ConnectNetworkHelper.showNetworkError(getApplicationContext());
+            }
+
+            @Override
+            public void processOldApiError() {
+                ConnectNetworkHelper.showOutdatedApiError(getApplicationContext());
             }
         });
     }

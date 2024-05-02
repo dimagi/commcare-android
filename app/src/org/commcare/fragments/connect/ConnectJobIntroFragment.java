@@ -17,6 +17,7 @@ import org.commcare.activities.connect.ConnectManager;
 import org.commcare.activities.connect.ConnectNetworkHelper;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectLearnModuleSummaryRecord;
+import org.commcare.connect.network.ApiConnect;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 
@@ -84,7 +85,7 @@ public class ConnectJobIntroFragment extends Fragment {
         button.setText(getString(appInstalled ? R.string.connect_job_go_to_learn_app : R.string.connect_job_download_learn_app));
         button.setOnClickListener(v -> {
             //First, need to tell Connect we're starting learning so it can create a user on HQ
-            ConnectNetworkHelper.startLearnApp(getContext(), job.getJobId(), new ConnectNetworkHelper.INetworkResultHandler() {
+            ApiConnect.startLearnApp(getContext(), job.getJobId(), new ConnectNetworkHelper.INetworkResultHandler() {
                 @Override
                 public void processSuccess(int responseCode, InputStream responseData) {
                     reportApiCall(true);
@@ -109,8 +110,13 @@ public class ConnectJobIntroFragment extends Fragment {
 
                 @Override
                 public void processNetworkFailure() {
-                    Toast.makeText(getContext(), getString(R.string.recovery_network_unavailable),
-                            Toast.LENGTH_SHORT).show();
+                    ConnectNetworkHelper.showNetworkError(getContext());
+                    reportApiCall(false);
+                }
+
+                @Override
+                public void processOldApiError() {
+                    ConnectNetworkHelper.showOutdatedApiError(getContext());
                     reportApiCall(false);
                 }
             });

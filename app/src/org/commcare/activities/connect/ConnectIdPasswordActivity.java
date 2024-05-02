@@ -8,7 +8,7 @@ import com.nulabinc.zxcvbn.Strength;
 import com.nulabinc.zxcvbn.Zxcvbn;
 
 import org.commcare.activities.CommCareActivity;
-import org.commcare.core.network.AuthInfo;
+import org.commcare.connect.network.ApiConnectId;
 import org.commcare.dalvik.R;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.WithUIController;
@@ -16,7 +16,6 @@ import org.commcare.views.dialogs.CustomProgressDialog;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashMap;
 
 /**
  * Shows the page that prompts the user to choose (and repeat) their password
@@ -126,22 +125,26 @@ public class ConnectIdPasswordActivity extends CommCareActivity<ConnectIdPasswor
 
             @Override
             public void processFailure(int responseCode, IOException e) {
-                Toast.makeText(getApplicationContext(), "Password change error",
+                Toast.makeText(getApplicationContext(), getString(R.string.connect_password_error),
                         Toast.LENGTH_SHORT).show();
             }
 
             @Override
             public void processNetworkFailure() {
-                Toast.makeText(getApplicationContext(), getString(R.string.recovery_network_unavailable),
-                        Toast.LENGTH_SHORT).show();
+                ConnectNetworkHelper.showNetworkError(getApplicationContext());
+            }
+
+            @Override
+            public void processOldApiError() {
+                ConnectNetworkHelper.showOutdatedApiError(getApplicationContext());
             }
         };
 
         boolean isBusy;
         if (username != null && username.length() > 0 && oldPassword != null && oldPassword.length() > 0) {
-            isBusy = !ConnectNetworkHelper.changePassword(this, username, oldPassword, password, callback);
+            isBusy = !ApiConnectId.changePassword(this, username, oldPassword, password, callback);
         } else {
-            isBusy = !ConnectNetworkHelper.resetPassword(this, phone, secret, password, callback);
+            isBusy = !ApiConnectId.resetPassword(this, phone, secret, password, callback);
         }
 
         if (isBusy) {

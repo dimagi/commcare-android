@@ -7,6 +7,7 @@ import android.widget.Toast;
 
 import org.commcare.activities.CommCareActivity;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
+import org.commcare.connect.network.ApiConnectId;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
@@ -139,51 +140,54 @@ public class ConnectIdPasswordVerificationActivity extends CommCareActivity<Conn
             }
         } else {
             final Context context = this;
-            boolean isBusy = !ConnectNetworkHelper.checkPassword(this, phone, secretKey, password, new ConnectNetworkHelper.INetworkResultHandler() {
-                        @Override
-                        public void processSuccess(int responseCode, InputStream responseData) {
-                            String username = null;
-                            String name = null;
-                            try {
-                                String responseAsString = new String(
-                                        StreamsUtil.inputStreamToByteArray(responseData));
-                                if (responseAsString.length() > 0) {
-                                    JSONObject json = new JSONObject(responseAsString);
-                                    String key = ConnectConstants.CONNECT_KEY_USERNAME;
-                                    if (json.has(key)) {
-                                        username = json.getString(key);
-                                    }
-
-                                    key = ConnectConstants.CONNECT_KEY_NAME;
-                                    if (json.has(key)) {
-                                        name = json.getString(key);
-                                    }
-
-                                    //TODO: Need to get secondary phone from server
-                                    ConnectUserRecord user = new ConnectUserRecord(phone, username,
-                                            password, name, "");
-                                    ConnectDatabaseHelper.storeUser(context, user);
-                                }
-                            } catch (IOException | JSONException e) {
-                                Logger.exception("Parsing return from OTP request", e);
+            boolean isBusy = !ApiConnectId.checkPassword(this, phone, secretKey, password, new ConnectNetworkHelper.INetworkResultHandler() {
+                @Override
+                public void processSuccess(int responseCode, InputStream responseData) {
+                    String username = null;
+                    String name = null;
+                    try {
+                        String responseAsString = new String(
+                                StreamsUtil.inputStreamToByteArray(responseData));
+                        if (responseAsString.length() > 0) {
+                            JSONObject json = new JSONObject(responseAsString);
+                            String key = ConnectConstants.CONNECT_KEY_USERNAME;
+                            if (json.has(key)) {
+                                username = json.getString(key);
                             }
 
-                            logRecoveryResult(true);
-                            finish(true, false);
-                        }
+                            key = ConnectConstants.CONNECT_KEY_NAME;
+                            if (json.has(key)) {
+                                name = json.getString(key);
+                            }
 
-                        @Override
-                        public void processFailure(int responseCode, IOException e) {
-                            handleWrongPassword();
+                            //TODO: Need to get secondary phone from server
+                            ConnectUserRecord user = new ConnectUserRecord(phone, username,
+                                    password, name, "");
+                            ConnectDatabaseHelper.storeUser(context, user);
                         }
+                    } catch (IOException | JSONException e) {
+                        Logger.exception("Parsing return from OTP request", e);
+                    }
 
-                        @Override
-                        public void processNetworkFailure() {
-                            Toast.makeText(getApplicationContext(),
-                                    getString(R.string.recovery_network_unavailable),
-                                    Toast.LENGTH_SHORT).show();
-                        }
-                    });
+                    logRecoveryResult(true);
+                    finish(true, false);
+                }
+
+                @Override
+                public void processFailure(int responseCode, IOException e) {
+                    handleWrongPassword();
+                }
+
+                @Override
+                public void processNetworkFailure() {
+                    ConnectNetworkHelper.showOutdatedApiError(getApplicationContext());
+                }
+
+                @Override
+                public void processOldApiError() {
+                    ConnectNetworkHelper.showOutdatedApiError(getApplicationContext());
+                }
+            });
 
             if (isBusy) {
                 Toast.makeText(this, R.string.busy_message, Toast.LENGTH_SHORT).show();

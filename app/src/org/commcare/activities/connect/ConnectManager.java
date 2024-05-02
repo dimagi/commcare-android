@@ -21,6 +21,7 @@ import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.commcaresupportlibrary.CommCareLauncher;
+import org.commcare.connect.network.ApiConnect;
 import org.commcare.connect.workers.ConnectHeartbeatWorker;
 import org.commcare.core.encryption.CryptUtil;
 import org.commcare.core.network.AuthInfo;
@@ -595,7 +596,7 @@ public class ConnectManager {
     }
 
     public static void updatePaymentConfirmed(Context context, final ConnectJobPaymentRecord payment, boolean confirmed, ConnectActivityCompleteListener listener) {
-        ConnectNetworkHelper.setPaymentConfirmed(context, payment.getPaymentId(), confirmed, new ConnectNetworkHelper.INetworkResultHandler() {
+        ApiConnect.setPaymentConfirmed(context, payment.getPaymentId(), confirmed, new ConnectNetworkHelper.INetworkResultHandler() {
             @Override
             public void processSuccess(int responseCode, InputStream responseData) {
                 payment.setConfirmed(confirmed);
@@ -614,6 +615,12 @@ public class ConnectManager {
             @Override
             public void processNetworkFailure() {
                 Toast.makeText(context, R.string.connect_payment_confirm_failed, Toast.LENGTH_SHORT).show();
+                listener.connectActivityComplete(false);
+            }
+
+            @Override
+            public void processOldApiError() {
+                ConnectNetworkHelper.showOutdatedApiError(context);
                 listener.connectActivityComplete(false);
             }
         });
