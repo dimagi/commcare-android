@@ -1,4 +1,4 @@
-package org.commcare.activities.connect;
+package org.commcare.connect.network;
 
 import android.content.Context;
 import android.net.ConnectivityManager;
@@ -50,16 +50,6 @@ import retrofit2.Response;
  * @author dviggiano
  */
 public class ConnectNetworkHelper {
-    /**
-     * Interface for callbacks when network request completes
-     */
-    public interface INetworkResultHandler {
-        void processSuccess(int responseCode, InputStream responseData);
-        void processFailure(int responseCode, IOException e);
-        void processNetworkFailure();
-        void processOldApiError();
-    }
-
     /**
      * Helper class to hold the results of a network request
      */
@@ -124,12 +114,12 @@ public class ConnectNetworkHelper {
 
     public static boolean post(Context context, String url, String version, AuthInfo authInfo,
                                HashMap<String, String> params, boolean useFormEncoding,
-                               INetworkResultHandler handler) {
+                               IApiCallback handler) {
         return getInstance().postInternal(context, url, version, authInfo, params, useFormEncoding, handler);
     }
 
     public static boolean get(Context context, String url, String version, AuthInfo authInfo,
-                              Multimap<String, String> params, INetworkResultHandler handler) {
+                              Multimap<String, String> params, IApiCallback handler) {
         return getInstance().getInternal(context, url, version, authInfo, params, handler);
     }
 
@@ -205,7 +195,7 @@ public class ConnectNetworkHelper {
 
     private boolean postInternal(Context context, String url, String version, AuthInfo authInfo,
                                  HashMap<String, String> params, boolean useFormEncoding,
-                                 INetworkResultHandler handler) {
+                                 IApiCallback handler) {
         if (isBusy()) {
             return false;
         }
@@ -309,7 +299,7 @@ public class ConnectNetworkHelper {
     }
 
     private boolean getInternal(Context context, String url, String version, AuthInfo authInfo,
-                                Multimap<String, String> params, INetworkResultHandler handler) {
+                                Multimap<String, String> params, IApiCallback handler) {
         if (isBusy()) {
             return false;
         }
@@ -346,7 +336,7 @@ public class ConnectNetworkHelper {
     }
 
     private ConnectorWithHttpResponseProcessor<HttpResponseProcessor> getResponseProcessor(
-            Context context, String url, INetworkResultHandler handler) {
+            Context context, String url, IApiCallback handler) {
         return new ConnectorWithHttpResponseProcessor<>() {
             @Override
             public void processSuccess(int responseCode, InputStream responseData) {

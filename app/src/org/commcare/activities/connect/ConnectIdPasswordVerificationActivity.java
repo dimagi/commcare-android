@@ -8,6 +8,8 @@ import android.widget.Toast;
 import org.commcare.activities.CommCareActivity;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.network.ApiConnectId;
+import org.commcare.connect.network.ConnectNetworkHelper;
+import org.commcare.connect.network.IApiCallback;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
@@ -140,7 +142,7 @@ public class ConnectIdPasswordVerificationActivity extends CommCareActivity<Conn
             }
         } else {
             final Context context = this;
-            boolean isBusy = !ApiConnectId.checkPassword(this, phone, secretKey, password, new ConnectNetworkHelper.INetworkResultHandler() {
+            boolean isBusy = !ApiConnectId.checkPassword(this, phone, secretKey, password, new IApiCallback() {
                 @Override
                 public void processSuccess(int responseCode, InputStream responseData) {
                     String username = null;

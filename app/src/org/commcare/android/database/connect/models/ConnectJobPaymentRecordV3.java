@@ -1,6 +1,6 @@
 package org.commcare.android.database.connect.models;
 
-import org.commcare.activities.connect.ConnectNetworkHelper;
+import org.commcare.connect.network.ConnectNetworkHelper;
 import org.commcare.android.storage.framework.Persisted;
 import org.commcare.models.framework.Persisting;
 import org.commcare.modern.database.Table;

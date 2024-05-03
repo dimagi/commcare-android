@@ -12,11 +12,12 @@ import com.google.android.material.tabs.TabLayout;
 
 import org.commcare.activities.connect.ConnectDatabaseHelper;
 import org.commcare.activities.connect.ConnectManager;
-import org.commcare.activities.connect.ConnectNetworkHelper;
+import org.commcare.connect.network.ConnectNetworkHelper;
 import org.commcare.android.database.connect.models.ConnectJobDeliveryRecord;
 import org.commcare.android.database.connect.models.ConnectJobPaymentRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.connect.network.ApiConnect;
+import org.commcare.connect.network.IApiCallback;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.javarosa.core.io.StreamsUtil;
@@ -155,7 +156,7 @@ public class ConnectDeliveryProgressFragment extends Fragment {
 
     public void refreshData() {
         ConnectJobRecord job = ConnectManager.getActiveJob();
-        ApiConnect.getDeliveries(getContext(), job.getJobId(), new ConnectNetworkHelper.INetworkResultHandler() {
+        ApiConnect.getDeliveries(getContext(), job.getJobId(), new IApiCallback() {
             @Override
             public void processSuccess(int responseCode, InputStream responseData) {
                 boolean success = true;

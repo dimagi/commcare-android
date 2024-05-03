@@ -14,10 +14,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import org.commcare.activities.connect.ConnectManager;
-import org.commcare.activities.connect.ConnectNetworkHelper;
+import org.commcare.connect.network.ConnectNetworkHelper;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectLearnModuleSummaryRecord;
 import org.commcare.connect.network.ApiConnect;
+import org.commcare.connect.network.IApiCallback;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 
@@ -85,7 +86,7 @@ public class ConnectJobIntroFragment extends Fragment {
         button.setText(getString(appInstalled ? R.string.connect_job_go_to_learn_app : R.string.connect_job_download_learn_app));
         button.setOnClickListener(v -> {
             //First, need to tell Connect we're starting learning so it can create a user on HQ
-            ApiConnect.startLearnApp(getContext(), job.getJobId(), new ConnectNetworkHelper.INetworkResultHandler() {
+            ApiConnect.startLearnApp(getContext(), job.getJobId(), new IApiCallback() {
                 @Override
                 public void processSuccess(int responseCode, InputStream responseData) {
                     reportApiCall(true);

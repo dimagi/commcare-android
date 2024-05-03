@@ -9,8 +9,6 @@ import org.commcare.CommCareApplication;
 import org.commcare.activities.connect.ConnectConstants;
 import org.commcare.activities.connect.ConnectDatabaseHelper;
 import org.commcare.activities.connect.ConnectManager;
-import org.commcare.activities.connect.ConnectNetworkHelper;
-import org.commcare.activities.connect.ConnectSsoHelper;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
 import org.commcare.core.network.AuthInfo;
 import org.commcare.dalvik.BuildConfig;
@@ -118,7 +116,7 @@ public class ApiConnect {
         return null;
     }
 
-    public static boolean getConnectOpportunities(Context context, ConnectNetworkHelper.INetworkResultHandler handler) {
+    public static boolean getConnectOpportunities(Context context, IApiCallback handler) {
         if (ConnectNetworkHelper.isBusy()) {
             return false;
         }
@@ -137,7 +135,7 @@ public class ApiConnect {
         return true;
     }
 
-    public static boolean startLearnApp(Context context, int jobId, ConnectNetworkHelper.INetworkResultHandler handler) {
+    public static boolean startLearnApp(Context context, int jobId, IApiCallback handler) {
         if (ConnectNetworkHelper.isBusy()) {
             return false;
         }
@@ -158,7 +156,7 @@ public class ApiConnect {
         return true;
     }
 
-    public static boolean getLearnProgress(Context context, int jobId, ConnectNetworkHelper.INetworkResultHandler handler) {
+    public static boolean getLearnProgress(Context context, int jobId, IApiCallback handler) {
         if (ConnectNetworkHelper.isBusy()) {
             return false;
         }
@@ -177,7 +175,7 @@ public class ApiConnect {
         return true;
     }
 
-    public static boolean claimJob(Context context, int jobId, ConnectNetworkHelper.INetworkResultHandler handler) {
+    public static boolean claimJob(Context context, int jobId, IApiCallback handler) {
         if (ConnectNetworkHelper.isBusy()) {
             return false;
         }
@@ -196,7 +194,7 @@ public class ApiConnect {
         return true;
     }
 
-    public static boolean getDeliveries(Context context, int jobId, ConnectNetworkHelper.INetworkResultHandler handler) {
+    public static boolean getDeliveries(Context context, int jobId, IApiCallback handler) {
         if (ConnectNetworkHelper.isBusy()) {
             return false;
         }
@@ -215,7 +213,7 @@ public class ApiConnect {
         return true;
     }
 
-    public static boolean setPaymentConfirmed(Context context, String paymentId, boolean confirmed, ConnectNetworkHelper.INetworkResultHandler handler) {
+    public static boolean setPaymentConfirmed(Context context, String paymentId, boolean confirmed, IApiCallback handler) {
         if (ConnectNetworkHelper.isBusy()) {
             return false;
         }

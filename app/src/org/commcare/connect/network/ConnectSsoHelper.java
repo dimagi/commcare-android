@@ -1,9 +1,11 @@
-package org.commcare.activities.connect;
+package org.commcare.connect.network;
 
 import android.content.Context;
 import android.os.AsyncTask;
 
 import org.commcare.CommCareApplication;
+import org.commcare.activities.connect.ConnectDatabaseHelper;
+import org.commcare.activities.connect.ConnectManager;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
 import org.commcare.connect.network.ApiConnect;
 import org.commcare.connect.network.ApiConnectId;

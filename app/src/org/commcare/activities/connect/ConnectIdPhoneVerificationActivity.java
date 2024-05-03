@@ -9,6 +9,8 @@ import android.widget.Toast;
 import org.commcare.activities.CommCareActivity;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.network.ApiConnectId;
+import org.commcare.connect.network.ConnectNetworkHelper;
+import org.commcare.connect.network.IApiCallback;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
@@ -150,7 +152,7 @@ public class ConnectIdPhoneVerificationActivity extends CommCareActivity<Connect
 
         uiController.setErrorMessage(null);
 
-        ConnectNetworkHelper.INetworkResultHandler callback = new ConnectNetworkHelper.INetworkResultHandler() {
+        IApiCallback callback = new IApiCallback() {
             @Override
             public void processSuccess(int responseCode, InputStream responseData) {
                 try {
@@ -227,7 +229,7 @@ public class ConnectIdPhoneVerificationActivity extends CommCareActivity<Connect
         String phone = username;
         final Context context = this;
 
-        ConnectNetworkHelper.INetworkResultHandler callback = new ConnectNetworkHelper.INetworkResultHandler() {
+        IApiCallback callback = new IApiCallback() {
             @Override
             public void processSuccess(int responseCode, InputStream responseData) {
                 logRecoveryResult(true);
@@ -303,7 +305,7 @@ public class ConnectIdPhoneVerificationActivity extends CommCareActivity<Connect
     private void resetPassword(Context context, String phone, String secret, String username, String name) {
         //Auto-generate and send a new password
         String password = ConnectManager.generatePassword();
-        ApiConnectId.resetPassword(context, phone, secret, password, new ConnectNetworkHelper.INetworkResultHandler() {
+        ApiConnectId.resetPassword(context, phone, secret, password, new IApiCallback() {
             @Override
             public void processSuccess(int responseCode, InputStream responseData) {
                 //TODO: Need to get secondary phone from server

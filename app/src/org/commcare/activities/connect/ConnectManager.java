@@ -22,6 +22,9 @@ import org.commcare.CommCareApplication;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.commcaresupportlibrary.CommCareLauncher;
 import org.commcare.connect.network.ApiConnect;
+import org.commcare.connect.network.ConnectNetworkHelper;
+import org.commcare.connect.network.ConnectSsoHelper;
+import org.commcare.connect.network.IApiCallback;
 import org.commcare.connect.workers.ConnectHeartbeatWorker;
 import org.commcare.core.encryption.CryptUtil;
 import org.commcare.core.network.AuthInfo;
@@ -596,7 +599,7 @@ public class ConnectManager {
     }
 
     public static void updatePaymentConfirmed(Context context, final ConnectJobPaymentRecord payment, boolean confirmed, ConnectActivityCompleteListener listener) {
-        ApiConnect.setPaymentConfirmed(context, payment.getPaymentId(), confirmed, new ConnectNetworkHelper.INetworkResultHandler() {
+        ApiConnect.setPaymentConfirmed(context, payment.getPaymentId(), confirmed, new IApiCallback() {
             @Override
             public void processSuccess(int responseCode, InputStream responseData) {
                 payment.setConfirmed(confirmed);

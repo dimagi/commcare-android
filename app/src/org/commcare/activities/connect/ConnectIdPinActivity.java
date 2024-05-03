@@ -8,6 +8,8 @@ import android.widget.Toast;
 import org.commcare.activities.CommCareActivity;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.network.ApiConnectId;
+import org.commcare.connect.network.ConnectNetworkHelper;
+import org.commcare.connect.network.IApiCallback;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
@@ -143,7 +145,7 @@ public class ConnectIdPinActivity extends CommCareActivity<ConnectIdPinActivity>
         if(isChanging) {
             //Change PIN
             isBusy = !ApiConnectId.changePin(this, user.getUserId(), user.getPassword(), pin,
-                    new ConnectNetworkHelper.INetworkResultHandler() {
+                    new IApiCallback() {
                         @Override
                         public void processSuccess(int responseCode, InputStream responseData) {
                             user.setPin(pin);
@@ -170,7 +172,7 @@ public class ConnectIdPinActivity extends CommCareActivity<ConnectIdPinActivity>
         } else if(isRecovery) {
             //Confirm PIN
             isBusy = !ApiConnectId.checkPin(this, phone, secret, pin,
-                    new ConnectNetworkHelper.INetworkResultHandler() {
+                    new IApiCallback() {
                         @Override
                         public void processSuccess(int responseCode, InputStream responseData) {
                             String username = null;
@@ -229,7 +231,7 @@ public class ConnectIdPinActivity extends CommCareActivity<ConnectIdPinActivity>
     private void resetPassword(Context context, String phone, String secret, String username, String name, String pin) {
         //Auto-generate and send a new password
         String password = ConnectManager.generatePassword();
-        ApiConnectId.resetPassword(context, phone, secret, password, new ConnectNetworkHelper.INetworkResultHandler() {
+        ApiConnectId.resetPassword(context, phone, secret, password, new IApiCallback() {
             @Override
             public void processSuccess(int responseCode, InputStream responseData) {
                 //TODO: Need to get secondary phone from server

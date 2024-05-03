@@ -8,7 +8,6 @@ import com.google.common.collect.Multimap;
 import org.commcare.activities.connect.ConnectConstants;
 import org.commcare.activities.connect.ConnectDatabaseHelper;
 import org.commcare.activities.connect.ConnectManager;
-import org.commcare.activities.connect.ConnectNetworkHelper;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.core.network.AuthInfo;
 import org.commcare.dalvik.R;
@@ -73,7 +72,7 @@ public class ApiConnectId {
     }
 
     public static boolean checkPassword(Context context, String phone, String secret,
-                                        String password, ConnectNetworkHelper.INetworkResultHandler callback) {
+                                        String password, IApiCallback callback) {
         HashMap<String, String> params = new HashMap<>();
         params.put("phone", phone);
         params.put("secret_key", secret);
@@ -84,7 +83,7 @@ public class ApiConnectId {
     }
 
     public static boolean changePassword(Context context, String username, String oldPassword,
-                                         String newPassword, ConnectNetworkHelper.INetworkResultHandler callback) {
+                                         String newPassword, IApiCallback callback) {
         if (ConnectNetworkHelper.isBusy()) {
             return false;
         }
@@ -99,7 +98,7 @@ public class ApiConnectId {
     }
 
     public static boolean resetPassword(Context context, String phoneNumber, String recoverySecret,
-                                        String newPassword, ConnectNetworkHelper.INetworkResultHandler callback) {
+                                        String newPassword, IApiCallback callback) {
         if (ConnectNetworkHelper.isBusy()) {
             return false;
         }
@@ -116,7 +115,7 @@ public class ApiConnectId {
     }
 
     public static boolean checkPin(Context context, String phone, String secret,
-                                   String pin, ConnectNetworkHelper.INetworkResultHandler callback) {
+                                   String pin, IApiCallback callback) {
         if (ConnectNetworkHelper.isBusy()) {
             return false;
         }
@@ -133,7 +132,7 @@ public class ApiConnectId {
     }
 
     public static boolean changePin(Context context, String username, String password,
-                                    String pin, ConnectNetworkHelper.INetworkResultHandler callback) {
+                                    String pin, IApiCallback callback) {
         if (ConnectNetworkHelper.isBusy()) {
             return false;
         }
@@ -147,7 +146,7 @@ public class ApiConnectId {
         return ConnectNetworkHelper.post(context, context.getString(urlId), API_VERSION_CONNECT_ID, authInfo, params, false, callback);
     }
 
-    public static boolean checkPhoneAvailable(Context context, String phone, ConnectNetworkHelper.INetworkResultHandler callback) {
+    public static boolean checkPhoneAvailable(Context context, String phone, IApiCallback callback) {
         Multimap<String, String> params = ArrayListMultimap.create();
         params.put("phone_number", phone);
 
@@ -157,7 +156,7 @@ public class ApiConnectId {
     }
 
     public static boolean registerUser(Context context, String username, String password, String displayName,
-                                       String phone, ConnectNetworkHelper.INetworkResultHandler callback) {
+                                       String phone, IApiCallback callback) {
         HashMap<String, String> params = new HashMap<>();
         params.put("username", username);
         params.put("password", password);
@@ -171,7 +170,7 @@ public class ApiConnectId {
     }
 
     public static boolean changePhone(Context context, String username, String password,
-                                      String oldPhone, String newPhone, ConnectNetworkHelper.INetworkResultHandler callback) {
+                                      String oldPhone, String newPhone, IApiCallback callback) {
         //Update the phone number with the server
         int urlId = R.string.ConnectChangePhoneURL;
 
@@ -186,7 +185,7 @@ public class ApiConnectId {
 
     public static boolean updateUserProfile(Context context, String username,
                                             String password, String displayName,
-                                            String secondaryPhone, ConnectNetworkHelper.INetworkResultHandler callback) {
+                                            String secondaryPhone, IApiCallback callback) {
         //Update the phone number with the server
         int urlId = R.string.ConnectUpdateProfileURL;
 
@@ -205,7 +204,7 @@ public class ApiConnectId {
     }
 
     public static boolean requestRegistrationOtpPrimary(Context context, String username, String password,
-                                                        ConnectNetworkHelper.INetworkResultHandler callback) {
+                                                        IApiCallback callback) {
         int urlId = R.string.ConnectValidatePhoneURL;
         AuthInfo authInfo = new AuthInfo.ProvidedAuth(username, password, false);
 
@@ -215,7 +214,7 @@ public class ApiConnectId {
                 API_VERSION_CONNECT_ID, authInfo, params, false, callback);
     }
 
-    public static boolean requestRecoveryOtpPrimary(Context context, String phone, ConnectNetworkHelper.INetworkResultHandler callback) {
+    public static boolean requestRecoveryOtpPrimary(Context context, String phone, IApiCallback callback) {
         int urlId = R.string.ConnectRecoverURL;
         AuthInfo authInfo = new AuthInfo.NoAuth();
 
@@ -227,7 +226,7 @@ public class ApiConnectId {
     }
 
     public static boolean requestRecoveryOtpSecondary(Context context, String phone, String secret,
-                                                      ConnectNetworkHelper.INetworkResultHandler callback) {
+                                                      IApiCallback callback) {
         int urlId = R.string.ConnectRecoverSecondaryURL;
         AuthInfo authInfo = new AuthInfo.NoAuth();
 
@@ -240,7 +239,7 @@ public class ApiConnectId {
     }
 
     public static boolean confirmRegistrationOtpPrimary(Context context, String username, String password,
-                                                        String token, ConnectNetworkHelper.INetworkResultHandler callback) {
+                                                        String token, IApiCallback callback) {
         int urlId = R.string.ConnectConfirmOTPURL;
         AuthInfo authInfo = new AuthInfo.ProvidedAuth(username, password, false);
 
@@ -252,7 +251,7 @@ public class ApiConnectId {
     }
 
     public static boolean confirmRecoveryOtpPrimary(Context context, String phone, String secret,
-                                                    String token, ConnectNetworkHelper.INetworkResultHandler callback) {
+                                                    String token, IApiCallback callback) {
         int urlId = R.string.ConnectRecoverConfirmOTPURL;
         AuthInfo authInfo = new AuthInfo.NoAuth();
 
@@ -266,7 +265,7 @@ public class ApiConnectId {
     }
 
     public static boolean confirmRecoveryOtpSecondary(Context context, String phone, String secret,
-                                                      String token, ConnectNetworkHelper.INetworkResultHandler callback) {
+                                                      String token, IApiCallback callback) {
         int urlId = R.string.ConnectRecoverConfirmSecondaryOTPURL;
         AuthInfo authInfo = new AuthInfo.NoAuth();
 

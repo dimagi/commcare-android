@@ -7,6 +7,8 @@ import android.widget.Toast;
 import org.commcare.activities.CommCareActivity;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.network.ApiConnectId;
+import org.commcare.connect.network.ConnectNetworkHelper;
+import org.commcare.connect.network.IApiCallback;
 import org.commcare.dalvik.R;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.WithUIController;
@@ -110,7 +112,7 @@ public class ConnectIdRegistrationActivity extends CommCareActivity<ConnectIdReg
                 uiController.getNameText(), "");
 
         boolean isBusy = !ApiConnectId.registerUser(this, tempUser.getUserId(), tempUser.getPassword(),
-                tempUser.getName(), phone, new ConnectNetworkHelper.INetworkResultHandler() {
+                tempUser.getName(), phone, new IApiCallback() {
                     @Override
                     public void processSuccess(int responseCode, InputStream responseData) {
                         user = tempUser;
@@ -148,7 +150,7 @@ public class ConnectIdRegistrationActivity extends CommCareActivity<ConnectIdReg
             finish(true);
         } else {
             boolean isBusy = !ApiConnectId.updateUserProfile(this, user.getUserId(),
-                    user.getPassword(), newName, null, new ConnectNetworkHelper.INetworkResultHandler() {
+                    user.getPassword(), newName, null, new IApiCallback() {
                         @Override
                         public void processSuccess(int responseCode, InputStream responseData) {
                             user.setName(newName);

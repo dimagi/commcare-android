@@ -7,6 +7,8 @@ import android.widget.Toast;
 import org.commcare.activities.CommCareActivity;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.network.ApiConnectId;
+import org.commcare.connect.network.ConnectNetworkHelper;
+import org.commcare.connect.network.IApiCallback;
 import org.commcare.dalvik.R;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.WithUIController;
@@ -123,7 +125,7 @@ public class ConnectIdPhoneActivity extends CommCareActivity<ConnectIdPhoneActiv
             existing = user != null ? user.getAlternatePhone() : null;
         }
         if (user != null && existing != null && !existing.equals(phone)) {
-            ConnectNetworkHelper.INetworkResultHandler callback = new ConnectNetworkHelper.INetworkResultHandler() {
+            IApiCallback callback = new IApiCallback() {
                 @Override
                 public void processSuccess(int responseCode, InputStream responseData) {
                     finish(true, phone);
@@ -190,7 +192,7 @@ public class ConnectIdPhoneActivity extends CommCareActivity<ConnectIdPhoneActiv
                         uiController.setOkButtonEnabled(false);
 
                         boolean isBusy = !ApiConnectId.checkPhoneAvailable(this, phone,
-                                new ConnectNetworkHelper.INetworkResultHandler() {
+                                new IApiCallback() {
                                     @Override
                                     public void processSuccess(int responseCode, InputStream responseData) {
                                         uiController.setAvailabilityText(

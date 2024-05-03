@@ -19,10 +19,11 @@ import com.google.android.material.tabs.TabLayout;
 
 import org.commcare.activities.connect.ConnectDatabaseHelper;
 import org.commcare.activities.connect.ConnectManager;
-import org.commcare.activities.connect.ConnectNetworkHelper;
+import org.commcare.connect.network.ConnectNetworkHelper;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.CommCareApplication;
 import org.commcare.connect.network.ApiConnect;
+import org.commcare.connect.network.IApiCallback;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.javarosa.core.io.StreamsUtil;
@@ -120,7 +121,7 @@ public class ConnectJobsListsFragment extends Fragment {
     }
 
     public void refreshData() {
-        ApiConnect.getConnectOpportunities(getContext(), new ConnectNetworkHelper.INetworkResultHandler() {
+        ApiConnect.getConnectOpportunities(getContext(), new IApiCallback() {
             @Override
             public void processSuccess(int responseCode, InputStream responseData) {
                 int newJobs = 0;

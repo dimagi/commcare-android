@@ -9,6 +9,8 @@ import com.nulabinc.zxcvbn.Zxcvbn;
 
 import org.commcare.activities.CommCareActivity;
 import org.commcare.connect.network.ApiConnectId;
+import org.commcare.connect.network.ConnectNetworkHelper;
+import org.commcare.connect.network.IApiCallback;
 import org.commcare.dalvik.R;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.WithUIController;
@@ -117,7 +119,7 @@ public class ConnectIdPasswordActivity extends CommCareActivity<ConnectIdPasswor
     public void handleButtonPress() {
         final String password = uiController.getPasswordText();
 
-        ConnectNetworkHelper.INetworkResultHandler callback = new ConnectNetworkHelper.INetworkResultHandler() {
+        IApiCallback callback = new IApiCallback() {
             @Override
             public void processSuccess(int responseCode, InputStream responseData) {
                 finish(true, password);

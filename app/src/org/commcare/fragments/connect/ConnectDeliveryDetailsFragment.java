@@ -10,10 +10,11 @@ import android.widget.Toast;
 
 import org.commcare.activities.connect.ConnectDatabaseHelper;
 import org.commcare.activities.connect.ConnectManager;
-import org.commcare.activities.connect.ConnectNetworkHelper;
+import org.commcare.connect.network.ConnectNetworkHelper;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.connect.network.ApiConnect;
+import org.commcare.connect.network.IApiCallback;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.utils.MultipleAppsUtil;
@@ -99,7 +100,7 @@ public class ConnectDeliveryDetailsFragment extends Fragment {
                 proceedAfterJobClaimed(button, job, appInstalled);
             } else {
                 //Claim job
-                ApiConnect.claimJob(getContext(), job.getJobId(), new ConnectNetworkHelper.INetworkResultHandler() {
+                ApiConnect.claimJob(getContext(), job.getJobId(), new IApiCallback() {
                     @Override
                     public void processSuccess(int responseCode, InputStream responseData) {
                         proceedAfterJobClaimed(button, job, appInstalled);

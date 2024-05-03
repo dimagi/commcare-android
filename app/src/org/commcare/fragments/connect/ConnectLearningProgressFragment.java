@@ -13,11 +13,12 @@ import android.widget.TextView;
 import org.commcare.activities.CommCareActivity;
 import org.commcare.activities.connect.ConnectDatabaseHelper;
 import org.commcare.activities.connect.ConnectManager;
-import org.commcare.activities.connect.ConnectNetworkHelper;
+import org.commcare.connect.network.ConnectNetworkHelper;
 import org.commcare.android.database.connect.models.ConnectJobAssessmentRecord;
 import org.commcare.android.database.connect.models.ConnectJobLearningRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.connect.network.ApiConnect;
+import org.commcare.connect.network.IApiCallback;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.views.dialogs.StandardAlertDialog;
@@ -90,7 +91,7 @@ public class ConnectLearningProgressFragment extends Fragment {
 
     private void refreshData() {
         ConnectJobRecord job = ConnectManager.getActiveJob();
-        ApiConnect.getLearnProgress(getContext(), job.getJobId(), new ConnectNetworkHelper.INetworkResultHandler() {
+        ApiConnect.getLearnProgress(getContext(), job.getJobId(), new IApiCallback() {
             @Override
             public void processSuccess(int responseCode, InputStream responseData) {
                 try {

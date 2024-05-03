@@ -6,6 +6,8 @@ import android.widget.Toast;
 
 import org.commcare.activities.CommCareActivity;
 import org.commcare.connect.network.ApiConnectId;
+import org.commcare.connect.network.ConnectNetworkHelper;
+import org.commcare.connect.network.IApiCallback;
 import org.commcare.dalvik.R;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.WithUIController;
@@ -129,7 +131,7 @@ public class ConnectIdRecoveryDecisionActivity extends CommCareActivity<ConnectI
             uiController.setButton1Enabled(false);
 
             boolean isBusy = !ApiConnectId.checkPhoneAvailable(this, phone,
-                    new ConnectNetworkHelper.INetworkResultHandler() {
+                    new IApiCallback() {
                         @Override
                         public void processSuccess(int responseCode, InputStream responseData) {
                             uiController.setPhoneMessage(getString(R.string.connect_phone_not_found));
