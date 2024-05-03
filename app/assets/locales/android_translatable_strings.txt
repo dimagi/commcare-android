@@ -461,7 +461,7 @@ recording.prompt.with.file.chooser=Record or choose sound below
 recording.prompt.without.file.chooser=Record sound below
 recording.custom=Recorded Sound
 recording.paused.due.another.app.recording.title=CommCare Audio Recording
-recording.paused.due.another.app.recording.message=Recording paused as another app with higher privileges started recording. Click here to resume the recording!
+recording.paused.due.another.app.recording.message=Recording paused as another app started recording. Click here to resume the recording!
 
 callout.failure.dialer=Device is not currently configured to make telephone calls
 callout.failure.sms=SMS app not found
