@@ -196,7 +196,7 @@ public class RecordingFragment extends DialogFragment {
         recordingDuration.start();
         if (isPauseSupported()) {
             toggleRecording.setBackgroundResource(R.drawable.pause);
-            toggleRecording.setOnClickListener(v -> pauseRecording());
+            toggleRecording.setOnClickListener(v -> pauseRecording(true));
         } else {
             toggleRecording.setBackgroundResource(R.drawable.record_in_progress);
             toggleRecording.setOnClickListener(v -> stopRecording());
@@ -288,7 +288,7 @@ public class RecordingFragment extends DialogFragment {
     }
 
     @SuppressLint("NewApi")
-    private void pauseRecording() {
+    private void pauseRecording(boolean pausedByUser) {
         inPausedState = true;
         recordingDuration.stop();
         chronoPause();
@@ -297,7 +297,8 @@ public class RecordingFragment extends DialogFragment {
         enableSave();
         toggleRecording.setBackgroundResource(R.drawable.record_add);
         toggleRecording.setOnClickListener(v -> resumeRecording());
-        instruction.setText(Localization.get("pause.recording"));
+        instruction.setText(Localization.get(pausedByUser ? "pause.recording"
+                : "pause.recording.because.no.sound.captured"));
     }
 
     private void enableSave() {
@@ -437,7 +438,7 @@ public class RecordingFragment extends DialogFragment {
 
                 if (hasRecordingGoneSilent(configs)) {
                     if (!inPausedState) {
-                        pauseRecording();
+                        pauseRecording(false);
                         NotificationUtil.showNotification(
                                 getContext(),
                                 CommCareNoficationManager.NOTIFICATION_CHANNEL_USER_SESSION_ID,

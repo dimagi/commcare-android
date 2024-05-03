@@ -453,6 +453,7 @@ during.recording=Recording is in progress, avoid navigating away from CommCare. 
 after.recording=Recording complete.
 delete.recording=Tap to delete recording
 pause.recording=Recording paused, tap to continue recording
+pause.recording.because.no.sound.captured=Recording paused because another app started recording, tap to continue recording
 save=Save
 recording.cancel=Cancel
 recording.clear=Clear
