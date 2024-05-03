@@ -450,7 +450,6 @@ public class RecordingFragment extends DialogFragment {
                     }
                 } else {
                     if (inPausedState) {
-                        resumeRecording();
                         NotificationUtil.cancelNotification(getContext(), RECORDING_NOTIFICATION_ID);
                     }
                 }
