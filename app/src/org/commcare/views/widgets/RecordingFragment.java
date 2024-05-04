@@ -231,7 +231,7 @@ public class RecordingFragment extends DialogFragment {
         } else {
             recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
         }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             registerAudioRecordingConfigurationChangeCallback();
         }
         try {
@@ -426,7 +426,7 @@ public class RecordingFragment extends DialogFragment {
         recordingDuration.start();
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.Q)
+    @RequiresApi(api = Build.VERSION_CODES.N)
     private void registerAudioRecordingConfigurationChangeCallback() {
         audioRecordingCallback = new AudioManager.AudioRecordingCallback() {
             @Override
@@ -460,7 +460,7 @@ public class RecordingFragment extends DialogFragment {
                 .registerAudioRecordingCallback(audioRecordingCallback, null);
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.Q)
+    @RequiresApi(api = Build.VERSION_CODES.N)
     private void unregisterAudioRecordingConfigurationChangeCallback() {
         if (audioRecordingCallback != null) {
             ((AudioManager) getContext().getSystemService(Context.AUDIO_SERVICE))
@@ -469,16 +469,26 @@ public class RecordingFragment extends DialogFragment {
         }
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.Q)
     private boolean hasRecordingGoneSilent(List<AudioRecordingConfiguration> configs) {
-        if (recorder == null || recorder.getActiveRecordingConfiguration() == null) {
+        if (recorder == null) {
             return false;
         }
 
-        Optional<AudioRecordingConfiguration> currentAudioConfig =
-                configs.stream().filter(config -> config.getClientAudioSessionId()
-                                == recorder.getActiveRecordingConfiguration().getClientAudioSessionId())
-                        .findAny();
-        return currentAudioConfig.isPresent() ? currentAudioConfig.get().isClientSilenced() : false;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+            if (recorder.getActiveRecordingConfiguration() == null) {
+                return false;
+            }
+
+            Optional<AudioRecordingConfiguration> currentAudioConfig = configs.stream().filter(config ->
+                            config.getClientAudioSessionId() == recorder.getActiveRecordingConfiguration()
+                                    .getClientAudioSessionId())
+                    .findAny();
+            return currentAudioConfig.isPresent() ? currentAudioConfig.get().isClientSilenced() : false;
+        } else {
+            if (recorder.getMaxAmplitude() == 0) {
+                return true;
+            }
+            return false;
+        }
     }
 }
