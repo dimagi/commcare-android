@@ -327,14 +327,14 @@ public class RecordingFragment extends DialogFragment {
     }
 
     private void saveRecording() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            unregisterAudioRecordingConfigurationChangeCallback();
+        }
         if (inPausedState) {
             stopRecording();
         }
         if (listener != null) {
             listener.onRecordingCompletion(fileName);
-        }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            unregisterAudioRecordingConfigurationChangeCallback();
         }
         dismiss();
     }
