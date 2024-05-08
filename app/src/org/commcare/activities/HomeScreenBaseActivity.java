@@ -33,6 +33,7 @@ import org.commcare.activities.components.FormEntryConstants;
 import org.commcare.activities.components.FormEntryInstanceState;
 import org.commcare.activities.components.FormEntrySessionWrapper;
 import org.commcare.activities.connect.ConnectManager;
+import org.commcare.activities.connect.ConnectTask;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
@@ -580,7 +581,10 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
 
     @Override
     public void onActivityResultSessionSafe(int requestCode, int resultCode, Intent intent) {
-        if (resultCode == RESULT_RESTART) {
+        if(requestCode == ConnectTask.CONNECT_VERIFY_ALT_PHONE_MESSAGE.getRequestCode() ||
+                requestCode == ConnectTask.CONNECT_VERIFY_ALT_PHONE.getRequestCode()) {
+            ConnectManager.handleFinishedActivity(requestCode, resultCode, intent);
+        } else if (resultCode == RESULT_RESTART) {
             if (intent != null && intent.hasExtra(EXTRA_ENTITY_KEY))
                 selectedEntityPostSync = intent.getStringExtra(EXTRA_ENTITY_KEY);
 

@@ -273,6 +273,8 @@ public class LoginActivityUiController implements CommCareActivityUIController {
     }
 
     public void updateConnectLoginState() {
+        setConnectButtonVisible(ConnectManager.shouldShowConnectButton());
+
         if (ConnectManager.isConnectIdIntroduced()) {
             String welcomeText = activity.getString(R.string.login_welcome_connect_signed_in,
                     ConnectDatabaseHelper.getUser(activity).getName());

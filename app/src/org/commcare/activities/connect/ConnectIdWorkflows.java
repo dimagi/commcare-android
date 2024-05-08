@@ -57,10 +57,12 @@ public class ConnectIdWorkflows {
                 ConnectTask phase = user.getRegistrationPhase();
                 if (phase != ConnectTask.CONNECT_NO_ACTIVITY) {
                     requestCode = phase;
+                } else if (user.shouldForcePin()) {
+                    requestCode = ConnectTask.CONNECT_UNLOCK_PIN;
+                }else if (user.shouldForcePassword()) {
+                    requestCode = ConnectTask.CONNECT_UNLOCK_PASSWORD;
                 } else {
-                    requestCode = user.shouldForcePassword() ?
-                            ConnectTask.CONNECT_UNLOCK_PASSWORD :
-                            ConnectTask.CONNECT_UNLOCK_BIOMETRIC;
+                    requestCode = ConnectTask.CONNECT_UNLOCK_BIOMETRIC;
                 }
             }
             default -> {
@@ -74,6 +76,15 @@ public class ConnectIdWorkflows {
         }
     }
 
+    public static void beginSecondaryPhoneVerification(CommCareActivity<?> parent, ConnectManager.ConnectActivityCompleteListener callback) {
+        parentActivity = parent;
+        listener = callback;
+
+        phase = ConnectTask.CONNECT_VERIFY_ALT_PHONE_MESSAGE;
+
+        continueWorkflow();
+    }
+
     public static void unlockConnect(CommCareActivity<?> parent, ConnectManager.ConnectActivityCompleteListener callback) {
         parentActivity = parent;
         listener = callback;
@@ -81,9 +92,15 @@ public class ConnectIdWorkflows {
         forgotPin = false;
 
         ConnectUserRecord user = ConnectDatabaseHelper.getUser(parentActivity);
-        phase = user.shouldForcePassword() ?
-                ConnectTask.CONNECT_UNLOCK_PASSWORD :
-                ConnectTask.CONNECT_UNLOCK_BIOMETRIC;
+
+        phase = ConnectTask.CONNECT_UNLOCK_BIOMETRIC;
+        if(user.shouldRequireSecondaryPhoneVerification()) {
+            phase = ConnectTask.CONNECT_UNLOCK_ALT_PHONE_MESSAGE;
+        } else if (user.shouldForcePin()) {
+            phase = ConnectTask.CONNECT_UNLOCK_PIN;
+        } else if (user.shouldForcePassword()) {
+            phase = ConnectTask.CONNECT_UNLOCK_PASSWORD;
+        }
 
         continueWorkflow();
     }
@@ -161,7 +178,9 @@ public class ConnectIdWorkflows {
                 params.put(ConnectConstants.RECOVER, true);
                 params.put(ConnectConstants.CHANGE, true);
             }
-            case CONNECT_RECOVERY_ALT_PHONE_MESSAGE -> {
+            case CONNECT_RECOVERY_ALT_PHONE_MESSAGE,
+                    CONNECT_VERIFY_ALT_PHONE_MESSAGE,
+                    CONNECT_UNLOCK_ALT_PHONE_MESSAGE -> {
                 //Show message screen indicating plan to use alt phone
                 params.put(ConnectConstants.TITLE, R.string.connect_recovery_alt_title);
                 params.put(ConnectConstants.MESSAGE, R.string.connect_recovery_alt_message);
@@ -174,6 +193,14 @@ public class ConnectIdWorkflows {
                 params.put(ConnectConstants.CHANGE, "false");
                 params.put(ConnectConstants.USERNAME, recoveryPhone);
                 params.put(ConnectConstants.PASSWORD, recoverySecret);
+            }
+            case CONNECT_VERIFY_ALT_PHONE, CONNECT_UNLOCK_VERIFY_ALT_PHONE -> {
+                params.put(ConnectConstants.METHOD, String.format(Locale.getDefault(), "%d",
+                        ConnectIdPhoneVerificationActivity.MethodVerifyAlternate));
+                params.put(ConnectConstants.PHONE, null);
+                params.put(ConnectConstants.CHANGE, "false");
+                params.put(ConnectConstants.USERNAME, user.getUserId());
+                params.put(ConnectConstants.PASSWORD, user.getPassword());
             }
             case CONNECT_RECOVERY_SUCCESS -> {
                 //Show message screen indicating success
@@ -391,9 +418,19 @@ public class ConnectIdWorkflows {
                     nextRequestCode = ConnectTask.CONNECT_RECOVERY_VERIFY_ALT_PHONE;
                 }
             }
+            case CONNECT_VERIFY_ALT_PHONE_MESSAGE -> {
+                if (success) {
+                    nextRequestCode = ConnectTask.CONNECT_VERIFY_ALT_PHONE;
+                }
+            }
             case CONNECT_RECOVERY_VERIFY_ALT_PHONE -> {
                 nextRequestCode = success ? ConnectTask.CONNECT_RECOVERY_CHANGE_PIN :
                         ConnectTask.CONNECT_RECOVERY_VERIFY_PRIMARY_PHONE;
+            }
+            case CONNECT_VERIFY_ALT_PHONE -> {
+                if(success) {
+                    completeSignin();
+                }
             }
             case CONNECT_RECOVERY_CHANGE_PIN -> {
                 nextRequestCode = success ? ConnectTask.CONNECT_RECOVERY_SUCCESS :
@@ -441,6 +478,20 @@ public class ConnectIdWorkflows {
 
                         completeSignin();
                     }
+                }
+            }
+            case CONNECT_UNLOCK_ALT_PHONE_MESSAGE -> {
+                if(success) {
+                    nextRequestCode = ConnectTask.CONNECT_UNLOCK_VERIFY_ALT_PHONE;
+                }
+            }
+            case CONNECT_UNLOCK_VERIFY_ALT_PHONE -> {
+                if(success) {
+                    ConnectUserRecord user = ConnectDatabaseHelper.getUser(parentActivity);
+                    user.setSecondaryPhoneVerified(true);
+                    ConnectDatabaseHelper.storeUser(parentActivity, user);
+
+                    completeSignin();
                 }
             }
             default -> {

@@ -2,9 +2,13 @@ package org.commcare.activities.connect;
 
 import android.content.Context;
 import android.content.Intent;
+import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import org.commcare.AppUtils;
+
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.work.BackoffPolicy;
 import androidx.work.Constraints;
 import androidx.work.ExistingPeriodicWorkPolicy;
@@ -169,6 +173,40 @@ public class ConnectManager {
         return SimpleDateFormat.getDateTimeInstance().format(date);
     }
 
+    public static boolean shouldShowSecondaryPhoneConfirmationTile(Context context) {
+        boolean show = false;
+
+        if(isConnectIdIntroduced()) {
+            ConnectUserRecord user = getUser(context);
+            show = !user.getSecondaryPhoneVerified();
+        }
+
+        return show;
+    }
+
+    public static void updateSecondaryPhoneConfirmationTile(Context context, ConstraintLayout tile, boolean show, View.OnClickListener listener) {
+        tile.setVisibility(show ? View.VISIBLE : View.GONE);
+
+        if(show) {
+            ConnectUserRecord user = ConnectManager.getUser(context);
+            Date date = user.getRegistrationDate();
+            date = new Date(date.getTime() + (1000*3600*24*7));
+            String dateStr = ConnectManager.formatDate(date);
+            String message = context.getString(R.string.login_connect_secondary_phone_message, dateStr);
+
+            TextView view = tile.findViewById(R.id.connect_phone_label);
+            view.setText(message);
+
+            TextView yesButton = tile.findViewById(R.id.connect_phone_yes_button);
+            yesButton.setOnClickListener(listener);
+
+            TextView noButton = tile.findViewById(R.id.connect_phone_no_button);
+            noButton.setOnClickListener(v -> {
+                tile.setVisibility(View.GONE);
+            });
+        }
+    }
+
     public static boolean shouldShowSignInMenuOption() {
         if (!AppManagerDeveloperPreferences.isConnectIdEnabled()) {
             return false;
@@ -183,14 +221,6 @@ public class ConnectManager {
         }
 
         return getInstance().connectStatus == ConnectIdStatus.LoggedIn;
-    }
-
-    public static String getConnectButtonText(Context context) {
-        return switch (getInstance().connectStatus) {
-            case Registering, NotIntroduced ->
-                    context.getString(R.string.connect_button_logged_out);
-            case LoggedIn -> context.getString(R.string.connect_button_logged_in);
-        };
     }
 
     public static boolean shouldShowConnectButton() {
@@ -289,6 +319,10 @@ public class ConnectManager {
                 goToConnectJobsList();
             }
         }
+    }
+
+    public static void verifySecondaryPhone(CommCareActivity<?> parent, ConnectActivityCompleteListener listener) {
+        ConnectIdWorkflows.beginSecondaryPhoneVerification(parent, listener);
     }
 
     public static void goToConnectJobsList() {

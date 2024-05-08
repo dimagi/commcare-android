@@ -283,6 +283,11 @@ public class ConnectDatabaseUpgrader {
                     ConnectUserRecord.META_SECONDARY_PHONE_VERIFIED,
                     "TEXT"));
 
+            db.execSQL(DbUtil.addColumnToTable(
+                    ConnectUserRecord.STORAGE_KEY,
+                    ConnectUserRecord.META_REGISTRATION_DATE,
+                    "TEXT"));
+
             SqlStorage<Persistable> oldStorage = new SqlStorage<>(
                     ConnectUserRecord.STORAGE_KEY,
                     ConnectUserRecordV5.class,

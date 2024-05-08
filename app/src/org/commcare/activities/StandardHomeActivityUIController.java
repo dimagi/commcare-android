@@ -1,13 +1,18 @@
 package org.commcare.activities;
 
 import android.annotation.SuppressLint;
-import android.os.Build;
+
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
+
+import android.view.View;
 import android.view.ViewTreeObserver;
+import android.widget.TextView;
 
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
+import org.commcare.activities.connect.ConnectManager;
 import org.commcare.adapters.HomeScreenAdapter;
 import org.commcare.dalvik.R;
 import org.commcare.interfaces.CommCareActivityUIController;
@@ -15,6 +20,7 @@ import org.commcare.preferences.HiddenPreferences;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.suite.model.Profile;
 
+import java.util.Date;
 import java.util.Vector;
 
 /**
@@ -26,6 +32,8 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
 
     private final StandardHomeActivity activity;
 
+    private ConstraintLayout connectTile;
+
     private HomeScreenAdapter adapter;
 
     public StandardHomeActivityUIController(StandardHomeActivity activity) {
@@ -35,6 +43,7 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
     @Override
     public void setupUI() {
         activity.setContentView(R.layout.home_screen);
+        connectTile = activity.findViewById(R.id.connect_alert_tile);
         adapter = new HomeScreenAdapter(activity, getHiddenButtons(), StandardHomeActivity.isDemoUser());
         setupGridView();
     }
@@ -45,6 +54,12 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
             // adapter can be null if backstack was cleared for memory reasons
             adapter.notifyDataSetChanged();
         }
+    }
+
+    public void updateConnectTile(boolean show) {
+        ConnectManager.updateSecondaryPhoneConfirmationTile(activity, connectTile, show, v -> {
+            activity.performSecondaryPhoneVerification();
+        });
     }
 
     private static Vector<String> getHiddenButtons() {

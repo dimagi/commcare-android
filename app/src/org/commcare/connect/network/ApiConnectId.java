@@ -165,7 +165,7 @@ public class ApiConnectId {
         params.put("fcm_token", FirebaseMessagingUtil.getFCMToken());
 
         return ConnectNetworkHelper.post(context,
-                context.getString(R.string.ConnectPhoneAvailableURL),
+                context.getString(R.string.ConnectRegisterURL),
                 API_VERSION_CONNECT_ID, new AuthInfo.NoAuth(), params, false, callback);
     }
 
@@ -238,6 +238,17 @@ public class ApiConnectId {
                 API_VERSION_CONNECT_ID, authInfo, params, false, callback);
     }
 
+    public static boolean requestVerificationOtpSecondary(Context context, String username, String password,
+                                                      IApiCallback callback) {
+        int urlId = R.string.ConnectVerifySecondaryURL;
+        AuthInfo authInfo = new AuthInfo.ProvidedAuth(username, password, false);
+
+        HashMap<String, String> params = new HashMap<>();
+
+        return ConnectNetworkHelper.post(context, context.getString(urlId),
+                API_VERSION_CONNECT_ID, authInfo, params, false, callback);
+    }
+
     public static boolean confirmRegistrationOtpPrimary(Context context, String username, String password,
                                                         String token, IApiCallback callback) {
         int urlId = R.string.ConnectConfirmOTPURL;
@@ -272,6 +283,18 @@ public class ApiConnectId {
         HashMap<String, String> params = new HashMap<>();
         params.put("phone", phone);
         params.put("secret_key", secret);
+        params.put("token", token);
+
+        return ConnectNetworkHelper.post(context, context.getString(urlId),
+                API_VERSION_CONNECT_ID, authInfo, params, false, callback);
+    }
+
+    public static boolean confirmVerificationOtpSecondary(Context context, String username, String password,
+                                                      String token, IApiCallback callback) {
+        int urlId = R.string.ConnectVerifyConfirmSecondaryOTPURL;
+        AuthInfo authInfo = new AuthInfo.ProvidedAuth(username, password, false);
+
+        HashMap<String, String> params = new HashMap<>();
         params.put("token", token);
 
         return ConnectNetworkHelper.post(context, context.getString(urlId),

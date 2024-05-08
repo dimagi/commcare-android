@@ -149,7 +149,6 @@ public class ApiConnect {
             HashMap<String, String> params = new HashMap<>();
             params.put("opportunity", String.format(Locale.getDefault(), "%d", jobId));
 
-            //TODO DAV: This was postInternal, is that ok?
             ConnectNetworkHelper.post(context, url, API_VERSION_CONNECT, token, params, true, handler);
         });
 

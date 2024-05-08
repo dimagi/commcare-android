@@ -20,6 +20,7 @@ import org.commcare.models.database.AndroidDbHelper;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.models.database.connect.DatabaseConnectOpenHelper;
 import org.commcare.modern.database.Table;
+import org.commcare.modern.database.TableBuilder;
 import org.commcare.utils.EncryptionUtils;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.storage.Persistable;
@@ -109,9 +110,15 @@ public class ConnectDatabaseHelper {
 
     public static void forgetUser(Context context) {
         getConnectStorage(context, ConnectUserRecord.class).removeAll();
+        getConnectStorage(context, ConnectLinkedAppRecord.class).removeAll();
+        getConnectStorage(context, ConnectJobRecord.class).removeAll();
+        getConnectStorage(context, ConnectAppRecord.class).removeAll();
+        getConnectStorage(context, ConnectLearnModuleSummaryRecord.class).removeAll();
+        getConnectStorage(context, ConnectJobLearningRecord.class).removeAll();
+        getConnectStorage(context, ConnectJobAssessmentRecord.class).removeAll();
+        getConnectStorage(context, ConnectJobDeliveryRecord.class).removeAll();
+        getConnectStorage(context, ConnectJobPaymentRecord.class).removeAll();
     }
-
-
 
     public static ConnectLinkedAppRecord getAppData(Context context, String appId, String username) {
         Vector<ConnectLinkedAppRecord> records = getConnectStorage(context, ConnectLinkedAppRecord.class)

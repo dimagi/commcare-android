@@ -37,6 +37,7 @@ public class ConnectIdPhoneVerificationActivity extends CommCareActivity<Connect
     public static final int MethodRegistrationPrimary = 1;
     public static final int MethodRecoveryPrimary = 2;
     public static final int MethodRecoveryAlternate = 3;
+    public static final int MethodVerifyAlternate = 4;
 
     private int method;
     private String primaryPhone;
@@ -212,6 +213,9 @@ public class ConnectIdPhoneVerificationActivity extends CommCareActivity<Connect
             case MethodRecoveryAlternate -> {
                 isBusy = !ApiConnectId.requestRecoveryOtpSecondary(this, username, password, callback);
             }
+            case MethodVerifyAlternate -> {
+                isBusy = !ApiConnectId.requestVerificationOtpSecondary(this, username, password, callback);
+            }
             default -> {
                 isBusy = !ApiConnectId.requestRegistrationOtpPrimary(this, username, password, callback);
             }
@@ -255,8 +259,13 @@ public class ConnectIdPhoneVerificationActivity extends CommCareActivity<Connect
                     } catch (IOException | JSONException e) {
                         Logger.exception("Parsing return from confirm_secondary_otp", e);
                     }
-                }
-                else {
+                } else {
+                    if (method == MethodVerifyAlternate) {
+                        ConnectUserRecord user = ConnectManager.getUser(getApplicationContext());
+                        user.setSecondaryPhoneVerified(true);
+                        ConnectDatabaseHelper.storeUser(context, user);
+                    }
+
                     finish(true, false);
                 }
             }
@@ -292,6 +301,9 @@ public class ConnectIdPhoneVerificationActivity extends CommCareActivity<Connect
             case MethodRecoveryAlternate -> {
                 isBusy = !ApiConnectId.confirmRecoveryOtpSecondary(this, username, password, token, callback);
             }
+            case MethodVerifyAlternate -> {
+                isBusy = !ApiConnectId.confirmVerificationOtpSecondary(this, username, password, token, callback);
+            }
             default -> {
                 isBusy = !ApiConnectId.confirmRegistrationOtpPrimary(this, username, password, token, callback);
             }
@@ -311,6 +323,7 @@ public class ConnectIdPhoneVerificationActivity extends CommCareActivity<Connect
                 //TODO: Need to get secondary phone from server
                 ConnectUserRecord user = new ConnectUserRecord(phone, username,
                         password, name, recoveryPhone);
+                user.setSecondaryPhoneVerified(true);
                 ConnectDatabaseHelper.storeUser(context, user);
 
                 finish(true, false);

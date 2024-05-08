@@ -84,6 +84,12 @@ public class ConnectActivity extends CommCareActivity<ResourceEngineListener> {
     }
 
     @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        ConnectManager.handleFinishedActivity(requestCode, resultCode, intent);
+        super.onActivityResult(requestCode, resultCode, intent);
+    }
+
+    @Override
     public CustomProgressDialog generateProgressDialog(int taskId) {
         if(waitDialogEnabled) {
             return CustomProgressDialog.newInstance(null, getString(R.string.please_wait), taskId);

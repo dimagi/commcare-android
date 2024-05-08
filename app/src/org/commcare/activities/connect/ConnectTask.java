@@ -61,7 +61,16 @@ public enum ConnectTask {
     CONNECT_RECOVERY_CONFIGURE_BIOMETRICS(ConnectConstants.ConnectIdTaskIdOffset + 28,
             ConnectIdVerificationActivity.class),
     CONNECT_RECOVERY_UNLOCK_BIOMETRIC(ConnectConstants.ConnectIdTaskIdOffset + 29,
-            ConnectIdLoginActivity.class);
+            ConnectIdLoginActivity.class),
+    CONNECT_VERIFY_ALT_PHONE_MESSAGE(ConnectConstants.ConnectIdTaskIdOffset + 30,
+            ConnectIdMessageActivity.class),
+    CONNECT_VERIFY_ALT_PHONE(ConnectConstants.ConnectIdTaskIdOffset + 31,
+            ConnectIdPhoneVerificationActivity.class),
+    CONNECT_UNLOCK_ALT_PHONE_MESSAGE(ConnectConstants.ConnectIdTaskIdOffset + 32,
+            ConnectIdMessageActivity.class),
+    CONNECT_UNLOCK_VERIFY_ALT_PHONE(ConnectConstants.ConnectIdTaskIdOffset + 33,
+            ConnectIdPhoneVerificationActivity.class)
+    ;
 
     private final int requestCode;
     private final Class<?> nextActivity;

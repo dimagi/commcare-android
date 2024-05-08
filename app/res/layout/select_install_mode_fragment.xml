@@ -49,7 +49,7 @@
                     android:paddingBottom="@dimen/content_start"
                     android:paddingTop="@dimen/content_start"
                     android:visibility="gone"
-                    android:text="@string/login_button_connect" />
+                    android:text="@string/connect_button_logged_in" />
 
                 <TextView
                     android:id="@+id/login_or"

@@ -33,7 +33,7 @@ public class DatabaseConnectOpenHelper extends SQLiteOpenHelper {
      * V.4 - Added confirmed and confirmedDate fields to ConnectJobPaymentRecord
      *          Added link offer info to ConnectLinkedAppRecord
      * V.5 - Added projectStartDate and isActive to ConnectJobRecord
-     * V.6 - Added pin and secondaryPhoneVerified fields to ConnectUserRecord
+     * V.6 - Added pin,secondaryPhoneVerified, and registrationDate fields to ConnectUserRecord
      */
     private static final int CONNECT_DB_VERSION = 6;
 

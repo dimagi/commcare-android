@@ -32,7 +32,6 @@ import org.commcare.CommCareApplication;
 import org.commcare.activities.connect.ConnectManager;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
-import org.commcare.commcaresupportlibrary.CommCareLauncher;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.engine.resource.AppInstallStatus;
@@ -59,7 +58,6 @@ import org.commcare.views.UserfacingErrorHandling;
 import org.commcare.views.ViewUtil;
 import org.commcare.views.dialogs.CustomProgressDialog;
 import org.commcare.views.dialogs.DialogCreationHelpers;
-import org.commcare.views.dialogs.StandardAlertDialog;
 import org.commcare.views.notifications.MessageTag;
 import org.commcare.views.notifications.NotificationActionButtonInfo;
 import org.commcare.views.notifications.NotificationMessage;
@@ -129,7 +127,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         formAndDataSyncer = new FormAndDataSyncer();
 
         ConnectManager.init(this);
-        updateConnectButton();
+        uiController.updateConnectLoginState();
 
         presetAppId = getIntent().getStringExtra(EXTRA_APP_ID);
         appAutoLaunchPerformed = false;
@@ -294,7 +292,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         // Otherwise, refresh the activity for current conditions
         uiController.refreshView();
 
-        updateConnectButton();
+        uiController.updateConnectLoginState();
         checkForSavedCredentials();
 
         ConnectManager.setParent(this);
@@ -502,13 +500,6 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
             //ConnectManager.forgetAppCredentials(record.getUniqueId(), getUniformUsername());
             //checkForSavedCredentials();
         }
-    }
-
-    private void updateConnectButton() {
-        uiController.setConnectButtonText(ConnectManager.getConnectButtonText(this));
-        uiController.setConnectButtonVisible(ConnectManager.shouldShowConnectButton());
-
-        uiController.updateConnectLoginState();
     }
 
     public void registerConnectIdUser() {

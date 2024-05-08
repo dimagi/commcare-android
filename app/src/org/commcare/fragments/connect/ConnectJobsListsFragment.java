@@ -3,6 +3,7 @@ package org.commcare.fragments.connect;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.Lifecycle;
@@ -17,6 +18,7 @@ import android.widget.TextView;
 
 import com.google.android.material.tabs.TabLayout;
 
+import org.commcare.activities.CommCareActivity;
 import org.commcare.activities.connect.ConnectDatabaseHelper;
 import org.commcare.activities.connect.ConnectManager;
 import org.commcare.connect.network.ConnectNetworkHelper;
@@ -46,6 +48,7 @@ import java.util.Locale;
  * @author dviggiano
  */
 public class ConnectJobsListsFragment extends Fragment {
+    private ConstraintLayout connectTile;
     private TabLayout tabLayout;
     private ViewPager2 viewPager;
     private ViewStateAdapter viewStateAdapter;
@@ -72,6 +75,8 @@ public class ConnectJobsListsFragment extends Fragment {
         ConnectManager.setActiveJob(null);
 
         View view = inflater.inflate(R.layout.fragment_connect_jobs_list, container, false);
+
+        connectTile = view.findViewById(R.id.connect_alert_tile);
 
         updateText = view.findViewById(R.id.connect_jobs_last_update);
         updateUpdatedDate(ConnectDatabaseHelper.getLastJobsUpdate(getContext()));
@@ -115,6 +120,7 @@ public class ConnectJobsListsFragment extends Fragment {
         });
 
         chooseTab();
+        refreshUi();
         refreshData();
 
         return view;
@@ -178,12 +184,23 @@ public class ConnectJobsListsFragment extends Fragment {
     private void refreshUi() {
         try {
             updateUpdatedDate(new Date());
+            updateSecondaryPhoneConfirmationTile();
             viewStateAdapter.refresh();
             chooseTab();
         }
         catch(Exception e) {
             //Ignore exception, happens if we leave the page before API call finishes
         }
+    }
+
+    private void updateSecondaryPhoneConfirmationTile() {
+        boolean show = ConnectManager.shouldShowSecondaryPhoneConfirmationTile(getContext());
+
+        ConnectManager.updateSecondaryPhoneConfirmationTile(getContext(), connectTile, show, v -> {
+            ConnectManager.verifySecondaryPhone((CommCareActivity<?>)getActivity(), success -> {
+                updateSecondaryPhoneConfirmationTile();
+            });
+        });
     }
 
     private void updateUpdatedDate(Date lastUpdate) {
