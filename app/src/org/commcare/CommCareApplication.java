@@ -35,7 +35,9 @@ import net.sqlcipher.database.SQLiteDatabase;
 import net.sqlcipher.database.SQLiteException;
 
 import org.commcare.activities.LoginActivity;
+import org.commcare.activities.connect.ConnectManager;
 import org.commcare.android.database.app.models.UserKeyRecord;
+import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.javarosa.AndroidLogEntry;
 import org.commcare.android.logging.ForceCloseLogEntry;
@@ -54,6 +56,7 @@ import org.commcare.dalvik.R;
 import org.commcare.engine.references.ArchiveFileRoot;
 import org.commcare.engine.references.AssetFileRoot;
 import org.commcare.engine.references.JavaHttpRoot;
+import org.commcare.google.services.analytics.CCAnalyticsParam;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.heartbeat.HeartbeatRequester;
 import org.commcare.logging.AndroidLogger;
@@ -419,6 +422,11 @@ public class CommCareApplication extends MultiDexApplication {
             analyticsInstance = FirebaseAnalytics.getInstance(this);
         }
         analyticsInstance.setUserId(getUserIdOrNull());
+
+        ConnectUserRecord user = ConnectManager.getUser(this);
+        if(user != null) {
+            analyticsInstance.setUserProperty("user_cid", user.getUserId());
+        }
         return analyticsInstance;
     }
 
