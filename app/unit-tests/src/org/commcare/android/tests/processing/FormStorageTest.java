@@ -358,6 +358,7 @@ public class FormStorageTest {
             , "org.commcare.suite.model.QueryGroup"
             , "org.commcare.android.database.connect.models.ConnectLinkedAppRecordV3"
             , "org.commcare.android.database.connect.models.ConnectLinkedAppRecord"
+            , "org.commcare.android.database.connect.models.ConnectUserRecordV5"
             , "org.commcare.android.database.connect.models.ConnectUserRecord"
             , "org.commcare.android.database.connect.models.ConnectAppRecord"
             , "org.commcare.android.database.connect.models.ConnectJobDeliveryRecordV2"
