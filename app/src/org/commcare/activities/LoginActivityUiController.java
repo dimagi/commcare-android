@@ -176,10 +176,6 @@ public class LoginActivityUiController implements CommCareActivityUIController {
                 .performIntentCalloutToNotificationsView(activity));
     }
 
-    public void setConnectButtonText(String text) {
-        connectLoginButton.setText(text);
-    }
-
     public void setConnectButtonVisible(Boolean visible) {
         connectLoginButton.setVisibility(visible ? View.VISIBLE : View.GONE);
         orLabel.setVisibility(visible ? View.VISIBLE : View.GONE);
@@ -225,7 +221,6 @@ public class LoginActivityUiController implements CommCareActivityUIController {
 
         // Decide whether or not to show the app selection spinner based upon # of usable apps
         ArrayList<ApplicationRecord> readyApps = MultipleAppsUtil.getUsableAppRecords();
-        ConnectManager.filterConnectManagedApps(activity, readyApps, activity.getPresetAppId());
 
         ApplicationRecord presetAppRecord = getPresetAppRecord(readyApps);
         boolean noApps = readyApps.isEmpty();

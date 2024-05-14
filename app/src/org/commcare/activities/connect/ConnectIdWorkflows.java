@@ -94,9 +94,7 @@ public class ConnectIdWorkflows {
         ConnectUserRecord user = ConnectDatabaseHelper.getUser(parentActivity);
 
         phase = ConnectTask.CONNECT_UNLOCK_BIOMETRIC;
-        if(user.shouldRequireSecondaryPhoneVerification()) {
-            phase = ConnectTask.CONNECT_UNLOCK_ALT_PHONE_MESSAGE;
-        } else if (user.shouldForcePin()) {
+        if (user.shouldForcePin()) {
             phase = ConnectTask.CONNECT_UNLOCK_PIN;
         } else if (user.shouldForcePassword()) {
             phase = ConnectTask.CONNECT_UNLOCK_PASSWORD;
@@ -454,11 +452,28 @@ public class ConnectIdWorkflows {
             }
             case CONNECT_UNLOCK_BIOMETRIC -> {
                 if (success) {
-                    completeSignin();
+                    ConnectUserRecord user = ConnectDatabaseHelper.getUser(parentActivity);
+                    if(user.shouldRequireSecondaryPhoneVerification()) {
+                        nextRequestCode = ConnectTask.CONNECT_UNLOCK_ALT_PHONE_MESSAGE;
+                    } else {
+                        completeSignin();
+                    }
                 } else if (intent != null && intent.getBooleanExtra(ConnectConstants.PASSWORD, false)) {
                     nextRequestCode = ConnectTask.CONNECT_UNLOCK_PASSWORD;
                 } else if (intent != null && intent.getBooleanExtra(ConnectConstants.RECOVER, false)) {
                     nextRequestCode = ConnectTask.CONNECT_RECOVERY_PRIMARY_PHONE;
+                }
+            }
+            case CONNECT_UNLOCK_PIN -> {
+                nextRequestCode = ConnectTask.CONNECT_RECOVERY_VERIFY_PRIMARY_PHONE;
+                if (success) {
+                    forgotPin = intent.getBooleanExtra(ConnectConstants.FORGOT, false);
+                    if (forgotPin) {
+                        //Begin the recovery workflow
+                        nextRequestCode = ConnectTask.CONNECT_RECOVERY_PRIMARY_PHONE;
+                    } else {
+                        nextRequestCode = ConnectTask.CONNECT_RECOVERY_SUCCESS;
+                    }
                 }
             }
             case CONNECT_UNLOCK_PASSWORD -> {
@@ -476,7 +491,11 @@ public class ConnectIdWorkflows {
                         user.setLastPinDate(new Date());
                         ConnectDatabaseHelper.storeUser(parentActivity, user);
 
-                        completeSignin();
+                        if(user.shouldRequireSecondaryPhoneVerification()) {
+                            nextRequestCode = ConnectTask.CONNECT_UNLOCK_ALT_PHONE_MESSAGE;
+                        } else {
+                            completeSignin();
+                        }
                     }
                 }
             }

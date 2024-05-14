@@ -200,9 +200,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
      *                       upon successful login
      */
     protected void initiateLoginAttempt(boolean restoreSession) {
-        boolean connectJobs = isConnectJobsSelected();
-
-        if(connectJobs) {
+        if(isConnectJobsSelected()) {
             ConnectManager.unlockConnect(this, success -> {
                 if(success) {
                     ConnectManager.goToConnectJobsList();
@@ -484,6 +482,8 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
             ConnectManager.checkConnectIdLink(this, uiController.loginManagedByConnectId(), appId, username, pass, success -> {
                 goToAppHomeAndFinish();
             });
+
+            ConnectManager.setConnectJobForApp(this, appId);
 
             return false;
         }

@@ -10,12 +10,10 @@ import android.widget.TextView;
 
 import org.commcare.activities.CommCareActivity;
 import org.commcare.activities.connect.ConnectManager;
-import org.commcare.android.database.connect.models.ConnectJobDeliveryRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.dalvik.R;
 import org.commcare.views.dialogs.StandardAlertDialog;
 import org.javarosa.core.services.locale.Localization;
-import org.joda.time.LocalDate;
 
 import java.util.Date;
 import java.util.Locale;
@@ -126,16 +124,8 @@ public class ConnectDeliveryProgressDeliveryFragment extends Fragment {
         textView = view.findViewById(R.id.connect_progress_status_text);
         textView.setText(getString(R.string.connect_progress_status, completed, total));
 
-        int totalVisitCount = 0;
-        int dailyVisitCount = 0;
-        Date today = new Date();
-        for (ConnectJobDeliveryRecord record : job.getDeliveries()) {
-            totalVisitCount++;
-            if(sameDay(today, record.getDate())) {
-                dailyVisitCount++;
-            }
-        }
-
+        int totalVisitCount = job.getDeliveries().size();
+        int dailyVisitCount = job.numberOfDeliveriesToday();
         boolean finished = job.isFinished();
 
         int warningTextId = -1;
@@ -182,12 +172,5 @@ public class ConnectDeliveryProgressDeliveryFragment extends Fragment {
                 });
             ((CommCareActivity<?>)getActivity()).showAlertDialog(dialog);
         });
-    }
-
-    private static boolean sameDay(Date date1, Date date2) {
-        LocalDate dt1 = new LocalDate(date1);
-        LocalDate dt2 = new LocalDate(date2);
-
-        return dt1.equals(dt2);
     }
 }

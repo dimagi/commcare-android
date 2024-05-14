@@ -777,4 +777,6 @@
     <string name="connect_app_installed">App installed</string>
     <string name="app_with_id_not_found">Required CommCare App is not installed on device</string>
     <string name="phone_code_plus">+</string>
+
+    <string name="connect_home_progress_today">Today\'s Visits: %d</string>
 </resources>

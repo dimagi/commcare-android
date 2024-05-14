@@ -69,7 +69,9 @@ public enum ConnectTask {
     CONNECT_UNLOCK_ALT_PHONE_MESSAGE(ConnectConstants.ConnectIdTaskIdOffset + 32,
             ConnectIdMessageActivity.class),
     CONNECT_UNLOCK_VERIFY_ALT_PHONE(ConnectConstants.ConnectIdTaskIdOffset + 33,
-            ConnectIdPhoneVerificationActivity.class)
+            ConnectIdPhoneVerificationActivity.class),
+    CONNECT_JOB_INFO(ConnectConstants.ConnectIdTaskIdOffset + 34,
+            ConnectActivity.class),
     ;
 
     private final int requestCode;
@@ -96,5 +98,15 @@ public enum ConnectTask {
         }
 
         return ConnectTask.CONNECT_NO_ACTIVITY;
+    }
+
+    public static boolean isConnectTaskCode(int code) {
+        for (ConnectTask task : ConnectTask.values()) {
+            if (task.requestCode == code) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

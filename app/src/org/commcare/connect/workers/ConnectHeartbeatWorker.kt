@@ -6,7 +6,7 @@ import androidx.work.WorkerParameters
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.commcare.activities.connect.ConnectManager
-import org.commcare.connect.network.ApiConnect
+import org.commcare.connect.network.ApiConnectId
 
 class ConnectHeartbeatWorker(context: Context, workerParams: WorkerParameters) :
     CoroutineWorker(context, workerParams) {
@@ -24,7 +24,7 @@ class ConnectHeartbeatWorker(context: Context, workerParams: WorkerParameters) :
             //val response = connectNetworkService.makeHeartbeatRequest(requestBody)!!.execute()
             //return@withContext if (response.isSuccessful) Result.success() else Result.failure()
 
-            val result = ApiConnect.makeHeartbeatRequestSync(applicationContext);
+            val result = ApiConnectId.makeHeartbeatRequestSync(applicationContext);
             return@withContext if (result.responseCode in 200..299) Result.success() else Result.failure()
         }
     }

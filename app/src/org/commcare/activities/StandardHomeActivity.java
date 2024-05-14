@@ -127,6 +127,7 @@ public class StandardHomeActivity
     protected void updateUiAfterDataPullOrSend(String message, boolean success) {
         displayToast(message);
         uiController.updateSyncButtonMessage(message);
+        uiController.updateConnectProgress();
     }
 
     @Override

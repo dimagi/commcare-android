@@ -483,6 +483,23 @@ public class ConnectDatabaseHelper {
         }
     }
 
+    public static ConnectAppRecord getAppRecord(Context context, String appId) {
+        Vector<ConnectAppRecord> records = getConnectStorage(context, ConnectAppRecord.class).getRecordsForValues(
+                new String[]{ConnectAppRecord.META_APP_ID},
+                new Object[]{appId});
+        return records.isEmpty() ? null: records.firstElement();
+    }
+
+    public static ConnectJobRecord getJob(Context context, int jobId) {
+        Vector<ConnectJobRecord> jobs = getConnectStorage(context, ConnectJobRecord.class).getRecordsForValues(
+                    new String[]{ConnectJobRecord.META_JOB_ID},
+                    new Object[]{jobId});
+
+        populateJobs(context, jobs);
+
+        return jobs.isEmpty() ? null : jobs.firstElement();
+    }
+
     public static List<ConnectJobRecord> getJobs(Context context, int status, SqlStorage<ConnectJobRecord> jobStorage) {
         if(jobStorage == null) {
             jobStorage = getConnectStorage(context, ConnectJobRecord.class);
@@ -497,6 +514,12 @@ public class ConnectDatabaseHelper {
             jobs = jobStorage.getRecordsForValues(new String[]{}, new Object[]{});
         }
 
+        populateJobs(context, jobs);
+
+        return new ArrayList<>(jobs);
+    }
+
+    private static void populateJobs(Context context, Vector<ConnectJobRecord> jobs) {
         SqlStorage<ConnectAppRecord> appInfoStorage = getConnectStorage(context, ConnectAppRecord.class);
         SqlStorage<ConnectLearnModuleSummaryRecord> moduleStorage = getConnectStorage(context, ConnectLearnModuleSummaryRecord.class);
         SqlStorage<ConnectJobDeliveryRecord> deliveryStorage = getConnectStorage(context, ConnectJobDeliveryRecord.class);
@@ -541,8 +564,6 @@ public class ConnectDatabaseHelper {
             job.setLearnings(getLearnings(context, job.getJobId(), learningStorage));
             job.setAssessments(getAssessments(context, job.getJobId(), assessmentStorage));
         }
-
-        return new ArrayList<>(jobs);
     }
 
     public static List<ConnectJobRecord> getAvailableJobs(Context context) {

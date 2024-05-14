@@ -9,10 +9,13 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.ActionBar;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
+import androidx.navigation.NavGraph;
+import androidx.navigation.Navigation;
 import androidx.navigation.fragment.NavHostFragment;
 
 import org.commcare.activities.CommCareActivity;
 import org.commcare.activities.CommCareVerificationActivity;
+import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.dalvik.R;
 import org.commcare.fragments.connect.ConnectDownloadingFragment;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
@@ -45,11 +48,35 @@ public class ConnectActivity extends CommCareActivity<ResourceEngineListener> {
         setTitle(getString(R.string.connect_title));
         showBackButton();
 
+        boolean showJobInfo = getIntent().getBooleanExtra("info", false);
+
         destinationListener = FirebaseAnalyticsUtil.getDestinationChangeListener();
 
-        NavHostFragment navHostFragment = (NavHostFragment)getSupportFragmentManager()
-                .findFragmentById(R.id.nav_host_fragment_connect);
-        navHostFragment.getNavController().addOnDestinationChangedListener(destinationListener);
+        NavHostFragment host = (NavHostFragment)getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment_connect);
+        NavController navController = host.getNavController();
+        navController.addOnDestinationChangedListener(destinationListener);
+
+        NavGraph graph = navController.getNavInflater().inflate(R.navigation.nav_graph_connect);
+
+        int startId = showJobInfo ? R.id.connect_job_intro_fragment : R.id.connect_jobs_list_fragment;
+        ConnectJobRecord job = ConnectManager.getActiveJob();
+        if(showJobInfo && job != null) {
+            switch(job.getStatus()) {
+                case ConnectJobRecord.STATUS_AVAILABLE,
+                        ConnectJobRecord.STATUS_AVAILABLE_NEW -> {
+                    startId = R.id.connect_job_intro_fragment;
+                }
+                case ConnectJobRecord.STATUS_LEARNING -> {
+                    startId = R.id.connect_job_learning_progress_fragment;
+                }
+                case ConnectJobRecord.STATUS_DELIVERING -> {
+                    startId = R.id.connect_job_delivery_progress_fragment;
+                }
+            }
+        }
+
+        graph.setStartDestination(startId);
+        navController.setGraph(graph);
     }
 
     @Override

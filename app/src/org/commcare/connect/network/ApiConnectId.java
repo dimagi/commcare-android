@@ -24,6 +24,19 @@ import java.util.HashMap;
 public class ApiConnectId {
     private static final String API_VERSION_CONNECT_ID = "1.0";
 
+    public static ConnectNetworkHelper.PostResult makeHeartbeatRequestSync(Context context) {
+        String url = context.getString(R.string.ConnectHeartbeatURL);
+        HashMap<String, String> params = new HashMap<>();
+        String token = FirebaseMessagingUtil.getFCMToken();
+        if(token != null) {
+            params.put("fcm_token", token);
+            boolean useFormEncoding = true;
+            return ConnectNetworkHelper.postSync(context, url, API_VERSION_CONNECT_ID, ConnectManager.getConnectToken(), params, useFormEncoding);
+        }
+
+        return new ConnectNetworkHelper.PostResult(-1, null, null);
+    }
+
     public static AuthInfo.TokenAuth retrieveConnectIdTokenSync(Context context) {
         AuthInfo.TokenAuth connectToken = ConnectManager.getConnectToken();
         if (connectToken != null) {

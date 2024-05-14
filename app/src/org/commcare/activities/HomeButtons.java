@@ -6,6 +6,7 @@ import android.text.Spannable;
 import android.view.View;
 import android.widget.Toast;
 
+import org.commcare.activities.connect.ConnectManager;
 import org.commcare.adapters.HomeCardDisplayData;
 import org.commcare.adapters.SquareButtonViewHolder;
 import org.commcare.dalvik.R;
@@ -27,7 +28,7 @@ import java.util.Vector;
 public class HomeButtons {
 
     private final static String[] buttonNames =
-            new String[]{"start", "training", "saved", "incomplete", "sync", "report", "logout"};
+            new String[]{"start", "training", "saved", "incomplete", "sync", "connect", "report", "logout"};
 
     /**
      * Note: The order in which home cards are returned by this method should be consistent with
@@ -75,6 +76,9 @@ public class HomeButtons {
                         getSyncButtonListener(activity),
                         getSyncButtonSubTextListener(activity),
                         getSyncButtonTextSetter(activity)),
+                HomeCardDisplayData.homeCardDataWithStaticText(Localization.get("home.connect"), R.color.white,
+                        R.drawable.home_saved, R.color.orange_500,
+                        getConnectButtonListener(activity)),
                 HomeCardDisplayData.homeCardDataWithStaticText(Localization.get("home.report"), R.color.white,
                         R.drawable.home_report, R.color.cc_attention_negative_color,
                         getReportButtonListener(activity)),
@@ -201,6 +205,13 @@ public class HomeButtons {
 
     private static void reportButtonClick(String buttonLabel) {
         FirebaseAnalyticsUtil.reportHomeButtonClick(buttonLabel);
+    }
+
+    private static View.OnClickListener getConnectButtonListener(final StandardHomeActivity activity) {
+        return v -> {
+            reportButtonClick(AnalyticsParamValue.CONNECT_BUTTON);
+            ConnectManager.goToActiveInfoForJob(activity);
+        };
     }
 
     public interface TextSetter {

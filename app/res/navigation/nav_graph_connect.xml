@@ -3,7 +3,6 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph_connect"
-    app:startDestination="@id/connect_jobs_list_fragment"
     >
 
     <fragment
@@ -23,6 +22,9 @@
         <action
             android:id="@+id/action_connect_jobs_list_fragment_to_connect_job_delivery_progress_fragment"
             app:destination="@id/connect_job_delivery_progress_fragment" />
+        <action
+            android:id="@+id/action_connect_jobs_list_fragment_to_connect_downloading_fragment"
+            app:destination="@id/connect_downloading_fragment" />
 
     </fragment>
 

@@ -1,5 +1,6 @@
 package org.commcare.activities.connect;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.view.View;
@@ -18,6 +19,7 @@ import androidx.work.WorkManager;
 
 import org.commcare.activities.CommCareActivity;
 import org.commcare.android.database.app.models.UserKeyRecord;
+import org.commcare.android.database.connect.models.ConnectAppRecord;
 import org.commcare.android.database.connect.models.ConnectJobPaymentRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
@@ -54,6 +56,7 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
+import java.util.Vector;
 
 import javax.crypto.SecretKey;
 
@@ -231,6 +234,10 @@ public class ConnectManager {
         return getInstance().connectStatus == ConnectIdStatus.LoggedIn;
     }
 
+    public static boolean isConnectTask(int code) {
+        return ConnectTask.isConnectTaskCode(code);
+    }
+
     public static void handleFinishedActivity(int requestCode, int resultCode, Intent intent) {
         if(ConnectIdWorkflows.handleFinishedActivity(requestCode, resultCode, intent)) {
             getInstance().connectStatus = ConnectIdStatus.Registering;
@@ -261,23 +268,6 @@ public class ConnectManager {
 
         manager.connectStatus = ConnectIdStatus.NotIntroduced;
         manager.loginListener = null;
-    }
-
-    public static void filterConnectManagedApps(Context context, ArrayList<ApplicationRecord> readyApps, String presetAppId) {
-        if(ConnectManager.isConnectIdIntroduced()) {
-            //We need to remove any apps that are managed by Connect
-            String username = ConnectManager.getUser(context).getUserId().toLowerCase(Locale.getDefault());
-            for(int i= readyApps.size()-1; i>=0; i--) {
-                String appId = readyApps.get(i).getUniqueId();
-                //Preset app needs to remain in the list if set
-                if(!appId.equals(presetAppId)) {
-                    if (isLoginManagedByConnectId(appId, username)) {
-                        //Creds stored for the CID username indicates this app is managed by Connect
-                        readyApps.remove(i);
-                    }
-                }
-            }
-        }
     }
 
     public static void unlockConnect(CommCareActivity<?> parent, ConnectActivityCompleteListener listener) {
@@ -329,6 +319,17 @@ public class ConnectManager {
         ConnectTask task = ConnectTask.CONNECT_MAIN;
         Intent i = new Intent(manager.parentActivity, task.getNextActivity());
         manager.parentActivity.startActivityForResult(i, task.getRequestCode());
+    }
+
+    public static void goToActiveAppForJob() {
+
+    }
+
+    public static void goToActiveInfoForJob(Activity activity) {
+        ConnectTask task = ConnectTask.CONNECT_JOB_INFO;
+        Intent i = new Intent(activity, task.getNextActivity());
+        i.putExtra("info", true);
+        activity.startActivityForResult(i, task.getRequestCode());
     }
 
     public static void forgetAppCredentials(String appId, String userId) {
@@ -458,6 +459,10 @@ public class ConnectManager {
     public static boolean isLoginManagedByConnectId(String appId, String userId) {
         AuthInfo.ProvidedAuth auth = getCredentialsForApp(appId, userId);
         return auth != null;
+    }
+
+    public static ConnectAppRecord getAppRecord(Context context, String appId) {
+        return ConnectDatabaseHelper.getAppRecord(context, appId);
     }
 
     public static String getStoredPasswordForApp(String appId, String userId) {
@@ -673,6 +678,13 @@ public class ConnectManager {
         }
 
         return password.toString();
+    }
+
+    public static void setConnectJobForApp(Context context, String appId) {
+        ConnectAppRecord appRecord = getAppRecord(context, appId);
+        if(appRecord != null) {
+            setActiveJob(ConnectDatabaseHelper.getJob(context, appRecord.getJobId()));
+        }
     }
 
     private static ConnectJobRecord activeJob = null;

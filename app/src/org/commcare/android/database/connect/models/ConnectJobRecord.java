@@ -5,6 +5,7 @@ import org.commcare.android.storage.framework.Persisted;
 import org.commcare.models.framework.Persisting;
 import org.commcare.modern.database.Table;
 import org.commcare.modern.models.MetaField;
+import org.joda.time.LocalDate;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -334,7 +335,6 @@ public class ConnectJobRecord extends Persisted implements Serializable {
     public String getOrganization() { return organization; }
     public int getTotalBudget() { return totalBudget; }
     public Date getLastWorkedDate() { return lastWorkedDate; }
-    public int getLearningModulesCompleted() { return learningModulesCompleted; }
     public Date getDateClaimed() { return dateClaimed; }
     public boolean getIsActive() { return isActive; }
 
@@ -345,6 +345,25 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         }
 
         return String.format(Locale.getDefault(), "%d%s", value, currency);
+    }
+
+    public int numberOfDeliveriesToday() {
+        int dailyVisitCount = 0;
+        Date today = new Date();
+        for (ConnectJobDeliveryRecord record : getDeliveries()) {
+            if(sameDay(today, record.getDate())) {
+                dailyVisitCount++;
+            }
+        }
+
+        return dailyVisitCount;
+    }
+
+    private static boolean sameDay(Date date1, Date date2) {
+        LocalDate dt1 = new LocalDate(date1);
+        LocalDate dt2 = new LocalDate(date2);
+
+        return dt1.equals(dt2);
     }
 
 

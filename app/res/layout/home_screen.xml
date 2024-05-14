@@ -17,7 +17,7 @@
         android:layout_marginStart="5dp"
         android:layout_marginEnd="5dp"
         android:background="@drawable/dots_rect_back"
-        android:visibility="gone"
+        android:visibility="visible"
         >
         <ImageView
             android:id="@+id/connect_secondary_phone_icon"
@@ -54,6 +54,54 @@
             android:layout_marginEnd="40dp"
             android:textColor="@color/blue"
             android:text="@string/connect_payment_confirm_no"/>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/home_connect_progress_tile"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="visible"
+        >
+        <ProgressBar
+            android:id="@+id/home_connect_prog_bar"
+            style="@style/Base.Widget.AppCompat.ProgressBar.Horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:layout_marginLeft="@dimen/content_start"
+            android:layout_marginRight="@dimen/content_start"
+            android:indeterminate="false"
+            android:indeterminateOnly="false"
+            android:max="100"
+            android:paddingBottom="@dimen/content_start"
+            android:paddingTop="@dimen/content_start"
+            android:progress="0"
+            android:progressTint="@color/green"
+            android:progressDrawable="@drawable/progressbar_modern"
+            android:layout_marginStart="@dimen/content_start"
+            android:layout_marginEnd="@dimen/content_start"
+            />
+        <TextView
+            android:id="@+id/home_connect_prog_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="@id/home_connect_prog_bar"
+            app:layout_constraintTop_toTopOf="@id/home_connect_prog_bar"
+            app:layout_constraintBottom_toBottomOf="@id/home_connect_prog_bar"
+            android:layout_marginStart="5dp"
+            android:textStyle="bold"
+            />
+        <TextView
+            android:id="@+id/home_connect_prog_max_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="@id/home_connect_prog_bar"
+            app:layout_constraintTop_toTopOf="@id/home_connect_prog_bar"
+            app:layout_constraintBottom_toBottomOf="@id/home_connect_prog_bar"
+            android:layout_marginEnd="5dp"
+            android:textStyle="bold"
+            />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.recyclerview.widget.RecyclerView

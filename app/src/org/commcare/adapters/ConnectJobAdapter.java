@@ -12,6 +12,7 @@ import org.commcare.activities.connect.ConnectDatabaseHelper;
 import org.commcare.activities.connect.ConnectManager;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.dalvik.R;
+import org.commcare.fragments.connect.ConnectDeliveryProgressFragmentDirections;
 import org.commcare.fragments.connect.ConnectJobsListsFragmentDirections;
 
 import java.util.Date;
@@ -138,7 +139,7 @@ public class ConnectJobAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                     job.getMaxPossibleVisits(), job.getDaysRemaining()));
 
             availableHolder.continueImage.setOnClickListener(v ->
-                    enterJob(job, availableHolder.continueImage));
+                    launchJobInfo(job, availableHolder.continueImage));
         }
         else if(holder instanceof ConnectJobAdapter.ClaimedJobViewHolder claimedHolder) {
             List<ConnectJobRecord> training = ConnectDatabaseHelper.getTrainingJobs(parentContext);
@@ -172,9 +173,14 @@ public class ConnectJobAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             claimedHolder.progressBar.setVisibility(View.VISIBLE);
             claimedHolder.progressImage.setVisibility(View.VISIBLE);
 
+            claimedHolder.infoImage.setVisibility(View.VISIBLE);
+            claimedHolder.infoImage.setOnClickListener(v -> {
+                launchJobInfo(job, claimedHolder.continueImage);
+            });
+
             claimedHolder.continueImage.setVisibility(View.VISIBLE);
             claimedHolder.continueImage.setOnClickListener(v -> {
-                enterJob(job, claimedHolder.continueImage);
+                launchActiveAppForJob(job, claimedHolder.continueImage);
             });
         }
         else if(holder instanceof ConnectJobAdapter.EndedJobViewHolder endedHolder) {
@@ -201,9 +207,11 @@ public class ConnectJobAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             endedHolder.progressBar.setVisibility(View.GONE);
             endedHolder.progressImage.setVisibility(View.GONE);
 
+            endedHolder.infoImage.setVisibility(View.GONE);
+
             endedHolder.continueImage.setVisibility(View.VISIBLE);
             endedHolder.continueImage.setOnClickListener(v -> {
-                enterJob(job, endedHolder.continueImage);
+                launchJobInfo(job, endedHolder.continueImage);
             });
         }
         else if(holder instanceof ConnectJobAdapter.EmptyJobListViewHolder emptyHolder) {
@@ -280,7 +288,23 @@ public class ConnectJobAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         return description;
     }
 
-    private void enterJob(ConnectJobRecord job, View view) {
+    private void launchActiveAppForJob(ConnectJobRecord job, View view) {
+        ConnectManager.setActiveJob(job);
+
+        boolean isLearning = job.getStatus() == ConnectJobRecord.STATUS_LEARNING;
+        String appId = isLearning ? job.getLearnAppInfo().getAppId() : job.getDeliveryAppInfo().getAppId();
+
+        if(ConnectManager.isAppInstalled(appId)) {
+            ConnectManager.launchApp(parentContext, isLearning, appId);
+        }
+        else {
+            int textId = isLearning ? R.string.connect_downloading_learn : R.string.connect_downloading_delivery;
+            String title = parentContext.getString(textId);
+            Navigation.findNavController(view).navigate(ConnectJobsListsFragmentDirections.actionConnectJobsListFragmentToConnectDownloadingFragment(title, isLearning, true));
+        }
+    }
+
+    private void launchJobInfo(ConnectJobRecord job, View view) {
         ConnectManager.setActiveJob(job);
 
         NavDirections directions;
@@ -326,6 +350,7 @@ public class ConnectJobAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         TextView titleText;
         TextView descriptionText;
         TextView remainingText;
+        ImageView infoImage;
         ImageView continueImage;
         public ClaimedJobViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -335,7 +360,8 @@ public class ConnectJobAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             titleText = itemView.findViewById(R.id.title_label);
             descriptionText = itemView.findViewById(R.id.description_label);
             remainingText = itemView.findViewById(R.id.remaining_label);
-            continueImage = itemView.findViewById(R.id.button);
+            infoImage = itemView.findViewById(R.id.button_info);
+            continueImage = itemView.findViewById(R.id.button_go);
         }
     }
 
@@ -345,6 +371,7 @@ public class ConnectJobAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         TextView titleText;
         TextView descriptionText;
         TextView remainingText;
+        ImageView infoImage;
         ImageView continueImage;
         public EndedJobViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -354,7 +381,8 @@ public class ConnectJobAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             titleText = itemView.findViewById(R.id.title_label);
             descriptionText = itemView.findViewById(R.id.description_label);
             remainingText = itemView.findViewById(R.id.remaining_label);
-            continueImage = itemView.findViewById(R.id.button);
+            infoImage = itemView.findViewById(R.id.button_info);
+            continueImage = itemView.findViewById(R.id.button_go);
         }
     }
 
