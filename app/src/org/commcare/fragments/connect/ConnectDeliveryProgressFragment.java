@@ -100,7 +100,7 @@ public class ConnectDeliveryProgressFragment extends Fragment {
                 FirebaseAnalyticsUtil.reportCccPaymentConfirmationInteraction(true);
 
                 ConnectManager.updatePaymentConfirmed(getContext(), payment, true, success -> {
-                    FirebaseAnalyticsUtil.reportCccApiPaymentConfirmation(success);
+                    //Nothing to do
                 });
             }
         });
@@ -156,102 +156,16 @@ public class ConnectDeliveryProgressFragment extends Fragment {
 
     public void refreshData() {
         ConnectJobRecord job = ConnectManager.getActiveJob();
-        ApiConnect.getDeliveries(getContext(), job.getJobId(), new IApiCallback() {
-            @Override
-            public void processSuccess(int responseCode, InputStream responseData) {
-                boolean success = true;
+        ConnectManager.updateDeliveryProgress(getContext(), job, success -> {
+            if(success) {
                 try {
-                    String responseAsString = new String(StreamsUtil.inputStreamToByteArray(responseData));
-                    if (responseAsString.length() > 0) {
-                        //Parse the JSON
-                        JSONObject json = new JSONObject(responseAsString);
-
-                        boolean updatedJob = false;
-                        String key = "max_payments";
-                        if(json.has(key)) {
-                            job.setMaxVisits(json.getInt(key));
-                            updatedJob = true;
-                        }
-
-                        key = "end_date";
-                        if(json.has(key)) {
-                            job.setProjectEndDate(ConnectNetworkHelper.parseDate(json.getString(key)));
-                            updatedJob = true;
-                        }
-
-                        key = "payment_accrued";
-                        if(json.has(key)) {
-                            job.setPaymentAccrued(json.getInt(key));
-                            updatedJob = true;
-                        }
-
-                        if(updatedJob) {
-                            job.setLastDeliveryUpdate(new Date());
-                            ConnectDatabaseHelper.upsertJob(getContext(), job);
-                        }
-
-                        List<ConnectJobDeliveryRecord> deliveries = new ArrayList<>(json.length());
-                        key = "deliveries";
-                        if(json.has(key)) {
-                            JSONArray array = json.getJSONArray(key);
-                            for (int i = 0; i < array.length(); i++) {
-                                JSONObject obj = (JSONObject)array.get(i);
-                                deliveries.add(ConnectJobDeliveryRecord.fromJson(obj, job.getJobId()));
-                            }
-
-                            //Store retrieved deliveries
-                            ConnectDatabaseHelper.storeDeliveries(getContext(), deliveries, job.getJobId(), true);
-
-                            job.setDeliveries(deliveries);
-                        }
-
-                        List<ConnectJobPaymentRecord> payments = new ArrayList<>();
-                        key = "payments";
-                        if(json.has(key)) {
-                            JSONArray array = json.getJSONArray(key);
-                            for (int i = 0; i < array.length(); i++) {
-                                JSONObject obj = (JSONObject)array.get(i);
-                                payments.add(ConnectJobPaymentRecord.fromJson(obj, job.getJobId()));
-                            }
-
-                            ConnectDatabaseHelper.storePayments(getContext(), payments, job.getJobId(), true);
-
-                            job.setPayments(payments);
-                        }
-
-                        try {
-                            updateUpdatedDate(new Date());
-                            updatePaymentConfirmationTile(getContext(), false);
-                            viewStateAdapter.refresh();
-                        }
-                        catch(Exception e) {
-                            //Ignore exception, happens if we leave the page before API call finishes
-                        }
-                    }
-                } catch (IOException | JSONException | ParseException e) {
-                    Logger.exception("Parsing return from delivery progress request", e);
-                    success = false;
+                    updateUpdatedDate(new Date());
+                    updatePaymentConfirmationTile(getContext(), false);
+                    viewStateAdapter.refresh();
                 }
-
-                reportApiCall(success);
-            }
-
-            @Override
-            public void processFailure(int responseCode, IOException e) {
-                Logger.log("ERROR", String.format(Locale.getDefault(), "Delivery progress call failed: %d", responseCode));
-                reportApiCall(false);
-            }
-
-            @Override
-            public void processNetworkFailure() {
-                Logger.log("ERROR", "Failed (network)");
-                reportApiCall(false);
-            }
-
-            @Override
-            public void processOldApiError() {
-                ConnectNetworkHelper.showOutdatedApiError(getContext());
-                reportApiCall(false);
+                catch(Exception e) {
+                    //Ignore exception, happens if we leave the page before API call finishes
+                }
             }
         });
     }
@@ -283,10 +197,6 @@ public class ConnectDeliveryProgressFragment extends Fragment {
 
             FirebaseAnalyticsUtil.reportCccPaymentConfirmationDisplayed();
         }
-    }
-
-    private void reportApiCall(boolean success) {
-        FirebaseAnalyticsUtil.reportCccApiDeliveryProgress(success);
     }
 
     private void updateUpdatedDate(Date lastUpdate) {

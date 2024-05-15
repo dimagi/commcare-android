@@ -9,6 +9,7 @@ import android.view.MenuItem;
 import org.commcare.CommCareApplication;
 import org.commcare.CommCareNoficationManager;
 import org.commcare.activities.connect.ConnectManager;
+import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.interfaces.CommCareActivityUIController;
@@ -290,6 +291,15 @@ public class StandardHomeActivity
     public void performSecondaryPhoneVerification() {
         ConnectManager.verifySecondaryPhone(this, success -> {
             updateSecondaryPhoneConfirmationTile();
+        });
+    }
+
+    public void updateConnectJobProgress() {
+        ConnectJobRecord job = ConnectManager.getActiveJob();
+        ConnectManager.updateDeliveryProgress(this, job, success -> {
+            if(success) {
+                uiController.updateConnectProgress();
+            }
         });
     }
 }

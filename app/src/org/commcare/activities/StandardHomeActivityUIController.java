@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 import android.content.Context;
 import android.view.View;
 import android.view.ViewTreeObserver;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -57,6 +58,9 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
         connectProgressBar = activity.findViewById(R.id.home_connect_prog_bar);
         connectProgressText = activity.findViewById(R.id.home_connect_prog_text);
         connectProgressMaxText = activity.findViewById(R.id.home_connect_prog_max_text);
+
+        ImageView refreshButton = activity.findViewById(R.id.home_connect_refresh);
+        refreshButton.setOnClickListener(v -> activity.updateConnectJobProgress());
 
         updateConnectProgress();
         adapter = new HomeScreenAdapter(activity, getHiddenButtons(activity), StandardHomeActivity.isDemoUser());

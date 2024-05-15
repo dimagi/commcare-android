@@ -20,6 +20,7 @@ import androidx.work.WorkManager;
 import org.commcare.activities.CommCareActivity;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.connect.models.ConnectAppRecord;
+import org.commcare.android.database.connect.models.ConnectJobDeliveryRecord;
 import org.commcare.android.database.connect.models.ConnectJobPaymentRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
@@ -44,15 +45,22 @@ import org.commcare.tasks.templates.CommCareTask;
 import org.commcare.tasks.templates.CommCareTaskConnector;
 import org.commcare.utils.CrashUtil;
 import org.commcare.views.dialogs.StandardAlertDialog;
+import org.javarosa.core.io.StreamsUtil;
+import org.javarosa.core.services.Logger;
 import org.javarosa.core.util.PropertyUtils;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
@@ -270,6 +278,21 @@ public class ConnectManager {
         manager.loginListener = null;
     }
 
+    public static void setConnectJobForApp(Context context, String appId) {
+        ConnectAppRecord appRecord = getAppRecord(context, appId);
+        if(appRecord != null) {
+            setActiveJob(ConnectDatabaseHelper.getJob(context, appRecord.getJobId()));
+        }
+    }
+
+    private static ConnectJobRecord activeJob = null;
+    public static void setActiveJob(ConnectJobRecord job) {
+        activeJob = job;
+    }
+    public static ConnectJobRecord getActiveJob() {
+        return activeJob;
+    }
+
     public static void unlockConnect(CommCareActivity<?> parent, ConnectActivityCompleteListener listener) {
         if(manager.connectStatus == ConnectIdStatus.LoggedIn) {
             ConnectIdWorkflows.unlockConnect(parent, success -> {
@@ -319,10 +342,6 @@ public class ConnectManager {
         ConnectTask task = ConnectTask.CONNECT_MAIN;
         Intent i = new Intent(manager.parentActivity, task.getNextActivity());
         manager.parentActivity.startActivityForResult(i, task.getRequestCode());
-    }
-
-    public static void goToActiveAppForJob() {
-
     }
 
     public static void goToActiveInfoForJob(Activity activity) {
@@ -637,32 +656,140 @@ public class ConnectManager {
         return appRecord;
     }
 
-    public static void updatePaymentConfirmed(Context context, final ConnectJobPaymentRecord payment, boolean confirmed, ConnectActivityCompleteListener listener) {
-        ApiConnect.setPaymentConfirmed(context, payment.getPaymentId(), confirmed, new IApiCallback() {
+    public static void updateDeliveryProgress(Context context, ConnectJobRecord job, ConnectActivityCompleteListener listener) {
+        ApiConnect.getDeliveries(context, job.getJobId(), new IApiCallback() {
+            private static void reportApiCall(boolean success) {
+                FirebaseAnalyticsUtil.reportCccApiDeliveryProgress(success);
+            }
+
             @Override
             public void processSuccess(int responseCode, InputStream responseData) {
-                payment.setConfirmed(confirmed);
-                ConnectDatabaseHelper.storePayment(context, payment);
+                boolean success = true;
+                try {
+                    String responseAsString = new String(StreamsUtil.inputStreamToByteArray(responseData));
+                    if (responseAsString.length() > 0) {
+                        //Parse the JSON
+                        JSONObject json = new JSONObject(responseAsString);
 
-                //No need to report to user
-                listener.connectActivityComplete(true);
+                        boolean updatedJob = false;
+                        String key = "max_payments";
+                        if(json.has(key)) {
+                            job.setMaxVisits(json.getInt(key));
+                            updatedJob = true;
+                        }
+
+                        key = "end_date";
+                        if(json.has(key)) {
+                            job.setProjectEndDate(ConnectNetworkHelper.parseDate(json.getString(key)));
+                            updatedJob = true;
+                        }
+
+                        key = "payment_accrued";
+                        if(json.has(key)) {
+                            job.setPaymentAccrued(json.getInt(key));
+                            updatedJob = true;
+                        }
+
+                        if(updatedJob) {
+                            job.setLastDeliveryUpdate(new Date());
+                            ConnectDatabaseHelper.upsertJob(context, job);
+                        }
+
+                        List<ConnectJobDeliveryRecord> deliveries = new ArrayList<>(json.length());
+                        key = "deliveries";
+                        if(json.has(key)) {
+                            JSONArray array = json.getJSONArray(key);
+                            for (int i = 0; i < array.length(); i++) {
+                                JSONObject obj = (JSONObject)array.get(i);
+                                deliveries.add(ConnectJobDeliveryRecord.fromJson(obj, job.getJobId()));
+                            }
+
+                            //Store retrieved deliveries
+                            ConnectDatabaseHelper.storeDeliveries(context, deliveries, job.getJobId(), true);
+
+                            job.setDeliveries(deliveries);
+                        }
+
+                        List<ConnectJobPaymentRecord> payments = new ArrayList<>();
+                        key = "payments";
+                        if(json.has(key)) {
+                            JSONArray array = json.getJSONArray(key);
+                            for (int i = 0; i < array.length(); i++) {
+                                JSONObject obj = (JSONObject)array.get(i);
+                                payments.add(ConnectJobPaymentRecord.fromJson(obj, job.getJobId()));
+                            }
+
+                            ConnectDatabaseHelper.storePayments(context, payments, job.getJobId(), true);
+
+                            job.setPayments(payments);
+                        }
+                    }
+                } catch (IOException | JSONException | ParseException e) {
+                    Logger.exception("Parsing return from delivery progress request", e);
+                    success = false;
+                }
+
+                reportApiCall(success);
+                listener.connectActivityComplete(success);
             }
 
             @Override
             public void processFailure(int responseCode, IOException e) {
-                Toast.makeText(context, R.string.connect_payment_confirm_failed, Toast.LENGTH_SHORT).show();
+                Logger.log("ERROR", String.format(Locale.getDefault(), "Delivery progress call failed: %d", responseCode));
+                reportApiCall(false);
                 listener.connectActivityComplete(false);
             }
 
             @Override
             public void processNetworkFailure() {
-                Toast.makeText(context, R.string.connect_payment_confirm_failed, Toast.LENGTH_SHORT).show();
+                Logger.log("ERROR", "Failed (network)");
+                reportApiCall(false);
                 listener.connectActivityComplete(false);
             }
 
             @Override
             public void processOldApiError() {
                 ConnectNetworkHelper.showOutdatedApiError(context);
+                reportApiCall(false);
+                listener.connectActivityComplete(false);
+            }
+        });
+    }
+
+    public static void updatePaymentConfirmed(Context context, final ConnectJobPaymentRecord payment, boolean confirmed, ConnectActivityCompleteListener listener) {
+        ApiConnect.setPaymentConfirmed(context, payment.getPaymentId(), confirmed, new IApiCallback() {
+            private void reportApiCall(boolean success) {
+                FirebaseAnalyticsUtil.reportCccApiPaymentConfirmation(success);
+            }
+
+            @Override
+            public void processSuccess(int responseCode, InputStream responseData) {
+                payment.setConfirmed(confirmed);
+                ConnectDatabaseHelper.storePayment(context, payment);
+
+                //No need to report to user
+                reportApiCall(true);
+                listener.connectActivityComplete(true);
+            }
+
+            @Override
+            public void processFailure(int responseCode, IOException e) {
+                Toast.makeText(context, R.string.connect_payment_confirm_failed, Toast.LENGTH_SHORT).show();
+                reportApiCall(false);
+                listener.connectActivityComplete(false);
+            }
+
+            @Override
+            public void processNetworkFailure() {
+                Toast.makeText(context, R.string.connect_payment_confirm_failed, Toast.LENGTH_SHORT).show();
+                reportApiCall(false);
+                listener.connectActivityComplete(false);
+            }
+
+            @Override
+            public void processOldApiError() {
+                ConnectNetworkHelper.showOutdatedApiError(context);
+                reportApiCall(false);
                 listener.connectActivityComplete(false);
             }
         });
@@ -680,18 +807,5 @@ public class ConnectManager {
         return password.toString();
     }
 
-    public static void setConnectJobForApp(Context context, String appId) {
-        ConnectAppRecord appRecord = getAppRecord(context, appId);
-        if(appRecord != null) {
-            setActiveJob(ConnectDatabaseHelper.getJob(context, appRecord.getJobId()));
-        }
-    }
 
-    private static ConnectJobRecord activeJob = null;
-    public static void setActiveJob(ConnectJobRecord job) {
-        activeJob = job;
-    }
-    public static ConnectJobRecord getActiveJob() {
-        return activeJob;
-    }
 }
