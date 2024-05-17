@@ -128,7 +128,8 @@ public class ConnectIdWorkflows {
             case CONNECT_REGISTRATION_CHANGE_PRIMARY_PHONE -> {
                 params.put(ConnectConstants.METHOD, ConnectConstants.METHOD_CHANGE_PRIMARY);
             }
-            case CONNECT_REGISTRATION_CONFIGURE_PIN -> {
+            case CONNECT_REGISTRATION_CONFIGURE_PIN,
+                    CONNECT_REGISTRATION_CHANGE_PIN -> {
                 params.put(ConnectConstants.PHONE, user.getPrimaryPhone());
                 params.put(ConnectConstants.SECRET, "");
                 params.put(ConnectConstants.RECOVER, false);
@@ -357,8 +358,17 @@ public class ConnectIdWorkflows {
             }
             case CONNECT_REGISTRATION_CONFIRM_PIN -> {
                 rememberPhase = success;
-                nextRequestCode = success ? ConnectTask.CONNECT_REGISTRATION_SUCCESS :
-                        ConnectTask.CONNECT_REGISTRATION_ALTERNATE_PHONE;
+                nextRequestCode = ConnectTask.CONNECT_REGISTRATION_ALTERNATE_PHONE;
+                if(success) {
+                    forgotPin = intent.getBooleanExtra(ConnectConstants.FORGOT, false);
+                    nextRequestCode = forgotPin ? ConnectTask.CONNECT_REGISTRATION_CHANGE_PIN :
+                            ConnectTask.CONNECT_REGISTRATION_SUCCESS;
+                }
+            }
+            case CONNECT_REGISTRATION_CHANGE_PIN -> {
+                rememberPhase = success;
+                nextRequestCode = ConnectTask.CONNECT_REGISTRATION_CONFIRM_PIN;
+                forgotPin = false;
             }
             case CONNECT_RECOVERY_PRIMARY_PHONE -> {
                 if (success) {

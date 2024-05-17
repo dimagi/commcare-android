@@ -28,7 +28,7 @@ import java.util.Vector;
 public class HomeButtons {
 
     private final static String[] buttonNames =
-            new String[]{"start", "training", "saved", "incomplete", "sync", "connect", "report", "logout"};
+            new String[]{"start", "training", "saved", "incomplete", "connect", "sync", "report", "logout"};
 
     /**
      * Note: The order in which home cards are returned by this method should be consistent with
@@ -68,6 +68,9 @@ public class HomeButtons {
                         getIncompleteButtonListener(activity),
                         null,
                         getIncompleteButtonTextSetter(activity)),
+                HomeCardDisplayData.homeCardDataWithStaticText(Localization.get("home.connect"), R.color.white,
+                        R.drawable.home_saved, R.color.orange_500,
+                        getConnectButtonListener(activity)),
                 HomeCardDisplayData.homeCardDataWithNotification(Localization.get(syncKey), R.color.white,
                         R.color.white,
                         R.drawable.home_sync,
@@ -76,9 +79,6 @@ public class HomeButtons {
                         getSyncButtonListener(activity),
                         getSyncButtonSubTextListener(activity),
                         getSyncButtonTextSetter(activity)),
-                HomeCardDisplayData.homeCardDataWithStaticText(Localization.get("home.connect"), R.color.white,
-                        R.drawable.home_saved, R.color.orange_500,
-                        getConnectButtonListener(activity)),
                 HomeCardDisplayData.homeCardDataWithStaticText(Localization.get("home.report"), R.color.white,
                         R.drawable.home_report, R.color.cc_attention_negative_color,
                         getReportButtonListener(activity)),
