@@ -513,7 +513,7 @@
     <string name="connect_phone_title_primary">Primary Phone</string>
     <string name="connect_phone_message_primary">Please enter your primary phone number</string>
     <string name="connect_phone_title_alternate">Alternate Phone</string>
-    <string name="connect_phone_message_alternate">Please enter an alternate phone number. This will be used in case of account recovery</string>
+    <string name="connect_phone_message_alternate">Enter a phone number of a friend or family who can provide you an SMS OTP if you forget your password or PIN.</string>
     <string name="connect_phone_button">OK</string>
     <string name="connect_phone_checking">Checking…</string>
     <string name="connect_phone_available">Phone number is available!</string>
