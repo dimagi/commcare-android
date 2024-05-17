@@ -204,7 +204,7 @@ public class DispatchActivity extends AppCompatActivity {
                     launchHomeScreen();
                 }
             } catch (SessionUnavailableException sue) {
-                if(!userTriggeredLogout || !ConnectManager.wasAppLaunchedFromConnect(currentApp.getUniqueId())) {
+                if(!userTriggeredLogout || ConnectManager.getShouldLock() || !ConnectManager.wasAppLaunchedFromConnect(currentApp.getUniqueId())) {
                     launchLoginScreen();
                 }
                 else {

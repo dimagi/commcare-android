@@ -10,7 +10,6 @@ import androidx.appcompat.app.ActionBar;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.NavGraph;
-import androidx.navigation.Navigation;
 import androidx.navigation.fragment.NavHostFragment;
 
 import org.commcare.activities.CommCareActivity;
@@ -46,7 +45,7 @@ public class ConnectActivity extends CommCareActivity<ResourceEngineListener> {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.screen_connect);
         setTitle(getString(R.string.connect_title));
-        showBackButton();
+        updateBackButton();
 
         boolean showJobInfo = getIntent().getBooleanExtra("info", false);
 
@@ -82,32 +81,43 @@ public class ConnectActivity extends CommCareActivity<ResourceEngineListener> {
     @Override
     public void onBackPressed() {
         if(backButtonEnabled) {
-            //Disable this handler and call again for default back behavior
-            super.onBackPressed();
+            NavHostFragment navHostFragment = (NavHostFragment)getSupportFragmentManager()
+                    .findFragmentById(R.id.nav_host_fragment_connect);
+            if(navHostFragment != null) {
+                int count = navHostFragment.getChildFragmentManager().getBackStackEntryCount();
+                if(count > 0) {
+                    NavController navController = navHostFragment.getNavController();
+                    navController.getNavInflater();
+                    navController.popBackStack();
+                } else {
+                    finish();
+                }
+            }
         }
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        if(!ConnectManager.isUnlocked()) {
+        if(ConnectManager.getShouldLock()) {
+            ConnectManager.setShouldLock(false);
             finish();
         }
     }
 
     @Override
     protected void onDestroy() {
-        super.onDestroy();
-
         if(destinationListener != null) {
             NavHostFragment navHostFragment = (NavHostFragment)getSupportFragmentManager()
                     .findFragmentById(R.id.nav_host_fragment_connect);
             if(navHostFragment != null) {
-                navHostFragment.getNavController()
-                        .removeOnDestinationChangedListener(destinationListener);
+                NavController navController = navHostFragment.getNavController();
+                navController.removeOnDestinationChangedListener(destinationListener);
             }
             destinationListener = null;
         }
+
+        super.onDestroy();
     }
 
     @Override
@@ -128,13 +138,11 @@ public class ConnectActivity extends CommCareActivity<ResourceEngineListener> {
     public void setBackButtonEnabled(boolean enabled) { backButtonEnabled = enabled; }
     public void setWaitDialogEnabled(boolean enabled) { waitDialogEnabled = enabled; }
 
-    private void showBackButton() {
+    private void updateBackButton() {
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
-            if(isBackEnabled()){
-                actionBar.setDisplayShowHomeEnabled(true);
-                actionBar.setDisplayHomeAsUpEnabled(true);
-            }
+            actionBar.setDisplayShowHomeEnabled(isBackEnabled());
+            actionBar.setDisplayHomeAsUpEnabled(isBackEnabled());
         }
     }
 

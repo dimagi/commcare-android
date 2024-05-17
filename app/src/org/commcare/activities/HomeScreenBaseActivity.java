@@ -1465,10 +1465,6 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
 
     @Override
     public boolean isBackEnabled() {
-        String appId = CommCareApplication.instance().getCurrentApp().getUniqueId();
-        if (ConnectManager.wasAppLaunchedFromConnect(appId)) {
-            return true;
-        }
         return false;
     }
 

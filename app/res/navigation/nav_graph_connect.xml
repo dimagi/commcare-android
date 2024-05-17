@@ -24,8 +24,8 @@
             app:destination="@id/connect_job_delivery_progress_fragment" />
         <action
             android:id="@+id/action_connect_jobs_list_fragment_to_connect_downloading_fragment"
-            app:destination="@id/connect_downloading_fragment" />
-
+            app:destination="@id/connect_downloading_fragment"
+            app:popUpTo="@id/connect_jobs_list_fragment" />
     </fragment>
 
     <fragment
@@ -56,10 +56,6 @@
             android:id="@+id/action_connect_job_learning_progress_fragment_to_connect_downloading_fragment"
             app:destination="@id/connect_downloading_fragment"
             app:popUpTo="@id/connect_jobs_list_fragment"/>
-        <action
-            android:id="@+id/action_connect_job_learning_progress_fragment_to_connect_jobs_list_fragment"
-            app:popUpTo="@id/connect_jobs_list_fragment"
-            app:popUpToInclusive="true"/>
     </fragment>
 
     <fragment
@@ -123,7 +119,6 @@
         <argument
             android:name="showPayments"
             app:argType="boolean" />
-
     </fragment>
 
 </navigation>

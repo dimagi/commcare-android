@@ -64,7 +64,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
-import java.util.Vector;
 
 import javax.crypto.SecretKey;
 
@@ -104,6 +103,9 @@ public class ConnectManager {
     private ConnectActivityCompleteListener loginListener;
 
     private String primedAppIdForAutoLogin = null;
+
+    //Remembers that we should lock ConnectId once we've entered an app
+    private boolean shouldLock = false;
 
     //Singleton, private constructor
     private ConnectManager() {
@@ -588,6 +590,11 @@ public class ConnectManager {
         }
     }
 
+    public static boolean getShouldLock() { return getInstance().shouldLock; }
+    public static void setShouldLock(boolean shouldLock) {
+         getInstance().shouldLock = shouldLock;
+    }
+
     public static void launchApp(Context context, boolean isLearning, String appId) {
         CommCareApplication.instance().closeUserSession();
 
@@ -595,6 +602,7 @@ public class ConnectManager {
         FirebaseAnalyticsUtil.reportCccAppLaunch(appType, appId);
 
         getInstance().primedAppIdForAutoLogin = appId;
+        getInstance().shouldLock = true;
 
         CommCareLauncher.launchCommCareForAppId(context, appId);
     }
