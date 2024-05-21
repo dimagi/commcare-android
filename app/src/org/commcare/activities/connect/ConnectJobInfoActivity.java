@@ -9,25 +9,24 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.ActionBar;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
-import androidx.navigation.NavGraph;
 import androidx.navigation.fragment.NavHostFragment;
 
 import org.commcare.activities.CommCareActivity;
 import org.commcare.activities.CommCareVerificationActivity;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.dalvik.R;
+import org.commcare.fragments.connect.ConnectDeliveryProgressFragment;
 import org.commcare.fragments.connect.ConnectDownloadingFragment;
-import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
+import org.commcare.fragments.connect.ConnectJobIntroFragment;
+import org.commcare.fragments.connect.ConnectLearningProgressFragment;
 import org.commcare.tasks.ResourceEngineListener;
 import org.commcare.views.dialogs.CustomProgressDialog;
 
 import javax.annotation.Nullable;
 
-public class ConnectActivity extends CommCareActivity<ResourceEngineListener> {
+public class ConnectJobInfoActivity extends CommCareActivity<ResourceEngineListener> {
     private boolean backButtonEnabled = true;
     private boolean waitDialogEnabled = true;
-
-    NavController.OnDestinationChangedListener destinationListener = null;
 
     ActivityResultLauncher<Intent> verificationLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
@@ -43,33 +42,35 @@ public class ConnectActivity extends CommCareActivity<ResourceEngineListener> {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.screen_connect);
+        setContentView(R.layout.screen_connect_job_info);
         setTitle(getString(R.string.connect_title));
         updateBackButton();
 
-        destinationListener = FirebaseAnalyticsUtil.getDestinationChangeListener();
+        Fragment fragment = null;
+        ConnectJobRecord job = ConnectManager.getActiveJob();
+        if(job != null) {
+            switch(job.getStatus()) {
+                case ConnectJobRecord.STATUS_LEARNING -> {
+                    fragment = ConnectLearningProgressFragment.newInstance(false);
+                }
+                case ConnectJobRecord.STATUS_DELIVERING -> {
+                    fragment = ConnectDeliveryProgressFragment.newInstance(false, false);
+                }
+            }
+        }
 
-        NavHostFragment host = (NavHostFragment)getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment_connect);
-        NavController navController = host.getNavController();
-        navController.addOnDestinationChangedListener(destinationListener);
+        if(fragment == null) {
+            fragment = ConnectJobIntroFragment.newInstance(false);
+        }
+
+        getSupportFragmentManager().beginTransaction()
+                .add(R.id.connect_job_info_container, fragment).commit();
     }
 
     @Override
     public void onBackPressed() {
         if(backButtonEnabled) {
             super.onBackPressed();
-//            NavHostFragment navHostFragment = (NavHostFragment)getSupportFragmentManager()
-//                    .findFragmentById(R.id.nav_host_fragment_connect);
-//            if(navHostFragment != null) {
-//                int count = navHostFragment.getChildFragmentManager().getBackStackEntryCount();
-//                if(count > 0) {
-//                    NavController navController = navHostFragment.getNavController();
-//                    navController.getNavInflater();
-//                    navController.popBackStack();
-//                } else {
-//                    finish();
-//                }
-//            }
         }
     }
 
@@ -80,16 +81,6 @@ public class ConnectActivity extends CommCareActivity<ResourceEngineListener> {
 
     @Override
     protected void onDestroy() {
-        if(destinationListener != null) {
-            NavHostFragment navHostFragment = (NavHostFragment)getSupportFragmentManager()
-                    .findFragmentById(R.id.nav_host_fragment_connect);
-            if(navHostFragment != null) {
-                NavController navController = navHostFragment.getNavController();
-                navController.removeOnDestinationChangedListener(destinationListener);
-            }
-            destinationListener = null;
-        }
-
         super.onDestroy();
     }
 

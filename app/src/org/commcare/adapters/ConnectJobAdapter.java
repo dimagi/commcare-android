@@ -10,6 +10,7 @@ import android.widget.TextView;
 
 import org.commcare.activities.connect.ConnectDatabaseHelper;
 import org.commcare.activities.connect.ConnectManager;
+import org.commcare.activities.connect.IConnectAppLauncher;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.dalvik.R;
 import org.commcare.fragments.connect.ConnectDeliveryProgressFragmentDirections;
@@ -33,9 +34,11 @@ public class ConnectJobAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
     private Context parentContext;
     private final boolean showAvailable;
+    private IConnectAppLauncher launcher;
 
-    public ConnectJobAdapter(boolean showAvailable) {
+    public ConnectJobAdapter(boolean showAvailable, IConnectAppLauncher appLauncher) {
         this.showAvailable = showAvailable;
+        this.launcher = appLauncher;
     }
 
     @Override
@@ -295,7 +298,7 @@ public class ConnectJobAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         String appId = isLearning ? job.getLearnAppInfo().getAppId() : job.getDeliveryAppInfo().getAppId();
 
         if(ConnectManager.isAppInstalled(appId)) {
-            ConnectManager.launchApp(parentContext, isLearning, appId);
+            launcher.launchApp(appId, isLearning);
         }
         else {
             int textId = isLearning ? R.string.connect_downloading_learn : R.string.connect_downloading_delivery;

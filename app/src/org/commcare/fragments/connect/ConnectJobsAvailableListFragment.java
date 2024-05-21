@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import org.commcare.activities.connect.IConnectAppLauncher;
 import org.commcare.adapters.ConnectJobAdapter;
 import org.commcare.dalvik.R;
 
@@ -20,12 +21,15 @@ import androidx.recyclerview.widget.RecyclerView;
  */
 public class ConnectJobsAvailableListFragment extends Fragment {
     private ConnectJobAdapter adapter;
+    private IConnectAppLauncher launcher;
     public ConnectJobsAvailableListFragment() {
         // Required empty public constructor
     }
 
-    public static ConnectJobsAvailableListFragment newInstance() {
-        return new ConnectJobsAvailableListFragment();
+    public static ConnectJobsAvailableListFragment newInstance(IConnectAppLauncher appLauncher) {
+        ConnectJobsAvailableListFragment fragment = new ConnectJobsAvailableListFragment();
+        fragment.launcher = appLauncher;
+        return fragment;
     }
 
     @Override
@@ -45,7 +49,7 @@ public class ConnectJobsAvailableListFragment extends Fragment {
 
         recyclerView.addItemDecoration(new DividerItemDecoration(getContext(), linearLayoutManager.getOrientation()));
 
-        adapter = new ConnectJobAdapter(true);
+        adapter = new ConnectJobAdapter(true, launcher);
         recyclerView.setAdapter(adapter);
 
         return view;

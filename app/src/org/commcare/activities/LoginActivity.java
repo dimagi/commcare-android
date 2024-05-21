@@ -109,7 +109,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     private FormAndDataSyncer formAndDataSyncer;
     private String presetAppId;
     private boolean appLaunchedFromConnect;
-    private boolean appAutoLaunchPerformed;
+    private boolean connectLaunchPerformed;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -130,8 +130,8 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         uiController.updateConnectLoginState();
 
         presetAppId = getIntent().getStringExtra(EXTRA_APP_ID);
-        appAutoLaunchPerformed = false;
         appLaunchedFromConnect = ConnectManager.wasAppLaunchedFromConnect(presetAppId);
+        connectLaunchPerformed = false;
 
         if (savedInstanceState == null) {
             // Only restore last user on the initial creation
@@ -469,6 +469,8 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         ConnectManager.unlockConnect(this, success -> {
             if(success) {
                 ConnectManager.goToConnectJobsList();
+                setResult(RESULT_OK);
+                finish();
             }
         });
     }
@@ -512,13 +514,13 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     private void checkForSavedCredentials() {
         boolean loginWithConnectIDVisible = false;
         if (ConnectManager.isConnectIdIntroduced()) {
-            if (appLaunchedFromConnect) {
+            if (appLaunchedFromConnect && !connectLaunchPerformed) {
                 loginWithConnectIDVisible = true;
                 uiController.setConnectButtonVisible(false);
                 uiController.setUsername(getString(R.string.login_input_auto));
                 uiController.setPasswordOrPin(getString(R.string.login_input_auto));
-                if(!seatAppIfNeeded(presetAppId) && !appAutoLaunchPerformed) {
-                    appAutoLaunchPerformed = true;
+                if(!seatAppIfNeeded(presetAppId)) {
+                    connectLaunchPerformed = true;
                     initiateLoginAttempt(uiController.isRestoreSessionChecked());
                 }
             } else {
