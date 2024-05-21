@@ -21,6 +21,7 @@ import com.google.android.material.tabs.TabLayout;
 import org.commcare.activities.CommCareActivity;
 import org.commcare.activities.connect.ConnectDatabaseHelper;
 import org.commcare.activities.connect.ConnectManager;
+import org.commcare.activities.connect.IConnectAppLauncher;
 import org.commcare.connect.network.ConnectNetworkHelper;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.CommCareApplication;
@@ -53,13 +54,16 @@ public class ConnectJobsListsFragment extends Fragment {
     private ViewPager2 viewPager;
     private ViewStateAdapter viewStateAdapter;
     private TextView updateText;
+    private IConnectAppLauncher launcher;
 
     public ConnectJobsListsFragment() {
         // Required empty public constructor
     }
 
-    public static ConnectJobsListsFragment newInstance() {
-        return new ConnectJobsListsFragment();
+    public static ConnectJobsListsFragment newInstance(IConnectAppLauncher appLauncher) {
+        ConnectJobsListsFragment fragment = new ConnectJobsListsFragment();
+        fragment.launcher = appLauncher;
+        return fragment;
     }
 
     @Override
@@ -85,7 +89,11 @@ public class ConnectJobsListsFragment extends Fragment {
         refreshButton.setOnClickListener(v -> refreshData());
 
         viewPager = view.findViewById(R.id.jobs_view_pager);
-        viewStateAdapter = new ViewStateAdapter(getChildFragmentManager(), getLifecycle());
+        viewStateAdapter = new ViewStateAdapter(getChildFragmentManager(), getLifecycle(), (appId, isLearning) -> {
+            //Launch app and finish this activity
+            ConnectManager.launchApp(getActivity(), isLearning, appId);
+            getActivity().finish();
+        });
         viewPager.setAdapter(viewStateAdapter);
 
         tabLayout = view.findViewById(R.id.connect_jobs_tabs);
@@ -217,20 +225,22 @@ public class ConnectJobsListsFragment extends Fragment {
     private static class ViewStateAdapter extends FragmentStateAdapter {
         static ConnectJobsAvailableListFragment availableFragment;
         static ConnectJobsMyListFragment myFragment;
+        IConnectAppLauncher launcher;
 
-        public ViewStateAdapter(@NonNull FragmentManager fragmentManager, @NonNull Lifecycle lifecycle) {
+        public ViewStateAdapter(@NonNull FragmentManager fragmentManager, @NonNull Lifecycle lifecycle, IConnectAppLauncher appLauncher) {
             super(fragmentManager, lifecycle);
+            launcher = appLauncher;
         }
 
         @NonNull
         @Override
         public Fragment createFragment(int position) {
             if (position == 0) {
-                availableFragment = ConnectJobsAvailableListFragment.newInstance();
+                availableFragment = ConnectJobsAvailableListFragment.newInstance(launcher);
                 return availableFragment;
             }
 
-            myFragment = ConnectJobsMyListFragment.newInstance();
+            myFragment = ConnectJobsMyListFragment.newInstance(launcher);
             return myFragment;
         }
 

@@ -34,12 +34,15 @@ import java.util.Locale;
  * @author dviggiano
  */
 public class ConnectJobIntroFragment extends Fragment {
+    private boolean showLaunchButton;
     public ConnectJobIntroFragment() {
         // Required empty public constructor
     }
 
-    public static ConnectJobIntroFragment newInstance() {
-        return new ConnectJobIntroFragment();
+    public static ConnectJobIntroFragment newInstance(boolean showLaunchButton) {
+        ConnectJobIntroFragment fragment = new ConnectJobIntroFragment();
+        fragment.showLaunchButton = showLaunchButton;
+        return fragment;
     }
 
     @Override
@@ -83,45 +86,48 @@ public class ConnectJobIntroFragment extends Fragment {
         final boolean appInstalled = ConnectManager.isAppInstalled(job.getLearnAppInfo().getAppId());
 
         Button button = view.findViewById(R.id.connect_job_intro_start_button);
-        button.setText(getString(appInstalled ? R.string.connect_job_go_to_learn_app : R.string.connect_job_download_learn_app));
-        button.setOnClickListener(v -> {
-            //First, need to tell Connect we're starting learning so it can create a user on HQ
-            ApiConnect.startLearnApp(getContext(), job.getJobId(), new IApiCallback() {
-                @Override
-                public void processSuccess(int responseCode, InputStream responseData) {
-                    reportApiCall(true);
-                    //TODO: Expecting to eventually get HQ username from server here
-                    NavDirections directions;
-                    if (appInstalled) {
-                        directions = ConnectJobIntroFragmentDirections.actionConnectJobIntroFragmentToConnectJobLearningProgressFragment();
-                    } else {
-                        String title = getString(R.string.connect_downloading_learn);
-                        directions = ConnectJobIntroFragmentDirections.actionConnectJobIntroFragmentToConnectDownloadingFragment(title, true, false);
+        button.setVisibility(showLaunchButton ? View.VISIBLE : View.GONE);
+        if(showLaunchButton) {
+            button.setText(getString(appInstalled ? R.string.connect_job_go_to_learn_app : R.string.connect_job_download_learn_app));
+            button.setOnClickListener(v -> {
+                //First, need to tell Connect we're starting learning so it can create a user on HQ
+                ApiConnect.startLearnApp(getContext(), job.getJobId(), new IApiCallback() {
+                    @Override
+                    public void processSuccess(int responseCode, InputStream responseData) {
+                        reportApiCall(true);
+                        //TODO: Expecting to eventually get HQ username from server here
+                        NavDirections directions;
+                        if (appInstalled) {
+                            directions = ConnectJobIntroFragmentDirections.actionConnectJobIntroFragmentToConnectJobLearningProgressFragment();
+                        } else {
+                            String title = getString(R.string.connect_downloading_learn);
+                            directions = ConnectJobIntroFragmentDirections.actionConnectJobIntroFragmentToConnectDownloadingFragment(title, true, false);
+                        }
+
+                        Navigation.findNavController(button).navigate(directions);
                     }
 
-                    Navigation.findNavController(button).navigate(directions);
-                }
+                    @Override
+                    public void processFailure(int responseCode, IOException e) {
+                        Toast.makeText(getContext(), "Connect: error starting learning", Toast.LENGTH_SHORT).show();
+                        reportApiCall(false);
+                        //TODO: Log the message from the server
+                    }
 
-                @Override
-                public void processFailure(int responseCode, IOException e) {
-                    Toast.makeText(getContext(), "Connect: error starting learning", Toast.LENGTH_SHORT).show();
-                    reportApiCall(false);
-                    //TODO: Log the message from the server
-                }
+                    @Override
+                    public void processNetworkFailure() {
+                        ConnectNetworkHelper.showNetworkError(getContext());
+                        reportApiCall(false);
+                    }
 
-                @Override
-                public void processNetworkFailure() {
-                    ConnectNetworkHelper.showNetworkError(getContext());
-                    reportApiCall(false);
-                }
-
-                @Override
-                public void processOldApiError() {
-                    ConnectNetworkHelper.showOutdatedApiError(getContext());
-                    reportApiCall(false);
-                }
+                    @Override
+                    public void processOldApiError() {
+                        ConnectNetworkHelper.showOutdatedApiError(getContext());
+                        reportApiCall(false);
+                    }
+                });
             });
-        });
+        }
 
         return view;
     }
