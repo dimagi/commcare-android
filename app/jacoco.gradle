@@ -13,8 +13,8 @@ android {
 
 task jacocoTestReport(type: JacocoReport, dependsOn: ['testCommcareDebugUnitTest']) {
     reports {
-        xml.required = true
-        html.required = true
+        xml.enabled = true
+        html.enabled = true
     }
     def fileFilter = ['**/R.class',
                       '**/R$*.class',

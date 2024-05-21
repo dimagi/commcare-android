@@ -4,8 +4,6 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.media.AudioManager;
-import android.os.Build;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.Pair;
@@ -13,6 +11,8 @@ import android.view.WindowManager;
 
 import org.commcare.CommCareApplication;
 import org.commcare.engine.references.JavaFileReference;
+import org.commcare.google.services.analytics.AnalyticsParamValue;
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.util.LogTypes;
 import org.javarosa.core.reference.InvalidReferenceException;
@@ -27,7 +27,6 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 
 /**
  * @author ctsims
@@ -505,12 +504,6 @@ public class MediaUtil {
         } catch (OutOfMemoryError e) {
             return performSafeScaleDown(imageFilepath, scaleDownFactor + 1, depth + 1);
         }
-    }
-
-    @RequiresApi(api = Build.VERSION_CODES.N)
-    public static boolean isRecordingActive(Context context){
-        return ((AudioManager) context.getSystemService(Context.AUDIO_SERVICE))
-                .getActiveRecordingConfigurations().size() > 0;
     }
 
 }

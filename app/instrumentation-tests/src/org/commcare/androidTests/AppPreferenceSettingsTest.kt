@@ -10,12 +10,7 @@ import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.contrib.RecyclerViewActions
 import androidx.test.espresso.intent.Intents.intended
 import androidx.test.espresso.intent.Intents.intending
-import androidx.test.espresso.matcher.ViewMatchers.hasDescendant
-import androidx.test.espresso.matcher.ViewMatchers.isChecked
-import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
-import androidx.test.espresso.matcher.ViewMatchers.withClassName
-import androidx.test.espresso.matcher.ViewMatchers.withId
-import androidx.test.espresso.matcher.ViewMatchers.withText
+import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import org.commcare.annotations.BrowserstackTests
@@ -31,7 +26,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 @LargeTest
 @BrowserstackTests
-class AppPreferenceSettingsTest : BaseTest() {
+class AppPreferenceSettingsTest: BaseTest() {
 
     companion object {
         const val CCZ_NAME = "settings_sheet_tests.ccz"
@@ -49,13 +44,13 @@ class AppPreferenceSettingsTest : BaseTest() {
         val settingName = "Fuzzy Search Matches"
         InstrumentationUtility.openOptionsMenu()
         onView(withText("Settings"))
-            .perform(click())
+                .perform(click())
         selectSetting(settingName)
 
         onView(withText("Enabled"))
-            .check(matches(isDisplayed()))
+                .check(matches(isDisplayed()))
         onView(withText("Disabled"))
-            .check(matches(isDisplayed()))
+                .check(matches(isDisplayed()))
 
         // Check enabled is selected by default
         matchSelectedPreference("Enabled")
@@ -73,15 +68,15 @@ class AppPreferenceSettingsTest : BaseTest() {
         val settingName = "Auto Update Frequency"
         InstrumentationUtility.openOptionsMenu()
         onView(withText("Settings"))
-            .perform(click())
+                .perform(click())
         selectSetting(settingName)
 
         onView(withText("Never"))
-            .check(matches(isDisplayed()))
+                .check(matches(isDisplayed()))
         onView(withText("Daily"))
-            .check(matches(isDisplayed()))
+                .check(matches(isDisplayed()))
         onView(withText("Weekly"))
-            .check(matches(isDisplayed()))
+                .check(matches(isDisplayed()))
 
         // Change setting and check their persistence
         changePreferenceAndCheckPersistence("Daily", settingName)
@@ -96,7 +91,7 @@ class AppPreferenceSettingsTest : BaseTest() {
         InstrumentationUtility.login("settings.test.3", "123")
         InstrumentationUtility.openOptionsMenu()
         onView(withText("Settings"))
-            .perform(click())
+                .perform(click())
         selectSetting("Set Print Template")
 
         //Create a dummy file selection intent
@@ -107,7 +102,7 @@ class AppPreferenceSettingsTest : BaseTest() {
 
         // Click on file fetch
         onView(withId(R.id.filefetch))
-            .perform(click())
+                .perform(click())
 
         // Confirm that the file selection intent was called.
         intended(expectedIntent)
@@ -115,26 +110,26 @@ class AppPreferenceSettingsTest : BaseTest() {
 
     private fun selectSetting(text: String) {
         onView(withText("CommCare > Settings"))
-            .check(matches(isDisplayed()))
-        onView(withId(androidx.preference.R.id.recycler_view))
-            .perform(RecyclerViewActions.scrollTo<RecyclerView.ViewHolder>(
-                hasDescendant(withText(text))
+                .check(matches(isDisplayed()))
+        onView(withId(R.id.recycler_view))
+                .perform(RecyclerViewActions.scrollTo<RecyclerView.ViewHolder>(
+                        hasDescendant(withText(text))
                 ))
         onView(withText(text))
-            .perform(click())
+                .perform(click())
     }
 
     private fun cancelSettingChangeDialog() {
         onView(withText("CANCEL"))
-            .perform(click())
+                .perform(click())
         onView(withText("CommCare > Settings"))
-            .check(matches(isDisplayed()))
+                .check(matches(isDisplayed()))
     }
 
     private fun changePreferenceAndCheckPersistence(newPref: String, setting: String) {
         // Change to new preference
         onView(withText(newPref))
-            .perform(click())
+                .perform(click())
 
         //Rotate and check the selection persists.
         InstrumentationUtility.rotateLeft()
@@ -147,8 +142,8 @@ class AppPreferenceSettingsTest : BaseTest() {
 
     private fun matchSelectedPreference(value: String) {
         onView(allOf(
-            withClassName(endsWith("AppCompatCheckedTextView")),
-            withText(value)
+                withClassName(endsWith("AppCompatCheckedTextView")),
+                withText(value)
         )).check(matches(isChecked()))
     }
 

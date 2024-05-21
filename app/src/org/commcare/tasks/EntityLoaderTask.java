@@ -4,15 +4,14 @@ import android.util.Pair;
 
 import org.commcare.activities.EntitySelectActivity;
 import org.commcare.android.logging.ForceCloseLogger;
-import org.commcare.cases.entity.AsyncNodeEntityFactory;
 import org.commcare.cases.entity.Entity;
-import org.commcare.cases.entity.EntityStorageCache;
 import org.commcare.cases.entity.NodeEntityFactory;
 import org.commcare.logging.XPathErrorLogger;
-import org.commcare.models.database.user.models.CommCareEntityStorageCache;
+import org.commcare.models.AsyncNodeEntityFactory;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.suite.model.Detail;
 import org.commcare.tasks.templates.ManagedAsyncTask;
+import org.commcare.util.LogTypes;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.Logger;
@@ -38,8 +37,7 @@ public class EntityLoaderTask
     public EntityLoaderTask(Detail detail, EvaluationContext evalCtx) {
         evalCtx.addFunctionHandler(EntitySelectActivity.getHereFunctionHandler());
         if (detail.useAsyncStrategy()) {
-            EntityStorageCache entityStorageCache = new CommCareEntityStorageCache("case");
-            this.factory = new AsyncNodeEntityFactory(detail, evalCtx, entityStorageCache);
+            this.factory = new AsyncNodeEntityFactory(detail, evalCtx);
         } else {
             this.factory = new NodeEntityFactory(detail, evalCtx);
             if (DeveloperPreferences.collectAndDisplayEntityTraces()) {

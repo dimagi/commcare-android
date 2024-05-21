@@ -1,14 +1,10 @@
 package org.commcare.views.widgets;
 
 import android.annotation.SuppressLint;
-import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.graphics.Rect;
-import android.media.AudioManager;
-import android.media.AudioRecordingConfiguration;
 import android.media.MediaCodecInfo;
 import android.media.MediaCodecList;
 import android.media.MediaPlayer;
@@ -27,25 +23,17 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
-
-import androidx.annotation.RequiresApi;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.DialogFragment;
 
 import org.commcare.CommCareApplication;
-import org.commcare.CommCareNoficationManager;
-import org.commcare.activities.DispatchActivity;
 import org.commcare.dalvik.R;
-import org.commcare.utils.MediaUtil;
-import org.commcare.utils.NotificationUtil;
 import org.javarosa.core.services.locale.Localization;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.DialogFragment;
 
 /**
  * A popup dialog fragment that handles recording_fragment and saving of audio
@@ -66,7 +54,6 @@ public class RecordingFragment extends DialogFragment {
 
     private static final int HEAAC_SAMPLE_RATE = 44100;
     private static final int AMRNB_SAMPLE_RATE = 8000;
-    private final int RECORDING_NOTIFICATION_ID = R.string.audio_recording_notification;
 
     private String fileName;
     private static final String FILE_EXT = ".mp3";
@@ -86,12 +73,12 @@ public class RecordingFragment extends DialogFragment {
     private long mLastStopTime;
     private boolean inPausedState = false;
     private boolean savedRecordingExists = false;
-    private AudioManager.AudioRecordingCallback audioRecordingCallback;
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        layout = (LinearLayout) inflater.inflate(R.layout.recording_fragment, container);
-        disableScreenRotation((AppCompatActivity) getContext());
+        layout = (LinearLayout)inflater.inflate(R.layout.recording_fragment, container);
+        disableScreenRotation((AppCompatActivity)getContext());
         prepareButtons();
         prepareText();
         setWindowSize();
@@ -132,7 +119,7 @@ public class RecordingFragment extends DialogFragment {
         Rect displayRectangle = new Rect();
         Window window = getActivity().getWindow();
         window.getDecorView().getWindowVisibleDisplayFrame(displayRectangle);
-        layout.setMinimumWidth((int) (displayRectangle.width() * 0.9f));
+        layout.setMinimumWidth((int)(displayRectangle.width() * 0.9f));
         getDialog().getWindow().requestFeature(Window.FEATURE_NO_TITLE);
     }
 
@@ -154,6 +141,7 @@ public class RecordingFragment extends DialogFragment {
     private void setActionText(String textKey) {
         actionButton.setText(Localization.get(textKey));
     }
+
 
     private void resetRecordingView() {
         if (recorder != null) {
@@ -177,14 +165,7 @@ public class RecordingFragment extends DialogFragment {
     }
 
     private void startRecording() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            if (MediaUtil.isRecordingActive(getContext())) {
-                Toast.makeText(getContext(), Localization.get("start.recording.failed"), Toast.LENGTH_SHORT).show();
-                return;
-            }
-        }
-
-        disableScreenRotation((AppCompatActivity) getContext());
+        disableScreenRotation((AppCompatActivity)getContext());
         setCancelable(false);
         setupRecorder();
         recorder.start();
@@ -196,7 +177,7 @@ public class RecordingFragment extends DialogFragment {
         recordingDuration.start();
         if (isPauseSupported()) {
             toggleRecording.setBackgroundResource(R.drawable.pause);
-            toggleRecording.setOnClickListener(v -> pauseRecording(true));
+            toggleRecording.setOnClickListener(v -> pauseRecording());
         } else {
             toggleRecording.setBackgroundResource(R.drawable.record_in_progress);
             toggleRecording.setOnClickListener(v -> stopRecording());
@@ -208,21 +189,15 @@ public class RecordingFragment extends DialogFragment {
         discardRecording.setVisibility(View.INVISIBLE);
     }
 
+
     private void setupRecorder() {
         if (recorder == null) {
             recorder = new MediaRecorder();
         }
 
         boolean isHeAacSupported = isHeAacEncoderSupported();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            recorder.setAudioSource(MediaRecorder.AudioSource.VOICE_COMMUNICATION);
-        } else {
-            recorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-        }
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            recorder.setPrivacySensitive(true);
-        }
+        recorder.setAudioSource(MediaRecorder.AudioSource.MIC);
         recorder.setAudioSamplingRate(isHeAacSupported ? HEAAC_SAMPLE_RATE : AMRNB_SAMPLE_RATE);
         recorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
         recorder.setOutputFile(fileName);
@@ -230,9 +205,6 @@ public class RecordingFragment extends DialogFragment {
             recorder.setAudioEncoder(MediaRecorder.AudioEncoder.HE_AAC);
         } else {
             recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
-        }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            registerAudioRecordingConfigurationChangeCallback();
         }
         try {
             recorder.prepare();
@@ -258,8 +230,7 @@ public class RecordingFragment extends DialogFragment {
                     MediaCodecInfo.CodecProfileLevel[] profileLevels = cap.profileLevels;
                     for (MediaCodecInfo.CodecProfileLevel profileLevel : profileLevels) {
                         int profile = profileLevel.profile;
-                        if (profile == MediaCodecInfo.CodecProfileLevel.AACObjectHE
-                                || profile == MediaCodecInfo.CodecProfileLevel.AACObjectHE_PS) {
+                        if (profile == MediaCodecInfo.CodecProfileLevel.AACObjectHE || profile == MediaCodecInfo.CodecProfileLevel.AACObjectHE_PS) {
                             return true;
                         }
                     }
@@ -288,7 +259,7 @@ public class RecordingFragment extends DialogFragment {
     }
 
     @SuppressLint("NewApi")
-    private void pauseRecording(boolean pausedByUser) {
+    private void pauseRecording() {
         inPausedState = true;
         recordingDuration.stop();
         chronoPause();
@@ -297,8 +268,7 @@ public class RecordingFragment extends DialogFragment {
         enableSave();
         toggleRecording.setBackgroundResource(R.drawable.record_add);
         toggleRecording.setOnClickListener(v -> resumeRecording());
-        instruction.setText(Localization.get(pausedByUser ? "pause.recording"
-                : "pause.recording.because.no.sound.captured"));
+        instruction.setText(Localization.get("pause.recording"));
     }
 
     private void enableSave() {
@@ -320,16 +290,14 @@ public class RecordingFragment extends DialogFragment {
         Bundle args = getArguments();
         if (args != null) {
             String appearance = args.getString(APPEARANCE_ATTR_ARG_KEY);
-            return LONG_APPEARANCE_VALUE.equals(appearance)
-                    && Build.VERSION.SDK_INT >= Build.VERSION_CODES.N;
+            return LONG_APPEARANCE_VALUE.equals(appearance) &&
+                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.N;
         }
         return false;
     }
 
+
     private void saveRecording() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            unregisterAudioRecordingConfigurationChangeCallback();
-        }
         if (inPausedState) {
             stopRecording();
         }
@@ -350,7 +318,7 @@ public class RecordingFragment extends DialogFragment {
     @Override
     public void onDismiss(DialogInterface dialog) {
         super.onDismiss(dialog);
-        enableScreenRotation((AppCompatActivity) getContext());
+        enableScreenRotation((AppCompatActivity)getContext());
         if (recorder != null) {
             recorder.release();
             this.recorder = null;
@@ -360,7 +328,7 @@ public class RecordingFragment extends DialogFragment {
             try {
                 player.release();
             } catch (IllegalStateException e) {
-                // Do nothing because player wasn't recording
+                //Do nothing because player wasn't recording
             }
         }
     }
@@ -424,71 +392,5 @@ public class RecordingFragment extends DialogFragment {
             recordingDuration.setBase(recordingDuration.getBase() + intervalOnPause);
         }
         recordingDuration.start();
-    }
-
-    @RequiresApi(api = Build.VERSION_CODES.N)
-    private void registerAudioRecordingConfigurationChangeCallback() {
-        audioRecordingCallback = new AudioManager.AudioRecordingCallback() {
-            @Override
-            public void onRecordingConfigChanged(List<AudioRecordingConfiguration> configs) {
-                super.onRecordingConfigChanged(configs);
-                if (recorder == null) {
-                    return;
-                }
-
-                if (hasRecordingGoneSilent(configs)) {
-                    if (!inPausedState) {
-                        pauseRecording(false);
-                        NotificationUtil.showNotification(
-                                getContext(),
-                                CommCareNoficationManager.NOTIFICATION_CHANNEL_USER_SESSION_ID,
-                                RECORDING_NOTIFICATION_ID,
-                                Localization.get("recording.paused.due.another.app.recording.title"),
-                                Localization.get("recording.paused.due.another.app.recording.message"),
-                                new Intent(getContext(), DispatchActivity.class)
-                                        .setAction(Intent.ACTION_MAIN)
-                                        .addCategory(Intent.CATEGORY_LAUNCHER));
-                    }
-                } else {
-                    if (inPausedState) {
-                        NotificationUtil.cancelNotification(getContext(), RECORDING_NOTIFICATION_ID);
-                    }
-                }
-            }
-        };
-        ((AudioManager) getContext().getSystemService(Context.AUDIO_SERVICE))
-                .registerAudioRecordingCallback(audioRecordingCallback, null);
-    }
-
-    @RequiresApi(api = Build.VERSION_CODES.N)
-    private void unregisterAudioRecordingConfigurationChangeCallback() {
-        if (audioRecordingCallback != null) {
-            ((AudioManager) getContext().getSystemService(Context.AUDIO_SERVICE))
-                    .unregisterAudioRecordingCallback(audioRecordingCallback);
-            audioRecordingCallback = null;
-        }
-    }
-
-    private boolean hasRecordingGoneSilent(List<AudioRecordingConfiguration> configs) {
-        if (recorder == null) {
-            return false;
-        }
-
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
-            if (recorder.getActiveRecordingConfiguration() == null) {
-                return false;
-            }
-
-            Optional<AudioRecordingConfiguration> currentAudioConfig = configs.stream().filter(config ->
-                            config.getClientAudioSessionId() == recorder.getActiveRecordingConfiguration()
-                                    .getClientAudioSessionId())
-                    .findAny();
-            return currentAudioConfig.isPresent() ? currentAudioConfig.get().isClientSilenced() : false;
-        } else {
-            if (recorder.getMaxAmplitude() == 0) {
-                return true;
-            }
-            return false;
-        }
     }
 }

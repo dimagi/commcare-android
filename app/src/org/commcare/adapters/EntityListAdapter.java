@@ -1,7 +1,5 @@
 package org.commcare.adapters;
 
-import static org.commcare.cases.util.StringUtils.normalize;
-
 import android.database.DataSetObserver;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,6 +20,7 @@ import org.commcare.suite.model.Action;
 import org.commcare.suite.model.Detail;
 import org.commcare.utils.AndroidUtil;
 import org.commcare.utils.CachingAsyncImageLoader;
+import org.commcare.utils.StringUtils;
 import org.commcare.views.EntityActionViewUtils;
 import org.commcare.views.EntityView;
 import org.commcare.views.EntityViewTile;
@@ -312,7 +311,7 @@ public class EntityListAdapter extends AndroidSortableEntityAdapter implements L
         // split by whitespace
         String[] searchTerms = filterRaw.split("\\s+");
         for (int i = 0; i < searchTerms.length; ++i) {
-            searchTerms[i] = normalize(searchTerms[i]);
+            searchTerms[i] = StringUtils.normalize(searchTerms[i]);
         }
         currentSearchTerms = searchTerms;
         searchQuery = filterRaw;

@@ -1,7 +1,6 @@
 package org.commcare.views.media;
 
 import android.content.Context;
-import android.net.Uri;
 import android.util.AttributeSet;
 import android.widget.VideoView;
 
@@ -18,8 +17,6 @@ public class CommCareVideoView extends VideoView {
 
     private long duration;
     private long startTime;
-
-    private String videoPath;
 
     public CommCareVideoView(Context context) {
         super(context);
@@ -55,16 +52,6 @@ public class CommCareVideoView extends VideoView {
         if (listener != null) {
             listener.onVideoDetached(duration);
         }
-    }
-
-    @Override
-    public void setVideoPath(String videoPath){
-        super.setVideoPath(videoPath);
-        this.videoPath = videoPath;
-    }
-
-    public String getVideoPath() {
-        return videoPath;
     }
 
     public interface VideoDetachedListener {

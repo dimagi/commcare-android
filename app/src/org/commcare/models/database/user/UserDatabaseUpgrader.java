@@ -30,7 +30,7 @@ import org.commcare.android.database.user.models.ACase;
 import org.commcare.android.database.user.models.ACasePreV6Model;
 import org.commcare.android.database.user.models.AUser;
 import org.commcare.models.database.user.models.AndroidCaseIndexTable;
-import org.commcare.models.database.user.models.CommCareEntityStorageCache;
+import org.commcare.models.database.user.models.EntityStorageCache;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.FormRecordV1;
 import org.commcare.android.database.user.models.GeocodeCacheModel;
@@ -283,8 +283,8 @@ class UserDatabaseUpgrader {
             db.execSQL(DatabaseIndexingUtils.indexOnTableCommand("case_status_open_index", "AndroidCase", "case_type,case_status"));
 
             DbUtil.createNumbersTable(db);
-            db.execSQL(CommCareEntityStorageCache.getTableDefinition());
-            CommCareEntityStorageCache.createIndexes(db);
+            db.execSQL(EntityStorageCache.getTableDefinition());
+            EntityStorageCache.createIndexes(db);
 
             db.execSQL(AndroidCaseIndexTablePreV21.getTableDefinition());
             AndroidCaseIndexTable.createIndexes(db);
@@ -626,8 +626,8 @@ class UserDatabaseUpgrader {
         //drop the existing table and recreate using current definition
         db.beginTransaction();
         try {
-            db.execSQL("DROP TABLE IF EXISTS " + CommCareEntityStorageCache.TABLE_NAME);
-            db.execSQL(CommCareEntityStorageCache.getTableDefinition());
+            db.execSQL("DROP TABLE IF EXISTS " + EntityStorageCache.TABLE_NAME);
+            db.execSQL(EntityStorageCache.getTableDefinition());
             db.setTransactionSuccessful();
             return true;
         } finally {

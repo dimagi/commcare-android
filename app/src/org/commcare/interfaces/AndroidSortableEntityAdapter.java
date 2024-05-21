@@ -1,10 +1,10 @@
 package org.commcare.interfaces;
 
 import org.commcare.CommCareApplication;
-import org.commcare.cases.entity.AsyncNodeEntityFactory;
 import org.commcare.cases.entity.Entity;
 import org.commcare.cases.entity.NodeEntityFactory;
 import org.commcare.cases.entity.SortableEntityAdapter;
+import org.commcare.models.AsyncNodeEntityFactory;
 import org.commcare.suite.model.Detail;
 import org.commcare.views.notifications.NotificationMessageFactory;
 import org.javarosa.core.model.instance.TreeReference;

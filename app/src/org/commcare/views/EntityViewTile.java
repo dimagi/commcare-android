@@ -1,10 +1,15 @@
 package org.commcare.views;
 
+import androidx.appcompat.app.AppCompatActivity;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Point;
+import android.os.Build;
+import androidx.core.util.Pair;
+import androidx.legacy.widget.Space;
+import androidx.gridlayout.widget.GridLayout;
 import android.text.Spannable;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -15,14 +20,9 @@ import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 import android.widget.TextView;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.util.Pair;
-import androidx.gridlayout.widget.GridLayout;
-import androidx.legacy.widget.Space;
-
-import org.commcare.cases.entity.AsyncEntity;
 import org.commcare.cases.entity.Entity;
 import org.commcare.dalvik.R;
+import org.commcare.models.AsyncEntity;
 import org.commcare.suite.model.Detail;
 import org.commcare.util.GridCoordinate;
 import org.commcare.util.GridStyle;

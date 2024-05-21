@@ -12,7 +12,7 @@ import org.commcare.cases.model.Case;
 import org.commcare.engine.references.JavaHttpReference;
 import org.commcare.interfaces.CommcareRequestEndpoints;
 import org.commcare.models.database.user.models.AndroidCaseIndexTable;
-import org.commcare.models.database.user.models.CommCareEntityStorageCache;
+import org.commcare.models.database.user.models.EntityStorageCache;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.FileUtil;
 import org.commcare.utils.GlobalConstants;
@@ -39,18 +39,18 @@ public class AndroidCaseXmlParser extends CaseXmlParser {
     private final boolean processAttachments = true;
     private CommcareRequestEndpoints generator;
     @Nullable
-    private final CommCareEntityStorageCache mEntityCache;
+    private final EntityStorageCache mEntityCache;
     private final AndroidCaseIndexTable mCaseIndexTable;
 
     public AndroidCaseXmlParser(KXmlParser parser, IStorageUtilityIndexed storage,
-                                @Nullable CommCareEntityStorageCache entityCache, AndroidCaseIndexTable indexTable) {
+                                @Nullable EntityStorageCache entityCache, AndroidCaseIndexTable indexTable) {
         super(parser, storage);
         mEntityCache = entityCache;
         mCaseIndexTable = indexTable;
     }
 
     public AndroidCaseXmlParser(KXmlParser parser, IStorageUtilityIndexed storage) {
-        this(parser, storage, new CommCareEntityStorageCache("case"), new AndroidCaseIndexTable());
+        this(parser, storage, new EntityStorageCache("case"), new AndroidCaseIndexTable());
     }
 
     public AndroidCaseXmlParser(KXmlParser parser, boolean acceptCreateOverwrites,
@@ -58,7 +58,7 @@ public class AndroidCaseXmlParser extends CaseXmlParser {
                                 CommcareRequestEndpoints generator) {
         super(parser, acceptCreateOverwrites, storage);
         this.generator = generator;
-        mEntityCache = new CommCareEntityStorageCache("case");
+        mEntityCache = new EntityStorageCache("case");
         mCaseIndexTable = new AndroidCaseIndexTable();
     }
 
