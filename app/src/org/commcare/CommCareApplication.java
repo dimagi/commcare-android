@@ -76,7 +76,7 @@ import org.commcare.models.database.HybridFileBackedSqlStorage;
 import org.commcare.models.database.MigrationException;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.models.database.global.DatabaseGlobalOpenHelper;
-import org.commcare.models.database.user.models.EntityStorageCache;
+import org.commcare.models.database.user.models.CommCareEntityStorageCache;
 import org.commcare.models.legacy.LegacyInstallUtils;
 import org.commcare.modern.database.Table;
 import org.commcare.modern.session.SessionWrapper;
@@ -792,8 +792,8 @@ public class CommCareApplication extends MultiDexApplication {
                             PurgeStaleArchivedFormsTask.launchPurgeTask();
                         }
 
-                        if (EntityStorageCache.getEntityCacheWipedPref(user.getUniqueId()) < ReportingUtils.getAppVersion()) {
-                            EntityStorageCache.wipeCacheForCurrentApp();
+                        if (CommCareEntityStorageCache.getEntityCacheWipedPref(user.getUniqueId()) < ReportingUtils.getAppVersion()) {
+                            CommCareEntityStorageCache.wipeCacheForCurrentApp();
                         }
 
                         purgeLogs();
