@@ -446,20 +446,24 @@ custom.restore.file.not.set=Custom restore file path is not set in preferences
 custom.restore.error=Error loading custom sync
 
 start.recording=Start Recording
+start.recording.failed=Unable to start recording while another application is recording!
 stop.recording=Stop Recording
 recording.header=Record a sound
 before.recording=Tap to start recording
 before.overwrite.recording=Tap to start a new recording
-during.recording=Tap to stop recording
+during.recording=Recording is in progress, avoid navigating away from CommCare. Tap to stop recording
 after.recording=Recording complete.
 delete.recording=Tap to delete recording
 pause.recording=Recording paused, tap to continue recording
+pause.recording.because.no.sound.captured=Recording paused because another app started recording, tap to continue recording
 save=Save
 recording.cancel=Cancel
 recording.clear=Clear
 recording.prompt.with.file.chooser=Record or choose sound below
 recording.prompt.without.file.chooser=Record sound below
 recording.custom=Recorded Sound
+recording.paused.due.another.app.recording.title=CommCare Audio Recording
+recording.paused.due.another.app.recording.message=Recording paused as another app started recording. Click here to resume the recording!
 
 callout.failure.dialer=Device is not currently configured to make telephone calls
 callout.failure.sms=SMS app not found

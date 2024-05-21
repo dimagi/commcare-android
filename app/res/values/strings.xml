@@ -615,4 +615,5 @@
 
     <string name="app_with_id_not_found">Required CommCare App is not installed on device</string>
     <string name="phone_code_plus">+</string>
+    <string name="audio_recording_notification">Audio Recording Notification</string>
 </resources>
