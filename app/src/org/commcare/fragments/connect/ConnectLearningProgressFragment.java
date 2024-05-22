@@ -47,12 +47,15 @@ import androidx.navigation.Navigation;
  * @author dviggiano
  */
 public class ConnectLearningProgressFragment extends Fragment {
+    boolean showAppLaunch;
     public ConnectLearningProgressFragment() {
         // Required empty public constructor
     }
 
-    public static ConnectLearningProgressFragment newInstance() {
-        return new ConnectLearningProgressFragment();
+    public static ConnectLearningProgressFragment newInstance(boolean showAppLaunch) {
+        ConnectLearningProgressFragment fragment = new ConnectLearningProgressFragment();
+        fragment.showAppLaunch = showAppLaunch;
+        return fragment;
     }
 
     @Override
@@ -312,12 +315,13 @@ public class ConnectLearningProgressFragment extends Fragment {
         }
 
         final Button reviewButton = view.findViewById(R.id.connect_learning_review_button);
-        reviewButton.setVisibility(showReviewLearningButton ? View.VISIBLE : View.GONE);
+        reviewButton.setVisibility(showAppLaunch && showReviewLearningButton ? View.VISIBLE : View.GONE);
         reviewButton.setText(R.string.connect_learn_review);
         reviewButton.setOnClickListener(v -> {
             NavDirections directions = null;
             if(ConnectManager.isAppInstalled(job.getLearnAppInfo().getAppId())) {
                 ConnectManager.launchApp(getContext(), true, job.getLearnAppInfo().getAppId());
+                getActivity().finish();
             } else {
                 String title = getString(R.string.connect_downloading_learn);
                 directions = ConnectLearningProgressFragmentDirections.actionConnectJobLearningProgressFragmentToConnectDownloadingFragment(title, true, true);
@@ -329,6 +333,7 @@ public class ConnectLearningProgressFragment extends Fragment {
         });
 
         final Button button = view.findViewById(R.id.connect_learning_button);
+        button.setVisibility(showAppLaunch ? View.VISIBLE : View.GONE);
         button.setText(buttonText);
         button.setOnClickListener(v -> {
             NavDirections directions = null;
@@ -336,6 +341,7 @@ public class ConnectLearningProgressFragment extends Fragment {
                 directions = ConnectLearningProgressFragmentDirections.actionConnectJobLearningProgressFragmentToConnectJobDeliveryDetailsFragment();
             } else if(ConnectManager.isAppInstalled(job.getLearnAppInfo().getAppId())) {
                 ConnectManager.launchApp(getContext(), true, job.getLearnAppInfo().getAppId());
+                getActivity().finish();
             } else {
                 String title = getString(R.string.connect_downloading_learn);
                 directions = ConnectLearningProgressFragmentDirections.actionConnectJobLearningProgressFragmentToConnectDownloadingFragment(title, true, true);
