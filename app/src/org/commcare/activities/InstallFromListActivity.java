@@ -306,7 +306,7 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
     }
 
     @Override
-    public void processSuccess(int responseCode, InputStream responseData) {
+    public void processSuccess(int responseCode, InputStream responseData, String apiVersion) {
         processResponseIntoAppsList(responseData);
         saveLastSuccessfulCredentials();
         repeatRequestOrShowResultsAfterSuccess();

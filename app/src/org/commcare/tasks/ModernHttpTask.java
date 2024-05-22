@@ -36,6 +36,7 @@ public class ModernHttpTask
 
     private final ModernHttpRequester requester;
     private InputStream responseDataStream;
+    private String apiVersion;
     private IOException mException;
     private Response<ResponseBody> mResponse;
 
@@ -72,6 +73,12 @@ public class ModernHttpTask
             if (mResponse.isSuccessful()) {
                 responseDataStream = requester.getResponseStream(mResponse);
             }
+
+            try {
+                apiVersion = mResponse.headers().get("x-api-current-version");
+            } catch(Exception e) {
+                //Ignore error if API version isn't present
+            }
         } catch (IOException e) {
             mException = e;
         }
@@ -106,5 +113,10 @@ public class ModernHttpTask
     @Override
     public InputStream getResponseStream() {
         return responseDataStream;
+    }
+
+    @Override
+    public String getApiVersion() {
+        return apiVersion;
     }
 }

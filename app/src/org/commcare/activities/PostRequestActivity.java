@@ -174,7 +174,7 @@ public class PostRequestActivity
     }
 
     @Override
-    public void processSuccess(int responseCode, InputStream responseData) {
+    public void processSuccess(int responseCode, InputStream responseData, String apiVersion) {
         performSync();
     }
 

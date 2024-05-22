@@ -64,7 +64,7 @@ public abstract class GetAndParseActor {
     protected final HttpResponseProcessor responseProcessor = new HttpResponseProcessor() {
 
         @Override
-        public void processSuccess(int responseCode, InputStream responseStream) {
+        public void processSuccess(int responseCode, InputStream responseStream, String apiVersion) {
             try {
                 String responseAsString = new String(StreamsUtil.inputStreamToByteArray(responseStream));
                 JSONObject jsonResponse = new JSONObject(responseAsString);

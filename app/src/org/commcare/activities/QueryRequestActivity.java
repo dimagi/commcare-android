@@ -150,7 +150,7 @@ public class QueryRequestActivity
     }
 
     @Override
-    public void processSuccess(int responseCode, InputStream responseData) {
+    public void processSuccess(int responseCode, InputStream responseData, String apiVersion) {
         // todo pass url and requestData to this callback
         Pair<ExternalDataInstance, String> instanceOrError = remoteQuerySessionManager.buildExternalDataInstance(
                 responseData,
