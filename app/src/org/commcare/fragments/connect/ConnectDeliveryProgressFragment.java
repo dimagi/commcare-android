@@ -54,13 +54,18 @@ public class ConnectDeliveryProgressFragment extends Fragment {
     private ConstraintLayout paymentAlertTile;
     private TextView paymentAlertText;
     private ConnectJobPaymentRecord paymentToConfirm = null;
+    private boolean showLearningLaunch = true;
+    private boolean showDeliveryLaunch = true;
 
     public ConnectDeliveryProgressFragment() {
         // Required empty public constructor
     }
 
-    public static ConnectDeliveryProgressFragment newInstance() {
-        return new ConnectDeliveryProgressFragment();
+    public static ConnectDeliveryProgressFragment newInstance(boolean showLearningLaunch, boolean showDeliveryLaunch) {
+        ConnectDeliveryProgressFragment fragment = new ConnectDeliveryProgressFragment();
+        fragment.showLearningLaunch = showLearningLaunch;
+        fragment.showDeliveryLaunch = showDeliveryLaunch;
+        return fragment;
     }
 
     @Override
@@ -106,7 +111,8 @@ public class ConnectDeliveryProgressFragment extends Fragment {
         });
 
         final ViewPager2 pager = view.findViewById(R.id.connect_delivery_progress_view_pager);
-        viewStateAdapter = new ConnectDeliveryProgressFragment.ViewStateAdapter(getChildFragmentManager(), getLifecycle());
+        viewStateAdapter = new ConnectDeliveryProgressFragment.ViewStateAdapter(getChildFragmentManager(),
+                getLifecycle(), showLearningLaunch, showDeliveryLaunch);
         pager.setAdapter(viewStateAdapter);
 
         final TabLayout tabLayout = view.findViewById(R.id.connect_delivery_progress_tabs);
@@ -206,15 +212,19 @@ public class ConnectDeliveryProgressFragment extends Fragment {
     private static class ViewStateAdapter extends FragmentStateAdapter {
         private static ConnectDeliveryProgressDeliveryFragment deliveryFragment = null;
         private static ConnectResultsSummaryListFragment verificationFragment = null;
-        public ViewStateAdapter(@NonNull FragmentManager fragmentManager, @NonNull Lifecycle lifecycle) {
+        private boolean showLearningLaunch;
+        private boolean showDeliveryLaunch;
+        public ViewStateAdapter(@NonNull FragmentManager fragmentManager, @NonNull Lifecycle lifecycle, boolean showLearningLaunch, boolean showDeliveryLaunch) {
             super(fragmentManager, lifecycle);
+            this.showLearningLaunch = showLearningLaunch;
+            this.showDeliveryLaunch = showDeliveryLaunch;
         }
 
         @NonNull
         @Override
         public Fragment createFragment(int position) {
             if (position == 0) {
-                deliveryFragment = ConnectDeliveryProgressDeliveryFragment.newInstance();
+                deliveryFragment = ConnectDeliveryProgressDeliveryFragment.newInstance(showLearningLaunch, showDeliveryLaunch);
                 return deliveryFragment;
             }
 

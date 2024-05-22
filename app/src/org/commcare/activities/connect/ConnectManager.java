@@ -104,9 +104,6 @@ public class ConnectManager {
 
     private String primedAppIdForAutoLogin = null;
 
-    //Remembers that we should lock ConnectId once we've entered an app
-    private boolean shouldLock = false;
-
     //Singleton, private constructor
     private ConnectManager() {
     }
@@ -343,14 +340,13 @@ public class ConnectManager {
     public static void goToConnectJobsList() {
         ConnectTask task = ConnectTask.CONNECT_MAIN;
         Intent i = new Intent(manager.parentActivity, task.getNextActivity());
-        manager.parentActivity.startActivityForResult(i, task.getRequestCode());
+        manager.parentActivity.startActivity(i);
     }
 
     public static void goToActiveInfoForJob(Activity activity) {
         ConnectTask task = ConnectTask.CONNECT_JOB_INFO;
         Intent i = new Intent(activity, task.getNextActivity());
-        i.putExtra("info", true);
-        activity.startActivityForResult(i, task.getRequestCode());
+        activity.startActivity(i);
     }
 
     public static void forgetAppCredentials(String appId, String userId) {
@@ -447,7 +443,7 @@ public class ConnectManager {
                             //Link the HQ user by aqcuiring the SSO token for the first time
                             ConnectSsoHelper.retrieveHqSsoTokenAsync(activity, username, true, auth -> {
                                 if(auth == null) {
-                                    Toast.makeText(activity, "Failed to acquire SSO token", Toast.LENGTH_SHORT).show();
+                                    //Toast.makeText(activity, "Failed to acquire SSO token", Toast.LENGTH_SHORT).show();
                                     //TODO: Re-enable when token working again
                                     //ConnectManager.forgetAppCredentials(appId, username);
                                 }
@@ -590,11 +586,6 @@ public class ConnectManager {
         }
     }
 
-    public static boolean getShouldLock() { return getInstance().shouldLock; }
-    public static void setShouldLock(boolean shouldLock) {
-         getInstance().shouldLock = shouldLock;
-    }
-
     public static void launchApp(Context context, boolean isLearning, String appId) {
         CommCareApplication.instance().closeUserSession();
 
@@ -602,13 +593,13 @@ public class ConnectManager {
         FirebaseAnalyticsUtil.reportCccAppLaunch(appType, appId);
 
         getInstance().primedAppIdForAutoLogin = appId;
-        getInstance().shouldLock = true;
 
         CommCareLauncher.launchCommCareForAppId(context, appId);
     }
 
     public static boolean wasAppLaunchedFromConnect(String appId) {
         String primed = getInstance().primedAppIdForAutoLogin;
+        getInstance().primedAppIdForAutoLogin = null;
         return primed != null && primed.equals(appId);
     }
 

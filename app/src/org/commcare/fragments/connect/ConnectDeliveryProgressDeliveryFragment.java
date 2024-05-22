@@ -23,12 +23,17 @@ import androidx.navigation.Navigation;
 
 public class ConnectDeliveryProgressDeliveryFragment extends Fragment {
     private View view;
+    private boolean showLearningLaunch;
+    private boolean showDeliveryLaunch;
     public ConnectDeliveryProgressDeliveryFragment() {
         // Required empty public constructor
     }
 
-    public static ConnectDeliveryProgressDeliveryFragment newInstance() {
-        return new ConnectDeliveryProgressDeliveryFragment();
+    public static ConnectDeliveryProgressDeliveryFragment newInstance(boolean showLearningLaunch, boolean showDeliveryLaunch) {
+        ConnectDeliveryProgressDeliveryFragment fragment = new ConnectDeliveryProgressDeliveryFragment();
+        fragment.showLearningLaunch = showLearningLaunch;
+        fragment.showDeliveryLaunch = showDeliveryLaunch;
+        return fragment;
     }
 
     @Override
@@ -47,6 +52,7 @@ public class ConnectDeliveryProgressDeliveryFragment extends Fragment {
 //        //Just proceeding into the app instead.
 //        boolean expired = job.getDaysRemaining() <= 0;
         Button button = view.findViewById(R.id.connect_progress_button);
+        button.setVisibility(showDeliveryLaunch ? View.VISIBLE : View.GONE);
         button.setOnClickListener(v -> {
 //            String title = null;
 //            String message = null;
@@ -75,6 +81,7 @@ public class ConnectDeliveryProgressDeliveryFragment extends Fragment {
         });
 
         Button reviewButton = view.findViewById(R.id.connect_progress_review_button);
+        reviewButton.setVisibility(showLearningLaunch ? View.VISIBLE : View.GONE);
         reviewButton.setOnClickListener(v -> {
             launchLearningApp(reviewButton);
         });
@@ -86,6 +93,7 @@ public class ConnectDeliveryProgressDeliveryFragment extends Fragment {
         ConnectJobRecord job = ConnectManager.getActiveJob();
         if(ConnectManager.isAppInstalled(job.getLearnAppInfo().getAppId())) {
             ConnectManager.launchApp(getContext(), true, job.getLearnAppInfo().getAppId());
+            getActivity().finish();
         }
         else {
             String title = getString(R.string.connect_downloading_learn);
@@ -97,6 +105,7 @@ public class ConnectDeliveryProgressDeliveryFragment extends Fragment {
         ConnectJobRecord job = ConnectManager.getActiveJob();
         if(ConnectManager.isAppInstalled(job.getDeliveryAppInfo().getAppId())) {
             ConnectManager.launchApp(getContext(), false, job.getDeliveryAppInfo().getAppId());
+            getActivity().finish();
         }
         else {
             String title = getString(R.string.connect_downloading_delivery);
