@@ -199,9 +199,7 @@ public class ConnectManager {
 
         if(show) {
             ConnectUserRecord user = ConnectManager.getUser(context);
-            Date date = user.getRegistrationDate();
-            date = new Date(date.getTime() + (1000*3600*24*7));
-            String dateStr = ConnectManager.formatDate(date);
+            String dateStr = ConnectManager.formatDate(user.getSecondaryPhoneVerifyByDate());
             String message = context.getString(R.string.login_connect_secondary_phone_message, dateStr);
 
             TextView view = tile.findViewById(R.id.connect_phone_label);

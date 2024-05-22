@@ -23,6 +23,8 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.ParseException;
+import java.util.Date;
 
 /**
  * Shows the page that prompts the user to enter their password
@@ -162,12 +164,25 @@ public class ConnectIdPasswordVerificationActivity extends CommCareActivity<Conn
                                 name = json.getString(key);
                             }
 
-                            //TODO: Need to get secondary phone from server
+                            key = ConnectConstants.CONNECT_KEY_DB_KEY;
+                            if (json.has(key)) {
+                                //TODO: Use the passphrase from the DB
+                                //json.getString(key);
+                            }
+
                             ConnectUserRecord user = new ConnectUserRecord(phone, username,
                                     password, name, "");
+
+                            key = ConnectConstants.CONNECT_KEY_VALIDATE_SECONDARY_PHONE_BY;
+                            user.setSecondaryPhoneVerified(!json.has(key) || json.isNull(key));
+                            if (!user.getSecondaryPhoneVerified()) {
+                                user.setSecondaryPhoneVerifyByDate(ConnectNetworkHelper.parseDate(json.getString(key)));
+                            }
+
+                            //TODO: Need to get secondary phone from server
                             ConnectDatabaseHelper.storeUser(context, user);
                         }
-                    } catch (IOException | JSONException e) {
+                    } catch (IOException | JSONException | ParseException e) {
                         Logger.exception("Parsing return from OTP request", e);
                     }
 

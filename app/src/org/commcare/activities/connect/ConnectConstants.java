@@ -38,4 +38,6 @@ public class ConnectConstants {
     public static final String CONNECT_KEY_NAME = "name";
     public static final String CONNECT_KEY_SECRET = "secret";
     public static final String CONNECT_KEY_SECONDARY_PHONE = "secondary_phone";
+    public static final String CONNECT_KEY_VALIDATE_SECONDARY_PHONE_BY = "secondary_phone_validate_by";
+    public static final String CONNECT_KEY_DB_KEY = "db_key";
 }

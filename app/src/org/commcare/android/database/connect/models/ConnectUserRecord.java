@@ -25,7 +25,7 @@ public class ConnectUserRecord extends Persisted {
     public static final String STORAGE_KEY = "user_info";
     public static final String META_PIN = "pin";
     public static final String META_SECONDARY_PHONE_VERIFIED = "secondary_phone_verified";
-    public static final String META_REGISTRATION_DATE = "registration_date";
+    public static final String META_VERIFY_SECONDARY_PHONE_DATE = "verify_secondary_phone_by_date";
 
     @Persisting(1)
     private String userId;
@@ -61,14 +61,15 @@ public class ConnectUserRecord extends Persisted {
     private boolean secondaryPhoneVerified;
 
     @Persisting(12)
-    @MetaField(META_REGISTRATION_DATE)
-    private Date registrationDate;
+    @MetaField(META_VERIFY_SECONDARY_PHONE_DATE)
+    private Date verifySecondaryPhoneByDate;
 
     public ConnectUserRecord() {
         registrationPhase = ConnectTask.CONNECT_NO_ACTIVITY.getRequestCode();
         lastPasswordDate = new Date();
         connectTokenExpiration = new Date();
-        registrationDate = new Date();
+        secondaryPhoneVerified = true;
+        verifySecondaryPhoneByDate = new Date();
     }
 
     public ConnectUserRecord(String primaryPhone, String userId, String password, String name,
@@ -155,6 +156,10 @@ public class ConnectUserRecord extends Persisted {
         return secondaryPhoneVerified;
     }
     public void setSecondaryPhoneVerified(boolean verified) { secondaryPhoneVerified = verified; }
+    public Date getSecondaryPhoneVerifyByDate() {
+        return verifySecondaryPhoneByDate;
+    }
+    public void setSecondaryPhoneVerifyByDate(Date date) { verifySecondaryPhoneByDate = date; }
 
     public boolean shouldForcePin() {
         return shouldForceRecoveryLogin() && pin != null && pin.length() > 0;
@@ -182,9 +187,7 @@ public class ConnectUserRecord extends Persisted {
             return false;
         }
 
-        long millis = (new Date()).getTime() - registrationDate.getTime();
-        long days = TimeUnit.DAYS.convert(millis, TimeUnit.MILLISECONDS);
-        return days >= 7;
+        return (new Date()).after(verifySecondaryPhoneByDate);
     }
 
     public void updateConnectToken(String token, Date expirationDate) {
@@ -198,10 +201,6 @@ public class ConnectUserRecord extends Persisted {
 
     public Date getConnectTokenExpiration() {
         return connectTokenExpiration;
-    }
-
-    public Date getRegistrationDate() {
-        return registrationDate;
     }
 
     public static ConnectUserRecord fromV5(ConnectUserRecordV5 oldRecord) {

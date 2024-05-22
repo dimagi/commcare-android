@@ -23,6 +23,7 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.ParseException;
 import java.util.Date;
 
 /**
@@ -182,6 +183,7 @@ public class ConnectIdPinActivity extends CommCareActivity<ConnectIdPinActivity>
                                         StreamsUtil.inputStreamToByteArray(responseData));
                                 if (responseAsString.length() > 0) {
                                     JSONObject json = new JSONObject(responseAsString);
+
                                     String key = ConnectConstants.CONNECT_KEY_USERNAME;
                                     if (json.has(key)) {
                                         username = json.getString(key);
@@ -191,12 +193,33 @@ public class ConnectIdPinActivity extends CommCareActivity<ConnectIdPinActivity>
                                     if (json.has(key)) {
                                         name = json.getString(key);
                                     }
-                                }
-                            } catch (IOException | JSONException e) {
-                                Logger.exception("Parsing return from OTP request", e);
-                            }
 
-                            resetPassword(context, phone, secret, username, name, pin);
+                                    key = ConnectConstants.CONNECT_KEY_DB_KEY;
+                                    if (json.has(key)) {
+                                        //TODO: Use the passphrase from the DB
+                                        //json.getString(key);
+                                    }
+
+                                    ConnectUserRecord user = new ConnectUserRecord(phone, username,
+                                            "", name, "");
+                                    user.setPin(pin);
+                                    user.setLastPinDate(new Date());
+
+                                    key = ConnectConstants.CONNECT_KEY_VALIDATE_SECONDARY_PHONE_BY;
+                                    user.setSecondaryPhoneVerified(!json.has(key) || json.isNull(key));
+                                    if (!user.getSecondaryPhoneVerified()) {
+                                        user.setSecondaryPhoneVerifyByDate(ConnectNetworkHelper.parseDate(json.getString(key)));
+                                    }
+
+                                    resetPassword(context, phone, secret, user);
+                                }
+                                else {
+                                    //TODO: Show toast about error
+                                }
+                            } catch (IOException | JSONException | ParseException e) {
+                                Logger.exception("Parsing return from OTP request", e);
+                                //TODO: Show toast about error
+                            }
                         }
 
                         @Override
@@ -228,20 +251,18 @@ public class ConnectIdPinActivity extends CommCareActivity<ConnectIdPinActivity>
         }
     }
 
-    private void resetPassword(Context context, String phone, String secret, String username, String name, String pin) {
+    private void resetPassword(Context context, String phone, String secret, ConnectUserRecord user) {
         //Auto-generate and send a new password
         String password = ConnectManager.generatePassword();
         ApiConnectId.resetPassword(context, phone, secret, password, new IApiCallback() {
             @Override
             public void processSuccess(int responseCode, InputStream responseData) {
                 //TODO: Need to get secondary phone from server
-                ConnectUserRecord user = new ConnectUserRecord(phone, username,
-                        password, name, "");
-                user.setPin(pin);
-                user.setLastPinDate(new Date());
+                user.setPassword(password);
+
                 ConnectDatabaseHelper.storeUser(context, user);
 
-                finish(true, false, pin);
+                finish(true, false, user.getPin());
             }
 
             @Override
