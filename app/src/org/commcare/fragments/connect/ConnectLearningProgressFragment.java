@@ -69,6 +69,10 @@ public class ConnectLearningProgressFragment extends Fragment {
         ConnectJobRecord job = ConnectManager.getActiveJob();
         getActivity().setTitle(job.getTitle());
 
+        if(getArguments() != null) {
+            showAppLaunch = getArguments().getBoolean("showLaunch", true);
+        }
+
         View view = inflater.inflate(R.layout.fragment_connect_learning_progress, container, false);
 
         ImageView refreshButton = view.findViewById(R.id.connect_learning_refresh);
