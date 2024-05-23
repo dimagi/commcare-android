@@ -24,20 +24,9 @@ import org.commcare.views.dialogs.CustomProgressDialog;
 
 import javax.annotation.Nullable;
 
-public class ConnectJobInfoActivity extends CommCareActivity<ResourceEngineListener> {
+public class ConnectJobInfoActivity extends CommCareActivity<ConnectJobInfoActivity> {
     private boolean backButtonEnabled = true;
     private boolean waitDialogEnabled = true;
-
-    ActivityResultLauncher<Intent> verificationLauncher = registerForActivityResult(
-            new ActivityResultContracts.StartActivityForResult(),
-            result -> {
-                if (result.getResultCode() == Activity.RESULT_OK) {
-                    ConnectDownloadingFragment connectDownloadFragment = getConnectDownloadFragment();
-                    if (connectDownloadFragment != null) {
-                        connectDownloadFragment.onSuccessfulVerification();
-                    }
-                }
-            });
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -60,7 +49,7 @@ public class ConnectJobInfoActivity extends CommCareActivity<ResourceEngineListe
         }
 
         if(fragment == null) {
-            fragment = ConnectJobIntroFragment.newInstance(false);
+            fragment = ConnectJobIntroFragment.newInstance(true);
         }
 
         getSupportFragmentManager().beginTransaction()
@@ -113,28 +102,5 @@ public class ConnectJobInfoActivity extends CommCareActivity<ResourceEngineListe
     @Override
     protected boolean shouldShowBreadcrumbBar() {
         return false;
-    }
-
-    @Override
-    public ResourceEngineListener getReceiver() {
-        return getConnectDownloadFragment();
-    }
-
-    @Nullable
-    private ConnectDownloadingFragment getConnectDownloadFragment() {
-        NavHostFragment navHostFragment =
-                (NavHostFragment)getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment_connect);
-        Fragment currentFragment =
-                navHostFragment.getChildFragmentManager().getPrimaryNavigationFragment();
-        if (currentFragment instanceof ConnectDownloadingFragment) {
-            return (ConnectDownloadingFragment)currentFragment;
-        }
-        return null;
-    }
-
-    public void startAppValidation() {
-        Intent i = new Intent(this, CommCareVerificationActivity.class);
-        i.putExtra(CommCareVerificationActivity.KEY_LAUNCH_FROM_SETTINGS, true);
-        verificationLauncher.launch(i);
     }
 }

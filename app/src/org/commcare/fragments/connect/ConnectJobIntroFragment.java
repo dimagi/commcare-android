@@ -34,7 +34,7 @@ import java.util.Locale;
  * @author dviggiano
  */
 public class ConnectJobIntroFragment extends Fragment {
-    private boolean showLaunchButton;
+    private boolean showLaunchButton = true;
     public ConnectJobIntroFragment() {
         // Required empty public constructor
     }

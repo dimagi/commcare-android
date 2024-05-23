@@ -276,10 +276,14 @@ public class ConnectManager {
     }
 
     public static void setConnectJobForApp(Context context, String appId) {
+        ConnectJobRecord job = null;
+
         ConnectAppRecord appRecord = getAppRecord(context, appId);
         if(appRecord != null) {
-            setActiveJob(ConnectDatabaseHelper.getJob(context, appRecord.getJobId()));
+            job = ConnectDatabaseHelper.getJob(context, appRecord.getJobId());
         }
+
+        setActiveJob(job);
     }
 
     private static ConnectJobRecord activeJob = null;

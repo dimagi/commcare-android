@@ -47,7 +47,7 @@ import androidx.navigation.Navigation;
  * @author dviggiano
  */
 public class ConnectLearningProgressFragment extends Fragment {
-    boolean showAppLaunch;
+    boolean showAppLaunch = true;
     public ConnectLearningProgressFragment() {
         // Required empty public constructor
     }

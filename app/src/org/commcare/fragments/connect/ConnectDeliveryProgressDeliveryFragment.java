@@ -23,8 +23,8 @@ import androidx.navigation.Navigation;
 
 public class ConnectDeliveryProgressDeliveryFragment extends Fragment {
     private View view;
-    private boolean showLearningLaunch;
-    private boolean showDeliveryLaunch;
+    private boolean showLearningLaunch = true;
+    private boolean showDeliveryLaunch = true;
     public ConnectDeliveryProgressDeliveryFragment() {
         // Required empty public constructor
     }
