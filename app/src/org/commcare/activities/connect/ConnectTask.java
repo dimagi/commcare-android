@@ -71,7 +71,7 @@ public enum ConnectTask {
     CONNECT_UNLOCK_VERIFY_ALT_PHONE(ConnectConstants.ConnectIdTaskIdOffset + 33,
             ConnectIdPhoneVerificationActivity.class),
     CONNECT_JOB_INFO(ConnectConstants.ConnectIdTaskIdOffset + 34,
-            ConnectJobInfoActivity.class),
+            ConnectActivity.class),
     CONNECT_REGISTRATION_CHANGE_PIN(ConnectConstants.ConnectIdTaskIdOffset + 35,
             ConnectIdPinActivity.class),
     ;

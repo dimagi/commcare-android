@@ -79,6 +79,11 @@ public class ConnectDeliveryProgressFragment extends Fragment {
         ConnectJobRecord job = ConnectManager.getActiveJob();
         getActivity().setTitle(job.getTitle());
 
+        if(getArguments() != null) {
+            showLearningLaunch = getArguments().getBoolean("showLaunch", true);
+            showDeliveryLaunch = getArguments().getBoolean("showLaunch", true);
+        }
+
         View view = inflater.inflate(R.layout.fragment_connect_delivery_progress, container, false);
 
         updateText = view.findViewById(R.id.connect_delivery_last_update);

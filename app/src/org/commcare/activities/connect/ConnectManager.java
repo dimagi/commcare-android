@@ -348,6 +348,7 @@ public class ConnectManager {
     public static void goToActiveInfoForJob(Activity activity) {
         ConnectTask task = ConnectTask.CONNECT_JOB_INFO;
         Intent i = new Intent(activity, task.getNextActivity());
+        i.putExtra("info", true);
         activity.startActivity(i);
     }
 

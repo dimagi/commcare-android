@@ -10,6 +10,7 @@ import androidx.appcompat.app.ActionBar;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.NavGraph;
+import androidx.navigation.NavOptions;
 import androidx.navigation.fragment.NavHostFragment;
 
 import org.commcare.activities.CommCareActivity;
@@ -52,6 +53,21 @@ public class ConnectActivity extends CommCareActivity<ResourceEngineListener> {
         NavHostFragment host = (NavHostFragment)getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment_connect);
         NavController navController = host.getNavController();
         navController.addOnDestinationChangedListener(destinationListener);
+
+        if(getIntent().getBooleanExtra("info", false)) {
+            ConnectJobRecord job = ConnectManager.getActiveJob();
+            int fragmentId = job.getStatus() == ConnectJobRecord.STATUS_DELIVERING ?
+                    R.id.connect_job_delivery_progress_fragment :
+                    R.id.connect_job_learning_progress_fragment;
+
+            Bundle bundle = new Bundle();
+            bundle.putBoolean("showLaunch", false);
+
+            NavOptions options = new NavOptions.Builder()
+                    .setPopUpTo(navController.getGraph().getStartDestinationId(), true)
+                    .build();
+            navController.navigate(fragmentId, bundle, options);
+        }
     }
 
     @Override
