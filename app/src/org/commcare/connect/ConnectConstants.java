@@ -1,4 +1,4 @@
-package org.commcare.activities.connect;
+package org.commcare.connect;
 
 /**
  * Constants used for ConnectID, i.e. when passing params to activities

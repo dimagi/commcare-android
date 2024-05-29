@@ -5,8 +5,8 @@ import android.os.Bundle;
 import android.widget.Toast;
 
 import org.commcare.activities.CommCareActivity;
+import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.network.ApiConnectId;
-import org.commcare.connect.network.ConnectNetworkHelper;
 import org.commcare.connect.network.IApiCallback;
 import org.commcare.dalvik.R;
 import org.commcare.interfaces.CommCareActivityUIController;

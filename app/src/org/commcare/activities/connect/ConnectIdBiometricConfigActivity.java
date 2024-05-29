@@ -6,6 +6,7 @@ import android.os.Bundle;
 import androidx.biometric.BiometricManager;
 
 import org.commcare.activities.CommCareActivity;
+import org.commcare.connect.ConnectConstants;
 import org.commcare.dalvik.R;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.WithUIController;
@@ -17,10 +18,10 @@ import org.commcare.views.dialogs.CustomProgressDialog;
  *
  * @author dviggiano
  */
-public class ConnectIdVerificationActivity extends CommCareActivity<ConnectIdVerificationActivity>
+public class ConnectIdBiometricConfigActivity extends CommCareActivity<ConnectIdBiometricConfigActivity>
         implements WithUIController {
 
-    private ConnectIdVerificationActivityUiController uiController;
+    private ConnectIdBiometricConfigActivityUiController uiController;
     private BiometricManager biometricManager;
 
     @Override
@@ -66,7 +67,7 @@ public class ConnectIdVerificationActivity extends CommCareActivity<ConnectIdVer
 
     @Override
     public void initUIController() {
-        uiController = new ConnectIdVerificationActivityUiController(this);
+        uiController = new ConnectIdBiometricConfigActivityUiController(this);
     }
 
     @Override

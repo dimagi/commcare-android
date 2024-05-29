@@ -19,9 +19,9 @@ import android.widget.TextView;
 import com.google.android.material.tabs.TabLayout;
 
 import org.commcare.activities.CommCareActivity;
-import org.commcare.activities.connect.ConnectDatabaseHelper;
-import org.commcare.activities.connect.ConnectManager;
-import org.commcare.activities.connect.IConnectAppLauncher;
+import org.commcare.connect.ConnectDatabaseHelper;
+import org.commcare.connect.ConnectManager;
+import org.commcare.connect.IConnectAppLauncher;
 import org.commcare.connect.network.ConnectNetworkHelper;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.CommCareApplication;

@@ -8,12 +8,11 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import org.commcare.activities.connect.ConnectDatabaseHelper;
-import org.commcare.activities.connect.ConnectManager;
-import org.commcare.activities.connect.IConnectAppLauncher;
+import org.commcare.connect.ConnectDatabaseHelper;
+import org.commcare.connect.ConnectManager;
+import org.commcare.connect.IConnectAppLauncher;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.dalvik.R;
-import org.commcare.fragments.connect.ConnectDeliveryProgressFragmentDirections;
 import org.commcare.fragments.connect.ConnectJobsListsFragmentDirections;
 
 import java.util.Date;

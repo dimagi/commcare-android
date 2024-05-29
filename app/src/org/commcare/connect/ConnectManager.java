@@ -1,4 +1,4 @@
-package org.commcare.activities.connect;
+package org.commcare.connect;
 
 import android.app.Activity;
 import android.content.Context;

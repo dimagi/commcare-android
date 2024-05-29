@@ -2,8 +2,8 @@ package org.commcare.android.database.connect.models;
 
 import android.content.Intent;
 
-import org.commcare.activities.connect.ConnectConstants;
-import org.commcare.activities.connect.ConnectTask;
+import org.commcare.connect.ConnectConstants;
+import org.commcare.connect.ConnectTask;
 import org.commcare.android.storage.framework.Persisted;
 import org.commcare.models.framework.Persisting;
 import org.commcare.modern.database.Table;

@@ -5,7 +5,7 @@ import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import org.commcare.activities.connect.ConnectManager
+import org.commcare.connect.ConnectManager
 import org.commcare.connect.network.ApiConnectId
 
 class ConnectHeartbeatWorker(context: Context, workerParams: WorkerParameters) :
