@@ -75,6 +75,7 @@ public class ModernHttpTask
         } catch (IOException e) {
             mException = e;
         }
+
         return null;
     }
 
