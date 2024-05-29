@@ -19,6 +19,7 @@ public class ConnectConstants {
     public static final String TITLE = "TITLE";
     public static final String MESSAGE = "MESSAGE";
     public static final String BUTTON = "BUTTON";
+    public static final String BUTTON2 = "BUTTON2";
     public static final String SECRET = "SECRET";
 
     public static final String RECOVER = "RECOVER";
