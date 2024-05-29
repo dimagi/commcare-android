@@ -174,7 +174,7 @@ public class ConnectManager {
                 && getInstance().connectStatus == ConnectIdStatus.LoggedIn;
     }
 
-    private static DateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy", Locale.getDefault());
+    private static final DateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy", Locale.getDefault());
     public static String formatDate(Date date) {
         return dateFormat.format(date);
     }

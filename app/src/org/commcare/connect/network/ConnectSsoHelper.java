@@ -26,7 +26,7 @@ public class ConnectSsoHelper {
         private final WeakReference<Context> weakContext;
         private final String hqUsername; //null for ConnectId
         private final boolean linkHqUser;
-        TokenCallback callback;
+        final TokenCallback callback;
         TokenTask(Context context, String hqUsername, boolean linkHqUser, TokenCallback callback) {
             super();
             this.weakContext = new WeakReference<>(context);

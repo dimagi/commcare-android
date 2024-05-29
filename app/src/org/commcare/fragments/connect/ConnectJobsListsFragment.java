@@ -223,7 +223,7 @@ public class ConnectJobsListsFragment extends Fragment {
     private static class ViewStateAdapter extends FragmentStateAdapter {
         static ConnectJobsAvailableListFragment availableFragment;
         static ConnectJobsMyListFragment myFragment;
-        IConnectAppLauncher launcher;
+        final IConnectAppLauncher launcher;
 
         public ViewStateAdapter(@NonNull FragmentManager fragmentManager, @NonNull Lifecycle lifecycle, IConnectAppLauncher appLauncher) {
             super(fragmentManager, lifecycle);

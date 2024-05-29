@@ -30,7 +30,7 @@ public class ConnectActivity extends CommCareActivity<ResourceEngineListener> {
 
     NavController.OnDestinationChangedListener destinationListener = null;
 
-    ActivityResultLauncher<Intent> verificationLauncher = registerForActivityResult(
+    final ActivityResultLauncher<Intent> verificationLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
             result -> {
                 if (result.getResultCode() == Activity.RESULT_OK) {
@@ -74,24 +74,7 @@ public class ConnectActivity extends CommCareActivity<ResourceEngineListener> {
     public void onBackPressed() {
         if(backButtonEnabled) {
             super.onBackPressed();
-//            NavHostFragment navHostFragment = (NavHostFragment)getSupportFragmentManager()
-//                    .findFragmentById(R.id.nav_host_fragment_connect);
-//            if(navHostFragment != null) {
-//                int count = navHostFragment.getChildFragmentManager().getBackStackEntryCount();
-//                if(count > 0) {
-//                    NavController navController = navHostFragment.getNavController();
-//                    navController.getNavInflater();
-//                    navController.popBackStack();
-//                } else {
-//                    finish();
-//                }
-//            }
         }
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
     }
 
     @Override

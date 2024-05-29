@@ -2,7 +2,6 @@ package org.commcare.activities.connect;
 
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.TextView;
 

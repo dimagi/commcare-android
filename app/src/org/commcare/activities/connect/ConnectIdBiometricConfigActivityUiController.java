@@ -35,7 +35,7 @@ public class ConnectIdBiometricConfigActivityUiController implements CommCareAct
     @UiElement(value = R.id.connect_verify_pin_button)
     private Button pinButton;
 
-    private ConnectIdBiometricConfigActivity activity;
+    private final ConnectIdBiometricConfigActivity activity;
 
     public ConnectIdBiometricConfigActivityUiController(ConnectIdBiometricConfigActivity activity) {
         this.activity = activity;

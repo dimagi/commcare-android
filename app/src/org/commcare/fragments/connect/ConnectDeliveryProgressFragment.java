@@ -202,8 +202,8 @@ public class ConnectDeliveryProgressFragment extends Fragment {
     private static class ViewStateAdapter extends FragmentStateAdapter {
         private static ConnectDeliveryProgressDeliveryFragment deliveryFragment = null;
         private static ConnectResultsSummaryListFragment verificationFragment = null;
-        private boolean showLearningLaunch;
-        private boolean showDeliveryLaunch;
+        private final boolean showLearningLaunch;
+        private final boolean showDeliveryLaunch;
         public ViewStateAdapter(@NonNull FragmentManager fragmentManager, @NonNull Lifecycle lifecycle, boolean showLearningLaunch, boolean showDeliveryLaunch) {
             super(fragmentManager, lifecycle);
             this.showLearningLaunch = showLearningLaunch;

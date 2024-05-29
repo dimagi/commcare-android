@@ -118,10 +118,10 @@ public class ConnectResultsListFragment extends Fragment {
         }
 
         public static class VerificationViewHolder extends RecyclerView.ViewHolder {
-            TextView nameText;
-            TextView dateText;
-            TextView statusText;
-            TextView reasonText;
+            final TextView nameText;
+            final TextView dateText;
+            final TextView statusText;
+            final TextView reasonText;
 
             public VerificationViewHolder(@NonNull View itemView) {
                 super(itemView);
@@ -134,9 +134,9 @@ public class ConnectResultsListFragment extends Fragment {
         }
 
         public static class PaymentViewHolder extends RecyclerView.ViewHolder {
-            TextView nameText;
-            TextView dateText;
-            TextView confirmText;
+            final TextView nameText;
+            final TextView dateText;
+            final TextView confirmText;
 
             public PaymentViewHolder(@NonNull View itemView) {
                 super(itemView);

@@ -129,9 +129,9 @@ public class ConnectResultsSummaryListFragment extends Fragment {
         }
 
         public static class VerificationSummaryItemViewHolder extends RecyclerView.ViewHolder {
-            TextView titleText;
-            TextView descriptionText;
-            ImageView button;
+            final TextView titleText;
+            final TextView descriptionText;
+            final ImageView button;
 
             public VerificationSummaryItemViewHolder(@NonNull View itemView) {
                 super(itemView);
