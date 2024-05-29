@@ -1,4 +1,4 @@
-package org.commcare.activities.connect;
+package org.commcare.connect;
 
 import android.content.Context;
 import android.os.Build;
@@ -20,7 +20,6 @@ import org.commcare.models.database.AndroidDbHelper;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.models.database.connect.DatabaseConnectOpenHelper;
 import org.commcare.modern.database.Table;
-import org.commcare.modern.database.TableBuilder;
 import org.commcare.utils.EncryptionUtils;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.storage.Persistable;

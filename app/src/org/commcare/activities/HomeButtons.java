@@ -6,7 +6,7 @@ import android.text.Spannable;
 import android.view.View;
 import android.widget.Toast;
 
-import org.commcare.activities.connect.ConnectManager;
+import org.commcare.connect.ConnectManager;
 import org.commcare.adapters.HomeCardDisplayData;
 import org.commcare.adapters.SquareButtonViewHolder;
 import org.commcare.dalvik.R;

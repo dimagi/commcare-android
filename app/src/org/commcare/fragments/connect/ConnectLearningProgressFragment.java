@@ -11,8 +11,8 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import org.commcare.activities.CommCareActivity;
-import org.commcare.activities.connect.ConnectDatabaseHelper;
-import org.commcare.activities.connect.ConnectManager;
+import org.commcare.connect.ConnectDatabaseHelper;
+import org.commcare.connect.ConnectManager;
 import org.commcare.connect.network.ConnectNetworkHelper;
 import org.commcare.android.database.connect.models.ConnectJobAssessmentRecord;
 import org.commcare.android.database.connect.models.ConnectJobLearningRecord;
@@ -199,15 +199,15 @@ public class ConnectLearningProgressFragment extends Fragment {
         String buttonText;
         if (learningFinished) {
             if(assessmentAttempted) {
+                showReviewLearningButton = true;
+
                 if(assessmentPassed) {
                     status = getString(R.string.connect_learn_finished, job.getAssessmentScore(), job.getLearnAppInfo().getPassingScore());
                     buttonText = getString(R.string.connect_learn_view_details);
-                    showReviewLearningButton = true;
                 }
                 else {
                     status = getString(R.string.connect_learn_failed, job.getAssessmentScore(), job.getLearnAppInfo().getPassingScore());
                     buttonText = getString(R.string.connect_learn_try_again);
-                    showReviewLearningButton = true;
                 }
             }
             else {

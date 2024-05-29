@@ -1,18 +1,16 @@
-package org.commcare.activities.connect;
+package org.commcare.connect;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.widget.Toast;
 
 import org.commcare.activities.CommCareActivity;
 import org.commcare.activities.SettingsHelper;
+import org.commcare.activities.connect.ConnectIdPhoneVerificationActivity;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.HashMap;

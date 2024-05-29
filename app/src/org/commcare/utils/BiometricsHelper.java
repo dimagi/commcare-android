@@ -14,7 +14,7 @@ import androidx.fragment.app.FragmentActivity;
 
 import com.google.zxing.integration.android.IntentIntegrator;
 
-import org.commcare.activities.connect.ConnectTask;
+import org.commcare.connect.ConnectTask;
 import org.commcare.dalvik.R;
 
 /**

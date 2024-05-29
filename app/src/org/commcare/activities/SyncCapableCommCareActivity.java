@@ -14,7 +14,7 @@ import androidx.annotation.AnimRes;
 import androidx.annotation.LayoutRes;
 
 import org.commcare.CommCareApplication;
-import org.commcare.activities.connect.ConnectManager;
+import org.commcare.connect.ConnectManager;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;

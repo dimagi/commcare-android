@@ -5,7 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import org.commcare.activities.connect.IConnectAppLauncher;
+import org.commcare.connect.IConnectAppLauncher;
 import org.commcare.adapters.ConnectJobAdapter;
 import org.commcare.dalvik.R;
 

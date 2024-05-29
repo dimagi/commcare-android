@@ -10,6 +10,8 @@ import androidx.biometric.BiometricManager;
 import androidx.biometric.BiometricPrompt;
 
 import org.commcare.activities.CommCareActivity;
+import org.commcare.connect.ConnectConstants;
+import org.commcare.connect.ConnectManager;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
@@ -19,18 +21,18 @@ import org.commcare.utils.BiometricsHelper;
 import org.javarosa.core.services.Logger;
 
 /**
- * Gets the user to unlock ConnectID (via fingerprint, PIN, or password)
+ * Gets the user to unlock ConnectID via screen unlock (fingerprint, PIN, pattern...)
  *
  * @author dviggiano
  */
-public class ConnectIdLoginActivity extends CommCareActivity<ConnectIdLoginActivity>
+public class ConnectIdBiometricUnlockActivity extends CommCareActivity<ConnectIdBiometricUnlockActivity>
         implements WithUIController {
     private BiometricPrompt.AuthenticationCallback biometricPromptCallbacks;
     private boolean attemptingFingerprint = false;
     private boolean allowPassword = false;
     private BiometricManager biometricManager;
 
-    private ConnectIdLoginActivityUiController uiController;
+    private ConnectIdBiometricUnlockActivityUiController uiController;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,7 +79,7 @@ public class ConnectIdLoginActivity extends CommCareActivity<ConnectIdLoginActiv
 
     @Override
     public void initUIController() {
-        uiController = new ConnectIdLoginActivityUiController(this);
+        uiController = new ConnectIdBiometricUnlockActivityUiController(this);
     }
 
     @Override

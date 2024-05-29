@@ -5,9 +5,9 @@ import android.content.Context;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 
-import org.commcare.activities.connect.ConnectConstants;
-import org.commcare.activities.connect.ConnectDatabaseHelper;
-import org.commcare.activities.connect.ConnectManager;
+import org.commcare.connect.ConnectConstants;
+import org.commcare.connect.ConnectDatabaseHelper;
+import org.commcare.connect.ConnectManager;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.core.network.AuthInfo;
 import org.commcare.dalvik.R;

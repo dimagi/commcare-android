@@ -1,4 +1,16 @@
-package org.commcare.activities.connect;
+package org.commcare.connect;
+
+import org.commcare.activities.connect.ConnectActivity;
+import org.commcare.activities.connect.ConnectIdConsentActivity;
+import org.commcare.activities.connect.ConnectIdBiometricUnlockActivity;
+import org.commcare.activities.connect.ConnectIdMessageActivity;
+import org.commcare.activities.connect.ConnectIdPasswordVerificationActivity;
+import org.commcare.activities.connect.ConnectIdPhoneActivity;
+import org.commcare.activities.connect.ConnectIdPhoneVerificationActivity;
+import org.commcare.activities.connect.ConnectIdPinActivity;
+import org.commcare.activities.connect.ConnectIdRecoveryDecisionActivity;
+import org.commcare.activities.connect.ConnectIdRegistrationActivity;
+import org.commcare.activities.connect.ConnectIdBiometricConfigActivity;
 
 /**
  * Enum representing the tasks (and associated activities) involved in various ConnectId workflows
@@ -17,9 +29,9 @@ public enum ConnectTask {
     CONNECT_REGISTRATION_MAIN(ConnectConstants.ConnectIdTaskIdOffset + 4,
             ConnectIdRegistrationActivity.class),
     CONNECT_REGISTRATION_CONFIGURE_BIOMETRICS(ConnectConstants.ConnectIdTaskIdOffset + 5,
-            ConnectIdVerificationActivity.class),
+            ConnectIdBiometricConfigActivity.class),
     CONNECT_REGISTRATION_UNLOCK_BIOMETRIC(ConnectConstants.ConnectIdTaskIdOffset + 6,
-            ConnectIdLoginActivity.class),
+            ConnectIdBiometricUnlockActivity.class),
     CONNECT_REGISTRATION_VERIFY_PRIMARY_PHONE(ConnectConstants.ConnectIdTaskIdOffset + 7,
             ConnectIdPhoneVerificationActivity.class),
     CONNECT_REGISTRATION_CHANGE_PRIMARY_PHONE(ConnectConstants.ConnectIdTaskIdOffset + 8,
@@ -41,7 +53,7 @@ public enum ConnectTask {
     CONNECT_RECOVERY_SUCCESS(ConnectConstants.ConnectIdTaskIdOffset + 18,
             ConnectIdMessageActivity.class),
     CONNECT_UNLOCK_BIOMETRIC(ConnectConstants.ConnectIdTaskIdOffset + 19,
-            ConnectIdLoginActivity.class),
+            ConnectIdBiometricUnlockActivity.class),
     CONNECT_UNLOCK_PASSWORD(ConnectConstants.ConnectIdTaskIdOffset + 20,
             ConnectIdPasswordVerificationActivity.class),
     CONNECT_UNLOCK_PIN(ConnectConstants.ConnectIdTaskIdOffset + 21,
@@ -59,9 +71,9 @@ public enum ConnectTask {
     CONNECT_RECOVERY_CHANGE_PIN(ConnectConstants.ConnectIdTaskIdOffset + 27,
             ConnectIdPinActivity.class),
     CONNECT_RECOVERY_CONFIGURE_BIOMETRICS(ConnectConstants.ConnectIdTaskIdOffset + 28,
-            ConnectIdVerificationActivity.class),
+            ConnectIdBiometricConfigActivity.class),
     CONNECT_RECOVERY_UNLOCK_BIOMETRIC(ConnectConstants.ConnectIdTaskIdOffset + 29,
-            ConnectIdLoginActivity.class),
+            ConnectIdBiometricUnlockActivity.class),
     CONNECT_VERIFY_ALT_PHONE_MESSAGE(ConnectConstants.ConnectIdTaskIdOffset + 30,
             ConnectIdMessageActivity.class),
     CONNECT_VERIFY_ALT_PHONE(ConnectConstants.ConnectIdTaskIdOffset + 31,
