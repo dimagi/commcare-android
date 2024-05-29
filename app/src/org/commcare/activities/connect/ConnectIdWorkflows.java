@@ -141,7 +141,9 @@ public class ConnectIdWorkflows {
                 params.put(ConnectConstants.RECOVER, false);
                 params.put(ConnectConstants.CHANGE, false);
             }
-            case CONNECT_REGISTRATION_ALTERNATE_PHONE -> {
+            case CONNECT_REGISTRATION_ALTERNATE_PHONE,
+                    CONNECT_VERIFY_ALT_PHONE_CHANGE,
+                    CONNECT_UNLOCK_ALT_PHONE_CHANGE-> {
                 params.put(ConnectConstants.METHOD, ConnectConstants.METHOD_CHANGE_ALTERNATE);
             }
             case CONNECT_REGISTRATION_SUCCESS -> {
@@ -177,13 +179,19 @@ public class ConnectIdWorkflows {
                 params.put(ConnectConstants.RECOVER, true);
                 params.put(ConnectConstants.CHANGE, true);
             }
-            case CONNECT_RECOVERY_ALT_PHONE_MESSAGE,
-                    CONNECT_VERIFY_ALT_PHONE_MESSAGE,
+            case CONNECT_RECOVERY_ALT_PHONE_MESSAGE -> {
+                //Show message screen indicating plan to use alt phone
+                params.put(ConnectConstants.TITLE, R.string.connect_recovery_alt_title);
+                params.put(ConnectConstants.MESSAGE, R.string.connect_recovery_alt_message);
+                params.put(ConnectConstants.BUTTON, R.string.connect_recovery_alt_button);
+            }
+            case CONNECT_VERIFY_ALT_PHONE_MESSAGE,
                     CONNECT_UNLOCK_ALT_PHONE_MESSAGE -> {
                 //Show message screen indicating plan to use alt phone
                 params.put(ConnectConstants.TITLE, R.string.connect_recovery_alt_title);
                 params.put(ConnectConstants.MESSAGE, R.string.connect_recovery_alt_message);
                 params.put(ConnectConstants.BUTTON, R.string.connect_recovery_alt_button);
+                params.put(ConnectConstants.BUTTON2, R.string.connect_recovery_alt_change_button);
             }
             case CONNECT_RECOVERY_VERIFY_ALT_PHONE -> {
                 params.put(ConnectConstants.METHOD, String.format(Locale.getDefault(), "%d",
@@ -428,12 +436,17 @@ public class ConnectIdWorkflows {
             }
             case CONNECT_VERIFY_ALT_PHONE_MESSAGE -> {
                 if (success) {
-                    nextRequestCode = ConnectTask.CONNECT_VERIFY_ALT_PHONE;
+                    boolean change = intent.getBooleanExtra(ConnectConstants.BUTTON2, false);
+
+                    nextRequestCode = change ? ConnectTask.CONNECT_VERIFY_ALT_PHONE_CHANGE : ConnectTask.CONNECT_VERIFY_ALT_PHONE;
                 }
             }
             case CONNECT_RECOVERY_VERIFY_ALT_PHONE -> {
                 nextRequestCode = success ? ConnectTask.CONNECT_RECOVERY_CHANGE_PIN :
                         ConnectTask.CONNECT_RECOVERY_VERIFY_PRIMARY_PHONE;
+            }
+            case CONNECT_VERIFY_ALT_PHONE_CHANGE -> {
+                nextRequestCode = success ? ConnectTask.CONNECT_VERIFY_ALT_PHONE : ConnectTask.CONNECT_VERIFY_ALT_PHONE_MESSAGE;
             }
             case CONNECT_VERIFY_ALT_PHONE -> {
                 if(success) {
@@ -511,8 +524,13 @@ public class ConnectIdWorkflows {
             }
             case CONNECT_UNLOCK_ALT_PHONE_MESSAGE -> {
                 if(success) {
-                    nextRequestCode = ConnectTask.CONNECT_UNLOCK_VERIFY_ALT_PHONE;
+                    boolean change = intent.getBooleanExtra(ConnectConstants.BUTTON2, false);
+
+                    nextRequestCode = change ? ConnectTask.CONNECT_UNLOCK_ALT_PHONE_CHANGE : ConnectTask.CONNECT_UNLOCK_VERIFY_ALT_PHONE;
                 }
+            }
+            case CONNECT_UNLOCK_ALT_PHONE_CHANGE -> {
+                nextRequestCode = ConnectTask.CONNECT_UNLOCK_VERIFY_ALT_PHONE;
             }
             case CONNECT_UNLOCK_VERIFY_ALT_PHONE -> {
                 if(success) {
