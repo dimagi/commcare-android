@@ -363,7 +363,7 @@ public class EntityView extends LinearLayout {
             } else {
                 try {
                     Base64ImageData base64ImageData = new Base64ImageData().cast(new UncastData(source));
-                    b = MediaUtil.decodeBase64EncodedBitmap(base64ImageData.getValue().second);
+                    b = MediaUtil.decodeBase64EncodedBitmap(base64ImageData.getImageData());
                 } catch(Exception e) {}
             }
             if (b == null) {

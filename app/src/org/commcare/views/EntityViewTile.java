@@ -366,7 +366,7 @@ public class EntityViewTile extends GridLayout {
                         } else {
                             try {
                                 Base64ImageData base64ImageData = new Base64ImageData().cast(new UncastData(rowData));
-                                b = MediaUtil.decodeBase64EncodedBitmap(base64ImageData.getValue().second);
+                                b = MediaUtil.decodeBase64EncodedBitmap(base64ImageData.getImageData());
                             } catch(Exception e){
                                 // handled silently, no image is displayed
                             }
