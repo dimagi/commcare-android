@@ -26,9 +26,12 @@ import org.commcare.graph.view.GraphView;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.DetailField;
 import org.commcare.utils.AndroidUtil;
+import org.commcare.utils.FileUtil;
 import org.commcare.utils.MediaUtil;
 import org.commcare.views.media.AudioPlaybackButton;
 import org.commcare.views.media.ViewId;
+import org.javarosa.core.model.data.Base64ImageData;
+import org.javarosa.core.model.data.UncastData;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 
@@ -353,8 +356,16 @@ public class EntityView extends LinearLayout {
             return;
         }
         if (onMeasureCalled) {
+            Bitmap b = null;
             int columnWidthInPixels = layout.getLayoutParams().width;
-            Bitmap b = MediaUtil.inflateDisplayImage(getContext(), source, columnWidthInPixels, columnWidthInPixels, true);
+            if (FileUtil.isValidFileLocation(source)) {
+                b = MediaUtil.inflateDisplayImage(getContext(), source, columnWidthInPixels, columnWidthInPixels, true);
+            } else {
+                try {
+                    Base64ImageData base64ImageData = new Base64ImageData().cast(new UncastData(source));
+                    b = MediaUtil.decodeBase64EncodedBitmap(base64ImageData.getValue().second);
+                } catch(Exception e) {}
+            }
             if (b == null) {
                 // Means the input stream could not be used to derive the bitmap, so showing
                 // error-indicating image
