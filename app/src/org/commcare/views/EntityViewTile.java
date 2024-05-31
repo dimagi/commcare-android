@@ -356,20 +356,28 @@ public class EntityViewTile extends GridLayout {
                 // make the image's padding proportional to its size
                 retVal.setPadding(maxWidth / 6, maxHeight / 6, maxWidth / 6, maxHeight / 6);
                 if (rowData != null && !rowData.equals("")) {
+                    boolean isRowDataAFilePath = FileUtil.isValidFileLocation(rowData);
+                    Base64ImageData base64ImageData = null;
+                    if (!isRowDataAFilePath) {
+                        try {
+                            base64ImageData = new Base64ImageData().cast(new UncastData(rowData));
+                        } catch (Exception e) {}
+                    }
+
                     if (mImageLoader != null) {
-                        mImageLoader.display(rowData, ((ImageView)retVal), R.drawable.info_bubble,
-                                maxWidth, maxHeight);
+                        if (isRowDataAFilePath) {
+                            mImageLoader.display(rowData, null, ((ImageView)retVal),
+                                    R.drawable.info_bubble, maxWidth, maxHeight);
+                        } else if (base64ImageData != null) {
+                            mImageLoader.display(base64ImageData.getFileName(), base64ImageData.getImageData(),
+                                    ((ImageView)retVal), R.drawable.info_bubble, maxWidth, maxHeight);
+                        }
                     } else {
                         Bitmap b = null;
-                        if (FileUtil.isValidFileLocation(rowData)) {
+                        if (isRowDataAFilePath) {
                             b = MediaUtil.inflateDisplayImage(getContext(), rowData, maxWidth, maxHeight, true);
-                        } else {
-                            try {
-                                Base64ImageData base64ImageData = new Base64ImageData().cast(new UncastData(rowData));
-                                b = MediaUtil.decodeBase64EncodedBitmap(base64ImageData.getImageData());
-                            } catch(Exception e){
-                                // handled silently, no image is displayed
-                            }
+                        } else if (base64ImageData != null) {
+                            b = MediaUtil.decodeBase64EncodedBitmap(base64ImageData.getImageData());
                         }
                         ((ImageView)retVal).setImageBitmap(b);
                     }

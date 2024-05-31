@@ -30,17 +30,18 @@ public class CachingAsyncImageLoader implements ComponentCallbacks2 {
         this.cache = new LruCache<>(memoryClass);
     }
 
-    public void display(String url, ImageView imageView, int defaultResource,
+    public void display(String urlOrFileName, String base64ImageData, ImageView imageView, int defaultResource,
                         int boundingWidth, int boundingHeight) {
         imageView.setImageResource(defaultResource);
         Bitmap image;
         synchronized (cache) {
-            image = cache.get(url);
+            image = cache.get(urlOrFileName);
         }
         if (image != null) {
             imageView.setImageBitmap(image);
         } else {
-            new SetImageTask(imageView, this.context, boundingWidth, boundingHeight).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, url);
+            new SetImageTask(imageView, this.context, boundingWidth, boundingHeight)
+                    .executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, urlOrFileName, base64ImageData);
         }
     }
 
@@ -64,8 +65,15 @@ public class CachingAsyncImageLoader implements ComponentCallbacks2 {
         }
 
         @Override
-        protected Bitmap doInBackground(String... file) {
-            return getImageBitmap(file[0]);
+        protected Bitmap doInBackground(String... imageData) {
+            if (imageData == null) {
+                return null;
+            }
+            if (imageData.length == 1) {
+                return getImageBitmap(imageData[0]);
+            } else {
+                return getImageBitmap(imageData[0], imageData[1]);
+            }
         }
 
         @Override
@@ -89,6 +97,12 @@ public class CachingAsyncImageLoader implements ComponentCallbacks2 {
                 }
             }
             return bitmap;
+        }
+
+        public Bitmap getImageBitmap(String fileName, String base64ImageData) {
+            Bitmap bitmap = MediaUtil.decodeBase64EncodedBitmap(base64ImageData);
+
+            return cacheImage(fileName, bitmap);
         }
     }
 
