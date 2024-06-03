@@ -470,7 +470,7 @@ android {
 
             multiDexKeepProguard file('proguard-multidex.pro')
             // enable crashlytics
-            buildConfigField 'boolean', 'USE_CRASHLYTICS', "true"
+            buildConfigField 'boolean', 'USE_CRASHLYTICS', 'true'
             ext.enableCrashlytics = true
         }
     }
