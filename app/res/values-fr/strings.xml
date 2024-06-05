@@ -172,4 +172,40 @@ License.
     <string name="no_gps_title">Location Data Disabled</string>
     <string name="no_gps_message">The location providers on this device are currently disabled. Do you want to change those settings?</string>
     <string name="change_settings">Change Settings</string>
+
+    <string name="login_welcome_connect_signed_in">Bienvenue %s!</string>
+    <string name="login_button_connectid">Connectez-vous avec ConnectID</string>
+    <string name="login_menu_connect_sign_in">Inscrivez-vous pour ConnectID</string>
+
+    <string name="connect_jobs_all">Tous les emplois</string>
+    <string name="connect_jobs_mine">Mes emplois</string>
+    <string name="connect_job_visits">Couvrez %d ménages en %d jours</string>
+    <string name="connect_job_full_description">%s\nGagnez jusqu\'à %s</string>
+    <string name="connect_job_you_will_learn">Complétez les modules d\'apprentissage suivants et obtenez un certificat</string>
+    <string name="connect_job_start_training">Commencez la formation pour ce travail</string>
+    <string name="connect_job_learn_summary">%d modules, %d heures</string>
+    <string name="connect_job_download_learn_app">Télécharger l\'application Learn</string>
+    <string name="connect_downloading_learn">Téléchargement de l\'application Learn</string>
+    <string name="connect_learn_progress_title">Votre progression d\'apprentissage</string>
+    <string name="connect_learn_not_started">Vous n\'avez terminé aucune leçon. Commencez à apprendre pour obtenir votre certificat.</string>
+    <string name="connect_downloading_status">%d%% Complet</string>
+    <string name="connect_learn_complete_by">Terminez le projet d\'ici le %s</string>
+    <string name="connect_progress_warning">Vous ne voyez pas vos progrès attendus?</string>
+    <string name="connect_progress_warning_learn">Découvrez pourquoi</string>
+    <string name="connect_progress_warning_full">Vous pouvez ne pas voir vos progrès attendus si votre nombre de visites dépasse le maximum pour la journée OU si vos formulaires n\'ont pas été téléchargés. Vous pouvez synchroniser à nouveau lorsque vous avez une meilleure connexion et vérifier à nouveau.</string>
+
+    <string name="connect_learn_start">Commencez à apprendre</string>
+    <string name="connect_progress_delivery">Livraison</string>
+    <string name="connect_progress_title">Votre progression de livraison</string>
+    <string name="connect_progress_status">Vous avez complété %d sur %d visites.</string>
+    <string name="connect_progress_complete_by">Terminez la livraison d\'ici le %s</string>
+    <string name="connect_progress_delivery_verification">Vérification et paiements</string>
+    <string name="connect_results_summary_verifications_title">Statut de vérification</string>
+    <string name="connect_results_summary_verifications_description">Vérification en attente: %d\nNot Approved: %d\Approved: %d</string>
+    <string name="connect_results_summary_payments_title">Statut de paiement</string>
+    <string name="connect_results_summary_payments_description">Montant gagné: %s\nMontant transféré: %s</string>
+    <string name="connect_results_payment_description">Payé %s</string>
+    <string name="connect_results_payment_confirmed">Confirmé</string>
+    <string name="connect_results_payment_not_confirmed">Non confirmé</string>
+    <string name="connect_results_payment_date">Émis %s</string>
 </resources>
