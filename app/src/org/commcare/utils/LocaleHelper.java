@@ -27,7 +27,6 @@ public class LocaleHelper {
         config.setLocale(locale);
     }
 
-    @SuppressWarnings("deprecation")
     private static void setSystemLocaleLegacy(Configuration config, Locale locale) {
         config.locale = locale;
     }

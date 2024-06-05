@@ -10,7 +10,7 @@ CONDITIONS OF ANY KIND, either express or implied. See the License for
 the specific language governing permissions and limitations under the
 License.
 -->
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="accept_location">Enregistrer lieu</string>
     <string name="accuracy">Précision</string>
     <string name="activity_not_found">Pas d\'activité pour gérer: %s</string>
@@ -41,7 +41,7 @@ License.
     <string name="discard_image">Enlever la image</string>
     <string name="download">Obtenez celle sélectionnée</string>
     <string name="download_forms_result">Resultat du téléchargement</string>
-    <string name="downloading_data">Connection au serveur...</string>
+    <string name="downloading_data">Connection au serveur…</string>
     <string name="download_all_successful">Tous formulaires téléchargés avec succès.</string>
     <string name="download_complete">Téléchargement fini</string>
     <string name="download_failed_with_error">Formulaire \"%1$s\" a échoué. %2$s.</string>
@@ -76,7 +76,7 @@ License.
     <string name="leaving_repeat">Ajouter un groupe</string>
     <string name="leaving_repeat_ask">" Nouveau groupe?"</string>
     <string name="list_failed_with_error">La liste a echoué. %s.</string>
-    <string name="loading_form">Chargement du formulaire ...</string>
+    <string name="loading_form">Chargement du formulaire …</string>
     <string name="load_remote_form_error">Erreur de récupération de la liste</string>
     <string name="location_provider_accuracy">La précision est de %1$s m.</string>
     <string name="location_provider">Utilisation de %1$s. Attendre une meilleure précision.</string>
@@ -117,7 +117,7 @@ License.
     <string name="save_all_answers">Sauvegarder formulaire</string>
     <string name="save_data_message">Merci de sauvegarder le formulaire. Afin de sauvegarder vos réponses.</string>
     <string name="save_enter_data_description">Vouse êtes à la fin de \"%s\".</string>
-    <string name="saving_form">Sauvegarde du Formulaire ...</string>
+    <string name="saving_form">Sauvegarde du Formulaire …</string>
     <string name="send">Envoyer</string>
     <string name="sending_items">Envoi de %1$s de %2$s formulaire(s)</string>
     <string name="send_data">Envoyer Formulaire Finalisé</string>
@@ -129,7 +129,7 @@ License.
     <string name="server_preferences">Serveur</string>
     <string name="toggle_selected">Basculer tous</string>
     <string name="trigger">OK. Continuer.</string>
-    <string name="uploading_data">Envoi du formulaire ...</string>
+    <string name="uploading_data">Envoi du formulaire …</string>
     <string name="upload_all_successful">%s formulaires envoyés avec succès.</string>
     <string name="upload_some_failed">Désolé, l\'envoi de %s formulaire(s) ont échoué.</string>
     <string name="url_error">URL non valable!</string>
@@ -144,11 +144,11 @@ License.
     <string name="go_to_location">Aller au Lieu</string>
     <string name="font_size">Taille de la Police</string>
     <string name="change_font_size">Taille de la Police</string>
-    <string name="form_scan_starting">Recherche de formulaires...</string>
+    <string name="form_scan_starting">Recherche de formulaires…</string>
     <string name="form_scan_finished">Recherche terminée</string>
     <string name="access_error">"Erreur lors de l\'accès à %s: "</string>
-    <string name="manifest_server_error">Réponse Manifest ne fourni pas une version OpenRosa -- Serveur défaillant?</string>
-    <string name="root_element_error">L\'élément à la racine n\'est pas &amp;lt;manifest\&gt; -- c\'était %s</string>
+    <string name="manifest_server_error">Réponse Manifest ne fourni pas une version OpenRosa — Serveur défaillant?</string>
+    <string name="root_element_error">L\'élément à la racine n\'est pas &amp;lt;manifest\&gt; — c\'était %s</string>
     <string name="root_namespace_error">" L\'élément Root de Namespace est incorrect: %s"</string>
     <string name="manifest_tag_error">L\'entrée Manifest %s manqué un ou plus tags: nom de fichier, hash, ou telécharger Url</string>
     <string name="form_download_progress">%1$s. Obtention de fichiers multimédia : %2$s de %3$s</string>
@@ -161,7 +161,7 @@ License.
     <string name="choose_sound">Choisissez le Son</string>
     <string name="choose_video">Choisissez la Vidéo</string>
     <string name="choose_image">Choisissez l\'Image</string>
-    <string name="selected">"Sélectioné: "</string>
+    <string name="selected" tools:ignore="PrivateResource">"Sélectioné: "</string>
     <string name="select_answer">Sélectionnez la Réponse</string>
     <string name="save_form_as">Nommer le formulaire :</string>
     <string name="save_as_error">Le nom ne peut pas être vide!</string>
