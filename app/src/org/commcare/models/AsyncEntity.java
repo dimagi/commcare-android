@@ -5,7 +5,7 @@ import net.sqlcipher.database.SQLiteDatabase;
 import org.commcare.CommCareApplication;
 import org.commcare.cases.entity.Entity;
 import org.commcare.logging.XPathErrorLogger;
-import org.commcare.models.database.user.models.EntityStorageCache;
+import org.commcare.models.database.user.models.CommCareEntityStorageCache;
 import org.commcare.suite.model.DetailField;
 import org.commcare.suite.model.Text;
 import org.commcare.utils.SessionUnavailableException;
@@ -47,7 +47,7 @@ public class AsyncEntity extends Entity<TreeReference> {
     private final String mCacheIndex;
     private final String mDetailId;
 
-    private final EntityStorageCache mEntityStorageCache;
+    private final CommCareEntityStorageCache mEntityStorageCache;
 
     /*
      * the Object's lock. NOTE: _DO NOT LOCK ANY CODE WHICH READS/WRITES THE CACHE
@@ -64,7 +64,7 @@ public class AsyncEntity extends Entity<TreeReference> {
 
     public AsyncEntity(DetailField[] fields, EvaluationContext ec,
                        TreeReference t, Hashtable<String, XPathExpression> variables,
-                       EntityStorageCache cache, String cacheIndex, String detailId,
+                       CommCareEntityStorageCache cache, String cacheIndex, String detailId,
                        String extraKey) {
         super(t, extraKey);
 
@@ -236,7 +236,7 @@ public class AsyncEntity extends Entity<TreeReference> {
     }
 
     public void setSortData(String cacheKey, String val) {
-        int sortIndex = EntityStorageCache.getSortFieldIdFromCacheKey(mDetailId, cacheKey);
+        int sortIndex = CommCareEntityStorageCache.getSortFieldIdFromCacheKey(mDetailId, cacheKey);
         if (sortIndex != -1) {
             setSortData(sortIndex, val);
         }

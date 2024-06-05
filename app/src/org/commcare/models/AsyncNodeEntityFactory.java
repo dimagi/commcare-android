@@ -7,12 +7,11 @@ import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.AppUtils;
 import org.commcare.CommCareApplication;
-import org.commcare.android.logging.ReportingUtils;
 import org.commcare.cases.entity.Entity;
 import org.commcare.cases.entity.NodeEntityFactory;
 import org.commcare.models.database.DbUtil;
 import org.commcare.models.database.SqlStorage;
-import org.commcare.models.database.user.models.EntityStorageCache;
+import org.commcare.models.database.user.models.CommCareEntityStorageCache;
 import org.commcare.modern.database.TableBuilder;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.DetailField;
@@ -34,7 +33,7 @@ public class AsyncNodeEntityFactory extends NodeEntityFactory {
     private final OrderedHashtable<String, XPathExpression> mVariableDeclarations;
 
     private final Hashtable<String, AsyncEntity> mEntitySet = new Hashtable<>();
-    private final EntityStorageCache mEntityCache;
+    private final CommCareEntityStorageCache mEntityCache;
 
     private CacheHost mCacheHost = null;
     private Boolean mTemplateIsCachable = null;
@@ -48,7 +47,7 @@ public class AsyncNodeEntityFactory extends NodeEntityFactory {
         super(d, ec);
 
         mVariableDeclarations = detail.getVariableDeclarations();
-        mEntityCache = new EntityStorageCache("case");
+        mEntityCache = new CommCareEntityStorageCache("case");
         isBlockingAsyncMode = detail.hasSortField();
     }
 
@@ -129,7 +128,7 @@ public class AsyncNodeEntityFactory extends NodeEntityFactory {
         SQLiteDatabase db = CommCareApplication.instance().getUserDbHandle();
 
         String sqlStatement = "SELECT entity_key, cache_key, value FROM entity_cache JOIN AndroidCase ON entity_cache.entity_key = AndroidCase.commcare_sql_id WHERE " +
-                whereClause + " AND " + EntityStorageCache.COL_APP_ID + " = '" + AppUtils.getCurrentAppId() +
+                whereClause + " AND " + CommCareEntityStorageCache.COL_APP_ID + " = '" + AppUtils.getCurrentAppId() +
                 "' AND cache_key IN " + validKeys;
         if (SqlStorage.STORAGE_OUTPUT_DEBUG) {
             DbUtil.explainSql(db, sqlStatement, args);

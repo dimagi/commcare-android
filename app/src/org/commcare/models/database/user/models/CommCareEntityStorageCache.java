@@ -8,7 +8,6 @@ import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.AppUtils;
 import org.commcare.CommCareApplication;
-import org.commcare.android.logging.ReportingUtils;
 import org.commcare.modern.database.TableBuilder;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.modern.database.DatabaseHelper;
@@ -21,8 +20,8 @@ import java.util.List;
 /**
  * @author ctsims
  */
-public class EntityStorageCache {
-    private static final String TAG = EntityStorageCache.class.getSimpleName();
+public class CommCareEntityStorageCache {
+    private static final String TAG = CommCareEntityStorageCache.class.getSimpleName();
     public static final String TABLE_NAME = "entity_cache";
 
     public static final String COL_APP_ID = "app_id";
@@ -37,11 +36,11 @@ public class EntityStorageCache {
     private final String mCacheName;
     private final String mAppId;
 
-    public EntityStorageCache(String cacheName) {
+    public CommCareEntityStorageCache(String cacheName) {
         this(cacheName, CommCareApplication.instance().getUserDbHandle(), AppUtils.getCurrentAppId());
     }
 
-    public EntityStorageCache(String cacheName, SQLiteDatabase db, String appId) {
+    public CommCareEntityStorageCache(String cacheName, SQLiteDatabase db, String appId) {
         this.db = db;
         this.mCacheName = cacheName;
         this.mAppId = appId;
