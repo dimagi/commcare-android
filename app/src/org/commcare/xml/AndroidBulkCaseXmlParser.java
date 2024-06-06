@@ -37,10 +37,10 @@ public class AndroidBulkCaseXmlParser extends BulkProcessingCaseXmlParser {
 
     public AndroidBulkCaseXmlParser(KXmlParser parser,
                                     SqlStorage<ACase> storage,
-                                    CommCareEntityStorageCache entityStorageCache,
+                                    CommCareEntityStorageCache commCareEntityStorageCache,
                                     AndroidCaseIndexTable indexTable) {
         super(parser);
-        mEntityCache = entityStorageCache;
+        mEntityCache = commCareEntityStorageCache;
         mCaseIndexTable = indexTable;
         this.storage = storage;
     }
