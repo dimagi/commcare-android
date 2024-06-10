@@ -1,11 +1,8 @@
 package org.commcare.views;
 
-import androidx.appcompat.app.AppCompatActivity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.os.Build;
-import androidx.annotation.IdRes;
 import android.text.method.LinkMovementMethod;
 import android.view.Display;
 import android.view.GestureDetector;
@@ -22,6 +19,9 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+
+import androidx.annotation.IdRes;
+import androidx.appcompat.app.AppCompatActivity;
 
 import org.commcare.activities.CommCareGraphActivity;
 import org.commcare.cases.entity.Entity;
