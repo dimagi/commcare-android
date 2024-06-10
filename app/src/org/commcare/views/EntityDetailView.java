@@ -205,6 +205,10 @@ public class EntityDetailView extends FrameLayout {
             label.setLayoutParams(fill);
             valuePane.setLayoutParams(fill);
         } else {
+            if (isLabelEmpty(labelText)) {
+                origLabel.weight = 0;
+                origValue.weight = 10;
+            }
             if (detailRow.getOrientation() != LinearLayout.HORIZONTAL) {
                 detailRow.setOrientation(LinearLayout.HORIZONTAL);
                 spacer.setVisibility(View.INVISIBLE);
