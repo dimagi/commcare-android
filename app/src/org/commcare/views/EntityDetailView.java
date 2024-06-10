@@ -214,6 +214,12 @@ public class EntityDetailView extends FrameLayout {
         }
     }
 
+    // Empty case detail Display Texts are represented with an HTML non-breaking space (&nbsp). This was expanded
+    // to also check for blank spaces
+    private boolean isLabelEmpty(String text) {
+        return text.replaceAll("\\s|&nbsp;", "").equals("");
+    }
+
     private boolean setUpText(String textField) {
         data.setText((textField));
         updateCurrentView(TEXT, data);
