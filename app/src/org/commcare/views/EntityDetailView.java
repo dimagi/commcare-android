@@ -202,6 +202,9 @@ public class EntityDetailView extends FrameLayout {
         if (veryLong) {
             detailRow.setOrientation(LinearLayout.VERTICAL);
             spacer.setVisibility(View.GONE);
+            if (isLabelEmpty(labelText)) {
+                label.setVisibility(GONE);
+            }
             label.setLayoutParams(fill);
             valuePane.setLayoutParams(fill);
         } else {
