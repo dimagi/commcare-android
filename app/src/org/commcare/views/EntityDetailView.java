@@ -210,7 +210,7 @@ public class EntityDetailView extends FrameLayout {
         } else {
             if (isLabelEmpty(labelText)) {
                 origLabel.weight = 0;
-                origValue.weight = 10;
+                origValue.weight = detailRow.getWeightSum();
             }
             if (detailRow.getOrientation() != LinearLayout.HORIZONTAL) {
                 detailRow.setOrientation(LinearLayout.HORIZONTAL);
