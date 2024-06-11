@@ -1,5 +1,8 @@
 package org.commcare.network;
 
+import static org.commcare.network.HttpCalloutTask.ResponseBodyErrorMessages.retrieveErrorMessageValue;
+import static org.commcare.network.HttpUtils.parseUserVisibleError;
+
 import android.content.Context;
 
 import okhttp3.ResponseBody;
@@ -200,7 +203,13 @@ public abstract class HttpCalloutTask<R> extends CommCareTask<Object, String, Ht
     }
 
     protected HttpCalloutOutcomes doResponseAuthFailed(Response response) {
-        return HttpCalloutOutcomes.AuthFailed;
+        switch (retrieveErrorMessageValue(parseUserVisibleError(response, false))){
+            case Max_Login_Attempts_Exceeded:
+                return HttpCalloutOutcomes.LockedOutUser;
+            default:
+                return HttpCalloutOutcomes.AuthFailed;
+        }
+
     }
 
     protected abstract HttpCalloutOutcomes doResponseOther(Response response);
