@@ -47,6 +47,25 @@ public abstract class HttpCalloutTask<R> extends CommCareTask<Object, String, Ht
         CaptivePortal
     }
 
+    // Stores HTTP response body error messages associated with 401s
+    public enum ResponseBodyErrorMessages {
+        Max_Login_Attempts_Exceeded("maximum password attempts exceeded"),
+        No_Error_Message("");
+        private final String errorMessage;
+
+        ResponseBodyErrorMessages(String errorMessage) {
+            this.errorMessage = errorMessage;
+        }
+        public static ResponseBodyErrorMessages retrieveErrorMessageValue(String errorMessage){
+            for (ResponseBodyErrorMessages msgs : ResponseBodyErrorMessages.values()){
+                if (msgs.errorMessage.equals(errorMessage)){
+                    return msgs;
+                }
+            }
+            throw new IllegalArgumentException("HTTP Response body error message not recognized: "+ errorMessage);
+        }
+    }
+
     private final Context c;
 
     public HttpCalloutTask(Context c) {
