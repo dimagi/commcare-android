@@ -207,6 +207,10 @@ public abstract class ManageKeyRecordTask<R extends DataPullController> extends 
                 Logger.log(LogTypes.TYPE_USER, "ManageKeyRecordTask error|captive portal detected");
                 receiver.raiseLoginMessage(StockMessages.Sync_CaptivePortal, true);
                 break;
+            case LockedOutUser:
+                Logger.log(LogTypes.TYPE_USER, "ManageKeyRecordTask error|maximum login attempts exceeded");
+                receiver.raiseLoginMessage(StockMessages.Auth_UserLockedOut, false);
+                break;
             default:
                 break;
         }
