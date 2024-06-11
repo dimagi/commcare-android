@@ -26,6 +26,10 @@ import retrofit2.Response;
  */
 public class HttpUtils {
 
+
+    private static final String ERROR_BODY_DEFAULT_RESPONSE_KEY = "default_response";
+    private static final String ERROR_BODY_ERROR_MESSAGE_KEY = "error";
+
     public static String getCredential(AuthInfo authInfo) {
         if (authInfo instanceof AuthInfo.ProvidedAuth) {
             return getCredential(buildDomainUser(authInfo.username), authInfo.password);
@@ -80,8 +84,8 @@ public class HttpUtils {
             responseStr = response.errorBody().string();
             JSONObject errorKeyAndDefault = new JSONObject(responseStr);
             message = Localization.getWithDefault(
-                    errorKeyAndDefault.getString("error"),
-                    errorKeyAndDefault.getString("default_response"));
+                    errorKeyAndDefault.getString(ERROR_BODY_ERROR_MESSAGE_KEY),
+                    errorKeyAndDefault.getString(ERROR_BODY_DEFAULT_RESPONSE_KEY));
         } catch (JSONException | IOException e) {
             message = responseStr != null ? responseStr : "Unknown issue";
         }
