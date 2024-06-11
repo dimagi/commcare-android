@@ -473,12 +473,7 @@ public class ConnectIdWorkflows {
             }
             case CONNECT_UNLOCK_BIOMETRIC -> {
                 if (success) {
-                    ConnectUserRecord user = ConnectDatabaseHelper.getUser(parentActivity);
-                    if(user.shouldRequireSecondaryPhoneVerification()) {
-                        nextRequestCode = ConnectTask.CONNECT_UNLOCK_ALT_PHONE_MESSAGE;
-                    } else {
-                        completeSignin();
-                    }
+                    nextRequestCode = completeUnlock();
                 } else if (intent != null && intent.getBooleanExtra(ConnectConstants.PASSWORD, false)) {
                     nextRequestCode = ConnectTask.CONNECT_UNLOCK_PASSWORD;
                 } else if (intent != null && intent.getBooleanExtra(ConnectConstants.RECOVER, false)) {
@@ -493,7 +488,7 @@ public class ConnectIdWorkflows {
                         //Begin the recovery workflow
                         nextRequestCode = ConnectTask.CONNECT_RECOVERY_PRIMARY_PHONE;
                     } else {
-                        nextRequestCode = ConnectTask.CONNECT_RECOVERY_SUCCESS;
+                        nextRequestCode = completeUnlock();
                     }
                 }
             }
@@ -512,11 +507,7 @@ public class ConnectIdWorkflows {
                         user.setLastPinDate(new Date());
                         ConnectDatabaseHelper.storeUser(parentActivity, user);
 
-                        if(user.shouldRequireSecondaryPhoneVerification()) {
-                            nextRequestCode = ConnectTask.CONNECT_UNLOCK_ALT_PHONE_MESSAGE;
-                        } else {
-                            completeSignin();
-                        }
+                        nextRequestCode = completeUnlock();
                     }
                 }
             }
@@ -558,6 +549,17 @@ public class ConnectIdWorkflows {
         }
 
         return flagStartOfRegistration;
+    }
+
+    private static ConnectTask completeUnlock() {
+        ConnectUserRecord user = ConnectDatabaseHelper.getUser(parentActivity);
+        if(user.shouldRequireSecondaryPhoneVerification()) {
+            return ConnectTask.CONNECT_UNLOCK_ALT_PHONE_MESSAGE;
+        } else {
+            completeSignin();
+        }
+
+        return ConnectTask.CONNECT_NO_ACTIVITY;
     }
 
     private static void completeSignin() {
