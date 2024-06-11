@@ -77,15 +77,19 @@ public class HttpUtils {
         }
     }
 
-    public static String parseUserVisibleError(Response<ResponseBody> response) {
+    public static String parseUserVisibleError(Response<ResponseBody> response, boolean isMessageLocalized) {
         String message;
         String responseStr = null;
         try {
             responseStr = response.errorBody().string();
             JSONObject errorKeyAndDefault = new JSONObject(responseStr);
-            message = Localization.getWithDefault(
-                    errorKeyAndDefault.getString(ERROR_BODY_ERROR_MESSAGE_KEY),
-                    errorKeyAndDefault.getString(ERROR_BODY_DEFAULT_RESPONSE_KEY));
+            if (isMessageLocalized) {
+                message = Localization.getWithDefault(
+                        errorKeyAndDefault.getString(ERROR_BODY_ERROR_MESSAGE_KEY),
+                        errorKeyAndDefault.getString(ERROR_BODY_DEFAULT_RESPONSE_KEY));
+            } else {
+                message = errorKeyAndDefault.getString(ERROR_BODY_ERROR_MESSAGE_KEY);
+            }
         } catch (JSONException | IOException e) {
             message = responseStr != null ? responseStr : "Unknown issue";
         }
