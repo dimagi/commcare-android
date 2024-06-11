@@ -212,6 +212,10 @@
             android:theme="@style/PreferenceTheme">
         </activity>
         <activity
+            android:name="org.commcare.activities.FullscreenVideoViewActivity"
+            android:theme="@style/FullscreenTheme">
+        </activity>
+        <activity
             android:exported="false"
             android:name="org.commcare.activities.DotsEntryActivity">
             <intent-filter>
