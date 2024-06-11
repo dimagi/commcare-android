@@ -44,6 +44,7 @@ public abstract class HttpCalloutTask<R> extends CommCareTask<Object, String, Ht
         NetworkFailureBadPassword,
         IncorrectPin,
         AuthOverHttp,
+        LockedOutUser,
         CaptivePortal
     }
 
