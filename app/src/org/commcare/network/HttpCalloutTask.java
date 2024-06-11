@@ -2,6 +2,8 @@ package org.commcare.network;
 
 import android.content.Context;
 
+import okhttp3.ResponseBody;
+
 import org.commcare.core.network.AuthenticationInterceptor;
 import org.commcare.core.network.CaptivePortalRedirectException;
 import org.commcare.core.network.ModernHttpRequester;
@@ -18,15 +20,14 @@ import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.xmlpull.v1.XmlPullParserException;
 
+import retrofit2.Response;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.UnknownHostException;
 
 import javax.net.ssl.SSLException;
-
-import okhttp3.ResponseBody;
-import retrofit2.Response;
 
 /**
  * @author ctsims
