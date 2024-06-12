@@ -6,6 +6,7 @@ import org.commcare.models.framework.Persisting;
 import org.commcare.modern.database.Table;
 import org.commcare.modern.models.MetaField;
 import org.joda.time.LocalDate;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -13,6 +14,7 @@ import java.io.Serializable;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Locale;
 
@@ -38,7 +40,7 @@ public class ConnectJobRecord extends Persisted implements Serializable {
     public static final String META_DESCRIPTION = "description";
     public static final String META_ORGANIZATION = "organization";
     public static final String META_END_DATE = "end_date";
-    public static final String META_MAX_VISITS = "max_visits_per_user";
+    public static final String META_MAX_VISITS_PER_USER = "max_visits_per_user";
     public static final String META_MAX_DAILY_VISITS = "daily_max_visits_per_user";
     public static final String META_BUDGET_PER_VISIT = "budget_per_visit";
     public static final String META_BUDGET_TOTAL = "total_budget";
@@ -59,6 +61,9 @@ public class ConnectJobRecord extends Persisted implements Serializable {
     public static final String META_SHORT_DESCRIPTION = "short_description";
     public static final String META_START_DATE = "start_date";
     public static final String META_IS_ACTIVE = "is_active";
+    public static final String META_PAYMENT_UNITS = "payment_units";
+    public static final String META_PAYMENT_UNIT = "payment_unit";
+    public static final String META_MAX_VISITS = "max_visits";
 
     @Persisting(1)
     @MetaField(META_JOB_ID)
@@ -82,7 +87,7 @@ public class ConnectJobRecord extends Persisted implements Serializable {
     @MetaField(META_BUDGET_TOTAL)
     private int totalBudget;
     @Persisting(8)
-    @MetaField(META_MAX_VISITS)
+    @MetaField(META_MAX_VISITS_PER_USER)
     private int maxVisits;
     @Persisting(9)
     @MetaField(META_MAX_DAILY_VISITS)
@@ -134,6 +139,7 @@ public class ConnectJobRecord extends Persisted implements Serializable {
     private List<ConnectJobAssessmentRecord> assessments;
     private ConnectAppRecord learnAppInfo;
     private ConnectAppRecord deliveryAppInfo;
+    private List<ConnectPaymentUnitRecord> paymentUnits;
 
     private boolean claimed;
 
@@ -154,7 +160,7 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         job.organization = json.has(META_ORGANIZATION) ? json.getString(META_ORGANIZATION) : "";
         job.projectEndDate = json.has(META_END_DATE) ? ConnectNetworkHelper.parseDate(json.getString(META_END_DATE)) : new Date();
         job.projectStartDate = json.has(META_START_DATE) ? ConnectNetworkHelper.parseDate(json.getString(META_START_DATE)) : new Date();
-        job.maxVisits = json.has(META_MAX_VISITS) ? json.getInt(META_MAX_VISITS) : -1;
+        job.maxVisits = json.has(META_MAX_VISITS_PER_USER) ? json.getInt(META_MAX_VISITS_PER_USER) : -1;
         job.maxDailyVisits = json.has(META_MAX_DAILY_VISITS) ? json.getInt(META_MAX_DAILY_VISITS) : -1;
         job.budgetPerVisit = json.has(META_BUDGET_PER_VISIT) ? json.getInt(META_BUDGET_PER_VISIT) : -1;
         String budgetPerUserKey = "budget_per_user";
@@ -176,8 +182,13 @@ public class ConnectJobRecord extends Persisted implements Serializable {
 
         job.isActive = !json.has(META_IS_ACTIVE) || json.getBoolean(META_IS_ACTIVE);
 
+        JSONArray unitsJson = json.getJSONArray(META_PAYMENT_UNITS);
+        job.paymentUnits = new ArrayList<>();
+        for(int i=0; i<unitsJson.length(); i++) {
+            job.paymentUnits.add(ConnectPaymentUnitRecord.fromJson(unitsJson.getJSONObject(i), job.getJobId()));
+        }
+
         if(job.claimed) {
-            //Actual claim object: {"max_payments", "end_date", "date_claimed" }
             JSONObject claim = json.getJSONObject(META_CLAIM);
 
             String key = META_MAX_PAYMENTS;
@@ -193,6 +204,23 @@ public class ConnectJobRecord extends Persisted implements Serializable {
             key = META_CLAIM_DATE;
             if (claim.has(key)) {
                 job.dateClaimed = ConnectNetworkHelper.parseDate(claim.getString(key));
+            }
+
+            key = META_PAYMENT_UNITS;
+            if (claim.has(key)) {
+                //Update payment units
+                JSONArray unitsArray = claim.getJSONArray(META_PAYMENT_UNITS);
+                for(int i=0; i< unitsArray.length(); i++) {
+                    JSONObject unitObj = unitsArray.getJSONObject(i);
+                    int unitId = unitObj.getInt(META_PAYMENT_UNIT);
+                    for(int j=0; j < job.paymentUnits.size(); j++) {
+                        if(job.paymentUnits.get(j).getUnitId() == unitId) {
+                            int newMax = unitObj.getInt(META_MAX_VISITS);
+                            job.paymentUnits.get(j).setMaxTotal(newMax);
+                            break;
+                        }
+                    }
+                }
             }
         }
 
@@ -293,13 +321,6 @@ public class ConnectJobRecord extends Persisted implements Serializable {
     }
 
     public int getMaxPossibleVisits() {
-        //NOTE: No longer reducing the value based on time remaining
-//        int maxVisitsBudgeted = totalBudget / budgetPerVisit;
-//        int minDaysRequired = maxVisitsBudgeted / maxDailyVisits;
-//        int daysRemaining = getDaysRemaining();
-//        int max = minDaysRequired > daysRemaining ? (daysRemaining * maxDailyVisits) : maxVisitsBudgeted;
-//        return Math.min(max, maxVisits);
-
         return maxVisits;
     }
 
@@ -350,7 +371,7 @@ public class ConnectJobRecord extends Persisted implements Serializable {
     public int numberOfDeliveriesToday() {
         int dailyVisitCount = 0;
         Date today = new Date();
-        for (ConnectJobDeliveryRecord record : getDeliveries()) {
+        for (ConnectJobDeliveryRecord record : deliveries) {
             if(sameDay(today, record.getDate())) {
                 dailyVisitCount++;
             }
@@ -364,6 +385,33 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         LocalDate dt2 = new LocalDate(date2);
 
         return dt1.equals(dt2);
+    }
+
+    public List<ConnectPaymentUnitRecord> getPaymentUnits() {
+        return paymentUnits;
+    }
+
+    public boolean isMultiPayment() {
+        return paymentUnits.size() > 1;
+    }
+
+    public Hashtable<String, Integer> getDeliveryCountsPerPaymentUnit(boolean todayOnly) {
+        Hashtable<String, Integer> paymentCounts = new Hashtable<>();
+        for(int i = 0; i < deliveries.size(); i++) {
+            ConnectJobDeliveryRecord delivery = deliveries.get(i);
+            int oldCount = 0;
+            if(paymentCounts.containsKey(delivery.getSlug())) {
+                oldCount = paymentCounts.get(delivery.getSlug());
+            }
+
+            paymentCounts.put(delivery.getSlug(), oldCount + 1);
+        }
+
+        return paymentCounts;
+    }
+
+    public void setPaymentUnits(List<ConnectPaymentUnitRecord> units) {
+        paymentUnits = units;
     }
 
 
@@ -388,6 +436,7 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         newRecord.payments = new ArrayList<>();
         newRecord.learnings = new ArrayList<>();
         newRecord.assessments = new ArrayList<>();
+        newRecord.paymentUnits = new ArrayList<>();
 
         newRecord.organization = oldRecord.getOrganization();
         newRecord.lastWorkedDate = oldRecord.getLastWorkedDate();
@@ -424,6 +473,7 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         newRecord.payments = new ArrayList<>();
         newRecord.learnings = new ArrayList<>();
         newRecord.assessments = new ArrayList<>();
+        newRecord.paymentUnits = new ArrayList<>();
 
         newRecord.organization = oldRecord.getOrganization();
         newRecord.lastWorkedDate = oldRecord.getLastWorkedDate();

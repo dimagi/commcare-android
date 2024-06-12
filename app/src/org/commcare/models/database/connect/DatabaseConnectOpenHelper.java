@@ -14,6 +14,7 @@ import org.commcare.android.database.connect.models.ConnectJobPaymentRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectLearnModuleSummaryRecord;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
+import org.commcare.android.database.connect.models.ConnectPaymentUnitRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.logging.DataChangeLog;
 import org.commcare.logging.DataChangeLogger;
@@ -34,8 +35,9 @@ public class DatabaseConnectOpenHelper extends SQLiteOpenHelper {
      *          Added link offer info to ConnectLinkedAppRecord
      * V.5 - Added projectStartDate and isActive to ConnectJobRecord
      * V.6 - Added pin,secondaryPhoneVerified, and registrationDate fields to ConnectUserRecord
+     * V.7 - Added ConnectPaymentUnitRecord table
      */
-    private static final int CONNECT_DB_VERSION = 6;
+    private static final int CONNECT_DB_VERSION = 7;
 
     private static final String CONNECT_DB_LOCATOR = "database_connect";
 
@@ -75,6 +77,9 @@ public class DatabaseConnectOpenHelper extends SQLiteOpenHelper {
             database.execSQL(builder.getTableCreateString());
 
             builder = new TableBuilder(ConnectJobPaymentRecord.class);
+            database.execSQL(builder.getTableCreateString());
+
+            builder = new TableBuilder(ConnectPaymentUnitRecord.class);
             database.execSQL(builder.getTableCreateString());
 
             DbUtil.createNumbersTable(database);

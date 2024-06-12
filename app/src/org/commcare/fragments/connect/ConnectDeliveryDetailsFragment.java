@@ -8,6 +8,7 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.commcare.android.database.connect.models.ConnectPaymentUnitRecord;
 import org.commcare.connect.ConnectDatabaseHelper;
 import org.commcare.connect.ConnectManager;
 import org.commcare.connect.network.ConnectNetworkHelper;
@@ -56,29 +57,37 @@ public class ConnectDeliveryDetailsFragment extends Fragment {
 
         TextView textView = view.findViewById(R.id.connect_delivery_total_visits_text);
         int maxPossibleVisits = job.getMaxPossibleVisits();
-        textView.setText(getString(R.string.connect_delivery_max_visits, maxPossibleVisits));
-
-        textView = view.findViewById(R.id.connect_delivery_remaining_text);
         int daysRemaining = job.getDaysRemaining();
-        String dueDate = getString(R.string.connect_delivery_today);
-        if(job.getProjectStartDate().after(new Date())) {
-            dueDate = ConnectManager.formatDate(job.getProjectStartDate());
-        }
-        textView.setText(getString(R.string.connect_delivery_days_remaining, daysRemaining, dueDate));
+        textView.setText(getString(R.string.connect_delivery_max_visits, maxPossibleVisits, daysRemaining));
 
         textView = view.findViewById(R.id.connect_delivery_max_daily_text);
         textView.setText(getString(R.string.connect_delivery_max_daily_visits, job.getMaxDailyVisits()));
 
         textView = view.findViewById(R.id.connect_delivery_budget_text);
-        String moneyValue = job.getMoneyString(job.getTotalBudget());
-        textView.setText(getString(R.string.connect_delivery_earn, moneyValue, maxPossibleVisits));
+        String paymentText = "";
+        if(job.isMultiPayment()) {
+            //List payment units
+            paymentText = getString(R.string.connect_delivery_earn_multi);
+            for(int i=0; i<job.getPaymentUnits().size(); i++) {
+                ConnectPaymentUnitRecord unit = job.getPaymentUnits().get(i);
+                paymentText = String.format("%s\n\u2022 %s: %s", paymentText, unit.getName(),
+                        job.getMoneyString(unit.getAmount()));
+            }
+        } else if(job.getPaymentUnits().size() > 0) {
+            //Single payment unit
+            String moneyValue = job.getMoneyString(job.getPaymentUnits().get(0).getAmount());
+            paymentText = getString(R.string.connect_delivery_earn_single, moneyValue);
+        }
+
+        textView.setText(paymentText);
 
         boolean expired = daysRemaining < 0;
         textView = view.findViewById(R.id.connect_delivery_action_title);
         textView.setText(expired ? R.string.connect_delivery_expired : R.string.connect_delivery_ready_to_claim);
 
         textView = view.findViewById(R.id.connect_delivery_action_details);
-        textView.setText(expired ? R.string.connect_delivery_expired_detailed : R.string.connect_delivery_ready_to_claim_detailed);
+        textView.setText(expired ? R.string.connect_delivery_expired_detailed :
+                R.string.connect_delivery_ready_to_claim_detailed);
 
         boolean jobClaimed = job.getStatus() == ConnectJobRecord.STATUS_DELIVERING;
         boolean installed = false;
@@ -141,10 +150,12 @@ public class ConnectDeliveryDetailsFragment extends Fragment {
 
         NavDirections directions;
         if (installed) {
-            directions = ConnectDeliveryDetailsFragmentDirections.actionConnectJobDeliveryDetailsFragmentToConnectJobDeliveryProgressFragment();
+            directions = ConnectDeliveryDetailsFragmentDirections
+                    .actionConnectJobDeliveryDetailsFragmentToConnectJobDeliveryProgressFragment();
         } else {
             String title = getString(R.string.connect_downloading_delivery);
-            directions = ConnectDeliveryDetailsFragmentDirections.actionConnectJobDeliveryDetailsFragmentToConnectDownloadingFragment(title, false, false);
+            directions = ConnectDeliveryDetailsFragmentDirections
+                    .actionConnectJobDeliveryDetailsFragmentToConnectDownloadingFragment(title, false, false);
         }
 
         Navigation.findNavController(button).navigate(directions);
