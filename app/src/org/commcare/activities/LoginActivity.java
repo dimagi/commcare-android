@@ -597,6 +597,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                 ConnectManager.forgetUser();
                 uiController.setPasswordOrPin("");
                 uiController.refreshView();
+                uiController.setConnectIdLoginState(false);
                 return true;
             default:
                 return otherResult;

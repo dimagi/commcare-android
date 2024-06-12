@@ -9,13 +9,19 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import org.commcare.activities.CommCareActivity;
+import org.commcare.android.database.connect.models.ConnectJobDeliveryRecord;
+import org.commcare.android.database.connect.models.ConnectPaymentUnitRecord;
 import org.commcare.connect.ConnectManager;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.dalvik.R;
 import org.commcare.views.dialogs.StandardAlertDialog;
 import org.javarosa.core.services.locale.Localization;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.Dictionary;
+import java.util.Hashtable;
+import java.util.List;
 import java.util.Locale;
 
 import androidx.fragment.app.Fragment;
@@ -131,27 +137,81 @@ public class ConnectDeliveryProgressDeliveryFragment extends Fragment {
         textView.setText(String.format(Locale.getDefault(), "%d%%", percent));
 
         textView = view.findViewById(R.id.connect_progress_status_text);
-        textView.setText(getString(R.string.connect_progress_status, completed, total));
+        String completedText = getString(R.string.connect_progress_status, completed, total);
+        if(job.isMultiPayment() && completed > 0) {
+            //Get counts for each type
+            Hashtable<String, Integer> paymentCounts = job.getDeliveryCountsPerPaymentUnit(false);
+
+            //Add a line for each payment unit
+            for(int unitIndex = 0; unitIndex < job.getPaymentUnits().size(); unitIndex++) {
+                ConnectPaymentUnitRecord unit = job.getPaymentUnits().get(unitIndex);
+                int count = 0;
+                String stringKey = Integer.toString(unit.getUnitId());
+                if(paymentCounts.containsKey(stringKey)) {
+                    count = paymentCounts.get(stringKey);
+                }
+
+                completedText = String.format(Locale.getDefault(), "%s\n%s: %d", completedText, unit.getName(), count);
+            }
+        }
+
+        textView.setText(completedText);
 
         int totalVisitCount = job.getDeliveries().size();
         int dailyVisitCount = job.numberOfDeliveriesToday();
         boolean finished = job.isFinished();
 
-        int warningTextId = -1;
+        String warningText = null;
         if(finished) {
-            warningTextId = R.string.connect_progress_warning_ended;
+            warningText = getString(R.string.connect_progress_warning_ended);
         } else if(job.getProjectStartDate().after(new Date())) {
-            warningTextId = R.string.connect_progress_warning_not_started;
-        } else if(totalVisitCount >= job.getMaxVisits()) {
-            warningTextId = R.string.connect_progress_warning_max_reached;
-        } else if(dailyVisitCount >= job.getMaxDailyVisits()) {
-            warningTextId = R.string.connect_progress_warning_daily_max_reached;
+            warningText = getString(R.string.connect_progress_warning_not_started);
+        } else if(job.isMultiPayment()) {
+            List<String> warnings = new ArrayList<>();
+            Hashtable<String, Integer> totalPaymentCounts = job.getDeliveryCountsPerPaymentUnit(false);
+            Hashtable<String, Integer> todayPaymentCounts = job.getDeliveryCountsPerPaymentUnit(true);
+            for(int i=0; i<job.getPaymentUnits().size(); i++) {
+                ConnectPaymentUnitRecord unit = job.getPaymentUnits().get(i);
+                String stringKey = Integer.toString(unit.getUnitId());
+
+                int totalCount = 0;
+                if(totalPaymentCounts.containsKey(stringKey)) {
+                    totalCount = totalPaymentCounts.get(stringKey);
+                }
+
+                if(totalCount >= unit.getMaxTotal()) {
+                    //Reached max total for this type
+                    warnings.add(getString(R.string.connect_progress_warning_max_reached_multi, unit.getName()));
+                }
+                else {
+                    int todayCount = 0;
+                    if (todayPaymentCounts.containsKey(stringKey)) {
+                        todayCount = todayPaymentCounts.get(stringKey);
+                    }
+
+                    if(todayCount >= unit.getMaxDaily()) {
+                        //Reached daily max for this type
+                        warnings.add(getString(R.string.connect_progress_warning_daily_max_reached_multi,
+                                unit.getName()));
+                    }
+                }
+            }
+
+            if(warnings.size() > 0) {
+                warningText = String.join("\n", warnings);
+            }
+        } else {
+            if(totalVisitCount >= job.getMaxVisits()) {
+                warningText = getString(R.string.connect_progress_warning_max_reached_single);
+            } else if(dailyVisitCount >= job.getMaxDailyVisits()) {
+                warningText = getString(R.string.connect_progress_warning_daily_max_reached_single);
+            }
         }
 
         textView = view.findViewById(R.id.connect_progress_delivery_warning_text);
-        textView.setVisibility(warningTextId >= 0 ? View.VISIBLE : View.GONE);
-        if(warningTextId >= 0) {
-            textView.setText(warningTextId);
+        textView.setVisibility(warningText != null ? View.VISIBLE : View.GONE);
+        if(warningText != null) {
+            textView.setText(warningText);
         }
 
         textView = view.findViewById(R.id.connect_progress_complete_by_text);

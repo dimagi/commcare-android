@@ -14,6 +14,7 @@ import org.commcare.android.database.connect.models.ConnectJobPaymentRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectLearnModuleSummaryRecord;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
+import org.commcare.android.database.connect.models.ConnectPaymentUnitRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.android.database.global.models.ConnectKeyRecord;
 import org.commcare.models.database.AndroidDbHelper;
@@ -117,6 +118,7 @@ public class ConnectDatabaseHelper {
         getConnectStorage(context, ConnectJobAssessmentRecord.class).removeAll();
         getConnectStorage(context, ConnectJobDeliveryRecord.class).removeAll();
         getConnectStorage(context, ConnectJobPaymentRecord.class).removeAll();
+        getConnectStorage(context, ConnectPaymentUnitRecord.class).removeAll();
     }
 
     public static ConnectLinkedAppRecord getAppData(Context context, String appId, String username) {
@@ -220,6 +222,8 @@ public class ConnectDatabaseHelper {
         SqlStorage<ConnectAppRecord> appInfoStorage = getConnectStorage(context, ConnectAppRecord.class);
         SqlStorage<ConnectLearnModuleSummaryRecord> moduleStorage = getConnectStorage(context,
                 ConnectLearnModuleSummaryRecord.class);
+        SqlStorage<ConnectPaymentUnitRecord> paymentUnitStorage = getConnectStorage(context,
+                ConnectPaymentUnitRecord.class);
 
         List<ConnectJobRecord> existingList = getJobs(context, -1, jobStorage);
 
@@ -227,6 +231,7 @@ public class ConnectDatabaseHelper {
         Vector<Integer> jobIdsToDelete = new Vector<>();
         Vector<Integer> appInfoIdsToDelete = new Vector<>();
         Vector<Integer> moduleIdsToDelete = new Vector<>();
+        Vector<Integer> paymentUnitIdsToDelete = new Vector<>();
         //Note when jobs are found in the loop below, we retrieve the DB ID into the incoming job
         for (ConnectJobRecord existing : existingList) {
             boolean stillExists = false;
@@ -249,6 +254,10 @@ public class ConnectDatabaseHelper {
                 for(ConnectLearnModuleSummaryRecord module : existing.getLearnAppInfo().getLearnModules()) {
                     moduleIdsToDelete.add(module.getID());
                 }
+
+                for(ConnectPaymentUnitRecord record : existing.getPaymentUnits()) {
+                    paymentUnitIdsToDelete.add(record.getID());
+                }
             }
         }
 
@@ -256,6 +265,7 @@ public class ConnectDatabaseHelper {
             jobStorage.removeAll(jobIdsToDelete);
             appInfoStorage.removeAll(appInfoIdsToDelete);
             moduleStorage.removeAll(moduleIdsToDelete);
+            paymentUnitStorage.removeAll(paymentUnitIdsToDelete);
         }
 
         //Now insert/update jobs
@@ -291,7 +301,7 @@ public class ConnectDatabaseHelper {
             incomingJob.getDeliveryAppInfo().setLastUpdate(new Date());
             appInfoStorage.write(incomingJob.getDeliveryAppInfo());
 
-            //Finally, store the info for the learn modules
+            //Store the info for the learn modules
             //Delete modules that are no longer available
             Vector<Integer> foundIndexes = new Vector<>();
             //Note: Reusing this vector
@@ -326,6 +336,43 @@ public class ConnectDatabaseHelper {
                 module.setJobId(incomingJob.getJobId());
                 module.setLastUpdate(new Date());
                 moduleStorage.write(module);
+            }
+
+
+            //Store the payment units
+            //Delete payment units that are no longer available
+            foundIndexes = new Vector<>();
+            //Note: Reusing this vector
+            paymentUnitIdsToDelete.clear();
+            Vector<ConnectPaymentUnitRecord> existingPaymentUnits =
+                    paymentUnitStorage.getRecordsForValues(
+                            new String[]{ConnectPaymentUnitRecord.META_JOB_ID},
+                            new Object[]{incomingJob.getJobId()});
+            for (ConnectPaymentUnitRecord existing : existingPaymentUnits) {
+                boolean stillExists = false;
+                if(!foundIndexes.contains(existing.getUnitId())) {
+                    for (ConnectPaymentUnitRecord incoming :
+                            incomingJob.getPaymentUnits()) {
+                        if (Objects.equals(existing.getUnitId(), incoming.getUnitId())) {
+                            incoming.setID(existing.getID());
+                            stillExists = true;
+                            foundIndexes.add(existing.getUnitId());
+
+                            break;
+                        }
+                    }
+                }
+
+                if(!stillExists) {
+                    paymentUnitIdsToDelete.add(existing.getID());
+                }
+            }
+
+            paymentUnitStorage.removeAll(paymentUnitIdsToDelete);
+
+            for(ConnectPaymentUnitRecord record : incomingJob.getPaymentUnits()) {
+                record.setJobId(incomingJob.getJobId());
+                paymentUnitStorage.write(record);
             }
         }
 
@@ -525,6 +572,7 @@ public class ConnectDatabaseHelper {
         SqlStorage<ConnectJobPaymentRecord> paymentStorage = getConnectStorage(context, ConnectJobPaymentRecord.class);
         SqlStorage<ConnectJobLearningRecord> learningStorage = getConnectStorage(context, ConnectJobLearningRecord.class);
         SqlStorage<ConnectJobAssessmentRecord> assessmentStorage = getConnectStorage(context, ConnectJobAssessmentRecord.class);
+        SqlStorage<ConnectPaymentUnitRecord> paymentUnitStorage = getConnectStorage(context, ConnectPaymentUnitRecord.class);
         for(ConnectJobRecord job : jobs) {
             //Retrieve learn and delivery app info
             Vector<ConnectAppRecord> existingAppInfos = appInfoStorage.getRecordsForValues(
@@ -556,6 +604,11 @@ public class ConnectDatabaseHelper {
             if(job.getLearnAppInfo() != null) {
                 job.getLearnAppInfo().setLearnModules(modules);
             }
+
+            //Retrieve payment units
+            job.setPaymentUnits(paymentUnitStorage.getRecordsForValues(
+                    new String[]{ConnectPaymentUnitRecord.META_JOB_ID},
+                    new Object[]{job.getJobId()}));
 
             //Retrieve related data
             job.setDeliveries(getDeliveries(context, job.getJobId(), deliveryStorage));
