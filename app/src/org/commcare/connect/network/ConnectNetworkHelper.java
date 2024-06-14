@@ -177,7 +177,7 @@ public class ConnectNetworkHelper {
                     stream = requester.getResponseStream(response);
                 } else if (response.errorBody() != null) {
                     String error = response.errorBody().string();
-                    Logger.log("DAVE", error);
+                    Logger.log("Netowrk Error", error);
                 }
             } catch (IOException e) {
                 exception = e;

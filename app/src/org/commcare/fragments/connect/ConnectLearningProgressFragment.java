@@ -98,42 +98,8 @@ public class ConnectLearningProgressFragment extends Fragment {
 
     private void refreshData() {
         ConnectJobRecord job = ConnectManager.getActiveJob();
-        ApiConnect.getLearnProgress(getContext(), job.getJobId(), new IApiCallback() {
-            @Override
-            public void processSuccess(int responseCode, InputStream responseData) {
-                try {
-                    String responseAsString = new String(StreamsUtil.inputStreamToByteArray(responseData));
-                    if (responseAsString.length() > 0) {
-                        //Parse the JSON
-                        JSONObject json = new JSONObject(responseAsString);
-
-                        String key = "completed_modules";
-                        JSONArray modules = json.getJSONArray(key);
-                        List<ConnectJobLearningRecord> learningRecords = new ArrayList<>(modules.length());
-                        for(int i=0; i<modules.length(); i++) {
-                            JSONObject obj = (JSONObject)modules.get(i);
-                            ConnectJobLearningRecord record = ConnectJobLearningRecord.fromJson(obj, job.getJobId());
-                            learningRecords.add(record);
-                        }
-                        job.setLearnings(learningRecords);
-                        job.setComletedLearningModules(learningRecords.size());
-
-                        key = "assessments";
-                        JSONArray assessments = json.getJSONArray(key);
-                        List<ConnectJobAssessmentRecord> assessmentRecords = new ArrayList<>(assessments.length());
-                        for(int i=0; i<assessments.length(); i++) {
-                            JSONObject obj = (JSONObject)assessments.get(i);
-                            ConnectJobAssessmentRecord record = ConnectJobAssessmentRecord.fromJson(obj, job.getJobId());
-                            assessmentRecords.add(record);
-                        }
-                        job.setAssessments(assessmentRecords);
-
-                        ConnectDatabaseHelper.updateJobLearnProgress(getContext(), job);
-                    }
-                } catch (IOException | JSONException | ParseException e) {
-                    Logger.exception("Parsing return from learn_progress request", e);
-                }
-
+        ConnectManager.updateLearningProgress(getContext(), job, success -> {
+            if(success) {
                 try {
                     updateUpdatedDate(new Date());
                     updateUi(null);
@@ -141,32 +107,8 @@ public class ConnectLearningProgressFragment extends Fragment {
                 catch(Exception e) {
                     //Ignore exception, happens if we leave the page before API call finishes
                 }
-
-                reportApiCall(true);
-            }
-
-            @Override
-            public void processFailure(int responseCode, IOException e) {
-                Logger.log("ERROR", String.format(Locale.getDefault(), "Failed: %d", responseCode));
-                reportApiCall(false);
-            }
-
-            @Override
-            public void processNetworkFailure() {
-                Logger.log("ERROR", "Failed (network)");
-                reportApiCall(false);
-            }
-
-            @Override
-            public void processOldApiError() {
-                ConnectNetworkHelper.showOutdatedApiError(getContext());
-                reportApiCall(false);
             }
         });
-    }
-
-    private void reportApiCall(boolean success) {
-        FirebaseAnalyticsUtil.reportCccApiLearnProgress(success);
     }
 
     private void updateUi(View view) {
@@ -180,16 +122,7 @@ public class ConnectLearningProgressFragment extends Fragment {
 
         ConnectJobRecord job = ConnectManager.getActiveJob();
 
-        //NOTE: Leaving old logic here in case we go back to array
-        int completed = job.getCompletedLearningModules();
-//        for (ConnectJobLearningModule module: job.getLearningModules()) {
-//            if(module.getCompletedDate() != null) {
-//                completed++;
-//            }
-//        }
-
-        int numModules = job.getNumLearningModules();// job.getLearningModules().length;
-        int percent = numModules > 0 ? (100 * completed / numModules) : 100;
+        int percent = job.getLearningPercentComplete();
         boolean learningFinished = percent >= 100;
         boolean assessmentAttempted = job.attemptedAssessment();
         boolean assessmentPassed = job.passedAssessment();
@@ -215,7 +148,8 @@ public class ConnectLearningProgressFragment extends Fragment {
                 buttonText = getString(R.string.connect_learn_go_to_assessment);
             }
         } else if(percent > 0) {
-            status = getString(R.string.connect_learn_status, completed, numModules);
+            status = getString(R.string.connect_learn_status, job.getCompletedLearningModules(),
+                    job.getNumLearningModules());
             buttonText = getString(R.string.connect_learn_continue);
         } else {
             status = getString(R.string.connect_learn_not_started);

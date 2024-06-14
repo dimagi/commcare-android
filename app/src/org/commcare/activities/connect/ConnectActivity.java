@@ -60,8 +60,10 @@ public class ConnectActivity extends CommCareActivity<ResourceEngineListener> {
                     R.id.connect_job_delivery_progress_fragment :
                     R.id.connect_job_learning_progress_fragment;
 
+            boolean buttons = getIntent().getBooleanExtra("buttons", true);
+
             Bundle bundle = new Bundle();
-            bundle.putBoolean("showLaunch", false);
+            bundle.putBoolean("showLaunch", buttons);
 
             NavOptions options = new NavOptions.Builder()
                     .setPopUpTo(navController.getGraph().getStartDestinationId(), true)

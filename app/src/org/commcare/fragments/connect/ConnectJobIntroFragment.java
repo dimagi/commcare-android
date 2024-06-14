@@ -13,6 +13,7 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.commcare.connect.ConnectDatabaseHelper;
 import org.commcare.connect.ConnectManager;
 import org.commcare.connect.network.ConnectNetworkHelper;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
@@ -96,6 +97,10 @@ public class ConnectJobIntroFragment extends Fragment {
                     public void processSuccess(int responseCode, InputStream responseData) {
                         reportApiCall(true);
                         //TODO: Expecting to eventually get HQ username from server here
+
+                        job.setStatus(ConnectJobRecord.STATUS_LEARNING);
+                        ConnectDatabaseHelper.upsertJob(getContext(), job);
+
                         NavDirections directions;
                         if (appInstalled) {
                             directions = ConnectJobIntroFragmentDirections.actionConnectJobIntroFragmentToConnectJobLearningProgressFragment();
