@@ -12,6 +12,7 @@ import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
+import org.commcare.connect.ConnectManager;
 import org.commcare.dalvik.R;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.recovery.measures.ExecuteRecoveryMeasuresActivity;
@@ -63,6 +64,7 @@ public class DispatchActivity extends AppCompatActivity {
     private boolean startFromLogin;
     private LoginMode lastLoginMode;
     private boolean userManuallyEnteredPasswordMode;
+    private boolean shouldGoToConnectJobStatus;
 
     private boolean shouldFinish;
     private boolean userTriggeredLogout;
@@ -193,8 +195,11 @@ public class DispatchActivity extends AppCompatActivity {
                         !shortcutExtraWasConsumed) {
                     // CommCare was launched from a shortcut
                     handleShortcutLaunch();
-                }
-                else {
+                } else if(shouldGoToConnectJobStatus) {
+                    CommCareApplication.instance().closeUserSession();
+                    ConnectManager.goToActiveInfoForJob(this, true);
+                    shouldGoToConnectJobStatus = false;
+                } else {
                     launchHomeScreen();
                 }
             } catch (SessionUnavailableException sue) {
@@ -458,6 +463,7 @@ public class DispatchActivity extends AppCompatActivity {
                     lastLoginMode = (LoginMode)intent.getSerializableExtra(LoginActivity.LOGIN_MODE);
                     userManuallyEnteredPasswordMode =
                             intent.getBooleanExtra(LoginActivity.MANUAL_SWITCH_TO_PW_MODE, false);
+                    shouldGoToConnectJobStatus = intent.getBooleanExtra(LoginActivity.GO_TO_CONNECT_JOB_STATUS, false);
                     startFromLogin = true;
                 }
                 return;

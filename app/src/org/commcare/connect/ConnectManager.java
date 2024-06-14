@@ -20,7 +20,9 @@ import androidx.work.WorkManager;
 import org.commcare.activities.CommCareActivity;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.connect.models.ConnectAppRecord;
+import org.commcare.android.database.connect.models.ConnectJobAssessmentRecord;
 import org.commcare.android.database.connect.models.ConnectJobDeliveryRecord;
+import org.commcare.android.database.connect.models.ConnectJobLearningRecord;
 import org.commcare.android.database.connect.models.ConnectJobPaymentRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
@@ -275,7 +277,7 @@ public class ConnectManager {
         manager.loginListener = null;
     }
 
-    public static void setConnectJobForApp(Context context, String appId) {
+    public static ConnectJobRecord setConnectJobForApp(Context context, String appId) {
         ConnectJobRecord job = null;
 
         ConnectAppRecord appRecord = getAppRecord(context, appId);
@@ -284,6 +286,8 @@ public class ConnectManager {
         }
 
         setActiveJob(job);
+
+        return job;
     }
 
     private static ConnectJobRecord activeJob = null;
@@ -345,10 +349,11 @@ public class ConnectManager {
         manager.parentActivity.startActivity(i);
     }
 
-    public static void goToActiveInfoForJob(Activity activity) {
+    public static void goToActiveInfoForJob(Activity activity, boolean allowProgression) {
         ConnectTask task = ConnectTask.CONNECT_JOB_INFO;
         Intent i = new Intent(activity, task.getNextActivity());
         i.putExtra("info", true);
+        i.putExtra("buttons", allowProgression);
         activity.startActivity(i);
     }
 
@@ -658,6 +663,87 @@ public class ConnectManager {
         return appRecord;
     }
 
+    public static void updateJobProgress(Context context, ConnectJobRecord job, ConnectActivityCompleteListener listener) {
+        switch (job.getStatus()) {
+            case ConnectJobRecord.STATUS_LEARNING -> {
+                updateLearningProgress(context, job, listener);
+            }
+            case ConnectJobRecord.STATUS_DELIVERING -> {
+                updateDeliveryProgress(context, job, listener);
+            }
+            default -> {
+                listener.connectActivityComplete(true);
+            }
+        }
+    }
+
+    public static void updateLearningProgress(Context context, ConnectJobRecord job, ConnectActivityCompleteListener listener) {
+        ApiConnect.getLearnProgress(context, job.getJobId(), new IApiCallback() {
+            private static void reportApiCall(boolean success) {
+                FirebaseAnalyticsUtil.reportCccApiLearnProgress(success);
+            }
+            @Override
+            public void processSuccess(int responseCode, InputStream responseData) {
+                try {
+                    String responseAsString = new String(StreamsUtil.inputStreamToByteArray(responseData));
+                    if (responseAsString.length() > 0) {
+                        //Parse the JSON
+                        JSONObject json = new JSONObject(responseAsString);
+
+                        String key = "completed_modules";
+                        JSONArray modules = json.getJSONArray(key);
+                        List<ConnectJobLearningRecord> learningRecords = new ArrayList<>(modules.length());
+                        for(int i=0; i<modules.length(); i++) {
+                            JSONObject obj = (JSONObject)modules.get(i);
+                            ConnectJobLearningRecord record = ConnectJobLearningRecord.fromJson(obj, job.getJobId());
+                            learningRecords.add(record);
+                        }
+                        job.setLearnings(learningRecords);
+                        job.setComletedLearningModules(learningRecords.size());
+
+                        key = "assessments";
+                        JSONArray assessments = json.getJSONArray(key);
+                        List<ConnectJobAssessmentRecord> assessmentRecords = new ArrayList<>(assessments.length());
+                        for(int i=0; i<assessments.length(); i++) {
+                            JSONObject obj = (JSONObject)assessments.get(i);
+                            ConnectJobAssessmentRecord record = ConnectJobAssessmentRecord.fromJson(obj, job.getJobId());
+                            assessmentRecords.add(record);
+                        }
+                        job.setAssessments(assessmentRecords);
+
+                        ConnectDatabaseHelper.updateJobLearnProgress(context, job);
+                    }
+                } catch (IOException | JSONException | ParseException e) {
+                    Logger.exception("Parsing return from learn_progress request", e);
+                }
+
+                reportApiCall(true);
+                listener.connectActivityComplete(true);
+            }
+
+            @Override
+            public void processFailure(int responseCode, IOException e) {
+                Logger.log("ERROR", String.format(Locale.getDefault(), "Failed: %d", responseCode));
+                reportApiCall(false);
+                listener.connectActivityComplete(false);
+            }
+
+            @Override
+            public void processNetworkFailure() {
+                Logger.log("ERROR", "Failed (network)");
+                reportApiCall(false);
+                listener.connectActivityComplete(false);
+            }
+
+            @Override
+            public void processOldApiError() {
+                ConnectNetworkHelper.showOutdatedApiError(context);
+                reportApiCall(false);
+                listener.connectActivityComplete(false);
+            }
+        });
+    }
+
     public static void updateDeliveryProgress(Context context, ConnectJobRecord job, ConnectActivityCompleteListener listener) {
         ApiConnect.getDeliveries(context, job.getJobId(), new IApiCallback() {
             private static void reportApiCall(boolean success) {
@@ -808,6 +894,4 @@ public class ConnectManager {
 
         return password.toString();
     }
-
-
 }
