@@ -21,6 +21,8 @@ import org.commcare.logging.DataChangeLogger;
 import org.commcare.models.database.DbUtil;
 import org.commcare.modern.database.TableBuilder;
 
+import java.io.File;
+
 /**
  * The helper for opening/updating the Connect (encrypted) db space for CommCare.
  *
@@ -46,6 +48,12 @@ public class DatabaseConnectOpenHelper extends SQLiteOpenHelper {
     public DatabaseConnectOpenHelper(Context context) {
         super(context, CONNECT_DB_LOCATOR, null, CONNECT_DB_VERSION);
         this.mContext = context;
+    }
+
+    public static boolean dbExists(Context context) {
+        String path = context.getDatabasePath(CONNECT_DB_LOCATOR).getPath();
+        File dbPathFile = new File(path);
+        return dbPathFile.exists();
     }
 
     @Override

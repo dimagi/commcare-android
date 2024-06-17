@@ -61,12 +61,8 @@ public class ConnectDatabaseHelper {
         }
     }
 
-    public static void init(Context context) {
-        synchronized (connectDbHandleLock) {
-            byte[] passphrase = getConnectDbPassphrase(context);
-            SQLiteDatabase database = new DatabaseConnectOpenHelper(context).getWritableDatabase(passphrase);
-            database.close();
-        }
+    public static boolean dbExists(Context context) {
+        return DatabaseConnectOpenHelper.dbExists(context);
     }
 
     private static <T extends Persistable> SqlStorage<T> getConnectStorage(Context context, Class<T> c) {
@@ -96,9 +92,11 @@ public class ConnectDatabaseHelper {
 
     public static ConnectUserRecord getUser(Context context) {
         ConnectUserRecord user = null;
-        for (ConnectUserRecord r : getConnectStorage(context, ConnectUserRecord.class)) {
-            user = r;
-            break;
+        if(dbExists(context)) {
+            for (ConnectUserRecord r : getConnectStorage(context, ConnectUserRecord.class)) {
+                user = r;
+                break;
+            }
         }
 
         return user;
@@ -597,9 +595,9 @@ public class ConnectDatabaseHelper {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                 modules.sort(Comparator.comparingInt(ConnectLearnModuleSummaryRecord::getModuleIndex));
             }
-            else {
+            //else {
                 //TODO: Brute force sort
-            }
+            //}
 
             if(job.getLearnAppInfo() != null) {
                 job.getLearnAppInfo().setLearnModules(modules);

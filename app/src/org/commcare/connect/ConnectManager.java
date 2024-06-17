@@ -121,7 +121,6 @@ public class ConnectManager {
     public static void init(CommCareActivity<?> parent) {
         ConnectManager manager = getInstance();
         manager.parentActivity = parent;
-        ConnectDatabaseHelper.init(parent);
 
         if(manager.connectStatus == ConnectIdStatus.NotIntroduced) {
             ConnectUserRecord user = ConnectDatabaseHelper.getUser(manager.parentActivity);
@@ -164,11 +163,8 @@ public class ConnectManager {
     }
 
     public static boolean isConnectIdIntroduced() {
-        if (!AppManagerDeveloperPreferences.isConnectIdEnabled()) {
-            return false;
-        }
-
-        return getInstance().connectStatus == ConnectIdStatus.LoggedIn;
+        return AppManagerDeveloperPreferences.isConnectIdEnabled()
+                && getInstance().connectStatus == ConnectIdStatus.LoggedIn;
     }
 
     public static boolean isUnlocked() {
