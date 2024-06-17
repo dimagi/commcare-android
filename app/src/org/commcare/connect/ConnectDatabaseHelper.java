@@ -51,7 +51,7 @@ public class ConnectDatabaseHelper {
             byte[] passphrase = EncryptionUtils.generatePassphrase();
 
             String encoded = EncryptionUtils.encryptToBase64String(context, passphrase);
-            ConnectKeyRecord record = new ConnectKeyRecord(encoded);
+            ConnectKeyRecord record = new ConnectKeyRecord(encoded, true);
             CommCareApplication.instance().getGlobalStorage(ConnectKeyRecord.class).write(record);
 
             return passphrase;
