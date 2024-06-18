@@ -129,8 +129,11 @@ public class ConnectManager {
                 boolean registering = user.getRegistrationPhase() != ConnectTask.CONNECT_NO_ACTIVITY;
                 manager.connectStatus = registering ? ConnectIdStatus.Registering : ConnectIdStatus.LoggedIn;
 
-                if(ConnectDatabaseHelper.getConnectDbEncodedPassphrase(false) == null) {
+                String remotePassphrase = ConnectDatabaseHelper.getConnectDbEncodedPassphrase(parent, false);
+                if(remotePassphrase == null) {
                     getRemoteDbPassphrase(parent, user);
+                } else {
+                    ConnectDatabaseHelper.handleReceivedDbPassphrase(parent, remotePassphrase);
                 }
             }
         }

@@ -58,23 +58,24 @@ public class DatabaseConnectOpenHelper extends SQLiteOpenHelper {
     }
 
     public static boolean dbExists(Context context) {
-        return getDbFile(context).exists();
+        //return getDbFile(context).exists();
+        String path = context.getDatabasePath(CONNECT_DB_LOCATOR).getPath();
+        File dbPathFile = new File(path);
+        return dbPathFile.exists();
     }
 
-    public static void rekeyDB(Context context, String oldPassphrase, String newPassphrase) throws Base64DecoderException {
-        File dbFile = getDbFile(context);
-
+    public static void rekeyDB(Context context, SQLiteDatabase db, String oldPassphrase, String newPassphrase) throws Base64DecoderException {
         byte[] oldBytes = Base64.decode(oldPassphrase);
         byte[] newBytes = Base64.decode(newPassphrase);
 
         String oldKeyEncoded = UserSandboxUtils.getSqlCipherEncodedKey(oldBytes);
         String newKeyEncoded = UserSandboxUtils.getSqlCipherEncodedKey(newBytes);
-        SQLiteDatabase rawDbHandle = SQLiteDatabase.openDatabase(dbFile.getAbsolutePath(), oldKeyEncoded, null,
-                SQLiteDatabase.OPEN_READWRITE);
+        //SQLiteDatabase rawDbHandle = new DatabaseConnectOpenHelper(context).getWritableDatabase(oldBytes);// SQLiteDatabase.openDatabase(dbFile.getAbsolutePath(), oldKeyEncoded, null,
+                //SQLiteDatabase.OPEN_READWRITE);
 
-        rawDbHandle.execSQL("PRAGMA key = '" + oldKeyEncoded + "';");
-        rawDbHandle.execSQL("PRAGMA rekey  = '" + newKeyEncoded + "';");
-        rawDbHandle.close();
+        db.query("PRAGMA key = '" + oldKeyEncoded + "';");
+        db.query("PRAGMA rekey  = '" + newKeyEncoded + "';");
+        db.close();
     }
 
     @Override
