@@ -418,7 +418,7 @@ public class ConnectJobRecord extends Persisted implements Serializable {
     }
 
     public boolean readyToTransitionToDelivery() {
-        return status == STATUS_LEARNING && getLearningPercentComplete() >= 100;
+        return status == STATUS_LEARNING && passedAssessment();
     }
 
     /**

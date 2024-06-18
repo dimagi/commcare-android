@@ -634,7 +634,8 @@
 
     <string name="connect_verify_phone_title">Verification Code</string>
     <string name="connect_verify_phone_title2">Enter verification code</string>
-    <string name="connect_verify_phone_label">We attempted to send you a code on number %s.</string>
+    <string name="connect_verify_phone_label">We attempted to send you a code on number ending with %s.</string>
+    <string name="connect_verify_phone_label_secondary">We attempted to send you a code on your secondary phone number.</string>
     <string name="connect_verify_phone_label_alternate">Almost there! Please enter the code sent via SMS to your alternate phone%s.</string>
     <string name="connect_verify_phone_resend">Didn\'t receive your code? Resend</string>
     <string name="connect_verify_phone_resend_wait">Didn\'t receive your code? Resend in %d s</string>

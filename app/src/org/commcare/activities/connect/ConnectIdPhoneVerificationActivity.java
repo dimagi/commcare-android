@@ -63,6 +63,7 @@ public class ConnectIdPhoneVerificationActivity extends CommCareActivity<Connect
         allowChange = getIntent().getStringExtra(ConnectConstants.CHANGE).equals("true");
         username = getIntent().getStringExtra(ConnectConstants.USERNAME);
         password = getIntent().getStringExtra(ConnectConstants.PASSWORD);
+        recoveryPhone = getIntent().getStringExtra(ConnectConstants.CONNECT_KEY_SECONDARY_PHONE);
 
         uiController.setupUI();
 
@@ -142,13 +143,19 @@ public class ConnectIdPhoneVerificationActivity extends CommCareActivity<Connect
     }
 
     public void updateMessage() {
-        boolean alternate = method == MethodRecoveryAlternate;
+        boolean alternate = method == MethodRecoveryAlternate || method == MethodVerifyAlternate;
+        String text;
         String phone = alternate ? recoveryPhone : primaryPhone;
-        if (phone == null) {
-            phone = "-";
+        if (phone != null) {
+            //Crop to last 4 digits
+            phone = phone.substring(phone.length() - 4);
+            text = getString(R.string.connect_verify_phone_label, phone);
+        } else {
+            //The primary phone is never missing
+            text = getString(R.string.connect_verify_phone_label_secondary);
         }
 
-        uiController.setLabelText(getString(R.string.connect_verify_phone_label, phone));
+        uiController.setLabelText(text);
     }
 
     public void requestSmsCode() {
@@ -241,40 +248,49 @@ public class ConnectIdPhoneVerificationActivity extends CommCareActivity<Connect
             public void processSuccess(int responseCode, InputStream responseData) {
                 logRecoveryResult(true);
 
-                String username = "";
-                String displayName = "";
-                if (method == MethodRecoveryAlternate) {
-                    try {
-                        String responseAsString = new String(
-                                StreamsUtil.inputStreamToByteArray(responseData));
-                        JSONObject json = new JSONObject(responseAsString);
-                        String key = ConnectConstants.CONNECT_KEY_USERNAME;
-                        if (json.has(key)) {
-                            username = json.getString(key);
-                        }
+                try {
+                    switch(method) {
+                        case MethodVerifyAlternate -> {
+                            ConnectUserRecord user = ConnectManager.getUser(getApplicationContext());
+                            user.setSecondaryPhoneVerified(true);
+                            ConnectDatabaseHelper.storeUser(context, user);
 
-                        key = ConnectConstants.CONNECT_KEY_DB_KEY;
-                        if (json.has(key)) {
+                            finish(true, false, null);
+                        }
+                        case MethodRecoveryPrimary -> {
+                            String secondaryPhone = null;
+                            String responseAsString = new String(
+                                    StreamsUtil.inputStreamToByteArray(responseData));
+                            if(responseAsString.length() > 0) {
+                                JSONObject json = new JSONObject(responseAsString);
+                                String key = ConnectConstants.CONNECT_KEY_SECONDARY_PHONE;
+                                secondaryPhone = json.has(key) ? json.getString(key) : null;
+                            }
+
                             ConnectDatabaseHelper.handleReceivedDbPassphrase(context, json.getString(key));
                         }
+                        case MethodRecoveryAlternate -> {
+                            String responseAsString = new String(
+                                    StreamsUtil.inputStreamToByteArray(responseData));
+                            JSONObject json = new JSONObject(responseAsString);
 
-                        key = ConnectConstants.CONNECT_KEY_NAME;
-                        if (json.has(key)) {
-                            displayName = json.getString(key);
+                            String key = ConnectConstants.CONNECT_KEY_USERNAME;
+                            String username = json.has(key) ? json.getString(key) : "";
+
+                            key = ConnectConstants.CONNECT_KEY_NAME;
+                            String displayName = json.has(key) ? json.getString(key) : "";
+
+                            key = ConnectConstants.CONNECT_KEY_DB_KEY;
+                            if (json.has(key)) {
+                                //TODO: Use the passphrase from the DB
+                                //json.getString(key);
+                            }
+
+                            resetPassword(context, phone, password, username, displayName);
                         }
-
-                        resetPassword(context, phone, password, username, displayName);
-                    } catch (IOException | JSONException e) {
-                        Logger.exception("Parsing return from confirm_secondary_otp", e);
                     }
-                } else {
-                    if (method == MethodVerifyAlternate) {
-                        ConnectUserRecord user = ConnectManager.getUser(getApplicationContext());
-                        user.setSecondaryPhoneVerified(true);
-                        ConnectDatabaseHelper.storeUser(context, user);
-                    }
-
-                    finish(true, false);
+                } catch(Exception e) {
+                    Logger.exception("Parsing return from OTP verification", e);
                 }
             }
 
@@ -328,13 +344,12 @@ public class ConnectIdPhoneVerificationActivity extends CommCareActivity<Connect
         ApiConnectId.resetPassword(context, phone, secret, password, new IApiCallback() {
             @Override
             public void processSuccess(int responseCode, InputStream responseData) {
-                //TODO: Need to get secondary phone from server
                 ConnectUserRecord user = new ConnectUserRecord(phone, username,
                         password, name, recoveryPhone);
                 user.setSecondaryPhoneVerified(true);
                 ConnectDatabaseHelper.storeUser(context, user);
 
-                finish(true, false);
+                finish(true, false, null);
             }
 
             @Override
@@ -366,16 +381,19 @@ public class ConnectIdPhoneVerificationActivity extends CommCareActivity<Connect
     }
 
     public void changeNumber() {
-        finish(true, true);
+        finish(true, true, null);
     }
 
-    public void finish(boolean success, boolean changeNumber) {
+    public void finish(boolean success, boolean changeNumber, String secondaryPhone) {
         stopHandler();
 
         Intent intent = new Intent(getIntent());
         if (method == MethodRecoveryPrimary) {
             intent.putExtra(ConnectConstants.SECRET, password);
             intent.putExtra(ConnectConstants.CHANGE, changeNumber);
+            if(secondaryPhone != null) {
+                intent.putExtra(ConnectConstants.CONNECT_KEY_SECONDARY_PHONE, secondaryPhone);
+            }
         } else if (method != MethodRecoveryAlternate) {
             intent.putExtra(ConnectConstants.CHANGE, changeNumber);
         }
