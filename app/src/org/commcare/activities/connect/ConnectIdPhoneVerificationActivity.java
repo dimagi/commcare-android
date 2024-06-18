@@ -255,8 +255,7 @@ public class ConnectIdPhoneVerificationActivity extends CommCareActivity<Connect
 
                         key = ConnectConstants.CONNECT_KEY_DB_KEY;
                         if (json.has(key)) {
-                            //TODO: Use the passphrase from the DB
-                            //json.getString(key);
+                            ConnectDatabaseHelper.handleReceivedDbPassphrase(context, json.getString(key));
                         }
 
                         key = ConnectConstants.CONNECT_KEY_NAME;

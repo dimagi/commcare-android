@@ -11,6 +11,7 @@
 
     <string name="ConnectTokenURL">https://connectid.dimagi.com/o/token/</string>
     <string name="ConnectHeartbeatURL">https://connectid.dimagi.com/users/heartbeat</string>
+    <string name="ConnectFetchDbKeyURL">https://connectid.dimagi.com/users/fetch_db_key</string>
     <string name="ConnectChangePasswordURL">https://connectid.dimagi.com/users/change_password</string>
     <string name="ConnectResetPasswordURL">https://connectid.dimagi.com/users/recover/reset_password</string>
     <string name="ConnectConfirmPasswordURL">https://connectid.dimagi.com/users/recover/confirm_password</string>

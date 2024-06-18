@@ -21,6 +21,7 @@ import org.commcare.models.database.AndroidDbHelper;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.models.database.connect.DatabaseConnectOpenHelper;
 import org.commcare.modern.database.Table;
+import org.commcare.util.Base64;
 import org.commcare.utils.EncryptionUtils;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.storage.Persistable;
@@ -41,22 +42,71 @@ public class ConnectDatabaseHelper {
     private static final Object connectDbHandleLock = new Object();
     private static SQLiteDatabase connectDatabase;
 
+    public static void handleReceivedDbPassphrase(Context context, String remotePassphrase) {
+        storeConnectDbPassphrase(context, remotePassphrase, false);
+
+        try {
+            String localPassphrase = getConnectDbEncodedPassphrase(true);
+
+            if(!remotePassphrase.equals(localPassphrase)) {
+                //Migrate DB
+            }
+        } catch (Exception e) {
+            Logger.exception("Getting DB passphrase", e);
+            throw new RuntimeException(e);
+        }
+    }
+
     private static byte[] getConnectDbPassphrase(Context context) {
         try {
             for (ConnectKeyRecord r : CommCareApplication.instance().getGlobalStorage(ConnectKeyRecord.class)) {
-                return EncryptionUtils.decryptFromBase64String(context, r.getEncryptedPassphrase());
+                if(r.getIsLocal()) {
+                    return EncryptionUtils.decryptFromBase64String(context, r.getEncryptedPassphrase());
+                }
             }
 
             //If we get here, the passphrase hasn't been created yet
             byte[] passphrase = EncryptionUtils.generatePassphrase();
-
-            String encoded = EncryptionUtils.encryptToBase64String(context, passphrase);
-            ConnectKeyRecord record = new ConnectKeyRecord(encoded, true);
-            CommCareApplication.instance().getGlobalStorage(ConnectKeyRecord.class).write(record);
+            storeConnectDbPassphrase(context, passphrase, true);
 
             return passphrase;
         } catch (Exception e) {
             Logger.exception("Getting DB passphrase", e);
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static String getConnectDbEncodedPassphrase(boolean local) {
+        try {
+            for (ConnectKeyRecord r : CommCareApplication.instance().getGlobalStorage(ConnectKeyRecord.class)) {
+                if (r.getIsLocal() == local) {
+                    return r.getEncryptedPassphrase();
+                }
+            }
+        } catch(Exception e) {
+            Logger.exception("Getting DB passphrase", e);
+        }
+
+        return null;
+    }
+
+    public static void storeConnectDbPassphrase(Context context, String base64EncodedPassphrase, boolean isLocal) {
+        try {
+            byte[] bytes = Base64.decode(base64EncodedPassphrase);
+            storeConnectDbPassphrase(context, bytes, isLocal);
+        } catch(Exception e) {
+            Logger.exception("Encoding DB passphrase to Base64", e);
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static void storeConnectDbPassphrase(Context context, byte[] passphrase, boolean isLocal) {
+        try {
+            String encoded = EncryptionUtils.encryptToBase64String(context, passphrase);
+            ConnectKeyRecord record = new ConnectKeyRecord(encoded, isLocal);
+            CommCareApplication.instance().getGlobalStorage(ConnectKeyRecord.class).write(record);
+        } catch(Exception e) {
+            Logger.exception("Storing DB passphrase", e);
             throw new RuntimeException(e);
         }
     }

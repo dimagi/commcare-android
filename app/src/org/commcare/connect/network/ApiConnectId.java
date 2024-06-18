@@ -31,7 +31,7 @@ public class ApiConnectId {
         if(token != null) {
             params.put("fcm_token", token);
             boolean useFormEncoding = true;
-            return ConnectNetworkHelper.postSync(context, url, API_VERSION_CONNECT_ID, ConnectManager.getConnectToken(), params, useFormEncoding);
+            return ConnectNetworkHelper.postSync(context, url, API_VERSION_CONNECT_ID, ConnectManager.getConnectToken(), params, useFormEncoding, true);
         }
 
         return new ConnectNetworkHelper.PostResult(-1, null, null);
@@ -56,7 +56,7 @@ public class ApiConnectId {
             String url = context.getString(R.string.ConnectTokenURL);
 
             ConnectNetworkHelper.PostResult postResult = ConnectNetworkHelper.postSync(context, url,
-                    API_VERSION_CONNECT_ID, new AuthInfo.NoAuth(), params, true);
+                    API_VERSION_CONNECT_ID, new AuthInfo.NoAuth(), params, true, false);
             if (postResult.responseCode == 200) {
                 try {
                     String responseAsString = new String(StreamsUtil.inputStreamToByteArray(
@@ -84,6 +84,13 @@ public class ApiConnectId {
         return null;
     }
 
+    public static void fetchDbPassphrase(Context context, ConnectUserRecord user, IApiCallback callback) {
+        ConnectNetworkHelper.get(context,
+                context.getString(R.string.ConnectFetchDbKeyURL),
+                API_VERSION_CONNECT_ID, new AuthInfo.ProvidedAuth(user.getUserId(), user.getPassword(), false),
+                ArrayListMultimap.create(), true, callback);
+    }
+
     public static boolean checkPassword(Context context, String phone, String secret,
                                         String password, IApiCallback callback) {
         HashMap<String, String> params = new HashMap<>();
@@ -92,7 +99,7 @@ public class ApiConnectId {
         params.put("password", password);
 
         return ConnectNetworkHelper.post(context, context.getString(R.string.ConnectConfirmPasswordURL),
-                API_VERSION_CONNECT_ID, new AuthInfo.NoAuth(), params, false, callback);
+                API_VERSION_CONNECT_ID, new AuthInfo.NoAuth(), params, false, false, callback);
     }
 
     public static boolean changePassword(Context context, String username, String oldPassword,
@@ -107,7 +114,7 @@ public class ApiConnectId {
         HashMap<String, String> params = new HashMap<>();
         params.put("password", newPassword);
 
-        return ConnectNetworkHelper.post(context, context.getString(urlId), API_VERSION_CONNECT_ID, authInfo, params, false, callback);
+        return ConnectNetworkHelper.post(context, context.getString(urlId), API_VERSION_CONNECT_ID, authInfo, params, false, false, callback);
     }
 
     public static boolean resetPassword(Context context, String phoneNumber, String recoverySecret,
@@ -124,7 +131,7 @@ public class ApiConnectId {
         params.put("secret_key", recoverySecret);
         params.put("password", newPassword);
 
-        return ConnectNetworkHelper.post(context, context.getString(urlId), API_VERSION_CONNECT_ID, authInfo, params, false, callback);
+        return ConnectNetworkHelper.post(context, context.getString(urlId), API_VERSION_CONNECT_ID, authInfo, params, false, false, callback);
     }
 
     public static boolean checkPin(Context context, String phone, String secret,
@@ -141,7 +148,7 @@ public class ApiConnectId {
         params.put("secret_key", secret);
         params.put("recovery_pin", pin);
 
-        return ConnectNetworkHelper.post(context, context.getString(urlId), API_VERSION_CONNECT_ID, authInfo, params, false, callback);
+        return ConnectNetworkHelper.post(context, context.getString(urlId), API_VERSION_CONNECT_ID, authInfo, params, false, false, callback);
     }
 
     public static boolean changePin(Context context, String username, String password,
@@ -156,7 +163,7 @@ public class ApiConnectId {
         HashMap<String, String> params = new HashMap<>();
         params.put("recovery_pin", pin);
 
-        return ConnectNetworkHelper.post(context, context.getString(urlId), API_VERSION_CONNECT_ID, authInfo, params, false, callback);
+        return ConnectNetworkHelper.post(context, context.getString(urlId), API_VERSION_CONNECT_ID, authInfo, params, false, false, callback);
     }
 
     public static boolean checkPhoneAvailable(Context context, String phone, IApiCallback callback) {
@@ -165,7 +172,7 @@ public class ApiConnectId {
 
         return ConnectNetworkHelper.get(context,
                 context.getString(R.string.ConnectPhoneAvailableURL),
-                API_VERSION_CONNECT_ID, new AuthInfo.NoAuth(), params, callback);
+                API_VERSION_CONNECT_ID, new AuthInfo.NoAuth(), params, false, callback);
     }
 
     public static boolean registerUser(Context context, String username, String password, String displayName,
@@ -179,7 +186,7 @@ public class ApiConnectId {
 
         return ConnectNetworkHelper.post(context,
                 context.getString(R.string.ConnectRegisterURL),
-                API_VERSION_CONNECT_ID, new AuthInfo.NoAuth(), params, false, callback);
+                API_VERSION_CONNECT_ID, new AuthInfo.NoAuth(), params, false, false, callback);
     }
 
     public static boolean changePhone(Context context, String username, String password,
@@ -192,7 +199,7 @@ public class ApiConnectId {
         params.put("new_phone_number", newPhone);
 
         return ConnectNetworkHelper.post(context, context.getString(urlId), API_VERSION_CONNECT_ID,
-                new AuthInfo.ProvidedAuth(username, password, false), params, false,
+                new AuthInfo.ProvidedAuth(username, password, false), params, false, false,
                 callback);
     }
 
@@ -212,7 +219,7 @@ public class ApiConnectId {
         }
 
         return ConnectNetworkHelper.post(context, context.getString(urlId), API_VERSION_CONNECT_ID,
-                new AuthInfo.ProvidedAuth(username, password, false), params, false,
+                new AuthInfo.ProvidedAuth(username, password, false), params, false, false,
                 callback);
     }
 
@@ -224,7 +231,7 @@ public class ApiConnectId {
         HashMap<String, String> params = new HashMap<>();
 
         return ConnectNetworkHelper.post(context, context.getString(urlId),
-                API_VERSION_CONNECT_ID, authInfo, params, false, callback);
+                API_VERSION_CONNECT_ID, authInfo, params, false, false, callback);
     }
 
     public static boolean requestRecoveryOtpPrimary(Context context, String phone, IApiCallback callback) {
@@ -235,7 +242,7 @@ public class ApiConnectId {
         params.put("phone", phone);
 
         return ConnectNetworkHelper.post(context, context.getString(urlId),
-                API_VERSION_CONNECT_ID, authInfo, params, false, callback);
+                API_VERSION_CONNECT_ID, authInfo, params, false, false, callback);
     }
 
     public static boolean requestRecoveryOtpSecondary(Context context, String phone, String secret,
@@ -248,7 +255,7 @@ public class ApiConnectId {
         params.put("secret_key", secret);
 
         return ConnectNetworkHelper.post(context, context.getString(urlId),
-                API_VERSION_CONNECT_ID, authInfo, params, false, callback);
+                API_VERSION_CONNECT_ID, authInfo, params, false, false, callback);
     }
 
     public static boolean requestVerificationOtpSecondary(Context context, String username, String password,
@@ -259,7 +266,7 @@ public class ApiConnectId {
         HashMap<String, String> params = new HashMap<>();
 
         return ConnectNetworkHelper.post(context, context.getString(urlId),
-                API_VERSION_CONNECT_ID, authInfo, params, false, callback);
+                API_VERSION_CONNECT_ID, authInfo, params, false, false, callback);
     }
 
     public static boolean confirmRegistrationOtpPrimary(Context context, String username, String password,
@@ -271,7 +278,7 @@ public class ApiConnectId {
         params.put("token", token);
 
         return ConnectNetworkHelper.post(context, context.getString(urlId),
-                API_VERSION_CONNECT_ID, authInfo, params, false, callback);
+                API_VERSION_CONNECT_ID, authInfo, params, false, false, callback);
     }
 
     public static boolean confirmRecoveryOtpPrimary(Context context, String phone, String secret,
@@ -285,7 +292,7 @@ public class ApiConnectId {
         params.put("token", token);
 
         return ConnectNetworkHelper.post(context, context.getString(urlId),
-                API_VERSION_CONNECT_ID, authInfo, params, false, callback);
+                API_VERSION_CONNECT_ID, authInfo, params, false, false, callback);
     }
 
     public static boolean confirmRecoveryOtpSecondary(Context context, String phone, String secret,
@@ -299,7 +306,7 @@ public class ApiConnectId {
         params.put("token", token);
 
         return ConnectNetworkHelper.post(context, context.getString(urlId),
-                API_VERSION_CONNECT_ID, authInfo, params, false, callback);
+                API_VERSION_CONNECT_ID, authInfo, params, false, false, callback);
     }
 
     public static boolean confirmVerificationOtpSecondary(Context context, String username, String password,
@@ -311,6 +318,6 @@ public class ApiConnectId {
         params.put("token", token);
 
         return ConnectNetworkHelper.post(context, context.getString(urlId),
-                API_VERSION_CONNECT_ID, authInfo, params, false, callback);
+                API_VERSION_CONNECT_ID, authInfo, params, false, false, callback);
     }
 }
