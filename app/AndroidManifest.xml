@@ -3,7 +3,7 @@
           xmlns:android="http://schemas.android.com/apk/res/android"
           xmlns:tools="http://schemas.android.com/tools"
           android:versionCode="106"
-          android:versionName="2.54">
+          android:versionName="2.55">
 
     <uses-permission android:name="android.permission.NFC"/>
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
@@ -159,19 +159,18 @@
         <activity android:name="org.commcare.activities.MenuActivity"/>
 
         <activity android:name="org.commcare.activities.connect.ConnectIdRecoveryDecisionActivity"/>
-        <activity android:name="org.commcare.activities.connect.ConnectIdLoginActivity"/>
+        <activity android:name="org.commcare.activities.connect.ConnectIdBiometricUnlockActivity"/>
         <activity android:name="org.commcare.activities.connect.ConnectIdConsentActivity"/>
         <activity android:name="org.commcare.activities.connect.ConnectIdPhoneActivity"/>
         <activity android:name="org.commcare.activities.connect.ConnectIdRegistrationActivity"/>
         <activity android:name="org.commcare.activities.connect.ConnectIdPasswordActivity"/>
         <activity android:name="org.commcare.activities.connect.ConnectIdPasswordVerificationActivity"/>
-        <activity android:name="org.commcare.activities.connect.ConnectIdVerificationActivity"/>
+        <activity android:name="org.commcare.activities.connect.ConnectIdBiometricConfigActivity"/>
         <activity android:name="org.commcare.activities.connect.ConnectIdPicturesActivity"/>
         <activity android:name="org.commcare.activities.connect.ConnectIdPhoneVerificationActivity"/>
         <activity android:name="org.commcare.activities.connect.ConnectIdMessageActivity"/>
         <activity android:name="org.commcare.activities.connect.ConnectIdPinActivity"/>
         <activity android:name="org.commcare.activities.connect.ConnectActivity"/>
-        <activity android:name="org.commcare.activities.connect.ConnectJobInfoActivity"/>
         <activity android:name="org.commcare.activities.AppSelectActivity"/>
 
         <provider

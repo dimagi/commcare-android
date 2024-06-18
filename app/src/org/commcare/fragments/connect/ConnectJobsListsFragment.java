@@ -19,9 +19,9 @@ import android.widget.TextView;
 import com.google.android.material.tabs.TabLayout;
 
 import org.commcare.activities.CommCareActivity;
-import org.commcare.activities.connect.ConnectDatabaseHelper;
-import org.commcare.activities.connect.ConnectManager;
-import org.commcare.activities.connect.IConnectAppLauncher;
+import org.commcare.connect.ConnectDatabaseHelper;
+import org.commcare.connect.ConnectManager;
+import org.commcare.connect.IConnectAppLauncher;
 import org.commcare.connect.network.ConnectNetworkHelper;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.CommCareApplication;
@@ -75,8 +75,6 @@ public class ConnectJobsListsFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         getActivity().setTitle(R.string.connect_title);
-
-        ConnectManager.setActiveJob(null);
 
         View view = inflater.inflate(R.layout.fragment_connect_jobs_list, container, false);
 
@@ -225,7 +223,7 @@ public class ConnectJobsListsFragment extends Fragment {
     private static class ViewStateAdapter extends FragmentStateAdapter {
         static ConnectJobsAvailableListFragment availableFragment;
         static ConnectJobsMyListFragment myFragment;
-        IConnectAppLauncher launcher;
+        final IConnectAppLauncher launcher;
 
         public ViewStateAdapter(@NonNull FragmentManager fragmentManager, @NonNull Lifecycle lifecycle, IConnectAppLauncher appLauncher) {
             super(fragmentManager, lifecycle);

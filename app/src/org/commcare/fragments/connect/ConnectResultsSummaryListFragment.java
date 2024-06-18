@@ -8,7 +8,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import org.commcare.activities.connect.ConnectManager;
+import org.commcare.connect.ConnectManager;
 import org.commcare.android.database.connect.models.ConnectJobDeliveryRecord;
 import org.commcare.android.database.connect.models.ConnectJobPaymentRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
@@ -129,9 +129,9 @@ public class ConnectResultsSummaryListFragment extends Fragment {
         }
 
         public static class VerificationSummaryItemViewHolder extends RecyclerView.ViewHolder {
-            TextView titleText;
-            TextView descriptionText;
-            ImageView button;
+            final TextView titleText;
+            final TextView descriptionText;
+            final ImageView button;
 
             public VerificationSummaryItemViewHolder(@NonNull View itemView) {
                 super(itemView);

@@ -54,9 +54,9 @@ public class ConnectNetworkHelper {
      * Helper class to hold the results of a network request
      */
     public static class PostResult {
-        public int responseCode;
-        public InputStream responseStream;
-        public IOException e;
+        public final int responseCode;
+        public final InputStream responseStream;
+        public final IOException e;
 
         public PostResult(int responseCode, InputStream responseStream, IOException e) {
             this.responseCode = responseCode;
@@ -79,7 +79,7 @@ public class ConnectNetworkHelper {
         return Loader.INSTANCE;
     }
 
-    private static DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+    private static final DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
     public static Date parseDate(String dateStr) throws ParseException {
         return dateFormat.parse(dateStr);
     }
@@ -252,7 +252,6 @@ public class ConnectNetworkHelper {
         setCallInProgress(url);
         showProgressDialog(context);
         HashMap<String, String> headers = new HashMap<>();
-        RequestBody requestBody;
 
         //TODO: Figure out how to send GET request the right way
         StringBuilder getUrl = new StringBuilder(url);

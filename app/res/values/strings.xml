@@ -573,6 +573,7 @@
     <string name="connect_recovery_alt_title">Alternate Phone</string>
     <string name="connect_recovery_alt_message">On the next screen, we\'ll send a code via SMS to the alternate phone number associated with your account.</string>
     <string name="connect_recovery_alt_button">Continue</string>
+    <string name="connect_recovery_alt_change_button">Change number</string>
 
     <string name="connect_recovery_success_title">Account Recovered</string>
     <string name="connect_recovery_success_message">You have successfully recovered your account and can now resume using your ConnectID.</string>
@@ -777,6 +778,6 @@
     <string name="connect_app_installed">App installed</string>
     <string name="app_with_id_not_found">Required CommCare App is not installed on device</string>
     <string name="phone_code_plus">+</string>
-
+    <string name="audio_recording_notification">Audio Recording Notification</string>
     <string name="connect_home_progress_today">Today\'s Visits: %d</string>
 </resources>

@@ -4,11 +4,9 @@ import android.content.Context;
 import android.os.AsyncTask;
 
 import org.commcare.CommCareApplication;
-import org.commcare.activities.connect.ConnectDatabaseHelper;
-import org.commcare.activities.connect.ConnectManager;
+import org.commcare.connect.ConnectDatabaseHelper;
+import org.commcare.connect.ConnectManager;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
-import org.commcare.connect.network.ApiConnect;
-import org.commcare.connect.network.ApiConnectId;
 import org.commcare.core.network.AuthInfo;
 
 import java.lang.ref.WeakReference;
@@ -28,7 +26,7 @@ public class ConnectSsoHelper {
         private final WeakReference<Context> weakContext;
         private final String hqUsername; //null for ConnectId
         private final boolean linkHqUser;
-        TokenCallback callback;
+        final TokenCallback callback;
         TokenTask(Context context, String hqUsername, boolean linkHqUser, TokenCallback callback) {
             super();
             this.weakContext = new WeakReference<>(context);

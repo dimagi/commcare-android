@@ -9,12 +9,13 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.ActionBar;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
-import androidx.navigation.NavGraph;
+import androidx.navigation.NavOptions;
 import androidx.navigation.fragment.NavHostFragment;
 
 import org.commcare.activities.CommCareActivity;
 import org.commcare.activities.CommCareVerificationActivity;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
+import org.commcare.connect.ConnectManager;
 import org.commcare.dalvik.R;
 import org.commcare.fragments.connect.ConnectDownloadingFragment;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
@@ -29,7 +30,7 @@ public class ConnectActivity extends CommCareActivity<ResourceEngineListener> {
 
     NavController.OnDestinationChangedListener destinationListener = null;
 
-    ActivityResultLauncher<Intent> verificationLauncher = registerForActivityResult(
+    final ActivityResultLauncher<Intent> verificationLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
             result -> {
                 if (result.getResultCode() == Activity.RESULT_OK) {
@@ -52,30 +53,28 @@ public class ConnectActivity extends CommCareActivity<ResourceEngineListener> {
         NavHostFragment host = (NavHostFragment)getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment_connect);
         NavController navController = host.getNavController();
         navController.addOnDestinationChangedListener(destinationListener);
+
+        if(getIntent().getBooleanExtra("info", false)) {
+            ConnectJobRecord job = ConnectManager.getActiveJob();
+            int fragmentId = job.getStatus() == ConnectJobRecord.STATUS_DELIVERING ?
+                    R.id.connect_job_delivery_progress_fragment :
+                    R.id.connect_job_learning_progress_fragment;
+
+            Bundle bundle = new Bundle();
+            bundle.putBoolean("showLaunch", false);
+
+            NavOptions options = new NavOptions.Builder()
+                    .setPopUpTo(navController.getGraph().getStartDestinationId(), true)
+                    .build();
+            navController.navigate(fragmentId, bundle, options);
+        }
     }
 
     @Override
     public void onBackPressed() {
         if(backButtonEnabled) {
             super.onBackPressed();
-//            NavHostFragment navHostFragment = (NavHostFragment)getSupportFragmentManager()
-//                    .findFragmentById(R.id.nav_host_fragment_connect);
-//            if(navHostFragment != null) {
-//                int count = navHostFragment.getChildFragmentManager().getBackStackEntryCount();
-//                if(count > 0) {
-//                    NavController navController = navHostFragment.getNavController();
-//                    navController.getNavInflater();
-//                    navController.popBackStack();
-//                } else {
-//                    finish();
-//                }
-//            }
         }
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
     }
 
     @Override

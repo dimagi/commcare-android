@@ -1,7 +1,7 @@
 package org.commcare.connect.network
 
 import okhttp3.OkHttpClient
-import org.commcare.activities.connect.ConnectManager
+import org.commcare.connect.ConnectManager
 import org.commcare.core.network.AuthenticationInterceptor
 import org.commcare.core.network.ModernHttpRequester
 import org.commcare.network.HttpUtils

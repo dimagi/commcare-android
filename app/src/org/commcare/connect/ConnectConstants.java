@@ -1,4 +1,4 @@
-package org.commcare.activities.connect;
+package org.commcare.connect;
 
 /**
  * Constants used for ConnectID, i.e. when passing params to activities
@@ -19,6 +19,7 @@ public class ConnectConstants {
     public static final String TITLE = "TITLE";
     public static final String MESSAGE = "MESSAGE";
     public static final String BUTTON = "BUTTON";
+    public static final String BUTTON2 = "BUTTON2";
     public static final String SECRET = "SECRET";
 
     public static final String RECOVER = "RECOVER";

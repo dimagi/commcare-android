@@ -20,7 +20,7 @@ import org.commcare.models.database.ConcreteAndroidDbHelper;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.models.database.user.DatabaseUserOpenHelper;
 import org.commcare.models.database.user.models.AndroidCaseIndexTable;
-import org.commcare.models.database.user.models.EntityStorageCache;
+import org.commcare.models.database.user.models.CommCareEntityStorageCache;
 import org.commcare.modern.database.TableBuilder;
 import org.commcare.test.utilities.CaseTestUtils;
 import org.commcare.utils.AndroidInstanceInitializer;
@@ -48,7 +48,6 @@ import org.javarosa.test_utils.ExprEvalUtils;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.xpath.parser.XPathSyntaxException;
-import org.robolectric.RuntimeEnvironment;
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
@@ -113,14 +112,14 @@ public class TestUtils {
                 //Note - this isn't even actually bulk processing. since this class is static
                 //there's no good lifecycle to manage the bulk processor in, but at least
                 //this will validate that the bulk processor works.
-                EntityStorageCache entityStorageCache = null;
+                CommCareEntityStorageCache commCareEntityStorageCache = null;
 
                 if (CommCareApplication.instance().getCurrentApp() != null) {
-                    entityStorageCache = new EntityStorageCache("case", db, AppUtils.getCurrentAppId());
+                    commCareEntityStorageCache = new CommCareEntityStorageCache("case", db, AppUtils.getCurrentAppId());
                 }
 
                 if (bulkProcessingEnabled) {
-                    return new AndroidBulkCaseXmlParser(parser, getCaseStorage(db), entityStorageCache, new AndroidCaseIndexTable(db)) {
+                    return new AndroidBulkCaseXmlParser(parser, getCaseStorage(db), commCareEntityStorageCache, new AndroidCaseIndexTable(db)) {
                         @Override
                         protected SQLiteDatabase getDbHandle() {
                             return db;
@@ -128,7 +127,7 @@ public class TestUtils {
                     };
 
                 } else {
-                    return new AndroidCaseXmlParser(parser, getCaseStorage(db), entityStorageCache, new AndroidCaseIndexTable(db)) {
+                    return new AndroidCaseXmlParser(parser, getCaseStorage(db), commCareEntityStorageCache, new AndroidCaseIndexTable(db)) {
                         @Override
                         protected SQLiteDatabase getDbHandle() {
                             return db;
@@ -166,6 +165,7 @@ public class TestUtils {
             parser = new DataModelPullParser(is, getFactory(db, bulkProcessingEnabled), true, true);
             parser.parse();
             is.close();
+
         } catch (IOException ioe) {
             throw wrapError(ioe, "IO Error parsing transactions");
         } catch (InvalidStructureException e) {
@@ -174,9 +174,6 @@ public class TestUtils {
             throw wrapError(e, "Bad XML");
         } catch (UnfullfilledRequirementsException e) {
             throw wrapError(e, "Bad State");
-        }
-        finally {
-            db.close();
         }
     }
 

@@ -1,6 +1,5 @@
 package org.commcare.google.services.analytics;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.os.Environment;
 import android.text.TextUtils;
@@ -9,7 +8,7 @@ import com.google.firebase.analytics.FirebaseAnalytics;
 
 import org.commcare.CommCareApplication;
 import org.commcare.DiskUtils;
-import org.commcare.activities.connect.ConnectManager;
+import org.commcare.connect.ConnectManager;
 import org.commcare.android.logging.ReportingUtils;
 import org.commcare.preferences.MainConfigurablePreferences;
 import org.commcare.suite.model.OfflineUserRestore;

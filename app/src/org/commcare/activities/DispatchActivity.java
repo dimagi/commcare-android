@@ -10,22 +10,16 @@ import android.widget.Toast;
 import org.commcare.AppUtils;
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
-import org.commcare.activities.connect.ConnectManager;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
-import org.commcare.commcaresupportlibrary.CommCareLauncher;
 import org.commcare.dalvik.R;
-import org.commcare.models.AndroidSessionWrapper;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.recovery.measures.ExecuteRecoveryMeasuresActivity;
 import org.commcare.recovery.measures.RecoveryMeasuresHelper;
-import org.commcare.session.CommCareSession;
-import org.commcare.suite.model.StackFrameStep;
 import org.commcare.utils.AndroidShortcuts;
 import org.commcare.utils.CommCareLifecycleUtils;
 import org.commcare.utils.MultipleAppsUtil;
 import org.commcare.utils.SessionUnavailableException;
-import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.services.locale.Localization;
 
 import java.util.ArrayList;
@@ -304,6 +298,10 @@ public class DispatchActivity extends AppCompatActivity {
         return getIntent().getStringExtra(SESSION_ENDPOINT_APP_ID);
     }
 
+    private void clearSessionEndpointAppId() {
+        getIntent().removeExtra(SESSION_ENDPOINT_APP_ID);
+    }
+
 
     private void launchHomeScreen() {
         Intent i;
@@ -319,6 +317,7 @@ public class DispatchActivity extends AppCompatActivity {
         i.putExtra(LoginActivity.LOGIN_MODE, lastLoginMode);
         i.putExtra(LoginActivity.MANUAL_SWITCH_TO_PW_MODE, userManuallyEnteredPasswordMode);
         startFromLogin = false;
+        clearSessionEndpointAppId();
         startActivityForResult(i, HOME_SCREEN);
     }
 

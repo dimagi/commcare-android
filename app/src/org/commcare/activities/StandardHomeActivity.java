@@ -8,7 +8,7 @@ import android.view.MenuItem;
 
 import org.commcare.CommCareApplication;
 import org.commcare.CommCareNoficationManager;
-import org.commcare.activities.connect.ConnectManager;
+import org.commcare.connect.ConnectManager;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;

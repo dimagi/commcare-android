@@ -8,7 +8,7 @@ import android.util.Log;
 
 import androidx.work.Configuration;
 
-import org.commcare.activities.connect.ConnectDatabaseHelper;
+import org.commcare.connect.ConnectDatabaseHelper;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.mocks.ModernHttpRequesterMock;
 import org.commcare.android.util.TestUtils;
@@ -20,7 +20,6 @@ import org.commcare.core.network.ModernHttpRequester;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.heartbeat.HeartbeatRequester;
 import org.commcare.heartbeat.TestHeartbeatRequester;
-import org.commcare.logging.DataChangeLogger;
 import org.commcare.models.AndroidPrototypeFactory;
 import org.commcare.models.database.AndroidPrototypeFactorySetup;
 import org.commcare.models.database.HybridFileBackedSqlStorage;
@@ -47,10 +46,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 
 import androidx.annotation.NonNull;
-import androidx.test.InstrumentationRegistry;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.work.testing.SynchronousExecutor;
 import androidx.work.testing.WorkManagerTestInitHelper;

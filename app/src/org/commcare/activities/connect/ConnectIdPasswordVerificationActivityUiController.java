@@ -1,6 +1,5 @@
 package org.commcare.activities.connect;
 
-import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.TextView;
 

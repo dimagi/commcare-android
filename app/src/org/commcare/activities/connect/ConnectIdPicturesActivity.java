@@ -91,6 +91,8 @@ public class ConnectIdPicturesActivity extends CommCareActivity<ConnectIdPicture
     @Override
     public void onRequestPermissionsResult(int requestCode,
                                            String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
         // If request is cancelled, the result arrays are empty.
         boolean granted = grantResults.length > 0
                 && grantResults[0] == PackageManager.PERMISSION_GRANTED;

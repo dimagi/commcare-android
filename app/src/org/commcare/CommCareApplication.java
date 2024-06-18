@@ -37,7 +37,7 @@ import net.sqlcipher.database.SQLiteDatabase;
 import net.sqlcipher.database.SQLiteException;
 
 import org.commcare.activities.LoginActivity;
-import org.commcare.activities.connect.ConnectManager;
+import org.commcare.connect.ConnectManager;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
