@@ -49,10 +49,11 @@ public class ConnectDatabaseHelper {
             String localPassphrase = getConnectDbEncodedPassphrase(true);
 
             if(!remotePassphrase.equals(localPassphrase)) {
-                //Migrate DB
+                DatabaseConnectOpenHelper.rekeyDB(context, localPassphrase, remotePassphrase);
+                storeConnectDbPassphrase(context, remotePassphrase, true);
             }
         } catch (Exception e) {
-            Logger.exception("Getting DB passphrase", e);
+            Logger.exception("Handling received DB passphrase", e);
             throw new RuntimeException(e);
         }
     }

@@ -19,7 +19,10 @@ import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.logging.DataChangeLog;
 import org.commcare.logging.DataChangeLogger;
 import org.commcare.models.database.DbUtil;
+import org.commcare.models.database.user.UserSandboxUtils;
 import org.commcare.modern.database.TableBuilder;
+import org.commcare.util.Base64;
+import org.commcare.util.Base64DecoderException;
 
 import java.io.File;
 
@@ -50,10 +53,28 @@ public class DatabaseConnectOpenHelper extends SQLiteOpenHelper {
         this.mContext = context;
     }
 
+    private static File getDbFile(Context context) {
+        return context.getDatabasePath(CONNECT_DB_LOCATOR);
+    }
+
     public static boolean dbExists(Context context) {
-        String path = context.getDatabasePath(CONNECT_DB_LOCATOR).getPath();
-        File dbPathFile = new File(path);
-        return dbPathFile.exists();
+        return getDbFile(context).exists();
+    }
+
+    public static void rekeyDB(Context context, String oldPassphrase, String newPassphrase) throws Base64DecoderException {
+        File dbFile = getDbFile(context);
+
+        byte[] oldBytes = Base64.decode(oldPassphrase);
+        byte[] newBytes = Base64.decode(newPassphrase);
+
+        String oldKeyEncoded = UserSandboxUtils.getSqlCipherEncodedKey(oldBytes);
+        String newKeyEncoded = UserSandboxUtils.getSqlCipherEncodedKey(newBytes);
+        SQLiteDatabase rawDbHandle = SQLiteDatabase.openDatabase(dbFile.getAbsolutePath(), oldKeyEncoded, null,
+                SQLiteDatabase.OPEN_READWRITE);
+
+        rawDbHandle.execSQL("PRAGMA key = '" + oldKeyEncoded + "';");
+        rawDbHandle.execSQL("PRAGMA rekey  = '" + newKeyEncoded + "';");
+        rawDbHandle.close();
     }
 
     @Override
