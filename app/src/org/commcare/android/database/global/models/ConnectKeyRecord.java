@@ -34,6 +34,9 @@ public class ConnectKeyRecord extends Persisted {
     public String getEncryptedPassphrase() {
         return encryptedPassphrase;
     }
+    public void setEncryptedPassphrase(String passphrase) {
+        encryptedPassphrase = passphrase;
+    }
     public boolean getIsLocal() {
         return isLocal;
     }
