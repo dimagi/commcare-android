@@ -267,7 +267,7 @@ public class ConnectIdPhoneVerificationActivity extends CommCareActivity<Connect
                                 secondaryPhone = json.has(key) ? json.getString(key) : null;
                             }
 
-                            ConnectDatabaseHelper.handleReceivedDbPassphrase(context, json.getString(key));
+                            finish(true, false, secondaryPhone);
                         }
                         case MethodRecoveryAlternate -> {
                             String responseAsString = new String(
@@ -282,8 +282,7 @@ public class ConnectIdPhoneVerificationActivity extends CommCareActivity<Connect
 
                             key = ConnectConstants.CONNECT_KEY_DB_KEY;
                             if (json.has(key)) {
-                                //TODO: Use the passphrase from the DB
-                                //json.getString(key);
+                                ConnectDatabaseHelper.handleReceivedDbPassphrase(context, json.getString(key));
                             }
 
                             resetPassword(context, phone, password, username, displayName);
