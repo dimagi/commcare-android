@@ -26,6 +26,7 @@ public class ConnectIdWorkflows {
     private static String primaryPhone = null;
 
     private static String recoveryPhone = null;
+    private static String recoveryAltPhone = null;
     private static String recoverySecret = null;
     private static boolean forgotPassword = false;
     private static boolean forgotPin = false;
@@ -34,6 +35,7 @@ public class ConnectIdWorkflows {
         phase = ConnectTask.CONNECT_NO_ACTIVITY;
         primaryPhone = null;
         recoveryPhone = null;
+        recoveryAltPhone = null;
         recoverySecret = null;
         forgotPassword = false;
         forgotPin = false;
@@ -198,6 +200,7 @@ public class ConnectIdWorkflows {
                 params.put(ConnectConstants.CHANGE, "false");
                 params.put(ConnectConstants.USERNAME, recoveryPhone);
                 params.put(ConnectConstants.PASSWORD, recoverySecret);
+                params.put(ConnectConstants.CONNECT_KEY_SECONDARY_PHONE, recoveryAltPhone);
             }
             case CONNECT_VERIFY_ALT_PHONE, CONNECT_UNLOCK_VERIFY_ALT_PHONE -> {
                 params.put(ConnectConstants.METHOD, String.format(Locale.getDefault(), "%d",
@@ -394,6 +397,10 @@ public class ConnectIdWorkflows {
             }
             case CONNECT_RECOVERY_VERIFY_PRIMARY_PHONE -> {
                 if (success) {
+                    if(intent.hasExtra(ConnectConstants.CONNECT_KEY_SECONDARY_PHONE)) {
+                        recoveryAltPhone = intent.getStringExtra(ConnectConstants.CONNECT_KEY_SECONDARY_PHONE);
+                    }
+
                     //First try PIN, then password, then secondary OTP
                     nextRequestCode = ConnectTask.CONNECT_RECOVERY_VERIFY_PIN;
                     if(forgotPin) {
