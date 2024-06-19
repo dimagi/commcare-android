@@ -37,8 +37,10 @@ import org.commcare.CommCareApplication;
 import org.commcare.CommCareNoficationManager;
 import org.commcare.activities.DispatchActivity;
 import org.commcare.dalvik.R;
+import org.commcare.util.LogTypes;
 import org.commcare.utils.MediaUtil;
 import org.commcare.utils.NotificationUtil;
+import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 
 import java.io.File;
@@ -190,6 +192,7 @@ public class RecordingFragment extends DialogFragment {
         recorder.start();
         recordingDuration.setBase(SystemClock.elapsedRealtime());
         recordingInProgress();
+        Logger.log(LogTypes.TYPE_MEDIA_EVENT, "Recording starting");
     }
 
     private void recordingInProgress() {
@@ -236,6 +239,10 @@ public class RecordingFragment extends DialogFragment {
         }
         try {
             recorder.prepare();
+            Logger.log(LogTypes.TYPE_MEDIA_EVENT, "Prepare recording: " + fileName
+                    + "|" + (isHeAacSupported ? HEAAC_SAMPLE_RATE : AMRNB_SAMPLE_RATE)
+                    + "|" + (isHeAacSupported ? MediaRecorder.AudioEncoder.HE_AAC : MediaRecorder.AudioEncoder.AMR_NB));
+
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -272,6 +279,7 @@ public class RecordingFragment extends DialogFragment {
 
     @SuppressLint("NewApi")
     private void stopRecording() {
+        Logger.log(LogTypes.TYPE_MEDIA_EVENT, "Recording stopping");
         recordingDuration.stop();
         recordingProgress.setVisibility(View.INVISIBLE);
 
@@ -285,10 +293,12 @@ public class RecordingFragment extends DialogFragment {
         toggleRecording.setOnClickListener(v -> playAudio());
         instruction.setText(Localization.get("after.recording"));
         enableSave();
+        Logger.log(LogTypes.TYPE_MEDIA_EVENT, "Recording stopped");
     }
 
     @SuppressLint("NewApi")
     private void pauseRecording(boolean pausedByUser) {
+        Logger.log(LogTypes.TYPE_MEDIA_EVENT, "Recording pausing");
         inPausedState = true;
         recordingDuration.stop();
         chronoPause();
@@ -299,6 +309,7 @@ public class RecordingFragment extends DialogFragment {
         toggleRecording.setOnClickListener(v -> resumeRecording());
         instruction.setText(Localization.get(pausedByUser ? "pause.recording"
                 : "pause.recording.because.no.sound.captured"));
+        Logger.log(LogTypes.TYPE_MEDIA_EVENT, "Recording paused");
     }
 
     private void enableSave() {
@@ -310,10 +321,12 @@ public class RecordingFragment extends DialogFragment {
 
     @SuppressLint("NewApi")
     private void resumeRecording() {
+        Logger.log(LogTypes.TYPE_MEDIA_EVENT, "Recording resuming");
         inPausedState = false;
         chronoResume();
         recorder.resume();
         recordingInProgress();
+        Logger.log(LogTypes.TYPE_MEDIA_EVENT, "Recording resumed");
     }
 
     private boolean isPauseSupported() {
