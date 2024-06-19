@@ -250,6 +250,9 @@ public class ConnectIdPhoneVerificationActivity extends CommCareActivity<Connect
 
                 try {
                     switch(method) {
+                        case MethodRegistrationPrimary -> {
+                            finish(true, false, null);
+                        }
                         case MethodVerifyAlternate -> {
                             ConnectUserRecord user = ConnectManager.getUser(getApplicationContext());
                             user.setSecondaryPhoneVerified(true);
