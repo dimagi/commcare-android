@@ -135,6 +135,10 @@ public class ConnectManager {
                 } else {
                     ConnectDatabaseHelper.handleReceivedDbPassphrase(parent, remotePassphrase);
                 }
+            } else if(ConnectDatabaseHelper.isDbBroken()) {
+                //Corrupt DB, inform user to recover
+                ConnectDatabaseHelper.forgetUser(parent);
+                Toast.makeText(parent, "Corrupt DB, please recover account", Toast.LENGTH_LONG).show();
             }
         }
     }

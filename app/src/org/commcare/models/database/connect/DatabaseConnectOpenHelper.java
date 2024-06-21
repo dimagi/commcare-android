@@ -58,24 +58,37 @@ public class DatabaseConnectOpenHelper extends SQLiteOpenHelper {
     }
 
     public static boolean dbExists(Context context) {
-        //return getDbFile(context).exists();
-        String path = context.getDatabasePath(CONNECT_DB_LOCATOR).getPath();
-        File dbPathFile = new File(path);
-        return dbPathFile.exists();
+        return getDbFile(context).exists();
+    }
+
+    public static void deleteDb(Context context) {
+        getDbFile(context).delete();
     }
 
     public static void rekeyDB(Context context, SQLiteDatabase db, String oldPassphrase, String newPassphrase) throws Base64DecoderException {
-        byte[] oldBytes = Base64.decode(oldPassphrase);
         byte[] newBytes = Base64.decode(newPassphrase);
-
-        String oldKeyEncoded = UserSandboxUtils.getSqlCipherEncodedKey(oldBytes);
         String newKeyEncoded = UserSandboxUtils.getSqlCipherEncodedKey(newBytes);
-        //SQLiteDatabase rawDbHandle = new DatabaseConnectOpenHelper(context).getWritableDatabase(oldBytes);// SQLiteDatabase.openDatabase(dbFile.getAbsolutePath(), oldKeyEncoded, null,
+
+        //Multiple options for getting the DB handle
+        //1: Passed-in handle
+        SQLiteDatabase rawDbHandle = db;
+        //2: Standard open method
+        //SQLiteDatabase rawDbHandle = new DatabaseConnectOpenHelper(context).getWritableDatabase(oldBytes);
+        //3: Method from UserSandboxUtils
+        byte[] oldBytes = Base64.decode(oldPassphrase);
+        String oldKeyEncoded = UserSandboxUtils.getSqlCipherEncodedKey(oldBytes);
+        oldKeyEncoded = oldKeyEncoded.substring(2, oldKeyEncoded.length() - 1);
+        //SQLiteDatabase rawDbHandle = SQLiteDatabase.openDatabase(dbFile.getAbsolutePath(), oldKeyEncoded, null,
                 //SQLiteDatabase.OPEN_READWRITE);
 
-        db.query("PRAGMA key = '" + oldKeyEncoded + "';");
-        db.query("PRAGMA rekey  = '" + newKeyEncoded + "';");
-        db.close();
+        //Multiple options for changing DB passphrase
+        //1: Takes a String or char[]
+        rawDbHandle.changePassword(newKeyEncoded);
+        //2: Requires String (sounds like first line isn't needed)
+        //rawDbHandle.query("PRAGMA key = '" + oldKeyEncoded + "';");
+        //rawDbHandle.query("PRAGMA rekey  = '" + newKeyEncoded + "';");
+
+        rawDbHandle.close();
     }
 
     @Override

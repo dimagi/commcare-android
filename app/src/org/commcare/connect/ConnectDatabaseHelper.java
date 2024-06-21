@@ -41,6 +41,7 @@ import java.util.Vector;
 public class ConnectDatabaseHelper {
     private static final Object connectDbHandleLock = new Object();
     private static SQLiteDatabase connectDatabase;
+    private static boolean dbBroken = false;
 
     public static void handleReceivedDbPassphrase(Context context, String remotePassphrase) {
         storeConnectDbPassphrase(context, remotePassphrase, false);
@@ -131,15 +132,24 @@ public class ConnectDatabaseHelper {
         return DatabaseConnectOpenHelper.dbExists(context);
     }
 
+    public static boolean isDbBroken() {
+        return dbBroken;
+    }
+
     private static <T extends Persistable> SqlStorage<T> getConnectStorage(Context context, Class<T> c) {
         return new SqlStorage<>(c.getAnnotation(Table.class).value(), c, new AndroidDbHelper(context) {
             @Override
             public SQLiteDatabase getHandle() {
                 synchronized (connectDbHandleLock) {
-                    if (connectDatabase == null || !connectDatabase.isOpen()) {
-                        byte[] passphrase = getConnectDbPassphrase(context);
+                    if (!dbBroken && (connectDatabase == null || !connectDatabase.isOpen())) {
+                        try {
+                            byte[] passphrase = getConnectDbPassphrase(context);
 
-                        connectDatabase = new DatabaseConnectOpenHelper(this.c).getWritableDatabase(passphrase);
+                            connectDatabase = new DatabaseConnectOpenHelper(this.c).getWritableDatabase(passphrase);
+                        } catch(Exception e) {
+                            dbBroken = true;
+                            Logger.log("DB ERROR", "Connect DB is corrupt");
+                        }
                     }
                     return connectDatabase;
                 }
@@ -159,9 +169,13 @@ public class ConnectDatabaseHelper {
     public static ConnectUserRecord getUser(Context context) {
         ConnectUserRecord user = null;
         if(dbExists(context)) {
-            for (ConnectUserRecord r : getConnectStorage(context, ConnectUserRecord.class)) {
-                user = r;
-                break;
+            try {
+                for (ConnectUserRecord r : getConnectStorage(context, ConnectUserRecord.class)) {
+                    user = r;
+                    break;
+                }
+            } catch(Exception e) {
+                dbBroken = true;
             }
         }
 
@@ -173,16 +187,9 @@ public class ConnectDatabaseHelper {
     }
 
     public static void forgetUser(Context context) {
-        getConnectStorage(context, ConnectUserRecord.class).removeAll();
-        getConnectStorage(context, ConnectLinkedAppRecord.class).removeAll();
-        getConnectStorage(context, ConnectJobRecord.class).removeAll();
-        getConnectStorage(context, ConnectAppRecord.class).removeAll();
-        getConnectStorage(context, ConnectLearnModuleSummaryRecord.class).removeAll();
-        getConnectStorage(context, ConnectJobLearningRecord.class).removeAll();
-        getConnectStorage(context, ConnectJobAssessmentRecord.class).removeAll();
-        getConnectStorage(context, ConnectJobDeliveryRecord.class).removeAll();
-        getConnectStorage(context, ConnectJobPaymentRecord.class).removeAll();
-        getConnectStorage(context, ConnectPaymentUnitRecord.class).removeAll();
+        DatabaseConnectOpenHelper.deleteDb(context);
+        CommCareApplication.instance().getGlobalStorage(ConnectKeyRecord.class).removeAll();
+        dbBroken = false;
     }
 
     public static ConnectLinkedAppRecord getAppData(Context context, String appId, String username) {
