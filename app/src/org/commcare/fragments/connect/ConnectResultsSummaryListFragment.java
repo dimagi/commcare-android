@@ -1,12 +1,10 @@
 package org.commcare.fragments.connect;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import org.commcare.android.database.connect.models.ConnectPaymentUnitRecord;
@@ -16,17 +14,14 @@ import org.commcare.android.database.connect.models.ConnectJobPaymentRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.dalvik.R;
 
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Hashtable;
+import java.util.List;
 import java.util.Locale;
 
-import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
-import androidx.recyclerview.widget.DividerItemDecoration;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 public class ConnectResultsSummaryListFragment extends Fragment {
     private TextView singleDeliveryLabel;
@@ -61,10 +56,10 @@ public class ConnectResultsSummaryListFragment extends Fragment {
 
         singleDeliveryLabel = view.findViewById(R.id.single_status_label);
         multiPaymentContainer = view.findViewById(R.id.multi_status_container);
-        earnedColumn = view.findViewById(R.id.delivery_column_earned);        //"@string/connect_results_summary_earned"
-        approvedColumn = view.findViewById(R.id.delivery_column_approved);       //"@string/connect_results_summary_approved"/>
-        rejectedColumn = view.findViewById(R.id.delivery_column_rejected);      //"@string/connect_results_summary_rejected"/>
-        pendingColumn = view.findViewById(R.id.delivery_column_pending);       //"@string/connect_results_summary_pending"/>
+        earnedColumn = view.findViewById(R.id.delivery_column_earned);
+        approvedColumn = view.findViewById(R.id.delivery_column_approved);
+        rejectedColumn = view.findViewById(R.id.delivery_column_rejected);
+        pendingColumn = view.findViewById(R.id.delivery_column_pending);
         nameColumn = view.findViewById(R.id.delivery_column_type);
         deliveriesButton = view.findViewById(R.id.deliveries_button);
         earnedAmount = view.findViewById(R.id.payment_earned_amount);
@@ -109,11 +104,18 @@ public class ConnectResultsSummaryListFragment extends Fragment {
                 }
 
                 //Now populate the UI text
-                String nameText = "\n";
-                String pendingText = "\n" + getString(R.string.connect_results_summary_pending);
-                String approvedText = "\n" + getString(R.string.connect_results_summary_approved);
-                String rejectedText = getString(R.string.connect_results_summary_rejected) + "\n";
-                String earnedText = getString(R.string.connect_results_summary_earned) + "\n";
+                List<String> nameLines = new ArrayList<>();
+                List<String> pendingLines = new ArrayList<>();
+                List<String> approvedLines = new ArrayList<>();
+                List<String> rejectedLines = new ArrayList<>();
+                List<String> earnedLines = new ArrayList<>();
+
+                nameLines.add("");
+                pendingLines.add(getString(R.string.connect_results_summary_pending));
+                approvedLines.add(getString(R.string.connect_results_summary_approved));
+                rejectedLines.add(getString(R.string.connect_results_summary_rejected));
+                earnedLines.add(getString(R.string.connect_results_summary_earned));
+
                 for(int i=0; i<job.getPaymentUnits().size(); i++) {
                     ConnectPaymentUnitRecord unit = job.getPaymentUnits().get(i);
                     HashMap<String, Integer> statusCounts;
@@ -124,25 +126,42 @@ public class ConnectResultsSummaryListFragment extends Fragment {
                         statusCounts = new HashMap<>();
                     }
 
-                    nameText = String.format("%s\n\n%s", nameText, unit.getName());
+                    //Blank line
+                    nameLines.add("");
+                    pendingLines.add("");
+                    approvedLines.add("");
+                    rejectedLines.add("");
+                    earnedLines.add("");
+
+                    //Name line (the rest blank)
+                    nameLines.add(unit.getName());
+                    pendingLines.add("");
+                    approvedLines.add("");
+                    rejectedLines.add("");
+                    earnedLines.add("");
+
+                    //Counts line (name blank)
+                    nameLines.add("");
+
                     String statusKey = "pending";
-                    pendingText = String.format(Locale.getDefault(), "%s\n\n%d", pendingText,
-                            statusCounts.containsKey(statusKey) ? statusCounts.get(statusKey) : 0);
+                    pendingLines.add(String.format(Locale.getDefault(), "%d",
+                            statusCounts.containsKey(statusKey) ? statusCounts.get(statusKey) : 0));
+
                     statusKey = "approved";
                     int numApproved = statusCounts.containsKey(statusKey) ? statusCounts.get(statusKey) : 0;
-                    approvedText = String.format(Locale.getDefault(), "%s\n\n%d", approvedText, numApproved);
-                    statusKey = "rejected";
-                    rejectedText = String.format(Locale.getDefault(), "%s\n\n%d", rejectedText,
-                            statusCounts.containsKey(statusKey) ? statusCounts.get(statusKey) : 0);
+                    approvedLines.add(String.format(Locale.getDefault(), "%d", numApproved));
 
-                    earnedText = String.format("%s\n\n%s", earnedText, job.getMoneyString(numApproved * unit.getAmount()));
+                    statusKey = "rejected";
+                    rejectedLines.add(String.format(Locale.getDefault(), "%d",
+                            statusCounts.containsKey(statusKey) ? statusCounts.get(statusKey) : 0));
+                    earnedLines.add(job.getMoneyString(numApproved * unit.getAmount()));
                 }
 
-                nameColumn.setText(nameText);
-                pendingColumn.setText(pendingText);
-                approvedColumn.setText(approvedText);
-                rejectedColumn.setText(rejectedText);
-                earnedColumn.setText(earnedText);
+                nameColumn.setText(String.join("\n", nameLines));
+                pendingColumn.setText(String.join("\n", pendingLines));
+                approvedColumn.setText(String.join("\n", approvedLines));
+                rejectedColumn.setText(String.join("\n", rejectedLines));
+                earnedColumn.setText(String.join("\n", earnedLines));
             } else {
                 int numPending = 0;
                 int numFailed = 0;

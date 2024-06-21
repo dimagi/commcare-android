@@ -118,14 +118,18 @@ public class BiometricsHelper {
         }
     }
 
-    public static void handlePinUnlockActivityResult(int requestCode, int resultCode, Intent intent) {
+    public static boolean handlePinUnlockActivityResult(int requestCode, int resultCode, Intent intent) {
         if (requestCode == ConnectTask.CONNECT_UNLOCK_PIN.getRequestCode()) {
             if (resultCode == Activity.RESULT_OK) {
                 biometricPromptCallbackHolder.onAuthenticationSucceeded(null);
             } else {
                 biometricPromptCallbackHolder.onAuthenticationFailed();
             }
+
+            return true;
         }
+
+        return false;
     }
 
     public static ConfigurationStatus checkStatus(Context context, BiometricManager biometricManager,

@@ -84,8 +84,9 @@ public class ConnectIdBiometricUnlockActivity extends CommCareActivity<ConnectId
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
-        BiometricsHelper.handlePinUnlockActivityResult(requestCode, resultCode, intent);
-        ConnectManager.handleFinishedActivity(requestCode, resultCode, intent);
+        if(!BiometricsHelper.handlePinUnlockActivityResult(requestCode, resultCode, intent)) {
+            ConnectManager.handleFinishedActivity(requestCode, resultCode, intent);
+        }
 
         super.onActivityResult(requestCode, resultCode, intent);
     }
