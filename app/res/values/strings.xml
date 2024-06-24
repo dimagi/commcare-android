@@ -90,7 +90,7 @@
     <string name="expirenotification">CommCare Login Expired</string>
     <string name="submission_notification_title">Submitting Data</string>
     <string name="submission_logs_title">Submitting CommCare Logs</string>
-    <string name="remote_form_payload_url" />
+    <string name="remote_form_payload_url"/>
 
     <item name="login_screen_hide_all_cuttoff" type="integer">200</item>
     <item name="login_screen_hide_banner_cuttoff" type="integer">250</item>
@@ -466,7 +466,7 @@
     <string name="area_format" cc:translatable="true">%1s sq m</string>
     <string name="parse_coordinates_failure" cc:translatable="true">Could not parse input coordinates</string>
     <string name="location_provider_disabled" cc:translatable="true">Turn on your location to receive location updates</string>
-    <string name="wait_for_location_fix" cc:translatable="true">CommCare is still trying to get your location. Please wait or click Cancel to abort.</string>
+    <string name="wait_for_location_fix"  cc:translatable="true">CommCare is still trying to get your location. Please wait or click Cancel to abort.</string>
     <string name="invalid_case_property_length" cc:translatable="true">Invalid %1s, value must be 255 characters or less</string>
     <string name="invalid_case_graph_error" cc:translatable="true">This form introduces an invalid case relationship</string>
     <string name="root_detected_title" cc:translatable="true">Rooted Device Detected</string>
@@ -783,17 +783,11 @@
     <string name="login_menu_connect_sign_in">Sign up for ConnectID</string>
     <string name="login_menu_connect_sign_out">Sign out of ConnectID</string>
     <string name="login_menu_connect_forget">Forget ConnectID user</string>
-
+  
     <string name="connect_app_install_unknown_error">App install failed due to an unknown error</string>
     <string name="connect_app_installed">App installed</string>
     <string name="app_with_id_not_found">Required CommCare App is not installed on device</string>
     <string name="phone_code_plus">+</string>
     <string name="audio_recording_notification">Audio Recording Notification</string>
     <string name="connect_home_progress_today">Today\'s Visits: %d</string>
-
-    <string name="app_lock">App Lock</string>
-    <string name="unlock_with_biometric">Unlock with biometric</string>
-    <string name="set_up_pin">Setup 6 Digit PIN</string>
-    <string name="unlock_with_biometric_text">When enabled, you’ll need to use fingerprint, face or other unique identifiers to open the CommCare App</string>
-
 </resources>
