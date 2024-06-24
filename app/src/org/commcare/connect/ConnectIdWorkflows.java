@@ -304,6 +304,7 @@ public class ConnectIdWorkflows {
                             ConnectTask.CONNECT_REGISTRATION_CONFIGURE_BIOMETRICS;
                 }
                 rememberPhase = success;
+
             }
             case CONNECT_BIOMETRIC_ENROLL_FAIL -> {
                 nextRequestCode = ConnectTask.CONNECT_REGISTRATION_CONFIGURE_BIOMETRICS;
