@@ -216,9 +216,9 @@ public class ConnectIdWorkflows {
             case CONNECT_UNLOCK_BIOMETRIC -> {
                 params.put(ConnectConstants.ALLOW_PASSWORD, "true");
             }
-            case CONNECT_REGISTRATION_UNLOCK_BIOMETRIC, CONNECT_RECOVERY_UNLOCK_BIOMETRIC -> {
-                params.put(ConnectConstants.ALLOW_PASSWORD, "false");
-            }
+//            case CONNECT_REGISTRATION_UNLOCK_BIOMETRIC -> {
+//                params.put(ConnectConstants.ALLOW_PASSWORD, "false");
+//            }
             case CONNECT_BIOMETRIC_ENROLL_FAIL -> {
                 params.put(ConnectConstants.TITLE, R.string.connect_biometric_enroll_fail_title);
                 params.put(ConnectConstants.MESSAGE, R.string.connect_biometric_enroll_fail_message);
@@ -298,8 +298,12 @@ public class ConnectIdWorkflows {
                 if (success) {
                     boolean failedEnrollment = intent.getBooleanExtra(ConnectConstants.ENROLL_FAIL, false);
                     nextRequestCode = failedEnrollment ? ConnectTask.CONNECT_BIOMETRIC_ENROLL_FAIL :
-                            ConnectTask.CONNECT_REGISTRATION_UNLOCK_BIOMETRIC;
+                            ConnectTask.CONNECT_REGISTRATION_VERIFY_PRIMARY_PHONE;
+                }else{
+                    nextRequestCode =
+                            ConnectTask.CONNECT_REGISTRATION_CONFIGURE_BIOMETRICS;
                 }
+                rememberPhase = success;
             }
             case CONNECT_BIOMETRIC_ENROLL_FAIL -> {
                 nextRequestCode = ConnectTask.CONNECT_REGISTRATION_CONFIGURE_BIOMETRICS;
@@ -308,11 +312,11 @@ public class ConnectIdWorkflows {
                     launchSecuritySettings = true;
                 }
             }
-            case CONNECT_REGISTRATION_UNLOCK_BIOMETRIC -> {
-                nextRequestCode = success ? ConnectTask.CONNECT_REGISTRATION_VERIFY_PRIMARY_PHONE :
-                        ConnectTask.CONNECT_REGISTRATION_CONFIGURE_BIOMETRICS;
-                rememberPhase = success;
-            }
+//            case CONNECT_REGISTRATION_UNLOCK_BIOMETRIC -> {
+//                nextRequestCode = success ? ConnectTask.CONNECT_REGISTRATION_VERIFY_PRIMARY_PHONE :
+//                        ConnectTask.CONNECT_REGISTRATION_CONFIGURE_BIOMETRICS;
+//                rememberPhase = success;
+//            }
             case CONNECT_REGISTRATION_VERIFY_PRIMARY_PHONE -> {
                 nextRequestCode = ConnectTask.CONNECT_REGISTRATION_CONFIGURE_BIOMETRICS;
                 if (success) {
@@ -384,14 +388,14 @@ public class ConnectIdWorkflows {
             }
             case CONNECT_RECOVERY_CONFIGURE_BIOMETRICS -> {
                 if (success) {
-                    nextRequestCode = ConnectTask.CONNECT_RECOVERY_UNLOCK_BIOMETRIC;
-                }
-            }
-            case CONNECT_RECOVERY_UNLOCK_BIOMETRIC -> {
-                if (success) {
                     nextRequestCode = ConnectTask.CONNECT_RECOVERY_VERIFY_PRIMARY_PHONE;
                 }
             }
+//            case CONNECT_RECOVERY_UNLOCK_BIOMETRIC -> {
+//                if (success) {
+//                    nextRequestCode = ConnectTask.CONNECT_RECOVERY_VERIFY_PRIMARY_PHONE;
+//                }
+//            }
             case CONNECT_RECOVERY_VERIFY_PRIMARY_PHONE -> {
                 if (success) {
                     //First try PIN, then password, then secondary OTP
