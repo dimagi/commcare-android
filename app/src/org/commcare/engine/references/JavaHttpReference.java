@@ -78,7 +78,7 @@ public class JavaHttpReference implements Reference, ReleasedOnTimeSupportedRefe
             return response.body().byteStream();
         } else {
             if (response.code() == 406) {
-                throw new IOException(HttpUtils.parseUserVisibleError(response));
+                throw new IOException(HttpUtils.parseUserVisibleError(response, true));
             } else if (response.code() == 503) {
                 throw new RateLimitedException();
             }
