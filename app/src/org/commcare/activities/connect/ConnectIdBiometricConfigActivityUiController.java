@@ -44,7 +44,7 @@ public class ConnectIdBiometricConfigActivityUiController implements CommCareAct
     @Override
     public void setupUI() {
         fingerprintButton.setOnClickListener(v -> activity.handleFingerprintButton());
-//        pinButton.setOnClickListener(v -> activity.handlePinButton());
+        pinButton.setOnClickListener(v -> activity.handlePinButton());
     }
 
     @Override
