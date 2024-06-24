@@ -1089,6 +1089,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         }
 
         reportFormEntryTime();
+        mFormController.getFormDef().finilizeInitialization();
 
         formEntryRestoreSession.replaySession(this);
 
