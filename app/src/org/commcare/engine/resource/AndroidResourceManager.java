@@ -190,6 +190,7 @@ public class AndroidResourceManager extends ResourceManager {
      */
     public void processUpdateFailure(AppInstallStatus result) {
         updateStats.registerUpdateFailure(result);
+        Logger.log(LogTypes.TYPE_CC_UPDATE, "Update Attempt failed due to error: " + result);
         FirebaseAnalyticsUtil.reportStageUpdateAttemptFailure(result.toString());
 
         if (result.shouldDiscardPartialUpdateTable()) {
