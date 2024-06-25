@@ -32,6 +32,7 @@ import org.commcare.CommCareApplication;
 import org.commcare.activities.components.FormEntryConstants;
 import org.commcare.activities.components.FormEntryInstanceState;
 import org.commcare.activities.components.FormEntrySessionWrapper;
+import org.commcare.activities.connect.ConnectIdManager;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
@@ -565,6 +566,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
             return;
         }
         CommCareApplication.instance().closeUserSession();
+        ConnectIdManager.signOut();
         setResult(RESULT_OK);
         finish();
     }
@@ -604,7 +606,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                 case GET_INCOMPLETE_FORM:
                     //TODO: We might need to load this from serialized state?
                     if (resultCode == RESULT_CANCELED) {
-                        refreshUI();
+                        refreshUi();
                         return;
                     } else if (resultCode == RESULT_OK) {
                         int record = intent.getIntExtra("FORMRECORDS", -1);
@@ -786,7 +788,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
             // We're stepping back from either the root module menu or the training root menu, so
             // go home
             currentState.reset();
-            refreshUI();
+            refreshUi();
             return false;
         } else {
             currentState.getSession().stepBack(currentState.getEvaluationContext());
@@ -801,7 +803,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
             String localizationKey = intent.getStringExtra(
                     AdvancedActionsPreferences.FORM_PROCESS_MESSAGE_KEY);
             displayToast(Localization.get(localizationKey, new String[]{"" + formProcessCount}));
-            refreshUI();
+            refreshUi();
         }
     }
 
@@ -906,7 +908,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
             // The form is either ready for processing, or not, depending on how it was saved
             if (complete) {
                 startUnsentFormsTask(false, false);
-                refreshUI();
+                refreshUi();
 
                 if (exitFromExternalLaunch()) {
                     currentState.reset();
@@ -980,7 +982,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
             setResult(RESULT_CANCELED);
             this.finish();
         }
-        refreshUI();
+        refreshUi();
         if (shouldWarnUser) {
             showSessionRefreshWarning();
         }
@@ -1087,7 +1089,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
         if (terminateSuccesful) {
             sessionNavigator.startNextSessionStep();
         } else {
-            refreshUI();
+            refreshUi();
         }
     }
 
@@ -1293,7 +1295,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
             Logger.log(LogTypes.TYPE_USER, "autosync triggered. Last Sync|" + footer);
         }
 
-        refreshUI();
+        refreshUi();
         sendFormsOrSync(false);
     }
 
@@ -1328,7 +1330,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
 
         if (!checkForPendingAppHealthActions()) {
             // Display the home screen!
-            refreshUI();
+            refreshUi();
         }
     }
 
@@ -1487,9 +1489,9 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
         }
     }
 
-    abstract void refreshUI();
+    abstract void refreshUi();
 
-    abstract void refreshCCUpdateOption();
+    abstract void refreshCcUpdateOption();
 
     @Override
     protected void onDestroy() {
@@ -1518,7 +1520,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                         String.valueOf(appUpdateController.availableVersionCode()))
                         > MAX_CC_UPDATE_CANCELLATION) {
                     showCommCareUpdateMenu = true;
-                    refreshCCUpdateOption();
+                    refreshCcUpdateOption();
                     return;
                 }
                 startCommCareUpdate();
@@ -1533,7 +1535,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                 if (showCommCareUpdateMenu) {
                     // Once downloading is started, we shouldn't show the update menu anymore.
                     showCommCareUpdateMenu = false;
-                    refreshCCUpdateOption();
+                    refreshCcUpdateOption();
                 }
                 break;
             case DOWNLOADED:
