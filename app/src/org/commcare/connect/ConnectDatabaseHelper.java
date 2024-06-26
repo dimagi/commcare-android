@@ -2,6 +2,7 @@ package org.commcare.connect;
 
 import android.content.Context;
 import android.os.Build;
+import android.widget.Toast;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
@@ -20,6 +21,7 @@ import org.commcare.android.database.global.models.ConnectKeyRecord;
 import org.commcare.models.database.AndroidDbHelper;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.models.database.connect.DatabaseConnectOpenHelper;
+import org.commcare.models.database.user.UserSandboxUtils;
 import org.commcare.modern.database.Table;
 import org.commcare.util.Base64;
 import org.commcare.utils.EncryptionUtils;
@@ -50,12 +52,13 @@ public class ConnectDatabaseHelper {
             String localPassphrase = getConnectDbEncodedPassphrase(context, true);
 
             if(!remotePassphrase.equals(localPassphrase)) {
-                DatabaseConnectOpenHelper.rekeyDB(context, connectDatabase, localPassphrase, remotePassphrase);
+                DatabaseConnectOpenHelper.rekeyDB(connectDatabase, remotePassphrase);
                 storeConnectDbPassphrase(context, remotePassphrase, true);
             }
         } catch (Exception e) {
             Logger.exception("Handling received DB passphrase", e);
-            throw new RuntimeException(e);
+            ConnectDatabaseHelper.forgetUser(context);
+            Toast.makeText(context, "Corrupt DB, please recover account", Toast.LENGTH_LONG).show();
         }
     }
 
@@ -66,7 +69,7 @@ public class ConnectDatabaseHelper {
                 return EncryptionUtils.decryptFromBase64String(context, record.getEncryptedPassphrase());
             }
 
-            //If we get here, the passphrase hasn't been created yet
+            //LEGACY: If we get here, the passphrase hasn't been created yet so use a local one
             byte[] passphrase = EncryptionUtils.generatePassphrase();
             storeConnectDbPassphrase(context, passphrase, true);
 
@@ -145,8 +148,19 @@ public class ConnectDatabaseHelper {
                         try {
                             byte[] passphrase = getConnectDbPassphrase(context);
 
-                            connectDatabase = new DatabaseConnectOpenHelper(this.c).getWritableDatabase(passphrase);
+                            DatabaseConnectOpenHelper helper = new DatabaseConnectOpenHelper(this.c);
+
+                            String remotePassphrase = getConnectDbEncodedPassphrase(context, false);
+                            String localPassphrase = getConnectDbEncodedPassphrase(context, true);
+                            if(remotePassphrase != null && remotePassphrase.equals(localPassphrase)) {
+                                //Using the UserSandboxUtils helper method to align with other code
+                                connectDatabase = helper.getWritableDatabase(UserSandboxUtils.getSqlCipherEncodedKey(passphrase));
+                            } else {
+                                //LEGACY: Used to open the DB using the byte[], not String overload
+                                connectDatabase = helper.getWritableDatabase(passphrase);
+                            }
                         } catch(Exception e) {
+                            //Flag the DB as broken if we hit an error opening it (usually means corrupted or bad encryption)
                             dbBroken = true;
                             Logger.log("DB ERROR", "Connect DB is corrupt");
                         }

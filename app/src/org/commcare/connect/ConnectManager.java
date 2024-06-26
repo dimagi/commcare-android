@@ -132,8 +132,6 @@ public class ConnectManager {
                 String remotePassphrase = ConnectDatabaseHelper.getConnectDbEncodedPassphrase(parent, false);
                 if(remotePassphrase == null) {
                     getRemoteDbPassphrase(parent, user);
-                } else {
-                    ConnectDatabaseHelper.handleReceivedDbPassphrase(parent, remotePassphrase);
                 }
             } else if(ConnectDatabaseHelper.isDbBroken()) {
                 //Corrupt DB, inform user to recover
