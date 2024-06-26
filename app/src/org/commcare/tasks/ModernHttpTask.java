@@ -75,6 +75,7 @@ public class ModernHttpTask
         } catch (IOException e) {
             mException = e;
         }
+
         return null;
     }
 
@@ -106,5 +107,10 @@ public class ModernHttpTask
     @Override
     public InputStream getResponseStream() {
         return responseDataStream;
+    }
+
+    @Override
+    public String getApiVersion() {
+        return requester.getApiVersion();
     }
 }
