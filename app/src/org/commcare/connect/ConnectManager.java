@@ -135,8 +135,7 @@ public class ConnectManager {
                 }
             } else if(ConnectDatabaseHelper.isDbBroken()) {
                 //Corrupt DB, inform user to recover
-                ConnectDatabaseHelper.forgetUser(parent);
-                Toast.makeText(parent, "Corrupt DB, please recover account", Toast.LENGTH_LONG).show();
+                ConnectDatabaseHelper.handleCorruptDb(parent);
             }
         }
     }

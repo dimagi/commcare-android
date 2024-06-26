@@ -18,6 +18,7 @@ import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
 import org.commcare.android.database.connect.models.ConnectPaymentUnitRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.android.database.global.models.ConnectKeyRecord;
+import org.commcare.dalvik.R;
 import org.commcare.models.database.AndroidDbHelper;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.models.database.connect.DatabaseConnectOpenHelper;
@@ -57,8 +58,7 @@ public class ConnectDatabaseHelper {
             }
         } catch (Exception e) {
             Logger.exception("Handling received DB passphrase", e);
-            ConnectDatabaseHelper.forgetUser(context);
-            Toast.makeText(context, "Corrupt DB, please recover account", Toast.LENGTH_LONG).show();
+            handleCorruptDb(context);
         }
     }
 
@@ -178,6 +178,11 @@ public class ConnectDatabaseHelper {
                 connectDatabase = null;
             }
         }
+    }
+
+    public static void handleCorruptDb(Context context) {
+        ConnectDatabaseHelper.forgetUser(context);
+        Toast.makeText(context, context.getString(R.string.connect_db_corrupt), Toast.LENGTH_LONG).show();
     }
 
     public static ConnectUserRecord getUser(Context context) {
