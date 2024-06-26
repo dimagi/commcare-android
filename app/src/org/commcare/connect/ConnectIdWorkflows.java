@@ -30,7 +30,7 @@ public class ConnectIdWorkflows {
     private static String recoverySecret = null;
     private static boolean forgotPassword = false;
     private static boolean forgotPin = false;
-    
+
     public static void reset() {
         phase = ConnectTask.CONNECT_NO_ACTIVITY;
         primaryPhone = null;
@@ -189,9 +189,15 @@ public class ConnectIdWorkflows {
                     CONNECT_UNLOCK_ALT_PHONE_MESSAGE -> {
                 //Show message screen indicating plan to use alt phone
                 params.put(ConnectConstants.TITLE, R.string.connect_recovery_alt_title);
-                params.put(ConnectConstants.MESSAGE, R.string.connect_recovery_alt_message);
-                params.put(ConnectConstants.BUTTON, R.string.connect_recovery_alt_button);
+                params.put(ConnectConstants.MESSAGE, R.string.connect_pin_fail_message);
+                params.put(ConnectConstants.BUTTON, R.string.connect_password_fail_button);
                 params.put(ConnectConstants.BUTTON2, R.string.connect_recovery_alt_change_button);
+            }
+            case CONNECT_RECOVERY_WRONG_PIN-> {
+                //Show message screen indicating wrong pin
+                params.put(ConnectConstants.TITLE, R.string.connect_pin_fail_title);
+                params.put(ConnectConstants.MESSAGE, R.string.connect_pin_recovery_message);
+                params.put(ConnectConstants.BUTTON, R.string.connect_recovery_alt_button);
             }
             case CONNECT_RECOVERY_VERIFY_ALT_PHONE -> {
                 params.put(ConnectConstants.METHOD, String.format(Locale.getDefault(), "%d",
@@ -413,14 +419,20 @@ public class ConnectIdWorkflows {
                 }
             }
             case CONNECT_RECOVERY_VERIFY_PIN -> {
-                nextRequestCode = ConnectTask.CONNECT_RECOVERY_VERIFY_PRIMARY_PHONE;
                 if (success) {
-                    forgotPin = intent.getBooleanExtra(ConnectConstants.FORGOT, false);
+                    forgotPin = intent.getBooleanExtra(ConnectConstants.WRONG_PIN, false);
                     if (forgotPin) {
                         nextRequestCode = forgotPassword ? ConnectTask.CONNECT_RECOVERY_ALT_PHONE_MESSAGE :
                                 ConnectTask.CONNECT_RECOVERY_VERIFY_PASSWORD;
                     } else {
                         nextRequestCode = ConnectTask.CONNECT_RECOVERY_SUCCESS;
+                    }
+                }else{
+                    forgotPin = intent.getBooleanExtra(ConnectConstants.WRONG_PIN, false);
+                    if(!forgotPin) {
+                        nextRequestCode = ConnectTask.CONNECT_RECOVERY_WRONG_PIN;
+                    }else{
+                        nextRequestCode=ConnectTask.CONNECT_RECOVERY_ALT_PHONE_MESSAGE;
                     }
                 }
             }
@@ -436,14 +448,16 @@ public class ConnectIdWorkflows {
             }
             case CONNECT_RECOVERY_ALT_PHONE_MESSAGE -> {
                 if (success) {
-                    nextRequestCode = ConnectTask.CONNECT_RECOVERY_VERIFY_ALT_PHONE;
+                    boolean change = intent.getBooleanExtra(ConnectConstants.BUTTON2, false);
+
+                    nextRequestCode = change ? ConnectTask.CONNECT_RECOVERY_VERIFY_PIN : ConnectTask.CONNECT_RECOVERY_VERIFY_ALT_PHONE;
                 }
             }
-            case CONNECT_VERIFY_ALT_PHONE_MESSAGE -> {
+            case CONNECT_RECOVERY_WRONG_PIN -> {
                 if (success) {
                     boolean change = intent.getBooleanExtra(ConnectConstants.BUTTON2, false);
 
-                    nextRequestCode = change ? ConnectTask.CONNECT_VERIFY_ALT_PHONE_CHANGE : ConnectTask.CONNECT_VERIFY_ALT_PHONE;
+                    nextRequestCode = change ? ConnectTask.CONNECT_RECOVERY_VERIFY_ALT_PHONE : ConnectTask.CONNECT_RECOVERY_VERIFY_PIN;
                 }
             }
             case CONNECT_RECOVERY_VERIFY_ALT_PHONE -> {

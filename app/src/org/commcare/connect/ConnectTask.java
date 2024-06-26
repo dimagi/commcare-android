@@ -90,6 +90,9 @@ public enum ConnectTask {
             ConnectIdPhoneActivity.class),
     CONNECT_VERIFY_ALT_PHONE_CHANGE(ConnectConstants.ConnectIdTaskIdOffset + 37,
             ConnectIdPhoneActivity.class),
+
+    CONNECT_RECOVERY_WRONG_PIN(ConnectConstants.ConnectIdTaskIdOffset + 38,
+            ConnectIdMessageActivity.class),
     ;
 
     private final int requestCode;

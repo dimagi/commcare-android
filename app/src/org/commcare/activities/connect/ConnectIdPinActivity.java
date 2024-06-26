@@ -10,6 +10,7 @@ import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.ConnectDatabaseHelper;
 import org.commcare.connect.ConnectManager;
+import org.commcare.connect.ConnectTask;
 import org.commcare.connect.network.ApiConnectId;
 import org.commcare.connect.network.ConnectNetworkHelper;
 import org.commcare.connect.network.IApiCallback;
@@ -18,6 +19,7 @@ import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.WithUIController;
+import org.commcare.views.ResizingTextView;
 import org.commcare.views.dialogs.CustomProgressDialog;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.services.Logger;
@@ -114,7 +116,7 @@ public class ConnectIdPinActivity extends CommCareActivity<ConnectIdPinActivity>
         Intent intent = new Intent(getIntent());
 
         intent.putExtra(ConnectConstants.PIN, pin);
-        intent.putExtra(ConnectConstants.FORGOT, forgot);
+        intent.putExtra(ConnectConstants.WRONG_PIN, forgot);
 
         setResult(success ? RESULT_OK : RESULT_CANCELED, intent);
         finish();
@@ -287,24 +289,11 @@ public class ConnectIdPinActivity extends CommCareActivity<ConnectIdPinActivity>
     }
 
     public void handleWrongPin() {
-        failureCount++;
+        ConnectManager.setFailureAttempt(ConnectManager.getFailureAttempt()+1);
         logRecoveryResult(false);
         uiController.clearPin();
+        finish(false,ConnectManager.getFailureAttempt()>=MaxFailures,"0000000");
 
-        int requestCode = PIN_FAIL;
-        int message = R.string.connect_pin_fail_message;
-
-        if (failureCount >= MaxFailures) {
-            requestCode = PIN_LOCK;
-            message = R.string.connect_pin_recovery_message;
-        }
-
-        Intent messageIntent = new Intent(this, ConnectIdMessageActivity.class);
-        messageIntent.putExtra(ConnectConstants.TITLE, R.string.connect_pin_fail_title);
-        messageIntent.putExtra(ConnectConstants.MESSAGE, message);
-        messageIntent.putExtra(ConnectConstants.BUTTON, R.string.connect_pin_fail_button);
-
-        startActivityForResult(messageIntent, requestCode);
     }
 
     public void handleForgotPress() {
