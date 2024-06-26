@@ -11,6 +11,7 @@
 
     <string name="ConnectTokenURL">https://connectid.dimagi.com/o/token/</string>
     <string name="ConnectHeartbeatURL">https://connectid.dimagi.com/users/heartbeat</string>
+    <string name="ConnectFetchDbKeyURL">https://connectid.dimagi.com/users/fetch_db_key</string>
     <string name="ConnectChangePasswordURL">https://connectid.dimagi.com/users/change_password</string>
     <string name="ConnectResetPasswordURL">https://connectid.dimagi.com/users/recover/reset_password</string>
     <string name="ConnectConfirmPasswordURL">https://connectid.dimagi.com/users/recover/confirm_password</string>
@@ -502,6 +503,7 @@
     <string name="busy_message">We are still busy processing your previous request. Please try again in some time.</string>
 
     <string name="connect_button_logged_in">Go to Connect menu</string>
+    <string name="connect_db_corrupt">A problem occurred with the database, please recover your account.</string>
 
     <string name="connect_consent_title">Consent</string>
     <string name="connect_consent_message_1">I have read and agree to Dimagi\'s <a href="https://www.dimagi.com/terms/latest/privacy/">Privacy Policy</a>, <a href="https://www.dimagi.com/terms/latest/tos/">Terms of Service</a>, <a href="https://www.dimagi.com/terms/latest/ba/">Business Agreement</a> and <a href="https://www.dimagi.com/terms/latest/aup/">Acceptable Use Policy</a>.</string>

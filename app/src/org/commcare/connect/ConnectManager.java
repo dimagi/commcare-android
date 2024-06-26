@@ -31,6 +31,7 @@ import org.commcare.CommCareApplication;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.commcaresupportlibrary.CommCareLauncher;
 import org.commcare.connect.network.ApiConnect;
+import org.commcare.connect.network.ApiConnectId;
 import org.commcare.connect.network.ConnectNetworkHelper;
 import org.commcare.connect.network.ConnectSsoHelper;
 import org.commcare.connect.network.IApiCallback;
@@ -121,13 +122,20 @@ public class ConnectManager {
     public static void init(CommCareActivity<?> parent) {
         ConnectManager manager = getInstance();
         manager.parentActivity = parent;
-        ConnectDatabaseHelper.init(parent);
 
         if(manager.connectStatus == ConnectIdStatus.NotIntroduced) {
             ConnectUserRecord user = ConnectDatabaseHelper.getUser(manager.parentActivity);
             if (user != null) {
                 boolean registering = user.getRegistrationPhase() != ConnectTask.CONNECT_NO_ACTIVITY;
                 manager.connectStatus = registering ? ConnectIdStatus.Registering : ConnectIdStatus.LoggedIn;
+
+                String remotePassphrase = ConnectDatabaseHelper.getConnectDbEncodedPassphrase(parent, false);
+                if(remotePassphrase == null) {
+                    getRemoteDbPassphrase(parent, user);
+                }
+            } else if(ConnectDatabaseHelper.isDbBroken()) {
+                //Corrupt DB, inform user to recover
+                ConnectDatabaseHelper.handleCorruptDb(parent);
             }
         }
     }
@@ -164,11 +172,8 @@ public class ConnectManager {
     }
 
     public static boolean isConnectIdIntroduced() {
-        if (!AppManagerDeveloperPreferences.isConnectIdEnabled()) {
-            return false;
-        }
-
-        return getInstance().connectStatus == ConnectIdStatus.LoggedIn;
+        return AppManagerDeveloperPreferences.isConnectIdEnabled()
+                && getInstance().connectStatus == ConnectIdStatus.LoggedIn;
     }
 
     public static boolean isUnlocked() {
@@ -661,6 +666,42 @@ public class ConnectManager {
         CommCareApplication.instance().getCurrentApp().getStorage(UserKeyRecord.class).write(ukr);
 
         return appRecord;
+    }
+
+    public static void getRemoteDbPassphrase(Context context, ConnectUserRecord user) {
+        ApiConnectId.fetchDbPassphrase(context, user, new IApiCallback() {
+            @Override
+            public void processSuccess(int responseCode, InputStream responseData) {
+                try {
+                    String responseAsString = new String(
+                            StreamsUtil.inputStreamToByteArray(responseData));
+                    if (responseAsString.length() > 0) {
+                        JSONObject json = new JSONObject(responseAsString);
+                        String key = ConnectConstants.CONNECT_KEY_DB_KEY;
+                        if (json.has(key)) {
+                            ConnectDatabaseHelper.handleReceivedDbPassphrase(context, json.getString(key));
+                        }
+                    }
+                } catch (IOException | JSONException e) {
+                    Logger.exception("Parsing return from DB key request", e);
+                }
+            }
+
+            @Override
+            public void processFailure(int responseCode, IOException e) {
+                Logger.log("ERROR", String.format(Locale.getDefault(), "Failed: %d", responseCode));
+            }
+
+            @Override
+            public void processNetworkFailure() {
+                Logger.log("ERROR", "Failed (network)");
+            }
+
+            @Override
+            public void processOldApiError() {
+                ConnectNetworkHelper.showOutdatedApiError(context);
+            }
+        });
     }
 
     public static void updateJobProgress(Context context, ConnectJobRecord job, ConnectActivityCompleteListener listener) {

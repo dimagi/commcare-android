@@ -9,6 +9,7 @@ import org.commcare.activities.CommCareActivity;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.ConnectDatabaseHelper;
+import org.commcare.connect.ConnectManager;
 import org.commcare.connect.network.ApiConnectId;
 import org.commcare.connect.network.ConnectNetworkHelper;
 import org.commcare.connect.network.IApiCallback;
@@ -17,6 +18,7 @@ import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.WithUIController;
+import org.commcare.util.Base64;
 import org.commcare.views.dialogs.CustomProgressDialog;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.services.Logger;
@@ -167,8 +169,7 @@ public class ConnectIdPasswordVerificationActivity extends CommCareActivity<Conn
 
                             key = ConnectConstants.CONNECT_KEY_DB_KEY;
                             if (json.has(key)) {
-                                //TODO: Use the passphrase from the DB
-                                //json.getString(key);
+                                ConnectDatabaseHelper.handleReceivedDbPassphrase(context, json.getString(key));
                             }
 
                             ConnectUserRecord user = new ConnectUserRecord(phone, username,

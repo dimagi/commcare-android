@@ -42,7 +42,7 @@ public class ApiConnect {
 
             try {
                 ConnectNetworkHelper.PostResult postResult = ConnectNetworkHelper.postSync(context, url,
-                        API_VERSION_NONE, new AuthInfo.ProvidedAuth(hqUsername, hqPassword), params, true);
+                        API_VERSION_NONE, new AuthInfo.ProvidedAuth(hqUsername, hqPassword), params, true, false);
                 if (postResult.e == null && postResult.responseCode == 200) {
                     postResult.responseStream.close();
 
@@ -74,7 +74,7 @@ public class ApiConnect {
         String url = "https://" + host + "/oauth/token/";
 
         ConnectNetworkHelper.PostResult postResult = ConnectNetworkHelper.postSync(context, url,
-                API_VERSION_NONE, new AuthInfo.NoAuth(), params, true);
+                API_VERSION_NONE, new AuthInfo.NoAuth(), params, true, false);
         if (postResult.responseCode == 200) {
             try {
                 String responseAsString = new String(StreamsUtil.inputStreamToByteArray(
@@ -114,7 +114,7 @@ public class ApiConnect {
             String url = context.getString(R.string.ConnectOpportunitiesURL, BuildConfig.CCC_HOST);
             Multimap<String, String> params = ArrayListMultimap.create();
 
-            ConnectNetworkHelper.get(context, url, API_VERSION_CONNECT, token, params, handler);
+            ConnectNetworkHelper.get(context, url, API_VERSION_CONNECT, token, params, false, handler);
         });
 
         return true;
@@ -134,7 +134,7 @@ public class ApiConnect {
             HashMap<String, String> params = new HashMap<>();
             params.put("opportunity", String.format(Locale.getDefault(), "%d", jobId));
 
-            ConnectNetworkHelper.post(context, url, API_VERSION_CONNECT, token, params, true, handler);
+            ConnectNetworkHelper.post(context, url, API_VERSION_CONNECT, token, params, true, false, handler);
         });
 
         return true;
@@ -153,7 +153,7 @@ public class ApiConnect {
             String url = context.getString(R.string.ConnectLearnProgressURL, BuildConfig.CCC_HOST, jobId);
             Multimap<String, String> params = ArrayListMultimap.create();
 
-            ConnectNetworkHelper.get(context, url, API_VERSION_CONNECT, token, params, handler);
+            ConnectNetworkHelper.get(context, url, API_VERSION_CONNECT, token, params, false, handler);
         });
 
         return true;
@@ -172,7 +172,7 @@ public class ApiConnect {
             String url = context.getString(R.string.ConnectClaimJobURL, BuildConfig.CCC_HOST, jobId);
             HashMap<String, String> params = new HashMap<>();
 
-            ConnectNetworkHelper.post(context, url, API_VERSION_CONNECT, token, params, false, handler);
+            ConnectNetworkHelper.post(context, url, API_VERSION_CONNECT, token, params, false, false, handler);
         });
 
         return true;
@@ -191,7 +191,7 @@ public class ApiConnect {
             String url = context.getString(R.string.ConnectDeliveriesURL, BuildConfig.CCC_HOST, jobId);
             Multimap<String, String> params = ArrayListMultimap.create();
 
-            ConnectNetworkHelper.get(context, url, API_VERSION_CONNECT, token, params, handler);
+            ConnectNetworkHelper.get(context, url, API_VERSION_CONNECT, token, params, false, handler);
         });
 
         return true;
@@ -212,7 +212,7 @@ public class ApiConnect {
             HashMap<String, String> params = new HashMap<>();
             params.put("confirmed", confirmed ? "true" : "false");
 
-            ConnectNetworkHelper.post(context, url, API_VERSION_CONNECT, token, params, true, handler);
+            ConnectNetworkHelper.post(context, url, API_VERSION_CONNECT, token, params, true, false, handler);
         });
 
         return true;
