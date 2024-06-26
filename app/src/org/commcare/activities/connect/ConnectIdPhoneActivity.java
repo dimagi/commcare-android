@@ -4,12 +4,13 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Toast;
 
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Multimap;
-
 import org.commcare.activities.CommCareActivity;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
-import org.commcare.core.network.AuthInfo;
+import org.commcare.connect.ConnectConstants;
+import org.commcare.connect.ConnectManager;
+import org.commcare.connect.network.ApiConnectId;
+import org.commcare.connect.network.ConnectNetworkHelper;
+import org.commcare.connect.network.IApiCallback;
 import org.commcare.dalvik.R;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.WithUIController;
@@ -19,7 +20,6 @@ import org.javarosa.core.services.Logger;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashMap;
 import java.util.Locale;
 
 /**
@@ -42,15 +42,15 @@ public class ConnectIdPhoneActivity extends CommCareActivity<ConnectIdPhoneActiv
 
         uiController.setupUI();
 
-        method = getIntent().getStringExtra(ConnectIdConstants.METHOD);
+        method = getIntent().getStringExtra(ConnectConstants.METHOD);
         //Special case for initial reg. screen. Remembering phone number before account has been created
-        existingPhone = getIntent().getStringExtra(ConnectIdConstants.PHONE);
+        existingPhone = getIntent().getStringExtra(ConnectConstants.PHONE);
 
-        ConnectUserRecord user = ConnectIdManager.getUser(this);
+        ConnectUserRecord user = ConnectManager.getUser(this);
         String title = getString(R.string.connect_phone_title_primary);
         String message = getString(R.string.connect_phone_message_primary);
         String existing;
-        if (method.equals(ConnectIdConstants.METHOD_CHANGE_ALTERNATE)) {
+        if (method.equals(ConnectConstants.METHOD_CHANGE_ALTERNATE)) {
             title = getString(R.string.connect_phone_title_alternate);
             message = getString(R.string.connect_phone_message_alternate);
 
@@ -112,7 +112,7 @@ public class ConnectIdPhoneActivity extends CommCareActivity<ConnectIdPhoneActiv
     public void finish(boolean success, String phone) {
         Intent intent = new Intent(getIntent());
 
-        intent.putExtra(ConnectIdConstants.PHONE, phone);
+        intent.putExtra(ConnectConstants.PHONE, phone);
 
         setResult(success ? RESULT_OK : RESULT_CANCELED, intent);
         finish();
@@ -121,47 +121,44 @@ public class ConnectIdPhoneActivity extends CommCareActivity<ConnectIdPhoneActiv
     public void handleButtonPress() {
         String phone = PhoneNumberHelper.buildPhoneNumber(uiController.getCountryCode(),
                 uiController.getPhoneNumber());
-        ConnectUserRecord user = ConnectIdManager.getUser(this);
+        ConnectUserRecord user = ConnectManager.getUser(this);
         String existing = user != null ? user.getPrimaryPhone() : existingPhone;
-        if (method.equals(ConnectIdConstants.METHOD_CHANGE_ALTERNATE)) {
+        if (method.equals(ConnectConstants.METHOD_CHANGE_ALTERNATE)) {
             existing = user != null ? user.getAlternatePhone() : null;
         }
         if (user != null && existing != null && !existing.equals(phone)) {
+            IApiCallback callback = new IApiCallback() {
+                @Override
+                public void processSuccess(int responseCode, InputStream responseData) {
+                    finish(true, phone);
+                }
+
+                @Override
+                public void processFailure(int responseCode, IOException e) {
+                    Toast.makeText(getApplicationContext(), getString(R.string.connect_phone_change_error),
+                            Toast.LENGTH_SHORT).show();
+                }
+
+                @Override
+                public void processNetworkFailure() {
+                    ConnectNetworkHelper.showNetworkError(getApplicationContext());
+                }
+
+                @Override
+                public void processOldApiError() {
+                    ConnectNetworkHelper.showOutdatedApiError(getApplicationContext());
+                }
+            };
+
             //Update the phone number with the server
-            HashMap<String, String> params = new HashMap<>();
-            int urlId;
-            if (method.equals(ConnectIdConstants.METHOD_CHANGE_ALTERNATE)) {
-                urlId = R.string.ConnectUpdateProfileURL;
-
-                params.put("secondary_phone", phone);
+            boolean isBusy;
+            if (method.equals(ConnectConstants.METHOD_CHANGE_ALTERNATE)) {
+                isBusy = !ApiConnectId.updateUserProfile(this, user.getUserId(), user.getPassword(),
+                        null, phone, callback);
             } else {
-                urlId = R.string.ConnectChangePhoneURL;
-
-                params.put("old_phone_number", existing);
-                params.put("new_phone_number", phone);
+                isBusy = !ApiConnectId.changePhone(this, user.getUserId(), user.getPassword(),
+                        existing, phone, callback);
             }
-
-            boolean isBusy = !ConnectIdNetworkHelper.post(this, getString(urlId),
-                    new AuthInfo.ProvidedAuth(user.getUserId(), user.getPassword(), false), params, false,
-                    new ConnectIdNetworkHelper.INetworkResultHandler() {
-                        @Override
-                        public void processSuccess(int responseCode, InputStream responseData) {
-                            finish(true, phone);
-                        }
-
-                        @Override
-                        public void processFailure(int responseCode, IOException e) {
-                            Toast.makeText(getApplicationContext(), "Phone change error",
-                                    Toast.LENGTH_SHORT).show();
-                        }
-
-                        @Override
-                        public void processNetworkFailure() {
-                            Toast.makeText(getApplicationContext(),
-                                    getString(R.string.recovery_network_unavailable),
-                                    Toast.LENGTH_SHORT).show();
-                        }
-                    });
 
             if (isBusy) {
                 Toast.makeText(this, R.string.busy_message, Toast.LENGTH_SHORT).show();
@@ -176,14 +173,14 @@ public class ConnectIdPhoneActivity extends CommCareActivity<ConnectIdPhoneActiv
                 uiController.getPhoneNumber());
 
         boolean valid = PhoneNumberHelper.isValidPhoneNumber(this, phone);
-        ConnectUserRecord user = ConnectIdManager.getUser(this);
+        ConnectUserRecord user = ConnectManager.getUser(this);
 
         if (valid) {
             String existingPrimary = user != null ? user.getPrimaryPhone() : existingPhone;
             String existingAlternate = user != null ? user.getAlternatePhone() : null;
             switch (method) {
-                case ConnectIdConstants.METHOD_REGISTER_PRIMARY,
-                        ConnectIdConstants.METHOD_CHANGE_PRIMARY -> {
+                case ConnectConstants.METHOD_REGISTER_PRIMARY,
+                        ConnectConstants.METHOD_CHANGE_PRIMARY -> {
                     if (existingPrimary != null && existingPrimary.equals(phone)) {
                         uiController.setAvailabilityText("");
                         uiController.setOkButtonEnabled(true);
@@ -196,13 +193,8 @@ public class ConnectIdPhoneActivity extends CommCareActivity<ConnectIdPhoneActiv
                         uiController.setAvailabilityText(getString(R.string.connect_phone_checking));
                         uiController.setOkButtonEnabled(false);
 
-                        Multimap<String, String> params = ArrayListMultimap.create();
-                        params.put("phone_number", phone);
-
-                        boolean isBusy = !ConnectIdNetworkHelper.get(this,
-                                this.getString(R.string.ConnectPhoneAvailableURL),
-                                new AuthInfo.NoAuth(), params,
-                                new ConnectIdNetworkHelper.INetworkResultHandler() {
+                        boolean isBusy = !ApiConnectId.checkPhoneAvailable(this, phone,
+                                new IApiCallback() {
                                     @Override
                                     public void processSuccess(int responseCode, InputStream responseData) {
                                         uiController.setAvailabilityText(
@@ -227,6 +219,12 @@ public class ConnectIdPhoneActivity extends CommCareActivity<ConnectIdPhoneActiv
                                         uiController.setAvailabilityText(getString(
                                                 R.string.recovery_network_unavailable));
                                     }
+
+                                    @Override
+                                    public void processOldApiError() {
+                                        uiController.setAvailabilityText(getString(
+                                                R.string.recovery_network_outdated));
+                                    }
                                 });
 
                         if (isBusy) {
@@ -234,7 +232,7 @@ public class ConnectIdPhoneActivity extends CommCareActivity<ConnectIdPhoneActiv
                         }
                     }
                 }
-                case ConnectIdConstants.METHOD_CHANGE_ALTERNATE -> {
+                case ConnectConstants.METHOD_CHANGE_ALTERNATE -> {
                     if (existingPrimary != null && existingPrimary.equals(phone)) {
                         uiController.setAvailabilityText(getString(R.string.connect_phone_not_primary));
                         uiController.setOkButtonEnabled(false);
@@ -243,7 +241,7 @@ public class ConnectIdPhoneActivity extends CommCareActivity<ConnectIdPhoneActiv
                         uiController.setOkButtonEnabled(true);
                     }
                 }
-                case ConnectIdConstants.METHOD_RECOVER_PRIMARY -> {
+                case ConnectConstants.METHOD_RECOVER_PRIMARY -> {
                     uiController.setAvailabilityText("");
                     uiController.setOkButtonEnabled(true);
                 }

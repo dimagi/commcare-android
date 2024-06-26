@@ -65,6 +65,7 @@ home.sync=Sync with Server
 home.unsent.forms.indicator=Unsent Forms: ${0}
 home.logout=Log out of CommCare
 home.report=Report an Issue
+home.connect=View Job Status
 # IMPORTANT: do NOT change the name of this key for any reason; HQ uses it for the training root menu
 training.root.title=Training
 
@@ -177,7 +178,7 @@ login.password=Password
 login.pin.password=PIN
 login.primed.prompt=Your password has been saved for you! Just press 'Log In'.
 login.button=Log In
-login.app.direct=Login to your app directly.
+login.app.connect=Go to Connect Jobs
 login.sync=Synchronize with server
 login.bad.password=We couldn't find a user with this password. Please try another!
 login.welcome.single=Welcome back! Please log in.

@@ -12,18 +12,15 @@ import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
+import org.commcare.connect.ConnectManager;
 import org.commcare.dalvik.R;
-import org.commcare.models.AndroidSessionWrapper;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.recovery.measures.ExecuteRecoveryMeasuresActivity;
 import org.commcare.recovery.measures.RecoveryMeasuresHelper;
-import org.commcare.session.CommCareSession;
-import org.commcare.suite.model.StackFrameStep;
 import org.commcare.utils.AndroidShortcuts;
 import org.commcare.utils.CommCareLifecycleUtils;
 import org.commcare.utils.MultipleAppsUtil;
 import org.commcare.utils.SessionUnavailableException;
-import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.services.locale.Localization;
 
 import java.util.ArrayList;
@@ -67,6 +64,7 @@ public class DispatchActivity extends AppCompatActivity {
     private boolean startFromLogin;
     private LoginMode lastLoginMode;
     private boolean userManuallyEnteredPasswordMode;
+    private boolean shouldGoToConnectJobStatus;
 
     private boolean shouldFinish;
     private boolean userTriggeredLogout;
@@ -197,8 +195,11 @@ public class DispatchActivity extends AppCompatActivity {
                         !shortcutExtraWasConsumed) {
                     // CommCare was launched from a shortcut
                     handleShortcutLaunch();
-                }
-                else {
+                } else if(shouldGoToConnectJobStatus) {
+                    CommCareApplication.instance().closeUserSession();
+                    ConnectManager.goToActiveInfoForJob(this, true);
+                    shouldGoToConnectJobStatus = false;
+                } else {
                     launchHomeScreen();
                 }
             } catch (SessionUnavailableException sue) {
@@ -286,6 +287,7 @@ public class DispatchActivity extends AppCompatActivity {
             if (sesssionEndpointAppID != null) {
                 i.putExtra(LoginActivity.EXTRA_APP_ID, sesssionEndpointAppID);
             }
+
             startActivityForResult(i, LOGIN_USER);
             waitingForActivityResultFromLogin = true;
         } else {
@@ -301,6 +303,11 @@ public class DispatchActivity extends AppCompatActivity {
         return getIntent().getStringExtra(SESSION_ENDPOINT_APP_ID);
     }
 
+    private void clearSessionEndpointAppId() {
+        getIntent().removeExtra(SESSION_ENDPOINT_APP_ID);
+    }
+
+
     private void launchHomeScreen() {
         Intent i;
         if (useRootMenuHomeActivity()) {
@@ -315,6 +322,7 @@ public class DispatchActivity extends AppCompatActivity {
         i.putExtra(LoginActivity.LOGIN_MODE, lastLoginMode);
         i.putExtra(LoginActivity.MANUAL_SWITCH_TO_PW_MODE, userManuallyEnteredPasswordMode);
         startFromLogin = false;
+        clearSessionEndpointAppId();
         startActivityForResult(i, HOME_SCREEN);
     }
 
@@ -455,6 +463,7 @@ public class DispatchActivity extends AppCompatActivity {
                     lastLoginMode = (LoginMode)intent.getSerializableExtra(LoginActivity.LOGIN_MODE);
                     userManuallyEnteredPasswordMode =
                             intent.getBooleanExtra(LoginActivity.MANUAL_SWITCH_TO_PW_MODE, false);
+                    shouldGoToConnectJobStatus = intent.getBooleanExtra(LoginActivity.GO_TO_CONNECT_JOB_STATUS, false);
                     startFromLogin = true;
                 }
                 return;

@@ -8,6 +8,8 @@ import android.view.MenuItem;
 
 import org.commcare.CommCareApplication;
 import org.commcare.CommCareNoficationManager;
+import org.commcare.connect.ConnectManager;
+import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.interfaces.CommCareActivityUIController;
@@ -51,6 +53,8 @@ public class StandardHomeActivity
     public void onCreateSessionSafe(Bundle savedInstanceState) {
         super.onCreateSessionSafe(savedInstanceState);
         uiController.setupUI();
+
+        updateSecondaryPhoneConfirmationTile();
     }
 
     void enterRootModule() {
@@ -110,6 +114,7 @@ public class StandardHomeActivity
                     AnalyticsParamValue.SYNC_FAIL_NO_CONNECTION);
             return;
         }
+        updateConnectJobProgress();
         CommCareApplication.notificationManager().clearNotifications(AIRPLANE_MODE_CATEGORY);
         sendFormsOrSync(true);
     }
@@ -124,6 +129,7 @@ public class StandardHomeActivity
     protected void updateUiAfterDataPullOrSend(String message, boolean success) {
         displayToast(message);
         uiController.updateSyncButtonMessage(message);
+        uiController.updateConnectProgress();
     }
 
     @Override
@@ -275,5 +281,26 @@ public class StandardHomeActivity
     @Override
     void refreshCcUpdateOption() {
         invalidateOptionsMenu();
+    }
+
+    private void updateSecondaryPhoneConfirmationTile() {
+        boolean show = ConnectManager.shouldShowSecondaryPhoneConfirmationTile(this);
+
+        uiController.updateConnectTile(show);
+    }
+
+    public void performSecondaryPhoneVerification() {
+        ConnectManager.verifySecondaryPhone(this, success -> {
+            updateSecondaryPhoneConfirmationTile();
+        });
+    }
+
+    public void updateConnectJobProgress() {
+        ConnectJobRecord job = ConnectManager.getActiveJob();
+        ConnectManager.updateDeliveryProgress(this, job, success -> {
+            if(success) {
+                uiController.updateConnectProgress();
+            }
+        });
     }
 }

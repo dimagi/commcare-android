@@ -8,13 +8,16 @@ import com.google.firebase.analytics.FirebaseAnalytics;
 
 import org.commcare.CommCareApplication;
 import org.commcare.DiskUtils;
-import org.commcare.activities.connect.ConnectIdManager;
+import org.commcare.connect.ConnectManager;
 import org.commcare.android.logging.ReportingUtils;
 import org.commcare.preferences.MainConfigurablePreferences;
 import org.commcare.suite.model.OfflineUserRestore;
 import org.commcare.utils.EncryptionUtils;
 
 import java.util.Date;
+
+import androidx.navigation.NavController;
+import androidx.navigation.fragment.FragmentNavigator;
 
 import static org.commcare.google.services.analytics.AnalyticsParamValue.CORRUPT_APP_STATE;
 import static org.commcare.google.services.analytics.AnalyticsParamValue.STAGE_UPDATE_FAILURE;
@@ -93,7 +96,7 @@ public class FirebaseAnalyticsUtil {
         }
 
         analyticsInstance.setUserProperty(CCAnalyticsParam.CCC_ENABLED,
-                String.valueOf(ConnectIdManager.isConnectIdIntroduced()));
+                String.valueOf(ConnectManager.isConnectIdIntroduced()));
     }
 
     private static String getFreeDiskBucket() {
@@ -362,11 +365,94 @@ public class FirebaseAnalyticsUtil {
         reportEvent(CCAnalyticsEvent.CCC_RECOVERY, b);
     }
 
+    public static void reportCccAppLaunch(String type, String appId) {
+        reportEvent(CCAnalyticsEvent.CCC_LAUNCH_APP,
+                new String[]{CCAnalyticsEvent.PARAM_CCC_LAUNCH_APP_TYPE, CCAnalyticsEvent.PARAM_CCC_APP_NAME},
+                new String[]{type, appId});
+    }
+
+    public static void reportCccAppFailedAutoLogin(String app) {
+        reportEvent(CCAnalyticsEvent.CCC_AUTO_LOGIN_FAILED,
+                new String[]{CCAnalyticsEvent.PARAM_CCC_APP_NAME},
+                new String[]{app});
+    }
+
+    public static void reportCccApiJobs(boolean success, int newJobs) {
+        Bundle b = new Bundle();
+        b.putLong(CCAnalyticsEvent.PARAM_API_SUCCESS, success ? 1 : 0);
+        b.putInt(CCAnalyticsEvent.PARAM_API_NEW_JOBS, newJobs);
+        reportEvent(CCAnalyticsEvent.CCC_API_JOBS, b);
+    }
+
+    public static void reportCccApiStartLearning(boolean success) {
+        Bundle b = new Bundle();
+        b.putLong(CCAnalyticsEvent.PARAM_API_SUCCESS, success ? 1 : 0);
+        reportEvent(CCAnalyticsEvent.CCC_API_START_LEARNING, b);
+    }
+
+    public static void reportCccApiLearnProgress(boolean success) {
+        Bundle b = new Bundle();
+        b.putLong(CCAnalyticsEvent.PARAM_API_SUCCESS, success ? 1 : 0);
+        reportEvent(CCAnalyticsEvent.CCC_API_LEARN_PROGRESS, b);
+    }
+
+    public static void reportCccApiClaimJob(boolean success) {
+        Bundle b = new Bundle();
+        b.putLong(CCAnalyticsEvent.PARAM_API_SUCCESS, success ? 1 : 0);
+        reportEvent(CCAnalyticsEvent.CCC_API_CLAIM_JOB, b);
+    }
+
+    public static void reportCccApiDeliveryProgress(boolean success) {
+        Bundle b = new Bundle();
+        b.putLong(CCAnalyticsEvent.PARAM_API_SUCCESS, success ? 1 : 0);
+        reportEvent(CCAnalyticsEvent.CCC_API_DELIVERY_PROGRESS, b);
+    }
+
+    public static void reportCccApiPaymentConfirmation(boolean success) {
+        Bundle b = new Bundle();
+        b.putLong(CCAnalyticsEvent.PARAM_API_SUCCESS, success ? 1 : 0);
+        reportEvent(CCAnalyticsEvent.CCC_API_PAYMENT_CONFIRMATION, b);
+    }
+
+    public static void reportCccPaymentConfirmationOnlineCheck(boolean success) {
+        Bundle b = new Bundle();
+        b.putLong(CCAnalyticsEvent.PARAM_API_SUCCESS, success ? 1 : 0);
+        reportEvent(CCAnalyticsEvent.CCC_PAYMENT_CONFIRMATION_CHECK, b);
+    }
+
+    public static void reportCccPaymentConfirmationDisplayed() {
+        Bundle b = new Bundle();
+        reportEvent(CCAnalyticsEvent.CCC_PAYMENT_CONFIRMATION_DISPLAY, b);
+    }
+
+    public static void reportCccPaymentConfirmationInteraction(boolean positive) {
+        Bundle b = new Bundle();
+        b.putLong(CCAnalyticsEvent.PARAM_API_SUCCESS, positive ? 1 : 0);
+        reportEvent(CCAnalyticsEvent.CCC_PAYMENT_CONFIRMATION_INTERACT, b);
+    }
+
     public static void reportCccSignOut() {
         reportEvent(CCAnalyticsEvent.CCC_SIGN_OUT);
     }
 
     public static void reportLoginClicks() {
         reportEvent(CCAnalyticsEvent.LOGIN_CLICK);
+    }
+
+    public static NavController.OnDestinationChangedListener getDestinationChangeListener() {
+        return (navController, navDestination, args) -> {
+            Bundle bundle = new Bundle();
+            var currentFragmentClassName = ((FragmentNavigator.Destination)navController.getCurrentDestination())
+                    .getClassName();
+            bundle.putString(FirebaseAnalytics.Param.SCREEN_NAME, navDestination.getLabel().toString());
+            bundle.putString(FirebaseAnalytics.Param.SCREEN_CLASS, currentFragmentClassName);
+            reportEvent(FirebaseAnalytics.Event.SCREEN_VIEW, bundle);
+        };
+    }
+
+    public static void reportConnectTabChange(String tabName) {
+        reportEvent(CCAnalyticsEvent.CCC_TAB_CHANGE,
+                new String[]{CCAnalyticsEvent.PARAM_CCC_TAB_CHANGE_NAME},
+                new String[]{tabName});
     }
 }

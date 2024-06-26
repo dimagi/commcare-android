@@ -14,7 +14,7 @@ import androidx.annotation.AnimRes;
 import androidx.annotation.LayoutRes;
 
 import org.commcare.CommCareApplication;
-import org.commcare.activities.connect.ConnectIdManager;
+import org.commcare.connect.ConnectManager;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
@@ -105,7 +105,7 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
             case AUTH_FAILED:
                 String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
                 String username = CommCareApplication.instance().getRecordForCurrentUser().getUsername();
-                ConnectIdManager.forgetAppCredentials(seatedAppId, username);
+                ConnectManager.forgetAppCredentials(seatedAppId, username);
                 updateUiAfterDataPullOrSend(Localization.get("sync.fail.auth.loggedin"), FAIL);
                 break;
             case BAD_DATA:

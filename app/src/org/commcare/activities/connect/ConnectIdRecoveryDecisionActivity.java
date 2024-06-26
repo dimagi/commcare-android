@@ -4,11 +4,10 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Toast;
 
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Multimap;
-
 import org.commcare.activities.CommCareActivity;
-import org.commcare.core.network.AuthInfo;
+import org.commcare.connect.ConnectConstants;
+import org.commcare.connect.network.ApiConnectId;
+import org.commcare.connect.network.IApiCallback;
 import org.commcare.dalvik.R;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.WithUIController;
@@ -82,8 +81,8 @@ public class ConnectIdRecoveryDecisionActivity extends CommCareActivity<ConnectI
     public void finish(boolean createNew, String phone) {
         Intent intent = new Intent(getIntent());
 
-        intent.putExtra(ConnectIdConstants.CREATE, createNew);
-        intent.putExtra(ConnectIdConstants.PHONE, phone);
+        intent.putExtra(ConnectConstants.CREATE, createNew);
+        intent.putExtra(ConnectConstants.PHONE, phone);
 
         setResult(RESULT_OK, intent);
         finish();
@@ -131,11 +130,8 @@ public class ConnectIdRecoveryDecisionActivity extends CommCareActivity<ConnectI
             uiController.setPhoneMessage(getString(R.string.connect_phone_checking));
             uiController.setButton1Enabled(false);
 
-            Multimap<String, String> params = ArrayListMultimap.create();
-            params.put("phone_number", phone);
-
-            boolean isBusy = !ConnectIdNetworkHelper.get(this, getString(R.string.ConnectPhoneAvailableURL),
-                    new AuthInfo.NoAuth(), params, new ConnectIdNetworkHelper.INetworkResultHandler() {
+            boolean isBusy = !ApiConnectId.checkPhoneAvailable(this, phone,
+                    new IApiCallback() {
                         @Override
                         public void processSuccess(int responseCode, InputStream responseData) {
                             uiController.setPhoneMessage(getString(R.string.connect_phone_not_found));
@@ -151,6 +147,12 @@ public class ConnectIdRecoveryDecisionActivity extends CommCareActivity<ConnectI
                         @Override
                         public void processNetworkFailure() {
                             uiController.setPhoneMessage(getString(R.string.recovery_network_unavailable));
+                            uiController.setButton1Enabled(false);
+                        }
+
+                        @Override
+                        public void processOldApiError() {
+                            uiController.setPhoneMessage(getString(R.string.recovery_network_outdated));
                             uiController.setButton1Enabled(false);
                         }
                     });
