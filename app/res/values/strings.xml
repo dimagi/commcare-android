@@ -455,4 +455,5 @@
     <string name="fcm_notification">FCM Notification</string>
     <string name="fcm_default_notification_channel">notification-channel-push-notifications</string>
     <string name="app_with_id_not_found">Required CommCare App is not installed on device</string>
+    <string name="audio_recording_notification">Audio Recording Notification</string>
 </resources>
