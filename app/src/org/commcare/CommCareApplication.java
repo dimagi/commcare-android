@@ -137,6 +137,7 @@ import javax.crypto.SecretKey;
 import io.noties.markwon.Markwon;
 import io.noties.markwon.ext.strikethrough.StrikethroughPlugin;
 import io.noties.markwon.ext.tables.TablePlugin;
+import io.reactivex.plugins.RxJavaPlugins;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 
@@ -251,8 +252,9 @@ public class CommCareApplication extends MultiDexApplication {
         FirebaseMessagingUtil.verifyToken();
 
         customiseOkHttp();
-    }
 
+        setRxJavaGlobalHandler();
+    }
 
     protected void loadSqliteLibs() {
         SQLiteDatabase.loadLibs(this);
@@ -1205,5 +1207,11 @@ public class CommCareApplication extends MultiDexApplication {
 
     public void customiseOkHttp() {
         CommCareNetworkServiceGenerator.customizeRetrofitSetup(new OkHttpBuilderCustomConfig());
+    }
+
+    private void setRxJavaGlobalHandler() {
+        RxJavaPlugins.setErrorHandler(throwable -> {
+            // Not sure the type of exceptions we should handle here
+        });
     }
 }
