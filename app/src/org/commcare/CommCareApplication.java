@@ -116,6 +116,7 @@ import org.commcare.utils.SessionStateUninitException;
 import org.commcare.utils.SessionUnavailableException;
 import org.commcare.views.widgets.CleanRawMedia;
 import org.javarosa.core.model.User;
+import org.javarosa.core.model.condition.RequestAbandonedException;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.reference.RootTranslator;
 import org.javarosa.core.services.Logger;
@@ -1212,10 +1213,14 @@ public class CommCareApplication extends MultiDexApplication {
 
     private void setRxJavaGlobalHandler() {
         RxJavaPlugins.setErrorHandler(throwable -> {
-            // Swallow UndeliverableException
             if (throwable instanceof UndeliverableException) {
+                throwable = throwable.getCause();
+            }
+            // Swallow RequestAbandonedException
+            if (throwable instanceof RequestAbandonedException) {
                 return;
             }
+
             Thread.currentThread().getUncaughtExceptionHandler().uncaughtException(Thread.currentThread(), throwable);
         });
     }
