@@ -137,6 +137,7 @@ import javax.crypto.SecretKey;
 import io.noties.markwon.Markwon;
 import io.noties.markwon.ext.strikethrough.StrikethroughPlugin;
 import io.noties.markwon.ext.tables.TablePlugin;
+import io.reactivex.exceptions.UndeliverableException;
 import io.reactivex.plugins.RxJavaPlugins;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
@@ -1211,7 +1212,11 @@ public class CommCareApplication extends MultiDexApplication {
 
     private void setRxJavaGlobalHandler() {
         RxJavaPlugins.setErrorHandler(throwable -> {
-            // Not sure the type of exceptions we should handle here
+            // Swallow UndeliverableException
+            if (throwable instanceof UndeliverableException) {
+                return;
+            }
+            Thread.currentThread().getUncaughtExceptionHandler().uncaughtException(Thread.currentThread(), throwable);
         });
     }
 }
