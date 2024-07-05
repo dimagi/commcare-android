@@ -33,14 +33,10 @@ public class DateRangeUtils {
                 SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT, Locale.US);
                 Date startDate = sdf.parse(humanReadableDateRangeSplit[0]);
                 Date endDate = sdf.parse(humanReadableDateRangeSplit[1]);
-                return new Pair<>(getTimeFromDateOffsettingTz(startDate), getTimeFromDateOffsettingTz(endDate));
+                return new Pair<>(startDate.getTime(), endDate.getTime());
             }
         }
         throw new ParseException("Argument " + humanReadableDateRange + " should be formatted as 'yyyy-mm-dd to yyyy-mm-dd'", 0);
-    }
-
-    private static Long getTimeFromDateOffsettingTz(Date date) {
-        return date.getTime() - date.getTimezoneOffset() * 60 * 1000;
     }
 
     /**
