@@ -69,7 +69,7 @@ class QueryRequestUiController(
     }
     fun reloadStateUsingAnswers(answeredPrompts: MutableMap<String, String>) {
         answeredPrompts.forEach { entry ->
-            remoteQuerySessionManager.answerUserPrompt(entry.key, entry.value)
+            answerUserPrompt(entry.key, entry.value)
             val promptView = promptsBoxes[entry.key]
             val queryPrompt = remoteQuerySessionManager.neededUserInputDisplays[entry.key]
             if (queryPrompt!!.isSelect) {
@@ -176,18 +176,27 @@ class QueryRequestUiController(
             override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {}
             override fun afterTextChanged(s: Editable) {
-                remoteQuerySessionManager.answerUserPrompt(queryPrompt.key, s.toString())
+                answerUserPrompt(queryPrompt.key, s.toString())
                 updateAnswerAndRefresh(queryPrompt, s.toString())
             }
         })
         return promptEditText
     }
 
+    private fun answerUserPrompt(key: String, value: String) {
+        // todo mobile don't support blank search yet
+        if (value == "") {
+            remoteQuerySessionManager.answerUserPrompt(key, null)
+        } else {
+            remoteQuerySessionManager.answerUserPrompt(key, value)
+        }
+    }
+
     private fun updateAnswerAndRefresh(queryPrompt: QueryPrompt, answer: String) {
         val userAnswers = remoteQuerySessionManager.userAnswers
         val oldAnswer = userAnswers[queryPrompt.key]
         if (oldAnswer == null || !oldAnswer.contentEquals(answer)) {
-            remoteQuerySessionManager.answerUserPrompt(queryPrompt.key, answer)
+            answerUserPrompt(queryPrompt.key, answer)
             remoteQuerySessionManager.refreshItemSetChoices()
             refreshView()
         }
@@ -351,10 +360,7 @@ class QueryRequestUiController(
                 selection!!.first
             )
             val endDate = DateRangeUtils.getDateFromTime(selection.second)
-            remoteQuerySessionManager.answerUserPrompt(
-                queryPrompt.key,
-                DateRangeUtils.formatDateRangeAnswer(startDate, endDate)
-            )
+            answerUserPrompt(queryPrompt.key, DateRangeUtils.formatDateRangeAnswer(startDate, endDate))
             promptEditText.setText(DateRangeUtils.getHumanReadableDateRange(startDate, endDate))
         }
         dateRangePicker.show(queryRequestActivity.supportFragmentManager, DATE_PICKER_FRAGMENT_TAG)
