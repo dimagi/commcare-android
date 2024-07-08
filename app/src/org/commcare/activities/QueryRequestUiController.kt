@@ -16,13 +16,14 @@ import org.commcare.interfaces.CommCareActivityUIController
 import org.commcare.session.RemoteQuerySessionManager
 import org.commcare.session.RemoteQuerySessionManager.extractMultipleChoices
 import org.commcare.suite.model.QueryPrompt
-import org.commcare.utils.DateRangeUtils
+import org.commcare.util.DateRangeUtils
 import org.commcare.views.ManagedUi
 import org.commcare.views.UiElement
 import org.commcare.views.ViewUtil
 import org.commcare.views.widgets.SpinnerWidget
 import org.commcare.views.widgets.WidgetUtils
 import org.javarosa.core.model.SelectChoice
+import org.javarosa.core.services.Logger
 import org.javarosa.core.services.locale.Localizer
 import java.text.ParseException
 import java.util.*
@@ -185,7 +186,7 @@ class QueryRequestUiController(
 
     private fun answerUserPrompt(key: String, value: String) {
         // todo mobile don't support blank search yet
-        if (value == "") {
+        if ("".equals(value)) {
             remoteQuerySessionManager.answerUserPrompt(key, null)
         } else {
             remoteQuerySessionManager.answerUserPrompt(key, value)
@@ -348,10 +349,10 @@ class QueryRequestUiController(
         val currentDateRangeText = promptEditText.text.toString()
         if (!TextUtils.isEmpty(currentDateRangeText)) {
             try {
-                dateRangePickerBuilder.setSelection(DateRangeUtils.parseHumanReadableDate(currentDateRangeText))
+                val humanReadableDate = DateRangeUtils.parseHumanReadableDate(currentDateRangeText)
+                dateRangePickerBuilder.setSelection(toAndroidXPair(humanReadableDate))
             } catch (e: ParseException) {
-                // do nothing
-                e.printStackTrace()
+                Logger.exception("Error parsing date range $currentDateRangeText", e)
             }
         }
         val dateRangePicker = dateRangePickerBuilder.build()
@@ -364,6 +365,10 @@ class QueryRequestUiController(
             promptEditText.setText(DateRangeUtils.getHumanReadableDateRange(startDate, endDate))
         }
         dateRangePicker.show(queryRequestActivity.supportFragmentManager, DATE_PICKER_FRAGMENT_TAG)
+    }
+
+    private fun toAndroidXPair(pair: org.commcare.modern.util.Pair<Long, Long>): Pair<Long, Long> {
+        return Pair(pair.first, pair.second)
     }
 
     private fun setUpBarCodeScanButton(promptView: View, promptId: String, queryPrompt: QueryPrompt) {
