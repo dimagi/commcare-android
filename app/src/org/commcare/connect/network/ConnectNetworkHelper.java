@@ -37,6 +37,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.TimeZone;
 
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
@@ -81,7 +82,35 @@ public class ConnectNetworkHelper {
 
     private static final DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
     public static Date parseDate(String dateStr) throws ParseException {
-        return dateFormat.parse(dateStr);
+        Date issueDate=dateFormat.parse(dateStr);
+        return issueDate;
+    }
+
+
+    public static Date convertUTCToLocal(String utcDateString) {
+        // Define the input format
+        SimpleDateFormat utcFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault());
+        utcFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+
+        // Define the output format
+        SimpleDateFormat localFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault());
+        localFormat.setTimeZone(TimeZone.getDefault());
+
+        Date date = null;
+        try {
+            // Parse the UTC date string
+            date = utcFormat.parse(utcDateString);
+
+            // Format the date to local timezone
+            String localDateString = localFormat.format(date);
+
+            // Parse the local date string back to Date object
+            date = localFormat.parse(localDateString);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        return date;
     }
 
     public static String getCallInProgress() {

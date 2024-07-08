@@ -371,10 +371,12 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         return String.format(Locale.getDefault(), "%d%s", value, currency);
     }
 
+
     public int numberOfDeliveriesToday() {
         int dailyVisitCount = 0;
         Date today = new Date();
         for (ConnectJobDeliveryRecord record : deliveries) {
+            record.getDate();
             if(sameDay(today, record.getDate())) {
                 dailyVisitCount++;
             }
@@ -403,9 +405,19 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         for(int i = 0; i < deliveries.size(); i++) {
             ConnectJobDeliveryRecord delivery = deliveries.get(i);
             int oldCount = 0;
-            if(paymentCounts.containsKey(delivery.getSlug())) {
-                oldCount = paymentCounts.get(delivery.getSlug());
+            boolean isSameDay=false;
+            if(todayOnly){
+                Date today = new Date();
+                isSameDay=sameDay(today,delivery.getDate());
+                if(paymentCounts.containsKey(delivery.getSlug()) && isSameDay) {
+                    oldCount = paymentCounts.get(delivery.getSlug());
+                }
+            }else{
+                if(paymentCounts.containsKey(delivery.getSlug()) ) {
+                    oldCount = paymentCounts.get(delivery.getSlug());
+                }
             }
+
 
             paymentCounts.put(delivery.getSlug(), oldCount + 1);
         }
