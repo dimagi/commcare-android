@@ -1,8 +1,16 @@
 package org.commcare.activities.connect;
 
+import android.app.AlertDialog;
+import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
+import android.telephony.SubscriptionInfo;
+import android.telephony.SubscriptionManager;
 import android.widget.Toast;
+
+
 
 import org.commcare.activities.CommCareActivity;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
@@ -20,7 +28,12 @@ import org.javarosa.core.services.Logger;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Locale;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Shows the page that prompts the user to enter a phone number (during registration or recovery)
@@ -33,6 +46,9 @@ public class ConnectIdPhoneActivity extends CommCareActivity<ConnectIdPhoneActiv
     private String method;
     private String existingPhone;
     private ConnectIdPhoneActivityUiController uiController;
+
+    private static   final List<String> COUNTRY_CODES = Arrays.asList("+1", "+44", "+91"); // Add more known country codes as needed
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,6 +82,7 @@ public class ConnectIdPhoneActivity extends CommCareActivity<ConnectIdPhoneActiv
         if (existing != null && existing.length() > 0) {
             code = PhoneNumberHelper.getCountryCode(this, existing);
         }
+        showPhoneNumberPickerDialog();
 
         String codeText = "";
         if (code > 0) {
@@ -79,6 +96,91 @@ public class ConnectIdPhoneActivity extends CommCareActivity<ConnectIdPhoneActiv
         uiController.setPhoneNumber(existing);
         uiController.setCountryCode(codeText);
     }
+    public static String removeCountryCode(String phoneNumber) {
+        for (String countryCode : COUNTRY_CODES) {
+            if (phoneNumber.startsWith(countryCode)) {
+                return phoneNumber.substring(countryCode.length());
+            }
+        }
+
+        // Regular expression to match unknown country codes
+        Pattern pattern = Pattern.compile("^\\+\\d+");
+        Matcher matcher = pattern.matcher(phoneNumber);
+
+        if (matcher.find()) {
+            return phoneNumber.substring(matcher.end());
+        }
+
+        return phoneNumber; // If no country code is matched, return the original number
+    }
+
+
+    private void showPhoneNumberPickerDialog() {
+        SubscriptionManager subscriptionManager = null;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                subscriptionManager = (SubscriptionManager) getSystemService(Context.TELEPHONY_SUBSCRIPTION_SERVICE);
+            }
+        }
+        List<SubscriptionInfo> subscriptionInfoList = null;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
+            subscriptionInfoList = subscriptionManager.getActiveSubscriptionInfoList();
+        }
+
+        if (subscriptionInfoList != null && !subscriptionInfoList.isEmpty()) {
+            ArrayList<String> phoneNumbers = new ArrayList<>();
+            for (SubscriptionInfo subscriptionInfo : subscriptionInfoList) {
+                String phoneNumber = null;
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
+                    phoneNumber = removeCountryCode(subscriptionInfo.getNumber());
+                }
+                if (phoneNumber != null && !phoneNumber.isEmpty()) {
+                    phoneNumbers.add(phoneNumber);
+                }
+            }
+
+            if (!phoneNumbers.isEmpty()) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                builder.setTitle("Select Phone Number")
+                        .setItems(phoneNumbers.toArray(new String[0]), (dialog, which) -> {
+                            String selectedNumber = phoneNumbers.get(which);
+                            uiController.setPhoneNumber(selectedNumber);
+                            // Handle the selected phone number
+                            // e.g., display it or use it for further processing
+                        })
+                        .show();
+            } else {
+                // No phone numbers available
+            }
+        } else {
+            // No active subscription info available
+        }
+    }
+
+//    private void checkPermissions() {
+//        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED ||
+//                ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_NUMBERS) != PackageManager.PERMISSION_GRANTED ||
+//                ContextCompat.checkSelfPermission(this, Manifest.permission.READ_SMS) != PackageManager.PERMISSION_GRANTED) {
+//
+//            ActivityCompat.requestPermissions(this,
+//                    new String[]{Manifest.permission.READ_PHONE_STATE, Manifest.permission.READ_PHONE_NUMBERS, Manifest.permission.READ_SMS},
+//                    REQUEST_READ_PHONE_STATE);
+//        } else {
+//            showPhoneNumberPickerDialog();
+//        }
+//    }
+//
+//    @Override
+//    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+//        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+//        if (requestCode == REQUEST_READ_PHONE_STATE) {
+//            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+//                showPhoneNumberPickerDialog();
+//            } else {
+//                // Permission denied, handle appropriately
+//            }
+//        }
+//    }
 
     @Override
     public void onResume() {
@@ -252,3 +354,4 @@ public class ConnectIdPhoneActivity extends CommCareActivity<ConnectIdPhoneActiv
         }
     }
 }
+
