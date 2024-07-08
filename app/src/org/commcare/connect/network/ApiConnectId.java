@@ -31,7 +31,7 @@ public class ApiConnectId {
         if(token != null) {
             params.put("fcm_token", token);
             boolean useFormEncoding = true;
-            return ConnectNetworkHelper.postSync(context, url, API_VERSION_CONNECT_ID, ConnectManager.getConnectToken(), params, useFormEncoding, true);
+            return ConnectNetworkHelper.postSync(context, url, API_VERSION_CONNECT_ID, retrieveConnectIdTokenSync(context), params, useFormEncoding, true);
         }
 
         return new ConnectNetworkHelper.PostResult(-1, null, null);
