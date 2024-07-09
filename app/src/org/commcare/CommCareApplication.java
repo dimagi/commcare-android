@@ -113,7 +113,6 @@ import org.commcare.utils.EncryptionKeyProvider;
 import org.commcare.utils.FileUtil;
 import org.commcare.utils.FirebaseMessagingUtil;
 import org.commcare.utils.GlobalConstants;
-import org.commcare.utils.LocaleHelper;
 import org.commcare.utils.MarkupUtil;
 import org.commcare.utils.MultipleAppsUtil;
 import org.commcare.utils.PendingCalcs;
@@ -261,7 +260,6 @@ public class CommCareApplication extends MultiDexApplication {
         setEncryptionKeyProvider(new EncryptionKeyProvider());
 
 		customiseOkHttp();
-        registerActivityListener();
     }
 
     protected void loadSqliteLibs() {
@@ -281,40 +279,6 @@ public class CommCareApplication extends MultiDexApplication {
     @Override
     public void onConfigurationChanged(@NonNull Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
-        LocalePreferences.saveDeviceLocale(newConfig.locale);
-        updateLocale(this);
-    }
-
-    private void updateLocale(Context context) {
-        String language = LocaleHelper.getLocale(context);
-        LocaleHelper.setLocale(context, language);
-    }
-
-    public void registerActivityListener(){
-        registerActivityLifecycleCallbacks(new ActivityLifecycleCallbacks() {
-            @Override
-            public void onActivityCreated(@NonNull Activity activity, Bundle savedInstanceState) {
-                updateLocale(activity);
-            }
-
-            @Override
-            public void onActivityStarted(@NonNull Activity activity) {}
-
-            @Override
-            public void onActivityResumed(@NonNull Activity activity) {}
-
-            @Override
-            public void onActivityPaused(@NonNull Activity activity) {}
-
-            @Override
-            public void onActivityStopped(@NonNull Activity activity) {}
-
-            @Override
-            public void onActivitySaveInstanceState(@NonNull Activity activity,@NonNull  Bundle outState) {}
-
-            @Override
-            public void onActivityDestroyed(@NonNull Activity activity) {}
-        });
     }
 
     private void initNotifications() {

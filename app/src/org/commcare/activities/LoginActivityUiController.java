@@ -550,6 +550,7 @@ public class LoginActivityUiController implements CommCareActivityUIController {
             text = Localization.get("login.button");
         }
         loginButton.setText(text);
+        connectLoginButton.setText(activity.getString(R.string.connect_button_logged_in));
 
         passwordOrPin.setBackgroundColor(getResources().getColor(useConnectId ? R.color.grey_light : R.color.white));
         if(useConnectId) {
