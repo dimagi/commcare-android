@@ -29,6 +29,7 @@ import java.util.Date;
 
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
+import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.connect.ConnectManager;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
@@ -95,6 +96,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
     public static final String LOGIN_MODE = "login-mode";
     public static final String MANUAL_SWITCH_TO_PW_MODE = "manually-swithced-to-password-mode";
+    public static final String GO_TO_CONNECT_JOB_STATUS = "go-to-connect-job-status";
 
     private static final int TASK_KEY_EXCHANGE = 1;
     private static final int TASK_UPGRADE_INSTALL = 2;
@@ -452,14 +454,15 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         CommCareApplication.notificationManager().clearNotifications(NOTIFICATION_MESSAGE_LOGIN);
 
         if(handleConnectSignIn()) {
-            goToAppHomeAndFinish();
+            setResultAndFinish(false);
         }
     }
 
-    private void goToAppHomeAndFinish() {
+    private void setResultAndFinish(boolean goToJobInfo) {
         Intent i = new Intent();
         i.putExtra(LOGIN_MODE, uiController.getLoginMode());
         i.putExtra(MANUAL_SWITCH_TO_PW_MODE, uiController.userManuallySwitchedToPasswordMode());
+        i.putExtra(GO_TO_CONNECT_JOB_STATUS, goToJobInfo);
         setResult(RESULT_OK, i);
         finish();
     }
@@ -476,16 +479,23 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     }
 
     public boolean handleConnectSignIn() {
-        if (!appLaunchedFromConnect && ConnectManager.isConnectIdIntroduced()) {
+        if(ConnectManager.isConnectIdIntroduced()) {
             String appId = CommCareApplication.instance().getCurrentApp().getUniqueId();
-            String username = uiController.getEnteredUsername();
-            String pass = uiController.getEnteredPasswordOrPin();
-
-            ConnectManager.checkConnectIdLink(this, uiController.loginManagedByConnectId(), appId, username, pass, success -> {
-                goToAppHomeAndFinish();
-            });
-
-            ConnectManager.setConnectJobForApp(this, appId);
+            ConnectJobRecord job = ConnectManager.setConnectJobForApp(this, appId);
+            if(job != null) {
+                //Update job status
+                ConnectManager.updateJobProgress(this, job, success -> {
+                    setResultAndFinish(job.readyToTransitionToDelivery());
+                });
+            } else {
+                //Possibly offer to link or de-link ConnectId-managed login
+                ConnectManager.checkConnectIdLink(this,
+                        uiController.loginManagedByConnectId(), appId,
+                        uiController.getEnteredUsername(),
+                        uiController.getEnteredPasswordOrPin(), success -> {
+                    setResultAndFinish(false);
+                });
+            }
 
             return false;
         }
@@ -597,6 +607,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                 ConnectManager.forgetUser();
                 uiController.setPasswordOrPin("");
                 uiController.refreshView();
+                uiController.setConnectIdLoginState(false);
                 return true;
             default:
                 return otherResult;

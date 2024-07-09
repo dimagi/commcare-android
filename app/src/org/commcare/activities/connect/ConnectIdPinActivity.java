@@ -199,8 +199,7 @@ public class ConnectIdPinActivity extends CommCareActivity<ConnectIdPinActivity>
 
                                     key = ConnectConstants.CONNECT_KEY_DB_KEY;
                                     if (json.has(key)) {
-                                        //TODO: Use the passphrase from the DB
-                                        //json.getString(key);
+                                        ConnectDatabaseHelper.handleReceivedDbPassphrase(context, json.getString(key));
                                     }
 
                                     ConnectUserRecord user = new ConnectUserRecord(phone, username,

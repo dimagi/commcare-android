@@ -2,6 +2,7 @@ package org.commcare.connect;
 
 import android.content.Context;
 import android.os.Build;
+import android.widget.Toast;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
@@ -14,12 +15,16 @@ import org.commcare.android.database.connect.models.ConnectJobPaymentRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectLearnModuleSummaryRecord;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
+import org.commcare.android.database.connect.models.ConnectPaymentUnitRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.android.database.global.models.ConnectKeyRecord;
+import org.commcare.dalvik.R;
 import org.commcare.models.database.AndroidDbHelper;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.models.database.connect.DatabaseConnectOpenHelper;
+import org.commcare.models.database.user.UserSandboxUtils;
 import org.commcare.modern.database.Table;
+import org.commcare.util.Base64;
 import org.commcare.utils.EncryptionUtils;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.storage.Persistable;
@@ -39,19 +44,34 @@ import java.util.Vector;
 public class ConnectDatabaseHelper {
     private static final Object connectDbHandleLock = new Object();
     private static SQLiteDatabase connectDatabase;
+    private static boolean dbBroken = false;
+
+    public static void handleReceivedDbPassphrase(Context context, String remotePassphrase) {
+        storeConnectDbPassphrase(context, remotePassphrase, false);
+
+        try {
+            String localPassphrase = getConnectDbEncodedPassphrase(context, true);
+
+            if(!remotePassphrase.equals(localPassphrase)) {
+                DatabaseConnectOpenHelper.rekeyDB(connectDatabase, remotePassphrase);
+                storeConnectDbPassphrase(context, remotePassphrase, true);
+            }
+        } catch (Exception e) {
+            Logger.exception("Handling received DB passphrase", e);
+            handleCorruptDb(context);
+        }
+    }
 
     private static byte[] getConnectDbPassphrase(Context context) {
         try {
-            for (ConnectKeyRecord r : CommCareApplication.instance().getGlobalStorage(ConnectKeyRecord.class)) {
-                return EncryptionUtils.decryptFromBase64String(context, r.getEncryptedPassphrase());
+            ConnectKeyRecord record = getKeyRecord(true);
+            if(record != null) {
+                return EncryptionUtils.decryptFromBase64String(context, record.getEncryptedPassphrase());
             }
 
-            //If we get here, the passphrase hasn't been created yet
+            //LEGACY: If we get here, the passphrase hasn't been created yet so use a local one
             byte[] passphrase = EncryptionUtils.generatePassphrase();
-
-            String encoded = EncryptionUtils.encryptToBase64String(context, passphrase);
-            ConnectKeyRecord record = new ConnectKeyRecord(encoded);
-            CommCareApplication.instance().getGlobalStorage(ConnectKeyRecord.class).write(record);
+            storeConnectDbPassphrase(context, passphrase, true);
 
             return passphrase;
         } catch (Exception e) {
@@ -60,12 +80,63 @@ public class ConnectDatabaseHelper {
         }
     }
 
-    public static void init(Context context) {
-        synchronized (connectDbHandleLock) {
-            byte[] passphrase = getConnectDbPassphrase(context);
-            SQLiteDatabase database = new DatabaseConnectOpenHelper(context).getWritableDatabase(passphrase);
-            database.close();
+    public static String getConnectDbEncodedPassphrase(Context context, boolean local) {
+        try {
+            ConnectKeyRecord record = getKeyRecord(local);
+            if(record != null) {
+                return Base64.encode(EncryptionUtils.decryptFromBase64String(context, record.getEncryptedPassphrase()));
+            }
+        } catch(Exception e) {
+            Logger.exception("Getting DB passphrase", e);
         }
+
+        return null;
+    }
+
+    private static ConnectKeyRecord getKeyRecord(boolean local) {
+        for (ConnectKeyRecord r : CommCareApplication.instance().getGlobalStorage(ConnectKeyRecord.class)) {
+            if (r.getIsLocal() == local) {
+                return r;
+            }
+        }
+
+        return null;
+    }
+
+    public static void storeConnectDbPassphrase(Context context, String base64EncodedPassphrase, boolean isLocal) {
+        try {
+            byte[] bytes = Base64.decode(base64EncodedPassphrase);
+            storeConnectDbPassphrase(context, bytes, isLocal);
+        } catch(Exception e) {
+            Logger.exception("Encoding DB passphrase to Base64", e);
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static void storeConnectDbPassphrase(Context context, byte[] passphrase, boolean isLocal) {
+        try {
+            String encoded = EncryptionUtils.encryptToBase64String(context, passphrase);
+
+            ConnectKeyRecord record = getKeyRecord(isLocal);
+            if(record == null) {
+                record = new ConnectKeyRecord(encoded, isLocal);
+            } else {
+                record.setEncryptedPassphrase(encoded);
+            }
+
+            CommCareApplication.instance().getGlobalStorage(ConnectKeyRecord.class).write(record);
+        } catch(Exception e) {
+            Logger.exception("Storing DB passphrase", e);
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static boolean dbExists(Context context) {
+        return DatabaseConnectOpenHelper.dbExists(context);
+    }
+
+    public static boolean isDbBroken() {
+        return dbBroken;
     }
 
     private static <T extends Persistable> SqlStorage<T> getConnectStorage(Context context, Class<T> c) {
@@ -73,10 +144,26 @@ public class ConnectDatabaseHelper {
             @Override
             public SQLiteDatabase getHandle() {
                 synchronized (connectDbHandleLock) {
-                    if (connectDatabase == null || !connectDatabase.isOpen()) {
-                        byte[] passphrase = getConnectDbPassphrase(context);
+                    if (!dbBroken && (connectDatabase == null || !connectDatabase.isOpen())) {
+                        try {
+                            byte[] passphrase = getConnectDbPassphrase(context);
 
-                        connectDatabase = new DatabaseConnectOpenHelper(this.c).getWritableDatabase(passphrase);
+                            DatabaseConnectOpenHelper helper = new DatabaseConnectOpenHelper(this.c);
+
+                            String remotePassphrase = getConnectDbEncodedPassphrase(context, false);
+                            String localPassphrase = getConnectDbEncodedPassphrase(context, true);
+                            if(remotePassphrase != null && remotePassphrase.equals(localPassphrase)) {
+                                //Using the UserSandboxUtils helper method to align with other code
+                                connectDatabase = helper.getWritableDatabase(UserSandboxUtils.getSqlCipherEncodedKey(passphrase));
+                            } else {
+                                //LEGACY: Used to open the DB using the byte[], not String overload
+                                connectDatabase = helper.getWritableDatabase(passphrase);
+                            }
+                        } catch(Exception e) {
+                            //Flag the DB as broken if we hit an error opening it (usually means corrupted or bad encryption)
+                            dbBroken = true;
+                            Logger.log("DB ERROR", "Connect DB is corrupt");
+                        }
                     }
                     return connectDatabase;
                 }
@@ -93,11 +180,22 @@ public class ConnectDatabaseHelper {
         }
     }
 
+    public static void handleCorruptDb(Context context) {
+        ConnectDatabaseHelper.forgetUser(context);
+        Toast.makeText(context, context.getString(R.string.connect_db_corrupt), Toast.LENGTH_LONG).show();
+    }
+
     public static ConnectUserRecord getUser(Context context) {
         ConnectUserRecord user = null;
-        for (ConnectUserRecord r : getConnectStorage(context, ConnectUserRecord.class)) {
-            user = r;
-            break;
+        if(dbExists(context)) {
+            try {
+                for (ConnectUserRecord r : getConnectStorage(context, ConnectUserRecord.class)) {
+                    user = r;
+                    break;
+                }
+            } catch(Exception e) {
+                dbBroken = true;
+            }
         }
 
         return user;
@@ -108,15 +206,9 @@ public class ConnectDatabaseHelper {
     }
 
     public static void forgetUser(Context context) {
-        getConnectStorage(context, ConnectUserRecord.class).removeAll();
-        getConnectStorage(context, ConnectLinkedAppRecord.class).removeAll();
-        getConnectStorage(context, ConnectJobRecord.class).removeAll();
-        getConnectStorage(context, ConnectAppRecord.class).removeAll();
-        getConnectStorage(context, ConnectLearnModuleSummaryRecord.class).removeAll();
-        getConnectStorage(context, ConnectJobLearningRecord.class).removeAll();
-        getConnectStorage(context, ConnectJobAssessmentRecord.class).removeAll();
-        getConnectStorage(context, ConnectJobDeliveryRecord.class).removeAll();
-        getConnectStorage(context, ConnectJobPaymentRecord.class).removeAll();
+        DatabaseConnectOpenHelper.deleteDb(context);
+        CommCareApplication.instance().getGlobalStorage(ConnectKeyRecord.class).removeAll();
+        dbBroken = false;
     }
 
     public static ConnectLinkedAppRecord getAppData(Context context, String appId, String username) {
@@ -220,6 +312,8 @@ public class ConnectDatabaseHelper {
         SqlStorage<ConnectAppRecord> appInfoStorage = getConnectStorage(context, ConnectAppRecord.class);
         SqlStorage<ConnectLearnModuleSummaryRecord> moduleStorage = getConnectStorage(context,
                 ConnectLearnModuleSummaryRecord.class);
+        SqlStorage<ConnectPaymentUnitRecord> paymentUnitStorage = getConnectStorage(context,
+                ConnectPaymentUnitRecord.class);
 
         List<ConnectJobRecord> existingList = getJobs(context, -1, jobStorage);
 
@@ -227,6 +321,7 @@ public class ConnectDatabaseHelper {
         Vector<Integer> jobIdsToDelete = new Vector<>();
         Vector<Integer> appInfoIdsToDelete = new Vector<>();
         Vector<Integer> moduleIdsToDelete = new Vector<>();
+        Vector<Integer> paymentUnitIdsToDelete = new Vector<>();
         //Note when jobs are found in the loop below, we retrieve the DB ID into the incoming job
         for (ConnectJobRecord existing : existingList) {
             boolean stillExists = false;
@@ -249,6 +344,10 @@ public class ConnectDatabaseHelper {
                 for(ConnectLearnModuleSummaryRecord module : existing.getLearnAppInfo().getLearnModules()) {
                     moduleIdsToDelete.add(module.getID());
                 }
+
+                for(ConnectPaymentUnitRecord record : existing.getPaymentUnits()) {
+                    paymentUnitIdsToDelete.add(record.getID());
+                }
             }
         }
 
@@ -256,6 +355,7 @@ public class ConnectDatabaseHelper {
             jobStorage.removeAll(jobIdsToDelete);
             appInfoStorage.removeAll(appInfoIdsToDelete);
             moduleStorage.removeAll(moduleIdsToDelete);
+            paymentUnitStorage.removeAll(paymentUnitIdsToDelete);
         }
 
         //Now insert/update jobs
@@ -291,7 +391,7 @@ public class ConnectDatabaseHelper {
             incomingJob.getDeliveryAppInfo().setLastUpdate(new Date());
             appInfoStorage.write(incomingJob.getDeliveryAppInfo());
 
-            //Finally, store the info for the learn modules
+            //Store the info for the learn modules
             //Delete modules that are no longer available
             Vector<Integer> foundIndexes = new Vector<>();
             //Note: Reusing this vector
@@ -326,6 +426,43 @@ public class ConnectDatabaseHelper {
                 module.setJobId(incomingJob.getJobId());
                 module.setLastUpdate(new Date());
                 moduleStorage.write(module);
+            }
+
+
+            //Store the payment units
+            //Delete payment units that are no longer available
+            foundIndexes = new Vector<>();
+            //Note: Reusing this vector
+            paymentUnitIdsToDelete.clear();
+            Vector<ConnectPaymentUnitRecord> existingPaymentUnits =
+                    paymentUnitStorage.getRecordsForValues(
+                            new String[]{ConnectPaymentUnitRecord.META_JOB_ID},
+                            new Object[]{incomingJob.getJobId()});
+            for (ConnectPaymentUnitRecord existing : existingPaymentUnits) {
+                boolean stillExists = false;
+                if(!foundIndexes.contains(existing.getUnitId())) {
+                    for (ConnectPaymentUnitRecord incoming :
+                            incomingJob.getPaymentUnits()) {
+                        if (Objects.equals(existing.getUnitId(), incoming.getUnitId())) {
+                            incoming.setID(existing.getID());
+                            stillExists = true;
+                            foundIndexes.add(existing.getUnitId());
+
+                            break;
+                        }
+                    }
+                }
+
+                if(!stillExists) {
+                    paymentUnitIdsToDelete.add(existing.getID());
+                }
+            }
+
+            paymentUnitStorage.removeAll(paymentUnitIdsToDelete);
+
+            for(ConnectPaymentUnitRecord record : incomingJob.getPaymentUnits()) {
+                record.setJobId(incomingJob.getJobId());
+                paymentUnitStorage.write(record);
             }
         }
 
@@ -525,6 +662,7 @@ public class ConnectDatabaseHelper {
         SqlStorage<ConnectJobPaymentRecord> paymentStorage = getConnectStorage(context, ConnectJobPaymentRecord.class);
         SqlStorage<ConnectJobLearningRecord> learningStorage = getConnectStorage(context, ConnectJobLearningRecord.class);
         SqlStorage<ConnectJobAssessmentRecord> assessmentStorage = getConnectStorage(context, ConnectJobAssessmentRecord.class);
+        SqlStorage<ConnectPaymentUnitRecord> paymentUnitStorage = getConnectStorage(context, ConnectPaymentUnitRecord.class);
         for(ConnectJobRecord job : jobs) {
             //Retrieve learn and delivery app info
             Vector<ConnectAppRecord> existingAppInfos = appInfoStorage.getRecordsForValues(
@@ -549,13 +687,18 @@ public class ConnectDatabaseHelper {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                 modules.sort(Comparator.comparingInt(ConnectLearnModuleSummaryRecord::getModuleIndex));
             }
-            else {
+            //else {
                 //TODO: Brute force sort
-            }
+            //}
 
             if(job.getLearnAppInfo() != null) {
                 job.getLearnAppInfo().setLearnModules(modules);
             }
+
+            //Retrieve payment units
+            job.setPaymentUnits(paymentUnitStorage.getRecordsForValues(
+                    new String[]{ConnectPaymentUnitRecord.META_JOB_ID},
+                    new Object[]{job.getJobId()}));
 
             //Retrieve related data
             job.setDeliveries(getDeliveries(context, job.getJobId(), deliveryStorage));

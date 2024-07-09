@@ -11,6 +11,7 @@
 
     <string name="ConnectTokenURL">https://connectid.dimagi.com/o/token/</string>
     <string name="ConnectHeartbeatURL">https://connectid.dimagi.com/users/heartbeat</string>
+    <string name="ConnectFetchDbKeyURL">https://connectid.dimagi.com/users/fetch_db_key</string>
     <string name="ConnectChangePasswordURL">https://connectid.dimagi.com/users/change_password</string>
     <string name="ConnectResetPasswordURL">https://connectid.dimagi.com/users/recover/reset_password</string>
     <string name="ConnectConfirmPasswordURL">https://connectid.dimagi.com/users/recover/confirm_password</string>
@@ -502,6 +503,7 @@
     <string name="busy_message">We are still busy processing your previous request. Please try again in some time.</string>
 
     <string name="connect_button_logged_in">Go to Connect menu</string>
+    <string name="connect_db_corrupt">A problem occurred with the database, please recover your account.</string>
 
     <string name="connect_consent_title">Consent</string>
     <string name="connect_consent_message_1">I have read and agree to Dimagi\'s <a href="https://www.dimagi.com/terms/latest/privacy/">Privacy Policy</a>, <a href="https://www.dimagi.com/terms/latest/tos/">Terms of Service</a>, <a href="https://www.dimagi.com/terms/latest/ba/">Business Agreement</a> and <a href="https://www.dimagi.com/terms/latest/aup/">Acceptable Use Policy</a>.</string>
@@ -633,7 +635,8 @@
 
     <string name="connect_verify_phone_title">Verification Code</string>
     <string name="connect_verify_phone_title2">Enter verification code</string>
-    <string name="connect_verify_phone_label">We attempted to send you a code on number %s.</string>
+    <string name="connect_verify_phone_label">We attempted to send you a code on number ending with %s.</string>
+    <string name="connect_verify_phone_label_secondary">We attempted to send you a code on your secondary phone number.</string>
     <string name="connect_verify_phone_label_alternate">Almost there! Please enter the code sent via SMS to your alternate phone%s.</string>
     <string name="connect_verify_phone_resend">Didn\'t receive your code? Resend</string>
     <string name="connect_verify_phone_resend_wait">Didn\'t receive your code? Resend in %d s</string>
@@ -709,8 +712,9 @@
     <string name="connect_delivery_days_remaining">%d days to complete from %s</string>
     <string name="connect_delivery_today">today</string>
     <string name="connect_delivery_latest_start">Latest start: %s</string>
-    <string name="connect_delivery_max_visits">%d Maximum Visits</string>
-    <string name="connect_delivery_earn">Earn up to %s for %d visits</string>
+    <string name="connect_delivery_max_visits">%d Visits in %d Days</string>
+    <string name="connect_delivery_earn_single">Earn %s per visit</string>
+    <string name="connect_delivery_earn_multi">Pay per visit:</string>
     <string name="connect_delivery_max_daily_visits">%d Maximum Visits per Day</string>
     <string name="connect_delivery_ready_to_claim">Ready to Start Visits?</string>
     <string name="connect_delivery_expired">Opportunity Expired</string>
@@ -738,8 +742,10 @@
     <string name="connect_progress_warning_learn">Learn why</string>
     <string name="connect_progress_warning_ended">The job has ended. You will not earn any progress for additional work.</string>
     <string name="connect_progress_warning_not_started">The job has not started yet. You will not earn any progress for work.</string>
-    <string name="connect_progress_warning_max_reached">You have completed the maximum number of visits. You will not earn any progress for additional work.</string>
-    <string name="connect_progress_warning_daily_max_reached">You have reached the maximum number of visits for today. You will not earn any progress for additional work.</string>
+    <string name="connect_progress_warning_max_reached_single">You have completed the maximum number of visits. You will not earn any progress for additional work.</string>
+    <string name="connect_progress_warning_daily_max_reached_single">You have reached the maximum number of visits for today. You will not earn any progress for additional work.</string>
+    <string name="connect_progress_warning_max_reached_multi">You have reached the maximum number of visits for %s.</string>
+    <string name="connect_progress_warning_daily_max_reached_multi">You have reached your daily limit for %s.</string>
     <string name="connect_progress_warning_full">You may not see your expected progress if your number of visits exceeds the maximum for the day OR if your forms have not been uploaded. You can wait for your forms to sync with a better network and check progress again.</string>
 
     <string name="connect_downloading_learn">Downloading Learn App</string>
@@ -748,8 +754,14 @@
 
     <string name="connect_results_summary_verifications_title">Verification Status</string>
     <string name="connect_results_summary_verifications_description">Pending Verification: %d\nNot Approved: %d\nApproved: %d</string>
-    <string name="connect_results_summary_payments_title">Payment Status</string>
-    <string name="connect_results_summary_payments_description">Earned Amount: %s\nTransferred Amount: %s</string>
+    <string name="connect_results_summary_view_deliveries">View Deliveries</string>
+    <string name="connect_results_summary_payments_title">Payments</string>
+    <string name="connect_results_summary_view_payments">View Payments</string>
+    <string name="connect_results_summary_pending">Pending</string>
+    <string name="connect_results_summary_rejected">Rejected</string>
+    <string name="connect_results_summary_approved">Approved</string>
+    <string name="connect_results_summary_earned">Earned</string>
+    <string name="connect_results_summary_transferred">Transferred</string>
     <string name="connect_results_payment_date">Issued %s</string>
     <string name="connect_results_payment_description">Paid %s</string>
     <string name="connect_results_payment_confirm">Confirm</string>

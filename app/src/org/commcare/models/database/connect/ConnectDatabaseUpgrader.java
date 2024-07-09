@@ -17,6 +17,7 @@ import org.commcare.android.database.connect.models.ConnectJobRecordV4;
 import org.commcare.android.database.connect.models.ConnectLearnModuleSummaryRecord;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecordV3;
+import org.commcare.android.database.connect.models.ConnectPaymentUnitRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecordV5;
 import org.commcare.models.database.ConcreteAndroidDbHelper;
@@ -60,6 +61,12 @@ public class ConnectDatabaseUpgrader {
         if (oldVersion == 5) {
             if (upgradeFiveSix(db)) {
                 oldVersion = 6;
+            }
+        }
+
+        if (oldVersion == 6) {
+            if (upgradeSixSeven(db)) {
+                oldVersion = 7;
             }
         }
     }
@@ -313,6 +320,10 @@ public class ConnectDatabaseUpgrader {
         } finally {
             db.endTransaction();
         }
+    }
+
+    private boolean upgradeSixSeven(SQLiteDatabase db) {
+        return addTableForNewModel(db, ConnectPaymentUnitRecord.STORAGE_KEY, new ConnectPaymentUnitRecord());
     }
 
     private static boolean addTableForNewModel(SQLiteDatabase db, String storageKey,

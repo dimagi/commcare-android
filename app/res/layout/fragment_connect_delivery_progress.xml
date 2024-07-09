@@ -31,8 +31,9 @@
         android:layout_marginStart="5dp"
         android:layout_marginEnd="5dp"
         android:background="@drawable/dots_rect_back"
-
+        android:visibility="gone"
         >
+
         <ImageView
             android:id="@+id/connect_payment_confirm_icon"
             android:layout_width="wrap_content"
@@ -44,7 +45,7 @@
             />
         <TextView
             android:id="@+id/connect_payment_confirm_label"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="match_parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toEndOf="@id/connect_payment_confirm_icon"

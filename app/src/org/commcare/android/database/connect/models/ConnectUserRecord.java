@@ -215,7 +215,7 @@ public class ConnectUserRecord extends Persisted {
         newRecord.lastPasswordDate = oldRecord.getLastPasswordDate();
         newRecord.connectToken = oldRecord.getConnectToken();
         newRecord.connectTokenExpiration = oldRecord.getConnectTokenExpiration();
-        newRecord.secondaryPhoneVerified = false;
+        newRecord.secondaryPhoneVerified = true;
 
         return newRecord;
     }

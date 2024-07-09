@@ -14,11 +14,17 @@ import org.commcare.android.database.connect.models.ConnectJobPaymentRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectLearnModuleSummaryRecord;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
+import org.commcare.android.database.connect.models.ConnectPaymentUnitRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.logging.DataChangeLog;
 import org.commcare.logging.DataChangeLogger;
 import org.commcare.models.database.DbUtil;
+import org.commcare.models.database.user.UserSandboxUtils;
 import org.commcare.modern.database.TableBuilder;
+import org.commcare.util.Base64;
+import org.commcare.util.Base64DecoderException;
+
+import java.io.File;
 
 /**
  * The helper for opening/updating the Connect (encrypted) db space for CommCare.
@@ -34,8 +40,9 @@ public class DatabaseConnectOpenHelper extends SQLiteOpenHelper {
      *          Added link offer info to ConnectLinkedAppRecord
      * V.5 - Added projectStartDate and isActive to ConnectJobRecord
      * V.6 - Added pin,secondaryPhoneVerified, and registrationDate fields to ConnectUserRecord
+     * V.7 - Added ConnectPaymentUnitRecord table
      */
-    private static final int CONNECT_DB_VERSION = 6;
+    private static final int CONNECT_DB_VERSION = 7;
 
     private static final String CONNECT_DB_LOCATOR = "database_connect";
 
@@ -44,6 +51,28 @@ public class DatabaseConnectOpenHelper extends SQLiteOpenHelper {
     public DatabaseConnectOpenHelper(Context context) {
         super(context, CONNECT_DB_LOCATOR, null, CONNECT_DB_VERSION);
         this.mContext = context;
+    }
+
+    private static File getDbFile(Context context) {
+        return context.getDatabasePath(CONNECT_DB_LOCATOR);
+    }
+
+    public static boolean dbExists(Context context) {
+        return getDbFile(context).exists();
+    }
+
+    public static void deleteDb(Context context) {
+        getDbFile(context).delete();
+    }
+
+    public static void rekeyDB(SQLiteDatabase db, String newPassphrase) throws Base64DecoderException {
+        if(db != null) {
+            byte[] newBytes = Base64.decode(newPassphrase);
+            String newKeyEncoded = UserSandboxUtils.getSqlCipherEncodedKey(newBytes);
+
+            db.query("PRAGMA rekey = '" + newKeyEncoded + "';");
+            db.close();
+        }
     }
 
     @Override
@@ -75,6 +104,9 @@ public class DatabaseConnectOpenHelper extends SQLiteOpenHelper {
             database.execSQL(builder.getTableCreateString());
 
             builder = new TableBuilder(ConnectJobPaymentRecord.class);
+            database.execSQL(builder.getTableCreateString());
+
+            builder = new TableBuilder(ConnectPaymentUnitRecord.class);
             database.execSQL(builder.getTableCreateString());
 
             DbUtil.createNumbersTable(database);
