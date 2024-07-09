@@ -44,7 +44,7 @@ public class MySMSBroadcastReceiver extends BroadcastReceiver {
                         // Extract one-time code from the message and complete verification
                         // by sending the code back to your server.
                         if (smsListener != null)
-                            smsListener.onSuccess(intent);
+                            smsListener.onSuccess(messageIntent);
                         break;
                     case CommonStatusCodes.TIMEOUT:
                         // Waiting for SMS timed out (5 minutes)

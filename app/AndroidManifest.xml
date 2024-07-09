@@ -124,7 +124,8 @@
             android:value="@string/fcm_default_notification_channel" />
 
         <receiver android:name="org.commcare.connect.MySMSBroadcastReceiver"
-            android:exported="true">
+            android:exported="true"
+            android:permission="com.google.android.gms.auth.api.phone.permission.SEND">
         <intent-filter>
             <action android:name="com.google.android.gms.auth.api.phone.SMS_RETRIEVED"/>
         </intent-filter>
