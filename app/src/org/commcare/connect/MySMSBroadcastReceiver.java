@@ -3,7 +3,13 @@ package org.commcare.connect;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
+import android.provider.Telephony;
+import android.telephony.SmsMessage;
+import android.util.Log;
+
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.google.android.gms.auth.api.phone.SmsRetriever;
 import com.google.android.gms.common.api.CommonStatusCodes;
@@ -18,55 +24,45 @@ import java.util.regex.Pattern;
  * SmsRetriever.SMS_RETRIEVED_ACTION.
  */
 public class MySMSBroadcastReceiver extends BroadcastReceiver {
-
-    private OTPReceiveListener otpReceiveListener;
-
-    public MySMSBroadcastReceiver() {
-    }
-
-    public void init(OTPReceiveListener otpReceiveListener) {
-        this.otpReceiveListener = otpReceiveListener;
-    }
+    public static SMSListener smsListener;
 
     @Override
     public void onReceive(Context context, Intent intent) {
         if (SmsRetriever.SMS_RETRIEVED_ACTION.equals(intent.getAction())) {
             Bundle extras = intent.getExtras();
+            Status status = null;
             if (extras != null) {
-                Status status = (Status) extras.get(SmsRetriever.EXTRA_STATUS);
-                if (status != null)
-                    switch (status.getStatusCode()) {
-                        case CommonStatusCodes.SUCCESS:
-                            // Get SMS message contents
-                            String message = (String) extras.get(SmsRetriever.EXTRA_SMS_MESSAGE);
-                            if (message != null) {
-                                Pattern pattern = Pattern.compile("(\\d{4})");
-                                //   \d is for a digit
-                                //   {} is the number of digits here 4.
-                                Matcher matcher = pattern.matcher(message);
-                                String val = "";
-                                if (matcher.find()) {
-                                    val = matcher.group(0);  // 4 digit number
-                                    if (this.otpReceiveListener != null)
-                                        this.otpReceiveListener.onOTPReceived(val);
-                                } else {
-                                    if (this.otpReceiveListener != null)
-                                        this.otpReceiveListener.onOTPReceived(null);
-                                }
-                            }
-                            break;
-                        case CommonStatusCodes.TIMEOUT:
-                            if (this.otpReceiveListener != null)
-                                this.otpReceiveListener.onOTPTimeOut();
-                            break;
-                    }
+                status = (Status) extras.get(SmsRetriever.EXTRA_STATUS);
+            }
+
+            if (status != null) {
+                switch (status.getStatusCode()) {
+                    case CommonStatusCodes.SUCCESS:
+                        // Get SMS message contents
+                        Intent messageIntent=extras.getParcelable(SmsRetriever.EXTRA_CONSENT_INTENT);
+                        String message = (String) extras.get(SmsRetriever.EXTRA_SMS_MESSAGE);
+                        // Extract one-time code from the message and complete verification
+                        // by sending the code back to your server.
+                        if (smsListener != null)
+                            smsListener.onSuccess(intent);
+                        break;
+                    case CommonStatusCodes.TIMEOUT:
+                        // Waiting for SMS timed out (5 minutes)
+                        // Handle the error ...
+                        if (smsListener != null)
+                            smsListener.onError("Failed to extract from Broadcast Receiver");
+                        break;
+                }
             }
         }
+
     }
 
-    interface OTPReceiveListener {
-        void onOTPReceived(String otp);
-
-        void onOTPTimeOut();
+    public static void initSMSListener(SMSListener listener) {
+        smsListener = listener;
     }
+
+
+
 }
+

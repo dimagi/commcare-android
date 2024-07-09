@@ -1,16 +1,27 @@
 package org.commcare.activities.connect;
 
 import android.app.AlertDialog;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.telephony.SubscriptionInfo;
 import android.telephony.SubscriptionManager;
+import android.util.Log;
 import android.widget.Toast;
 
 
+import androidx.annotation.NonNull;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+
+import com.google.android.gms.auth.api.phone.SmsRetriever;
+import com.google.android.gms.auth.api.phone.SmsRetrieverClient;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 
 import org.commcare.activities.CommCareActivity;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
@@ -47,6 +58,8 @@ public class ConnectIdPhoneActivity extends CommCareActivity<ConnectIdPhoneActiv
     private String existingPhone;
     private ConnectIdPhoneActivityUiController uiController;
 
+
+
     private static   final List<String> COUNTRY_CODES = Arrays.asList("+1", "+44", "+91"); // Add more known country codes as needed
 
 
@@ -65,6 +78,9 @@ public class ConnectIdPhoneActivity extends CommCareActivity<ConnectIdPhoneActiv
         ConnectUserRecord user = ConnectManager.getUser(this);
         String title = getString(R.string.connect_phone_title_primary);
         String message = getString(R.string.connect_phone_message_primary);
+
+        showPhoneNumberPickerDialog();
+
         String existing;
         if (method.equals(ConnectConstants.METHOD_CHANGE_ALTERNATE)) {
             title = getString(R.string.connect_phone_title_alternate);
@@ -82,7 +98,7 @@ public class ConnectIdPhoneActivity extends CommCareActivity<ConnectIdPhoneActiv
         if (existing != null && existing.length() > 0) {
             code = PhoneNumberHelper.getCountryCode(this, existing);
         }
-        showPhoneNumberPickerDialog();
+
 
         String codeText = "";
         if (code > 0) {
@@ -95,6 +111,7 @@ public class ConnectIdPhoneActivity extends CommCareActivity<ConnectIdPhoneActiv
 
         uiController.setPhoneNumber(existing);
         uiController.setCountryCode(codeText);
+
     }
     public static String removeCountryCode(String phoneNumber) {
         for (String countryCode : COUNTRY_CODES) {
@@ -157,30 +174,6 @@ public class ConnectIdPhoneActivity extends CommCareActivity<ConnectIdPhoneActiv
         }
     }
 
-//    private void checkPermissions() {
-//        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED ||
-//                ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_NUMBERS) != PackageManager.PERMISSION_GRANTED ||
-//                ContextCompat.checkSelfPermission(this, Manifest.permission.READ_SMS) != PackageManager.PERMISSION_GRANTED) {
-//
-//            ActivityCompat.requestPermissions(this,
-//                    new String[]{Manifest.permission.READ_PHONE_STATE, Manifest.permission.READ_PHONE_NUMBERS, Manifest.permission.READ_SMS},
-//                    REQUEST_READ_PHONE_STATE);
-//        } else {
-//            showPhoneNumberPickerDialog();
-//        }
-//    }
-//
-//    @Override
-//    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-//        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-//        if (requestCode == REQUEST_READ_PHONE_STATE) {
-//            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-//                showPhoneNumberPickerDialog();
-//            } else {
-//                // Permission denied, handle appropriately
-//            }
-//        }
-//    }
 
     @Override
     public void onResume() {

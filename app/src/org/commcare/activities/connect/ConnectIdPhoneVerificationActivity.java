@@ -1,16 +1,30 @@
 package org.commcare.activities.connect;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Handler;
+import android.provider.Telephony;
+import android.util.Log;
 import android.widget.Toast;
+
+import androidx.annotation.Nullable;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+
+import com.google.android.gms.auth.api.phone.SmsRetriever;
+import com.google.android.gms.auth.api.phone.SmsRetrieverClient;
+import com.google.android.gms.common.api.Status;
+import com.google.android.gms.tasks.Task;
 
 import org.commcare.activities.CommCareActivity;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.ConnectDatabaseHelper;
 import org.commcare.connect.ConnectManager;
+import org.commcare.connect.MySMSBroadcastReceiver;
+import org.commcare.connect.SMSListener;
 import org.commcare.connect.network.ApiConnectId;
 import org.commcare.connect.network.ConnectNetworkHelper;
 import org.commcare.connect.network.IApiCallback;
@@ -28,7 +42,11 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Array;
+import java.util.List;
 import java.util.Locale;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Shows the page that prompts the user to enter the OTP they received via SMS
@@ -41,6 +59,7 @@ public class ConnectIdPhoneVerificationActivity extends CommCareActivity<Connect
     public static final int MethodRecoveryPrimary = 2;
     public static final int MethodRecoveryAlternate = 3;
     public static final int MethodVerifyAlternate = 4;
+    public static final int REQ_USER_CONSENT = 200;
 
     private int method;
     private String primaryPhone;
@@ -49,7 +68,7 @@ public class ConnectIdPhoneVerificationActivity extends CommCareActivity<Connect
     private String recoveryPhone;
     private boolean allowChange;
     private ConnectIdPhoneVerificationActivityUiController uiController;
-
+    private MySMSBroadcastReceiver smsBroadcastReceiver;
     private DateTime smsTime = null;
 
     @Override
@@ -57,6 +76,12 @@ public class ConnectIdPhoneVerificationActivity extends CommCareActivity<Connect
         super.onCreate(savedInstanceState);
 
         setTitle(getString(R.string.connect_verify_phone_title));
+
+//        smsBroadcastReceiver = new MySMSBroadcastReceiver("59039465", "Your verification token from commcare");
+        SmsRetrieverClient client = SmsRetriever.getClient(this);// starting the SmsRetriever API
+        client.startSmsUserConsent(null);
+//        Task<Void> task = client.startSmsRetriever();
+
 
         method = Integer.parseInt(getIntent().getStringExtra(ConnectConstants.METHOD));
         primaryPhone = getIntent().getStringExtra(ConnectConstants.PHONE);
@@ -66,12 +91,98 @@ public class ConnectIdPhoneVerificationActivity extends CommCareActivity<Connect
         recoveryPhone = getIntent().getStringExtra(ConnectConstants.CONNECT_KEY_SECONDARY_PHONE);
 
         uiController.setupUI();
+//        SmsRetrieverClient client = SmsRetriever.getClient(this);
+//        Task<Void> task = client.startSmsRetriever();
+
+
+
+
+
+//        task.addOnSuccessListener(aVoid -> {
+//            MySMSBroadcastReceiver.initSMSListener(new SMSListener() {
+//                @Override
+//                public void onSuccess(Intent intent) {
+//                }
+//
+//                @Override
+//                public void onError(String message) {
+//                    if (message != null)
+//                        Log.d("kuttta",message);
+//                }
+//            });
+//        });
+
+//        task.addOnFailureListener(e -> {
+//            e.printStackTrace();
+//        });
+
+//        smsBroadcastReceiver.setListener(new MySMSBroadcastReceiver.Listener() {
+//            @Override
+//            public void onTextReceived(String text) {
+//                Pattern pattern = Pattern.compile("\\b\\d{6}\\b");
+//                Matcher matcher = pattern.matcher(text);
+//                if (matcher.find()) {
+//                    uiController.setCode(matcher.group(0));
+//                }
+//
+//            }
+//        });
 
         updateMessage();
 
         requestSmsCode();
 
         startHandler();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        registerBrodcastReciever();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if(requestCode == REQ_USER_CONSENT){
+            if((resultCode== RESULT_OK) && data != null){
+                String message= data.getStringExtra(SmsRetriever.EXTRA_SMS_MESSAGE);
+                getOtpFromMessage(message);
+
+            }
+        }
+    }
+
+    private void getOtpFromMessage(String message) {
+
+        Pattern otpPattern = Pattern.compile("(|^)\\d{6}");
+        Matcher matcher = otpPattern.matcher(message);
+        if (matcher.find()){
+
+            uiController.setCode(matcher.group(0));
+        }
+
+
+    }
+
+    public void registerBrodcastReciever(){
+        smsBroadcastReceiver = new MySMSBroadcastReceiver();
+
+        smsBroadcastReceiver.smsListener = new SMSListener() {
+            @Override
+            public void onSuccess(Intent intent) {
+                    startActivityForResult(intent,REQ_USER_CONSENT);
+            }
+
+            @Override
+            public void onError(String message) {
+
+            }
+        };
+
+        IntentFilter intentFilter = new IntentFilter(SmsRetriever.SMS_RETRIEVED_ACTION);
+        registerReceiver(smsBroadcastReceiver,intentFilter);
     }
 
     @Override
@@ -83,6 +194,12 @@ public class ConnectIdPhoneVerificationActivity extends CommCareActivity<Connect
         }
 
         uiController.requestInputFocus();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        unregisterReceiver(smsBroadcastReceiver);
     }
 
     @Override
