@@ -89,19 +89,21 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
         ConnectJobRecord job = ConnectManager.getActiveJob();
         boolean show = record != null && !record.getIsLearning() && job != null && !job.isFinished();
 
-        connectProgressTile.setVisibility(show ? View.VISIBLE : View.GONE);
+        if(connectProgressTile != null) {
+            connectProgressTile.setVisibility(show ? View.VISIBLE : View.GONE);
 
-        if(show) {
-            int today = job.numberOfDeliveriesToday();
-            int max = job.getMaxDailyVisits();
+            if (show) {
+                int today = job.numberOfDeliveriesToday();
+                int max = job.getMaxDailyVisits();
 
-            //Configure the progress bar
-            connectProgressBar.setMax(max);
-            connectProgressBar.setProgress(today);
+                //Configure the progress bar
+                connectProgressBar.setMax(max);
+                connectProgressBar.setProgress(today);
 
-            //Configure the text fields
-            connectProgressText.setText(activity.getString(R.string.connect_home_progress_today, today));
-            connectProgressMaxText.setText(String.format(Locale.getDefault(), "%d", max));
+                //Configure the text fields
+                connectProgressText.setText(activity.getString(R.string.connect_home_progress_today, today));
+                connectProgressMaxText.setText(String.format(Locale.getDefault(), "%d", max));
+            }
         }
     }
 
