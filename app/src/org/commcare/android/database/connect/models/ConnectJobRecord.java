@@ -65,6 +65,9 @@ public class ConnectJobRecord extends Persisted implements Serializable {
     public static final String META_PAYMENT_UNIT = "payment_unit";
     public static final String META_MAX_VISITS = "max_visits";
 
+    public static final String META_USER_SUSPENDED = "is_user_suspended";
+
+
     @Persisting(1)
     @MetaField(META_JOB_ID)
     private int jobId;
@@ -132,6 +135,10 @@ public class ConnectJobRecord extends Persisted implements Serializable {
     @MetaField(META_IS_ACTIVE)
     private boolean isActive;
 
+    @Persisting(24)
+    @MetaField(META_USER_SUSPENDED)
+    private boolean isUserSuspended;
+
 
     private List<ConnectJobDeliveryRecord> deliveries;
     private List<ConnectJobPaymentRecord> payments;
@@ -181,6 +188,9 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         job.dateClaimed = new Date();
 
         job.isActive = !json.has(META_IS_ACTIVE) || json.getBoolean(META_IS_ACTIVE);
+
+        job.isUserSuspended = json.has(META_USER_SUSPENDED) && json.getBoolean(META_USER_SUSPENDED);
+
 
         JSONArray unitsJson = json.getJSONArray(META_PAYMENT_UNITS);
         job.paymentUnits = new ArrayList<>();
@@ -362,6 +372,9 @@ public class ConnectJobRecord extends Persisted implements Serializable {
     public Date getDateClaimed() { return dateClaimed; }
     public boolean getIsActive() { return isActive; }
 
+    public boolean setIsUserSuspended(boolean isUserSuspended) { return this.isUserSuspended=isUserSuspended; }
+
+
     public String getMoneyString(int value) {
         String currency = "";
         if(this.currency != null && this.currency.length() > 0) {
@@ -396,6 +409,10 @@ public class ConnectJobRecord extends Persisted implements Serializable {
 
     public boolean isMultiPayment() {
         return paymentUnits.size() > 1;
+    }
+
+    public boolean getIsUserSuspended(){
+        return isUserSuspended;
     }
 
     public Hashtable<String, Integer> getDeliveryCountsPerPaymentUnit(boolean todayOnly) {
@@ -494,6 +511,44 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         newRecord.dateClaimed = new Date();
         newRecord.projectStartDate = new Date();
         newRecord.isActive = true;
+
+        return newRecord;
+    }
+
+    public static ConnectJobRecord fromV5(ConnectJobRecordV5 oldRecord) {
+        ConnectJobRecord newRecord = new ConnectJobRecord();
+
+        newRecord.jobId = oldRecord.getJobId();
+        newRecord.title = oldRecord.getTitle();
+        newRecord.description = oldRecord.getDescription();
+        newRecord.status = oldRecord.getStatus();
+        newRecord.completedVisits = oldRecord.getCompletedVisits();
+        newRecord.maxDailyVisits = oldRecord.getMaxDailyVisits();
+        newRecord.maxVisits = oldRecord.getMaxVisits();
+        newRecord.budgetPerVisit = oldRecord.getBudgetPerVisit();
+        newRecord.totalBudget = oldRecord.getTotalBudget();
+        newRecord.projectEndDate = oldRecord.getProjectEndDate();
+        newRecord.lastWorkedDate = oldRecord.getLastWorkedDate();
+        newRecord.deliveries = new ArrayList<>();
+        newRecord.payments = new ArrayList<>();
+        newRecord.learnings = new ArrayList<>();
+        newRecord.assessments = new ArrayList<>();
+        newRecord.paymentUnits = new ArrayList<>();
+
+        newRecord.organization = oldRecord.getOrganization();
+        newRecord.lastWorkedDate = oldRecord.getLastWorkedDate();
+        newRecord.numLearningModules = oldRecord.getNumLearningModules();
+        newRecord.learningModulesCompleted = oldRecord.getLearningModulesCompleted();
+        newRecord.currency = oldRecord.getCurrency();
+        newRecord.paymentAccrued = Integer.toString(oldRecord.getPaymentAccrued());
+        newRecord.shortDescription = oldRecord.getShortDescription();
+        newRecord.lastUpdate = oldRecord.getLastUpdate();
+        newRecord.lastLearnUpdate = oldRecord.getLastLearnUpdate();
+        newRecord.lastDeliveryUpdate = oldRecord.getLastDeliveryUpdate();
+        newRecord.dateClaimed = new Date();
+        newRecord.projectStartDate = new Date();
+        newRecord.isActive = true;
+        newRecord.isUserSuspended=oldRecord.getIsUserSuspended();
 
         return newRecord;
     }
