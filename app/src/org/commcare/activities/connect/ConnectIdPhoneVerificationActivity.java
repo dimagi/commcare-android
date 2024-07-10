@@ -1,22 +1,17 @@
 package org.commcare.activities.connect;
 
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Handler;
-import android.provider.Telephony;
-import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.google.android.gms.auth.api.phone.SmsRetriever;
 import com.google.android.gms.auth.api.phone.SmsRetrieverClient;
-import com.google.android.gms.common.api.Status;
-import com.google.android.gms.tasks.Task;
+
 
 import org.commcare.activities.CommCareActivity;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
@@ -42,8 +37,6 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.Array;
-import java.util.List;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -77,10 +70,8 @@ public class ConnectIdPhoneVerificationActivity extends CommCareActivity<Connect
 
         setTitle(getString(R.string.connect_verify_phone_title));
 
-//        smsBroadcastReceiver = new MySMSBroadcastReceiver("59039465", "Your verification token from commcare");
         SmsRetrieverClient client = SmsRetriever.getClient(this);// starting the SmsRetriever API
         client.startSmsUserConsent(null);
-//        Task<Void> task = client.startSmsRetriever();
 
 
         method = Integer.parseInt(getIntent().getStringExtra(ConnectConstants.METHOD));
@@ -91,42 +82,6 @@ public class ConnectIdPhoneVerificationActivity extends CommCareActivity<Connect
         recoveryPhone = getIntent().getStringExtra(ConnectConstants.CONNECT_KEY_SECONDARY_PHONE);
 
         uiController.setupUI();
-//        SmsRetrieverClient client = SmsRetriever.getClient(this);
-//        Task<Void> task = client.startSmsRetriever();
-
-
-
-
-
-//        task.addOnSuccessListener(aVoid -> {
-//            MySMSBroadcastReceiver.initSMSListener(new SMSListener() {
-//                @Override
-//                public void onSuccess(Intent intent) {
-//                }
-//
-//                @Override
-//                public void onError(String message) {
-//                    if (message != null)
-//                        Log.d("kuttta",message);
-//                }
-//            });
-//        });
-
-//        task.addOnFailureListener(e -> {
-//            e.printStackTrace();
-//        });
-
-//        smsBroadcastReceiver.setListener(new MySMSBroadcastReceiver.Listener() {
-//            @Override
-//            public void onTextReceived(String text) {
-//                Pattern pattern = Pattern.compile("\\b\\d{6}\\b");
-//                Matcher matcher = pattern.matcher(text);
-//                if (matcher.find()) {
-//                    uiController.setCode(matcher.group(0));
-//                }
-//
-//            }
-//        });
 
         updateMessage();
 
@@ -177,7 +132,7 @@ public class ConnectIdPhoneVerificationActivity extends CommCareActivity<Connect
 
             @Override
             public void onError(String message) {
-
+                showToastMessage(message);
             }
         };
 

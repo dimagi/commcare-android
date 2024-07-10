@@ -1,28 +1,13 @@
 package org.commcare.activities.connect;
 
 import android.app.AlertDialog;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.telephony.SubscriptionInfo;
 import android.telephony.SubscriptionManager;
-import android.util.Log;
 import android.widget.Toast;
-
-
-import androidx.annotation.NonNull;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
-
-import com.google.android.gms.auth.api.phone.SmsRetriever;
-import com.google.android.gms.auth.api.phone.SmsRetrieverClient;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
-
 import org.commcare.activities.CommCareActivity;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.ConnectConstants;
@@ -36,15 +21,12 @@ import org.commcare.interfaces.WithUIController;
 import org.commcare.utils.PhoneNumberHelper;
 import org.commcare.views.dialogs.CustomProgressDialog;
 import org.javarosa.core.services.Logger;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+
 
 /**
  * Shows the page that prompts the user to enter a phone number (during registration or recovery)
@@ -57,11 +39,7 @@ public class ConnectIdPhoneActivity extends CommCareActivity<ConnectIdPhoneActiv
     private String method;
     private String existingPhone;
     private ConnectIdPhoneActivityUiController uiController;
-
-
-
-    private static   final List<String> COUNTRY_CODES = Arrays.asList("+1", "+44", "+91"); // Add more known country codes as needed
-
+    String existing;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,7 +59,7 @@ public class ConnectIdPhoneActivity extends CommCareActivity<ConnectIdPhoneActiv
 
         showPhoneNumberPickerDialog();
 
-        String existing;
+
         if (method.equals(ConnectConstants.METHOD_CHANGE_ALTERNATE)) {
             title = getString(R.string.connect_phone_title_alternate);
             message = getString(R.string.connect_phone_message_alternate);
@@ -113,23 +91,6 @@ public class ConnectIdPhoneActivity extends CommCareActivity<ConnectIdPhoneActiv
         uiController.setCountryCode(codeText);
 
     }
-    public static String removeCountryCode(String phoneNumber) {
-        for (String countryCode : COUNTRY_CODES) {
-            if (phoneNumber.startsWith(countryCode)) {
-                return phoneNumber.substring(countryCode.length());
-            }
-        }
-
-        // Regular expression to match unknown country codes
-        Pattern pattern = Pattern.compile("^\\+\\d+");
-        Matcher matcher = pattern.matcher(phoneNumber);
-
-        if (matcher.find()) {
-            return phoneNumber.substring(matcher.end());
-        }
-
-        return phoneNumber; // If no country code is matched, return the original number
-    }
 
 
     private void showPhoneNumberPickerDialog() {
@@ -138,39 +99,32 @@ public class ConnectIdPhoneActivity extends CommCareActivity<ConnectIdPhoneActiv
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 subscriptionManager = (SubscriptionManager) getSystemService(Context.TELEPHONY_SUBSCRIPTION_SERVICE);
             }
-        }
-        List<SubscriptionInfo> subscriptionInfoList = null;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
+
+            List<SubscriptionInfo> subscriptionInfoList = null;
             subscriptionInfoList = subscriptionManager.getActiveSubscriptionInfoList();
-        }
 
-        if (subscriptionInfoList != null && !subscriptionInfoList.isEmpty()) {
-            ArrayList<String> phoneNumbers = new ArrayList<>();
-            for (SubscriptionInfo subscriptionInfo : subscriptionInfoList) {
-                String phoneNumber = null;
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
-                    phoneNumber = removeCountryCode(subscriptionInfo.getNumber());
-                }
-                if (phoneNumber != null && !phoneNumber.isEmpty()) {
+
+            if (subscriptionInfoList != null && !subscriptionInfoList.isEmpty()) {
+                ArrayList<String> phoneNumbers = new ArrayList<>();
+                for (SubscriptionInfo subscriptionInfo : subscriptionInfoList) {
+                    String phoneNumber = null;
+                    phoneNumber = subscriptionInfo.getNumber();
+
                     phoneNumbers.add(phoneNumber);
+
+                }
+
+                if (!phoneNumbers.isEmpty()) {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                    builder.setTitle("Select Phone Number")
+                            .setItems(phoneNumbers.toArray(new String[0]), (dialog, which) -> {
+                                existing= phoneNumbers.get(which);
+                                // Handle the selected phone number
+                                // e.g., display it or use it for further processing
+                            })
+                            .show();
                 }
             }
-
-            if (!phoneNumbers.isEmpty()) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                builder.setTitle("Select Phone Number")
-                        .setItems(phoneNumbers.toArray(new String[0]), (dialog, which) -> {
-                            String selectedNumber = phoneNumbers.get(which);
-                            uiController.setPhoneNumber(selectedNumber);
-                            // Handle the selected phone number
-                            // e.g., display it or use it for further processing
-                        })
-                        .show();
-            } else {
-                // No phone numbers available
-            }
-        } else {
-            // No active subscription info available
         }
     }
 
