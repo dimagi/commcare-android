@@ -17,6 +17,7 @@ import org.commcare.session.RemoteQuerySessionManager
 import org.commcare.session.RemoteQuerySessionManager.extractMultipleChoices
 import org.commcare.suite.model.QueryPrompt
 import org.commcare.util.DateRangeUtils
+import org.commcare.utils.AndroidXUtils
 import org.commcare.views.ManagedUi
 import org.commcare.views.UiElement
 import org.commcare.views.ViewUtil
@@ -350,7 +351,7 @@ class QueryRequestUiController(
         if (!TextUtils.isEmpty(currentDateRangeText)) {
             try {
                 val humanReadableDate = DateRangeUtils.parseHumanReadableDate(currentDateRangeText)
-                dateRangePickerBuilder.setSelection(toAndroidXPair(humanReadableDate))
+                dateRangePickerBuilder.setSelection(AndroidXUtils.toPair(humanReadableDate!!.first, humanReadableDate.second))
             } catch (e: ParseException) {
                 Logger.exception("Error parsing date range $currentDateRangeText", e)
             }
@@ -365,10 +366,6 @@ class QueryRequestUiController(
             promptEditText.setText(DateRangeUtils.getHumanReadableDateRange(startDate, endDate))
         }
         dateRangePicker.show(queryRequestActivity.supportFragmentManager, DATE_PICKER_FRAGMENT_TAG)
-    }
-
-    private fun toAndroidXPair(pair: org.commcare.modern.util.Pair<Long, Long>): Pair<Long, Long> {
-        return Pair(pair.first, pair.second)
     }
 
     private fun setUpBarCodeScanButton(promptView: View, promptId: String, queryPrompt: QueryPrompt) {
