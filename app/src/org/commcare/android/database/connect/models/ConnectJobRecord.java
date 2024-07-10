@@ -374,6 +374,9 @@ public class ConnectJobRecord extends Persisted implements Serializable {
 
     public boolean setIsUserSuspended(boolean isUserSuspended) { return this.isUserSuspended=isUserSuspended; }
 
+    public boolean getIsUserSuspended(){
+        return isUserSuspended;
+    }
 
     public String getMoneyString(int value) {
         String currency = "";
@@ -411,9 +414,7 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         return paymentUnits.size() > 1;
     }
 
-    public boolean getIsUserSuspended(){
-        return isUserSuspended;
-    }
+
 
     public Hashtable<String, Integer> getDeliveryCountsPerPaymentUnit(boolean todayOnly) {
         Hashtable<String, Integer> paymentCounts = new Hashtable<>();
@@ -515,7 +516,7 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         return newRecord;
     }
 
-    public static ConnectJobRecord fromV5(ConnectJobRecordV5 oldRecord) {
+    public static ConnectJobRecord fromV7(ConnectJobRecordV7 oldRecord) {
         ConnectJobRecord newRecord = new ConnectJobRecord();
 
         newRecord.jobId = oldRecord.getJobId();
@@ -545,10 +546,10 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         newRecord.lastUpdate = oldRecord.getLastUpdate();
         newRecord.lastLearnUpdate = oldRecord.getLastLearnUpdate();
         newRecord.lastDeliveryUpdate = oldRecord.getLastDeliveryUpdate();
-        newRecord.dateClaimed = new Date();
-        newRecord.projectStartDate = new Date();
-        newRecord.isActive = true;
-        newRecord.isUserSuspended=oldRecord.getIsUserSuspended();
+        newRecord.dateClaimed = oldRecord.getDateClaimed();
+        newRecord.projectStartDate = oldRecord.getProjectStartDate();
+        newRecord.isActive = oldRecord.getIsActive();
+        newRecord.isUserSuspended=false;
 
         return newRecord;
     }

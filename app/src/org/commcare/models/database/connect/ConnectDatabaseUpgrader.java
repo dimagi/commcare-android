@@ -14,7 +14,7 @@ import org.commcare.android.database.connect.models.ConnectJobPaymentRecordV3;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecordV2;
 import org.commcare.android.database.connect.models.ConnectJobRecordV4;
-import org.commcare.android.database.connect.models.ConnectJobRecordV5;
+import org.commcare.android.database.connect.models.ConnectJobRecordV7;
 import org.commcare.android.database.connect.models.ConnectLearnModuleSummaryRecord;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecordV3;
@@ -346,7 +346,7 @@ public class ConnectDatabaseUpgrader {
 
             SqlStorage<Persistable> oldStorage = new SqlStorage<>(
                     ConnectJobRecord.STORAGE_KEY,
-                    ConnectJobRecordV5.class,
+                    ConnectJobRecordV7.class,
                     new ConcreteAndroidDbHelper(c, db));
 
             SqlStorage<Persistable> newStorage = new SqlStorage<>(
@@ -355,10 +355,10 @@ public class ConnectDatabaseUpgrader {
                     new ConcreteAndroidDbHelper(c, db));
 
             for (Persistable r : oldStorage) {
-                ConnectJobRecordV5 oldRecord = (ConnectJobRecordV5)r;
-                ConnectJobRecord newRecord = ConnectJobRecord.fromV5(oldRecord);
+                ConnectJobRecordV7 oldRecord = (ConnectJobRecordV7)r;
+                ConnectJobRecord newRecord = ConnectJobRecord.fromV7(oldRecord);
                 //set this new record to have same ID as the old one
-                newRecord.setIsUserSuspended(oldRecord.getIsUserSuspended());
+                newRecord.setID(oldRecord.getID());
                 newStorage.write(newRecord);
             }
 

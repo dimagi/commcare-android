@@ -13,8 +13,8 @@ import java.util.Date;
  *
  * @author dviggiano
  */
-@Table(ConnectJobRecordV5.STORAGE_KEY)
-public class ConnectJobRecordV5 extends Persisted implements Serializable {
+@Table(ConnectJobRecordV7.STORAGE_KEY)
+public class ConnectJobRecordV7 extends Persisted implements Serializable {
     /**
      * Name of database that stores Connect jobs/opportunities
      */
@@ -49,8 +49,9 @@ public class ConnectJobRecordV5 extends Persisted implements Serializable {
     public static final String META_CURRENCY = "currency";
     public static final String META_ACCRUED = "payment_accrued";
     public static final String META_SHORT_DESCRIPTION = "short_description";
+    public static final String META_START_DATE = "start_date";
+    public static final String META_IS_ACTIVE = "is_active";
 
-    public static final String META_USER_SUSPENDED = "is_user_suspended";
 
 
     @Persisting(1)
@@ -115,10 +116,13 @@ public class ConnectJobRecordV5 extends Persisted implements Serializable {
     private Date dateClaimed;
 
     @Persisting(22)
-    @MetaField(META_USER_SUSPENDED)
-    private boolean isUserSuspended;
+    @MetaField(META_START_DATE)
+    private Date projectStartDate;
+    @Persisting(23)
+    @MetaField(META_IS_ACTIVE)
+    private boolean isActive;
 
-    public ConnectJobRecordV5() {
+    public ConnectJobRecordV7() {
 
     }
 
@@ -144,6 +148,11 @@ public class ConnectJobRecordV5 extends Persisted implements Serializable {
     public int getTotalBudget() { return totalBudget; }
     public Date getLastWorkedDate() { return lastWorkedDate; }
     public int getLearningModulesCompleted() { return learningModulesCompleted; }
-    public boolean getIsUserSuspended() { return isUserSuspended;
-    }
+
+    public boolean getIsActive() { return isActive; }
+
+    public Date getProjectStartDate() { return projectStartDate; }
+
+    public Date getDateClaimed() { return dateClaimed; }
+
 }
