@@ -42,7 +42,7 @@ public class DatabaseConnectOpenHelper extends SQLiteOpenHelper {
      * V.6 - Added pin,secondaryPhoneVerified, and registrationDate fields to ConnectUserRecord
      * V.7 - Added ConnectPaymentUnitRecord table
      */
-    private static final int CONNECT_DB_VERSION = 7;
+    private static final int CONNECT_DB_VERSION = 8;
 
     private static final String CONNECT_DB_LOCATOR = "database_connect";
 
