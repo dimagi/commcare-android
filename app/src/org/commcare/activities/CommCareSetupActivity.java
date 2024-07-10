@@ -888,7 +888,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     public void onRequestPermissionsResult(int requestCode,
                                            @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == SMS_PERMISSIONS_REQUEST) {
             for (int i = 0; i < permissions.length; i++) {
                 if (Manifest.permission.READ_SMS.equals(permissions[i]) &&
