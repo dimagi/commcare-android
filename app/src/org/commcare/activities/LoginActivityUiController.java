@@ -553,7 +553,7 @@ public class LoginActivityUiController implements CommCareActivityUIController {
 
         /**
          * included these lines because when a user changes the language from the system settings while in the app,
-         * the strings don't translate correctly when they return to the app. That's why I added this code.
+         * the strings should be translate correctly when they return to the app. That's why I added this code.
          */
         connectLoginButton.setText(activity.getString(R.string.connect_button_logged_in));
 
