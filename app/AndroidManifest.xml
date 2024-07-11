@@ -103,6 +103,7 @@
         <package android:name="org.commcare.dalvik.reminders" />
         <package android:name="callout.commcare.org.sendussd" />
         <package android:name="org.commcare.dalvik.abha" />
+        <package android:name="com.dimagi.biometric" />
     </queries>
 
     <application
