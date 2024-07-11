@@ -550,6 +550,11 @@ public class LoginActivityUiController implements CommCareActivityUIController {
             text = Localization.get("login.button");
         }
         loginButton.setText(text);
+
+        /**
+         * included these lines because when a user changes the language from the system settings while in the app,
+         * the strings don't translate correctly when they return to the app. That's why I added this code.
+         */
         connectLoginButton.setText(activity.getString(R.string.connect_button_logged_in));
 
         passwordOrPin.setBackgroundColor(getResources().getColor(useConnectId ? R.color.grey_light : R.color.white));
