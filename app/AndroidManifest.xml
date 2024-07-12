@@ -123,7 +123,7 @@
             android:name="com.google.firebase.messaging.default_notification_channel_id"
             android:value="@string/fcm_default_notification_channel" />
 
-        <receiver android:name="org.commcare.connect.MySMSBroadcastReceiver"
+        <receiver android:name="org.commcare.connect.SMSBroadcastReceiver"
             android:exported="true"
             android:permission="com.google.android.gms.auth.api.phone.permission.SEND">
         <intent-filter>

@@ -37,9 +37,9 @@ public class ConnectIdPhoneActivity extends CommCareActivity<ConnectIdPhoneActiv
         implements WithUIController {
 
     private String method;
-    private String existingPhone;
+    private String alternatePhoneNumber;
     private ConnectIdPhoneActivityUiController uiController;
-    String existing;
+    String primaryPhoneNumber;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,7 +51,7 @@ public class ConnectIdPhoneActivity extends CommCareActivity<ConnectIdPhoneActiv
 
         method = getIntent().getStringExtra(ConnectConstants.METHOD);
         //Special case for initial reg. screen. Remembering phone number before account has been created
-        existingPhone = getIntent().getStringExtra(ConnectConstants.PHONE);
+        alternatePhoneNumber = getIntent().getStringExtra(ConnectConstants.PHONE);
 
         ConnectUserRecord user = ConnectManager.getUser(this);
         String title = getString(R.string.connect_phone_title_primary);
@@ -64,17 +64,21 @@ public class ConnectIdPhoneActivity extends CommCareActivity<ConnectIdPhoneActiv
             title = getString(R.string.connect_phone_title_alternate);
             message = getString(R.string.connect_phone_message_alternate);
 
-            existing = user != null ? user.getAlternatePhone() : null;
+            primaryPhoneNumber = user != null ? user.getAlternatePhone() : null;
         } else {
-            existing = user != null ? user.getPrimaryPhone() : existingPhone;
+            primaryPhoneNumber = user != null ? user.getPrimaryPhone() : alternatePhoneNumber;
         }
 
         uiController.setTitle(title);
         uiController.setMessage(message);
+        setPhoneNumber();
 
+    }
+
+    void setPhoneNumber(){
         int code = PhoneNumberHelper.getCountryCode(this);
-        if (existing != null && existing.length() > 0) {
-            code = PhoneNumberHelper.getCountryCode(this, existing);
+        if (primaryPhoneNumber != null && primaryPhoneNumber.length() > 0) {
+            code = PhoneNumberHelper.getCountryCode(this, primaryPhoneNumber);
         }
 
 
@@ -83,42 +87,36 @@ public class ConnectIdPhoneActivity extends CommCareActivity<ConnectIdPhoneActiv
             codeText = String.format(Locale.getDefault(), "%d", code);
         }
 
-        if (existing != null && existing.startsWith("+" + codeText)) {
-            existing = existing.substring(codeText.length() + 1);
+        if (primaryPhoneNumber != null && primaryPhoneNumber.startsWith("+" + codeText)) {
+            primaryPhoneNumber = primaryPhoneNumber.substring(codeText.length() + 1);
         }
 
-        uiController.setPhoneNumber(existing);
+        uiController.setPhoneNumber(primaryPhoneNumber);
         uiController.setCountryCode(codeText);
-
     }
 
 
     private void showPhoneNumberPickerDialog() {
         SubscriptionManager subscriptionManager = null;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 subscriptionManager = (SubscriptionManager) getSystemService(Context.TELEPHONY_SUBSCRIPTION_SERVICE);
-            }
 
-            List<SubscriptionInfo> subscriptionInfoList = null;
-            subscriptionInfoList = subscriptionManager.getActiveSubscriptionInfoList();
+                List<SubscriptionInfo> subscriptionInfoList = subscriptionManager.getActiveSubscriptionInfoList();
 
 
             if (subscriptionInfoList != null && !subscriptionInfoList.isEmpty()) {
                 ArrayList<String> phoneNumbers = new ArrayList<>();
                 for (SubscriptionInfo subscriptionInfo : subscriptionInfoList) {
-                    String phoneNumber = null;
-                    phoneNumber = subscriptionInfo.getNumber();
-
+                    String phoneNumber = subscriptionInfo.getNumber();
                     phoneNumbers.add(phoneNumber);
-
                 }
 
                 if (!phoneNumbers.isEmpty()) {
                     AlertDialog.Builder builder = new AlertDialog.Builder(this);
                     builder.setTitle("Select Phone Number")
                             .setItems(phoneNumbers.toArray(new String[0]), (dialog, which) -> {
-                                existing= phoneNumbers.get(which);
+                                primaryPhoneNumber = phoneNumbers.get(which);
+                                setPhoneNumber();
                                 // Handle the selected phone number
                                 // e.g., display it or use it for further processing
                             })
@@ -171,7 +169,7 @@ public class ConnectIdPhoneActivity extends CommCareActivity<ConnectIdPhoneActiv
         String phone = PhoneNumberHelper.buildPhoneNumber(uiController.getCountryCode(),
                 uiController.getPhoneNumber());
         ConnectUserRecord user = ConnectManager.getUser(this);
-        String existing = user != null ? user.getPrimaryPhone() : existingPhone;
+        String existing = user != null ? user.getPrimaryPhone() : alternatePhoneNumber;
         if (method.equals(ConnectConstants.METHOD_CHANGE_ALTERNATE)) {
             existing = user != null ? user.getAlternatePhone() : null;
         }
@@ -225,7 +223,7 @@ public class ConnectIdPhoneActivity extends CommCareActivity<ConnectIdPhoneActiv
         ConnectUserRecord user = ConnectManager.getUser(this);
 
         if (valid) {
-            String existingPrimary = user != null ? user.getPrimaryPhone() : existingPhone;
+            String existingPrimary = user != null ? user.getPrimaryPhone() : alternatePhoneNumber;
             String existingAlternate = user != null ? user.getAlternatePhone() : null;
             switch (method) {
                 case ConnectConstants.METHOD_REGISTER_PRIMARY,

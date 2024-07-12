@@ -15,7 +15,7 @@ import com.google.android.gms.common.api.Status;
  * in the AndroidManifest or at runtime.  Should filter Intents on
  * SmsRetriever.SMS_RETRIEVED_ACTION.
  */
-public class MySMSBroadcastReceiver extends BroadcastReceiver {
+public class SMSBroadcastReceiver extends BroadcastReceiver {
     public  SMSListener smsListener;
 
     @Override
@@ -28,21 +28,12 @@ public class MySMSBroadcastReceiver extends BroadcastReceiver {
             }
 
             if (status != null) {
-                switch (status.getStatusCode()) {
-                    case CommonStatusCodes.SUCCESS:
-                        // Get SMS message contents
-                        Intent messageIntent=extras.getParcelable(SmsRetriever.EXTRA_CONSENT_INTENT);
-                        // Extract one-time code from the message and complete verification
-                        // by sending the code back to your server.
-                        if (smsListener != null)
-                            smsListener.onSuccess(messageIntent);
-                        break;
-                    case CommonStatusCodes.TIMEOUT:
-                        // Waiting for SMS timed out (5 minutes)
-                        // Handle the error ...
-                        if (smsListener != null)
-                            smsListener.onError("Failed to read the otp from message");
-                        break;
+                if (status.getStatusCode() == CommonStatusCodes.SUCCESS) {// Get SMS message contents
+                    Intent messageIntent = extras.getParcelable(SmsRetriever.EXTRA_CONSENT_INTENT);
+                    // Extract one-time code from the message and complete verification
+                    // by sending the code back to your server.
+                    if (smsListener != null)
+                        smsListener.onSuccess(messageIntent);
                 }
             }
         }

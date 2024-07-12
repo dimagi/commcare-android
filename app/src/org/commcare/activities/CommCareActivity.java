@@ -980,10 +980,6 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
         Toast.makeText(this, getLocalizedString(stringResource), Toast.LENGTH_LONG).show();
     }
 
-    protected void showToastMessage(String stringResource) {
-        Toast.makeText(this, stringResource, Toast.LENGTH_LONG).show();
-    }
-
     protected String getLocalizedString(int stringResource) {
         return StringUtils.getStringRobust(this, stringResource);
     }

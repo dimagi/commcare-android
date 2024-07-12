@@ -18,7 +18,7 @@ import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.ConnectDatabaseHelper;
 import org.commcare.connect.ConnectManager;
-import org.commcare.connect.MySMSBroadcastReceiver;
+import org.commcare.connect.SMSBroadcastReceiver;
 import org.commcare.connect.SMSListener;
 import org.commcare.connect.network.ApiConnectId;
 import org.commcare.connect.network.ConnectNetworkHelper;
@@ -61,7 +61,7 @@ public class ConnectIdPhoneVerificationActivity extends CommCareActivity<Connect
     private String recoveryPhone;
     private boolean allowChange;
     private ConnectIdPhoneVerificationActivityUiController uiController;
-    private MySMSBroadcastReceiver smsBroadcastReceiver;
+    private SMSBroadcastReceiver smsBroadcastReceiver;
     private DateTime smsTime = null;
 
     @Override
@@ -99,13 +99,10 @@ public class ConnectIdPhoneVerificationActivity extends CommCareActivity<Connect
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
-        if(requestCode == REQ_USER_CONSENT){
-            if((resultCode== RESULT_OK) && data != null){
+            if(requestCode == REQ_USER_CONSENT && (resultCode== RESULT_OK) && data != null){
                 String message= data.getStringExtra(SmsRetriever.EXTRA_SMS_MESSAGE);
                 getOtpFromMessage(message);
 
-            }
         }
     }
 
@@ -122,7 +119,7 @@ public class ConnectIdPhoneVerificationActivity extends CommCareActivity<Connect
     }
 
     public void registerBrodcastReciever(){
-        smsBroadcastReceiver = new MySMSBroadcastReceiver();
+        smsBroadcastReceiver = new SMSBroadcastReceiver();
 
         smsBroadcastReceiver.smsListener = new SMSListener() {
             @Override
@@ -130,10 +127,6 @@ public class ConnectIdPhoneVerificationActivity extends CommCareActivity<Connect
                     startActivityForResult(intent,REQ_USER_CONSENT);
             }
 
-            @Override
-            public void onError(String message) {
-                showToastMessage(message);
-            }
         };
 
         IntentFilter intentFilter = new IntentFilter(SmsRetriever.SMS_RETRIEVED_ACTION);
