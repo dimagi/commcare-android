@@ -48,12 +48,12 @@ public class CommCareFirebaseMessagingService extends FirebaseMessagingService {
     */
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
-        Logger.log(LogTypes.TYPE_FCM, "Message received: " + remoteMessage.getMessageId());
+        Logger.log(LogTypes.TYPE_FCM, "CommCareFirebaseMessagingService Message received: " + remoteMessage.getData());
         Map<String, String> payloadData = remoteMessage.getData();
         RemoteMessage.Notification payloadNotification = remoteMessage.getNotification();
 
         if (payloadNotification != null) {
-            showNotification(payloadNotification);
+            showNotification(payloadNotification,payloadData);
         }
 
         // Check if the message contains a data object, there is no further action if not
@@ -83,11 +83,12 @@ public class CommCareFirebaseMessagingService extends FirebaseMessagingService {
     * When the app is in the background, FCM is responsible for notifying the user
     *
     */
-    private void showNotification(RemoteMessage.Notification notification) {
+    private void showNotification(RemoteMessage.Notification notification, Map<String, String> payloadData) {
         String notificationTitle = notification.getTitle();
         String notificationText = notification.getBody();
         NotificationManager mNM = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 
+        Logger.log(LogTypes.TYPE_FCM, "CommCareFirebaseMessagingService Payload data: " + payloadData);
         Intent i = new Intent(this, DispatchActivity.class);
         i.setAction(Intent.ACTION_MAIN);
         i.addCategory(Intent.CATEGORY_LAUNCHER);
