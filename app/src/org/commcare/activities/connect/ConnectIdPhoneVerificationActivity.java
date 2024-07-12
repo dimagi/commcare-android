@@ -7,11 +7,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.widget.Toast;
 
-import androidx.annotation.Nullable;
-
 import com.google.android.gms.auth.api.phone.SmsRetriever;
 import com.google.android.gms.auth.api.phone.SmsRetrieverClient;
-
 
 import org.commcare.activities.CommCareActivity;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
@@ -40,6 +37,8 @@ import java.io.InputStream;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import androidx.annotation.Nullable;
 
 /**
  * Shows the page that prompts the user to enter the OTP they received via SMS

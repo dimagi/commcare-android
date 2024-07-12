@@ -5,10 +5,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
-import androidx.biometric.BiometricManager;
-import androidx.biometric.BiometricPrompt;
-
 import org.commcare.activities.CommCareActivity;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.ConnectManager;
@@ -19,6 +15,10 @@ import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.WithUIController;
 import org.commcare.utils.BiometricsHelper;
 import org.javarosa.core.services.Logger;
+
+import androidx.annotation.NonNull;
+import androidx.biometric.BiometricManager;
+import androidx.biometric.BiometricPrompt;
 
 /**
  * Gets the user to unlock ConnectID via screen unlock (fingerprint, PIN, pattern...)
