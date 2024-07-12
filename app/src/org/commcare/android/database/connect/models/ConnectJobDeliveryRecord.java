@@ -74,7 +74,7 @@ public class ConnectJobDeliveryRecord extends Persisted implements Serializable 
         delivery.lastUpdate = new Date();
 
         delivery.deliveryId = json.has(META_ID) ? json.getInt(META_ID) : -1;
-        delivery.date = json.has(META_DATE) ? ConnectNetworkHelper.convertUTCToLocal(json.getString(META_DATE)): new Date();
+        delivery.date = json.has(META_DATE) ? ConnectNetworkHelper.convertUTCToDate(json.getString(META_DATE)): new Date();
         delivery.status = json.has(META_STATUS) ? json.getString(META_STATUS) : "";
         delivery.unitName = json.has(META_UNIT_NAME) ? json.getString(META_UNIT_NAME) : "";
         delivery.slug = json.has(META_SLUG) ? json.getString(META_SLUG) : "";
@@ -87,7 +87,7 @@ public class ConnectJobDeliveryRecord extends Persisted implements Serializable 
     }
 
     public int getDeliveryId() { return deliveryId; }
-    public Date getDate() { return date; }
+    public Date getDate() { return ConnectNetworkHelper.convertDateToLocal(date); }
     public String getStatus() { return status; }
     public String getEntityName() { return entityName; }
     public void setLastUpdate(Date lastUpdate) { this.lastUpdate = lastUpdate; }

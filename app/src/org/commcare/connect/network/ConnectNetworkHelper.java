@@ -113,6 +113,35 @@ public class ConnectNetworkHelper {
         return date;
     }
 
+    public static Date convertUTCToDate(String utcDateString) {
+        SimpleDateFormat utcFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault());
+        utcFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+
+        Date date = null;
+        try {
+            date = utcFormat.parse(utcDateString);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        return date;
+    }
+
+    public static Date convertDateToLocal(Date utcDate) {
+        SimpleDateFormat localFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault());
+        localFormat.setTimeZone(TimeZone.getDefault());
+
+        Date date = null;
+        try {
+            String localDateString = localFormat.format(utcDate);
+            date = localFormat.parse(localDateString);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        return date;
+    }
+
     public static String getCallInProgress() {
         return getInstance().callInProgress;
     }

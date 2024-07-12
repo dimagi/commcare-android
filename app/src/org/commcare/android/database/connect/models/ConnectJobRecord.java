@@ -405,17 +405,9 @@ public class ConnectJobRecord extends Persisted implements Serializable {
             ConnectJobDeliveryRecord delivery = deliveries.get(i);
             int oldCount = 0;
             boolean isSameDay=sameDay(new Date(),delivery.getDate());
-//            if(todayOnly){
                 if(paymentCounts.containsKey(delivery.getSlug()) && (isSameDay && todayOnly)) {
                     oldCount = paymentCounts.get(delivery.getSlug());
                 }
-//            }else{
-//                if(paymentCounts.containsKey(delivery.getSlug()) ) {
-//                    oldCount = paymentCounts.get(delivery.getSlug());
-//                }
-//            }
-
-
             paymentCounts.put(delivery.getSlug(), oldCount + 1);
         }
 
