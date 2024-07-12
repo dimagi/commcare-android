@@ -105,11 +105,12 @@ public class HomeNavDrawerController {
     private void determineDrawerItemsToInclude() {
         boolean hideSavedFormsItem = !HiddenPreferences.isSavedFormsEnabled();
         boolean hideChangeLanguageItem = ChangeLocaleUtil.getLocaleNames().length <= 1;
+        boolean hideTrainingItem = !CommCareApplication.instance().getCurrentApp().hasVisibleTrainingContent();
         int numItemsToInclude = allDrawerItems.size()
                 - (hideChangeLanguageItem ? 1 : 0)
                 - (hideSavedFormsItem ? 1 : 0)
+                - (hideTrainingItem ? 1 : 0)
                 - (activity.showCommCareUpdateMenu ? 0 : 1);
-        boolean hideTrainingItem = !CommCareApplication.instance().getCurrentApp().hasVisibleTrainingContent();
 
         drawerItemsShowing = new NavDrawerItem[numItemsToInclude];
         int index = 0;
