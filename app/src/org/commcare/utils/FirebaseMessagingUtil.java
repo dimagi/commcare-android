@@ -11,6 +11,7 @@ import com.google.firebase.messaging.FirebaseMessaging;
 import org.commcare.CommCareApplication;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.services.FCMMessageData;
+import org.commcare.util.LogTypes;
 import org.javarosa.core.services.Logger;
 
 public class FirebaseMessagingUtil {
