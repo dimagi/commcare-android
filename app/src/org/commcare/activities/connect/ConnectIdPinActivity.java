@@ -10,7 +10,6 @@ import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.ConnectDatabaseHelper;
 import org.commcare.connect.ConnectManager;
-import org.commcare.connect.ConnectTask;
 import org.commcare.connect.network.ApiConnectId;
 import org.commcare.connect.network.ConnectNetworkHelper;
 import org.commcare.connect.network.IApiCallback;
@@ -19,7 +18,6 @@ import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.WithUIController;
-import org.commcare.views.ResizingTextView;
 import org.commcare.views.dialogs.CustomProgressDialog;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.services.Logger;
@@ -50,7 +48,6 @@ public class ConnectIdPinActivity extends CommCareActivity<ConnectIdPinActivity>
     private boolean isChanging; //Else verifying
 
     private static final int MaxFailures = 3;
-    private int failureCount = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -156,7 +153,7 @@ public class ConnectIdPinActivity extends CommCareActivity<ConnectIdPinActivity>
                         public void processSuccess(int responseCode, InputStream responseData) {
                             user.setPin(pin);
                             ConnectDatabaseHelper.storeUser(context, user);
-
+                            ConnectManager.setFailureAttempt(0);
                             finish(true, false, pin);
                         }
 
@@ -186,6 +183,7 @@ public class ConnectIdPinActivity extends CommCareActivity<ConnectIdPinActivity>
                             try {
                                 String responseAsString = new String(
                                         StreamsUtil.inputStreamToByteArray(responseData));
+                                ConnectManager.setFailureAttempt(0);
                                 if (responseAsString.length() > 0) {
                                     JSONObject json = new JSONObject(responseAsString);
 
@@ -292,7 +290,7 @@ public class ConnectIdPinActivity extends CommCareActivity<ConnectIdPinActivity>
         ConnectManager.setFailureAttempt(ConnectManager.getFailureAttempt()+1);
         logRecoveryResult(false);
         uiController.clearPin();
-        finish(false,ConnectManager.getFailureAttempt()>=MaxFailures,"0000000");
+        finish(false,ConnectManager.getFailureAttempt()>=MaxFailures,null);
 
     }
 
