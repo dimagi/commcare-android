@@ -1,6 +1,7 @@
 package org.commcare;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.ActivityManager;
 import android.content.ComponentName;
 import android.content.Context;
@@ -9,6 +10,7 @@ import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.Environment;
 import android.os.IBinder;
 import android.os.Looper;
@@ -275,9 +277,8 @@ public class CommCareApplication extends MultiDexApplication {
     }
 
     @Override
-    public void onConfigurationChanged(Configuration newConfig) {
+    public void onConfigurationChanged(@NonNull Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
-        LocalePreferences.saveDeviceLocale(newConfig.locale);
     }
 
     private void initNotifications() {
@@ -345,7 +346,7 @@ public class CommCareApplication extends MultiDexApplication {
         int memoryClass = am.getMemoryClass();
 
         PerformanceTuningUtil.updateMaxPrefetchCaseBlock(
-                PerformanceTuningUtil.guessLargestSupportedBulkCaseFetchSizeFromHeap(memoryClass * 1024 * 1024));
+                PerformanceTuningUtil.guessLargestSupportedBulkCaseFetchSizeFromHeap((long) memoryClass * 1024 * 1024));
     }
 
     public void startUserSession(byte[] symmetricKey, UserKeyRecord record, boolean restoreSession) {
@@ -476,7 +477,7 @@ public class CommCareApplication extends MultiDexApplication {
 
     @NonNull
     public String getPhoneId() {
-        /**
+        /*
          * https://source.android.com/devices/tech/config/device-identifiers
          * https://issuetracker.google.com/issues/129583175#comment10
          * Starting from Android 10, apps cannot access non-resettable device ids unless they have special career permission.
@@ -520,7 +521,7 @@ public class CommCareApplication extends MultiDexApplication {
     private void initializeAnAppOnStartup() {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         String lastAppId = prefs.getString(LoginActivity.KEY_LAST_APP, "");
-        if (!"".equals(lastAppId)) {
+        if (!lastAppId.isEmpty()) {
             ApplicationRecord lastApp = MultipleAppsUtil.getAppById(lastAppId);
             if (lastApp == null || !lastApp.isUsable()) {
                 AppUtils.initFirstUsableAppRecord();
@@ -551,7 +552,7 @@ public class CommCareApplication extends MultiDexApplication {
         } catch (Exception e) {
             Log.i("FAILURE", "Problem with loading");
             Log.i("FAILURE", "E: " + e.getMessage());
-            e.printStackTrace();
+//            e.printStackTrace();
             ForceCloseLogger.reportExceptionInBg(e);
             CrashUtil.reportException(e);
             resourceState = STATE_CORRUPTED;
