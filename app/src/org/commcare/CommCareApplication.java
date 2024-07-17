@@ -1,7 +1,6 @@
 package org.commcare;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.app.ActivityManager;
 import android.content.ComponentName;
 import android.content.Context;
@@ -10,7 +9,6 @@ import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Build;
-import android.os.Bundle;
 import android.os.Environment;
 import android.os.IBinder;
 import android.os.Looper;
@@ -37,14 +35,15 @@ import net.sqlcipher.database.SQLiteDatabase;
 import net.sqlcipher.database.SQLiteException;
 
 import org.commcare.activities.LoginActivity;
-import org.commcare.connect.ConnectManager;
 import org.commcare.android.database.app.models.UserKeyRecord;
+import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.javarosa.AndroidLogEntry;
 import org.commcare.android.logging.ForceCloseLogEntry;
 import org.commcare.android.logging.ForceCloseLogger;
 import org.commcare.android.logging.ReportingUtils;
+import org.commcare.connect.ConnectManager;
 import org.commcare.core.graph.util.GraphUtil;
 import org.commcare.core.interfaces.HttpResponseProcessor;
 import org.commcare.core.network.AuthInfo;
@@ -262,7 +261,7 @@ public class CommCareApplication extends MultiDexApplication {
         //Create standard provider
         setEncryptionKeyProvider(new EncryptionKeyProvider());
 
-		customiseOkHttp();
+        customiseOkHttp();
 
         setRxJavaGlobalHandler();
     }
@@ -302,11 +301,11 @@ public class CommCareApplication extends MultiDexApplication {
         }
     }
 
-    public void setBackgroundSyncSafe(boolean backgroundSyncSafe){
+    public void setBackgroundSyncSafe(boolean backgroundSyncSafe) {
         this.backgroundSyncSafe = backgroundSyncSafe;
     }
 
-    public boolean isBackgroundSyncSafe(){
+    public boolean isBackgroundSyncSafe() {
         return this.backgroundSyncSafe;
     }
 
@@ -347,7 +346,7 @@ public class CommCareApplication extends MultiDexApplication {
         // md5 hasher. Major speed improvements.
         AndroidClassHasher.registerAndroidClassHashStrategy();
 
-        ActivityManager am = (ActivityManager)getSystemService(ACTIVITY_SERVICE);
+        ActivityManager am = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
         int memoryClass = am.getMemoryClass();
 
         PerformanceTuningUtil.updateMaxPrefetchCaseBlock(
@@ -429,8 +428,13 @@ public class CommCareApplication extends MultiDexApplication {
         analyticsInstance.setUserId(getUserIdOrNull());
 
         ConnectUserRecord user = ConnectManager.getUser(this);
-        if(user != null) {
+        if (user != null) {
             analyticsInstance.setUserProperty("user_cid", user.getUserId());
+        }
+
+        ConnectJobRecord activeJob = ConnectManager.getActiveJob();
+        if (activeJob != null) {
+            analyticsInstance.setUserProperty("ccc_job_id", String.valueOf(activeJob.getJobId()));
         }
         return analyticsInstance;
     }
@@ -743,7 +747,7 @@ public class CommCareApplication extends MultiDexApplication {
                 synchronized (serviceLock) {
                     mCurrentServiceBindTimeout = MAX_BIND_TIMEOUT;
 
-                    mBoundService = ((CommCareSessionService.LocalBinder)service).getService();
+                    mBoundService = ((CommCareSessionService.LocalBinder) service).getService();
                     mBoundService.showLoggedInNotification(null);
 
                     // Don't let anyone touch this until it's logged in
