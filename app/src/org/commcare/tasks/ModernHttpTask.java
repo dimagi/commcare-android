@@ -2,7 +2,6 @@ package org.commcare.tasks;
 
 import android.content.Context;
 
-import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 
 import org.commcare.CommCareApplication;
@@ -29,8 +28,7 @@ import retrofit2.Response;
  * @author Phillip Mates (pmates@dimagi.com)
  */
 public class ModernHttpTask
-        extends CommCareTask<Void, Void, Void, HttpResponseProcessor>
-        implements ResponseStreamAccessor {
+        extends CommCareTask<Void, Void, Void, HttpResponseProcessor> {
 
     public static final int SIMPLE_HTTP_TASK_ID = 11;
 
@@ -62,7 +60,7 @@ public class ModernHttpTask
                 method,
                 authInfo,
                 null,
-                method.equals(HTTPMethod.GET) ? true : false);
+                method.equals(HTTPMethod.GET));
     }
 
     @Override
@@ -90,7 +88,17 @@ public class ModernHttpTask
             ModernHttpRequester.processResponse(
                     httpResponseProcessor,
                     mResponse.code(),
-                    this);
+                    new ResponseStreamAccessor() {
+                        @Override
+                        public InputStream getResponseStream() {
+                            return responseDataStream;
+                        }
+
+                        @Override
+                        public String getApiVersion() {
+                            return requester.getApiVersion();
+                        }
+                    });
         }
     }
 
@@ -102,15 +110,5 @@ public class ModernHttpTask
     @Override
     protected void deliverError(HttpResponseProcessor httpResponseProcessor,
                                 Exception e) {
-    }
-
-    @Override
-    public InputStream getResponseStream() {
-        return responseDataStream;
-    }
-
-    @Override
-    public String getApiVersion() {
-        return requester.getApiVersion();
     }
 }
