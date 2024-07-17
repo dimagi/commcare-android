@@ -93,6 +93,8 @@ public enum ConnectTask {
 
     CONNECT_RECOVERY_WRONG_PIN(ConnectConstants.ConnectIdTaskIdOffset + 38,
             ConnectIdMessageActivity.class),
+    CONNECT_REGISTRATION_WRONG_PIN(ConnectConstants.ConnectIdTaskIdOffset + 39,
+            ConnectIdMessageActivity.class),
     ;
 
     private final int requestCode;

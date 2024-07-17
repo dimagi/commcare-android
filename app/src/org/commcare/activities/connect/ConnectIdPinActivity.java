@@ -114,6 +114,7 @@ public class ConnectIdPinActivity extends CommCareActivity<ConnectIdPinActivity>
 
         intent.putExtra(ConnectConstants.PIN, pin);
         intent.putExtra(ConnectConstants.WRONG_PIN, forgot);
+        intent.putExtra(ConnectConstants.FORGOT, forgot);
 
         setResult(success ? RESULT_OK : RESULT_CANCELED, intent);
         finish();
