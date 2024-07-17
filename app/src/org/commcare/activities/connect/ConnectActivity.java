@@ -91,14 +91,10 @@ public class ConnectActivity extends CommCareActivity<ResourceEngineListener> {
                     .build();
             navController.navigate(fragmentId, bundle, options);
         } else {
-            Toast.makeText(this, "redirectionAction -> "+redirectionAction, Toast.LENGTH_LONG).show();
             if (redirectionAction != null) {
                 ConnectManager.unlockConnect(this, success -> {
                     if (success) {
-                        Toast.makeText(this, "If", Toast.LENGTH_LONG).show();
                         getJobDetails();
-                    } else {
-                        Toast.makeText(this, "Else", Toast.LENGTH_LONG).show();
                     }
                 });
             }

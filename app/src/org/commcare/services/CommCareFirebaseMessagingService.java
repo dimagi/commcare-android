@@ -53,16 +53,18 @@ public class CommCareFirebaseMessagingService extends FirebaseMessagingService {
     public void onMessageReceived(RemoteMessage remoteMessage) {
         Logger.log(LogTypes.TYPE_FCM, "CommCareFirebaseMessagingService Message received: " + remoteMessage.getData());
         Map<String, String> payloadData = remoteMessage.getData();
-        RemoteMessage.Notification payloadNotification = remoteMessage.getNotification();
+//        RemoteMessage.Notification payloadNotification = remoteMessage.getNotification();
 
-        if (payloadNotification != null) {
-            showNotification(payloadNotification, payloadData);
-        }
+//        if (payloadNotification != null) {
+//            showNotification(payloadNotification, payloadData);
+//        }
 
         // Check if the message contains a data object, there is no further action if not
-        if (payloadData.size() == 0) {
+        if (payloadData.isEmpty()) {
             return;
         }
+
+        showNotification(payloadData);
 
         FCMMessageData fcmMessageData = new FCMMessageData(payloadData);
 
@@ -84,15 +86,15 @@ public class CommCareFirebaseMessagingService extends FirebaseMessagingService {
      * This method purpose is to show notifications to the user when the app is in the foreground.
      * When the app is in the background, FCM is responsible for notifying the user
      */
-    private void showNotification(RemoteMessage.Notification notification, Map<String, String> payloadData) {
-        String notificationTitle = notification.getTitle();
-        String notificationText = notification.getBody();
+    private void showNotification(Map<String, String> payloadData) {
+        String notificationTitle = payloadData.get("title");
+        String notificationText = payloadData.get("body");
         NotificationManager mNM = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 
         Intent intent;
 
         if (payloadData.containsKey("action")) {
-            intent = new Intent(this, ConnectActivity.class);
+            intent = new Intent(getApplicationContext(), ConnectActivity.class);
             intent.putExtra("action", payloadData.get("action"));
             intent.putExtra("opportunity_id", payloadData.get("opportunity_id"));
         } else {
@@ -106,10 +108,15 @@ public class CommCareFirebaseMessagingService extends FirebaseMessagingService {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             contentIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_ONE_SHOT);
         } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            contentIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_ONE_SHOT);
+            contentIntent = PendingIntent.getActivity(this, 0, intent,  PendingIntent.FLAG_ONE_SHOT);
         } else {
             contentIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_ONE_SHOT);
         }
+
+      /*  TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
+        stackBuilder.addNextIntentWithParentStack(intent);
+        contentIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);*/
+
         NotificationCompat.Builder fcmNotification = new NotificationCompat.Builder(this,
                 CommCareNoficationManager.NOTIFICATION_CHANNEL_PUSH_NOTIFICATIONS_ID)
                 .setContentTitle(notificationTitle)

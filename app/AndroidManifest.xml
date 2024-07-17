@@ -38,6 +38,7 @@
     <uses-permission android:name="android.permission.NEARBY_WIFI_DEVICES"
         android:usesPermissionFlags="neverForLocation"/>
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
 
     <uses-feature
         android:name="android.hardware.telephony"
@@ -170,9 +171,16 @@
         <activity android:name="org.commcare.activities.connect.ConnectIdPhoneVerificationActivity"/>
         <activity android:name="org.commcare.activities.connect.ConnectIdMessageActivity"/>
         <activity android:name="org.commcare.activities.connect.ConnectIdPinActivity"/>
-        <activity android:name="org.commcare.activities.connect.ConnectActivity" android:exported="true">
+        <activity
+            android:name="org.commcare.activities.connect.ConnectActivity"
+            android:launchMode="singleTask"
+            android:label="@string/application_name"
+            android:windowSoftInputMode="adjustResize"
+            android:exported="true" >
             <intent-filter>
-                <category android:name="android.intent.category.LAUNCHER" />
+                <action android:name="org.commcare.dalvik.action.CommCareSession"/>
+
+                <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </activity>
         <activity android:name="org.commcare.activities.AppSelectActivity"/>
