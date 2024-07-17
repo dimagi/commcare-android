@@ -186,7 +186,7 @@ public class ConnectIdWorkflows {
             case CONNECT_RECOVERY_WRONG_PIN-> {
                 //Show message screen indicating wrong pin
                 params.put(ConnectConstants.TITLE, R.string.connect_pin_fail_title);
-                params.put(ConnectConstants.MESSAGE, R.string.connect_pin_recovery_message);
+                params.put(ConnectConstants.MESSAGE, R.string.connect_pin_fail_message);
                 params.put(ConnectConstants.BUTTON, R.string.connect_recovery_alt_button);
             }
             case CONNECT_RECOVERY_VERIFY_ALT_PHONE -> {
@@ -412,11 +412,13 @@ public class ConnectIdWorkflows {
                         nextRequestCode = ConnectTask.CONNECT_RECOVERY_SUCCESS;
                     }
                 }else{
-                    forgotPin = intent.getBooleanExtra(ConnectConstants.WRONG_PIN, false);
-                    if(!forgotPin) {
-                        nextRequestCode = ConnectTask.CONNECT_RECOVERY_WRONG_PIN;
-                    }else{
-                        nextRequestCode=ConnectTask.CONNECT_RECOVERY_ALT_PHONE_MESSAGE;
+                    if(intent!=null) {
+                        forgotPin = intent.getBooleanExtra(ConnectConstants.WRONG_PIN, false);
+                        if (!forgotPin) {
+                            nextRequestCode = ConnectTask.CONNECT_RECOVERY_WRONG_PIN;
+                        } else {
+                            nextRequestCode = ConnectTask.CONNECT_RECOVERY_ALT_PHONE_MESSAGE;
+                        }
                     }
                 }
             }
