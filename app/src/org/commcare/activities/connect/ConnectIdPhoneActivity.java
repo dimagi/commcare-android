@@ -76,7 +76,7 @@ public class ConnectIdPhoneActivity extends CommCareActivity<ConnectIdPhoneActiv
 
     }
 
-    void displayNumber(String fullNumber){
+    void displayNumber(String fullNumber) {
         int code = PhoneNumberHelper.getCountryCode(this);
         if (fullNumber != null && fullNumber.length() > 0) {
             code = PhoneNumberHelper.getCountryCode(this, fullNumber);
@@ -97,11 +97,10 @@ public class ConnectIdPhoneActivity extends CommCareActivity<ConnectIdPhoneActiv
 
 
     private void showPhoneNumberPickerDialog() {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                SubscriptionManager  subscriptionManager = (SubscriptionManager) getSystemService(Context.TELEPHONY_SUBSCRIPTION_SERVICE);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            SubscriptionManager subscriptionManager = (SubscriptionManager)getSystemService(Context.TELEPHONY_SUBSCRIPTION_SERVICE);
 
-                List<SubscriptionInfo> subscriptionInfoList = subscriptionManager.getActiveSubscriptionInfoList();
-
+            List<SubscriptionInfo> subscriptionInfoList = subscriptionManager.getActiveSubscriptionInfoList();
 
             if (subscriptionInfoList != null && !subscriptionInfoList.isEmpty()) {
                 ArrayList<String> phoneNumbers = new ArrayList<>();
