@@ -1,7 +1,5 @@
 package org.commcare.activities;
 
-import android.annotation.TargetApi;
-import android.os.Build;
 import android.os.Bundle;
 import android.widget.ListView;
 
@@ -222,6 +220,8 @@ public class HomeNavDrawerController {
                 return R.drawable.ic_logout_nav_drawer;
             case TRAINING_DRAWER_ITEM_ID:
                 return R.drawable.ic_training_nav_drawer;
+            case UPDATE_CC_DRAWER_ITEM_ID:
+                return R.drawable.ic_cc_update;
         }
         return -1;
     }
