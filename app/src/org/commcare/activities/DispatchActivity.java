@@ -84,7 +84,6 @@ public class DispatchActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Logger.log(LogTypes.TYPE_FCM, "CommCareFirebaseMessagingService onCreate: ");
         if (finishIfNotRoot()) {
             return;
         }
