@@ -792,4 +792,5 @@
     <string name="phone_code_plus">+</string>
     <string name="audio_recording_notification">Audio Recording Notification</string>
     <string name="connect_home_progress_today">Today\'s Visits: %d</string>
+    <string name="select_phone_number">Select Phone Number</string>
 </resources>

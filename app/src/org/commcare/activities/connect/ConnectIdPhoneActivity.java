@@ -1,7 +1,12 @@
 package org.commcare.activities.connect;
 
+import android.app.AlertDialog;
+import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
+import android.telephony.SubscriptionInfo;
+import android.telephony.SubscriptionManager;
 import android.widget.Toast;
 
 import org.commcare.activities.CommCareActivity;
@@ -20,7 +25,10 @@ import org.javarosa.core.services.Logger;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
+
 
 /**
  * Shows the page that prompts the user to enter a phone number (during registration or recovery)
@@ -37,7 +45,7 @@ public class ConnectIdPhoneActivity extends CommCareActivity<ConnectIdPhoneActiv
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        String existing;
         setTitle(getString(R.string.connect_phone_page_title));
 
         uiController.setupUI();
@@ -49,7 +57,10 @@ public class ConnectIdPhoneActivity extends CommCareActivity<ConnectIdPhoneActiv
         ConnectUserRecord user = ConnectManager.getUser(this);
         String title = getString(R.string.connect_phone_title_primary);
         String message = getString(R.string.connect_phone_message_primary);
-        String existing;
+
+        showPhoneNumberPickerDialog();
+
+
         if (method.equals(ConnectConstants.METHOD_CHANGE_ALTERNATE)) {
             title = getString(R.string.connect_phone_title_alternate);
             message = getString(R.string.connect_phone_message_alternate);
@@ -61,10 +72,14 @@ public class ConnectIdPhoneActivity extends CommCareActivity<ConnectIdPhoneActiv
 
         uiController.setTitle(title);
         uiController.setMessage(message);
+        displayNumber(existing);
 
+    }
+
+    void displayNumber(String fullNumber) {
         int code = PhoneNumberHelper.getCountryCode(this);
-        if (existing != null && existing.length() > 0) {
-            code = PhoneNumberHelper.getCountryCode(this, existing);
+        if (fullNumber != null && fullNumber.length() > 0) {
+            code = PhoneNumberHelper.getCountryCode(this, fullNumber);
         }
 
         String codeText = "";
@@ -72,13 +87,38 @@ public class ConnectIdPhoneActivity extends CommCareActivity<ConnectIdPhoneActiv
             codeText = String.format(Locale.getDefault(), "%d", code);
         }
 
-        if (existing != null && existing.startsWith("+" + codeText)) {
-            existing = existing.substring(codeText.length() + 1);
+        if (fullNumber != null && fullNumber.startsWith("+" + codeText)) {
+            fullNumber = fullNumber.substring(codeText.length() + 1);
         }
 
-        uiController.setPhoneNumber(existing);
+        uiController.setPhoneNumber(fullNumber);
         uiController.setCountryCode(codeText);
     }
+
+
+    private void showPhoneNumberPickerDialog() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            SubscriptionManager subscriptionManager = (SubscriptionManager)getSystemService(Context.TELEPHONY_SUBSCRIPTION_SERVICE);
+
+            List<SubscriptionInfo> subscriptionInfoList = subscriptionManager.getActiveSubscriptionInfoList();
+
+            if (subscriptionInfoList != null && !subscriptionInfoList.isEmpty()) {
+                ArrayList<String> phoneNumbers = new ArrayList<>();
+                for (SubscriptionInfo subscriptionInfo : subscriptionInfoList) {
+                    String phoneNumber = subscriptionInfo.getNumber();
+                    phoneNumbers.add(phoneNumber);
+                }
+
+                if (!phoneNumbers.isEmpty()) {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                    builder.setTitle(R.string.select_phone_number)
+                            .setItems(phoneNumbers.toArray(new String[0]), (dialog, which) -> displayNumber(phoneNumbers.get(which)))
+                            .show();
+                }
+            }
+        }
+    }
+
 
     @Override
     public void onResume() {
