@@ -3,7 +3,6 @@ package org.commcare.activities.connect;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -92,6 +91,7 @@ public class ConnectActivity extends CommCareActivity<ResourceEngineListener> {
             navController.navigate(fragmentId, bundle, options);
         } else {
             if (redirectionAction != null) {
+                ConnectManager.init(this);
                 ConnectManager.unlockConnect(this, success -> {
                     if (success) {
                         getJobDetails();
@@ -101,7 +101,14 @@ public class ConnectActivity extends CommCareActivity<ResourceEngineListener> {
         }
     }
 
-    // Function for
+    /**
+     * Returns the fragment ID based on the redirection action.
+     * <p>
+     * This method determines which fragment should be displayed based on the value of the redirectionAction.
+     * It maps specific actions to their corresponding fragment IDs.
+     *
+     * @return The ID of the fragment to be displayed.
+     */
     private int getFragmentId() {
         int fragmentId;
         if (redirectionAction.equals("ccc_opportunity_summary_page")) {
@@ -109,7 +116,7 @@ public class ConnectActivity extends CommCareActivity<ResourceEngineListener> {
         } else if (redirectionAction.equals("ccc_learn_progress")) {
             fragmentId = R.id.connect_job_learning_progress_fragment;
         } else {
-            fragmentId = R.id.connect_job_delivery_progress_fragment; // ccc_delivery_progress , ccc_payments
+            fragmentId = R.id.connect_job_delivery_progress_fragment;
         }
         return fragmentId;
     }
@@ -117,16 +124,27 @@ public class ConnectActivity extends CommCareActivity<ResourceEngineListener> {
     private void getIntentData() {
         redirectionAction = getIntent().getStringExtra("action");
         opportunityId = getIntent().getStringExtra("opportunity_id");
-        Logger.log(LogTypes.TYPE_FCM, "CommCareFirebaseMessagingService Payload data3: " + redirectionAction);
-        Logger.log(LogTypes.TYPE_FCM, "CommCareFirebaseMessagingService Payload data4: " + opportunityId);
     }
 
+    /**
+     * Sets the fragment redirection based on the redirection action.
+     * <p>
+     * This method determines the fragment to be displayed using the getFragmentId() method,
+     * prepares a bundle with additional data, and navigates to the appropriate fragment.
+     */
     private void setFragmentRedirection() {
         int fragmentId = getFragmentId();
 
         boolean buttons = getIntent().getBooleanExtra("buttons", true);
         Bundle bundle = new Bundle();
         bundle.putBoolean("showLaunch", buttons);
+
+        // Set the tab position in the bundle based on the redirection action
+        if (redirectionAction.equals("ccc_delivery_progress")) {
+            bundle.putString("tabPosition", "0");
+        } else if (redirectionAction.equals("ccc_payments")) {
+            bundle.putString("tabPosition", "1");
+        }
 
         NavOptions options = new NavOptions.Builder()
                 .setPopUpTo(navController.getGraph().getStartDestinationId(), true)

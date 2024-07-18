@@ -53,11 +53,10 @@ public class CommCareFirebaseMessagingService extends FirebaseMessagingService {
     public void onMessageReceived(RemoteMessage remoteMessage) {
         Logger.log(LogTypes.TYPE_FCM, "CommCareFirebaseMessagingService Message received: " + remoteMessage.getData());
         Map<String, String> payloadData = remoteMessage.getData();
-//        RemoteMessage.Notification payloadNotification = remoteMessage.getNotification();
-
-//        if (payloadNotification != null) {
-//            showNotification(payloadNotification, payloadData);
-//        }
+//      RemoteMessage.Notification payloadNotification = remoteMessage.getNotification();
+//      if (payloadNotification != null) {
+//          showNotification(payloadNotification, payloadData);
+//      }
 
         // Check if the message contains a data object, there is no further action if not
         if (payloadData.isEmpty()) {
@@ -112,10 +111,6 @@ public class CommCareFirebaseMessagingService extends FirebaseMessagingService {
         } else {
             contentIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_ONE_SHOT);
         }
-
-      /*  TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
-        stackBuilder.addNextIntentWithParentStack(intent);
-        contentIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);*/
 
         NotificationCompat.Builder fcmNotification = new NotificationCompat.Builder(this,
                 CommCareNoficationManager.NOTIFICATION_CHANNEL_PUSH_NOTIFICATIONS_ID)
