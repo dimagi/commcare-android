@@ -248,7 +248,6 @@ public class ConnectActivity extends CommCareActivity<ResourceEngineListener> {
                         //Parse the JSON
                         JSONArray json = new JSONArray(responseAsString);
                         List<ConnectJobRecord> jobs = new ArrayList<>(json.length());
-                        ConnectDatabaseHelper.storeJobs(ConnectActivity.this, jobs, true);
                         for (int i = 0; i < json.length(); i++) {
                             JSONObject obj = (JSONObject) json.get(i);
                             ConnectJobRecord job = ConnectJobRecord.fromJson(obj);
@@ -257,6 +256,7 @@ public class ConnectActivity extends CommCareActivity<ResourceEngineListener> {
                                 ConnectManager.setActiveJob(job);
                             }
                         }
+                        ConnectDatabaseHelper.storeJobs(ConnectActivity.this, jobs, true);
                         setFragmentRedirection(true);
                     }
                 } catch (IOException | JSONException | ParseException e) {
