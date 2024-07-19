@@ -84,6 +84,14 @@ public class ConnectManager {
     private static final String CONNECT_HEARTBEAT_REQUEST_NAME = "connect_hearbeat_periodic_request";
     private static final int APP_DOWNLOAD_TASK_ID = 4;
 
+    public static int getFailureAttempt() {
+        return ConnectManager.getInstance().failedPinAttempts;
+    }
+
+    public static void setFailureAttempt(int failureAttempt) {
+        ConnectManager.getInstance().failedPinAttempts = failureAttempt;
+    }
+
     /**
      * Enum representing the current state of ConnectID
      */
@@ -295,12 +303,14 @@ public class ConnectManager {
         return job;
     }
 
-    private static ConnectJobRecord activeJob = null;
+    private ConnectJobRecord activeJob = null;
+    private int failedPinAttempts = 0;
+
     public static void setActiveJob(ConnectJobRecord job) {
-        activeJob = job;
+        ConnectManager.getInstance().activeJob = job;
     }
     public static ConnectJobRecord getActiveJob() {
-        return activeJob;
+        return  ConnectManager.getInstance().activeJob;
     }
 
     public static void unlockConnect(CommCareActivity<?> parent, ConnectActivityCompleteListener listener) {

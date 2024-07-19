@@ -28,6 +28,7 @@ public class ConnectConstants {
     public static final String ENROLL_FAIL = "ENROLL_FAIL";
     public static final String CHANGE = "CHANGE";
     public static final String FORGOT = "FORGOT";
+    public static final String WRONG_PIN = "WRONG_PIN";
     public static final String ALLOW_PASSWORD = "ALLOW_PASSWORD";
 
     public static final String METHOD_REGISTER_PRIMARY = "REGISTER_PRIMARY";

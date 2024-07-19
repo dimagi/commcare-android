@@ -28,18 +28,11 @@ import retrofit2.Response;
  * @author Phillip Mates (pmates@dimagi.com)
  */
 public class ModernHttpTask
-        extends CommCareTask<Void, Void, Void, HttpResponseProcessor>
-        implements ResponseStreamAccessor {
+        extends CommCareTask<Void, Void, Void, HttpResponseProcessor> {
 
     public static final int SIMPLE_HTTP_TASK_ID = 11;
 
-    private final Context context;
-    private final String url;
-    private final Multimap<String, String> params;
-    private final HashMap<String, String> headers;
-    private final RequestBody requestBody;
-    private final HTTPMethod method;
-    private final AuthInfo authInfo;
+    private final ModernHttpRequester requester;
     private InputStream responseDataStream;
     private IOException mException;
     private Response<ResponseBody> mResponse;
@@ -57,31 +50,22 @@ public class ModernHttpTask
             HTTPMethod method,
             AuthInfo authInfo) {
         taskId = SIMPLE_HTTP_TASK_ID;
-
-        this.context = context;
-        this.url = url;
-        this.params = params;
-        this.headers = headers;
-        this.requestBody = requestBody;
-        this.method = method;
-        this.authInfo = authInfo;
+        requester = CommCareApplication.instance().buildHttpRequester(
+                context,
+                url,
+                params,
+                headers,
+                requestBody,
+                null,
+                method,
+                authInfo,
+                null,
+                method.equals(HTTPMethod.GET));
     }
 
     @Override
     protected Void doTaskBackground(Void... params) {
         try {
-            ModernHttpRequester requester = CommCareApplication.instance().buildHttpRequester(
-                    context,
-                    url,
-                    this.params,
-                    headers,
-                    requestBody,
-                    null,
-                    method,
-                    authInfo,
-                    null,
-                    method.equals(HTTPMethod.GET));
-
             mResponse = requester.makeRequest();
             if (mResponse.isSuccessful()) {
                 responseDataStream = requester.getResponseStream(mResponse);
@@ -89,6 +73,7 @@ public class ModernHttpTask
         } catch (IOException e) {
             mException = e;
         }
+
         return null;
     }
 
@@ -103,7 +88,17 @@ public class ModernHttpTask
             ModernHttpRequester.processResponse(
                     httpResponseProcessor,
                     mResponse.code(),
-                    this);
+                    new ResponseStreamAccessor() {
+                        @Override
+                        public InputStream getResponseStream() {
+                            return responseDataStream;
+                        }
+
+                        @Override
+                        public String getApiVersion() {
+                            return requester.getApiVersion();
+                        }
+                    });
         }
     }
 
@@ -115,10 +110,5 @@ public class ModernHttpTask
     @Override
     protected void deliverError(HttpResponseProcessor httpResponseProcessor,
                                 Exception e) {
-    }
-
-    @Override
-    public InputStream getResponseStream() {
-        return responseDataStream;
     }
 }
