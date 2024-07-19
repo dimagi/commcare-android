@@ -559,7 +559,8 @@
 
     <string name="connect_pin_fail_title">Wrong PIN</string>
     <string name="connect_pin_fail_message">You entered the wrong PIN, please try again.</string>
-    <string name="connect_pin_recovery_message">You entered the wrong PIN too many times, you will need to recover your account.</string>
+    <string name="connect_pin_recovery_message">You entered the wrong PIN too many times, you will need to recover your account.\n On the next screen, we\'ll send a code via SMS to the alternate phone number associated with your account.</string>
+    <string name="connect_pin_confirm_message">You entered the wrong PIN too many times, you will have to configure the pin again.\n On the next screen, we\'ll redirect you to the configure pin page.</string>
     <string name="connect_pin_verify_forgot">Don\'t have or forgot your PIN?</string>
     <string name="connect_pin_fail_button">OK</string>
 
