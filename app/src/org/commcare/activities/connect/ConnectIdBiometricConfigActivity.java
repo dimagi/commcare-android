@@ -3,8 +3,6 @@ package org.commcare.activities.connect;
 import android.content.Intent;
 import android.os.Bundle;
 
-import androidx.biometric.BiometricManager;
-
 import org.commcare.activities.CommCareActivity;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.dalvik.R;
@@ -12,6 +10,8 @@ import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.WithUIController;
 import org.commcare.utils.BiometricsHelper;
 import org.commcare.views.dialogs.CustomProgressDialog;
+
+import androidx.biometric.BiometricManager;
 
 /**
  * Shows the page for configuring biometrics (fingerprint and/or PIN)

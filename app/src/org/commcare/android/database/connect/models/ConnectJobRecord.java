@@ -351,13 +351,27 @@ public class ConnectJobRecord extends Persisted implements Serializable {
     }
 
     public int getAssessmentScore() {
-        int maxScore = 0;
-        if(assessments != null) {
-            for(ConnectJobAssessmentRecord record : assessments) {
-                maxScore  = Math.max(maxScore, record.getScore());
+        int mostRecentFailingScore = 0;
+        int firstPassingScore = -1;
+
+        if (assessments != null) {
+            for (ConnectJobAssessmentRecord record : assessments) {
+                int score = record.getScore();
+                if (score >= record.getPassingScore()) {
+                    if (firstPassingScore == -1) {
+                        firstPassingScore = score;
+                    }
+                } else {
+                    mostRecentFailingScore = score;
+                }
             }
         }
-        return maxScore;
+
+        if (firstPassingScore != -1) {
+            return firstPassingScore;
+        } else {
+            return mostRecentFailingScore;
+        }
     }
 
     public Date getLastUpdate() { return lastUpdate; }
@@ -420,12 +434,14 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         Hashtable<String, Integer> paymentCounts = new Hashtable<>();
         for(int i = 0; i < deliveries.size(); i++) {
             ConnectJobDeliveryRecord delivery = deliveries.get(i);
-            int oldCount = 0;
-            if(paymentCounts.containsKey(delivery.getSlug())) {
-                oldCount = paymentCounts.get(delivery.getSlug());
-            }
+            if(!todayOnly || sameDay(new Date(), delivery.getDate())) {
+                int oldCount = 0;
+                if (paymentCounts.containsKey(delivery.getSlug())) {
+                    oldCount = paymentCounts.get(delivery.getSlug());
+                }
 
-            paymentCounts.put(delivery.getSlug(), oldCount + 1);
+                paymentCounts.put(delivery.getSlug(), oldCount + 1);
+            }
         }
 
         return paymentCounts;

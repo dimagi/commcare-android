@@ -8,17 +8,6 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.google.android.material.tabs.TabLayout;
-
-import org.commcare.connect.ConnectManager;
-import org.commcare.connect.network.ConnectNetworkHelper;
-import org.commcare.android.database.connect.models.ConnectJobPaymentRecord;
-import org.commcare.android.database.connect.models.ConnectJobRecord;
-import org.commcare.dalvik.R;
-import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
-
-import java.util.Date;
-
 import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
@@ -26,6 +15,17 @@ import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.Lifecycle;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.viewpager2.widget.ViewPager2;
+
+import com.google.android.material.tabs.TabLayout;
+
+import org.commcare.android.database.connect.models.ConnectJobPaymentRecord;
+import org.commcare.android.database.connect.models.ConnectJobRecord;
+import org.commcare.connect.ConnectManager;
+import org.commcare.connect.network.ConnectNetworkHelper;
+import org.commcare.dalvik.R;
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
+
+import java.util.Date;
 
 /**
  * Fragment for showing delivery progress for a Connect job
@@ -41,6 +41,8 @@ public class ConnectDeliveryProgressFragment extends Fragment {
     private ConnectJobPaymentRecord paymentToConfirm = null;
     private boolean showLearningLaunch = true;
     private boolean showDeliveryLaunch = true;
+    private String tabPosition = "";
+    boolean isTabChange = false;
 
     public ConnectDeliveryProgressFragment() {
         // Required empty public constructor
@@ -64,9 +66,10 @@ public class ConnectDeliveryProgressFragment extends Fragment {
         ConnectJobRecord job = ConnectManager.getActiveJob();
         getActivity().setTitle(job.getTitle());
 
-        if(getArguments() != null) {
+        if (getArguments() != null) {
             showLearningLaunch = getArguments().getBoolean("showLaunch", true);
             showDeliveryLaunch = getArguments().getBoolean("showLaunch", true);
+            tabPosition = getArguments().getString("tabPosition", "0");
         }
 
         View view = inflater.inflate(R.layout.fragment_connect_delivery_progress, container, false);
@@ -91,7 +94,7 @@ public class ConnectDeliveryProgressFragment extends Fragment {
             //Dismiss the tile
             updatePaymentConfirmationTile(getContext(), true);
 
-            if(payment != null) {
+            if (payment != null) {
                 FirebaseAnalyticsUtil.reportCccPaymentConfirmationInteraction(true);
 
                 ConnectManager.updatePaymentConfirmed(getContext(), payment, true, success -> {
@@ -109,13 +112,27 @@ public class ConnectDeliveryProgressFragment extends Fragment {
         tabLayout.addTab(tabLayout.newTab().setText(R.string.connect_progress_delivery));
         tabLayout.addTab(tabLayout.newTab().setText(R.string.connect_progress_delivery_verification));
 
+        if (tabPosition.equals("1")) {
+            TabLayout.Tab tab = tabLayout.getTabAt(Integer.parseInt(tabPosition));
+            if (tab != null) {
+                isTabChange = true;
+                tabLayout.selectTab(tab);
+            }
+        }
+
         pager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
             @Override
             public void onPageSelected(int position) {
-                TabLayout.Tab tab = tabLayout.getTabAt(position);
-                tabLayout.selectTab(tab);
+                // This flag is used to handle cases when a tab is set programmatically,
+                // ensuring that onPageSelection does not set the default tab in such scenarios.
+                if (!isTabChange) {
+                    TabLayout.Tab tab = tabLayout.getTabAt(position);
+                    tabLayout.selectTab(tab);
 
-                FirebaseAnalyticsUtil.reportConnectTabChange(tab.getText().toString());
+                    FirebaseAnalyticsUtil.reportConnectTabChange(tab.getText().toString());
+                } else {
+                    isTabChange = false;
+                }
             }
         });
 
@@ -145,7 +162,7 @@ public class ConnectDeliveryProgressFragment extends Fragment {
     public void onResume() {
         super.onResume();
 
-        if(ConnectManager.isUnlocked()) {
+        if (ConnectManager.isUnlocked()) {
             refreshData();
         }
     }
@@ -153,13 +170,12 @@ public class ConnectDeliveryProgressFragment extends Fragment {
     public void refreshData() {
         ConnectJobRecord job = ConnectManager.getActiveJob();
         ConnectManager.updateDeliveryProgress(getContext(), job, success -> {
-            if(success) {
+            if (success) {
                 try {
                     updateUpdatedDate(new Date());
                     updatePaymentConfirmationTile(getContext(), false);
                     viewStateAdapter.refresh();
-                }
-                catch(Exception e) {
+                } catch (Exception e) {
                     //Ignore exception, happens if we leave the page before API call finishes
                 }
             }
@@ -169,10 +185,10 @@ public class ConnectDeliveryProgressFragment extends Fragment {
     private void updatePaymentConfirmationTile(Context context, boolean forceHide) {
         ConnectJobRecord job = ConnectManager.getActiveJob();
         paymentToConfirm = null;
-        if(!forceHide) {
+        if (!forceHide) {
             //Look for at least one payment that needs to be confirmed
             for (ConnectJobPaymentRecord payment : job.getPayments()) {
-                if(payment.allowConfirm()) {
+                if (payment.allowConfirm()) {
                     paymentToConfirm = payment;
                     break;
                 }
@@ -181,13 +197,13 @@ public class ConnectDeliveryProgressFragment extends Fragment {
 
         //NOTE: Checking for network connectivity here
         boolean show = paymentToConfirm != null;
-        if(show) {
+        if (show) {
             show = ConnectNetworkHelper.isOnline(context);
             FirebaseAnalyticsUtil.reportCccPaymentConfirmationOnlineCheck(show);
         }
 
         paymentAlertTile.setVisibility(show ? View.VISIBLE : View.GONE);
-        if(show) {
+        if (show) {
             String date = ConnectManager.formatDate(paymentToConfirm.getDate());
             paymentAlertText.setText(getString(R.string.connect_payment_confirm_text, paymentToConfirm.getAmount(), job.getCurrency(), date));
 
@@ -204,6 +220,7 @@ public class ConnectDeliveryProgressFragment extends Fragment {
         private static ConnectResultsSummaryListFragment verificationFragment = null;
         private final boolean showLearningLaunch;
         private final boolean showDeliveryLaunch;
+
         public ViewStateAdapter(@NonNull FragmentManager fragmentManager, @NonNull Lifecycle lifecycle, boolean showLearningLaunch, boolean showDeliveryLaunch) {
             super(fragmentManager, lifecycle);
             this.showLearningLaunch = showLearningLaunch;
@@ -228,11 +245,11 @@ public class ConnectDeliveryProgressFragment extends Fragment {
         }
 
         public void refresh() {
-            if(deliveryFragment != null) {
+            if (deliveryFragment != null) {
                 deliveryFragment.updateView();
             }
 
-            if(verificationFragment != null) {
+            if (verificationFragment != null) {
                 verificationFragment.updateView();
             }
         }
