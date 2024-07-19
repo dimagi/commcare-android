@@ -466,7 +466,7 @@ public class ConnectIdWorkflows {
             }
             case CONNECT_RECOVERY_CHANGE_PIN -> {
                 nextRequestCode = success ? ConnectTask.CONNECT_RECOVERY_SUCCESS :
-                        ConnectTask.CONNECT_RECOVERY_VERIFY_PRIMARY_PHONE;
+                        ConnectTask.CONNECT_RECOVERY_VERIFY_ALT_PHONE;
                 if (success) {
                     //Update pin
                     forgotPin = false;

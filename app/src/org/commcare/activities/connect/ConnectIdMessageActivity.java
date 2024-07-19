@@ -5,7 +5,6 @@ import android.os.Bundle;
 
 import org.commcare.activities.CommCareActivity;
 import org.commcare.connect.ConnectConstants;
-import org.commcare.connect.ConnectManager;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.WithUIController;
 
