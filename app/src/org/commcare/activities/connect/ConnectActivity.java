@@ -3,10 +3,20 @@ package org.commcare.activities.connect;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.widget.Toast;
+
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.appcompat.app.ActionBar;
+import androidx.fragment.app.Fragment;
+import androidx.navigation.NavController;
+import androidx.navigation.NavOptions;
+import androidx.navigation.fragment.NavHostFragment;
 
 import org.commcare.activities.CommCareActivity;
 import org.commcare.activities.CommCareVerificationActivity;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
+import org.commcare.connect.ConnectDatabaseHelper;
 import org.commcare.connect.ConnectManager;
 import org.commcare.connect.network.ApiConnect;
 import org.commcare.connect.network.ConnectNetworkHelper;
@@ -15,7 +25,6 @@ import org.commcare.dalvik.R;
 import org.commcare.fragments.connect.ConnectDownloadingFragment;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.tasks.ResourceEngineListener;
-import org.commcare.util.LogTypes;
 import org.commcare.views.dialogs.CustomProgressDialog;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.services.Logger;
@@ -32,20 +41,16 @@ import java.util.Locale;
 
 import javax.annotation.Nullable;
 
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.appcompat.app.ActionBar;
-import androidx.fragment.app.Fragment;
-import androidx.navigation.NavController;
-import androidx.navigation.NavOptions;
-import androidx.navigation.fragment.NavHostFragment;
-
 public class ConnectActivity extends CommCareActivity<ResourceEngineListener> {
     private boolean backButtonEnabled = true;
     private boolean waitDialogEnabled = true;
     String redirectionAction = "";
     String opportunityId = "";
     NavController navController;
+    private static final String CCC_OPPORTUNITY_SUMMARY_PAGE = "ccc_opportunity_summary_page";
+    private static final String CCC_LEARN_PROGRESS = "ccc_learn_progress";
+    private static final String CCC_DELIVERY_PROGRESS = "ccc_delivery_progress";
+    private static final String CCC_PAYMENTS = "ccc_payments";
 
     NavController.OnDestinationChangedListener destinationListener = null;
 
@@ -89,15 +94,13 @@ public class ConnectActivity extends CommCareActivity<ResourceEngineListener> {
                     .setPopUpTo(navController.getGraph().getStartDestinationId(), true)
                     .build();
             navController.navigate(fragmentId, bundle, options);
-        } else {
-            if (redirectionAction != null) {
-                ConnectManager.init(this);
-                ConnectManager.unlockConnect(this, success -> {
-                    if (success) {
-                        getJobDetails();
-                    }
-                });
-            }
+        } else if (redirectionAction != null) {
+            ConnectManager.init(this);
+            ConnectManager.unlockConnect(this, success -> {
+                if (success) {
+                    getJobDetails();
+                }
+            });
         }
     }
 
@@ -111,9 +114,9 @@ public class ConnectActivity extends CommCareActivity<ResourceEngineListener> {
      */
     private int getFragmentId() {
         int fragmentId;
-        if (redirectionAction.equals("ccc_opportunity_summary_page")) {
+        if (redirectionAction.equals(CCC_OPPORTUNITY_SUMMARY_PAGE)) {
             fragmentId = R.id.connect_job_intro_fragment;
-        } else if (redirectionAction.equals("ccc_learn_progress")) {
+        } else if (redirectionAction.equals(CCC_LEARN_PROGRESS)) {
             fragmentId = R.id.connect_job_learning_progress_fragment;
         } else {
             fragmentId = R.id.connect_job_delivery_progress_fragment;
@@ -132,24 +135,26 @@ public class ConnectActivity extends CommCareActivity<ResourceEngineListener> {
      * This method determines the fragment to be displayed using the getFragmentId() method,
      * prepares a bundle with additional data, and navigates to the appropriate fragment.
      */
-    private void setFragmentRedirection() {
-        int fragmentId = getFragmentId();
+    private void setFragmentRedirection(boolean ApiSuccess) {
+        if (ApiSuccess) {
+            int fragmentId = getFragmentId();
 
-        boolean buttons = getIntent().getBooleanExtra("buttons", true);
-        Bundle bundle = new Bundle();
-        bundle.putBoolean("showLaunch", buttons);
+            boolean buttons = getIntent().getBooleanExtra("buttons", true);
+            Bundle bundle = new Bundle();
+            bundle.putBoolean("showLaunch", buttons);
 
-        // Set the tab position in the bundle based on the redirection action
-        if (redirectionAction.equals("ccc_delivery_progress")) {
-            bundle.putString("tabPosition", "0");
-        } else if (redirectionAction.equals("ccc_payments")) {
-            bundle.putString("tabPosition", "1");
+            // Set the tab position in the bundle based on the redirection action
+            if (redirectionAction.equals(CCC_DELIVERY_PROGRESS)) {
+                bundle.putString("tabPosition", "0");
+            } else if (redirectionAction.equals(CCC_PAYMENTS)) {
+                bundle.putString("tabPosition", "1");
+            }
+
+            NavOptions options = new NavOptions.Builder()
+                    .setPopUpTo(navController.getGraph().getStartDestinationId(), true)
+                    .build();
+            navController.navigate(fragmentId, bundle, options);
         }
-
-        NavOptions options = new NavOptions.Builder()
-                .setPopUpTo(navController.getGraph().getStartDestinationId(), true)
-                .build();
-        navController.navigate(fragmentId, bundle, options);
     }
 
     @Override
@@ -243,6 +248,7 @@ public class ConnectActivity extends CommCareActivity<ResourceEngineListener> {
                         //Parse the JSON
                         JSONArray json = new JSONArray(responseAsString);
                         List<ConnectJobRecord> jobs = new ArrayList<>(json.length());
+                        ConnectDatabaseHelper.storeJobs(ConnectActivity.this, jobs, true);
                         for (int i = 0; i < json.length(); i++) {
                             JSONObject obj = (JSONObject) json.get(i);
                             ConnectJobRecord job = ConnectJobRecord.fromJson(obj);
@@ -251,26 +257,33 @@ public class ConnectActivity extends CommCareActivity<ResourceEngineListener> {
                                 ConnectManager.setActiveJob(job);
                             }
                         }
-
-                        setFragmentRedirection();
+                        setFragmentRedirection(true);
                     }
                 } catch (IOException | JSONException | ParseException e) {
+                    setFragmentRedirection(false);
+                    Toast.makeText(ConnectActivity.this, R.string.connect_job_list_api_failure, Toast.LENGTH_SHORT).show();
                     Logger.exception("Parsing return from Opportunities request", e);
                 }
             }
 
             @Override
             public void processFailure(int responseCode, IOException e) {
+                setFragmentRedirection(false);
+                Toast.makeText(ConnectActivity.this, R.string.connect_job_list_api_failure, Toast.LENGTH_SHORT).show();
                 Logger.log("ERROR", String.format(Locale.getDefault(), "Opportunities call failed: %d", responseCode));
             }
 
             @Override
             public void processNetworkFailure() {
+                setFragmentRedirection(false);
+                Toast.makeText(ConnectActivity.this, R.string.recovery_network_unavailable, Toast.LENGTH_SHORT).show();
                 Logger.log("ERROR", "Failed (network)");
             }
 
             @Override
             public void processOldApiError() {
+                setFragmentRedirection(false);
+                Toast.makeText(ConnectActivity.this, R.string.connect_job_list_api_failure, Toast.LENGTH_SHORT).show();
                 ConnectNetworkHelper.showOutdatedApiError(ConnectActivity.this);
             }
         });
