@@ -1,19 +1,7 @@
 package org.commcare.activities.connect;
-
-import android.app.Activity;
-import android.app.PendingIntent;
 import android.content.Intent;
-import android.content.IntentSender;
 import android.os.Bundle;
 import android.widget.Toast;
-
-import com.google.android.gms.auth.api.identity.GetPhoneNumberHintIntentRequest;
-import com.google.android.gms.auth.api.identity.Identity;
-import com.google.android.gms.auth.api.identity.SignInClient;
-import com.google.android.gms.common.api.ApiException;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-
 import org.commcare.activities.CommCareActivity;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.network.ApiConnectId;
@@ -28,7 +16,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Locale;
 
-import androidx.annotation.NonNull;
 
 /**
  * Shows the page asking the user whether to register a new account or recover their existing account
@@ -44,7 +31,6 @@ public class ConnectIdRecoveryDecisionActivity extends CommCareActivity<ConnectI
 
     private ConnectIdRecoveryDecisionActivityUiController uiController;
     private ConnectRecoveryState state;
-    private static final int CREDENTIAL_PICKER_REQUEST = 1;  // Set to an appropriate value
 
 
     @Override
@@ -92,44 +78,11 @@ public class ConnectIdRecoveryDecisionActivity extends CommCareActivity<ConnectI
         return CustomProgressDialog.newInstance(null, getString(R.string.please_wait), taskId);
     }
 
-    private void requestPhoneNumberHint() {
-        GetPhoneNumberHintIntentRequest hintRequest = GetPhoneNumberHintIntentRequest.builder().build();
-        Identity.getSignInClient(this).getPhoneNumberHintIntent(hintRequest)
-                .addOnSuccessListener(new OnSuccessListener<PendingIntent>() {
-                    @Override
-                    public void onSuccess(PendingIntent pendingIntent) {
-                        try {
-                            startIntentSenderForResult(pendingIntent.getIntentSender(), CREDENTIAL_PICKER_REQUEST, null, 0, 0, 0);
-                        } catch (IntentSender.SendIntentException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                    }
-                });
-    }
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
-        if (requestCode == CREDENTIAL_PICKER_REQUEST) {
-            if (resultCode == Activity.RESULT_OK) {
-                SignInClient signInClient = Identity.getSignInClient(this);
-                String phoneNumber;
-                try {
-                    phoneNumber = signInClient.getPhoneNumberFromIntent(data);
-                    displayNumber(phoneNumber);
-                } catch (ApiException e) {
-                    throw new RuntimeException(e);
-                }
-            } else {
-                Toast.makeText(this, "No phone number selected", Toast.LENGTH_SHORT).show();
-            }
-        }
+        String phone=PhoneNumberHelper.handlePhoneNumberPickerResult(requestCode,resultCode,data,this);
+        displayNumber(phone);
     }
 
     void displayNumber(String fullNumber) {
@@ -177,7 +130,7 @@ public class ConnectIdRecoveryDecisionActivity extends CommCareActivity<ConnectI
                 uiController.setPhoneInputVisible(true);
 
                 setTitle(getString(R.string.connect_recovery_title2));
-                requestPhoneNumberHint();
+                PhoneNumberHelper.requestPhoneNumberHint(this);
                 int code = PhoneNumberHelper.getCountryCode(this);
                 uiController.setCountryCode(String.format(Locale.getDefault(), "+%d", code));
 

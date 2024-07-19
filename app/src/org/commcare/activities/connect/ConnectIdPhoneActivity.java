@@ -1,23 +1,8 @@
 package org.commcare.activities.connect;
 
-import android.app.Activity;
-import android.app.AlertDialog;
-import android.app.PendingIntent;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentSender;
-import android.os.Build;
 import android.os.Bundle;
-import android.telephony.SubscriptionInfo;
-import android.telephony.SubscriptionManager;
 import android.widget.Toast;
-
-import com.google.android.gms.auth.api.identity.GetPhoneNumberHintIntentRequest;
-import com.google.android.gms.auth.api.identity.Identity;
-import com.google.android.gms.auth.api.identity.SignInClient;
-import com.google.android.gms.common.api.ApiException;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 
 import org.commcare.activities.CommCareActivity;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
@@ -35,11 +20,7 @@ import org.javarosa.core.services.Logger;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Locale;
-
-import androidx.annotation.NonNull;
 
 
 /**
@@ -53,7 +34,6 @@ public class ConnectIdPhoneActivity extends CommCareActivity<ConnectIdPhoneActiv
     private String method;
     private String existingPhone;
     private ConnectIdPhoneActivityUiController uiController;
-    private static final int CREDENTIAL_PICKER_REQUEST = 1;  // Set to an appropriate value
 
 
     @Override
@@ -72,7 +52,8 @@ public class ConnectIdPhoneActivity extends CommCareActivity<ConnectIdPhoneActiv
         String title = getString(R.string.connect_phone_title_primary);
         String message = getString(R.string.connect_phone_message_primary);
 
-        if (method != ConnectConstants.METHOD_CHANGE_ALTERNATE) requestPhoneNumberHint();
+        if (!method.equals(ConnectConstants.METHOD_CHANGE_ALTERNATE))
+            PhoneNumberHelper.requestPhoneNumberHint(this);
 
         if (method.equals(ConnectConstants.METHOD_CHANGE_ALTERNATE)) {
             title = getString(R.string.connect_phone_title_alternate);
@@ -109,67 +90,11 @@ public class ConnectIdPhoneActivity extends CommCareActivity<ConnectIdPhoneActiv
     }
 
 
-    private void requestPhoneNumberHint() {
-        GetPhoneNumberHintIntentRequest hintRequest = GetPhoneNumberHintIntentRequest.builder().build();
-        Identity.getSignInClient(this).getPhoneNumberHintIntent(hintRequest)
-                .addOnSuccessListener(new OnSuccessListener<PendingIntent>() {
-                    @Override
-                    public void onSuccess(PendingIntent pendingIntent) {
-                        try {
-                            startIntentSenderForResult(pendingIntent.getIntentSender(), CREDENTIAL_PICKER_REQUEST, null, 0, 0, 0);
-                        } catch (IntentSender.SendIntentException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                    }
-                });
-    }
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
-        if (requestCode == CREDENTIAL_PICKER_REQUEST) {
-            if (resultCode == Activity.RESULT_OK) {
-                SignInClient signInClient = Identity.getSignInClient(this);
-                String phoneNumber;
-                try {
-                    phoneNumber = signInClient.getPhoneNumberFromIntent(data);
-                    displayNumber(phoneNumber);
-                } catch (ApiException e) {
-                    throw new RuntimeException(e);
-                }
-            } else {
-                Toast.makeText(this, "No phone number selected", Toast.LENGTH_SHORT).show();
-            }
-        }
-    }
-
-    private void showPhoneNumberPickerDialog() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            SubscriptionManager subscriptionManager = (SubscriptionManager)getSystemService(Context.TELEPHONY_SUBSCRIPTION_SERVICE);
-
-            List<SubscriptionInfo> subscriptionInfoList = subscriptionManager.getActiveSubscriptionInfoList();
-
-            if (subscriptionInfoList != null && !subscriptionInfoList.isEmpty()) {
-                ArrayList<String> phoneNumbers = new ArrayList<>();
-                for (SubscriptionInfo subscriptionInfo : subscriptionInfoList) {
-                    String phoneNumber = subscriptionInfo.getNumber();
-                    phoneNumbers.add(phoneNumber);
-                }
-
-                if (!phoneNumbers.isEmpty()) {
-                    AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                    builder.setTitle(R.string.select_phone_number)
-                            .setItems(phoneNumbers.toArray(new String[0]), (dialog, which) -> displayNumber(phoneNumbers.get(which)))
-                            .show();
-                }
-            }
-        }
+        String phone=PhoneNumberHelper.handlePhoneNumberPickerResult(requestCode,resultCode,data,this);
+        displayNumber(phone);
     }
 
 
