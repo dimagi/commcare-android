@@ -84,6 +84,7 @@ public class ConnectIdRecoveryDecisionActivity extends CommCareActivity<ConnectI
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         String phone=PhoneNumberHelper.handlePhoneNumberPickerResult(requestCode,resultCode,data,this);
+        skipPhoneNumberCheck = false;
         displayNumber(phone);
     }
 
@@ -105,6 +106,8 @@ public class ConnectIdRecoveryDecisionActivity extends CommCareActivity<ConnectI
         uiController.setPhoneNumber(fullNumber);
         skipPhoneNumberCheck = true;
         uiController.setCountryCode(codeText);
+        skipPhoneNumberCheck=false;
+
     }
 
     public void finish(boolean createNew, String phone) {

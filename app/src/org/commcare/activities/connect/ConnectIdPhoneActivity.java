@@ -88,8 +88,9 @@ public class ConnectIdPhoneActivity extends CommCareActivity<ConnectIdPhoneActiv
         }
         skipPhoneNumberCheck = false;
         uiController.setPhoneNumber(fullNumber);
-        skipPhoneNumberCheck = true;
+        skipPhoneNumberCheck=true;
         uiController.setCountryCode(codeText);
+        skipPhoneNumberCheck=false;
     }
 
 
@@ -97,6 +98,7 @@ public class ConnectIdPhoneActivity extends CommCareActivity<ConnectIdPhoneActiv
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         String phone = PhoneNumberHelper.handlePhoneNumberPickerResult(requestCode, resultCode, data, this);
+        skipPhoneNumberCheck = false;
         displayNumber(phone);
 
     }
@@ -158,17 +160,20 @@ public class ConnectIdPhoneActivity extends CommCareActivity<ConnectIdPhoneActiv
 
                 @Override
                 public void processFailure(int responseCode, IOException e) {
+                    skipPhoneNumberCheck=false;
                     Toast.makeText(getApplicationContext(), getString(R.string.connect_phone_change_error),
                             Toast.LENGTH_SHORT).show();
                 }
 
                 @Override
                 public void processNetworkFailure() {
+                    skipPhoneNumberCheck=false;
                     ConnectNetworkHelper.showNetworkError(getApplicationContext());
                 }
 
                 @Override
                 public void processOldApiError() {
+                    skipPhoneNumberCheck=false;
                     ConnectNetworkHelper.showOutdatedApiError(getApplicationContext());
                 }
             };
