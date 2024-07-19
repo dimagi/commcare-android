@@ -60,12 +60,14 @@ public class CommCareFirebaseMessagingService extends FirebaseMessagingService {
         }
 
         showNotification(payloadData);
+        FCMMessageData fcmMessageData;
+        if (!hasCccAction(payloadData)) {
+            fcmMessageData = new FCMMessageData(payloadData);
 
-        FCMMessageData fcmMessageData = new FCMMessageData(payloadData);
-
-        switch (fcmMessageData.getAction()) {
-            case SYNC -> dataSyncer.syncData(fcmMessageData);
-            default -> Logger.log(LogTypes.TYPE_FCM, "Invalid FCM action");
+            switch (fcmMessageData.getAction()) {
+                case SYNC -> dataSyncer.syncData(fcmMessageData);
+                default -> Logger.log(LogTypes.TYPE_FCM, "Invalid FCM action");
+            }
         }
     }
 
@@ -88,7 +90,7 @@ public class CommCareFirebaseMessagingService extends FirebaseMessagingService {
 
         Intent intent;
 
-        if (payloadData.containsKey("action")) {
+        if (hasCccAction(payloadData)) {
             intent = new Intent(getApplicationContext(), ConnectActivity.class);
             intent.putExtra("action", payloadData.get("action"));
             intent.putExtra("opportunity_id", payloadData.get("opportunity_id"));
@@ -116,5 +118,10 @@ public class CommCareFirebaseMessagingService extends FirebaseMessagingService {
                 .setWhen(System.currentTimeMillis());
 
         mNM.notify(FCM_NOTIFICATION, fcmNotification.build());
+    }
+
+    private boolean hasCccAction(Map<String, String> payloadData) {
+        String action = payloadData.get("action");
+        return action != null && action.contains("ccc_");
     }
 }
