@@ -86,7 +86,7 @@ public class ConnectNetworkHelper {
         return issueDate;
     }
 
-    private  static  SimpleDateFormat utcFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault());
+    private static final SimpleDateFormat utcFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault());
 
     public static Date convertUTCToDate(String utcDateString) {
         utcFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
