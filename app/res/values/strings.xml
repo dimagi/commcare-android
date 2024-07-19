@@ -793,4 +793,5 @@
     <string name="audio_recording_notification">Audio Recording Notification</string>
     <string name="connect_home_progress_today">Today\'s Visits: %d</string>
     <string name="select_phone_number">Select Phone Number</string>
+    <string name="connect_job_list_api_failure">An error occurred while connecting to the server.</string>
 </resources>
