@@ -31,6 +31,8 @@ public class ConnectIdRecoveryDecisionActivity extends CommCareActivity<ConnectI
 
     private ConnectIdRecoveryDecisionActivityUiController uiController;
     private ConnectRecoveryState state;
+    protected boolean skipPhoneNumberCheck = false;
+
 
 
     @Override
@@ -99,8 +101,9 @@ public class ConnectIdRecoveryDecisionActivity extends CommCareActivity<ConnectI
         if (fullNumber != null && fullNumber.startsWith("+" + codeText)) {
             fullNumber = fullNumber.substring(codeText.length() + 1);
         }
-
+        skipPhoneNumberCheck = false;
         uiController.setPhoneNumber(fullNumber);
+        skipPhoneNumberCheck = true;
         uiController.setCountryCode(codeText);
     }
 
@@ -146,49 +149,52 @@ public class ConnectIdRecoveryDecisionActivity extends CommCareActivity<ConnectI
     }
 
     public void checkPhoneNumber() {
-        String phone = PhoneNumberHelper.buildPhoneNumber(uiController.getCountryCode(),
-                uiController.getPhoneNumber());
+        if (!skipPhoneNumberCheck) {
+            String phone = PhoneNumberHelper.buildPhoneNumber(uiController.getCountryCode(),
+                    uiController.getPhoneNumber());
 
-        boolean valid = PhoneNumberHelper.isValidPhoneNumber(this, phone);
+            boolean valid = PhoneNumberHelper.isValidPhoneNumber(this, phone);
 
-        if (valid) {
-            phone = phone.replaceAll("\\+", "%2b");
-            uiController.setPhoneMessage(getString(R.string.connect_phone_checking));
-            uiController.setButton1Enabled(false);
+            if (valid) {
+                phone = phone.replaceAll("\\+", "%2b");
+                uiController.setPhoneMessage(getString(R.string.connect_phone_checking));
+                uiController.setButton1Enabled(false);
 
-            boolean isBusy = !ApiConnectId.checkPhoneAvailable(this, phone,
-                    new IApiCallback() {
-                        @Override
-                        public void processSuccess(int responseCode, InputStream responseData) {
-                            uiController.setPhoneMessage(getString(R.string.connect_phone_not_found));
-                            uiController.setButton1Enabled(false);
-                        }
+                boolean isBusy = !ApiConnectId.checkPhoneAvailable(this, phone,
+                        new IApiCallback() {
+                            @Override
+                            public void processSuccess(int responseCode, InputStream responseData) {
+                                uiController.setPhoneMessage(getString(R.string.connect_phone_not_found));
+                                uiController.setButton1Enabled(false);
+                                skipPhoneNumberCheck=false;
+                            }
 
-                        @Override
-                        public void processFailure(int responseCode, IOException e) {
-                            uiController.setPhoneMessage("");
-                            uiController.setButton1Enabled(true);
-                        }
+                            @Override
+                            public void processFailure(int responseCode, IOException e) {
+                                uiController.setPhoneMessage("");
+                                uiController.setButton1Enabled(true);
+                            }
 
-                        @Override
-                        public void processNetworkFailure() {
-                            uiController.setPhoneMessage(getString(R.string.recovery_network_unavailable));
-                            uiController.setButton1Enabled(false);
-                        }
+                            @Override
+                            public void processNetworkFailure() {
+                                uiController.setPhoneMessage(getString(R.string.recovery_network_unavailable));
+                                uiController.setButton1Enabled(false);
+                            }
 
-                        @Override
-                        public void processOldApiError() {
-                            uiController.setPhoneMessage(getString(R.string.recovery_network_outdated));
-                            uiController.setButton1Enabled(false);
-                        }
-                    });
+                            @Override
+                            public void processOldApiError() {
+                                uiController.setPhoneMessage(getString(R.string.recovery_network_outdated));
+                                uiController.setButton1Enabled(false);
+                            }
+                        });
 
-            if (isBusy) {
-                Toast.makeText(this, R.string.busy_message, Toast.LENGTH_SHORT).show();
+                if (isBusy) {
+                    Toast.makeText(this, R.string.busy_message, Toast.LENGTH_SHORT).show();
+                }
+            } else {
+                uiController.setPhoneMessage(getString(R.string.connect_phone_invalid));
+                uiController.setButton1Enabled(false);
             }
-        } else {
-            uiController.setPhoneMessage(getString(R.string.connect_phone_invalid));
-            uiController.setButton1Enabled(false);
         }
     }
 }
