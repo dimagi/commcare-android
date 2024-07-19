@@ -401,6 +401,7 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         return String.format(Locale.getDefault(), "%d%s", value, currency);
     }
 
+
     public int numberOfDeliveriesToday() {
         int dailyVisitCount = 0;
         Date today = new Date();
