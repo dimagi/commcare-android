@@ -237,11 +237,8 @@ public class ConnectDeliveryProgressDeliveryFragment extends Fragment {
             text = getString(R.string.connect_progress_complete_by, endText);
         }
         textView.setText(text);
-        if(!job.getIsUserSuspended()) {
-            textView.setTextColor(getResources().getColor(R.color.red));
-        }else{
-            textView.setTextColor(getResources().getColor(R.color.black));
-        }
+        int color = job.getIsUserSuspended() ? R.color.red : R.color.black;
+        textView.setTextColor(getResources().getColor(color));
 
         textView = view.findViewById(R.id.connect_progress_warning_learn_text);
         textView.setOnClickListener(v -> {
