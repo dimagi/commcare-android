@@ -383,7 +383,7 @@ public class ConnectNetworkHelper {
             Context context, String url, boolean background, IApiCallback handler) {
         return new ConnectorWithHttpResponseProcessor<>() {
             @Override
-            public void processSuccess(int responseCode, InputStream responseData) {
+            public void processSuccess(int responseCode, InputStream responseData, String apiVersion) {
                 onFinishProcessing(context, background);
                 handler.processSuccess(responseCode, responseData);
             }

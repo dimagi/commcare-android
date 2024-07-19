@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Locale;
 
+
 /**
  * Shows the page that prompts the user to enter a phone number (during registration or recovery)
  *
@@ -34,10 +35,13 @@ public class ConnectIdPhoneActivity extends CommCareActivity<ConnectIdPhoneActiv
     private String existingPhone;
     private ConnectIdPhoneActivityUiController uiController;
 
+    protected boolean skipPhoneNumberCheck = false;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        String existing;
         setTitle(getString(R.string.connect_phone_page_title));
 
         uiController.setupUI();
@@ -49,7 +53,10 @@ public class ConnectIdPhoneActivity extends CommCareActivity<ConnectIdPhoneActiv
         ConnectUserRecord user = ConnectManager.getUser(this);
         String title = getString(R.string.connect_phone_title_primary);
         String message = getString(R.string.connect_phone_message_primary);
-        String existing;
+
+        if (!method.equals(ConnectConstants.METHOD_CHANGE_ALTERNATE))
+            PhoneNumberHelper.requestPhoneNumberHint(this);
+
         if (method.equals(ConnectConstants.METHOD_CHANGE_ALTERNATE)) {
             title = getString(R.string.connect_phone_title_alternate);
             message = getString(R.string.connect_phone_message_alternate);
@@ -61,10 +68,14 @@ public class ConnectIdPhoneActivity extends CommCareActivity<ConnectIdPhoneActiv
 
         uiController.setTitle(title);
         uiController.setMessage(message);
+        displayNumber(existing);
 
+    }
+
+    void displayNumber(String fullNumber) {
         int code = PhoneNumberHelper.getCountryCode(this);
-        if (existing != null && existing.length() > 0) {
-            code = PhoneNumberHelper.getCountryCode(this, existing);
+        if (fullNumber != null && fullNumber.length() > 0) {
+            code = PhoneNumberHelper.getCountryCode(this, fullNumber);
         }
 
         String codeText = "";
@@ -72,13 +83,26 @@ public class ConnectIdPhoneActivity extends CommCareActivity<ConnectIdPhoneActiv
             codeText = String.format(Locale.getDefault(), "%d", code);
         }
 
-        if (existing != null && existing.startsWith("+" + codeText)) {
-            existing = existing.substring(codeText.length() + 1);
+        if (fullNumber != null && fullNumber.startsWith("+" + codeText)) {
+            fullNumber = fullNumber.substring(codeText.length() + 1);
         }
-
-        uiController.setPhoneNumber(existing);
+        skipPhoneNumberCheck = false;
+        uiController.setPhoneNumber(fullNumber);
+        skipPhoneNumberCheck=true;
         uiController.setCountryCode(codeText);
+        skipPhoneNumberCheck=false;
     }
+
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        String phone = PhoneNumberHelper.handlePhoneNumberPickerResult(requestCode, resultCode, data, this);
+        skipPhoneNumberCheck = false;
+        displayNumber(phone);
+
+    }
+
 
     @Override
     public void onResume() {
@@ -130,22 +154,26 @@ public class ConnectIdPhoneActivity extends CommCareActivity<ConnectIdPhoneActiv
             IApiCallback callback = new IApiCallback() {
                 @Override
                 public void processSuccess(int responseCode, InputStream responseData) {
+                    skipPhoneNumberCheck=false;
                     finish(true, phone);
                 }
 
                 @Override
                 public void processFailure(int responseCode, IOException e) {
+                    skipPhoneNumberCheck=false;
                     Toast.makeText(getApplicationContext(), getString(R.string.connect_phone_change_error),
                             Toast.LENGTH_SHORT).show();
                 }
 
                 @Override
                 public void processNetworkFailure() {
+                    skipPhoneNumberCheck=false;
                     ConnectNetworkHelper.showNetworkError(getApplicationContext());
                 }
 
                 @Override
                 public void processOldApiError() {
+                    skipPhoneNumberCheck=false;
                     ConnectNetworkHelper.showOutdatedApiError(getApplicationContext());
                 }
             };
@@ -169,86 +197,92 @@ public class ConnectIdPhoneActivity extends CommCareActivity<ConnectIdPhoneActiv
     }
 
     public void checkPhoneNumber() {
-        String phone = PhoneNumberHelper.buildPhoneNumber(uiController.getCountryCode(),
-                uiController.getPhoneNumber());
+        if (!skipPhoneNumberCheck) {
+            String phone = PhoneNumberHelper.buildPhoneNumber(uiController.getCountryCode(),
+                    uiController.getPhoneNumber());
 
-        boolean valid = PhoneNumberHelper.isValidPhoneNumber(this, phone);
-        ConnectUserRecord user = ConnectManager.getUser(this);
+            boolean valid = PhoneNumberHelper.isValidPhoneNumber(this, phone);
+            ConnectUserRecord user = ConnectManager.getUser(this);
 
-        if (valid) {
-            String existingPrimary = user != null ? user.getPrimaryPhone() : existingPhone;
-            String existingAlternate = user != null ? user.getAlternatePhone() : null;
-            switch (method) {
-                case ConnectConstants.METHOD_REGISTER_PRIMARY,
-                        ConnectConstants.METHOD_CHANGE_PRIMARY -> {
-                    if (existingPrimary != null && existingPrimary.equals(phone)) {
-                        uiController.setAvailabilityText("");
-                        uiController.setOkButtonEnabled(true);
-                    } else if (existingAlternate != null && existingAlternate.equals(phone)) {
-                        uiController.setAvailabilityText(getString(R.string.connect_phone_not_alt));
-                        uiController.setOkButtonEnabled(false);
-                    } else {
-                        //Make sure the number isn't already in use
-                        phone = phone.replaceAll("\\+", "%2b");
-                        uiController.setAvailabilityText(getString(R.string.connect_phone_checking));
-                        uiController.setOkButtonEnabled(false);
+            if (valid) {
+                String existingPrimary = user != null ? user.getPrimaryPhone() : existingPhone;
+                String existingAlternate = user != null ? user.getAlternatePhone() : null;
+                switch (method) {
+                    case ConnectConstants.METHOD_REGISTER_PRIMARY,
+                            ConnectConstants.METHOD_CHANGE_PRIMARY -> {
+                        if (existingPrimary != null && existingPrimary.equals(phone)) {
+                            uiController.setAvailabilityText("");
+                            uiController.setOkButtonEnabled(true);
+                        } else if (existingAlternate != null && existingAlternate.equals(phone)) {
+                            uiController.setAvailabilityText(getString(R.string.connect_phone_not_alt));
+                            uiController.setOkButtonEnabled(false);
+                        } else {
+                            //Make sure the number isn't already in use
+                            phone = phone.replaceAll("\\+", "%2b");
+                            uiController.setAvailabilityText(getString(R.string.connect_phone_checking));
+                            uiController.setOkButtonEnabled(false);
 
-                        boolean isBusy = !ApiConnectId.checkPhoneAvailable(this, phone,
-                                new IApiCallback() {
-                                    @Override
-                                    public void processSuccess(int responseCode, InputStream responseData) {
-                                        uiController.setAvailabilityText(
-                                                getString(R.string.connect_phone_available));
-                                        uiController.setOkButtonEnabled(true);
-                                    }
-
-                                    @Override
-                                    public void processFailure(int responseCode, IOException e) {
-                                        String text = getString(R.string.connect_phone_unavailable);
-                                        uiController.setOkButtonEnabled(false);
-
-                                        if (e != null) {
-                                            Logger.exception("Checking phone number", e);
+                            boolean isBusy = !ApiConnectId.checkPhoneAvailable(this, phone,
+                                    new IApiCallback() {
+                                        @Override
+                                        public void processSuccess(int responseCode, InputStream responseData) {
+                                            skipPhoneNumberCheck=false;
+                                            uiController.setAvailabilityText(
+                                                    getString(R.string.connect_phone_available));
+                                            uiController.setOkButtonEnabled(true);
                                         }
 
-                                        uiController.setAvailabilityText(text);
-                                    }
+                                        @Override
+                                        public void processFailure(int responseCode, IOException e) {
+                                            skipPhoneNumberCheck=false;
+                                            String text = getString(R.string.connect_phone_unavailable);
+                                            uiController.setOkButtonEnabled(false);
 
-                                    @Override
-                                    public void processNetworkFailure() {
-                                        uiController.setAvailabilityText(getString(
-                                                R.string.recovery_network_unavailable));
-                                    }
+                                            if (e != null) {
+                                                Logger.exception("Checking phone number", e);
+                                            }
 
-                                    @Override
-                                    public void processOldApiError() {
-                                        uiController.setAvailabilityText(getString(
-                                                R.string.recovery_network_outdated));
-                                    }
-                                });
+                                            uiController.setAvailabilityText(text);
+                                        }
 
-                        if (isBusy) {
-                            Toast.makeText(this, R.string.busy_message, Toast.LENGTH_SHORT).show();
+                                        @Override
+                                        public void processNetworkFailure() {
+                                            skipPhoneNumberCheck=false;
+                                            uiController.setAvailabilityText(getString(
+                                                    R.string.recovery_network_unavailable));
+                                        }
+
+                                        @Override
+                                        public void processOldApiError() {
+                                            skipPhoneNumberCheck=false;
+                                            uiController.setAvailabilityText(getString(
+                                                    R.string.recovery_network_outdated));
+                                        }
+                                    });
+
+                            if (isBusy) {
+                                Toast.makeText(this, R.string.busy_message, Toast.LENGTH_SHORT).show();
+                            }
                         }
                     }
-                }
-                case ConnectConstants.METHOD_CHANGE_ALTERNATE -> {
-                    if (existingPrimary != null && existingPrimary.equals(phone)) {
-                        uiController.setAvailabilityText(getString(R.string.connect_phone_not_primary));
-                        uiController.setOkButtonEnabled(false);
-                    } else {
+                    case ConnectConstants.METHOD_CHANGE_ALTERNATE -> {
+                        if (existingPrimary != null && existingPrimary.equals(phone)) {
+                            uiController.setAvailabilityText(getString(R.string.connect_phone_not_primary));
+                            uiController.setOkButtonEnabled(false);
+                        } else {
+                            uiController.setAvailabilityText("");
+                            uiController.setOkButtonEnabled(true);
+                        }
+                    }
+                    case ConnectConstants.METHOD_RECOVER_PRIMARY -> {
                         uiController.setAvailabilityText("");
                         uiController.setOkButtonEnabled(true);
                     }
                 }
-                case ConnectConstants.METHOD_RECOVER_PRIMARY -> {
-                    uiController.setAvailabilityText("");
-                    uiController.setOkButtonEnabled(true);
-                }
+            } else {
+                uiController.setAvailabilityText(getString(R.string.connect_phone_invalid));
+                uiController.setOkButtonEnabled(false);
             }
-        } else {
-            uiController.setAvailabilityText(getString(R.string.connect_phone_invalid));
-            uiController.setOkButtonEnabled(false);
         }
     }
 }

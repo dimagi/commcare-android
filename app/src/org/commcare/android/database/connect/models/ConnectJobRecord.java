@@ -341,13 +341,27 @@ public class ConnectJobRecord extends Persisted implements Serializable {
     }
 
     public int getAssessmentScore() {
-        int maxScore = 0;
-        if(assessments != null) {
-            for(ConnectJobAssessmentRecord record : assessments) {
-                maxScore  = Math.max(maxScore, record.getScore());
+        int mostRecentFailingScore = 0;
+        int firstPassingScore = -1;
+
+        if (assessments != null) {
+            for (ConnectJobAssessmentRecord record : assessments) {
+                int score = record.getScore();
+                if (score >= record.getPassingScore()) {
+                    if (firstPassingScore == -1) {
+                        firstPassingScore = score;
+                    }
+                } else {
+                    mostRecentFailingScore = score;
+                }
             }
         }
-        return maxScore;
+
+        if (firstPassingScore != -1) {
+            return firstPassingScore;
+        } else {
+            return mostRecentFailingScore;
+        }
     }
 
     public Date getLastUpdate() { return lastUpdate; }

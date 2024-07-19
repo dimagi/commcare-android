@@ -7,6 +7,8 @@ package org.commcare.connect;
  */
 public class ConnectConstants {
     public static final int ConnectIdTaskIdOffset = 1000;
+
+    public static int CREDENTIAL_PICKER_REQUEST = 2000;
     public static final String METHOD = "METHOD";
     public static final String CREATE = "CREATE";
     public static final String USERNAME = "USERNAME";
@@ -26,6 +28,7 @@ public class ConnectConstants {
     public static final String ENROLL_FAIL = "ENROLL_FAIL";
     public static final String CHANGE = "CHANGE";
     public static final String FORGOT = "FORGOT";
+    public static final String WRONG_PIN = "WRONG_PIN";
     public static final String ALLOW_PASSWORD = "ALLOW_PASSWORD";
 
     public static final String METHOD_REGISTER_PRIMARY = "REGISTER_PRIMARY";
