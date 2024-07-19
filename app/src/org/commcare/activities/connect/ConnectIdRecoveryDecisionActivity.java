@@ -105,7 +105,7 @@ public class ConnectIdRecoveryDecisionActivity extends CommCareActivity<ConnectI
         skipPhoneNumberCheck = false;
         uiController.setPhoneNumber(fullNumber);
         skipPhoneNumberCheck = true;
-        uiController.setCountryCode(codeText);
+        uiController.setCountryCode(String.format(Locale.getDefault(), "+%d", code));
         skipPhoneNumberCheck=false;
 
     }
