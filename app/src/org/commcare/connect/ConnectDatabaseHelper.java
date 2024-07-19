@@ -749,7 +749,7 @@ public class ConnectDatabaseHelper {
 
         List<ConnectJobRecord> filtered = new ArrayList<>();
         for(ConnectJobRecord record : jobs) {
-            if(!record.isFinished()) {
+            if(!record.isFinished() && !record.getIsUserSuspended()) {
                 filtered.add(record);
             }
         }
@@ -765,7 +765,7 @@ public class ConnectDatabaseHelper {
 
         List<ConnectJobRecord> filtered = new ArrayList<>();
         for(ConnectJobRecord record : jobs) {
-            if(record.isFinished()) {
+            if(record.isFinished() || record.getIsUserSuspended()) {
                 filtered.add(record);
             }
         }

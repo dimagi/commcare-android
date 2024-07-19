@@ -33,7 +33,7 @@ public class ConnectJobAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
     private Context parentContext;
     private final boolean showAvailable;
-    private IConnectAppLauncher launcher;
+    private final IConnectAppLauncher launcher;
 
     public ConnectJobAdapter(boolean showAvailable, IConnectAppLauncher appLauncher) {
         this.showAvailable = showAvailable;
@@ -282,7 +282,10 @@ public class ConnectJobAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             }
         } else if(finished) {
             description = parentContext.getString(R.string.connect_job_visits_completed, job.getCompletedVisits());
-        } else {
+        } else if(job.getIsUserSuspended()) {
+            description =parentContext.getString(R.string.suspended) ;
+        }
+        else {
             String learningOrJob = parentContext.getString(isTraining ? R.string.connect_job_learning : R.string.connect_job);
             description = parentContext.getString(R.string.connect_job_training_progress, learningOrJob, percent);
         }
@@ -330,11 +333,11 @@ public class ConnectJobAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     }
 
     public static class AvailableJobViewHolder extends RecyclerView.ViewHolder {
-        TextView newText;
-        TextView titleText;
-        TextView descriptionText;
-        TextView visitsText;
-        ImageView continueImage;
+        final TextView newText;
+        final TextView titleText;
+        final TextView descriptionText;
+        final TextView visitsText;
+        final ImageView continueImage;
         public AvailableJobViewHolder(@NonNull View itemView) {
             super(itemView);
 
@@ -347,13 +350,13 @@ public class ConnectJobAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     }
 
     public static class ClaimedJobViewHolder extends RecyclerView.ViewHolder {
-        ProgressBar progressBar;
-        ImageView progressImage;
-        TextView titleText;
-        TextView descriptionText;
-        TextView remainingText;
-        ImageView infoImage;
-        ImageView continueImage;
+        final ProgressBar progressBar;
+        final ImageView progressImage;
+        final TextView titleText;
+        final TextView descriptionText;
+        final TextView remainingText;
+        final ImageView infoImage;
+        final ImageView continueImage;
         public ClaimedJobViewHolder(@NonNull View itemView) {
             super(itemView);
 
@@ -368,13 +371,13 @@ public class ConnectJobAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     }
 
     public static class EndedJobViewHolder extends RecyclerView.ViewHolder {
-        ProgressBar progressBar;
-        ImageView progressImage;
-        TextView titleText;
-        TextView descriptionText;
-        TextView remainingText;
-        ImageView infoImage;
-        ImageView continueImage;
+        final ProgressBar progressBar;
+        final ImageView progressImage;
+        final TextView titleText;
+        final TextView descriptionText;
+        final TextView remainingText;
+        final ImageView infoImage;
+        final ImageView continueImage;
         public EndedJobViewHolder(@NonNull View itemView) {
             super(itemView);
 
@@ -389,7 +392,7 @@ public class ConnectJobAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     }
 
     public static class JobHeaderViewHolder extends RecyclerView.ViewHolder {
-        TextView titleText;
+        final TextView titleText;
         public JobHeaderViewHolder(@NonNull View itemView) {
             super(itemView);
 
@@ -398,8 +401,8 @@ public class ConnectJobAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     }
 
     public static class EmptyJobListViewHolder extends RecyclerView.ViewHolder {
-        ImageView image;
-        TextView titleText;
+        final ImageView image;
+        final TextView titleText;
         public EmptyJobListViewHolder(@NonNull View itemView) {
             super(itemView);
 
