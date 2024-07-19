@@ -14,6 +14,7 @@ import org.commcare.CommCareNoficationManager;
 import org.commcare.activities.DispatchActivity;
 import org.commcare.activities.connect.ConnectActivity;
 import org.commcare.dalvik.R;
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.sync.FirebaseMessagingDataSyncer;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.FirebaseMessagingUtil;
@@ -91,6 +92,7 @@ public class CommCareFirebaseMessagingService extends FirebaseMessagingService {
         Intent intent;
 
         if (hasCccAction(payloadData)) {
+            FirebaseAnalyticsUtil.reportNotificationType(payloadData.get("action"));
             intent = new Intent(getApplicationContext(), ConnectActivity.class);
             intent.putExtra("action", payloadData.get("action"));
             intent.putExtra("opportunity_id", payloadData.get("opportunity_id"));

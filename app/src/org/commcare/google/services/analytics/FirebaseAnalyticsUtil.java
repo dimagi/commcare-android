@@ -1,24 +1,5 @@
 package org.commcare.google.services.analytics;
 
-import android.os.Bundle;
-import android.os.Environment;
-import android.text.TextUtils;
-
-import com.google.firebase.analytics.FirebaseAnalytics;
-
-import org.commcare.CommCareApplication;
-import org.commcare.DiskUtils;
-import org.commcare.connect.ConnectManager;
-import org.commcare.android.logging.ReportingUtils;
-import org.commcare.preferences.MainConfigurablePreferences;
-import org.commcare.suite.model.OfflineUserRestore;
-import org.commcare.utils.EncryptionUtils;
-
-import java.util.Date;
-
-import androidx.navigation.NavController;
-import androidx.navigation.fragment.FragmentNavigator;
-
 import static org.commcare.google.services.analytics.AnalyticsParamValue.CORRUPT_APP_STATE;
 import static org.commcare.google.services.analytics.AnalyticsParamValue.STAGE_UPDATE_FAILURE;
 import static org.commcare.google.services.analytics.AnalyticsParamValue.UPDATE_RESET;
@@ -28,6 +9,25 @@ import static org.commcare.google.services.analytics.AnalyticsParamValue.VIDEO_U
 import static org.commcare.google.services.analytics.AnalyticsParamValue.VIDEO_USAGE_MOST;
 import static org.commcare.google.services.analytics.AnalyticsParamValue.VIDEO_USAGE_OTHER;
 import static org.commcare.google.services.analytics.AnalyticsParamValue.VIDEO_USAGE_PARTIAL;
+
+import android.os.Bundle;
+import android.os.Environment;
+import android.text.TextUtils;
+
+import androidx.navigation.NavController;
+import androidx.navigation.fragment.FragmentNavigator;
+
+import com.google.firebase.analytics.FirebaseAnalytics;
+
+import org.commcare.CommCareApplication;
+import org.commcare.DiskUtils;
+import org.commcare.android.logging.ReportingUtils;
+import org.commcare.connect.ConnectManager;
+import org.commcare.preferences.MainConfigurablePreferences;
+import org.commcare.suite.model.OfflineUserRestore;
+import org.commcare.utils.EncryptionUtils;
+
+import java.util.Date;
 
 /**
  * Created by amstone326 on 10/13/17.
@@ -101,7 +101,7 @@ public class FirebaseAnalyticsUtil {
 
     private static String getFreeDiskBucket() {
         long freeDiskInMb = DiskUtils.calculateFreeDiskSpaceInBytes(
-                Environment.getDataDirectory().getPath())/ 1000000;
+                Environment.getDataDirectory().getPath()) / 1000000;
         if (freeDiskInMb > 1000) {
             return "gt_1000";
         } else if (freeDiskInMb > 500) {
@@ -442,7 +442,7 @@ public class FirebaseAnalyticsUtil {
     public static NavController.OnDestinationChangedListener getDestinationChangeListener() {
         return (navController, navDestination, args) -> {
             Bundle bundle = new Bundle();
-            var currentFragmentClassName = ((FragmentNavigator.Destination)navController.getCurrentDestination())
+            var currentFragmentClassName = ((FragmentNavigator.Destination) navController.getCurrentDestination())
                     .getClassName();
             bundle.putString(FirebaseAnalytics.Param.SCREEN_NAME, navDestination.getLabel().toString());
             bundle.putString(FirebaseAnalytics.Param.SCREEN_CLASS, currentFragmentClassName);
@@ -454,5 +454,10 @@ public class FirebaseAnalyticsUtil {
         reportEvent(CCAnalyticsEvent.CCC_TAB_CHANGE,
                 new String[]{CCAnalyticsEvent.PARAM_CCC_TAB_CHANGE_NAME},
                 new String[]{tabName});
+    }
+
+    public static void reportNotificationType(String notificationType) {
+        reportEvent(CCAnalyticsEvent.CCC_NOTIFICATION_TYPE,
+                CCAnalyticsParam.NOTIFICATION_TYPE, notificationType);
     }
 }
