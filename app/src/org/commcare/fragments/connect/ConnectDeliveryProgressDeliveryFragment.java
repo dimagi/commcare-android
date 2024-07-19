@@ -32,7 +32,7 @@ public class ConnectDeliveryProgressDeliveryFragment extends Fragment {
     private boolean showLearningLaunch = true;
     private boolean showDeliveryLaunch = true;
 
-    private Button button;
+    private Button launchButton;
     public ConnectDeliveryProgressDeliveryFragment() {
         // Required empty public constructor
     }
@@ -59,10 +59,10 @@ public class ConnectDeliveryProgressDeliveryFragment extends Fragment {
 //        //But there's a bug where the buttons don't appear so the user gets stuck
 //        //Just proceeding into the app instead.
 //        boolean expired = job.getDaysRemaining() <= 0;
-        button = view.findViewById(R.id.connect_progress_button);
-        button.setVisibility(showDeliveryLaunch ? View.VISIBLE : View.GONE);
-        updateView();
-        button.setOnClickListener(v -> {
+        launchButton = view.findViewById(R.id.connect_progress_button);
+        launchButton.setVisibility(showDeliveryLaunch ? View.VISIBLE : View.GONE);
+
+        launchButton.setOnClickListener(v -> {
 //            String title = null;
 //            String message = null;
 //            if(expired) {
@@ -85,7 +85,7 @@ public class ConnectDeliveryProgressDeliveryFragment extends Fragment {
 //                        .show();
 //            }
 //            else {
-                launchDeliveryApp(button);
+                launchDeliveryApp(launchButton);
 //            }
         });
 
@@ -94,6 +94,8 @@ public class ConnectDeliveryProgressDeliveryFragment extends Fragment {
         reviewButton.setOnClickListener(v -> {
             launchLearningApp(reviewButton);
         });
+
+        updateView();
 
         return view;
     }
@@ -139,9 +141,7 @@ public class ConnectDeliveryProgressDeliveryFragment extends Fragment {
         TextView textView = view.findViewById(R.id.connect_progress_progress_text);
         textView.setText(String.format(Locale.getDefault(), "%d%%", percent));
 
-        if(job.getIsUserSuspended()){
-            button.setEnabled(false);
-        }
+        launchButton.setEnabled(!job.getIsUserSuspended());
 
         textView = view.findViewById(R.id.connect_progress_status_text);
         String completedText = getString(R.string.connect_progress_status, completed, total);
@@ -237,7 +237,11 @@ public class ConnectDeliveryProgressDeliveryFragment extends Fragment {
             text = getString(R.string.connect_progress_complete_by, endText);
         }
         textView.setText(text);
-        textView.setTextColor(getResources().getColor(R.color.red));
+        if(!job.getIsUserSuspended()) {
+            textView.setTextColor(getResources().getColor(R.color.red));
+        }else{
+            textView.setTextColor(getResources().getColor(R.color.black));
+        }
 
         textView = view.findViewById(R.id.connect_progress_warning_learn_text);
         textView.setOnClickListener(v -> {
