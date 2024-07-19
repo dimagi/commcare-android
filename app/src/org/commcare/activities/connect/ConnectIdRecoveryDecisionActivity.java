@@ -171,18 +171,21 @@ public class ConnectIdRecoveryDecisionActivity extends CommCareActivity<ConnectI
 
                             @Override
                             public void processFailure(int responseCode, IOException e) {
+                                skipPhoneNumberCheck=false;
                                 uiController.setPhoneMessage("");
                                 uiController.setButton1Enabled(true);
                             }
 
                             @Override
                             public void processNetworkFailure() {
+                                skipPhoneNumberCheck=false;
                                 uiController.setPhoneMessage(getString(R.string.recovery_network_unavailable));
                                 uiController.setButton1Enabled(false);
                             }
 
                             @Override
                             public void processOldApiError() {
+                                skipPhoneNumberCheck=false;
                                 uiController.setPhoneMessage(getString(R.string.recovery_network_outdated));
                                 uiController.setButton1Enabled(false);
                             }

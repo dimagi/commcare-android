@@ -221,6 +221,7 @@ public class ConnectIdPhoneActivity extends CommCareActivity<ConnectIdPhoneActiv
                                     new IApiCallback() {
                                         @Override
                                         public void processSuccess(int responseCode, InputStream responseData) {
+                                            skipPhoneNumberCheck=false;
                                             uiController.setAvailabilityText(
                                                     getString(R.string.connect_phone_available));
                                             uiController.setOkButtonEnabled(true);
@@ -228,6 +229,7 @@ public class ConnectIdPhoneActivity extends CommCareActivity<ConnectIdPhoneActiv
 
                                         @Override
                                         public void processFailure(int responseCode, IOException e) {
+                                            skipPhoneNumberCheck=false;
                                             String text = getString(R.string.connect_phone_unavailable);
                                             uiController.setOkButtonEnabled(false);
 
@@ -240,12 +242,14 @@ public class ConnectIdPhoneActivity extends CommCareActivity<ConnectIdPhoneActiv
 
                                         @Override
                                         public void processNetworkFailure() {
+                                            skipPhoneNumberCheck=false;
                                             uiController.setAvailabilityText(getString(
                                                     R.string.recovery_network_unavailable));
                                         }
 
                                         @Override
                                         public void processOldApiError() {
+                                            skipPhoneNumberCheck=false;
                                             uiController.setAvailabilityText(getString(
                                                     R.string.recovery_network_outdated));
                                         }
