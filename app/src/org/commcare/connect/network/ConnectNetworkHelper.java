@@ -86,8 +86,9 @@ public class ConnectNetworkHelper {
         return issueDate;
     }
 
+    private  static  SimpleDateFormat utcFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault());
+
     public static Date convertUTCToDate(String utcDateString) {
-        SimpleDateFormat utcFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault());
         utcFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
 
         Date date = null;
@@ -101,13 +102,12 @@ public class ConnectNetworkHelper {
     }
 
     public static Date convertDateToLocal(Date utcDate) {
-        SimpleDateFormat localFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault());
-        localFormat.setTimeZone(TimeZone.getDefault());
+        utcFormat.setTimeZone(TimeZone.getDefault());
 
         Date date = null;
         try {
-            String localDateString = localFormat.format(utcDate);
-            date = localFormat.parse(localDateString);
+            String localDateString = utcFormat.format(utcDate);
+            date = utcFormat.parse(localDateString);
         } catch (ParseException e) {
             e.printStackTrace();
         }

@@ -417,12 +417,14 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         Hashtable<String, Integer> paymentCounts = new Hashtable<>();
         for(int i = 0; i < deliveries.size(); i++) {
             ConnectJobDeliveryRecord delivery = deliveries.get(i);
-            int oldCount = 0;
-            boolean isSameDay=sameDay(new Date(),delivery.getDate());
-                if(paymentCounts.containsKey(delivery.getSlug()) && (isSameDay && todayOnly)) {
+            if(!todayOnly || sameDay(new Date(), delivery.getDate())) {
+                int oldCount = 0;
+                if (paymentCounts.containsKey(delivery.getSlug())) {
                     oldCount = paymentCounts.get(delivery.getSlug());
                 }
-            paymentCounts.put(delivery.getSlug(), oldCount + 1);
+
+                paymentCounts.put(delivery.getSlug(), oldCount + 1);
+            }
         }
 
         return paymentCounts;
