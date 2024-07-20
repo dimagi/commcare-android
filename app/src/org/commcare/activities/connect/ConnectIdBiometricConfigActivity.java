@@ -20,6 +20,8 @@ import org.commcare.utils.BiometricsHelper;
 import org.commcare.views.dialogs.CustomProgressDialog;
 import org.javarosa.core.services.Logger;
 
+import androidx.biometric.BiometricManager;
+
 /**
  * Shows the page for configuring biometrics (fingerprint and/or PIN)
  *

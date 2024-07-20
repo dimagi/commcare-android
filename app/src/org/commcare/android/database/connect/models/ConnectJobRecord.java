@@ -65,6 +65,9 @@ public class ConnectJobRecord extends Persisted implements Serializable {
     public static final String META_PAYMENT_UNIT = "payment_unit";
     public static final String META_MAX_VISITS = "max_visits";
 
+    public static final String META_USER_SUSPENDED = "is_user_suspended";
+
+
     @Persisting(1)
     @MetaField(META_JOB_ID)
     private int jobId;
@@ -132,6 +135,10 @@ public class ConnectJobRecord extends Persisted implements Serializable {
     @MetaField(META_IS_ACTIVE)
     private boolean isActive;
 
+    @Persisting(24)
+    @MetaField(META_USER_SUSPENDED)
+    private boolean isUserSuspended;
+
 
     private List<ConnectJobDeliveryRecord> deliveries;
     private List<ConnectJobPaymentRecord> payments;
@@ -181,6 +188,9 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         job.dateClaimed = new Date();
 
         job.isActive = !json.has(META_IS_ACTIVE) || json.getBoolean(META_IS_ACTIVE);
+
+        job.isUserSuspended = json.has(META_USER_SUSPENDED) && json.getBoolean(META_USER_SUSPENDED);
+
 
         JSONArray unitsJson = json.getJSONArray(META_PAYMENT_UNITS);
         job.paymentUnits = new ArrayList<>();
@@ -341,13 +351,27 @@ public class ConnectJobRecord extends Persisted implements Serializable {
     }
 
     public int getAssessmentScore() {
-        int maxScore = 0;
-        if(assessments != null) {
-            for(ConnectJobAssessmentRecord record : assessments) {
-                maxScore  = Math.max(maxScore, record.getScore());
+        int mostRecentFailingScore = 0;
+        int firstPassingScore = -1;
+
+        if (assessments != null) {
+            for (ConnectJobAssessmentRecord record : assessments) {
+                int score = record.getScore();
+                if (score >= record.getPassingScore()) {
+                    if (firstPassingScore == -1) {
+                        firstPassingScore = score;
+                    }
+                } else {
+                    mostRecentFailingScore = score;
+                }
             }
         }
-        return maxScore;
+
+        if (firstPassingScore != -1) {
+            return firstPassingScore;
+        } else {
+            return mostRecentFailingScore;
+        }
     }
 
     public Date getLastUpdate() { return lastUpdate; }
@@ -362,6 +386,12 @@ public class ConnectJobRecord extends Persisted implements Serializable {
     public Date getDateClaimed() { return dateClaimed; }
     public boolean getIsActive() { return isActive; }
 
+    public boolean setIsUserSuspended(boolean isUserSuspended) { return this.isUserSuspended=isUserSuspended; }
+
+    public boolean getIsUserSuspended(){
+        return isUserSuspended;
+    }
+
     public String getMoneyString(int value) {
         String currency = "";
         if(this.currency != null && this.currency.length() > 0) {
@@ -370,6 +400,7 @@ public class ConnectJobRecord extends Persisted implements Serializable {
 
         return String.format(Locale.getDefault(), "%d%s", value, currency);
     }
+
 
     public int numberOfDeliveriesToday() {
         int dailyVisitCount = 0;
@@ -398,16 +429,20 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         return paymentUnits.size() > 1;
     }
 
+
+
     public Hashtable<String, Integer> getDeliveryCountsPerPaymentUnit(boolean todayOnly) {
         Hashtable<String, Integer> paymentCounts = new Hashtable<>();
         for(int i = 0; i < deliveries.size(); i++) {
             ConnectJobDeliveryRecord delivery = deliveries.get(i);
-            int oldCount = 0;
-            if(paymentCounts.containsKey(delivery.getSlug())) {
-                oldCount = paymentCounts.get(delivery.getSlug());
-            }
+            if(!todayOnly || sameDay(new Date(), delivery.getDate())) {
+                int oldCount = 0;
+                if (paymentCounts.containsKey(delivery.getSlug())) {
+                    oldCount = paymentCounts.get(delivery.getSlug());
+                }
 
-            paymentCounts.put(delivery.getSlug(), oldCount + 1);
+                paymentCounts.put(delivery.getSlug(), oldCount + 1);
+            }
         }
 
         return paymentCounts;
@@ -494,6 +529,44 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         newRecord.dateClaimed = new Date();
         newRecord.projectStartDate = new Date();
         newRecord.isActive = true;
+
+        return newRecord;
+    }
+
+    public static ConnectJobRecord fromV7(ConnectJobRecordV7 oldRecord) {
+        ConnectJobRecord newRecord = new ConnectJobRecord();
+
+        newRecord.jobId = oldRecord.getJobId();
+        newRecord.title = oldRecord.getTitle();
+        newRecord.description = oldRecord.getDescription();
+        newRecord.status = oldRecord.getStatus();
+        newRecord.completedVisits = oldRecord.getCompletedVisits();
+        newRecord.maxDailyVisits = oldRecord.getMaxDailyVisits();
+        newRecord.maxVisits = oldRecord.getMaxVisits();
+        newRecord.budgetPerVisit = oldRecord.getBudgetPerVisit();
+        newRecord.totalBudget = oldRecord.getTotalBudget();
+        newRecord.projectEndDate = oldRecord.getProjectEndDate();
+        newRecord.lastWorkedDate = oldRecord.getLastWorkedDate();
+        newRecord.deliveries = new ArrayList<>();
+        newRecord.payments = new ArrayList<>();
+        newRecord.learnings = new ArrayList<>();
+        newRecord.assessments = new ArrayList<>();
+        newRecord.paymentUnits = new ArrayList<>();
+
+        newRecord.organization = oldRecord.getOrganization();
+        newRecord.lastWorkedDate = oldRecord.getLastWorkedDate();
+        newRecord.numLearningModules = oldRecord.getNumLearningModules();
+        newRecord.learningModulesCompleted = oldRecord.getLearningModulesCompleted();
+        newRecord.currency = oldRecord.getCurrency();
+        newRecord.paymentAccrued = Integer.toString(oldRecord.getPaymentAccrued());
+        newRecord.shortDescription = oldRecord.getShortDescription();
+        newRecord.lastUpdate = oldRecord.getLastUpdate();
+        newRecord.lastLearnUpdate = oldRecord.getLastLearnUpdate();
+        newRecord.lastDeliveryUpdate = oldRecord.getLastDeliveryUpdate();
+        newRecord.dateClaimed = oldRecord.getDateClaimed();
+        newRecord.projectStartDate = oldRecord.getProjectStartDate();
+        newRecord.isActive = oldRecord.getIsActive();
+        newRecord.isUserSuspended=false;
 
         return newRecord;
     }

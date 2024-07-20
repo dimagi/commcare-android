@@ -31,6 +31,8 @@ public class ConnectDeliveryProgressDeliveryFragment extends Fragment {
     private View view;
     private boolean showLearningLaunch = true;
     private boolean showDeliveryLaunch = true;
+
+    private Button launchButton;
     public ConnectDeliveryProgressDeliveryFragment() {
         // Required empty public constructor
     }
@@ -51,15 +53,16 @@ public class ConnectDeliveryProgressDeliveryFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_connect_progress_delivery, container, false);
-        updateView();
+
 
 //        //NOTE: The commented code attempts to warn the user when max visits has been exceeded
 //        //But there's a bug where the buttons don't appear so the user gets stuck
 //        //Just proceeding into the app instead.
 //        boolean expired = job.getDaysRemaining() <= 0;
-        Button button = view.findViewById(R.id.connect_progress_button);
-        button.setVisibility(showDeliveryLaunch ? View.VISIBLE : View.GONE);
-        button.setOnClickListener(v -> {
+        launchButton = view.findViewById(R.id.connect_progress_button);
+        launchButton.setVisibility(showDeliveryLaunch ? View.VISIBLE : View.GONE);
+
+        launchButton.setOnClickListener(v -> {
 //            String title = null;
 //            String message = null;
 //            if(expired) {
@@ -82,7 +85,7 @@ public class ConnectDeliveryProgressDeliveryFragment extends Fragment {
 //                        .show();
 //            }
 //            else {
-                launchDeliveryApp(button);
+                launchDeliveryApp(launchButton);
 //            }
         });
 
@@ -91,6 +94,8 @@ public class ConnectDeliveryProgressDeliveryFragment extends Fragment {
         reviewButton.setOnClickListener(v -> {
             launchLearningApp(reviewButton);
         });
+
+        updateView();
 
         return view;
     }
@@ -135,6 +140,8 @@ public class ConnectDeliveryProgressDeliveryFragment extends Fragment {
 
         TextView textView = view.findViewById(R.id.connect_progress_progress_text);
         textView.setText(String.format(Locale.getDefault(), "%d%%", percent));
+
+        launchButton.setEnabled(!job.getIsUserSuspended());
 
         textView = view.findViewById(R.id.connect_progress_status_text);
         String completedText = getString(R.string.connect_progress_status, completed, total);
@@ -224,11 +231,14 @@ public class ConnectDeliveryProgressDeliveryFragment extends Fragment {
         else if(job.getProjectStartDate() != null && job.getProjectStartDate().after(new Date())) {
             //Project hasn't started yet
             text = getString(R.string.connect_progress_begin_date, ConnectManager.formatDate(job.getProjectStartDate()), endText);
-        }
-        else {
+        } else if (job.getIsUserSuspended()) {
+            text = getString(R.string.user_suspended);
+        } else {
             text = getString(R.string.connect_progress_complete_by, endText);
         }
         textView.setText(text);
+        int color = job.getIsUserSuspended() ? R.color.red : R.color.black;
+        textView.setTextColor(getResources().getColor(color));
 
         textView = view.findViewById(R.id.connect_progress_warning_learn_text);
         textView.setOnClickListener(v -> {

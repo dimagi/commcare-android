@@ -38,7 +38,7 @@ public class ConnectJobDeliveryRecordV2 extends Persisted implements Serializabl
     private int deliveryId;
     @Persisting(3)
     @MetaField(META_DATE)
-    private Date date;
+    protected Date date;
     @Persisting(4)
     @MetaField(META_STATUS)
     private String status;

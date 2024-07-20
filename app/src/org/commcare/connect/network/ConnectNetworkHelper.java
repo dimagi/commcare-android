@@ -37,6 +37,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.TimeZone;
 
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
@@ -81,7 +82,37 @@ public class ConnectNetworkHelper {
 
     private static final DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
     public static Date parseDate(String dateStr) throws ParseException {
-        return dateFormat.parse(dateStr);
+        Date issueDate=dateFormat.parse(dateStr);
+        return issueDate;
+    }
+
+    private static final SimpleDateFormat utcFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault());
+
+    public static Date convertUTCToDate(String utcDateString) {
+        utcFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+
+        Date date = null;
+        try {
+            date = utcFormat.parse(utcDateString);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        return date;
+    }
+
+    public static Date convertDateToLocal(Date utcDate) {
+        utcFormat.setTimeZone(TimeZone.getDefault());
+
+        Date date = null;
+        try {
+            String localDateString = utcFormat.format(utcDate);
+            date = utcFormat.parse(localDateString);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        return date;
     }
 
     public static String getCallInProgress() {
@@ -114,13 +145,14 @@ public class ConnectNetworkHelper {
 
     public static boolean post(Context context, String url, String version, AuthInfo authInfo,
                                HashMap<String, String> params, boolean useFormEncoding,
-                               IApiCallback handler) {
-        return getInstance().postInternal(context, url, version, authInfo, params, useFormEncoding, handler);
+                               boolean background, IApiCallback handler) {
+        return getInstance().postInternal(context, url, version, authInfo, params, useFormEncoding,
+                background, handler);
     }
 
     public static boolean get(Context context, String url, String version, AuthInfo authInfo,
-                              Multimap<String, String> params, IApiCallback handler) {
-        return getInstance().getInternal(context, url, version, authInfo, params, handler);
+                              Multimap<String, String> params, boolean background, IApiCallback handler) {
+        return getInstance().getInternal(context, url, version, authInfo, params, background, handler);
     }
 
     private static void addVersionHeader(HashMap<String, String> headers, String version) {
@@ -130,12 +162,16 @@ public class ConnectNetworkHelper {
     }
 
     public static PostResult postSync(Context context, String url, String version, AuthInfo authInfo,
-                                        HashMap<String, String> params, boolean useFormEncoding) {
-        setCallInProgress(url);
+                                      HashMap<String, String> params, boolean useFormEncoding,
+                                      boolean background) {
         ConnectNetworkHelper instance = getInstance();
 
-        try {
+        if(!background) {
+            setCallInProgress(url);
             instance.showProgressDialog(context);
+        }
+
+        try {
             HashMap<String, String> headers = new HashMap<>();
             RequestBody requestBody;
 
@@ -183,25 +219,29 @@ public class ConnectNetworkHelper {
                 exception = e;
             }
 
-            instance.onFinishProcessing(context);
+            instance.onFinishProcessing(context, background);
 
             return new PostResult(responseCode, stream, exception);
         }
         catch(Exception e) {
-            setCallInProgress(null);
+            if(!background) {
+                setCallInProgress(null);
+            }
             return new PostResult(-1, null, null);
         }
     }
 
     private boolean postInternal(Context context, String url, String version, AuthInfo authInfo,
                                  HashMap<String, String> params, boolean useFormEncoding,
-                                 IApiCallback handler) {
-        if (isBusy()) {
-            return false;
-        }
-        setCallInProgress(url);
+                                 boolean background, IApiCallback handler) {
+        if(!background) {
+            if (isBusy()) {
+                return false;
+            }
+            setCallInProgress(url);
 
-        showProgressDialog(context);
+            showProgressDialog(context);
+        }
 
         HashMap<String, String> headers = new HashMap<>();
         RequestBody requestBody;
@@ -229,7 +269,7 @@ public class ConnectNetworkHelper {
                         requestBody,
                         HTTPMethod.POST,
                         authInfo);
-        postTask.connect(getResponseProcessor(context, url, handler));
+        postTask.connect(getResponseProcessor(context, url, background, handler));
 
         postTask.executeParallel();
 
@@ -247,10 +287,13 @@ public class ConnectNetworkHelper {
         return headers;
     }
 
-    public PostResult getSync(Context context, String url, AuthInfo authInfo,
+    public PostResult getSync(Context context, String url, AuthInfo authInfo, boolean background,
                                         Multimap<String, String> params) {
-        setCallInProgress(url);
-        showProgressDialog(context);
+        if(!background) {
+            setCallInProgress(url);
+            showProgressDialog(context);
+        }
+
         HashMap<String, String> headers = new HashMap<>();
 
         //TODO: Figure out how to send GET request the right way
@@ -292,19 +335,21 @@ public class ConnectNetworkHelper {
             exception = e;
         }
 
-        onFinishProcessing(context);
+        onFinishProcessing(context, background);
 
         return new PostResult(responseCode, stream, exception);
     }
 
     private boolean getInternal(Context context, String url, String version, AuthInfo authInfo,
-                                Multimap<String, String> params, IApiCallback handler) {
-        if (isBusy()) {
-            return false;
-        }
-        setCallInProgress(url);
+                                Multimap<String, String> params, boolean background, IApiCallback handler) {
+        if(!background) {
+            if (isBusy()) {
+                return false;
+            }
+            setCallInProgress(url);
 
-        showProgressDialog(context);
+            showProgressDialog(context);
+        }
 
         //TODO: Figure out how to send GET request the right way
         StringBuilder getUrl = new StringBuilder(url);
@@ -328,24 +373,24 @@ public class ConnectNetworkHelper {
                         ArrayListMultimap.create(),
                         headers,
                         authInfo);
-        getTask.connect(getResponseProcessor(context, url, handler));
+        getTask.connect(getResponseProcessor(context, url, background, handler));
         getTask.executeParallel();
 
         return true;
     }
 
     private ConnectorWithHttpResponseProcessor<HttpResponseProcessor> getResponseProcessor(
-            Context context, String url, IApiCallback handler) {
+            Context context, String url, boolean background, IApiCallback handler) {
         return new ConnectorWithHttpResponseProcessor<>() {
             @Override
-            public void processSuccess(int responseCode, InputStream responseData) {
-                onFinishProcessing(context);
+            public void processSuccess(int responseCode, InputStream responseData, String apiVersion) {
+                onFinishProcessing(context, background);
                 handler.processSuccess(responseCode, responseData);
             }
 
             @Override
             public void processClientError(int responseCode) {
-                onFinishProcessing(context);
+                onFinishProcessing(context, background);
 
                 String message = String.format(Locale.getDefault(), "Call:%s\nResponse code:%d", url, responseCode);
                 CrashUtil.reportException(new Exception(message));
@@ -361,7 +406,7 @@ public class ConnectNetworkHelper {
 
             @Override
             public void processServerError(int responseCode) {
-                onFinishProcessing(context);
+                onFinishProcessing(context, background);
 
                 String message = String.format(Locale.getDefault(), "Call:%s\nResponse code:%d", url, responseCode);
                 CrashUtil.reportException(new Exception(message));
@@ -372,7 +417,7 @@ public class ConnectNetworkHelper {
 
             @Override
             public void processOther(int responseCode) {
-                onFinishProcessing(context);
+                onFinishProcessing(context, background);
 
                 String message = String.format(Locale.getDefault(), "Call:%s\nResponse code:%d", url, responseCode);
                 CrashUtil.reportException(new Exception(message));
@@ -382,7 +427,7 @@ public class ConnectNetworkHelper {
 
             @Override
             public void handleIOException(IOException exception) {
-                onFinishProcessing(context);
+                onFinishProcessing(context, background);
                 if (exception instanceof UnknownHostException) {
                     handler.processNetworkFailure();
                 } else {
@@ -425,9 +470,11 @@ public class ConnectNetworkHelper {
         };
     }
 
-    private void onFinishProcessing(Context context) {
-        setCallInProgress(null);
-        dismissProgressDialog(context);
+    private void onFinishProcessing(Context context, boolean background) {
+        if(!background) {
+            setCallInProgress(null);
+            dismissProgressDialog(context);
+        }
     }
 
     public static void showNetworkError(Context context) {

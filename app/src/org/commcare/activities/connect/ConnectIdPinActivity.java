@@ -48,7 +48,6 @@ public class ConnectIdPinActivity extends CommCareActivity<ConnectIdPinActivity>
     private boolean isChanging; //Else verifying
 
     private static final int MaxFailures = 3;
-    private int failureCount = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -114,6 +113,7 @@ public class ConnectIdPinActivity extends CommCareActivity<ConnectIdPinActivity>
         Intent intent = new Intent(getIntent());
 
         intent.putExtra(ConnectConstants.PIN, pin);
+        intent.putExtra(ConnectConstants.WRONG_PIN, forgot);
         intent.putExtra(ConnectConstants.FORGOT, forgot);
 
         setResult(success ? RESULT_OK : RESULT_CANCELED, intent);
@@ -154,7 +154,7 @@ public class ConnectIdPinActivity extends CommCareActivity<ConnectIdPinActivity>
                         public void processSuccess(int responseCode, InputStream responseData) {
                             user.setPin(pin);
                             ConnectDatabaseHelper.storeUser(context, user);
-
+                            ConnectManager.setFailureAttempt(0);
                             finish(true, false, pin);
                         }
 
@@ -184,6 +184,7 @@ public class ConnectIdPinActivity extends CommCareActivity<ConnectIdPinActivity>
                             try {
                                 String responseAsString = new String(
                                         StreamsUtil.inputStreamToByteArray(responseData));
+                                ConnectManager.setFailureAttempt(0);
                                 if (responseAsString.length() > 0) {
                                     JSONObject json = new JSONObject(responseAsString);
 
@@ -199,8 +200,7 @@ public class ConnectIdPinActivity extends CommCareActivity<ConnectIdPinActivity>
 
                                     key = ConnectConstants.CONNECT_KEY_DB_KEY;
                                     if (json.has(key)) {
-                                        //TODO: Use the passphrase from the DB
-                                        //json.getString(key);
+                                        ConnectDatabaseHelper.handleReceivedDbPassphrase(context, json.getString(key));
                                     }
 
                                     ConnectUserRecord user = new ConnectUserRecord(phone, username,
@@ -287,24 +287,11 @@ public class ConnectIdPinActivity extends CommCareActivity<ConnectIdPinActivity>
     }
 
     public void handleWrongPin() {
-        failureCount++;
+        ConnectManager.setFailureAttempt(ConnectManager.getFailureAttempt()+1);
         logRecoveryResult(false);
         uiController.clearPin();
+        finish(false,ConnectManager.getFailureAttempt()>=MaxFailures,null);
 
-        int requestCode = PIN_FAIL;
-        int message = R.string.connect_pin_fail_message;
-
-        if (failureCount >= MaxFailures) {
-            requestCode = PIN_LOCK;
-            message = R.string.connect_pin_recovery_message;
-        }
-
-        Intent messageIntent = new Intent(this, ConnectIdMessageActivity.class);
-        messageIntent.putExtra(ConnectConstants.TITLE, R.string.connect_pin_fail_title);
-        messageIntent.putExtra(ConnectConstants.MESSAGE, message);
-        messageIntent.putExtra(ConnectConstants.BUTTON, R.string.connect_pin_fail_button);
-
-        startActivityForResult(messageIntent, requestCode);
     }
 
     public void handleForgotPress() {

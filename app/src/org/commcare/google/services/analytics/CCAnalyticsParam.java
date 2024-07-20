@@ -23,5 +23,6 @@ public class CCAnalyticsParam {
     static final String USERNAME = "username";
 
     static final String USER_RETURNED = "user_returned";
+    static final String NOTIFICATION_TYPE = "notification_type";
 
 }

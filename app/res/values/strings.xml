@@ -11,6 +11,7 @@
 
     <string name="ConnectTokenURL">https://connectid.dimagi.com/o/token/</string>
     <string name="ConnectHeartbeatURL">https://connectid.dimagi.com/users/heartbeat</string>
+    <string name="ConnectFetchDbKeyURL">https://connectid.dimagi.com/users/fetch_db_key</string>
     <string name="ConnectChangePasswordURL">https://connectid.dimagi.com/users/change_password</string>
     <string name="ConnectResetPasswordURL">https://connectid.dimagi.com/users/recover/reset_password</string>
     <string name="ConnectConfirmPasswordURL">https://connectid.dimagi.com/users/recover/confirm_password</string>
@@ -502,6 +503,7 @@
     <string name="busy_message">We are still busy processing your previous request. Please try again in some time.</string>
 
     <string name="connect_button_logged_in">Go to Connect menu</string>
+    <string name="connect_db_corrupt">A problem occurred with the database, please recover your account.</string>
 
     <string name="connect_consent_title">Consent</string>
     <string name="connect_consent_message_1">I have read and agree to Dimagi\'s <a href="https://www.dimagi.com/terms/latest/privacy/">Privacy Policy</a>, <a href="https://www.dimagi.com/terms/latest/tos/">Terms of Service</a>, <a href="https://www.dimagi.com/terms/latest/ba/">Business Agreement</a> and <a href="https://www.dimagi.com/terms/latest/aup/">Acceptable Use Policy</a>.</string>
@@ -557,7 +559,8 @@
 
     <string name="connect_pin_fail_title">Wrong PIN</string>
     <string name="connect_pin_fail_message">You entered the wrong PIN, please try again.</string>
-    <string name="connect_pin_recovery_message">You entered the wrong PIN too many times, you will need to recover your account.</string>
+    <string name="connect_pin_recovery_message">You entered the wrong PIN too many times, you will need to recover your account.\n On the next screen, we\'ll send a code via SMS to the alternate phone number associated with your account.</string>
+    <string name="connect_pin_confirm_message">You entered the wrong PIN too many times, you will have to configure the pin again.\n On the next screen, we\'ll redirect you to the configure pin page.</string>
     <string name="connect_pin_verify_forgot">Don\'t have or forgot your PIN?</string>
     <string name="connect_pin_fail_button">OK</string>
 
@@ -790,10 +793,8 @@
     <string name="phone_code_plus">+</string>
     <string name="audio_recording_notification">Audio Recording Notification</string>
     <string name="connect_home_progress_today">Today\'s Visits: %d</string>
-
-    <string name="app_lock">App Lock</string>
-    <string name="unlock_with_biometric">Unlock with biometric</string>
-    <string name="set_up_pin">Setup 6 Digit PIN</string>
-    <string name="unlock_with_biometric_text">When enabled, you’ll need to use fingerprint, face or other unique identifiers to open the CommCare App</string>
-
+    <string name="suspended">Suspended</string>
+    <string name="user_suspended">User is Suspended. Please contact admin.</string>
+    <string name="select_phone_number">Select Phone Number</string>
+    <string name="connect_job_list_api_failure">An error occurred while connecting to the server.</string>
 </resources>

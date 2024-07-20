@@ -14,6 +14,7 @@ import org.commcare.android.database.connect.models.ConnectJobPaymentRecordV3;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecordV2;
 import org.commcare.android.database.connect.models.ConnectJobRecordV4;
+import org.commcare.android.database.connect.models.ConnectJobRecordV7;
 import org.commcare.android.database.connect.models.ConnectLearnModuleSummaryRecord;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecordV3;
@@ -67,6 +68,12 @@ public class ConnectDatabaseUpgrader {
         if (oldVersion == 6) {
             if (upgradeSixSeven(db)) {
                 oldVersion = 7;
+            }
+        }
+
+        if (oldVersion == 7) {
+            if (upgradeSevenEight(db)) {
+                oldVersion = 8;
             }
         }
     }
@@ -324,6 +331,44 @@ public class ConnectDatabaseUpgrader {
 
     private boolean upgradeSixSeven(SQLiteDatabase db) {
         return addTableForNewModel(db, ConnectPaymentUnitRecord.STORAGE_KEY, new ConnectPaymentUnitRecord());
+    }
+
+    private boolean upgradeSevenEight(SQLiteDatabase db) {
+        db.beginTransaction();
+
+        try {
+            //First, migrate the old ConnectJobRecord in storage to the new version
+            db.execSQL(DbUtil.addColumnToTable(
+                    ConnectJobRecord.STORAGE_KEY,
+                    ConnectJobRecord.META_USER_SUSPENDED,
+                    "TEXT"));
+
+
+            SqlStorage<Persistable> oldStorage = new SqlStorage<>(
+                    ConnectJobRecord.STORAGE_KEY,
+                    ConnectJobRecordV7.class,
+                    new ConcreteAndroidDbHelper(c, db));
+
+            SqlStorage<Persistable> newStorage = new SqlStorage<>(
+                    ConnectJobRecord.STORAGE_KEY,
+                    ConnectJobRecord.class,
+                    new ConcreteAndroidDbHelper(c, db));
+
+            for (Persistable r : oldStorage) {
+                ConnectJobRecordV7 oldRecord = (ConnectJobRecordV7)r;
+                ConnectJobRecord newRecord = ConnectJobRecord.fromV7(oldRecord);
+                //set this new record to have same ID as the old one
+                newRecord.setID(oldRecord.getID());
+                newStorage.write(newRecord);
+            }
+
+            db.setTransactionSuccessful();
+            return true;
+        } catch(Exception e) {
+            return false;
+        } finally {
+            db.endTransaction();
+        }
     }
 
     private static boolean addTableForNewModel(SQLiteDatabase db, String storageKey,

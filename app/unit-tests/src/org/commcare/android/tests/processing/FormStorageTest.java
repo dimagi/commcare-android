@@ -367,11 +367,13 @@ public class FormStorageTest {
             , "org.commcare.android.database.connect.models.ConnectJobPaymentRecord"
             , "org.commcare.android.database.connect.models.ConnectJobRecordV2"
             , "org.commcare.android.database.connect.models.ConnectJobRecordV4"
+            , "org.commcare.android.database.connect.models.ConnectJobRecordV7"
             , "org.commcare.android.database.connect.models.ConnectJobRecord"
             , "org.commcare.android.database.connect.models.ConnectLearnModuleSummaryRecord"
             , "org.commcare.android.database.connect.models.ConnectJobLearningRecord"
             , "org.commcare.android.database.connect.models.ConnectJobAssessmentRecord"
             , "org.commcare.android.database.global.models.ConnectKeyRecord"
+            , "org.commcare.android.database.global.models.ConnectKeyRecordV6"
             , "org.commcare.android.database.connect.models.ConnectPaymentUnitRecord"
     );
 
