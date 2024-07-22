@@ -1178,7 +1178,7 @@ public class CommCareApplication extends MultiDexApplication {
 
         CommCareNetworkService networkService;
         if (authInfo instanceof AuthInfo.NoAuth) {
-            networkService = CommCareNetworkServiceGenerator.createNoAuthCommCareNetworkService();
+            networkService = CommCareNetworkServiceGenerator.createNoAuthCommCareNetworkService(params);
         } else {
             networkService = CommCareNetworkServiceGenerator.createCommCareNetworkService(
                     HttpUtils.getCredential(authInfo),
