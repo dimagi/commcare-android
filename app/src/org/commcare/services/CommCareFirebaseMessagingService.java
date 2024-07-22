@@ -109,6 +109,15 @@ public class CommCareFirebaseMessagingService extends FirebaseMessagingService {
 
         PendingIntent contentIntent = PendingIntent.getActivity(this, 0, intent, flags);
 
+        // Yes button intent
+        Intent yesIntent = new Intent(this, PaymentAcknowledgeYesReceiver.class);
+        PendingIntent yesPendingIntent = PendingIntent.getBroadcast(this, 0, yesIntent, flags);
+
+        // No button intent
+        Intent noIntent = new Intent(this, PaymentAcknowledgeNoReceiver.class);
+        PendingIntent noPendingIntent = PendingIntent.getBroadcast(this, 0, noIntent, flags);
+
+
         NotificationCompat.Builder fcmNotification = new NotificationCompat.Builder(this,
                 CommCareNoficationManager.NOTIFICATION_CHANNEL_PUSH_NOTIFICATIONS_ID)
                 .setContentTitle(notificationTitle)
@@ -117,7 +126,9 @@ public class CommCareFirebaseMessagingService extends FirebaseMessagingService {
                 .setAutoCancel(true)
                 .setSmallIcon(R.drawable.notification)
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
-                .setWhen(System.currentTimeMillis());
+                .setWhen(System.currentTimeMillis())
+                .addAction(0, "Yes", yesPendingIntent)
+                .addAction(0, "No", noPendingIntent);
 
         mNM.notify(FCM_NOTIFICATION, fcmNotification.build());
     }
