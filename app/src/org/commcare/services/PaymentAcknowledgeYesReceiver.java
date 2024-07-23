@@ -6,11 +6,13 @@ import android.content.Intent;
 import android.widget.Toast;
 
 public class PaymentAcknowledgeYesReceiver extends BroadcastReceiver {
+
+    String paymentId = "";
+
     @Override
     public void onReceive(Context context, Intent intent) {
-        // Handle Yes button click here, call API function
-        // For example:
+        paymentId = intent.getStringExtra(CommCareFirebaseMessagingService.PAYMENT_ID);
+        CommCareFirebaseMessagingService.clearNotification(context);
         Toast.makeText(context, "Yes clicked", Toast.LENGTH_SHORT).show();
-        // Call your API function here
     }
 }

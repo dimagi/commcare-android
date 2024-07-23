@@ -2,6 +2,7 @@ package org.commcare.services;
 
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 
@@ -30,6 +31,8 @@ import java.util.Map;
 public class CommCareFirebaseMessagingService extends FirebaseMessagingService {
 
     private final static int FCM_NOTIFICATION = R.string.fcm_notification;
+    private static final String CCC_PAYMENTS = "ccc_payments";
+    public static final String PAYMENT_ID = "payment_id";
 
     enum ActionTypes {
         SYNC,
@@ -109,15 +112,6 @@ public class CommCareFirebaseMessagingService extends FirebaseMessagingService {
 
         PendingIntent contentIntent = PendingIntent.getActivity(this, 0, intent, flags);
 
-        // Yes button intent
-        Intent yesIntent = new Intent(this, PaymentAcknowledgeYesReceiver.class);
-        PendingIntent yesPendingIntent = PendingIntent.getBroadcast(this, 0, yesIntent, flags);
-
-        // No button intent
-        Intent noIntent = new Intent(this, PaymentAcknowledgeNoReceiver.class);
-        PendingIntent noPendingIntent = PendingIntent.getBroadcast(this, 0, noIntent, flags);
-
-
         NotificationCompat.Builder fcmNotification = new NotificationCompat.Builder(this,
                 CommCareNoficationManager.NOTIFICATION_CHANNEL_PUSH_NOTIFICATIONS_ID)
                 .setContentTitle(notificationTitle)
@@ -126,9 +120,24 @@ public class CommCareFirebaseMessagingService extends FirebaseMessagingService {
                 .setAutoCancel(true)
                 .setSmallIcon(R.drawable.notification)
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
-                .setWhen(System.currentTimeMillis())
-                .addAction(0, "Yes", yesPendingIntent)
-                .addAction(0, "No", noPendingIntent);
+                .setWhen(System.currentTimeMillis());
+
+        // Check if the payload data contains a CCC action and if the action is CCC_PAYMENTS
+        if (hasCccAction(payloadData) && payloadData.get("action").equals(CCC_PAYMENTS)) {
+            // Yes button intent with payment_id from payload
+            Intent yesIntent = new Intent(this, PaymentAcknowledgeYesReceiver.class);
+            yesIntent.putExtra(PAYMENT_ID,payloadData.get(PAYMENT_ID));
+            PendingIntent yesPendingIntent = PendingIntent.getBroadcast(this, 0, yesIntent, flags);
+
+            // No button intent with payment_id from payload
+            Intent noIntent = new Intent(this, PaymentAcknowledgeNoReceiver.class);
+            noIntent.putExtra(PAYMENT_ID,payloadData.get(PAYMENT_ID));
+            PendingIntent noPendingIntent = PendingIntent.getBroadcast(this, 0, noIntent, flags);
+
+            // Add Yes & No action button to the notification
+            fcmNotification.addAction(0, getString(R.string.connect_payment_acknowledge_notification_yes), yesPendingIntent);
+            fcmNotification.addAction(0, getString(R.string.connect_payment_acknowledge_notification_no), noPendingIntent);
+        }
 
         mNM.notify(FCM_NOTIFICATION, fcmNotification.build());
     }
@@ -136,5 +145,12 @@ public class CommCareFirebaseMessagingService extends FirebaseMessagingService {
     private boolean hasCccAction(Map<String, String> payloadData) {
         String action = payloadData.get("action");
         return action != null && action.contains("ccc_");
+    }
+
+    public static void clearNotification(Context context){
+        NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        if (notificationManager != null) {
+            notificationManager.cancel(R.string.fcm_notification);
+        }
     }
 }
