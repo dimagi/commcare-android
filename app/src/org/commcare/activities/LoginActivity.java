@@ -17,6 +17,8 @@ import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.biometric.BiometricManager;
+import androidx.biometric.BiometricPrompt;
 import androidx.core.app.ActivityCompat;
 import androidx.core.util.Pair;
 import androidx.preference.PreferenceManager;
@@ -51,6 +53,7 @@ import org.commcare.tasks.InstallStagedUpdateTask;
 import org.commcare.tasks.ManageKeyRecordTask;
 import org.commcare.tasks.PullTaskResultReceiver;
 import org.commcare.tasks.ResultAndError;
+import org.commcare.utils.BiometricsHelper;
 import org.commcare.utils.ConsumerAppsUtil;
 import org.commcare.utils.CrashUtil;
 import org.commcare.utils.Permissions;
@@ -112,6 +115,10 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     private String presetAppId;
     private boolean appLaunchedFromConnect;
     private boolean connectLaunchPerformed;
+    private BiometricPrompt.AuthenticationCallback biometricPromptCallbacks;
+    private BiometricManager biometricManager;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -134,6 +141,8 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         presetAppId = getIntent().getStringExtra(EXTRA_APP_ID);
         appLaunchedFromConnect = ConnectManager.wasAppLaunchedFromConnect(presetAppId);
         connectLaunchPerformed = false;
+        biometricManager = BiometricManager.from(this);
+        biometricPromptCallbacks = preparePromptCallbacks();
 
         if (savedInstanceState == null) {
             // Only restore last user on the initial creation
@@ -197,17 +206,40 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         }
     }
 
+
+
+    private BiometricPrompt.AuthenticationCallback preparePromptCallbacks() {
+        return new BiometricPrompt.AuthenticationCallback() {
+
+
+            @Override
+            public void onAuthenticationSucceeded(
+                    @NonNull BiometricPrompt.AuthenticationResult result) {
+                super.onAuthenticationSucceeded(result);
+                ConnectManager.goToConnectJobsList();
+                setResult(RESULT_OK);
+                finish();
+
+            }
+
+            @Override
+            public void onAuthenticationFailed() {
+                super.onAuthenticationFailed();
+                Toast.makeText(getApplicationContext(), "Authentication failed",
+                                Toast.LENGTH_SHORT)
+                        .show();
+            }
+        };
+    }
+
     /**
      * @param restoreSession Indicates if CommCare should attempt to restore the saved session
      *                       upon successful login
      */
     protected void initiateLoginAttempt(boolean restoreSession) {
         if(isConnectJobsSelected()) {
-            ConnectManager.unlockConnect(this, success -> {
-                if(success) {
-                    ConnectManager.goToConnectJobsList();
-                }
-            });
+            boolean allowOtherOptions = BiometricsHelper.isPinConfigured(this, biometricManager);
+            BiometricsHelper.authenticateFingerprint(this, biometricManager, allowOtherOptions, biometricPromptCallbacks);
         } else {
             LoginMode loginMode = uiController.getLoginMode();
 
@@ -469,13 +501,15 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
     public void handleConnectButtonPress() {
         selectedAppIndex = -1;
-        ConnectManager.unlockConnect(this, success -> {
-            if(success) {
-                ConnectManager.goToConnectJobsList();
-                setResult(RESULT_OK);
-                finish();
-            }
-        });
+        boolean allowOtherOptions = BiometricsHelper.isPinConfigured(this, biometricManager);
+        BiometricsHelper.authenticateFingerprint(this, biometricManager, allowOtherOptions, biometricPromptCallbacks);
+//        ConnectManager.unlockConnect(this, success -> {
+//            if(success) {
+//                ConnectManager.goToConnectJobsList();
+//                setResult(RESULT_OK);
+//                finish();
+//            }
+//        });
     }
 
     public boolean handleConnectSignIn() {

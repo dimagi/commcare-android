@@ -797,4 +797,8 @@
     <string name="user_suspended">User is Suspended. Please contact admin.</string>
     <string name="select_phone_number">Select Phone Number</string>
     <string name="connect_job_list_api_failure">An error occurred while connecting to the server.</string>
+    <string name="app_lock">App Lock</string>
+    <string name="unlock_with_biometric">Unlock with biometric</string>
+    <string name="set_up_pin">Setup 6 Digit PIN</string>
+    <string name="unlock_with_biometric_text">When enabled, you’ll need to use fingerprint, face or other unique identifiers to open the CommCare App</string>
 </resources>

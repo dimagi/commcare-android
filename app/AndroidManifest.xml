@@ -113,9 +113,6 @@
         android:theme="@style/AppBaseTheme"
         android:usesCleartextTraffic="true"
         tools:replace="android:label,android:icon,android:theme, android:allowBackup">
-        <activity
-            android:name="org.commcare.activities.connect.BiometricSignupPage"
-            android:exported="false" />
 
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_channel_id"

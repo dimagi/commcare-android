@@ -46,14 +46,13 @@ public class ConnectIdBiometricConfigActivity extends CommCareActivity<ConnectId
         biometricManager = BiometricManager.from(this);
         biometricPromptCallbacks = preparePromptCallbacks();
         uiController.setupUI();
-        allowPassword = getIntent().hasExtra(ConnectConstants.ALLOW_PASSWORD) && getIntent().getStringExtra(ConnectConstants.ALLOW_PASSWORD).equals("true");;
         BiometricsHelper.ConfigurationStatus fingerprint = BiometricsHelper.checkFingerprintStatus(this,
                 biometricManager);
         BiometricsHelper.ConfigurationStatus pin = BiometricsHelper.checkPinStatus(this, biometricManager);
         if (fingerprint == BiometricsHelper.ConfigurationStatus.NotAvailable &&
                 pin == BiometricsHelper.ConfigurationStatus.NotAvailable) {
             //Skip to password-only workflow
-//            finish(true, true);
+            finish(true, true,false);
         } else {
             updateState(fingerprint, pin);
         }
@@ -136,9 +135,7 @@ public class ConnectIdBiometricConfigActivity extends CommCareActivity<ConnectId
             performFingerprintUnlock();
         } else if (BiometricsHelper.isPinConfigured(this, biometricManager)) {
             performPinUnlock();
-        } else if (allowPassword) {
-            performPasswordUnlock();
-        } else {
+        }  else {
             Logger.exception("No unlock method available when trying to unlock ConnectID", new Exception("No unlock option"));
         }
     }
@@ -148,10 +145,6 @@ public class ConnectIdBiometricConfigActivity extends CommCareActivity<ConnectId
         boolean allowOtherOptions = BiometricsHelper.isPinConfigured(this, biometricManager) ||
                 allowPassword;
         BiometricsHelper.authenticateFingerprint(this, biometricManager, allowOtherOptions, biometricPromptCallbacks);
-    }
-
-    public void performPasswordUnlock() {
-        finish(false, true, false);
     }
 
     public void performPinUnlock() {
@@ -171,9 +164,6 @@ public class ConnectIdBiometricConfigActivity extends CommCareActivity<ConnectId
                             allowPassword) {
                         //Automatically try password, it's the only option
                         performPinUnlock();
-                    } else {
-                        //Automatically try password, it's the only option
-                        performPasswordUnlock();
                     }
                 }
             }
@@ -202,14 +192,14 @@ public class ConnectIdBiometricConfigActivity extends CommCareActivity<ConnectId
         FirebaseAnalyticsUtil.reportCccSignIn(method);
     }
 
-//    public void handlePinButton() {
-//        BiometricsHelper.ConfigurationStatus pin = BiometricsHelper.checkPinStatus(this, biometricManager);
-//        if (pin == BiometricsHelper.ConfigurationStatus.Configured) {
-//            finish(true, false);
-//        } else if (!BiometricsHelper.configurePin(this)) {
-//            finish(true, true);
-//        }
-//    }
+    public void handlePinButton() {
+        BiometricsHelper.ConfigurationStatus pin = BiometricsHelper.checkPinStatus(this, biometricManager);
+        if (pin == BiometricsHelper.ConfigurationStatus.Configured) {
+            finish(true, false,false);
+        } else if (!BiometricsHelper.configurePin(this)) {
+            finish(true, true,false);
+        }
+    }
 
     private void finish(boolean success, boolean password, boolean recover) {
         Intent intent = new Intent(getIntent());

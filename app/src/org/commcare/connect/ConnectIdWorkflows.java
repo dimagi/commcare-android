@@ -60,7 +60,7 @@ public class ConnectIdWorkflows {
                 }else if (user.shouldForcePassword()) {
                     requestCode = ConnectTask.CONNECT_UNLOCK_PASSWORD;
                 } else {
-                    requestCode = ConnectTask.CONNECT_UNLOCK_BIOMETRIC;
+//                    requestCode = ConnectTask.CONNECT_UNLOCK_BIOMETRIC;
                 }
             }
             default -> {
@@ -91,7 +91,7 @@ public class ConnectIdWorkflows {
 
         ConnectUserRecord user = ConnectDatabaseHelper.getUser(parentActivity);
 
-        phase = ConnectTask.CONNECT_UNLOCK_BIOMETRIC;
+//        phase = ConnectTask.CONNECT_UNLOCK_BIOMETRIC;
         if (user.shouldForcePin()) {
             phase = ConnectTask.CONNECT_UNLOCK_PIN;
         } else if (user.shouldForcePassword()) {
@@ -218,8 +218,8 @@ public class ConnectIdWorkflows {
                 params.put(ConnectConstants.MESSAGE, R.string.connect_recovery_success_message);
                 params.put(ConnectConstants.BUTTON, R.string.connect_recovery_success_button);
             }
-            case CONNECT_UNLOCK_BIOMETRIC -> params.put(ConnectConstants.ALLOW_PASSWORD, "true");
-            case CONNECT_REGISTRATION_UNLOCK_BIOMETRIC, CONNECT_RECOVERY_UNLOCK_BIOMETRIC -> params.put(ConnectConstants.ALLOW_PASSWORD, "false");
+//            case CONNECT_UNLOCK_BIOMETRIC -> params.put(ConnectConstants.ALLOW_PASSWORD, "true");
+//            case CONNECT_REGISTRATION_UNLOCK_BIOMETRIC, CONNECT_RECOVERY_UNLOCK_BIOMETRIC -> params.put(ConnectConstants.ALLOW_PASSWORD, "false");
             case CONNECT_BIOMETRIC_ENROLL_FAIL -> {
                 params.put(ConnectConstants.TITLE, R.string.connect_biometric_enroll_fail_title);
                 params.put(ConnectConstants.MESSAGE, R.string.connect_biometric_enroll_fail_message);
@@ -488,15 +488,15 @@ public class ConnectIdWorkflows {
                 rememberPhase = true;
                 completeSignIn();
             }
-            case CONNECT_UNLOCK_BIOMETRIC -> {
-                if (success) {
-                    nextRequestCode = completeUnlock();
-                } else if (intent != null && intent.getBooleanExtra(ConnectConstants.PASSWORD, false)) {
-                    nextRequestCode = ConnectTask.CONNECT_UNLOCK_PASSWORD;
-                } else if (intent != null && intent.getBooleanExtra(ConnectConstants.RECOVER, false)) {
-                    nextRequestCode = ConnectTask.CONNECT_RECOVERY_PRIMARY_PHONE;
-                }
-            }
+//            case CONNECT_UNLOCK_BIOMETRIC -> {
+//                if (success) {
+//                    nextRequestCode = completeUnlock();
+//                } else if (intent != null && intent.getBooleanExtra(ConnectConstants.PASSWORD, false)) {
+//                    nextRequestCode = ConnectTask.CONNECT_UNLOCK_PASSWORD;
+//                } else if (intent != null && intent.getBooleanExtra(ConnectConstants.RECOVER, false)) {
+//                    nextRequestCode = ConnectTask.CONNECT_RECOVERY_PRIMARY_PHONE;
+//                }
+//            }
             case CONNECT_UNLOCK_PIN -> {
                 nextRequestCode = ConnectTask.CONNECT_RECOVERY_VERIFY_PRIMARY_PHONE;
                 if (success) {
