@@ -31,8 +31,9 @@ import java.util.Map;
 public class CommCareFirebaseMessagingService extends FirebaseMessagingService {
 
     private final static int FCM_NOTIFICATION = R.string.fcm_notification;
-    private static final String CCC_PAYMENTS = "ccc_payments";
+    private static final String CCC_PAYMENTS = "ccc_payment";
     public static final String PAYMENT_ID = "payment_id";
+    public static final String PAYMENT_STATUS = "payment_status";
 
     enum ActionTypes {
         SYNC,
@@ -107,8 +108,8 @@ public class CommCareFirebaseMessagingService extends FirebaseMessagingService {
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
 
         int flags = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
-                ? PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_ONE_SHOT
-                : PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_ONE_SHOT;
+                ? PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
+                : PendingIntent.FLAG_UPDATE_CURRENT;
 
         PendingIntent contentIntent = PendingIntent.getActivity(this, 0, intent, flags);
 
@@ -125,14 +126,16 @@ public class CommCareFirebaseMessagingService extends FirebaseMessagingService {
         // Check if the payload data contains a CCC action and if the action is CCC_PAYMENTS
         if (hasCccAction(payloadData) && payloadData.get("action").equals(CCC_PAYMENTS)) {
             // Yes button intent with payment_id from payload
-            Intent yesIntent = new Intent(this, PaymentAcknowledgeYesReceiver.class);
+            Intent yesIntent = new Intent(this, PaymentAcknowledgeReceiver.class);
             yesIntent.putExtra(PAYMENT_ID,payloadData.get(PAYMENT_ID));
-            PendingIntent yesPendingIntent = PendingIntent.getBroadcast(this, 0, yesIntent, flags);
+            yesIntent.putExtra(PAYMENT_STATUS,true);
+            PendingIntent yesPendingIntent = PendingIntent.getBroadcast(this, 1, yesIntent, flags);
 
             // No button intent with payment_id from payload
-            Intent noIntent = new Intent(this, PaymentAcknowledgeNoReceiver.class);
+            Intent noIntent = new Intent(this, PaymentAcknowledgeReceiver.class);
             noIntent.putExtra(PAYMENT_ID,payloadData.get(PAYMENT_ID));
-            PendingIntent noPendingIntent = PendingIntent.getBroadcast(this, 0, noIntent, flags);
+            noIntent.putExtra(PAYMENT_STATUS,false);
+            PendingIntent noPendingIntent = PendingIntent.getBroadcast(this, 2, noIntent, flags);
 
             // Add Yes & No action button to the notification
             fcmNotification.addAction(0, getString(R.string.connect_payment_acknowledge_notification_yes), yesPendingIntent);

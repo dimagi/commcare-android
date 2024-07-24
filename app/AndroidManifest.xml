@@ -566,8 +566,7 @@
             </intent-filter>
         </service>
 
-        <receiver android:name="org.commcare.services.PaymentAcknowledgeNoReceiver" />
-        <receiver android:name="org.commcare.services.PaymentAcknowledgeYesReceiver" />
+        <receiver android:name="org.commcare.services.PaymentAcknowledgeReceiver" />
     </application>
 
 </manifest>

@@ -358,6 +358,7 @@ public class FirebaseAnalyticsUtil {
                 new String[]{method});
     }
 
+
     public static void reportCccRecovery(boolean success, String method) {
         Bundle b = new Bundle();
         b.putLong(CCAnalyticsEvent.PARAM_CCC_RECOVERY_SUCCESS, success ? 1 : 0);
