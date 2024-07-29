@@ -197,7 +197,7 @@ class QueryRequestUiController(
     private fun updateAnswerAndRefresh(queryPrompt: QueryPrompt, answer: String) {
         val userAnswers = remoteQuerySessionManager.userAnswers
         val oldAnswer = userAnswers[queryPrompt.key]
-        if (oldAnswer == null || !oldAnswer.contentEquals(answer)) {
+        if ((oldAnswer == null && !"".equals(answer)) || (oldAnswer != null && !oldAnswer.contentEquals(answer))) {
             answerUserPrompt(queryPrompt.key, answer)
             remoteQuerySessionManager.refreshItemSetChoices()
             refreshView()
