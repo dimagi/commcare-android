@@ -25,7 +25,7 @@ public class PaymentAcknowledgeReceiver extends BroadcastReceiver {
         }
 
         paymentId = intent.getStringExtra(CommCareFirebaseMessagingService.PAYMENT_ID);
-        paymentStatus = intent.getBooleanExtra(CommCareFirebaseMessagingService.PAYMENT_STATUS,false);
+        paymentStatus = intent.getBooleanExtra(CommCareFirebaseMessagingService.PAYMENT_STATUS, false);
 
         if (paymentId == null) {
             return;
@@ -35,26 +35,32 @@ public class PaymentAcknowledgeReceiver extends BroadcastReceiver {
     }
 
     private void UpdatePayment(Context context) {
-        JobDetailsFetcher jobDetailsFetcher = new JobDetailsFetcher(context);
-        jobDetailsFetcher.getJobDetails(new JobDetailsFetcher.JobDetailsCallback() {
-            @Override
-            public void onJobDetailsFetched(List<ConnectJobRecord> jobs) {
-                if (jobs == null || jobs.isEmpty()) {
-                    return;
-                }
-                getPaymentsFromJobs(context, jobs);
-            }
+        ConnectJobRecord job = ConnectManager.getActiveJob();
+        ConnectManager.updateDeliveryProgress(context, job, success -> {
+            if (success) {
+                JobDetailsFetcher jobDetailsFetcher = new JobDetailsFetcher(context);
+                jobDetailsFetcher.getJobDetails(new JobDetailsFetcher.JobDetailsCallback() {
+                    @Override
+                    public void onJobDetailsFetched(List<ConnectJobRecord> jobs) {
+                        if (jobs == null || jobs.isEmpty()) {
+                            return;
+                        }
+                        getPaymentsFromJobs(context, jobs);
+                    }
 
-            @Override
-            public void onError() {
-                Toast.makeText(context, R.string.connect_job_list_api_failure, Toast.LENGTH_SHORT).show();
+                    @Override
+                    public void onError() {
+                        Toast.makeText(context, R.string.connect_job_list_api_failure, Toast.LENGTH_SHORT).show();
+                    }
+                });
             }
         });
     }
 
     /**
      * Go through job records to find the matching payment using payment-id
-     * @param jobs Job list fetched data from API
+     *
+     * @param jobs    Job list fetched data from API
      * @param context
      */
     private void getPaymentsFromJobs(Context context, List<ConnectJobRecord> jobs) {
