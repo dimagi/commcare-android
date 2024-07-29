@@ -32,6 +32,7 @@ public class CommCareFirebaseMessagingService extends FirebaseMessagingService {
 
     private final static int FCM_NOTIFICATION = R.string.fcm_notification;
     private static final String CCC_PAYMENTS = "ccc_payment";
+    public static final String OPPORTUNITY_ID = "opportunity_id";
     public static final String PAYMENT_ID = "payment_id";
     public static final String PAYMENT_STATUS = "payment_status";
 
@@ -127,12 +128,14 @@ public class CommCareFirebaseMessagingService extends FirebaseMessagingService {
         if (hasCccAction(payloadData) && payloadData.get("action").equals(CCC_PAYMENTS)) {
             // Yes button intent with payment_id from payload
             Intent yesIntent = new Intent(this, PaymentAcknowledgeReceiver.class);
+            yesIntent.putExtra(OPPORTUNITY_ID,payloadData.get(OPPORTUNITY_ID));
             yesIntent.putExtra(PAYMENT_ID,payloadData.get(PAYMENT_ID));
             yesIntent.putExtra(PAYMENT_STATUS,true);
             PendingIntent yesPendingIntent = PendingIntent.getBroadcast(this, 1, yesIntent, flags);
 
             // No button intent with payment_id from payload
             Intent noIntent = new Intent(this, PaymentAcknowledgeReceiver.class);
+            noIntent.putExtra(OPPORTUNITY_ID,payloadData.get(OPPORTUNITY_ID));
             noIntent.putExtra(PAYMENT_ID,payloadData.get(PAYMENT_ID));
             noIntent.putExtra(PAYMENT_STATUS,false);
             PendingIntent noPendingIntent = PendingIntent.getBroadcast(this, 2, noIntent, flags);
