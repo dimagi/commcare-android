@@ -297,10 +297,12 @@ public class StandardHomeActivity
 
     public void updateConnectJobProgress() {
         ConnectJobRecord job = ConnectManager.getActiveJob();
-        ConnectManager.updateDeliveryProgress(this, job, success -> {
-            if(success) {
-                uiController.updateConnectProgress();
-            }
-        });
+        if(job != null && job.getStatus() == ConnectJobRecord.STATUS_DELIVERING) {
+            ConnectManager.updateDeliveryProgress(this, job, success -> {
+                if (success) {
+                    uiController.updateConnectProgress();
+                }
+            });
+        }
     }
 }
