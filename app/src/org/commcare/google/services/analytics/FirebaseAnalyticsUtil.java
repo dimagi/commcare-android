@@ -371,6 +371,12 @@ public class FirebaseAnalyticsUtil {
                 new String[]{type, appId});
     }
 
+    public static void reportCccAppAutoLoginWithLocalPassphrase(String app) {
+        reportEvent(CCAnalyticsEvent.CCC_AUTO_LOGIN_LOCAL_PASSPHRASE,
+                new String[]{CCAnalyticsEvent.PARAM_CCC_APP_NAME},
+                new String[]{app});
+    }
+
     public static void reportCccAppFailedAutoLogin(String app) {
         reportEvent(CCAnalyticsEvent.CCC_AUTO_LOGIN_FAILED,
                 new String[]{CCAnalyticsEvent.PARAM_CCC_APP_NAME},

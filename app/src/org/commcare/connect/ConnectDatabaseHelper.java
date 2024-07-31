@@ -224,7 +224,7 @@ public class ConnectDatabaseHelper {
         storage.remove(record);
     }
 
-    public static ConnectLinkedAppRecord storeApp(Context context, String appId, String userId, boolean connectIdLinked, String passwordOrPin, boolean workerLinked) {
+    public static ConnectLinkedAppRecord storeApp(Context context, String appId, String userId, boolean connectIdLinked, String passwordOrPin, boolean workerLinked, boolean localPassphrase) {
         ConnectLinkedAppRecord record = getAppData(context, appId, userId);
         if (record == null) {
             record = new ConnectLinkedAppRecord(appId, userId, connectIdLinked, passwordOrPin);
@@ -233,6 +233,7 @@ public class ConnectDatabaseHelper {
         }
 
         record.setConnectIdLinked(connectIdLinked);
+        record.setIsUsingLocalPassphrase(localPassphrase);
 
         if(workerLinked) {
             //If passed in false, we'll leave the setting unchanged

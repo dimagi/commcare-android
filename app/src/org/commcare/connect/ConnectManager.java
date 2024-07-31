@@ -18,7 +18,6 @@ import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkManager;
 
 import org.commcare.activities.CommCareActivity;
-import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.connect.models.ConnectAppRecord;
 import org.commcare.android.database.connect.models.ConnectJobAssessmentRecord;
 import org.commcare.android.database.connect.models.ConnectJobDeliveryRecord;
@@ -36,12 +35,10 @@ import org.commcare.connect.network.ConnectNetworkHelper;
 import org.commcare.connect.network.ConnectSsoHelper;
 import org.commcare.connect.network.IApiCallback;
 import org.commcare.connect.workers.ConnectHeartbeatWorker;
-import org.commcare.core.encryption.CryptUtil;
 import org.commcare.core.network.AuthInfo;
 import org.commcare.dalvik.R;
 import org.commcare.engine.resource.ResourceInstallUtils;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
-import org.commcare.models.encryption.ByteEncrypter;
 import org.commcare.preferences.AppManagerDeveloperPreferences;
 import org.commcare.tasks.ResourceEngineListener;
 import org.commcare.tasks.templates.CommCareTask;
@@ -50,7 +47,6 @@ import org.commcare.utils.CrashUtil;
 import org.commcare.views.dialogs.StandardAlertDialog;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.services.Logger;
-import org.javarosa.core.util.PropertyUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -61,14 +57,11 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
-
-import javax.crypto.SecretKey;
 
 import androidx.annotation.Nullable;
 
@@ -439,8 +432,8 @@ public class ConnectManager {
 
             if(offerToLink) {
                 if(linkedApp == null) {
-                    //Create the linked app record (even if just to remember that we offered
-                    linkedApp = ConnectDatabaseHelper.storeApp(activity, appId, username, false, "", false);
+                    //Create the linked app record (even if just to remember that we offered)
+                    linkedApp = ConnectDatabaseHelper.storeApp(activity, appId, username, false, "", false, false);
                 }
 
                 //Update that we offered
@@ -640,7 +633,14 @@ public class ConnectManager {
                 passwordOrPin = record.getPassword();
             } else if(uiInAutoLogin) {
                 String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
-                passwordOrPin = ConnectManager.getStoredPasswordForApp(seatedAppId, username);
+                ConnectLinkedAppRecord record = ConnectDatabaseHelper.getAppData(context, seatedAppId,
+                        username);
+                passwordOrPin = record != null ? record.getPassword() : null;
+
+                if(record != null && record.isUsingLocalPassphrase()) {
+                    //Report to analytics so we know when this stops happening
+                    FirebaseAnalyticsUtil.reportCccAppAutoLoginWithLocalPassphrase(seatedAppId);
+                }
             }
         }
 
@@ -652,28 +652,7 @@ public class ConnectManager {
         String password = generatePassword();
 
         //Store ConnectLinkedAppRecord (note worker already linked)
-        ConnectLinkedAppRecord appRecord = ConnectDatabaseHelper.storeApp(context, appId, username, true, password, true);
-
-        //Store UKR
-        SecretKey newKey = CryptUtil.generateSemiRandomKey();
-        String sandboxId = PropertyUtils.genUUID().replace("-", "");
-        Date now = new Date();
-
-        Calendar cal = Calendar.getInstance();
-        cal.setTime(now);
-        cal.add(Calendar.YEAR, -10); //Begin ten years ago
-        Date fromDate = cal.getTime();
-
-        cal = Calendar.getInstance();
-        cal.setTime(now);
-        cal.add(Calendar.YEAR, 10); //Expire in ten years
-        Date toDate = cal.getTime();
-
-        UserKeyRecord ukr = new UserKeyRecord(username, UserKeyRecord.generatePwdHash(password),
-                ByteEncrypter.wrapByteArrayWithString(newKey.getEncoded(), password),
-                fromDate, toDate, sandboxId);
-
-        CommCareApplication.instance().getCurrentApp().getStorage(UserKeyRecord.class).write(ukr);
+        ConnectLinkedAppRecord appRecord = ConnectDatabaseHelper.storeApp(context, appId, username, true, password, true, false);
 
         return appRecord;
     }
