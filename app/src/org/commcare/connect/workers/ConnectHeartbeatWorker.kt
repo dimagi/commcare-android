@@ -13,7 +13,7 @@ class ConnectHeartbeatWorker(context: Context, workerParams: WorkerParameters) :
 
     override suspend fun doWork(): Result {
         return withContext(Dispatchers.IO) {
-            if (!ConnectManager.isUnlocked()) {
+            if (!ConnectManager.isConnectIdConfigured()) {
                 return@withContext Result.failure()
             }
 

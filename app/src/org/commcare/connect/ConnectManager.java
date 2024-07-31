@@ -172,12 +172,7 @@ public class ConnectManager {
         getInstance().parentActivity = parent;
     }
 
-    public static boolean isConnectIdIntroduced() {
-        return AppManagerDeveloperPreferences.isConnectIdEnabled()
-                && getInstance().connectStatus == ConnectIdStatus.LoggedIn;
-    }
-
-    public static boolean isUnlocked() {
+    public static boolean isConnectIdConfigured() {
         return AppManagerDeveloperPreferences.isConnectIdEnabled()
                 && getInstance().connectStatus == ConnectIdStatus.LoggedIn;
     }
@@ -194,7 +189,7 @@ public class ConnectManager {
     public static boolean shouldShowSecondaryPhoneConfirmationTile(Context context) {
         boolean show = false;
 
-        if(isConnectIdIntroduced()) {
+        if(isConnectIdConfigured()) {
             ConnectUserRecord user = getUser(context);
             show = !user.getSecondaryPhoneVerified();
         }
@@ -515,7 +510,7 @@ public class ConnectManager {
     }
 
     public static AuthInfo.TokenAuth getConnectToken() {
-        if (isUnlocked()) {
+        if (isConnectIdConfigured()) {
             ConnectUserRecord user = ConnectDatabaseHelper.getUser(manager.parentActivity);
             if (user != null && (new Date()).compareTo(user.getConnectTokenExpiration()) < 0) {
                 return new AuthInfo.TokenAuth(user.getConnectToken());
@@ -526,7 +521,7 @@ public class ConnectManager {
     }
 
     public static AuthInfo.TokenAuth getTokenCredentialsForApp(String appId, String userId) {
-        if (isUnlocked()) {
+        if (isConnectIdConfigured()) {
             ConnectLinkedAppRecord record = ConnectDatabaseHelper.getAppData(manager.parentActivity, appId,
                     userId);
             if (record != null && (new Date()).compareTo(record.getHqTokenExpiration()) < 0) {
@@ -621,7 +616,7 @@ public class ConnectManager {
 
     public static String checkAutoLoginAndOverridePassword(Context context, String appId, String username,
                                                     String passwordOrPin, boolean appLaunchedFromConnect, boolean uiInAutoLogin) {
-        if (isUnlocked()) {
+        if (isConnectIdConfigured()) {
             if(appLaunchedFromConnect) {
                 //Configure some things if we haven't already
                 ConnectLinkedAppRecord record = ConnectDatabaseHelper.getAppData(context,

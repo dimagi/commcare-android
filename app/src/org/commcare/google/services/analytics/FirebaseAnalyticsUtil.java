@@ -96,7 +96,7 @@ public class FirebaseAnalyticsUtil {
         }
 
         analyticsInstance.setUserProperty(CCAnalyticsParam.CCC_ENABLED,
-                String.valueOf(ConnectManager.isConnectIdIntroduced()));
+                String.valueOf(ConnectManager.isConnectIdConfigured()));
     }
 
     private static String getFreeDiskBucket() {

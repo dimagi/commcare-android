@@ -100,9 +100,9 @@ public class ConnectLinkedAppRecord extends Persisted {
         newRecord.hqTokenExpiration = oldRecord.getHqTokenExpiration();
         newRecord.connectIdLinked = oldRecord.getConnectIdLinked();
         newRecord.linkOffered1 = oldRecord.getLinkOfferDate1() != null;
-        newRecord.linkOfferDate1 = oldRecord.getLinkOfferDate1();
+        newRecord.linkOfferDate1 = newRecord.linkOffered1 ? oldRecord.getLinkOfferDate1() : new Date();
         newRecord.linkOffered2 = oldRecord.getLinkOfferDate2() != null;
-        newRecord.linkOfferDate2 = oldRecord.getLinkOfferDate2();
+        newRecord.linkOfferDate2 = newRecord.linkOffered2 ? oldRecord.getLinkOfferDate2() : new Date();
 
         newRecord.usingLocalPassphrase = true;
 
