@@ -8,7 +8,9 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.os.BatteryManager;
 import android.os.Build;
+import android.os.Debug;
 import android.os.Environment;
 import android.os.IBinder;
 import android.os.Looper;
@@ -129,11 +131,13 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
 
 import java.io.File;
 import java.security.Security;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Nullable;
@@ -1224,8 +1228,47 @@ public class CommCareApplication extends MultiDexApplication implements Lifecycl
             case TRIM_MEMORY_BACKGROUND:
             case TRIM_MEMORY_MODERATE:
             case TRIM_MEMORY_COMPLETE:
+                logMemoryInfo();
+                logBatteryInfo();
                 break;
         }
 
+    }
+
+    private void logMemoryInfo(){
+        ActivityManager activityManager = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
+        ActivityManager.MemoryInfo memoryInfo = new ActivityManager.MemoryInfo();
+        activityManager.getMemoryInfo(memoryInfo);
+
+        Logger.log(LogTypes.TYPE_MEMINFO, "availMemory " + (memoryInfo.availMem / 1048576) + "MB" );
+        Logger.log(LogTypes.TYPE_MEMINFO, "lowMemory " + memoryInfo.lowMemory);
+        Logger.log(LogTypes.TYPE_MEMINFO, "threshold " + (memoryInfo.threshold / 1048576) + "MB" );
+        Logger.log(LogTypes.TYPE_MEMINFO, "totalMemory " + (memoryInfo.totalMem / 1048576) + "MB" );
+
+        List<ActivityManager.RunningAppProcessInfo> runningAppProcesses = activityManager.getRunningAppProcesses();
+        Map<Integer, String> pidMap = new TreeMap<Integer, String>();
+        for (ActivityManager.RunningAppProcessInfo runningAppProcessInfo : runningAppProcesses) {
+            pidMap.put(runningAppProcessInfo.pid, runningAppProcessInfo.processName);
+        }
+
+        Collection<Integer> keys = pidMap.keySet();
+        for(int key : keys) {
+            Debug.MemoryInfo[] memoryInfoArray = activityManager.getProcessMemoryInfo(new int[]{key});
+            for(Debug.MemoryInfo pidMemoryInfo: memoryInfoArray) {
+                Logger.log(LogTypes.TYPE_MEMINFO, String.format("************ MEMINFO in pid %d [%s] ************\n",key,pidMap.get(key)));
+                Logger.log(LogTypes.TYPE_MEMINFO, " pidMemoryInfo.getTotalPrivateDirty(): " + (pidMemoryInfo.getTotalPrivateDirty()/1024) + "MB");
+                Logger.log(LogTypes.TYPE_MEMINFO, " pidMemoryInfo.getTotalPss(): " + (pidMemoryInfo.getTotalPss()/1024) + "MB");
+                Logger.log(LogTypes.TYPE_MEMINFO, " pidMemoryInfo.getTotalSharedDirty(): " + (pidMemoryInfo.getTotalSharedDirty()/1024) + "MB");
+            }
+        }
+    }
+
+    private void logBatteryInfo() {
+        int batLevel = -1;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+            BatteryManager bm = (BatteryManager) getSystemService(BATTERY_SERVICE);
+            batLevel = bm.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY);
+        }
+        Logger.log("battery-status", "BatteryManager.BATTERY_PROPERTY_CAPACITY: " + batLevel + "%");
     }
 }
