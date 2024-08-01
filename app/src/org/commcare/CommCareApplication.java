@@ -17,6 +17,10 @@ import android.text.format.DateUtils;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.LifecycleEventObserver;
+import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.ProcessLifecycleOwner;
 import androidx.multidex.MultiDexApplication;
 import androidx.preference.PreferenceManager;
 import androidx.work.BackoffPolicy;
@@ -141,7 +145,7 @@ import io.noties.markwon.ext.tables.TablePlugin;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 
-public class CommCareApplication extends MultiDexApplication {
+public class CommCareApplication extends MultiDexApplication implements LifecycleEventObserver {
 
     private static final String TAG = CommCareApplication.class.getSimpleName();
 
@@ -1189,5 +1193,18 @@ public class CommCareApplication extends MultiDexApplication {
 
     public AndroidPackageUtils getAndroidPackageUtils() {
         return new AndroidPackageUtils();
+    }
+
+    @Override
+    public void onStateChanged(@NonNull LifecycleOwner source, @NonNull Lifecycle.Event event) {
+        Logger.log("commcare-state-changed", "Lifecycle.Event : " + event.name());
+        switch (event.name()) {
+            case "ON_START":
+            case "ON_RESUME":
+            case "ON_STOP":
+                break;
+            case "ON_PAUSE":
+                break;
+        }
     }
 }
