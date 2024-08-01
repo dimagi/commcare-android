@@ -253,6 +253,8 @@ public class CommCareApplication extends MultiDexApplication implements Lifecycl
 
         LocalePreferences.saveDeviceLocale(Locale.getDefault());
         GraphUtil.setLabelCharacterLimit(getResources().getInteger(R.integer.graph_label_char_limit));
+
+        ProcessLifecycleOwner.get().getLifecycle().addObserver(this);
     }
 
     protected void attachISRGCert() {
