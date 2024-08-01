@@ -260,6 +260,8 @@ public class CommCareApplication extends MultiDexApplication implements Lifecycl
         customiseOkHttp();
 
         setRxJavaGlobalHandler();
+
+        ProcessLifecycleOwner.get().getLifecycle().addObserver(this);
     }
 
     protected void loadSqliteLibs() {
