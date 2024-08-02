@@ -22,7 +22,9 @@ public class ConnectConstants {
     public static final String MESSAGE = "MESSAGE";
     public static final String BUTTON = "BUTTON";
     public static final String BUTTON2 = "BUTTON2";
+    public static final String DEACTIVATE_BUTTON = "DEACTIVATE_BUTTON";
     public static final String SECRET = "SECRET";
+    public static final String DEACTIVATION_FROM = "DEACTIVATION_FROM";
 
     public static final String RECOVER = "RECOVER";
     public static final String ENROLL_FAIL = "ENROLL_FAIL";

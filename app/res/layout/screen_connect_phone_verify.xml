@@ -2,10 +2,10 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="fill_parent"
-    android:background="@color/cc_core_bg"
-    android:orientation="vertical"
     android:layout_marginStart="@dimen/content_start"
-    android:layout_marginEnd="@dimen/content_start">
+    android:layout_marginEnd="@dimen/content_start"
+    android:background="@color/cc_core_bg"
+    android:orientation="vertical">
 
     <TextView
         android:id="@+id/connect_phone_verify_title"
@@ -13,9 +13,9 @@
         android:layout_height="wrap_content"
         android:layout_gravity="start"
         android:layout_margin="@dimen/content_min_margin"
+        android:text="@string/connect_verify_phone_title2"
         android:textColor="@color/cc_neutral_color"
-        android:textSize="@dimen/text_larger"
-        android:text="@string/connect_verify_phone_title2"/>
+        android:textSize="@dimen/text_larger" />
 
     <TextView
         android:id="@+id/connect_phone_verify_label"
@@ -23,12 +23,13 @@
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/content_min_margin"
         android:gravity="start"
-        android:textSize="@dimen/text_medium"/>
+        android:textSize="@dimen/text_medium" />
+
     <AutoCompleteTextView
         android:id="@+id/connect_phone_verify_code"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:inputType="numberDecimal"/>
+        android:inputType="numberDecimal" />
 
     <TextView
         android:id="@+id/connect_phone_verify_error"
@@ -36,9 +37,9 @@
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/content_min_margin"
         android:gravity="start"
-        android:textSize="@dimen/text_medium"
         android:textColor="@color/red"
-        android:visibility="gone"/>
+        android:textSize="@dimen/text_medium"
+        android:visibility="gone" />
 
     <TextView
         android:id="@+id/connect_phone_verify_change"
@@ -46,10 +47,10 @@
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/content_min_margin"
         android:gravity="start"
-        android:textSize="@dimen/text_medium"
-        android:textColor="@color/blue"
         android:text="@string/connect_verify_phone_change"
-        android:visibility="gone"/>
+        android:textColor="@color/blue"
+        android:textSize="@dimen/text_medium"
+        android:visibility="gone" />
 
     <TextView
         android:id="@+id/connect_phone_verify_resend"
@@ -57,16 +58,25 @@
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/content_min_margin"
         android:gravity="start"
-        android:textSize="@dimen/text_medium"
+        android:text="@string/connect_verify_phone_resend"
         android:textColor="@color/blue"
-        android:text="@string/connect_verify_phone_resend"/>
+        android:textSize="@dimen/text_medium" />
 
     <Button
         android:id="@+id/connect_phone_verify_button"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:paddingBottom="@dimen/content_start"
         android:paddingTop="@dimen/content_start"
-        android:text="@string/connect_verify_phone_verify"/>
+        android:paddingBottom="@dimen/content_start"
+        android:text="@string/connect_verify_phone_verify" />
+
+    <Button
+        android:id="@+id/connect_deactivate_button"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="@dimen/content_start"
+        android:paddingBottom="@dimen/content_start"
+        android:text="@string/connect_verify_phone_verify"
+        android:visibility="gone" />
 
 </LinearLayout>

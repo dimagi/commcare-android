@@ -245,6 +245,18 @@ public class ApiConnectId {
                 API_VERSION_CONNECT_ID, authInfo, params, false, false, callback);
     }
 
+    public static boolean requestInitiateAccountDeactivation(Context context, String phone,String username, IApiCallback callback) {
+        int urlId = R.string.ConnectInitiateUserAccountDeactivationURL;
+        AuthInfo authInfo = new AuthInfo.NoAuth();
+
+        HashMap<String, String> params = new HashMap<>();
+        params.put("username", username);
+        params.put("phone_number", phone);
+
+        return ConnectNetworkHelper.post(context, context.getString(urlId),
+                API_VERSION_CONNECT_ID, authInfo, params, false, false, callback);
+    }
+
     public static boolean requestRecoveryOtpSecondary(Context context, String phone, String secret,
                                                       IApiCallback callback) {
         int urlId = R.string.ConnectRecoverSecondaryURL;

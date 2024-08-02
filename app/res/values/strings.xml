@@ -29,6 +29,7 @@
     <string name="ConnectVerifyConfirmSecondaryOTPURL">https://connectid.dimagi.com/users/confirm_secondary_otp</string>
     <string name="ConnectConfirmOTPURL">https://connectid.dimagi.com/users/confirm_otp</string>
     <string name="ConnectRegisterURL">https://connectid.dimagi.com/users/register</string>
+    <string name="ConnectInitiateUserAccountDeactivationURL">https://connectid.dimagi.com/users/recover/initiate_deactivation</string>
 
     <string name="ConnectOpportunitiesURL">https://%s/api/opportunity/</string>
     <string name="ConnectStartLearningURL">https://%s/users/start_learn_app/</string>
@@ -797,4 +798,10 @@
     <string name="user_suspended">User is Suspended. Please contact admin.</string>
     <string name="select_phone_number">Select Phone Number</string>
     <string name="connect_job_list_api_failure">An error occurred while connecting to the server.</string>
+
+    <string name="connect_deactivate_account">Deactivate Account</string>
+    <string name="connect_deactivate_account_message">You are about to permanently deactivate this account…</string>
+    <string name="connect_deactivate_account_go_back">Go Back</string>
+    <string name="connect_deactivate_account_deactivated">Account deactivated, go create a new one</string>
+    <string name="connect_deactivate_account_creation">Create Account</string>
 </resources>
