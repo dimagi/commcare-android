@@ -309,12 +309,16 @@ public abstract class MediaWidget extends QuestionWidget {
         String extension = FileUtil.getExtension(binaryPath);
         destMediaPath = mInstanceFolder + System.currentTimeMillis() +
                 customFileTag + "." + extension;
+        Logger.log(LogTypes.TYPE_MEDIA_EVENT, "Setting recording destination folder: " + destMediaPath
+                + "|" + HiddenPreferences.isMediaCaptureEncryptionEnabled());
         try {
             if (HiddenPreferences.isMediaCaptureEncryptionEnabled()) {
                 destMediaPath = destMediaPath + AES_EXTENSION;
                 EncryptionIO.encryptFile(binaryPath, destMediaPath, getSecretKey());
+                Logger.log(LogTypes.TYPE_MEDIA_EVENT, "Media successfully encrypted and saved: " + destMediaPath);
             } else {
                 FileUtil.copyFile(binaryPath, destMediaPath);
+                Logger.log(LogTypes.TYPE_MEDIA_EVENT, "Media successfully saved: " + destMediaPath);
             }
         } catch (IOException e) {
             showToast("form.attachment.copy.fail");

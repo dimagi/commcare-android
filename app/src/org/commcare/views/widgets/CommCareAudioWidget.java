@@ -18,8 +18,10 @@ import android.widget.Toast;
 import org.commcare.activities.components.FormEntryConstants;
 import org.commcare.dalvik.R;
 import org.commcare.logic.PendingCalloutInterface;
+import org.commcare.util.LogTypes;
 import org.commcare.utils.StringUtils;
 import org.javarosa.core.model.data.IAnswerData;
+import org.javarosa.core.services.Logger;
 import org.javarosa.form.api.FormEntryPrompt;
 
 import java.io.File;
@@ -132,6 +134,7 @@ public class CommCareAudioWidget extends AudioWidget
 
     @Override
     public void onRecordingCompletion(String audioFile) {
+        Logger.log(LogTypes.TYPE_MEDIA_EVENT, "Saving recording: " + audioFile);
         if (new File(audioFile).exists()) {
             setBinaryData(audioFile);
             togglePlayButton(true);
