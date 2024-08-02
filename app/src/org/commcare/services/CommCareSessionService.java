@@ -350,9 +350,14 @@ public class CommCareSessionService extends Service {
         // timeout then wrap-up the process.
         if (logoutStartedAt != -1 &&
                 currentTime > (logoutStartedAt + LOGOUT_TIMEOUT)) {
+            Logger.log(LogTypes.TYPE_USER,
+                    "Crossed threshold to save form session state during scheduled session expiration. Passed " + (
+                            currentTime - logoutStartedAt) + "ms");
             // Try and grab the logout lock, aborting if synchronization is in
             // progress.
             if (!CommCareSessionService.sessionAliveLock.tryLock()) {
+                Logger.log(LogTypes.TYPE_USER,
+                        "Unabled to get session lock during scheduled session expiration");
                 return;
             }
             try {
@@ -371,6 +376,8 @@ public class CommCareSessionService extends Service {
             // Try and grab the logout lock, aborting if synchronization is in
             // progress.
             if (!CommCareSessionService.sessionAliveLock.tryLock()) {
+                Logger.log(LogTypes.TYPE_USER,
+                        "Unabled to get session lock during scheduled session expiration");
                 return;
             }
 
