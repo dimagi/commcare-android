@@ -832,8 +832,15 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
         int formRecordId = getIntent().getIntExtra(KEY_FORM_RECORD_ID, -1);
         int formDefId = getIntent().getIntExtra(KEY_FORM_DEF_ID, -1);
-        FormSaveHelper formSaveHelper = new FormSaveHelper(formRecordId, formDefId, exit, complete,
-                updatedSaveName, symetricKey, FormEntryInstanceState.mFormRecordPath);
+        FormSaveHelper formSaveHelper;
+        try {
+            formSaveHelper = FormSaveHelper.getNewInstance(formRecordId, formDefId, exit, complete,
+                    updatedSaveName, symetricKey, FormEntryInstanceState.mFormRecordPath);
+        } catch (IllegalStateException e) {
+            // We already have a form save in progress outside the scope of saveToDisk Task, let it do it's thing
+            return;
+        }
+
         mSaveToDiskTask = new SaveToDiskTask(formSaveHelper, headless);
 
         if (!headless) {

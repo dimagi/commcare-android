@@ -35,6 +35,11 @@ import javax.crypto.spec.SecretKeySpec;
 
 public class FormSaveHelper {
 
+    private static FormSaveHelper singletonRunningInstance = null;
+    private static final Object lock = new Object();
+
+    private static final String TAG = FormSaveHelper.class.getSimpleName();
+
     private final Boolean mExitAfterSave;
     private final Boolean mMarkCompleted;
     private final int mFormRecordId;
@@ -45,7 +50,7 @@ public class FormSaveHelper {
 
     private final SecretKeySpec mSymetricKey;
 
-    public FormSaveHelper(int formRecordId, int formDefId, Boolean exitAfterSave, Boolean markCompleted,
+    private FormSaveHelper(int formRecordId, int formDefId, Boolean exitAfterSave, Boolean markCompleted,
             String recordName, SecretKeySpec symetricKey, String formRecordPath) {
         mFormRecordId = formRecordId;
         mFormDefId = formDefId;
@@ -54,6 +59,25 @@ public class FormSaveHelper {
         mRecordName = recordName;
         mFormRecordPath = formRecordPath;
         mSymetricKey = symetricKey;
+    }
+
+    public static FormSaveHelper getNewInstance(int formRecordId, int formDefId, Boolean exitAfterSave, Boolean markCompleted,
+            String recordName, SecretKeySpec symetricKey, String formRecordPath){
+        synchronized (lock) {
+            if (singletonRunningInstance == null) {
+                singletonRunningInstance = new FormSaveHelper(formRecordId, formDefId, exitAfterSave,
+                        markCompleted, recordName, symetricKey, formRecordPath);
+                return singletonRunningInstance;
+            } else {
+                throw new IllegalStateException("An instance of " + TAG + " already exists.");
+            }
+        }
+    }
+
+    public static void clearInstance() {
+        synchronized (lock) {
+            singletonRunningInstance = null;
+        }
     }
 
     public ResultAndError<SaveToDiskTask.SaveStatus> saveForm() {

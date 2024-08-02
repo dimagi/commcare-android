@@ -1,40 +1,10 @@
 package org.commcare.tasks;
 
-import org.commcare.CommCareApplication;
 import org.commcare.activities.FormEntryActivity;
-import org.commcare.activities.components.ImageCaptureProcessing;
-import org.commcare.android.database.app.models.FormDefRecord;
-import org.commcare.android.database.user.models.FormRecord;
-import org.commcare.android.logging.ForceCloseLogger;
 import org.commcare.interfaces.FormSavedListener;
-import org.commcare.logging.XPathErrorLogger;
-import org.commcare.models.database.SqlStorage;
-import org.commcare.models.encryption.EncryptionIO;
 import org.commcare.tasks.templates.CommCareTask;
-import org.commcare.util.FormMetaIndicatorUtil;
-import org.commcare.util.LogTypes;
-import org.commcare.utils.FileUtil;
-import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.model.FormDef;
-import org.javarosa.core.model.FormIndex;
-import org.javarosa.core.model.instance.FormInstance;
-import org.javarosa.core.model.instance.TreeReference;
-import org.javarosa.core.services.Logger;
-import org.javarosa.core.services.locale.Localization;
-import org.javarosa.core.services.transport.payload.ByteArrayPayload;
-import org.javarosa.form.api.FormController;
 import org.javarosa.form.api.FormEntryController;
-import org.javarosa.model.xform.XFormSerializingVisitor;
-import org.javarosa.xform.util.XFormSerializer;
-import org.javarosa.xpath.XPathException;
-
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-
-import javax.crypto.spec.SecretKeySpec;
 
 /**
  * @author Carl Hartung (carlhartung@gmail.com)
@@ -85,6 +55,7 @@ public class SaveToDiskTask extends
     protected void onPostExecute(ResultAndError<SaveStatus> result) {
         super.onPostExecute(result);
         synchronized (this) {
+            FormSaveHelper.clearInstance();
             if (mSavedListener != null) {
                 if (result == null) {
                     mSavedListener.savingComplete(SaveStatus.SAVE_ERROR, "Unknown Error");
@@ -113,4 +84,9 @@ public class SaveToDiskTask extends
         }
     }
 
+    @Override
+    protected void onCancelled() {
+        super.onCancelled();
+        FormSaveHelper.clearInstance();
+    }
 }
