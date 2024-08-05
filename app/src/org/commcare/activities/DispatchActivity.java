@@ -64,6 +64,7 @@ public class DispatchActivity extends AppCompatActivity {
     private boolean startFromLogin;
     private LoginMode lastLoginMode;
     private boolean userManuallyEnteredPasswordMode;
+    private boolean connectIdManagedLogin;
     private boolean shouldGoToConnectJobStatus;
 
     private boolean shouldFinish;
@@ -321,6 +322,7 @@ public class DispatchActivity extends AppCompatActivity {
         i.putExtra(START_FROM_LOGIN, startFromLogin);
         i.putExtra(LoginActivity.LOGIN_MODE, lastLoginMode);
         i.putExtra(LoginActivity.MANUAL_SWITCH_TO_PW_MODE, userManuallyEnteredPasswordMode);
+        i.putExtra(LoginActivity.CONNECTID_MANAGED_LOGIN, connectIdManagedLogin);
         startFromLogin = false;
         clearSessionEndpointAppId();
         startActivityForResult(i, HOME_SCREEN);
@@ -464,6 +466,7 @@ public class DispatchActivity extends AppCompatActivity {
                     userManuallyEnteredPasswordMode =
                             intent.getBooleanExtra(LoginActivity.MANUAL_SWITCH_TO_PW_MODE, false);
                     shouldGoToConnectJobStatus = intent.getBooleanExtra(LoginActivity.GO_TO_CONNECT_JOB_STATUS, false);
+                    connectIdManagedLogin = intent.getBooleanExtra(LoginActivity.CONNECTID_MANAGED_LOGIN, false);
                     startFromLogin = true;
                 }
                 return;

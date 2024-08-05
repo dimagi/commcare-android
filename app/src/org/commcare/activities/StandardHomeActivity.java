@@ -284,7 +284,7 @@ public class StandardHomeActivity
     }
 
     private void updateSecondaryPhoneConfirmationTile() {
-        boolean show = ConnectManager.shouldShowSecondaryPhoneConfirmationTile(this);
+        boolean show = getIntent().getBooleanExtra(LoginActivity.CONNECTID_MANAGED_LOGIN , false) && ConnectManager.shouldShowSecondaryPhoneConfirmationTile(this);
 
         uiController.updateConnectTile(show);
     }
