@@ -1,7 +1,5 @@
 package org.commcare.tasks;
 
-import android.util.Log;
-
 import org.commcare.CommCareApplication;
 import org.commcare.activities.FormEntryActivity;
 import org.commcare.activities.components.ImageCaptureProcessing;
@@ -272,9 +270,9 @@ public class SaveToDiskTask extends
         synchronized (this) {
             if (mSavedListener != null) {
                 if (result == null) {
-                    mSavedListener.savingComplete(SaveStatus.SAVE_ERROR, "Unknown Error");
+                    mSavedListener.savingComplete(SaveStatus.SAVE_ERROR, "Unknown Error", exitAfterSave);
                 } else {
-                    mSavedListener.savingComplete(result.data, result.errorMessage);
+                    mSavedListener.savingComplete(result.data, result.errorMessage, exitAfterSave);
                 }
             }
         }
