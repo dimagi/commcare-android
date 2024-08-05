@@ -242,13 +242,17 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             uiController.refreshView();
         }
         TextToSpeechConverter.INSTANCE.setListener(mTTSCallback);
+        HiddenPreferences.clearInterruptedSSD();
     }
 
     @Override
     public void formSaveCallback(boolean exit, Runnable listener) {
         // note that we have started saving the form
         customFormSaveCallback = listener;
+        interruptAndSaveForm(exit);
+    }
 
+    private void interruptAndSaveForm(boolean exit) {
         // Set flag that will allow us to restore this form when we log back in
         CommCareApplication.instance().getCurrentSessionWrapper().setCurrentStateAsInterrupted();
 
@@ -910,6 +914,12 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         TextToSpeechConverter.INSTANCE.stop();
 
         unregisterReceiver(pendingSyncAlertBroadcastReceiver);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        interruptAndSaveForm(false);
     }
 
     private void saveInlineVideoState() {
