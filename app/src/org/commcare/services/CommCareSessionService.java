@@ -409,7 +409,7 @@ public class CommCareSessionService extends Service {
         // save form progress, if any
         synchronized (lock) {
             if (formSaver != null) {
-                formSaver.formSaveCallback(() -> {
+                formSaver.formSaveCallback(true, () -> {
                     CommCareApplication.instance().expireUserSession();
                 });
             } else {
@@ -428,7 +428,7 @@ public class CommCareSessionService extends Service {
             if (formSaver != null) {
                 Toast.makeText(CommCareApplication.instance(),
                         "Suspending existing form entry session...", Toast.LENGTH_LONG).show();
-                formSaver.formSaveCallback(callback);
+                formSaver.formSaveCallback(true, callback);
                 formSaver = null;
                 return;
             }
