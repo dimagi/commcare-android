@@ -91,7 +91,7 @@ public class ConnectLearningProgressFragment extends Fragment {
     public void onResume() {
         super.onResume();
 
-        if(ConnectManager.isUnlocked()) {
+        if(ConnectManager.isConnectIdConfigured()) {
             refreshData();
         }
     }

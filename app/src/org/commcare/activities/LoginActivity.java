@@ -389,7 +389,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
     private String getUniformUsername() {
         String username = uiController.getEnteredUsername();
-        if (ConnectManager.isUnlocked() && appLaunchedFromConnect) {
+        if (ConnectManager.isConnectIdConfigured() && appLaunchedFromConnect) {
             username = ConnectManager.getUser(this).getUserId();
         }
         return username.toLowerCase().trim();
@@ -481,7 +481,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     }
 
     public boolean handleConnectSignIn() {
-        if(ConnectManager.isConnectIdIntroduced()) {
+        if(ConnectManager.isConnectIdConfigured()) {
             String appId = CommCareApplication.instance().getCurrentApp().getUniqueId();
             ConnectJobRecord job = ConnectManager.setConnectJobForApp(this, appId);
             if(job != null) {
@@ -525,7 +525,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
     private void checkForSavedCredentials() {
         boolean loginWithConnectIDVisible = false;
-        if (ConnectManager.isConnectIdIntroduced()) {
+        if (ConnectManager.isConnectIdConfigured()) {
             if (appLaunchedFromConnect && !connectLaunchPerformed) {
                 loginWithConnectIDVisible = true;
                 uiController.setConnectButtonVisible(false);
@@ -713,7 +713,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
         appIdDropdownList.clear();
 
-        boolean includeConnect = ConnectManager.isConnectIdIntroduced();
+        boolean includeConnect = ConnectManager.isConnectIdConfigured();
         if (includeConnect) {
             appNames.add(Localization.get("login.app.connect"));
             appIdDropdownList.add("");
@@ -737,7 +737,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     }
 
     private boolean isConnectJobsSelected() {
-        return ConnectManager.isConnectIdIntroduced() && uiController.getSelectedAppIndex() == 0;
+        return ConnectManager.isConnectIdConfigured() && uiController.getSelectedAppIndex() == 0;
     }
 
     @Override
