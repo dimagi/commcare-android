@@ -132,7 +132,7 @@ class GlobalDatabaseUpgrader {
     }
 
     private boolean upgradeFiveSix(SQLiteDatabase db) {
-        return addTableForNewModel(db, ConnectKeyRecord.STORAGE_KEY, new ConnectKeyRecord());
+        return addTableForNewModel(db, ConnectKeyRecord.STORAGE_KEY, new ConnectKeyRecordV6());
     }
 
     private boolean upgradeSixSeven(SQLiteDatabase db) {
