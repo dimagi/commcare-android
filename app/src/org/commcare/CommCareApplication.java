@@ -1302,6 +1302,10 @@ public class CommCareApplication extends MultiDexApplication implements Lifecycl
                 "LowMemory: " + memoryInfo.lowMemory);
 
         List<ActivityManager.RunningAppProcessInfo> runningAppProcesses = activityManager.getRunningAppProcesses();
+        if (runningAppProcesses == null) {
+            // if there are no running processes no need to report on memory usage
+            return;
+        }
         Map<Integer, String> pidMap = new TreeMap<Integer, String>();
         for (ActivityManager.RunningAppProcessInfo runningAppProcessInfo : runningAppProcesses) {
             pidMap.put(runningAppProcessInfo.pid, runningAppProcessInfo.processName);
