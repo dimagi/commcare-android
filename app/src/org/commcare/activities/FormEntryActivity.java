@@ -148,6 +148,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     private boolean instanceIsReadOnly = false;
     private boolean hasFormLoadBeenTriggered = false;
     private boolean hasFormLoadFailed = false;
+    private boolean triggeredExit = false;
     private String locationRecieverErrorAction = null;
     private String badLocationXpath = null;
 
@@ -919,7 +920,15 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     @Override
     protected void onStop() {
         super.onStop();
-        interruptAndSaveForm(false);
+        if (shouldSaveFormOnStop()) {
+            interruptAndSaveForm(false);
+        }
+    }
+
+    private boolean shouldSaveFormOnStop() {
+        // if the form has loaded and another widget workflow is not in progress and we ourselves have not
+        // called exit as part of user workflow
+        return formHasLoaded() && !triggeredExit;
     }
 
     private void saveInlineVideoState() {
@@ -1356,6 +1365,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
         dismissCurrentProgressDialog();
         reportFormExitTime();
+        triggeredExit = true;
         finish();
     }
 
