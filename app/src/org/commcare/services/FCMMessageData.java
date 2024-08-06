@@ -29,6 +29,7 @@ public class FCMMessageData implements Externalizable{
         this.creationTime = convertISO8601ToDateTime(payloadData.get("created_at"));
     }
 
+
     public FCMMessageData(){}
 
     public String getUsername() {
