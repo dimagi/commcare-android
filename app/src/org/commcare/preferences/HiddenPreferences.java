@@ -640,4 +640,10 @@ public class HiddenPreferences {
                         StringUtils.convertPairToJsonString(ssIdAndSerializedFormIndexPair))
                 .apply();
     }
+
+    public static String getInterruptedFormIndex() {
+        String currentUserId = CommCareApplication.instance().getCurrentUserId();
+        return CommCareApplication.instance().getCurrentApp().getAppPreferences()
+                .getString(INTERRUPTED_FORM_INDEX + currentUserId, null);
+    }
 }
