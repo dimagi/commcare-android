@@ -95,13 +95,28 @@ public class ConnectActivity extends CommCareActivity<ResourceEngineListener> {
                     .build();
             navController.navigate(fragmentId, bundle, options);
         } else if (redirectionAction != null) {
-            ConnectManager.init(this);
-            ConnectManager.unlockConnect(this, success -> {
-                if (success) {
-                    getJobDetails();
-                }
-            });
+            initializeAndUnlockConnection();
         }
+    }
+
+    /**
+     * Initializes the ConnectManager and attempts to unlock the connection.
+     * <p>
+     * This method performs the following steps:
+     * <ul>
+     *     <li>Initializes the ConnectManager with the current context.</li>
+     *     <li>Attempts to unlock the connection using the ConnectManager.</li>
+     *     <li>If the unlock operation is successful, retrieves job details by calling {@link #getJobDetails()}.</li>
+     * </ul>
+     * </p>
+     */
+    private void initializeAndUnlockConnection() {
+        ConnectManager.init(this);
+        ConnectManager.unlockConnect(this, success -> {
+            if (success) {
+                getJobDetails();
+            }
+        });
     }
 
     /**
@@ -287,5 +302,15 @@ public class ConnectActivity extends CommCareActivity<ResourceEngineListener> {
                 ConnectNetworkHelper.showOutdatedApiError(ConnectActivity.this);
             }
         });
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        redirectionAction = intent.getStringExtra("action");
+        opportunityId = intent.getStringExtra("opportunity_id");
+        if(redirectionAction != null){
+            initializeAndUnlockConnection();
+        }
     }
 }
