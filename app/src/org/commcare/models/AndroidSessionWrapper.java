@@ -5,7 +5,6 @@ import android.util.Log;
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
-import org.commcare.core.interfaces.RemoteInstanceFetcher;
 import org.commcare.models.database.AndroidSandbox;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.modern.session.SessionWrapper;
@@ -20,7 +19,6 @@ import org.commcare.suite.model.EntityDatum;
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.FormEntry;
 import org.commcare.suite.model.SessionDatum;
-import org.commcare.suite.model.StackFrameStep;
 import org.commcare.suite.model.StackOperation;
 import org.commcare.util.CommCarePlatform;
 import org.commcare.utils.AndroidInstanceInitializer;
@@ -184,12 +182,16 @@ public class AndroidSessionWrapper implements SessionWrapperInterface {
                 formRecordStorage.getMetaDataFieldForRecord(correspondingFormRecordId, FormRecord.META_STATUS));
     }
 
-    public void setCurrentStateAsInterrupted() {
+    public void setCurrentStateAsInterrupted(String serializedFormIndex) {
         if (sessionStateRecordId != -1) {
             SqlStorage<SessionStateDescriptor> sessionStorage =
                     CommCareApplication.instance().getUserStorage(SessionStateDescriptor.class);
             SessionStateDescriptor current = sessionStorage.read(sessionStateRecordId);
             HiddenPreferences.setInterruptedSSD(current.getID());
+
+            if (serializedFormIndex != null) {
+                HiddenPreferences.setInterruptedFormIndex(serializedFormIndex);
+            }
         }
     }
 
