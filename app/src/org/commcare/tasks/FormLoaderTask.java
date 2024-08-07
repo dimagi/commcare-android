@@ -137,7 +137,7 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Integer, String, Fo
 
         setupFormMedia(formDefRecord.getMediaPath());
 
-        AndroidFormController formController = new AndroidFormController(fec, mReadOnly);
+        AndroidFormController formController = new AndroidFormController(fec, mReadOnly, serializedLastFormIndex);
 
         data = new FECWrapper(formController);
         return data;
