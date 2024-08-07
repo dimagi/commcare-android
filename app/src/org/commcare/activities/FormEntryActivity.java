@@ -1008,6 +1008,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     private void loadForm() {
         mFormController = null;
         instanceState.setFormRecordPath(null);
+        String serializedFormIndex = null;
 
         Intent intent = getIntent();
         if (intent != null) {
@@ -1024,6 +1025,9 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                             instanceState);
                     formId = instanceAndStatus.first;
                     instanceIsReadOnly = instanceAndStatus.second;
+
+                    // only retrieve a potentially stored form index when loading an existing form record
+                    serializedFormIndex = HiddenPreferences.getInterruptedFormIndex();
                 } else if (intent.hasExtra(KEY_FORM_DEF_ID)) {
                     formId = intent.getIntExtra(KEY_FORM_DEF_ID, -1);
                     instanceState.setFormDefPath(FormFileSystemHelpers.getFormDefPath(formDefStorage, formId));
@@ -1040,7 +1044,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             }
 
             mFormLoaderTask = new FormLoaderTask<FormEntryActivity>(symetricKey, instanceIsReadOnly,
-                    formEntryRestoreSession.isRecording(), FormEntryInstanceState.mFormRecordPath, this) {
+                    formEntryRestoreSession.isRecording(), FormEntryInstanceState.mFormRecordPath, this, serializedFormIndex) {
                 @Override
                 protected void deliverResult(FormEntryActivity receiver, FECWrapper wrapperResult) {
                     receiver.handleFormLoadCompletion(wrapperResult.getController());
