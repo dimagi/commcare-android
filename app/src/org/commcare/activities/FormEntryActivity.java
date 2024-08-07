@@ -1028,7 +1028,8 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                     instanceIsReadOnly = instanceAndStatus.second;
 
                     // only retrieve a potentially stored form index when loading an existing form record
-                    serializedFormIndex = HiddenPreferences.getInterruptedFormIndex();
+                    AndroidSessionWrapper asw = CommCareApplication.instance().getCurrentSessionWrapper();
+                    serializedFormIndex = retrieveAndValidateSerializedFormIndex(asw.getSessionDescriptorId());
                 } else if (intent.hasExtra(KEY_FORM_DEF_ID)) {
                     formId = intent.getIntExtra(KEY_FORM_DEF_ID, -1);
                     instanceState.setFormDefPath(FormFileSystemHelpers.getFormDefPath(formDefStorage, formId));
@@ -1086,6 +1087,31 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             mFormLoaderTask.executeParallel(formId);
             hasFormLoadBeenTriggered = true;
         }
+    }
+
+    private String retrieveAndValidateSerializedFormIndex(int sessionDescriptorId) {
+        String interruptedFormIndex = HiddenPreferences.getInterruptedFormIndex();
+        if (interruptedFormIndex == null || interruptedFormIndex.isEmpty()){
+            return null;
+        }
+
+        int spaceIndex = interruptedFormIndex.indexOf(" ");
+        if (spaceIndex != -1) {
+            try {
+                int ssdId = Integer.parseInt(interruptedFormIndex.substring(0, spaceIndex));
+                String serializedFormIndex =
+                        interruptedFormIndex.substring(
+                                spaceIndex + 1, interruptedFormIndex.length());
+                if (ssdId == sessionDescriptorId) {
+                    return serializedFormIndex;
+                }
+            } catch (Exception e) {
+                // something went wrong
+            }
+        }
+        // data format is invalid, so better to clear the data
+        HiddenPreferences.clearInterruptedFormIndex();
+        return null;
     }
 
     private void handleFormLoadCompletion(AndroidFormController fc) {
