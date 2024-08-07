@@ -646,4 +646,11 @@ public class HiddenPreferences {
         return CommCareApplication.instance().getCurrentApp().getAppPreferences()
                 .getString(INTERRUPTED_FORM_INDEX + currentUserId, null);
     }
+
+    public static void clearInterruptedFormIndex() {
+        String currentUserId = CommCareApplication.instance().getCurrentUserId();
+        CommCareApplication.instance().getCurrentApp().getAppPreferences().edit()
+                .remove(INTERRUPTED_FORM_INDEX + currentUserId)
+                .apply();
+    }
 }

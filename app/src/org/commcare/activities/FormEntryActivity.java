@@ -1116,12 +1116,17 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
         formEntryRestoreSession.replaySession(this);
 
+        // jump to form index, no action if null
+        mFormController.returnToStoredIndex();
+
         uiController.refreshView();
         FormNavigationUI.updateNavigationCues(this, mFormController, uiController.questionsView);
         if (isRestartAfterSessionExpiration) {
             Toast.makeText(this,
                     Localization.get("form.entry.restart.after.expiration"), Toast.LENGTH_LONG).show();
         }
+
+        HiddenPreferences.clearInterruptedFormIndex();
     }
 
     private void handleXpathErrorBroadcast() {
