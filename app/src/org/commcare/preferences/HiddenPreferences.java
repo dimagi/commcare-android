@@ -112,6 +112,7 @@ public class HiddenPreferences {
      * be used to remove it form the user domain name to match how the domain represented in the backend
      */
     public static final String USER_DOMAIN_SERVER_URL_SUFFIX = ".commcarehq.org";
+    private static final String INTERRUPTED_FORM_INDEX = "interrupted-form-index";
 
     /**
      * @return How many seconds should a user session remain open before expiring?
@@ -628,5 +629,12 @@ public class HiddenPreferences {
      */
     public static boolean isBackgroundSyncEnabled() {
         return DeveloperPreferences.doesPropertyMatch(ENABLE_BACKGROUND_SYNC, PrefValues.NO, PrefValues.YES);
+    }
+
+    public static void setInterruptedFormIndex(String serializedFormIndex) {
+        String currentUserId = CommCareApplication.instance().getCurrentUserId();
+        CommCareApplication.instance().getCurrentApp().getAppPreferences().edit()
+                .putString(INTERRUPTED_FORM_INDEX + currentUserId,  serializedFormIndex)
+                .apply();
     }
 }
