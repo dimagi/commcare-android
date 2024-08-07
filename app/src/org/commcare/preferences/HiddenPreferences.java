@@ -6,11 +6,13 @@ import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.activities.GeoPointActivity;
 import org.commcare.android.logging.ReportingUtils;
+import org.commcare.modern.util.Pair;
 import org.commcare.services.FCMMessageData;
 import org.commcare.utils.AndroidCommCarePlatform;
 import org.commcare.utils.FirebaseMessagingUtil;
 import org.commcare.utils.GeoUtils;
 import org.commcare.utils.MapLayer;
+import org.commcare.utils.StringUtils;
 
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
@@ -631,10 +633,11 @@ public class HiddenPreferences {
         return DeveloperPreferences.doesPropertyMatch(ENABLE_BACKGROUND_SYNC, PrefValues.NO, PrefValues.YES);
     }
 
-    public static void setInterruptedFormIndex(String serializedFormIndex) {
+    public static void setInterruptedFormIndex(Pair<Integer, String> ssIdAndSerializedFormIndexPair) {
         String currentUserId = CommCareApplication.instance().getCurrentUserId();
         CommCareApplication.instance().getCurrentApp().getAppPreferences().edit()
-                .putString(INTERRUPTED_FORM_INDEX + currentUserId,  serializedFormIndex)
+                .putString(INTERRUPTED_FORM_INDEX + currentUserId,
+                        StringUtils.convertPairToJsonString(ssIdAndSerializedFormIndexPair))
                 .apply();
     }
 }
