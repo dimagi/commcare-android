@@ -9,6 +9,7 @@ import org.commcare.models.database.AndroidSandbox;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.modern.session.SessionWrapper;
 import org.commcare.modern.session.SessionWrapperInterface;
+import org.commcare.modern.util.Pair;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.session.CommCareSession;
 import org.commcare.session.SessionDescriptorUtil;
@@ -190,7 +191,7 @@ public class AndroidSessionWrapper implements SessionWrapperInterface {
             HiddenPreferences.setInterruptedSSD(current.getID());
 
             if (serializedFormIndex != null) {
-                HiddenPreferences.setInterruptedFormIndex(serializedFormIndex);
+                HiddenPreferences.setInterruptedFormIndex(new Pair<>(current.getID(), serializedFormIndex));
             }
         }
     }
