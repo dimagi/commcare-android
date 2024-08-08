@@ -1113,8 +1113,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 byte[] decodedFormIndex = Base64.decode(serializedFormIndex, Base64.DEFAULT);
                 return SerializationUtil.deserialize(decodedFormIndex, FormIndex.class);
             } catch(Exception e) {
-                Logger.log(LogTypes.TYPE_FORM_ENTRY,
-                        "Deserialization of last form index failed, " + e.getMessage());
+                Logger.exception("Deserialization of last form index failed ", e);
             }
         }
         return null;
