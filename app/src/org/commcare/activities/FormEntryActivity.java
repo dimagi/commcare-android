@@ -57,6 +57,7 @@ import org.commcare.logic.AndroidFormController;
 import org.commcare.models.AndroidSessionWrapper;
 import org.commcare.models.FormRecordProcessor;
 import org.commcare.models.database.SqlStorage;
+import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.services.FCMMessageData;
 import org.commcare.services.PendingSyncAlertBroadcastReceiver;
@@ -148,6 +149,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     private boolean instanceIsReadOnly = false;
     private boolean hasFormLoadBeenTriggered = false;
     private boolean hasFormLoadFailed = false;
+    private boolean triggeredExit = false;
     private String locationRecieverErrorAction = null;
     private String badLocationXpath = null;
 
@@ -242,18 +244,23 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             uiController.refreshView();
         }
         TextToSpeechConverter.INSTANCE.setListener(mTTSCallback);
+        HiddenPreferences.clearInterruptedSSD();
     }
 
     @Override
-    public void formSaveCallback(Runnable listener) {
+    public void formSaveCallback(boolean exit, Runnable listener) {
         // note that we have started saving the form
         customFormSaveCallback = listener;
+        interruptAndSaveForm(exit);
+    }
 
+    private void interruptAndSaveForm(boolean exit) {
         // Set flag that will allow us to restore this form when we log back in
-        CommCareApplication.instance().getCurrentSessionWrapper().setCurrentStateAsInterrupted();
+        CommCareApplication.instance().getCurrentSessionWrapper()
+                .setCurrentStateAsInterrupted(mFormController.getSerializedFormIndex());
 
         // Start saving form; will trigger expireUserSession() on completion
-        saveIncompleteFormToDisk();
+        saveIncompleteFormToDisk(exit);
     }
 
     private void handleLocationErrorAction() {
@@ -766,8 +773,8 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         saveDataToDisk(FormEntryConstants.EXIT, true, updatedSaveName, false);
     }
 
-    private void saveIncompleteFormToDisk() {
-        saveDataToDisk(FormEntryConstants.EXIT, false, null, true);
+    private void saveIncompleteFormToDisk(boolean exit) {
+        saveDataToDisk(exit, false, null, true);
     }
 
     /**
@@ -910,6 +917,20 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         TextToSpeechConverter.INSTANCE.stop();
 
         unregisterReceiver(pendingSyncAlertBroadcastReceiver);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (shouldSaveFormOnStop()) {
+            interruptAndSaveForm(false);
+        }
+    }
+
+    private boolean shouldSaveFormOnStop() {
+        // if feature enabled and the form has loaded and another widget workflow is not in progress and we
+        // ourselves have not called exit as part of user workflow
+        return DeveloperPreferences.isAutoSaveFormOnPause() && formHasLoaded() && !triggeredExit;
     }
 
     private void saveInlineVideoState() {
@@ -1208,7 +1229,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
      * continue closing the session/logging out.
      */
     @Override
-    public void savingComplete(SaveToDiskTask.SaveStatus saveStatus, String errorMessage) {
+    public void savingComplete(SaveToDiskTask.SaveStatus saveStatus, String errorMessage, boolean exit) {
         // Did we just save a form because the key session
         // (CommCareSessionService) is ending?
         if (customFormSaveCallback != null) {
@@ -1216,7 +1237,9 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             customFormSaveCallback = null;
 
             toCall.run();
-            returnAsInterrupted();
+            if (exit) {
+                returnAsInterrupted();
+            }
         } else if (saveStatus != null) {
             String toastMessage = "";
             switch (saveStatus) {
@@ -1344,6 +1367,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
         dismissCurrentProgressDialog();
         reportFormExitTime();
+        triggeredExit = true;
         finish();
     }
 

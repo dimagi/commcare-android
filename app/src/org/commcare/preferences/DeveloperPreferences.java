@@ -77,6 +77,8 @@ public class DeveloperPreferences extends CommCarePreferenceFragment {
     public final static String ALTERNATE_QUESTION_LAYOUT_ENABLED = "cc-alternate-question-text-format";
     public final static String OFFER_PIN_FOR_LOGIN = "cc-offer-pin-for-login";
 
+    public final static String AUTO_SAVE_FORM_ON_PAUSE = "cc-auto-form-save-on-pause";
+
     private static final Set<String> WHITELISTED_DEVELOPER_PREF_KEYS = new HashSet<>();
 
     static {
@@ -85,6 +87,7 @@ public class DeveloperPreferences extends CommCarePreferenceFragment {
         WHITELISTED_DEVELOPER_PREF_KEYS.add(AUTO_PURGE_ENABLED);
         WHITELISTED_DEVELOPER_PREF_KEYS.add(ALTERNATE_QUESTION_LAYOUT_ENABLED);
         WHITELISTED_DEVELOPER_PREF_KEYS.add(ENABLE_CERTIFICATE_TRANSPARENCY);
+        WHITELISTED_DEVELOPER_PREF_KEYS.add(AUTO_SAVE_FORM_ON_PAUSE);
     }
 
     /**
@@ -426,6 +429,10 @@ public class DeveloperPreferences extends CommCarePreferenceFragment {
 
     public static boolean useExpressionCachingInForms() {
         return doesPropertyMatch(USE_EXPRESSION_CACHING_IN_FORMS, PrefValues.NO, PrefValues.YES);
+    }
+
+    public static boolean isAutoSaveFormOnPause() {
+        return doesPropertyMatch(AUTO_SAVE_FORM_ON_PAUSE, PrefValues.NO, PrefValues.YES);
     }
 
     private void  hideOrShowDangerousSettings() {
