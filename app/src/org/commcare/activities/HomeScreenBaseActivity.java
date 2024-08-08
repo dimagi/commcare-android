@@ -405,8 +405,6 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
     private void clearOneTimeLoginActionFlags() {
         HiddenPreferences.setPostUpdateSyncNeeded(false);
         HiddenPreferences.clearInterruptedSSD();
-        HiddenPreferences.clearInterruptedFormIndex();
-
         String username = CommCareApplication.instance().getSession().getLoggedInUser().getUsername();
         HiddenPreferences.clearPendingSyncRequest(username);
     }

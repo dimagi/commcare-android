@@ -246,7 +246,6 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         }
         TextToSpeechConverter.INSTANCE.setListener(mTTSCallback);
         HiddenPreferences.clearInterruptedSSD();
-        HiddenPreferences.clearInterruptedFormIndex();
     }
 
     @Override
@@ -1157,6 +1156,8 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             Toast.makeText(this,
                     Localization.get("form.entry.restart.after.expiration"), Toast.LENGTH_LONG).show();
         }
+
+        HiddenPreferences.clearInterruptedFormIndex();
     }
 
     private void handleXpathErrorBroadcast() {
