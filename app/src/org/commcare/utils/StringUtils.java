@@ -5,9 +5,14 @@ import android.content.Context;
 import android.os.Build;
 import android.text.Spannable;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonIOException;
+
+import org.commcare.modern.util.Pair;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.NoLocalizedTextException;
 
+import java.io.Serializable;
 import java.text.Normalizer;
 import java.util.regex.Pattern;
 
@@ -54,5 +59,16 @@ public class StringUtils {
             ret = c.getString(resId, args);
         }
         return MarkupUtil.styleSpannable(c, ret);
+    }
+
+    public static String convertPairToJsonString(Pair<? extends Serializable, ? extends Serializable> pair){
+        Gson gson = new Gson();
+        try{
+            String jsonString = gson.toJson(pair);
+            return jsonString;
+        } catch(JsonIOException e){
+            // default to null
+            return null;
+        }
     }
 }

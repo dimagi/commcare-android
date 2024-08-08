@@ -256,7 +256,8 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
     private void interruptAndSaveForm(boolean exit) {
         // Set flag that will allow us to restore this form when we log back in
-        CommCareApplication.instance().getCurrentSessionWrapper().setCurrentStateAsInterrupted();
+        CommCareApplication.instance().getCurrentSessionWrapper()
+                .setCurrentStateAsInterrupted(mFormController.getSerializedFormIndex());
 
         // Start saving form; will trigger expireUserSession() on completion
         saveIncompleteFormToDisk(exit);
