@@ -3,11 +3,6 @@ package org.commcare.fragments.connectId;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-
-import androidx.fragment.app.Fragment;
-import androidx.navigation.NavDirections;
-import androidx.navigation.Navigation;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,11 +13,9 @@ import android.widget.Toast;
 import com.google.android.material.textfield.TextInputEditText;
 
 import org.commcare.activities.connect.ConnectIdMessageActivity;
-import org.commcare.activities.connect.ConnectIdPasswordVerificationActivityUiController;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.ConnectDatabaseHelper;
-import org.commcare.connect.ConnectTask;
 import org.commcare.connect.network.ApiConnectId;
 import org.commcare.connect.network.ConnectNetworkHelper;
 import org.commcare.connect.network.IApiCallback;
@@ -30,7 +23,6 @@ import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.utils.KeyboardHelper;
-import org.commcare.views.UiElement;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.services.Logger;
 import org.json.JSONException;
@@ -42,6 +34,10 @@ import java.text.ParseException;
 import java.util.Date;
 import java.util.Locale;
 import java.util.Objects;
+
+import androidx.fragment.app.Fragment;
+import androidx.navigation.NavDirections;
+import androidx.navigation.Navigation;
 
 import static org.commcare.connect.ConnectIdWorkflows.completeSignIn;
 

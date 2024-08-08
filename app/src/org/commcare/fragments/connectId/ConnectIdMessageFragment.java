@@ -1,12 +1,6 @@
 package org.commcare.fragments.connectId;
 
-import android.content.Intent;
 import android.os.Bundle;
-
-import androidx.fragment.app.Fragment;
-import androidx.navigation.NavDirections;
-import androidx.navigation.Navigation;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,16 +8,18 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import org.commcare.activities.SettingsHelper;
-import org.commcare.activities.connect.ConnectIdPhoneVerificationActivity;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.ConnectDatabaseHelper;
 import org.commcare.connect.ConnectManager;
 import org.commcare.connect.ConnectTask;
 import org.commcare.dalvik.R;
-import org.commcare.views.UiElement;
 
 import java.util.Locale;
+
+import androidx.fragment.app.Fragment;
+import androidx.navigation.NavDirections;
+import androidx.navigation.Navigation;
 
 import static org.commcare.connect.ConnectIdWorkflows.completeSignIn;
 

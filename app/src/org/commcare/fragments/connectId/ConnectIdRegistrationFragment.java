@@ -2,11 +2,6 @@ package org.commcare.fragments.connectId;
 
 import android.content.Context;
 import android.os.Bundle;
-
-import androidx.fragment.app.Fragment;
-import androidx.navigation.NavDirections;
-import androidx.navigation.Navigation;
-
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
@@ -20,9 +15,7 @@ import android.widget.Toast;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.ConnectDatabaseHelper;
-import org.commcare.connect.ConnectIdWorkflows;
 import org.commcare.connect.ConnectManager;
-import org.commcare.connect.ConnectTask;
 import org.commcare.connect.network.ApiConnectId;
 import org.commcare.connect.network.ConnectNetworkHelper;
 import org.commcare.connect.network.IApiCallback;
@@ -37,6 +30,10 @@ import java.io.InputStream;
 import java.text.ParseException;
 import java.util.Locale;
 import java.util.Random;
+
+import androidx.fragment.app.Fragment;
+import androidx.navigation.NavDirections;
+import androidx.navigation.Navigation;
 
 import static org.commcare.connect.ConnectTask.CONNECT_REGISTRATION_CONFIGURE_BIOMETRICS;
 

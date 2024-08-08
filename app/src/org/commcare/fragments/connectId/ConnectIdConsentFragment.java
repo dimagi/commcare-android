@@ -1,11 +1,6 @@
 package org.commcare.fragments.connectId;
 
 import android.os.Bundle;
-
-import androidx.fragment.app.Fragment;
-import androidx.navigation.NavDirections;
-import androidx.navigation.Navigation;
-
 import android.text.method.LinkMovementMethod;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,6 +11,10 @@ import android.widget.TextView;
 
 import org.commcare.connect.ConnectConstants;
 import org.commcare.dalvik.R;
+
+import androidx.fragment.app.Fragment;
+import androidx.navigation.NavDirections;
+import androidx.navigation.Navigation;
 
 public class ConnectIdConsentFragment extends Fragment {
 

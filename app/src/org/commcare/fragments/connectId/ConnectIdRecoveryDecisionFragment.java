@@ -2,12 +2,6 @@ package org.commcare.fragments.connectId;
 
 import android.content.Intent;
 import android.os.Bundle;
-
-import androidx.fragment.app.Fragment;
-import androidx.navigation.NavController;
-import androidx.navigation.NavDirections;
-import androidx.navigation.Navigation;
-
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
@@ -19,9 +13,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.commcare.activities.connect.ConnectIdRecoveryDecisionActivity;
 import org.commcare.connect.ConnectConstants;
-import org.commcare.connect.ConnectTask;
 import org.commcare.connect.network.ApiConnectId;
 import org.commcare.connect.network.IApiCallback;
 import org.commcare.dalvik.R;
@@ -31,6 +23,11 @@ import org.commcare.utils.PhoneNumberHelper;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Locale;
+
+import androidx.fragment.app.Fragment;
+import androidx.navigation.NavController;
+import androidx.navigation.NavDirections;
+import androidx.navigation.Navigation;
 
 /**
  * A simple {@link Fragment} subclass.
