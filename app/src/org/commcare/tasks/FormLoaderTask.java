@@ -1,7 +1,6 @@
 package org.commcare.tasks;
 
 import android.content.Context;
-import android.os.Environment;
 import android.util.Log;
 
 import org.commcare.CommCareApplication;
@@ -14,7 +13,6 @@ import org.commcare.engine.extensions.XFormExtensionUtils;
 import org.commcare.logging.UserCausedRuntimeException;
 import org.commcare.logging.XPathErrorLogger;
 import org.commcare.logic.AndroidFormController;
-import org.commcare.logic.FileReferenceFactory;
 import org.commcare.models.encryption.EncryptionIO;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.tasks.templates.CommCareTask;
@@ -23,6 +21,7 @@ import org.commcare.utils.FileUtil;
 import org.commcare.utils.GlobalConstants;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.model.FormDef;
+import org.javarosa.core.model.FormIndex;
 import org.javarosa.core.model.instance.InstanceInitializationFactory;
 import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.model.instance.TreeReference;
@@ -64,6 +63,7 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Integer, String, Fo
     private final SecretKeySpec mSymetricKey;
     private final boolean mReadOnly;
     private final boolean recordEntrySession;
+    private final FormIndex lastFormIndex;
 
     private EvaluationTraceReporter traceReporterForFullForm;
     private final boolean profilingEnabledForFormLoad = false;
@@ -76,7 +76,7 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Integer, String, Fo
     public static final int FORM_LOADER_TASK_ID = 16;
 
     public FormLoaderTask(SecretKeySpec symetricKey, boolean readOnly,
-                          boolean recordEntrySession, String formRecordPath, R activity) {
+                          boolean recordEntrySession, String formRecordPath, R activity, FormIndex lastFormIndex) {
         this.mSymetricKey = symetricKey;
         this.mReadOnly = readOnly;
         this.activity = activity;
@@ -84,6 +84,7 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Integer, String, Fo
         this.recordEntrySession = recordEntrySession;
         this.formRecordPath = formRecordPath;
         TAG = FormLoaderTask.class.getSimpleName();
+        this.lastFormIndex = lastFormIndex;
     }
 
     /**
@@ -137,7 +138,7 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Integer, String, Fo
 
         setupFormMedia(formDefRecord.getMediaPath());
 
-        AndroidFormController formController = new AndroidFormController(fec, mReadOnly);
+        AndroidFormController formController = new AndroidFormController(fec, mReadOnly, lastFormIndex);
 
         data = new FECWrapper(formController);
         return data;
