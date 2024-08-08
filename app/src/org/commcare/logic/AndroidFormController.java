@@ -1,15 +1,14 @@
 package org.commcare.logic;
 
 import android.util.Base64;
+
 import androidx.annotation.NonNull;
 
 import org.commcare.google.services.analytics.FormAnalyticsHelper;
-import org.commcare.util.LogTypes;
 import org.commcare.utils.SerializationUtil;
 import org.commcare.views.widgets.WidgetFactory;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.FormIndex;
-import org.javarosa.core.services.Logger;
 import org.javarosa.form.api.FormController;
 import org.javarosa.form.api.FormEntryController;
 
@@ -26,10 +25,10 @@ public class AndroidFormController extends FormController implements PendingCall
 
     private FormAnalyticsHelper formAnalyticsHelper;
 
-    public AndroidFormController(FormEntryController fec, boolean readOnly, String serializedFormIndex) {
+    public AndroidFormController(FormEntryController fec, boolean readOnly, FormIndex formIndex) {
         super(fec, readOnly);
         formAnalyticsHelper = new FormAnalyticsHelper();
-        formIndexToReturnTo = deserializeFormIndex(serializedFormIndex);
+        formIndexToReturnTo = formIndex;
     }
 
     @Override
@@ -98,18 +97,5 @@ public class AndroidFormController extends FormController implements PendingCall
         } catch (Exception e){
             return null;
         }
-    }
-
-    private FormIndex deserializeFormIndex(String serializedFormIndex) {
-        if (serializedFormIndex != null) {
-            try{
-                byte[] decodedFormIndex = Base64.decode(serializedFormIndex, Base64.DEFAULT);
-                return SerializationUtil.deserialize(decodedFormIndex, FormIndex.class);
-            } catch(Exception e) {
-                Logger.log(LogTypes.TYPE_FORM_ENTRY,
-                        "Deserialization of last form index failed, " + e.getMessage());
-            }
-        }
-        return null;
     }
 }
