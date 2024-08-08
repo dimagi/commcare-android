@@ -1,10 +1,12 @@
-package org.commcare.activities.connectId.fragments;
+package org.commcare.fragments.connectId;
 
-import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
+import androidx.navigation.NavController;
+import androidx.navigation.NavDirections;
+import androidx.navigation.Navigation;
 
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -18,28 +20,26 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import org.commcare.activities.connect.ConnectIdRecoveryDecisionActivity;
-import org.commcare.activities.connect.ConnectIdRecoveryDecisionActivityUiController;
 import org.commcare.connect.ConnectConstants;
+import org.commcare.connect.ConnectTask;
 import org.commcare.connect.network.ApiConnectId;
 import org.commcare.connect.network.IApiCallback;
 import org.commcare.dalvik.R;
 import org.commcare.utils.KeyboardHelper;
 import org.commcare.utils.PhoneNumberHelper;
-import org.commcare.views.UiElement;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Locale;
-import java.util.Objects;
 
 /**
  * A simple {@link Fragment} subclass.
- * Use the {@link RecoveryDecisionFragment#newInstance} factory method to
+ * Use the {@link ConnectIdRecoveryDecisionFragment#newInstance} factory method to
  * create an instance of requireActivity() fragment.
  */
-public class RecoveryDecisionFragment extends Fragment {
+public class ConnectIdRecoveryDecisionFragment extends Fragment {
     private TextView messageTextView;
-    
+
 
     private enum ConnectRecoveryState {
         NewOrRecover,
@@ -61,6 +61,8 @@ public class RecoveryDecisionFragment extends Fragment {
 
     private Button button2;
 
+    NavController navController;
+
     protected boolean skipPhoneNumberCheck = false;
     TextWatcher watcher = new TextWatcher() {
         @Override
@@ -77,12 +79,12 @@ public class RecoveryDecisionFragment extends Fragment {
         }
     };
 
-    public RecoveryDecisionFragment() {
+    public ConnectIdRecoveryDecisionFragment() {
         // Required empty public constructor
     }
-    
-    public static RecoveryDecisionFragment newInstance(String param1, String param2) {
-        RecoveryDecisionFragment fragment = new RecoveryDecisionFragment();
+
+    public static ConnectIdRecoveryDecisionFragment newInstance(String param1, String param2) {
+        ConnectIdRecoveryDecisionFragment fragment = new ConnectIdRecoveryDecisionFragment();
         Bundle args = new Bundle();
         fragment.setArguments(args);
         return fragment;
@@ -97,26 +99,31 @@ public class RecoveryDecisionFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for requireActivity() fragment
-        View view= inflater.inflate(R.layout.screen_connect_recovery_decision, container, false);
-        messageTextView=view.findViewById(R.id.connect_recovery_message);
-        phoneBlock=view.findViewById(R.id.connect_recovery_phone_block);
-        countryCodeInput=view.findViewById(R.id.connect_recovery_phone_country_input);
-        phoneInput=view.findViewById(R.id.connect_recovery_phone_input);
-        orText=view.findViewById(R.id.connect_recovery_or);
-        phoneMessageTextView=view.findViewById(R.id.connect_recovery_phone_message);
-        button1=view.findViewById(R.id.connect_recovery_button_1);
-        button2 =view.findViewById(R.id.connect_recovery_button_2);
+        View view = inflater.inflate(R.layout.screen_connect_recovery_decision, container, false);
+        messageTextView = view.findViewById(R.id.connect_recovery_message);
+        phoneBlock = view.findViewById(R.id.connect_recovery_phone_block);
+        countryCodeInput = view.findViewById(R.id.connect_recovery_phone_country_input);
+        phoneInput = view.findViewById(R.id.connect_recovery_phone_input);
+        orText = view.findViewById(R.id.connect_recovery_or);
+        phoneMessageTextView = view.findViewById(R.id.connect_recovery_phone_message);
+        button1 = view.findViewById(R.id.connect_recovery_button_1);
+        button2 = view.findViewById(R.id.connect_recovery_button_2);
         countryCodeInput.addTextChangedListener(watcher);
         phoneInput.addTextChangedListener(watcher);
         button1.setOnClickListener(v -> handleButton1Press());
         button2.setOnClickListener(v -> handleButton2Press());
-        return  view;
+        messageTextView.setText(getString(R.string.connect_recovery_decision_new));
+        button1.setText(getString(R.string.connect_recovery_button_new));
+        button2.setText(getString(R.string.connect_recovery_button_recover));
+        state = ConnectRecoveryState.NewOrRecover;
+        getActivity().setTitle(getString(R.string.connect_recovery_title));
+        return view;
     }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        String phone= PhoneNumberHelper.handlePhoneNumberPickerResult(requestCode,resultCode,data,requireActivity());
+        String phone = PhoneNumberHelper.handlePhoneNumberPickerResult(requestCode, resultCode, data, requireActivity());
         skipPhoneNumberCheck = false;
         displayNumber(phone);
     }
@@ -139,18 +146,20 @@ public class RecoveryDecisionFragment extends Fragment {
         phoneInput.setText(fullNumber);
         skipPhoneNumberCheck = true;
         countryCodeInput.setText(String.format(Locale.getDefault(), "+%d", code));
-        skipPhoneNumberCheck=false;
+        skipPhoneNumberCheck = false;
 
     }
 
     public void finish(boolean createNew, String phone) {
-//        Intent intent = new Intent(getIntent());
-//
-//        intent.putExtra(ConnectConstants.CREATE, createNew);
-//        intent.putExtra(ConnectConstants.PHONE, phone);
-//
-//        setResult(RESULT_OK, intent);
-//        finish();
+
+        NavDirections directions;
+        if (createNew) {
+            directions = ConnectIdRecoveryDecisionFragmentDirections.actionConnectidRecoveryDecisionToConnectidConsent(ConnectConstants.CONNECT_REGISTRATION_CONSENT);
+        } else {
+            ConnectConstants.recoverPhone=phone;
+            directions = ConnectIdRecoveryDecisionFragmentDirections.actionConnectidRecoveryDecisionToConnectidBiometricConfig(phone,ConnectConstants.CONNECT_RECOVERY_CONFIGURE_BIOMETRICS);
+        }
+        Navigation.findNavController(button1).navigate(directions);
     }
 
     public void handleButton1Press() {
@@ -201,26 +210,26 @@ public class RecoveryDecisionFragment extends Fragment {
                             public void processSuccess(int responseCode, InputStream responseData) {
                                 phoneMessageTextView.setText(getString(R.string.connect_phone_not_found));
                                 button1.setEnabled(false);
-                                skipPhoneNumberCheck=false;
+                                skipPhoneNumberCheck = false;
                             }
 
                             @Override
                             public void processFailure(int responseCode, IOException e) {
-                                skipPhoneNumberCheck=false;
+                                skipPhoneNumberCheck = false;
                                 phoneMessageTextView.setText("");
                                 button1.setEnabled(true);
                             }
 
                             @Override
                             public void processNetworkFailure() {
-                                skipPhoneNumberCheck=false;
+                                skipPhoneNumberCheck = false;
                                 phoneMessageTextView.setText(getString(R.string.recovery_network_unavailable));
                                 button1.setEnabled(false);
                             }
 
                             @Override
                             public void processOldApiError() {
-                                skipPhoneNumberCheck=false;
+                                skipPhoneNumberCheck = false;
                                 phoneMessageTextView.setText(getString(R.string.recovery_network_outdated));
                                 button1.setEnabled(false);
                             }

@@ -29,6 +29,7 @@ import java.util.Date;
 
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
+import org.commcare.activities.connect.ConnectIdActivity;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.connect.ConnectManager;
 import org.commcare.android.database.app.models.UserKeyRecord;
@@ -469,13 +470,15 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
     public void handleConnectButtonPress() {
         selectedAppIndex = -1;
-        ConnectManager.unlockConnect(this, success -> {
-            if(success) {
-                ConnectManager.goToConnectJobsList();
-                setResult(RESULT_OK);
-                finish();
-            }
-        });
+        Intent intent=new Intent(this, ConnectIdActivity.class);
+        startActivity(intent);
+//        ConnectManager.unlockConnect(this, success -> {
+//            if(success) {
+//                ConnectManager.goToConnectJobsList();
+//                setResult(RESULT_OK);
+//                finish();
+//            }
+//        });
     }
 
     public boolean handleConnectSignIn() {

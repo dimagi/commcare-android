@@ -1,0 +1,257 @@
+package org.commcare.fragments.connectId;
+
+import android.content.Context;
+import android.content.Intent;
+import android.os.Bundle;
+
+import androidx.fragment.app.Fragment;
+import androidx.navigation.NavDirections;
+import androidx.navigation.Navigation;
+
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.google.android.material.textfield.TextInputEditText;
+
+import org.commcare.activities.connect.ConnectIdMessageActivity;
+import org.commcare.activities.connect.ConnectIdPasswordVerificationActivityUiController;
+import org.commcare.android.database.connect.models.ConnectUserRecord;
+import org.commcare.connect.ConnectConstants;
+import org.commcare.connect.ConnectDatabaseHelper;
+import org.commcare.connect.ConnectTask;
+import org.commcare.connect.network.ApiConnectId;
+import org.commcare.connect.network.ConnectNetworkHelper;
+import org.commcare.connect.network.IApiCallback;
+import org.commcare.dalvik.R;
+import org.commcare.google.services.analytics.AnalyticsParamValue;
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
+import org.commcare.utils.KeyboardHelper;
+import org.commcare.views.UiElement;
+import org.javarosa.core.io.StreamsUtil;
+import org.javarosa.core.services.Logger;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.text.ParseException;
+import java.util.Date;
+import java.util.Locale;
+import java.util.Objects;
+
+import static org.commcare.connect.ConnectIdWorkflows.completeSignIn;
+
+/**
+ * A simple {@link Fragment} subclass.
+ * Use the {@link ConnectIdPasswordVerificationFragment#newInstance} factory method to
+ * create an instance of this fragment.
+ */
+public class ConnectIdPasswordVerificationFragment extends Fragment {
+    private TextInputEditText passwordInput;
+    private TextView forgotLink;
+    private Button button;
+    private int callingClass;
+
+    public static final int PASSWORD_FAIL = 1;
+    public static final int PASSWORD_LOCK = 2;
+    private String phone = null;
+    private String secretKey = null;
+
+    private static final int MaxFailures = 3;
+    private int failureCount = 0;
+
+    public ConnectIdPasswordVerificationFragment() {
+        // Required empty public constructor
+    }
+
+    public static ConnectIdPasswordVerificationFragment newInstance() {
+        ConnectIdPasswordVerificationFragment fragment = new ConnectIdPasswordVerificationFragment();
+        return fragment;
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        // Inflate the layout for this fragment
+        View view = inflater.inflate(R.layout.screen_connect_password_verify, container, false);
+        passwordInput = view.findViewById(R.id.connect_password_verify_input);
+        forgotLink = view.findViewById(R.id.connect_password_verify_forgot);
+        button = view.findViewById(R.id.connect_password_verify_button);
+        phone = ConnectIdPasswordVerificationFragmentArgs.fromBundle(getArguments()).getPhone();
+        secretKey = ConnectIdPasswordVerificationFragmentArgs.fromBundle(getArguments()).getSecret();
+        callingClass = ConnectIdPasswordVerificationFragmentArgs.fromBundle(getArguments()).getCallingClass();
+        failureCount = 0;
+        forgotLink.setOnClickListener(arg0 -> handleForgotPress());
+        button.setOnClickListener(arg0 -> handleButtonPress());
+
+        return view;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        requestInputFocus();
+    }
+
+    public void finish(boolean success, boolean forgot) {
+        NavDirections directions = null;
+        switch (callingClass) {
+            case ConnectConstants.CONNECT_RECOVERY_VERIFY_PASSWORD:
+                if (success) {
+                    directions = ConnectIdPasswordVerificationFragmentDirections.actionConnectidPasswordToConnectidPin(ConnectConstants.CONNECT_RECOVERY_CHANGE_PIN, ConnectConstants.recoverPhone, ConnectConstants.recoverSecret).setChange(true).setRecover(true);
+                    if (forgot) {
+                        directions = ConnectIdPasswordVerificationFragmentDirections.actionConnectidPasswordToConnectidMessage(getString(R.string.connect_recovery_alt_title), getString(R.string.connect_recovery_alt_message), ConnectConstants.CONNECT_RECOVERY_ALT_PHONE_MESSAGE, getString(R.string.connect_recovery_alt_button), null);
+                    }
+                } else {
+                    directions = ConnectIdPasswordVerificationFragmentDirections.actionConnectidPasswordToConnectidPhoneVerify(ConnectConstants.CONNECT_RECOVERY_VERIFY_PRIMARY_PHONE, String.format(Locale.getDefault(), "%d",
+                            ConnectIdPhoneVerificationFragmnet.MethodRecoveryPrimary), ConnectConstants.recoverPhone, ConnectConstants.recoverPhone, "", null).setAllowChange(false);
+                }
+                break;
+            case ConnectConstants.CONNECT_UNLOCK_PASSWORD:
+                if (success) {
+                    if (forgot) {
+                        ConnectConstants.forgotPassword=true;
+                        directions = ConnectIdPasswordVerificationFragmentDirections.actionConnectidPasswordToConnectidPhone(ConnectConstants.CONNECT_RECOVERY_PRIMARY_PHONE, ConnectConstants.METHOD_RECOVER_PRIMARY,null);
+                    }else{
+                        ConnectConstants.forgotPassword=false;
+                        FirebaseAnalyticsUtil.reportCccSignIn(AnalyticsParamValue.CCC_SIGN_IN_METHOD_PASSWORD);
+                        ConnectUserRecord user = ConnectDatabaseHelper.getUser(requireActivity());
+                        user.setLastPinDate(new Date());
+                        ConnectDatabaseHelper.storeUser(requireActivity(), user);
+                        if(user.shouldRequireSecondaryPhoneVerification()) {
+                            directions = ConnectIdPasswordVerificationFragmentDirections.actionConnectidPasswordToConnectidMessage(getString(R.string.connect_recovery_alt_title), getString(R.string.connect_recovery_alt_message), ConnectConstants.CONNECT_UNLOCK_ALT_PHONE_MESSAGE, getString(R.string.connect_password_fail_button), getString(R.string.connect_recovery_alt_change_button));
+                        } else {
+                            completeSignIn();
+                        }
+                    }
+                }
+                break;
+        }
+        if (directions != null) {
+            Navigation.findNavController(button).navigate(directions);
+        }
+    }
+
+    public void handleWrongPassword() {
+        failureCount++;
+        logRecoveryResult(false);
+        passwordInput.setText("");
+
+        int requestCode = PASSWORD_FAIL;
+        int message = R.string.connect_password_fail_message;
+
+        if (failureCount >= MaxFailures) {
+            requestCode = PASSWORD_LOCK;
+            message = R.string.connect_password_recovery_message;
+        }
+
+        Intent messageIntent = new Intent(requireActivity(), ConnectIdMessageActivity.class);
+        messageIntent.putExtra(ConnectConstants.TITLE, R.string.connect_password_fail_title);
+        messageIntent.putExtra(ConnectConstants.MESSAGE, message);
+        messageIntent.putExtra(ConnectConstants.BUTTON, R.string.connect_password_fail_button);
+
+        startActivityForResult(messageIntent, requestCode);
+    }
+
+    private void logRecoveryResult(boolean success) {
+        FirebaseAnalyticsUtil.reportCccRecovery(success, AnalyticsParamValue.CCC_RECOVERY_METHOD_PASSWORD);
+    }
+
+    public void handleForgotPress() {
+        finish(true, true);
+    }
+
+    public void handleButtonPress() {
+        String password = Objects.requireNonNull(passwordInput.getText()).toString();
+        ConnectUserRecord user = ConnectDatabaseHelper.getUser(requireActivity());
+        if (user != null) {
+            //If we have the password stored locally, no need for network call
+            if (password.equals(user.getPassword())) {
+                logRecoveryResult(true);
+                finish(true, false);
+            } else {
+                handleWrongPassword();
+            }
+        } else {
+            final Context context = requireActivity();
+            boolean isBusy = !ApiConnectId.checkPassword(requireActivity(), phone, secretKey, password, new IApiCallback() {
+                @Override
+                public void processSuccess(int responseCode, InputStream responseData) {
+                    String username = null;
+                    String name = null;
+                    try {
+                        String responseAsString = new String(
+                                StreamsUtil.inputStreamToByteArray(responseData));
+                        if (responseAsString.length() > 0) {
+                            JSONObject json = new JSONObject(responseAsString);
+                            String key = ConnectConstants.CONNECT_KEY_USERNAME;
+                            if (json.has(key)) {
+                                username = json.getString(key);
+                            }
+
+                            key = ConnectConstants.CONNECT_KEY_NAME;
+                            if (json.has(key)) {
+                                name = json.getString(key);
+                            }
+
+                            key = ConnectConstants.CONNECT_KEY_DB_KEY;
+                            if (json.has(key)) {
+                                ConnectDatabaseHelper.handleReceivedDbPassphrase(context, json.getString(key));
+                            }
+
+                            ConnectUserRecord user = new ConnectUserRecord(phone, username,
+                                    password, name, "");
+
+                            key = ConnectConstants.CONNECT_KEY_VALIDATE_SECONDARY_PHONE_BY;
+                            user.setSecondaryPhoneVerified(!json.has(key) || json.isNull(key));
+                            if (!user.getSecondaryPhoneVerified()) {
+                                user.setSecondaryPhoneVerifyByDate(ConnectNetworkHelper.parseDate(json.getString(key)));
+                            }
+
+                            //TODO: Need to get secondary phone from server
+                            ConnectDatabaseHelper.storeUser(context, user);
+                        }
+                    } catch (IOException | JSONException | ParseException e) {
+                        Logger.exception("Parsing return from OTP request", e);
+                    }
+
+                    logRecoveryResult(true);
+                    finish(true, false);
+                }
+
+                @Override
+                public void processFailure(int responseCode, IOException e) {
+                    handleWrongPassword();
+                }
+
+                @Override
+                public void processNetworkFailure() {
+                    ConnectNetworkHelper.showOutdatedApiError(requireActivity().getApplicationContext());
+                }
+
+                @Override
+                public void processOldApiError() {
+                    ConnectNetworkHelper.showOutdatedApiError(requireActivity().getApplicationContext());
+                }
+            });
+
+            if (isBusy) {
+                Toast.makeText(requireActivity(), R.string.busy_message, Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    public void requestInputFocus() {
+        KeyboardHelper.showKeyboardOnInput(requireActivity(), passwordInput);
+    }
+
+}

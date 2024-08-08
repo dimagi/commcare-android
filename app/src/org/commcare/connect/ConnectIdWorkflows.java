@@ -573,7 +573,7 @@ public class ConnectIdWorkflows {
         return ConnectTask.CONNECT_NO_ACTIVITY;
     }
 
-    private static void completeSignIn() {
+    public static void completeSignIn() {
         if(listener != null) {
             listener.connectActivityComplete(true);
         }

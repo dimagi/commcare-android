@@ -84,6 +84,11 @@ public class ConnectManager {
     private static final String CONNECT_HEARTBEAT_REQUEST_NAME = "connect_hearbeat_periodic_request";
     private static final int APP_DOWNLOAD_TASK_ID = 4;
 
+    public static final int MethodRegistrationPrimary = 1;
+    public static final int MethodRecoveryPrimary = 2;
+    public static final int MethodRecoveryAlternate = 3;
+    public static final int MethodVerifyAlternate = 4;
+
     public static int getFailureAttempt() {
         return ConnectManager.getInstance().failedPinAttempts;
     }
@@ -109,7 +114,7 @@ public class ConnectManager {
     }
 
     private static ConnectManager manager = null;
-    private ConnectIdStatus connectStatus = ConnectIdStatus.NotIntroduced;
+    public static ConnectIdStatus connectStatus = ConnectIdStatus.NotIntroduced;
     private CommCareActivity<?> parentActivity;
     private ConnectActivityCompleteListener loginListener;
 

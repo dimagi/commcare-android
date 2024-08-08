@@ -1,9 +1,10 @@
-package org.commcare.activities.connectId.fragments;
+package org.commcare.fragments.connectId;
 
-import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
+import androidx.navigation.NavDirections;
+import androidx.navigation.Navigation;
 
 import android.text.method.LinkMovementMethod;
 import android.view.LayoutInflater;
@@ -13,20 +14,20 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.TextView;
 
+import org.commcare.connect.ConnectConstants;
 import org.commcare.dalvik.R;
-import org.commcare.views.UiElement;
 
-public class ConsentFragment extends Fragment {
+public class ConnectIdConsentFragment extends Fragment {
 
     private TextView messageText;
     private CheckBox checkbox;
     private Button button;
 
-    public ConsentFragment() {
+    public ConnectIdConsentFragment() {
         // Required empty public constructor
     }
-    public static ConsentFragment newInstance(String param1, String param2) {
-        ConsentFragment fragment = new ConsentFragment();
+    public static ConnectIdConsentFragment newInstance(String param1, String param2) {
+        ConnectIdConsentFragment fragment = new ConnectIdConsentFragment();
         Bundle args = new Bundle();
         fragment.setArguments(args);
         return fragment;
@@ -49,6 +50,7 @@ public class ConsentFragment extends Fragment {
         checkbox.setOnClickListener(v -> updateState());
         requireActivity().setTitle(getString(R.string.connect_consent_title));
         button.setOnClickListener(v -> handleButtonPress());
+
         return view;
     }
 
@@ -57,10 +59,11 @@ public class ConsentFragment extends Fragment {
     }
 
     public void finish(boolean accepted) {
-//        Intent intent = new Intent(getIntent());
-//
-//        setResult(accepted ? RESULT_OK : RESULT_CANCELED, intent);
-//        finish();
+        NavDirections directions;
+        if (accepted) {
+            directions = ConnectIdConsentFragmentDirections.actionConnectidConsentToConnectidPhone(ConnectConstants.CONNECT_REGISTRATION_PRIMARY_PHONE,ConnectConstants.METHOD_REGISTER_PRIMARY,null);
+            Navigation.findNavController(button).navigate(directions);
+        }
     }
 
     public void handleButtonPress() {

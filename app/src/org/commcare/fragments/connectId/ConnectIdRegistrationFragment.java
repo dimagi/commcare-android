@@ -1,9 +1,11 @@
-package org.commcare.activities.connectId.fragments;
+package org.commcare.fragments.connectId;
 
 import android.content.Context;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
+import androidx.navigation.NavDirections;
+import androidx.navigation.Navigation;
 
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -18,7 +20,9 @@ import android.widget.Toast;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.ConnectDatabaseHelper;
+import org.commcare.connect.ConnectIdWorkflows;
 import org.commcare.connect.ConnectManager;
+import org.commcare.connect.ConnectTask;
 import org.commcare.connect.network.ApiConnectId;
 import org.commcare.connect.network.ConnectNetworkHelper;
 import org.commcare.connect.network.IApiCallback;
@@ -34,12 +38,14 @@ import java.text.ParseException;
 import java.util.Locale;
 import java.util.Random;
 
+import static org.commcare.connect.ConnectTask.CONNECT_REGISTRATION_CONFIGURE_BIOMETRICS;
+
 /**
  * A simple {@link Fragment} subclass.
- * Use the {@link RegistrationFragment#newInstance} factory method to
+ * Use the {@link ConnectIdRegistrationFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class RegistrationFragment extends Fragment {
+public class ConnectIdRegistrationFragment extends Fragment {
     private AutoCompleteTextView nameInput;
     private TextView errorText;
     private Button registerButton;
@@ -61,12 +67,12 @@ public class RegistrationFragment extends Fragment {
         }
     };
 
-    public RegistrationFragment() {
+    public ConnectIdRegistrationFragment() {
         // Required empty public constructor
     }
 
-    public static RegistrationFragment newInstance(String param1, String param2) {
-        RegistrationFragment fragment = new RegistrationFragment();
+    public static ConnectIdRegistrationFragment newInstance(String param1, String param2) {
+        ConnectIdRegistrationFragment fragment = new ConnectIdRegistrationFragment();
         Bundle args = new Bundle();
         fragment.setArguments(args);
         return fragment;
@@ -89,7 +95,9 @@ public class RegistrationFragment extends Fragment {
         nameInput.addTextChangedListener(watcher);
         getActivity().setTitle(getString(R.string.connect_register_title));
 
-        phone = getActivity().getIntent().getStringExtra(ConnectConstants.PHONE);
+        if (getArguments() != null) {
+            phone = ConnectIdRegistrationFragmentArgs.fromBundle(getArguments()).getPhone();
+        }
         ConnectUserRecord user = ConnectManager.getUser(getActivity());
         if (user != null) {
             nameInput.setText(user.getName());
@@ -131,10 +139,23 @@ public class RegistrationFragment extends Fragment {
     }
 
     public void finish(boolean success) {
-//        Intent intent = new Intent(getIntent());
-//        user.putUserInIntent(intent);
-//        setResult(success ? RESULT_OK : RESULT_CANCELED, intent);
-//        finish();
+        NavDirections directions;
+        if (success) {
+            ConnectUserRecord dbUser = ConnectDatabaseHelper.getUser(getActivity());
+            if (dbUser != null) {
+                dbUser.setName(user.getName());
+                dbUser.setAlternatePhone(user.getAlternatePhone());
+                user = dbUser;
+            } else {
+                ConnectManager.connectStatus = ConnectManager.ConnectIdStatus.Registering;
+            }
+            ConnectDatabaseHelper.storeUser(getActivity(), user);
+            ConnectDatabaseHelper.setRegistrationPhase(getActivity(), CONNECT_REGISTRATION_CONFIGURE_BIOMETRICS);
+            directions = ConnectIdRegistrationFragmentDirections.actionConnectidRegistrationToConnectidBiometricConfig(ConnectConstants.CONNECT_REGISTRATION_CONFIGURE_BIOMETRICS);
+        } else {
+            directions = ConnectIdRegistrationFragmentDirections.actionConnectidRegistrationToConnectidPhone(ConnectConstants.CONNECT_REGISTRATION_PRIMARY_PHONE,ConnectConstants.METHOD_REGISTER_PRIMARY,user.getPrimaryPhone());
+        }
+        Navigation.findNavController(registerButton).navigate(directions);
     }
 
     public void continuePressed() {
@@ -183,18 +204,18 @@ public class RegistrationFragment extends Fragment {
 
                     @Override
                     public void processFailure(int responseCode, IOException e) {
-                        errorText.setText(String.format(Locale.getDefault(), "Registration error: %d",
+                        setErrorText(String.format(Locale.getDefault(), "Registration error: %d",
                                 responseCode));
                     }
 
                     @Override
                     public void processNetworkFailure() {
-                        errorText.setText(getString(R.string.recovery_network_unavailable));
+                        setErrorText(getString(R.string.recovery_network_unavailable));
                     }
 
                     @Override
                     public void processOldApiError() {
-                        errorText.setText(getString(R.string.recovery_network_outdated));
+                        setErrorText(getString(R.string.recovery_network_outdated));
                     }
                 });
 
