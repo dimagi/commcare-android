@@ -173,4 +173,11 @@
         android:entryValues="@array/pref_enabled_vals"
         android:key="cc-enable-certificate-transparency"
         android:title="Certificate Transparency"/>
+    <androidx.preference.ListPreference
+        android:defaultValue="no"
+        android:enabled="true"
+        android:entries="@array/pref_enabled_labels"
+        android:entryValues="@array/pref_enabled_vals"
+        android:key="cc-auto-form-save-on-pause"
+        android:title="Auto Save Form on Pause"/>
 </PreferenceScreen>

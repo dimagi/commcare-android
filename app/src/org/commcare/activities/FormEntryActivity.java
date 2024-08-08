@@ -57,6 +57,7 @@ import org.commcare.logic.AndroidFormController;
 import org.commcare.models.AndroidSessionWrapper;
 import org.commcare.models.FormRecordProcessor;
 import org.commcare.models.database.SqlStorage;
+import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.services.FCMMessageData;
 import org.commcare.services.PendingSyncAlertBroadcastReceiver;
@@ -926,9 +927,9 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     }
 
     private boolean shouldSaveFormOnStop() {
-        // if the form has loaded and another widget workflow is not in progress and we ourselves have not
-        // called exit as part of user workflow
-        return formHasLoaded() && !triggeredExit;
+        // if feature enabled and the form has loaded and another widget workflow is not in progress and we
+        // ourselves have not called exit as part of user workflow
+        return DeveloperPreferences.isAutoSaveFormOnPause() && formHasLoaded() && !triggeredExit;
     }
 
     private void saveInlineVideoState() {
