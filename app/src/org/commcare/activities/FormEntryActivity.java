@@ -1090,24 +1090,15 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     }
 
     private String retrieveAndValidateSerializedFormIndex(int sessionDescriptorId) {
-        String interruptedFormIndex = HiddenPreferences.getInterruptedFormIndex();
-        if (interruptedFormIndex == null || interruptedFormIndex.isEmpty()){
+        org.commcare.modern.util.Pair<Double, String> interruptedFormIndex = HiddenPreferences.getInterruptedFormIndex();
+        if (interruptedFormIndex == null
+                || interruptedFormIndex.first == null
+                || interruptedFormIndex.second == null
+                || interruptedFormIndex.second.isEmpty()){
             return null;
         }
-
-        int spaceIndex = interruptedFormIndex.indexOf(" ");
-        if (spaceIndex != -1) {
-            try {
-                int ssdId = Integer.parseInt(interruptedFormIndex.substring(0, spaceIndex));
-                String serializedFormIndex =
-                        interruptedFormIndex.substring(
-                                spaceIndex + 1, interruptedFormIndex.length());
-                if (ssdId == sessionDescriptorId) {
-                    return serializedFormIndex;
-                }
-            } catch (Exception e) {
-                // something went wrong
-            }
+        if (interruptedFormIndex.first == (double)sessionDescriptorId) {
+            return interruptedFormIndex.second;
         }
         // data format is invalid, so better to clear the data
         HiddenPreferences.clearInterruptedFormIndex();

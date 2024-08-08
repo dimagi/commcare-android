@@ -641,10 +641,12 @@ public class HiddenPreferences {
                 .apply();
     }
 
-    public static String getInterruptedFormIndex() {
+    // This was changed to Double due to the way Gson handles numeric values
+    public static Pair<Double, String> getInterruptedFormIndex() {
         String currentUserId = CommCareApplication.instance().getCurrentUserId();
-        return CommCareApplication.instance().getCurrentApp().getAppPreferences()
+        String ssIdAndSerializedFormIndexJsonForm = CommCareApplication.instance().getCurrentApp().getAppPreferences()
                 .getString(INTERRUPTED_FORM_INDEX + currentUserId, null);
+        return (Pair<Double, String>)StringUtils.convertJsonStringToPair(ssIdAndSerializedFormIndexJsonForm);
     }
 
     public static void clearInterruptedFormIndex() {
