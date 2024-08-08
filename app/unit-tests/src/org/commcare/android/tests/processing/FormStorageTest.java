@@ -357,6 +357,9 @@ public class FormStorageTest {
             , "org.commcare.suite.model.QueryGroup"
             , "org.commcare.android.database.global.models.ConnectKeyRecord"
             , "org.commcare.android.database.global.models.ConnectKeyRecordV6"
+
+            // Added in 2.55
+            , "org.javarosa.core.model.FormIndex"
     );
 
 
