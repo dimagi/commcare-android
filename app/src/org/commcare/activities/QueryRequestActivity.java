@@ -150,7 +150,7 @@ public class QueryRequestActivity
     }
 
     @Override
-    public void processSuccess(int responseCode, InputStream responseData) {
+    public void processSuccess(int responseCode, InputStream responseData, String apiVersion) {
         // todo pass url and requestData to this callback
         Pair<ExternalDataInstance, String> instanceOrError = remoteQuerySessionManager.buildExternalDataInstance(
                 responseData,
@@ -190,7 +190,8 @@ public class QueryRequestActivity
     @Override
     public void handleIOException(IOException exception) {
         if (exception instanceof AuthenticationInterceptor.PlainTextPasswordException) {
-            enterErrorState(Localization.get("auth.request.not.using.https", remoteQuerySessionManager.getBaseUrl().toString()));
+            enterErrorState(Localization.get("auth.request.not.using.https",
+                    remoteQuerySessionManager.getBaseUrl().toString()));
         } else if (exception instanceof IOException) {
             enterErrorState(Localization.get("post.io.error", exception.getMessage()));
         }
@@ -198,7 +199,8 @@ public class QueryRequestActivity
 
     @Override
     public CustomProgressDialog generateProgressDialog(int taskId) {
-        String title, message;
+        String title;
+        String message;
         switch (taskId) {
             case ModernHttpTask.SIMPLE_HTTP_TASK_ID:
                 title = Localization.get("query.dialog.title");

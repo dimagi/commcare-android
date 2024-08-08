@@ -8,7 +8,10 @@ import com.nulabinc.zxcvbn.Strength;
 import com.nulabinc.zxcvbn.Zxcvbn;
 
 import org.commcare.activities.CommCareActivity;
-import org.commcare.core.network.AuthInfo;
+import org.commcare.connect.ConnectConstants;
+import org.commcare.connect.network.ApiConnectId;
+import org.commcare.connect.network.ConnectNetworkHelper;
+import org.commcare.connect.network.IApiCallback;
 import org.commcare.dalvik.R;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.WithUIController;
@@ -16,7 +19,6 @@ import org.commcare.views.dialogs.CustomProgressDialog;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashMap;
 
 /**
  * Shows the page that prompts the user to choose (and repeat) their password
@@ -41,12 +43,12 @@ public class ConnectIdPasswordActivity extends CommCareActivity<ConnectIdPasswor
 
         uiController.setupUI();
 
-        username = getIntent().getStringExtra(ConnectIdConstants.USERNAME);
-        oldPassword = getIntent().getStringExtra(ConnectIdConstants.PASSWORD);
-        phone = getIntent().getStringExtra(ConnectIdConstants.PHONE);
-        secret = getIntent().getStringExtra(ConnectIdConstants.SECRET);
+        username = getIntent().getStringExtra(ConnectConstants.USERNAME);
+        oldPassword = getIntent().getStringExtra(ConnectConstants.PASSWORD);
+        phone = getIntent().getStringExtra(ConnectConstants.PHONE);
+        secret = getIntent().getStringExtra(ConnectConstants.SECRET);
 
-        String method = getIntent().getStringExtra(ConnectIdConstants.METHOD);
+        String method = getIntent().getStringExtra(ConnectConstants.METHOD);
         boolean passwordOnlyWorkflow = method != null && method.equals("true");
 
         uiController.setMessageText(passwordOnlyWorkflow ?
@@ -86,7 +88,7 @@ public class ConnectIdPasswordActivity extends CommCareActivity<ConnectIdPasswor
     public void finish(boolean success, String password) {
         Intent intent = new Intent(getIntent());
 
-        intent.putExtra(ConnectIdConstants.PASSWORD, password);
+        intent.putExtra(ConnectConstants.PASSWORD, password);
 
         setResult(success ? RESULT_OK : RESULT_CANCELED, intent);
         finish();
@@ -116,43 +118,37 @@ public class ConnectIdPasswordActivity extends CommCareActivity<ConnectIdPasswor
     }
 
     public void handleButtonPress() {
-        String password = uiController.getPasswordText();
+        final String password = uiController.getPasswordText();
 
-        HashMap<String, String> params = new HashMap<>();
-        AuthInfo authInfo;
-        int urlId;
+        IApiCallback callback = new IApiCallback() {
+            @Override
+            public void processSuccess(int responseCode, InputStream responseData) {
+                finish(true, password);
+            }
+
+            @Override
+            public void processFailure(int responseCode, IOException e) {
+                Toast.makeText(getApplicationContext(), getString(R.string.connect_password_error),
+                        Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void processNetworkFailure() {
+                ConnectNetworkHelper.showNetworkError(getApplicationContext());
+            }
+
+            @Override
+            public void processOldApiError() {
+                ConnectNetworkHelper.showOutdatedApiError(getApplicationContext());
+            }
+        };
+
+        boolean isBusy;
         if (username != null && username.length() > 0 && oldPassword != null && oldPassword.length() > 0) {
-            authInfo = new AuthInfo.ProvidedAuth(username, oldPassword, false);
-            urlId = R.string.ConnectChangePasswordURL;
+            isBusy = !ApiConnectId.changePassword(this, username, oldPassword, password, callback);
         } else {
-            authInfo = new AuthInfo.NoAuth();
-            urlId = R.string.ConnectResetPasswordURL;
-
-            params.put("phone", phone);
-            params.put("secret_key", secret);
+            isBusy = !ApiConnectId.resetPassword(this, phone, secret, password, callback);
         }
-
-        params.put("password", password);
-
-        boolean isBusy = !ConnectIdNetworkHelper.post(this, getString(urlId), authInfo, params, false,
-                new ConnectIdNetworkHelper.INetworkResultHandler() {
-                    @Override
-                    public void processSuccess(int responseCode, InputStream responseData) {
-                        finish(true, password);
-                    }
-
-                    @Override
-                    public void processFailure(int responseCode, IOException e) {
-                        Toast.makeText(getApplicationContext(), "Password change error",
-                                Toast.LENGTH_SHORT).show();
-                    }
-
-                    @Override
-                    public void processNetworkFailure() {
-                        Toast.makeText(getApplicationContext(), getString(R.string.recovery_network_unavailable),
-                                Toast.LENGTH_SHORT).show();
-                    }
-                });
 
         if (isBusy) {
             Toast.makeText(this, R.string.busy_message, Toast.LENGTH_SHORT).show();

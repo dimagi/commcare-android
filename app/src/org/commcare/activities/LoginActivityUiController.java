@@ -24,8 +24,8 @@ import java.util.Vector;
 
 import org.commcare.CommCareApplication;
 import org.commcare.CommCareNoficationManager;
-import org.commcare.activities.connect.ConnectIdDatabaseHelper;
-import org.commcare.activities.connect.ConnectIdManager;
+import org.commcare.connect.ConnectDatabaseHelper;
+import org.commcare.connect.ConnectManager;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.dalvik.R;
@@ -44,9 +44,6 @@ import org.commcare.views.RectangleButtonWithText;
 import org.commcare.views.UiElement;
 import org.javarosa.core.services.locale.Localization;
 
-
-import java.util.ArrayList;
-import java.util.Vector;
 
 import javax.annotation.Nullable;
 
@@ -88,7 +85,7 @@ public class LoginActivityUiController implements CommCareActivityUIController {
     @UiElement(R.id.screen_login_banner_pane)
     private View banner;
 
-    @UiElement(value = R.id.login_button, locale = "login.button")
+    @UiElement(value = R.id.login_button)
     private Button loginButton;
 
     @UiElement(value = R.id.restore_session_checkbox)
@@ -96,9 +93,6 @@ public class LoginActivityUiController implements CommCareActivityUIController {
 
     @UiElement(R.id.app_selection_spinner)
     private Spinner spinner;
-
-    @UiElement(R.id.app_label)
-    private TextView appLabel;
 
     @UiElement(R.id.welcome_msg)
     private TextView welcomeMessage;
@@ -111,6 +105,7 @@ public class LoginActivityUiController implements CommCareActivityUIController {
     private LoginMode loginMode;
 
     private boolean manuallySwitchedToPasswordMode;
+    private boolean loginManagedByConnectId;
 
     private final TextWatcher usernameTextWatcher = new TextWatcher() {
         @Override
@@ -170,17 +165,20 @@ public class LoginActivityUiController implements CommCareActivityUIController {
             return false;
         });
 
+        passwordOrPin.setOnFocusChangeListener((v, hasFocus) -> {
+            if(hasFocus) {
+                setConnectIdLoginState(false);
+            }
+        });
+
         notificationButton.setText(Localization.get("error.button.text"));
         notificationButton.setOnClickListener(view -> CommCareNoficationManager
                 .performIntentCalloutToNotificationsView(activity));
     }
 
-    public void setConnectButtonText(String text) {
-        connectLoginButton.setText(text);
-    }
-
     public void setConnectButtonVisible(Boolean visible) {
         connectLoginButton.setVisibility(visible ? View.VISIBLE : View.GONE);
+        orLabel.setVisibility(visible ? View.VISIBLE : View.GONE);
     }
 
     private void setTextChangeListeners() {
@@ -196,7 +194,6 @@ public class LoginActivityUiController implements CommCareActivityUIController {
 
     private void setBannerLayoutLogic() {
         final View activityRootView = activity.findViewById(R.id.screen_login_main);
-        final SharedPreferences prefs = CommCareApplication.instance().getCurrentApp().getAppPreferences();
         activityRootView.getViewTreeObserver().addOnGlobalLayoutListener(
                 () -> {
                     int hideAll = getResources().getInteger(
@@ -224,10 +221,11 @@ public class LoginActivityUiController implements CommCareActivityUIController {
 
         // Decide whether or not to show the app selection spinner based upon # of usable apps
         ArrayList<ApplicationRecord> readyApps = MultipleAppsUtil.getUsableAppRecords();
-        boolean promptIncluded = false;
+
         ApplicationRecord presetAppRecord = getPresetAppRecord(readyApps);
-        if ((readyApps.size() == 1 && (!ConnectIdManager.isConnectIdIntroduced() || ConnectIdManager.isUnlocked()))
-                || presetAppRecord != null) {
+        boolean noApps = readyApps.isEmpty();
+        setLoginInputsVisibility(!noApps);
+        if (!ConnectManager.isConnectIdIntroduced() && (readyApps.size() == 1 || presetAppRecord != null)) {
             setLoginInputsVisibility(true);
 
             // Set this app as the last selected app, for use in choosing what app to initialize
@@ -235,17 +233,10 @@ public class LoginActivityUiController implements CommCareActivityUIController {
             ApplicationRecord r = presetAppRecord != null ? presetAppRecord : readyApps.get(0);
             SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(activity);
             prefs.edit().putString(LoginActivity.KEY_LAST_APP, r.getUniqueId()).apply();
-
             setSingleAppUiState();
-
-            if (ConnectIdManager.isUnlocked()) {
-                appLabel.setVisibility(View.VISIBLE);
-                appLabel.setText(r.getDisplayName());
-            }
             activity.seatAppIfNeeded(r.getUniqueId());
         } else {
-            promptIncluded = activity.populateAppSpinner(readyApps);
-            appLabel.setVisibility(View.GONE);
+            activity.populateAppSpinner(readyApps);
         }
 
         // Not using this for now, but may turn back on later
@@ -269,39 +260,27 @@ public class LoginActivityUiController implements CommCareActivityUIController {
         if (!CommCareApplication.notificationManager().messagesForCommCareArePending()) {
             notificationButtonView.setVisibility(View.GONE);
         }
-
-        if (ConnectIdManager.isConnectIdIntroduced()) {
-            setLoginInputsVisibility(!promptIncluded);
-        }
     }
 
     public void setLoginInputsVisibility(boolean visible) {
         username.setVisibility(visible ? View.VISIBLE : View.GONE);
         passwordOrPin.setVisibility(visible ? View.VISIBLE : View.GONE);
-        loginButton.setVisibility(visible ? View.VISIBLE : View.GONE);
     }
 
     public void updateConnectLoginState() {
-        boolean emphasizeConnectSignin = false;
-        if (ConnectIdManager.isConnectIdIntroduced()) {
-            String welcomeText;
-            if (ConnectIdManager.isUnlocked()) {
-                welcomeText = activity.getString(R.string.login_welcome_connect_signed_in,
-                        ConnectIdDatabaseHelper.getUser(activity).getName());
-            } else {
-                welcomeText = activity.getString(R.string.login_welcome_connect_signed_out);
-                emphasizeConnectSignin = true;
-            }
+        setConnectButtonVisible(ConnectManager.shouldShowConnectButton());
+
+        if (ConnectManager.isConnectIdIntroduced()) {
+            String welcomeText = activity.getString(R.string.login_welcome_connect_signed_in,
+                    ConnectDatabaseHelper.getUser(activity).getName());
 
             welcomeMessage.setText(welcomeText);
         }
-
-        orLabel.setVisibility(emphasizeConnectSignin ? View.VISIBLE : View.GONE);
     }
 
     @Nullable
     private ApplicationRecord getPresetAppRecord(ArrayList<ApplicationRecord> readyApps) {
-        String presetAppId = activity.getPresetAppID();
+        String presetAppId = activity.getPresetAppId();
         if (presetAppId != null) {
             for (ApplicationRecord readyApp : readyApps) {
                 if (readyApp.getUniqueId().equals(presetAppId)) {
@@ -552,6 +531,39 @@ public class LoginActivityUiController implements CommCareActivityUIController {
 
     protected void setPasswordOrPin(String s) {
         passwordOrPin.setText(s);
+    }
+
+    protected boolean loginManagedByConnectId() { return loginManagedByConnectId; }
+
+    protected void setConnectIdLoginState(boolean useConnectId) {
+        if(!useConnectId && loginManagedByConnectId) {
+            setPasswordOrPin("");
+        }
+
+        loginManagedByConnectId  = useConnectId;
+
+        String text;
+        if(useConnectId) {
+            text = activity.getString(R.string.login_button_connectid);
+        }
+        else {
+            text = Localization.get("login.button");
+        }
+        loginButton.setText(text);
+
+        /**
+         * included these lines because when a user changes the language from the system settings while in the app,
+         * the strings should be translate correctly when they return to the app. That's why I added this code.
+         */
+        connectLoginButton.setText(activity.getString(R.string.connect_button_logged_in));
+
+        passwordOrPin.setBackgroundColor(getResources().getColor(useConnectId ? R.color.grey_light : R.color.white));
+        if(useConnectId) {
+            passwordOrPin.setText(R.string.login_password_by_connect);
+            passwordOrPin.clearFocus();
+        }
+
+        passwordOrPin.setInputType(useConnectId ? InputType.TYPE_CLASS_TEXT : (InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD));
     }
 
     private void updateBanner() {

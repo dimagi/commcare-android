@@ -1,8 +1,9 @@
 package org.commcare.activities.connect;
 
-import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.TextView;
+
+import com.google.android.material.textfield.TextInputEditText;
 
 import org.commcare.dalvik.R;
 import org.commcare.interfaces.CommCareActivityUIController;
@@ -18,7 +19,7 @@ import org.commcare.views.UiElement;
 @ManagedUi(R.layout.screen_connect_password_verify)
 public class ConnectIdPasswordVerificationActivityUiController implements CommCareActivityUIController {
     @UiElement(value = R.id.connect_password_verify_input)
-    private AutoCompleteTextView passwordInput;
+    private TextInputEditText passwordInput;
     @UiElement(value = R.id.connect_password_verify_forgot)
     private TextView forgotLink;
     @UiElement(value = R.id.connect_password_verify_button)

@@ -88,6 +88,7 @@ public class AnalyticsParamValue {
     public static final String SYNC_BUTTON = "sync";
     public static final String SYNC_SUBTEXT = "sync_subtext";
     public static final String REPORT_BUTTON = "report_an_issue";
+    public static final String CONNECT_BUTTON = "connect_info";
 
     // Param values for form types
     public static final String INCOMPLETE = "incomplete";
@@ -150,5 +151,6 @@ public class AnalyticsParamValue {
     public static final String CCC_RECOVERY_METHOD_PRIMARY_OTP = "primary_otp";
     public static final String CCC_RECOVERY_METHOD_ALTERNATE_OTP = "alternate_otp";
     public static final String CCC_RECOVERY_METHOD_PASSWORD = "password";
+    public static final String CCC_RECOVERY_METHOD_PIN = "pin";
 
 }

@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 
 import org.commcare.activities.CommCareActivity;
+import org.commcare.connect.ConnectConstants;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.WithUIController;
 
@@ -19,6 +20,7 @@ public class ConnectIdMessageActivity extends CommCareActivity<ConnectIdMessageA
     private String title = null;
     private String message = null;
     private String button = null;
+    private String button2 = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,9 +28,13 @@ public class ConnectIdMessageActivity extends CommCareActivity<ConnectIdMessageA
 
         setTitle("");
 
-        title = getString(getIntent().getIntExtra(ConnectIdConstants.TITLE, 0));
-        message = getString(getIntent().getIntExtra(ConnectIdConstants.MESSAGE, 0));
-        button = getString(getIntent().getIntExtra(ConnectIdConstants.BUTTON, 0));
+        title = getString(getIntent().getIntExtra(ConnectConstants.TITLE, 0));
+        message = getString(getIntent().getIntExtra(ConnectConstants.MESSAGE, 0));
+        button = getString(getIntent().getIntExtra(ConnectConstants.BUTTON, 0));
+
+        if(getIntent().hasExtra(ConnectConstants.BUTTON2)) {
+            button2 = getString(getIntent().getIntExtra(ConnectConstants.BUTTON2, 0));
+        }
 
         uiController.setupUI();
     }
@@ -40,6 +46,7 @@ public class ConnectIdMessageActivity extends CommCareActivity<ConnectIdMessageA
         uiController.setTitle(title);
         uiController.setMessage(message);
         uiController.setButtonText(button);
+        uiController.setButton2Text(button2);
     }
 
     @Override
@@ -57,14 +64,16 @@ public class ConnectIdMessageActivity extends CommCareActivity<ConnectIdMessageA
         uiController = new ConnectIdMessageActivityUiController(this);
     }
 
-    public void finish(boolean success) {
+    public void finish(boolean success, boolean secondButton) {
         Intent intent = new Intent(getIntent());
+
+        intent.putExtra(ConnectConstants.BUTTON2, secondButton);
 
         setResult(success ? RESULT_OK : RESULT_CANCELED, intent);
         finish();
     }
 
-    public void handleButtonPress() {
-        finish(true);
+    public void handleButtonPress(boolean secondButton) {
+        finish(true, secondButton);
     }
 }

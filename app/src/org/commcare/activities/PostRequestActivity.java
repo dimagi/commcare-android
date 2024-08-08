@@ -70,7 +70,7 @@ public class PostRequestActivity
         loadStateFromSavedInstance(savedInstanceState);
         loadStateFromIntent(getIntent());
 
-        setupUI();
+        setupUi();
 
         if (!inErrorState) {
             makePostRequest();
@@ -95,7 +95,7 @@ public class PostRequestActivity
         }
     }
 
-    private void setupUI() {
+    private void setupUi() {
         if (inErrorState) {
             enterErrorState();
         } else {
@@ -115,7 +115,7 @@ public class PostRequestActivity
                 RequestBody requestBody = ModernHttpRequester.getPostBody(params);
                 ModernHttpTask postTask =
                         new ModernHttpTask(this, url.toString(), ImmutableMultimap.of(),
-                                getContentHeadersForXFormPost(requestBody), requestBody,
+                                getContentHeadersForXformPost(requestBody), requestBody,
                                 HTTPMethod.POST, new AuthInfo.CurrentAuth());
                 postTask.connect((CommCareTaskConnector)this);
                 postTask.executeParallel();
@@ -146,7 +146,7 @@ public class PostRequestActivity
         makePostRequest();
     }
 
-    private HashMap<String, String> getContentHeadersForXFormPost(RequestBody postBody) throws IOException {
+    private HashMap<String, String> getContentHeadersForXformPost(RequestBody postBody) throws IOException {
         HashMap<String, String> headers = new HashMap<>();
         headers.put("Content-Type", "application/x-www-form-urlencoded");
         headers.put("Content-Length", String.valueOf(postBody.contentLength()));
@@ -174,7 +174,7 @@ public class PostRequestActivity
     }
 
     @Override
-    public void processSuccess(int responseCode, InputStream responseData) {
+    public void processSuccess(int responseCode, InputStream responseData, String apiVersion) {
         performSync();
     }
 
@@ -223,7 +223,8 @@ public class PostRequestActivity
 
     @Override
     public CustomProgressDialog generateProgressDialog(int taskId) {
-        String title, message;
+        String title;
+        String message;
         switch (taskId) {
             case DataPullTask.DATA_PULL_TASK_ID:
                 title = Localization.get("sync.communicating.title");
