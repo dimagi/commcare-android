@@ -2,6 +2,7 @@ package org.commcare.utils;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Base64;
 
 import org.commcare.CommCareApplication;
 import org.javarosa.core.util.externalizable.DeserializationException;
@@ -43,6 +44,15 @@ public class SerializationUtil {
 
     public static void serializeToIntent(Intent i, String name, Externalizable data) {
         i.putExtra(name, serialize(data));
+    }
+
+    public static String serializeToString(Externalizable data) {
+        return Base64.encodeToString(serialize(data), Base64.DEFAULT);
+    }
+
+    public static <T extends Externalizable> T deserializeFromString(String data, Class<T> type) {
+        byte[] decodedData = Base64.decode(data, Base64.DEFAULT);
+        return deserialize(decodedData, type);
     }
     
     public static <T extends Externalizable> T deserializeFromIntent(Intent i, String name, Class<T> type) {
