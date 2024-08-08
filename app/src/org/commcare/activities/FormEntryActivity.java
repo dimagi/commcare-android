@@ -14,6 +14,7 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
+import android.util.Base64;
 import android.util.Log;
 import android.util.Pair;
 import android.view.ContextMenu;
@@ -70,6 +71,7 @@ import org.commcare.utils.Base64Wrapper;
 import org.commcare.utils.CompoundIntentList;
 import org.commcare.utils.FileUtil;
 import org.commcare.utils.GeoUtils;
+import org.commcare.utils.SerializationUtil;
 import org.commcare.utils.SessionUnavailableException;
 import org.commcare.utils.StringUtils;
 import org.commcare.views.QuestionsView;
@@ -1009,7 +1011,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     private void loadForm() {
         mFormController = null;
         instanceState.setFormRecordPath(null);
-        String serializedFormIndex = null;
+        FormIndex lastFormIndex = null;
 
         Intent intent = getIntent();
         if (intent != null) {
@@ -1029,7 +1031,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
                     // only retrieve a potentially stored form index when loading an existing form record
                     AndroidSessionWrapper asw = CommCareApplication.instance().getCurrentSessionWrapper();
-                    serializedFormIndex = retrieveAndValidateSerializedFormIndex(asw.getSessionDescriptorId());
+                    lastFormIndex = retrieveAndValidateFormIndex(asw.getSessionDescriptorId());
                 } else if (intent.hasExtra(KEY_FORM_DEF_ID)) {
                     formId = intent.getIntExtra(KEY_FORM_DEF_ID, -1);
                     instanceState.setFormDefPath(FormFileSystemHelpers.getFormDefPath(formDefStorage, formId));
@@ -1046,7 +1048,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             }
 
             mFormLoaderTask = new FormLoaderTask<FormEntryActivity>(symetricKey, instanceIsReadOnly,
-                    formEntryRestoreSession.isRecording(), FormEntryInstanceState.mFormRecordPath, this, serializedFormIndex) {
+                    formEntryRestoreSession.isRecording(), FormEntryInstanceState.mFormRecordPath, this, lastFormIndex) {
                 @Override
                 protected void deliverResult(FormEntryActivity receiver, FECWrapper wrapperResult) {
                     receiver.handleFormLoadCompletion(wrapperResult.getController());
@@ -1089,7 +1091,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         }
     }
 
-    private String retrieveAndValidateSerializedFormIndex(int sessionDescriptorId) {
+    private FormIndex retrieveAndValidateFormIndex(int sessionDescriptorId) {
         org.commcare.modern.util.Pair<Double, String> interruptedFormIndex = HiddenPreferences.getInterruptedFormIndex();
         if (interruptedFormIndex == null
                 || interruptedFormIndex.first == null
@@ -1098,10 +1100,23 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             return null;
         }
         if (interruptedFormIndex.first == (double)sessionDescriptorId) {
-            return interruptedFormIndex.second;
+            return deserializeFormIndex(interruptedFormIndex.second);
         }
         // data format is invalid, so better to clear the data
         HiddenPreferences.clearInterruptedFormIndex();
+        return null;
+    }
+
+    private FormIndex deserializeFormIndex(String serializedFormIndex) {
+        if (serializedFormIndex != null) {
+            try{
+                byte[] decodedFormIndex = Base64.decode(serializedFormIndex, Base64.DEFAULT);
+                return SerializationUtil.deserialize(decodedFormIndex, FormIndex.class);
+            } catch(Exception e) {
+                Logger.log(LogTypes.TYPE_FORM_ENTRY,
+                        "Deserialization of last form index failed, " + e.getMessage());
+            }
+        }
         return null;
     }
 
