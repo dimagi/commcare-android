@@ -9,6 +9,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonIOException;
 
 import org.commcare.modern.util.Pair;
+import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.NoLocalizedTextException;
 
@@ -62,7 +63,7 @@ public class StringUtils {
             String jsonString = gson.toJson(pair);
             return jsonString;
         } catch(JsonIOException e){
-            // default to null
+            Logger.exception("Conversion from Pair to JSON failed ", e);
             return null;
         }
     }
@@ -77,7 +78,7 @@ public class StringUtils {
         try{
             return gson.fromJson(stringInJsonFormat, Pair.class);
         } catch(JsonIOException e){
-            // default to null
+            Logger.exception("Conversion from JSON to Pair failed ", e);
             return null;
         }
     }
