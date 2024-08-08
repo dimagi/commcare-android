@@ -57,6 +57,7 @@ import org.commcare.logging.analytics.TimedStatsTracker;
 import org.commcare.logic.AndroidFormController;
 import org.commcare.models.AndroidSessionWrapper;
 import org.commcare.models.FormRecordProcessor;
+import org.commcare.models.database.InterruptedFormState;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.preferences.HiddenPreferences;
@@ -257,12 +258,14 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     }
 
     private void interruptAndSaveForm(boolean exit) {
-        // Set flag that will allow us to restore this form when we log back in
-        CommCareApplication.instance().getCurrentSessionWrapper()
-                .setCurrentStateAsInterrupted(mFormController.getSerializedFormIndex());
+        if (mFormController != null) {
+            // Set flag that will allow us to restore this form when we log back in
+            CommCareApplication.instance().getCurrentSessionWrapper().setCurrentStateAsInterrupted(
+                    mFormController.getFormIndex());
 
-        // Start saving form; will trigger expireUserSession() on completion
-        saveIncompleteFormToDisk(exit);
+            // Start saving form; will trigger expireUserSession() on completion
+            saveIncompleteFormToDisk(exit);
+        }
     }
 
     private void handleLocationErrorAction() {
@@ -1092,18 +1095,13 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     }
 
     private FormIndex retrieveAndValidateFormIndex(int sessionDescriptorId) {
-        org.commcare.modern.util.Pair<Double, String> interruptedFormIndex = HiddenPreferences.getInterruptedFormIndex();
-        if (interruptedFormIndex == null
-                || interruptedFormIndex.first == null
-                || interruptedFormIndex.second == null
-                || interruptedFormIndex.second.isEmpty()){
-            return null;
-        }
-        if (interruptedFormIndex.first == (double)sessionDescriptorId) {
-            return deserializeFormIndex(interruptedFormIndex.second);
+        InterruptedFormState interruptedFormState =
+                HiddenPreferences.getInterruptedFormState();
+        if (interruptedFormState!= null && interruptedFormState.getSessionStateDescriptorId() == sessionDescriptorId) {
+            return interruptedFormState.getFormIndex();
         }
         // data format is invalid, so better to clear the data
-        HiddenPreferences.clearInterruptedFormIndex();
+        HiddenPreferences.clearInterruptedFormState();
         return null;
     }
 
@@ -1158,7 +1156,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                     Localization.get("form.entry.restart.after.expiration"), Toast.LENGTH_LONG).show();
         }
 
-        HiddenPreferences.clearInterruptedFormIndex();
+        HiddenPreferences.clearInterruptedFormState();
     }
 
     private void handleXpathErrorBroadcast() {

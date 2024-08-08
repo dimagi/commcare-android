@@ -56,30 +56,4 @@ public class StringUtils {
         }
         return MarkupUtil.styleSpannable(c, ret);
     }
-
-    public static String convertPairToJsonString(Pair<? extends Serializable, ? extends Serializable> pair){
-        Gson gson = new Gson();
-        try{
-            String jsonString = gson.toJson(pair);
-            return jsonString;
-        } catch(JsonIOException e){
-            Logger.exception("Conversion from Pair to JSON failed ", e);
-            return null;
-        }
-    }
-
-    public static Pair<? extends Serializable, ? extends Serializable> convertJsonStringToPair(
-            String stringInJsonFormat) {
-        Gson gson = new Gson();
-        if (stringInJsonFormat == null) {
-            return null;
-        }
-
-        try{
-            return gson.fromJson(stringInJsonFormat, Pair.class);
-        } catch(JsonIOException e){
-            Logger.exception("Conversion from JSON to Pair failed ", e);
-            return null;
-        }
-    }
 }
