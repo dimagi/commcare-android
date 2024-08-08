@@ -1036,6 +1036,9 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                     // only retrieve a potentially stored form index when loading an existing form record
                     AndroidSessionWrapper asw = CommCareApplication.instance().getCurrentSessionWrapper();
                     lastFormIndex = retrieveAndValidateFormIndex(asw.getSessionDescriptorId());
+                    if (lastFormIndex != null) {
+                        Logger.log(LogTypes.TYPE_FORM_ENTRY, "Recovering form entry session");
+                    }
                 } else if (intent.hasExtra(KEY_FORM_DEF_ID)) {
                     formId = intent.getIntExtra(KEY_FORM_DEF_ID, -1);
                     instanceState.setFormDefPath(FormFileSystemHelpers.getFormDefPath(formDefStorage, formId));
