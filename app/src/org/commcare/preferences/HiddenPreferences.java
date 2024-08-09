@@ -645,7 +645,6 @@ public class HiddenPreferences {
         }
     }
 
-    // This was changed to Double due to the way Gson handles numeric values
     public static InterruptedFormState getInterruptedFormState() {
         try {
             String currentUserId = CommCareApplication.instance().getCurrentUserId();
