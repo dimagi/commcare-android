@@ -359,6 +359,7 @@ public class CommCareSessionService extends Service {
                 return;
             }
             try {
+                Logger.log(LogTypes.TYPE_USER, "Expiring user session forcefully due to session timeout");
                 CommCareApplication.instance().expireUserSession();
             } finally {
                 CommCareSessionService.sessionAliveLock.unlock();
@@ -378,6 +379,7 @@ public class CommCareSessionService extends Service {
             }
 
             try {
+                Logger.log(LogTypes.TYPE_USER, "Expiring user session due to session timeout");
                 saveFormAndCloseSession();
             } finally {
                 CommCareSessionService.sessionAliveLock.unlock();
