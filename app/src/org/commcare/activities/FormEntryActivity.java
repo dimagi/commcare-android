@@ -1380,6 +1380,9 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
      *                    activity
      */
     private void finishReturnInstance(boolean reportSaved) {
+        HiddenPreferences.clearInterruptedFormState();
+        HiddenPreferences.clearInterruptedSSD();
+
         String action = getIntent().getAction();
         if (Intent.ACTION_PICK.equals(action) || Intent.ACTION_EDIT.equals(action)) {
             Intent formReturnIntent = new Intent();
