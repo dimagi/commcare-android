@@ -355,6 +355,10 @@ public class FormStorageTest {
             , "org.commcare.suite.model.EndpointArgument"
             , "org.commcare.suite.model.EndpointAction"
             , "org.commcare.suite.model.QueryGroup"
+
+            // Added in 2.55
+            , "org.javarosa.core.model.FormIndex"
+            , "org.commcare.models.database.InterruptedFormState"
     );
 
 

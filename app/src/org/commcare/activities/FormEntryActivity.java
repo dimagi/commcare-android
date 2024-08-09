@@ -14,6 +14,7 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
+import android.util.Base64;
 import android.util.Log;
 import android.util.Pair;
 import android.view.ContextMenu;
@@ -56,8 +57,11 @@ import org.commcare.logging.analytics.TimedStatsTracker;
 import org.commcare.logic.AndroidFormController;
 import org.commcare.models.AndroidSessionWrapper;
 import org.commcare.models.FormRecordProcessor;
+import org.commcare.models.database.InterruptedFormState;
 import org.commcare.models.database.SqlStorage;
+import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.preferences.HiddenPreferences;
+import org.commcare.preferences.MainConfigurablePreferences;
 import org.commcare.services.FCMMessageData;
 import org.commcare.services.PendingSyncAlertBroadcastReceiver;
 import org.commcare.tasks.FormLoaderTask;
@@ -69,6 +73,7 @@ import org.commcare.utils.Base64Wrapper;
 import org.commcare.utils.CompoundIntentList;
 import org.commcare.utils.FileUtil;
 import org.commcare.utils.GeoUtils;
+import org.commcare.utils.SerializationUtil;
 import org.commcare.utils.SessionUnavailableException;
 import org.commcare.utils.StringUtils;
 import org.commcare.views.QuestionsView;
@@ -148,6 +153,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     private boolean instanceIsReadOnly = false;
     private boolean hasFormLoadBeenTriggered = false;
     private boolean hasFormLoadFailed = false;
+    private boolean triggeredExit = false;
     private String locationRecieverErrorAction = null;
     private String badLocationXpath = null;
 
@@ -242,18 +248,25 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             uiController.refreshView();
         }
         TextToSpeechConverter.INSTANCE.setListener(mTTSCallback);
+        HiddenPreferences.clearInterruptedSSD();
     }
 
     @Override
-    public void formSaveCallback(Runnable listener) {
+    public void formSaveCallback(boolean exit, Runnable listener) {
         // note that we have started saving the form
         customFormSaveCallback = listener;
+        interruptAndSaveForm(exit);
+    }
 
-        // Set flag that will allow us to restore this form when we log back in
-        CommCareApplication.instance().getCurrentSessionWrapper().setCurrentStateAsInterrupted();
+    private void interruptAndSaveForm(boolean exit) {
+        if (mFormController != null) {
+            // Set flag that will allow us to restore this form when we log back in
+            CommCareApplication.instance().getCurrentSessionWrapper().setCurrentStateAsInterrupted(
+                    mFormController.getFormIndex());
 
-        // Start saving form; will trigger expireUserSession() on completion
-        saveIncompleteFormToDisk();
+            // Start saving form; will trigger expireUserSession() on completion
+            saveIncompleteFormToDisk(exit);
+        }
     }
 
     private void handleLocationErrorAction() {
@@ -766,8 +779,8 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         saveDataToDisk(FormEntryConstants.EXIT, true, updatedSaveName, false);
     }
 
-    private void saveIncompleteFormToDisk() {
-        saveDataToDisk(FormEntryConstants.EXIT, false, null, true);
+    private void saveIncompleteFormToDisk(boolean exit) {
+        saveDataToDisk(exit, false, null, true);
     }
 
     /**
@@ -912,6 +925,20 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         unregisterReceiver(pendingSyncAlertBroadcastReceiver);
     }
 
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (shouldSaveFormOnStop()) {
+            interruptAndSaveForm(false);
+        }
+    }
+
+    private boolean shouldSaveFormOnStop() {
+        // if feature enabled and the form has loaded and another widget workflow is not in progress and we
+        // ourselves have not called exit as part of user workflow
+        return MainConfigurablePreferences.isAutoSaveFormOnPause() && formHasLoaded() && !triggeredExit;
+    }
+
     private void saveInlineVideoState() {
         if (uiController.questionsView != null) {
             for (int i = 0; i < uiController.questionsView.getWidgets().size(); i++) {
@@ -988,6 +1015,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     private void loadForm() {
         mFormController = null;
         instanceState.setFormRecordPath(null);
+        FormIndex lastFormIndex = null;
 
         Intent intent = getIntent();
         if (intent != null) {
@@ -1004,6 +1032,13 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                             instanceState);
                     formId = instanceAndStatus.first;
                     instanceIsReadOnly = instanceAndStatus.second;
+
+                    // only retrieve a potentially stored form index when loading an existing form record
+                    AndroidSessionWrapper asw = CommCareApplication.instance().getCurrentSessionWrapper();
+                    lastFormIndex = retrieveAndValidateFormIndex(asw.getSessionDescriptorId());
+                    if (lastFormIndex != null) {
+                        Logger.log(LogTypes.TYPE_FORM_ENTRY, "Recovering form entry session");
+                    }
                 } else if (intent.hasExtra(KEY_FORM_DEF_ID)) {
                     formId = intent.getIntExtra(KEY_FORM_DEF_ID, -1);
                     instanceState.setFormDefPath(FormFileSystemHelpers.getFormDefPath(formDefStorage, formId));
@@ -1020,7 +1055,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             }
 
             mFormLoaderTask = new FormLoaderTask<FormEntryActivity>(symetricKey, instanceIsReadOnly,
-                    formEntryRestoreSession.isRecording(), FormEntryInstanceState.mFormRecordPath, this) {
+                    formEntryRestoreSession.isRecording(), FormEntryInstanceState.mFormRecordPath, this, lastFormIndex) {
                 @Override
                 protected void deliverResult(FormEntryActivity receiver, FECWrapper wrapperResult) {
                     receiver.handleFormLoadCompletion(wrapperResult.getController());
@@ -1063,6 +1098,29 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         }
     }
 
+    private FormIndex retrieveAndValidateFormIndex(int sessionDescriptorId) {
+        InterruptedFormState interruptedFormState =
+                HiddenPreferences.getInterruptedFormState();
+        if (interruptedFormState!= null && interruptedFormState.getSessionStateDescriptorId() == sessionDescriptorId) {
+            return interruptedFormState.getFormIndex();
+        }
+        // data format is invalid, so better to clear the data
+        HiddenPreferences.clearInterruptedFormState();
+        return null;
+    }
+
+    private FormIndex deserializeFormIndex(String serializedFormIndex) {
+        if (serializedFormIndex != null) {
+            try{
+                byte[] decodedFormIndex = Base64.decode(serializedFormIndex, Base64.DEFAULT);
+                return SerializationUtil.deserialize(decodedFormIndex, FormIndex.class);
+            } catch(Exception e) {
+                Logger.exception("Deserialization of last form index failed ", e);
+            }
+        }
+        return null;
+    }
+
     private void handleFormLoadCompletion(AndroidFormController fc) {
         if (PollSensorAction.XPATH_ERROR_ACTION.equals(locationRecieverErrorAction)) {
             handleXpathErrorBroadcast();
@@ -1092,12 +1150,17 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
         formEntryRestoreSession.replaySession(this);
 
+        // jump to form index, no action if null
+        mFormController.returnToStoredIndex();
+
         uiController.refreshView();
         FormNavigationUI.updateNavigationCues(this, mFormController, uiController.questionsView);
         if (isRestartAfterSessionExpiration) {
             Toast.makeText(this,
                     Localization.get("form.entry.restart.after.expiration"), Toast.LENGTH_LONG).show();
         }
+
+        HiddenPreferences.clearInterruptedFormState();
     }
 
     private void handleXpathErrorBroadcast() {
@@ -1208,7 +1271,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
      * continue closing the session/logging out.
      */
     @Override
-    public void savingComplete(SaveToDiskTask.SaveStatus saveStatus, String errorMessage) {
+    public void savingComplete(SaveToDiskTask.SaveStatus saveStatus, String errorMessage, boolean exit) {
         // Did we just save a form because the key session
         // (CommCareSessionService) is ending?
         if (customFormSaveCallback != null) {
@@ -1216,7 +1279,9 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             customFormSaveCallback = null;
 
             toCall.run();
-            returnAsInterrupted();
+            if (exit) {
+                returnAsInterrupted();
+            }
         } else if (saveStatus != null) {
             String toastMessage = "";
             switch (saveStatus) {
@@ -1315,6 +1380,9 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
      *                    activity
      */
     private void finishReturnInstance(boolean reportSaved) {
+        HiddenPreferences.clearInterruptedFormState();
+        HiddenPreferences.clearInterruptedSSD();
+
         String action = getIntent().getAction();
         if (Intent.ACTION_PICK.equals(action) || Intent.ACTION_EDIT.equals(action)) {
             Intent formReturnIntent = new Intent();
@@ -1344,6 +1412,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
         dismissCurrentProgressDialog();
         reportFormExitTime();
+        triggeredExit = true;
         finish();
     }
 
