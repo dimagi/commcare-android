@@ -75,8 +75,8 @@ public class ConnectActivity extends CommCareActivity<ResourceEngineListener> {
 
         destinationListener = FirebaseAnalyticsUtil.getDestinationChangeListener();
 
-        NavHostFragment host = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment_connect);
-        navController = host.getNavController();
+        NavHostFragment host1 = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment_connect);
+        navController = host1.getNavController();
         navController.addOnDestinationChangedListener(destinationListener);
 
         if (getIntent().getBooleanExtra("info", false)) {

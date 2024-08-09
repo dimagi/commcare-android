@@ -1,0 +1,291 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--suppress NavigationFile -->
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph_connectid"
+    app:startDestination="@id/connectid_recovery_decision">
+    <fragment
+        android:id="@+id/connectid_recovery_decision"
+        android:name="org.commcare.fragments.connectId.ConnectIdRecoveryDecisionFragment"
+        android:label="fragment_connectid_recovery_decision"
+        tools:layout="@layout/screen_connect_recovery_decision" >
+        <action
+            android:id="@+id/action_connectid_recovery_decision_to_connectid_consent"
+            app:destination="@id/connectid_consent" />
+        <action
+            android:id="@+id/action_connectid_recovery_decision_to_connectid_biometric_config"
+            app:destination="@id/connectid_biometric_config"
+            app:popUpTo="@id/connectid_recovery_decision"
+            app:popUpToInclusive="false" >
+            <argument
+                android:name="phone"
+                app:argType="string" />
+            <argument
+                android:name="callingClass"
+                app:argType="integer"
+                app:nullable="false"/>
+        </action>
+    </fragment>
+
+    <fragment
+        android:id="@+id/connectid_phone"
+        android:name="org.commcare.fragments.connectId.ConnectIdPhoneFragment"
+        android:label="fragment_connectid_phone"
+        tools:layout="@layout/screen_connect_primary_phone" >
+        <argument
+            android:name="callingClass"
+            app:argType="integer"
+            app:nullable="false"/>
+        <argument
+            android:name="method"
+            app:argType="string" />
+        <argument
+            android:name="phone"
+            app:nullable="true"
+            app:argType="string" />
+        <action
+            android:id="@+id/action_connectid_phone_to_connectid_registration"
+            app:destination="@id/connectid_registration" />
+        <action
+            android:id="@+id/action_connectid_phone_to_connectid_consent"
+            app:destination="@id/connectid_consent" />
+        <action
+            android:id="@+id/action_connectid_phone_to_connectid_pin"
+            app:destination="@id/connectid_pin" />
+        <action
+            android:id="@+id/action_connectid_phone_to_connectid_phone_verify"
+            app:destination="@id/connectid_phone_verify" />
+        <action
+            android:id="@+id/action_connectid_phone_to_connectid_biometric_config"
+            app:destination="@id/connectid_biometric_config" />
+        <action
+            android:id="@+id/action_connectid_phone_to_connectid_message"
+            app:destination="@id/connectid_message" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/connectid_consent"
+        android:name="org.commcare.fragments.connectId.ConnectIdConsentFragment"
+        android:label="fragment_connectid_consent"
+        tools:layout="@layout/screen_connect_consent" >
+        <argument
+            android:name="callingClass"
+            app:argType="integer"
+            app:nullable="false"/>
+        <action
+            android:id="@+id/action_connectid_consent_to_connectid_phone"
+            app:destination="@id/connectid_phone" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/connectid_biometric_config"
+        android:name="org.commcare.fragments.connectId.ConnectIdBiometricConfigFragment"
+        android:label="fragment_connectid_biometric_config"
+        tools:layout="@layout/screen_connect_verify" >
+        <action
+            android:id="@+id/action_connectid_biometric_config_to_connectid_phone_verify"
+            app:destination="@id/connectid_phone_verify" />
+        <action
+            android:id="@+id/action_connectid_biometric_config_to_connectid_registration"
+            app:destination="@id/connectid_registration" />
+        <action
+            android:id="@+id/action_connectid_biometric_config_to_connectid_message"
+            app:destination="@id/connectid_message" />
+        <argument
+            android:name="callingClass"
+            app:argType="integer"
+            app:nullable="false"/>
+    </fragment>
+
+    <fragment
+        android:id="@+id/connectid_phone_verify"
+        android:name="org.commcare.fragments.connectId.ConnectIdPhoneVerificationFragmnet"
+        android:label="fragment_connectid_phone_verify"
+        tools:layout="@layout/screen_connect_phone_verify" >
+
+        <action
+            android:id="@+id/action_connectid_phone_verify_to_connectid_pin"
+            app:destination="@id/connectid_pin" />
+        <action
+            android:id="@+id/action_connectid_phone_verify_to_connectid_biometric_config"
+            app:destination="@id/connectid_biometric_config" />
+        <action
+            android:id="@+id/action_connectid_phone_verify_to_connectid_phone"
+            app:destination="@id/connectid_phone" />
+        <argument
+            android:name="callingClass"
+            app:argType="integer"
+            app:nullable="false"/>
+
+        <argument
+            android:name="method"
+            app:nullable="true"
+            app:argType="string" />
+
+        <argument
+            android:name="primaryPhone"
+            app:nullable="true"
+            app:argType="string" />
+
+        <argument
+            android:name="allowChange"
+            android:defaultValue="true"
+            app:argType="boolean" />
+        <argument
+            android:name="username"
+            app:nullable="true"
+            app:argType="string" />
+        <argument
+            android:name="password"
+            app:nullable="true"
+            app:argType="string" />
+
+        <argument
+            android:name="secondaryPhone"
+            app:nullable="true"
+            app:argType="string" />
+        <action
+            android:id="@+id/action_connectid_phone_verify_to_connectid_password"
+            app:destination="@id/connectid_password" />
+        <action
+            android:id="@+id/action_connectid_phone_verify_to_connectid_message"
+            app:destination="@id/connectid_message" />
+        <action
+            android:id="@+id/action_connectid_phone_verify_self"
+            app:destination="@id/connectid_phone_verify" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/connectid_registration"
+        android:name="org.commcare.fragments.connectId.ConnectIdRegistrationFragment"
+        android:label="fragment_connectid_registration"
+        tools:layout="@layout/screen_connect_registration" >
+        <argument
+            android:name="callingClass"
+            app:argType="integer"
+            app:nullable="false"/>
+
+        <action
+            android:id="@+id/action_connectid_registration_to_connectid_biometric_config"
+            app:destination="@id/connectid_biometric_config" />
+        <action
+            android:id="@+id/action_connectid_registration_to_connectid_phone"
+            app:destination="@id/connectid_phone" />
+        <argument
+            android:name="phone"
+            app:nullable="true"
+            app:argType="string" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/connectid_message"
+        android:name="org.commcare.fragments.connectId.ConnectIdMessageFragment"
+        android:label="fragment_connectid_message"
+        tools:layout="@layout/screen_connect_message" >
+        <argument
+            android:name="title"
+            app:argType="string" />
+        <argument
+            android:name="message"
+            app:argType="string" />
+        <argument
+            android:name="callingClass"
+            app:argType="integer"
+            app:nullable="false"/>
+        <argument
+            android:name="buttonText"
+            app:argType="string" />
+        <argument
+            android:name="button2Text"
+            app:nullable="true"
+            app:argType="string" />
+        <action
+            android:id="@+id/action_connectid_message_to_connectid_biometric_config"
+            app:destination="@id/connectid_biometric_config" />
+        <action
+            android:id="@+id/action_connectid_message_to_connectid_pin"
+            app:destination="@id/connectid_pin" />
+        <action
+            android:id="@+id/action_connectid_message_to_connectid_phone_verify"
+            app:destination="@id/connectid_phone_verify" />
+        <action
+            android:id="@+id/action_connectid_message_to_connectid_phone"
+            app:destination="@id/connectid_phone" />
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/connectid_pin"
+        android:name="org.commcare.fragments.connectId.ConnectIdPinFragment"
+        android:label="fragment_connectid_pin"
+        tools:layout="@layout/screen_connect_pin" >
+        <argument
+            android:name="callingClass"
+            app:argType="integer"
+            app:nullable="false"/>
+        <argument
+            android:name="phone"
+            app:nullable="true"
+            app:argType="string" />
+        <argument
+            android:name="secret"
+            app:nullable="true"
+            app:argType="string" />
+        <argument
+            android:name="recover"
+            android:defaultValue="false"
+            app:argType="boolean" />
+        <argument
+            android:name="change"
+            android:defaultValue="false"
+            app:argType="boolean" />
+        <action
+            android:id="@+id/action_connectid_pin_to_connectid_phone_verify"
+            app:destination="@id/connectid_phone_verify" />
+        <action
+            android:id="@+id/action_connectid_pin_to_connectid_phone"
+            app:destination="@id/connectid_phone" />
+        <action
+            android:id="@+id/action_connectid_pin_to_connectid_message"
+            app:destination="@id/connectid_message" />
+        <action
+            android:id="@+id/action_connectid_pin_self"
+            app:destination="@id/connectid_pin" />
+        <action
+            android:id="@+id/action_connectid_pin_to_connectid_password"
+            app:destination="@id/connectid_password" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/connectid_password"
+        android:name="org.commcare.fragments.connectId.ConnectIdPasswordVerificationFragment"
+        android:label="fragment_connectid_password"
+        tools:layout="@layout/screen_connect_password_verify" >
+        <argument
+            android:name="callingClass"
+            app:argType="integer"
+            app:nullable="false"/>
+        <argument
+            android:name="phone"
+            app:nullable="true"
+            app:argType="string" />
+        <argument
+            android:name="secret"
+            app:nullable="true"
+            app:argType="string" />
+        <action
+            android:id="@+id/action_connectid_password_to_connectid_message"
+            app:destination="@id/connectid_message" />
+        <action
+            android:id="@+id/action_connectid_password_to_connectid_phone_verify"
+            app:destination="@id/connectid_phone_verify" />
+        <action
+            android:id="@+id/action_connectid_password_to_connectid_pin"
+            app:destination="@id/connectid_pin" />
+        <action
+            android:id="@+id/action_connectid_password_to_connectid_phone"
+            app:destination="@id/connectid_phone" />
+    </fragment>
+
+</navigation>
