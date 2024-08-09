@@ -14,7 +14,6 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
-import android.util.Base64;
 import android.util.Log;
 import android.util.Pair;
 import android.view.ContextMenu;
@@ -59,7 +58,6 @@ import org.commcare.models.AndroidSessionWrapper;
 import org.commcare.models.FormRecordProcessor;
 import org.commcare.models.database.InterruptedFormState;
 import org.commcare.models.database.SqlStorage;
-import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.preferences.MainConfigurablePreferences;
 import org.commcare.services.FCMMessageData;
@@ -73,7 +71,6 @@ import org.commcare.utils.Base64Wrapper;
 import org.commcare.utils.CompoundIntentList;
 import org.commcare.utils.FileUtil;
 import org.commcare.utils.GeoUtils;
-import org.commcare.utils.SerializationUtil;
 import org.commcare.utils.SessionUnavailableException;
 import org.commcare.utils.StringUtils;
 import org.commcare.views.QuestionsView;
@@ -1109,19 +1106,9 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         return null;
     }
 
-    private FormIndex deserializeFormIndex(String serializedFormIndex) {
-        if (serializedFormIndex != null) {
-            try{
-                byte[] decodedFormIndex = Base64.decode(serializedFormIndex, Base64.DEFAULT);
-                return SerializationUtil.deserialize(decodedFormIndex, FormIndex.class);
-            } catch(Exception e) {
-                Logger.exception("Deserialization of last form index failed ", e);
-            }
-        }
-        return null;
-    }
-
     private void handleFormLoadCompletion(AndroidFormController fc) {
+        HiddenPreferences.clearInterruptedFormState();
+
         if (PollSensorAction.XPATH_ERROR_ACTION.equals(locationRecieverErrorAction)) {
             handleXpathErrorBroadcast();
         }
@@ -1159,8 +1146,6 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             Toast.makeText(this,
                     Localization.get("form.entry.restart.after.expiration"), Toast.LENGTH_LONG).show();
         }
-
-        HiddenPreferences.clearInterruptedFormState();
     }
 
     private void handleXpathErrorBroadcast() {
