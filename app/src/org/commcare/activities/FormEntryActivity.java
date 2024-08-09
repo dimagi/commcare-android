@@ -1107,6 +1107,8 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     }
 
     private void handleFormLoadCompletion(AndroidFormController fc) {
+        HiddenPreferences.clearInterruptedFormState();
+
         if (PollSensorAction.XPATH_ERROR_ACTION.equals(locationRecieverErrorAction)) {
             handleXpathErrorBroadcast();
         }
@@ -1144,8 +1146,6 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             Toast.makeText(this,
                     Localization.get("form.entry.restart.after.expiration"), Toast.LENGTH_LONG).show();
         }
-
-        HiddenPreferences.clearInterruptedFormState();
     }
 
     private void handleXpathErrorBroadcast() {
