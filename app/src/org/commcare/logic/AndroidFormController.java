@@ -1,15 +1,12 @@
 package org.commcare.logic;
 
-import android.util.Base64;
 
 import androidx.annotation.NonNull;
 
 import org.commcare.google.services.analytics.FormAnalyticsHelper;
-import org.commcare.utils.SerializationUtil;
 import org.commcare.views.widgets.WidgetFactory;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.FormIndex;
-import org.javarosa.core.services.Logger;
 import org.javarosa.form.api.FormController;
 import org.javarosa.form.api.FormEntryController;
 
@@ -88,16 +85,5 @@ public class AndroidFormController extends FormController implements PendingCall
 
     public FormDef getFormDef() {
         return mFormEntryController.getModel().getForm();
-    }
-
-    // TODO: we should cache this
-    public String getSerializedFormIndex() {
-        try{
-            byte[] serializedFormIndex = SerializationUtil.serialize(getFormIndex());
-            return Base64.encodeToString(serializedFormIndex, Base64.DEFAULT);
-        } catch (Exception e){
-            Logger.exception("Serialization of last form index failed ", e);
-            return null;
-        }
     }
 }
