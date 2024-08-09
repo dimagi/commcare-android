@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+<LinearLayout
     android:layout_width="match_parent"
     android:layout_height="fill_parent"
     android:background="@color/cc_core_bg"
@@ -70,3 +71,4 @@
         android:text="@string/connect_verify_phone_verify"/>
 
 </LinearLayout>
+</layout>

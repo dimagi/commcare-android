@@ -24,6 +24,7 @@ import org.commcare.connect.network.ApiConnectId;
 import org.commcare.connect.network.ConnectNetworkHelper;
 import org.commcare.connect.network.IApiCallback;
 import org.commcare.dalvik.R;
+import org.commcare.dalvik.databinding.ScreenConnectPinBinding;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.utils.KeyboardHelper;
@@ -62,15 +63,9 @@ public class ConnectIdPinFragment extends Fragment {
 
     private static final int MaxFailures = 3;
 
-    private TextView titleTextView;
-    private TextView messageTextView;
-    private TextInputEditText pinInput;
-    private TextInputLayout pinRepeatHolder;
-    private TextInputEditText pinRepeatInput;
-    private TextView errorTextView;
-    private TextView forgotLink;
-    private Button button;
     private int callingClass;
+
+    private ScreenConnectPinBinding binding;
 
     TextWatcher watcher = new TextWatcher() {
         @Override
@@ -115,30 +110,24 @@ public class ConnectIdPinFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.screen_connect_pin, container, false);
-        titleTextView = view.findViewById(R.id.connect_pin_title);
-        messageTextView = view.findViewById(R.id.connect_pin_message);
-        pinInput = view.findViewById(R.id.connect_pin_input);
-        pinRepeatHolder = view.findViewById(R.id.connect_pin_repeat_holder);
-        pinRepeatInput = view.findViewById(R.id.connect_pin_repeat_input);
-        errorTextView = view.findViewById(R.id.connect_pin_error_message);
-        forgotLink = view.findViewById(R.id.connect_pin_verify_forgot);
-        button = view.findViewById(R.id.connect_pin_button);
-        button.setOnClickListener(v -> handleButtonPress());
-        forgotLink.setOnClickListener(v -> handleForgotPress());
-        pinInput.addTextChangedListener(watcher);
-        pinRepeatInput.addTextChangedListener(watcher);
+        binding= ScreenConnectPinBinding.inflate(inflater,container,false);
+        View view = binding.getRoot();
+        binding.connectPinButton.setOnClickListener(v -> handleButtonPress());
+        binding.connectPinVerifyForgot.setOnClickListener(v -> handleForgotPress());
+        binding.connectPinInput.addTextChangedListener(watcher);
+        binding.connectPinInput.addTextChangedListener(watcher);
         clearPinFields();
-        phone = ConnectIdPinFragmentArgs.fromBundle(getArguments()).getPhone();
-        secret = ConnectIdPinFragmentArgs.fromBundle(getArguments()).getSecret();
-        callingClass = ConnectIdPinFragmentArgs.fromBundle(getArguments()).getCallingClass();
-        isRecovery = ConnectIdPinFragmentArgs.fromBundle(getArguments()).getRecover();
-        isChanging = ConnectIdPinFragmentArgs.fromBundle(getArguments()).getChange();
-
+        if (getArguments() != null) {
+            phone = ConnectIdPinFragmentArgs.fromBundle(getArguments()).getPhone();
+            secret = ConnectIdPinFragmentArgs.fromBundle(getArguments()).getSecret();
+            callingClass = ConnectIdPinFragmentArgs.fromBundle(getArguments()).getCallingClass();
+            isRecovery = ConnectIdPinFragmentArgs.fromBundle(getArguments()).getRecover();
+            isChanging = ConnectIdPinFragmentArgs.fromBundle(getArguments()).getChange();
+        }
         int titleId = isChanging ? R.string.connect_pin_title_set :
                 R.string.connect_pin_title_confirm;
-        getActivity().setTitle(getString(titleId));
-        titleTextView.setText(getString(titleId));
+        requireActivity().setTitle(getString(titleId));
+        binding.connectPinTitle.setText(getString(titleId));
 
         int messageId;
         if (isChanging) {
@@ -147,38 +136,38 @@ public class ConnectIdPinFragment extends Fragment {
             messageId = isRecovery ? R.string.connect_pin_message_repeat :
                     R.string.connect_pin_message_confirm;
         }
-        messageTextView.setText(getString(messageId));
+        binding.connectPinMessage.setText(getString(messageId));
 
-        pinRepeatHolder.setVisibility(isChanging ? View.VISIBLE : View.GONE);
+        binding.connectPinRepeatHolder.setVisibility(isChanging ? View.VISIBLE : View.GONE);
         setPinLength(pinLength);
 
-        forgotLink.setVisibility(!isChanging ? View.VISIBLE : View.GONE);
+        binding.connectPinVerifyForgot.setVisibility(!isChanging ? View.VISIBLE : View.GONE);
         return view;
     }
 
     public void setPinLength(int length) {
         InputFilter[] filter = new InputFilter[]{new InputFilter.LengthFilter(length)};
-        pinInput.setFilters(filter);
-        pinRepeatInput.setFilters(filter);
+        binding.connectPinInput.setFilters(filter);
+        binding.connectPinInput.setFilters(filter);
     }
 
     public void clearPin() {
-        pinInput.setText("");
-        pinRepeatInput.setText("");
+        binding.connectPinInput.setText("");
+        binding.connectPinInput.setText("");
     }
 
     public void requestInputFocus() {
-        KeyboardHelper.showKeyboardOnInput(requireActivity(), pinInput);
+        KeyboardHelper.showKeyboardOnInput(requireActivity(), binding.connectPinInput);
     }
 
     public void clearPinFields() {
-        pinInput.setText("");
-        pinRepeatInput.setText("");
+        binding.connectPinInput.setText("");
+        binding.connectPinInput.setText("");
     }
 
     public void checkPin() {
-        String pin1 = pinInput.getText().toString();
-        String pin2 = pinRepeatInput.getText().toString();
+        String pin1 = binding.connectPinInput.getText().toString();
+        String pin2 = binding.connectPinInput.getText().toString();
 
         String errorText = "";
         boolean buttonEnabled = false;
@@ -192,12 +181,12 @@ public class ConnectIdPinFragment extends Fragment {
             }
         }
 
-        errorTextView.setText(errorText);
-        button.setEnabled(buttonEnabled);
+        binding.connectPinErrorMessage.setText(errorText);
+        binding.connectPinButton.setEnabled(buttonEnabled);
     }
 
     public void handleButtonPress() {
-        String pin = pinInput.getText().toString();
+        String pin = binding.connectPinInput.getText().toString();
         ConnectUserRecord user = ConnectDatabaseHelper.getUser(getActivity());
 
         boolean isBusy = false;
@@ -450,7 +439,7 @@ public class ConnectIdPinFragment extends Fragment {
         }
 
         if (directions != null) {
-            Navigation.findNavController(button).navigate(directions);
+            Navigation.findNavController(binding.connectPinButton).navigate(directions);
         }
     }
 }

@@ -4,16 +4,13 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.TextView;
-
 import org.commcare.activities.SettingsHelper;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.ConnectDatabaseHelper;
 import org.commcare.connect.ConnectManager;
 import org.commcare.connect.ConnectTask;
-import org.commcare.dalvik.R;
+import org.commcare.dalvik.databinding.ScreenConnectMessageBinding;
 
 import java.util.Locale;
 
@@ -29,16 +26,14 @@ import static org.commcare.connect.ConnectIdWorkflows.completeSignIn;
  * create an instance of this fragment.
  */
 public class ConnectIdMessageFragment extends Fragment {
-    private TextView titleTextView;
-    private TextView messageTextView;
-    private Button button;
-    private Button button2;
-
     private String title;
     private String message;
     private String buttonText;
     private String button2Text;
     private int callingClass;
+
+    private ScreenConnectMessageBinding binding;
+
 
     public ConnectIdMessageFragment() {
         // Required empty public constructor
@@ -56,13 +51,10 @@ public class ConnectIdMessageFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.screen_connect_message, container, false);
-        titleTextView = view.findViewById(R.id.connect_message_title);
-        messageTextView = view.findViewById(R.id.connect_message_message);
-        button = view.findViewById(R.id.connect_message_button);
-        button2 = view.findViewById(R.id.connect_message_button2);
-        button.setOnClickListener(v -> handleButtonPress(false));
-        button2.setOnClickListener(v -> handleButtonPress(true));
+        binding= ScreenConnectMessageBinding.inflate(inflater,container,false);
+        View view = binding.getRoot();
+        binding.connectMessageButton.setOnClickListener(v -> handleButtonPress(false));
+        binding.connectMessageButton2.setOnClickListener(v -> handleButtonPress(true));
         title = ConnectIdMessageFragmentArgs.fromBundle(getArguments()).getTitle();
         message = ConnectIdMessageFragmentArgs.fromBundle(getArguments()).getMessage();
         buttonText = ConnectIdMessageFragmentArgs.fromBundle(getArguments()).getButtonText();
@@ -78,17 +70,17 @@ public class ConnectIdMessageFragment extends Fragment {
     public void onResume() {
         super.onResume();
 
-        titleTextView.setText(title);
-        messageTextView.setText(message);
-        button.setText(buttonText);
+        binding.connectMessageTitle.setText(title);
+        binding.connectMessageMessage.setText(message);
+        binding.connectMessageButton.setText(buttonText);
         setButton2Text(button2Text);
     }
 
     public void setButton2Text(String buttonText) {
         boolean show = buttonText != null;
-        button2.setVisibility(show ? View.VISIBLE : View.GONE);
+        binding.connectMessageButton2.setVisibility(show ? View.VISIBLE : View.GONE);
         if (show) {
-            button2.setText(buttonText);
+            binding.connectMessageButton2.setText(buttonText);
         }
     }
 
@@ -165,7 +157,7 @@ public class ConnectIdMessageFragment extends Fragment {
         if (success) {
 
             if (directions != null) {
-                Navigation.findNavController(button).navigate(directions);
+                Navigation.findNavController(binding.connectMessageButton).navigate(directions);
             }
         }
     }

@@ -27,6 +27,7 @@ import org.commcare.connect.network.ApiConnectId;
 import org.commcare.connect.network.ConnectNetworkHelper;
 import org.commcare.connect.network.IApiCallback;
 import org.commcare.dalvik.R;
+import org.commcare.dalvik.databinding.ScreenConnectPhoneVerifyBinding;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.utils.KeyboardHelper;
@@ -57,13 +58,6 @@ import static org.commcare.connect.ConnectIdWorkflows.completeSignIn;
  * create an instance of requireActivity() fragment.
  */
 public class ConnectIdPhoneVerificationFragmnet extends Fragment {
-    private TextView labelTextView;
-    private AutoCompleteTextView codeInput;
-    private TextView errorMessage;
-    private TextView changeTextView;
-    private TextView resendTextView;
-    private Button verifyButton;
-
     public static final int MethodRegistrationPrimary = 1;
     public static final int MethodRecoveryPrimary = 2;
     public static final int MethodRecoveryAlternate = 3;
@@ -79,6 +73,8 @@ public class ConnectIdPhoneVerificationFragmnet extends Fragment {
     private int callingClass;
     private SMSBroadcastReceiver smsBroadcastReceiver;
     private DateTime smsTime = null;
+    
+    private ScreenConnectPhoneVerifyBinding binding;
 
     private final Handler taskHandler = new android.os.Handler();
 
@@ -103,7 +99,7 @@ public class ConnectIdPhoneVerificationFragmnet extends Fragment {
                     getString(R.string.connect_verify_phone_resend) :
                     getString(R.string.connect_verify_phone_resend_wait, secondsToReset);
 
-            resendTextView.setText(text);
+            binding.connectPhoneVerifyResend.setText(text);
 
             taskHandler.postDelayed(this, 100);
         }
@@ -128,13 +124,8 @@ public class ConnectIdPhoneVerificationFragmnet extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for requireActivity() fragment
-        View view = inflater.inflate(R.layout.screen_connect_phone_verify, container, false);
-        labelTextView = view.findViewById(R.id.connect_phone_verify_label);
-        codeInput = view.findViewById(R.id.connect_phone_verify_code);
-        errorMessage = view.findViewById(R.id.connect_phone_verify_error);
-        changeTextView = view.findViewById(R.id.connect_phone_verify_change);
-        resendTextView = view.findViewById(R.id.connect_phone_verify_resend);
-        verifyButton = view.findViewById(R.id.connect_phone_verify_button);
+        binding= ScreenConnectPhoneVerifyBinding.inflate(inflater,container,false);
+        View view = binding.getRoot();
 
         getActivity().setTitle(getString(R.string.connect_verify_phone_title));
 
@@ -158,9 +149,9 @@ public class ConnectIdPhoneVerificationFragmnet extends Fragment {
 
         startHandler();
 
-        resendTextView.setOnClickListener(arg0 -> requestSmsCode());
-        changeTextView.setOnClickListener(arg0 -> changeNumber());
-        verifyButton.setOnClickListener(arg0 -> verifySmsCode());
+        binding.connectPhoneVerifyResend.setOnClickListener(arg0 -> requestSmsCode());
+        binding.connectPhoneVerifyChange.setOnClickListener(arg0 -> changeNumber());
+        binding.connectPhoneVerifyButton.setOnClickListener(arg0 -> verifySmsCode());
 
 
         return view;
@@ -189,7 +180,7 @@ public class ConnectIdPhoneVerificationFragmnet extends Fragment {
         Matcher matcher = otpPattern.matcher(message);
         if (matcher.find()) {
 
-            codeInput.setText(matcher.group(0));
+            binding.connectPhoneVerifyCode.setText(matcher.group(0));
         }
 
 
@@ -199,7 +190,7 @@ public class ConnectIdPhoneVerificationFragmnet extends Fragment {
     public void onResume() {
         super.onResume();
         if (allowChange) {
-            changeTextView.setVisibility(View.VISIBLE);
+            binding.connectPhoneVerifyChange.setVisibility(View.VISIBLE);
         }
 
         requestInputFocus();
@@ -229,20 +220,20 @@ public class ConnectIdPhoneVerificationFragmnet extends Fragment {
 
     public void setErrorMessage(String message) {
         if (message == null) {
-            errorMessage.setVisibility(View.GONE);
+            binding.connectPhoneVerifyError.setVisibility(View.GONE);
         } else {
-            errorMessage.setVisibility(View.VISIBLE);
-            errorMessage.setText(message);
+            binding.connectPhoneVerifyError.setVisibility(View.VISIBLE);
+            binding.connectPhoneVerifyError.setText(message);
         }
     }
 
     public void requestInputFocus() {
-        KeyboardHelper.showKeyboardOnInput(requireActivity(), codeInput);
+        KeyboardHelper.showKeyboardOnInput(requireActivity(), binding.connectPhoneVerifyCode);
     }
 
     public void setResendEnabled(boolean enabled) {
-        resendTextView.setEnabled(enabled);
-        resendTextView.setTextColor(enabled ? Color.BLUE : Color.GRAY);
+        binding.connectPhoneVerifyResend.setEnabled(enabled);
+        binding.connectPhoneVerifyResend.setTextColor(enabled ? Color.BLUE : Color.GRAY);
     }
 
 
@@ -259,7 +250,7 @@ public class ConnectIdPhoneVerificationFragmnet extends Fragment {
             text = getString(R.string.connect_verify_phone_label_secondary);
         }
 
-        labelTextView.setText(text);
+        binding.connectPhoneVerifyLabel.setText(text);
     }
 
     void startHandler() {
@@ -273,7 +264,7 @@ public class ConnectIdPhoneVerificationFragmnet extends Fragment {
     public void requestSmsCode() {
         smsTime = new DateTime();
 
-        errorMessage.setText(null);
+        binding.connectPhoneVerifyError.setText(null);
 
         IApiCallback callback = new IApiCallback() {
             @Override
@@ -307,7 +298,7 @@ public class ConnectIdPhoneVerificationFragmnet extends Fragment {
                     message = e.toString();
                 }
 
-                errorMessage.setText("Error requesting SMS code" + message);
+                binding.connectPhoneVerifyError.setText("Error requesting SMS code" + message);
 
                 //Null out the last-requested time so user can request again immediately
                 smsTime = null;
@@ -315,7 +306,7 @@ public class ConnectIdPhoneVerificationFragmnet extends Fragment {
 
             @Override
             public void processNetworkFailure() {
-                errorMessage.setText(R.string.recovery_network_unavailable);
+                binding.connectPhoneVerifyError.setText(R.string.recovery_network_unavailable);
 
                 //Null out the last-requested time so user can request again immediately
                 smsTime = null;
@@ -323,7 +314,7 @@ public class ConnectIdPhoneVerificationFragmnet extends Fragment {
 
             @Override
             public void processOldApiError() {
-                errorMessage.setText(getString(R.string.recovery_network_outdated));
+                binding.connectPhoneVerifyError.setText(getString(R.string.recovery_network_outdated));
             }
         };
 
@@ -349,9 +340,9 @@ public class ConnectIdPhoneVerificationFragmnet extends Fragment {
     }
 
     public void verifySmsCode() {
-        errorMessage.setText(null);
+        binding.connectPhoneVerifyError.setText(null);
 
-        String token = codeInput.getText().toString();
+        String token = binding.connectPhoneVerifyCode.getText().toString();
         String phone = username;
         final Context context = getContext();
 
@@ -417,17 +408,17 @@ public class ConnectIdPhoneVerificationFragmnet extends Fragment {
                     message = e.toString();
                 }
                 logRecoveryResult(false);
-                errorMessage.setText(String.format("Error verifying SMS code. %s", message));
+                binding.connectPhoneVerifyError.setText(String.format("Error verifying SMS code. %s", message));
             }
 
             @Override
             public void processNetworkFailure() {
-                errorMessage.setText(getString(R.string.recovery_network_unavailable));
+                binding.connectPhoneVerifyError.setText(getString(R.string.recovery_network_unavailable));
             }
 
             @Override
             public void processOldApiError() {
-                errorMessage.setText(getString(R.string.recovery_network_outdated));
+                binding.connectPhoneVerifyError.setText(getString(R.string.recovery_network_outdated));
             }
         };
 
@@ -562,7 +553,7 @@ public class ConnectIdPhoneVerificationFragmnet extends Fragment {
         }
 
         if (directions != null) {
-            Navigation.findNavController(verifyButton).navigate(directions);
+            Navigation.findNavController(binding.connectPhoneVerifyButton).navigate(directions);
         }
     }
 

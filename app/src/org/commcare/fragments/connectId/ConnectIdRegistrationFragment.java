@@ -20,6 +20,8 @@ import org.commcare.connect.network.ApiConnectId;
 import org.commcare.connect.network.ConnectNetworkHelper;
 import org.commcare.connect.network.IApiCallback;
 import org.commcare.dalvik.R;
+import org.commcare.dalvik.databinding.ScreenConnectRecoveryDecisionBinding;
+import org.commcare.dalvik.databinding.ScreenConnectRegistrationBinding;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.services.Logger;
 import org.json.JSONException;
@@ -43,11 +45,10 @@ import static org.commcare.connect.ConnectTask.CONNECT_REGISTRATION_CONFIGURE_BI
  * create an instance of this fragment.
  */
 public class ConnectIdRegistrationFragment extends Fragment {
-    private AutoCompleteTextView nameInput;
-    private TextView errorText;
-    private Button registerButton;
     private ConnectUserRecord user;
     private String phone;
+    
+    private ScreenConnectRegistrationBinding binding;
 
     TextWatcher watcher = new TextWatcher() {
         @Override
@@ -84,12 +85,10 @@ public class ConnectIdRegistrationFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view= inflater.inflate(R.layout.screen_connect_registration, container, false);
-        nameInput= view.findViewById(R.id.connect_edit_name);
-        errorText= view.findViewById(R.id.connect_registration_error);
-        registerButton= view.findViewById(R.id.connect_register_button);
-        registerButton.setOnClickListener(v -> continuePressed());
-        nameInput.addTextChangedListener(watcher);
+        binding= ScreenConnectRegistrationBinding.inflate(inflater,container,false);
+        View view= binding.getRoot();
+        binding.connectRegisterButton.setOnClickListener(v -> continuePressed());
+        binding.connectEditName.addTextChangedListener(watcher);
         getActivity().setTitle(getString(R.string.connect_register_title));
 
         if (getArguments() != null) {
@@ -97,7 +96,7 @@ public class ConnectIdRegistrationFragment extends Fragment {
         }
         ConnectUserRecord user = ConnectManager.getUser(getActivity());
         if (user != null) {
-            nameInput.setText(user.getName());
+            binding.connectEditName.setText(user.getName());
         }
 
         updateStatus();
@@ -107,10 +106,10 @@ public class ConnectIdRegistrationFragment extends Fragment {
 
     public void setErrorText(String text) {
         if (text == null) {
-            errorText.setVisibility(View.GONE);
+            binding.connectRegistrationError.setVisibility(View.GONE);
         } else {
-            errorText.setVisibility(View.VISIBLE);
-            errorText.setText(text);
+            binding.connectRegistrationError.setVisibility(View.VISIBLE);
+            binding.connectRegistrationError.setText(text);
         }
     }
 
@@ -128,11 +127,11 @@ public class ConnectIdRegistrationFragment extends Fragment {
     }
 
     public void updateStatus() {
-        String error = nameInput.getText().length() == 0 ?
+        String error = binding.connectEditName.getText().length() == 0 ?
                 getString(R.string.connect_register_error_name) : null;
 
-        errorText.setText(error);
-        registerButton.setEnabled(error == null);
+        binding.connectRegistrationError.setText(error);
+        binding.connectRegisterButton.setEnabled(error == null);
     }
 
     public void finish(boolean success) {
@@ -152,7 +151,7 @@ public class ConnectIdRegistrationFragment extends Fragment {
         } else {
             directions = ConnectIdRegistrationFragmentDirections.actionConnectidRegistrationToConnectidPhone(ConnectConstants.CONNECT_REGISTRATION_PRIMARY_PHONE,ConnectConstants.METHOD_REGISTER_PRIMARY,user.getPrimaryPhone());
         }
-        Navigation.findNavController(registerButton).navigate(directions);
+        Navigation.findNavController(binding.connectRegisterButton).navigate(directions);
     }
 
     public void continuePressed() {
@@ -165,10 +164,10 @@ public class ConnectIdRegistrationFragment extends Fragment {
     }
 
     public void createAccount() {
-        errorText.setText(null);
+        binding.connectRegistrationError.setText(null);
 
         ConnectUserRecord tempUser = new ConnectUserRecord(phone, generateUserId(), ConnectManager.generatePassword(),
-                nameInput.getText().toString(), "");
+                binding.connectEditName.getText().toString(), "");
 
         final Context context = getActivity();
         boolean isBusy = !ApiConnectId.registerUser(requireActivity(), tempUser.getUserId(), tempUser.getPassword(),
@@ -222,9 +221,9 @@ public class ConnectIdRegistrationFragment extends Fragment {
     }
 
     public void updateAccount() {
-        errorText.setText(null);
+        binding.connectRegistrationError.setText(null);
 
-        String newName = nameInput.getText().toString();
+        String newName = binding.connectEditName.getText().toString();
 
         if (newName.equals(user.getName())) {
             finish(true);
@@ -239,18 +238,18 @@ public class ConnectIdRegistrationFragment extends Fragment {
 
                         @Override
                         public void processFailure(int responseCode, IOException e) {
-                            errorText.setText(String.format(Locale.getDefault(), "Error: %d",
+                            binding.connectRegistrationError.setText(String.format(Locale.getDefault(), "Error: %d",
                                     responseCode));
                         }
 
                         @Override
                         public void processNetworkFailure() {
-                            errorText.setText(getString(R.string.recovery_network_unavailable));
+                            binding.connectRegistrationError.setText(getString(R.string.recovery_network_unavailable));
                         }
 
                         @Override
                         public void processOldApiError() {
-                            errorText.setText(getString(R.string.recovery_network_outdated));
+                            binding.connectRegistrationError.setText(getString(R.string.recovery_network_outdated));
                         }
                     });
 

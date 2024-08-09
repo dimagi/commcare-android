@@ -16,6 +16,7 @@ import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.ConnectDatabaseHelper;
 import org.commcare.connect.ConnectManager;
 import org.commcare.dalvik.R;
+import org.commcare.dalvik.databinding.ScreenConnectVerifyBinding;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.utils.BiometricsHelper;
@@ -39,26 +40,16 @@ import static org.commcare.fragments.connectId.ConnectIdPasswordVerificationFrag
  * create an instance of this fragment.
  */
 public class ConnectIdBiometricConfigFragment extends Fragment {
-
-    private TextView titleTextView;
-    private TextView messageTextView;
-
-    private LinearLayout fingerprintContainer;
-    private Button fingerprintButton;
-
-    private TextView orTextView;
-
-    private LinearLayout pinContainer;
-    private Button pinButton;
     private BiometricManager biometricManager;
     private int callingActivity;
     private Executor executor;
     private BiometricPrompt biometricPrompt;
     private BiometricPrompt.PromptInfo promptInfo;
-    private boolean allowPassword=false;
+    private boolean allowPassword = false;
     private boolean attemptingFingerprint = false;
     private BiometricPrompt.AuthenticationCallback biometricPromptCallbacks;
 
+    private ScreenConnectVerifyBinding binding;
 
 
     public ConnectIdBiometricConfigFragment() {
@@ -81,14 +72,8 @@ public class ConnectIdBiometricConfigFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.screen_connect_verify, container, false);
-        titleTextView = view.findViewById(R.id.connect_verify_title);
-        messageTextView = view.findViewById(R.id.connect_verify_message);
-        fingerprintContainer = view.findViewById(R.id.connect_verify_fingerprint_container);
-        fingerprintButton = view.findViewById(R.id.connect_verify_fingerprint_button);
-        orTextView = view.findViewById(R.id.connect_verify_or);
-        pinContainer = view.findViewById(R.id.connect_verify_pin_container);
-        pinButton = view.findViewById(R.id.connect_verify_pin_button);
+        binding = ScreenConnectVerifyBinding.inflate(inflater, container, false);
+        View view = binding.getRoot();
         biometricManager = BiometricManager.from(requireActivity());
         biometricPromptCallbacks = preparePromptCallbacks();
         if (getArguments() != null) {
@@ -105,14 +90,15 @@ public class ConnectIdBiometricConfigFragment extends Fragment {
             updateState(fingerprint, pin);
         }
 
-        fingerprintButton.setOnClickListener(v -> handleFingerprintButton());
-        pinButton.setOnClickListener(v -> handlePinButton());
+        binding.connectVerifyFingerprintButton.setOnClickListener(v -> handleFingerprintButton());
+        binding.connectVerifyPinButton.setOnClickListener(v -> handlePinButton());
 //        switch (callingActivity){
 //            case
 //        }
 
         return view;
     }
+
     private BiometricPrompt.AuthenticationCallback preparePromptCallbacks() {
         final Context context = requireActivity();
         return new BiometricPrompt.AuthenticationCallback() {
@@ -156,6 +142,7 @@ public class ConnectIdBiometricConfigFragment extends Fragment {
                 : AnalyticsParamValue.CCC_SIGN_IN_METHOD_PIN;
         FirebaseAnalyticsUtil.reportCccSignIn(method);
     }
+
     public void updateState(BiometricsHelper.ConfigurationStatus fingerprintStatus,
                             BiometricsHelper.ConfigurationStatus pinStatus) {
         String titleText = getString(R.string.connect_verify_title);
@@ -184,8 +171,8 @@ public class ConnectIdBiometricConfigFragment extends Fragment {
             }
         }
 
-        titleTextView.setText(titleText);
-        messageTextView.setText(messageText);
+        binding.connectVerifyTitle.setText(titleText);
+        binding.connectVerifyMessage.setText(messageText);
 
         boolean showFingerprint = fingerprintButtonText != null;
         boolean showPin = pinButtonText != null;
@@ -193,22 +180,22 @@ public class ConnectIdBiometricConfigFragment extends Fragment {
         updateFingerprint(fingerprintButtonText);
         updatePin(pinButtonText);
 
-        orTextView.setVisibility(showFingerprint && showPin ? View.VISIBLE : View.INVISIBLE);
+        binding.connectVerifyOr.setVisibility(showFingerprint && showPin ? View.VISIBLE : View.INVISIBLE);
     }
 
     public void updateFingerprint(String fingerprintButtonText) {
         boolean showFingerprint = fingerprintButtonText != null;
-        fingerprintContainer.setVisibility(showFingerprint ? View.VISIBLE : View.GONE);
+        binding.connectVerifyFingerprintContainer.setVisibility(showFingerprint ? View.VISIBLE : View.GONE);
         if (showFingerprint) {
-            fingerprintButton.setText(fingerprintButtonText);
+            binding.connectVerifyFingerprintButton.setText(fingerprintButtonText);
         }
     }
 
     public void updatePin(String pinButtonText) {
         boolean showPin = pinButtonText != null;
-        pinContainer.setVisibility(showPin ? View.VISIBLE : View.GONE);
+        binding.connectVerifyPinContainer.setVisibility(showPin ? View.VISIBLE : View.GONE);
         if (showPin) {
-            pinButton.setText(pinButtonText);
+            binding.connectVerifyPinButton.setText(pinButtonText);
         }
     }
 
@@ -229,7 +216,7 @@ public class ConnectIdBiometricConfigFragment extends Fragment {
         }
     }
 
-    public void callAuthentication(){
+    public void callAuthentication() {
         if (BiometricsHelper.isFingerprintConfigured(requireActivity(), biometricManager)) {
             //Automatically try fingerprint first
             performFingerprintUnlock();
@@ -306,9 +293,8 @@ public class ConnectIdBiometricConfigFragment extends Fragment {
             }
         }
         if (directions != null) {
-            Navigation.findNavController(messageTextView).navigate(directions);
+            Navigation.findNavController(binding.connectVerifyMessage).navigate(directions);
         }
-
 
     }
 }

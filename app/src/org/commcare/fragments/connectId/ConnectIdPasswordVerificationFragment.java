@@ -20,6 +20,7 @@ import org.commcare.connect.network.ApiConnectId;
 import org.commcare.connect.network.ConnectNetworkHelper;
 import org.commcare.connect.network.IApiCallback;
 import org.commcare.dalvik.R;
+import org.commcare.dalvik.databinding.ScreenConnectPasswordVerifyBinding;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.utils.KeyboardHelper;
@@ -47,9 +48,6 @@ import static org.commcare.connect.ConnectIdWorkflows.completeSignIn;
  * create an instance of this fragment.
  */
 public class ConnectIdPasswordVerificationFragment extends Fragment {
-    private TextInputEditText passwordInput;
-    private TextView forgotLink;
-    private Button button;
     private int callingClass;
 
     public static final int PASSWORD_FAIL = 1;
@@ -59,6 +57,8 @@ public class ConnectIdPasswordVerificationFragment extends Fragment {
 
     private static final int MaxFailures = 3;
     private int failureCount = 0;
+
+    private ScreenConnectPasswordVerifyBinding binding;
 
     public ConnectIdPasswordVerificationFragment() {
         // Required empty public constructor
@@ -78,16 +78,14 @@ public class ConnectIdPasswordVerificationFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.screen_connect_password_verify, container, false);
-        passwordInput = view.findViewById(R.id.connect_password_verify_input);
-        forgotLink = view.findViewById(R.id.connect_password_verify_forgot);
-        button = view.findViewById(R.id.connect_password_verify_button);
+        binding = ScreenConnectPasswordVerifyBinding.inflate(inflater, container, false);
+        View view = binding.getRoot();
         phone = ConnectIdPasswordVerificationFragmentArgs.fromBundle(getArguments()).getPhone();
         secretKey = ConnectIdPasswordVerificationFragmentArgs.fromBundle(getArguments()).getSecret();
         callingClass = ConnectIdPasswordVerificationFragmentArgs.fromBundle(getArguments()).getCallingClass();
         failureCount = 0;
-        forgotLink.setOnClickListener(arg0 -> handleForgotPress());
-        button.setOnClickListener(arg0 -> handleButtonPress());
+        binding.connectPasswordVerifyForgot.setOnClickListener(arg0 -> handleForgotPress());
+        binding.connectPasswordVerifyButton.setOnClickListener(arg0 -> handleButtonPress());
 
         return view;
     }
@@ -115,15 +113,15 @@ public class ConnectIdPasswordVerificationFragment extends Fragment {
             case ConnectConstants.CONNECT_UNLOCK_PASSWORD:
                 if (success) {
                     if (forgot) {
-                        ConnectConstants.forgotPassword=true;
-                        directions = ConnectIdPasswordVerificationFragmentDirections.actionConnectidPasswordToConnectidPhone(ConnectConstants.CONNECT_RECOVERY_PRIMARY_PHONE, ConnectConstants.METHOD_RECOVER_PRIMARY,null);
-                    }else{
-                        ConnectConstants.forgotPassword=false;
+                        ConnectConstants.forgotPassword = true;
+                        directions = ConnectIdPasswordVerificationFragmentDirections.actionConnectidPasswordToConnectidPhone(ConnectConstants.CONNECT_RECOVERY_PRIMARY_PHONE, ConnectConstants.METHOD_RECOVER_PRIMARY, null);
+                    } else {
+                        ConnectConstants.forgotPassword = false;
                         FirebaseAnalyticsUtil.reportCccSignIn(AnalyticsParamValue.CCC_SIGN_IN_METHOD_PASSWORD);
                         ConnectUserRecord user = ConnectDatabaseHelper.getUser(requireActivity());
                         user.setLastPinDate(new Date());
                         ConnectDatabaseHelper.storeUser(requireActivity(), user);
-                        if(user.shouldRequireSecondaryPhoneVerification()) {
+                        if (user.shouldRequireSecondaryPhoneVerification()) {
                             directions = ConnectIdPasswordVerificationFragmentDirections.actionConnectidPasswordToConnectidMessage(getString(R.string.connect_recovery_alt_title), getString(R.string.connect_recovery_alt_message), ConnectConstants.CONNECT_UNLOCK_ALT_PHONE_MESSAGE, getString(R.string.connect_password_fail_button), getString(R.string.connect_recovery_alt_change_button));
                         } else {
                             completeSignIn();
@@ -133,14 +131,14 @@ public class ConnectIdPasswordVerificationFragment extends Fragment {
                 break;
         }
         if (directions != null) {
-            Navigation.findNavController(button).navigate(directions);
+            Navigation.findNavController(binding.connectPasswordVerifyButton).navigate(directions);
         }
     }
 
     public void handleWrongPassword() {
         failureCount++;
         logRecoveryResult(false);
-        passwordInput.setText("");
+        binding.connectPasswordVerifyInput.setText("");
 
         int requestCode = PASSWORD_FAIL;
         int message = R.string.connect_password_fail_message;
@@ -167,7 +165,7 @@ public class ConnectIdPasswordVerificationFragment extends Fragment {
     }
 
     public void handleButtonPress() {
-        String password = Objects.requireNonNull(passwordInput.getText()).toString();
+        String password = Objects.requireNonNull(binding.connectPasswordVerifyInput.getText()).toString();
         ConnectUserRecord user = ConnectDatabaseHelper.getUser(requireActivity());
         if (user != null) {
             //If we have the password stored locally, no need for network call
@@ -247,7 +245,7 @@ public class ConnectIdPasswordVerificationFragment extends Fragment {
     }
 
     public void requestInputFocus() {
-        KeyboardHelper.showKeyboardOnInput(requireActivity(), passwordInput);
+        KeyboardHelper.showKeyboardOnInput(requireActivity(), binding.connectPasswordVerifyInput);
     }
 
 }

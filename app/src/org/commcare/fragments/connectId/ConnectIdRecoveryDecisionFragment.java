@@ -17,6 +17,7 @@ import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.network.ApiConnectId;
 import org.commcare.connect.network.IApiCallback;
 import org.commcare.dalvik.R;
+import org.commcare.dalvik.databinding.ScreenConnectRecoveryDecisionBinding;
 import org.commcare.utils.KeyboardHelper;
 import org.commcare.utils.PhoneNumberHelper;
 
@@ -35,9 +36,6 @@ import androidx.navigation.Navigation;
  * create an instance of requireActivity() fragment.
  */
 public class ConnectIdRecoveryDecisionFragment extends Fragment {
-    private TextView messageTextView;
-
-
     private enum ConnectRecoveryState {
         NewOrRecover,
         PhoneOrExtended
@@ -45,20 +43,8 @@ public class ConnectIdRecoveryDecisionFragment extends Fragment {
 
     public ConnectRecoveryState state;
 
-    private RelativeLayout phoneBlock;
+    private ScreenConnectRecoveryDecisionBinding binding;
 
-    private AutoCompleteTextView countryCodeInput;
-    private AutoCompleteTextView phoneInput;
-
-    private TextView phoneMessageTextView;
-
-    private Button button1;
-
-    private TextView orText;
-
-    private Button button2;
-
-    NavController navController;
 
     protected boolean skipPhoneNumberCheck = false;
     TextWatcher watcher = new TextWatcher() {
@@ -77,7 +63,6 @@ public class ConnectIdRecoveryDecisionFragment extends Fragment {
     };
 
     public ConnectIdRecoveryDecisionFragment() {
-        // Required empty public constructor
     }
 
     public static ConnectIdRecoveryDecisionFragment newInstance(String param1, String param2) {
@@ -96,22 +81,15 @@ public class ConnectIdRecoveryDecisionFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for requireActivity() fragment
-        View view = inflater.inflate(R.layout.screen_connect_recovery_decision, container, false);
-        messageTextView = view.findViewById(R.id.connect_recovery_message);
-        phoneBlock = view.findViewById(R.id.connect_recovery_phone_block);
-        countryCodeInput = view.findViewById(R.id.connect_recovery_phone_country_input);
-        phoneInput = view.findViewById(R.id.connect_recovery_phone_input);
-        orText = view.findViewById(R.id.connect_recovery_or);
-        phoneMessageTextView = view.findViewById(R.id.connect_recovery_phone_message);
-        button1 = view.findViewById(R.id.connect_recovery_button_1);
-        button2 = view.findViewById(R.id.connect_recovery_button_2);
-        countryCodeInput.addTextChangedListener(watcher);
-        phoneInput.addTextChangedListener(watcher);
-        button1.setOnClickListener(v -> handleButton1Press());
-        button2.setOnClickListener(v -> handleButton2Press());
-        messageTextView.setText(getString(R.string.connect_recovery_decision_new));
-        button1.setText(getString(R.string.connect_recovery_button_new));
-        button2.setText(getString(R.string.connect_recovery_button_recover));
+        binding= ScreenConnectRecoveryDecisionBinding.inflate(inflater,container,false);
+        View view = binding.getRoot();
+        binding.connectRecoveryPhoneCountryInput.addTextChangedListener(watcher);
+        binding.connectRecoveryPhoneInput.addTextChangedListener(watcher);
+        binding.connectRecoveryButton1.setOnClickListener(v -> handleButton1Press());
+         binding.connectRecoveryButton2.setOnClickListener(v -> handleButton2Press());
+        binding.connectRecoveryMessage.setText(getString(R.string.connect_recovery_decision_new));
+        binding.connectRecoveryButton1.setText(getString(R.string.connect_recovery_button_new));
+         binding.connectRecoveryButton2.setText(getString(R.string.connect_recovery_button_recover));
         state = ConnectRecoveryState.NewOrRecover;
         getActivity().setTitle(getString(R.string.connect_recovery_title));
         return view;
@@ -140,9 +118,9 @@ public class ConnectIdRecoveryDecisionFragment extends Fragment {
             fullNumber = fullNumber.substring(codeText.length() + 1);
         }
         skipPhoneNumberCheck = false;
-        phoneInput.setText(fullNumber);
+        binding.connectRecoveryPhoneInput.setText(fullNumber);
         skipPhoneNumberCheck = true;
-        countryCodeInput.setText(String.format(Locale.getDefault(), "+%d", code));
+        binding.connectRecoveryPhoneCountryInput.setText(String.format(Locale.getDefault(), "+%d", code));
         skipPhoneNumberCheck = false;
 
     }
@@ -156,15 +134,15 @@ public class ConnectIdRecoveryDecisionFragment extends Fragment {
             ConnectConstants.recoverPhone=phone;
             directions = ConnectIdRecoveryDecisionFragmentDirections.actionConnectidRecoveryDecisionToConnectidBiometricConfig(phone,ConnectConstants.CONNECT_RECOVERY_CONFIGURE_BIOMETRICS);
         }
-        Navigation.findNavController(button1).navigate(directions);
+        Navigation.findNavController(binding.connectRecoveryButton1).navigate(directions);
     }
 
     public void handleButton1Press() {
         switch (state) {
             case NewOrRecover -> finish(true, null);
             case PhoneOrExtended ->
-                    finish(false, PhoneNumberHelper.buildPhoneNumber(countryCodeInput.getText().toString(),
-                            phoneInput.getText().toString()));
+                    finish(false, PhoneNumberHelper.buildPhoneNumber(binding.connectRecoveryPhoneCountryInput.getText().toString(),
+                            binding.connectRecoveryPhoneInput.getText().toString()));
         }
     }
 
@@ -176,11 +154,11 @@ public class ConnectIdRecoveryDecisionFragment extends Fragment {
                 requireActivity().setTitle(getString(R.string.connect_recovery_title2));
                 PhoneNumberHelper.requestPhoneNumberHint(requireActivity());
                 int code = PhoneNumberHelper.getCountryCode(requireActivity());
-                countryCodeInput.setText(String.format(Locale.getDefault(), "+%d", code));
+                binding.connectRecoveryPhoneCountryInput.setText(String.format(Locale.getDefault(), "+%d", code));
 
                 requestInputFocus();
-                messageTextView.setText(getString(R.string.connect_recovery_decision_phone));
-                button1.setText(getString(R.string.connect_recovery_button_phone));
+                binding.connectRecoveryMessage.setText(getString(R.string.connect_recovery_decision_phone));
+                binding.connectRecoveryButton1.setText(getString(R.string.connect_recovery_button_phone));
                 setButton2Visible(false);
             }
             case PhoneOrExtended -> {
@@ -191,44 +169,44 @@ public class ConnectIdRecoveryDecisionFragment extends Fragment {
 
     public void checkPhoneNumber() {
         if (!skipPhoneNumberCheck) {
-            String phone = PhoneNumberHelper.buildPhoneNumber(countryCodeInput.getText().toString(),
-                    phoneInput.getText().toString());
+            String phone = PhoneNumberHelper.buildPhoneNumber(binding.connectRecoveryPhoneCountryInput.getText().toString(),
+                    binding.connectRecoveryPhoneInput.getText().toString());
 
             boolean valid = PhoneNumberHelper.isValidPhoneNumber(requireActivity(), phone);
 
             if (valid) {
                 phone = phone.replaceAll("\\+", "%2b");
-                phoneMessageTextView.setText(getString(R.string.connect_phone_checking));
-                button1.setEnabled(false);
+                binding.connectRecoveryPhoneMessage.setText(getString(R.string.connect_phone_checking));
+                binding.connectRecoveryButton1.setEnabled(false);
 
                 boolean isBusy = !ApiConnectId.checkPhoneAvailable(requireActivity(), phone,
                         new IApiCallback() {
                             @Override
                             public void processSuccess(int responseCode, InputStream responseData) {
-                                phoneMessageTextView.setText(getString(R.string.connect_phone_not_found));
-                                button1.setEnabled(false);
+                                binding.connectRecoveryPhoneMessage.setText(getString(R.string.connect_phone_not_found));
+                                binding.connectRecoveryButton1.setEnabled(false);
                                 skipPhoneNumberCheck = false;
                             }
 
                             @Override
                             public void processFailure(int responseCode, IOException e) {
                                 skipPhoneNumberCheck = false;
-                                phoneMessageTextView.setText("");
-                                button1.setEnabled(true);
+                                binding.connectRecoveryPhoneMessage.setText("");
+                                binding.connectRecoveryButton1.setEnabled(true);
                             }
 
                             @Override
                             public void processNetworkFailure() {
                                 skipPhoneNumberCheck = false;
-                                phoneMessageTextView.setText(getString(R.string.recovery_network_unavailable));
-                                button1.setEnabled(false);
+                                binding.connectRecoveryPhoneMessage.setText(getString(R.string.recovery_network_unavailable));
+                                binding.connectRecoveryButton1.setEnabled(false);
                             }
 
                             @Override
                             public void processOldApiError() {
                                 skipPhoneNumberCheck = false;
-                                phoneMessageTextView.setText(getString(R.string.recovery_network_outdated));
-                                button1.setEnabled(false);
+                                binding.connectRecoveryPhoneMessage.setText(getString(R.string.recovery_network_outdated));
+                                binding.connectRecoveryButton1.setEnabled(false);
                             }
                         });
 
@@ -236,24 +214,24 @@ public class ConnectIdRecoveryDecisionFragment extends Fragment {
                     Toast.makeText(requireActivity(), R.string.busy_message, Toast.LENGTH_SHORT).show();
                 }
             } else {
-                phoneMessageTextView.setText(getString(R.string.connect_phone_invalid));
-                button1.setEnabled(false);
+                binding.connectRecoveryPhoneMessage.setText(getString(R.string.connect_phone_invalid));
+                binding.connectRecoveryButton1.setEnabled(false);
             }
         }
     }
 
     public void setButton2Visible(boolean visible) {
-        button2.setVisibility(visible ? View.VISIBLE : View.GONE);
-        orText.setVisibility(visible ? View.VISIBLE : View.GONE);
+         binding.connectRecoveryButton2.setVisibility(visible ? View.VISIBLE : View.GONE);
+        binding.connectRecoveryOr.setVisibility(visible ? View.VISIBLE : View.GONE);
     }
 
     public void requestInputFocus() {
-        KeyboardHelper.showKeyboardOnInput(requireActivity(), phoneInput);
+        KeyboardHelper.showKeyboardOnInput(requireActivity(), binding.connectRecoveryPhoneInput);
     }
 
     public void setPhoneInputVisible(boolean visible) {
-        phoneBlock.setVisibility(visible ? View.VISIBLE : View.GONE);
-        phoneMessageTextView.setVisibility(visible ? View.VISIBLE : View.GONE);
+        binding.connectRecoveryPhoneBlock.setVisibility(visible ? View.VISIBLE : View.GONE);
+        binding.connectRecoveryPhoneMessage.setVisibility(visible ? View.VISIBLE : View.GONE);
     }
 
 }
