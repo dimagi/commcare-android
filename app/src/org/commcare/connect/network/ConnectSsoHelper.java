@@ -58,7 +58,7 @@ public class ConnectSsoHelper {
     }
 
     public static AuthInfo.TokenAuth retrieveHqSsoTokenSync(Context context, String hqUsername, boolean performLink) {
-        if (!ConnectManager.isUnlocked()) {
+        if (!ConnectManager.isConnectIdConfigured()) {
             return null;
         }
 
