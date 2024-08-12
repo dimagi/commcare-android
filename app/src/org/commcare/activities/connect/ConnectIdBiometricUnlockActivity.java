@@ -27,7 +27,6 @@ import androidx.biometric.BiometricPrompt;
  */
 public class ConnectIdBiometricUnlockActivity extends CommCareActivity<ConnectIdBiometricUnlockActivity>
         implements WithUIController {
-    private BiometricPrompt.AuthenticationCallback biometricPromptCallbacks;
     private boolean attemptingFingerprint = false;
     private boolean allowPassword = false;
     private BiometricManager biometricManager;
@@ -43,8 +42,6 @@ public class ConnectIdBiometricUnlockActivity extends CommCareActivity<ConnectId
         uiController.setupUI();
 
         allowPassword = getIntent().getStringExtra(ConnectConstants.ALLOW_PASSWORD).equals("true");
-
-        biometricPromptCallbacks = preparePromptCallbacks();
 
         biometricManager = BiometricManager.from(this);
 
@@ -99,7 +96,7 @@ public class ConnectIdBiometricUnlockActivity extends CommCareActivity<ConnectId
         attemptingFingerprint = true;
         boolean allowOtherOptions = BiometricsHelper.isPinConfigured(this, biometricManager) ||
                 allowPassword;
-        BiometricsHelper.authenticateFingerprint(this, biometricManager, allowOtherOptions, biometricPromptCallbacks);
+        BiometricsHelper.authenticateFingerprint(this, biometricManager, allowOtherOptions, preparePromptCallbacks());
     }
 
     public void performPasswordUnlock() {
@@ -107,7 +104,7 @@ public class ConnectIdBiometricUnlockActivity extends CommCareActivity<ConnectId
     }
 
     public void performPinUnlock() {
-        BiometricsHelper.authenticatePin(this, biometricManager, biometricPromptCallbacks);
+        BiometricsHelper.authenticatePin(this, biometricManager, preparePromptCallbacks());
     }
 
     private BiometricPrompt.AuthenticationCallback preparePromptCallbacks() {
@@ -119,11 +116,9 @@ public class ConnectIdBiometricUnlockActivity extends CommCareActivity<ConnectId
                 super.onAuthenticationError(errorCode, errString);
                 if (attemptingFingerprint) {
                     attemptingFingerprint = false;
-                    if (BiometricsHelper.isPinConfigured(context, biometricManager) &&
-                            allowPassword) {
-                        //Automatically try password, it's the only option
+                    if (BiometricsHelper.isPinConfigured(context, biometricManager)) {
                         performPinUnlock();
-                    } else {
+                    } else if(allowPassword){
                         //Automatically try password, it's the only option
                         performPasswordUnlock();
                     }

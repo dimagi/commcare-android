@@ -458,6 +458,13 @@ public class ConnectIdWorkflows {
             }
             case CONNECT_RECOVERY_VERIFY_ALT_PHONE -> nextRequestCode = success ? ConnectTask.CONNECT_RECOVERY_CHANGE_PIN :
                     ConnectTask.CONNECT_RECOVERY_VERIFY_PRIMARY_PHONE;
+            case CONNECT_VERIFY_ALT_PHONE_MESSAGE -> {
+                if (success) {
+                    boolean changeNumber = intent.getBooleanExtra(ConnectConstants.BUTTON2, false);
+                    nextRequestCode = changeNumber ? ConnectTask.CONNECT_VERIFY_ALT_PHONE_CHANGE :
+                            ConnectTask.CONNECT_VERIFY_ALT_PHONE;
+                }
+            }
             case CONNECT_VERIFY_ALT_PHONE_CHANGE -> nextRequestCode = success ? ConnectTask.CONNECT_VERIFY_ALT_PHONE : ConnectTask.CONNECT_VERIFY_ALT_PHONE_MESSAGE;
             case CONNECT_VERIFY_ALT_PHONE -> {
                 if(success) {

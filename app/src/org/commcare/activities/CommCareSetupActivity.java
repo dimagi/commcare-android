@@ -495,8 +495,16 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
-        menu.findItem(MENU_CONNECT_SIGN_IN).setVisible(!fromManager && !fromExternal && ConnectManager.shouldShowSignInMenuOption());
-        menu.findItem(MENU_CONNECT_FORGET).setVisible(!fromManager && !fromExternal && ConnectManager.shouldShowSignOutMenuOption());
+        
+        MenuItem item = menu.findItem(MENU_CONNECT_SIGN_IN);
+        if(item != null) {
+            item.setVisible(!fromManager && !fromExternal && ConnectManager.shouldShowSignInMenuOption());
+        }
+
+        item = menu.findItem(MENU_CONNECT_FORGET);
+        if(item != null) {
+            item.setVisible(!fromManager && !fromExternal && ConnectManager.shouldShowSignOutMenuOption());
+        }
 
         return true;
     }

@@ -97,6 +97,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
     public static final String LOGIN_MODE = "login-mode";
     public static final String MANUAL_SWITCH_TO_PW_MODE = "manually-swithced-to-password-mode";
+    public static final String CONNECTID_MANAGED_LOGIN = "cid-managed-login";
     public static final String GO_TO_CONNECT_JOB_STATUS = "go-to-connect-job-status";
 
     private static final int TASK_KEY_EXCHANGE = 1;
@@ -464,6 +465,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         i.putExtra(LOGIN_MODE, uiController.getLoginMode());
         i.putExtra(MANUAL_SWITCH_TO_PW_MODE, uiController.userManuallySwitchedToPasswordMode());
         i.putExtra(GO_TO_CONNECT_JOB_STATUS, goToJobInfo);
+        i.putExtra(CONNECTID_MANAGED_LOGIN, appLaunchedFromConnect || uiController.loginManagedByConnectId());
         setResult(RESULT_OK, i);
         finish();
     }
@@ -488,7 +490,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
             if(job != null) {
                 //Update job status
                 ConnectManager.updateJobProgress(this, job, success -> {
-                    setResultAndFinish(job.readyToTransitionToDelivery());
+                    setResultAndFinish(job.getIsUserSuspended() || job.readyToTransitionToDelivery());
                 });
             } else {
                 //Possibly offer to link or de-link ConnectId-managed login

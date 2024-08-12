@@ -834,6 +834,12 @@ public class ConnectManager {
                             updatedJob = true;
                         }
 
+                        key = "is_user_suspended";
+                        if(json.has(key)) {
+                            job.setIsUserSuspended(json.getBoolean(key));
+                            updatedJob = true;
+                        }
+
                         if(updatedJob) {
                             job.setLastDeliveryUpdate(new Date());
                             ConnectDatabaseHelper.upsertJob(context, job);

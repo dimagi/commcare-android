@@ -141,8 +141,6 @@ public class ConnectDatabaseUpgrader {
 
             db.setTransactionSuccessful();
             return true;
-        } catch(Exception e) {
-            return false;
         } finally {
             db.endTransaction();
         }
@@ -232,8 +230,6 @@ public class ConnectDatabaseUpgrader {
 
             db.setTransactionSuccessful();
             return true;
-        } catch(Exception e) {
-            return false;
         } finally {
             db.endTransaction();
         }
@@ -275,8 +271,6 @@ public class ConnectDatabaseUpgrader {
 
             db.setTransactionSuccessful();
             return true;
-        } catch(Exception e) {
-            return false;
         } finally {
             db.endTransaction();
         }
@@ -322,8 +316,6 @@ public class ConnectDatabaseUpgrader {
 
             db.setTransactionSuccessful();
             return true;
-        } catch(Exception e) {
-            return false;
         } finally {
             db.endTransaction();
         }
@@ -364,8 +356,6 @@ public class ConnectDatabaseUpgrader {
 
             db.setTransactionSuccessful();
             return true;
-        } catch(Exception e) {
-            return false;
         } finally {
             db.endTransaction();
         }
@@ -381,8 +371,6 @@ public class ConnectDatabaseUpgrader {
 
             db.setTransactionSuccessful();
             return true;
-        } catch (Exception e) {
-            return false;
         } finally {
             db.endTransaction();
         }

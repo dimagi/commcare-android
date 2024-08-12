@@ -117,6 +117,7 @@ public class ConnectDeliveryProgressFragment extends Fragment {
             if (tab != null) {
                 isTabChange = true;
                 tabLayout.selectTab(tab);
+                pager.setCurrentItem(Integer.parseInt(tabPosition), false);
             }
         }
 

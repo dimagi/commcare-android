@@ -284,7 +284,7 @@ public class StandardHomeActivity
     }
 
     private void updateSecondaryPhoneConfirmationTile() {
-        boolean show = ConnectManager.shouldShowSecondaryPhoneConfirmationTile(this);
+        boolean show = getIntent().getBooleanExtra(LoginActivity.CONNECTID_MANAGED_LOGIN , false) && ConnectManager.shouldShowSecondaryPhoneConfirmationTile(this);
 
         uiController.updateConnectTile(show);
     }
@@ -297,10 +297,12 @@ public class StandardHomeActivity
 
     public void updateConnectJobProgress() {
         ConnectJobRecord job = ConnectManager.getActiveJob();
-        ConnectManager.updateDeliveryProgress(this, job, success -> {
-            if(success) {
-                uiController.updateConnectProgress();
-            }
-        });
+        if(job != null && job.getStatus() == ConnectJobRecord.STATUS_DELIVERING) {
+            ConnectManager.updateDeliveryProgress(this, job, success -> {
+                if (success) {
+                    uiController.updateConnectProgress();
+                }
+            });
+        }
     }
 }
