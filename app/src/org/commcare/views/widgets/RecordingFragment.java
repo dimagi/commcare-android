@@ -192,7 +192,7 @@ public class RecordingFragment extends DialogFragment {
         recorder.start();
         recordingDuration.setBase(SystemClock.elapsedRealtime());
         recordingInProgress();
-        Logger.log(LogTypes.TYPE_MEDIA_EVENT, "Recording starting");
+        Logger.log(LogTypes.TYPE_MEDIA_EVENT, "Recording started");
     }
 
     private void recordingInProgress() {
@@ -239,9 +239,9 @@ public class RecordingFragment extends DialogFragment {
         }
         try {
             recorder.prepare();
-            Logger.log(LogTypes.TYPE_MEDIA_EVENT, "Prepare recording: " + fileName
-                    + "|" + (isHeAacSupported ? HEAAC_SAMPLE_RATE : AMRNB_SAMPLE_RATE)
-                    + "|" + (isHeAacSupported ? MediaRecorder.AudioEncoder.HE_AAC : MediaRecorder.AudioEncoder.AMR_NB));
+            Logger.log(LogTypes.TYPE_MEDIA_EVENT, "Preparing recording: " + fileName
+                    + " | " + (isHeAacSupported ? HEAAC_SAMPLE_RATE : AMRNB_SAMPLE_RATE)
+                    + " | " + (isHeAacSupported ? MediaRecorder.AudioEncoder.HE_AAC : MediaRecorder.AudioEncoder.AMR_NB));
 
         } catch (IOException e) {
             e.printStackTrace();
