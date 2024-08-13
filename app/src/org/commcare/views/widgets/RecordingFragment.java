@@ -182,6 +182,7 @@ public class RecordingFragment extends DialogFragment {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             if (MediaUtil.isRecordingActive(getContext())) {
                 Toast.makeText(getContext(), Localization.get("start.recording.failed"), Toast.LENGTH_SHORT).show();
+                Logger.log(LogTypes.TYPE_MEDIA_EVENT, "Recording cancelled due to an ongoing recording");
                 return;
             }
         }
