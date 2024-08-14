@@ -552,7 +552,9 @@ public class ConnectIdWorkflows {
 
             case CONNECT_VERIFY_ALT_PHONE_MESSAGE -> {
                 if (success) {
-                    nextRequestCode = ConnectTask.CONNECT_VERIFY_ALT_PHONE;
+                    boolean changeNumber = intent.getBooleanExtra(ConnectConstants.BUTTON2, false);
+                    nextRequestCode = changeNumber ? ConnectTask.CONNECT_VERIFY_ALT_PHONE_CHANGE :
+                            ConnectTask.CONNECT_VERIFY_ALT_PHONE;
                 }
             }
             case CONNECT_VERIFY_ALT_PHONE_CHANGE ->
