@@ -13,6 +13,8 @@ import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.WithUIController;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.services.Logger;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -32,8 +34,8 @@ public class ConnectIdMessageActivity extends CommCareActivity<ConnectIdMessageA
     private String button = null;
     private String button2 = null;
     private boolean deactivationFromAtlMessage = false;
-    private String userName = null;
-    private String phoneNumber = null;
+    private String phone = null;
+    private String secretKey = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,11 +53,11 @@ public class ConnectIdMessageActivity extends CommCareActivity<ConnectIdMessageA
         if (getIntent().hasExtra(ConnectConstants.DEACTIVATION_FROM)) {
             deactivationFromAtlMessage = getIntent().getBooleanExtra(ConnectConstants.DEACTIVATION_FROM, false);
         }
-        if (getIntent().hasExtra(ConnectConstants.USERNAME)) {
-            userName = getIntent().getStringExtra(ConnectConstants.USERNAME);
+        if (getIntent().hasExtra(ConnectConstants.PHONE)) {
+            phone = getIntent().getStringExtra(ConnectConstants.PHONE);
         }
         if (getIntent().hasExtra(ConnectConstants.CONNECT_KEY_SECONDARY_PHONE)) {
-            phoneNumber = getIntent().getStringExtra(ConnectConstants.CONNECT_KEY_SECONDARY_PHONE);
+            secretKey = getIntent().getStringExtra(ConnectConstants.CONNECT_KEY_SECONDARY_PHONE);
         }
         uiController.setupUI();
     }
@@ -97,7 +99,7 @@ public class ConnectIdMessageActivity extends CommCareActivity<ConnectIdMessageA
     }
 
     public void handleButtonPress(boolean secondButton) {
-        if (userName != null && !secondButton) {
+        if (phone != null && !secondButton) {
             initiateDeactivation();
         } else {
             finish(true, secondButton);
@@ -105,28 +107,21 @@ public class ConnectIdMessageActivity extends CommCareActivity<ConnectIdMessageA
     }
 
     private void initiateDeactivation() {
-        IApiCallback callback = new IApiCallback() {
+        boolean isBusy = !ApiConnectId.requestInitiateAccountDeactivation(this, phone, secretKey, new IApiCallback() {
             @Override
             public void processSuccess(int responseCode, InputStream responseData) {
                 try {
                     String responseAsString = new String(StreamsUtil.inputStreamToByteArray(responseData));
-                    finish(true, false);
-
-                   /* if (responseAsString.length() > 0) {
+                    if (responseAsString.length() > 0) {
                         JSONObject json = new JSONObject(responseAsString);
-                        String key = ConnectConstants.CONNECT_KEY_SECRET;
-                        if (json.has(key)) {
-                            password = json.getString(key);
+                        if (json.getBoolean("success")) {
+                            finish(true, false);
                         }
-
-                        key = ConnectConstants.CONNECT_KEY_SECONDARY_PHONE;
-                        if (json.has(key)) {
-                            recoveryPhone = json.getString(key);
-                            updateMessage();
-                        }
-                    }*/
+                    }
                 } catch (IOException e) {
-                    Logger.exception("Parsing return from OTP request", e);
+                    Logger.exception("User deactivation", e);
+                } catch (JSONException e) {
+                    throw new RuntimeException(e);
                 }
             }
 
@@ -147,10 +142,7 @@ public class ConnectIdMessageActivity extends CommCareActivity<ConnectIdMessageA
             @Override
             public void processOldApiError() {
             }
-        };
-
-        boolean isBusy;
-        isBusy = !ApiConnectId.requestInitiateAccountDeactivation(this, userName, phoneNumber, callback);
+        });
 
         if (isBusy) {
             Toast.makeText(this, R.string.busy_message, Toast.LENGTH_SHORT).show();

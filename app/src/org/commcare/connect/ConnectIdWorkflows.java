@@ -189,7 +189,7 @@ public class ConnectIdWorkflows {
                 params.put(ConnectConstants.BUTTON, R.string.connect_deactivate_account);
                 params.put(ConnectConstants.BUTTON2, R.string.connect_deactivate_account_go_back);
                 params.put(ConnectConstants.DEACTIVATION_FROM, isDeactivationFromAltMessage);
-                params.put(ConnectConstants.USERNAME, recoveryPhone);
+                params.put(ConnectConstants.PHONE, recoveryPhone);
                 params.put(ConnectConstants.CONNECT_KEY_SECONDARY_PHONE, recoverySecret);
             }
             case CONNECT_DEACTIVATE_USER_CONFIRMATION_MESSAGE -> {
@@ -531,7 +531,10 @@ public class ConnectIdWorkflows {
                 }
             }
             case CONNECT_RECOVERY_VERIFY_ALT_PHONE -> {
-                String deactivateButton = intent.getStringExtra(ConnectConstants.DEACTIVATE_BUTTON);
+                String deactivateButton = null;
+                if (intent != null) {
+                    deactivateButton = intent.getStringExtra(ConnectConstants.DEACTIVATE_BUTTON);
+                }
                 isDeactivationFromAltMessage = false;
 
                 if (deactivateButton != null) {
