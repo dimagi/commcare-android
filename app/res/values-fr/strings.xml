@@ -268,4 +268,6 @@ License.
     <string name="connect_button_logged_in">Allez dans le menu Connecter</string>
     <string name="connect_db_corrupt">Un problème est survenu avec la base de données, veuillez récupérer votre compte.</string>
     <string name="connect_job_list_api_failure">Une erreur s\'est produite lors de la connexion au serveur.</string>
+    <string name="connect_payment_acknowledge_notification_yes">Oui</string>
+    <string name="connect_payment_acknowledge_notification_no">Non</string>
 </resources>
