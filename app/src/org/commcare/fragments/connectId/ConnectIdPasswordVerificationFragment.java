@@ -12,6 +12,7 @@ import android.widget.Toast;
 
 import com.google.android.material.textfield.TextInputEditText;
 
+import org.commcare.activities.connect.ConnectIdActivity;
 import org.commcare.activities.connect.ConnectIdMessageActivity;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.ConnectConstants;
@@ -101,22 +102,22 @@ public class ConnectIdPasswordVerificationFragment extends Fragment {
         switch (callingClass) {
             case ConnectConstants.CONNECT_RECOVERY_VERIFY_PASSWORD:
                 if (success) {
-                    directions = ConnectIdPasswordVerificationFragmentDirections.actionConnectidPasswordToConnectidPin(ConnectConstants.CONNECT_RECOVERY_CHANGE_PIN, ConnectConstants.recoverPhone, ConnectConstants.recoverSecret).setChange(true).setRecover(true);
+                    directions = ConnectIdPasswordVerificationFragmentDirections.actionConnectidPasswordToConnectidPin(ConnectConstants.CONNECT_RECOVERY_CHANGE_PIN, ConnectIdActivity.recoverPhone, ConnectIdActivity.recoverSecret).setChange(true).setRecover(true);
                     if (forgot) {
                         directions = ConnectIdPasswordVerificationFragmentDirections.actionConnectidPasswordToConnectidMessage(getString(R.string.connect_recovery_alt_title), getString(R.string.connect_recovery_alt_message), ConnectConstants.CONNECT_RECOVERY_ALT_PHONE_MESSAGE, getString(R.string.connect_recovery_alt_button), null);
                     }
                 } else {
                     directions = ConnectIdPasswordVerificationFragmentDirections.actionConnectidPasswordToConnectidPhoneVerify(ConnectConstants.CONNECT_RECOVERY_VERIFY_PRIMARY_PHONE, String.format(Locale.getDefault(), "%d",
-                            ConnectIdPhoneVerificationFragmnet.MethodRecoveryPrimary), ConnectConstants.recoverPhone, ConnectConstants.recoverPhone, "", null).setAllowChange(false);
+                            ConnectIdPhoneVerificationFragmnet.MethodRecoveryPrimary), ConnectIdActivity.recoverPhone, ConnectIdActivity.recoverPhone, "", null).setAllowChange(false);
                 }
                 break;
             case ConnectConstants.CONNECT_UNLOCK_PASSWORD:
                 if (success) {
                     if (forgot) {
-                        ConnectConstants.forgotPassword = true;
+                        ConnectIdActivity.forgotPassword = true;
                         directions = ConnectIdPasswordVerificationFragmentDirections.actionConnectidPasswordToConnectidPhone(ConnectConstants.CONNECT_RECOVERY_PRIMARY_PHONE, ConnectConstants.METHOD_RECOVER_PRIMARY, null);
                     } else {
-                        ConnectConstants.forgotPassword = false;
+                        ConnectIdActivity.forgotPassword = false;
                         FirebaseAnalyticsUtil.reportCccSignIn(AnalyticsParamValue.CCC_SIGN_IN_METHOD_PASSWORD);
                         ConnectUserRecord user = ConnectDatabaseHelper.getUser(requireActivity());
                         user.setLastPinDate(new Date());

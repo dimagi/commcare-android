@@ -11,6 +11,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.commcare.activities.connect.ConnectIdActivity;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.ConnectDatabaseHelper;
@@ -250,7 +251,7 @@ public class ConnectIdBiometricConfigFragment extends Fragment {
                 biometricManager);
         if (fingerprint == BiometricsHelper.ConfigurationStatus.Configured) {
             performFingerprintUnlock();
-//            finish(true, false);
+            finish(true, false);
         } else if (!BiometricsHelper.configureFingerprint(getActivity())) {
             finish(true, true);
         }
@@ -288,7 +289,7 @@ public class ConnectIdBiometricConfigFragment extends Fragment {
                 if (success) {
                     directions =
                             ConnectIdBiometricConfigFragmentDirections.actionConnectidBiometricConfigToConnectidPhoneVerify(ConnectConstants.CONNECT_RECOVERY_VERIFY_PRIMARY_PHONE, String.format(Locale.getDefault(), "%d",
-                                    ConnectManager.MethodRecoveryPrimary), ConnectConstants.recoverPhone, ConnectConstants.recoverPhone, "", null).setAllowChange(false);
+                                    ConnectManager.MethodRecoveryPrimary), ConnectIdActivity.recoverPhone, ConnectIdActivity.recoverPhone, "", null).setAllowChange(false);
                 }
             }
         }

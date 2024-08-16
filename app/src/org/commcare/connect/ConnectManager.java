@@ -3,6 +3,7 @@ package org.commcare.connect;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -18,6 +19,7 @@ import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkManager;
 
 import org.commcare.activities.CommCareActivity;
+import org.commcare.activities.connect.ConnectIdActivity;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.connect.models.ConnectAppRecord;
 import org.commcare.android.database.connect.models.ConnectJobAssessmentRecord;
@@ -114,7 +116,7 @@ public class ConnectManager {
     }
 
     private static ConnectManager manager = null;
-    public static ConnectIdStatus connectStatus = ConnectIdStatus.NotIntroduced;
+    private static ConnectIdStatus connectStatus = ConnectIdStatus.NotIntroduced;
     private CommCareActivity<?> parentActivity;
     private ConnectActivityCompleteListener loginListener;
 
@@ -130,6 +132,19 @@ public class ConnectManager {
         }
 
         return manager;
+    }
+
+    public static ConnectIdStatus getStatus() {
+        return getInstance().connectStatus;
+    }
+
+    public static void setStatus(ConnectIdStatus connectStatus) {
+        getInstance().connectStatus=connectStatus;
+    }
+
+    public static void launchConnectId(Context context){
+        Intent intent=new Intent(context, ConnectIdActivity.class);
+        context.startActivity(intent);
     }
 
     public static void init(CommCareActivity<?> parent) {
@@ -289,7 +304,7 @@ public class ConnectManager {
 
         ConnectDatabaseHelper.forgetUser(manager.parentActivity);
 
-        ConnectIdWorkflows.reset();
+        ConnectIdActivity.reset();
 
         manager.connectStatus = ConnectIdStatus.NotIntroduced;
         manager.loginListener = null;
@@ -320,23 +335,31 @@ public class ConnectManager {
 
     public static void unlockConnect(CommCareActivity<?> parent, ConnectActivityCompleteListener listener) {
         if(manager.connectStatus == ConnectIdStatus.LoggedIn) {
-            ConnectIdWorkflows.unlockConnect(parent, success -> {
-                if(success) {
-                    completeSignin();
-                }
-                listener.connectActivityComplete(success);
-            });
+            Intent intent=new Intent(parent,ConnectIdActivity.class);
+            Bundle bundle=new Bundle();
+            bundle.putString("TASK",ConnectConstants.UNLOCK_CONNECT);
+            parent.startActivity(intent,bundle);
+//            ConnectIdActivity.unlockConnect(parent, success -> {
+//                if(success) {
+//                    completeSignin();
+//                }
+//                listener.connectActivityComplete(success);
+//            });
         }
     }
 
     public static void registerUser(CommCareActivity<?> parent, ConnectActivityCompleteListener listener) {
+        Intent intent=new Intent(parent,ConnectIdActivity.class);
+        Bundle bundle=new Bundle();
+        bundle.putString("TASK",ConnectConstants.BIGIN_REGISTRATION);
+        parent.startActivity(intent,bundle);
         ConnectManager manager = getInstance();
-        ConnectIdWorkflows.beginRegistration(parent, manager.connectStatus, success -> {
-            if(success) {
-                completeSignin();
-            }
-            listener.connectActivityComplete(success);
-        });
+//        ConnectIdActivity.beginRegistration(parent, manager.connectStatus, success -> {
+//            if(success) {
+//                completeSignin();
+//            }
+//            listener.connectActivityComplete(success);
+//        });
     }
 
     public static void handleConnectButtonPress(CommCareActivity<?> parent, ConnectActivityCompleteListener listener) {
@@ -346,12 +369,16 @@ public class ConnectManager {
 
         switch (manager.connectStatus) {
             case NotIntroduced, Registering -> {
-                ConnectIdWorkflows.beginRegistration(parent, manager.connectStatus, success -> {
-                    if(success) {
-                        completeSignin();
-                    }
-                    listener.connectActivityComplete(success);
-                });
+                Intent intent=new Intent(parent,ConnectIdActivity.class);
+                Bundle bundle=new Bundle();
+                bundle.putString("TASK",ConnectConstants.BIGIN_REGISTRATION);
+                parent.startActivity(intent,bundle);
+//                ConnectIdActivity.beginRegistration(parent, connectStatus, success -> {
+//                    if(success) {
+//                        completeSignin();
+//                    }
+//                    listener.connectActivityComplete(success);
+//                });
             }
             case LoggedIn -> {
                 goToConnectJobsList();
@@ -360,7 +387,11 @@ public class ConnectManager {
     }
 
     public static void verifySecondaryPhone(CommCareActivity<?> parent, ConnectActivityCompleteListener listener) {
-        ConnectIdWorkflows.beginSecondaryPhoneVerification(parent, listener);
+        Intent intent=new Intent(parent,ConnectIdActivity.class);
+        Bundle bundle=new Bundle();
+        bundle.putString("TASK",ConnectConstants.VERIFY_PHONE);
+        parent.startActivity(intent,bundle);
+//        ConnectIdActivity.beginSecondaryPhoneVerification(parent,);
     }
 
     public static void goToConnectJobsList() {

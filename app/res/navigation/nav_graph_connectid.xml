@@ -26,6 +26,18 @@
                 app:argType="integer"
                 app:nullable="false"/>
         </action>
+        <action
+            android:id="@+id/action_connectid_recovery_decision_to_connectid_pin"
+            app:destination="@id/connectid_pin" />
+        <action
+            android:id="@+id/action_connectid_recovery_decision_to_connectid_password"
+            app:destination="@id/connectid_password" />
+        <action
+            android:id="@+id/action_connectid_recovery_decision_to_connectid_message"
+            app:destination="@id/connectid_message" />
+        <action
+            android:id="@+id/action_connectid_recovery_decision_self"
+            app:destination="@id/connectid_recovery_decision" />
     </fragment>
 
     <fragment

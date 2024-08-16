@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android">
-<LinearLayout
-    android:layout_width="match_parent"
-    android:layout_height="fill_parent"
-    android:background="@color/cc_core_bg"
-    android:orientation="vertical"
-    android:layout_marginStart="@dimen/content_start"
-    android:layout_marginEnd="@dimen/content_start">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="fill_parent"
+        android:background="@color/cc_core_bg"
+        android:orientation="vertical"
+        android:layout_marginStart="@dimen/content_start"
+        android:layout_marginEnd="@dimen/content_start">
 
     <TextView
         android:id="@+id/connect_phone_verify_title"
@@ -69,6 +69,5 @@
         android:paddingBottom="@dimen/content_start"
         android:paddingTop="@dimen/content_start"
         android:text="@string/connect_verify_phone_verify"/>
-
-</LinearLayout>
+    </LinearLayout>
 </layout>

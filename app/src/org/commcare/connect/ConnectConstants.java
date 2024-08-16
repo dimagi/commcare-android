@@ -10,13 +10,6 @@ public class ConnectConstants {
 
     public final  static int CREDENTIAL_PICKER_REQUEST = 2000;
     public static final String METHOD = "METHOD";
-    public static  String recoverPhone ;
-    public static  String recoverSecret ;
-    public static String recoveryAlyPhone;
-
-    public static boolean forgotPassword = false;
-    public static boolean forgotPin = false;
-
     public static final String CREATE = "CREATE";
     public static final String USERNAME = "USERNAME";
     public static final String PASSWORD = "PASSWORD";
@@ -24,14 +17,15 @@ public class ConnectConstants {
     public static final String NAME = "NAME";
     public static final String PHONE = "PHONE";
     public static final String ALT_PHONE = "ALT_PHONE";
-
     public static final String TITLE = "TITLE";
     public static final String MESSAGE = "MESSAGE";
     public static final String BUTTON = "BUTTON";
     public static final String BUTTON2 = "BUTTON2";
     public static final String SECRET = "SECRET";
-
     public static final String RECOVER = "RECOVER";
+    public static final String BIGIN_REGISTRATION = "BIGIN_REGISTRATION";
+    public static final String UNLOCK_CONNECT = "UNLOCK_CONNECT";
+    public static final String VERIFY_PHONE = "VERIFY_PHONE";
     public static final String ENROLL_FAIL = "ENROLL_FAIL";
     public static final String CHANGE = "CHANGE";
     public static final String FORGOT = "FORGOT";

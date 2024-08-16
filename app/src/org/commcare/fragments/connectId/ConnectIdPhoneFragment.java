@@ -18,6 +18,7 @@ import com.google.android.gms.auth.api.identity.GetPhoneNumberHintIntentRequest;
 import com.google.android.gms.auth.api.identity.Identity;
 import com.google.android.gms.tasks.OnSuccessListener;
 
+import org.commcare.activities.connect.ConnectIdActivity;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.ConnectDatabaseHelper;
@@ -197,7 +198,7 @@ public class ConnectIdPhoneFragment extends Fragment {
             }
             case ConnectConstants.CONNECT_RECOVERY_PRIMARY_PHONE -> {
                 if (success) {
-                    ConnectConstants.recoverPhone = phone;
+                    ConnectIdActivity.recoverPhone = phone;
                     directions = ConnectIdPhoneFragmentDirections.actionConnectidPhoneToConnectidBiometricConfig(ConnectConstants.CONNECT_RECOVERY_CONFIGURE_BIOMETRICS);
                 }
             }

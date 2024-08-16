@@ -143,7 +143,7 @@ public class ConnectIdRegistrationFragment extends Fragment {
                 dbUser.setAlternatePhone(user.getAlternatePhone());
                 user = dbUser;
             } else {
-                ConnectManager.connectStatus = ConnectManager.ConnectIdStatus.Registering;
+                ConnectManager.setStatus(ConnectManager.ConnectIdStatus.Registering);
             }
             ConnectDatabaseHelper.storeUser(getActivity(), user);
             ConnectDatabaseHelper.setRegistrationPhase(getActivity(), CONNECT_REGISTRATION_CONFIGURE_BIOMETRICS);

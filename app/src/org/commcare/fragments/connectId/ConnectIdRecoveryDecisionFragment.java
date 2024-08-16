@@ -1,6 +1,8 @@
 package org.commcare.fragments.connectId;
 
+import android.app.PendingIntent;
 import android.content.Intent;
+import android.content.IntentSender;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -13,6 +15,11 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.auth.api.identity.GetPhoneNumberHintIntentRequest;
+import com.google.android.gms.auth.api.identity.Identity;
+import com.google.android.gms.tasks.OnSuccessListener;
+
+import org.commcare.activities.connect.ConnectIdActivity;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.network.ApiConnectId;
 import org.commcare.connect.network.IApiCallback;
@@ -81,15 +88,15 @@ public class ConnectIdRecoveryDecisionFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for requireActivity() fragment
-        binding= ScreenConnectRecoveryDecisionBinding.inflate(inflater,container,false);
+        binding = ScreenConnectRecoveryDecisionBinding.inflate(inflater, container, false);
         View view = binding.getRoot();
         binding.connectRecoveryPhoneCountryInput.addTextChangedListener(watcher);
         binding.connectRecoveryPhoneInput.addTextChangedListener(watcher);
         binding.connectRecoveryButton1.setOnClickListener(v -> handleButton1Press());
-         binding.connectRecoveryButton2.setOnClickListener(v -> handleButton2Press());
+        binding.connectRecoveryButton2.setOnClickListener(v -> handleButton2Press());
         binding.connectRecoveryMessage.setText(getString(R.string.connect_recovery_decision_new));
         binding.connectRecoveryButton1.setText(getString(R.string.connect_recovery_button_new));
-         binding.connectRecoveryButton2.setText(getString(R.string.connect_recovery_button_recover));
+        binding.connectRecoveryButton2.setText(getString(R.string.connect_recovery_button_recover));
         state = ConnectRecoveryState.NewOrRecover;
         getActivity().setTitle(getString(R.string.connect_recovery_title));
         return view;
@@ -98,9 +105,25 @@ public class ConnectIdRecoveryDecisionFragment extends Fragment {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+
         String phone = PhoneNumberHelper.handlePhoneNumberPickerResult(requestCode, resultCode, data, requireActivity());
         skipPhoneNumberCheck = false;
         displayNumber(phone);
+    }
+
+    public void requestPhoneNumberHint() {
+        GetPhoneNumberHintIntentRequest hintRequest = GetPhoneNumberHintIntentRequest.builder().build();
+        Identity.getSignInClient(requireActivity()).getPhoneNumberHintIntent(hintRequest)
+                .addOnSuccessListener(new OnSuccessListener<PendingIntent>() {
+                    @Override
+                    public void onSuccess(PendingIntent pendingIntent) {
+                        try {
+                            startIntentSenderForResult(pendingIntent.getIntentSender(), ConnectConstants.CREDENTIAL_PICKER_REQUEST, null, 0, 0, 0, null);
+                        } catch (IntentSender.SendIntentException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
     }
 
     void displayNumber(String fullNumber) {
@@ -131,8 +154,8 @@ public class ConnectIdRecoveryDecisionFragment extends Fragment {
         if (createNew) {
             directions = ConnectIdRecoveryDecisionFragmentDirections.actionConnectidRecoveryDecisionToConnectidConsent(ConnectConstants.CONNECT_REGISTRATION_CONSENT);
         } else {
-            ConnectConstants.recoverPhone=phone;
-            directions = ConnectIdRecoveryDecisionFragmentDirections.actionConnectidRecoveryDecisionToConnectidBiometricConfig(phone,ConnectConstants.CONNECT_RECOVERY_CONFIGURE_BIOMETRICS);
+            ConnectIdActivity.recoverPhone = phone;
+            directions = ConnectIdRecoveryDecisionFragmentDirections.actionConnectidRecoveryDecisionToConnectidBiometricConfig(phone, ConnectConstants.CONNECT_RECOVERY_CONFIGURE_BIOMETRICS);
         }
         Navigation.findNavController(binding.connectRecoveryButton1).navigate(directions);
     }
@@ -152,7 +175,7 @@ public class ConnectIdRecoveryDecisionFragment extends Fragment {
                 state = ConnectRecoveryState.PhoneOrExtended;
                 setPhoneInputVisible(true);
                 requireActivity().setTitle(getString(R.string.connect_recovery_title2));
-                PhoneNumberHelper.requestPhoneNumberHint(requireActivity());
+                requestPhoneNumberHint();
                 int code = PhoneNumberHelper.getCountryCode(requireActivity());
                 binding.connectRecoveryPhoneCountryInput.setText(String.format(Locale.getDefault(), "+%d", code));
 
@@ -221,7 +244,7 @@ public class ConnectIdRecoveryDecisionFragment extends Fragment {
     }
 
     public void setButton2Visible(boolean visible) {
-         binding.connectRecoveryButton2.setVisibility(visible ? View.VISIBLE : View.GONE);
+        binding.connectRecoveryButton2.setVisibility(visible ? View.VISIBLE : View.GONE);
         binding.connectRecoveryOr.setVisibility(visible ? View.VISIBLE : View.GONE);
     }
 

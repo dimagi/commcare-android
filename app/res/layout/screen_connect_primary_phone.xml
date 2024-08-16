@@ -1,80 +1,76 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android">
-
     <LinearLayout
-        android:background="@color/cc_core_bg"
-        android:layout_height="fill_parent"
-        android:layout_marginEnd="@dimen/content_start"
-        android:layout_marginStart="@dimen/content_start"
         android:layout_width="match_parent"
-        android:orientation="vertical">
-
-        <Button
-            android:id="@+id/connect_primary_phone_button"
-            android:layout_height="wrap_content"
-            android:layout_width="fill_parent"
-            android:paddingBottom="@dimen/content_start"
-            android:paddingTop="@dimen/content_start"
-            android:text="@string/connect_phone_button" />
-
-        <RelativeLayout
-            android:layout_height="wrap_content"
-            android:layout_width="fill_parent">
-
-            <AutoCompleteTextView
-                android:digits="1234567890"
-                android:gravity="center"
-                android:id="@+id/connect_primary_phone_country_input"
-                android:inputType="numberDecimal"
-                android:layout_height="wrap_content"
-                android:layout_width="100sp" />
-
-            <AutoCompleteTextView
-                android:digits="1234567890"
-                android:focusable="true"
-                android:focusableInTouchMode="true"
-                android:id="@+id/connect_primary_phone_input"
-                android:inputType="numberDecimal"
-                android:layout_height="wrap_content"
-                android:layout_toEndOf="@id/connect_primary_phone_country_input"
-                android:layout_width="fill_parent">
-
-                <requestFocus />
-            </AutoCompleteTextView>
-
-            <TextView
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8sp"
-                android:layout_width="wrap_content"
-                android:text="@string/phone_code_plus" />
-        </RelativeLayout>
+        android:layout_height="fill_parent"
+        android:background="@color/cc_core_bg"
+        android:orientation="vertical"
+        android:layout_marginStart="@dimen/content_start"
+        android:layout_marginEnd="@dimen/content_start">
 
         <TextView
             android:id="@+id/connect_primary_phone_title"
-            android:layout_gravity="center"
-            android:layout_height="wrap_content"
-            android:layout_margin="@dimen/content_min_margin"
             android:layout_width="wrap_content"
-            android:text="@string/connect_phone_title_primary"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_margin="@dimen/content_min_margin"
             android:textColor="@color/cc_neutral_color"
-            android:textSize="@dimen/text_largest" />
+            android:textSize="@dimen/text_largest"
+            android:text="@string/connect_phone_title_primary"/>
 
         <TextView
-            android:gravity="start"
-            android:id="@+id/connect_primary_phone_availability"
-            android:layout_height="wrap_content"
-            android:layout_margin="@dimen/content_min_margin"
-            android:layout_width="fill_parent"
-            android:textSize="@dimen/text_medium" />
-
-        <TextView
-            android:gravity="start"
             android:id="@+id/connect_primary_phone_message"
+            android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/content_min_margin"
+            android:gravity="start"
+            android:textSize="@dimen/text_medium"
+            android:text="@string/connect_phone_message_primary"/>
+
+        <RelativeLayout
             android:layout_width="fill_parent"
-            android:text="@string/connect_phone_message_primary"
-            android:textSize="@dimen/text_medium" />
+            android:layout_height="wrap_content">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8sp"
+                android:text="@string/phone_code_plus" />
+            <AutoCompleteTextView
+                android:id="@+id/connect_primary_phone_country_input"
+                android:layout_width="100sp"
+                android:layout_height="wrap_content"
+                android:inputType="numberDecimal"
+                android:digits="1234567890"
+                android:gravity="center" />
+
+            <AutoCompleteTextView
+                android:id="@+id/connect_primary_phone_input"
+                android:layout_toEndOf="@id/connect_primary_phone_country_input"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:inputType="numberDecimal"
+                android:digits="1234567890"
+                android:focusable="true"
+                android:focusableInTouchMode="true">
+                <requestFocus />
+            </AutoCompleteTextView>
+        </RelativeLayout>
+
+        <TextView
+            android:id="@+id/connect_primary_phone_availability"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/content_min_margin"
+            android:gravity="start"
+            android:textSize="@dimen/text_medium"/>
+
+        <Button
+            android:id="@+id/connect_primary_phone_button"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:paddingBottom="@dimen/content_start"
+            android:paddingTop="@dimen/content_start"
+            android:text="@string/connect_phone_button"/>
 
     </LinearLayout>
 </layout>
