@@ -360,7 +360,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
             invalidateOptionsMenu();
             usernameBeforeRotation = passwordOrPinBeforeRotation = null;
         } else {
-            ConnectManager.handleFinishedActivity(requestCode, resultCode, intent);
+            ConnectManager.handleFinishedActivity(this, requestCode, resultCode, intent);
         }
 
         super.onActivityResult(requestCode, resultCode, intent);

@@ -258,8 +258,9 @@ public class ConnectManager {
         return ConnectTask.isConnectTaskCode(code);
     }
 
-    public static void handleFinishedActivity(int requestCode, int resultCode, Intent intent) {
-        if(ConnectIdWorkflows.handleFinishedActivity(requestCode, resultCode, intent)) {
+    public static void handleFinishedActivity(CommCareActivity<?> activity, int requestCode, int resultCode, Intent intent) {
+        getInstance().parentActivity = activity;
+        if(ConnectIdWorkflows.handleFinishedActivity(activity, requestCode, resultCode, intent)) {
             getInstance().connectStatus = ConnectIdStatus.Registering;
         }
     }
