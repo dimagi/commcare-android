@@ -85,6 +85,7 @@ public class ConnectManager {
     private static final long BACKOFF_DELAY_FOR_HEARTBEAT_RETRY = 5 * 60 * 1000L; // 5 mins
     private static final String CONNECT_HEARTBEAT_REQUEST_NAME = "connect_hearbeat_periodic_request";
     private static final int APP_DOWNLOAD_TASK_ID = 4;
+    public static final int CONNECTID_REQUEST_CODE = 1034;
 
     public static final int MethodRegistrationPrimary = 1;
     public static final int MethodRecoveryPrimary = 2;
@@ -338,7 +339,7 @@ public class ConnectManager {
             Intent intent=new Intent(parent,ConnectIdActivity.class);
             Bundle bundle=new Bundle();
             bundle.putString("TASK",ConnectConstants.UNLOCK_CONNECT);
-            parent.startActivity(intent,bundle);
+            parent.startActivityForResult(intent,CONNECTID_REQUEST_CODE,bundle);
 //            ConnectIdActivity.unlockConnect(parent, success -> {
 //                if(success) {
 //                    completeSignin();
@@ -352,8 +353,7 @@ public class ConnectManager {
         Intent intent=new Intent(parent,ConnectIdActivity.class);
         Bundle bundle=new Bundle();
         bundle.putString("TASK",ConnectConstants.BIGIN_REGISTRATION);
-        parent.startActivity(intent,bundle);
-        ConnectManager manager = getInstance();
+        parent.startActivityForResult(intent,CONNECTID_REQUEST_CODE,bundle);
 //        ConnectIdActivity.beginRegistration(parent, manager.connectStatus, success -> {
 //            if(success) {
 //                completeSignin();
@@ -372,7 +372,7 @@ public class ConnectManager {
                 Intent intent=new Intent(parent,ConnectIdActivity.class);
                 Bundle bundle=new Bundle();
                 bundle.putString("TASK",ConnectConstants.BIGIN_REGISTRATION);
-                parent.startActivity(intent,bundle);
+                parent.startActivityForResult(intent,ConnectManager.CONNECTID_REQUEST_CODE,bundle);
 //                ConnectIdActivity.beginRegistration(parent, connectStatus, success -> {
 //                    if(success) {
 //                        completeSignin();

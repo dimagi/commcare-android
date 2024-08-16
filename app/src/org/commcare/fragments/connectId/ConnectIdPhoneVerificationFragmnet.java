@@ -9,9 +9,6 @@ import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AutoCompleteTextView;
-import android.widget.Button;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.auth.api.phone.SmsRetriever;
@@ -51,7 +48,6 @@ import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
 
 import static android.app.Activity.RESULT_OK;
-import static org.commcare.connect.ConnectIdWorkflows.completeSignIn;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -540,7 +536,8 @@ public class ConnectIdPhoneVerificationFragmnet extends Fragment {
             }
             case ConnectConstants.CONNECT_VERIFY_ALT_PHONE -> {
                 if(success){
-                    completeSignIn();
+                    requireActivity().setResult(RESULT_OK);
+                    requireActivity().finish();
                 }
 
             }
@@ -548,7 +545,8 @@ public class ConnectIdPhoneVerificationFragmnet extends Fragment {
                 if(success){
                     user.setSecondaryPhoneVerified(true);
                     ConnectDatabaseHelper.storeUser(requireActivity(), user);
-                    completeSignIn();
+                    requireActivity().setResult(RESULT_OK);
+                    requireActivity().finish();
                 }
             }
         }

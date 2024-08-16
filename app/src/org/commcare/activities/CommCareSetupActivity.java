@@ -24,6 +24,7 @@ import androidx.fragment.app.FragmentTransaction;
 import org.commcare.AppUtils;
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
+import org.commcare.activities.connect.ConnectActivity;
 import org.commcare.connect.ConnectManager;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
@@ -426,6 +427,10 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                 setResult(RESULT_CANCELED);
                 finish();
                 return;
+            case ConnectManager.CONNECTID_REQUEST_CODE:
+                Intent i=new Intent(this, ConnectActivity.class);
+                startActivity(i);
+                break;
             default:
                 ConnectManager.handleFinishedActivity(requestCode, resultCode, data);
                 return;

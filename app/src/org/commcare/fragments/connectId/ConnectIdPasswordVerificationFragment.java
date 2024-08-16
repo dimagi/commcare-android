@@ -41,7 +41,7 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
 
-import static org.commcare.connect.ConnectIdWorkflows.completeSignIn;
+import static android.app.Activity.RESULT_OK;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -125,7 +125,8 @@ public class ConnectIdPasswordVerificationFragment extends Fragment {
                         if (user.shouldRequireSecondaryPhoneVerification()) {
                             directions = ConnectIdPasswordVerificationFragmentDirections.actionConnectidPasswordToConnectidMessage(getString(R.string.connect_recovery_alt_title), getString(R.string.connect_recovery_alt_message), ConnectConstants.CONNECT_UNLOCK_ALT_PHONE_MESSAGE, getString(R.string.connect_password_fail_button), getString(R.string.connect_recovery_alt_change_button));
                         } else {
-                            completeSignIn();
+                            requireActivity().setResult(RESULT_OK);
+                            requireActivity().finish();
                         }
                     }
                 }

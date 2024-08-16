@@ -19,7 +19,7 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
 
-import static org.commcare.connect.ConnectIdWorkflows.completeSignIn;
+import static android.app.Activity.RESULT_OK;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -95,8 +95,9 @@ public class ConnectIdMessageFragment extends Fragment {
         switch (callingClass) {
             case ConnectConstants.CONNECT_REGISTRATION_SUCCESS:
                 if (success) {
-                    ConnectDatabaseHelper.setRegistrationPhase(getActivity(), ConnectTask.CONNECT_REGISTRATION_SUCCESS);
-                    completeSignIn();
+                    ConnectDatabaseHelper.setRegistrationPhase(getActivity(), ConnectTask.CONNECT_NO_ACTIVITY);
+                    requireActivity().setResult(RESULT_OK);
+                    requireActivity().finish();
                 }
                 break;
             case ConnectConstants.CONNECT_RECOVERY_ALT_PHONE_MESSAGE:
@@ -112,8 +113,9 @@ public class ConnectIdMessageFragment extends Fragment {
                 }
                 break;
             case ConnectConstants.CONNECT_RECOVERY_SUCCESS:
-                ConnectDatabaseHelper.setRegistrationPhase(getActivity(), ConnectTask.CONNECT_RECOVERY_SUCCESS);
-                completeSignIn();
+                ConnectDatabaseHelper.setRegistrationPhase(getActivity(), ConnectTask.CONNECT_NO_ACTIVITY);
+                requireActivity().setResult(RESULT_OK);
+                requireActivity().finish();
                 break;
             case ConnectConstants.CONNECT_BIOMETRIC_ENROLL_FAIL:
                 if (success) {
