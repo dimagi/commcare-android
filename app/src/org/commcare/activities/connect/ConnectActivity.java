@@ -81,6 +81,9 @@ public class ConnectActivity extends CommCareActivity<ResourceEngineListener> {
 
         if (getIntent().getBooleanExtra("info", false)) {
             ConnectJobRecord job = ConnectManager.getActiveJob();
+            if(job==null){
+                job=ConnectManager.getActiveJob();
+            }
             int fragmentId = job.getStatus() == ConnectJobRecord.STATUS_DELIVERING ?
                     R.id.connect_job_delivery_progress_fragment :
                     R.id.connect_job_learning_progress_fragment;

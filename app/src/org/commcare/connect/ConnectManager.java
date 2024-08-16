@@ -303,6 +303,20 @@ public class ConnectManager {
         return job;
     }
 
+
+    public static ConnectJobRecord getActiveJob(Context context) {
+        ConnectJobRecord job = null;
+        String appId = CommCareApplication.instance().getCurrentApp().getUniqueId();
+        ConnectAppRecord appRecord = getAppRecord(context, appId);
+        if(appRecord != null) {
+            job = ConnectDatabaseHelper.getJob(context, appRecord.getJobId());
+        }
+
+        setActiveJob(job);
+
+        return job;
+    }
+
     private ConnectJobRecord activeJob = null;
     private int failedPinAttempts = 0;
 

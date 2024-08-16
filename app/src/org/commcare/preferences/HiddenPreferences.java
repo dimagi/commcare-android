@@ -118,14 +118,17 @@ public class HiddenPreferences {
      */
     public static int getLoginDuration() {
         final int oneDayInSecs = 60 * 60 * 24;
+        if(CommCareApplication.instance().getCurrentApp()!=null) {
+            SharedPreferences properties = CommCareApplication.instance().getCurrentApp().getAppPreferences();
 
-        SharedPreferences properties = CommCareApplication.instance().getCurrentApp().getAppPreferences();
-
-        // try loading setting but default to 24 hours
-        try {
-            return Integer.parseInt(properties.getString(LOGIN_DURATION,
-                    Integer.toString(oneDayInSecs)));
-        } catch (NumberFormatException e) {
+            // try loading setting but default to 24 hours
+            try {
+                return Integer.parseInt(properties.getString(LOGIN_DURATION,
+                        Integer.toString(oneDayInSecs)));
+            } catch (NumberFormatException e) {
+                return oneDayInSecs;
+            }
+        }else{
             return oneDayInSecs;
         }
     }
