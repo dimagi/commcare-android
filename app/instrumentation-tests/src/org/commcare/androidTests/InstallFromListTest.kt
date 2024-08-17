@@ -17,8 +17,8 @@ import org.commcare.CommCareInstrumentationTestApplication
 import org.commcare.activities.InstallFromListActivity
 import org.commcare.android.database.global.models.AppAvailableToInstall
 import org.commcare.annotations.BrowserstackTests
-import org.commcare.dalvik.BuildConfig
 import org.commcare.dalvik.R
+import org.commcare.dalvik.test.BuildConfig
 import org.commcare.utils.CustomMatchers
 import org.commcare.utils.InstrumentationUtility
 import org.commcare.utils.isPresent
