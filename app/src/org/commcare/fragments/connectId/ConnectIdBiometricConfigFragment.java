@@ -16,6 +16,7 @@ import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.ConnectDatabaseHelper;
 import org.commcare.connect.ConnectManager;
+import org.commcare.connect.ConnectTask;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.ScreenConnectVerifyBinding;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
@@ -40,7 +41,7 @@ import static org.commcare.fragments.connectId.ConnectIdPasswordVerificationFrag
  * Use the {@link ConnectIdBiometricConfigFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class ConnectIdBiometricConfigFragment extends Fragment {
+public class ConnectIdBiometricConfigFragment extends Fragment  {
     private BiometricManager biometricManager;
     private int callingActivity;
     private Executor executor;
@@ -215,6 +216,9 @@ public class ConnectIdBiometricConfigFragment extends Fragment {
         if (requestCode == PASSWORD_LOCK) {
             finish(true, true);
         }
+        if (requestCode == ConnectTask.CONNECT_UNLOCK_PIN.getRequestCode()) {
+            finish(true, false);
+        }
     }
 
     public void callAuthentication() {
@@ -251,7 +255,7 @@ public class ConnectIdBiometricConfigFragment extends Fragment {
                 biometricManager);
         if (fingerprint == BiometricsHelper.ConfigurationStatus.Configured) {
             performFingerprintUnlock();
-            finish(true, false);
+//            finish(true, true);
         } else if (!BiometricsHelper.configureFingerprint(getActivity())) {
             finish(true, true);
         }

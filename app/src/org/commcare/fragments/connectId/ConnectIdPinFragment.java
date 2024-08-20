@@ -111,7 +111,7 @@ public class ConnectIdPinFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        binding= ScreenConnectPinBinding.inflate(inflater,container,false);
+        binding = ScreenConnectPinBinding.inflate(inflater, container, false);
         View view = binding.getRoot();
         binding.connectPinButton.setOnClickListener(v -> handleButtonPress());
         binding.connectPinVerifyForgot.setOnClickListener(v -> handleForgotPress());
@@ -353,7 +353,7 @@ public class ConnectIdPinFragment extends Fragment {
         switch (callingClass) {
             case ConnectConstants.CONNECT_UNLOCK_PIN -> {
                 if (success) {
-                    ConnectIdActivity.forgotPin=forgot;
+                    ConnectIdActivity.forgotPin = forgot;
                     if (forgot) {
                         directions = ConnectIdPinFragmentDirections.actionConnectidPinToConnectidPhone(ConnectConstants.CONNECT_RECOVERY_PRIMARY_PHONE, ConnectConstants.METHOD_RECOVER_PRIMARY, null);
                     } else {
@@ -371,7 +371,7 @@ public class ConnectIdPinFragment extends Fragment {
             }
             case ConnectConstants.CONNECT_REGISTRATION_CONFIGURE_PIN -> {
                 if (success) {
-                    ConnectIdActivity.forgotPin=false;
+                    ConnectIdActivity.forgotPin = false;
                     ConnectDatabaseHelper.setRegistrationPhase(getActivity(), ConnectTask.CONNECT_REGISTRATION_ALTERNATE_PHONE);
                     directions = ConnectIdPinFragmentDirections.actionConnectidPinToConnectidPhone(ConnectConstants.CONNECT_REGISTRATION_ALTERNATE_PHONE, ConnectConstants.METHOD_CHANGE_ALTERNATE, "");
                     if (user != null) {
@@ -385,7 +385,7 @@ public class ConnectIdPinFragment extends Fragment {
                 }
             }
             case ConnectConstants.CONNECT_REGISTRATION_CONFIRM_PIN -> {
-                ConnectIdActivity.forgotPin=forgot;
+                ConnectIdActivity.forgotPin = forgot;
                 if (success) {
                     if (forgot) {
                         ConnectDatabaseHelper.setRegistrationPhase(getActivity(), ConnectTask.CONNECT_REGISTRATION_CHANGE_PIN);
@@ -405,20 +405,23 @@ public class ConnectIdPinFragment extends Fragment {
             }
             case ConnectConstants.CONNECT_RECOVERY_VERIFY_PIN -> {
                 if (success) {
-                    ConnectIdActivity.forgotPin=forgot;
+                    ConnectIdActivity.forgotPin = forgot;
                     if (forgot) {
-                        directions = ConnectIdPinFragmentDirections.actionConnectidPinToConnectidMessage(getString(R.string.connect_recovery_alt_title), getString(R.string.connect_recovery_alt_message), ConnectConstants.CONNECT_REGISTRATION_SUCCESS, getString(R.string.connect_recovery_alt_button), null);
-
+                        if (ConnectIdActivity.forgotPassword) {
+                            directions = ConnectIdPinFragmentDirections.actionConnectidPinToConnectidMessage(getString(R.string.connect_recovery_alt_title), getString(R.string.connect_recovery_alt_message), ConnectConstants.CONNECT_REGISTRATION_SUCCESS, getString(R.string.connect_recovery_alt_button), null);
+                        } else {
+                            directions = ConnectIdPinFragmentDirections.actionConnectidPinToConnectidPassword(ConnectConstants.CONNECT_RECOVERY_VERIFY_PASSWORD, ConnectIdActivity.recoverPhone, ConnectIdActivity.recoverSecret);
+                        }
                     } else {
-                        directions = ConnectIdPinFragmentDirections.actionConnectidPinToConnectidPassword(ConnectConstants.CONNECT_RECOVERY_VERIFY_PASSWORD, ConnectIdActivity.recoverPhone, ConnectIdActivity.recoverSecret);
+                        directions = ConnectIdPinFragmentDirections.actionConnectidPinToConnectidMessage(getString(R.string.connect_recovery_success_title), getString(R.string.connect_recovery_success_message), ConnectConstants.CONNECT_RECOVERY_SUCCESS, getString(R.string.connect_recovery_success_button), null);
                     }
                 } else {
-                    directions = ConnectIdPinFragmentDirections.actionConnectidPinToConnectidMessage(getString(R.string.connect_pin_fail_title), ConnectManager.getFailureAttempt() > 2 ? getString(R.string.connect_pin_recovery_message) : getString(R.string.connect_pin_fail_message), ConnectConstants.CONNECT_RECOVERY_WRONG_PIN, getString(R.string.connect_recovery_alt_button), null);
+                    directions = ConnectIdPinFragmentDirections.actionConnectidPinToConnectidMessage(getString(R.string.connect_pin_fail_title), ConnectManager.getFailureAttempt() > 2 ? getString(R.string.connect_pin_confirm_message) : getString(R.string.connect_pin_fail_message), ConnectConstants.CONNECT_RECOVERY_WRONG_PIN, getString(R.string.connect_recovery_alt_button), null);
                 }
             }
             case ConnectConstants.CONNECT_RECOVERY_CHANGE_PIN -> {
                 if (success) {
-                    ConnectIdActivity.forgotPin=false;
+                    ConnectIdActivity.forgotPin = false;
                     if (user != null) {
                         user.setPin(pin);
                         user.setLastPinDate(new Date());
@@ -432,7 +435,7 @@ public class ConnectIdPinFragment extends Fragment {
                 }
             }
             case ConnectConstants.CONNECT_REGISTRATION_CHANGE_PIN -> {
-                ConnectIdActivity.forgotPin=false;
+                ConnectIdActivity.forgotPin = false;
                 if (success) {
                     ConnectDatabaseHelper.setRegistrationPhase(getActivity(), ConnectTask.CONNECT_REGISTRATION_CONFIRM_PIN);
                 }

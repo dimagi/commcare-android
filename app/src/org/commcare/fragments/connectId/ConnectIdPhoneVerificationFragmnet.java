@@ -260,8 +260,7 @@ public class ConnectIdPhoneVerificationFragmnet extends Fragment {
 
     public void requestSmsCode() {
         smsTime = new DateTime();
-
-        binding.connectPhoneVerifyError.setText(null);
+        setErrorMessage(null);
 
         IApiCallback callback = new IApiCallback() {
             @Override
@@ -294,8 +293,7 @@ public class ConnectIdPhoneVerificationFragmnet extends Fragment {
                 } else if (e != null) {
                     message = e.toString();
                 }
-
-                binding.connectPhoneVerifyError.setText("Error requesting SMS code" + message);
+                setErrorMessage("Error requesting SMS code" + message);
 
                 //Null out the last-requested time so user can request again immediately
                 smsTime = null;
@@ -303,15 +301,14 @@ public class ConnectIdPhoneVerificationFragmnet extends Fragment {
 
             @Override
             public void processNetworkFailure() {
-                binding.connectPhoneVerifyError.setText(R.string.recovery_network_unavailable);
-
+                setErrorMessage(getString(R.string.recovery_network_unavailable));
                 //Null out the last-requested time so user can request again immediately
                 smsTime = null;
             }
 
             @Override
             public void processOldApiError() {
-                binding.connectPhoneVerifyError.setText(getString(R.string.recovery_network_outdated));
+                setErrorMessage(getString(R.string.recovery_network_outdated));
             }
         };
 
@@ -337,7 +334,7 @@ public class ConnectIdPhoneVerificationFragmnet extends Fragment {
     }
 
     public void verifySmsCode() {
-        binding.connectPhoneVerifyError.setText(null);
+        setErrorMessage(null);
 
         String token = binding.connectPhoneVerifyCode.getText().toString();
         String phone = username;
@@ -405,17 +402,17 @@ public class ConnectIdPhoneVerificationFragmnet extends Fragment {
                     message = e.toString();
                 }
                 logRecoveryResult(false);
-                binding.connectPhoneVerifyError.setText(String.format("Error verifying SMS code. %s", message));
+                setErrorMessage(String.format("Error verifying SMS code. %s", message));
             }
 
             @Override
             public void processNetworkFailure() {
-                binding.connectPhoneVerifyError.setText(getString(R.string.recovery_network_unavailable));
+                setErrorMessage(getString(R.string.recovery_network_unavailable));
             }
 
             @Override
             public void processOldApiError() {
-                binding.connectPhoneVerifyError.setText(getString(R.string.recovery_network_outdated));
+                setErrorMessage(getString(R.string.recovery_network_outdated));
             }
         };
 
