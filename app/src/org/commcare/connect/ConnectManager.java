@@ -338,7 +338,7 @@ public class ConnectManager {
         if(manager.connectStatus == ConnectIdStatus.LoggedIn) {
             Intent intent=new Intent(parent,ConnectIdActivity.class);
             Bundle bundle=new Bundle();
-            bundle.putString("TASK",ConnectConstants.UNLOCK_CONNECT);
+            intent.putExtra("TASK",ConnectConstants.UNLOCK_CONNECT);
             parent.startActivityForResult(intent,CONNECTID_REQUEST_CODE,bundle);
 //            ConnectIdActivity.unlockConnect(parent, success -> {
 //                if(success) {

@@ -360,6 +360,8 @@ public class ConnectIdPinFragment extends Fragment {
                         if (user.shouldRequireSecondaryPhoneVerification()) {
                             directions = ConnectIdPinFragmentDirections.actionConnectidPinToConnectidMessage(getString(R.string.connect_recovery_alt_title), getString(R.string.connect_recovery_alt_message), ConnectConstants.CONNECT_UNLOCK_ALT_PHONE_MESSAGE, getString(R.string.connect_password_fail_button), getString(R.string.connect_recovery_alt_change_button));
                         } else {
+                            ConnectManager.setStatus(ConnectManager.ConnectIdStatus.LoggedIn);
+                            ConnectDatabaseHelper.setRegistrationPhase(getActivity(), ConnectTask.CONNECT_NO_ACTIVITY);
                             requireActivity().setResult(RESULT_OK);
                             requireActivity().finish();
                         }

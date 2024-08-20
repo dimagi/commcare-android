@@ -17,6 +17,8 @@ import org.commcare.activities.connect.ConnectIdMessageActivity;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.ConnectDatabaseHelper;
+import org.commcare.connect.ConnectManager;
+import org.commcare.connect.ConnectTask;
 import org.commcare.connect.network.ApiConnectId;
 import org.commcare.connect.network.ConnectNetworkHelper;
 import org.commcare.connect.network.IApiCallback;
@@ -125,6 +127,8 @@ public class ConnectIdPasswordVerificationFragment extends Fragment {
                         if (user.shouldRequireSecondaryPhoneVerification()) {
                             directions = ConnectIdPasswordVerificationFragmentDirections.actionConnectidPasswordToConnectidMessage(getString(R.string.connect_recovery_alt_title), getString(R.string.connect_recovery_alt_message), ConnectConstants.CONNECT_UNLOCK_ALT_PHONE_MESSAGE, getString(R.string.connect_password_fail_button), getString(R.string.connect_recovery_alt_change_button));
                         } else {
+                            ConnectManager.setStatus(ConnectManager.ConnectIdStatus.LoggedIn);
+                            ConnectDatabaseHelper.setRegistrationPhase(getActivity(), ConnectTask.CONNECT_NO_ACTIVITY);
                             requireActivity().setResult(RESULT_OK);
                             requireActivity().finish();
                         }

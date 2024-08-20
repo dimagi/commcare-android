@@ -35,6 +35,20 @@ public class ConnectIdActivity extends AppCompatActivity {
         if(requestCode==ConnectTask.CONNECT_UNLOCK_PIN.getRequestCode()) {
             getCurrentFragment().onActivityResult(requestCode, resultCode, data);
         }
+        if(requestCode==ConnectManager.CONNECTID_REQUEST_CODE){
+            String value="";
+            if (data != null) {
+                value = data.getStringExtra("TASK");
+            }
+            switch (value){
+                case ConnectConstants.BIGIN_REGISTRATION -> beginRegistration1(this);
+                case ConnectConstants.UNLOCK_CONNECT -> unlockConnect(this);
+                case ConnectConstants.VERIFY_PHONE -> beginSecondaryPhoneVerification(this);
+            }
+        }
+        if(requestCode==RESULT_OK){
+            finish();
+        }
     }
 
 
@@ -139,7 +153,9 @@ public class ConnectIdActivity extends AppCompatActivity {
         if (user.shouldRequireSecondaryPhoneVerification()) {
             return ConnectTask.CONNECT_UNLOCK_ALT_PHONE_MESSAGE;
         } else {
-            completeSignIn();
+            ConnectDatabaseHelper.setRegistrationPhase(this, ConnectTask.CONNECT_NO_ACTIVITY);
+            setResult(RESULT_OK);
+           finish();
         }
 
         return ConnectTask.CONNECT_NO_ACTIVITY;

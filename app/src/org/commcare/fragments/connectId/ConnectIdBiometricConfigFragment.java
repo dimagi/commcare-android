@@ -34,6 +34,7 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
 
+import static android.app.Activity.RESULT_OK;
 import static org.commcare.fragments.connectId.ConnectIdPasswordVerificationFragment.PASSWORD_LOCK;
 
 /**
@@ -44,9 +45,6 @@ import static org.commcare.fragments.connectId.ConnectIdPasswordVerificationFrag
 public class ConnectIdBiometricConfigFragment extends Fragment  {
     private BiometricManager biometricManager;
     private int callingActivity;
-    private Executor executor;
-    private BiometricPrompt biometricPrompt;
-    private BiometricPrompt.PromptInfo promptInfo;
     private boolean allowPassword = false;
     private boolean attemptingFingerprint = false;
     private BiometricPrompt.AuthenticationCallback biometricPromptCallbacks;
@@ -94,9 +92,6 @@ public class ConnectIdBiometricConfigFragment extends Fragment  {
 
         binding.connectVerifyFingerprintButton.setOnClickListener(v -> handleFingerprintButton());
         binding.connectVerifyPinButton.setOnClickListener(v -> handlePinButton());
-//        switch (callingActivity){
-//            case
-//        }
 
         return view;
     }
@@ -295,6 +290,20 @@ public class ConnectIdBiometricConfigFragment extends Fragment  {
                             ConnectIdBiometricConfigFragmentDirections.actionConnectidBiometricConfigToConnectidPhoneVerify(ConnectConstants.CONNECT_RECOVERY_VERIFY_PRIMARY_PHONE, String.format(Locale.getDefault(), "%d",
                                     ConnectManager.MethodRecoveryPrimary), ConnectIdActivity.recoverPhone, ConnectIdActivity.recoverPhone, "", null).setAllowChange(false);
                 }
+            }
+            case ConnectConstants.CONNECT_UNLOCK_BIOMETRIC -> {
+                if (success) {
+                    ConnectManager.setStatus(ConnectManager.ConnectIdStatus.LoggedIn);
+                    ConnectDatabaseHelper.setRegistrationPhase(getActivity(), ConnectTask.CONNECT_NO_ACTIVITY);
+                    requireActivity().setResult(RESULT_OK);
+                    requireActivity().finish();
+
+                }
+//                else if (intent != null && intent.getBooleanExtra(ConnectConstants.PASSWORD, false)) {
+//                    nextRequestCode = ConnectTask.CONNECT_UNLOCK_PASSWORD;
+//                } else if (intent != null && intent.getBooleanExtra(ConnectConstants.RECOVER, false)) {
+//                    nextRequestCode = ConnectTask.CONNECT_RECOVERY_PRIMARY_PHONE;
+//                }
             }
         }
         if (directions != null) {

@@ -95,6 +95,7 @@ public class ConnectIdMessageFragment extends Fragment {
         switch (callingClass) {
             case ConnectConstants.CONNECT_REGISTRATION_SUCCESS:
                 if (success) {
+                    ConnectManager.setStatus(ConnectManager.ConnectIdStatus.LoggedIn);
                     ConnectDatabaseHelper.setRegistrationPhase(getActivity(), ConnectTask.CONNECT_NO_ACTIVITY);
                     requireActivity().setResult(RESULT_OK);
                     requireActivity().finish();
@@ -107,12 +108,13 @@ public class ConnectIdMessageFragment extends Fragment {
 
                     } else {
                         directions = ConnectIdMessageFragmentDirections.actionConnectidMessageToConnectidPhoneVerify(ConnectConstants.CONNECT_RECOVERY_VERIFY_ALT_PHONE, String.format(Locale.getDefault(), "%d",
-                                ConnectIdPhoneVerificationFragmnet.MethodRecoveryAlternate), null, ConnectIdActivity.recoverPhone, ConnectIdActivity.recoverSecret, ConnectIdActivity.recoveryAltPhone);
+                                ConnectIdPhoneVerificationFragmnet.MethodRecoveryAlternate), null, ConnectIdActivity.recoverPhone, ConnectIdActivity.recoverSecret, ConnectIdActivity.recoveryAltPhone).setAllowChange(false);
 
                     }
                 }
                 break;
             case ConnectConstants.CONNECT_RECOVERY_SUCCESS:
+                ConnectManager.setStatus(ConnectManager.ConnectIdStatus.LoggedIn);
                 ConnectDatabaseHelper.setRegistrationPhase(getActivity(), ConnectTask.CONNECT_NO_ACTIVITY);
                 requireActivity().setResult(RESULT_OK);
                 requireActivity().finish();
