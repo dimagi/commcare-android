@@ -1,6 +1,7 @@
 package org.commcare.connect.network;
 
 import android.content.Context;
+import android.util.Log;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
@@ -327,6 +328,23 @@ public class ApiConnectId {
         AuthInfo authInfo = new AuthInfo.ProvidedAuth(username, password, false);
 
         HashMap<String, String> params = new HashMap<>();
+        params.put("token", token);
+
+        return ConnectNetworkHelper.post(context, context.getString(urlId),
+                API_VERSION_CONNECT_ID, authInfo, params, false, false, callback);
+    }
+
+    public static boolean confirmUserDeactivation(Context context, String phone, String secret,
+                                                          String token, IApiCallback callback) {
+        Log.e("DEBUG_TESTING", "processSuccess:phone "+phone);
+        Log.e("DEBUG_TESTING", "processSuccess:secret "+secret);
+        Log.e("DEBUG_TESTING", "processSuccess:token "+token);
+        int urlId = R.string.ConnectConfirmUserAccountDeactivationURL;
+        AuthInfo authInfo = new AuthInfo.NoAuth();
+
+        HashMap<String, String> params = new HashMap<>();
+        params.put("phone_number", phone);
+        params.put("secret_key", secret);
         params.put("token", token);
 
         return ConnectNetworkHelper.post(context, context.getString(urlId),

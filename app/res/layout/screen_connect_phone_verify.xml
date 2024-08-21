@@ -29,7 +29,7 @@
         android:id="@+id/connect_phone_verify_code"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:inputType="numberDecimal" />
+        android:inputType="text" />
 
     <TextView
         android:id="@+id/connect_phone_verify_error"

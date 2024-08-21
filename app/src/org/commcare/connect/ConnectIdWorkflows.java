@@ -109,8 +109,6 @@ public class ConnectIdWorkflows {
         Map<String, Serializable> params = new HashMap<>();
         ConnectUserRecord user = ConnectDatabaseHelper.getUser(parentActivity);
 
-        Log.e("DEBUG_TESTING", "onCreate:recoveryPhone " + recoveryPhone);
-        Log.e("DEBUG_TESTING", "onCreate:recoverySecret " + recoverySecret);
         switch (phase) {
             case CONNECT_REGISTRATION_PRIMARY_PHONE -> {
                 params.put(ConnectConstants.METHOD, ConnectConstants.METHOD_REGISTER_PRIMARY);

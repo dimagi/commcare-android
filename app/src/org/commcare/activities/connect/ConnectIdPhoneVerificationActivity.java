@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
@@ -362,6 +363,19 @@ public class ConnectIdPhoneVerificationActivity extends CommCareActivity<Connect
 
                             resetPassword(context, phone, password, username, displayName);
                         }
+
+                        case MethodDeactivateUser -> {
+                            Log.e("DEBUG_TESTING", "processSuccess: "+"MethodDeactivateUser");
+                            String responseAsString = new String(
+                                    StreamsUtil.inputStreamToByteArray(responseData));
+                            JSONObject json = new JSONObject(responseAsString);
+                            Log.e("DEBUG_TESTING", "processSuccess: "+json.getBoolean("success"));
+                            if (json.getBoolean("success")) {
+                                finish(true, false, null);
+                            } else {
+                                uiController.setErrorMessage("Error verifying SMS code");
+                            }
+                        }
                     }
                 } catch (Exception e) {
                     Logger.exception("Parsing return from OTP verification", e);
@@ -403,8 +417,7 @@ public class ConnectIdPhoneVerificationActivity extends CommCareActivity<Connect
                 isBusy = !ApiConnectId.confirmVerificationOtpSecondary(this, username, password, token, callback);
             }
             case MethodDeactivateUser -> {
-                isBusy = false;
-                finish(true, false, null);
+                isBusy = !ApiConnectId.confirmUserDeactivation(this, username, password, token, callback);
             }
             default -> {
                 isBusy = !ApiConnectId.confirmRegistrationOtpPrimary(this, username, password, token, callback);
