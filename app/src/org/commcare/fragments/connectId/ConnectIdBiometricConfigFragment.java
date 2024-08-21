@@ -241,7 +241,7 @@ public class ConnectIdBiometricConfigFragment extends Fragment  {
     }
 
     public void performPinUnlock() {
-//        BiometricsHelper.authenticatePin(requireActivity(), biometricManager, biometricPromptCallbacks);
+        BiometricsHelper.authenticatePin(requireActivity(), biometricManager, biometricPromptCallbacks);
     }
 
 
@@ -259,7 +259,7 @@ public class ConnectIdBiometricConfigFragment extends Fragment  {
     public void handlePinButton() {
         BiometricsHelper.ConfigurationStatus pin = BiometricsHelper.checkPinStatus(getActivity(), biometricManager);
         if (pin == BiometricsHelper.ConfigurationStatus.Configured) {
-            finish(true, false);
+           performPinUnlock();
         } else if (!BiometricsHelper.configurePin(getActivity())) {
             finish(true, true);
         }
