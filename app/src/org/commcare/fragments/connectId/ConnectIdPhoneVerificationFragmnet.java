@@ -99,7 +99,6 @@ public class ConnectIdPhoneVerificationFragmnet extends Fragment {
                     getString(R.string.connect_verify_phone_resend_wait, secondsToReset);
 
             binding.connectPhoneVerifyResend.setText(text);
-
             taskHandler.postDelayed(this, 100);
         }
     };
@@ -204,6 +203,7 @@ public class ConnectIdPhoneVerificationFragmnet extends Fragment {
     public void onPause() {
         super.onPause();
         try {
+            stopHandler();
             requireActivity().unregisterReceiver(smsBroadcastReceiver);
         }catch (IllegalArgumentException e){
             e.printStackTrace();
