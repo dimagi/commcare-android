@@ -165,8 +165,6 @@ class GlobalDatabaseUpgrader {
 
             db.setTransactionSuccessful();
             return true;
-        } catch(Exception e) {
-            return false;
         } finally {
             db.endTransaction();
         }
@@ -182,8 +180,6 @@ class GlobalDatabaseUpgrader {
 
             db.setTransactionSuccessful();
             return true;
-        } catch (Exception e) {
-            return false;
         } finally {
             db.endTransaction();
         }
