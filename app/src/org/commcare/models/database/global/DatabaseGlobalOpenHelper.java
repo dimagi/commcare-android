@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.commcare.models.database.global;
 
 import android.content.Context;
@@ -34,8 +31,9 @@ public class DatabaseGlobalOpenHelper extends SQLiteOpenHelper {
      * V.4 - Add table for storing force close log entries that occur outside of an active session
      * V.5 - Add table for storing apps available for install
      * V.6 - Add table for storing (encrypted) passphrase for ConnectId DB
+     * V.7 - Add is_local column to ConnectKeyRecord table (to store both local and server passphrase)
      */
-    private static final int GLOBAL_DB_VERSION = 6;
+    private static final int GLOBAL_DB_VERSION = 7;
 
     private static final String GLOBAL_DB_LOCATOR = "database_global";
 
