@@ -78,6 +78,7 @@ public class ConnectIdBiometricConfigFragment extends Fragment  {
         biometricPromptCallbacks = preparePromptCallbacks();
         if (getArguments() != null) {
             callingActivity = ConnectIdBiometricConfigFragmentArgs.fromBundle(getArguments()).getCallingClass();
+            allowPassword = ConnectIdBiometricConfigFragmentArgs.fromBundle(getArguments()).getAllowPassword();
         }
         BiometricsHelper.ConfigurationStatus fingerprint = BiometricsHelper.checkFingerprintStatus(getActivity(),
                 biometricManager);
@@ -237,7 +238,6 @@ public class ConnectIdBiometricConfigFragment extends Fragment  {
     }
 
     public void performPasswordUnlock() {
-//        finish(false, true, false);
     }
 
     public void performPinUnlock() {

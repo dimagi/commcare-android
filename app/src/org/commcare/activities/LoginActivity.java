@@ -17,6 +17,8 @@ import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.biometric.BiometricManager;
+import androidx.biometric.BiometricPrompt;
 import androidx.core.app.ActivityCompat;
 import androidx.core.util.Pair;
 import androidx.preference.PreferenceManager;
@@ -31,9 +33,11 @@ import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.activities.connect.ConnectIdActivity;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
+import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.ConnectManager;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
+import org.commcare.connect.ConnectTask;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.engine.resource.AppInstallStatus;
@@ -52,6 +56,7 @@ import org.commcare.tasks.InstallStagedUpdateTask;
 import org.commcare.tasks.ManageKeyRecordTask;
 import org.commcare.tasks.PullTaskResultReceiver;
 import org.commcare.tasks.ResultAndError;
+import org.commcare.utils.BiometricsHelper;
 import org.commcare.utils.ConsumerAppsUtil;
 import org.commcare.utils.CrashUtil;
 import org.commcare.utils.Permissions;
@@ -115,6 +120,14 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     private boolean appLaunchedFromConnect;
     private boolean connectLaunchPerformed;
 
+    private BiometricManager biometricManager;
+    private BiometricPrompt.AuthenticationCallback biometricPromptCallbacks;
+
+    private boolean allowPassword = false;
+
+
+    private boolean attemptingFingerprint = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -132,6 +145,9 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
         ConnectManager.init(this);
         uiController.updateConnectLoginState();
+        biometricManager = BiometricManager.from(this);
+
+        biometricPromptCallbacks = preparePromptCallbacks();
 
         presetAppId = getIntent().getStringExtra(EXTRA_APP_ID);
         appLaunchedFromConnect = ConnectManager.wasAppLaunchedFromConnect(presetAppId);
@@ -156,6 +172,55 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         } else {
             Permissions.acquireAllAppPermissions(this, this, Permissions.ALL_PERMISSIONS_REQUEST);
         }
+    }
+    private BiometricPrompt.AuthenticationCallback preparePromptCallbacks() {
+        final Context context = this;
+        return new BiometricPrompt.AuthenticationCallback() {
+            @Override
+            public void onAuthenticationError(int errorCode,
+                                              @NonNull CharSequence errString) {
+                super.onAuthenticationError(errorCode, errString);
+                if (attemptingFingerprint) {
+                    attemptingFingerprint = false;
+                    if (BiometricsHelper.isPinConfigured(context, biometricManager) &&
+                            allowPassword) {
+                        //Automatically try password, it's the only option
+                        performPinUnlock();
+                    }
+                }
+            }
+
+            @Override
+            public void onAuthenticationSucceeded(
+                    @NonNull BiometricPrompt.AuthenticationResult result) {
+                super.onAuthenticationSucceeded(result);
+                ConnectManager.goToConnectJobsList();
+
+            }
+
+            @Override
+            public void onAuthenticationFailed() {
+                super.onAuthenticationFailed();
+                Toast.makeText(getApplicationContext(), "Authentication failed",
+                                Toast.LENGTH_SHORT)
+                        .show();
+            }
+        };
+    }
+
+    public void performPinUnlock() {
+        BiometricsHelper.authenticatePin(this, biometricManager, biometricPromptCallbacks);
+    }
+
+    public void performFingerprintUnlock() {
+        attemptingFingerprint = true;
+        boolean allowOtherOptions = BiometricsHelper.isPinConfigured(this, biometricManager) ||
+                allowPassword;
+        BiometricsHelper.authenticateFingerprint(this, biometricManager, allowOtherOptions, preparePromptCallbacks());
+    }
+
+    public void performPasswordUnlock() {
+
     }
 
     @Override
@@ -360,7 +425,12 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
             uiController.refreshForNewApp();
             invalidateOptionsMenu();
             usernameBeforeRotation = passwordOrPinBeforeRotation = null;
-        } else if(requestCode == ConnectManager.CONNECTID_REQUEST_CODE && resultCode == RESULT_OK) {
+        }
+        else if(requestCode == ConnectTask.CONNECT_UNLOCK_PIN.getRequestCode()) {
+            setResult(RESULT_OK);
+            ConnectManager.goToConnectJobsList();
+            finish();
+
         }
         else {
             ConnectManager.handleFinishedActivity(requestCode, resultCode, intent);
@@ -474,8 +544,17 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
     public void handleConnectButtonPress() {
         selectedAppIndex = -1;
-        Intent intent=new Intent(this, ConnectIdActivity.class);
-        startActivity(intent);
+        if (BiometricsHelper.isFingerprintConfigured(this, biometricManager)) {
+            performFingerprintUnlock();
+        } else if (BiometricsHelper.isPinConfigured(this, biometricManager)) {
+            performPinUnlock();
+        } else if (allowPassword) {
+            performPasswordUnlock();
+        } else {
+            ConnectManager.goToConnectJobsList();
+            Logger.exception("No unlock method available when trying to unlock ConnectID", new Exception("No unlock option"));
+        }
+
 //        ConnectManager.unlockConnect(this, success -> {
 //            if(success) {
 //                ConnectManager.goToConnectJobsList();

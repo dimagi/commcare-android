@@ -113,7 +113,7 @@ public class ConnectIdActivity extends AppCompatActivity {
                 } else if (user.shouldForcePassword()) {
                     navDirections = org.commcare.fragments.connectId.ConnectIdRecoveryDecisionFragmentDirections.actionConnectidRecoveryDecisionToConnectidPassword(ConnectConstants.CONNECT_UNLOCK_PASSWORD, user.getPrimaryPhone(), user.getPassword());
                 } else {
-                    navDirections = org.commcare.fragments.connectId.ConnectIdRecoveryDecisionFragmentDirections.actionConnectidRecoveryDecisionToConnectidBiometricConfig(user.getPrimaryPhone(), ConnectConstants.CONNECT_UNLOCK_BIOMETRIC);
+                    navDirections = org.commcare.fragments.connectId.ConnectIdRecoveryDecisionFragmentDirections.actionConnectidRecoveryDecisionToConnectidBiometricConfig(user.getPrimaryPhone(), ConnectConstants.CONNECT_UNLOCK_BIOMETRIC).setAllowPassword(true);
                 }
             }
             default -> {
@@ -136,7 +136,7 @@ public class ConnectIdActivity extends AppCompatActivity {
         forgotPin = false;
 
         ConnectUserRecord user = ConnectDatabaseHelper.getUser(parent);
-        navDirections = org.commcare.fragments.connectId.ConnectIdRecoveryDecisionFragmentDirections.actionConnectidRecoveryDecisionToConnectidBiometricConfig(user.getPrimaryPhone(), ConnectConstants.CONNECT_UNLOCK_BIOMETRIC);
+        navDirections = org.commcare.fragments.connectId.ConnectIdRecoveryDecisionFragmentDirections.actionConnectidRecoveryDecisionToConnectidBiometricConfig(user.getPrimaryPhone(), ConnectConstants.CONNECT_UNLOCK_BIOMETRIC).setAllowPassword(true);
         if (user.shouldForcePin()) {
             navDirections = org.commcare.fragments.connectId.ConnectIdRecoveryDecisionFragmentDirections.actionConnectidRecoveryDecisionToConnectidPin(ConnectConstants.CONNECT_UNLOCK_PIN, user.getPrimaryPhone(), user.getPassword());
         } else if (user.shouldForcePassword()) {

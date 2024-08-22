@@ -15,6 +15,8 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.biometric.BiometricManager;
+import androidx.biometric.BiometricPrompt;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
@@ -26,6 +28,7 @@ import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.activities.connect.ConnectActivity;
 import org.commcare.connect.ConnectManager;
+import org.commcare.connect.ConnectTask;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.engine.resource.AppInstallStatus;
@@ -49,6 +52,7 @@ import org.commcare.tasks.ResourceEngineListener;
 import org.commcare.tasks.RetrieveParseVerifyMessageListener;
 import org.commcare.tasks.RetrieveParseVerifyMessageTask;
 import org.commcare.utils.ApkDependenciesUtils;
+import org.commcare.utils.BiometricsHelper;
 import org.commcare.utils.ConsumerAppsUtil;
 import org.commcare.utils.MultipleAppsUtil;
 import org.commcare.utils.Permissions;
@@ -60,6 +64,7 @@ import org.commcare.views.notifications.NotificationMessage;
 import org.commcare.views.notifications.NotificationMessageFactory;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
+import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 
 import java.io.IOException;
@@ -96,6 +101,16 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     private static final String FORCE_VALIDATE_KEY = "validate";
     private static final String KEY_SHOW_NOTIFICATIONS_BUTTON = "show-notifications-button";
     public static final int MAX_ALLOWED_APPS = 4;
+
+    private BiometricManager biometricManager;
+    private BiometricPrompt.AuthenticationCallback biometricPromptCallbacks;
+
+    private boolean allowPassword = false;
+
+
+    private boolean attemptingFingerprint = false;
+
+
 
     /**
      * UI configuration states.
@@ -169,6 +184,9 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         if (checkForMultipleAppsViolation()) {
             return;
         }
+        biometricManager = BiometricManager.from(this);
+
+        biometricPromptCallbacks = preparePromptCallbacks();
 
         if(!fromManager) {
             ConnectManager.init(this);
@@ -197,6 +215,43 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             }
         }
     }
+
+    private BiometricPrompt.AuthenticationCallback preparePromptCallbacks() {
+        final Context context = this;
+        return new BiometricPrompt.AuthenticationCallback() {
+            @Override
+            public void onAuthenticationError(int errorCode,
+                                              @NonNull CharSequence errString) {
+                super.onAuthenticationError(errorCode, errString);
+                if (attemptingFingerprint) {
+                    attemptingFingerprint = false;
+                    if (BiometricsHelper.isPinConfigured(context, biometricManager) &&
+                            allowPassword) {
+                        //Automatically try password, it's the only option
+                        performPinUnlock();
+                    }
+                }
+            }
+
+            @Override
+            public void onAuthenticationSucceeded(
+                    @NonNull BiometricPrompt.AuthenticationResult result) {
+                super.onAuthenticationSucceeded(result);
+                ConnectManager.goToConnectJobsList();
+
+            }
+
+            @Override
+            public void onAuthenticationFailed() {
+                super.onAuthenticationFailed();
+                Toast.makeText(getApplicationContext(), "Authentication failed",
+                                Toast.LENGTH_SHORT)
+                        .show();
+            }
+        };
+    }
+
+
 
     private void loadIntentAndInstanceState(Bundle savedInstanceState) {
         if (savedInstanceState == null) {
@@ -403,6 +458,10 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         String result = null;
+        if(requestCode== ConnectTask.CONNECT_UNLOCK_PIN.getRequestCode()){
+            ConnectManager.goToConnectJobsList();
+            return;
+        }
         switch (requestCode) {
             case BARCODE_CAPTURE:
                 if (resultCode == AppCompatActivity.RESULT_OK) {
@@ -653,12 +712,37 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 
     private void updateConnectButton() {
         installFragment.updateConnectButton(!fromManager && !fromExternal && ConnectManager.isConnectIdIntroduced(), v -> {
-            ConnectManager.unlockConnect(this, success -> {
-                if(success) {
-                    ConnectManager.goToConnectJobsList();
-                }
-            });
+            if (BiometricsHelper.isFingerprintConfigured(this, biometricManager)) {
+                performFingerprintUnlock();
+            } else if (BiometricsHelper.isPinConfigured(this, biometricManager)) {
+                performPinUnlock();
+            } else if (allowPassword) {
+                performPasswordUnlock();
+            } else {
+                ConnectManager.goToConnectJobsList();
+                Logger.exception("No unlock method available when trying to unlock ConnectID", new Exception("No unlock option"));
+            }
+//            ConnectManager.unlockConnect(this, success -> {
+//                if(success) {
+//                    ConnectManager.goToConnectJobsList();
+//                }
+//            });
         });
+    }
+
+    public void performPinUnlock() {
+        BiometricsHelper.authenticatePin(this, biometricManager, biometricPromptCallbacks);
+    }
+
+    public void performFingerprintUnlock() {
+        attemptingFingerprint = true;
+        boolean allowOtherOptions = BiometricsHelper.isPinConfigured(this, biometricManager) ||
+                allowPassword;
+        BiometricsHelper.authenticateFingerprint(this, biometricManager, allowOtherOptions, preparePromptCallbacks());
+    }
+
+    public void performPasswordUnlock() {
+
     }
 
     private void fail(NotificationMessage notificationMessage, boolean showAsPinnedNotifcation) {

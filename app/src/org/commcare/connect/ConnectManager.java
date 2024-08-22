@@ -48,6 +48,7 @@ import org.commcare.preferences.AppManagerDeveloperPreferences;
 import org.commcare.tasks.ResourceEngineListener;
 import org.commcare.tasks.templates.CommCareTask;
 import org.commcare.tasks.templates.CommCareTaskConnector;
+import org.commcare.utils.BiometricsHelper;
 import org.commcare.utils.CrashUtil;
 import org.commcare.views.dialogs.StandardAlertDialog;
 import org.javarosa.core.io.StreamsUtil;
