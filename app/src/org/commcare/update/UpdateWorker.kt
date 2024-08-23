@@ -14,6 +14,7 @@ import org.commcare.resources.ResourceInstallContext
 import org.commcare.resources.model.InstallCancelled
 import org.commcare.resources.model.InstallRequestSource
 import org.commcare.tasks.ResultAndError
+import org.javarosa.core.services.Logger
 
 /**
  * Used to stage an update for the seated app in the background. Does not perform
@@ -42,7 +43,10 @@ class UpdateWorker(appContext: Context, workerParams: WorkerParameters)
             job.invokeOnCompletion { exception: Throwable? ->
                 when {
                     exception is CancellationException -> handleUpdateResult(ResultAndError(AppInstallStatus.Cancelled))
-                    exception != null -> handleUpdateResult(ResultAndError(AppInstallStatus.UnknownFailure))
+                    exception != null -> {
+                        Logger.exception("Unknown error while app update", exception);
+                        handleUpdateResult(ResultAndError(AppInstallStatus.UnknownFailure))
+                    }
                 }
             }
 
