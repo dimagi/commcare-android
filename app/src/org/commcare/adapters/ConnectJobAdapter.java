@@ -299,7 +299,7 @@ public class ConnectJobAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         boolean isLearning = job.getStatus() == ConnectJobRecord.STATUS_LEARNING;
         String appId = isLearning ? job.getLearnAppInfo().getAppId() : job.getDeliveryAppInfo().getAppId();
 
-        if(ConnectManager.isAppInstalled(appId)) {
+        if(launcher!=null && ConnectManager.isAppInstalled(appId)) {
             launcher.launchApp(appId, isLearning);
         }
         else {
