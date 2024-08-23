@@ -52,5 +52,21 @@
     <declare-styleable name="FilePreference">
         <attr name="file_type" format="string"/>
     </declare-styleable>
-
+    <declare-styleable name="RoundedButton">
+        <attr name="roundButtonHeight" format="dimension" />
+        <attr name="roundButtonRadius" format="dimension"/>
+        <attr name="roundButtonBackgroundColor" format="color"/>
+        <attr name="roundButtonTextColor" format="color"/>
+        <attr name="roundButtonIconTintColor" format="color"/>
+        <attr name="roundButtonIcon" format="reference"/>
+        <attr name="roundButtonIconLeftAlign" format="boolean"/>
+        <attr name="roundButtonLeftPadding" format="dimension" />
+        <attr name="roundButtonRightPadding" format="dimension" />
+        <attr name="roundButtonFontFamily" format="reference" />
+        <attr name="roundButtonBorderVisible" format="boolean" />
+        <attr name="roundButtonBorderColor" format="color" />
+        <attr name="roundButtonBorderRadius" format="dimension" />
+        <attr name="roundButtonBorderWidth" format="dimension" />
+        <attr name="roundButtonTextSize" format="dimension"/>
+    </declare-styleable>
 </resources>
