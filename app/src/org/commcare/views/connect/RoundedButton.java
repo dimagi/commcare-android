@@ -24,7 +24,7 @@ public class RoundedButton extends androidx.appcompat.widget.AppCompatButton {
     private static final int DEFAULT_BACKGROUND_COLOR = Color.WHITE;
     private static final int DEFAULT_TEXT_COLOR = Color.BLACK;
     private static final int DEFAULT_ICON_TINT_COLOR = Color.WHITE;
-    private static final int DEFAULT_PADDING = 16;
+    private static final int DEFAULT_PADDING = 24;
     private static final boolean DEFAULT_ICON_LEFT_ALIGN = false;
     private static final int DEFAULT_FONT_RES_ID = R.font.roboto_regular;
     private static final boolean DEFAULT_BORDER_VISIBLE = false;
@@ -72,13 +72,15 @@ public class RoundedButton extends androidx.appcompat.widget.AppCompatButton {
                 float textSize = a.getDimension(R.styleable.RoundedButton_roundButtonTextSize, spToPx(DEFAULT_TEXT_SIZE));
                 Drawable icon = a.getDrawable(R.styleable.RoundedButton_roundButtonIcon);
 
+                int iconPadding = a.getDimensionPixelSize(R.styleable.RoundedButton_roundButtonIconPadding, dpToPx(16));
+                setCompoundDrawablePadding(iconPadding);
+
                 setBackgroundDrawable(radius, backgroundColor, borderVisible, borderColor, borderRadius,borderWidth);
                 setTextColor(textColor);
                 setButtonHeight(buttonHeight);
                 setPadding(leftPadding, 0, rightPadding, 0);
                 setFontFamily(fontFamily);
                 setTextSize(textSize);
-
                 if (icon != null) {
                     setIcon(icon, iconTintColor, iconLeftAlign);
                 }
@@ -92,6 +94,9 @@ public class RoundedButton extends androidx.appcompat.widget.AppCompatButton {
             setPadding(dpToPx(DEFAULT_PADDING), 0, dpToPx(DEFAULT_PADDING), 0);
             setTextSize(spToPx(DEFAULT_TEXT_SIZE));
         }
+
+        setAllCaps(false);
+
     }
 
     private float spToPx(float sp) {
