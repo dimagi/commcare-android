@@ -105,6 +105,11 @@
         <package android:name="org.commcare.dalvik.reminders" />
         <package android:name="callout.commcare.org.sendussd" />
         <package android:name="org.commcare.dalvik.abha" />
+        <package android:name="com.dimagi.biometric" />
+        <package android:name="org.rdtoolkit" />
+        <package android:name="richard.chard.lu.android.areamapper" />
+        <package android:name="org.commcare.respiratory" />
+        <package android:name="com.simprints.id" />
     </queries>
 
     <application
