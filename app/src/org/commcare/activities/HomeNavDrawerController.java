@@ -164,6 +164,9 @@ public class HomeNavDrawerController {
                 case UPDATE_CC_DRAWER_ITEM_ID:
                     activity.startCommCareUpdate();
                     break;
+                case INCOMPLETE_FORMS_ITEM_ID:
+                    activity.goToFormArchive(true);
+                    break;
             }
         };
     }
