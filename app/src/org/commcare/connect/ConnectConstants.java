@@ -1,11 +1,11 @@
-package org.commcare.activities.connect;
+package org.commcare.connect;
 
 /**
  * Constants used for ConnectID, i.e. when passing params to activities
  *
  * @author dviggiano
  */
-public class ConnectIdConstants {
+public class ConnectConstants {
     public static final int ConnectIdTaskIdOffset = 1000;
     public static final String METHOD = "METHOD";
     public static final String CREATE = "CREATE";

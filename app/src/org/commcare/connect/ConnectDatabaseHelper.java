@@ -1,4 +1,4 @@
-package org.commcare.activities.connect;
+package org.commcare.connect;
 
 import android.content.Context;
 
@@ -24,7 +24,7 @@ import java.util.Vector;
  *
  * @author dviggiano
  */
-public class ConnectIdDatabaseHelper {
+public class ConnectDatabaseHelper {
     private static final Object connectDbHandleLock = new Object();
     private static SQLiteDatabase connectDatabase;
 
@@ -129,7 +129,7 @@ public class ConnectIdDatabaseHelper {
         getConnectStorage(context, ConnectLinkedAppRecord.class).write(record);
     }
 
-    public static void setRegistrationPhase(Context context, ConnectIdTask phase) {
+    public static void setRegistrationPhase(Context context, ConnectTask phase) {
         ConnectUserRecord user = getUser(context);
         if (user != null) {
             user.setRegistrationPhase(phase);

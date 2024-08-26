@@ -6,6 +6,8 @@ import android.os.Handler;
 import android.widget.Toast;
 
 import org.commcare.activities.CommCareActivity;
+import org.commcare.connect.ConnectConstants;
+import org.commcare.connect.network.ConnectNetworkHelper;
 import org.commcare.core.network.AuthInfo;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
@@ -51,11 +53,11 @@ public class ConnectIdPhoneVerificationActivity extends CommCareActivity<Connect
 
         setTitle(getString(R.string.connect_verify_phone_title));
 
-        method = Integer.parseInt(getIntent().getStringExtra(ConnectIdConstants.METHOD));
-        primaryPhone = getIntent().getStringExtra(ConnectIdConstants.PHONE);
-        allowChange = getIntent().getStringExtra(ConnectIdConstants.CHANGE).equals("true");
-        username = getIntent().getStringExtra(ConnectIdConstants.USERNAME);
-        password = getIntent().getStringExtra(ConnectIdConstants.PASSWORD);
+        method = Integer.parseInt(getIntent().getStringExtra(ConnectConstants.METHOD));
+        primaryPhone = getIntent().getStringExtra(ConnectConstants.PHONE);
+        allowChange = getIntent().getStringExtra(ConnectConstants.CHANGE).equals("true");
+        username = getIntent().getStringExtra(ConnectConstants.USERNAME);
+        password = getIntent().getStringExtra(ConnectConstants.PASSWORD);
 
         uiController.setupUI();
 
@@ -167,20 +169,20 @@ public class ConnectIdPhoneVerificationActivity extends CommCareActivity<Connect
             }
         }
 
-        boolean isBusy = !ConnectIdNetworkHelper.post(this, getString(urlId), authInfo, params, false,
-                new ConnectIdNetworkHelper.INetworkResultHandler() {
+        boolean isBusy = !ConnectNetworkHelper.post(this, getString(urlId), authInfo, params, false,
+                new ConnectNetworkHelper.INetworkResultHandler() {
                     @Override
                     public void processSuccess(int responseCode, InputStream responseData) {
                         try {
                             String responseAsString = new String(StreamsUtil.inputStreamToByteArray(responseData));
                             if (responseAsString.length() > 0) {
                                 JSONObject json = new JSONObject(responseAsString);
-                                String key = ConnectIdConstants.CONNECT_KEY_SECRET;
+                                String key = ConnectConstants.CONNECT_KEY_SECRET;
                                 if (json.has(key)) {
                                     password = json.getString(key);
                                 }
 
-                                key = ConnectIdConstants.CONNECT_KEY_SECONDARY_PHONE;
+                                key = ConnectConstants.CONNECT_KEY_SECONDARY_PHONE;
                                 if (json.has(key)) {
                                     recoveryPhone = json.getString(key);
                                     updateMessage();
@@ -244,8 +246,8 @@ public class ConnectIdPhoneVerificationActivity extends CommCareActivity<Connect
 
         params.put("token", uiController.getCode());
 
-        boolean isBusy = !ConnectIdNetworkHelper.post(this, getString(urlId), authInfo, params, false,
-                new ConnectIdNetworkHelper.INetworkResultHandler() {
+        boolean isBusy = !ConnectNetworkHelper.post(this, getString(urlId), authInfo, params, false,
+                new ConnectNetworkHelper.INetworkResultHandler() {
                     @Override
                     public void processSuccess(int responseCode, InputStream responseData) {
                         String username = "";
@@ -255,12 +257,12 @@ public class ConnectIdPhoneVerificationActivity extends CommCareActivity<Connect
                                 String responseAsString = new String(
                                         StreamsUtil.inputStreamToByteArray(responseData));
                                 JSONObject json = new JSONObject(responseAsString);
-                                String key = ConnectIdConstants.CONNECT_KEY_USERNAME;
+                                String key = ConnectConstants.CONNECT_KEY_USERNAME;
                                 if (json.has(key)) {
                                     username = json.getString(key);
                                 }
 
-                                key = ConnectIdConstants.CONNECT_KEY_NAME;
+                                key = ConnectConstants.CONNECT_KEY_NAME;
                                 if (json.has(key)) {
                                     displayName = json.getString(key);
                                 }
@@ -314,14 +316,14 @@ public class ConnectIdPhoneVerificationActivity extends CommCareActivity<Connect
 
         Intent intent = new Intent(getIntent());
         if (method == MethodRecoveryPrimary) {
-            intent.putExtra(ConnectIdConstants.SECRET, password);
-            intent.putExtra(ConnectIdConstants.CHANGE, changeNumber);
+            intent.putExtra(ConnectConstants.SECRET, password);
+            intent.putExtra(ConnectConstants.CHANGE, changeNumber);
         } else if (method == MethodRecoveryAlternate) {
-            intent.putExtra(ConnectIdConstants.USERNAME, username);
-            intent.putExtra(ConnectIdConstants.NAME, name);
-            intent.putExtra(ConnectIdConstants.ALT_PHONE, altPhone);
+            intent.putExtra(ConnectConstants.USERNAME, username);
+            intent.putExtra(ConnectConstants.NAME, name);
+            intent.putExtra(ConnectConstants.ALT_PHONE, altPhone);
         } else {
-            intent.putExtra(ConnectIdConstants.CHANGE, changeNumber);
+            intent.putExtra(ConnectConstants.CHANGE, changeNumber);
         }
 
         setResult(success ? RESULT_OK : RESULT_CANCELED, intent);

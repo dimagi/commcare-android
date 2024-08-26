@@ -32,7 +32,7 @@ import org.commcare.CommCareApplication;
 import org.commcare.activities.components.FormEntryConstants;
 import org.commcare.activities.components.FormEntryInstanceState;
 import org.commcare.activities.components.FormEntrySessionWrapper;
-import org.commcare.activities.connect.ConnectIdManager;
+import org.commcare.connect.ConnectManager;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
@@ -566,7 +566,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
             return;
         }
         CommCareApplication.instance().closeUserSession();
-        ConnectIdManager.signOut();
+        ConnectManager.signOut();
         setResult(RESULT_OK);
         finish();
     }

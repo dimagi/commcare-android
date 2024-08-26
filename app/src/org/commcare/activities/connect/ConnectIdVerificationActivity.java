@@ -6,6 +6,7 @@ import android.os.Bundle;
 import androidx.biometric.BiometricManager;
 
 import org.commcare.activities.CommCareActivity;
+import org.commcare.connect.ConnectConstants;
 import org.commcare.dalvik.R;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.WithUIController;
@@ -145,10 +146,10 @@ public class ConnectIdVerificationActivity extends CommCareActivity<ConnectIdVer
         BiometricsHelper.ConfigurationStatus pin = BiometricsHelper.checkPinStatus(this, biometricManager);
         boolean configured = fingerprint == BiometricsHelper.ConfigurationStatus.Configured ||
                 pin == BiometricsHelper.ConfigurationStatus.Configured;
-        intent.putExtra(ConnectIdConstants.CONFIGURED, configured);
+        intent.putExtra(ConnectConstants.CONFIGURED, configured);
 
-        intent.putExtra(ConnectIdConstants.PASSWORD, passwordOnly);
-        intent.putExtra(ConnectIdConstants.ENROLL_FAIL, failedEnrollment);
+        intent.putExtra(ConnectConstants.PASSWORD, passwordOnly);
+        intent.putExtra(ConnectConstants.ENROLL_FAIL, failedEnrollment);
 
         setResult(success ? RESULT_OK : RESULT_CANCELED, intent);
         finish();

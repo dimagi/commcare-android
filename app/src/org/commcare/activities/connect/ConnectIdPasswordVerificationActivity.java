@@ -6,6 +6,9 @@ import android.widget.Toast;
 
 import org.commcare.activities.CommCareActivity;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
+import org.commcare.connect.ConnectConstants;
+import org.commcare.connect.ConnectDatabaseHelper;
+import org.commcare.connect.network.ConnectNetworkHelper;
 import org.commcare.core.network.AuthInfo;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
@@ -45,8 +48,8 @@ public class ConnectIdPasswordVerificationActivity extends CommCareActivity<Conn
 
         setTitle(getString(R.string.connect_password));
 
-        phone = getIntent().getStringExtra(ConnectIdConstants.PHONE);
-        secretKey = getIntent().getStringExtra(ConnectIdConstants.SECRET);
+        phone = getIntent().getStringExtra(ConnectConstants.PHONE);
+        secretKey = getIntent().getStringExtra(ConnectConstants.SECRET);
 
         uiController.setupUI();
 
@@ -92,10 +95,10 @@ public class ConnectIdPasswordVerificationActivity extends CommCareActivity<Conn
     public void finish(boolean success, boolean forgot, String username, String name, String password) {
         Intent intent = new Intent(getIntent());
 
-        intent.putExtra(ConnectIdConstants.FORGOT, forgot);
-        intent.putExtra(ConnectIdConstants.USERNAME, username);
-        intent.putExtra(ConnectIdConstants.NAME, name);
-        intent.putExtra(ConnectIdConstants.PASSWORD, password);
+        intent.putExtra(ConnectConstants.FORGOT, forgot);
+        intent.putExtra(ConnectConstants.USERNAME, username);
+        intent.putExtra(ConnectConstants.NAME, name);
+        intent.putExtra(ConnectConstants.PASSWORD, password);
 
         setResult(success ? RESULT_OK : RESULT_CANCELED, intent);
         finish();
@@ -115,9 +118,9 @@ public class ConnectIdPasswordVerificationActivity extends CommCareActivity<Conn
         }
 
         Intent messageIntent = new Intent(this, ConnectIdMessageActivity.class);
-        messageIntent.putExtra(ConnectIdConstants.TITLE, R.string.connect_password_fail_title);
-        messageIntent.putExtra(ConnectIdConstants.MESSAGE, message);
-        messageIntent.putExtra(ConnectIdConstants.BUTTON, R.string.connect_password_fail_button);
+        messageIntent.putExtra(ConnectConstants.TITLE, R.string.connect_password_fail_title);
+        messageIntent.putExtra(ConnectConstants.MESSAGE, message);
+        messageIntent.putExtra(ConnectConstants.BUTTON, R.string.connect_password_fail_button);
 
         startActivityForResult(messageIntent, requestCode);
     }
@@ -132,7 +135,7 @@ public class ConnectIdPasswordVerificationActivity extends CommCareActivity<Conn
 
     public void handleButtonPress() {
         String password = uiController.getPassword();
-        ConnectUserRecord user = ConnectIdDatabaseHelper.getUser(this);
+        ConnectUserRecord user = ConnectDatabaseHelper.getUser(this);
         if (user != null) {
             //If we have the password stored locally, no need for network call
             if (password.equals(user.getPassword())) {
@@ -147,8 +150,8 @@ public class ConnectIdPasswordVerificationActivity extends CommCareActivity<Conn
             params.put("phone", phone);
             params.put("secret_key", secretKey);
 
-            boolean isBusy = !ConnectIdNetworkHelper.post(this, getString(R.string.ConnectConfirmPasswordURL),
-                    new AuthInfo.NoAuth(), params, false, new ConnectIdNetworkHelper.INetworkResultHandler() {
+            boolean isBusy = !ConnectNetworkHelper.post(this, getString(R.string.ConnectConfirmPasswordURL),
+                    new AuthInfo.NoAuth(), params, false, new ConnectNetworkHelper.INetworkResultHandler() {
                         @Override
                         public void processSuccess(int responseCode, InputStream responseData) {
                             String username = null;
@@ -158,12 +161,12 @@ public class ConnectIdPasswordVerificationActivity extends CommCareActivity<Conn
                                         StreamsUtil.inputStreamToByteArray(responseData));
                                 if (responseAsString.length() > 0) {
                                     JSONObject json = new JSONObject(responseAsString);
-                                    String key = ConnectIdConstants.CONNECT_KEY_USERNAME;
+                                    String key = ConnectConstants.CONNECT_KEY_USERNAME;
                                     if (json.has(key)) {
                                         username = json.getString(key);
                                     }
 
-                                    key = ConnectIdConstants.CONNECT_KEY_NAME;
+                                    key = ConnectConstants.CONNECT_KEY_NAME;
                                     if (json.has(key)) {
                                         name = json.getString(key);
                                     }

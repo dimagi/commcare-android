@@ -8,6 +8,8 @@ import com.nulabinc.zxcvbn.Strength;
 import com.nulabinc.zxcvbn.Zxcvbn;
 
 import org.commcare.activities.CommCareActivity;
+import org.commcare.connect.ConnectConstants;
+import org.commcare.connect.network.ConnectNetworkHelper;
 import org.commcare.core.network.AuthInfo;
 import org.commcare.dalvik.R;
 import org.commcare.interfaces.CommCareActivityUIController;
@@ -41,12 +43,12 @@ public class ConnectIdPasswordActivity extends CommCareActivity<ConnectIdPasswor
 
         uiController.setupUI();
 
-        username = getIntent().getStringExtra(ConnectIdConstants.USERNAME);
-        oldPassword = getIntent().getStringExtra(ConnectIdConstants.PASSWORD);
-        phone = getIntent().getStringExtra(ConnectIdConstants.PHONE);
-        secret = getIntent().getStringExtra(ConnectIdConstants.SECRET);
+        username = getIntent().getStringExtra(ConnectConstants.USERNAME);
+        oldPassword = getIntent().getStringExtra(ConnectConstants.PASSWORD);
+        phone = getIntent().getStringExtra(ConnectConstants.PHONE);
+        secret = getIntent().getStringExtra(ConnectConstants.SECRET);
 
-        String method = getIntent().getStringExtra(ConnectIdConstants.METHOD);
+        String method = getIntent().getStringExtra(ConnectConstants.METHOD);
         boolean passwordOnlyWorkflow = method != null && method.equals("true");
 
         uiController.setMessageText(passwordOnlyWorkflow ?
@@ -86,7 +88,7 @@ public class ConnectIdPasswordActivity extends CommCareActivity<ConnectIdPasswor
     public void finish(boolean success, String password) {
         Intent intent = new Intent(getIntent());
 
-        intent.putExtra(ConnectIdConstants.PASSWORD, password);
+        intent.putExtra(ConnectConstants.PASSWORD, password);
 
         setResult(success ? RESULT_OK : RESULT_CANCELED, intent);
         finish();
@@ -134,8 +136,8 @@ public class ConnectIdPasswordActivity extends CommCareActivity<ConnectIdPasswor
 
         params.put("password", password);
 
-        boolean isBusy = !ConnectIdNetworkHelper.post(this, getString(urlId), authInfo, params, false,
-                new ConnectIdNetworkHelper.INetworkResultHandler() {
+        boolean isBusy = !ConnectNetworkHelper.post(this, getString(urlId), authInfo, params, false,
+                new ConnectNetworkHelper.INetworkResultHandler() {
                     @Override
                     public void processSuccess(int responseCode, InputStream responseData) {
                         finish(true, password);
