@@ -105,17 +105,20 @@ public class HomeNavDrawerController {
         boolean hideSavedFormsItem = !HiddenPreferences.isSavedFormsEnabled();
         boolean hideChangeLanguageItem = ChangeLocaleUtil.getLocaleNames().length <= 1;
         boolean hideTrainingItem = !CommCareApplication.instance().getCurrentApp().hasVisibleTrainingContent();
+        boolean hideIncompleteFormsItem = !HiddenPreferences.isIncompleteFormsEnabled();
         int numItemsToInclude = allDrawerItems.size()
                 - (hideChangeLanguageItem ? 1 : 0)
                 - (hideSavedFormsItem ? 1 : 0)
                 - (hideTrainingItem ? 1 : 0)
+                - (hideIncompleteFormsItem ? 1 : 0)
                 - (activity.showCommCareUpdateMenu ? 0 : 1);
 
         drawerItemsShowing = new NavDrawerItem[numItemsToInclude];
         int index = 0;
         for (String id : getAllItemIdsInOrder()) {
             NavDrawerItem item = allDrawerItems.get(id);
-            if (!excludeItem(id, hideChangeLanguageItem, hideSavedFormsItem, hideTrainingItem, !activity.showCommCareUpdateMenu)) {
+            if (!excludeItem(id, hideChangeLanguageItem, hideSavedFormsItem, hideTrainingItem,
+                    !activity.showCommCareUpdateMenu, hideIncompleteFormsItem)) {
                 drawerItemsShowing[index] = item;
                 index++;
             }
@@ -123,9 +126,11 @@ public class HomeNavDrawerController {
     }
 
     private boolean excludeItem(String itemId, boolean hideChangeLanguageItem,
-                                boolean hideSavedFormsItem, boolean hideTrainingItem, boolean hideCCUpdateItem) {
+                                boolean hideSavedFormsItem, boolean hideTrainingItem, boolean hideCCUpdateItem,
+                                boolean hideIncompleteFormsItem) {
         return (itemId.equals(CHANGE_LANGUAGE_DRAWER_ITEM_ID) && hideChangeLanguageItem) ||
                 (itemId.equals(SAVED_FORMS_ITEM_ID) && hideSavedFormsItem) ||
+                (itemId.equals(INCOMPLETE_FORMS_ITEM_ID) && hideIncompleteFormsItem) ||
                 (itemId.equals(TRAINING_DRAWER_ITEM_ID) && hideTrainingItem) ||
                 (itemId.equals(UPDATE_CC_DRAWER_ITEM_ID) && hideCCUpdateItem);
     }
