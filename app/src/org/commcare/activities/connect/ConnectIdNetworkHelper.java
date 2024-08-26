@@ -232,7 +232,7 @@ public class ConnectIdNetworkHelper {
             Context context, INetworkResultHandler handler) {
         return new ConnectorWithHttpResponseProcessor<>() {
             @Override
-            public void processSuccess(int responseCode, InputStream responseData) {
+            public void processSuccess(int responseCode, InputStream responseData, String apiVersion) {
                 onFinishProcessing(context);
                 handler.processSuccess(responseCode, responseData);
             }

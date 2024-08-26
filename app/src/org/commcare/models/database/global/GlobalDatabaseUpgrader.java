@@ -11,6 +11,7 @@ import org.commcare.android.database.global.models.AppAvailableToInstall;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.database.global.models.ApplicationRecordV1;
 import org.commcare.android.database.global.models.ConnectKeyRecord;
+import org.commcare.android.database.global.models.ConnectKeyRecordV6;
 import org.commcare.android.logging.ForceCloseLogEntry;
 import org.commcare.models.database.ConcreteAndroidDbHelper;
 import org.commcare.models.database.DbUtil;
@@ -55,6 +56,12 @@ class GlobalDatabaseUpgrader {
         if (oldVersion == 5) {
             if (upgradeFiveSix(db)) {
                 oldVersion = 6;
+            }
+        }
+
+        if (oldVersion == 6) {
+            if (upgradeSixSeven(db)) {
+                oldVersion = 7;
             }
         }
     }
@@ -125,7 +132,42 @@ class GlobalDatabaseUpgrader {
     }
 
     private boolean upgradeFiveSix(SQLiteDatabase db) {
-        return addTableForNewModel(db, ConnectKeyRecord.STORAGE_KEY, new ConnectKeyRecord());
+        return addTableForNewModel(db, ConnectKeyRecord.STORAGE_KEY, new ConnectKeyRecordV6());
+    }
+
+    private boolean upgradeSixSeven(SQLiteDatabase db) {
+        db.beginTransaction();
+
+        //Migrate the old ConnectKeyRecord in storage to the new version including isLocal
+        try {
+            db.execSQL(DbUtil.addColumnToTable(
+                    ConnectKeyRecord.STORAGE_KEY,
+                    ConnectKeyRecord.IS_LOCAL,
+                    "TEXT"));
+
+            SqlStorage<Persistable> oldStorage = new SqlStorage<>(
+                    ConnectKeyRecordV6.STORAGE_KEY,
+                    ConnectKeyRecordV6.class,
+                    new ConcreteAndroidDbHelper(c, db));
+
+            SqlStorage<Persistable> newStorage = new SqlStorage<>(
+                    ConnectKeyRecord.STORAGE_KEY,
+                    ConnectKeyRecord.class,
+                    new ConcreteAndroidDbHelper(c, db));
+
+            for (Persistable r : oldStorage) {
+                ConnectKeyRecordV6 oldRecord = (ConnectKeyRecordV6)r;
+                ConnectKeyRecord newRecord = ConnectKeyRecord.fromV6(oldRecord);
+                //set this new record to have same ID as the old one
+                newRecord.setID(oldRecord.getID());
+                newStorage.write(newRecord);
+            }
+
+            db.setTransactionSuccessful();
+            return true;
+        } finally {
+            db.endTransaction();
+        }
     }
 
     private static boolean addTableForNewModel(SQLiteDatabase db, String storageKey,
@@ -138,8 +180,6 @@ class GlobalDatabaseUpgrader {
 
             db.setTransactionSuccessful();
             return true;
-        } catch (Exception e) {
-            return false;
         } finally {
             db.endTransaction();
         }
