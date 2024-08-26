@@ -35,6 +35,7 @@ public class HomeNavDrawerController {
     private static final String LOGOUT_DRAWER_ITEM_ID = "home-logout";
     private static final String TRAINING_DRAWER_ITEM_ID = "training";
     private static final String UPDATE_CC_DRAWER_ITEM_ID = "update-cc";
+    private static final String INCOMPLETE_FORMS_ITEM_ID = "incomplete-forms";
 
     protected static final String KEY_DRAWER_WAS_OPEN = "drawer-open-before-rotation";
 
@@ -171,7 +172,8 @@ public class HomeNavDrawerController {
         return new String[]{
                 ABOUT_CC_DRAWER_ITEM_ID, TRAINING_DRAWER_ITEM_ID, SETTINGS_DRAWER_ITEM_ID,
                 ADVANCED_DRAWER_ITEM_ID, CHANGE_LANGUAGE_DRAWER_ITEM_ID, SAVED_FORMS_ITEM_ID,
-                UPDATE_DRAWER_ITEM_ID, SYNC_DRAWER_ITEM_ID, UPDATE_CC_DRAWER_ITEM_ID, LOGOUT_DRAWER_ITEM_ID};
+                INCOMPLETE_FORMS_ITEM_ID, UPDATE_DRAWER_ITEM_ID, SYNC_DRAWER_ITEM_ID, UPDATE_CC_DRAWER_ITEM_ID,
+                LOGOUT_DRAWER_ITEM_ID};
     }
 
     private static String getItemTitle(String id) {
@@ -190,6 +192,8 @@ public class HomeNavDrawerController {
                 return Localization.get("home.sync");
             case SAVED_FORMS_ITEM_ID:
                 return Localization.get("home.menu.saved.forms");
+            case INCOMPLETE_FORMS_ITEM_ID:
+                return Localization.get("app.workflow.incomplete.heading");
             case LOGOUT_DRAWER_ITEM_ID:
                 return Localization.get("home.logout");
             case TRAINING_DRAWER_ITEM_ID:
@@ -216,6 +220,9 @@ public class HomeNavDrawerController {
                 return R.drawable.ic_sync_nav_drawer;
             case SAVED_FORMS_ITEM_ID:
                 return R.drawable.ic_saved_forms_nav_drawer;
+            case INCOMPLETE_FORMS_ITEM_ID:
+                //TODO: Need to add an icon for this option
+                return -1;
             case LOGOUT_DRAWER_ITEM_ID:
                 return R.drawable.ic_logout_nav_drawer;
             case TRAINING_DRAWER_ITEM_ID:
