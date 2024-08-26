@@ -196,7 +196,7 @@ public class ConnectActivity extends CommCareActivity<ResourceEngineListener> {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
-        ConnectManager.handleFinishedActivity(requestCode, resultCode, intent);
+        ConnectManager.handleFinishedActivity(this, requestCode, resultCode, intent);
         super.onActivityResult(requestCode, resultCode, intent);
     }
 

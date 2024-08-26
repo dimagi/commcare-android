@@ -1,6 +1,7 @@
 package org.commcare.connect;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 
 import org.commcare.activities.CommCareActivity;
@@ -238,7 +239,8 @@ public class ConnectIdWorkflows {
         }
     }
 
-    public static boolean handleFinishedActivity(int requestCode, int resultCode, Intent intent) {
+    public static boolean handleFinishedActivity(CommCareActivity<?> activity, int requestCode, int resultCode, Intent intent) {
+        parentActivity = activity;
         boolean flagStartOfRegistration = false;
         boolean success = resultCode == Activity.RESULT_OK;
         ConnectTask nextRequestCode = ConnectTask.CONNECT_NO_ACTIVITY;

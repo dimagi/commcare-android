@@ -427,7 +427,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                 finish();
                 return;
             default:
-                ConnectManager.handleFinishedActivity(requestCode, resultCode, data);
+                ConnectManager.handleFinishedActivity(this, requestCode, resultCode, data);
                 return;
 
         }

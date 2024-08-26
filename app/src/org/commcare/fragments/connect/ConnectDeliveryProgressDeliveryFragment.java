@@ -54,39 +54,11 @@ public class ConnectDeliveryProgressDeliveryFragment extends Fragment {
                              Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_connect_progress_delivery, container, false);
 
-
-//        //NOTE: The commented code attempts to warn the user when max visits has been exceeded
-//        //But there's a bug where the buttons don't appear so the user gets stuck
-//        //Just proceeding into the app instead.
-//        boolean expired = job.getDaysRemaining() <= 0;
         launchButton = view.findViewById(R.id.connect_progress_button);
         launchButton.setVisibility(showDeliveryLaunch ? View.VISIBLE : View.GONE);
 
         launchButton.setOnClickListener(v -> {
-//            String title = null;
-//            String message = null;
-//            if(expired) {
-//                title = getString(R.string.connect_progress_expired_dialog_title);
-//                message = getString(R.string.connect_progress_expired);
-//            }
-//            else if(job.getCompletedVisits() >= job.getMaxVisits()) {
-//                title = getString(R.string.connect_progress_max_visits_dialog_title);
-//                message = getString(R.string.connect_progress_visits_completed);
-//            }
-//
-//            if(title != null) {
-//                new AlertDialog.Builder(getContext())
-//                        .setTitle(title)
-//                        .setMessage(message)
-//                        .setPositiveButton(R.string.proceed, (dialog, which) -> {
-//                            launchDeliveryApp(button);
-//                        })
-//                        .setNegativeButton(R.string.cancel, null)
-//                        .show();
-//            }
-//            else {
-                launchDeliveryApp(launchButton);
-//            }
+            launchDeliveryApp(launchButton);
         });
 
         Button reviewButton = view.findViewById(R.id.connect_progress_review_button);
