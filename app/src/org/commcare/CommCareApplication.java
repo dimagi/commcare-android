@@ -1263,7 +1263,8 @@ public class CommCareApplication extends MultiDexApplication implements Lifecycl
         super.onTrimMemory(level);
         Logger.log("memory-trim-request", "Memory level: " + getMemoryLevelName(level));
         switch (level) {
-            case TRIM_MEMORY_RUNNING_MODERATE, TRIM_MEMORY_RUNNING_LOW, TRIM_MEMORY_MODERATE, TRIM_MEMORY_BACKGROUND:
+            case TRIM_MEMORY_RUNNING_MODERATE, TRIM_MEMORY_RUNNING_LOW, TRIM_MEMORY_MODERATE,
+                    TRIM_MEMORY_BACKGROUND:
                 break;
             case TRIM_MEMORY_UI_HIDDEN:
                 // this could be an option to write the logs when the app goes to the background but
