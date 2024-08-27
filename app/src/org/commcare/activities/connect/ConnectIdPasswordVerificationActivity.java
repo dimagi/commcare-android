@@ -1,5 +1,6 @@
 package org.commcare.activities.connect;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Toast;
@@ -8,8 +9,9 @@ import org.commcare.activities.CommCareActivity;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.ConnectDatabaseHelper;
+import org.commcare.connect.network.ApiConnectId;
 import org.commcare.connect.network.ConnectNetworkHelper;
-import org.commcare.core.network.AuthInfo;
+import org.commcare.connect.network.IApiCallback;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
@@ -23,7 +25,7 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashMap;
+import java.text.ParseException;
 
 /**
  * Shows the page that prompts the user to enter their password
@@ -83,7 +85,7 @@ public class ConnectIdPasswordVerificationActivity extends CommCareActivity<Conn
         super.onActivityResult(requestCode, resultCode, intent);
 
         if (requestCode == PASSWORD_LOCK) {
-            finish(true, true, null, null, null);
+            finish(true, true);
         }
     }
 
@@ -92,13 +94,10 @@ public class ConnectIdPasswordVerificationActivity extends CommCareActivity<Conn
         return CustomProgressDialog.newInstance(null, getString(R.string.please_wait), taskId);
     }
 
-    public void finish(boolean success, boolean forgot, String username, String name, String password) {
+    public void finish(boolean success, boolean forgot) {
         Intent intent = new Intent(getIntent());
 
         intent.putExtra(ConnectConstants.FORGOT, forgot);
-        intent.putExtra(ConnectConstants.USERNAME, username);
-        intent.putExtra(ConnectConstants.NAME, name);
-        intent.putExtra(ConnectConstants.PASSWORD, password);
 
         setResult(success ? RESULT_OK : RESULT_CANCELED, intent);
         finish();
@@ -130,7 +129,7 @@ public class ConnectIdPasswordVerificationActivity extends CommCareActivity<Conn
     }
 
     public void handleForgotPress() {
-        finish(true, true, null, null, null);
+        finish(true, true);
     }
 
     public void handleButtonPress() {
@@ -140,56 +139,72 @@ public class ConnectIdPasswordVerificationActivity extends CommCareActivity<Conn
             //If we have the password stored locally, no need for network call
             if (password.equals(user.getPassword())) {
                 logRecoveryResult(true);
-                finish(true, false, null, null, null);
+                finish(true, false);
             } else {
                 handleWrongPassword();
             }
         } else {
-            HashMap<String, String> params = new HashMap<>();
-            params.put("password", password);
-            params.put("phone", phone);
-            params.put("secret_key", secretKey);
-
-            boolean isBusy = !ConnectNetworkHelper.post(this, getString(R.string.ConnectConfirmPasswordURL),
-                    new AuthInfo.NoAuth(), params, false, new ConnectNetworkHelper.INetworkResultHandler() {
-                        @Override
-                        public void processSuccess(int responseCode, InputStream responseData) {
-                            String username = null;
-                            String name = null;
-                            try {
-                                String responseAsString = new String(
-                                        StreamsUtil.inputStreamToByteArray(responseData));
-                                if (responseAsString.length() > 0) {
-                                    JSONObject json = new JSONObject(responseAsString);
-                                    String key = ConnectConstants.CONNECT_KEY_USERNAME;
-                                    if (json.has(key)) {
-                                        username = json.getString(key);
-                                    }
-
-                                    key = ConnectConstants.CONNECT_KEY_NAME;
-                                    if (json.has(key)) {
-                                        name = json.getString(key);
-                                    }
-                                }
-                            } catch (IOException | JSONException e) {
-                                Logger.exception("Parsing return from OTP request", e);
+            final Context context = this;
+            boolean isBusy = !ApiConnectId.checkPassword(this, phone, secretKey, password, new IApiCallback() {
+                @Override
+                public void processSuccess(int responseCode, InputStream responseData) {
+                    String username = null;
+                    String name = null;
+                    try {
+                        String responseAsString = new String(
+                                StreamsUtil.inputStreamToByteArray(responseData));
+                        if (responseAsString.length() > 0) {
+                            JSONObject json = new JSONObject(responseAsString);
+                            String key = ConnectConstants.CONNECT_KEY_USERNAME;
+                            if (json.has(key)) {
+                                username = json.getString(key);
                             }
-                            logRecoveryResult(true);
-                            finish(true, false, username, name, password);
-                        }
 
-                        @Override
-                        public void processFailure(int responseCode, IOException e) {
-                            handleWrongPassword();
-                        }
+                            key = ConnectConstants.CONNECT_KEY_NAME;
+                            if (json.has(key)) {
+                                name = json.getString(key);
+                            }
 
-                        @Override
-                        public void processNetworkFailure() {
-                            Toast.makeText(getApplicationContext(),
-                                    getString(R.string.recovery_network_unavailable),
-                                    Toast.LENGTH_SHORT).show();
+                            key = ConnectConstants.CONNECT_KEY_DB_KEY;
+                            if (json.has(key)) {
+                                ConnectDatabaseHelper.handleReceivedDbPassphrase(context, json.getString(key));
+                            }
+
+                            ConnectUserRecord user = new ConnectUserRecord(phone, username,
+                                    password, name, "");
+
+                            key = ConnectConstants.CONNECT_KEY_VALIDATE_SECONDARY_PHONE_BY;
+                            user.setSecondaryPhoneVerified(!json.has(key) || json.isNull(key));
+                            if (!user.getSecondaryPhoneVerified()) {
+                                user.setSecondaryPhoneVerifyByDate(ConnectNetworkHelper.parseDate(json.getString(key)));
+                            }
+
+                            //TODO: Need to get secondary phone from server
+                            ConnectDatabaseHelper.storeUser(context, user);
                         }
-                    });
+                    } catch (IOException | JSONException | ParseException e) {
+                        Logger.exception("Parsing return from OTP request", e);
+                    }
+
+                    logRecoveryResult(true);
+                    finish(true, false);
+                }
+
+                @Override
+                public void processFailure(int responseCode, IOException e) {
+                    handleWrongPassword();
+                }
+
+                @Override
+                public void processNetworkFailure() {
+                    ConnectNetworkHelper.showOutdatedApiError(getApplicationContext());
+                }
+
+                @Override
+                public void processOldApiError() {
+                    ConnectNetworkHelper.showOutdatedApiError(getApplicationContext());
+                }
+            });
 
             if (isBusy) {
                 Toast.makeText(this, R.string.busy_message, Toast.LENGTH_SHORT).show();

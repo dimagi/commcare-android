@@ -1,5 +1,6 @@
 package org.commcare.activities.connect;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Toast;
@@ -7,17 +8,23 @@ import android.widget.Toast;
 import org.commcare.activities.CommCareActivity;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.ConnectConstants;
+import org.commcare.connect.ConnectDatabaseHelper;
 import org.commcare.connect.ConnectManager;
+import org.commcare.connect.network.ApiConnectId;
 import org.commcare.connect.network.ConnectNetworkHelper;
-import org.commcare.core.network.AuthInfo;
+import org.commcare.connect.network.IApiCallback;
 import org.commcare.dalvik.R;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.WithUIController;
 import org.commcare.views.dialogs.CustomProgressDialog;
+import org.javarosa.core.io.StreamsUtil;
+import org.javarosa.core.services.Logger;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashMap;
+import java.text.ParseException;
 import java.util.Locale;
 import java.util.Random;
 
@@ -83,18 +90,6 @@ public class ConnectIdRegistrationActivity extends CommCareActivity<ConnectIdReg
         return userId.toString();
     }
 
-    public static String generatePassword() {
-        int passwordLength = 15;
-
-        String charSet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_!.?";
-        StringBuilder password = new StringBuilder();
-        for (int i = 0; i < passwordLength; i++) {
-            password.append(charSet.charAt(new Random().nextInt(charSet.length())));
-        }
-
-        return password.toString();
-    }
-
     public void updateStatus() {
         String error = uiController.getNameText().length() == 0 ?
                 getString(R.string.connect_register_error_name) : null;
@@ -122,20 +117,35 @@ public class ConnectIdRegistrationActivity extends CommCareActivity<ConnectIdReg
     public void createAccount() {
         uiController.setErrorText(null);
 
-        ConnectUserRecord tempUser = new ConnectUserRecord(phone, generateUserId(), generatePassword(),
+        ConnectUserRecord tempUser = new ConnectUserRecord(phone, generateUserId(), ConnectManager.generatePassword(),
                 uiController.getNameText(), "");
 
-        HashMap<String, String> params = new HashMap<>();
-        params.put("username", tempUser.getUserId());
-        params.put("password", tempUser.getPassword());
-        params.put("name", tempUser.getName());
-        params.put("phone_number", phone);
-
-        boolean isBusy = !ConnectNetworkHelper.post(this, getString(R.string.ConnectRegisterURL),
-                new AuthInfo.NoAuth(), params, false, new ConnectNetworkHelper.INetworkResultHandler() {
+        final Context context = this;
+        boolean isBusy = !ApiConnectId.registerUser(this, tempUser.getUserId(), tempUser.getPassword(),
+                tempUser.getName(), phone, new IApiCallback() {
                     @Override
                     public void processSuccess(int responseCode, InputStream responseData) {
                         user = tempUser;
+                        try {
+                            String responseAsString = new String(
+                                    StreamsUtil.inputStreamToByteArray(responseData));
+                            JSONObject json = new JSONObject(responseAsString);
+                            String key = ConnectConstants.CONNECT_KEY_DB_KEY;
+                            if (json.has(key)) {
+                                ConnectDatabaseHelper.handleReceivedDbPassphrase(context, json.getString(key));
+                            }
+
+                            key = ConnectConstants.CONNECT_KEY_VALIDATE_SECONDARY_PHONE_BY;
+                            user.setSecondaryPhoneVerified(!json.has(key) || json.isNull(key));
+                            if (!user.getSecondaryPhoneVerified()) {
+                                user.setSecondaryPhoneVerifyByDate(ConnectNetworkHelper.parseDate(json.getString(key)));
+                            }
+
+                            ConnectDatabaseHelper.storeUser(context, user);
+                        } catch (IOException | JSONException | ParseException e) {
+                            Logger.exception("Parsing return from confirm_secondary_otp", e);
+                        }
+
                         finish(true);
                     }
 
@@ -148,6 +158,11 @@ public class ConnectIdRegistrationActivity extends CommCareActivity<ConnectIdReg
                     @Override
                     public void processNetworkFailure() {
                         uiController.setErrorText(getString(R.string.recovery_network_unavailable));
+                    }
+
+                    @Override
+                    public void processOldApiError() {
+                        uiController.setErrorText(getString(R.string.recovery_network_outdated));
                     }
                 });
 
@@ -164,12 +179,8 @@ public class ConnectIdRegistrationActivity extends CommCareActivity<ConnectIdReg
         if (newName.equals(user.getName())) {
             finish(true);
         } else {
-            HashMap<String, String> params = new HashMap<>();
-            params.put("name", user.getName());
-
-            boolean isBusy = !ConnectNetworkHelper.post(this, getString(R.string.ConnectUpdateProfileURL),
-                    new AuthInfo.ProvidedAuth(user.getUserId(), user.getPassword(), false),
-                    params, false, new ConnectNetworkHelper.INetworkResultHandler() {
+            boolean isBusy = !ApiConnectId.updateUserProfile(this, user.getUserId(),
+                    user.getPassword(), newName, null, new IApiCallback() {
                         @Override
                         public void processSuccess(int responseCode, InputStream responseData) {
                             user.setName(newName);
@@ -185,6 +196,11 @@ public class ConnectIdRegistrationActivity extends CommCareActivity<ConnectIdReg
                         @Override
                         public void processNetworkFailure() {
                             uiController.setErrorText(getString(R.string.recovery_network_unavailable));
+                        }
+
+                        @Override
+                        public void processOldApiError() {
+                            uiController.setErrorText(getString(R.string.recovery_network_outdated));
                         }
                     });
 

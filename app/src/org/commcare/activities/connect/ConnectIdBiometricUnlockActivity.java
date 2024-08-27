@@ -5,10 +5,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
-import androidx.biometric.BiometricManager;
-import androidx.biometric.BiometricPrompt;
-
 import org.commcare.activities.CommCareActivity;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.ConnectManager;
@@ -18,20 +14,24 @@ import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.WithUIController;
 import org.commcare.utils.BiometricsHelper;
+import org.javarosa.core.services.Logger;
+
+import androidx.annotation.NonNull;
+import androidx.biometric.BiometricManager;
+import androidx.biometric.BiometricPrompt;
 
 /**
- * Gets the user to unlock ConnectID (via fingerprint, PIN, or password)
+ * Gets the user to unlock ConnectID via screen unlock (fingerprint, PIN, pattern...)
  *
  * @author dviggiano
  */
-public class ConnectIdLoginActivity extends CommCareActivity<ConnectIdLoginActivity>
+public class ConnectIdBiometricUnlockActivity extends CommCareActivity<ConnectIdBiometricUnlockActivity>
         implements WithUIController {
-    private BiometricPrompt.AuthenticationCallback biometricPromptCallbacks;
     private boolean attemptingFingerprint = false;
     private boolean allowPassword = false;
     private BiometricManager biometricManager;
 
-    private ConnectIdLoginActivityUiController uiController;
+    private ConnectIdBiometricUnlockActivityUiController uiController;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,24 +43,17 @@ public class ConnectIdLoginActivity extends CommCareActivity<ConnectIdLoginActiv
 
         allowPassword = getIntent().getStringExtra(ConnectConstants.ALLOW_PASSWORD).equals("true");
 
-        biometricPromptCallbacks = preparePromptCallbacks();
-
         biometricManager = BiometricManager.from(this);
 
         if (BiometricsHelper.isFingerprintConfigured(this, biometricManager)) {
             //Automatically try fingerprint first
             performFingerprintUnlock();
-        } else if (!BiometricsHelper.isPinConfigured(this, biometricManager)) {
-            //Automatically try password, it's the only option
+        } else if (BiometricsHelper.isPinConfigured(this, biometricManager)) {
+            performPinUnlock();
+        } else if (allowPassword) {
             performPasswordUnlock();
         } else {
-            if (allowPassword) {
-                //Show options for PIN or password
-                uiController.showAdditionalOptions();
-            } else {
-                //PIN is the only option
-                performPinUnlock();
-            }
+            Logger.exception("No unlock method available when trying to unlock ConnectID", new Exception("No unlock option"));
         }
     }
 
@@ -83,13 +76,14 @@ public class ConnectIdLoginActivity extends CommCareActivity<ConnectIdLoginActiv
 
     @Override
     public void initUIController() {
-        uiController = new ConnectIdLoginActivityUiController(this);
+        uiController = new ConnectIdBiometricUnlockActivityUiController(this);
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
-        BiometricsHelper.handlePinUnlockActivityResult(requestCode, resultCode, intent);
-        ConnectManager.handleFinishedActivity(requestCode, resultCode, intent);
+        if(!BiometricsHelper.handlePinUnlockActivityResult(requestCode, resultCode, intent)) {
+            ConnectManager.handleFinishedActivity(this, requestCode, resultCode, intent);
+        }
 
         super.onActivityResult(requestCode, resultCode, intent);
     }
@@ -102,7 +96,7 @@ public class ConnectIdLoginActivity extends CommCareActivity<ConnectIdLoginActiv
         attemptingFingerprint = true;
         boolean allowOtherOptions = BiometricsHelper.isPinConfigured(this, biometricManager) ||
                 allowPassword;
-        BiometricsHelper.authenticateFingerprint(this, biometricManager, allowOtherOptions, biometricPromptCallbacks);
+        BiometricsHelper.authenticateFingerprint(this, biometricManager, allowOtherOptions, preparePromptCallbacks());
     }
 
     public void performPasswordUnlock() {
@@ -110,7 +104,7 @@ public class ConnectIdLoginActivity extends CommCareActivity<ConnectIdLoginActiv
     }
 
     public void performPinUnlock() {
-        BiometricsHelper.authenticatePin(this, biometricManager, biometricPromptCallbacks);
+        BiometricsHelper.authenticatePin(this, biometricManager, preparePromptCallbacks());
     }
 
     private BiometricPrompt.AuthenticationCallback preparePromptCallbacks() {
@@ -122,13 +116,11 @@ public class ConnectIdLoginActivity extends CommCareActivity<ConnectIdLoginActiv
                 super.onAuthenticationError(errorCode, errString);
                 if (attemptingFingerprint) {
                     attemptingFingerprint = false;
-                    if (!BiometricsHelper.isPinConfigured(context, biometricManager) &&
-                            allowPassword) {
+                    if (BiometricsHelper.isPinConfigured(context, biometricManager)) {
+                        performPinUnlock();
+                    } else if(allowPassword){
                         //Automatically try password, it's the only option
                         performPasswordUnlock();
-                    } else {
-                        //Show options for PIN or password
-                        uiController.showAdditionalOptions();
                     }
                 }
             }
@@ -144,7 +136,6 @@ public class ConnectIdLoginActivity extends CommCareActivity<ConnectIdLoginActiv
             @Override
             public void onAuthenticationFailed() {
                 super.onAuthenticationFailed();
-                //TODO: Change path before Android takes action
                 Toast.makeText(getApplicationContext(), "Authentication failed",
                                 Toast.LENGTH_SHORT)
                         .show();

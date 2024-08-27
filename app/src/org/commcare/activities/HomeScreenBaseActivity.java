@@ -566,7 +566,6 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
             return;
         }
         CommCareApplication.instance().closeUserSession();
-        ConnectManager.signOut();
         setResult(RESULT_OK);
         finish();
     }
@@ -580,7 +579,9 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
 
     @Override
     public void onActivityResultSessionSafe(int requestCode, int resultCode, Intent intent) {
-        if (resultCode == RESULT_RESTART) {
+        if(ConnectManager.isConnectTask(requestCode)) {
+            ConnectManager.handleFinishedActivity(this, requestCode, resultCode, intent);
+        } else if (resultCode == RESULT_RESTART) {
             if (intent != null && intent.hasExtra(EXTRA_ENTITY_KEY))
                 selectedEntityPostSync = intent.getStringExtra(EXTRA_ENTITY_KEY);
 

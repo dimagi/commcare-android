@@ -2,7 +2,6 @@ package org.commcare.activities.connect;
 
 import android.view.View;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -17,7 +16,7 @@ import org.commcare.views.UiElement;
  * @author dviggiano
  */
 @ManagedUi(R.layout.screen_connect_verify)
-public class ConnectIdVerificationActivityUiController implements CommCareActivityUIController {
+public class ConnectIdBiometricConfigActivityUiController implements CommCareActivityUIController {
     @UiElement(value = R.id.connect_verify_title)
     private TextView titleTextView;
     @UiElement(value = R.id.connect_verify_message)
@@ -36,12 +35,9 @@ public class ConnectIdVerificationActivityUiController implements CommCareActivi
     @UiElement(value = R.id.connect_verify_pin_button)
     private Button pinButton;
 
-    @UiElement(value = R.id.connect_verify_password_link)
-    private TextView passwordLink;
+    private final ConnectIdBiometricConfigActivity activity;
 
-    private ConnectIdVerificationActivity activity;
-
-    public ConnectIdVerificationActivityUiController(ConnectIdVerificationActivity activity) {
+    public ConnectIdBiometricConfigActivityUiController(ConnectIdBiometricConfigActivity activity) {
         this.activity = activity;
     }
 
@@ -49,7 +45,6 @@ public class ConnectIdVerificationActivityUiController implements CommCareActivi
     public void setupUI() {
         fingerprintButton.setOnClickListener(v -> activity.handleFingerprintButton());
         pinButton.setOnClickListener(v -> activity.handlePinButton());
-        passwordLink.setOnClickListener(v -> activity.handlePasswordButton());
     }
 
     @Override

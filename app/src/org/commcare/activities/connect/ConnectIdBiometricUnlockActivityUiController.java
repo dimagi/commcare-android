@@ -1,6 +1,5 @@
 package org.commcare.activities.connect;
 
-import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
@@ -15,19 +14,17 @@ import org.commcare.views.UiElement;
  * @author dviggiano
  */
 @ManagedUi(R.layout.screen_connect_login)
-public class ConnectIdLoginActivityUiController implements CommCareActivityUIController {
+public class ConnectIdBiometricUnlockActivityUiController implements CommCareActivityUIController {
     @UiElement(value = R.id.connect_pin_button)
     private Button pinButton;
-    @UiElement(value = R.id.connect_login_or)
-    private TextView orTextView;
     @UiElement(value = R.id.connect_password_button)
     private Button passwordButton;
     @UiElement(value = R.id.connect_trouble_link)
     private TextView troubleTextView;
 
-    protected final ConnectIdLoginActivity activity;
+    protected final ConnectIdBiometricUnlockActivity activity;
 
-    public ConnectIdLoginActivityUiController(ConnectIdLoginActivity activity) {
+    public ConnectIdBiometricUnlockActivityUiController(ConnectIdBiometricUnlockActivity activity) {
         this.activity = activity;
     }
 
@@ -41,12 +38,5 @@ public class ConnectIdLoginActivityUiController implements CommCareActivityUICon
     @Override
     public void refreshView() {
         //Nothing to do
-    }
-
-    public void showAdditionalOptions() {
-        pinButton.setVisibility(View.VISIBLE);
-        orTextView.setVisibility(View.VISIBLE);
-        passwordButton.setVisibility(View.VISIBLE);
-        troubleTextView.setVisibility(View.VISIBLE);
     }
 }
