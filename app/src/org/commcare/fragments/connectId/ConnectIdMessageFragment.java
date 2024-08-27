@@ -4,13 +4,14 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
 import org.commcare.activities.SettingsHelper;
 import org.commcare.activities.connect.ConnectIdActivity;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.ConnectDatabaseHelper;
 import org.commcare.connect.ConnectManager;
-import org.commcare.connect.ConnectTask;
+import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.ScreenConnectMessageBinding;
 
 import java.util.Locale;
@@ -96,7 +97,7 @@ public class ConnectIdMessageFragment extends Fragment {
             case ConnectConstants.CONNECT_REGISTRATION_SUCCESS:
                 if (success) {
                     ConnectManager.setStatus(ConnectManager.ConnectIdStatus.LoggedIn);
-                    ConnectDatabaseHelper.setRegistrationPhase(getActivity(), ConnectTask.CONNECT_NO_ACTIVITY);
+                    ConnectDatabaseHelper.setRegistrationPhase(getActivity(), ConnectConstants.CONNECT_NO_ACTIVITY);
                     requireActivity().setResult(RESULT_OK);
                     requireActivity().finish();
                 }
@@ -115,7 +116,7 @@ public class ConnectIdMessageFragment extends Fragment {
                 break;
             case ConnectConstants.CONNECT_RECOVERY_SUCCESS:
                 ConnectManager.setStatus(ConnectManager.ConnectIdStatus.LoggedIn);
-                ConnectDatabaseHelper.setRegistrationPhase(getActivity(), ConnectTask.CONNECT_NO_ACTIVITY);
+                ConnectDatabaseHelper.setRegistrationPhase(getActivity(), ConnectConstants.CONNECT_NO_ACTIVITY);
                 requireActivity().setResult(RESULT_OK);
                 requireActivity().finish();
                 break;
@@ -126,6 +127,25 @@ public class ConnectIdMessageFragment extends Fragment {
                     directions = ConnectIdMessageFragmentDirections.actionConnectidMessageToConnectidBiometricConfig(ConnectConstants.CONNECT_REGISTRATION_CONFIGURE_BIOMETRICS);
                 }
                 break;
+            case ConnectConstants.CONNECT_RECOVERY_VERIFY_PASSWORD:
+                //                nextRequestCode = success ? ConnectTask.CONNECT_RECOVERY_CHANGE_PIN :
+//                        ConnectTask.CONNECT_RECOVERY_VERIFY_PRIMARY_PHONE;
+//                if (success) {
+//                    forgotPassword = intent.getBooleanExtra(ConnectConstants.FORGOT, false);
+//                    if (forgotPassword) {
+//                        nextRequestCode = ConnectTask.CONNECT_RECOVERY_ALT_PHONE_MESSAGE;
+//                    }
+//                }
+                if(success){
+                    if(ConnectIdActivity.forgotPassword){
+                        directions =ConnectIdMessageFragmentDirections.actionConnectidMessageSelf(getString(R.string.connect_recovery_alt_title),getString(R.string.connect_recovery_alt_message),ConnectConstants.CONNECT_RECOVERY_ALT_PHONE_MESSAGE,getString(R.string.connect_recovery_alt_button),null);
+                    }else{
+                        directions=ConnectIdMessageFragmentDirections.actionConnectidMessageToConnectidPin(ConnectConstants.CONNECT_RECOVERY_CHANGE_PIN,ConnectIdActivity.recoverPhone,ConnectIdActivity.recoverSecret).setRecover(true).setChange(true);
+                    }
+                }else{
+                    directions=ConnectIdMessageFragmentDirections.actionConnectidMessageToConnectidPhoneVerify(ConnectConstants.CONNECT_RECOVERY_VERIFY_PRIMARY_PHONE,String.format(Locale.getDefault(), "%d",
+                            ConnectIdPhoneVerificationFragmnet.MethodRecoveryPrimary),ConnectIdActivity.recoverPhone,ConnectIdActivity.recoverPhone,null,null).setAllowChange(false);
+                }
             case ConnectConstants.CONNECT_UNLOCK_ALT_PHONE_MESSAGE:
                 if (success) {
                     if (secondButton) {

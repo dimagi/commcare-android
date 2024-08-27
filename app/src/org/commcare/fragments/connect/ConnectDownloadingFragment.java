@@ -9,14 +9,10 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.fragment.app.Fragment;
-import androidx.navigation.NavDirections;
-import androidx.navigation.Navigation;
-
 import org.commcare.activities.connect.ConnectActivity;
-import org.commcare.connect.ConnectManager;
 import org.commcare.android.database.connect.models.ConnectAppRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
+import org.commcare.connect.ConnectManager;
 import org.commcare.dalvik.R;
 import org.commcare.engine.resource.AppInstallStatus;
 import org.commcare.engine.resource.ResourceInstallUtils;
@@ -27,6 +23,10 @@ import org.commcare.views.notifications.NotificationActionButtonInfo;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.services.locale.LocaleTextException;
 import org.javarosa.core.services.locale.Localization;
+
+import androidx.fragment.app.Fragment;
+import androidx.navigation.NavDirections;
+import androidx.navigation.Navigation;
 
 public class ConnectDownloadingFragment extends Fragment implements ResourceEngineListener {
 

@@ -1,24 +1,22 @@
 package org.commcare.activities.connect;
 
+import android.content.Context;
+import android.content.Intent;
+import android.os.Bundle;
+
+import org.commcare.android.database.connect.models.ConnectUserRecord;
+import org.commcare.connect.ConnectConstants;
+import org.commcare.connect.ConnectDatabaseHelper;
+import org.commcare.connect.ConnectManager;
+import org.commcare.dalvik.R;
+import org.commcare.fragments.connectId.ConnectIdBiometricConfigFragment;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.NavDirections;
 import androidx.navigation.fragment.NavHostFragment;
 
-import android.content.Context;
-import android.content.Intent;
-import android.os.Bundle;
-import org.commcare.android.database.connect.models.ConnectUserRecord;
-import org.commcare.connect.ConnectConstants;
-import org.commcare.connect.ConnectDatabaseHelper;
-import org.commcare.connect.ConnectManager;
-import org.commcare.connect.ConnectTask;
-import org.commcare.dalvik.R;
-import org.commcare.fragments.connect.ConnectDownloadingFragment;
-import org.commcare.fragments.connectId.ConnectIdBiometricConfigFragment;
-
-import static org.commcare.connect.ConnectIdWorkflows.completeSignIn;
 
 public class ConnectIdActivity extends AppCompatActivity {
     static NavController controller;
@@ -32,7 +30,7 @@ public class ConnectIdActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode,resultCode,data);
-        if(requestCode==ConnectTask.CONNECT_UNLOCK_PIN.getRequestCode()) {
+        if(requestCode==ConnectConstants.CONNECT_UNLOCK_PIN) {
             getCurrentFragment().onActivityResult(requestCode, resultCode, data);
         }
         if(requestCode==ConnectManager.CONNECTID_REQUEST_CODE){
@@ -99,14 +97,14 @@ public class ConnectIdActivity extends AppCompatActivity {
     public static void beginRegistration1(Context parent) {
         forgotPassword = false;
         forgotPin = false;
-        ConnectTask requestCode = ConnectTask.CONNECT_NO_ACTIVITY;
+        int requestCode = ConnectConstants.CONNECT_NO_ACTIVITY;
         switch (ConnectManager.getStatus()) {
             case NotIntroduced ->
                     navDirections = org.commcare.fragments.connectId.ConnectIdRecoveryDecisionFragmentDirections.actionConnectidRecoveryDecisionSelf();
             case Registering -> {
                 ConnectUserRecord user = ConnectDatabaseHelper.getUser(parent);
-                ConnectTask phase = user.getRegistrationPhase();
-                if (phase != ConnectTask.CONNECT_NO_ACTIVITY) {
+                int phase = user.getRegistrationPhase();
+                if (phase != ConnectConstants.CONNECT_NO_ACTIVITY) {
                     requestCode = phase;
                 } else if (user.shouldForcePin()) {
                     navDirections = org.commcare.fragments.connectId.ConnectIdRecoveryDecisionFragmentDirections.actionConnectidRecoveryDecisionToConnectidPin(ConnectConstants.CONNECT_UNLOCK_PIN, user.getPrimaryPhone(), user.getPassword());
@@ -121,7 +119,7 @@ public class ConnectIdActivity extends AppCompatActivity {
             }
         }
 
-        if (requestCode != ConnectTask.CONNECT_NO_ACTIVITY) {
+        if (requestCode != ConnectConstants.CONNECT_NO_ACTIVITY) {
             if (navDirections != null) {
                 controller.navigate(navDirections);
             }
@@ -146,19 +144,6 @@ public class ConnectIdActivity extends AppCompatActivity {
         if (navDirections != null) {
             controller.navigate(navDirections);
         }
-    }
-
-    private ConnectTask completeUnlock(Context parent) {
-        ConnectUserRecord user = ConnectDatabaseHelper.getUser(parent);
-        if (user.shouldRequireSecondaryPhoneVerification()) {
-            return ConnectTask.CONNECT_UNLOCK_ALT_PHONE_MESSAGE;
-        } else {
-            ConnectDatabaseHelper.setRegistrationPhase(this, ConnectTask.CONNECT_NO_ACTIVITY);
-            setResult(RESULT_OK);
-           finish();
-        }
-
-        return ConnectTask.CONNECT_NO_ACTIVITY;
     }
 
     public static void beginSecondaryPhoneVerification(Context parent) {

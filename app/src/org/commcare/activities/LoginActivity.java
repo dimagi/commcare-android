@@ -16,28 +16,15 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
-import androidx.biometric.BiometricManager;
-import androidx.biometric.BiometricPrompt;
-import androidx.core.app.ActivityCompat;
-import androidx.core.util.Pair;
-import androidx.preference.PreferenceManager;
-import androidx.work.WorkManager;
-
 import com.scottyab.rootbeer.RootBeer;
-
-import java.util.ArrayList;
-import java.util.Date;
 
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
-import org.commcare.activities.connect.ConnectIdActivity;
+import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
+import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.ConnectManager;
-import org.commcare.android.database.app.models.UserKeyRecord;
-import org.commcare.android.database.global.models.ApplicationRecord;
-import org.commcare.connect.ConnectTask;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.engine.resource.AppInstallStatus;
@@ -72,6 +59,17 @@ import org.commcare.views.notifications.NotificationMessageFactory;
 import org.commcare.views.notifications.NotificationMessageFactory.StockMessages;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
+
+import java.util.ArrayList;
+import java.util.Date;
+
+import androidx.annotation.NonNull;
+import androidx.biometric.BiometricManager;
+import androidx.biometric.BiometricPrompt;
+import androidx.core.app.ActivityCompat;
+import androidx.core.util.Pair;
+import androidx.preference.PreferenceManager;
+import androidx.work.WorkManager;
 
 /**
  * @author ctsims
@@ -426,7 +424,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
             invalidateOptionsMenu();
             usernameBeforeRotation = passwordOrPinBeforeRotation = null;
         }
-        else if(requestCode == ConnectTask.CONNECT_UNLOCK_PIN.getRequestCode()) {
+        else if(requestCode == ConnectConstants.CONNECT_UNLOCK_PIN) {
             setResult(RESULT_OK);
             ConnectManager.goToConnectJobsList();
             finish();

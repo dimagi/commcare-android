@@ -254,6 +254,9 @@
             android:id="@+id/action_connectid_message_to_connectid_phone"
             app:popUpTo="@id/connectid_message"
             app:destination="@id/connectid_phone" />
+        <action
+            android:id="@+id/action_connectid_message_self"
+            app:destination="@id/connectid_message" />
 
     </fragment>
 

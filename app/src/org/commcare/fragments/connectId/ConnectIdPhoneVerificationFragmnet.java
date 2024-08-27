@@ -9,7 +9,6 @@ import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.auth.api.phone.SmsRetriever;
@@ -20,7 +19,6 @@ import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.ConnectDatabaseHelper;
 import org.commcare.connect.ConnectManager;
-import org.commcare.connect.ConnectTask;
 import org.commcare.connect.SMSBroadcastReceiver;
 import org.commcare.connect.SMSListener;
 import org.commcare.connect.network.ApiConnectId;
@@ -545,7 +543,7 @@ public class ConnectIdPhoneVerificationFragmnet extends Fragment {
             case ConnectConstants.CONNECT_VERIFY_ALT_PHONE -> {
                 if(success){
                     ConnectManager.setStatus(ConnectManager.ConnectIdStatus.LoggedIn);
-                    ConnectDatabaseHelper.setRegistrationPhase(getActivity(), ConnectTask.CONNECT_NO_ACTIVITY);
+                    ConnectDatabaseHelper.setRegistrationPhase(getActivity(), ConnectConstants.CONNECT_NO_ACTIVITY);
                     requireActivity().setResult(RESULT_OK);
                     requireActivity().finish();
                 }
@@ -556,7 +554,7 @@ public class ConnectIdPhoneVerificationFragmnet extends Fragment {
                     user.setSecondaryPhoneVerified(true);
                     ConnectDatabaseHelper.storeUser(requireActivity(), user);
                     ConnectManager.setStatus(ConnectManager.ConnectIdStatus.LoggedIn);
-                    ConnectDatabaseHelper.setRegistrationPhase(getActivity(), ConnectTask.CONNECT_NO_ACTIVITY);
+                    ConnectDatabaseHelper.setRegistrationPhase(getActivity(), ConnectConstants.CONNECT_NO_ACTIVITY);
                     requireActivity().setResult(RESULT_OK);
                     requireActivity().finish();
                 }

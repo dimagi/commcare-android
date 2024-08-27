@@ -9,16 +9,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import org.commcare.AppUtils;
-
-import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.work.BackoffPolicy;
-import androidx.work.Constraints;
-import androidx.work.ExistingPeriodicWorkPolicy;
-import androidx.work.NetworkType;
-import androidx.work.PeriodicWorkRequest;
-import androidx.work.WorkManager;
-
+import org.commcare.CommCareApplication;
 import org.commcare.activities.CommCareActivity;
+import org.commcare.activities.connect.ConnectActivity;
 import org.commcare.activities.connect.ConnectIdActivity;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.connect.models.ConnectAppRecord;
@@ -29,7 +22,6 @@ import org.commcare.android.database.connect.models.ConnectJobPaymentRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
-import org.commcare.CommCareApplication;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.commcaresupportlibrary.CommCareLauncher;
 import org.commcare.connect.network.ApiConnect;
@@ -48,8 +40,6 @@ import org.commcare.preferences.AppManagerDeveloperPreferences;
 import org.commcare.tasks.ResourceEngineListener;
 import org.commcare.tasks.templates.CommCareTask;
 import org.commcare.tasks.templates.CommCareTaskConnector;
-import org.commcare.utils.BiometricsHelper;
-import org.commcare.utils.CrashUtil;
 import org.commcare.views.dialogs.StandardAlertDialog;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.services.Logger;
@@ -74,6 +64,13 @@ import java.util.concurrent.TimeUnit;
 import javax.crypto.SecretKey;
 
 import androidx.annotation.Nullable;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.work.BackoffPolicy;
+import androidx.work.Constraints;
+import androidx.work.ExistingPeriodicWorkPolicy;
+import androidx.work.NetworkType;
+import androidx.work.PeriodicWorkRequest;
+import androidx.work.WorkManager;
 
 /**
  * Manager class for ConnectID, handles workflow navigation and user management
@@ -156,7 +153,7 @@ public class ConnectManager {
         if(manager.connectStatus == ConnectIdStatus.NotIntroduced) {
             ConnectUserRecord user = ConnectDatabaseHelper.getUser(manager.parentActivity);
             if (user != null) {
-                boolean registering = user.getRegistrationPhase() != ConnectTask.CONNECT_NO_ACTIVITY;
+                boolean registering = user.getRegistrationPhase() != ConnectConstants.CONNECT_NO_ACTIVITY;
                 manager.connectStatus = registering ? ConnectIdStatus.Registering : ConnectIdStatus.LoggedIn;
 
                 String remotePassphrase = ConnectDatabaseHelper.getConnectDbEncodedPassphrase(parent, false);
@@ -277,24 +274,12 @@ public class ConnectManager {
     }
 
     public static boolean isConnectTask(int code) {
-        return ConnectTask.isConnectTaskCode(code);
+        return true;
     }
 
     public static void handleFinishedActivity(int requestCode, int resultCode, Intent intent) {
-        if(ConnectIdWorkflows.handleFinishedActivity(requestCode, resultCode, intent)) {
             getInstance().connectStatus = ConnectIdStatus.Registering;
-        }
-    }
-    private static void completeSignin() {
-        ConnectManager instance = getInstance();
-        instance.connectStatus = ConnectIdStatus.LoggedIn;
 
-        scheduleHearbeat();
-        CrashUtil.registerConnectUser();
-
-        if(instance.loginListener != null) {
-            instance.loginListener.connectActivityComplete(true);
-        }
     }
 
     public static ConnectUserRecord getUser(Context context) {
@@ -396,14 +381,12 @@ public class ConnectManager {
     }
 
     public static void goToConnectJobsList() {
-        ConnectTask task = ConnectTask.CONNECT_MAIN;
-        Intent i = new Intent(manager.parentActivity, task.getNextActivity());
+        Intent i = new Intent(manager.parentActivity, ConnectActivity.class);
         manager.parentActivity.startActivity(i);
     }
 
     public static void goToActiveInfoForJob(Activity activity, boolean allowProgression) {
-        ConnectTask task = ConnectTask.CONNECT_JOB_INFO;
-        Intent i = new Intent(activity, task.getNextActivity());
+        Intent i = new Intent(activity, ConnectActivity.class);
         i.putExtra("info", true);
         i.putExtra("buttons", allowProgression);
         activity.startActivity(i);

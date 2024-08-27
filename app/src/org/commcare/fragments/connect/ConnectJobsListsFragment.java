@@ -1,15 +1,6 @@
 package org.commcare.fragments.connect;
 
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.lifecycle.Lifecycle;
-import androidx.viewpager2.adapter.FragmentStateAdapter;
-import androidx.viewpager2.widget.ViewPager2;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,14 +9,14 @@ import android.widget.TextView;
 
 import com.google.android.material.tabs.TabLayout;
 
+import org.commcare.CommCareApplication;
 import org.commcare.activities.CommCareActivity;
+import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.connect.ConnectDatabaseHelper;
 import org.commcare.connect.ConnectManager;
 import org.commcare.connect.IConnectAppLauncher;
-import org.commcare.connect.network.ConnectNetworkHelper;
-import org.commcare.android.database.connect.models.ConnectJobRecord;
-import org.commcare.CommCareApplication;
 import org.commcare.connect.network.ApiConnect;
+import org.commcare.connect.network.ConnectNetworkHelper;
 import org.commcare.connect.network.IApiCallback;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
@@ -42,6 +33,14 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+
+import androidx.annotation.NonNull;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.lifecycle.Lifecycle;
+import androidx.viewpager2.adapter.FragmentStateAdapter;
+import androidx.viewpager2.widget.ViewPager2;
 
 /**
  * Fragment for showing the two job lists (available and mine)

@@ -1,16 +1,16 @@
 package org.commcare.android.database.connect.models;
 
-import java.io.Serializable;
-import java.text.ParseException;
-import java.util.Date;
-
-import org.commcare.connect.network.ConnectNetworkHelper;
 import org.commcare.android.storage.framework.Persisted;
+import org.commcare.connect.network.ConnectNetworkHelper;
 import org.commcare.models.framework.Persisting;
 import org.commcare.modern.database.Table;
 import org.commcare.modern.models.MetaField;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.io.Serializable;
+import java.text.ParseException;
+import java.util.Date;
 
 /**
  * Data class for holding info related to a Connect job delivery

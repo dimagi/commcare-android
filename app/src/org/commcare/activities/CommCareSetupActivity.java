@@ -12,23 +12,12 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.biometric.BiometricManager;
-import androidx.biometric.BiometricPrompt;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
-
 import org.commcare.AppUtils;
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.activities.connect.ConnectActivity;
+import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.ConnectManager;
-import org.commcare.connect.ConnectTask;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.engine.resource.AppInstallStatus;
@@ -70,6 +59,17 @@ import org.javarosa.core.services.locale.Localization;
 import java.io.IOException;
 import java.security.SignatureException;
 import java.util.List;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.biometric.BiometricManager;
+import androidx.biometric.BiometricPrompt;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
 /**
  * Responsible for identifying the state of the application (uninstalled,
@@ -458,7 +458,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         String result = null;
-        if(requestCode== ConnectTask.CONNECT_UNLOCK_PIN.getRequestCode()){
+        if(requestCode== ConnectConstants.CONNECT_UNLOCK_PIN){
             ConnectManager.goToConnectJobsList();
             return;
         }

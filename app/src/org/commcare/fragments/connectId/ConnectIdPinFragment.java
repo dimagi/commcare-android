@@ -8,19 +8,13 @@ import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.TextView;
 import android.widget.Toast;
-
-import com.google.android.material.textfield.TextInputEditText;
-import com.google.android.material.textfield.TextInputLayout;
 
 import org.commcare.activities.connect.ConnectIdActivity;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.ConnectDatabaseHelper;
 import org.commcare.connect.ConnectManager;
-import org.commcare.connect.ConnectTask;
 import org.commcare.connect.network.ApiConnectId;
 import org.commcare.connect.network.ConnectNetworkHelper;
 import org.commcare.connect.network.IApiCallback;
@@ -361,7 +355,7 @@ public class ConnectIdPinFragment extends Fragment {
                             directions = ConnectIdPinFragmentDirections.actionConnectidPinToConnectidMessage(getString(R.string.connect_recovery_alt_title), getString(R.string.connect_recovery_alt_message), ConnectConstants.CONNECT_UNLOCK_ALT_PHONE_MESSAGE, getString(R.string.connect_password_fail_button), getString(R.string.connect_recovery_alt_change_button));
                         } else {
                             ConnectManager.setStatus(ConnectManager.ConnectIdStatus.LoggedIn);
-                            ConnectDatabaseHelper.setRegistrationPhase(getActivity(), ConnectTask.CONNECT_NO_ACTIVITY);
+                            ConnectDatabaseHelper.setRegistrationPhase(getActivity(), ConnectConstants.CONNECT_NO_ACTIVITY);
                             requireActivity().setResult(RESULT_OK);
                             requireActivity().finish();
                         }
@@ -374,7 +368,7 @@ public class ConnectIdPinFragment extends Fragment {
             case ConnectConstants.CONNECT_REGISTRATION_CONFIGURE_PIN -> {
                 if (success) {
                     ConnectIdActivity.forgotPin = false;
-                    ConnectDatabaseHelper.setRegistrationPhase(getActivity(), ConnectTask.CONNECT_REGISTRATION_ALTERNATE_PHONE);
+                    ConnectDatabaseHelper.setRegistrationPhase(getActivity(), ConnectConstants.CONNECT_REGISTRATION_ALTERNATE_PHONE);
                     directions = ConnectIdPinFragmentDirections.actionConnectidPinToConnectidPhone(ConnectConstants.CONNECT_REGISTRATION_ALTERNATE_PHONE, ConnectConstants.METHOD_CHANGE_ALTERNATE, "");
                     if (user != null) {
                         user.setPin(pin);
@@ -390,11 +384,11 @@ public class ConnectIdPinFragment extends Fragment {
                 ConnectIdActivity.forgotPin = forgot;
                 if (success) {
                     if (forgot) {
-                        ConnectDatabaseHelper.setRegistrationPhase(getActivity(), ConnectTask.CONNECT_REGISTRATION_CHANGE_PIN);
+                        ConnectDatabaseHelper.setRegistrationPhase(getActivity(), ConnectConstants.CONNECT_REGISTRATION_CHANGE_PIN);
                         directions = ConnectIdPinFragmentDirections.actionConnectidPinSelf(ConnectConstants.CONNECT_REGISTRATION_CHANGE_PIN, user.getPrimaryPhone(), "").setChange(true).setRecover(false);
 
                     } else {
-                        ConnectDatabaseHelper.setRegistrationPhase(getActivity(), ConnectTask.CONNECT_NO_ACTIVITY);
+                        ConnectDatabaseHelper.setRegistrationPhase(getActivity(), ConnectConstants.CONNECT_NO_ACTIVITY);
                         directions = ConnectIdPinFragmentDirections.actionConnectidPinToConnectidMessage(getString(R.string.connect_register_success_title), getString(R.string.connect_register_success_message), ConnectConstants.CONNECT_REGISTRATION_SUCCESS, getString(R.string.connect_register_success_button), null);
                     }
                 } else {
@@ -439,7 +433,7 @@ public class ConnectIdPinFragment extends Fragment {
             case ConnectConstants.CONNECT_REGISTRATION_CHANGE_PIN -> {
                 ConnectIdActivity.forgotPin = false;
                 if (success) {
-                    ConnectDatabaseHelper.setRegistrationPhase(getActivity(), ConnectTask.CONNECT_REGISTRATION_CONFIRM_PIN);
+                    ConnectDatabaseHelper.setRegistrationPhase(getActivity(), ConnectConstants.CONNECT_REGISTRATION_CONFIRM_PIN);
                 }
                 directions = ConnectIdPinFragmentDirections.actionConnectidPinSelf(ConnectConstants.CONNECT_REGISTRATION_CONFIRM_PIN, user.getPrimaryPhone(), "").setChange(false).setRecover(false);
             }

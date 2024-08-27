@@ -7,9 +7,6 @@ import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AutoCompleteTextView;
-import android.widget.Button;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import org.commcare.android.database.connect.models.ConnectUserRecord;
@@ -20,7 +17,6 @@ import org.commcare.connect.network.ApiConnectId;
 import org.commcare.connect.network.ConnectNetworkHelper;
 import org.commcare.connect.network.IApiCallback;
 import org.commcare.dalvik.R;
-import org.commcare.dalvik.databinding.ScreenConnectRecoveryDecisionBinding;
 import org.commcare.dalvik.databinding.ScreenConnectRegistrationBinding;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.services.Logger;
@@ -36,8 +32,6 @@ import java.util.Random;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
-
-import static org.commcare.connect.ConnectTask.CONNECT_REGISTRATION_CONFIGURE_BIOMETRICS;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -146,7 +140,7 @@ public class ConnectIdRegistrationFragment extends Fragment {
                 ConnectManager.setStatus(ConnectManager.ConnectIdStatus.Registering);
             }
             ConnectDatabaseHelper.storeUser(getActivity(), user);
-            ConnectDatabaseHelper.setRegistrationPhase(getActivity(), CONNECT_REGISTRATION_CONFIGURE_BIOMETRICS);
+            ConnectDatabaseHelper.setRegistrationPhase(getActivity(), ConnectConstants.CONNECT_REGISTRATION_CONFIGURE_BIOMETRICS);
             directions = ConnectIdRegistrationFragmentDirections.actionConnectidRegistrationToConnectidBiometricConfig(ConnectConstants.CONNECT_REGISTRATION_CONFIGURE_BIOMETRICS);
         } else {
             directions = ConnectIdRegistrationFragmentDirections.actionConnectidRegistrationToConnectidPhone(ConnectConstants.CONNECT_REGISTRATION_PRIMARY_PHONE,ConnectConstants.METHOD_REGISTER_PRIMARY,user.getPrimaryPhone());

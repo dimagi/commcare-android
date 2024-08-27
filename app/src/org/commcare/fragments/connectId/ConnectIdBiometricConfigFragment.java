@@ -6,9 +6,6 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.LinearLayout;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import org.commcare.activities.connect.ConnectIdActivity;
@@ -16,7 +13,6 @@ import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.ConnectDatabaseHelper;
 import org.commcare.connect.ConnectManager;
-import org.commcare.connect.ConnectTask;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.ScreenConnectVerifyBinding;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
@@ -25,7 +21,6 @@ import org.commcare.utils.BiometricsHelper;
 import org.javarosa.core.services.Logger;
 
 import java.util.Locale;
-import java.util.concurrent.Executor;
 
 import androidx.annotation.NonNull;
 import androidx.biometric.BiometricManager;
@@ -212,7 +207,7 @@ public class ConnectIdBiometricConfigFragment extends Fragment  {
         if (requestCode == PASSWORD_LOCK) {
             finish(true, true);
         }
-        if (requestCode == ConnectTask.CONNECT_UNLOCK_PIN.getRequestCode()) {
+        if (requestCode == ConnectConstants.CONNECT_UNLOCK_PIN) {
             finish(true, false);
         }
     }
@@ -294,7 +289,7 @@ public class ConnectIdBiometricConfigFragment extends Fragment  {
             case ConnectConstants.CONNECT_UNLOCK_BIOMETRIC -> {
                 if (success) {
                     ConnectManager.setStatus(ConnectManager.ConnectIdStatus.LoggedIn);
-                    ConnectDatabaseHelper.setRegistrationPhase(getActivity(), ConnectTask.CONNECT_NO_ACTIVITY);
+                    ConnectDatabaseHelper.setRegistrationPhase(getActivity(), ConnectConstants.CONNECT_NO_ACTIVITY);
                     requireActivity().setResult(RESULT_OK);
                     requireActivity().finish();
 

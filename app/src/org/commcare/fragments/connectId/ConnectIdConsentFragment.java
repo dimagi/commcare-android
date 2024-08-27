@@ -5,6 +5,7 @@ import android.text.method.LinkMovementMethod;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
 import org.commcare.connect.ConnectConstants;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.ScreenConnectConsentBinding;

@@ -1,24 +1,17 @@
 package org.commcare.fragments.connectId;
 
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.material.textfield.TextInputEditText;
-
 import org.commcare.activities.connect.ConnectIdActivity;
-import org.commcare.activities.connect.ConnectIdMessageActivity;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.ConnectDatabaseHelper;
 import org.commcare.connect.ConnectManager;
-import org.commcare.connect.ConnectTask;
 import org.commcare.connect.network.ApiConnectId;
 import org.commcare.connect.network.ConnectNetworkHelper;
 import org.commcare.connect.network.IApiCallback;
@@ -128,7 +121,7 @@ public class ConnectIdPasswordVerificationFragment extends Fragment {
                             directions = ConnectIdPasswordVerificationFragmentDirections.actionConnectidPasswordToConnectidMessage(getString(R.string.connect_recovery_alt_title), getString(R.string.connect_recovery_alt_message), ConnectConstants.CONNECT_UNLOCK_ALT_PHONE_MESSAGE, getString(R.string.connect_password_fail_button), getString(R.string.connect_recovery_alt_change_button));
                         } else {
                             ConnectManager.setStatus(ConnectManager.ConnectIdStatus.LoggedIn);
-                            ConnectDatabaseHelper.setRegistrationPhase(getActivity(), ConnectTask.CONNECT_NO_ACTIVITY);
+                            ConnectDatabaseHelper.setRegistrationPhase(getActivity(), ConnectConstants.CONNECT_NO_ACTIVITY);
                             requireActivity().setResult(RESULT_OK);
                             requireActivity().finish();
                         }
@@ -153,13 +146,10 @@ public class ConnectIdPasswordVerificationFragment extends Fragment {
             requestCode = PASSWORD_LOCK;
             message = R.string.connect_password_recovery_message;
         }
+        NavDirections directions = ConnectIdPasswordVerificationFragmentDirections.actionConnectidPasswordToConnectidMessage(getString(R.string.connect_password_fail_title), getString(message), ConnectConstants.CONNECT_RECOVERY_VERIFY_PASSWORD, getString(R.string.connect_recovery_success_button), null);
 
-        Intent messageIntent = new Intent(requireActivity(), ConnectIdMessageActivity.class);
-        messageIntent.putExtra(ConnectConstants.TITLE, R.string.connect_password_fail_title);
-        messageIntent.putExtra(ConnectConstants.MESSAGE, message);
-        messageIntent.putExtra(ConnectConstants.BUTTON, R.string.connect_password_fail_button);
+        Navigation.findNavController(binding.connectPasswordVerifyButton).navigate(directions);
 
-        startActivityForResult(messageIntent, requestCode);
     }
 
     private void logRecoveryResult(boolean success) {

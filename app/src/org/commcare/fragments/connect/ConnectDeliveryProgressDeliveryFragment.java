@@ -9,17 +9,15 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import org.commcare.activities.CommCareActivity;
-import org.commcare.android.database.connect.models.ConnectJobDeliveryRecord;
+import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectPaymentUnitRecord;
 import org.commcare.connect.ConnectManager;
-import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.dalvik.R;
 import org.commcare.views.dialogs.StandardAlertDialog;
 import org.javarosa.core.services.locale.Localization;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Locale;
