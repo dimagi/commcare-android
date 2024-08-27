@@ -52,5 +52,27 @@
     <declare-styleable name="FilePreference">
         <attr name="file_type" format="string"/>
     </declare-styleable>
+    <declare-styleable name="PhoneInputView">
+        <!-- Border Attributes -->
+        <attr name="borderVisible" format="boolean" />
+        <attr name="borderColor" format="color" />
+        <attr name="borderRadius" format="dimension" />
 
+        <!-- Country Code TextView Attributes -->
+        <attr name="countryCodeTextColor" format="color" />
+        <attr name="countryCodeTextSize" format="dimension" />
+
+        <!-- EditText Attributes -->
+        <attr name="editTextHintColor" format="color" />
+        <attr name="editTextHintSize" format="dimension" />
+        <attr name="editTextColor" format="color" />
+        <attr name="editTextSize" format="dimension" />
+
+        <!-- Divider Attributes -->
+        <attr name="dividerVisible" format="boolean" />
+        <attr name="dividerColor" format="color" />
+        <attr name="dividerWidth" format="dimension" />
+        <attr name="dividerLeftPadding" format="dimension" />
+        <attr name="dividerRightPadding" format="dimension" />
+    </declare-styleable>
 </resources>
