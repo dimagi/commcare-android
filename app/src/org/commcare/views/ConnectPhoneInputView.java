@@ -2,9 +2,7 @@ package org.commcare.views;
 
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
-import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.AttributeSet;
 import android.util.TypedValue;
@@ -18,24 +16,24 @@ import androidx.core.content.ContextCompat;
 
 import org.commcare.dalvik.R;
 
-public class PhoneInputView extends LinearLayout {
+public class ConnectPhoneInputView extends LinearLayout {
 
     private TextView tvCountryCode;
     private View dividerView;
     private EditText etPhoneNumber;
     private GradientDrawable backgroundDrawable;
 
-    public PhoneInputView(Context context) {
+    public ConnectPhoneInputView(Context context) {
         super(context);
         init(context, null);
     }
 
-    public PhoneInputView(Context context, AttributeSet attrs) {
+    public ConnectPhoneInputView(Context context, AttributeSet attrs) {
         super(context, attrs);
         init(context, attrs);
     }
 
-    public PhoneInputView(Context context, AttributeSet attrs, int defStyleAttr) {
+    public ConnectPhoneInputView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         init(context, attrs);
     }
