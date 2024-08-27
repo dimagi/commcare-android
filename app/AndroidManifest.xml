@@ -111,15 +111,6 @@
         android:theme="@style/AppBaseTheme"
         android:usesCleartextTraffic="true"
         tools:replace="android:label,android:icon,android:theme, android:allowBackup">
-        <activity
-            android:name="org.commcare.activities.TestingActivity"
-            android:exported="true" >
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
 
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_channel_id"
@@ -138,7 +129,11 @@
             android:name="org.commcare.activities.DispatchActivity"
             android:exported="true"
             android:label="@string/application_name">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
 
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
             <intent-filter>
                 <action android:name="org.commcare.dalvik.action.CommCareSession" />
 

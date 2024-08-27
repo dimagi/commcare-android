@@ -1,20 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:orientation="horizontal"
-    android:paddingVertical="16dp"
     android:layout_width="match_parent"
-    android:paddingHorizontal="16dp"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:paddingVertical="18dp"
+    android:paddingHorizontal="14dp" >
 
     <TextView
         android:id="@+id/tvCountryCode"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="+91"
-        android:textSize="16sp"
         android:paddingEnd="8dp"
-        android:textColor="@android:color/black" />
+        android:paddingStart="8dp"
+        android:textColor="@android:color/black"
+        android:textSize="16sp" />
 
     <View
         android:id="@+id/dividerView"
@@ -27,11 +26,10 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:hint="0000000000"
-        android:textSize="16sp"
-        android:text="2222"
+        android:background="@android:color/transparent"
         android:inputType="phone"
-        android:textColor="@android:color/black"
         android:paddingStart="8dp"
-        android:background="@android:color/transparent" />
+        android:paddingEnd="8dp"
+        android:textColor="@android:color/black"
+        android:textSize="16sp" />
 </LinearLayout>
