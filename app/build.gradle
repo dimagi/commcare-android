@@ -88,7 +88,6 @@ dependencies {
     implementation 'com.google.android.gms:play-services-identity:18.1.0'
     implementation 'com.google.android.gms:play-services-base:18.5.0'
 
-
     implementation('org.apache.james:apache-mime4j:0.7.2') {
         exclude module: 'commons-io'
     }
@@ -573,7 +572,7 @@ tasks.whenTaskAdded { task ->
             && "true" == isConsumerApp && "true" == runDownloadScripts) {
         task.dependsOn downloadRestoreFile
     }
-    if (task.name == 'assembleCommcareReleaseAndroidTest') {
+    if (task.name == 'assembleCommcareReleaseAndroidTest' || task.name == 'assembleCommcareDebugAndroidTest') {
         android.defaultConfig.buildConfigField "String", "HQ_API_USERNAME", "\"${project.ext.HQ_API_USERNAME}\""
         android.defaultConfig.buildConfigField "String", "HQ_API_PASSWORD", "\"${project.ext.HQ_API_PASSWORD}\""
     }

@@ -467,7 +467,7 @@
     <string name="area_format" cc:translatable="true">%1s sq m</string>
     <string name="parse_coordinates_failure" cc:translatable="true">Could not parse input coordinates</string>
     <string name="location_provider_disabled" cc:translatable="true">Turn on your location to receive location updates</string>
-    <string name="wait_for_location_fix"  cc:translatable="true">CommCare is still trying to get your location. Please wait or click Cancel to abort.</string>
+    <string name="wait_for_location_fix" cc:translatable="true">CommCare is still trying to get your location. Please wait or click Cancel to abort.</string>
     <string name="invalid_case_property_length" cc:translatable="true">Invalid %1s, value must be 255 characters or less</string>
     <string name="invalid_case_graph_error" cc:translatable="true">This form introduces an invalid case relationship</string>
     <string name="root_detected_title" cc:translatable="true">Rooted Device Detected</string>
@@ -498,7 +498,6 @@
     <string name="login_connect_secondary_phone_message">Please confirm your secondary phone by %s to keep using ConnectID.</string>
 
     <string name="login_input_auto">AUTO</string>
-
     <string name="choice_or">_____________    OR    _____________</string>
     <string name="busy_message">We are still busy processing your previous request. Please try again in some time.</string>
 
@@ -643,13 +642,6 @@
     <string name="connect_verify_phone_resend_wait">Didn\'t receive your code? Resend in %d s</string>
     <string name="connect_verify_phone_change">Change phone number</string>
     <string name="connect_verify_phone_verify">Verify code</string>
-
-    <string name="connect_pictures_title">Account Recovery</string>
-    <string name="connect_pictures_label">To help with account recovery, you can optionally take some photos to help identify you.</string>
-    <string name="connect_pictures_face">Face</string>
-    <string name="connect_pictures_id">Official ID</string>
-    <string name="connect_pictures_skip">Skip</string>
-    <string name="connect_pictures_continue">Continue</string>
 
     <string name="connect_last_update">Updated: %s</string>
 
