@@ -142,4 +142,9 @@ public class ConnectPhoneInputView extends LinearLayout {
     public void setOnEditTextFocusChangeListener(View.OnFocusChangeListener listener) {
         etPhoneNumber.setOnFocusChangeListener(listener);
     }
+
+    // Method to set the hint of the EditText
+    public void setEditTextHint(String hint) {
+        etPhoneNumber.setHint(hint);
+    }
 }
