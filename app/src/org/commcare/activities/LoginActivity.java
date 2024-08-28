@@ -96,7 +96,6 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     public static final String LOGIN_MODE = "login-mode";
     public static final String MANUAL_SWITCH_TO_PW_MODE = "manually-swithced-to-password-mode";
     public static final String CONNECTID_MANAGED_LOGIN = "cid-managed-login";
-    public static final String GO_TO_CONNECT_JOB_STATUS = "go-to-connect-job-status";
 
     private static final int TASK_KEY_EXCHANGE = 1;
     private static final int TASK_UPGRADE_INSTALL = 2;
@@ -386,7 +385,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                 blockRemoteKeyManagement, DataPullMode.NORMAL);
     }
 
-    private boolean tryLocalLogin(String username, String passwordOrPin,
+    private boolean tryLocalLogin(final String username, String passwordOrPin,
                                   final boolean warnMultipleAccounts, final boolean restoreSession,
                                   LoginMode loginMode, boolean blockRemoteKeyManagement,
                                   DataPullMode pullModeToUse) {
