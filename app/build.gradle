@@ -69,7 +69,11 @@ dependencies {
     implementation fileTree(include: '*.jar', exclude: 'regexp-me.jar', dir: 'libs')
     implementation(name: 'htmlspanner-custom', ext: 'aar')
     implementation 'com.github.dimagi:zebra-print-android:v1.3'
-    implementation 'com.simprints:LibSimprints:1.0.12'
+    implementation (name: 'LibSimprints-1.0.12', ext: 'aar')
+    implementation (name: 'mapbox-android-accounts-0.2.0', ext: 'aar')
+    implementation (name: 'realm-android-library-4.1.1', ext: 'aar')
+    implementation (name: 'volley-1.1.0', ext: 'aar')
+    implementation (name: 'storage-2.1.0', ext: 'aar')
     implementation 'androidx.appcompat:appcompat:1.2.0'
     implementation 'androidx.multidex:multidex:2.0.1'
     implementation 'androidx.cardview:cardview:1.0.0'
@@ -98,7 +102,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-messaging:21.1.0'
     implementation 'com.google.firebase:firebase-crashlytics:17.2.1'
     implementation 'androidx.legacy:legacy-support-core-ui:1.0.0'
-    implementation 'com.duolingo.open:rtl-viewpager:2.0.0'
+    implementation (name: 'rtl-viewpager-2.0.0', ext: 'aar')
     implementation('com.github.bumptech.glide:glide:4.9.0') {
         exclude group: 'com.android.support'
     }
