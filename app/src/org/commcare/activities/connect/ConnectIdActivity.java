@@ -35,7 +35,7 @@ public class ConnectIdActivity extends AppCompatActivity {
         if (requestCode == ConnectConstants.CONNECT_UNLOCK_PIN) {
             getCurrentFragment().onActivityResult(requestCode, resultCode, data);
         }
-        if (requestCode == ConnectConstants.CONNECTID_REQUEST_CODE) {
+        else if (requestCode == ConnectConstants.CONNECTID_REQUEST_CODE) {
             String value = "";
             if (data != null) {
                 value = data.getStringExtra("TASK");
