@@ -57,7 +57,7 @@ public class ConnectIdWorkflows {
                     requestCode = phase;
                 } else if (user.shouldForcePin()) {
                     requestCode = ConnectTask.CONNECT_UNLOCK_PIN;
-                }else if (user.shouldForcePassword()) {
+                } else if (user.shouldForcePassword()) {
                     requestCode = ConnectTask.CONNECT_UNLOCK_PASSWORD;
                 } else {
                     requestCode = ConnectTask.CONNECT_UNLOCK_BIOMETRIC;
@@ -137,7 +137,7 @@ public class ConnectIdWorkflows {
             }
             case CONNECT_REGISTRATION_ALTERNATE_PHONE,
                     CONNECT_VERIFY_ALT_PHONE_CHANGE,
-                    CONNECT_UNLOCK_ALT_PHONE_CHANGE-> params.put(ConnectConstants.METHOD, ConnectConstants.METHOD_CHANGE_ALTERNATE);
+                    CONNECT_UNLOCK_ALT_PHONE_CHANGE -> params.put(ConnectConstants.METHOD, ConnectConstants.METHOD_CHANGE_ALTERNATE);
             case CONNECT_REGISTRATION_SUCCESS -> {
                 //Show message screen indicating success
                 params.put(ConnectConstants.TITLE, R.string.connect_register_success_title);
@@ -183,16 +183,16 @@ public class ConnectIdWorkflows {
                 params.put(ConnectConstants.BUTTON, R.string.connect_password_fail_button);
                 params.put(ConnectConstants.BUTTON2, R.string.connect_recovery_alt_change_button);
             }
-            case CONNECT_RECOVERY_WRONG_PIN-> {
+            case CONNECT_RECOVERY_WRONG_PIN -> {
                 //Show message screen indicating wrong pin
                 params.put(ConnectConstants.TITLE, R.string.connect_pin_fail_title);
-                params.put(ConnectConstants.MESSAGE, ConnectManager.getFailureAttempt()>2?R.string.connect_pin_recovery_message:R.string.connect_pin_fail_message);
+                params.put(ConnectConstants.MESSAGE, ConnectManager.getFailureAttempt() > 2 ? R.string.connect_pin_recovery_message : R.string.connect_pin_fail_message);
                 params.put(ConnectConstants.BUTTON, R.string.connect_recovery_alt_button);
             }
-            case CONNECT_REGISTRATION_WRONG_PIN-> {
+            case CONNECT_REGISTRATION_WRONG_PIN -> {
                 //Show message screen indicating wrong pin
                 params.put(ConnectConstants.TITLE, R.string.connect_pin_fail_title);
-                params.put(ConnectConstants.MESSAGE, ConnectManager.getFailureAttempt()>2?R.string.connect_pin_confirm_message:R.string.connect_pin_fail_message);
+                params.put(ConnectConstants.MESSAGE, ConnectManager.getFailureAttempt() > 2 ? R.string.connect_pin_confirm_message : R.string.connect_pin_fail_message);
                 params.put(ConnectConstants.BUTTON, R.string.connect_recovery_alt_button);
             }
             case CONNECT_RECOVERY_VERIFY_ALT_PHONE -> {
@@ -342,7 +342,7 @@ public class ConnectIdWorkflows {
                 nextRequestCode = success ? ConnectTask.CONNECT_REGISTRATION_ALTERNATE_PHONE :
                         ConnectTask.CONNECT_REGISTRATION_VERIFY_PRIMARY_PHONE;
 
-                if(success) {
+                if (success) {
                     forgotPin = false;
                     ConnectUserRecord user = ConnectDatabaseHelper.getUser(parentActivity);
                     if (user != null) {
@@ -364,15 +364,15 @@ public class ConnectIdWorkflows {
             }
             case CONNECT_REGISTRATION_CONFIRM_PIN -> {
                 rememberPhase = success;
-                if(success) {
+                if (success) {
                     forgotPin = intent.getBooleanExtra(ConnectConstants.FORGOT, false);
                     nextRequestCode = forgotPin ? ConnectTask.CONNECT_REGISTRATION_CHANGE_PIN :
                             ConnectTask.CONNECT_REGISTRATION_SUCCESS;
-                }else {
+                } else {
                     if (intent != null) {
                         forgotPin = intent.getBooleanExtra(ConnectConstants.WRONG_PIN, false);
                         nextRequestCode = ConnectTask.CONNECT_REGISTRATION_WRONG_PIN;
-                    }else {
+                    } else {
                         nextRequestCode = ConnectTask.CONNECT_REGISTRATION_ALTERNATE_PHONE;
                     }
                 }
@@ -400,13 +400,13 @@ public class ConnectIdWorkflows {
             }
             case CONNECT_RECOVERY_VERIFY_PRIMARY_PHONE -> {
                 if (success) {
-                    if(intent.hasExtra(ConnectConstants.CONNECT_KEY_SECONDARY_PHONE)) {
+                    if (intent.hasExtra(ConnectConstants.CONNECT_KEY_SECONDARY_PHONE)) {
                         recoveryAltPhone = intent.getStringExtra(ConnectConstants.CONNECT_KEY_SECONDARY_PHONE);
                     }
 
                     //First try PIN, then password, then secondary OTP
                     nextRequestCode = ConnectTask.CONNECT_RECOVERY_VERIFY_PIN;
-                    if(forgotPin) {
+                    if (forgotPin) {
                         nextRequestCode = forgotPassword ? ConnectTask.CONNECT_RECOVERY_ALT_PHONE_MESSAGE :
                                 ConnectTask.CONNECT_RECOVERY_VERIFY_PASSWORD;
                     }
@@ -424,8 +424,8 @@ public class ConnectIdWorkflows {
                     } else {
                         nextRequestCode = ConnectTask.CONNECT_RECOVERY_SUCCESS;
                     }
-                }else{
-                    if(intent!=null) {
+                } else {
+                    if (intent != null) {
                         nextRequestCode = ConnectTask.CONNECT_RECOVERY_WRONG_PIN;
                     }
                 }
@@ -449,12 +449,12 @@ public class ConnectIdWorkflows {
             }
             case CONNECT_RECOVERY_WRONG_PIN -> {
                 if (success) {
-                    nextRequestCode = ConnectManager.getFailureAttempt()>2  ? ConnectTask.CONNECT_RECOVERY_VERIFY_ALT_PHONE : ConnectTask.CONNECT_RECOVERY_VERIFY_PIN;
+                    nextRequestCode = ConnectManager.getFailureAttempt() > 2 ? ConnectTask.CONNECT_RECOVERY_VERIFY_ALT_PHONE : ConnectTask.CONNECT_RECOVERY_VERIFY_PIN;
                 }
             }
             case CONNECT_REGISTRATION_WRONG_PIN -> {
                 if (success) {
-                    nextRequestCode = ConnectManager.getFailureAttempt()>2 ? ConnectTask.CONNECT_REGISTRATION_CHANGE_PIN : ConnectTask.CONNECT_REGISTRATION_CONFIRM_PIN;
+                    nextRequestCode = ConnectManager.getFailureAttempt() > 2 ? ConnectTask.CONNECT_REGISTRATION_CHANGE_PIN : ConnectTask.CONNECT_REGISTRATION_CONFIRM_PIN;
                 }
             }
             case CONNECT_RECOVERY_VERIFY_ALT_PHONE -> nextRequestCode = success ? ConnectTask.CONNECT_RECOVERY_CHANGE_PIN :
@@ -468,7 +468,7 @@ public class ConnectIdWorkflows {
             }
             case CONNECT_VERIFY_ALT_PHONE_CHANGE -> nextRequestCode = success ? ConnectTask.CONNECT_VERIFY_ALT_PHONE : ConnectTask.CONNECT_VERIFY_ALT_PHONE_MESSAGE;
             case CONNECT_VERIFY_ALT_PHONE -> {
-                if(success) {
+                if (success) {
                     completeSignIn();
                 }
             }
@@ -533,7 +533,7 @@ public class ConnectIdWorkflows {
                 }
             }
             case CONNECT_UNLOCK_ALT_PHONE_MESSAGE -> {
-                if(success) {
+                if (success) {
                     boolean change = intent.getBooleanExtra(ConnectConstants.BUTTON2, false);
 
                     nextRequestCode = change ? ConnectTask.CONNECT_UNLOCK_ALT_PHONE_CHANGE : ConnectTask.CONNECT_UNLOCK_VERIFY_ALT_PHONE;
@@ -541,7 +541,7 @@ public class ConnectIdWorkflows {
             }
             case CONNECT_UNLOCK_ALT_PHONE_CHANGE -> nextRequestCode = ConnectTask.CONNECT_UNLOCK_VERIFY_ALT_PHONE;
             case CONNECT_UNLOCK_VERIFY_ALT_PHONE -> {
-                if(success) {
+                if (success) {
                     ConnectUserRecord user = ConnectDatabaseHelper.getUser(parentActivity);
                     user.setSecondaryPhoneVerified(true);
                     ConnectDatabaseHelper.storeUser(parentActivity, user);
@@ -572,7 +572,7 @@ public class ConnectIdWorkflows {
 
     private static ConnectTask completeUnlock() {
         ConnectUserRecord user = ConnectDatabaseHelper.getUser(parentActivity);
-        if(user.shouldRequireSecondaryPhoneVerification()) {
+        if (user.shouldRequireSecondaryPhoneVerification()) {
             return ConnectTask.CONNECT_UNLOCK_ALT_PHONE_MESSAGE;
         } else {
             completeSignIn();
@@ -582,7 +582,7 @@ public class ConnectIdWorkflows {
     }
 
     private static void completeSignIn() {
-        if(listener != null) {
+        if (listener != null) {
             listener.connectActivityComplete(true);
         }
     }

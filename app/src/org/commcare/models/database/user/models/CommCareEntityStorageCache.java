@@ -184,7 +184,7 @@ public class CommCareEntityStorageCache implements EntityStorageCache {
     }
 
     public void primeCache(Hashtable<String, AsyncEntity> entitySet, String[][] cachePrimeKeys,
-            Detail detail) {
+                           Detail detail) {
         Vector<Integer> sortKeys = new Vector<>();
         String validKeys = buildValidKeys(sortKeys, detail.getFields());
         if ("".equals(validKeys)) {
@@ -253,7 +253,7 @@ public class CommCareEntityStorageCache implements EntityStorageCache {
     }
 
     private static void populateEntitySet(SQLiteDatabase db, String sqlStatement, String[] args,
-            Hashtable<String, AsyncEntity> entitySet) {
+                                          Hashtable<String, AsyncEntity> entitySet) {
         //TODO: This will _only_ query up to about a meg of data, which is an un-great limitation.
         //Should probably split this up SQL LIMIT based looped
         //For reference the current limitation is about 10k rows with 1 field each.

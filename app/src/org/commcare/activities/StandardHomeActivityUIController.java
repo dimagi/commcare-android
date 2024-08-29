@@ -1,13 +1,17 @@
 package org.commcare.activities;
 
 import android.annotation.SuppressLint;
-import android.os.Build;
+
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
+
+import android.content.Context;
 import android.view.ViewTreeObserver;
 
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
+import org.commcare.connect.ConnectManager;
 import org.commcare.adapters.HomeScreenAdapter;
 import org.commcare.dalvik.R;
 import org.commcare.interfaces.CommCareActivityUIController;
@@ -26,6 +30,9 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
 
     private final StandardHomeActivity activity;
 
+
+    private ConstraintLayout connectTile;
+
     private HomeScreenAdapter adapter;
 
     public StandardHomeActivityUIController(StandardHomeActivity activity) {
@@ -35,7 +42,8 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
     @Override
     public void setupUI() {
         activity.setContentView(R.layout.home_screen);
-        adapter = new HomeScreenAdapter(activity, getHiddenButtons(), StandardHomeActivity.isDemoUser());
+        connectTile = activity.findViewById(R.id.connect_alert_tile);
+        adapter = new HomeScreenAdapter(activity, getHiddenButtons(activity), StandardHomeActivity.isDemoUser());
         setupGridView();
     }
 
@@ -47,7 +55,13 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
         }
     }
 
-    private static Vector<String> getHiddenButtons() {
+    public void updateConnectTile(boolean show) {
+        ConnectManager.updateSecondaryPhoneConfirmationTile(activity, connectTile, show, v -> {
+            activity.performSecondaryPhoneVerification();
+        });
+    }
+
+    private static Vector<String> getHiddenButtons(Context context) {
         CommCareApp ccApp = CommCareApplication.instance().getCurrentApp();
         Vector<String> hiddenButtons = new Vector<>();
 
@@ -65,6 +79,9 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
         }
         if (!CommCareApplication.instance().getCurrentApp().hasVisibleTrainingContent()) {
             hiddenButtons.add("training");
+        }
+        if(ConnectManager.getAppRecord(context, ccApp.getUniqueId()) == null) {
+            hiddenButtons.add("connect");
         }
 
         return hiddenButtons;
