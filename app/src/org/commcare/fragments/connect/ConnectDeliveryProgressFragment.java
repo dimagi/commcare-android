@@ -163,7 +163,7 @@ public class ConnectDeliveryProgressFragment extends Fragment {
     public void onResume() {
         super.onResume();
 
-        if (ConnectManager.isUnlocked()) {
+        if (ConnectManager.isConnectIdIntroduced()) {
             refreshData();
         }
     }

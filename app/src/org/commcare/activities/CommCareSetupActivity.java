@@ -71,6 +71,8 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
+import static org.commcare.connect.ConnectManager.allowPassword;
+
 /**
  * Responsible for identifying the state of the application (uninstalled,
  * installed) and performing any necessary setup to get to a place where
@@ -101,14 +103,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     private static final String FORCE_VALIDATE_KEY = "validate";
     private static final String KEY_SHOW_NOTIFICATIONS_BUTTON = "show-notifications-button";
     public static final int MAX_ALLOWED_APPS = 4;
-
-    private BiometricManager biometricManager;
-    private BiometricPrompt.AuthenticationCallback biometricPromptCallbacks;
-
-    private boolean allowPassword = false;
-
-
-    private boolean attemptingFingerprint = false;
 
 
 
@@ -184,9 +178,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         if (checkForMultipleAppsViolation()) {
             return;
         }
-        biometricManager = BiometricManager.from(this);
-
-        biometricPromptCallbacks = preparePromptCallbacks();
 
         if(!fromManager) {
             ConnectManager.init(this);
@@ -215,43 +206,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             }
         }
     }
-
-    private BiometricPrompt.AuthenticationCallback preparePromptCallbacks() {
-        final Context context = this;
-        return new BiometricPrompt.AuthenticationCallback() {
-            @Override
-            public void onAuthenticationError(int errorCode,
-                                              @NonNull CharSequence errString) {
-                super.onAuthenticationError(errorCode, errString);
-                if (attemptingFingerprint) {
-                    attemptingFingerprint = false;
-                    if (BiometricsHelper.isPinConfigured(context, biometricManager) &&
-                            allowPassword) {
-                        //Automatically try password, it's the only option
-                        performPinUnlock();
-                    }
-                }
-            }
-
-            @Override
-            public void onAuthenticationSucceeded(
-                    @NonNull BiometricPrompt.AuthenticationResult result) {
-                super.onAuthenticationSucceeded(result);
-                ConnectManager.goToConnectJobsList();
-
-            }
-
-            @Override
-            public void onAuthenticationFailed() {
-                super.onAuthenticationFailed();
-                Toast.makeText(getApplicationContext(), "Authentication failed",
-                                Toast.LENGTH_SHORT)
-                        .show();
-            }
-        };
-    }
-
-
 
     private void loadIntentAndInstanceState(Bundle savedInstanceState) {
         if (savedInstanceState == null) {
@@ -486,7 +440,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                 setResult(RESULT_CANCELED);
                 finish();
                 return;
-            case ConnectManager.CONNECTID_REQUEST_CODE :
+            case ConnectConstants.CONNECTID_REQUEST_CODE :
                 if(resultCode==AppCompatActivity.RESULT_OK) {
                     Intent i = new Intent(this, ConnectActivity.class);
                     startActivity(i);
@@ -712,37 +666,17 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 
     private void updateConnectButton() {
         installFragment.updateConnectButton(!fromManager && !fromExternal && ConnectManager.isConnectIdIntroduced(), v -> {
-            if (BiometricsHelper.isFingerprintConfigured(this, biometricManager)) {
-                performFingerprintUnlock();
-            } else if (BiometricsHelper.isPinConfigured(this, biometricManager)) {
-                performPinUnlock();
+            if (BiometricsHelper.isFingerprintConfigured(this, ConnectManager.getBiometricManager(this))) {
+                ConnectManager.performFingerprintUnlock(this);
+            } else if (BiometricsHelper.isPinConfigured(this, ConnectManager.getBiometricManager(this))) {
+                ConnectManager.performPinUnlock(this);
             } else if (allowPassword) {
-                performPasswordUnlock();
+                ConnectManager.performPasswordUnlock();
             } else {
                 ConnectManager.goToConnectJobsList();
                 Logger.exception("No unlock method available when trying to unlock ConnectID", new Exception("No unlock option"));
             }
-//            ConnectManager.unlockConnect(this, success -> {
-//                if(success) {
-//                    ConnectManager.goToConnectJobsList();
-//                }
-//            });
         });
-    }
-
-    public void performPinUnlock() {
-        BiometricsHelper.authenticatePin(this, biometricManager, biometricPromptCallbacks);
-    }
-
-    public void performFingerprintUnlock() {
-        attemptingFingerprint = true;
-        boolean allowOtherOptions = BiometricsHelper.isPinConfigured(this, biometricManager) ||
-                allowPassword;
-        BiometricsHelper.authenticateFingerprint(this, biometricManager, allowOtherOptions, preparePromptCallbacks());
-    }
-
-    public void performPasswordUnlock() {
-
     }
 
     private void fail(NotificationMessage notificationMessage, boolean showAsPinnedNotifcation) {

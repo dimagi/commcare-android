@@ -31,7 +31,6 @@ configurations {
 }
 
 dependencies {
-    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     testImplementation 'junit:junit:4.12'
     testImplementation('org.robolectric:robolectric:4.8.2') {
         exclude(group: 'org.bouncycastle', module: 'bcprov-jdk15on')

@@ -40,6 +40,8 @@ import org.commcare.preferences.AppManagerDeveloperPreferences;
 import org.commcare.tasks.ResourceEngineListener;
 import org.commcare.tasks.templates.CommCareTask;
 import org.commcare.tasks.templates.CommCareTaskConnector;
+import org.commcare.utils.BiometricsHelper;
+import org.commcare.utils.CrashUtil;
 import org.commcare.views.dialogs.StandardAlertDialog;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.services.Logger;
@@ -63,7 +65,10 @@ import java.util.concurrent.TimeUnit;
 
 import javax.crypto.SecretKey;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.biometric.BiometricManager;
+import androidx.biometric.BiometricPrompt;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.work.BackoffPolicy;
 import androidx.work.Constraints;
@@ -71,6 +76,8 @@ import androidx.work.ExistingPeriodicWorkPolicy;
 import androidx.work.NetworkType;
 import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkManager;
+
+import static org.commcare.connect.ConnectConstants.CONNECTID_REQUEST_CODE;
 
 /**
  * Manager class for ConnectID, handles workflow navigation and user management
@@ -83,12 +90,18 @@ public class ConnectManager {
     private static final long BACKOFF_DELAY_FOR_HEARTBEAT_RETRY = 5 * 60 * 1000L; // 5 mins
     private static final String CONNECT_HEARTBEAT_REQUEST_NAME = "connect_hearbeat_periodic_request";
     private static final int APP_DOWNLOAD_TASK_ID = 4;
-    public static final int CONNECTID_REQUEST_CODE = 1034;
-
     public static final int MethodRegistrationPrimary = 1;
     public static final int MethodRecoveryPrimary = 2;
     public static final int MethodRecoveryAlternate = 3;
     public static final int MethodVerifyAlternate = 4;
+
+    public static boolean allowPassword = false;
+    private static boolean attemptingFingerprint = false;
+
+    private static BiometricManager biometricManager;
+    private static BiometricPrompt.AuthenticationCallback biometricPromptCallbacks;
+
+
 
     public static int getFailureAttempt() {
         return ConnectManager.getInstance().failedPinAttempts;
@@ -115,7 +128,7 @@ public class ConnectManager {
     }
 
     private static ConnectManager manager = null;
-    private static ConnectIdStatus connectStatus = ConnectIdStatus.NotIntroduced;
+    private ConnectIdStatus connectStatus = ConnectIdStatus.NotIntroduced;
     private CommCareActivity<?> parentActivity;
     private ConnectActivityCompleteListener loginListener;
 
@@ -138,33 +151,91 @@ public class ConnectManager {
     }
 
     public static void setStatus(ConnectIdStatus connectStatus) {
-        getInstance().connectStatus=connectStatus;
-    }
-
-    public static void launchConnectId(Context context){
-        Intent intent=new Intent(context, ConnectIdActivity.class);
-        context.startActivity(intent);
+        getInstance().connectStatus = connectStatus;
     }
 
     public static void init(CommCareActivity<?> parent) {
         ConnectManager manager = getInstance();
         manager.parentActivity = parent;
 
-        if(manager.connectStatus == ConnectIdStatus.NotIntroduced) {
+        if (manager.connectStatus == ConnectIdStatus.NotIntroduced) {
             ConnectUserRecord user = ConnectDatabaseHelper.getUser(manager.parentActivity);
             if (user != null) {
                 boolean registering = user.getRegistrationPhase() != ConnectConstants.CONNECT_NO_ACTIVITY;
                 manager.connectStatus = registering ? ConnectIdStatus.Registering : ConnectIdStatus.LoggedIn;
 
                 String remotePassphrase = ConnectDatabaseHelper.getConnectDbEncodedPassphrase(parent, false);
-                if(remotePassphrase == null) {
+                if (remotePassphrase == null) {
                     getRemoteDbPassphrase(parent, user);
                 }
-            } else if(ConnectDatabaseHelper.isDbBroken()) {
+            } else if (ConnectDatabaseHelper.isDbBroken()) {
                 //Corrupt DB, inform user to recover
                 ConnectDatabaseHelper.handleCorruptDb(parent);
             }
         }
+    }
+
+    private static BiometricPrompt.AuthenticationCallback preparePromptCallbacks(CommCareActivity<?> parent) {
+        biometricManager = BiometricManager.from(parent);
+
+        return new BiometricPrompt.AuthenticationCallback() {
+            @Override
+            public void onAuthenticationError(int errorCode,
+                                              @NonNull CharSequence errString) {
+                super.onAuthenticationError(errorCode, errString);
+                if (attemptingFingerprint) {
+                    attemptingFingerprint = false;
+                    if (BiometricsHelper.isPinConfigured(parent, biometricManager) &&
+                            allowPassword) {
+                        //Automatically try password, it's the only option
+                        performPinUnlock(parent);
+                    }
+                }
+            }
+
+            @Override
+            public void onAuthenticationSucceeded(
+                    @NonNull BiometricPrompt.AuthenticationResult result) {
+                super.onAuthenticationSucceeded(result);
+                goToConnectJobsList();
+
+            }
+
+            @Override
+            public void onAuthenticationFailed() {
+                super.onAuthenticationFailed();
+                Toast.makeText(parent.getApplicationContext(), "Authentication failed",
+                                Toast.LENGTH_SHORT)
+                        .show();
+            }
+        };
+    }
+
+    public static void performPinUnlock(CommCareActivity<?> parent) {
+        BiometricsHelper.authenticatePin(parent, biometricManager, biometricPromptCallbacks);
+    }
+
+
+    public static void performFingerprintUnlock(CommCareActivity<?> parent) {
+        biometricManager = BiometricManager.from(parent);
+        biometricPromptCallbacks= preparePromptCallbacks(parent);
+        attemptingFingerprint = true;
+        boolean allowOtherOptions = BiometricsHelper.isPinConfigured(parent, biometricManager) ||
+                allowPassword;
+        BiometricsHelper.authenticateFingerprint(parent, biometricManager, allowOtherOptions, biometricPromptCallbacks);
+    }
+
+    public static BiometricManager getBiometricManager(CommCareActivity<?> parent){
+        if(biometricManager!=null){
+            return biometricManager;
+        }else{
+            biometricManager=BiometricManager.from(parent);;
+            return  biometricManager;
+        }
+    }
+
+    public static void performPasswordUnlock() {
+
     }
 
     private static void scheduleHearbeat() {
@@ -203,12 +274,8 @@ public class ConnectManager {
                 && getInstance().connectStatus == ConnectIdStatus.LoggedIn;
     }
 
-    public static boolean isUnlocked() {
-        return AppManagerDeveloperPreferences.isConnectIdEnabled()
-                && getInstance().connectStatus == ConnectIdStatus.LoggedIn;
-    }
-
     private static final DateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy", Locale.getDefault());
+
     public static String formatDate(Date date) {
         return dateFormat.format(date);
     }
@@ -220,7 +287,7 @@ public class ConnectManager {
     public static boolean shouldShowSecondaryPhoneConfirmationTile(Context context) {
         boolean show = false;
 
-        if(isConnectIdIntroduced()) {
+        if (isConnectIdIntroduced()) {
             ConnectUserRecord user = getUser(context);
             show = !user.getSecondaryPhoneVerified();
         }
@@ -231,7 +298,7 @@ public class ConnectManager {
     public static void updateSecondaryPhoneConfirmationTile(Context context, ConstraintLayout tile, boolean show, View.OnClickListener listener) {
         tile.setVisibility(show ? View.VISIBLE : View.GONE);
 
-        if(show) {
+        if (show) {
             ConnectUserRecord user = ConnectManager.getUser(context);
             String dateStr = ConnectManager.formatDate(user.getSecondaryPhoneVerifyByDate());
             String message = context.getString(R.string.login_connect_secondary_phone_message, dateStr);
@@ -246,6 +313,18 @@ public class ConnectManager {
             noButton.setOnClickListener(v -> {
                 tile.setVisibility(View.GONE);
             });
+        }
+    }
+
+    public static void completeSignin() {
+        ConnectManager instance = getInstance();
+        instance.connectStatus = ConnectIdStatus.LoggedIn;
+
+        scheduleHearbeat();
+        CrashUtil.registerConnectUser();
+
+        if (instance.loginListener != null) {
+            instance.loginListener.connectActivityComplete(true);
         }
     }
 
@@ -278,7 +357,7 @@ public class ConnectManager {
     }
 
     public static void handleFinishedActivity(int requestCode, int resultCode, Intent intent) {
-            getInstance().connectStatus = ConnectIdStatus.Registering;
+        getInstance().connectStatus = ConnectIdStatus.Registering;
 
     }
 
@@ -301,7 +380,7 @@ public class ConnectManager {
         ConnectJobRecord job = null;
 
         ConnectAppRecord appRecord = getAppRecord(context, appId);
-        if(appRecord != null) {
+        if (appRecord != null) {
             job = ConnectDatabaseHelper.getJob(context, appRecord.getJobId());
         }
 
@@ -316,36 +395,16 @@ public class ConnectManager {
     public static void setActiveJob(ConnectJobRecord job) {
         ConnectManager.getInstance().activeJob = job;
     }
+
     public static ConnectJobRecord getActiveJob() {
-        return  ConnectManager.getInstance().activeJob;
+        return ConnectManager.getInstance().activeJob;
     }
 
-    public static void unlockConnect(CommCareActivity<?> parent, ConnectActivityCompleteListener listener) {
-        if(manager.connectStatus == ConnectIdStatus.LoggedIn) {
-            Intent intent=new Intent(parent,ConnectIdActivity.class);
-            Bundle bundle=new Bundle();
-            intent.putExtra("TASK",ConnectConstants.UNLOCK_CONNECT);
-            parent.startActivityForResult(intent,CONNECTID_REQUEST_CODE,bundle);
-//            ConnectIdActivity.unlockConnect(parent, success -> {
-//                if(success) {
-//                    completeSignin();
-//                }
-//                listener.connectActivityComplete(success);
-//            });
-        }
-    }
-
-    public static void registerUser(CommCareActivity<?> parent, ConnectActivityCompleteListener listener) {
-        Intent intent=new Intent(parent,ConnectIdActivity.class);
-        Bundle bundle=new Bundle();
-        bundle.putString("TASK",ConnectConstants.BIGIN_REGISTRATION);
-        parent.startActivityForResult(intent,CONNECTID_REQUEST_CODE,bundle);
-//        ConnectIdActivity.beginRegistration(parent, manager.connectStatus, success -> {
-//            if(success) {
-//                completeSignin();
-//            }
-//            listener.connectActivityComplete(success);
-//        });
+    public static void launchConnect(CommCareActivity<?> parent, String task, ConnectActivityCompleteListener listener) {
+        Intent intent = new Intent(parent, ConnectIdActivity.class);
+        Bundle bundle = new Bundle();
+        bundle.putString("TASK", task);
+        parent.startActivityForResult(intent, CONNECTID_REQUEST_CODE, bundle);
     }
 
     public static void handleConnectButtonPress(CommCareActivity<?> parent, ConnectActivityCompleteListener listener) {
@@ -355,16 +414,8 @@ public class ConnectManager {
 
         switch (manager.connectStatus) {
             case NotIntroduced, Registering -> {
-                Intent intent=new Intent(parent,ConnectIdActivity.class);
-                Bundle bundle=new Bundle();
-                bundle.putString("TASK",ConnectConstants.BIGIN_REGISTRATION);
-                parent.startActivityForResult(intent,ConnectManager.CONNECTID_REQUEST_CODE,bundle);
-//                ConnectIdActivity.beginRegistration(parent, connectStatus, success -> {
-//                    if(success) {
-//                        completeSignin();
-//                    }
-//                    listener.connectActivityComplete(success);
-//                });
+                launchConnect(parent, ConnectConstants.BEGIN_REGISTRATION, success -> {
+                });
             }
             case LoggedIn -> {
                 goToConnectJobsList();
@@ -372,20 +423,14 @@ public class ConnectManager {
         }
     }
 
-    public static void verifySecondaryPhone(CommCareActivity<?> parent, ConnectActivityCompleteListener listener) {
-        Intent intent=new Intent(parent,ConnectIdActivity.class);
-        Bundle bundle=new Bundle();
-        bundle.putString("TASK",ConnectConstants.VERIFY_PHONE);
-        parent.startActivity(intent,bundle);
-//        ConnectIdActivity.beginSecondaryPhoneVerification(parent,);
-    }
-
     public static void goToConnectJobsList() {
+        completeSignin();
         Intent i = new Intent(manager.parentActivity, ConnectActivity.class);
         manager.parentActivity.startActivity(i);
     }
 
     public static void goToActiveInfoForJob(Activity activity, boolean allowProgression) {
+        completeSignin();
         Intent i = new Intent(activity, ConnectActivity.class);
         i.putExtra("info", true);
         i.putExtra("buttons", allowProgression);
@@ -400,9 +445,9 @@ public class ConnectManager {
     }
 
     public static void checkConnectIdLink(CommCareActivity<?> activity, boolean autoLoggedIn, String appId, String username, String password, ConnectActivityCompleteListener callback) {
-        if(isLoginManagedByConnectId(appId, username)) {
+        if (isLoginManagedByConnectId(appId, username)) {
             //ConnectID is configured
-            if(!autoLoggedIn) {
+            if (!autoLoggedIn) {
                 //See if user wishes to permanently sever the connection
                 StandardAlertDialog d = new StandardAlertDialog(activity,
                         activity.getString(R.string.login_unlink_connectid_title),
@@ -411,10 +456,10 @@ public class ConnectManager {
                 d.setPositiveButton(activity.getString(R.string.login_link_connectid_yes), (dialog, which) -> {
                     activity.dismissAlertDialog();
 
-                    unlockConnect(activity, success -> {
-                        if(success) {
+                    launchConnect(activity, ConnectConstants.UNLOCK_CONNECT, success -> {
+                        if (success) {
                             ConnectLinkedAppRecord linkedApp = ConnectDatabaseHelper.getAppData(activity, appId, username);
-                            if(linkedApp != null) {
+                            if (linkedApp != null) {
                                 linkedApp.severConnectIdLink();
                                 ConnectDatabaseHelper.storeApp(activity, linkedApp);
                             }
@@ -441,11 +486,11 @@ public class ConnectManager {
             ConnectLinkedAppRecord linkedApp = ConnectDatabaseHelper.getAppData(activity, appId, username);
             //See if we've offered to link already
             Date firstOffer = linkedApp != null ? linkedApp.getLinkOfferDate1() : null;
-            if(firstOffer != null) {
+            if (firstOffer != null) {
                 isSecondOffer = true;
                 //See if we've done the second offer
                 Date secondOffer = linkedApp.getLinkOfferDate2();
-                if(secondOffer != null) {
+                if (secondOffer != null) {
                     //They've declined twice, we won't bug them again
                     offerToLink = false;
                 } else {
@@ -457,14 +502,14 @@ public class ConnectManager {
                 }
             }
 
-            if(offerToLink) {
-                if(linkedApp == null) {
+            if (offerToLink) {
+                if (linkedApp == null) {
                     //Create the linked app record (even if just to remember that we offered
                     linkedApp = ConnectDatabaseHelper.storeApp(activity, appId, username, false, "", false);
                 }
 
                 //Update that we offered
-                if(isSecondOffer) {
+                if (isSecondOffer) {
                     linkedApp.setLinkOfferDate2(new Date());
                 } else {
                     linkedApp.setLinkOfferDate1(new Date());
@@ -478,14 +523,14 @@ public class ConnectManager {
                 d.setPositiveButton(activity.getString(R.string.login_link_connectid_yes), (dialog, which) -> {
                     activity.dismissAlertDialog();
 
-                    unlockConnect(activity, success -> {
-                        if(success) {
+                    launchConnect(activity, ConnectConstants.UNLOCK_CONNECT, success -> {
+                        if (success) {
                             appRecordFinal.linkToConnectId(password);
                             ConnectDatabaseHelper.storeApp(activity, appRecordFinal);
 
                             //Link the HQ user by aqcuiring the SSO token for the first time
                             ConnectSsoHelper.retrieveHqSsoTokenAsync(activity, username, true, auth -> {
-                                if(auth == null) {
+                                if (auth == null) {
                                     //Toast.makeText(activity, "Failed to acquire SSO token", Toast.LENGTH_SHORT).show();
                                     //TODO: Re-enable when token working again
                                     //ConnectManager.forgetAppCredentials(appId, username);
@@ -542,7 +587,7 @@ public class ConnectManager {
     }
 
     public static AuthInfo.TokenAuth getConnectToken() {
-        if (isUnlocked()) {
+        if (isConnectIdIntroduced()) {
             ConnectUserRecord user = ConnectDatabaseHelper.getUser(manager.parentActivity);
             if (user != null && (new Date()).compareTo(user.getConnectTokenExpiration()) < 0) {
                 return new AuthInfo.TokenAuth(user.getConnectToken());
@@ -553,7 +598,7 @@ public class ConnectManager {
     }
 
     public static AuthInfo.TokenAuth getTokenCredentialsForApp(String appId, String userId) {
-        if (isUnlocked()) {
+        if (isConnectIdIntroduced()) {
             ConnectLinkedAppRecord record = ConnectDatabaseHelper.getAppData(manager.parentActivity, appId,
                     userId);
             if (record != null && (new Date()).compareTo(record.getHqTokenExpiration()) < 0) {
@@ -579,10 +624,11 @@ public class ConnectManager {
 
     private boolean downloading = false;
     private ResourceEngineListener downloadListener = null;
+
     public static void downloadAppOrResumeUpdates(String installUrl, ResourceEngineListener listener) {
         ConnectManager instance = getInstance();
         instance.downloadListener = listener;
-        if(!instance.downloading) {
+        if (!instance.downloading) {
             instance.downloading = true;
             //Start a new download
             ResourceInstallUtils.startAppInstallAsync(false, APP_DOWNLOAD_TASK_ID, new CommCareTaskConnector<ResourceEngineListener>() {
@@ -647,9 +693,9 @@ public class ConnectManager {
     }
 
     public static String checkAutoLoginAndOverridePassword(Context context, String appId, String username,
-                                                    String passwordOrPin, boolean appLaunchedFromConnect, boolean uiInAutoLogin) {
-        if (isUnlocked()) {
-            if(appLaunchedFromConnect) {
+                                                           String passwordOrPin, boolean appLaunchedFromConnect, boolean uiInAutoLogin) {
+        if (isConnectIdIntroduced()) {
+            if (appLaunchedFromConnect) {
                 //Configure some things if we haven't already
                 ConnectLinkedAppRecord record = ConnectDatabaseHelper.getAppData(context,
                         appId, username);
@@ -658,7 +704,7 @@ public class ConnectManager {
                 }
 
                 passwordOrPin = record.getPassword();
-            } else if(uiInAutoLogin) {
+            } else if (uiInAutoLogin) {
                 String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
                 passwordOrPin = ConnectManager.getStoredPasswordForApp(seatedAppId, username);
             }
@@ -753,6 +799,7 @@ public class ConnectManager {
             private static void reportApiCall(boolean success) {
                 FirebaseAnalyticsUtil.reportCccApiLearnProgress(success);
             }
+
             @Override
             public void processSuccess(int responseCode, InputStream responseData) {
                 try {
@@ -764,7 +811,7 @@ public class ConnectManager {
                         String key = "completed_modules";
                         JSONArray modules = json.getJSONArray(key);
                         List<ConnectJobLearningRecord> learningRecords = new ArrayList<>(modules.length());
-                        for(int i=0; i<modules.length(); i++) {
+                        for (int i = 0; i < modules.length(); i++) {
                             JSONObject obj = (JSONObject)modules.get(i);
                             ConnectJobLearningRecord record = ConnectJobLearningRecord.fromJson(obj, job.getJobId());
                             learningRecords.add(record);
@@ -775,7 +822,7 @@ public class ConnectManager {
                         key = "assessments";
                         JSONArray assessments = json.getJSONArray(key);
                         List<ConnectJobAssessmentRecord> assessmentRecords = new ArrayList<>(assessments.length());
-                        for(int i=0; i<assessments.length(); i++) {
+                        for (int i = 0; i < assessments.length(); i++) {
                             JSONObject obj = (JSONObject)assessments.get(i);
                             ConnectJobAssessmentRecord record = ConnectJobAssessmentRecord.fromJson(obj, job.getJobId());
                             assessmentRecords.add(record);
@@ -832,37 +879,37 @@ public class ConnectManager {
 
                         boolean updatedJob = false;
                         String key = "max_payments";
-                        if(json.has(key)) {
+                        if (json.has(key)) {
                             job.setMaxVisits(json.getInt(key));
                             updatedJob = true;
                         }
 
                         key = "end_date";
-                        if(json.has(key)) {
+                        if (json.has(key)) {
                             job.setProjectEndDate(ConnectNetworkHelper.parseDate(json.getString(key)));
                             updatedJob = true;
                         }
 
                         key = "payment_accrued";
-                        if(json.has(key)) {
+                        if (json.has(key)) {
                             job.setPaymentAccrued(json.getInt(key));
                             updatedJob = true;
                         }
 
                         key = "is_user_suspended";
-                        if(json.has(key)) {
+                        if (json.has(key)) {
                             job.setIsUserSuspended(json.getBoolean(key));
                             updatedJob = true;
                         }
 
-                        if(updatedJob) {
+                        if (updatedJob) {
                             job.setLastDeliveryUpdate(new Date());
                             ConnectDatabaseHelper.upsertJob(context, job);
                         }
 
                         List<ConnectJobDeliveryRecord> deliveries = new ArrayList<>(json.length());
                         key = "deliveries";
-                        if(json.has(key)) {
+                        if (json.has(key)) {
                             JSONArray array = json.getJSONArray(key);
                             for (int i = 0; i < array.length(); i++) {
                                 JSONObject obj = (JSONObject)array.get(i);
@@ -877,7 +924,7 @@ public class ConnectManager {
 
                         List<ConnectJobPaymentRecord> payments = new ArrayList<>();
                         key = "payments";
-                        if(json.has(key)) {
+                        if (json.has(key)) {
                             JSONArray array = json.getJSONArray(key);
                             for (int i = 0; i < array.length(); i++) {
                                 JSONObject obj = (JSONObject)array.get(i);

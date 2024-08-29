@@ -71,6 +71,8 @@ import androidx.core.util.Pair;
 import androidx.preference.PreferenceManager;
 import androidx.work.WorkManager;
 
+import static org.commcare.connect.ConnectManager.allowPassword;
+
 /**
  * @author ctsims
  */
@@ -118,14 +120,6 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     private boolean appLaunchedFromConnect;
     private boolean connectLaunchPerformed;
 
-    private BiometricManager biometricManager;
-    private BiometricPrompt.AuthenticationCallback biometricPromptCallbacks;
-
-    private boolean allowPassword = false;
-
-
-    private boolean attemptingFingerprint = false;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -143,10 +137,6 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
         ConnectManager.init(this);
         uiController.updateConnectLoginState();
-        biometricManager = BiometricManager.from(this);
-
-        biometricPromptCallbacks = preparePromptCallbacks();
-
         presetAppId = getIntent().getStringExtra(EXTRA_APP_ID);
         appLaunchedFromConnect = ConnectManager.wasAppLaunchedFromConnect(presetAppId);
         connectLaunchPerformed = false;
@@ -170,55 +160,6 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         } else {
             Permissions.acquireAllAppPermissions(this, this, Permissions.ALL_PERMISSIONS_REQUEST);
         }
-    }
-    private BiometricPrompt.AuthenticationCallback preparePromptCallbacks() {
-        final Context context = this;
-        return new BiometricPrompt.AuthenticationCallback() {
-            @Override
-            public void onAuthenticationError(int errorCode,
-                                              @NonNull CharSequence errString) {
-                super.onAuthenticationError(errorCode, errString);
-                if (attemptingFingerprint) {
-                    attemptingFingerprint = false;
-                    if (BiometricsHelper.isPinConfigured(context, biometricManager) &&
-                            allowPassword) {
-                        //Automatically try password, it's the only option
-                        performPinUnlock();
-                    }
-                }
-            }
-
-            @Override
-            public void onAuthenticationSucceeded(
-                    @NonNull BiometricPrompt.AuthenticationResult result) {
-                super.onAuthenticationSucceeded(result);
-                ConnectManager.goToConnectJobsList();
-
-            }
-
-            @Override
-            public void onAuthenticationFailed() {
-                super.onAuthenticationFailed();
-                Toast.makeText(getApplicationContext(), "Authentication failed",
-                                Toast.LENGTH_SHORT)
-                        .show();
-            }
-        };
-    }
-
-    public void performPinUnlock() {
-        BiometricsHelper.authenticatePin(this, biometricManager, biometricPromptCallbacks);
-    }
-
-    public void performFingerprintUnlock() {
-        attemptingFingerprint = true;
-        boolean allowOtherOptions = BiometricsHelper.isPinConfigured(this, biometricManager) ||
-                allowPassword;
-        BiometricsHelper.authenticateFingerprint(this, biometricManager, allowOtherOptions, preparePromptCallbacks());
-    }
-
-    public void performPasswordUnlock() {
-
     }
 
     @Override
@@ -268,7 +209,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
      */
     protected void initiateLoginAttempt(boolean restoreSession) {
         if(isConnectJobsSelected()) {
-            ConnectManager.unlockConnect(this, success -> {
+            ConnectManager.launchConnect(this,ConnectConstants.UNLOCK_CONNECT ,success -> {
                 if(success) {
                     ConnectManager.goToConnectJobsList();
                 }
@@ -281,7 +222,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
             String username = uiController.getEnteredUsername();
 
             if(!appLaunchedFromConnect && uiController.loginManagedByConnectId()) {
-                ConnectManager.unlockConnect(this, success -> {
+                ConnectManager.launchConnect(this, ConnectConstants.UNLOCK_CONNECT,success -> {
                     if(success) {
                         String pass = ConnectManager.getStoredPasswordForApp(seatedAppId, username);
                         doLogin(loginMode, restoreSession, pass);
@@ -460,7 +401,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
     private String getUniformUsername() {
         String username = uiController.getEnteredUsername();
-        if (ConnectManager.isUnlocked() && appLaunchedFromConnect) {
+        if (ConnectManager.isConnectIdIntroduced() && appLaunchedFromConnect) {
             username = ConnectManager.getUser(this).getUserId();
         }
         return username.toLowerCase().trim();
@@ -542,12 +483,12 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
     public void handleConnectButtonPress() {
         selectedAppIndex = -1;
-        if (BiometricsHelper.isFingerprintConfigured(this, biometricManager)) {
-            performFingerprintUnlock();
-        } else if (BiometricsHelper.isPinConfigured(this, biometricManager)) {
-            performPinUnlock();
+        if (BiometricsHelper.isFingerprintConfigured(this, ConnectManager.getBiometricManager(this))) {
+            ConnectManager.performFingerprintUnlock(this);
+        } else if (BiometricsHelper.isPinConfigured(this, ConnectManager.getBiometricManager(this))) {
+            ConnectManager.performPinUnlock(this);
         } else if (allowPassword) {
-            performPasswordUnlock();
+            ConnectManager.performPasswordUnlock();
         } else {
             ConnectManager.goToConnectJobsList();
             Logger.exception("No unlock method available when trying to unlock ConnectID", new Exception("No unlock option"));
@@ -564,6 +505,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
     public boolean handleConnectSignIn() {
         if(ConnectManager.isConnectIdIntroduced()) {
+            ConnectManager.completeSignin();
             String appId = CommCareApplication.instance().getCurrentApp().getUniqueId();
             ConnectJobRecord job = ConnectManager.setConnectJobForApp(this, appId);
             if(job != null) {
@@ -600,7 +542,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
     public void registerConnectIdUser() {
         selectedAppIndex = -1;
-        ConnectManager.registerUser(this, success -> {
+        ConnectManager.launchConnect(this, ConnectConstants.BEGIN_REGISTRATION, success -> {
             //Do nothing, just return to login page
         });
     }

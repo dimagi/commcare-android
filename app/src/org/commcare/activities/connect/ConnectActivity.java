@@ -8,6 +8,7 @@ import android.widget.Toast;
 import org.commcare.activities.CommCareActivity;
 import org.commcare.activities.CommCareVerificationActivity;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
+import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.ConnectDatabaseHelper;
 import org.commcare.connect.ConnectManager;
 import org.commcare.connect.network.ApiConnect;
@@ -96,7 +97,7 @@ public class ConnectActivity extends CommCareActivity<ResourceEngineListener> {
             navController.navigate(fragmentId, bundle, options);
         } else if (redirectionAction != null) {
             ConnectManager.init(this);
-            ConnectManager.unlockConnect(this, success -> {
+            ConnectManager.launchConnect(this, ConnectConstants.UNLOCK_CONNECT, success -> {
                 if (success) {
                     getJobDetails();
                 }
