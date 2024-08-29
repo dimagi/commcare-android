@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:ignore="MissingDefaultResource">
+
+    <!-- Drop Shadow Stack -->
+    <item>
+        <shape>
+            <padding
+                android:top="2.5dp" />
+
+            <solid android:color="@color/connect_light_grey_transparent" />
+            <corners android:topRightRadius="16dp" android:topLeftRadius="16dp"/>
+        </shape>
+    </item>
+    <item>
+        <shape>
+            <padding
+                android:top="2.5dp" />
+
+            <solid android:color="@color/connect_light_grey_transparent" />
+            <corners android:topRightRadius="16dp" android:topLeftRadius="16dp"/>
+        </shape>
+    </item>
+  <!--  <item>
+        <shape>
+            <padding
+                android:top="2.5dp" />
+
+            <solid android:color="@color/connect_light_grey_transparent" />
+
+            <corners android:radius="40dp" />
+        </shape>
+    </item>-->
+ <!--   <item>
+        <shape>
+            <padding
+                android:top="2.5dp" />
+
+            <solid android:color="@color/connect_light_grey_transparent" />
+
+            <corners android:radius="40dp" />
+        </shape>
+    </item>-->
+    <!--<item>
+        <shape>
+            <padding
+                android:top="2.5dp" />
+
+            <solid android:color="@color/connect_light_grey_transparent" />
+
+            <corners android:radius="40dp" />
+        </shape>
+    </item>-->
+
+    <!-- Background -->
+    <item android:id="@+id/itemShape">
+        <shape>
+            <gradient
+                android:angle="0"
+                android:endColor="@color/white"
+                android:startColor="@color/white" />
+            <corners android:topRightRadius="16dp" android:topLeftRadius="16dp"/>
+        </shape>
+    </item>
+
+</layer-list>

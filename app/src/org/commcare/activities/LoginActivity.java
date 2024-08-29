@@ -24,19 +24,17 @@ import androidx.work.WorkManager;
 
 import com.scottyab.rootbeer.RootBeer;
 
-import java.util.ArrayList;
-import java.util.Date;
-
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
-import org.commcare.android.database.connect.models.ConnectJobRecord;
-import org.commcare.connect.ConnectManager;
 import org.commcare.android.database.app.models.UserKeyRecord;
+import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
+import org.commcare.connect.ConnectManager;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.engine.resource.AppInstallStatus;
 import org.commcare.engine.resource.ResourceInstallUtils;
+import org.commcare.fragments.connect.login_job_fragments.ConnectLoginJobListBottomSheetFragment;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.RuntimePermissionRequester;
@@ -66,6 +64,9 @@ import org.commcare.views.notifications.NotificationMessageFactory;
 import org.commcare.views.notifications.NotificationMessageFactory.StockMessages;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
+
+import java.util.ArrayList;
+import java.util.Date;
 
 /**
  * @author ctsims
@@ -203,9 +204,9 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
      *                       upon successful login
      */
     protected void initiateLoginAttempt(boolean restoreSession) {
-        if(isConnectJobsSelected()) {
+        if (isConnectJobsSelected()) {
             ConnectManager.unlockConnect(this, success -> {
-                if(success) {
+                if (success) {
                     ConnectManager.goToConnectJobsList();
                 }
             });
@@ -216,15 +217,14 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
             String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
             String username = uiController.getEnteredUsername();
 
-            if(!appLaunchedFromConnect && uiController.loginManagedByConnectId()) {
+            if (!appLaunchedFromConnect && uiController.loginManagedByConnectId()) {
                 ConnectManager.unlockConnect(this, success -> {
-                    if(success) {
+                    if (success) {
                         String pass = ConnectManager.getStoredPasswordForApp(seatedAppId, username);
                         doLogin(loginMode, restoreSession, pass);
                     }
                 });
-            }
-            else {
+            } else {
                 String passwordOrPin = uiController.getEnteredPasswordOrPin();
                 doLogin(loginMode, restoreSession, passwordOrPin);
             }
@@ -454,7 +454,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         ViewUtil.hideVirtualKeyboard(LoginActivity.this);
         CommCareApplication.notificationManager().clearNotifications(NOTIFICATION_MESSAGE_LOGIN);
 
-        if(handleConnectSignIn()) {
+        if (handleConnectSignIn()) {
             setResultAndFinish(false);
         }
     }
@@ -472,7 +472,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     public void handleConnectButtonPress() {
         selectedAppIndex = -1;
         ConnectManager.unlockConnect(this, success -> {
-            if(success) {
+            if (success) {
                 ConnectManager.goToConnectJobsList();
                 setResult(RESULT_OK);
                 finish();
@@ -481,10 +481,10 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     }
 
     public boolean handleConnectSignIn() {
-        if(ConnectManager.isConnectIdConfigured()) {
+        if (ConnectManager.isConnectIdConfigured()) {
             String appId = CommCareApplication.instance().getCurrentApp().getUniqueId();
             ConnectJobRecord job = ConnectManager.setConnectJobForApp(this, appId);
-            if(job != null) {
+            if (job != null) {
                 //Update job status
                 ConnectManager.updateJobProgress(this, job, success -> {
                     setResultAndFinish(job.getIsUserSuspended() || job.readyToTransitionToDelivery());
@@ -495,8 +495,8 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                         uiController.loginManagedByConnectId(), appId,
                         uiController.getEnteredUsername(),
                         uiController.getEnteredPasswordOrPin(), success -> {
-                    setResultAndFinish(false);
-                });
+                            setResultAndFinish(false);
+                        });
             }
 
             return false;
@@ -507,9 +507,9 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
     public void handleFailedConnectSignIn() {
         ApplicationRecord record = CommCareApplication.instance().getCurrentApp().getAppRecord();
-        if(appLaunchedFromConnect) {
+        if (appLaunchedFromConnect) {
             FirebaseAnalyticsUtil.reportCccAppFailedAutoLogin(record.getApplicationId());
-        } else if(ConnectManager.isLoginManagedByConnectId(record.getUniqueId(), getUniformUsername())) {
+        } else if (ConnectManager.isLoginManagedByConnectId(record.getUniqueId(), getUniformUsername())) {
             //TODO: Display an additional message that the user will need to login with their password to restore CID login
             //ConnectManager.forgetAppCredentials(record.getUniqueId(), getUniformUsername());
             //checkForSavedCredentials();
@@ -531,13 +531,13 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                 uiController.setConnectButtonVisible(false);
                 uiController.setUsername(getString(R.string.login_input_auto));
                 uiController.setPasswordOrPin(getString(R.string.login_input_auto));
-                if(!seatAppIfNeeded(presetAppId)) {
+                if (!seatAppIfNeeded(presetAppId)) {
                     connectLaunchPerformed = true;
                     initiateLoginAttempt(uiController.isRestoreSessionChecked());
                 }
             } else {
                 int selectorIndex = uiController.getSelectedAppIndex();
-                if(selectorIndex > 0) {
+                if (selectorIndex > 0) {
                     String selectedAppId = appIdDropdownList.size() > 0 ? appIdDropdownList.get(selectorIndex) : "";
                     String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
                     if (!uiController.isAppSelectorVisible() || selectedAppId.equals(seatedAppId)) {
@@ -743,7 +743,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
         boolean selectedConnect = isConnectJobsSelected();
-        if(selectedConnect) {
+        if (selectedConnect) {
             uiController.setLoginInputsVisibility(false);
         } else {
             // Retrieve the app record corresponding to the app selected
@@ -946,7 +946,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     private void checkManagedConfiguration() {
         // Check for managed configuration
         RestrictionsManager restrictionsManager =
-                (RestrictionsManager)getSystemService(Context.RESTRICTIONS_SERVICE);
+                (RestrictionsManager) getSystemService(Context.RESTRICTIONS_SERVICE);
         if (restrictionsManager == null) {
             return;
         }
@@ -961,5 +961,10 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
     protected String getPresetAppId() {
         return presetAppId;
+    }
+
+    public void openJobListBottomSheet() {
+        ConnectLoginJobListBottomSheetFragment connectLoginJobListBottomSheetFragment = ConnectLoginJobListBottomSheetFragment.newInstance();
+        connectLoginJobListBottomSheetFragment.show(getSupportFragmentManager(), "connectLoginJobListBottomSheetFragment");
     }
 }

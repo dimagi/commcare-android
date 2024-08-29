@@ -19,15 +19,12 @@ import android.widget.TextView;
 
 import androidx.preference.PreferenceManager;
 
-import java.util.ArrayList;
-import java.util.Vector;
-
 import org.commcare.CommCareApplication;
 import org.commcare.CommCareNoficationManager;
-import org.commcare.connect.ConnectDatabaseHelper;
-import org.commcare.connect.ConnectManager;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
+import org.commcare.connect.ConnectDatabaseHelper;
+import org.commcare.connect.ConnectManager;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.interfaces.CommCareActivityUIController;
@@ -44,6 +41,8 @@ import org.commcare.views.RectangleButtonWithText;
 import org.commcare.views.UiElement;
 import org.javarosa.core.services.locale.Localization;
 
+import java.util.ArrayList;
+import java.util.Vector;
 
 import javax.annotation.Nullable;
 
@@ -166,7 +165,7 @@ public class LoginActivityUiController implements CommCareActivityUIController {
         });
 
         passwordOrPin.setOnFocusChangeListener((v, hasFocus) -> {
-            if(hasFocus) {
+            if (hasFocus) {
                 setConnectIdLoginState(false);
             }
         });
@@ -179,6 +178,7 @@ public class LoginActivityUiController implements CommCareActivityUIController {
     public void setConnectButtonVisible(Boolean visible) {
         connectLoginButton.setVisibility(visible ? View.VISIBLE : View.GONE);
         orLabel.setVisibility(visible ? View.VISIBLE : View.GONE);
+        orLabel.setOnClickListener(view -> activity.openJobListBottomSheet());
     }
 
     private void setTextChangeListeners() {
@@ -533,20 +533,21 @@ public class LoginActivityUiController implements CommCareActivityUIController {
         passwordOrPin.setText(s);
     }
 
-    protected boolean loginManagedByConnectId() { return loginManagedByConnectId; }
+    protected boolean loginManagedByConnectId() {
+        return loginManagedByConnectId;
+    }
 
     protected void setConnectIdLoginState(boolean useConnectId) {
-        if(!useConnectId && loginManagedByConnectId) {
+        if (!useConnectId && loginManagedByConnectId) {
             setPasswordOrPin("");
         }
 
-        loginManagedByConnectId  = useConnectId;
+        loginManagedByConnectId = useConnectId;
 
         String text;
-        if(useConnectId) {
+        if (useConnectId) {
             text = activity.getString(R.string.login_button_connectid);
-        }
-        else {
+        } else {
             text = Localization.get("login.button");
         }
         loginButton.setText(text);
@@ -558,7 +559,7 @@ public class LoginActivityUiController implements CommCareActivityUIController {
         connectLoginButton.setText(activity.getString(R.string.connect_button_logged_in));
 
         passwordOrPin.setBackgroundColor(getResources().getColor(useConnectId ? R.color.grey_light : R.color.white));
-        if(useConnectId) {
+        if (useConnectId) {
             passwordOrPin.setText(R.string.login_password_by_connect);
             passwordOrPin.clearFocus();
         }
