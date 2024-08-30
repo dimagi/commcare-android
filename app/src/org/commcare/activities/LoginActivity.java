@@ -29,7 +29,11 @@ import org.commcare.CommCareApplication;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
+import org.commcare.connect.ConnectDatabaseHelper;
 import org.commcare.connect.ConnectManager;
+import org.commcare.connect.network.ApiConnect;
+import org.commcare.connect.network.ConnectNetworkHelper;
+import org.commcare.connect.network.IApiCallback;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.engine.resource.AppInstallStatus;
@@ -62,11 +66,18 @@ import org.commcare.views.notifications.NotificationActionButtonInfo;
 import org.commcare.views.notifications.NotificationMessage;
 import org.commcare.views.notifications.NotificationMessageFactory;
 import org.commcare.views.notifications.NotificationMessageFactory.StockMessages;
+import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
+import org.json.JSONArray;
+import org.json.JSONException;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+import java.util.Locale;
 
 /**
  * @author ctsims
@@ -297,6 +308,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         checkForSavedCredentials();
 
         ConnectManager.setParent(this);
+        initiateJobListAPI();
     }
 
     protected boolean checkForSeatedAppChange() {
@@ -966,5 +978,44 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     public void openJobListBottomSheet() {
         ConnectLoginJobListBottomSheetFragment connectLoginJobListBottomSheetFragment = ConnectLoginJobListBottomSheetFragment.newInstance();
         connectLoginJobListBottomSheetFragment.show(getSupportFragmentManager(), "connectLoginJobListBottomSheetFragment");
+    }
+
+    public void initiateJobListAPI() {
+        ApiConnect.getConnectOpportunities(LoginActivity.this, new IApiCallback() {
+            @Override
+            public void processSuccess(int responseCode, InputStream responseData) {
+                try {
+                    String responseAsString = new String(StreamsUtil.inputStreamToByteArray(responseData));
+                    Log.e("DEBUG_TESTING", "processSuccess: " + responseAsString);
+                    if (responseAsString.length() > 0) {
+                        //Parse the JSON
+                        JSONArray json = new JSONArray(responseAsString);
+                        List<ConnectJobRecord> jobs = new ArrayList<>(json.length());
+                        ConnectDatabaseHelper.storeJobs(LoginActivity.this, jobs, true);
+                    }
+                } catch (IOException | JSONException e) {
+                    Toast.makeText(LoginActivity.this, R.string.connect_job_list_api_failure, Toast.LENGTH_SHORT).show();
+                    Logger.exception("Parsing return from Opportunities request", e);
+                }
+            }
+
+            @Override
+            public void processFailure(int responseCode, IOException e) {
+                Toast.makeText(LoginActivity.this, R.string.connect_job_list_api_failure, Toast.LENGTH_SHORT).show();
+                Logger.log("ERROR", String.format(Locale.getDefault(), "Opportunities call failed: %d", responseCode));
+            }
+
+            @Override
+            public void processNetworkFailure() {
+                Toast.makeText(LoginActivity.this, R.string.recovery_network_unavailable, Toast.LENGTH_SHORT).show();
+                Logger.log("ERROR", "Failed (network)");
+            }
+
+            @Override
+            public void processOldApiError() {
+                Toast.makeText(LoginActivity.this, R.string.connect_job_list_api_failure, Toast.LENGTH_SHORT).show();
+                ConnectNetworkHelper.showOutdatedApiError(LoginActivity.this);
+            }
+        });
     }
 }
