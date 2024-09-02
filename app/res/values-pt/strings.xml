@@ -447,4 +447,10 @@
     <string name="user_suspended">O usuário está suspenso. Entre em contato com admin.</string>
     <string name="select_phone_number">Selecione o número de telefone</string>
     <string name="connect_job_list_api_failure">Ocorreu um erro ao ligar ao servidor.</string>
+
+    <string name="connect_deactivate_account">Desativar conta</string>
+    <string name="connect_deactivate_account_message">Você está prestes a desativar permanentemente esta conta…</string>
+    <string name="connect_deactivate_account_go_back">Volte</string>
+    <string name="connect_deactivate_account_deactivated">Conta desativada, crie uma nova</string>
+    <string name="connect_deactivate_account_creation">Criar uma conta</string>
 </resources>
