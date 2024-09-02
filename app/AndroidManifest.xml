@@ -5,13 +5,12 @@
     android:versionCode="106"
     android:versionName="2.55">
 
-    <uses-sdk tools:overrideLibrary="com.dimagi.android.zebraprinttool, com.simprints.libsimprints,     ru.noties.markwon.il, ru.noties.markwon.view, ru.noties.markwon.renderer,     com.google.firebase.crashlytics, com.google.firebase.iid, com.appmattus.certificatetransparency" />
-
     <uses-permission android:name="android.permission.NFC" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.BROADCAST_STICKY" />
     <uses-permission android:name="android.permission.READ_PHONE_NUMBERS" />
+
     <uses-permission xmlns:android="http://schemas.android.com/apk/res/android"
         android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission xmlns:android="http://schemas.android.com/apk/res/android"
@@ -23,7 +22,8 @@
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
     <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" /> <!-- required to ensure app compatibility -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <!-- required to ensure app compatibility -->
     <uses-permission
         android:name="android.permission.READ_EXTERNAL_STORAGE"
         android:maxSdkVersion="32" />
@@ -55,10 +55,15 @@
         android:name="android.hardware.camera"
         android:required="false" />
 
+    <uses-sdk tools:overrideLibrary="com.dimagi.android.zebraprinttool, com.simprints.libsimprints,
+    ru.noties.markwon.il, ru.noties.markwon.view, ru.noties.markwon.renderer,
+    com.google.firebase.crashlytics, com.google.firebase.iid, com.appmattus.certificatetransparency" />
+
     <permission-group
         android:name="commcare.permission-group.DATABASE"
         android:description="@string/permission_content_provider_description"
         android:label="@string/permission_content_provider_label" />
+
     <permission-group
         android:name="commcare.permission-group.EXTERNAL_ACTION"
         android:description="@string/permission_external_action_description"
@@ -70,6 +75,7 @@
         android:label="@string/permission_content_provider_label"
         android:permissionGroup="commcare.permission-group.DATABASE"
         android:protectionLevel="dangerous"></permission>
+
     <permission
         android:name="${applicationId}.permission.COMMCARE_LOGOUT"
         android:description="@string/permission_commcare_logout_description"
@@ -83,12 +89,10 @@
         </intent>
         <intent>
             <action android:name="android.intent.action.SEND" />
-
             <data android:mimeType="*/*" />
         </intent>
         <intent>
             <action android:name="android.intent.action.VIEW" />
-
             <data
                 android:mimeType="*/*"
                 android:scheme="*" />
@@ -98,6 +102,11 @@
         <package android:name="org.commcare.dalvik.reminders" />
         <package android:name="callout.commcare.org.sendussd" />
         <package android:name="org.commcare.dalvik.abha" />
+        <package android:name="com.dimagi.biometric" />
+        <package android:name="org.rdtoolkit" />
+        <package android:name="richard.chard.lu.android.areamapper" />
+        <package android:name="org.commcare.respiratory" />
+        <package android:name="com.simprints.id" />
     </queries>
 
     <application
@@ -159,6 +168,7 @@
         <activity android:name="org.commcare.activities.StandardHomeActivity" />
         <activity android:name="org.commcare.activities.RootMenuHomeActivity" />
         <activity android:name="org.commcare.activities.MenuActivity" />
+
         <activity android:name="org.commcare.activities.connect.ConnectIdRecoveryDecisionActivity" />
         <activity android:name="org.commcare.activities.connect.ConnectIdBiometricUnlockActivity" />
         <activity android:name="org.commcare.activities.connect.ConnectIdConsentActivity" />
@@ -331,10 +341,13 @@
         <activity
             android:name="org.commcare.activities.InstallArchiveActivity"
             android:windowSoftInputMode="adjustResize"></activity>
+
         <activity android:name="org.commcare.gis.EntityMapActivity"></activity>
+
         <activity
             android:name="org.commcare.gis.EntityMapboxActivity"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar"></activity>
+
         <activity
             android:name="org.commcare.gis.DrawingBoundaryActivity"
             android:exported="false"
@@ -345,6 +358,7 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
+
         <activity android:name="org.commcare.activities.RefreshToLatestBuildActivity"></activity>
         <activity android:name="org.commcare.activities.MultipleAppsLimitWarningActivity"></activity>
         <activity android:name="org.commcare.activities.GlobalPrivilegeClaimingActivity"></activity>
@@ -405,20 +419,20 @@
             android:exported="true">
             <intent-filter>
                 <action android:name="org.commcare.dalvik.api.action.ExternalAction" />
-
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </receiver>
+
         <receiver
             android:name="org.commcare.provider.CommCareLogoutReceiver"
             android:exported="true"
             android:permission="org.commcare.dalvik.permission.COMMCARE_LOGOUT">
             <intent-filter>
                 <action android:name="org.commcare.dalvik.api.action.CommCareLogoutAction" />
-
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </receiver>
+
         <receiver
             android:name="org.commcare.provider.RefreshToLatestBuildReceiver"
             android:exported="false">
@@ -489,6 +503,7 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
+
         <activity android:name="org.commcare.activities.SeatAppActivity" />
         <activity android:name="org.commcare.activities.PostRequestActivity" />
         <activity android:name="org.commcare.activities.QueryRequestActivity" />
@@ -510,7 +525,9 @@
         </activity>
         <activity android:name="org.commcare.activities.TargetMismatchErrorActivity" />
         <activity android:name="org.commcare.recovery.measures.ExecuteRecoveryMeasuresActivity" />
-        <activity android:name="org.commcare.activities.PromptCCReinstallActivity" /> <!-- Start Collect Manifest -->
+        <activity android:name="org.commcare.activities.PromptCCReinstallActivity" />
+        <!-- Start Collect Manifest -->
+
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="${googlePlayMapsApiKey}" />
@@ -521,20 +538,23 @@
             android:name="android.content.APP_RESTRICTIONS"
             android:resource="@xml/app_restrictions" />
 
-        <activity android:name="org.commcare.activities.CommcareListActivity" /> <!-- This is to disable fabric for debug builds properly - https://stackoverflow.com/a/49836972/3811963 -->
+
+        <activity android:name="org.commcare.activities.CommcareListActivity" />
+
+        <!-- This is to disable fabric for debug builds properly - https://stackoverflow.com/a/49836972/3811963 -->
         <meta-data
             android:name="firebase_crashlytics_collection_enabled"
             android:value="false" />
-        <!--
- Somehow this receiver is getting triggered in Android 8+ devices and causing
+
+        <!-- Somehow this receiver is getting triggered in Android 8+ devices and causing
             IllegalStateException while trying to start map downloader service from background.
             Below code removes this receiver's entry from Manifest.
-        -->
+         -->
         <receiver
             android:name="io.ona.kujaku.receivers.KujakuNetworkChangeReceiver"
             tools:node="remove" />
-        <!--
- The zebra-print-android library is not yet targeting Android 12 and at least one
+
+        <!-- The zebra-print-android library is not yet targeting Android 12 and at least one
             Activity doesn't have the required attribute exported. The entry below adds the
             attribute to the final Manifest.
         -->
@@ -550,6 +570,8 @@
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
+
+        <receiver android:name="org.commcare.services.PaymentAcknowledgeReceiver" />
     </application>
 
 </manifest>
