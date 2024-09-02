@@ -414,9 +414,6 @@ public class ApiConnectId {
 
     public static boolean confirmUserDeactivation(Context context, String phone, String secret,
                                                           String token, IApiCallback callback) {
-        Log.e("DEBUG_TESTING", "processSuccess:phone "+phone);
-        Log.e("DEBUG_TESTING", "processSuccess:secret "+secret);
-        Log.e("DEBUG_TESTING", "processSuccess:token "+token);
         int urlId = R.string.ConnectConfirmUserAccountDeactivationURL;
         AuthInfo authInfo = new AuthInfo.NoAuth();
 

@@ -364,11 +364,9 @@ public class ConnectIdPhoneVerificationActivity extends CommCareActivity<Connect
                         }
 
                         case MethodDeactivateUser -> {
-                            Log.e("DEBUG_TESTING", "processSuccess: "+"MethodDeactivateUser");
                             String responseAsString = new String(
                                     StreamsUtil.inputStreamToByteArray(responseData));
                             JSONObject json = new JSONObject(responseAsString);
-                            Log.e("DEBUG_TESTING", "processSuccess: "+json.getBoolean("success"));
                             if (json.getBoolean("success")) {
                                 finish(true, false, null);
                             } else {
