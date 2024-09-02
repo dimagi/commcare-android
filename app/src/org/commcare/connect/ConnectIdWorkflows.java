@@ -10,6 +10,7 @@ import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
+import org.commcare.models.database.connect.DatabaseConnectOpenHelper;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -490,6 +491,12 @@ public class ConnectIdWorkflows {
             case CONNECT_DEACTIVATE_VERIFY_PHONE -> {
                 if (success) {
                     nextRequestCode = ConnectTask.CONNECT_DEACTIVATE_USER_CONFIRMATION_MESSAGE;
+                }
+            }
+
+            case CONNECT_DEACTIVATE_USER_CONFIRMATION_MESSAGE -> {
+                if (success) {
+                    ConnectDatabaseHelper.forgetUser(parentActivity);
                 }
             }
 
