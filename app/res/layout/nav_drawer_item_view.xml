@@ -10,19 +10,22 @@
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_height="wrap_content"
         android:layout_width="match_parent"
-        android:orientation="horizontal" >
+        android:orientation="horizontal"
+        android:weightSum="5">
 
         <ImageView
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="match_parent"
             android:id="@+id/drawer_icon"
             android:layout_marginRight="@dimen/standard_spacer_double"
-            android:layout_marginEnd="@dimen/standard_spacer_double" />
+            android:layout_marginEnd="@dimen/standard_spacer_double"
+            android:layout_weight="1"/>
 
         <TextView
             android:id="@+id/drawer_text"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="4"/>
 
     </LinearLayout>
 
