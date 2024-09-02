@@ -1,0 +1,141 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_height="match_parent"
+    android:layout_width="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context="org.commcare.fragments.newConnectId.PhoneFragment">
+
+    <RelativeLayout
+        android:layout_height="match_parent"
+        android:layout_marginTop="120px"
+        android:layout_width="match_parent"
+        android:orientation="vertical">
+
+        <ImageView
+            android:id="@+id/company_logo"
+            android:layout_centerHorizontal="true"
+            android:layout_height="32dp"
+            android:layout_width="wrap_content"
+            android:src="@drawable/ic_dimagi_logo" />
+
+        <View
+            android:id="@+id/divider"
+            android:background="@android:color/darker_gray"
+            android:layout_below="@+id/company_logo"
+            android:layout_height="1dp"
+            android:layout_marginTop="40dp"
+            android:layout_width="fill_parent" />
+
+        <TextView
+            android:id="@+id/phone_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:textFontWeight="600"
+            android:textColor="@color/connect_dark_blue_color"
+            android:text="ConnectId Signup"
+            android:layout_margin="16dp"
+            android:layout_below="@id/divider"/>
+        <LinearLayout
+            android:id="@+id/name_layout"
+            android:layout_width="match_parent"
+            android:orientation="horizontal"
+            android:layout_below="@id/phone_title"
+            android:layout_margin="16dp"
+            android:layout_height="wrap_content">
+            <ImageView
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:padding="1dp"
+                android:background="@color/black"
+                android:backgroundTint="@color/connect_light_grey"
+                android:src="@drawable/ic_outline_person_24"/>
+            <EditText
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_marginLeft="16dp"
+                />
+        </LinearLayout>
+        <LinearLayout
+            android:id="@+id/phone_layout"
+            android:layout_width="match_parent"
+            android:orientation="horizontal"
+            android:layout_below="@id/name_layout"
+            android:layout_margin="16dp"
+            android:layout_height="wrap_content">
+            <ImageView
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:padding="1dp"
+                android:background="@color/black"
+                android:backgroundTint="@color/connect_light_grey"
+                android:src="@drawable/ic_outline_phone_24"/>
+            <EditText
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_marginLeft="16dp"
+                />
+        </LinearLayout>
+
+        <CheckBox
+            android:id="@+id/connect_consent_check"
+            android:layout_below="@id/phone_layout"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:layout_width="match_parent"
+            android:text="@string/consent_string"
+            android:textColor="@color/connect_subtext"
+            android:textFontWeight="500"
+            android:textSize="12sp" />
+
+        <org.commcare.views.connect.RoundedButton
+            android:layout_width="120dp"
+            android:text="@string/review"
+            android:layout_alignParentRight="true"
+            android:layout_marginEnd="16dp"
+            app:roundButtonBorderRadius="@dimen/dp48"
+            android:textColor="@color/white"
+            app:roundButtonIconLeftAlign="false"
+            android:gravity="start|center"
+            app:roundButtonBackgroundColor="@color/white"
+            android:layout_height="40dp"
+            app:roundButtonIconTintColor="@color/white"
+            android:backgroundTint="@color/connect_blue_color"
+            android:layout_below="@+id/connect_consent_check"
+            android:foregroundTint="@color/white"
+            app:roundButtonIcon="@drawable/connect_right_arrow"
+            />
+
+        <View
+            android:id="@+id/divider1"
+            android:background="@android:color/darker_gray"
+            android:layout_height="1dp"
+            android:layout_above="@id/button_layout"
+            android:layout_width="fill_parent" />
+        <LinearLayout
+            android:id="@+id/button_layout"
+            android:layout_width="match_parent"
+            android:layout_alignParentBottom="true"
+            android:layout_margin="16dp"
+            android:layout_height="wrap_content">
+            <TextView
+                android:id="@+id/button_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/already_have_an_account"
+                android:textSize="14sp"
+                android:layout_weight="1"
+                android:textFontWeight="500"/>
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Recover"/>
+        </LinearLayout>
+    </RelativeLayout>
+
+
+</FrameLayout>
