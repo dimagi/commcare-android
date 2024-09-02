@@ -1,7 +1,6 @@
 package org.commcare.connect.network;
 
 import android.content.Context;
-import android.util.Log;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;

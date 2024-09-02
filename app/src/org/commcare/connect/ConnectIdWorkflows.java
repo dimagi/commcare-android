@@ -1,9 +1,7 @@
 package org.commcare.connect;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
-import android.util.Log;
 
 import org.commcare.activities.CommCareActivity;
 import org.commcare.activities.SettingsHelper;
