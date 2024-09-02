@@ -229,8 +229,7 @@ public class HomeNavDrawerController {
             case SAVED_FORMS_ITEM_ID:
                 return R.drawable.ic_saved_forms_nav_drawer;
             case INCOMPLETE_FORMS_ITEM_ID:
-                //TODO: Need to add an icon for this option
-                return -1;
+                return R.drawable.incomplete_nav_drawer;
             case LOGOUT_DRAWER_ITEM_ID:
                 return R.drawable.ic_logout_nav_drawer;
             case TRAINING_DRAWER_ITEM_ID:
