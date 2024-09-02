@@ -1,6 +1,7 @@
 package org.commcare.connect;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
@@ -139,9 +140,10 @@ public class ConnectIdWorkflows {
                 params.put(ConnectConstants.CHANGE, false);
             }
             case CONNECT_REGISTRATION_ALTERNATE_PHONE,
-                 CONNECT_VERIFY_ALT_PHONE_CHANGE,
-                 CONNECT_UNLOCK_ALT_PHONE_CHANGE ->
-                    params.put(ConnectConstants.METHOD, ConnectConstants.METHOD_CHANGE_ALTERNATE);
+
+                    CONNECT_VERIFY_ALT_PHONE_CHANGE,
+                    CONNECT_UNLOCK_ALT_PHONE_CHANGE -> params.put(ConnectConstants.METHOD, ConnectConstants.METHOD_CHANGE_ALTERNATE);
+
             case CONNECT_REGISTRATION_SUCCESS -> {
                 //Show message screen indicating success
                 params.put(ConnectConstants.TITLE, R.string.connect_register_success_title);
@@ -269,7 +271,8 @@ public class ConnectIdWorkflows {
         }
     }
 
-    public static boolean handleFinishedActivity(int requestCode, int resultCode, Intent intent) {
+    public static boolean handleFinishedActivity(CommCareActivity<?> activity, int requestCode, int resultCode, Intent intent) {
+        parentActivity = activity;
         boolean flagStartOfRegistration = false;
         boolean success = resultCode == Activity.RESULT_OK;
         ConnectTask nextRequestCode = ConnectTask.CONNECT_NO_ACTIVITY;

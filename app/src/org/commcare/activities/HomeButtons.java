@@ -134,7 +134,14 @@ public class HomeButtons {
 
     private static TextSetter getSyncButtonTextSetter(final StandardHomeActivity activity) {
         return (cardDisplayData, squareButtonViewHolder, context, notificationText) -> {
-            SyncDetailCalculations.updateSubText(activity, squareButtonViewHolder, cardDisplayData, notificationText);
+            try {
+                SyncDetailCalculations.updateSubText(activity, squareButtonViewHolder, cardDisplayData,
+                        notificationText);
+            } catch (SessionUnavailableException e) {
+                // stop button setup, since redirection to login is imminent
+                return;
+            }
+
             squareButtonViewHolder.subTextView.setBackgroundColor(activity.getResources().getColor(cardDisplayData.subTextBgColor));
             squareButtonViewHolder.textView.setTextColor(context.getResources().getColor(cardDisplayData.textColor));
             squareButtonViewHolder.textView.setText(cardDisplayData.text);

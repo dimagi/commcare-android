@@ -79,12 +79,12 @@ public class ConnectSsoHelper {
             if (connectIdToken != null) {
                 if(!appRecord.getWorkerLinked()) {
                     //Link user if necessary
-                    ApiConnect.linkHqWorker(context, hqUsername,
+                    ApiConnectId.linkHqWorker(context, hqUsername,
                             appRecord.getPassword(), connectIdToken.bearerToken);
                 }
 
                 //Retrieve HQ token
-                hqTokenAuth = ApiConnect.retrieveHqTokenApi(context, hqUsername, connectIdToken.bearerToken);
+                hqTokenAuth = ApiConnectId.retrieveHqTokenApi(context, hqUsername, connectIdToken.bearerToken);
             }
         }
 

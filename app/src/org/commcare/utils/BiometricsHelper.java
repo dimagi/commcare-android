@@ -114,13 +114,13 @@ public class BiometricsHelper {
 //                        .setAllowedAuthenticators(BiometricManager.Authenticators.DEVICE_CREDENTIAL)
 //                        .build());
 //            } else {
-                biometricPromptCallbackHolder = biometricPromptCallback;
-                KeyguardManager manager = (KeyguardManager)activity.getSystemService(Context.KEYGUARD_SERVICE);
-                activity.startActivityForResult(
-                        manager.createConfirmDeviceCredentialIntent(
-                                activity.getString(R.string.connect_unlock_title),
-                                activity.getString(R.string.connect_unlock_message)),
-                        ConnectTask.CONNECT_UNLOCK_PIN.getRequestCode());
+            biometricPromptCallbackHolder = biometricPromptCallback;
+            KeyguardManager manager = (KeyguardManager)activity.getSystemService(Context.KEYGUARD_SERVICE);
+            activity.startActivityForResult(
+                    manager.createConfirmDeviceCredentialIntent(
+                            activity.getString(R.string.connect_unlock_title),
+                            activity.getString(R.string.connect_unlock_message)),
+                    ConnectTask.CONNECT_UNLOCK_PIN.getRequestCode());
 //            }
         }
     }

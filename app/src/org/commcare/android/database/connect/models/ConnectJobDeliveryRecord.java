@@ -66,6 +66,8 @@ public class ConnectJobDeliveryRecord extends Persisted implements Serializable 
     private String reason;
 
     public ConnectJobDeliveryRecord() {
+        date = new Date();
+        lastUpdate = new Date();
     }
 
     public static ConnectJobDeliveryRecord fromJson(JSONObject json, int jobId) throws JSONException, ParseException {

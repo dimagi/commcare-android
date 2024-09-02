@@ -580,7 +580,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
     @Override
     public void onActivityResultSessionSafe(int requestCode, int resultCode, Intent intent) {
         if(ConnectManager.isConnectTask(requestCode)) {
-            ConnectManager.handleFinishedActivity(requestCode, resultCode, intent);
+            ConnectManager.handleFinishedActivity(this, requestCode, resultCode, intent);
         } else if (resultCode == RESULT_RESTART) {
             if (intent != null && intent.hasExtra(EXTRA_ENTITY_KEY))
                 selectedEntityPostSync = intent.getStringExtra(EXTRA_ENTITY_KEY);

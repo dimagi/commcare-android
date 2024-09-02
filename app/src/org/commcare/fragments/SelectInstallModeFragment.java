@@ -199,13 +199,15 @@ public class SelectInstallModeFragment extends Fragment implements NsdServiceLis
     }
 
     public void updateConnectButton(boolean connectEnabled, View.OnClickListener listener) {
-        boolean enabled = connectEnabled && ConnectManager.shouldShowConnectButton();
+        if(mConnectButton != null) {
+            boolean enabled = connectEnabled && ConnectManager.shouldShowConnectButton();
 
-        if(enabled) {
-            mConnectButton.setOnClickListener(listener);
+            if (enabled) {
+                mConnectButton.setOnClickListener(listener);
+            }
+
+            mConnectButton.setVisibility(enabled ? View.VISIBLE : View.GONE);
+            mOrText.setVisibility(enabled ? View.VISIBLE : View.GONE);
         }
-
-        mConnectButton.setVisibility(enabled ? View.VISIBLE : View.GONE);
-        mOrText.setVisibility(enabled ? View.VISIBLE : View.GONE);
     }
 }

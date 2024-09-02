@@ -129,4 +129,3 @@ public class ConnectIdPinActivityUiController implements CommCareActivityUIContr
         errorTextView.setText(text);
     }
 }
-
