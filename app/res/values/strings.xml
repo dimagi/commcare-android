@@ -91,7 +91,7 @@
     <string name="expirenotification">CommCare Login Expired</string>
     <string name="submission_notification_title">Submitting Data</string>
     <string name="submission_logs_title">Submitting CommCare Logs</string>
-    <string name="remote_form_payload_url"/>
+    <string name="remote_form_payload_url" />
 
     <item name="login_screen_hide_all_cuttoff" type="integer">200</item>
     <item name="login_screen_hide_banner_cuttoff" type="integer">250</item>
@@ -778,7 +778,7 @@
     <string name="login_menu_connect_sign_in">Sign up for ConnectID</string>
     <string name="login_menu_connect_sign_out">Sign out of ConnectID</string>
     <string name="login_menu_connect_forget">Forget ConnectID user</string>
-  
+
     <string name="connect_app_install_unknown_error">App install failed due to an unknown error</string>
     <string name="connect_app_installed">App installed</string>
     <string name="app_with_id_not_found">Required CommCare App is not installed on device</string>
