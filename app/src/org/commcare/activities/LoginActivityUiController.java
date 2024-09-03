@@ -150,7 +150,6 @@ public class LoginActivityUiController implements CommCareActivityUIController {
         setBannerLayoutLogic();
 
         connectLoginButton.setOnClickListener(arg0 -> activity.handleConnectButtonPress());
-
         loginButton.setOnClickListener(arg0 -> {
             FirebaseAnalyticsUtil.reportLoginClicks();
             activity.initiateLoginAttempt(isRestoreSessionChecked());
@@ -165,7 +164,7 @@ public class LoginActivityUiController implements CommCareActivityUIController {
         });
 
         passwordOrPin.setOnFocusChangeListener((v, hasFocus) -> {
-            if(hasFocus) {
+            if (hasFocus) {
                 setConnectIdLoginState(false);
             }
         });
@@ -224,7 +223,7 @@ public class LoginActivityUiController implements CommCareActivityUIController {
         ApplicationRecord presetAppRecord = getPresetAppRecord(readyApps);
         boolean noApps = readyApps.isEmpty();
         setLoginInputsVisibility(!noApps);
-        if (!ConnectManager.isConnectIdIntroduced() && (readyApps.size() == 1 || presetAppRecord != null)) {
+        if (!ConnectManager.isConnectIdConfigured() && (readyApps.size() == 1 || presetAppRecord != null)) {
             setLoginInputsVisibility(true);
 
             // Set this app as the last selected app, for use in choosing what app to initialize
@@ -269,7 +268,7 @@ public class LoginActivityUiController implements CommCareActivityUIController {
     public void updateConnectLoginState() {
         setConnectButtonVisible(ConnectManager.shouldShowConnectButton());
 
-        if (ConnectManager.isConnectIdIntroduced()) {
+        if (ConnectManager.isConnectIdConfigured()) {
             String welcomeText = activity.getString(R.string.login_welcome_connect_signed_in,
                     ConnectDatabaseHelper.getUser(activity).getName());
 
@@ -532,20 +531,21 @@ public class LoginActivityUiController implements CommCareActivityUIController {
         passwordOrPin.setText(s);
     }
 
-    protected boolean loginManagedByConnectId() { return loginManagedByConnectId; }
+    protected boolean loginManagedByConnectId() {
+        return loginManagedByConnectId;
+    }
 
     protected void setConnectIdLoginState(boolean useConnectId) {
-        if(!useConnectId && loginManagedByConnectId) {
+        if (!useConnectId && loginManagedByConnectId) {
             setPasswordOrPin("");
         }
 
-        loginManagedByConnectId  = useConnectId;
+        loginManagedByConnectId = useConnectId;
 
         String text;
-        if(useConnectId) {
+        if (useConnectId) {
             text = activity.getString(R.string.login_button_connectid);
-        }
-        else {
+        } else {
             text = Localization.get("login.button");
         }
         loginButton.setText(text);
@@ -555,9 +555,8 @@ public class LoginActivityUiController implements CommCareActivityUIController {
          * the strings should be translate correctly when they return to the app. That's why I added this code.
          */
         connectLoginButton.setText(activity.getString(R.string.connect_button_logged_in));
-
         passwordOrPin.setBackgroundColor(getResources().getColor(useConnectId ? R.color.grey_light : R.color.white));
-        if(useConnectId) {
+        if (useConnectId) {
             passwordOrPin.setText(R.string.login_password_by_connect);
             passwordOrPin.clearFocus();
         }

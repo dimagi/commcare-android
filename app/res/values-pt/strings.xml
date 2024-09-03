@@ -447,4 +447,6 @@
     <string name="user_suspended">O usuário está suspenso. Entre em contato com admin.</string>
     <string name="select_phone_number">Selecione o número de telefone</string>
     <string name="connect_job_list_api_failure">Ocorreu um erro ao ligar ao servidor.</string>
+    <string name="connect_payment_acknowledge_notification_yes">Sim</string>
+    <string name="connect_payment_acknowledge_notification_no">Não</string>
 </resources>

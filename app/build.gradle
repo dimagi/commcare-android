@@ -88,7 +88,6 @@ dependencies {
     implementation 'com.google.android.gms:play-services-identity:18.1.0'
     implementation 'com.google.android.gms:play-services-base:18.5.0'
 
-
     implementation('org.apache.james:apache-mime4j:0.7.2') {
         exclude module: 'commons-io'
     }
@@ -297,11 +296,10 @@ android {
         buildConfigField 'String', 'ANALYTICS_TRACKING_ID_DEV', "\"${project.ext.ANALYTICS_TRACKING_ID_DEV}\""
         buildConfigField 'String', 'MAPBOX_SDK_API_KEY', "\"${project.ext.MAPBOX_SDK_API_KEY}\""
 
-        buildConfigField 'String', 'HQ_API_USERNAME', "\"${project.ext.HQ_API_USERNAME}\""
-        buildConfigField 'String', 'HQ_API_PASSWORD', "\"${project.ext.HQ_API_PASSWORD}\""
-        buildConfigField 'String', 'FIREBASE_DATABASE_URL', "\"${project.ext.FIREBASE_DATABASE_URL}\""
+        buildConfigField "String", "FIREBASE_DATABASE_URL", "\"${project.ext.FIREBASE_DATABASE_URL}\""
 
         buildConfigField 'String', 'CCC_HOST', "\"connect.dimagi.com\""
+
         testInstrumentationRunner 'org.commcare.CommCareJUnitRunner'
     }
 
@@ -576,6 +574,10 @@ tasks.whenTaskAdded { task ->
             task.name == 'processStandaloneReleaseResources')
             && "true" == isConsumerApp && "true" == runDownloadScripts) {
         task.dependsOn downloadRestoreFile
+    }
+    if (task.name == 'assembleCommcareReleaseAndroidTest' || task.name == 'assembleCommcareDebugAndroidTest') {
+        android.defaultConfig.buildConfigField "String", "HQ_API_USERNAME", "\"${project.ext.HQ_API_USERNAME}\""
+        android.defaultConfig.buildConfigField "String", "HQ_API_PASSWORD", "\"${project.ext.HQ_API_PASSWORD}\""
     }
 }
 

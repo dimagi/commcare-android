@@ -21,8 +21,8 @@ import com.google.firebase.analytics.FirebaseAnalytics;
 
 import org.commcare.CommCareApplication;
 import org.commcare.DiskUtils;
-import org.commcare.android.logging.ReportingUtils;
 import org.commcare.connect.ConnectManager;
+import org.commcare.android.logging.ReportingUtils;
 import org.commcare.preferences.MainConfigurablePreferences;
 import org.commcare.suite.model.OfflineUserRestore;
 import org.commcare.utils.EncryptionUtils;
@@ -96,7 +96,7 @@ public class FirebaseAnalyticsUtil {
         }
 
         analyticsInstance.setUserProperty(CCAnalyticsParam.CCC_ENABLED,
-                String.valueOf(ConnectManager.isConnectIdIntroduced()));
+                String.valueOf(ConnectManager.isConnectIdConfigured()));
     }
 
     private static String getFreeDiskBucket() {
@@ -369,6 +369,12 @@ public class FirebaseAnalyticsUtil {
         reportEvent(CCAnalyticsEvent.CCC_LAUNCH_APP,
                 new String[]{CCAnalyticsEvent.PARAM_CCC_LAUNCH_APP_TYPE, CCAnalyticsEvent.PARAM_CCC_APP_NAME},
                 new String[]{type, appId});
+    }
+
+    public static void reportCccAppAutoLoginWithLocalPassphrase(String app) {
+        reportEvent(CCAnalyticsEvent.CCC_AUTO_LOGIN_LOCAL_PASSPHRASE,
+                new String[]{CCAnalyticsEvent.PARAM_CCC_APP_NAME},
+                new String[]{app});
     }
 
     public static void reportCccAppFailedAutoLogin(String app) {

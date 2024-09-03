@@ -178,8 +178,6 @@ public class ConnectIdPhoneVerificationFragmnet extends Fragment {
 
             binding.connectPhoneVerifyCode.setText(matcher.group(0));
         }
-
-
     }
 
     @Override

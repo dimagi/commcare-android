@@ -447,7 +447,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                 }
                 break;
             default:
-                ConnectManager.handleFinishedActivity(requestCode, resultCode, data);
+                ConnectManager.handleFinishedActivity(this, requestCode, resultCode, data);
                 return;
 
         }
@@ -515,7 +515,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
-        
+
         MenuItem item = menu.findItem(MENU_CONNECT_SIGN_IN);
         if(item != null) {
             item.setVisible(!fromManager && !fromExternal && ConnectManager.shouldShowSignInMenuOption());
@@ -665,7 +665,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     }
 
     private void updateConnectButton() {
-        installFragment.updateConnectButton(!fromManager && !fromExternal && ConnectManager.isConnectIdIntroduced(), v -> {
+        installFragment.updateConnectButton(!fromManager && !fromExternal && ConnectManager.isConnectIdConfigured(), v -> {
             if (BiometricsHelper.isFingerprintConfigured(this, ConnectManager.getBiometricManager(this))) {
                 ConnectManager.performFingerprintUnlock(this);
             } else if (BiometricsHelper.isPinConfigured(this, ConnectManager.getBiometricManager(this))) {

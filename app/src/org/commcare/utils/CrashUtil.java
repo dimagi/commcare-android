@@ -8,7 +8,6 @@ import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 /**
  * Contains constants and methods used in Crashlytics reporting.
- *
  * Created by shubham on 8/09/17.
  */
 public class CrashUtil {
@@ -51,7 +50,7 @@ public class CrashUtil {
     }
 
     public static void registerConnectUser() {
-        if (crashlyticsEnabled && ConnectManager.isConnectIdIntroduced()) {
+        if (crashlyticsEnabled && ConnectManager.isConnectIdConfigured()) {
             FirebaseCrashlytics.getInstance().setCustomKey(CCC_USER, ConnectManager.getUser(CommCareApplication.instance()).getUserId());
         }
     }

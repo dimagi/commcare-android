@@ -90,6 +90,7 @@ public class ResourceInstallUtils {
 
                     @Override
                     protected void deliverError(ResourceEngineListener receiver, Exception e) {
+                        Logger.exception("Unknown error while app install", e);
                         receiver.failUnknown(AppInstallStatus.UnknownFailure);
                     }
                 };
@@ -319,7 +320,6 @@ public class ResourceInstallUtils {
     }
 
     public static void logInstallError(Exception e, String logMessage) {
-        e.printStackTrace();
         Logger.exception(logMessage, e);
     }
 

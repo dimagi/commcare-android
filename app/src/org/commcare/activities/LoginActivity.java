@@ -372,7 +372,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
         }
         else {
-            ConnectManager.handleFinishedActivity(requestCode, resultCode, intent);
+            ConnectManager.handleFinishedActivity(this, requestCode, resultCode, intent);
         }
 
         super.onActivityResult(requestCode, resultCode, intent);
@@ -401,7 +401,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
     private String getUniformUsername() {
         String username = uiController.getEnteredUsername();
-        if (ConnectManager.isConnectIdIntroduced() && appLaunchedFromConnect) {
+        if (ConnectManager.isConnectIdConfigured() && appLaunchedFromConnect) {
             username = ConnectManager.getUser(this).getUserId();
         }
         return username.toLowerCase().trim();
@@ -415,7 +415,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                 blockRemoteKeyManagement, DataPullMode.NORMAL);
     }
 
-    private boolean tryLocalLogin(String username, String passwordOrPin,
+    private boolean tryLocalLogin(final String username, String passwordOrPin,
                                   final boolean warnMultipleAccounts, final boolean restoreSession,
                                   LoginMode loginMode, boolean blockRemoteKeyManagement,
                                   DataPullMode pullModeToUse) {
@@ -504,7 +504,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     }
 
     public boolean handleConnectSignIn() {
-        if(ConnectManager.isConnectIdIntroduced()) {
+        if(ConnectManager.isConnectIdConfigured()) {
             ConnectManager.completeSignin();
             String appId = CommCareApplication.instance().getCurrentApp().getUniqueId();
             ConnectJobRecord job = ConnectManager.setConnectJobForApp(this, appId);
@@ -549,7 +549,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
     private void checkForSavedCredentials() {
         boolean loginWithConnectIDVisible = false;
-        if (ConnectManager.isConnectIdIntroduced()) {
+        if (ConnectManager.isConnectIdConfigured()) {
             if (appLaunchedFromConnect && !connectLaunchPerformed) {
                 loginWithConnectIDVisible = true;
                 uiController.setConnectButtonVisible(false);
@@ -737,7 +737,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
         appIdDropdownList.clear();
 
-        boolean includeConnect = ConnectManager.isConnectIdIntroduced();
+        boolean includeConnect = ConnectManager.isConnectIdConfigured();
         if (includeConnect) {
             appNames.add(Localization.get("login.app.connect"));
             appIdDropdownList.add("");
@@ -761,7 +761,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     }
 
     private boolean isConnectJobsSelected() {
-        return ConnectManager.isConnectIdIntroduced() && uiController.getSelectedAppIndex() == 0;
+        return ConnectManager.isConnectIdConfigured() && uiController.getSelectedAppIndex() == 0;
     }
 
     @Override

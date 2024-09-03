@@ -41,4 +41,3 @@ public class SMSBroadcastReceiver extends BroadcastReceiver {
     }
 
 }
-
