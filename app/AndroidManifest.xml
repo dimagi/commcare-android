@@ -169,17 +169,6 @@
         <activity android:name="org.commcare.activities.RootMenuHomeActivity" />
         <activity android:name="org.commcare.activities.MenuActivity" />
 
-        <activity android:name="org.commcare.activities.connect.ConnectIdRecoveryDecisionActivity"/>
-        <activity android:name="org.commcare.activities.connect.ConnectIdBiometricUnlockActivity"/>
-        <activity android:name="org.commcare.activities.connect.ConnectIdConsentActivity"/>
-        <activity android:name="org.commcare.activities.connect.ConnectIdPhoneActivity"/>
-        <activity android:name="org.commcare.activities.connect.ConnectIdRegistrationActivity"/>
-        <activity android:name="org.commcare.activities.connect.ConnectIdPasswordActivity"/>
-        <activity android:name="org.commcare.activities.connect.ConnectIdPasswordVerificationActivity"/>
-        <activity android:name="org.commcare.activities.connect.ConnectIdBiometricConfigActivity"/>
-        <activity android:name="org.commcare.activities.connect.ConnectIdPhoneVerificationActivity"/>
-        <activity android:name="org.commcare.activities.connect.ConnectIdMessageActivity"/>
-        <activity android:name="org.commcare.activities.connect.ConnectIdPinActivity"/>
         <activity
             android:name="org.commcare.activities.connect.ConnectActivity"
             android:exported="true"></activity>

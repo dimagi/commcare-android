@@ -8,13 +8,13 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectPaymentUnitRecord;
+import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.connect.ConnectDatabaseHelper;
 import org.commcare.connect.ConnectManager;
-import org.commcare.connect.network.ConnectNetworkHelper;
-import org.commcare.android.database.connect.models.ConnectJobRecord;
-import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.connect.network.ApiConnect;
+import org.commcare.connect.network.ConnectNetworkHelper;
 import org.commcare.connect.network.IApiCallback;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
@@ -22,7 +22,6 @@ import org.commcare.utils.MultipleAppsUtil;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Date;
 
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavDirections;

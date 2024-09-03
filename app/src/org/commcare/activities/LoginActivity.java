@@ -16,23 +16,15 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
-import androidx.core.app.ActivityCompat;
-import androidx.core.util.Pair;
-import androidx.preference.PreferenceManager;
-import androidx.work.WorkManager;
-
 import com.scottyab.rootbeer.RootBeer;
-
-import java.util.ArrayList;
-import java.util.Date;
 
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
-import org.commcare.android.database.connect.models.ConnectJobRecord;
-import org.commcare.connect.ConnectManager;
 import org.commcare.android.database.app.models.UserKeyRecord;
+import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
+import org.commcare.connect.ConnectConstants;
+import org.commcare.connect.ConnectManager;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.engine.resource.AppInstallStatus;
@@ -51,6 +43,7 @@ import org.commcare.tasks.InstallStagedUpdateTask;
 import org.commcare.tasks.ManageKeyRecordTask;
 import org.commcare.tasks.PullTaskResultReceiver;
 import org.commcare.tasks.ResultAndError;
+import org.commcare.utils.BiometricsHelper;
 import org.commcare.utils.ConsumerAppsUtil;
 import org.commcare.utils.CrashUtil;
 import org.commcare.utils.Permissions;
@@ -66,6 +59,19 @@ import org.commcare.views.notifications.NotificationMessageFactory;
 import org.commcare.views.notifications.NotificationMessageFactory.StockMessages;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
+
+import java.util.ArrayList;
+import java.util.Date;
+
+import androidx.annotation.NonNull;
+import androidx.biometric.BiometricManager;
+import androidx.biometric.BiometricPrompt;
+import androidx.core.app.ActivityCompat;
+import androidx.core.util.Pair;
+import androidx.preference.PreferenceManager;
+import androidx.work.WorkManager;
+
+import static org.commcare.connect.ConnectManager.allowPassword;
 
 /**
  * @author ctsims
@@ -131,7 +137,6 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
         ConnectManager.init(this);
         uiController.updateConnectLoginState();
-
         presetAppId = getIntent().getStringExtra(EXTRA_APP_ID);
         appLaunchedFromConnect = ConnectManager.wasAppLaunchedFromConnect(presetAppId);
         connectLaunchPerformed = false;
@@ -204,7 +209,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
      */
     protected void initiateLoginAttempt(boolean restoreSession) {
         if(isConnectJobsSelected()) {
-            ConnectManager.unlockConnect(this, success -> {
+            ConnectManager.launchConnect(this,ConnectConstants.UNLOCK_CONNECT ,success -> {
                 if(success) {
                     ConnectManager.goToConnectJobsList();
                 }
@@ -217,7 +222,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
             String username = uiController.getEnteredUsername();
 
             if(!appLaunchedFromConnect && uiController.loginManagedByConnectId()) {
-                ConnectManager.unlockConnect(this, success -> {
+                ConnectManager.launchConnect(this, ConnectConstants.UNLOCK_CONNECT,success -> {
                     if(success) {
                         String pass = ConnectManager.getStoredPasswordForApp(seatedAppId, username);
                         doLogin(loginMode, restoreSession, pass);
@@ -359,7 +364,14 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
             uiController.refreshForNewApp();
             invalidateOptionsMenu();
             usernameBeforeRotation = passwordOrPinBeforeRotation = null;
-        } else {
+        }
+        else if(requestCode == ConnectConstants.CONNECT_UNLOCK_PIN) {
+            setResult(RESULT_OK);
+            ConnectManager.goToConnectJobsList();
+            finish();
+
+        }
+        else {
             ConnectManager.handleFinishedActivity(this, requestCode, resultCode, intent);
         }
 
@@ -471,17 +483,29 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
     public void handleConnectButtonPress() {
         selectedAppIndex = -1;
-        ConnectManager.unlockConnect(this, success -> {
-            if(success) {
-                ConnectManager.goToConnectJobsList();
-                setResult(RESULT_OK);
-                finish();
-            }
-        });
+        if (BiometricsHelper.isFingerprintConfigured(this, ConnectManager.getBiometricManager(this))) {
+            ConnectManager.performFingerprintUnlock(this);
+        } else if (BiometricsHelper.isPinConfigured(this, ConnectManager.getBiometricManager(this))) {
+            ConnectManager.performPinUnlock(this);
+        } else if (allowPassword) {
+            ConnectManager.performPasswordUnlock();
+        } else {
+            ConnectManager.goToConnectJobsList();
+            Logger.exception("No unlock method available when trying to unlock ConnectID", new Exception("No unlock option"));
+        }
+
+//        ConnectManager.unlockConnect(this, success -> {
+//            if(success) {
+//                ConnectManager.goToConnectJobsList();
+//                setResult(RESULT_OK);
+//                finish();
+//            }
+//        });
     }
 
     public boolean handleConnectSignIn() {
         if(ConnectManager.isConnectIdConfigured()) {
+            ConnectManager.completeSignin();
             String appId = CommCareApplication.instance().getCurrentApp().getUniqueId();
             ConnectJobRecord job = ConnectManager.setConnectJobForApp(this, appId);
             if(job != null) {
@@ -518,7 +542,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
     public void registerConnectIdUser() {
         selectedAppIndex = -1;
-        ConnectManager.registerUser(this, success -> {
+        ConnectManager.launchConnect(this, ConnectConstants.BEGIN_REGISTRATION, success -> {
             //Do nothing, just return to login page
         });
     }
