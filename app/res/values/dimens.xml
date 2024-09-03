@@ -35,7 +35,7 @@
     <dimen name="list_icon_bounding_dimen">60dp</dimen>
     <dimen name="list_grid_bounding_dimension">180dp</dimen>
 
-    <dimen name="numeric_badge_width_for_list">20dp</dimen>
+    <dimen name="numeric_badge_width_for_list">28dp</dimen>
     <dimen name="numeric_badge_font_size_list">10dp</dimen>
 
     <dimen name="menu_grid_icon_size">120dp</dimen>

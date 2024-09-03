@@ -302,4 +302,3 @@ public class ConnectIdPinActivity extends CommCareActivity<ConnectIdPinActivity>
         FirebaseAnalyticsUtil.reportCccRecovery(success, AnalyticsParamValue.CCC_RECOVERY_METHOD_PIN);
     }
 }
-

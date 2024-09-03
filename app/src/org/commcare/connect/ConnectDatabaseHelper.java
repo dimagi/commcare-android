@@ -52,7 +52,7 @@ public class ConnectDatabaseHelper {
         try {
             String localPassphrase = getConnectDbEncodedPassphrase(context, true);
 
-            if(!remotePassphrase.equals(localPassphrase)) {
+            if (!remotePassphrase.equals(localPassphrase)) {
                 DatabaseConnectOpenHelper.rekeyDB(connectDatabase, remotePassphrase);
                 storeConnectDbPassphrase(context, remotePassphrase, true);
             }
@@ -65,7 +65,7 @@ public class ConnectDatabaseHelper {
     private static byte[] getConnectDbPassphrase(Context context) {
         try {
             ConnectKeyRecord record = getKeyRecord(true);
-            if(record != null) {
+            if (record != null) {
                 return EncryptionUtils.decryptFromBase64String(context, record.getEncryptedPassphrase());
             }
 
@@ -83,10 +83,10 @@ public class ConnectDatabaseHelper {
     public static String getConnectDbEncodedPassphrase(Context context, boolean local) {
         try {
             ConnectKeyRecord record = getKeyRecord(local);
-            if(record != null) {
+            if (record != null) {
                 return Base64.encode(EncryptionUtils.decryptFromBase64String(context, record.getEncryptedPassphrase()));
             }
-        } catch(Exception e) {
+        } catch (Exception e) {
             Logger.exception("Getting DB passphrase", e);
         }
 
@@ -107,7 +107,7 @@ public class ConnectDatabaseHelper {
         try {
             byte[] bytes = Base64.decode(base64EncodedPassphrase);
             storeConnectDbPassphrase(context, bytes, isLocal);
-        } catch(Exception e) {
+        } catch (Exception e) {
             Logger.exception("Encoding DB passphrase to Base64", e);
             throw new RuntimeException(e);
         }
@@ -118,14 +118,14 @@ public class ConnectDatabaseHelper {
             String encoded = EncryptionUtils.encryptToBase64String(context, passphrase);
 
             ConnectKeyRecord record = getKeyRecord(isLocal);
-            if(record == null) {
+            if (record == null) {
                 record = new ConnectKeyRecord(encoded, isLocal);
             } else {
                 record.setEncryptedPassphrase(encoded);
             }
 
             CommCareApplication.instance().getGlobalStorage(ConnectKeyRecord.class).write(record);
-        } catch(Exception e) {
+        } catch (Exception e) {
             Logger.exception("Storing DB passphrase", e);
             throw new RuntimeException(e);
         }
@@ -152,14 +152,14 @@ public class ConnectDatabaseHelper {
 
                             String remotePassphrase = getConnectDbEncodedPassphrase(context, false);
                             String localPassphrase = getConnectDbEncodedPassphrase(context, true);
-                            if(remotePassphrase != null && remotePassphrase.equals(localPassphrase)) {
+                            if (remotePassphrase != null && remotePassphrase.equals(localPassphrase)) {
                                 //Using the UserSandboxUtils helper method to align with other code
                                 connectDatabase = helper.getWritableDatabase(UserSandboxUtils.getSqlCipherEncodedKey(passphrase));
                             } else {
                                 //LEGACY: Used to open the DB using the byte[], not String overload
                                 connectDatabase = helper.getWritableDatabase(passphrase);
                             }
-                        } catch(Exception e) {
+                        } catch (Exception e) {
                             //Flag the DB as broken if we hit an error opening it (usually means corrupted or bad encryption)
                             dbBroken = true;
                             Logger.log("DB ERROR", "Connect DB is corrupt");
@@ -187,13 +187,13 @@ public class ConnectDatabaseHelper {
 
     public static ConnectUserRecord getUser(Context context) {
         ConnectUserRecord user = null;
-        if(dbExists(context)) {
+        if (dbExists(context)) {
             try {
                 for (ConnectUserRecord r : getConnectStorage(context, ConnectUserRecord.class)) {
                     user = r;
                     break;
                 }
-            } catch(Exception e) {
+            } catch (Exception e) {
                 dbBroken = true;
             }
         }
@@ -235,7 +235,7 @@ public class ConnectDatabaseHelper {
         record.setConnectIdLinked(connectIdLinked);
         record.setIsUsingLocalPassphrase(localPassphrase);
 
-        if(workerLinked) {
+        if (workerLinked) {
             //If passed in false, we'll leave the setting unchanged
             record.setWorkerLinked(true);
         }
@@ -270,8 +270,8 @@ public class ConnectDatabaseHelper {
 
     public static Date getLastJobsUpdate(Context context) {
         Date lastDate = null;
-        for(ConnectJobRecord job : getJobs(context, -1, null)) {
-            if(lastDate == null || lastDate.before(job.getLastUpdate())) {
+        for (ConnectJobRecord job : getJobs(context, -1, null)) {
+            if (lastDate == null || lastDate.before(job.getLastUpdate())) {
                 lastDate = job.getLastUpdate();
             }
         }
@@ -290,7 +290,7 @@ public class ConnectDatabaseHelper {
                         new String[]{ConnectJobRecord.META_JOB_ID},
                         new Object[]{job.getJobId()});
 
-        if(existingJobs.size() > 0) {
+        if (existingJobs.size() > 0) {
             ConnectJobRecord existing = existingJobs.get(0);
             existing.setComletedLearningModules(job.getCompletedLearningModules());
             existing.setLastUpdate(new Date());
@@ -327,14 +327,14 @@ public class ConnectDatabaseHelper {
         for (ConnectJobRecord existing : existingList) {
             boolean stillExists = false;
             for (ConnectJobRecord incoming : jobs) {
-                if(existing.getJobId() == incoming.getJobId()) {
+                if (existing.getJobId() == incoming.getJobId()) {
                     incoming.setID(existing.getID());
                     stillExists = true;
                     break;
                 }
             }
 
-            if(!stillExists && pruneMissing) {
+            if (!stillExists && pruneMissing) {
                 //Mark the job, learn/deliver app infos, and learn module infos for deletion
                 //Remember their IDs so we can delete them all at once after the loop
                 jobIdsToDelete.add(existing.getID());
@@ -342,17 +342,17 @@ public class ConnectDatabaseHelper {
                 appInfoIdsToDelete.add(existing.getLearnAppInfo().getID());
                 appInfoIdsToDelete.add(existing.getDeliveryAppInfo().getID());
 
-                for(ConnectLearnModuleSummaryRecord module : existing.getLearnAppInfo().getLearnModules()) {
+                for (ConnectLearnModuleSummaryRecord module : existing.getLearnAppInfo().getLearnModules()) {
                     moduleIdsToDelete.add(module.getID());
                 }
 
-                for(ConnectPaymentUnitRecord record : existing.getPaymentUnits()) {
+                for (ConnectPaymentUnitRecord record : existing.getPaymentUnits()) {
                     paymentUnitIdsToDelete.add(record.getID());
                 }
             }
         }
 
-        if(pruneMissing) {
+        if (pruneMissing) {
             jobStorage.removeAll(jobIdsToDelete);
             appInfoStorage.removeAll(appInfoIdsToDelete);
             moduleStorage.removeAll(moduleIdsToDelete);
@@ -364,7 +364,7 @@ public class ConnectDatabaseHelper {
         for (ConnectJobRecord incomingJob : jobs) {
             incomingJob.setLastUpdate(new Date());
 
-            if(incomingJob.getID() <= 0) {
+            if (incomingJob.getID() <= 0) {
                 newJobs++;
                 if (incomingJob.getStatus() == ConnectJobRecord.STATUS_AVAILABLE) {
                     incomingJob.setStatus(ConnectJobRecord.STATUS_AVAILABLE_NEW);
@@ -378,10 +378,10 @@ public class ConnectDatabaseHelper {
             incomingJob.getLearnAppInfo().setJobId(incomingJob.getJobId());
             incomingJob.getDeliveryAppInfo().setJobId(incomingJob.getJobId());
             Vector<ConnectAppRecord> records = appInfoStorage.getRecordsForValues(
-                            new String[]{ConnectAppRecord.META_JOB_ID},
-                            new Object[]{incomingJob.getJobId()});
+                    new String[]{ConnectAppRecord.META_JOB_ID},
+                    new Object[]{incomingJob.getJobId()});
 
-            for(ConnectAppRecord existing : records) {
+            for (ConnectAppRecord existing : records) {
                 ConnectAppRecord incomingAppInfo = existing.getIsLearning() ? incomingJob.getLearnAppInfo() : incomingJob.getDeliveryAppInfo();
                 incomingAppInfo.setID(existing.getID());
             }
@@ -403,7 +403,7 @@ public class ConnectDatabaseHelper {
                             new Object[]{incomingJob.getJobId()});
             for (ConnectLearnModuleSummaryRecord existing : existingLearnModules) {
                 boolean stillExists = false;
-                if(!foundIndexes.contains(existing.getModuleIndex())) {
+                if (!foundIndexes.contains(existing.getModuleIndex())) {
                     for (ConnectLearnModuleSummaryRecord incoming :
                             incomingJob.getLearnAppInfo().getLearnModules()) {
                         if (Objects.equals(existing.getModuleIndex(), incoming.getModuleIndex())) {
@@ -416,14 +416,14 @@ public class ConnectDatabaseHelper {
                     }
                 }
 
-                if(!stillExists) {
+                if (!stillExists) {
                     moduleIdsToDelete.add(existing.getID());
                 }
             }
 
             moduleStorage.removeAll(moduleIdsToDelete);
 
-            for(ConnectLearnModuleSummaryRecord module : incomingJob.getLearnAppInfo().getLearnModules()) {
+            for (ConnectLearnModuleSummaryRecord module : incomingJob.getLearnAppInfo().getLearnModules()) {
                 module.setJobId(incomingJob.getJobId());
                 module.setLastUpdate(new Date());
                 moduleStorage.write(module);
@@ -441,7 +441,7 @@ public class ConnectDatabaseHelper {
                             new Object[]{incomingJob.getJobId()});
             for (ConnectPaymentUnitRecord existing : existingPaymentUnits) {
                 boolean stillExists = false;
-                if(!foundIndexes.contains(existing.getUnitId())) {
+                if (!foundIndexes.contains(existing.getUnitId())) {
                     for (ConnectPaymentUnitRecord incoming :
                             incomingJob.getPaymentUnits()) {
                         if (Objects.equals(existing.getUnitId(), incoming.getUnitId())) {
@@ -454,14 +454,14 @@ public class ConnectDatabaseHelper {
                     }
                 }
 
-                if(!stillExists) {
+                if (!stillExists) {
                     paymentUnitIdsToDelete.add(existing.getID());
                 }
             }
 
             paymentUnitStorage.removeAll(paymentUnitIdsToDelete);
 
-            for(ConnectPaymentUnitRecord record : incomingJob.getPaymentUnits()) {
+            for (ConnectPaymentUnitRecord record : incomingJob.getPaymentUnits()) {
                 record.setJobId(incomingJob.getJobId());
                 paymentUnitStorage.write(record);
             }
@@ -480,21 +480,21 @@ public class ConnectDatabaseHelper {
         for (ConnectJobLearningRecord existing : existingList) {
             boolean stillExists = false;
             for (ConnectJobLearningRecord incoming : learnings) {
-                if(existing.getModuleId() == incoming.getModuleId() && existing.getDate().equals(incoming.getDate())) {
+                if (existing.getModuleId() == incoming.getModuleId() && existing.getDate().equals(incoming.getDate())) {
                     incoming.setID(existing.getID());
                     stillExists = true;
                     break;
                 }
             }
 
-            if(!stillExists && pruneMissing) {
+            if (!stillExists && pruneMissing) {
                 //Mark the record for deletion
                 //Remember the ID so we can delete them all at once after the loop
                 recordIdsToDelete.add(existing.getID());
             }
         }
 
-        if(pruneMissing) {
+        if (pruneMissing) {
             storage.removeAll(recordIdsToDelete);
         }
 
@@ -517,21 +517,21 @@ public class ConnectDatabaseHelper {
         for (ConnectJobAssessmentRecord existing : existingList) {
             boolean stillExists = false;
             for (ConnectJobAssessmentRecord incoming : assessments) {
-                if(existing.getScore() == incoming.getScore() && existing.getDate().equals(incoming.getDate())) {
+                if (existing.getScore() == incoming.getScore() && existing.getDate().equals(incoming.getDate())) {
                     incoming.setID(existing.getID());
                     stillExists = true;
                     break;
                 }
             }
 
-            if(!stillExists && pruneMissing) {
+            if (!stillExists && pruneMissing) {
                 //Mark the record for deletion
                 //Remember the ID so we can delete them all at once after the loop
                 recordIdsToDelete.add(existing.getID());
             }
         }
 
-        if(pruneMissing) {
+        if (pruneMissing) {
             storage.removeAll(recordIdsToDelete);
         }
 
@@ -554,21 +554,21 @@ public class ConnectDatabaseHelper {
         for (ConnectJobDeliveryRecord existing : existingList) {
             boolean stillExists = false;
             for (ConnectJobDeliveryRecord incoming : deliveries) {
-                if(existing.getDeliveryId() == incoming.getDeliveryId()) {
+                if (existing.getDeliveryId() == incoming.getDeliveryId()) {
                     incoming.setID(existing.getID());
                     stillExists = true;
                     break;
                 }
             }
 
-            if(!stillExists && pruneMissing) {
+            if (!stillExists && pruneMissing) {
                 //Mark the delivery for deletion
                 //Remember the ID so we can delete them all at once after the loop
                 recordIdsToDelete.add(existing.getID());
             }
         }
 
-        if(pruneMissing) {
+        if (pruneMissing) {
             storage.removeAll(recordIdsToDelete);
         }
 
@@ -596,21 +596,21 @@ public class ConnectDatabaseHelper {
         for (ConnectJobPaymentRecord existing : existingList) {
             boolean stillExists = false;
             for (ConnectJobPaymentRecord incoming : payments) {
-                if(existing.getDate() == incoming.getDate()) {
+                if (existing.getDate() == incoming.getDate()) {
                     incoming.setID(existing.getID());
                     stillExists = true;
                     break;
                 }
             }
 
-            if(!stillExists && pruneMissing) {
+            if (!stillExists && pruneMissing) {
                 //Mark the delivery for deletion
                 //Remember the ID so we can delete them all at once after the loop
                 recordIdsToDelete.add(existing.getID());
             }
         }
 
-        if(pruneMissing) {
+        if (pruneMissing) {
             storage.removeAll(recordIdsToDelete);
         }
 
@@ -624,13 +624,13 @@ public class ConnectDatabaseHelper {
         Vector<ConnectAppRecord> records = getConnectStorage(context, ConnectAppRecord.class).getRecordsForValues(
                 new String[]{ConnectAppRecord.META_APP_ID},
                 new Object[]{appId});
-        return records.isEmpty() ? null: records.firstElement();
+        return records.isEmpty() ? null : records.firstElement();
     }
 
     public static ConnectJobRecord getJob(Context context, int jobId) {
         Vector<ConnectJobRecord> jobs = getConnectStorage(context, ConnectJobRecord.class).getRecordsForValues(
-                    new String[]{ConnectJobRecord.META_JOB_ID},
-                    new Object[]{jobId});
+                new String[]{ConnectJobRecord.META_JOB_ID},
+                new Object[]{jobId});
 
         populateJobs(context, jobs);
 
@@ -638,12 +638,12 @@ public class ConnectDatabaseHelper {
     }
 
     public static List<ConnectJobRecord> getJobs(Context context, int status, SqlStorage<ConnectJobRecord> jobStorage) {
-        if(jobStorage == null) {
+        if (jobStorage == null) {
             jobStorage = getConnectStorage(context, ConnectJobRecord.class);
         }
 
         Vector<ConnectJobRecord> jobs;
-        if(status > 0) {
+        if (status > 0) {
             jobs = jobStorage.getRecordsForValues(
                     new String[]{ConnectJobRecord.META_STATUS},
                     new Object[]{status});
@@ -664,17 +664,16 @@ public class ConnectDatabaseHelper {
         SqlStorage<ConnectJobLearningRecord> learningStorage = getConnectStorage(context, ConnectJobLearningRecord.class);
         SqlStorage<ConnectJobAssessmentRecord> assessmentStorage = getConnectStorage(context, ConnectJobAssessmentRecord.class);
         SqlStorage<ConnectPaymentUnitRecord> paymentUnitStorage = getConnectStorage(context, ConnectPaymentUnitRecord.class);
-        for(ConnectJobRecord job : jobs) {
+        for (ConnectJobRecord job : jobs) {
             //Retrieve learn and delivery app info
             Vector<ConnectAppRecord> existingAppInfos = appInfoStorage.getRecordsForValues(
                     new String[]{ConnectAppRecord.META_JOB_ID},
                     new Object[]{job.getJobId()});
 
-            for(ConnectAppRecord info : existingAppInfos) {
-                if(info.getIsLearning()) {
+            for (ConnectAppRecord info : existingAppInfos) {
+                if (info.getIsLearning()) {
                     job.setLearnAppInfo(info);
-                }
-                else {
+                } else {
                     job.setDeliveryAppInfo(info);
                 }
             }
@@ -689,10 +688,10 @@ public class ConnectDatabaseHelper {
                 modules.sort(Comparator.comparingInt(ConnectLearnModuleSummaryRecord::getModuleIndex));
             }
             //else {
-                //TODO: Brute force sort
+            //TODO: Brute force sort
             //}
 
-            if(job.getLearnAppInfo() != null) {
+            if (job.getLearnAppInfo() != null) {
                 job.getLearnAppInfo().setLearnModules(modules);
             }
 
@@ -712,13 +711,14 @@ public class ConnectDatabaseHelper {
     public static List<ConnectJobRecord> getAvailableJobs(Context context) {
         return getAvailableJobs(context, null);
     }
+
     public static List<ConnectJobRecord> getAvailableJobs(Context context, SqlStorage<ConnectJobRecord> jobStorage) {
         List<ConnectJobRecord> jobs = getJobs(context, ConnectJobRecord.STATUS_AVAILABLE, jobStorage);
         jobs.addAll(getJobs(context, ConnectJobRecord.STATUS_AVAILABLE_NEW, jobStorage));
 
         List<ConnectJobRecord> filtered = new ArrayList<>();
-        for(ConnectJobRecord record : jobs) {
-            if(!record.isFinished()) {
+        for (ConnectJobRecord record : jobs) {
+            if (!record.isFinished()) {
                 filtered.add(record);
             }
         }
@@ -729,12 +729,13 @@ public class ConnectDatabaseHelper {
     public static List<ConnectJobRecord> getTrainingJobs(Context context) {
         return getTrainingJobs(context, null);
     }
+
     public static List<ConnectJobRecord> getTrainingJobs(Context context, SqlStorage<ConnectJobRecord> jobStorage) {
         List<ConnectJobRecord> jobs = getJobs(context, ConnectJobRecord.STATUS_LEARNING, jobStorage);
 
         List<ConnectJobRecord> filtered = new ArrayList<>();
-        for(ConnectJobRecord record : jobs) {
-            if(!record.isFinished()) {
+        for (ConnectJobRecord record : jobs) {
+            if (!record.isFinished()) {
                 filtered.add(record);
             }
         }
@@ -745,12 +746,13 @@ public class ConnectDatabaseHelper {
     public static List<ConnectJobRecord> getDeliveryJobs(Context context) {
         return getDeliveryJobs(context, null);
     }
+
     public static List<ConnectJobRecord> getDeliveryJobs(Context context, SqlStorage<ConnectJobRecord> jobStorage) {
         List<ConnectJobRecord> jobs = getJobs(context, ConnectJobRecord.STATUS_DELIVERING, jobStorage);
 
         List<ConnectJobRecord> filtered = new ArrayList<>();
-        for(ConnectJobRecord record : jobs) {
-            if(!record.isFinished() && !record.getIsUserSuspended()) {
+        for (ConnectJobRecord record : jobs) {
+            if (!record.isFinished() && !record.getIsUserSuspended()) {
                 filtered.add(record);
             }
         }
@@ -761,12 +763,13 @@ public class ConnectDatabaseHelper {
     public static List<ConnectJobRecord> getFinishedJobs(Context context) {
         return getFinishedJobs(context, null);
     }
+
     public static List<ConnectJobRecord> getFinishedJobs(Context context, SqlStorage<ConnectJobRecord> jobStorage) {
         List<ConnectJobRecord> jobs = getJobs(context, -1, jobStorage);
 
         List<ConnectJobRecord> filtered = new ArrayList<>();
-        for(ConnectJobRecord record : jobs) {
-            if(record.isFinished() || record.getIsUserSuspended()) {
+        for (ConnectJobRecord record : jobs) {
+            if (record.isFinished() || record.getIsUserSuspended()) {
                 filtered.add(record);
             }
         }
@@ -775,7 +778,7 @@ public class ConnectDatabaseHelper {
     }
 
     public static List<ConnectJobDeliveryRecord> getDeliveries(Context context, int jobId, SqlStorage<ConnectJobDeliveryRecord> deliveryStorage) {
-        if(deliveryStorage == null) {
+        if (deliveryStorage == null) {
             deliveryStorage = getConnectStorage(context, ConnectJobDeliveryRecord.class);
         }
 
@@ -787,7 +790,7 @@ public class ConnectDatabaseHelper {
     }
 
     public static List<ConnectJobPaymentRecord> getPayments(Context context, int jobId, SqlStorage<ConnectJobPaymentRecord> paymentStorage) {
-        if(paymentStorage == null) {
+        if (paymentStorage == null) {
             paymentStorage = getConnectStorage(context, ConnectJobPaymentRecord.class);
         }
 
@@ -799,7 +802,7 @@ public class ConnectDatabaseHelper {
     }
 
     public static List<ConnectJobLearningRecord> getLearnings(Context context, int jobId, SqlStorage<ConnectJobLearningRecord> learningStorage) {
-        if(learningStorage == null) {
+        if (learningStorage == null) {
             learningStorage = getConnectStorage(context, ConnectJobLearningRecord.class);
         }
 
@@ -811,7 +814,7 @@ public class ConnectDatabaseHelper {
     }
 
     public static List<ConnectJobAssessmentRecord> getAssessments(Context context, int jobId, SqlStorage<ConnectJobAssessmentRecord> assessmentStorage) {
-        if(assessmentStorage == null) {
+        if (assessmentStorage == null) {
             assessmentStorage = getConnectStorage(context, ConnectJobAssessmentRecord.class);
         }
 

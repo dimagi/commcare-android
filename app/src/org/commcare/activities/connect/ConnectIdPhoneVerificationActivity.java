@@ -98,9 +98,9 @@ public class ConnectIdPhoneVerificationActivity extends CommCareActivity<Connect
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-            if(requestCode == REQ_USER_CONSENT && (resultCode== RESULT_OK) && data != null){
-                String message= data.getStringExtra(SmsRetriever.EXTRA_SMS_MESSAGE);
-                getOtpFromMessage(message);
+        if(requestCode == REQ_USER_CONSENT && (resultCode== RESULT_OK) && data != null){
+            String message= data.getStringExtra(SmsRetriever.EXTRA_SMS_MESSAGE);
+            getOtpFromMessage(message);
 
         }
     }
@@ -123,7 +123,7 @@ public class ConnectIdPhoneVerificationActivity extends CommCareActivity<Connect
         smsBroadcastReceiver.smsListener = new SMSListener() {
             @Override
             public void onSuccess(Intent intent) {
-                    startActivityForResult(intent,REQ_USER_CONSENT);
+                startActivityForResult(intent,REQ_USER_CONSENT);
             }
 
         };
