@@ -85,78 +85,79 @@
 
             </com.google.android.material.textfield.TextInputLayout>
         </LinearLayout>
+
         <LinearLayout
-            android:id="@+id/phone_layout"
-            android:layout_width="match_parent"
-            android:orientation="horizontal"
+            android:id="@+id/confirm_code_layout"
             android:layout_below="@id/name_layout"
-            android:layout_margin="16dp"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:layout_width="match_parent"
+            android:orientation="horizontal">
+
             <ImageView
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:padding="1dp"
-                android:layout_gravity="bottom"
                 android:background="@color/black"
                 android:backgroundTint="@color/connect_light_grey"
-                android:src="@drawable/ic_outline_lock_24"/>
+                android:layout_gravity="bottom"
+                android:layout_height="48dp"
+                android:layout_width="48dp"
+                android:padding="1dp"
+                android:src="@drawable/ic_outline_lock_24" />
+
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/ConfirmCodeTextInput"
-                android:layout_width="match_parent"
-                android:layout_marginStart="16dp"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_width="match_parent"
                 app:passwordToggleEnabled="true">
 
                 <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/ConfirmCodeTextValue"
-                    android:layout_width="match_parent"
-                    android:layout_height="48dp"
                     android:background="@drawable/login_edit_text"
                     android:drawablePadding="5dp"
+                    android:hint="@string/confirm_code"
+                    android:id="@+id/ConfirmCodeTextValue"
                     android:imeOptions="actionNext"
                     android:inputType="textPassword"
-                    android:hint="@string/confirm_code"/>
+                    android:layout_height="48dp"
+                    android:layout_width="match_parent" />
 
             </com.google.android.material.textfield.TextInputLayout>
         </LinearLayout>
 
+
         <org.commcare.views.connect.RoundedButton
-            android:layout_marginBottom="24dp"
-            android:layout_width="120dp"
-            android:text="@string/learn_more"
-            android:layout_marginEnd="16dp"
-            app:roundButtonBorderRadius="@dimen/dp48"
-            android:textColor="@color/connect_blue_color"
-            app:roundButtonIconLeftAlign="false"
+            android:gravity="start|center"
+            android:id="@+id/back_button"
+            android:layout_alignParentLeft="true"
+            android:layout_height="40dp"
+            android:layout_below="@id/confirm_code_layout"
+            android:layout_margin="16dp"
+            android:layout_marginBottom="16dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:layout_width="wrap_content"
+            android:text="Learn More"
+            app:roundButtonBorderColor="@color/border_grey"
+            app:roundButtonBorderVisible="true"
+            app:roundButtonTextColor="@color/connect_blue_color" />
+        <org.commcare.views.connect.RoundedButton
             android:gravity="start|center"
             android:layout_height="40dp"
-            app:roundButtonIconTintColor="@color/connect_blue_color"
-            android:backgroundTint="@color/white"
-            android:layout_below="@+id/phone_layout"
-            app:roundButtonIcon="@drawable/connect_right_arrow"
-            />
-
-        <org.commcare.views.connect.RoundedButton
-            android:layout_width="wrap_content"
-            android:text="@string/review"
+            android:layout_margin="16dp"
             android:layout_alignParentRight="true"
-            android:layout_marginEnd="16dp"
-            app:roundButtonBorderRadius="30dp"
-            android:textColor="@color/white"
-            app:roundButtonIconLeftAlign="false"
-            android:gravity="start|center"
-            app:roundButtonBackgroundColor="@color/white"
-            android:layout_height="wrap_content"
-            app:roundButtonIconTintColor="@color/white"
-            android:backgroundTint="@color/connect_blue_color"
-            android:layout_below="@+id/phone_layout"
-            android:foregroundTint="@color/white"
-            app:roundButtonIcon="@drawable/connect_right_arrow"
-            />
-
-        <org.commcare.views.connect.RoundedButton
+            android:id="@+id/recover_button"
+            android:layout_below="@id/confirm_code_layout"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            android:text="Continue"
+            app:roundButtonTextColor="@color/white"
+            app:roundButtonBackgroundColor="@color/connect_blue_color"
+            app:roundButtonBorderRadius="@dimen/dp48"
+            app:roundButtonIcon="@drawable/connect_right_arrow"
+            app:roundButtonIconLeftAlign="false"/>
+
+
 
     </RelativeLayout>
 

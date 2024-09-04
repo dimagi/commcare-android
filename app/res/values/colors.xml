@@ -152,7 +152,9 @@
     <color name="connect_dark_blue_color">#3942C7</color>
     <color name="connect_blue_color">#3A42C7</color>
     <color name="connect_yellowish_orange_color">#F3B34D</color>
-    <color name="connect_light_grey">#D9D9D9</color>
+    <color name="connect_light_grey">#E5E7EB</color>
     <color name="connect_subtext">#080B3F</color>
     <color name="connect_secondary_text">#6B7280</color>
+    <color name="connect_warning_color">#EA6944</color>
+    <color name="connect_subtext_80">#50080B3F</color>
 </resources>

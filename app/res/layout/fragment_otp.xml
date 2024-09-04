@@ -2,6 +2,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_height="match_parent"
     android:layout_width="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context="org.commcare.fragments.newConnectId.PhoneFragment">
 
     <RelativeLayout
@@ -154,6 +155,21 @@
             android:textFontWeight="500"
             android:fontFamily="@font/roboto_medium"
             android:textColor="@android:color/holo_blue_dark" />
+
+        <org.commcare.views.connect.RoundedButton
+            android:gravity="start|center"
+            android:layout_alignParentRight="true"
+            android:layout_below="@+id/timer_text"
+            android:layout_height="40dp"
+            android:layout_margin="16dp"
+            android:layout_width="wrap_content"
+            android:text="Resend OTP"
+            app:roundButtonTextColor="@color/white"
+            app:roundButtonBackgroundColor="@color/connect_blue_color"
+            app:roundButtonBorderRadius="@dimen/dp48"
+            app:roundButtonIcon="@drawable/ic_refresh_white"
+            app:roundButtonIconTintColor="@color/white"
+            app:roundButtonIconLeftAlign="false"/>
 
     </RelativeLayout>
 
